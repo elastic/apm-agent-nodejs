@@ -1,7 +1,7 @@
 {
   "name": "opbeat",
   "description": "A standalone (Node.js) client for Opbeat",
-  "keywords": ["opbeat", "logging", "errors"],
+  "keywords": ["opbeat", "log", "logging", "error", "errors", "exceptions", "monitor", "monitoring", "alerts", "performance"],
   "version": "0.1.0",
   "repository": "git://github.com/watson/opbeat-node.git",
   "author": "Thomas Watson Steen <w@tson.dk>",
