@@ -1,29 +1,17 @@
-var raven = require('../');
-raven.parsers = require('../lib/parsers');
+var opbeat = require('../');
+opbeat.parsers = require('../lib/parsers');
 
-describe('raven.parsers', function(){
+describe('opbeat.parsers', function(){
   describe('#parseText()', function(){
     it('should parse some text without kwargs', function(){
-      var parsed = raven.parsers.parseText('Howdy');
+      var parsed = opbeat.parsers.parseText('Howdy');
       parsed['message'].should.equal('Howdy');
     });
 
     it('should parse some text with kwargs', function(){
-      var parsed = raven.parsers.parseText('Howdy', {'foo': 'bar'});
+      var parsed = opbeat.parsers.parseText('Howdy', {'foo': 'bar'});
       parsed['message'].should.equal('Howdy');
       parsed['foo'].should.equal('bar');
-    });
-  });
-
-  describe('#parseQuery()', function(){
-    it('should parse a query', function(){
-      var query = 'SELECT * FROM `something`';
-      var engine = 'mysql';
-      var parsed = raven.parsers.parseQuery(query, engine);
-      parsed['message'].should.equal('SELECT * FROM `something`');
-      parsed.should.have.property('sentry.interfaces.Query');
-      parsed['sentry.interfaces.Query'].query.should.equal('SELECT * FROM `something`');
-      parsed['sentry.interfaces.Query'].engine.should.equal('mysql');
     });
   });
 
@@ -41,46 +29,46 @@ describe('raven.parsers', function(){
           encrypted: true
         }
       };
-      var parsed = raven.parsers.parseRequest(mockReq);
-      parsed.should.have.property('sentry.interfaces.Http');
-      parsed['sentry.interfaces.Http'].url.should.equal('https://mattrobenolt.com/some/path?key=value');
-      parsed['sentry.interfaces.Http'].env.NODE_ENV.should.equal(process.env.NODE_ENV);
+      var parsed = opbeat.parsers.parseRequest(mockReq);
+      parsed.should.have.property('http');
+      parsed['http'].url.should.equal('https://mattrobenolt.com/some/path?key=value');
+      parsed['http'].env.NODE_ENV.should.equal(process.env.NODE_ENV);
     });
   });
 
   describe('#parseError()', function(){
     it('should parse plain Error object', function(done){
-      raven.parsers.parseError(new Error(), {}, function(parsed){
+      opbeat.parsers.parseError(new Error(), {}, function(parsed){
         parsed['message'].should.equal('Error: <no message>');
-        parsed.should.have.property('sentry.interfaces.Exception');
-        parsed['sentry.interfaces.Exception']['type'].should.equal('Error');
-        parsed['sentry.interfaces.Exception']['value'].should.equal('');
-        parsed.should.have.property('sentry.interfaces.Stacktrace');
-        parsed['sentry.interfaces.Stacktrace'].should.have.property('frames');
+        parsed.should.have.property('exception');
+        parsed['exception']['type'].should.equal('Error');
+        parsed['exception']['value'].should.equal('');
+        parsed.should.have.property('stacktrace');
+        parsed['stacktrace'].should.have.property('frames');
         done();
       });
     });
 
     it('should parse Error with message', function(done){
-      raven.parsers.parseError(new Error('Crap'), {}, function(parsed){
+      opbeat.parsers.parseError(new Error('Crap'), {}, function(parsed){
         parsed['message'].should.equal('Error: Crap');
-        parsed.should.have.property('sentry.interfaces.Exception');
-        parsed['sentry.interfaces.Exception']['type'].should.equal('Error');
-        parsed['sentry.interfaces.Exception']['value'].should.equal('Crap');
-        parsed.should.have.property('sentry.interfaces.Stacktrace');
-        parsed['sentry.interfaces.Stacktrace'].should.have.property('frames');
+        parsed.should.have.property('exception');
+        parsed['exception']['type'].should.equal('Error');
+        parsed['exception']['value'].should.equal('Crap');
+        parsed.should.have.property('stacktrace');
+        parsed['stacktrace'].should.have.property('frames');
         done();
       });
     });
 
     it('should parse TypeError with message', function(done){
-      raven.parsers.parseError(new TypeError('Crap'), {}, function(parsed){
+      opbeat.parsers.parseError(new TypeError('Crap'), {}, function(parsed){
         parsed['message'].should.equal('TypeError: Crap');
-        parsed.should.have.property('sentry.interfaces.Exception');
-        parsed['sentry.interfaces.Exception']['type'].should.equal('TypeError');
-        parsed['sentry.interfaces.Exception']['value'].should.equal('Crap');
-        parsed.should.have.property('sentry.interfaces.Stacktrace');
-        parsed['sentry.interfaces.Stacktrace'].should.have.property('frames');
+        parsed.should.have.property('exception');
+        parsed['exception']['type'].should.equal('TypeError');
+        parsed['exception']['value'].should.equal('Crap');
+        parsed.should.have.property('stacktrace');
+        parsed['stacktrace'].should.have.property('frames');
         done();
       });
     });
@@ -89,13 +77,13 @@ describe('raven.parsers', function(){
       try {
         throw new Error('Derp');
       } catch(e) {
-        raven.parsers.parseError(e, {}, function(parsed){
+        opbeat.parsers.parseError(e, {}, function(parsed){
           parsed['message'].should.equal('Error: Derp');
-          parsed.should.have.property('sentry.interfaces.Exception');
-          parsed['sentry.interfaces.Exception']['type'].should.equal('Error');
-          parsed['sentry.interfaces.Exception']['value'].should.equal('Derp');
-          parsed.should.have.property('sentry.interfaces.Stacktrace');
-          parsed['sentry.interfaces.Stacktrace'].should.have.property('frames');
+          parsed.should.have.property('exception');
+          parsed['exception']['type'].should.equal('Error');
+          parsed['exception']['value'].should.equal('Derp');
+          parsed.should.have.property('stacktrace');
+          parsed['stacktrace'].should.have.property('frames');
           done();
         });
       }
@@ -106,13 +94,13 @@ describe('raven.parsers', function(){
         var o = {};
         o['...']['Derp']();
       } catch(e) {
-        raven.parsers.parseError(e, {}, function(parsed){
+        opbeat.parsers.parseError(e, {}, function(parsed){
           parsed['message'].should.equal('TypeError: Cannot call method \'Derp\' of undefined');
-          parsed.should.have.property('sentry.interfaces.Exception');
-          parsed['sentry.interfaces.Exception']['type'].should.equal('TypeError');
-          parsed['sentry.interfaces.Exception']['value'].should.equal('Cannot call method \'Derp\' of undefined');
-          parsed.should.have.property('sentry.interfaces.Stacktrace');
-          parsed['sentry.interfaces.Stacktrace'].should.have.property('frames');
+          parsed.should.have.property('exception');
+          parsed['exception']['type'].should.equal('TypeError');
+          parsed['exception']['value'].should.equal('Cannot call method \'Derp\' of undefined');
+          parsed.should.have.property('stacktrace');
+          parsed['stacktrace'].should.have.property('frames');
           done();
         });
       }

@@ -3,7 +3,7 @@ module.exports.utils = require('./lib/utils');
 module.exports.middleware = {
     connect: require('./lib/middleware/connect')
 };
-// friendly alias for "raven.middleware.express"
+// friendly alias for "opbeat.middleware.express"
 module.exports.middleware.express = module.exports.middleware.connect;
 
 // To infinity and beyond

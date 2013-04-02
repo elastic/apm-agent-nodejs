@@ -23,6 +23,7 @@
     "should": "*",
     "nock": "*",
     "glob": "*",
+    "common": "*",
     "mock-udp": "*"
   }
 }
