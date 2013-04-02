@@ -37,11 +37,6 @@ var options = {
 };
 ```
 
-Run with:
-```
-$ NODE_ENV=production node script.js
-```
-
 ## Logging an error
 ```javascript
 client.captureError(new Error('Broke!'));
