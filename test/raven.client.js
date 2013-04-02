@@ -5,7 +5,7 @@ var opbeat = require('../')
   , mockudp = require('mock-udp');
 
 var options = {
-    org_id: 'some-org-id',
+    organization_id: 'some-org-id',
     app_id: 'some-app-id',
     secret_token: 'secret'
 };
@@ -51,20 +51,20 @@ describe('opbeat.Client', function(){
         client.hostname.should.equal('my-hostname');
     });
 
-    it('should pull OPBEAT_ORG_ID from environment', function(){
-        process.env.OPBEAT_ORG_ID='another-org-id';
+    it('should pull OPBEAT_ORGANIZATION_ID from environment', function(){
+        process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
         var client = new opbeat.Client();
         client.org_id.should.eql('another-org-id');
-        delete process.env.OPBEAT_ORG_ID; // gotta clean up so it doesn't leak into other tests
+        delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
     });
 
-    it('should pull OPBEAT_ORG_ID from environment when passing options', function(){
+    it('should pull OPBEAT_ORGANIZATION_ID from environment when passing options', function(){
         var expected = {
             protocol: 'https',
             host: 'opbeat.com',
             path: '/api/v1/organizations/another-org-id/apps/some-app-id/errors/'
         };
-        process.env.OPBEAT_ORG_ID='another-org-id';
+        process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
         var client = new opbeat.Client({
             app_id: 'some-app-id',
             secret_token: 'secret'
@@ -73,7 +73,7 @@ describe('opbeat.Client', function(){
         client.org_id.should.equal('another-org-id');
         client.app_id.should.equal('some-app-id');
         client.secret_token.should.equal('secret');
-        delete process.env.OPBEAT_ORG_ID; // gotta clean up so it doesn't leak into other tests
+        delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
     });
 
     it('should be disabled when no options have been specified', function(){

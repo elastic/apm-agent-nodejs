@@ -28,12 +28,12 @@ client.captureMessage('Hello, world!');
 Basic options are:
 ```javascript
 var options = {
-  org_id: '...',        // Required unless OPBEAT_ORG_ID environment variable is used
-  app_id: '...',        // Required unless OPBEAT_APP_ID environment variable is used
-  secret_token: '...',  // Required unless OPBEAT_SECRET_TOKEN environment variable is used
-  env: 'production',    // Optional
-  logger: '...',        // Optional
-  hostname: '...'       // Optional
+  organization_id: '...', // Required unless OPBEAT_ORGANIZATION_ID environment variable is used
+  app_id: '...',          // Required unless OPBEAT_APP_ID environment variable is used
+  secret_token: '...',    // Required unless OPBEAT_SECRET_TOKEN environment variable is used
+  env: 'production',      // Optional
+  logger: '...',          // Optional
+  hostname: '...'         // Optional
 };
 ```
 
@@ -90,7 +90,7 @@ client.on('error', function(e){
 ### NODE_ENV
 `NODE_ENV` must be anything else than `development` or `test` for Opbeat to actually work. Running in development or test mode, will issue a warning and logging will be disabled.
 
-### OPBEAT_ORG_ID
+### OPBEAT_ORGANIZATION_ID
 Optionally declare the organization id to use for the client through the environment. Initializing the client in your app won't require setting the organization id.
 
 ### OPBEAT_APP_ID
