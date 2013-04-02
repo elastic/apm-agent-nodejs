@@ -1,10 +1,14 @@
 {
-  "name": "raven",
-  "description": "A standalone (Node.js) client for Sentry",
-  "keywords": ["raven", "sentry", "python"],
-  "version": "0.4.7",
-  "repository": "git://github.com/mattrobenolt/raven-node.git",
-  "author": "Matt Robenolt <matt@ydekproductions.com>",
+  "name": "opbeat",
+  "description": "A standalone (Node.js) client for Opbeat",
+  "keywords": ["opbeat", "logging", "errors"],
+  "version": "0.1.0",
+  "repository": "git://github.com/watson/opbeat-node.git",
+  "author": "Thomas Watson Steen <w@tson.dk>",
+  "contributors": [
+    "Thomas Watson Steen <w@tson.dk>",
+    "Matt Robenolt <matt@ydekproductions.com>"
+  ],
   "license": "BSD",
   "main": "index",
   "scripts": {
