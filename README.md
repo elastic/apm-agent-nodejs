@@ -1,9 +1,11 @@
-# Raven [![Build Status](https://secure.travis-ci.org/mattrobenolt/raven-node.png?branch=master)](http://travis-ci.org/mattrobenolt/raven-node)
 **Node v0.9 compatible**
 
-Log errors and stack traces in [Sentry](http://getsentry.com/) from within your Node.js applications. Includes middleware support for [Connect](http://www.senchalabs.org/connect/)/[Express](http://expressjs.com/).
+Log errors and stack traces in [Opbeat](http://opbeat.com/) from within
+your Node.js applications. Includes middleware support for
+[Connect](http://www.senchalabs.org/connect/)/[Express](http://expressjs.com/).
 
-All processing and sending happens asynchronously to not slow things down if/when Sentry is down or slow.
+All processing and sending happens asynchronously to not slow things
+down if/when Opbeat is down or slow.
 
 ## Compatibility
  * 0.6.x
@@ -12,15 +14,27 @@ All processing and sending happens asynchronously to not slow things down if/whe
 
 ## Installation
 ```
-$ npm install raven
+$ npm install opbeat
 ```
 
 ## Basic Usage
 ```javascript
-var raven = require('raven');
-var client = new raven.Client('{{ SENTRY_DSN }}');
+var opbeat = require('opbeat');
+var client = new opbeat.Client([options]);
 
 client.captureMessage('Hello, world!');
+```
+
+Basic options are:
+```javascript
+var options = {
+  org_id: '...',        // Required unless OPBEAT_ORG_ID environment variable is used
+  app_id: '...',        // Required unless OPBEAT_APP_ID environment variable is used
+  secret_token: '...',  // Required unless OPBEAT_SECRET_TOKEN environment variable is used
+  env: 'production',    // Optional
+  logger: '...',        // Optional
+  hostname: '...'       // Optional
+};
 ```
 
 Run with:
@@ -33,12 +47,7 @@ $ NODE_ENV=production node script.js
 client.captureError(new Error('Broke!'));
 ```
 
-## Logging a query
-```javascript
-client.captureQuery('SELECT * FROM `awesome`', 'mysql');
-```
-
-## Sentry Identifier
+## Opbeat Identifier
 ```javascript
 client.captureMessage('Hello, world!', function(result) {
     console.log(client.getIdent(result));
@@ -61,13 +70,13 @@ client.on('logged', function(){
   console.log('Yay, it worked!');
 });
 client.on('error', function(e){
-  console.log('oh well, Sentry is broke.');
+  console.log('oh well, Opbeat is broke.');
 })
 client.captureMessage('Boom');
 ```
 
 ### Error Event
-The event error is augmented with the original Sentry response object as well as the response body and statusCode for easier debugging.
+The event error is augmented with the original Opbeat response object as well as the response body and statusCode for easier debugging.
 
 ```javascript
 client.on('error', function(e){
@@ -79,16 +88,16 @@ client.on('error', function(e){
 
 ## Environment variables
 ### NODE_ENV
-`NODE_ENV` must be set to `production` for Sentry to actually work. Without being in production, a warning is issued and logging disabled.
+`NODE_ENV` must be anything else than `development` or `test` for Opbeat to actually work. Running in development or test mode, will issue a warning and logging will be disabled.
 
-### SENTRY_DSN
-Optionally declare the DSN to use for the client through the environment. Initializing the client in your app won't require setting the DSN.
+### OPBEAT_ORG_ID
+Optionally declare the organization id to use for the client through the environment. Initializing the client in your app won't require setting the organization id.
 
-### SENTRY_NAME
-Optionally set the name for the client to use. [What is name?](http://raven.readthedocs.org/en/latest/config/index.html#name)
+### OPBEAT_APP_ID
+Optionally declare the application id to use for the client through the environment. Initializing the client in your app won't require setting the application id.
 
-### SENTRY_SITE
-Optionally set the site for the client to use. [What is site?](http://raven.readthedocs.org/en/latest/config/index.html#site)
+### OPBEAT_SECRET_TOKEN
+Optionally declare the Opbeat token to use for the client through the environment. Initializing the client in your app won't require setting the token.
 
 ## Catching global errors
 For those times when you don't catch all errors in your application. ;)
@@ -96,9 +105,9 @@ For those times when you don't catch all errors in your application. ;)
 ```javascript
 client.patchGlobal();
 // or
-raven.patchGlobal(client);
+opbeat.patchGlobal(client);
 // or
-raven.patchGlobal('{{ SENTRY_DSN }}');
+opbeat.patchGlobal(options);
 ```
 
 It is recommended that you don't leave the process running after receiving an `uncaughtException` (http://nodejs.org/api/process.html#process_event_uncaughtexception), so an optional callback is provided to allow you to hook in something like:
@@ -110,19 +119,18 @@ client.patchGlobal(function() {
 });
 ```
 
-The callback is called **after** the event has been sent to the Sentry server.
+The callback is called **after** the event has been sent to the Opbeat server.
 
 ## Methods
 ```javascript
-new raven.Client(dsn[, options])
+new opbeat.Client([options])
 client.captureMessage(string[,callback])
 client.captureError(Error[,callback])
-client.captureQuery(string, string[,callback])
 ```
 
 ## Integrations
 ### Connect/Express middleware
-The Raven middleware can be used as-is with either Connect or Express in the same way. Take note that in your middlewares, Raven must appear _after_ your main handler to pick up any errors that may result from handling a request.
+The Opbeat middleware can be used as-is with either Connect or Express in the same way. Take note that in your middlewares, Opbeat must appear _after_ your main handler to pick up any errors that may result from handling a request.
 
 #### Connect
 ```javascript
@@ -131,16 +139,16 @@ function mainHandler(req, res) {
   throw new Error('Broke!');
 }
 function onError(err, req, res, next) {
-  // The error id is attached to `res.sentry` to be returned
+  // The error id is attached to `res.opbeat` to be returned
   // and optionally displayed to the user for support.
   res.statusCode = 500;
-  res.end(res.sentry+'\n');
+  res.end(res.opbeat+'\n');
 }
 connect(
   connect.bodyParser(),
   connect.cookieParser(),
   mainHandler,
-  raven.middleware.connect('{{ SENTRY_DSN }}'),
+  opbeat.middleware.connect([options]),
   onError, // optional error handler if you want to display the error id to a user
 ).listen(3000);
 ```
@@ -148,7 +156,7 @@ connect(
 #### Express
 ```javascript
 var app = require('express').createServer();
-app.use(raven.middleware.express('{{ SENTRY_DSN }}'));
+app.use(opbeat.middleware.express([options]));
 app.use(onError); // optional error handler if you want to display the error id to a user
 app.get('/', function mainHandler(req, res) {
   throw new Error('Broke!');
@@ -156,7 +164,13 @@ app.get('/', function mainHandler(req, res) {
 app.listen(3000);
 ```
 
-__Note__: `raven.middleware.express` or `raven.middleware.connect` *must* be added to the middleware stack *before* any other error handling middlewares or there's a chance that the error will never get to Sentry.
+__Note__: `opbeat.middleware.express` or `opbeat.middleware.connect` *must* be added to the middleware stack *before* any other error handling middlewares or there's a chance that the error will never get to Opbeat.
 
-## Support
-You can find me on IRC. I troll in `#sentry` on `freenode`.
+## Credit
+
+This project is a fork of the
+[raven-node](https://github.com/mattrobenolt/raven-node) module. It have
+been modified to work with [Opbeat](http://opbeat.com) instead of
+[Sentry](http://getsentry.com). All credit for the original work go out
+to the original contributers and the main author [Matt
+Robenolt](https://github.com/mattrobenolt).
