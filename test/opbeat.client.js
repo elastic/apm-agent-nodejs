@@ -119,10 +119,12 @@ describe('opbeat.Client', function(){
         it('should send a plain text message to Opbeat server', function(done){
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
+                .defaultReplyHeaders({'Location': 'foo'})
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
                 .reply(200, 'OK');
 
-            client.on('logged', function(){
+            client.on('logged', function (result) {
+                result.should.eql('foo');
                 scope.done();
                 done();
             });
@@ -173,10 +175,12 @@ describe('opbeat.Client', function(){
         it('should send an Error to Opbeat server', function(done){
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
+                .defaultReplyHeaders({'Location': 'foo'})
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
                 .reply(200, 'OK');
 
-            client.on('logged', function(){
+            client.on('logged', function (result) {
+                result.should.eql('foo');
                 scope.done();
                 done();
             });
