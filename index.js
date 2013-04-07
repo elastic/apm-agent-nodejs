@@ -1,5 +1,4 @@
 module.exports = require('./lib/client');
-module.exports.utils = require('./lib/utils');
 module.exports.middleware = {
     connect: require('./lib/middleware/connect')
 };
