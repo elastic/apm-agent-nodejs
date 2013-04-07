@@ -28,12 +28,13 @@ client.captureMessage('Hello, world!');
 Basic options are:
 ```javascript
 var options = {
-  organization_id: '...', // Required unless OPBEAT_ORGANIZATION_ID environment variable is used
-  app_id: '...',          // Required unless OPBEAT_APP_ID environment variable is used
-  secret_token: '...',    // Required unless OPBEAT_SECRET_TOKEN environment variable is used
-  env: 'production',      // Optional
-  logger: '...',          // Optional
-  hostname: '...'         // Optional
+  organization_id: '...',   // Required unless OPBEAT_ORGANIZATION_ID environment variable is set
+  app_id: '...',            // Required unless OPBEAT_APP_ID environment variable is set
+  secret_token: '...',      // Required unless OPBEAT_SECRET_TOKEN environment variable is set
+  env: 'production',        // Optional - falls back to NODE_ENV || 'development'
+  logger: '...',            // Optional
+  hostname: '...',          // Optional - falls back to OS hostname
+  uncaughtExceptions: false // Optional - defaults to true
 };
 ```
 

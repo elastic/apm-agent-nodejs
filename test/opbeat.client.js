@@ -7,7 +7,8 @@ var opbeat = require('../')
 var options = {
     organization_id: 'some-org-id',
     app_id: 'some-app-id',
-    secret_token: 'secret'
+    secret_token: 'secret',
+    uncaughtExceptions: false
 };
 
 var _oldConsoleWarn = console.warn;
@@ -195,10 +196,10 @@ describe('opbeat.Client', function(){
         });
     });
 
-    describe('#patchGlobal()', function(){
+    describe('#handleUncaughtExceptions()', function(){
         it('should add itself to the uncaughtException event list', function(){
             var before = process._events.uncaughtException;
-            client.patchGlobal();
+            client.handleUncaughtExceptions();
             process._events.uncaughtException.length.should.equal(before.length+1);
             process._events.uncaughtException = before; // patch it back to what it was
         });
@@ -213,31 +214,9 @@ describe('opbeat.Client', function(){
             var before = process._events.uncaughtException;
             process.removeAllListeners('uncaughtException');
 
-            client.on('logged', function(){
+            client.handleUncaughtExceptions(function (opbeatErr, result) {
                 // restore things to how they were
                 process._events.uncaughtException = before;
-
-                scope.done();
-                done();
-            });
-            client.patchGlobal();
-            process.emit('uncaughtException', new Error('derp'));
-        });
-
-        it('should trigger a callback after an uncaughtException', function(done){
-            var scope = nock('https://opbeat.com')
-                .filteringRequestBody(skipBody)
-                .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(200, 'OK');
-
-            // remove existing uncaughtException handlers
-            var before = process._events.uncaughtException;
-            process.removeAllListeners('uncaughtException');
-
-            client.patchGlobal(function(){
-                // restore things to how they were
-                process._events.uncaughtException = before;
-
                 scope.done();
                 done();
             });
