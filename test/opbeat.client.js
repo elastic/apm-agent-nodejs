@@ -114,7 +114,7 @@ describe('opbeat.Client', function(){
                 .filteringRequestBody(skipBody)
                 .defaultReplyHeaders({'Location': 'foo'})
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(200, 'OK');
+                .reply(200);
 
             client.on('logged', function (result) {
                 result.should.eql('foo');
@@ -128,7 +128,7 @@ describe('opbeat.Client', function(){
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(500, 'Oops!');
+                .reply(500, { error_message: 'Oops!' });
 
             client.on('error', function(){
                 scope.done();
@@ -141,7 +141,7 @@ describe('opbeat.Client', function(){
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(500, 'Oops!');
+                .reply(500, { error_message: 'Oops!' });
 
             client.captureMessage('Hey!');
         });
@@ -150,12 +150,10 @@ describe('opbeat.Client', function(){
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(500, 'Oops!');
+                .reply(500, { error_message: 'Oops!' });
 
-            client.on('error', function(e){
-                e.statusCode.should.eql(500);
-                e.responseBody.should.eql('Oops!');
-                e.response.should.be.ok;
+            client.on('error', function(err) {
+                err.message.should.eql('Opbeat error (500): Oops!');
                 scope.done();
                 done();
             });
@@ -170,7 +168,7 @@ describe('opbeat.Client', function(){
                 .filteringRequestBody(skipBody)
                 .defaultReplyHeaders({'Location': 'foo'})
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(200, 'OK');
+                .reply(200);
 
             client.on('logged', function (result) {
                 result.should.eql('foo');
@@ -205,7 +203,7 @@ describe('opbeat.Client', function(){
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(200, 'OK');
+                .reply(200);
 
             // remove existing uncaughtException handlers
             var before = process._events.uncaughtException;
