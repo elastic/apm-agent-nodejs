@@ -108,13 +108,6 @@ describe('opbeat.Client', function(){
         restoreConsoleWarn();
     });
 
-    describe('#getIdent()', function(){
-        it('should match', function(){
-            var result = { id: 'c988bf5cb7db4653825c92f6864e7206' };
-            client.getIdent(result).should.equal('c988bf5cb7db4653825c92f6864e7206');
-        });
-    });
-
     describe('#captureMessage()', function(){
         it('should send a plain text message to Opbeat server', function(done){
             var scope = nock('https://opbeat.com')
