@@ -25,7 +25,7 @@ var client = new opbeat.Client([options]);
 client.captureMessage('Hello, world!');
 ```
 
-Basic options are:
+Options are:
 ```javascript
 var options = {
   organization_id: '...',   // Required unless OPBEAT_ORGANIZATION_ID environment variable is set
@@ -43,43 +43,33 @@ var options = {
 client.captureError(new Error('Broke!'));
 ```
 
-## Opbeat Identifier
+## Opbeat url
 ```javascript
-client.captureMessage('Hello, world!', function(result) {
-    console.log(client.getIdent(result));
+client.captureMessage('Hello, world!', function (opbeatErr, url) {
+  console.log('The message can be found on:', url);
 });
 ```
 
 ```javascript
-client.captureError(new Error('Broke!'), function(result) {
-  console.log(client.getIdent(result));
+client.captureError(new Error('Broke!'), function (opbeatErr, url) {
+  console.log('The error can be found on:', url);
 });
 ```
-
-__Note__: `client.captureMessage` will also return the result directly without the need for a callback, such as: `var result = client.captureMessage('Hello, world!');`
 
 ## Events
-If you really care if the event was logged or errored out, Client emits two events, `logged` and `error`:
+If you really care if the event was logged or errored out, Client emits three events, `logged`, `connectionError` and `error`:
 
 ```javascript
-client.on('logged', function(){
-  console.log('Yay, it worked!');
+client.on('logged', function (url) {
+  console.log('Yay, it worked! View online at: ' + url);
 });
-client.on('error', function(e){
-  console.log('oh well, Opbeat is broke.');
+client.on('error', function (err) {
+  console.log('oh well, Opbeat returned an error');
+})
+client.on('connectionError', function (err) {
+  console.log('Could not contact Opbeat :(');
 })
 client.captureMessage('Boom');
-```
-
-### Error Event
-The event error is augmented with the original Opbeat response object as well as the response body and statusCode for easier debugging.
-
-```javascript
-client.on('error', function(e){
-  console.log(e.responseBody);  // raw response body, usually contains a message explaining the failure
-  console.log(e.statusCode);  // status code of the http request
-  console.log(e.response);  // entire raw http response object
-});
 ```
 
 ## Environment variables
@@ -98,19 +88,35 @@ Optionally declare the Opbeat token to use for the client through the environmen
 ## Catching global errors
 For those times when you don't catch all errors in your application. ;)
 
+By default uncaught exceptions are handled by the Opbeat client and
+reported automatically to Opbeat. To disable this, set the configration
+option `uncaughtExceptions` to `false` when initializing the Opbeat
+client.
+
+If you need you can then enable global error handling manually:
+
 ```javascript
-client.patchGlobal();
+client.handleUncaughtExceptions();
 // or
-opbeat.patchGlobal(client);
-// or
-opbeat.patchGlobal(options);
+client.handleUncaughtExceptions(callback);
 ```
 
-It is recommended that you don't leave the process running after receiving an `uncaughtException` (http://nodejs.org/api/process.html#process_event_uncaughtexception), so an optional callback is provided to allow you to hook in something like:
+If you don't specify a callback, the node process is terminated when an
+uncaught exception is handled by the Opbeat client.
+
+It is recommended that you don't leave the process running after
+receiving an `uncaughtException`
+(http://nodejs.org/api/process.html#process_event_uncaughtexception), so
+if you are using the optional callback, remember to terminate the node
+process:
 
 ```javascript
-client.patchGlobal(function() {
-  console.log('Bye, bye, world.')
+var client = new opbeat.client({
+  uncaughtExceptions: false
+});
+
+client.handleUncaughtExceptions(function (err) {
+  // Do your own stuff... and then exit:
   process.exit(1);
 });
 ```
@@ -120,8 +126,9 @@ The callback is called **after** the event has been sent to the Opbeat server.
 ## Methods
 ```javascript
 new opbeat.Client([options])
-client.captureMessage(string[,callback])
-client.captureError(Error[,callback])
+client.captureMessage(string, [callback])
+client.captureError(Error, [callback])
+client.captureRequestError(Error, req, [callback])
 ```
 
 ## Integrations
@@ -134,26 +141,18 @@ var connect = require('connect');
 function mainHandler(req, res) {
   throw new Error('Broke!');
 }
-function onError(err, req, res, next) {
-  // The error id is attached to `res.opbeat` to be returned
-  // and optionally displayed to the user for support.
-  res.statusCode = 500;
-  res.end(res.opbeat+'\n');
-}
 connect(
   connect.bodyParser(),
   connect.cookieParser(),
   mainHandler,
-  opbeat.middleware.connect([options]),
-  onError, // optional error handler if you want to display the error id to a user
+  opbeat.middleware.connect(client || options),
 ).listen(3000);
 ```
 
 #### Express
 ```javascript
 var app = require('express').createServer();
-app.use(opbeat.middleware.express([options]));
-app.use(onError); // optional error handler if you want to display the error id to a user
+app.use(opbeat.middleware.express(client || options));
 app.get('/', function mainHandler(req, res) {
   throw new Error('Broke!');
 });
