@@ -66,10 +66,10 @@ client.on('logged', function (url) {
 });
 client.on('error', function (err) {
   console.log('oh well, Opbeat returned an error');
-})
+});
 client.on('connectionError', function (err) {
   console.log('Could not contact Opbeat :(');
-})
+});
 client.captureMessage('Boom');
 ```
 
