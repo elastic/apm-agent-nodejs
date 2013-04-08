@@ -28,13 +28,13 @@ client.captureMessage('Hello, world!');
 Options are:
 ```javascript
 var options = {
-  organization_id: '...',   // Required unless OPBEAT_ORGANIZATION_ID environment variable is set
-  app_id: '...',            // Required unless OPBEAT_APP_ID environment variable is set
-  secret_token: '...',      // Required unless OPBEAT_SECRET_TOKEN environment variable is set
-  env: 'production',        // Optional - falls back to NODE_ENV || 'development'
-  logger: '...',            // Optional
-  hostname: '...',          // Optional - falls back to OS hostname
-  uncaughtExceptions: false // Optional - defaults to true
+  organization_id: '...', // Required unless OPBEAT_ORGANIZATION_ID environment variable is set
+  app_id: '...',          // Required unless OPBEAT_APP_ID environment variable is set
+  secret_token: '...',    // Required unless OPBEAT_SECRET_TOKEN environment variable is set
+  env: 'production',      // Optional - falls back to NODE_ENV || 'development'
+  logger: '...',          // Optional
+  hostname: '...',        // Optional - falls back to OS hostname
+  handleExceptions: false // Optional - defaults to true
 };
 ```
 
@@ -85,13 +85,10 @@ Optionally declare the application id to use for the client through the environm
 ### OPBEAT_SECRET_TOKEN
 Optionally declare the Opbeat token to use for the client through the environment. Initializing the client in your app won't require setting the token.
 
-## Catching global errors
-For those times when you don't catch all errors in your application. ;)
-
-By default uncaught exceptions are handled by the Opbeat client and
-reported automatically to Opbeat. To disable this, set the configration
-option `uncaughtExceptions` to `false` when initializing the Opbeat
-client.
+## Handling uncaught exceptions
+By default uncaught exceptions are handled by the client and reported
+automatically to Opbeat. To disable this, set the configration option
+`handleExceptions` to `false` when initializing the Opbeat client.
 
 If you need you can then enable global error handling manually:
 
