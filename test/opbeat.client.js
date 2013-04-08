@@ -8,7 +8,7 @@ var options = {
     organization_id: 'some-org-id',
     app_id: 'some-app-id',
     secret_token: 'secret',
-    uncaughtExceptions: false
+    handleExceptions: false
 };
 
 var _oldConsoleWarn = console.warn;
