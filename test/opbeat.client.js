@@ -221,7 +221,10 @@ describe('opbeat.Client', function () {
                 scope.done();
                 done();
             });
+
+            mockConsoleWarn();
             process.emit('uncaughtException', new Error('derp'));
+            restoreConsoleWarn();
         });
     });
 });
