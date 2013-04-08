@@ -55,7 +55,7 @@ describe('opbeat.Client', function () {
     it('should pull OPBEAT_ORGANIZATION_ID from environment', function () {
         process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
         var client = new opbeat.Client();
-        client.org_id.should.eql('another-org-id');
+        client.organization_id.should.eql('another-org-id');
         delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
     });
 
@@ -71,7 +71,7 @@ describe('opbeat.Client', function () {
             secret_token: 'secret'
         });
         client.dsn.should.eql(expected);
-        client.org_id.should.equal('another-org-id');
+        client.organization_id.should.equal('another-org-id');
         client.app_id.should.equal('some-app-id');
         client.secret_token.should.equal('secret');
         delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
@@ -209,7 +209,7 @@ describe('opbeat.Client', function () {
             var before = process._events.uncaughtException;
             process.removeAllListeners('uncaughtException');
 
-            client.handleUncaughtExceptions(function (opbeatErr, result) {
+            client.handleUncaughtExceptions(function (opbeatErr, url) {
                 // restore things to how they were
                 process._events.uncaughtException = before;
                 scope.done();
