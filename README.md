@@ -109,7 +109,7 @@ process:
 
 ```javascript
 var client = new opbeat.client({
-  uncaughtExceptions: false
+  handleExceptions: false
 });
 
 client.handleUncaughtExceptions(function (err) {
