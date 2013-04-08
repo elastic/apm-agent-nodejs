@@ -1,22 +1,22 @@
 var opbeat = require('../');
 opbeat.parsers = require('../lib/parsers');
 
-describe('opbeat.parsers', function(){
-  describe('#parseText()', function(){
-    it('should parse some text without kwargs', function(){
+describe('opbeat.parsers', function () {
+  describe('#parseText()', function () {
+    it('should parse some text without kwargs', function () {
       var parsed = opbeat.parsers.parseText('Howdy');
       parsed['message'].should.equal('Howdy');
     });
 
-    it('should parse some text with kwargs', function(){
+    it('should parse some text with kwargs', function () {
       var parsed = opbeat.parsers.parseText('Howdy', {'foo': 'bar'});
       parsed['message'].should.equal('Howdy');
       parsed['foo'].should.equal('bar');
     });
   });
 
-  describe('#parseRequest()', function(){
-    it('should parse a request object', function(){
+  describe('#parseRequest()', function () {
+    it('should parse a request object', function () {
       var mockReq = {
         method: 'GET',
         url: '/some/path?key=value',
@@ -36,9 +36,9 @@ describe('opbeat.parsers', function(){
     });
   });
 
-  describe('#parseError()', function(){
-    it('should parse plain Error object', function(done){
-      opbeat.parsers.parseError(new Error(), {}, function(parsed){
+  describe('#parseError()', function () {
+    it('should parse plain Error object', function (done) {
+      opbeat.parsers.parseError(new Error(), {}, function (parsed) {
         parsed['message'].should.equal('Error: <no message>');
         parsed.should.have.property('exception');
         parsed['exception']['type'].should.equal('Error');
@@ -49,8 +49,8 @@ describe('opbeat.parsers', function(){
       });
     });
 
-    it('should parse Error with message', function(done){
-      opbeat.parsers.parseError(new Error('Crap'), {}, function(parsed){
+    it('should parse Error with message', function (done) {
+      opbeat.parsers.parseError(new Error('Crap'), {}, function (parsed) {
         parsed['message'].should.equal('Error: Crap');
         parsed.should.have.property('exception');
         parsed['exception']['type'].should.equal('Error');
@@ -61,8 +61,8 @@ describe('opbeat.parsers', function(){
       });
     });
 
-    it('should parse TypeError with message', function(done){
-      opbeat.parsers.parseError(new TypeError('Crap'), {}, function(parsed){
+    it('should parse TypeError with message', function (done) {
+      opbeat.parsers.parseError(new TypeError('Crap'), {}, function (parsed) {
         parsed['message'].should.equal('TypeError: Crap');
         parsed.should.have.property('exception');
         parsed['exception']['type'].should.equal('TypeError');
@@ -73,11 +73,11 @@ describe('opbeat.parsers', function(){
       });
     });
 
-    it('should parse thrown Error', function(done){
+    it('should parse thrown Error', function (done) {
       try {
         throw new Error('Derp');
       } catch(e) {
-        opbeat.parsers.parseError(e, {}, function(parsed){
+        opbeat.parsers.parseError(e, {}, function (parsed) {
           parsed['message'].should.equal('Error: Derp');
           parsed.should.have.property('exception');
           parsed['exception']['type'].should.equal('Error');
@@ -89,12 +89,12 @@ describe('opbeat.parsers', function(){
       }
     });
 
-    it('should parse caught real error', function(done){
+    it('should parse caught real error', function (done) {
       try {
         var o = {};
         o['...']['Derp']();
       } catch(e) {
-        opbeat.parsers.parseError(e, {}, function(parsed){
+        opbeat.parsers.parseError(e, {}, function (parsed) {
           parsed['message'].should.equal('TypeError: Cannot call method \'Derp\' of undefined');
           parsed.should.have.property('exception');
           parsed['exception']['type'].should.equal('TypeError');

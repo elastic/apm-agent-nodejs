@@ -12,36 +12,36 @@ var options = {
 };
 
 var _oldConsoleWarn = console.warn;
-function mockConsoleWarn() {
-    console.warn = function() {
+var mockConsoleWarn = function () {
+    console.warn = function () {
         console.warn._called = true;
     };
     console.warn._called = false;
 }
-function restoreConsoleWarn() {
+var restoreConsoleWarn = function () {
     console.warn = _oldConsoleWarn;
 }
 
-describe('opbeat.version', function(){
-    it('should be valid', function(){
+describe('opbeat.version', function () {
+    it('should be valid', function () {
         opbeat.version.should.match(/^\d+\.\d+\.\d+(-\w+)?$/);
     });
 
-    it('should match package.json', function(){
+    it('should match package.json', function () {
         var version = require('../package.json').version;
         opbeat.version.should.equal(version);
     });
 });
 
-describe('opbeat.Client', function(){
+describe('opbeat.Client', function () {
     var client;
-    var skipBody = function(path) { return '*'; };
-    beforeEach(function(){
+    var skipBody = function (path) { return '*'; };
+    beforeEach(function () {
         process.env.NODE_ENV='production';
         client = new opbeat.Client(options);
     });
 
-    it('should parse the DSN with options', function(){
+    it('should parse the DSN with options', function () {
         var expected = {
             protocol: 'https',
             host: 'opbeat.com',
@@ -52,14 +52,14 @@ describe('opbeat.Client', function(){
         client.hostname.should.equal('my-hostname');
     });
 
-    it('should pull OPBEAT_ORGANIZATION_ID from environment', function(){
+    it('should pull OPBEAT_ORGANIZATION_ID from environment', function () {
         process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
         var client = new opbeat.Client();
         client.org_id.should.eql('another-org-id');
         delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
     });
 
-    it('should pull OPBEAT_ORGANIZATION_ID from environment when passing options', function(){
+    it('should pull OPBEAT_ORGANIZATION_ID from environment when passing options', function () {
         var expected = {
             protocol: 'https',
             host: 'opbeat.com',
@@ -77,7 +77,7 @@ describe('opbeat.Client', function(){
         delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
     });
 
-    it('should be disabled when no options have been specified', function(){
+    it('should be disabled when no options have been specified', function () {
         mockConsoleWarn();
         var client = new opbeat.Client();
         client._enabled.should.eql(false);
@@ -85,21 +85,21 @@ describe('opbeat.Client', function(){
         restoreConsoleWarn();
     });
 
-    it('should pull OPBEAT_APP_ID from environment', function(){
+    it('should pull OPBEAT_APP_ID from environment', function () {
         process.env.OPBEAT_APP_ID='another-app-id';
         var client = new opbeat.Client();
         client.app_id.should.eql('another-app-id');
         delete process.env.OPBEAT_APP_ID;
     });
 
-    it('should pull OPBEAT_SECRET_TOKEN from environment', function(){
+    it('should pull OPBEAT_SECRET_TOKEN from environment', function () {
         process.env.OPBEAT_SECRET_TOKEN='pazz';
         var client = new opbeat.Client();
         client.secret_token.should.eql('pazz');
         delete process.env.OPBEAT_SECRET_TOKEN;
     });
 
-    it('should be disabled and warn when NODE_ENV=test', function(){
+    it('should be disabled and warn when NODE_ENV=test', function () {
         mockConsoleWarn();
         process.env.NODE_ENV = 'test';
         var client = new opbeat.Client(options);
@@ -108,8 +108,8 @@ describe('opbeat.Client', function(){
         restoreConsoleWarn();
     });
 
-    describe('#captureMessage()', function(){
-        it('should send a plain text message to Opbeat server', function(done){
+    describe('#captureMessage()', function () {
+        it('should send a plain text message to Opbeat server', function (done) {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .defaultReplyHeaders({'Location': 'foo'})
@@ -124,20 +124,20 @@ describe('opbeat.Client', function(){
             client.captureMessage('Hey!');
         });
 
-        it('should emit error when request returns non 200', function(done){
+        it('should emit error when request returns non 200', function (done) {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
                 .reply(500, { error_message: 'Oops!' });
 
-            client.on('error', function(){
+            client.on('error', function () {
                 scope.done();
                 done();
             });
             client.captureMessage('Hey!');
         });
 
-        it('shouldn\'t shit it\'s pants when error is emitted without a listener', function(){
+        it('shouldn\'t shit it\'s pants when error is emitted without a listener', function () {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -146,13 +146,13 @@ describe('opbeat.Client', function(){
             client.captureMessage('Hey!');
         });
 
-        it('should attach an Error object when emitting error', function(done){
+        it('should attach an Error object when emitting error', function (done) {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
                 .reply(500, { error_message: 'Oops!' });
 
-            client.on('error', function(err) {
+            client.on('error', function (err) {
                 err.message.should.eql('Opbeat error (500): Oops!');
                 scope.done();
                 done();
@@ -162,8 +162,8 @@ describe('opbeat.Client', function(){
         });
     });
 
-    describe('#captureError()', function(){
-        it('should send an Error to Opbeat server', function(done){
+    describe('#captureError()', function () {
+        it('should send an Error to Opbeat server', function (done) {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .defaultReplyHeaders({'Location': 'foo'})
@@ -178,10 +178,10 @@ describe('opbeat.Client', function(){
             client.captureError(new Error('wtf?'));
         });
 
-        it('should send a plain text "error" as a Message instead', function(done){
+        it('should send a plain text "error" as a Message instead', function (done) {
             // See: https://github.com/mattrobenolt/raven-node/issues/18
             var old = client.captureMessage;
-            client.captureMessage = function(message) {
+            client.captureMessage = function (message) {
                 // I'm also appending "Error: " to the beginning to help hint
                 message.should.equal('Error: wtf?');
                 done();
@@ -191,15 +191,15 @@ describe('opbeat.Client', function(){
         });
     });
 
-    describe('#handleUncaughtExceptions()', function(){
-        it('should add itself to the uncaughtException event list', function(){
+    describe('#handleUncaughtExceptions()', function () {
+        it('should add itself to the uncaughtException event list', function () {
             var before = process._events.uncaughtException;
             client.handleUncaughtExceptions();
             process._events.uncaughtException.length.should.equal(before.length+1);
             process._events.uncaughtException = before; // patch it back to what it was
         });
 
-        it('should send an uncaughtException to Opbeat server', function(done){
+        it('should send an uncaughtException to Opbeat server', function (done) {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
