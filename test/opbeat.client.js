@@ -11,6 +11,10 @@ var options = {
     handleExceptions: false
 };
 
+var disableUncaughtExceptionHandler = {
+    handleExceptions: false
+};
+
 var _oldConsoleWarn = console.warn;
 var mockConsoleWarn = function () {
     console.warn = function () {
@@ -54,7 +58,7 @@ describe('opbeat.Client', function () {
     it('should pull OPBEAT_ORGANIZATION_ID from environment', function () {
         mockConsoleWarn();
         process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
-        client = new opbeat.Client();
+        client = new opbeat.Client(disableUncaughtExceptionHandler);
         client.organization_id.should.eql('another-org-id');
         delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
         restoreConsoleWarn();
@@ -69,7 +73,8 @@ describe('opbeat.Client', function () {
         process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
         client = new opbeat.Client({
             app_id: 'some-app-id',
-            secret_token: 'secret'
+            secret_token: 'secret',
+            handleExceptions: false
         });
         client.dsn.should.eql(expected);
         client.organization_id.should.equal('another-org-id');
@@ -80,7 +85,7 @@ describe('opbeat.Client', function () {
 
     it('should be disabled when no options have been specified', function () {
         mockConsoleWarn();
-        client = new opbeat.Client();
+        client = new opbeat.Client(disableUncaughtExceptionHandler);
         client._enabled.should.eql(false);
         console.warn._called.should.eql(true);
         restoreConsoleWarn();
@@ -89,7 +94,7 @@ describe('opbeat.Client', function () {
     it('should pull OPBEAT_APP_ID from environment', function () {
         mockConsoleWarn();
         process.env.OPBEAT_APP_ID='another-app-id';
-        client = new opbeat.Client();
+        client = new opbeat.Client(disableUncaughtExceptionHandler);
         client.app_id.should.eql('another-app-id');
         delete process.env.OPBEAT_APP_ID;
         restoreConsoleWarn();
@@ -98,7 +103,7 @@ describe('opbeat.Client', function () {
     it('should pull OPBEAT_SECRET_TOKEN from environment', function () {
         mockConsoleWarn();
         process.env.OPBEAT_SECRET_TOKEN='pazz';
-        client = new opbeat.Client();
+        client = new opbeat.Client(disableUncaughtExceptionHandler);
         client.secret_token.should.eql('pazz');
         delete process.env.OPBEAT_SECRET_TOKEN;
         restoreConsoleWarn();
