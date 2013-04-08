@@ -43,7 +43,7 @@ var options = {
 client.captureError(new Error('Broke!'));
 ```
 
-## Opbeat url
+## Opbeat URL
 ```javascript
 client.captureMessage('Hello, world!', function (opbeatErr, url) {
   console.log('The message can be found on:', url);
