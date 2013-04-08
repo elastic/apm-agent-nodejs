@@ -4,6 +4,3 @@ module.exports.middleware = {
 };
 // friendly alias for "opbeat.middleware.express"
 module.exports.middleware.express = module.exports.middleware.connect;
-
-// To infinity and beyond
-Error.stackTraceLimit = Infinity;
