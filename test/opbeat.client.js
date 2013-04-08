@@ -38,7 +38,6 @@ describe('opbeat.Client', function () {
     var skipBody = function (path) { return '*'; };
     beforeEach(function () {
         process.env.NODE_ENV='production';
-        client = new opbeat.Client(options);
     });
 
     it('should parse the DSN with options', function () {
@@ -47,7 +46,7 @@ describe('opbeat.Client', function () {
             host: 'opbeat.com',
             path: '/api/v1/organizations/some-org-id/apps/some-app-id/errors/'
         };
-        var client = new opbeat.Client(common.join(options, { hostname: 'my-hostname' }));
+        client = new opbeat.Client(common.join(options, { hostname: 'my-hostname' }));
         client.dsn.should.eql(expected);
         client.hostname.should.equal('my-hostname');
     });
@@ -55,7 +54,7 @@ describe('opbeat.Client', function () {
     it('should pull OPBEAT_ORGANIZATION_ID from environment', function () {
         mockConsoleWarn();
         process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
-        var client = new opbeat.Client();
+        client = new opbeat.Client();
         client.organization_id.should.eql('another-org-id');
         delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
         restoreConsoleWarn();
@@ -68,7 +67,7 @@ describe('opbeat.Client', function () {
             path: '/api/v1/organizations/another-org-id/apps/some-app-id/errors/'
         };
         process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
-        var client = new opbeat.Client({
+        client = new opbeat.Client({
             app_id: 'some-app-id',
             secret_token: 'secret'
         });
@@ -81,7 +80,7 @@ describe('opbeat.Client', function () {
 
     it('should be disabled when no options have been specified', function () {
         mockConsoleWarn();
-        var client = new opbeat.Client();
+        client = new opbeat.Client();
         client._enabled.should.eql(false);
         console.warn._called.should.eql(true);
         restoreConsoleWarn();
@@ -90,7 +89,7 @@ describe('opbeat.Client', function () {
     it('should pull OPBEAT_APP_ID from environment', function () {
         mockConsoleWarn();
         process.env.OPBEAT_APP_ID='another-app-id';
-        var client = new opbeat.Client();
+        client = new opbeat.Client();
         client.app_id.should.eql('another-app-id');
         delete process.env.OPBEAT_APP_ID;
         restoreConsoleWarn();
@@ -99,7 +98,7 @@ describe('opbeat.Client', function () {
     it('should pull OPBEAT_SECRET_TOKEN from environment', function () {
         mockConsoleWarn();
         process.env.OPBEAT_SECRET_TOKEN='pazz';
-        var client = new opbeat.Client();
+        client = new opbeat.Client();
         client.secret_token.should.eql('pazz');
         delete process.env.OPBEAT_SECRET_TOKEN;
         restoreConsoleWarn();
@@ -108,13 +107,17 @@ describe('opbeat.Client', function () {
     it('should be disabled and warn when NODE_ENV=test', function () {
         mockConsoleWarn();
         process.env.NODE_ENV = 'test';
-        var client = new opbeat.Client(options);
+        client = new opbeat.Client(options);
         client._enabled.should.eql(false);
         console.warn._called.should.eql(true);
         restoreConsoleWarn();
     });
 
     describe('#captureMessage()', function () {
+        beforeEach(function () {
+            client = new opbeat.Client(options);
+        });
+
         it('should send a plain text message to Opbeat server', function (done) {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
@@ -169,6 +172,10 @@ describe('opbeat.Client', function () {
     });
 
     describe('#captureError()', function () {
+        beforeEach(function () {
+            client = new opbeat.Client(options);
+        });
+
         it('should send an Error to Opbeat server', function (done) {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
