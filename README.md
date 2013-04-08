@@ -1,4 +1,4 @@
-**Node v0.9 compatible**
+**Node v0.10 compatible**
 
 Log errors and stack traces in [Opbeat](http://opbeat.com/) from within
 your Node.js applications. Includes middleware support for
@@ -10,7 +10,7 @@ down if/when Opbeat is down or slow.
 ## Compatibility
  * 0.6.x
  * 0.8.x
- * 0.9.x (latest unstable)
+ * 0.10.x
 
 ## Installation
 ```

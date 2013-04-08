@@ -211,10 +211,10 @@ describe('opbeat.createClient', function () {
 
     describe('#handleUncaughtExceptions()', function () {
         it('should add itself to the uncaughtException event list', function () {
-            var before = process._events.uncaughtException;
+            var before = process._events.uncaughtException.length;
             client.handleUncaughtExceptions();
-            process._events.uncaughtException.length.should.equal(before.length+1);
-            process._events.uncaughtException = before; // patch it back to what it was
+            process._events.uncaughtException.length.should.equal(before+1);
+            process._events.uncaughtException.pop(); // patch it back to what it was
         });
 
         it('should send an uncaughtException to Opbeat server', function (done) {
