@@ -210,6 +210,10 @@ describe('opbeat.createClient', function () {
     });
 
     describe('#handleUncaughtExceptions()', function () {
+        beforeEach(function () {
+            client = opbeat.createClient(options);
+        });
+
         it('should add itself to the uncaughtException event list', function () {
             var before = process._events.uncaughtException.length;
             client.handleUncaughtExceptions();
@@ -227,7 +231,7 @@ describe('opbeat.createClient', function () {
             var before = process._events.uncaughtException;
             process.removeAllListeners('uncaughtException');
 
-            client.handleUncaughtExceptions(function (opbeatErr, url) {
+            client.handleUncaughtExceptions(function (err) {
                 // restore things to how they were
                 process._events.uncaughtException = before;
                 scope.done();
