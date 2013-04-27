@@ -1,4 +1,5 @@
 **Node v0.10 compatible**
+[![Build Status](https://travis-ci.org/watson/opbeat-node.png)](https://travis-ci.org/watson/opbeat-node)
 
 Log errors and stack traces in [Opbeat](http://opbeat.com/) from within
 your Node.js applications. Includes middleware support for
