@@ -136,9 +136,9 @@ The callback is called **after** the event has been sent to the Opbeat server.
 
 ## Methods
 ```javascript
-client.captureMessage(string, [callback])
-client.captureError(Error, [callback])
-client.captureRequestError(Error, req, [callback])
+client.captureMessage(string|object, [options], [callback])
+client.captureError(Error, [options], [callback])
+client.captureRequestError(Error, req, [options], [callback])
 ```
 
 ## Advanced usage
