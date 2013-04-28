@@ -155,6 +155,14 @@ client.captureMessage({
 });
 ```
 
+Opbeat supports 5 different severity levels: 'debug', 'info', 'warn',
+'error', 'critical'.  By default the client logs everything as 'error'.
+You can always override this using the optional options argument:
+
+```javascript
+client.captureMessage('Foobar', { level: 'warn' });
+```
+
 ## Integrations
 ### Connect/Express middleware
 The Opbeat middleware can be used as-is with either Connect or Express in the same way. Take note that in your middlewares, Opbeat must appear _after_ your main handler to pick up any errors that may result from handling a request.
