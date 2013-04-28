@@ -40,6 +40,17 @@ var options = {
 };
 ```
 
+You can always get access to the created client from another part of
+your Node.js app by loading the `opbeat` module again and accessing the
+`client` property:
+```javascript
+var opbeat = require('opbeat');
+opbeat.client.captureError(new Error('foo'));
+```
+
+Note that `opbeat.client` will be undefined if you havent initialized
+the client previously with a call to `opbeat.createClient()`.
+
 ## Logging an error
 ```javascript
 client.captureError(new Error('Broke!'));

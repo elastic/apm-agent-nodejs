@@ -44,6 +44,13 @@ describe('opbeat.createClient', function () {
         process.env.NODE_ENV='production';
     });
 
+    it('should initialize the client property', function () {
+        opbeat.should.not.have.ownProperty('client');
+        var client = opbeat.createClient(options);
+        opbeat.should.have.ownProperty('client');
+        opbeat.client.should.have.ownProperty('dsn');
+    });
+
     it('should parse the DSN with options', function () {
         var expected = {
             protocol: 'https',
