@@ -37,6 +37,7 @@ var options = {
   logger: '...',           // Optional
   handleExceptions: false, // Optional - defaults to true
   silent: true,            // Optional - defaults to false
+  exceptionsAreCritical: false // Optional - defaults to true
   stackTraceLimit: 10      // Optional - defaults to Infinity
 };
 ```
