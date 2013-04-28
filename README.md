@@ -141,6 +141,20 @@ client.captureError(Error, [callback])
 client.captureRequestError(Error, req, [callback])
 ```
 
+## Advanced usage
+
+If the message string contains state or time-specific data, Opbeat will
+not recognize multiple errors as belonging to the same group, since the
+message text differs. To group these kind of messages, send the message
+as a parameterized message:
+
+```javascript
+client.captureMessage({
+  message: 'Timeout exeeded by %d seconds',
+  params: [seconds]
+});
+```
+
 ## Integrations
 ### Connect/Express middleware
 The Opbeat middleware can be used as-is with either Connect or Express in the same way. Take note that in your middlewares, Opbeat must appear _after_ your main handler to pick up any errors that may result from handling a request.
