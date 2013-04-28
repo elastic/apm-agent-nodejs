@@ -36,6 +36,7 @@ var options = {
   hostname: '...',         // Optional - falls back to OS hostname
   logger: '...',           // Optional
   handleExceptions: false, // Optional - defaults to true
+  silent: true,            // Optional - defaults to false
   stackTraceLimit: 10      // Optional - defaults to Infinity
 };
 ```
