@@ -29,16 +29,16 @@ client.captureMessage('Hello, world!');
 Options are:
 ```javascript
 var options = {
-  organization_id: '...',  // Required unless OPBEAT_ORGANIZATION_ID environment variable is set
-  app_id: '...',           // Required unless OPBEAT_APP_ID environment variable is set
-  secret_token: '...',     // Required unless OPBEAT_SECRET_TOKEN environment variable is set
-  env: 'production',       // Optional - falls back to NODE_ENV || 'development'
-  hostname: '...',         // Optional - falls back to OS hostname
-  logger: '...',           // Optional
-  handleExceptions: false, // Optional - defaults to true
-  silent: true,            // Optional - defaults to false
-  exceptionsAreCritical: false // Optional - defaults to true
-  stackTraceLimit: 10      // Optional - defaults to Infinity
+  organization_id: '...',       // Required unless OPBEAT_ORGANIZATION_ID environment variable is set
+  app_id: '...',                // Required unless OPBEAT_APP_ID environment variable is set
+  secret_token: '...',          // Required unless OPBEAT_SECRET_TOKEN environment variable is set
+  env: 'production',            // Optional - falls back to NODE_ENV || 'development'
+  hostname: '...',              // Optional - falls back to OS hostname
+  logger: '...',                // Optional
+  handleExceptions: false,      // Optional - defaults to true
+  silent: true,                 // Optional - defaults to false
+  exceptionsAreCritical: false, // Optional - defaults to true
+  stackTraceLimit: 10           // Optional - defaults to Infinity
 };
 ```
 
