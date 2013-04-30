@@ -147,7 +147,7 @@ describe('opbeat.createClient', function () {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(500, { error_message: 'Oops!' });
+                .reply(500, { error: 'Oops!' });
 
             client.on('error', function () {
                 scope.done();
@@ -160,7 +160,7 @@ describe('opbeat.createClient', function () {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(500, { error_message: 'Oops!' });
+                .reply(500, { error: 'Oops!' });
 
             client.captureMessage('Hey!');
         });
@@ -169,7 +169,7 @@ describe('opbeat.createClient', function () {
             var scope = nock('https://opbeat.com')
                 .filteringRequestBody(skipBody)
                 .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
-                .reply(500, { error_message: 'Oops!' });
+                .reply(500, { error: 'Oops!' });
 
             client.on('error', function (err) {
                 err.message.should.eql('Opbeat error (500): Oops!');
