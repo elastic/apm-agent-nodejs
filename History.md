@@ -1,3 +1,18 @@
+# 0.2.3 - 2013/5/2
+  * Create an opbeat client once and reuse it. Now you can create a
+    client using `opbeat.createClient()` and reuse it using
+    `opbeat.client`
+  * Added silent option. Opbeat will not output anything to STDOUT or
+    STDERR, except configuration errors
+  * Added exceptionsAreCritical option, which is on my default. This
+    means that uncaught exceptions are logged as critical as opposed to
+    the error level
+  * Allow better grouping of messages:
+    21384d7c0df1ffec5b985d918cab3a91208e75e3
+  * Added default event listeners, so you do not have to:
+    9b83e18835c2b7e24dd211b51fb38f9d820a9956
+  * Bug fixing
+
 # 0.2.2 - 2013/4/27
   * All output is now directed to STDERR
   * Always output result of sending something to Opbeat, even if you
