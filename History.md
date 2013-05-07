@@ -1,3 +1,6 @@
+# 0.2.4 - 2013/5/7
+  * Bug fix: Request errors was printet twice in the server-logs
+
 # 0.2.3 - 2013/5/2
   * Create an opbeat client once and reuse it. Now you can create a
     client using `opbeat.createClient()` and reuse it using
