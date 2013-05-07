@@ -15,7 +15,7 @@
     "ops",
     "devops"
   ],
-  "version": "0.2.3",
+  "version": "0.2.4",
   "repository": {
     "type": "git",
     "url": "git://github.com/watson/opbeat-node.git"
