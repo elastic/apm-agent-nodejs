@@ -1,6 +1,9 @@
-# 0.2.6 - 2013/6/10
+# 0.2.7 - 2013/6/10
   * Bug fix: The express/connect middleware now correctly uses or
     creates an instance of the Opbeat client
+
+# 0.2.6 - 2013/6/10
+  * Never published
 
 # 0.2.5 - 2013/6/10
   * Some exceptions where logged twice in the local log
