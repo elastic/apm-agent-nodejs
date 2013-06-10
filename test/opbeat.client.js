@@ -172,7 +172,7 @@ describe('opbeat.createClient', function () {
                 .reply(500, { error: 'Oops!' });
 
             client.on('error', function (err) {
-                err.message.should.eql('Opbeat error (500): Oops!');
+                err.message.should.eql('Opbeat error (500): {"error":"Oops!"}');
                 scope.done();
                 done();
             });
