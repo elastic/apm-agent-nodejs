@@ -1,3 +1,13 @@
+# 0.2.6 - 2013/6/10
+  * Bug fix: The express/connect middleware now correctly uses or
+    creates an instance of the Opbeat client
+
+# 0.2.5 - 2013/6/10
+  * Some exceptions where logged twice in the local log
+  * Improved opbeat error logging: If opbeat returns an error, the
+    entire error is now written to the log
+  * Bug fix: Thrown exceptions was not logged to Opbeat
+
 # 0.2.4 - 2013/5/7
   * Bug fix: Request errors was printet twice in the server-logs
 
