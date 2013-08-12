@@ -21,7 +21,7 @@ $ npm install opbeat
 ## Basic Usage
 ```javascript
 var opbeat = require('opbeat');
-var client = opbeat.createClient([options]);
+var client = opbeat.createClient(options); // options are optional
 
 client.captureMessage('Hello, world!');
 ```
@@ -137,9 +137,9 @@ The callback is called **after** the event has been sent to the Opbeat server.
 
 ## Methods
 ```javascript
-client.captureMessage(string|object, [options], [callback])
-client.captureError(Error, [options], [callback])
-client.captureRequestError(Error, req, [options], [callback])
+client.captureMessage(string|object, options, callback); // options and callback are optional
+client.captureError(Error, options, callback); // options and callback are optional
+client.captureRequestError(Error, req, options, callback); // options and callback are optional
 ```
 
 ## Advanced usage
