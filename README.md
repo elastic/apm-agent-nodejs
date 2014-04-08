@@ -1,4 +1,3 @@
-**Node v0.10 compatible**
 [![Build Status](https://travis-ci.org/watson/opbeat-node.png)](https://travis-ci.org/watson/opbeat-node)
 
 Log errors and stack traces in [Opbeat](http://opbeat.com/) from within
@@ -9,8 +8,6 @@ All processing and sending happens asynchronously to not slow things
 down if/when Opbeat is down or slow.
 
 ## Compatibility
- * 0.6.x
- * 0.8.x
  * 0.10.x
 
 ## Installation

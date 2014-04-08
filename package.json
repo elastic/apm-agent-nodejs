@@ -31,7 +31,7 @@
     "test": "NODE_ENV=test mocha --reporter dot"
   },
   "engines": {
-    "node": ">= 0.6.0"
+    "node": ">= 0.10.0"
   },
   "dependencies": {
     "raw-stacktrace": "^1.0.0"
