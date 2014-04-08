@@ -1,3 +1,5 @@
+'use strict';
+
 var opbeat = require('../');
 var utils = require('../lib/utils');
 

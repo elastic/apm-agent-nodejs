@@ -1,3 +1,5 @@
+'use strict';
+
 var opbeat = require('../')
   , fs = require('fs')
   , nock = require('nock')

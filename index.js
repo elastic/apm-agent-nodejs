@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = require('./lib/client');
 module.exports.middleware = {
     connect: require('./lib/middleware/connect')

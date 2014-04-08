@@ -1,3 +1,5 @@
+'use strict';
+
 var opbeat = require('../');
 opbeat.parsers = require('../lib/parsers');
 
