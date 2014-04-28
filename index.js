@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = require('./lib/client');
-module.exports.middleware = {
+module.exports = exports = require('./lib/client');
+exports.middleware = {
     connect: require('./lib/middleware/connect')
 };
 // friendly alias for "opbeat.middleware.express"
-module.exports.middleware.express = module.exports.middleware.connect;
+exports.middleware.express = exports.middleware.connect;
