@@ -34,7 +34,7 @@
     "node": ">= 0.10.0"
   },
   "dependencies": {
-    "raw-stacktrace": "^1.0.0"
+    "stackback": "0.0.2"
   },
   "devDependencies": {
     "connect": "*",

@@ -28,14 +28,6 @@ var restoreConsoleWarn = function () {
     console.warn = _oldConsoleWarn;
 }
 
-describe('Error.prepareStackTrace', function () {
-    it('should set structuredStackTrace on all errors', function () {
-        var err = new Error();
-        err.stack; // Error.prepareStackTrace is only called when stack is accessed, so access it
-        err.should.have.ownProperty('structuredStackTrace');
-    });
-});
-
 describe('opbeat.version', function () {
     it('should be valid', function () {
         opbeat.version.should.match(/^\d+\.\d+\.\d+(-\w+)?$/);

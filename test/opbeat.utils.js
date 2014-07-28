@@ -1,5 +1,6 @@
 'use strict';
 
+var stackback = require('stackback');
 var opbeat = require('../');
 var utils = require('../lib/utils');
 
@@ -7,8 +8,8 @@ describe('utils', function () {
   describe('.validStack()', function () {
     it('should return true if the stack is valid', function () {
       var err = new Error();
-      err.stack; // Error.prepareStackTrace is only called when stack is accessed, so access it
-      utils.validStack(err.structuredStackTrace).should.equal(true);
+      var stack = stackback(err);
+      utils.validStack(stack).should.equal(true);
     });
 
     it('should return false if the stack isn\'t valid', function () {
@@ -19,8 +20,8 @@ describe('utils', function () {
   describe('.parseStack()', function () {
     it('should call the callback with an array of stack frames', function (done) {
       var err = new Error();
-      err.stack; // Error.prepareStackTrace is only called when stack is accessed, so access it
-      utils.parseStack(err.structuredStackTrace, function (frames) {
+      var stack = stackback(err);
+      utils.parseStack(stack, function (frames) {
         frames.should.be.an.instanceOf(Array);
         frames.length.should.not.equal(0);
         frames[0].should.have.ownProperty('filename');
