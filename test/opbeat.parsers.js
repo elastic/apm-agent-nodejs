@@ -1,5 +1,6 @@
 'use strict';
 
+var semver = require('semver');
 var opbeat = require('../');
 opbeat.parsers = require('../lib/parsers');
 
@@ -97,10 +98,13 @@ describe('opbeat.parsers', function () {
         o['...']['Derp']();
       } catch(e) {
         opbeat.parsers.parseError(e, {}, function (parsed) {
-          parsed['message'].should.equal('TypeError: Cannot call method \'Derp\' of undefined');
+          var msg = semver.lt(process.version, '0.11.0') ?
+            'Cannot call method \'Derp\' of undefined' :
+            'Cannot read property \'Derp\' of undefined';
+          parsed['message'].should.equal('TypeError: ' + msg);
           parsed.should.have.property('exception');
           parsed['exception']['type'].should.equal('TypeError');
-          parsed['exception']['value'].should.equal('Cannot call method \'Derp\' of undefined');
+          parsed['exception']['value'].should.equal(msg);
           parsed.should.have.property('stacktrace');
           parsed['stacktrace'].should.have.property('frames');
           done();

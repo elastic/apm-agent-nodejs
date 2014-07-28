@@ -44,6 +44,7 @@
     "mocha": "^1.21.3",
     "mock-udp": "^0.1.1",
     "nock": "^0.42.2",
+    "semver": "^3.0.1",
     "should": "^4.0.4"
   },
   "gitHead": "a7b9aef184f51b20b6f1ca51ce5445558a775189",
