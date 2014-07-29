@@ -59,7 +59,6 @@ describe('opbeat.createClient', function () {
 
     it('should parse the DSN with options', function () {
         var expected = {
-            protocol: 'https',
             host: 'opbeat.com',
             path: '/api/v1/organizations/some-org-id/apps/some-app-id/errors/'
         };
@@ -77,7 +76,6 @@ describe('opbeat.createClient', function () {
 
     it('should pull OPBEAT_ORGANIZATION_ID from environment when passing options', function () {
         var expected = {
-            protocol: 'https',
             host: 'opbeat.com',
             path: '/api/v1/organizations/another-org-id/apps/some-app-id/errors/'
         };
