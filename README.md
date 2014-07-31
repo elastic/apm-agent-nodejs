@@ -139,6 +139,33 @@ client.captureError(Error, options, callback); // options and callback are optio
 client.captureRequestError(Error, req, options, callback); // options and callback are optional
 ```
 
+## Deployment tracking
+
+Though Opbeat provides [other
+means](https://opbeat.com/docs/release_tracking/) of tracking
+deployment, you can also use this client for to track deployments.
+
+Use the `.trackDeployment()` function with the optional options and
+callback arguments:
+
+```javascript
+client.trackDeployment(options, callback);
+```
+
+Options:
+
+- `path` - An optional path on the filesystem where the git repo can be found (defaults to the current working directory)
+- `rev` - An optional full git revision (will try to guess the `rev` based on the `path`)
+- `status` - `completed` (default) or `machine-completed`. If `machine-completed` is specified, the `hostname` attribute must be present
+- `branch` - Optional git branch (will try to guess the `rev` based on the `path`)
+- `hostname` - Optional hostname of the server that was updated. Required if `status=machine-completed`
+
+Callback:
+
+Will be called when the deployment have been tracked. Note that the
+callback will not be called upon errors. Listen instead for the `error`
+or `connectionError` events.
+
 ## Advanced usage
 
 ### Parameterized messages

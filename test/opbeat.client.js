@@ -4,7 +4,8 @@ var opbeat = require('../')
   , fs = require('fs')
   , nock = require('nock')
   , common = require('common')
-  , mockudp = require('mock-udp');
+  , mockudp = require('mock-udp')
+  , querystring = require('querystring');
 
 var options = {
   organization_id: 'some-org-id',
@@ -60,7 +61,7 @@ describe('opbeat.createClient', function () {
   it('should parse the DSN with options', function () {
     var expected = {
       host: 'opbeat.com',
-      path: '/api/v1/organizations/some-org-id/apps/some-app-id/errors/'
+      path: '/api/v1/organizations/some-org-id/apps/some-app-id/'
     };
     client = opbeat.createClient(common.join(options, { hostname: 'my-hostname' }));
     client.dsn.should.eql(expected);
@@ -77,7 +78,7 @@ describe('opbeat.createClient', function () {
   it('should pull OPBEAT_ORGANIZATION_ID from environment when passing options', function () {
     var expected = {
       host: 'opbeat.com',
-      path: '/api/v1/organizations/another-org-id/apps/some-app-id/errors/'
+      path: '/api/v1/organizations/another-org-id/apps/some-app-id/'
     };
     process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
     client = opbeat.createClient({
@@ -266,6 +267,71 @@ describe('opbeat.createClient', function () {
       });
 
       process.emit('uncaughtException', new Error('derp'));
+    });
+  });
+
+  describe('#trackDeployment()', function () {
+    beforeEach(function () {
+      client = opbeat.createClient(options);
+    });
+
+    it('should send deployment request to the Opbeat server with given rev', function (done) {
+      var scope = nock('https://opbeat.com')
+        .filteringRequestBody(function (body) {
+          var params = querystring.parse(body);
+          if (Object.keys(params).length === 3 &&
+              params.rev === 'foo' &&
+              params.status === 'completed' &&
+              params.hostname.length > 0) return 'ok';
+          throw new Error('Unexpected body: ' + body);
+        })
+        .post('/api/v1/organizations/some-org-id/apps/some-app-id/deployments/', 'ok')
+        .reply(200);
+
+      client.trackDeployment({ rev: 'foo' }, function () {
+        scope.done();
+        done();
+      });
+    });
+
+    it('should send deployment request to the Opbeat server with given rev and branch', function (done) {
+      var scope = nock('https://opbeat.com')
+        .filteringRequestBody(function (body) {
+          var params = querystring.parse(body);
+          if (Object.keys(params).length === 4 &&
+              params.rev === 'foo' &&
+              params.branch === 'bar' &&
+              params.status === 'completed' &&
+              params.hostname.length > 0) return 'ok';
+          throw new Error('Unexpected body: ' + body);
+        })
+        .post('/api/v1/organizations/some-org-id/apps/some-app-id/deployments/', 'ok')
+        .reply(200);
+
+      client.trackDeployment({ rev: 'foo', branch: 'bar' }, function () {
+        scope.done();
+        done();
+      });
+    });
+
+    it('should send deployment request to the Opbeat server with given rev and branch automatically generated', function (done) {
+      var scope = nock('https://opbeat.com')
+        .filteringRequestBody(function (body) {
+          var params = querystring.parse(body);
+          if (Object.keys(params).length === 4 &&
+              /^[\da-f]{40}$/.test(params.rev) &&
+              ~['master', 'HEAD'].indexOf(params.branch) &&
+              params.status === 'completed' &&
+              params.hostname.length > 0) return 'ok';
+          throw new Error('Unexpected body: ' + body);
+        })
+        .post('/api/v1/organizations/some-org-id/apps/some-app-id/deployments/', 'ok')
+        .reply(200);
+
+      client.trackDeployment(function () {
+        scope.done();
+        done();
+      });
     });
   });
 });
