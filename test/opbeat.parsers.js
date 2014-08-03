@@ -35,7 +35,6 @@ describe('opbeat.parsers', function () {
       var parsed = opbeat.parsers.parseRequest(mockReq);
       parsed.should.have.property('http');
       parsed['http'].url.should.equal('https://mattrobenolt.com/some/path?key=value');
-      parsed['http'].env.NODE_ENV.should.equal(process.env.NODE_ENV);
     });
   });
 
