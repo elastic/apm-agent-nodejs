@@ -35,7 +35,6 @@
   },
   "dependencies": {
     "after-all": "^2.0.0",
-    "stackback": "0.0.2",
     "stackman": "^0.1.2"
   },
   "devDependencies": {
