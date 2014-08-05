@@ -8,7 +8,9 @@ All processing and sending happens asynchronously to not slow things
 down if/when Opbeat is down or slow.
 
 ## Compatibility
- * 0.10.x
+
+The module is tested against Node.js v0.10 and above. Previous versions
+of Node.js is not supported.
 
 ## Installation
 ```
