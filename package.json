@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "after-all": "^2.0.0",
-    "stackman": "^0.2.1"
+    "stackman": "^0.2.2"
   },
   "devDependencies": {
     "common": "^0.2.5",
