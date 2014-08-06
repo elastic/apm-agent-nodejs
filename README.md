@@ -186,12 +186,12 @@ client.captureMessage({
 
 ### Log levels
 
-Opbeat supports 5 different severity levels: 'debug', 'info', 'warn',
-'error', 'critical'.  By default the client logs everything as 'error'.
+Opbeat supports 5 different severity levels: 'debug', 'info', 'warning',
+'error', 'fatal'.  By default the client logs everything as 'error'.
 You can always override this using the optional options argument:
 
 ```javascript
-client.captureMessage('Foobar', { level: 'warn' });
+client.captureMessage('Foobar', { level: 'warning' });
 ```
 
 ### Metadata
