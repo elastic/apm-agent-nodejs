@@ -184,11 +184,10 @@ describe('opbeat.createClient', function () {
     it('should use `param_message` instead of `message` if given an object as 1st argument', function (done) {
       var oldProcess = client.process;
       client.process = function (kwargs, cb) {
-        kwargs.should.not.have.ownProperty('message');
+        kwargs.should.have.ownProperty('message');
         kwargs.should.have.ownProperty('param_message');
-        kwargs.param_message.message.should.eql('Hello %s');
-        kwargs.param_message.params.should.be.instanceOf(Array);
-        kwargs.param_message.params[0].should.eql('World');
+        kwargs.message.should.eql('Hello World');
+        kwargs.param_message.should.eql('Hello %s');
         done();
       };
       client.captureMessage({ message: 'Hello %s', params: ['World'] });
