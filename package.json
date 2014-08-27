@@ -28,7 +28,8 @@
   "license": "BSD",
   "main": "index",
   "scripts": {
-    "test": "NODE_ENV=test mocha --reporter dot"
+    "test": "NODE_ENV=test mocha --reporter dot",
+    "test-cli": "node test/scripts/cli.js"
   },
   "engines": {
     "node": ">= 0.10.0"
@@ -42,6 +43,7 @@
     "connect": "^3.1.0",
     "express": "^4.7.2",
     "glob": "^4.0.5",
+    "inquirer": "^0.6.0",
     "mocha": "^1.21.3",
     "mock-udp": "^0.1.1",
     "nock": "^0.42.2",
