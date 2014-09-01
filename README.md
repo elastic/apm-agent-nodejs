@@ -137,8 +137,7 @@ The callback is called **after** the event has been sent to the Opbeat server.
 ## Methods
 ```javascript
 client.captureMessage(string|object, options, callback); // options and callback are optional
-client.captureError(Error, options, callback); // options and callback are optional
-client.captureRequestError(Error, req, options, callback); // options and callback are optional
+client.captureError(Error, req, options, callback); // options and callback are optional
 ```
 
 ## Deployment tracking
@@ -198,7 +197,7 @@ client.captureMessage('Foobar', { level: 'warning' });
 
 To ease debugging it's possible to send some extra data with each error/message you send to Opbeat. The Opbeat API supports a lot of different metadata fields, most of which are automatlically managed by the opbeat-node client. But if you wish you can supply some extra details using `client_supplied_id`, `extra`, `user` or `query`. If you want to know more about all the fields, you should take a look at the full [Opbeat API docs](https://opbeat.com/docs/api/errorlog/).
 
-To supply any of these extra fields, use the optional options argument when calling either `client.captureMessage()`, `client.captureError()` or `client.captureRequestError()`.
+To supply any of these extra fields, use the optional options argument when calling either `client.captureMessage()` or `client.captureError()`.
 
 Here are some examples:
 
