@@ -6,12 +6,12 @@ opbeat.parsers = require('../lib/parsers');
 
 describe('opbeat.parsers', function () {
   describe('#parseText()', function () {
-    it('should parse some text without kwargs', function () {
+    it('should parse some text without options', function () {
       var parsed = opbeat.parsers.parseText('Howdy');
       parsed['message'].should.equal('Howdy');
     });
 
-    it('should parse some text with kwargs', function () {
+    it('should parse some text with options', function () {
       var parsed = opbeat.parsers.parseText('Howdy', {'foo': 'bar'});
       parsed['message'].should.equal('Howdy');
       parsed['foo'].should.equal('bar');
