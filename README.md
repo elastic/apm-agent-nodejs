@@ -33,6 +33,7 @@ var options = {
   secret_token: '...',          // Required unless OPBEAT_SECRET_TOKEN environment variable is set
   env: 'production',            // Optional - falls back to NODE_ENV || 'development'
   hostname: '...',              // Optional - falls back to OS hostname
+  request: null,                // Optional - An instance of `http.IncomingMessage`
   logger: '...',                // Optional
   handleExceptions: false,      // Optional - defaults to true
   silent: true,                 // Optional - defaults to false
@@ -137,7 +138,7 @@ The callback is called **after** the event has been sent to the Opbeat server.
 ## Methods
 ```javascript
 client.captureMessage(string|object, options, callback); // options and callback are optional
-client.captureError(Error, req, options, callback); // options and callback are optional
+client.captureError(Error, options, callback); // options and callback are optional
 ```
 
 ## Deployment tracking
