@@ -1,3 +1,34 @@
+# Bleading edge (master)
+  * Add deployment tracking support
+  * Add support for HTTP request logging in captureMessage
+  * Merge captureError and captureRequestError into one function
+  * Remove support for overriding the Opbeat http API port number
+  * Automatically log custom properties on the Error object
+  * Log HTTP User-Agent header if present
+  * Log name of Node.js module where error occured
+  * Log request.json if present
+  * Log whether http requests are secure or not
+  * Log remote IP
+  * Don't log stack-frame path as absolute
+  * Only log cookies if they are present
+  * Security fix: Don't shamelessly track all environment variables
+  * Bug fix: Support the new Opbeat param_message API format
+  * Improve HTTP message parsing
+  * A lot of code cleanup
+
+# 0.3.1 - 2014/4/28
+  * Allow you to call client functions without having to worry about
+    binding
+
+# 0.3.0 - 2014/4/9
+  * Removed support for Node.js versions below v0.10
+
+# 0.2.9 - 2014/4/9
+  * Internal improvements
+
+# 0.2.8 - 2013/8/25
+  * Bug fix: Set culprit correctly on errors sent to Opbeat
+
 # 0.2.7 - 2013/6/10
   * Bug fix: The express/connect middleware now correctly uses or
     creates an instance of the Opbeat client
