@@ -8,13 +8,13 @@ describe('opbeat.parsers', function () {
   describe('#parseText()', function () {
     it('should parse some text without options', function () {
       var parsed = opbeat.parsers.parseText('Howdy');
-      parsed['message'].should.equal('Howdy');
+      parsed.message.should.equal('Howdy');
     });
 
     it('should parse some text with options', function () {
       var parsed = opbeat.parsers.parseText('Howdy', {'foo': 'bar'});
-      parsed['message'].should.equal('Howdy');
-      parsed['foo'].should.equal('bar');
+      parsed.message.should.equal('Howdy');
+      parsed.foo.should.equal('bar');
     });
   });
 
@@ -34,43 +34,43 @@ describe('opbeat.parsers', function () {
       };
       var parsed = opbeat.parsers.parseRequest(mockReq);
       parsed.should.have.property('http');
-      parsed['http'].url.should.equal('https://mattrobenolt.com/some/path?key=value');
+      parsed.http.url.should.equal('https://mattrobenolt.com/some/path?key=value');
     });
   });
 
   describe('#parseError()', function () {
     it('should parse plain Error object', function (done) {
       opbeat.parsers.parseError(new Error(), {}, function (parsed) {
-        parsed['message'].should.equal('Error: <no message>');
+        parsed.message.should.equal('Error: <no message>');
         parsed.should.have.property('exception');
-        parsed['exception']['type'].should.equal('Error');
-        parsed['exception']['value'].should.equal('');
+        parsed.exception.type.should.equal('Error');
+        parsed.exception.value.should.equal('');
         parsed.should.have.property('stacktrace');
-        parsed['stacktrace'].should.have.property('frames');
+        parsed.stacktrace.should.have.property('frames');
         done();
       });
     });
 
     it('should parse Error with message', function (done) {
       opbeat.parsers.parseError(new Error('Crap'), {}, function (parsed) {
-        parsed['message'].should.equal('Error: Crap');
+        parsed.message.should.equal('Error: Crap');
         parsed.should.have.property('exception');
-        parsed['exception']['type'].should.equal('Error');
-        parsed['exception']['value'].should.equal('Crap');
+        parsed.exception.type.should.equal('Error');
+        parsed.exception.value.should.equal('Crap');
         parsed.should.have.property('stacktrace');
-        parsed['stacktrace'].should.have.property('frames');
+        parsed.stacktrace.should.have.property('frames');
         done();
       });
     });
 
     it('should parse TypeError with message', function (done) {
       opbeat.parsers.parseError(new TypeError('Crap'), {}, function (parsed) {
-        parsed['message'].should.equal('TypeError: Crap');
+        parsed.message.should.equal('TypeError: Crap');
         parsed.should.have.property('exception');
-        parsed['exception']['type'].should.equal('TypeError');
-        parsed['exception']['value'].should.equal('Crap');
+        parsed.exception.type.should.equal('TypeError');
+        parsed.exception.value.should.equal('Crap');
         parsed.should.have.property('stacktrace');
-        parsed['stacktrace'].should.have.property('frames');
+        parsed.stacktrace.should.have.property('frames');
         done();
       });
     });
@@ -80,12 +80,12 @@ describe('opbeat.parsers', function () {
         throw new Error('Derp');
       } catch(e) {
         opbeat.parsers.parseError(e, {}, function (parsed) {
-          parsed['message'].should.equal('Error: Derp');
+          parsed.message.should.equal('Error: Derp');
           parsed.should.have.property('exception');
-          parsed['exception']['type'].should.equal('Error');
-          parsed['exception']['value'].should.equal('Derp');
+          parsed.exception.type.should.equal('Error');
+          parsed.exception.value.should.equal('Derp');
           parsed.should.have.property('stacktrace');
-          parsed['stacktrace'].should.have.property('frames');
+          parsed.stacktrace.should.have.property('frames');
           done();
         });
       }
@@ -100,12 +100,12 @@ describe('opbeat.parsers', function () {
           var msg = semver.lt(process.version, '0.11.0') ?
             'Cannot call method \'Derp\' of undefined' :
             'Cannot read property \'Derp\' of undefined';
-          parsed['message'].should.equal('TypeError: ' + msg);
+          parsed.message.should.equal('TypeError: ' + msg);
           parsed.should.have.property('exception');
-          parsed['exception']['type'].should.equal('TypeError');
-          parsed['exception']['value'].should.equal(msg);
+          parsed.exception.type.should.equal('TypeError');
+          parsed.exception.value.should.equal(msg);
           parsed.should.have.property('stacktrace');
-          parsed['stacktrace'].should.have.property('frames');
+          parsed.stacktrace.should.have.property('frames');
           done();
         });
       }
