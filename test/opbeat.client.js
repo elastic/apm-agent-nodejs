@@ -120,7 +120,7 @@ describe('opbeat.createClient', function () {
     console.warn._called.should.eql(true);
   });
 
-  describe('#captureMessage()', function () {
+  describe('#captureError()', function () {
     beforeEach(function () {
       mockConsoleWarn();
       client = opbeat.createClient(options);
@@ -141,7 +141,7 @@ describe('opbeat.createClient', function () {
         scope.done();
         done();
       });
-      client.captureMessage('Hey!');
+      client.captureError('Hey!');
     });
 
     it('should emit error when request returns non 200', function (done) {
@@ -154,7 +154,7 @@ describe('opbeat.createClient', function () {
         scope.done();
         done();
       });
-      client.captureMessage('Hey!');
+      client.captureError('Hey!');
     });
 
     it('shouldn\'t shit it\'s pants when error is emitted without a listener', function () {
@@ -163,7 +163,7 @@ describe('opbeat.createClient', function () {
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
         .reply(500, { error: 'Oops!' });
 
-      client.captureMessage('Hey!');
+      client.captureError('Hey!');
     });
 
     it('should attach an Error object when emitting error', function (done) {
@@ -178,7 +178,7 @@ describe('opbeat.createClient', function () {
         done();
       });
 
-      client.captureMessage('Hey!');
+      client.captureError('Hey!');
     });
 
     it('should use `param_message` as well as `message` if given an object as 1st argument', function (done) {
@@ -191,17 +191,7 @@ describe('opbeat.createClient', function () {
         client.process = oldProcess;
         done();
       };
-      client.captureMessage({ message: 'Hello %s', params: ['World'] });
-    });
-  });
-
-  describe('#captureError()', function () {
-    beforeEach(function () {
-      mockConsoleWarn();
-      client = opbeat.createClient(options);
-    });
-    afterEach(function () {
-      restoreConsoleWarn();
+      client.captureError({ message: 'Hello %s', params: ['World'] });
     });
 
     it('should send an Error to Opbeat server', function (done) {
@@ -217,18 +207,6 @@ describe('opbeat.createClient', function () {
         done();
       });
       client.captureError(new Error('wtf?'));
-    });
-
-    it('should send a plain text "error" as a Message instead', function (done) {
-      // See: https://github.com/mattrobenolt/raven-node/issues/18
-      var old = client.captureMessage;
-      client.captureMessage = function (message) {
-        // I'm also appending "Error: " to the beginning to help hint
-        message.should.equal('Error: wtf?');
-        done();
-        client.captureMessage = old;
-      };
-      client.captureError('wtf?');
     });
   });
 

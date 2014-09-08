@@ -26,7 +26,7 @@ var test = function (options) {
     console.log('The error have been logged at:', url);
 
     console.log('Capturing message...');
-    client.captureMessage('captureMessage()', function (err, url) {
+    client.captureError('captureError()', function (err, url) {
       if (err) console.log('Something went wrong:', err.message);
       console.log('The message have been logged at:', url);
 

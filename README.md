@@ -22,7 +22,7 @@ $ npm install opbeat
 var opbeat = require('opbeat');
 var client = opbeat.createClient(options); // options are optional
 
-client.captureMessage('Hello, world!');
+client.captureError('Hello, world!');
 ```
 
 Options are:
@@ -60,7 +60,7 @@ client.captureError(new Error('Broke!'));
 
 ## Opbeat URL
 ```javascript
-client.captureMessage('Hello, world!', function (opbeatErr, url) {
+client.captureError('Hello, world!', function (opbeatErr, url) {
   console.log('The message can be found on:', url);
 });
 ```
@@ -84,7 +84,7 @@ client.on('error', function (err) {
 client.on('connectionError', function (err) {
   console.log('Could not contact Opbeat :(');
 });
-client.captureMessage('Boom');
+client.captureError('Boom');
 ```
 
 ## Environment variables
@@ -137,8 +137,7 @@ The callback is called **after** the event has been sent to the Opbeat server.
 
 ## Methods
 ```javascript
-client.captureMessage(string|object, options, callback); // options and callback are optional
-client.captureError(Error, options, callback); // options and callback are optional
+client.captureError(error, options, callback); // options and callback are optional
 ```
 
 ## Deployment tracking
@@ -178,7 +177,7 @@ message text differs. To group these kind of messages, send the message
 as a parameterized message:
 
 ```javascript
-client.captureMessage({
+client.captureError({
   message: 'Timeout exeeded by %d seconds',
   params: [seconds]
 });
@@ -191,14 +190,14 @@ Opbeat supports 5 different severity levels: 'debug', 'info', 'warning',
 You can always override this using the optional options argument:
 
 ```javascript
-client.captureMessage('Foobar', { level: 'warning' });
+client.captureError('Foobar', { level: 'warning' });
 ```
 
 ### Metadata
 
 To ease debugging it's possible to send some extra data with each error/message you send to Opbeat. The Opbeat API supports a lot of different metadata fields, most of which are automatlically managed by the opbeat-node client. But if you wish you can supply some extra details using `client_supplied_id`, `extra`, `user` or `query`. If you want to know more about all the fields, you should take a look at the full [Opbeat API docs](https://opbeat.com/docs/api/errorlog/).
 
-To supply any of these extra fields, use the optional options argument when calling either `client.captureMessage()` or `client.captureError()`.
+To supply any of these extra fields, use the optional options argument when calling `client.captureError()`.
 
 Here are some examples:
 
@@ -214,7 +213,7 @@ client.captureError(new Error('Boom!'), {
 });
 
 // Sending some abitrary extra details using the `extra` field
-client.captureMessage('Foobar', {
+client.captureError('Foobar', {
   extra: {
     some_important_metric: 'foobar'
   }

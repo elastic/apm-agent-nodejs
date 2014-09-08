@@ -1,7 +1,6 @@
 # Bleading edge (master)
   * Add deployment tracking support
-  * Add support for HTTP request logging in captureMessage
-  * Merge captureError and captureRequestError into one function
+  * Merge captureMessage, captureError and captureRequestError into one function
   * Remove support for overriding the Opbeat http API port number
   * Automatically log custom properties on the Error object
   * Log HTTP User-Agent header if present

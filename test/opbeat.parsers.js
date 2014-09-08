@@ -5,16 +5,18 @@ var opbeat = require('../');
 opbeat.parsers = require('../lib/parsers');
 
 describe('opbeat.parsers', function () {
-  describe('#parseText()', function () {
-    it('should parse some text without options', function () {
-      var parsed = opbeat.parsers.parseText('Howdy');
-      parsed.message.should.equal('Howdy');
+  describe('#parseMessage()', function () {
+    it('should parse string', function () {
+      var options = {};
+      opbeat.parsers.parseMessage('Howdy', options);
+      options.message.should.equal('Howdy');
     });
 
-    it('should parse some text with options', function () {
-      var parsed = opbeat.parsers.parseText('Howdy', {'foo': 'bar'});
-      parsed.message.should.equal('Howdy');
-      parsed.foo.should.equal('bar');
+    it('should parse object', function () {
+      var options = {};
+      opbeat.parsers.parseMessage({ message: 'foo%s', params: ['bar'] }, options);
+      options.message.should.equal('foobar');
+      options.param_message.should.equal('foo%s');
     });
   });
 
