@@ -188,10 +188,10 @@ describe('opbeat.createClient', function () {
         options.should.have.ownProperty('param_message');
         options.message.should.eql('Hello World');
         options.param_message.should.eql('Hello %s');
+        client.process = oldProcess;
         done();
       };
       client.captureMessage({ message: 'Hello %s', params: ['World'] });
-      client.process = oldProcess;
     });
   });
 
