@@ -181,7 +181,7 @@ describe('opbeat.createClient', function () {
       client.captureMessage('Hey!');
     });
 
-    it('should use `param_message` instead of `message` if given an object as 1st argument', function (done) {
+    it('should use `param_message` as well as `message` if given an object as 1st argument', function (done) {
       var oldProcess = client.process;
       client.process = function (options, cb) {
         options.should.have.ownProperty('message');
