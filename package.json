@@ -1,6 +1,6 @@
 {
   "name": "opbeat",
-  "description": "A standalone (Node.js) client for Opbeat",
+  "description": "The official Opbeat client",
   "keywords": [
     "opbeat",
     "log",
@@ -13,7 +13,11 @@
     "alerts",
     "performance",
     "ops",
-    "devops"
+    "devops",
+    "deployment",
+    "deploying",
+    "deploy",
+    "stacktrace"
   ],
   "version": "0.3.1",
   "repository": {
@@ -50,9 +54,11 @@
     "semver": "^3.0.1",
     "should": "^4.0.4"
   },
-  "gitHead": "a7b9aef184f51b20b6f1ca51ce5445558a775189",
-  "readmeFilename": "README.md",
   "directories": {
     "test": "test"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/watson/opbeat-node/issues"
+  },
+  "homepage": "https://github.com/watson/opbeat-node"
 }
