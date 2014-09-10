@@ -1,31 +1,29 @@
+# Opbeat
+
 [![Build Status](https://travis-ci.org/watson/opbeat-node.png)](https://travis-ci.org/watson/opbeat-node)
 
 Log errors and stack traces in [Opbeat](http://opbeat.com/) from within
 your Node.js applications. Includes middleware support for
-[Connect](http://www.senchalabs.org/connect/)/[Express](http://expressjs.com/).
-
-All processing and sending happens asynchronously to not slow things
-down if/when Opbeat is down or slow.
-
-## Compatibility
-
-The module is tested against Node.js v0.10 and above. Previous versions
-of Node.js is not supported.
+[Connect](http://www.senchalabs.org/connect/) and
+[Express](http://expressjs.com/).
 
 ## Installation
+
 ```
-$ npm install opbeat
+npm install opbeat
 ```
 
 ## Basic Usage
+
 ```javascript
 var opbeat = require('opbeat');
 var client = opbeat.createClient(options); // options are optional
 
-client.captureError('Hello, world!');
+client.captureError(new Error('Hello, world!'));
 ```
 
 Options are:
+
 ```javascript
 var options = {
   app_id: '...',                // Required unless OPBEAT_APP_ID environment variable is set
@@ -42,37 +40,31 @@ var options = {
 };
 ```
 
+The `captureError` function can also be given an optional callback which
+will be called once the error have been logged:
+
+```javascript
+client.captureError(new Error('Broke!'), function (opbeatErr, url) {
+  console.log('The error can be found at:', url);
+});
+```
+
 You can always get access to the created client from another part of
-your Node.js app by loading the `opbeat` module again and accessing the
-`client` property:
+your Node.js app by requireing the `opbeat` module again and accessing
+the `client` property:
+
 ```javascript
 var opbeat = require('opbeat');
-opbeat.client.captureError(new Error('foo'));
+
+opbeat.client.captureError(new Error('Something else broke!'));
 ```
 
 Note that `opbeat.client` will be undefined if you havent initialized
 the client previously with a call to `opbeat.createClient()`.
 
-## Logging an error
-```javascript
-client.captureError(new Error('Broke!'));
-```
-
-## Opbeat URL
-```javascript
-client.captureError('Hello, world!', function (opbeatErr, url) {
-  console.log('The message can be found on:', url);
-});
-```
-
-```javascript
-client.captureError(new Error('Broke!'), function (opbeatErr, url) {
-  console.log('The error can be found on:', url);
-});
-```
-
 ## Events
-If you really care if the event was logged or errored out, Client emits three events, `logged`, `connectionError` and `error`:
+
+Client emits three events: `logged`, `connectionError` and `error`.
 
 ```javascript
 client.on('logged', function (url) {
@@ -88,19 +80,33 @@ client.captureError('Boom');
 ```
 
 ## Environment variables
+
 ### NODE_ENV
-`NODE_ENV` must be anything else than `development` or `test` for Opbeat to actually work. Running in development or test mode, will issue a warning and logging will be disabled.
+
+`NODE_ENV` must be anything else than `development` or `test` for Opbeat
+to actually work. Running in development or test mode, will issue a
+warning and logging will be disabled.
 
 ### OPBEAT_APP_ID
-Optionally declare the application id to use for the client through the environment. Initializing the client in your app won't require setting the application id.
+
+Optionally declare the application id to use for the client through the
+environment. Initializing the client in your app won't require setting
+the application id.
 
 ### OPBEAT_ORGANIZATION_ID
-Optionally declare the organization id to use for the client through the environment. Initializing the client in your app won't require setting the organization id.
+
+Optionally declare the organization id to use for the client through the
+environment. Initializing the client in your app won't require setting
+the organization id.
 
 ### OPBEAT_SECRET_TOKEN
-Optionally declare the Opbeat token to use for the client through the environment. Initializing the client in your app won't require setting the token.
 
-## Handling uncaught exceptions
+Optionally declare the Opbeat token to use for the client through the
+environment. Initializing the client in your app won't require setting
+the token.
+
+## Uncaught exceptions
+
 By default uncaught exceptions are handled by the client and reported
 automatically to Opbeat. To disable this, set the configration option
 `handleExceptions` to `false` when initializing the Opbeat client.
@@ -116,11 +122,11 @@ client.handleUncaughtExceptions(callback);
 If you don't specify a callback, the node process is terminated when an
 uncaught exception is handled by the Opbeat client.
 
-It is recommended that you don't leave the process running after
-receiving an `uncaughtException`
-(http://nodejs.org/api/process.html#process_event_uncaughtexception), so
-if you are using the optional callback, remember to terminate the node
-process:
+[It is
+recommended](http://nodejs.org/api/process.html#process_event_uncaughtexception)
+that you don't leave the process running after receiving an
+`uncaughtException`, so if you are using the optional callback, remember
+to terminate the node process:
 
 ```javascript
 var client = opbeat.createClient({
@@ -133,12 +139,8 @@ client.handleUncaughtExceptions(function (err) {
 });
 ```
 
-The callback is called **after** the event has been sent to the Opbeat server.
-
-## Methods
-```javascript
-client.captureError(error, options, callback); // options and callback are optional
-```
+The callback is called **after** the event has been sent to the Opbeat
+server.
 
 ## Deployment tracking
 
@@ -169,7 +171,18 @@ or `connectionError` events.
 
 ## Advanced usage
 
-### Parameterized messages
+### Non-exceptions
+
+Instead of an `Error` object, you can log a plain text error-message:
+
+```javascript
+client.captureError('Something happened!');
+```
+
+This will also be logged as an error in Opbeat, but will not be
+associated with an exception.
+
+#### Parameterized messages
 
 If the message string contains state or time-specific data, Opbeat will
 not recognize multiple errors as belonging to the same group, since the
@@ -195,9 +208,16 @@ client.captureError('Foobar', { level: 'warning' });
 
 ### Metadata
 
-To ease debugging it's possible to send some extra data with each error/message you send to Opbeat. The Opbeat API supports a lot of different metadata fields, most of which are automatlically managed by the opbeat-node client. But if you wish you can supply some extra details using `client_supplied_id`, `extra`, `user` or `query`. If you want to know more about all the fields, you should take a look at the full [Opbeat API docs](https://opbeat.com/docs/api/errorlog/).
+To ease debugging it's possible to send some extra data with each
+error/message you send to Opbeat. The Opbeat API supports a lot of
+different metadata fields, most of which are automatlically managed by
+the opbeat-node client. But if you wish you can supply some extra
+details using `client_supplied_id`, `extra`, `user` or `query`. If you
+want to know more about all the fields, you should take a look at the
+full [Opbeat API docs](https://opbeat.com/docs/api/errorlog/).
 
-To supply any of these extra fields, use the optional options argument when calling `client.captureError()`.
+To supply any of these extra fields, use the optional options argument
+when calling `client.captureError()`.
 
 Here are some examples:
 
@@ -221,10 +241,16 @@ client.captureError('Foobar', {
 ```
 
 ## Integrations
+
 ### Connect/Express middleware
-The Opbeat middleware can be used as-is with either Connect or Express in the same way. Take note that in your middlewares, Opbeat must appear _after_ your main handler to pick up any errors that may result from handling a request.
+
+The Opbeat middleware can be used as-is with either Connect or Express
+in the same way. Take note that in your middlewares, Opbeat must appear
+_after_ your main handler to pick up any errors that may result from
+handling a request.
 
 #### Connect
+
 ```javascript
 var connect = require('connect');
 function mainHandler(req, res) {
@@ -239,6 +265,7 @@ connect(
 ```
 
 #### Express
+
 ```javascript
 var app = require('express').createServer();
 app.use(opbeat.middleware.express(client || options));
@@ -248,7 +275,15 @@ app.get('/', function mainHandler(req, res) {
 app.listen(3000);
 ```
 
-__Note__: `opbeat.middleware.express` or `opbeat.middleware.connect` *must* be added to the middleware stack *before* any other error handling middlewares or there's a chance that the error will never get to Opbeat.
+__Note__: `opbeat.middleware.express` or `opbeat.middleware.connect`
+*must* be added to the middleware stack *before* any other error
+handling middlewares or there's a chance that the error will never get
+to Opbeat.
+
+## Compatibility
+
+The module is tested against Node.js v0.10 and above. Previous versions
+of Node.js is not supported.
 
 ## Credit
 
