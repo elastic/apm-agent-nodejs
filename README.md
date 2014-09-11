@@ -293,3 +293,7 @@ been modified to work with [Opbeat](http://opbeat.com) instead of
 [Sentry](http://getsentry.com). All credit for the original work go out
 to the original contributors and the main author [Matt
 Robenolt](https://github.com/mattrobenolt).
+
+## LICENSE
+
+BSD
