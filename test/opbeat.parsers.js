@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var semver = require('semver');
 var opbeat = require('../');
 opbeat.parsers = require('../lib/parsers');
@@ -9,14 +10,14 @@ describe('opbeat.parsers', function () {
     it('should parse string', function () {
       var options = {};
       opbeat.parsers.parseMessage('Howdy', options);
-      options.message.should.equal('Howdy');
+      assert.strictEqual(options.message, 'Howdy');
     });
 
     it('should parse object', function () {
       var options = {};
       opbeat.parsers.parseMessage({ message: 'foo%s', params: ['bar'] }, options);
-      options.message.should.equal('foobar');
-      options.param_message.should.equal('foo%s');
+      assert.strictEqual(options.message, 'foobar');
+      assert.strictEqual(options.param_message, 'foo%s');
     });
   });
 
@@ -35,44 +36,44 @@ describe('opbeat.parsers', function () {
         }
       };
       var parsed = opbeat.parsers.parseRequest(mockReq);
-      parsed.should.have.property('http');
-      parsed.http.url.should.equal('https://mattrobenolt.com/some/path?key=value');
+      assert('http' in parsed);
+      assert.strictEqual(parsed.http.url, 'https://mattrobenolt.com/some/path?key=value');
     });
   });
 
   describe('#parseError()', function () {
     it('should parse plain Error object', function (done) {
       opbeat.parsers.parseError(new Error(), {}, function (parsed) {
-        parsed.message.should.equal('Error: <no message>');
-        parsed.should.have.property('exception');
-        parsed.exception.type.should.equal('Error');
-        parsed.exception.value.should.equal('');
-        parsed.should.have.property('stacktrace');
-        parsed.stacktrace.should.have.property('frames');
+        assert.strictEqual(parsed.message, 'Error: <no message>');
+        assert('exception' in parsed);
+        assert.strictEqual(parsed.exception.type, 'Error');
+        assert.strictEqual(parsed.exception.value, '');
+        assert('stacktrace' in parsed);
+        assert('frames' in parsed.stacktrace);
         done();
       });
     });
 
     it('should parse Error with message', function (done) {
       opbeat.parsers.parseError(new Error('Crap'), {}, function (parsed) {
-        parsed.message.should.equal('Error: Crap');
-        parsed.should.have.property('exception');
-        parsed.exception.type.should.equal('Error');
-        parsed.exception.value.should.equal('Crap');
-        parsed.should.have.property('stacktrace');
-        parsed.stacktrace.should.have.property('frames');
+        assert.strictEqual(parsed.message, 'Error: Crap');
+        assert('exception' in parsed);
+        assert.strictEqual(parsed.exception.type, 'Error');
+        assert.strictEqual(parsed.exception.value, 'Crap');
+        assert('stacktrace' in parsed);
+        assert('frames' in parsed.stacktrace);
         done();
       });
     });
 
     it('should parse TypeError with message', function (done) {
       opbeat.parsers.parseError(new TypeError('Crap'), {}, function (parsed) {
-        parsed.message.should.equal('TypeError: Crap');
-        parsed.should.have.property('exception');
-        parsed.exception.type.should.equal('TypeError');
-        parsed.exception.value.should.equal('Crap');
-        parsed.should.have.property('stacktrace');
-        parsed.stacktrace.should.have.property('frames');
+        assert.strictEqual(parsed.message, 'TypeError: Crap');
+        assert('exception' in parsed);
+        assert.strictEqual(parsed.exception.type, 'TypeError');
+        assert.strictEqual(parsed.exception.value, 'Crap');
+        assert('stacktrace' in parsed);
+        assert('frames' in parsed.stacktrace);
         done();
       });
     });
@@ -82,12 +83,12 @@ describe('opbeat.parsers', function () {
         throw new Error('Derp');
       } catch(e) {
         opbeat.parsers.parseError(e, {}, function (parsed) {
-          parsed.message.should.equal('Error: Derp');
-          parsed.should.have.property('exception');
-          parsed.exception.type.should.equal('Error');
-          parsed.exception.value.should.equal('Derp');
-          parsed.should.have.property('stacktrace');
-          parsed.stacktrace.should.have.property('frames');
+          assert.strictEqual(parsed.message, 'Error: Derp');
+          assert('exception' in parsed);
+          assert.strictEqual(parsed.exception.type, 'Error');
+          assert.strictEqual(parsed.exception.value, 'Derp');
+          assert('stacktrace' in parsed);
+          assert('frames' in parsed.stacktrace);
           done();
         });
       }
@@ -102,12 +103,12 @@ describe('opbeat.parsers', function () {
           var msg = semver.lt(process.version, '0.11.0') ?
             'Cannot call method \'Derp\' of undefined' :
             'Cannot read property \'Derp\' of undefined';
-          parsed.message.should.equal('TypeError: ' + msg);
-          parsed.should.have.property('exception');
-          parsed.exception.type.should.equal('TypeError');
-          parsed.exception.value.should.equal(msg);
-          parsed.should.have.property('stacktrace');
-          parsed.stacktrace.should.have.property('frames');
+          assert.strictEqual(parsed.message, 'TypeError: ' + msg);
+          assert('exception' in parsed);
+          assert.strictEqual(parsed.exception.type, 'TypeError');
+          assert.strictEqual(parsed.exception.value, msg);
+          assert('stacktrace' in parsed);
+          assert('frames' in parsed.stacktrace);
           done();
         });
       }

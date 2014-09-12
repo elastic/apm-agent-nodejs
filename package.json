@@ -51,8 +51,7 @@
     "mocha": "^1.21.3",
     "mock-udp": "^0.1.1",
     "nock": "^0.42.2",
-    "semver": "^3.0.1",
-    "should": "^4.0.4"
+    "semver": "^3.0.1"
   },
   "directories": {
     "test": "test"

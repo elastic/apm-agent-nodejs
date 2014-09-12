@@ -1,6 +1,7 @@
 'use strict';
 
 var opbeat = require('../')
+  , assert = require('assert')
   , fs = require('fs')
   , nock = require('nock')
   , common = require('common')
@@ -31,12 +32,12 @@ var restoreConsoleWarn = function () {
 
 describe('opbeat.version', function () {
   it('should be valid', function () {
-    opbeat.version.should.match(/^\d+\.\d+\.\d+(-\w+)?$/);
+    assert(/^\d+\.\d+\.\d+(-\w+)?$/.test(opbeat.version));
   });
 
   it('should match package.json', function () {
     var version = require('../package.json').version;
-    opbeat.version.should.equal(version);
+    assert.strictEqual(opbeat.version, version);
   });
 });
 
@@ -52,10 +53,10 @@ describe('opbeat.createClient', function () {
   });
 
   it('should initialize the client property', function () {
-    opbeat.should.not.have.ownProperty('client');
+    assert(!('client' in opbeat));
     var client = opbeat.createClient(options);
-    opbeat.should.have.ownProperty('client');
-    opbeat.client.should.have.ownProperty('dsn');
+    assert('client' in opbeat);
+    assert('dsn' in opbeat.client);
   });
 
   it('should parse the DSN with options', function () {
@@ -64,14 +65,14 @@ describe('opbeat.createClient', function () {
       path: '/api/v1/organizations/some-org-id/apps/some-app-id/'
     };
     client = opbeat.createClient(common.join(options, { hostname: 'my-hostname' }));
-    client.dsn.should.eql(expected);
-    client.hostname.should.equal('my-hostname');
+    assert.deepEqual(client.dsn, expected);
+    assert.strictEqual(client.hostname, 'my-hostname');
   });
 
   it('should pull OPBEAT_ORGANIZATION_ID from environment', function () {
     process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
     client = opbeat.createClient(disableUncaughtExceptionHandler);
-    client.organization_id.should.eql('another-org-id');
+    assert.strictEqual(client.organization_id, 'another-org-id');
     delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
   });
 
@@ -86,38 +87,38 @@ describe('opbeat.createClient', function () {
       secret_token: 'secret',
       handleExceptions: false
     });
-    client.dsn.should.eql(expected);
-    client.organization_id.should.equal('another-org-id');
-    client.app_id.should.equal('some-app-id');
-    client.secret_token.should.equal('secret');
+    assert.deepEqual(client.dsn, expected);
+    assert.strictEqual(client.organization_id, 'another-org-id');
+    assert.strictEqual(client.app_id, 'some-app-id');
+    assert.strictEqual(client.secret_token, 'secret');
     delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
   });
 
   it('should be disabled when no options have been specified', function () {
     client = opbeat.createClient(disableUncaughtExceptionHandler);
-    client._enabled.should.eql(false);
-    console.warn._called.should.eql(true);
+    assert.strictEqual(client._enabled, false);
+    assert.strictEqual(console.warn._called, true);
   });
 
   it('should pull OPBEAT_APP_ID from environment', function () {
     process.env.OPBEAT_APP_ID='another-app-id';
     client = opbeat.createClient(disableUncaughtExceptionHandler);
-    client.app_id.should.eql('another-app-id');
+    assert.strictEqual(client.app_id, 'another-app-id');
     delete process.env.OPBEAT_APP_ID;
   });
 
   it('should pull OPBEAT_SECRET_TOKEN from environment', function () {
     process.env.OPBEAT_SECRET_TOKEN='pazz';
     client = opbeat.createClient(disableUncaughtExceptionHandler);
-    client.secret_token.should.eql('pazz');
+    assert.strictEqual(client.secret_token, 'pazz');
     delete process.env.OPBEAT_SECRET_TOKEN;
   });
 
   it('should be disabled and warn when NODE_ENV=test', function () {
     process.env.NODE_ENV = 'test';
     client = opbeat.createClient(options);
-    client._enabled.should.eql(false);
-    console.warn._called.should.eql(true);
+    assert.strictEqual(client._enabled, false);
+    assert.strictEqual(console.warn._called, true);
   });
 
   describe('#captureError()', function () {
@@ -137,7 +138,7 @@ describe('opbeat.createClient', function () {
         .reply(200);
 
       client.on('logged', function (result) {
-        result.should.eql('foo');
+        assert.strictEqual(result, 'foo');
         scope.done();
         done();
       });
@@ -173,7 +174,7 @@ describe('opbeat.createClient', function () {
         .reply(500, { error: 'Oops!' });
 
       client.on('error', function (err) {
-        err.message.should.eql('Opbeat error (500): {"error":"Oops!"}');
+        assert.strictEqual(err.message, 'Opbeat error (500): {"error":"Oops!"}');
         scope.done();
         done();
       });
@@ -184,10 +185,10 @@ describe('opbeat.createClient', function () {
     it('should use `param_message` as well as `message` if given an object as 1st argument', function (done) {
       var oldProcess = client.process;
       client.process = function (options, cb) {
-        options.should.have.ownProperty('message');
-        options.should.have.ownProperty('param_message');
-        options.message.should.eql('Hello World');
-        options.param_message.should.eql('Hello %s');
+        assert('message' in options);
+        assert('param_message' in options);
+        assert.strictEqual(options.message, 'Hello World');
+        assert.strictEqual(options.param_message, 'Hello %s');
         client.process = oldProcess;
         done();
       };
@@ -202,7 +203,7 @@ describe('opbeat.createClient', function () {
         .reply(200);
 
       client.on('logged', function (result) {
-        result.should.eql('foo');
+        assert.strictEqual(result, 'foo');
         scope.done();
         done();
       });
@@ -222,7 +223,7 @@ describe('opbeat.createClient', function () {
     it('should add itself to the uncaughtException event list', function () {
       var before = process._events.uncaughtException.length;
       client.handleUncaughtExceptions();
-      process._events.uncaughtException.length.should.equal(before+1);
+      assert.strictEqual(process._events.uncaughtException.length, before+1);
       process._events.uncaughtException.pop(); // patch it back to what it was
     });
 
