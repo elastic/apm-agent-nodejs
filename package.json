@@ -1,6 +1,16 @@
 {
   "name": "opbeat",
+  "version": "0.3.1",
   "description": "The official Opbeat client",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test mocha --reporter dot",
+    "test-cli": "node test/scripts/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/watson/opbeat-node.git"
+  },
   "keywords": [
     "opbeat",
     "log",
@@ -19,25 +29,12 @@
     "deploy",
     "stacktrace"
   ],
-  "version": "0.3.1",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/watson/opbeat-node.git"
-  },
   "author": "Thomas Watson Steen <w@tson.dk>",
-  "contributors": [
-    "Thomas Watson Steen <w@tson.dk>",
-    "Matt Robenolt <matt@ydekproductions.com>"
-  ],
   "license": "BSD",
-  "main": "index",
-  "scripts": {
-    "test": "NODE_ENV=test mocha --reporter dot",
-    "test-cli": "node test/scripts/cli.js"
+  "bugs": {
+    "url": "https://github.com/watson/opbeat-node/issues"
   },
-  "engines": {
-    "node": ">= 0.10.0"
-  },
+  "homepage": "https://github.com/watson/opbeat-node",
   "dependencies": {
     "after-all": "^2.0.1",
     "stackman": "^0.2.2"
@@ -49,11 +46,7 @@
     "nock": "^0.47.0",
     "semver": "^3.0.1"
   },
-  "directories": {
-    "test": "test"
-  },
-  "bugs": {
-    "url": "https://github.com/watson/opbeat-node/issues"
-  },
-  "homepage": "https://github.com/watson/opbeat-node"
+  "engines": {
+    "node": ">= 0.10.0"
+  }
 }
