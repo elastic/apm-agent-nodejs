@@ -44,12 +44,8 @@
   },
   "devDependencies": {
     "common": "^0.2.5",
-    "connect": "^3.1.0",
-    "express": "^4.7.2",
-    "glob": "^4.0.5",
     "inquirer": "^0.6.0",
     "mocha": "^1.21.3",
-    "mock-udp": "^0.1.1",
     "nock": "^0.42.2",
     "semver": "^3.0.1"
   },

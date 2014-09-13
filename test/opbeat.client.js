@@ -5,7 +5,6 @@ var assert = require('assert');
 var fs = require('fs');
 var nock = require('nock');
 var common = require('common');
-var mockudp = require('mock-udp');
 var querystring = require('querystring');
 
 var options = {
