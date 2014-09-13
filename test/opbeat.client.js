@@ -1,12 +1,12 @@
 'use strict';
 
-var opbeat = require('../')
-  , assert = require('assert')
-  , fs = require('fs')
-  , nock = require('nock')
-  , common = require('common')
-  , mockudp = require('mock-udp')
-  , querystring = require('querystring');
+var opbeat = require('../');
+var assert = require('assert');
+var fs = require('fs');
+var nock = require('nock');
+var common = require('common');
+var mockudp = require('mock-udp');
+var querystring = require('querystring');
 
 var options = {
   organization_id: 'some-org-id',
