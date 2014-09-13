@@ -39,14 +39,14 @@
     "node": ">= 0.10.0"
   },
   "dependencies": {
-    "after-all": "^2.0.0",
+    "after-all": "^2.0.1",
     "stackman": "^0.2.2"
   },
   "devDependencies": {
     "common": "^0.2.5",
-    "inquirer": "^0.6.0",
-    "mocha": "^1.21.3",
-    "nock": "^0.42.2",
+    "inquirer": "^0.7.1",
+    "mocha": "^1.21.4",
+    "nock": "^0.47.0",
     "semver": "^3.0.1"
   },
   "directories": {
