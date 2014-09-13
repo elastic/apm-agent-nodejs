@@ -1,11 +1,11 @@
 'use strict';
 
-var opbeat = require('../');
-var assert = require('assert');
 var fs = require('fs');
+var querystring = require('querystring');
+var assert = require('assert');
 var nock = require('nock');
 var common = require('common');
-var querystring = require('querystring');
+var opbeat = require('../');
 
 var options = {
   organization_id: 'some-org-id',
@@ -53,7 +53,7 @@ describe('opbeat.createClient', function () {
 
   it('should initialize the client property', function () {
     assert(!('client' in opbeat));
-    var client = opbeat.createClient(options);
+    client = opbeat.createClient(options);
     assert('client' in opbeat);
     assert('dsn' in opbeat.client);
   });
