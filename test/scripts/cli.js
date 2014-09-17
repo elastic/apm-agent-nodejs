@@ -21,17 +21,17 @@ var test = function (options) {
   });
 
   console.log('Capturing error...');
-  client.captureError(new Error('captureError()'), function (err, url) {
+  client.captureError(new Error('This is an Error object'), function (err, url) {
     if (err) console.log('Something went wrong:', err.message);
     console.log('The error have been logged at:', url);
 
     console.log('Capturing message...');
-    client.captureError('captureError()', function (err, url) {
+    client.captureError('This is a string', function (err, url) {
       if (err) console.log('Something went wrong:', err.message);
       console.log('The message have been logged at:', url);
 
       console.log('Throwing exception...');
-      throw new Error('throw');
+      throw new Error('This Error was thrown');
     });
   });
 };
