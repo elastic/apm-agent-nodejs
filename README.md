@@ -29,7 +29,7 @@ var options = {
   app_id: '...',                // Required unless OPBEAT_APP_ID environment variable is set
   organization_id: '...',       // Required unless OPBEAT_ORGANIZATION_ID environment variable is set
   secret_token: '...',          // Required unless OPBEAT_SECRET_TOKEN environment variable is set
-  env: 'production',            // Optional - falls back to NODE_ENV || 'development'
+  active: true,                 // Optional
   hostname: '...',              // Optional - falls back to OS hostname
   request: null,                // Optional - An instance of `http.IncomingMessage`
   handleExceptions: false,      // Optional - defaults to true
@@ -79,12 +79,6 @@ client.captureError('Boom');
 ```
 
 ## Environment variables
-
-### NODE_ENV
-
-`NODE_ENV` must be anything else than `development` or `test` for Opbeat
-to actually work. Running in development or test mode, will issue a
-warning and logging will be disabled.
 
 ### OPBEAT_APP_ID
 

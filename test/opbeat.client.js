@@ -51,7 +51,6 @@ describe('opbeat.createClient', function () {
   var skipBody = function (path) { return '*'; };
   beforeEach(function () {
     mockConsole();
-    process.env.NODE_ENV='production';
   });
   afterEach(function () {
     restoreConsole();
@@ -101,7 +100,7 @@ describe('opbeat.createClient', function () {
 
   it('should be disabled when no options have been specified', function () {
     client = opbeat.createClient(disableUncaughtExceptionHandler);
-    assert.strictEqual(client._enabled, false);
+    assert.strictEqual(client.active, false);
     assert.strictEqual(console.info._called, true);
   });
 
@@ -119,10 +118,9 @@ describe('opbeat.createClient', function () {
     delete process.env.OPBEAT_SECRET_TOKEN;
   });
 
-  it('should be disabled and warn when NODE_ENV=test', function () {
-    process.env.NODE_ENV = 'test';
-    client = opbeat.createClient(options);
-    assert.strictEqual(client._enabled, false);
+  it('should be disabled and log it when active=false', function () {
+    client = opbeat.createClient(common.join(options, { active: false }));
+    assert.strictEqual(client.active, false);
     assert.strictEqual(console.info._called, true);
   });
 
