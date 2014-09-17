@@ -32,7 +32,6 @@ var options = {
   env: 'production',            // Optional - falls back to NODE_ENV || 'development'
   hostname: '...',              // Optional - falls back to OS hostname
   request: null,                // Optional - An instance of `http.IncomingMessage`
-  logger: '...',                // Optional
   handleExceptions: false,      // Optional - defaults to true
   level: 'info',                // Optional - defaults to info (debug, info, warn, error, fatal)
   exceptionsAreCritical: false, // Optional - defaults to true
