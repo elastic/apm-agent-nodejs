@@ -34,7 +34,7 @@ var options = {
   request: null,                // Optional - An instance of `http.IncomingMessage`
   logger: '...',                // Optional
   handleExceptions: false,      // Optional - defaults to true
-  silent: true,                 // Optional - defaults to false
+  level: 'info',                // Optional - defaults to info (debug, info, warn, error, fatal)
   exceptionsAreCritical: false, // Optional - defaults to true
   stackTraceLimit: 10           // Optional - defaults to Infinity
 };

@@ -11,7 +11,7 @@ var questions = [
 
 var test = function (options) {
   options.env = 'production';
-  options.silent = true;
+  options.level = 'fatal';
   options.handleExceptions = false;
   var client = opbeat.createClient(options);
 
