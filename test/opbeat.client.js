@@ -18,16 +18,22 @@ var disableUncaughtExceptionHandler = {
   handleExceptions: false
 };
 
+var _oldConsoleInfo = console.info;
 var _oldConsoleWarn = console.warn;
-var mockConsoleWarn = function () {
-  console.warn = function () {
-    console.warn._called = true;
-  };
+var _oldConsoleError = console.error;
+var mockConsole = function () {
+  console.info = function () { console.info._called = true; };
+  console.warn = function () { console.warn._called = true; };
+  console.error = function () { console.error._called = true; };
+  console.info._called = false;
   console.warn._called = false;
-}
-var restoreConsoleWarn = function () {
+  console.error._called = false;
+};
+var restoreConsole = function () {
+  console.info = _oldConsoleInfo;
   console.warn = _oldConsoleWarn;
-}
+  console.error = _oldConsoleError;
+};
 
 describe('opbeat.version', function () {
   it('should be valid', function () {
@@ -44,11 +50,11 @@ describe('opbeat.createClient', function () {
   var client;
   var skipBody = function (path) { return '*'; };
   beforeEach(function () {
-    mockConsoleWarn();
+    mockConsole();
     process.env.NODE_ENV='production';
   });
   afterEach(function () {
-    restoreConsoleWarn();
+    restoreConsole();
   });
 
   it('should initialize the client property', function () {
@@ -96,7 +102,7 @@ describe('opbeat.createClient', function () {
   it('should be disabled when no options have been specified', function () {
     client = opbeat.createClient(disableUncaughtExceptionHandler);
     assert.strictEqual(client._enabled, false);
-    assert.strictEqual(console.warn._called, true);
+    assert.strictEqual(console.info._called, true);
   });
 
   it('should pull OPBEAT_APP_ID from environment', function () {
@@ -117,16 +123,16 @@ describe('opbeat.createClient', function () {
     process.env.NODE_ENV = 'test';
     client = opbeat.createClient(options);
     assert.strictEqual(client._enabled, false);
-    assert.strictEqual(console.warn._called, true);
+    assert.strictEqual(console.info._called, true);
   });
 
   describe('#captureError()', function () {
     beforeEach(function () {
-      mockConsoleWarn();
+      mockConsole();
       client = opbeat.createClient(options);
     });
     afterEach(function () {
-      restoreConsoleWarn();
+      restoreConsole();
     });
 
     it('should send a plain text message to Opbeat server', function (done) {
@@ -212,11 +218,11 @@ describe('opbeat.createClient', function () {
 
   describe('#handleUncaughtExceptions()', function () {
     beforeEach(function () {
-      mockConsoleWarn();
+      mockConsole();
       client = opbeat.createClient(options);
     });
     afterEach(function () {
-      restoreConsoleWarn();
+      restoreConsole();
     });
 
     it('should add itself to the uncaughtException event list', function () {
