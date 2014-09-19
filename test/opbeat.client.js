@@ -302,7 +302,7 @@ describe('opbeat.createClient', function () {
           var params = querystring.parse(body);
           if (Object.keys(params).length === 4 &&
               /^[\da-f]{40}$/.test(params.rev) &&
-              ~['master', 'HEAD'].indexOf(params.branch) &&
+              /^[^ ]+$/.test(params.branch) &&
               params.status === 'completed' &&
               params.hostname.length > 0) return 'ok';
           throw new Error('Unexpected body: ' + body);
