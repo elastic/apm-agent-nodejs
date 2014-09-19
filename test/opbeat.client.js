@@ -5,6 +5,7 @@ var querystring = require('querystring');
 var assert = require('assert');
 var nock = require('nock');
 var common = require('common');
+var logger = require('../lib/logger');
 var opbeat = require('../');
 
 var options = {
@@ -18,21 +19,21 @@ var disableUncaughtExceptionHandler = {
   handleExceptions: false
 };
 
-var _oldConsoleInfo = console.info;
-var _oldConsoleWarn = console.warn;
-var _oldConsoleError = console.error;
-var mockConsole = function () {
-  console.info = function () { console.info._called = true; };
-  console.warn = function () { console.warn._called = true; };
-  console.error = function () { console.error._called = true; };
-  console.info._called = false;
-  console.warn._called = false;
-  console.error._called = false;
+var _oldConsoleInfo = logger.info;
+var _oldConsoleWarn = logger.warn;
+var _oldConsoleError = logger.error;
+var mockLogger = function () {
+  logger.info = function () { logger.info._called = true; };
+  logger.warn = function () { logger.warn._called = true; };
+  logger.error = function () { logger.error._called = true; };
+  logger.info._called = false;
+  logger.warn._called = false;
+  logger.error._called = false;
 };
-var restoreConsole = function () {
-  console.info = _oldConsoleInfo;
-  console.warn = _oldConsoleWarn;
-  console.error = _oldConsoleError;
+var restoreLogger = function () {
+  logger.info = _oldConsoleInfo;
+  logger.warn = _oldConsoleWarn;
+  logger.error = _oldConsoleError;
 };
 
 describe('opbeat.version', function () {
@@ -50,10 +51,10 @@ describe('opbeat.createClient', function () {
   var client;
   var skipBody = function (path) { return '*'; };
   beforeEach(function () {
-    mockConsole();
+    mockLogger();
   });
   afterEach(function () {
-    restoreConsole();
+    restoreLogger();
   });
 
   it('should initialize the client property', function () {
@@ -101,7 +102,7 @@ describe('opbeat.createClient', function () {
   it('should be disabled when no options have been specified', function () {
     client = opbeat.createClient(disableUncaughtExceptionHandler);
     assert.strictEqual(client.active, false);
-    assert.strictEqual(console.info._called, true);
+    assert.strictEqual(logger.info._called, true);
   });
 
   it('should pull OPBEAT_APP_ID from environment', function () {
@@ -121,16 +122,16 @@ describe('opbeat.createClient', function () {
   it('should be disabled and log it when active=false', function () {
     client = opbeat.createClient(common.join(options, { active: false }));
     assert.strictEqual(client.active, false);
-    assert.strictEqual(console.info._called, true);
+    assert.strictEqual(logger.info._called, true);
   });
 
   describe('#captureError()', function () {
     beforeEach(function () {
-      mockConsole();
+      mockLogger();
       client = opbeat.createClient(options);
     });
     afterEach(function () {
-      restoreConsole();
+      restoreLogger();
     });
 
     it('should send a plain text message to Opbeat server', function (done) {
@@ -216,11 +217,11 @@ describe('opbeat.createClient', function () {
 
   describe('#handleUncaughtExceptions()', function () {
     beforeEach(function () {
-      mockConsole();
+      mockLogger();
       client = opbeat.createClient(options);
     });
     afterEach(function () {
-      restoreConsole();
+      restoreLogger();
     });
 
     it('should add itself to the uncaughtException event list', function () {
