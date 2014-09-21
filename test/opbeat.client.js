@@ -205,18 +205,19 @@ describe('opbeat client', function () {
 
   describe('#handleUncaughtExceptions()', function () {
     beforeEach(function () {
+      process.removeAllListeners('uncaughtException');
       mockLogger();
       client = opbeat(options);
     });
     afterEach(function () {
+      process.removeAllListeners('uncaughtException');
       restoreLogger();
     });
 
     it('should add itself to the uncaughtException event list', function () {
-      var before = process._events.uncaughtException.length;
+      var before = process._events.uncaughtException ? process._events.uncaughtException.length : 0;
       client.handleUncaughtExceptions();
       assert.strictEqual(process._events.uncaughtException.length, before+1);
-      process._events.uncaughtException.pop(); // patch it back to what it was
     });
 
     it('should send an uncaughtException to Opbeat server', function (done) {
