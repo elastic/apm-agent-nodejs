@@ -7,6 +7,17 @@ your Node.js applications. Includes middleware support for
 [Connect](http://www.senchalabs.org/connect/) and
 [Express](http://expressjs.com/).
 
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+- [Configuration](#configuration)
+- [Uncaught exceptions](#uncaught-exceptions)
+- [Advanced usage](#advanced-usage)
+- [Integrations](#integrations)
+- [Deployment tracking](#deployment-tracking)
+- [Compatibility](#compatibility)
+- [Credit](#credit)
+- [License](#license)
+
 ## Installation
 
 ```
@@ -110,10 +121,10 @@ overwrite this, use this option.
 ### level
 
 - **Type:** String
-- **Default:** `info`
+- **Default:** `'info'`
 
 Set the verbosity level the Opbeat client. Note that this does not have
-any influence what types of errors that are sent to Opbeat. This only
+any influence on what types of errors that are sent to Opbeat. This only
 controls how chatty the Opbeat client are in your logs.
 
 Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
@@ -123,16 +134,19 @@ Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 - **Type:** Boolean
 - **Default:** `true`
 
+Whether or not the Opbeat client should monitor for uncaught exceptions
+and sent them to Opbeat automatically.
+
 ### exceptionLogLevel
 
 - **Type:** String
-- **Default:** `fatal`
+- **Default:** `'fatal'`
 
 When calling `captureError()` the error is sent on Opbeat with the level
 "error", but uncaught exceptions are by default sent on Opbeat with the
 level "fatal". Use this option to overwrite that default.
 
-Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
+Possible levels are: `debug`, `info`, `warning`, `error` and `fatal`.
 
 ### stackTraceLimit
 
@@ -178,8 +192,9 @@ sent to Opbeat.
 opbeat.captureUncaughtExceptions([callback]);
 ```
 
-If you don't specify a callback, the node process is terminated when an
-uncaught exception is handled by the Opbeat client.
+If you don't specify a callback, the node process is terminated
+automatically when an uncaught exception have been captured and sent to
+Opbeat.
 
 [It is
 recommended](http://nodejs.org/api/process.html#process_event_uncaughtexception)
@@ -198,33 +213,6 @@ opbeat.captureUncaughtExceptions(function (err) {
 
 The callback is called **after** the event has been sent to the Opbeat
 server.
-
-## Deployment tracking
-
-Though Opbeat provides [other
-means](https://opbeat.com/docs/release_tracking/) of tracking
-deployment, you can also use this client for to track deployments.
-
-Use the `trackDeployment()` function with the optional options and
-callback arguments:
-
-```javascript
-opbeat.trackDeployment(options, callback);
-```
-
-Options:
-
-- `path` - An optional path on the filesystem where the git repo can be found (defaults to the current working directory)
-- `rev` - An optional full git revision (will try to guess the `rev` based on the `path`)
-- `status` - `completed` (default) or `machine-completed`. If `machine-completed` is specified, the `hostname` attribute must be present
-- `branch` - Optional git branch (will try to guess the `rev` based on the `path`)
-- `hostname` - Optional hostname of the server that was updated. Required if `status=machine-completed`
-
-Callback:
-
-Will be called when the deployment have been tracked. Note that the
-callback will not be called upon errors. Listen instead for the `error`
-or `connectionError` events.
 
 ## Advanced usage
 
@@ -270,8 +258,9 @@ opbeat.captureError({
 ### Log levels
 
 Opbeat supports 5 different severity levels: 'debug', 'info', 'warning',
-'error', 'fatal'.  By default the client logs everything as 'error'.
-You can always override this using the optional options argument:
+'error', 'fatal'. By default the client logs every error parsed to
+`captureError()` with the level 'error'. You can always override this
+using the optional options argument:
 
 ```javascript
 opbeat.captureError(error, { level: 'warning' });
@@ -356,6 +345,33 @@ __Note__: `opbeat.middleware.express` or `opbeat.middleware.connect`
 handling middlewares or there's a chance that the error will never get
 to Opbeat.
 
+## Deployment tracking
+
+Though Opbeat provides [other
+means](https://opbeat.com/docs/release_tracking/) of tracking
+deployment, you can also use this client for to track deployments.
+
+Use the `trackDeployment()` function with the optional options and
+callback arguments:
+
+```javascript
+opbeat.trackDeployment(options, callback);
+```
+
+Options:
+
+- `path` - An optional path on the filesystem where the git repo can be found (defaults to the current working directory)
+- `rev` - An optional full git revision (will try to guess the `rev` based on the `path`)
+- `status` - `completed` (default) or `machine-completed`. If `machine-completed` is specified, the `hostname` attribute must be present
+- `branch` - Optional git branch (will try to guess the `rev` based on the `path`)
+- `hostname` - Optional hostname of the server that was updated. Required if `status=machine-completed`
+
+Callback:
+
+Will be called when the deployment have been tracked. Note that the
+callback will not be called upon errors. Listen instead for the `error`
+or `connectionError` events.
+
 ## Compatibility
 
 The module is tested against Node.js v0.10 and above. Previous versions
@@ -363,13 +379,9 @@ of Node.js is not supported.
 
 ## Credit
 
-This project is a fork of the
-[raven-node](https://github.com/mattrobenolt/raven-node) module. It have
-been modified to work with [Opbeat](http://opbeat.com) instead of
-[Sentry](http://getsentry.com). All credit for the original work go out
-to the original contributors and the main author [Matt
-Robenolt](https://github.com/mattrobenolt).
+All credit for the original work go out to the original contributors and
+the main author [Matt Robenolt](https://github.com/mattrobenolt).
 
-## LICENSE
+## License
 
 BSD
