@@ -123,10 +123,16 @@ Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 - **Type:** Boolean
 - **Default:** `true`
 
-### exceptionsAreCritical
+### exceptionLogLevel
 
-- **Type:** Boolean
-- **Default:** `true`
+- **Type:** String
+- **Default:** `fatal`
+
+When calling `captureError()` the error is logged on Opbeat with the
+level "error", but uncaught exceptions are by default logged on Opbeat
+with the level "fatal". Use this option to overwrite that default.
+
+Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 
 ### stackTraceLimit
 
