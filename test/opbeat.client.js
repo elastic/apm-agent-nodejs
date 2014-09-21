@@ -36,17 +36,6 @@ var restoreLogger = function () {
   logger.error = _oldConsoleError;
 };
 
-describe('opbeat.version', function () {
-  it('should be valid', function () {
-    assert(/^\d+\.\d+\.\d+(-\w+)?$/.test(opbeat.version));
-  });
-
-  it('should match package.json', function () {
-    var version = require('../package.json').version;
-    assert.strictEqual(opbeat.version, version);
-  });
-});
-
 describe('opbeat client', function () {
   var client;
   var skipBody = function (path) { return '*'; };
