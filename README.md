@@ -113,7 +113,7 @@ overwrite this, use this option.
 - **Default:** `info`
 
 Set the verbosity level the Opbeat client. Note that this does not have
-any influence what types of errors that are logged to Opbeat. This only
+any influence what types of errors that are sent to Opbeat. This only
 controls how chatty the Opbeat client are in your logs.
 
 Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
@@ -128,9 +128,9 @@ Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 - **Type:** String
 - **Default:** `fatal`
 
-When calling `captureError()` the error is logged on Opbeat with the
-level "error", but uncaught exceptions are by default logged on Opbeat
-with the level "fatal". Use this option to overwrite that default.
+When calling `captureError()` the error is sent on Opbeat with the level
+"error", but uncaught exceptions are by default sent on Opbeat with the
+level "fatal". Use this option to overwrite that default.
 
 Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 
@@ -229,7 +229,7 @@ or `connectionError` events.
 ## Advanced usage
 
 The `captureError()` function can also be given an optional callback
-which will be called once the error have been logged:
+which will be called once the error have been sent to Opbeat:
 
 ```javascript
 opbeat.captureError(error, function (opbeatErr, url) {
@@ -240,7 +240,7 @@ opbeat.captureError(error, function (opbeatErr, url) {
 The callback is called with two arguments:
 
 - `opbeatErr` - set if something went wrong while trying to log the error
-- `url` - the URL of where you can find the logged error on Opbeat
+- `url` - the URL of where you can find the sent error on Opbeat
 
 ### Non-exceptions
 
