@@ -13,7 +13,7 @@ var test = function (options) {
   options.env = 'production';
   options.level = 'fatal';
   options.handleExceptions = false;
-  var client = opbeat.createClient(options);
+  var client = opbeat(options);
 
   client.handleUncaughtExceptions(function (err) {
     console.log('Handled uncaught exception correctly');

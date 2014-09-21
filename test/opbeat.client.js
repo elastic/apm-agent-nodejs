@@ -47,10 +47,11 @@ describe('opbeat.version', function () {
   });
 });
 
-describe('opbeat.createClient', function () {
+describe('opbeat client', function () {
   var client;
   var skipBody = function (path) { return '*'; };
   beforeEach(function () {
+    delete opbeat._client;
     mockLogger();
   });
   afterEach(function () {
@@ -58,10 +59,8 @@ describe('opbeat.createClient', function () {
   });
 
   it('should initialize the client property', function () {
-    assert(!('client' in opbeat));
-    client = opbeat.createClient(options);
-    assert('client' in opbeat);
-    assert('dsn' in opbeat.client);
+    client = opbeat(options);
+    assert('dsn' in client);
   });
 
   it('should parse the DSN with options', function () {
@@ -69,14 +68,14 @@ describe('opbeat.createClient', function () {
       host: 'opbeat.com',
       path: '/api/v1/organizations/some-org-id/apps/some-app-id/'
     };
-    client = opbeat.createClient(common.join(options, { hostname: 'my-hostname' }));
+    client = opbeat(common.join(options, { hostname: 'my-hostname' }));
     assert.deepEqual(client.dsn, expected);
     assert.strictEqual(client.hostname, 'my-hostname');
   });
 
   it('should pull OPBEAT_ORGANIZATION_ID from environment', function () {
     process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
-    client = opbeat.createClient(disableUncaughtExceptionHandler);
+    client = opbeat(disableUncaughtExceptionHandler);
     assert.strictEqual(client.organization_id, 'another-org-id');
     delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
   });
@@ -87,7 +86,7 @@ describe('opbeat.createClient', function () {
       path: '/api/v1/organizations/another-org-id/apps/some-app-id/'
     };
     process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
-    client = opbeat.createClient({
+    client = opbeat({
       app_id: 'some-app-id',
       secret_token: 'secret',
       handleExceptions: false
@@ -100,27 +99,27 @@ describe('opbeat.createClient', function () {
   });
 
   it('should be disabled when no options have been specified', function () {
-    client = opbeat.createClient(disableUncaughtExceptionHandler);
+    client = opbeat(disableUncaughtExceptionHandler);
     assert.strictEqual(client.active, false);
     assert.strictEqual(logger.info._called, true);
   });
 
   it('should pull OPBEAT_APP_ID from environment', function () {
     process.env.OPBEAT_APP_ID='another-app-id';
-    client = opbeat.createClient(disableUncaughtExceptionHandler);
+    client = opbeat(disableUncaughtExceptionHandler);
     assert.strictEqual(client.app_id, 'another-app-id');
     delete process.env.OPBEAT_APP_ID;
   });
 
   it('should pull OPBEAT_SECRET_TOKEN from environment', function () {
     process.env.OPBEAT_SECRET_TOKEN='pazz';
-    client = opbeat.createClient(disableUncaughtExceptionHandler);
+    client = opbeat(disableUncaughtExceptionHandler);
     assert.strictEqual(client.secret_token, 'pazz');
     delete process.env.OPBEAT_SECRET_TOKEN;
   });
 
   it('should be disabled and log it when active=false', function () {
-    client = opbeat.createClient(common.join(options, { active: false }));
+    client = opbeat(common.join(options, { active: false }));
     assert.strictEqual(client.active, false);
     assert.strictEqual(logger.info._called, true);
   });
@@ -128,7 +127,7 @@ describe('opbeat.createClient', function () {
   describe('#captureError()', function () {
     beforeEach(function () {
       mockLogger();
-      client = opbeat.createClient(options);
+      client = opbeat(options);
     });
     afterEach(function () {
       restoreLogger();
@@ -218,7 +217,7 @@ describe('opbeat.createClient', function () {
   describe('#handleUncaughtExceptions()', function () {
     beforeEach(function () {
       mockLogger();
-      client = opbeat.createClient(options);
+      client = opbeat(options);
     });
     afterEach(function () {
       restoreLogger();
@@ -254,7 +253,7 @@ describe('opbeat.createClient', function () {
 
   describe('#trackDeployment()', function () {
     beforeEach(function () {
-      client = opbeat.createClient(options);
+      client = opbeat(options);
     });
 
     it('should send deployment request to the Opbeat server with given rev', function (done) {

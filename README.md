@@ -15,88 +15,147 @@ npm install opbeat
 
 ## Basic Usage
 
-```javascript
-var opbeat = require('opbeat');
-var client = opbeat.createClient(options); // options are optional
-
-client.captureError(new Error('Hello, world!'));
-```
-
-Options are:
+To get started just require and initialize the Opbeat module in the top
+of your app's main module. Out of the box this will catch unhandled
+exceptions automatically.
 
 ```javascript
-var options = {
-  app_id: '...',                // Required unless OPBEAT_APP_ID environment variable is set
-  organization_id: '...',       // Required unless OPBEAT_ORGANIZATION_ID environment variable is set
-  secret_token: '...',          // Required unless OPBEAT_SECRET_TOKEN environment variable is set
-  active: true,                 // Optional
-  hostname: '...',              // Optional - falls back to OS hostname
-  request: null,                // Optional - An instance of `http.IncomingMessage`
-  handleExceptions: false,      // Optional - defaults to true
-  level: 'info',                // Optional - defaults to info (debug, info, warn, error, fatal)
-  exceptionsAreCritical: false, // Optional - defaults to true
-  stackTraceLimit: 10           // Optional - defaults to Infinity
-};
-```
-
-The `captureError` function can also be given an optional callback which
-will be called once the error have been logged:
-
-```javascript
-client.captureError(new Error('Broke!'), function (opbeatErr, url) {
-  console.log('The error can be found at:', url);
+var opbeat = require('opbeat')({
+  app_id: '...',
+  organization_id: '...',
+  secret_token: '...'
 });
 ```
 
-You can always get access to the created client from another part of
-your Node.js app by requireing the `opbeat` module again and accessing
-the `client` property:
+If you want to manually send an error to Opbeat, use the
+`captureError()` function:
 
 ```javascript
-var opbeat = require('opbeat');
-
-opbeat.client.captureError(new Error('Something else broke!'));
+opbeat.captureError(new Error('Ups, something broke'));
 ```
 
-Note that `opbeat.client` will be undefined if you havent initialized
-the client previously with a call to `opbeat.createClient()`.
+If you need access to the Opbeat client in other files after
+initializing it in you app's main module, just require the module
+and call the main function without parsing in any arguments:
+
+```javascript
+var opbeat = require('opbeat')();
+```
+
+## Configuration
+
+When you've required the Opbeat module you can supply an optional
+options object to configure the client.
+
+```javascript
+require('opbeat')({
+  app_id: '...',
+  organization_id: '...',
+  secret_token: '...',
+  ...
+});
+```
+
+Note that if you do not supply an options object, you'll need to
+configure the Opbeat client using environment varialbes.
+
+The available options are:
+
+### app_id
+
+- **Type:** String
+
+Your Opbeat app id. Required unless set via the `OPBEAT_APP_ID`
+environment variable.
+
+### organization_id
+
+- **Type:** String
+
+Your Opbeat orgainization id. Required unless set via the
+`OPBEAT_ORGANIZATION_ID` environment variable.
+
+### secret_token
+
+- **Type:** String
+
+Your secret Opbeat token. Required unless set via the
+`OPBEAT_SECRET_TOKEN` environment variable.
+
+### active
+
+- **Type:** Boolean
+- **Default:** `true`
+
+A boolean specifying if errors should be collected by the Opbeat client
+or not. Normally you would not want to capture errors in your
+development or testing environments. If you are using the `NODE_ENV`
+envrionment variable, you can use this to determine the state:
+
+```javascript
+var options = {
+  active: process.env.NODE_ENV === 'production'
+};
+```
+
+### hostname
+
+- **Type:** String
+- **Default:** OS hostname
+
+The OS hostname is automatically logged along with all errors (you can
+see it under the "Environment" tab on each error. If you want to
+overwrite this, use this option.
+
+### level
+
+- **Type:** String
+- **Default:** `info`
+
+Set the verbosity level the Opbeat client. Note that this does not have
+any influence what types of errors that are logged to Opbeat. This only
+controls how chatty the Opbeat client are in your logs.
+
+Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
+
+### handleExceptions
+
+- **Type:** Boolean
+- **Default:** `true`
+
+### exceptionsAreCritical
+
+- **Type:** Boolean
+- **Default:** `true`
+
+### stackTraceLimit
+
+- **Type:** Number
+- **Default:** `Infinity`
+
+Setting it to `0` will disable stack trace collection. Any finite integer
+value will be used as the maximum number of frames to collect. Setting
+it to `Infinity` means that all frames will be collected.
 
 ## Events
 
 Client emits three events: `logged`, `connectionError` and `error`.
 
 ```javascript
-client.on('logged', function (url) {
+opbeat.on('logged', function (url) {
   console.log('Yay, it worked! View online at: ' + url);
 });
-client.on('error', function (err) {
+
+opbeat.on('error', function (err) {
   console.log('oh well, Opbeat returned an error');
 });
-client.on('connectionError', function (err) {
+
+opbeat.on('connectionError', function (err) {
   console.log('Could not contact Opbeat :(');
 });
-client.captureError('Boom');
+
+opbeat.captureError('Boom');
 ```
-
-## Environment variables
-
-### OPBEAT_APP_ID
-
-Optionally declare the application id to use for the client through the
-environment. Initializing the client in your app won't require setting
-the application id.
-
-### OPBEAT_ORGANIZATION_ID
-
-Optionally declare the organization id to use for the client through the
-environment. Initializing the client in your app won't require setting
-the organization id.
-
-### OPBEAT_SECRET_TOKEN
-
-Optionally declare the Opbeat token to use for the client through the
-environment. Initializing the client in your app won't require setting
-the token.
 
 ## Uncaught exceptions
 
@@ -107,9 +166,9 @@ automatically to Opbeat. To disable this, set the configration option
 If you need you can then enable global error handling manually:
 
 ```javascript
-client.handleUncaughtExceptions();
+opbeat.handleUncaughtExceptions();
 // or
-client.handleUncaughtExceptions(callback);
+opbeat.handleUncaughtExceptions(callback);
 ```
 
 If you don't specify a callback, the node process is terminated when an
@@ -122,11 +181,11 @@ that you don't leave the process running after receiving an
 to terminate the node process:
 
 ```javascript
-var client = opbeat.createClient({
+var opbeat = require('opbeat')({
   handleExceptions: false
 });
 
-client.handleUncaughtExceptions(function (err) {
+opbeat.handleUncaughtExceptions(function (err) {
   // Do your own stuff... and then exit:
   process.exit(1);
 });
@@ -141,11 +200,11 @@ Though Opbeat provides [other
 means](https://opbeat.com/docs/release_tracking/) of tracking
 deployment, you can also use this client for to track deployments.
 
-Use the `.trackDeployment()` function with the optional options and
+Use the `trackDeployment()` function with the optional options and
 callback arguments:
 
 ```javascript
-client.trackDeployment(options, callback);
+opbeat.trackDeployment(options, callback);
 ```
 
 Options:
@@ -164,12 +223,26 @@ or `connectionError` events.
 
 ## Advanced usage
 
+The `captureError()` function can also be given an optional callback
+which will be called once the error have been logged:
+
+```javascript
+opbeat.captureError(error, function (opbeatErr, url) {
+  // ...
+});
+```
+
+The callback is called with two arguments:
+
+- `opbeatErr` - set if something went wrong while trying to log the error
+- `url` - the URL of where you can find the logged error on Opbeat
+
 ### Non-exceptions
 
 Instead of an `Error` object, you can log a plain text error-message:
 
 ```javascript
-client.captureError('Something happened!');
+opbeat.captureError('Something happened!');
 ```
 
 This will also be logged as an error in Opbeat, but will not be
@@ -178,12 +251,12 @@ associated with an exception.
 #### Parameterized messages
 
 If the message string contains state or time-specific data, Opbeat will
-not recognize multiple errors as belonging to the same group, since the
-message text differs. To group these kind of messages, send the message
-as a parameterized message:
+not always recognize multiple errors as belonging to the same group,
+since the message text differs. To group these kind of messages, send
+the message as a parameterized message:
 
 ```javascript
-client.captureError({
+opbeat.captureError({
   message: 'Timeout exeeded by %d seconds',
   params: [seconds]
 });
@@ -196,27 +269,27 @@ Opbeat supports 5 different severity levels: 'debug', 'info', 'warning',
 You can always override this using the optional options argument:
 
 ```javascript
-client.captureError('Foobar', { level: 'warning' });
+opbeat.captureError(error, { level: 'warning' });
 ```
 
 ### Metadata
 
 To ease debugging it's possible to send some extra data with each
-error/message you send to Opbeat. The Opbeat API supports a lot of
-different metadata fields, most of which are automatlically managed by
-the opbeat-node client. But if you wish you can supply some extra
-details using `client_supplied_id`, `extra`, `user` or `query`. If you
-want to know more about all the fields, you should take a look at the
-full [Opbeat API docs](https://opbeat.com/docs/api/errorlog/).
+error you send to Opbeat. The Opbeat API supports a lot of different
+metadata fields, most of which are automatlically managed by the
+opbeat node client. But if you wish you can supply some extra details
+using `client_supplied_id`, `extra`, `user` or `query`. If you want to
+know more about all the fields, you should take a look at the full
+[Opbeat API docs](https://opbeat.com/docs/api/errorlog/).
 
 To supply any of these extra fields, use the optional options argument
-when calling `client.captureError()`.
+when calling `opbeat.captureError()`.
 
 Here are some examples:
 
 ```javascript
 // Sending some extra details about the user
-client.captureError(new Error('Boom!'), {
+opbeat.captureError(error, {
   user: {
     is_authenticated: true,
     id: 'unique_id',
@@ -226,7 +299,7 @@ client.captureError(new Error('Boom!'), {
 });
 
 // Sending some abitrary extra details using the `extra` field
-client.captureError('Foobar', {
+opbeat.captureError(error, {
   extra: {
     some_important_metric: 'foobar'
   }
@@ -245,23 +318,28 @@ handling a request.
 #### Connect
 
 ```javascript
+var opbeat = require('opbeat')();
 var connect = require('connect');
+
 function mainHandler(req, res) {
   throw new Error('Broke!');
 }
+
 connect(
   connect.bodyParser(),
   connect.cookieParser(),
   mainHandler,
-  opbeat.middleware.connect(client || options),
+  opbeat.middleware.connect(),
 ).listen(3000);
 ```
 
 #### Express
 
 ```javascript
+var opbeat = require('opbeat')();
 var app = require('express').createServer();
-app.use(opbeat.middleware.express(client || options));
+
+app.use(opbeat.middleware.express());
 app.get('/', function mainHandler(req, res) {
   throw new Error('Broke!');
 });
