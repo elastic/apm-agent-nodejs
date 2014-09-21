@@ -60,16 +60,16 @@ describe('opbeat client', function () {
 
   it('should initialize the client property', function () {
     client = opbeat(options);
-    assert('dsn' in client);
+    assert('api' in client);
   });
 
-  it('should parse the DSN with options', function () {
+  it('should parse the API with options', function () {
     var expected = {
       host: 'opbeat.com',
       path: '/api/v1/organizations/some-org-id/apps/some-app-id/'
     };
     client = opbeat(common.join(options, { hostname: 'my-hostname' }));
-    assert.deepEqual(client.dsn, expected);
+    assert.deepEqual(client.api, expected);
     assert.strictEqual(client.hostname, 'my-hostname');
   });
 
@@ -91,7 +91,7 @@ describe('opbeat client', function () {
       secret_token: 'secret',
       handleExceptions: false
     });
-    assert.deepEqual(client.dsn, expected);
+    assert.deepEqual(client.api, expected);
     assert.strictEqual(client.organization_id, 'another-org-id');
     assert.strictEqual(client.app_id, 'some-app-id');
     assert.strictEqual(client.secret_token, 'secret');
