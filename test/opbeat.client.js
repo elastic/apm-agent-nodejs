@@ -12,11 +12,11 @@ var options = {
   organization_id: 'some-org-id',
   app_id: 'some-app-id',
   secret_token: 'secret',
-  handleExceptions: false
+  captureExceptions: false
 };
 
 var disableUncaughtExceptionHandler = {
-  handleExceptions: false
+  captureExceptions: false
 };
 
 var _oldConsoleInfo = logger.info;
@@ -78,7 +78,7 @@ describe('opbeat client', function () {
     client = opbeat({
       app_id: 'some-app-id',
       secret_token: 'secret',
-      handleExceptions: false
+      captureExceptions: false
     });
     assert.deepEqual(client.api, expected);
     assert.strictEqual(client.organization_id, 'another-org-id');

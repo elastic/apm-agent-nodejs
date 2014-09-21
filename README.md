@@ -118,7 +118,7 @@ controls how chatty the Opbeat client are in your logs.
 
 Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 
-### handleExceptions
+### captureExceptions
 
 - **Type:** Boolean
 - **Default:** `true`
@@ -167,7 +167,7 @@ opbeat.captureError('Boom');
 
 By default uncaught exceptions are handled by the client and reported
 automatically to Opbeat. To disable this, set the configration option
-`handleExceptions` to `false` when initializing the Opbeat client.
+`captureExceptions` to `false` when initializing the Opbeat client.
 
 If you need you can then enable global error handling manually:
 
@@ -188,7 +188,7 @@ to terminate the node process:
 
 ```javascript
 var opbeat = require('opbeat')({
-  handleExceptions: false
+  captureExceptions: false
 });
 
 opbeat.handleUncaughtExceptions(function (err) {

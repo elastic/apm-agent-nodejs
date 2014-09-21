@@ -12,7 +12,7 @@ var questions = [
 var test = function (options) {
   options.env = 'production';
   options.level = 'fatal';
-  options.handleExceptions = false;
+  options.captureExceptions = false;
   var client = opbeat(options);
 
   client.handleUncaughtExceptions(function (err) {
