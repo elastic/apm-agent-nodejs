@@ -165,16 +165,17 @@ opbeat.captureError('Boom');
 
 ## Uncaught exceptions
 
-By default uncaught exceptions are handled by the client and reported
-automatically to Opbeat. To disable this, set the configration option
+The client captures uncaught exceptions automatically and reports them
+to Opbeat. To disable this, set the configuration option
 `captureExceptions` to `false` when initializing the Opbeat client.
 
-If you need you can then enable global error handling manually:
+You can enable capturing of uncaught exceptions later by calling the
+`captureUncaughtExceptions()` function. This also gives you the option to
+add a callback which will be called once an uncaught exception have been
+sent to Opbeat.
 
 ```javascript
-opbeat.handleUncaughtExceptions();
-// or
-opbeat.handleUncaughtExceptions(callback);
+opbeat.captureUncaughtExceptions([callback]);
 ```
 
 If you don't specify a callback, the node process is terminated when an
@@ -187,11 +188,9 @@ that you don't leave the process running after receiving an
 to terminate the node process:
 
 ```javascript
-var opbeat = require('opbeat')({
-  captureExceptions: false
-});
+var opbeat = require('opbeat')();
 
-opbeat.handleUncaughtExceptions(function (err) {
+opbeat.captureUncaughtExceptions(function (err) {
   // Do your own stuff... and then exit:
   process.exit(1);
 });

@@ -220,6 +220,13 @@ describe('opbeat client', function () {
       assert.strictEqual(process._events.uncaughtException.length, before+1);
     });
 
+    it('should not add more than one listener for the uncaughtException event', function () {
+      client.handleUncaughtExceptions();
+      var before = process._events.uncaughtException ? process._events.uncaughtException.length : 0;
+      client.handleUncaughtExceptions();
+      assert.strictEqual(process._events.uncaughtException.length, before);
+    });
+
     it('should send an uncaughtException to Opbeat server', function (done) {
       var scope = nock('https://opbeat.com')
         .filteringRequestBody(skipBody)
