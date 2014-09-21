@@ -186,13 +186,13 @@ describe('opbeat client', function () {
     });
 
     it('should use `param_message` as well as `message` if given an object as 1st argument', function (done) {
-      var oldProcess = client.process;
-      client.process = function (options, cb) {
+      var oldProcess = client._process;
+      client._process = function (options, cb) {
         assert('message' in options);
         assert('param_message' in options);
         assert.strictEqual(options.message, 'Hello World');
         assert.strictEqual(options.param_message, 'Hello %s');
-        client.process = oldProcess;
+        client._process = oldProcess;
         done();
       };
       client.captureError({ message: 'Hello %s', params: ['World'] });
