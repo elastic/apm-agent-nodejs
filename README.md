@@ -142,18 +142,6 @@ Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 Whether or not the Opbeat client should monitor for uncaught exceptions
 and sent them to Opbeat automatically.
 
-### exceptionLogLevel
-
-- **Type:** String
-- **Default:** `'fatal'`
-- **Env:** `OPBEAT_EXCEPTION_LOG_LEVEL`
-
-When calling `captureError()` the error is sent on Opbeat with the level
-"error", but uncaught exceptions are by default sent on Opbeat with the
-level "fatal". Use this option to overwrite that default.
-
-Possible levels are: `debug`, `info`, `warning`, `error` and `fatal`.
-
 ### stackTraceLimit
 
 - **Type:** Number
@@ -263,17 +251,6 @@ opbeat.captureError({
   message: 'Timeout exeeded by %d seconds',
   params: [seconds]
 });
-```
-
-### Log levels
-
-Opbeat supports 5 different severity levels: 'debug', 'info', 'warning',
-'error', 'fatal'. By default the client logs every error parsed to
-`captureError()` with the level 'error'. You can always override this
-using the optional options argument:
-
-```javascript
-opbeat.captureError(error, { level: 'warning' });
 ```
 
 ### Metadata
