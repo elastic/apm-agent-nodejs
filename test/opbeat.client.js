@@ -51,29 +51,21 @@ var restoreLogger = function () {
 describe('opbeat client', function () {
   var client;
   var skipBody = function (path) { return '*'; };
+  var uncaughtExceptionListeners;
   beforeEach(function () {
-    delete opbeat._client;
+    uncaughtExceptionListeners = process._events.uncaughtException;
+    process.removeAllListeners('uncaughtException');
+    if (opbeat._client) {
+      opbeat._client.removeAllListeners();
+      delete opbeat._client;
+    }
     mockLogger();
   });
   afterEach(function () {
+    process._events.uncaughtException = uncaughtExceptionListeners;
     restoreLogger();
   });
 
-  it('should initialize the client property', function () {
-    client = opbeat(options);
-    assert('api' in client);
-  });
-
-  it('should parse the API with options', function () {
-    var expected = {
-      host: 'opbeat.com',
-      path: '/api/v1/organizations/some-org-id/apps/some-app-id/'
-    };
-    client = opbeat(common.join(options, { hostname: 'my-hostname' }));
-    assert.deepEqual(client.api, expected);
-    assert.strictEqual(client.hostname, 'my-hostname');
-  });
- 
   optionFixtures.forEach(function (fixture) {
     it('should be configurable by envrionment variable OPBEAT_' + fixture[1], function () {
       var bool = typeof fixture[2] === 'boolean';
@@ -165,13 +157,14 @@ describe('opbeat client', function () {
       client.captureError('Hey!');
     });
 
-    it('shouldn\'t shit it\'s pants when error is emitted without a listener', function () {
+    it('shouldn\'t shit it\'s pants when error is emitted without a listener', function (done) {
       var scope = nock('https://opbeat.com')
         .filteringRequestBody(skipBody)
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
         .reply(500, { error: 'Oops!' });
 
       client.captureError('Hey!');
+      setTimeout(done, 25);
     });
 
     it('should attach an Error object when emitting error', function (done) {
@@ -219,25 +212,17 @@ describe('opbeat client', function () {
   });
 
   describe('#handleUncaughtExceptions()', function () {
-    beforeEach(function () {
-      process.removeAllListeners('uncaughtException');
-      mockLogger();
-      client = opbeat(options);
-    });
-    afterEach(function () {
-      process.removeAllListeners('uncaughtException');
-      restoreLogger();
-    });
-
     it('should add itself to the uncaughtException event list', function () {
-      var before = process._events.uncaughtException ? process._events.uncaughtException.length : 0;
+      assert.strictEqual(process._events.uncaughtException, undefined);
+      client = opbeat(options);
       client.handleUncaughtExceptions();
-      assert.strictEqual(process._events.uncaughtException.length, before+1);
+      assert.strictEqual(process._events.uncaughtException.length, 1);
     });
 
     it('should not add more than one listener for the uncaughtException event', function () {
+      client = opbeat(options);
       client.handleUncaughtExceptions();
-      var before = process._events.uncaughtException ? process._events.uncaughtException.length : 0;
+      var before = process._events.uncaughtException.length;
       client.handleUncaughtExceptions();
       assert.strictEqual(process._events.uncaughtException.length, before);
     });
@@ -248,13 +233,8 @@ describe('opbeat client', function () {
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
         .reply(200);
 
-      // remove existing uncaughtException handlers
-      var before = process._events.uncaughtException;
-      process.removeAllListeners('uncaughtException');
-
+      client = opbeat(options);
       client.handleUncaughtExceptions(function (err) {
-        // restore things to how they were
-        process._events.uncaughtException = before;
         scope.done();
         done();
       });
