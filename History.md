@@ -1,4 +1,10 @@
 # Bleading edge (master)
+  * Remove createClient() function
+  * Replace options.env with options.active
+  * Rename options.handleExceptions to options.captureExceptions
+  * Rename options.app_id to options.appId
+  * Rename options.organization_id to options.organizationId
+  * Rename options.secret_token to options.secretToken
   * Add deployment tracking support
   * Merge captureMessage, captureError and captureRequestError into one function
   * Remove support for overriding the Opbeat http API port number
@@ -8,6 +14,13 @@
   * Log request.json if present
   * Log whether http requests are secure or not
   * Log remote IP
+  * Allow options.stackTraceLimit to be falsy
+  * Remove client.version property
+  * Control log level of client with options.level (replaces options.silent)
+  * Allow handleUncaughtExceptions to be called multiple times
+  * Allow the severity level of exceptions to be set in options
+  * Allow all options to be set via environment variables
+  * Parse the Opbeat URL to the captureUncaughtExceptions callback
   * Don't log stack-frame path as absolute
   * Only log cookies if they are present
   * Security fix: Don't shamelessly track all environment variables
