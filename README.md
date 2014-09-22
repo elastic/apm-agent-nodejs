@@ -212,14 +212,17 @@ to terminate the node process:
 ```javascript
 var opbeat = require('opbeat')();
 
-opbeat.captureUncaughtExceptions(function (err) {
+opbeat.captureUncaughtExceptions(function (err, url) {
   // Do your own stuff... and then exit:
   process.exit(1);
 });
 ```
 
 The callback is called **after** the event has been sent to the Opbeat
-server.
+server with the following arguments:
+
+- `err` - the captured exception
+- `url` - the URL of where you can find the sent error on Opbeat
 
 ## Advanced usage
 

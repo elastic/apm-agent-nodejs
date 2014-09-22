@@ -230,11 +230,13 @@ describe('opbeat client', function () {
     it('should send an uncaughtException to Opbeat server', function (done) {
       var scope = nock('https://opbeat.com')
         .filteringRequestBody(skipBody)
+        .defaultReplyHeaders({'Location': 'foo'})
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
         .reply(200);
 
       client = opbeat(options);
-      client.handleUncaughtExceptions(function (err) {
+      client.handleUncaughtExceptions(function (err, url) {
+        assert.strictEqual(url, 'foo');
         scope.done();
         done();
       });

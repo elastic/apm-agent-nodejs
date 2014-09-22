@@ -15,8 +15,8 @@ var test = function (options) {
   options.captureExceptions = false;
   var client = opbeat(options);
 
-  client.handleUncaughtExceptions(function (err) {
-    console.log('Handled uncaught exception correctly');
+  client.handleUncaughtExceptions(function (err, url) {
+    console.log('The uncaught exception have been logged at:', url);
     process.exit();
   });
 

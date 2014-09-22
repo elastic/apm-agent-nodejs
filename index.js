@@ -148,7 +148,7 @@ Client.prototype.handleUncaughtExceptions = function (callback) {
       } else {
         log.info('Opbeat logged error successfully at ' + url);
       }
-      callback ? callback(err) : process.exit(1);
+      callback ? callback(err, url) : process.exit(1);
     });
   };
 
