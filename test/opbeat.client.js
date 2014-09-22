@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs');
+var os = require('os');
 var querystring = require('querystring');
 var assert = require('assert');
 var nock = require('nock');
@@ -18,6 +19,17 @@ var options = {
 var disableUncaughtExceptionHandler = {
   captureExceptions: false
 };
+
+var optionFixtures = [
+  ['appId', 'APP_ID'],
+  ['organizationId', 'ORGANIZATION_ID'],
+  ['secretToken', 'SECRET_TOKEN'],
+  ['level', 'LEVEL', 'info'],
+  ['hostname', 'HOSTNAME', os.hostname()],
+  ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],
+  ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
+  ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal']
+];
 
 var _oldConsoleInfo = logger.info;
 var _oldConsoleWarn = logger.warn;
@@ -61,56 +73,59 @@ describe('opbeat client', function () {
     assert.deepEqual(client.api, expected);
     assert.strictEqual(client.hostname, 'my-hostname');
   });
-
-  it('should pull OPBEAT_ORGANIZATION_ID from environment', function () {
-    process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
-    client = opbeat(disableUncaughtExceptionHandler);
-    assert.strictEqual(client.organizationId, 'another-org-id');
-    delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
-  });
-
-  it('should pull OPBEAT_ORGANIZATION_ID from environment when passing options', function () {
-    var expected = {
-      host: 'opbeat.com',
-      path: '/api/v1/organizations/another-org-id/apps/some-app-id/'
-    };
-    process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
-    client = opbeat({
-      appId: 'some-app-id',
-      secretToken: 'secret',
-      captureExceptions: false
+ 
+  optionFixtures.forEach(function (fixture) {
+    it('should be configurable by envrionment variable OPBEAT_' + fixture[1], function () {
+      var bool = typeof fixture[2] === 'boolean';
+      var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value';
+      process.env['OPBEAT_' + fixture[1]] = value;
+      client = opbeat();
+      var v2 = bool ? value != false : value;
+      assert.strictEqual(client[fixture[0]], bool ? value != false : value);
+      delete process.env['OPBEAT_' + fixture[1]];
     });
-    assert.deepEqual(client.api, expected);
-    assert.strictEqual(client.organizationId, 'another-org-id');
-    assert.strictEqual(client.appId, 'some-app-id');
-    assert.strictEqual(client.secretToken, 'secret');
-    delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
+
+    it('should overwrite OPBEAT_' + fixture[1] + ' by option property ' + fixture[0], function () {
+      var options = {};
+      var bool = typeof fixture[2] === 'boolean';
+      var value1 = bool ? (fixture[2] ? '0' : '1') : 'overwriting-value';
+      var value2 = bool ? (fixture[2] ? '1' : '0') : 'custom-value';
+      options[fixture[0]] = value1;
+      process.env['OPBEAT_' + fixture[1]] = value2;
+      client = opbeat(options);
+      assert.strictEqual(client[fixture[0]], bool ? value1 != false : value1);
+      delete process.env['OPBEAT_' + fixture[1]];
+    });
+
+    it('should default ' + fixture[0] + ' to ' + fixture[2], function () {
+      client = opbeat();
+      assert.strictEqual(client[fixture[0]], fixture[2]);
+    });
   });
 
-  it('should be disabled when no options have been specified', function () {
-    client = opbeat(disableUncaughtExceptionHandler);
+  it('should be configurable by envrionment variable OPBEAT_ACTIVE', function () {
+    process.env.OPBEAT_ACTIVE = '0';
+    client = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' });
     assert.strictEqual(client.active, false);
-    assert.strictEqual(logger.info._called, true);
+    delete process.env.OPBEAT_ACTIVE;
   });
 
-  it('should pull OPBEAT_APP_ID from environment', function () {
-    process.env.OPBEAT_APP_ID='another-app-id';
-    client = opbeat(disableUncaughtExceptionHandler);
-    assert.strictEqual(client.appId, 'another-app-id');
-    delete process.env.OPBEAT_APP_ID;
-  });
-
-  it('should pull OPBEAT_SECRET_TOKEN from environment', function () {
-    process.env.OPBEAT_SECRET_TOKEN='pazz';
-    client = opbeat(disableUncaughtExceptionHandler);
-    assert.strictEqual(client.secretToken, 'pazz');
-    delete process.env.OPBEAT_SECRET_TOKEN;
-  });
-
-  it('should be disabled and log it when active=false', function () {
-    client = opbeat(common.join(options, { active: false }));
+  it('should overwrite OPBEAT_ACTIVE by option property active', function () {
+    var options = { appId: 'foo', organizationId: 'bar', secretToken: 'baz', active: false };
+    process.env.OPBEAT_ACTIVE = '1';
+    client = opbeat(options);
     assert.strictEqual(client.active, false);
-    assert.strictEqual(logger.info._called, true);
+    delete process.env.OPBEAT_ACTIVE;
+  });
+
+  it('should default active to true if required options have been specified', function () {
+    client = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' });
+    assert.strictEqual(client.active, true);
+  });
+
+  it('should default active to false if required options have not been specified', function () {
+    client = opbeat();
+    assert.strictEqual(client.active, false);
   });
 
   describe('#captureError()', function () {

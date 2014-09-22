@@ -67,14 +67,13 @@ require('opbeat')({
 });
 ```
 
-Note that if you do not supply an options object, you'll need to
-configure the Opbeat client using environment varialbes.
-
-The available options are:
+The available options are listed below, but can alternatively be set via
+the listed environment variables.
 
 ### appId
 
 - **Type:** String
+- **Env:** `OPBEAT_APP_ID`
 
 Your Opbeat app id. Required unless set via the `OPBEAT_APP_ID`
 environment variable.
@@ -82,6 +81,7 @@ environment variable.
 ### organizationId
 
 - **Type:** String
+- **Env:** `OPBEAT_ORGANIZATION_ID`
 
 Your Opbeat orgainization id. Required unless set via the
 `OPBEAT_ORGANIZATION_ID` environment variable.
@@ -89,6 +89,7 @@ Your Opbeat orgainization id. Required unless set via the
 ### secretToken
 
 - **Type:** String
+- **Env:** `OPBEAT_SECRET_TOKEN`
 
 Your secret Opbeat token. Required unless set via the
 `OPBEAT_SECRET_TOKEN` environment variable.
@@ -97,6 +98,7 @@ Your secret Opbeat token. Required unless set via the
 
 - **Type:** Boolean
 - **Default:** `true`
+- **Env:** `OPBEAT_ACTIVE`
 
 A boolean specifying if errors should be collected by the Opbeat client
 or not. Normally you would not want to capture errors in your
@@ -113,6 +115,7 @@ var options = {
 
 - **Type:** String
 - **Default:** OS hostname
+- **Env:** `OPBEAT_HOSTNAME`
 
 The OS hostname is automatically logged along with all errors (you can
 see it under the "Environment" tab on each error. If you want to
@@ -122,6 +125,7 @@ overwrite this, use this option.
 
 - **Type:** String
 - **Default:** `'info'`
+- **Env:** `OPBEAT_LEVEL`
 
 Set the verbosity level the Opbeat client. Note that this does not have
 any influence on what types of errors that are sent to Opbeat. This only
@@ -133,6 +137,7 @@ Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 
 - **Type:** Boolean
 - **Default:** `true`
+- **Env:** `OPBEAT_CAPTURE_EXCEPTIONS`
 
 Whether or not the Opbeat client should monitor for uncaught exceptions
 and sent them to Opbeat automatically.
@@ -141,6 +146,7 @@ and sent them to Opbeat automatically.
 
 - **Type:** String
 - **Default:** `'fatal'`
+- **Env:** `OPBEAT_EXCEPTION_LOG_LEVEL`
 
 When calling `captureError()` the error is sent on Opbeat with the level
 "error", but uncaught exceptions are by default sent on Opbeat with the
@@ -152,6 +158,7 @@ Possible levels are: `debug`, `info`, `warning`, `error` and `fatal`.
 
 - **Type:** Number
 - **Default:** `Infinity`
+- **Env:** `OPBEAT_STACK_TRACE_LIMIT`
 
 Setting it to `0` will disable stack trace collection. Any finite integer
 value will be used as the maximum number of frames to collect. Setting

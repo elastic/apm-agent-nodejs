@@ -17,16 +17,21 @@ module.exports = function (options) {
 
 var Client = function (options) {
   options = options || {};
+  var env = process.env;
 
-  this.appId             = options.appId          || process.env.OPBEAT_APP_ID;
-  this.organizationId    = options.organizationId || process.env.OPBEAT_ORGANIZATION_ID;
-  this.secretToken       = options.secretToken    || process.env.OPBEAT_SECRET_TOKEN;
-  this.active            = options.active != false;
-  this.level             = options.level || 'info'; // debug, info, error, warn, fatal
-  this.hostname          = options.hostname || os.hostname();
-  this.stackTraceLimit   = 'stackTraceLimit' in options ? options.stackTraceLimit : Infinity;
-  this.captureExceptions = options.captureExceptions != false;
-  this.exceptionLogLevel = options.exceptionLogLevel || 'fatal'; // debug, info, warning, error, fatal
+  this.appId             = options.appId || env.OPBEAT_APP_ID;
+  this.organizationId    = options.organizationId || env.OPBEAT_ORGANIZATION_ID;
+  this.secretToken       = options.secretToken || env.OPBEAT_SECRET_TOKEN;
+  this.active            = ('active' in options ? options.active :
+                             ('OPBEAT_ACTIVE' in env ? env.OPBEAT_ACTIVE :
+                               undefined)) != false;
+  this.level             = options.level || env.OPBEAT_LEVEL || 'info'; // debug, info, warn, error, fatal
+  this.hostname          = options.hostname || env.OPBEAT_HOSTNAME || os.hostname();
+  this.stackTraceLimit   = 'stackTraceLimit' in options ? options.stackTraceLimit :
+                             ('OPBEAT_STACK_TRACE_LIMIT' in env ? env.OPBEAT_STACK_TRACE_LIMIT :
+                               Infinity);
+  this.captureExceptions = (options.captureExceptions || env.OPBEAT_CAPTURE_EXCEPTIONS) != false;
+  this.exceptionLogLevel = options.exceptionLogLevel || env.OPBEAT_EXCEPTION_LOG_LEVEL || 'fatal'; // debug, info, warning, error, fatal
   this.api               = {
     host: options.apiHost || 'opbeat.com',
     path: '/api/v1/organizations/' + this.organizationId + '/apps/' + this.appId + '/'
