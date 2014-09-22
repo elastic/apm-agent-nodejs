@@ -25,7 +25,7 @@ var Client = function (options) {
   this.active            = ('active' in options ? options.active :
                              ('OPBEAT_ACTIVE' in env ? env.OPBEAT_ACTIVE :
                                undefined)) != false;
-  this.level             = options.level || env.OPBEAT_LEVEL || 'info'; // debug, info, warn, error, fatal
+  this.clientLogLevel    = options.clientLogLevel || env.OPBEAT_CLIENT_LOG_LEVEL || 'info'; // debug, info, warn, error, fatal
   this.hostname          = options.hostname || env.OPBEAT_HOSTNAME || os.hostname();
   this.stackTraceLimit   = 'stackTraceLimit' in options ? options.stackTraceLimit :
                              ('OPBEAT_STACK_TRACE_LIMIT' in env ? env.OPBEAT_STACK_TRACE_LIMIT :
@@ -37,7 +37,7 @@ var Client = function (options) {
     path: '/api/v1/organizations/' + this.organizationId + '/apps/' + this.appId + '/'
   };
 
-  log.setLevel(this.level);
+  log.setLevel(this.clientLogLevel);
 
   if (!this.active) {
     log.info('Opbeat logging is disabled for now');

@@ -11,7 +11,7 @@ var questions = [
 
 var test = function (options) {
   options.env = 'production';
-  options.level = 'fatal';
+  options.clientLogLevel = 'fatal';
   options.captureExceptions = false;
   var client = opbeat(options);
 

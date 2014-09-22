@@ -121,11 +121,11 @@ The OS hostname is automatically logged along with all errors (you can
 see it under the "Environment" tab on each error. If you want to
 overwrite this, use this option.
 
-### level
+### clientLogLevel
 
 - **Type:** String
 - **Default:** `'info'`
-- **Env:** `OPBEAT_LEVEL`
+- **Env:** `OPBEAT_CLIENT_LOG_LEVEL`
 
 Set the verbosity level the Opbeat client. Note that this does not have
 any influence on what types of errors that are sent to Opbeat. This only
