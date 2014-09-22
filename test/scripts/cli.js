@@ -4,9 +4,9 @@ var opbeat = require('../../');
 var inquirer = require('inquirer');
 
 var questions = [
-  { name: 'app_id', message: 'App ID' },
-  { name: 'organization_id', message: 'Organization ID' },
-  { name: 'secret_token', message: 'Secret token' }
+  { name: 'appId', message: 'App ID' },
+  { name: 'organizationId', message: 'Organization ID' },
+  { name: 'secretToken', message: 'Secret token' }
 ];
 
 var test = function (options) {

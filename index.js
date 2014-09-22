@@ -18,9 +18,9 @@ module.exports = function (options) {
 var Client = function (options) {
   options = options || {};
 
-  this.app_id            = options.app_id          || process.env.OPBEAT_APP_ID;
-  this.organization_id   = options.organization_id || process.env.OPBEAT_ORGANIZATION_ID;
-  this.secret_token      = options.secret_token    || process.env.OPBEAT_SECRET_TOKEN;
+  this.appId             = options.appId          || process.env.OPBEAT_APP_ID;
+  this.organizationId    = options.organizationId || process.env.OPBEAT_ORGANIZATION_ID;
+  this.secretToken       = options.secretToken    || process.env.OPBEAT_SECRET_TOKEN;
   this.active            = options.active != false;
   this.level             = options.level || 'info'; // debug, info, error, warn, fatal
   this.hostname          = options.hostname || os.hostname();
@@ -29,14 +29,14 @@ var Client = function (options) {
   this.exceptionLogLevel = options.exceptionLogLevel || 'fatal'; // debug, info, warning, error, fatal
   this.api               = {
     host: options.apiHost || 'opbeat.com',
-    path: '/api/v1/organizations/' + this.organization_id + '/apps/' + this.app_id + '/'
+    path: '/api/v1/organizations/' + this.organizationId + '/apps/' + this.appId + '/'
   };
 
   log.setLevel(this.level);
 
   if (!this.active) {
     log.info('Opbeat logging is disabled for now');
-  } else if (!this.app_id || !this.organization_id || !this.secret_token) {
+  } else if (!this.appId || !this.organizationId || !this.secretToken) {
     log.info('[WARNING] Opbeat logging is disabled. To enable, specify organization id, app id and secret token');
     this.active = false;
   }

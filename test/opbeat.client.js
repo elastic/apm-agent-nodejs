@@ -9,9 +9,9 @@ var logger = require('../lib/logger');
 var opbeat = require('../');
 
 var options = {
-  organization_id: 'some-org-id',
-  app_id: 'some-app-id',
-  secret_token: 'secret',
+  organizationId: 'some-org-id',
+  appId: 'some-app-id',
+  secretToken: 'secret',
   captureExceptions: false
 };
 
@@ -65,7 +65,7 @@ describe('opbeat client', function () {
   it('should pull OPBEAT_ORGANIZATION_ID from environment', function () {
     process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
     client = opbeat(disableUncaughtExceptionHandler);
-    assert.strictEqual(client.organization_id, 'another-org-id');
+    assert.strictEqual(client.organizationId, 'another-org-id');
     delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
   });
 
@@ -76,14 +76,14 @@ describe('opbeat client', function () {
     };
     process.env.OPBEAT_ORGANIZATION_ID='another-org-id';
     client = opbeat({
-      app_id: 'some-app-id',
-      secret_token: 'secret',
+      appId: 'some-app-id',
+      secretToken: 'secret',
       captureExceptions: false
     });
     assert.deepEqual(client.api, expected);
-    assert.strictEqual(client.organization_id, 'another-org-id');
-    assert.strictEqual(client.app_id, 'some-app-id');
-    assert.strictEqual(client.secret_token, 'secret');
+    assert.strictEqual(client.organizationId, 'another-org-id');
+    assert.strictEqual(client.appId, 'some-app-id');
+    assert.strictEqual(client.secretToken, 'secret');
     delete process.env.OPBEAT_ORGANIZATION_ID; // gotta clean up so it doesn't leak into other tests
   });
 
@@ -96,14 +96,14 @@ describe('opbeat client', function () {
   it('should pull OPBEAT_APP_ID from environment', function () {
     process.env.OPBEAT_APP_ID='another-app-id';
     client = opbeat(disableUncaughtExceptionHandler);
-    assert.strictEqual(client.app_id, 'another-app-id');
+    assert.strictEqual(client.appId, 'another-app-id');
     delete process.env.OPBEAT_APP_ID;
   });
 
   it('should pull OPBEAT_SECRET_TOKEN from environment', function () {
     process.env.OPBEAT_SECRET_TOKEN='pazz';
     client = opbeat(disableUncaughtExceptionHandler);
-    assert.strictEqual(client.secret_token, 'pazz');
+    assert.strictEqual(client.secretToken, 'pazz');
     delete process.env.OPBEAT_SECRET_TOKEN;
   });
 

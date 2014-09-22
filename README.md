@@ -32,9 +32,9 @@ exceptions automatically.
 
 ```javascript
 var opbeat = require('opbeat')({
-  app_id: '...',
-  organization_id: '...',
-  secret_token: '...'
+  appId: '...',
+  organizationId: '...',
+  secretToken: '...'
 });
 ```
 
@@ -60,9 +60,9 @@ options object to configure the client.
 
 ```javascript
 require('opbeat')({
-  app_id: '...',
-  organization_id: '...',
-  secret_token: '...',
+  appId: '...',
+  organizationId: '...',
+  secretToken: '...',
   ...
 });
 ```
@@ -72,21 +72,21 @@ configure the Opbeat client using environment varialbes.
 
 The available options are:
 
-### app_id
+### appId
 
 - **Type:** String
 
 Your Opbeat app id. Required unless set via the `OPBEAT_APP_ID`
 environment variable.
 
-### organization_id
+### organizationId
 
 - **Type:** String
 
 Your Opbeat orgainization id. Required unless set via the
 `OPBEAT_ORGANIZATION_ID` environment variable.
 
-### secret_token
+### secretToken
 
 - **Type:** String
 
