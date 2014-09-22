@@ -156,24 +156,31 @@ Client.prototype.trackDeployment = function (options, callback) {
   var client = this;
   var next = afterAll(function (err) {
     if (err) throw err;
-    request.deployment(client, options, callback);
+    request.deployment(client, body, callback);
   });
 
   if (!options) options = {};
-  if (options.rev) return next()();
+
+  var body = {
+    status: options.status || 'completed',
+    rev: options.rev,
+    branch: options.branch
+  };
+
+  if (body.rev) return next()();
   if (!options.path) options.path = process.cwd();
 
   var cb1 = next(), cb2 = next();
 
   // TODO: Maybe there's a module for this:
   exec('cd ' + options.path + ' && git rev-parse HEAD', function (err, stdout, stderr) {
-    if (!err) options.rev = stdout.toString().trim();
+    if (!err) body.rev = stdout.toString().trim();
     cb1(err);
   });
 
   // TODO: Maybe there's a module for this:
   exec('cd ' + options.path + ' && git rev-parse --abbrev-ref HEAD', function (err, stdout, stderr) {
-    if (!err) options.branch = stdout.toString().trim();
+    if (!err) body.branch = stdout.toString().trim();
     cb2(err);
   });
 };

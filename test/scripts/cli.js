@@ -20,18 +20,26 @@ var test = function (options) {
     process.exit();
   });
 
-  console.log('Capturing error...');
-  client.captureError(new Error('This is an Error object'), function (err, url) {
-    if (err) console.log('Something went wrong:', err.message);
-    console.log('The error have been logged at:', url);
+  client.on('error', function (err) {
+    console.log(err.stack);
+  });
 
-    console.log('Capturing message...');
-    client.captureError('This is a string', function (err, url) {
+  console.log('Tacking deployment...');
+  client.trackDeployment(function () {
+    console.log('The deploy have been tracked!');
+    console.log('Capturing error...');
+    client.captureError(new Error('This is an Error object'), function (err, url) {
       if (err) console.log('Something went wrong:', err.message);
-      console.log('The message have been logged at:', url);
+      console.log('The error have been logged at:', url);
 
-      console.log('Throwing exception...');
-      throw new Error('This Error was thrown');
+      console.log('Capturing message...');
+      client.captureError('This is a string', function (err, url) {
+        if (err) console.log('Something went wrong:', err.message);
+        console.log('The message have been logged at:', url);
+
+        console.log('Throwing exception...');
+        throw new Error('This Error was thrown');
+      });
     });
   });
 };

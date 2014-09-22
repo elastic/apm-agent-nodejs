@@ -2,10 +2,11 @@
 
 var fs = require('fs');
 var os = require('os');
-var querystring = require('querystring');
+var zlib = require('zlib');
 var assert = require('assert');
 var nock = require('nock');
 var common = require('common');
+var afterAll = require('after-all');
 var logger = require('../lib/logger');
 var opbeat = require('../');
 
@@ -251,61 +252,74 @@ describe('opbeat client', function () {
     });
 
     it('should send deployment request to the Opbeat server with given rev', function (done) {
-      var scope = nock('https://opbeat.com')
-        .filteringRequestBody(function (body) {
-          var params = querystring.parse(body);
-          if (Object.keys(params).length === 3 &&
-              params.rev === 'foo' &&
-              params.status === 'completed' &&
-              params.hostname.length > 0) return 'ok';
-          throw new Error('Unexpected body: ' + body);
-        })
-        .post('/api/v1/organizations/some-org-id/apps/some-app-id/deployments/', 'ok')
-        .reply(200);
+      var expected = JSON.stringify({ status: 'completed', rev: 'foo' });
+      zlib.deflate(expected, function (err, buffer) {
+        assert.ifError(err);
 
-      client.trackDeployment({ rev: 'foo' }, function () {
-        scope.done();
-        done();
+        var scope = nock('https://opbeat.com')
+          .filteringRequestBody(function (body) {
+            assert.strictEqual(body, buffer.toString('hex'));
+            return 'ok';
+          })
+          .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', 'ok')
+          .reply(200);
+
+        client.trackDeployment({ rev: 'foo' }, function () {
+          scope.done();
+          done();
+        });
       });
     });
 
     it('should send deployment request to the Opbeat server with given rev and branch', function (done) {
-      var scope = nock('https://opbeat.com')
-        .filteringRequestBody(function (body) {
-          var params = querystring.parse(body);
-          if (Object.keys(params).length === 4 &&
-              params.rev === 'foo' &&
-              params.branch === 'bar' &&
-              params.status === 'completed' &&
-              params.hostname.length > 0) return 'ok';
-          throw new Error('Unexpected body: ' + body);
-        })
-        .post('/api/v1/organizations/some-org-id/apps/some-app-id/deployments/', 'ok')
-        .reply(200);
+      var expected = JSON.stringify({ status: 'completed', rev: 'foo', branch: 'bar' });
+      zlib.deflate(expected, function (err, buffer) {
+        assert.ifError(err);
 
-      client.trackDeployment({ rev: 'foo', branch: 'bar' }, function () {
-        scope.done();
-        done();
+        var scope = nock('https://opbeat.com')
+          .filteringRequestBody(function (body) {
+            assert.strictEqual(body, buffer.toString('hex'));
+            return 'ok';
+          })
+          .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', 'ok')
+          .reply(200);
+
+        client.trackDeployment({ rev: 'foo', branch: 'bar' }, function () {
+          scope.done();
+          done();
+        });
       });
     });
 
     it('should send deployment request to the Opbeat server with given rev and branch automatically generated', function (done) {
-      var scope = nock('https://opbeat.com')
-        .filteringRequestBody(function (body) {
-          var params = querystring.parse(body);
-          if (Object.keys(params).length === 4 &&
-              /^[\da-f]{40}$/.test(params.rev) &&
-              /^[^ ]+$/.test(params.branch) &&
-              params.status === 'completed' &&
-              params.hostname.length > 0) return 'ok';
-          throw new Error('Unexpected body: ' + body);
-        })
-        .post('/api/v1/organizations/some-org-id/apps/some-app-id/deployments/', 'ok')
-        .reply(200);
+      var expected = JSON.stringify({ status: 'completed', rev: 'foo', branch: 'bar' });
+      zlib.deflate(expected, function (err, buffer) {
+        assert.ifError(err);
 
-      client.trackDeployment(function () {
-        scope.done();
-        done();
+        var next = afterAll(function (err) {
+          assert.ifError(err);
+          scope.done();
+          done();
+        });
+        var cb = next();
+
+        var scope = nock('https://opbeat.com')
+          .filteringRequestBody(function (body) {
+            zlib.inflate(new Buffer(body, 'hex'), function (err, buffer) {
+              assert.ifError(err);
+              var json = JSON.parse(buffer.toString());
+              assert.strictEqual(Object.keys(json).length, 3);
+              assert.strictEqual(json.status, 'completed');
+              assert.ok(/^[\da-f]{40}$/.test(json.rev));
+              assert.ok(/^[^ ]+$/.test(json.branch));
+              cb();
+            });
+            return '*';
+          })
+          .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
+          .reply(200);
+
+        client.trackDeployment(next());
       });
     });
   });
