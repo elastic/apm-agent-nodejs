@@ -51,10 +51,6 @@ var Client = function (options) {
   Error.stackTraceLimit = this.stackTraceLimit;
   if (this.captureExceptions) this.handleUncaughtExceptions();
 
-  this.on('connectionError', function (err) {
-    log.info('Could not notify Opbeat!');
-    log.error(err.stack);
-  });
   this.on('error', function (err) {
     log.info('Could not notify Opbeat!');
     log.error(err.stack);
@@ -73,7 +69,6 @@ Client.prototype.middleware = {
 Client.prototype._process = function (options, cb) {
   if (cb) {
     this.once('error', cb);
-    this.once('connectionError', cb);
     this.once('logged', function (url) {
       cb(null, url);
     });

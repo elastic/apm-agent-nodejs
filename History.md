@@ -16,6 +16,7 @@
   * Log remote IP
   * Allow options.stackTraceLimit to be falsy
   * Remove client.version property
+  * Remove event connectionError (use error event instead)
   * Control log level of client with options.clientLogLevel (replaces options.silent)
   * Allow handleUncaughtExceptions to be called multiple times
   * Allow the severity level of exceptions to be set in options

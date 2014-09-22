@@ -154,7 +154,7 @@ it to `Infinity` means that all frames will be collected.
 
 ## Events
 
-Client emits three events: `logged`, `connectionError` and `error`.
+The client emits two events: `logged` and `error`.
 
 ```javascript
 opbeat.on('logged', function (url) {
@@ -162,11 +162,7 @@ opbeat.on('logged', function (url) {
 });
 
 opbeat.on('error', function (err) {
-  console.log('oh well, Opbeat returned an error');
-});
-
-opbeat.on('connectionError', function (err) {
-  console.log('Could not contact Opbeat :(');
+  console.log('Something went wrong. The error was not logged!');
 });
 
 opbeat.captureError('Boom');
@@ -357,7 +353,7 @@ Callback:
 
 Will be called when the deployment have been tracked. Note that the
 callback will not be called upon errors. Listen instead for the `error`
-or `connectionError` events.
+events.
 
 ## Compatibility
 
