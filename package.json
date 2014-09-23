@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/watson/opbeat-node.git"
+    "url": "git://github.com/opbeat/opbeat-node.git"
   },
   "keywords": [
     "opbeat",
@@ -32,9 +32,9 @@
   "author": "Thomas Watson Steen <w@tson.dk>",
   "license": "BSD",
   "bugs": {
-    "url": "https://github.com/watson/opbeat-node/issues"
+    "url": "https://github.com/opbeat/opbeat-node/issues"
   },
-  "homepage": "https://github.com/watson/opbeat-node",
+  "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
     "after-all": "^2.0.1",
     "stackman": "^0.2.2"
