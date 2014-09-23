@@ -185,7 +185,7 @@ describe('opbeat client', function () {
 
     it('should use `param_message` as well as `message` if given an object as 1st argument', function (done) {
       var oldProcess = client._process;
-      client._process = function (options, cb) {
+      client._process = function (options, callback) {
         assert('message' in options);
         assert('param_message' in options);
         assert.strictEqual(options.message, 'Hello World');
