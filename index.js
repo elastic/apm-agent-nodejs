@@ -1,14 +1,14 @@
 'use strict';
 
-var http     = require('http');
-var util     = require('util');
-var events   = require('events');
-var os       = require('os');
-var exec     = require('child_process').exec;
+var http = require('http');
+var util = require('util');
+var events = require('events');
+var os = require('os');
+var exec = require('child_process').exec;
 var afterAll = require('after-all');
-var parsers  = require('./lib/parsers');
-var request  = require('./lib/request');
-var log      = require('./lib/logger');
+var parsers = require('./lib/parsers');
+var request = require('./lib/request');
+var log = require('./lib/logger');
 
 var Client = function (options) {
   if (!(this instanceof Client))
