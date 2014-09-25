@@ -64,22 +64,6 @@ Client.prototype.middleware = {
   express: require('./lib/middleware/connect')
 };
 
-Client.prototype._process = function (options, callback) {
-  if (callback) {
-    this.once('error', callback);
-    this.once('logged', function (url) {
-      callback(null, url);
-    });
-  }
-
-  options.machine = { hostname: this.hostname };
-  options.extra = options.extra || {};
-  options.extra.node = process.version;
-  options.timestamp = new Date().toISOString().split('.')[0];
-
-  if (this.active) request.error(this, options);
-};
-
 Client.prototype.captureError = function (err, options, callback) {
   var client = this;
   if (typeof options === 'function') {
@@ -108,7 +92,13 @@ Client.prototype.captureError = function (err, options, callback) {
     } else {
       log.error(err.stack);
     }
-    client._process(options, callback);
+
+    options.machine = { hostname: client.hostname };
+    options.extra = options.extra || {};
+    options.extra.node = process.version;
+    options.timestamp = new Date().toISOString().split('.')[0];
+
+    if (client.active) request.error(client, options, callback);
   });
 };
 

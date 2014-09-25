@@ -8,6 +8,7 @@ var nock = require('nock');
 var common = require('common');
 var afterAll = require('after-all');
 var logger = require('../lib/logger');
+var request = require('../lib/request');
 var opbeat = require('../');
 
 var options = {
@@ -184,13 +185,13 @@ describe('opbeat client', function () {
     });
 
     it('should use `param_message` as well as `message` if given an object as 1st argument', function (done) {
-      var oldProcess = client._process;
-      client._process = function (options, callback) {
+      var oldErrorFn = request.error;
+      request.error = function (client, options, callback) {
         assert('message' in options);
         assert('param_message' in options);
         assert.strictEqual(options.message, 'Hello World');
         assert.strictEqual(options.param_message, 'Hello %s');
-        client._process = oldProcess;
+        request.error = oldErrorFn;
         done();
       };
       client.captureError({ message: 'Hello %s', params: ['World'] });
