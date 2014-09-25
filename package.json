@@ -41,10 +41,10 @@
   },
   "devDependencies": {
     "common": "^0.2.5",
-    "inquirer": "^0.7.1",
+    "inquirer": "^0.7.3",
     "mocha": "^1.21.4",
-    "nock": "^0.47.0",
-    "semver": "^3.0.1"
+    "nock": "^0.48.0",
+    "semver": "^4.0.0"
   },
   "engines": {
     "node": ">= 0.10.0"
