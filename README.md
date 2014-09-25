@@ -45,14 +45,6 @@ If you want to manually send an error to Opbeat, use the
 opbeat.captureError(new Error('Ups, something broke'));
 ```
 
-If you need access to the Opbeat client in other files after
-initializing it in you app's main module, just require the module
-and call the main function without parsing in any arguments:
-
-```javascript
-var opbeat = require('opbeat')();
-```
-
 ## Configuration
 
 When you've required the Opbeat module you can supply an optional
@@ -280,6 +272,22 @@ opbeat.captureError(error, {
   extra: {
     some_important_metric: 'foobar'
   }
+});
+```
+
+## Singleton access
+
+Don't waste time initializing the Opbeat client more than once. If you
+need access the client in multiple files, just create an *opbeat.js*
+file somewhere in your project, initialize Opbeat in there and export
+it:
+
+```javascript
+// opbeat.js
+module.exports = require('opbeat')({
+  appId: '...',
+  organizationId: '...',
+  secretToken: '...'
 });
 ```
 

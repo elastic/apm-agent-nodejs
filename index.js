@@ -10,12 +10,10 @@ var parsers  = require('./lib/parsers');
 var request  = require('./lib/request');
 var log      = require('./lib/logger');
 
-module.exports = function (options) {
-  if (module.exports._client) return module.exports._client;
-  return module.exports._client = new Client(options);
-};
-
 var Client = function (options) {
+  if (!(this instanceof Client))
+    return new Client(options);
+
   options = options || {};
   var env = process.env;
 
@@ -184,3 +182,5 @@ Client.prototype.trackDeployment = function (options, callback) {
     cb2(err);
   });
 };
+
+module.exports = Client;
