@@ -1,6 +1,6 @@
 {
   "name": "opbeat",
-  "version": "0.3.1",
+  "version": "1.0.0",
   "description": "The official Opbeat client",
   "main": "index.js",
   "scripts": {
