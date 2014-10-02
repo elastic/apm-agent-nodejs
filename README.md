@@ -205,6 +205,24 @@ server with the following arguments:
 
 ## Advanced usage
 
+### HTTP requests
+
+You can specify an optional options argument as the 2nd argument to
+`.captureError()`. Besides the options described in the [the metedata
+section](#metadata), you can use the options to associate the error with
+an HTTP request:
+
+```javascript
+opbeat.captureError(err, {
+  request: req // an instance of http.IncomingMessage
+});
+```
+
+This will log the URL that was requested, the HTTP headers, cookies and
+other useful details to help you debug the error.
+
+### Callback
+
 The `captureError()` function can also be given an optional callback
 which will be called once the error have been sent to Opbeat:
 
