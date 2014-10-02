@@ -1,3 +1,6 @@
+# Bleeding edge
+  * Minor bugfixes and improvements
+
 # 1.0.0 - 2014/9/25
   * Remove createClient() function
   * Replace options.env with options.active

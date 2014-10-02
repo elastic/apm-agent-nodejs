@@ -73,6 +73,7 @@ Client.prototype.captureError = function (err, options, callback) {
     options = {};
   } else if (options.request instanceof http.IncomingMessage) {
     options = parsers.parseRequest(options.request, options);
+    delete options.request;
   }
 
   if (!(err instanceof Error)) {
