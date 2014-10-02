@@ -1,4 +1,4 @@
-# Bleading edge (master)
+# 1.0.0 - 2014/9/25
   * Remove createClient() function
   * Replace options.env with options.active
   * Rename options.handleExceptions to options.captureExceptions
