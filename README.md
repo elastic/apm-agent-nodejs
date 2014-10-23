@@ -270,7 +270,7 @@ metadata fields, most of which are automatlically managed by the
 opbeat node client. But if you wish you can supply some extra details
 using `client_supplied_id`, `extra`, `user` or `query`. If you want to
 know more about all the fields, you should take a look at the full
-[Opbeat API docs](https://opbeat.com/docs/api/errorlog/).
+[Opbeat API docs](http://docs.opbeat.com/api/intake/v1/#error-logging).
 
 To supply any of these extra fields, use the optional options argument
 when calling `opbeat.captureError()`.
@@ -360,7 +360,7 @@ to Opbeat.
 ## Deployment tracking
 
 Though Opbeat provides [other
-means](https://opbeat.com/docs/release_tracking/) of tracking
+means](http://docs.opbeat.com/topics/release-tracking/) of tracking
 deployment, you can also use this client for to track deployments.
 
 Use the `trackDeployment()` function with the optional options and
