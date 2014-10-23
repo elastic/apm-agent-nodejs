@@ -360,7 +360,7 @@ to Opbeat.
 ## Deployment tracking
 
 Though Opbeat provides [other
-means](https://opbeat.com/docs/release_tracking/) of tracking
+means](http://docs.opbeat.com/topics/release-tracking/) of tracking
 deployment, you can also use this client for to track deployments.
 
 Use the `trackDeployment()` function with the optional options and
