@@ -1,4 +1,4 @@
-# Bleeding edge
+# 1.0.1 - 2014/10/23
   * Minor bugfixes and improvements
 
 # 1.0.0 - 2014/9/25
