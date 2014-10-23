@@ -13,7 +13,7 @@ your Node.js applications. Includes middleware support for
 - [Uncaught exceptions](#uncaught-exceptions)
 - [Advanced usage](#advanced-usage)
 - [Integrations](#integrations)
-- [Deployment tracking](#deployment-tracking)
+- [Release tracking](#release-tracking)
 - [Compatibility](#compatibility)
 - [Credit](#credit)
 - [License](#license)
@@ -357,11 +357,10 @@ __Note__: `opbeat.middleware.express` or `opbeat.middleware.connect`
 handling middlewares or there's a chance that the error will never get
 to Opbeat.
 
-## Deployment tracking
+## Release tracking
 
-Though Opbeat provides [other
-means](http://docs.opbeat.com/topics/release-tracking/) of tracking
-deployment, you can also use this client for to track deployments.
+Though Opbeat provides other
+means of handling [release tracking](http://docs.opbeat.com/topics/release-tracking/), you can also use this client to do the same.
 
 Use the `trackDeployment()` function with the optional options and
 callback arguments:
@@ -380,7 +379,7 @@ Options:
 
 Callback:
 
-Will be called when the deployment have been tracked. Note that the
+Will be called when the release has been tracked. Note that the
 callback will not be called upon errors. Listen instead for the `error`
 events.
 
