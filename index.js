@@ -10,6 +10,11 @@ var parsers = require('./lib/parsers');
 var request = require('./lib/request');
 var log = require('./lib/logger');
 
+var logError = function (err) {
+  log.info('Could not notify Opbeat!');
+  log.error(err.stack);
+};
+
 var Client = function (options) {
   if (!(this instanceof Client))
     return new Client(options);
@@ -49,10 +54,7 @@ var Client = function (options) {
   Error.stackTraceLimit = this.stackTraceLimit;
   if (this.captureExceptions) this.handleUncaughtExceptions();
 
-  this.on('error', function (err) {
-    log.info('Could not notify Opbeat!');
-    log.error(err.stack);
-  });
+  this.on('error', logError);
   this.on('logged', function (url) {
     log.info('Opbeat logged error successfully at ' + url);
   });
@@ -121,6 +123,9 @@ Client.prototype.handleUncaughtExceptions = function (callback) {
     // we'll remove all event listeners if an uncaught exception is
     // found
     client.removeAllListeners();
+    // But make sure emitted errors doesn't cause yet another uncaught
+    // exception
+    client.on('error', logError);
 
     var options = {
       level: client.exceptionLogLevel
