@@ -1,3 +1,6 @@
+# 1.0.2 - 2014/10/30
+  * Big fix: Ensure emitted errors after an uncaught exception doesn't throw
+
 # 1.0.1 - 2014/10/23
   * Minor bugfixes and improvements
 
