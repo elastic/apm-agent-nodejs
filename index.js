@@ -96,6 +96,7 @@ Client.prototype.captureError = function (err, options, callback) {
       log.error(err.stack);
     }
 
+    options.stacktrace.frames.reverse(); // opbeat expects frames in reverse order
     options.machine = { hostname: client.hostname };
     options.extra = options.extra || {};
     options.extra.node = process.version;
