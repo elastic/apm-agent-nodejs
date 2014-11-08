@@ -1,3 +1,9 @@
+# 1.0.4 - 2014/11/8
+  * Bug fix: Ensure the agent doesn't fail on circular dependencies
+
+# 1.0.3 - 2014/11/8
+  * API update: The new version of the Opbeat API expects the stack frames in reverse order
+
 # 1.0.2 - 2014/10/30
   * Big fix: Ensure emitted errors after an uncaught exception doesn't throw
 
