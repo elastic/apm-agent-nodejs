@@ -37,6 +37,7 @@
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
     "after-all": "^2.0.1",
+    "json-stringify-safe": "^5.0.0",
     "stackman": "^0.2.2"
   },
   "devDependencies": {
