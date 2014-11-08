@@ -1,3 +1,6 @@
+# 1.0.5 - 2014/11/8
+  * Log missing line numbers as line zero
+
 # 1.0.4 - 2014/11/8
   * Bug fix: Ensure the agent doesn't fail on circular dependencies
 
