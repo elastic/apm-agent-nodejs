@@ -1,13 +1,11 @@
 'use strict';
 
+var fs = require('fs');
+var path = require('path');
 var opbeat = require('../../');
 var inquirer = require('inquirer');
-
-var questions = [
-  { name: 'appId', message: 'App ID' },
-  { name: 'organizationId', message: 'Organization ID' },
-  { name: 'secretToken', message: 'Secret token' }
-];
+var untildify = require('untildify');
+var mkdirp = require('mkdirp');
 
 var test = function (options) {
   options.env = 'production';
@@ -44,7 +42,45 @@ var test = function (options) {
   });
 };
 
-inquirer.prompt(questions, function (answers) {
-  // inquirer gives quite a long stack-trace, so let's do this async
-  process.nextTick(test.bind(null, answers));
+var loadConf = function (callback) {
+  var file = untildify('~/.config/opbeat.json');
+  fs.exists(file, function (exists) {
+    if (!exists) return callback({});
+    fs.readFile(file, function (err, data) {
+      if (err) throw err;
+      callback(JSON.parse(data));
+    });
+  });
+};
+
+var saveConf = function (conf, callback) {
+  var dir = untildify('~/.config');
+  mkdirp(dir, '0755', function (err) {
+    if (err) throw err;
+    var file = path.join(dir, 'opbeat.json');
+    fs.writeFile(file, JSON.stringify(conf), function (err) {
+      if (err) throw err;
+      console.log('Saved config:', file);
+      callback();
+    });
+  });
+};
+
+loadConf(function (conf) {
+  var questions = [
+    { name: 'appId', message: 'App ID', 'default': conf.appId },
+    { name: 'organizationId', message: 'Organization ID', 'default': conf.organizationId },
+    { name: 'secretToken', message: 'Secret token', 'default': conf.secretToken },
+    { name: 'save', message: 'Save answers?', type: 'confirm' }
+  ];
+
+  inquirer.prompt(questions, function (answers) {
+    if (answers.save) {
+      delete answers.save;
+      saveConf(answers, test.bind(null, answers));
+    } else {
+      // inquirer gives quite a long stack-trace, so let's do this async
+      process.nextTick(test.bind(null, answers));
+    }
+  });
 });
