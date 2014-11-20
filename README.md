@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/opbeat/opbeat-node.png)](https://travis-ci.org/opbeat/opbeat-node)
 
-Log errors and stack traces in [Opbeat](http://opbeat.com/) from within
+Log errors and stacktraces in [Opbeat](http://opbeat.com/) from within
 your Node.js applications. Includes middleware support for
 [Connect](http://www.senchalabs.org/connect/) and
 [Express](http://expressjs.com/).
@@ -24,7 +24,7 @@ read our [upgrade guide](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-v
 **Compatibility:** Make sure you read our [Compatibility
 Guide](https://github.com/opbeat/opbeat-node/wiki/Compatibility-Guide)
 if you use New Relic, longjohn or other modules that also captures
-uncaught exceptions or modifies the stack traces.
+uncaught exceptions or modifies the stacktraces.
 
 ## Installation
 
@@ -148,7 +148,7 @@ and sent them to Opbeat automatically.
 - **Default:** `Infinity`
 - **Env:** `OPBEAT_STACK_TRACE_LIMIT`
 
-Setting it to `0` will disable stack trace collection. Any finite integer
+Setting it to `0` will disable stacktrace collection. Any finite integer
 value will be used as the maximum number of frames to collect. Setting
 it to `Infinity` means that all frames will be collected.
 
