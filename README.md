@@ -21,6 +21,11 @@ your Node.js applications. Includes middleware support for
 **Important:** If you've been using version 0.3.x or earlier, please
 read our [upgrade guide](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-1.0).
 
+**Compatibility:** Make sure you read our [Compatibility
+Guide](https://github.com/opbeat/opbeat-node/wiki/Compatibility-Guide)
+if you use New Relic, longjohn or other modules that also captures
+uncaught exceptions or modifies the stack traces.
+
 ## Installation
 
 ```
