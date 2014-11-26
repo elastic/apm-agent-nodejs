@@ -36,7 +36,7 @@ var Client = function (options) {
   this.captureExceptions = (options.captureExceptions || env.OPBEAT_CAPTURE_EXCEPTIONS) != false;
   this.exceptionLogLevel = options.exceptionLogLevel || env.OPBEAT_EXCEPTION_LOG_LEVEL || 'fatal'; // debug, info, warning, error, fatal
   this.api               = {
-    host: options.apiHost || 'opbeat.com',
+    host: options._apiHost || 'opbeat.com',
     path: '/api/v1/organizations/' + this.organizationId + '/apps/' + this.appId + '/'
   };
 
