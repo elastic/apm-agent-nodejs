@@ -1,3 +1,7 @@
+# 1.0.6 - 2014/12/4
+  * Fix issue with logging json HTTP requests if using req.json
+  * Rename internal options.apiHost to options._apiHost (hopefully you did not use this)
+
 # 1.0.5 - 2014/11/8
   * Log missing line numbers as line zero
 
