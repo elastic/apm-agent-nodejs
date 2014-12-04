@@ -7,6 +7,7 @@ var opbeat = require('../../');
 var inquirer = require('inquirer');
 var untildify = require('untildify');
 var mkdirp = require('mkdirp');
+var restify = require('restify');
 
 var standardTest = function (client) {
   console.log('Tacking deployment...');
@@ -63,6 +64,51 @@ var httpTest = function (client) {
   });
 };
 
+var restifyTest = function (client) {
+  var server = restify.createServer({ name: 'foo', version: '1.0.0' });
+
+  server.on('uncaughtException', function (req, res, route, err) {
+    client.captureError(err, { request: req }, function (err, url) {
+      if (err) console.log('Something went wrong:', err.message);
+      console.log('The error have been logged at:', url);
+      process.exit();
+    });
+  });
+
+  server.get('/error', function (req, res, next) {
+    var err = new Error('This is a request related error');
+    client.captureError(err, { request: req }, function (err, url) {
+      if (err) console.log('Something went wrong:', err.message);
+      console.log('The error have been logged at:', url);
+      res.end();
+      next();
+    });
+    res.writeHead(500);
+  });
+
+  server.get('/throw', function (req, res, next) {
+    throw new Error('This Error was thrown from wihtin a http server');
+  });
+
+  server.listen(function () {
+    var port = server.address().port;
+    var base = 'http://localhost:' + port;
+    console.log('Test server running on port', port);
+
+    var client = restify.createJsonClient({
+      url: base,
+      version: '~1.0'
+    });
+
+    console.log('Capturing request error...');
+    client.get('/error', function (err, req, res, obj) {
+
+      console.log('Throwing http exception...');
+      client.get('/throw', function () {});
+    });
+  });
+};
+
 var test = function (suite, options) {
   options.env = 'production';
   options.clientLogLevel = 'fatal';
@@ -81,6 +127,7 @@ var test = function (suite, options) {
   switch (suite) {
     case 'standard': return standardTest(client);
     case 'http': return httpTest(client);
+    case 'restify': return restifyTest(client);
     default: console.log('Unknown test suite selected:', options.suite);
   }
 };
@@ -114,7 +161,7 @@ loadConf(function (conf) {
     { name: 'appId', message: 'App ID', 'default': conf.appId },
     { name: 'organizationId', message: 'Organization ID', 'default': conf.organizationId },
     { name: 'secretToken', message: 'Secret token', 'default': conf.secretToken },
-    { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard','http'] },
+    { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard','http','restify'] },
     { name: 'save', message: 'Save answers?', type: 'confirm' }
   ];
 
