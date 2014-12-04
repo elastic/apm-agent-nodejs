@@ -175,12 +175,12 @@ to Opbeat. To disable this, set the configuration option
 `captureExceptions` to `false` when initializing the Opbeat client.
 
 You can enable capturing of uncaught exceptions later by calling the
-`captureUncaughtExceptions()` function. This also gives you the option to
+`handleUncaughtExceptions()` function. This also gives you the option to
 add a callback which will be called once an uncaught exception have been
 sent to Opbeat.
 
 ```javascript
-opbeat.captureUncaughtExceptions([callback]);
+opbeat.handleUncaughtExceptions([callback]);
 ```
 
 If you don't specify a callback, the node process is terminated
@@ -196,7 +196,7 @@ to terminate the node process:
 ```javascript
 var opbeat = require('opbeat')();
 
-opbeat.captureUncaughtExceptions(function (err, url) {
+opbeat.handleUncaughtExceptions(function (err, url) {
   // Do your own stuff... and then exit:
   process.exit(1);
 });
