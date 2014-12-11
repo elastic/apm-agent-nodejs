@@ -4,7 +4,7 @@
   "description": "The official Opbeat client",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter dot",
+    "test": "tape test/*.js",
     "test-cli": "node test/scripts/cli.js"
   },
   "repository": {
@@ -44,10 +44,10 @@
     "common": "^0.2.5",
     "inquirer": "^0.7.3",
     "mkdirp": "^0.5.0",
-    "mocha": "^1.21.4",
     "nock": "^0.48.0",
     "restify": "^2.8.3",
     "semver": "^4.0.0",
+    "tape": "^3.0.3",
     "untildify": "^1.0.0"
   },
   "engines": {
