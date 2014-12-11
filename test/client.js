@@ -18,10 +18,6 @@ var options = {
   captureExceptions: false
 };
 
-var disableUncaughtExceptionHandler = {
-  captureExceptions: false
-};
-
 var optionFixtures = [
   ['appId', 'APP_ID'],
   ['organizationId', 'ORGANIZATION_ID'],
@@ -50,17 +46,13 @@ var restoreLogger = function () {
   logger.error = _oldConsoleError;
 };
 
-var skipBody = function (path) { return '*'; };
+var skipBody = function () { return '*'; };
 var uncaughtExceptionListeners = process._events.uncaughtException;
 
 var setup = function () {
   clean();
   uncaughtExceptionListeners = process._events.uncaughtException;
   process.removeAllListeners('uncaughtException');
-  if (opbeat._client) {
-    opbeat._client.removeAllListeners();
-    delete opbeat._client;
-  }
   mockLogger();
 };
 
