@@ -1,3 +1,7 @@
+# 1.0.7 - 2014/12/11
+  * Bug fix: Exit process even if Opbeat cannot be reached
+  * Improve tests
+
 # 1.0.6 - 2014/12/4
   * Fix issue with logging json HTTP requests if using req.json
   * Rename internal options.apiHost to options._apiHost (hopefully you did not use this)
