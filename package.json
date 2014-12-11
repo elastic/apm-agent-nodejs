@@ -7,6 +7,9 @@
     "test": "tape test/*.js",
     "test-cli": "node test/scripts/cli.js"
   },
+  "directories": {
+    "test": "test"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/opbeat/opbeat-node.git"
