@@ -7,7 +7,7 @@ var test = require('tape');
 var nock = require('nock');
 var common = require('common');
 var afterAll = require('after-all');
-var logger = require('../lib/logger');
+var helpers = require('./_helpers');
 var request = require('../lib/request');
 var opbeat = require('../');
 
@@ -29,23 +29,6 @@ var optionFixtures = [
   ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal']
 ];
 
-var _oldConsoleInfo = logger.info;
-var _oldConsoleWarn = logger.warn;
-var _oldConsoleError = logger.error;
-var mockLogger = function () {
-  logger.info = function () { logger.info._called = true; };
-  logger.warn = function () { logger.warn._called = true; };
-  logger.error = function () { logger.error._called = true; };
-  logger.info._called = false;
-  logger.warn._called = false;
-  logger.error._called = false;
-};
-var restoreLogger = function () {
-  logger.info = _oldConsoleInfo;
-  logger.warn = _oldConsoleWarn;
-  logger.error = _oldConsoleError;
-};
-
 var skipBody = function () { return '*'; };
 var uncaughtExceptionListeners = process._events.uncaughtException;
 
@@ -53,12 +36,12 @@ var setup = function () {
   clean();
   uncaughtExceptionListeners = process._events.uncaughtException;
   process.removeAllListeners('uncaughtException');
-  mockLogger();
+  helpers.mockLogger();
 };
 
 var clean = function () {
   process._events.uncaughtException = uncaughtExceptionListeners;
-  restoreLogger();
+  helpers.restoreLogger();
 };
 
 optionFixtures.forEach(function (fixture) {
