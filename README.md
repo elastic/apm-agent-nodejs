@@ -332,16 +332,21 @@ handling a request.
 var opbeat = require('opbeat')();
 var connect = require('connect');
 
-function mainHandler(req, res) {
-  throw new Error('Broke!');
-}
+var app = connect();
 
-connect(
-  connect.bodyParser(),
-  connect.cookieParser(),
-  mainHandler,
-  opbeat.middleware.connect(),
-).listen(3000);
+// your regular middleware:
+// app.use(...)
+// app.use(...)
+
+// your main HTTP handler
+app.use(function (req, res, next) {
+  throw new Error('Broke!');
+});
+
+// add Opbeat in the bottom of the middleware stack
+app.use(opbeat.middleware.connect());
+
+app.listen(3000);
 ```
 
 #### Express

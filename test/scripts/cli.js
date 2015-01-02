@@ -8,6 +8,7 @@ var inquirer = require('inquirer');
 var untildify = require('untildify');
 var mkdirp = require('mkdirp');
 var restify = require('restify');
+var connect = require('connect');
 
 var standardTest = function (client) {
   console.log('Tacking deployment...');
@@ -109,6 +110,43 @@ var restifyTest = function (client) {
   });
 };
 
+var connectTest = function (client) {
+  var testsLeft = 2;
+  var app = connect();
+  app.use(function (req, res, next) {
+    switch (req.url) {
+      case '/error':
+        res.writeHead(500);
+        res.end();
+        next(new Error('foobar'));
+        break;
+      case '/throw':
+        throw new Error('foobar');
+      default:
+        res.end();
+    }
+  });
+  app.use(client.middleware.connect());
+  app.use(function (err, req, res, next) {
+    if (!--testsLeft) process.exit();
+  });
+
+  var server = http.createServer(app);
+  server.listen(function () {
+    var port = server.address().port;
+    var base = 'http://localhost:' + port;
+    console.log('Test server running on port', port);
+    console.log('NOTE: No Opbeat error urls will be displayed during this test!');
+
+    console.log('Capturing request error...');
+    http.get(base+'/error', function (res) {
+
+      console.log('Throwing http exception...');
+      http.get(base+'/throw', function () {});
+    });
+  });
+};
+
 var test = function (suite, options) {
   options.env = 'production';
   options.clientLogLevel = 'fatal';
@@ -128,6 +166,7 @@ var test = function (suite, options) {
     case 'standard': return standardTest(client);
     case 'http': return httpTest(client);
     case 'restify': return restifyTest(client);
+    case 'connect': return connectTest(client);
     default: console.log('Unknown test suite selected:', options.suite);
   }
 };
@@ -161,7 +200,7 @@ loadConf(function (conf) {
     { name: 'appId', message: 'App ID', 'default': conf.appId },
     { name: 'organizationId', message: 'Organization ID', 'default': conf.organizationId },
     { name: 'secretToken', message: 'Secret token', 'default': conf.secretToken },
-    { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard','http','restify'] },
+    { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard','http','restify','connect'] },
     { name: 'save', message: 'Save answers?', type: 'confirm' }
   ];
 

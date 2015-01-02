@@ -9,6 +9,7 @@ var afterAll = require('after-all');
 var parsers = require('./lib/parsers');
 var request = require('./lib/request');
 var log = require('./lib/logger');
+var connect = require('./lib/middleware/connect');
 
 var logError = function (err) {
   log.info('Could not notify Opbeat!');
@@ -42,6 +43,9 @@ var Client = function (options) {
 
   log.setLevel(this.clientLogLevel);
 
+  connect = connect.bind(this);
+  this.middleware = { connect: connect, express: connect };
+
   if (!this.active) {
     log.info('Opbeat logging is disabled for now');
   } else if (!this.appId || !this.organizationId || !this.secretToken) {
@@ -60,11 +64,6 @@ var Client = function (options) {
   });
 };
 util.inherits(Client, events.EventEmitter);
-
-Client.prototype.middleware = {
-  connect: require('./lib/middleware/connect'),
-  express: require('./lib/middleware/connect')
-};
 
 Client.prototype.captureError = function (err, options, callback) {
   var client = this;
