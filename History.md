@@ -1,3 +1,6 @@
+# 1.0.8 - 2015/01/02
+  * Bug fix: Fix connect/express middleware
+
 # 1.0.7 - 2014/12/11
   * Bug fix: Exit process even if Opbeat cannot be reached
   * Improve tests
