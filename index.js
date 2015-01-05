@@ -82,7 +82,7 @@ Client.prototype.captureError = function (err, options, callback) {
   var level = options.exceptionLogLevel || 'error';
   level = level === 'warning' ? 'warn' : level;
 
-  if (!(err instanceof Error)) {
+  if (!util.isError(err)) {
     var isMessage = true;
     parsers.parseMessage(err, options);
     this.logger[level](options.message);
