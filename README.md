@@ -133,6 +133,28 @@ controls how chatty the Opbeat client are in your logs.
 
 Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 
+### logger
+
+- **Type:** object
+
+Set a custom logger, e.g.
+[bunyan](https://github.com/trentm/node-bunyan):
+
+```js
+require('opbeat')({
+  logger: require('bunyan')({ level: 'info' })
+});
+```
+
+If no custom logger is provided, Opbeat will use its built-in logger
+which will log to STDOUT and STDERR depending on the log level.
+
+The logger should expose the following functions: `debug`, `info`,
+`warn`, `error` and `fatal`.
+
+Note that if a custom logger is provided, the `clientLogLevel` option
+will be ignored.
+
 ### captureExceptions
 
 - **Type:** Boolean

@@ -1,22 +1,20 @@
 'use strict';
 
-var logger = require('../lib/logger');
-
-var _oldConsoleInfo = logger.info;
-var _oldConsoleWarn = logger.warn;
-var _oldConsoleError = logger.error;
+var _oldConsoleInfo = console.info;
+var _oldConsoleWarn = console.warn;
+var _oldConsoleError = console.error;
 
 exports.mockLogger = function () {
-  logger.info = function () { logger.info._called = true; };
-  logger.warn = function () { logger.warn._called = true; };
-  logger.error = function () { logger.error._called = true; };
-  logger.info._called = false;
-  logger.warn._called = false;
-  logger.error._called = false;
+  console.info = function () { console.info._called = true; };
+  console.warn = function () { console.warn._called = true; };
+  console.error = function () { console.error._called = true; };
+  console.info._called = false;
+  console.warn._called = false;
+  console.error._called = false;
 };
 
 exports.restoreLogger = function () {
-  logger.info = _oldConsoleInfo;
-  logger.warn = _oldConsoleWarn;
-  logger.error = _oldConsoleError;
+  console.info = _oldConsoleInfo;
+  console.warn = _oldConsoleWarn;
+  console.error = _oldConsoleError;
 };

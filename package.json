@@ -40,6 +40,7 @@
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
     "after-all": "^2.0.1",
+    "console-log-level": "^1.0.0",
     "json-stringify-safe": "^5.0.0",
     "stackman": "^0.2.2"
   },

@@ -8,20 +8,19 @@ var exec = require('child_process').exec;
 var afterAll = require('after-all');
 var parsers = require('./lib/parsers');
 var request = require('./lib/request');
-var log = require('./lib/logger');
 var connect = require('./lib/middleware/connect');
-
-var logError = function (err) {
-  log.info('Could not notify Opbeat!');
-  log.error(err.stack);
-};
 
 var Client = function (options) {
   if (!(this instanceof Client))
     return new Client(options);
 
+  var client = this;
+
   options = options || {};
   var env = process.env;
+
+  // debug, info, warn, error, fatal
+  var clientLogLevel = options.clientLogLevel || env.OPBEAT_CLIENT_LOG_LEVEL;
 
   this.appId             = options.appId || env.OPBEAT_APP_ID;
   this.organizationId    = options.organizationId || env.OPBEAT_ORGANIZATION_ID;
@@ -29,7 +28,7 @@ var Client = function (options) {
   this.active            = ('active' in options ? options.active :
                              ('OPBEAT_ACTIVE' in env ? env.OPBEAT_ACTIVE :
                                undefined)) != false;
-  this.clientLogLevel    = options.clientLogLevel || env.OPBEAT_CLIENT_LOG_LEVEL || 'info'; // debug, info, warn, error, fatal
+  this.logger            = options.logger || require('console-log-level')({ level: clientLogLevel });
   this.hostname          = options.hostname || env.OPBEAT_HOSTNAME || os.hostname();
   this.stackTraceLimit   = 'stackTraceLimit' in options ? options.stackTraceLimit :
                              ('OPBEAT_STACK_TRACE_LIMIT' in env ? env.OPBEAT_STACK_TRACE_LIMIT :
@@ -41,15 +40,13 @@ var Client = function (options) {
     path: '/api/v1/organizations/' + this.organizationId + '/apps/' + this.appId + '/'
   };
 
-  log.setLevel(this.clientLogLevel);
-
   connect = connect.bind(this);
   this.middleware = { connect: connect, express: connect };
 
   if (!this.active) {
-    log.info('Opbeat logging is disabled for now');
+    this.logger.info('Opbeat logging is disabled for now');
   } else if (!this.appId || !this.organizationId || !this.secretToken) {
-    log.info('[WARNING] Opbeat logging is disabled. To enable, specify organization id, app id and secret token');
+    this.logger.info('[WARNING] Opbeat logging is disabled. To enable, specify organization id, app id and secret token');
     this.active = false;
   }
 
@@ -58,12 +55,17 @@ var Client = function (options) {
   Error.stackTraceLimit = this.stackTraceLimit;
   if (this.captureExceptions) this.handleUncaughtExceptions();
 
-  this.on('error', logError);
+  this.on('error', this._internalErrorLogger);
   this.on('logged', function (url) {
-    log.info('Opbeat logged error successfully at ' + url);
+    client.logger.info('Opbeat logged error successfully at ' + url);
   });
 };
 util.inherits(Client, events.EventEmitter);
+
+Client.prototype._internalErrorLogger = function (err) {
+  this.logger.info('Could not notify Opbeat!');
+  this.logger.error(err.stack);
+};
 
 Client.prototype.captureError = function (err, options, callback) {
   var client = this;
@@ -77,10 +79,13 @@ Client.prototype.captureError = function (err, options, callback) {
     delete options.request;
   }
 
+  var level = options.exceptionLogLevel || 'error';
+  level = level === 'warning' ? 'warn' : level;
+
   if (!(err instanceof Error)) {
     var isMessage = true;
     parsers.parseMessage(err, options);
-    log.error(options.message);
+    this.logger[level](options.message);
     err = new Error(options.message);
   }
 
@@ -92,7 +97,7 @@ Client.prototype.captureError = function (err, options, callback) {
       delete options.culprit;
       options.stacktrace.frames.shift();
     } else {
-      log.error(err.stack);
+      client.logger[level](err.stack);
     }
 
     options.stacktrace.frames.reverse(); // opbeat expects frames in reverse order
@@ -116,7 +121,7 @@ Client.prototype.handleUncaughtExceptions = function (callback) {
     process.removeListener('uncaughtException', this._uncaughtExceptionListener);
 
   this._uncaughtExceptionListener = function (err) {
-    log.debug('Opbeat caught unhandled exception');
+    client.logger.debug('Opbeat caught unhandled exception');
 
     // Since we exit the node-process we cannot guarantee that the
     // listeners will be called, so to ensure a uniform result,
@@ -125,17 +130,17 @@ Client.prototype.handleUncaughtExceptions = function (callback) {
     client.removeAllListeners();
     // But make sure emitted errors doesn't cause yet another uncaught
     // exception
-    client.on('error', logError);
+    client.on('error', client._internalErrorLogger);
 
     var options = {
       level: client.exceptionLogLevel
     };
     client.captureError(err, options, function (opbeatErr, url) {
       if (opbeatErr) {
-        log.info('Could not notify Opbeat!');
-        log.error(opbeatErr.stack);
+        client.logger.info('Could not notify Opbeat!');
+        client.logger.error(opbeatErr.stack);
       } else {
-        log.info('Opbeat logged error successfully at ' + url);
+        client.logger.info('Opbeat logged error successfully at ' + url);
       }
       callback ? callback(err, url) : process.exit(1);
     });
