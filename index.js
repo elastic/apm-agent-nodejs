@@ -132,6 +132,8 @@ Client.prototype.handleUncaughtExceptions = function (callback) {
     // exception
     client.on('error', client._internalErrorLogger);
 
+    err.uncaught = true;
+
     var options = {
       level: client.exceptionLogLevel
     };
