@@ -1,3 +1,8 @@
+# 1.1.0 - 2015/01/08
+  * New: Log if an error is uncaught under the "Extra" tab
+  * New: Support custom loggers using the new `options.logger` option
+  * Internal improvements
+
 # 1.0.8 - 2015/01/02
   * Bug fix: Fix connect/express middleware
 
