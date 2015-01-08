@@ -47,6 +47,7 @@
   "devDependencies": {
     "common": "^0.2.5",
     "connect": "^3.3.3",
+    "express": "^4.10.7",
     "inquirer": "^0.8.0",
     "mkdirp": "^0.5.0",
     "nock": "^0.51.0",
