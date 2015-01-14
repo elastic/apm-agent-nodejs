@@ -1,3 +1,6 @@
+# 1.1.1 - 2015/01/08
+  * Fix: Ensure invalid objects are logged in a more human readable way
+
 # 1.1.0 - 2015/01/08
   * New: Log if an error is uncaught under the "Extra" tab
   * New: Support custom loggers using the new `options.logger` option
