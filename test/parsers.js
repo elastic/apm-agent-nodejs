@@ -19,6 +19,13 @@ test('#parseMessage()', function (t) {
     t.equal(options.param_message, 'foo%s');
     t.end();
   });
+
+  t.test('should parse an invalid object', function (t) {
+    var options = {};
+    parsers.parseMessage({ foo: /bar/ }, options);
+    t.equal(options.message, '{ foo: /bar/ }');
+    t.end();
+  });
 });
 
 test('#parseRequest()', function (t) {
