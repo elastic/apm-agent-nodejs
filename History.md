@@ -1,4 +1,4 @@
-# 1.1.1 - 2015/01/08
+# 1.1.1 - 2015/01/14
   * Fix: Ensure invalid objects are logged in a more human readable way
 
 # 1.1.0 - 2015/01/08
