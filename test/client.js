@@ -3,6 +3,7 @@
 var fs = require('fs');
 var os = require('os');
 var zlib = require('zlib');
+var util = require('util');
 var test = require('tape');
 var nock = require('nock');
 var common = require('common');
@@ -27,6 +28,9 @@ var optionFixtures = [
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal']
 ];
+
+var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled'];
+var truthyValues = [true, 1, '1', 'true', 'yes', 'on', 'enabled'];
 
 var skipBody = function () { return '*'; };
 var uncaughtExceptionListeners = process._events.uncaughtException;
@@ -78,13 +82,26 @@ optionFixtures.forEach(function (fixture) {
   });
 });
 
-test('should be configurable by envrionment variable OPBEAT_ACTIVE', function (t) {
-  setup();
-  process.env.OPBEAT_ACTIVE = '0';
-  var client = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' });
-  t.equal(client.active, false);
-  delete process.env.OPBEAT_ACTIVE;
-  t.end();
+falsyValues.forEach(function (val) {
+  test('should be disabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
+    setup();
+    process.env.OPBEAT_ACTIVE = val;
+    var client = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' });
+    t.equal(client.active, false);
+    delete process.env.OPBEAT_ACTIVE;
+    t.end();
+  });
+});
+
+truthyValues.forEach(function (val) {
+  test('should be enabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
+    setup();
+    process.env.OPBEAT_ACTIVE = val;
+    var client = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' });
+    t.equal(client.active, true);
+    delete process.env.OPBEAT_ACTIVE;
+    t.end();
+  });
 });
 
 test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {

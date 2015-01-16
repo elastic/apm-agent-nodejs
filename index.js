@@ -3,9 +3,9 @@
 var http = require('http');
 var util = require('util');
 var events = require('events');
-var os = require('os');
 var exec = require('child_process').exec;
 var afterAll = require('after-all');
+var config = require('./lib/config');
 var parsers = require('./lib/parsers');
 var request = require('./lib/request');
 var connect = require('./lib/middleware/connect');
@@ -16,28 +16,19 @@ var Client = function (options) {
 
   var client = this;
 
-  options = options || {};
-  var env = process.env;
-
-  // debug, info, warn, error, fatal
-  var clientLogLevel = options.clientLogLevel || env.OPBEAT_CLIENT_LOG_LEVEL;
-
-  this.appId             = options.appId || env.OPBEAT_APP_ID;
-  this.organizationId    = options.organizationId || env.OPBEAT_ORGANIZATION_ID;
-  this.secretToken       = options.secretToken || env.OPBEAT_SECRET_TOKEN;
-  this.active            = ('active' in options ? options.active :
-                             ('OPBEAT_ACTIVE' in env ? env.OPBEAT_ACTIVE :
-                               undefined)) != false;
-  this.logger            = options.logger || require('console-log-level')({ level: clientLogLevel });
-  this.hostname          = options.hostname || env.OPBEAT_HOSTNAME || os.hostname();
-  this.stackTraceLimit   = 'stackTraceLimit' in options ? options.stackTraceLimit :
-                             ('OPBEAT_STACK_TRACE_LIMIT' in env ? env.OPBEAT_STACK_TRACE_LIMIT :
-                               Infinity);
-  this.captureExceptions = (options.captureExceptions || env.OPBEAT_CAPTURE_EXCEPTIONS) != false;
-  this.exceptionLogLevel = options.exceptionLogLevel || env.OPBEAT_EXCEPTION_LOG_LEVEL || 'fatal'; // debug, info, warning, error, fatal
-  this.api               = {
-    host: options._apiHost || 'opbeat.com',
-    path: '/api/v1/organizations/' + this.organizationId + '/apps/' + this.appId + '/'
+  options = config(options);
+  this.appId = options.appId;
+  this.organizationId = options.organizationId;
+  this.secretToken = options.secretToken;
+  this.active = options.active;
+  this.logger = options.logger;
+  this.hostname = options.hostname;
+  this.stackTraceLimit = options.stackTraceLimit;
+  this.captureExceptions = options.captureExceptions;
+  this.exceptionLogLevel = options.exceptionLogLevel;
+  this.api = {
+    host: options.apiHost,
+    path: '/api/v1/organizations/' + options.organizationId + '/apps/' + options.appId + '/'
   };
 
   connect = connect.bind(this);
