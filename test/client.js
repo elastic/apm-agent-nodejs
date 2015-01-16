@@ -55,7 +55,6 @@ optionFixtures.forEach(function (fixture) {
     var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value';
     process.env['OPBEAT_' + fixture[1]] = value;
     var client = opbeat();
-    var v2 = bool ? value != false : value;
     t.equal(client[fixture[0]], bool ? value != false : value);
     delete process.env['OPBEAT_' + fixture[1]];
     t.end();

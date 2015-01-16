@@ -37,12 +37,12 @@ var Client = function (options) {
 
   if (!this.active) {
     this.logger.info('Opbeat logging is disabled for now');
+    return;
   } else if (!this.appId || !this.organizationId || !this.secretToken) {
     this.logger.info('[WARNING] Opbeat logging is disabled. To enable, specify organization id, app id and secret token');
     this.active = false;
+    return;
   }
-
-  if (!this.active) return;
 
   Error.stackTraceLimit = this.stackTraceLimit;
   if (this.captureExceptions) this.handleUncaughtExceptions();
