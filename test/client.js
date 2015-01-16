@@ -128,6 +128,13 @@ test('should default active to false if required options have not been specified
   t.end();
 });
 
+test('should force active to false if required options have not been specified', function (t) {
+  setup();
+  var client = opbeat({ active: true });
+  t.equal(client.active, false);
+  t.end();
+});
+
 test('#captureError()', function (t) {
   t.test('should send a plain text message to Opbeat server', function (t) {
     setup();
