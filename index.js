@@ -21,6 +21,7 @@ var Client = function (options) {
   this.organizationId = options.organizationId;
   this.secretToken = options.secretToken;
   this.active = options.active;
+  this.clientLogLevel = options.clientLogLevel;
   this.logger = options.logger;
   this.hostname = options.hostname;
   this.stackTraceLimit = options.stackTraceLimit;
