@@ -139,7 +139,7 @@ test('#captureError()', function (t) {
   t.test('should send a plain text message to Opbeat server', function (t) {
     setup();
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -156,7 +156,7 @@ test('#captureError()', function (t) {
   t.test('should emit error when request returns non 200', function (t) {
     setup();
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' });
@@ -171,7 +171,7 @@ test('#captureError()', function (t) {
   t.test('shouldn\'t shit it\'s pants when error is emitted without a listener', function (t) {
     setup();
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' });
@@ -185,7 +185,7 @@ test('#captureError()', function (t) {
   t.test('should attach an Error object when emitting error', function (t) {
     setup();
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' });
@@ -217,7 +217,7 @@ test('#captureError()', function (t) {
   t.test('should send an Error to Opbeat server', function (t) {
     setup();
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -255,7 +255,7 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should send an uncaughtException to Opbeat server', function (t) {
     setup();
 
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -280,7 +280,7 @@ test('#trackDeployment()', function (t) {
     zlib.deflate(expected, function (err, buffer) {
       t.error(err);
 
-      var scope = nock('https://opbeat.com')
+      var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'));
           return 'ok';
@@ -302,7 +302,7 @@ test('#trackDeployment()', function (t) {
     zlib.deflate(expected, function (err, buffer) {
       t.error(err);
 
-      var scope = nock('https://opbeat.com')
+      var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'));
           return 'ok';
@@ -331,7 +331,7 @@ test('#trackDeployment()', function (t) {
       });
       var cb = next();
 
-      var scope = nock('https://opbeat.com')
+      var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           zlib.inflate(new Buffer(body, 'hex'), function (err, buffer) {
             t.error(err);

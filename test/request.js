@@ -19,7 +19,7 @@ test('#error()', function (t) {
     zlib.deflate('{}', function (err, buffer) {
       t.error(err);
       var client = opbeat(options);
-      var scope = nock('https://opbeat.com')
+      var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'));
           return 'ok';
@@ -40,7 +40,7 @@ test('#error()', function (t) {
     zlib.deflate('{}', function (err, buffer) {
       t.error(err);
       var client = opbeat(options);
-      var scope = nock('https://opbeat.com')
+      var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'));
           return 'ok';
@@ -59,7 +59,7 @@ test('#error()', function (t) {
 
   t.test('without callback and bad request', function (t) {
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*'; })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500);
@@ -76,7 +76,7 @@ test('#error()', function (t) {
   t.test('with callback and bad request', function (t) {
     var called = false;
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*'; })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500);
@@ -100,7 +100,7 @@ test('#deployment()', function (t) {
     zlib.deflate('{}', function (err, buffer) {
       t.error(err);
       var client = opbeat(options);
-      var scope = nock('https://opbeat.com')
+      var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'));
           return 'ok';
@@ -118,7 +118,7 @@ test('#deployment()', function (t) {
 
   t.test('without callback and bad request', function (t) {
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*'; })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
       .reply(500);
@@ -135,7 +135,7 @@ test('#deployment()', function (t) {
   t.test('with callback and bad request', function (t) {
     var called = false;
     var client = opbeat(options);
-    var scope = nock('https://opbeat.com')
+    var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*'; })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
       .reply(500);
