@@ -174,6 +174,23 @@ Setting it to `0` will disable stacktrace collection. Any finite integer
 value will be used as the maximum number of frames to collect. Setting
 it to `Infinity` means that all frames will be collected.
 
+### filter
+
+- **Type:** Function
+- **Default:** `undefined`
+
+If you supply a filter function it will be called just before an error
+is being sent to Opbeat. This will allow you to manipulate the data
+being sent, for instance to always supply certain information in the
+`extra` field. The function is synchronous and should return the
+manipulated data object.
+
+The function will be called with two arguments:
+
+1. The original error object for reference
+1. The JSON data that is about to be sent to Opbeat (in object literal
+   form)
+
 ## Events
 
 The client emits two events: `logged` and `error`.

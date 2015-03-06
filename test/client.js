@@ -27,7 +27,8 @@ var optionFixtures = [
   ['hostname', 'HOSTNAME', os.hostname()],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
-  ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal']
+  ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal'],
+  ['filter']
 ];
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled'];
@@ -49,30 +50,32 @@ var clean = function () {
 };
 
 optionFixtures.forEach(function (fixture) {
-  test('should be configurable by envrionment variable OPBEAT_' + fixture[1], function (t) {
-    setup();
-    var bool = typeof fixture[2] === 'boolean';
-    var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value';
-    process.env['OPBEAT_' + fixture[1]] = value;
-    var client = opbeat();
-    t.equal(client[fixture[0]], bool ? value != false : value);
-    delete process.env['OPBEAT_' + fixture[1]];
-    t.end();
-  });
+  if (fixture[1]) {
+    test('should be configurable by envrionment variable OPBEAT_' + fixture[1], function (t) {
+      setup();
+      var bool = typeof fixture[2] === 'boolean';
+      var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value';
+      process.env['OPBEAT_' + fixture[1]] = value;
+      var client = opbeat();
+      t.equal(client[fixture[0]], bool ? value != false : value);
+      delete process.env['OPBEAT_' + fixture[1]];
+      t.end();
+    });
 
-  test('should overwrite OPBEAT_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
-    setup();
-    var options = {};
-    var bool = typeof fixture[2] === 'boolean';
-    var value1 = bool ? (fixture[2] ? '0' : '1') : 'overwriting-value';
-    var value2 = bool ? (fixture[2] ? '1' : '0') : 'custom-value';
-    options[fixture[0]] = value1;
-    process.env['OPBEAT_' + fixture[1]] = value2;
-    var client = opbeat(options);
-    t.equal(client[fixture[0]], bool ? value1 != false : value1);
-    delete process.env['OPBEAT_' + fixture[1]];
-    t.end();
-  });
+    test('should overwrite OPBEAT_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
+      setup();
+      var options = {};
+      var bool = typeof fixture[2] === 'boolean';
+      var value1 = bool ? (fixture[2] ? '0' : '1') : 'overwriting-value';
+      var value2 = bool ? (fixture[2] ? '1' : '0') : 'custom-value';
+      options[fixture[0]] = value1;
+      process.env['OPBEAT_' + fixture[1]] = value2;
+      var client = opbeat(options);
+      t.equal(client[fixture[0]], bool ? value1 != false : value1);
+      delete process.env['OPBEAT_' + fixture[1]];
+      t.end();
+    });
+  }
 
   test('should default ' + fixture[0] + ' to ' + fixture[2], function (t) {
     setup();
@@ -229,6 +232,32 @@ test('#captureError()', function (t) {
       t.end();
     });
     client.captureError(new Error('wtf?'));
+  });
+
+  t.test('should use filter if provided', function (t) {
+    setup();
+    var called = false;
+    var options = {
+      appId: 'foo',
+      organizationId: 'bar',
+      secretToken: 'baz',
+      filter: function (err, options) {
+        t.equal(options.foo, 'bar');
+        t.ok(err instanceof Error);
+        t.equal(err.message, 'foo');
+        called = true;
+        return { owned: true };
+      }
+    };
+    var client = opbeat(options);
+    var oldErrorFn = request.error;
+    request.error = function (client, options, callback) {
+      t.ok(called, 'called');
+      t.deepEqual(options, { owned: true });
+      request.error = oldErrorFn;
+      t.end();
+    };
+    client.captureError(new Error('foo'), { foo: 'bar' });
   });
 });
 

@@ -27,6 +27,7 @@ var Client = function (options) {
   this.stackTraceLimit = options.stackTraceLimit;
   this.captureExceptions = options.captureExceptions;
   this.exceptionLogLevel = options.exceptionLogLevel;
+  this.filter = options.filter;
   this.api = {
     host: options.apiHost,
     path: '/api/v1/organizations/' + options.organizationId + '/apps/' + options.appId + '/'
@@ -98,6 +99,7 @@ Client.prototype.captureError = function (err, options, callback) {
     options.extra.node = process.version;
     options.timestamp = new Date().toISOString().split('.')[0];
 
+    if (client.filter) options = client.filter(err, options);
     if (client.active) request.error(client, options, callback);
   });
 };
