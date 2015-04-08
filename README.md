@@ -411,11 +411,11 @@ to Opbeat.
 Though Opbeat provides other
 means of handling [release tracking](http://docs.opbeat.com/topics/release-tracking/), you can also use this client to do the same.
 
-Use the `trackDeployment()` function with the optional options and
+Use the `trackRelease()` function with the optional options and
 callback arguments:
 
 ```javascript
-opbeat.trackDeployment(options, callback);
+opbeat.trackRelease(options, callback);
 ```
 
 Options:

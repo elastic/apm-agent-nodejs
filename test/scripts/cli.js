@@ -12,9 +12,9 @@ var connect = require('connect');
 var express = require('express');
 
 var standardTest = function (client) {
-  console.log('Tacking deployment...');
-  client.trackDeployment(function () {
-    console.log('The deploy have been tracked!');
+  console.log('Tacking release...');
+  client.trackRelease(function () {
+    console.log('The release have been tracked!');
 
     console.log('Capturing error...');
     client.captureError(new Error('This is an Error object'), function (err, url) {

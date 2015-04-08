@@ -145,8 +145,8 @@ Client.prototype.handleUncaughtExceptions = function (callback) {
   process.on('uncaughtException', this._uncaughtExceptionListener);
 };
 
-Client.prototype.trackDeployment = function (options, callback) {
-  if (typeof options === 'function') return this.trackDeployment(null, options);
+Client.prototype.trackRelease = function (options, callback) {
+  if (typeof options === 'function') return this.trackRelease(null, options);
 
   var client = this;
   var next = afterAll(function (err) {
@@ -179,5 +179,7 @@ Client.prototype.trackDeployment = function (options, callback) {
     cb2(err);
   });
 };
+
+Client.prototype.trackDeployment = Client.prototype.trackRelease;
 
 module.exports = Client;

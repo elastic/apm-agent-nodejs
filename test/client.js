@@ -301,8 +301,8 @@ test('#handleUncaughtExceptions()', function (t) {
   });
 });
 
-test('#trackDeployment()', function (t) {
-  t.test('should send deployment request to the Opbeat server with given rev', function (t) {
+test('#trackRelease()', function (t) {
+  t.test('should send release request to the Opbeat server with given rev', function (t) {
     setup();
     var client = opbeat(options);
     var expected = JSON.stringify({ status: 'completed', rev: 'foo' });
@@ -317,14 +317,14 @@ test('#trackDeployment()', function (t) {
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', 'ok')
         .reply(200);
 
-      client.trackDeployment({ rev: 'foo' }, function () {
+      client.trackRelease({ rev: 'foo' }, function () {
         scope.done();
         t.end();
       });
     });
   });
 
-  t.test('should send deployment request to the Opbeat server with given rev and branch', function (t) {
+  t.test('should send release request to the Opbeat server with given rev and branch', function (t) {
     setup();
     var client = opbeat(options);
     var expected = JSON.stringify({ status: 'completed', rev: 'foo', branch: 'bar' });
@@ -339,14 +339,14 @@ test('#trackDeployment()', function (t) {
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', 'ok')
         .reply(200);
 
-      client.trackDeployment({ rev: 'foo', branch: 'bar' }, function () {
+      client.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
         scope.done();
         t.end();
       });
     });
   });
 
-  t.test('should send deployment request to the Opbeat server with given rev and branch automatically generated', function (t) {
+  t.test('should send release request to the Opbeat server with given rev and branch automatically generated', function (t) {
     setup();
     var client = opbeat(options);
     var expected = JSON.stringify({ status: 'completed', rev: 'foo', branch: 'bar' });
@@ -376,7 +376,7 @@ test('#trackDeployment()', function (t) {
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
         .reply(200);
 
-      client.trackDeployment(next());
+      client.trackRelease(next());
     });
   });
 });
