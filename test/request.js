@@ -95,7 +95,7 @@ test('#error()', function (t) {
   });
 });
 
-test('#deployment()', function (t) {
+test('#release()', function (t) {
   t.test('with callback and successful request', function (t) {
     zlib.deflate('{}', function (err, buffer) {
       t.error(err);
@@ -108,7 +108,7 @@ test('#deployment()', function (t) {
         .defaultReplyHeaders({'Location': 'foo'})
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', 'ok')
         .reply(200);
-      request.deployment(client, {}, function (err) {
+      request.release(client, {}, function (err) {
         scope.done();
         t.error(err);
         t.end();
@@ -129,7 +129,7 @@ test('#deployment()', function (t) {
       t.end();
     });
     helpers.mockLogger();
-    request.deployment(client, {});
+    request.release(client, {});
   });
 
   t.test('with callback and bad request', function (t) {
@@ -147,7 +147,7 @@ test('#deployment()', function (t) {
       t.end();
     });
     helpers.mockLogger();
-    request.deployment(client, {}, function (err) {
+    request.release(client, {}, function (err) {
       called = true;
       t.equal(err.message, 'Opbeat error (500): ');
     });

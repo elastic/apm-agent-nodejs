@@ -5,10 +5,13 @@ var util = require('util');
 var events = require('events');
 var exec = require('child_process').exec;
 var afterAll = require('after-all');
+var OpbeatHttpClient = require('opbeat-http-client');
 var config = require('./lib/config');
 var parsers = require('./lib/parsers');
 var request = require('./lib/request');
 var connect = require('./lib/middleware/connect');
+
+var userAgent = 'opbeat-nodejs/' + require('./package').version;
 
 var Client = function (options) {
   if (!(this instanceof Client))
@@ -28,10 +31,6 @@ var Client = function (options) {
   this.captureExceptions = options.captureExceptions;
   this.exceptionLogLevel = options.exceptionLogLevel;
   this.filter = options.filter;
-  this.api = {
-    host: options.apiHost,
-    path: '/api/v1/organizations/' + options.organizationId + '/apps/' + options.appId + '/'
-  };
 
   connect = connect.bind(this);
   this.middleware = { connect: connect, express: connect };
@@ -44,6 +43,13 @@ var Client = function (options) {
     this.active = false;
     return;
   }
+
+  this._httpClient = OpbeatHttpClient({
+    appId: this.appId,
+    organizationId: this.organizationId,
+    secretToken: this.secretToken,
+    userAgent: userAgent
+  });
 
   Error.stackTraceLimit = this.stackTraceLimit;
   if (this.captureExceptions) this.handleUncaughtExceptions();
@@ -151,7 +157,7 @@ Client.prototype.trackRelease = function (options, callback) {
   var client = this;
   var next = afterAll(function (err) {
     if (err) throw err;
-    request.deployment(client, body, callback);
+    request.release(client, body, callback);
   });
 
   if (!options) options = {};
