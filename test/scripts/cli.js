@@ -12,7 +12,7 @@ var connect = require('connect');
 var express = require('express');
 
 var standardTest = function (client) {
-  console.log('Tacking release...');
+  console.log('Tracking release...');
   client.trackRelease(function () {
     console.log('The release have been tracked!');
 
