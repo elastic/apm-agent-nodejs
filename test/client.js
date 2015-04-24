@@ -6,7 +6,6 @@ var zlib = require('zlib');
 var util = require('util');
 var test = require('tape');
 var nock = require('nock');
-var common = require('common');
 var afterAll = require('after-all');
 var helpers = require('./_helpers');
 var request = require('../lib/request');

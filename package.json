@@ -47,7 +47,6 @@
     "stackman": "^0.2.2"
   },
   "devDependencies": {
-    "common": "^0.2.5",
     "connect": "^3.3.5",
     "express": "^4.12.3",
     "inquirer": "^0.8.2",
