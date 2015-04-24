@@ -30,6 +30,7 @@ var Client = function (options) {
   this.captureExceptions = options.captureExceptions;
   this.exceptionLogLevel = options.exceptionLogLevel;
   this.filter = options.filter;
+  this._ff_captureFrame = options._ff_captureFrame;
 
   connect = connect.bind(this);
   this.middleware = { connect: connect, express: connect };
@@ -86,6 +87,8 @@ Client.prototype.captureError = function (err, options, callback) {
     parsers.parseMessage(err, options);
     this.logger[level](options.message);
     err = new Error(options.message);
+  } else if (this._ff_captureFrame && !err.uncaught) {
+    var captureFrameError = new Error();
   }
 
   parsers.parseError(err, options, function (options) {
@@ -99,14 +102,29 @@ Client.prototype.captureError = function (err, options, callback) {
       client.logger[level](err.stack);
     }
 
-    options.stacktrace.frames.reverse(); // opbeat expects frames in reverse order
-    options.machine = { hostname: client.hostname };
-    options.extra = options.extra || {};
-    options.extra.node = process.version;
-    options.timestamp = new Date().toISOString().split('.')[0];
+    var done = function () {
+      options.stacktrace.frames.reverse(); // opbeat expects frames in reverse order
+      options.machine = { hostname: client.hostname };
+      options.extra = options.extra || {};
+      options.extra.node = process.version;
+      options.timestamp = new Date().toISOString().split('.')[0];
 
-    if (client.filter) options = client.filter(err, options);
-    if (client.active) request.error(client, options, callback);
+      if (client.filter) options = client.filter(err, options);
+      if (client.active) request.error(client, options, callback);
+    };
+
+    if (captureFrameError && !options.stacktrace.frames[0].in_app) {
+      // prepare to add a top frame to the stack trace specifying the location
+      // where captureError was called from. This can make it easier to debug
+      // async stack traces.
+      parsers.parseError(captureFrameError, {}, function (result) {
+        // ignore the first frame as it will be the opbeat module
+        options.stacktrace.frames.unshift(result.stacktrace.frames[1]);
+        done();
+      });
+    } else {
+      done();
+    }
   });
 };
 
