@@ -48,15 +48,15 @@
   },
   "devDependencies": {
     "common": "^0.2.5",
-    "connect": "^3.3.3",
-    "express": "^4.10.7",
-    "inquirer": "^0.8.0",
+    "connect": "^3.3.5",
+    "express": "^4.12.3",
+    "inquirer": "^0.8.2",
     "mkdirp": "^0.5.0",
-    "nock": "^0.51.0",
-    "restify": "^2.8.3",
-    "semver": "^4.0.0",
-    "tape": "^3.0.3",
-    "untildify": "^1.0.0"
+    "nock": "^1.6.1",
+    "restify": "^3.0.2",
+    "semver": "^4.3.3",
+    "tape": "^4.0.0",
+    "untildify": "^2.0.0"
   },
   "engines": {
     "node": ">= 0.10.0"
