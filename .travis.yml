@@ -4,11 +4,6 @@ node_js:
 - '0.11'
 - '0.10'
 - 'iojs'
-- 'iojs-v1.4.3'
-- 'iojs-v1.3.0'
-- 'iojs-v1.2.0'
-- 'iojs-v1.1.0'
-- 'iojs-v1.0.4'
 notifications:
   slack:
     secure: Yub5oEMfOzNDSAtXlC+B2IoALF7uMB8xX5l+FWy1PIKF4950Uelw1l9fN7Y6cXn+qPF8JxePcVCBn0HF5jp+MHRmLTUYqcCVxi10f5DkmTbDz31N40WiDMuo77fMlWgdieaLiHulbvbp93A6rSWyLCyjt9RvFit7JxWdcyqyDDk=
