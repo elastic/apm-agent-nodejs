@@ -421,10 +421,10 @@ opbeat.trackRelease(options, callback);
 
 Options:
 
-- `path` - An optional path on the filesystem where the git repo can be found (defaults to the current working directory)
-- `rev` - An optional full git revision (will try to guess the `rev` based on the `path`)
+- `cwd` - An optional path on the filesystem where the git repo can be found (defaults to the current working directory)
+- `rev` - An optional full git revision (will try to guess the `rev` based on the `cwd`)
 - `status` - `completed` (default) or `machine-completed`. If `machine-completed` is specified, the `machine` attribute must be present
-- `branch` - Optional git branch (will try to guess the `rev` based on the `path`)
+- `branch` - Optional git branch (will try to guess the `rev` based on the `cwd`)
 - `machine` - Optional hostname of the server that was updated. Required if `status=machine-completed`
 
 Callback:

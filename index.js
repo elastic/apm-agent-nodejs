@@ -3,9 +3,8 @@
 var http = require('http');
 var util = require('util');
 var events = require('events');
-var exec = require('child_process').exec;
-var afterAll = require('after-all');
 var OpbeatHttpClient = require('opbeat-http-client');
+var ReleaseTracker = require('opbeat-release-tracker');
 var config = require('./lib/config');
 var parsers = require('./lib/parsers');
 var request = require('./lib/request');
@@ -152,37 +151,15 @@ Client.prototype.handleUncaughtExceptions = function (callback) {
 };
 
 Client.prototype.trackRelease = function (options, callback) {
-  if (typeof options === 'function') return this.trackRelease(null, options);
-
+  if (options.path) {
+    this.logger.warn('Detected use of deprecated path option to trackRelease function!');
+    if (!options.cwd) options.cwd = options.path;
+  }
+  if (!this._releaseTracker) this._releaseTracker = ReleaseTracker(this._httpClient);
   var client = this;
-  var next = afterAll(function (err) {
-    if (err) throw err;
-    request.release(client, body, callback);
-  });
-
-  if (!options) options = {};
-
-  var body = {
-    status: options.status || 'completed',
-    rev: options.rev,
-    branch: options.branch
-  };
-
-  if (body.rev) return next()();
-  if (!options.path) options.path = process.cwd();
-
-  var cb1 = next(), cb2 = next();
-
-  // TODO: Maybe there's a module for this:
-  exec('cd ' + options.path + ' && git rev-parse HEAD', function (err, stdout, stderr) {
-    if (!err) body.rev = stdout.toString().trim();
-    cb1(err);
-  });
-
-  // TODO: Maybe there's a module for this:
-  exec('cd ' + options.path + ' && git rev-parse --abbrev-ref HEAD', function (err, stdout, stderr) {
-    if (!err) body.branch = stdout.toString().trim();
-    cb2(err);
+  this._releaseTracker(options, function (err) {
+    if (callback) callback(err);
+    if (err) client.emit('error', err);
   });
 };
 

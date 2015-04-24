@@ -6,7 +6,6 @@ var zlib = require('zlib');
 var util = require('util');
 var test = require('tape');
 var nock = require('nock');
-var afterAll = require('after-all');
 var helpers = require('./_helpers');
 var request = require('../lib/request');
 var opbeat = require('../');
@@ -304,20 +303,26 @@ test('#trackRelease()', function (t) {
   t.test('should send release request to the Opbeat server with given rev', function (t) {
     setup();
     var client = opbeat(options);
-    var expected = JSON.stringify({ status: 'completed', rev: 'foo' });
-    zlib.deflate(expected, function (err, buffer) {
-      t.error(err);
+    var buffer;
+    var scope = nock('https://intake.opbeat.com')
+      .filteringRequestBody(function (body) {
+        buffer = new Buffer(body, 'hex');
+        return '*';
+      })
+      .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
+      .reply(200);
 
-      var scope = nock('https://intake.opbeat.com')
-        .filteringRequestBody(function (body) {
-          t.equal(body, buffer.toString('hex'));
-          return 'ok';
-        })
-        .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', 'ok')
-        .reply(200);
-
-      client.trackRelease({ rev: 'foo' }, function () {
-        scope.done();
+    client.trackRelease({ rev: 'foo' }, function () {
+      scope.done();
+      zlib.inflate(buffer, function (err, buffer) {
+        t.error(err);
+        var body = JSON.parse(buffer.toString());
+        t.equal(Object.keys(body).length, 3);
+        t.equal(body.status, 'completed');
+        t.equal(body.rev, 'foo');
+        t.ok('branch' in body);
+        t.equal(typeof body.branch, 'string');
+        t.ok(body.branch.length > 0);
         t.end();
       });
     });
@@ -326,20 +331,24 @@ test('#trackRelease()', function (t) {
   t.test('should send release request to the Opbeat server with given rev and branch', function (t) {
     setup();
     var client = opbeat(options);
-    var expected = JSON.stringify({ status: 'completed', rev: 'foo', branch: 'bar' });
-    zlib.deflate(expected, function (err, buffer) {
-      t.error(err);
+    var buffer;
+    var scope = nock('https://intake.opbeat.com')
+      .filteringRequestBody(function (body) {
+        buffer = new Buffer(body, 'hex');
+        return '*';
+      })
+      .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
+      .reply(200);
 
-      var scope = nock('https://intake.opbeat.com')
-        .filteringRequestBody(function (body) {
-          t.equal(body, buffer.toString('hex'));
-          return 'ok';
-        })
-        .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', 'ok')
-        .reply(200);
-
-      client.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
-        scope.done();
+    client.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
+      scope.done();
+      zlib.inflate(buffer, function (err, buffer) {
+        t.error(err);
+        var body = JSON.parse(buffer.toString());
+        t.equal(Object.keys(body).length, 3);
+        t.equal(body.status, 'completed');
+        t.equal(body.rev, 'foo');
+        t.equal(body.branch, 'bar');
         t.end();
       });
     });
@@ -348,34 +357,28 @@ test('#trackRelease()', function (t) {
   t.test('should send release request to the Opbeat server with given rev and branch automatically generated', function (t) {
     setup();
     var client = opbeat(options);
-    var expected = JSON.stringify({ status: 'completed', rev: 'foo', branch: 'bar' });
-    zlib.deflate(expected, function (err, buffer) {
-      t.error(err);
+    var buffer;
+    var scope = nock('https://intake.opbeat.com')
+      .filteringRequestBody(function (body) {
+        buffer = new Buffer(body, 'hex');
+        return '*';
+      })
+      .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
+      .reply(200);
 
-      var next = afterAll(function (err) {
-        scope.done();
+    client.trackRelease(function () {
+      scope.done();
+      zlib.inflate(buffer, function (err, buffer) {
         t.error(err);
+        var body = JSON.parse(buffer.toString());
+        t.equal(Object.keys(body).length, 3);
+        t.equal(body.status, 'completed');
+        t.ok(/^[\da-f]{40}$/.test(body.rev));
+        t.ok('branch' in body);
+        t.equal(typeof body.branch, 'string');
+        t.ok(body.branch.length > 0);
         t.end();
       });
-      var cb = next();
-
-      var scope = nock('https://intake.opbeat.com')
-        .filteringRequestBody(function (body) {
-          zlib.inflate(new Buffer(body, 'hex'), function (err, buffer) {
-            t.error(err);
-            var json = JSON.parse(buffer.toString());
-            t.equal(Object.keys(json).length, 3);
-            t.equal(json.status, 'completed');
-            t.ok(/^[\da-f]{40}$/.test(json.rev));
-            t.ok(/^[^ ]+$/.test(json.branch));
-            cb();
-          });
-          return '*';
-        })
-        .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
-        .reply(200);
-
-      client.trackRelease(next());
     });
   });
 });
