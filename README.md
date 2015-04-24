@@ -314,7 +314,7 @@ metadata fields, most of which are automatlically managed by the
 opbeat node client. But if you wish you can supply some extra details
 using `client_supplied_id`, `extra`, `user` or `query`. If you want to
 know more about all the fields, you should take a look at the full
-[Opbeat API docs](http://docs.opbeat.com/api/intake/v1/#error-logging).
+[Opbeat API docs](https://opbeat.com/docs/api/intake/v1/#error-logging).
 
 To supply any of these extra fields, use the optional options argument
 when calling `opbeat.captureError()`.
@@ -408,8 +408,9 @@ to Opbeat.
 
 ## Release tracking
 
-Though Opbeat provides other
-means of handling [release tracking](http://docs.opbeat.com/topics/release-tracking/), you can also use this client to do the same.
+Though Opbeat provides other means of handling [release
+tracking](https://opbeat.com/docs/articles/get-started-with-release-tracking/),
+you can also use this client to do the same.
 
 Use the `trackRelease()` function with the optional options and
 callback arguments:
