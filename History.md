@@ -1,3 +1,18 @@
+# 1.3.0 - 2015/04/24
+  * Rename `trackDeployment` to `trackRelease`
+  * Rename `trackRelease` option `path` to `cwd`
+  * Split code out into separate dependencies
+  * Update dependencies
+  * Add tests for io.js and Node.js 0.12.x
+
+# 1.2.0 - 2015/03/06
+  * New: Add `filter` config option
+  * Use new API domian endpoint
+
+# 1.1.2 - 2015/01/16
+  * Allow `active` config option to be other values than 1/0
+  * Improve tests
+
 # 1.1.1 - 2015/01/14
   * Fix: Ensure invalid objects are logged in a more human readable way
 
