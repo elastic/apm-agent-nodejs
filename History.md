@@ -1,3 +1,6 @@
+# 1.4.0 - 2015/05/17
+  * Allow the `culprit` to be set by the user when calling `captureError`
+
 # 1.3.0 - 2015/04/24
   * Rename `trackDeployment` to `trackRelease`
   * Rename `trackRelease` option `path` to `cwd`
