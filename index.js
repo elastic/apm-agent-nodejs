@@ -113,7 +113,7 @@ Client.prototype.captureError = function (err, options, callback) {
       if (client.active) request.error(client, options, callback);
     };
 
-    if (captureFrameError && !options.stacktrace.frames[0].in_app) {
+    if (captureFrameError && !options.stacktrace.frames.some(function (frame) { return frame.in_app; })) {
       // prepare to add a top frame to the stack trace specifying the location
       // where captureError was called from. This can make it easier to debug
       // async stack traces.
