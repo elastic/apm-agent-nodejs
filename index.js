@@ -82,6 +82,7 @@ Client.prototype.captureError = function (err, options, callback) {
 
   if (!util.isError(err)) {
     var isMessage = true;
+    var customCulprit = 'culprit' in options
     parsers.parseMessage(err, options);
     this.logger[level](options.message);
     err = new Error(options.message);
@@ -92,7 +93,7 @@ Client.prototype.captureError = function (err, options, callback) {
       // Messages shouldn't have an exception and the algorithm for finding the
       // culprit might show the Opbeat client and we don't want that
       delete options.exception;
-      delete options.culprit;
+      if (!customCulprit) delete options.culprit;
       options.stacktrace.frames.shift();
     } else {
       client.logger[level](err.stack);
