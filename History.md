@@ -1,3 +1,6 @@
+# 1.4.1 - 2015/05/24
+  * Fix bug where messages chould not have custom culprit
+
 # 1.4.0 - 2015/05/17
   * Allow the `culprit` to be set by the user when calling `captureError`
 
