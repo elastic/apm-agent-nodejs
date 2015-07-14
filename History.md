@@ -1,3 +1,6 @@
+# 1.4.2 - 2015/07/14
+  * Don't fail if options.extra is invalid format
+
 # 1.4.1 - 2015/05/24
   * Fix bug where messages chould not have custom culprit
 
