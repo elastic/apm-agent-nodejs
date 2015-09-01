@@ -1,3 +1,6 @@
+# 1.5.0 - 2015/09/01
+  * Experimental: Log location in code where error was discovered (feature flag: _ff_captureFrame)
+
 # 1.4.2 - 2015/07/14
   * Don't fail if options.extra is invalid format
 
