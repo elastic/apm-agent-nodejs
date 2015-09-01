@@ -179,6 +179,7 @@ test('#captureError()', function (t) {
 
     client.captureError('Hey!')
     setTimeout(function () {
+      scope.done()
       t.end()
     }, 25)
   })
