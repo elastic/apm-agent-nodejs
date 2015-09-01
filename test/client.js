@@ -290,6 +290,7 @@ test('#handleUncaughtExceptions()', function (t) {
 
     var client = opbeat(options)
     client.handleUncaughtExceptions(function (err, url) {
+      t.ok(util.isError(err))
       scope.done()
       t.equal(url, 'foo')
       t.end()

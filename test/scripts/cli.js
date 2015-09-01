@@ -103,7 +103,7 @@ var restifyTest = function (client) {
     })
 
     console.log('Capturing request error...')
-    client.get('/error', function (err, req, res, obj) {
+    client.get('/error', function (err, req, res, obj) { // eslint-disable-line handle-callback-err
 
       console.log('Throwing http exception...')
       client.get('/throw', function () {})
@@ -128,7 +128,7 @@ var connectTest = function (client) {
     }
   })
   app.use(client.middleware.connect())
-  app.use(function (err, req, res, next) {
+  app.use(function (err, req, res, next) { // eslint-disable-line handle-callback-err
     if (!--testsLeft) process.exit()
   })
 
@@ -190,7 +190,7 @@ var test = function (suite, options) {
   options.captureExceptions = false
   var client = opbeat(options)
 
-  client.handleUncaughtExceptions(function (err, url) {
+  client.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
     console.log('The uncaught exception have been logged at:', url)
     process.exit()
   })
