@@ -55,7 +55,7 @@ optionFixtures.forEach(function (fixture) {
       var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value'
       process.env['OPBEAT_' + fixture[1]] = value
       var client = opbeat()
-      t.equal(client[fixture[0]], bool ? value !== false : value)
+      t.equal(client[fixture[0]], bool ? !fixture[2] : value)
       delete process.env['OPBEAT_' + fixture[1]]
       t.end()
     })
@@ -69,7 +69,7 @@ optionFixtures.forEach(function (fixture) {
       options[fixture[0]] = value1
       process.env['OPBEAT_' + fixture[1]] = value2
       var client = opbeat(options)
-      t.equal(client[fixture[0]], bool ? value1 !== false : value1)
+      t.equal(client[fixture[0]], bool ? !fixture[2] : value1)
       delete process.env['OPBEAT_' + fixture[1]]
       t.end()
     })
