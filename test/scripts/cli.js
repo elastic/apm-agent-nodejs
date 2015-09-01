@@ -205,7 +205,7 @@ var test = function (suite, options) {
     case 'restify': return restifyTest(client)
     case 'connect': return connectTest(client)
     case 'express': return expressTest(client)
-    default: console.log('Unknown test suite selected:', options.suite)
+    default: console.log('Unknown test suite selected:', suite)
   }
 }
 
