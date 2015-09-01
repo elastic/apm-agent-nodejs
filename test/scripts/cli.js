@@ -248,10 +248,7 @@ loadConf(function (conf) {
     delete answers.suite
     delete answers.save
 
-    if (save)
-      saveConf(answers, test.bind(null, suite, answers))
-    else
-      // inquirer gives quite a long stack-trace, so let's do this async
-      process.nextTick(test.bind(null, suite, answers))
+    if (save) saveConf(answers, test.bind(null, suite, answers))
+    else process.nextTick(test.bind(null, suite, answers)) // inquirer gives quite a long stack-trace, so let's do this async
   })
 })

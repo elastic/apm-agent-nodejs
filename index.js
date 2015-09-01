@@ -13,8 +13,7 @@ var connect = require('./lib/middleware/connect')
 var userAgent = 'opbeat-nodejs/' + require('./package').version
 
 var Client = function (options) {
-  if (!(this instanceof Client))
-    return new Client(options)
+  if (!(this instanceof Client)) return new Client(options)
 
   var client = this
 
@@ -135,8 +134,7 @@ Client.prototype.captureError = function (err, options, callback) {
 Client.prototype.handleUncaughtExceptions = function (callback) {
   var client = this
 
-  if (this._uncaughtExceptionListener)
-    process.removeListener('uncaughtException', this._uncaughtExceptionListener)
+  if (this._uncaughtExceptionListener) process.removeListener('uncaughtException', this._uncaughtExceptionListener)
 
   this._uncaughtExceptionListener = function (err) {
     client.logger.debug('Opbeat caught unhandled exception')
