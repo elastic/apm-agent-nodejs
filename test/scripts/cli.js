@@ -58,10 +58,10 @@ var httpTest = function (client) {
     console.log('Test server running on port', port)
 
     console.log('Capturing request error...')
-    http.get(base+'/error', function (res) {
+    http.get(base + '/error', function (res) {
 
       console.log('Throwing http exception...')
-      http.get(base+'/throw', function () {})
+      http.get(base + '/throw', function () {})
     })
   })
 }
@@ -140,10 +140,10 @@ var connectTest = function (client) {
     console.log('NOTE: No Opbeat error urls will be displayed during this test!')
 
     console.log('Capturing request error...')
-    http.get(base+'/error', function (res) {
+    http.get(base + '/error', function (res) {
 
       console.log('Throwing http exception...')
-      http.get(base+'/throw', function () {})
+      http.get(base + '/throw', function () {})
     })
   })
 }
@@ -176,10 +176,10 @@ var expressTest = function (client) {
     console.log('NOTE: No Opbeat error urls will be displayed during this test!')
 
     console.log('Capturing request error...')
-    http.get(base+'/error', function (res) {
+    http.get(base + '/error', function (res) {
 
       console.log('Throwing http exception...')
-      http.get(base+'/throw', function () {})
+      http.get(base + '/throw', function () {})
     })
   })
 }
