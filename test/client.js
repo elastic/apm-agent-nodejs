@@ -1,6 +1,5 @@
 'use strict'
 
-var fs = require('fs')
 var os = require('os')
 var zlib = require('zlib')
 var util = require('util')
