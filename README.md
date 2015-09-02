@@ -445,4 +445,4 @@ the main author [Matt Robenolt](https://github.com/mattrobenolt).
 
 ## License
 
-BSD
+BSD-2-Clause
