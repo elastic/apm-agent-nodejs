@@ -1,6 +1,6 @@
 # Opbeat
 
-[![Build Status](https://travis-ci.org/opbeat/opbeat-node.png)](https://travis-ci.org/opbeat/opbeat-node)
+[![Build status](https://travis-ci.org/opbeat/opbeat-node.svg?branch=master)](https://travis-ci.org/opbeat/opbeat-node)
 
 Log errors and stacktraces in [Opbeat](http://opbeat.com/) from within
 your Node.js applications. Includes middleware support for
