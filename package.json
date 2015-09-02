@@ -44,7 +44,7 @@
     "json-stringify-safe": "^5.0.0",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
-    "stackman": "^0.2.2"
+    "stackman": "^1.0.0"
   },
   "devDependencies": {
     "connect": "^3.3.5",
