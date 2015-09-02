@@ -1,6 +1,6 @@
 {
   "name": "opbeat",
-  "version": "1.5.0",
+  "version": "1.5.1-beta.0",
   "description": "The official Opbeat client",
   "main": "index.js",
   "scripts": {
@@ -60,7 +60,7 @@
     "untildify": "^2.0.0"
   },
   "coordinates": [
-    55.6665873,
-    12.5797557
+    55.6665691,
+    12.5798354
   ]
 }
