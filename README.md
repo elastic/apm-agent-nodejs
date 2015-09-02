@@ -1,6 +1,7 @@
 # Opbeat
 
 [![Build status](https://travis-ci.org/opbeat/opbeat-node.svg?branch=master)](https://travis-ci.org/opbeat/opbeat-node)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
 
 Log errors and stacktraces in [Opbeat](http://opbeat.com/) from within
 your Node.js applications. Includes middleware support for
