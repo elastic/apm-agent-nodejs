@@ -47,13 +47,14 @@
     "stackman": "^1.0.0"
   },
   "devDependencies": {
+    "aws-sdk": "^2.1.49",
     "connect": "^3.3.5",
     "express": "^4.12.3",
-    "inquirer": "^0.8.2",
+    "inquirer": "^0.9.0",
     "mkdirp": "^0.5.0",
-    "nock": "^1.6.1",
-    "restify": "^3.0.2",
-    "semver": "^4.3.3",
+    "nock": "^2.10.0",
+    "restify": "^4.0.0",
+    "semver": "^5.0.1",
     "standard": "^5.1.1",
     "tape": "^4.0.0",
     "untildify": "^2.0.0"
