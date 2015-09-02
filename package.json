@@ -34,7 +34,7 @@
     "stacktrace"
   ],
   "author": "Thomas Watson Steen <w@tson.dk>",
-  "license": "BSD",
+  "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/opbeat/opbeat-node/issues"
   },
