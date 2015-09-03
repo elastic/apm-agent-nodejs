@@ -118,9 +118,9 @@ test('#parseError()', function (t) {
       o['...']['Derp']()
     } catch(e) {
       parsers.parseError(e, {}, function (parsed) {
-        var msg = semver.lt(process.version, '0.11.0') ?
-          'Cannot call method \'Derp\' of undefined' :
-          'Cannot read property \'Derp\' of undefined'
+        var msg = semver.lt(process.version, '0.11.0')
+          ? 'Cannot call method \'Derp\' of undefined'
+          : 'Cannot read property \'Derp\' of undefined'
         t.equal(parsed.message, 'TypeError: ' + msg)
         t.ok('exception' in parsed)
         t.equal(parsed.exception.type, 'TypeError')

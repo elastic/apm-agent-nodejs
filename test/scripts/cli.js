@@ -59,7 +59,6 @@ var httpTest = function (client) {
 
     console.log('Capturing request error...')
     http.get(base + '/error', function (res) {
-
       console.log('Throwing http exception...')
       http.get(base + '/throw', function () {})
     })
@@ -104,7 +103,6 @@ var restifyTest = function (client) {
 
     console.log('Capturing request error...')
     client.get('/error', function (err, req, res, obj) { // eslint-disable-line handle-callback-err
-
       console.log('Throwing http exception...')
       client.get('/throw', function () {})
     })
@@ -141,7 +139,6 @@ var connectTest = function (client) {
 
     console.log('Capturing request error...')
     http.get(base + '/error', function (res) {
-
       console.log('Throwing http exception...')
       http.get(base + '/throw', function () {})
     })
@@ -177,7 +174,6 @@ var expressTest = function (client) {
 
     console.log('Capturing request error...')
     http.get(base + '/error', function (res) {
-
       console.log('Throwing http exception...')
       http.get(base + '/throw', function () {})
     })
