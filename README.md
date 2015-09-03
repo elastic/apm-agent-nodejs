@@ -310,11 +310,11 @@ opbeat.captureError({
 
 To ease debugging it's possible to send some extra data with each
 error you send to Opbeat. The Opbeat API supports a lot of different
-metadata fields, most of which are automatlically managed by the
-opbeat node client. But if you wish you can supply some extra details
-using `client_supplied_id`, `extra`, `user` or `query`. If you want to
-know more about all the fields, you should take a look at the full
-[Opbeat API docs](https://opbeat.com/docs/api/intake/v1/#error-logging).
+metadata fields, most of which are automatically managed by the opbeat
+node client. But if you wish you can supply some extra details using
+`client_supplied_id`, `extra`, `user` or `query`. If you want to know
+more about all the fields, you should take a look at the full [Opbeat
+API docs](https://opbeat.com/docs/api/intake/v1/#error-logging).
 
 To supply any of these extra fields, use the optional options argument
 when calling `opbeat.captureError()`.
