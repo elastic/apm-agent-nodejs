@@ -29,21 +29,32 @@ test('#parseMessage()', function (t) {
 })
 
 test('#parseRequest()', function (t) {
-  t.test('should parse a request object', function () {
-    var mockReq = {
-      method: 'GET',
-      url: '/some/path?key=value',
-      headers: {
-        host: 'example.com'
-      },
-      body: '',
-      cookies: {},
-      socket: {
-        encrypted: true
-      }
+  var mockReq = {
+    method: 'GET',
+    url: '/some/path?key=value',
+    headers: {
+      host: 'example.com'
+    },
+    body: '',
+    cookies: {},
+    socket: {
+      encrypted: true
     }
+  }
+
+  t.test('should parse a request object', function () {
     var parsed = parsers.parseRequest(mockReq)
     t.equal(parsed.url, 'https://example.com/some/path?key=value')
+    t.end()
+  })
+
+  t.test('should slice too large body\'s', function (t) {
+    mockReq.body = ''
+    for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
+      mockReq.body += 'x'
+    }
+    var parsed = parsers.parseRequest(mockReq)
+    t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
     t.end()
   })
 })
