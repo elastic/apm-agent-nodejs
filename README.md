@@ -281,7 +281,7 @@ The callback is called with two arguments:
 - `opbeatErr` - set if something went wrong while trying to log the error
 - `url` - the URL of where you can find the sent error on Opbeat
 
-### Non-exceptions
+### Non-Error Objects
 
 Instead of an `Error` object, you can log a plain text error-message:
 
