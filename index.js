@@ -76,8 +76,8 @@ Client.prototype.captureError = function (err, opts, cb) {
     opts = {}
   } else if (opts.request instanceof http.IncomingMessage) {
     opts.http = parsers.parseRequest(opts.request)
-    delete opts.request
   }
+  delete opts.request
 
   var level = opts.exceptionLogLevel || 'error'
   level = level === 'warning' ? 'warn' : level
