@@ -92,6 +92,8 @@ Client.prototype.captureError = function (err, data, cb) {
     var captureFrameError = new Error()
   }
 
+  if (!isMessage) client.logger[level](err.stack)
+
   parsers.parseError(err, data, function (data) {
     if (isMessage) {
       // Messages shouldn't have an exception and the algorithm for finding the
@@ -99,8 +101,6 @@ Client.prototype.captureError = function (err, data, cb) {
       delete data.exception
       if (!customCulprit) delete data.culprit
       data.stacktrace.frames.shift()
-    } else {
-      client.logger[level](err.stack)
     }
 
     var done = function () {
