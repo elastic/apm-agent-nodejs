@@ -205,11 +205,11 @@ test('#captureError()', function (t) {
     setup()
     var client = opbeat(opts)
     var oldErrorFn = request.error
-    request.error = function (client, opts, cb) {
-      t.ok('message' in opts)
-      t.ok('param_message' in opts)
-      t.equal(opts.message, 'Hello World')
-      t.equal(opts.param_message, 'Hello %s')
+    request.error = function (client, data, cb) {
+      t.ok('message' in data)
+      t.ok('param_message' in data)
+      t.equal(data.message, 'Hello World')
+      t.equal(data.param_message, 'Hello %s')
       request.error = oldErrorFn
       t.end()
     }
@@ -240,8 +240,8 @@ test('#captureError()', function (t) {
       appId: 'foo',
       organizationId: 'bar',
       secretToken: 'baz',
-      filter: function (err, opts) {
-        t.equal(opts.foo, 'bar')
+      filter: function (err, data) {
+        t.equal(data.foo, 'bar')
         t.ok(err instanceof Error)
         t.equal(err.message, 'foo')
         called = true
@@ -250,9 +250,9 @@ test('#captureError()', function (t) {
     }
     var client = opbeat(opts)
     var oldErrorFn = request.error
-    request.error = function (client, opts, cb) {
+    request.error = function (client, data, cb) {
       t.ok(called, 'called')
-      t.deepEqual(opts, { owned: true })
+      t.deepEqual(data, { owned: true })
       request.error = oldErrorFn
       t.end()
     }

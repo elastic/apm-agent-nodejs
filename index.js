@@ -65,62 +65,62 @@ Client.prototype._internalErrorLogger = function (err) {
   this.logger.error(err.stack)
 }
 
-Client.prototype.captureError = function (err, opts, cb) {
+Client.prototype.captureError = function (err, data, cb) {
   var client = this
   var captureTime = new Date()
 
-  if (typeof opts === 'function') {
-    cb = opts
-    opts = {}
-  } else if (!opts) {
-    opts = {}
-  } else if (opts.request instanceof http.IncomingMessage) {
-    opts.http = parsers.parseRequest(opts.request)
+  if (typeof data === 'function') {
+    cb = data
+    data = {}
+  } else if (!data) {
+    data = {}
+  } else if (data.request instanceof http.IncomingMessage) {
+    data.http = parsers.parseRequest(data.request)
   }
-  delete opts.request
+  delete data.request
 
   var level = this.exceptionLogLevel || 'error'
   level = level === 'warning' ? 'warn' : level
 
   if (!util.isError(err)) {
     var isMessage = true
-    var customCulprit = 'culprit' in opts
-    parsers.parseMessage(err, opts)
-    this.logger[level](opts.message)
-    err = new Error(opts.message)
+    var customCulprit = 'culprit' in data
+    parsers.parseMessage(err, data)
+    this.logger[level](data.message)
+    err = new Error(data.message)
   } else if (this._ff_captureFrame && !err.uncaught) {
     var captureFrameError = new Error()
   }
 
-  parsers.parseError(err, opts, function (opts) {
+  parsers.parseError(err, data, function (data) {
     if (isMessage) {
       // Messages shouldn't have an exception and the algorithm for finding the
       // culprit might show the Opbeat client and we don't want that
-      delete opts.exception
-      if (!customCulprit) delete opts.culprit
-      opts.stacktrace.frames.shift()
+      delete data.exception
+      if (!customCulprit) delete data.culprit
+      data.stacktrace.frames.shift()
     } else {
       client.logger[level](err.stack)
     }
 
     var done = function () {
-      opts.stacktrace.frames.reverse() // opbeat expects frames in reverse order
-      opts.machine = { hostname: client.hostname }
-      opts.extra = opts.extra || {}
-      opts.extra.node = process.version
-      opts.timestamp = captureTime.toISOString()
+      data.stacktrace.frames.reverse() // opbeat expects frames in reverse order
+      data.machine = { hostname: client.hostname }
+      data.extra = data.extra || {}
+      data.extra.node = process.version
+      data.timestamp = captureTime.toISOString()
 
-      if (client.filter) opts = client.filter(err, opts)
-      if (client.active) request.error(client, opts, cb)
+      if (client.filter) data = client.filter(err, data)
+      if (client.active) request.error(client, data, cb)
     }
 
-    if (captureFrameError && !opts.stacktrace.frames.some(function (frame) { return frame.in_app })) {
+    if (captureFrameError && !data.stacktrace.frames.some(function (frame) { return frame.in_app })) {
       // prepare to add a top frame to the stack trace specifying the location
       // where captureError was called from. This can make it easier to debug
       // async stack traces.
       parsers.parseError(captureFrameError, {}, function (result) {
         // ignore the first frame as it will be the opbeat module
-        opts.stacktrace.frames.unshift(result.stacktrace.frames[1])
+        data.stacktrace.frames.unshift(result.stacktrace.frames[1])
         done()
       })
     } else {
@@ -152,10 +152,10 @@ Client.prototype.handleUncaughtExceptions = function (cb) {
 
     err.uncaught = true
 
-    var opts = {
+    var data = {
       level: client.exceptionLogLevel
     }
-    client.captureError(err, opts, function (opbeatErr, url) {
+    client.captureError(err, data, function (opbeatErr, url) {
       if (opbeatErr) {
         client.logger.info('Could not notify Opbeat!')
         client.logger.error(opbeatErr.stack)
@@ -169,14 +169,14 @@ Client.prototype.handleUncaughtExceptions = function (cb) {
   process.on('uncaughtException', this._uncaughtExceptionListener)
 }
 
-Client.prototype.trackRelease = function (opts, cb) {
-  if (opts.path) {
+Client.prototype.trackRelease = function (data, cb) {
+  if (data.path) {
     this.logger.warn('Detected use of deprecated path option to trackRelease function!')
-    if (!opts.cwd) opts.cwd = opts.path
+    if (!data.cwd) data.cwd = data.path
   }
   if (!this._releaseTracker) this._releaseTracker = ReleaseTracker(this._httpClient)
   var client = this
-  this._releaseTracker(opts, function (err) {
+  this._releaseTracker(data, function (err) {
     if (cb) cb(err)
     if (err) client.emit('error', err)
   })
