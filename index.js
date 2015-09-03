@@ -106,7 +106,7 @@ Client.prototype.captureError = function (err, opts, cb) {
       opts.machine = { hostname: client.hostname }
       opts.extra = opts.extra || {}
       opts.extra.node = process.version
-      opts.timestamp = new Date().toISOString().split('.')[0]
+      opts.timestamp = new Date().toISOString()
 
       if (client.filter) opts = client.filter(err, opts)
       if (client.active) request.error(client, opts, cb)
