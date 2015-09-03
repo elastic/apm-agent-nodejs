@@ -7,7 +7,7 @@ var helpers = require('./_helpers')
 var opbeat = require('../')
 var request = require('../lib/request')
 
-var options = {
+var opts = {
   organizationId: 'some-org-id',
   appId: 'some-app-id',
   secretToken: 'secret',
@@ -18,7 +18,7 @@ test('#error()', function (t) {
   t.test('without callback and successful request', function (t) {
     zlib.deflate('{}', function (err, buffer) {
       t.error(err)
-      var client = opbeat(options)
+      var client = opbeat(opts)
       var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'))
@@ -39,7 +39,7 @@ test('#error()', function (t) {
   t.test('with callback and successful request', function (t) {
     zlib.deflate('{}', function (err, buffer) {
       t.error(err)
-      var client = opbeat(options)
+      var client = opbeat(opts)
       var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'))
@@ -58,7 +58,7 @@ test('#error()', function (t) {
   })
 
   t.test('without callback and bad request', function (t) {
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -75,7 +75,7 @@ test('#error()', function (t) {
 
   t.test('with callback and bad request', function (t) {
     var called = false
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -99,7 +99,7 @@ test('#release()', function (t) {
   t.test('with callback and successful request', function (t) {
     zlib.deflate('{}', function (err, buffer) {
       t.error(err)
-      var client = opbeat(options)
+      var client = opbeat(opts)
       var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'))
@@ -117,7 +117,7 @@ test('#release()', function (t) {
   })
 
   t.test('without callback and bad request', function (t) {
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
@@ -134,7 +134,7 @@ test('#release()', function (t) {
 
   t.test('with callback and bad request', function (t) {
     var called = false
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')

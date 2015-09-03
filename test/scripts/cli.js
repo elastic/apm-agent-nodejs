@@ -184,11 +184,11 @@ var expressTest = function (client) {
   })
 }
 
-var test = function (suite, options) {
-  options.env = 'production'
-  options.clientLogLevel = 'fatal'
-  options.captureExceptions = false
-  var client = opbeat(options)
+var test = function (suite, opts) {
+  opts.env = 'production'
+  opts.clientLogLevel = 'fatal'
+  opts.captureExceptions = false
+  var client = opbeat(opts)
 
   client.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
     console.log('The uncaught exception have been logged at:', url)
@@ -209,18 +209,18 @@ var test = function (suite, options) {
   }
 }
 
-var loadConf = function (callback) {
+var loadConf = function (cb) {
   var file = untildify('~/.config/opbeat.json')
   fs.exists(file, function (exists) {
-    if (!exists) return callback({})
+    if (!exists) return cb({})
     fs.readFile(file, function (err, data) {
       if (err) throw err
-      callback(JSON.parse(data))
+      cb(JSON.parse(data))
     })
   })
 }
 
-var saveConf = function (conf, callback) {
+var saveConf = function (conf, cb) {
   var dir = untildify('~/.config')
   mkdirp(dir, '0755', function (err) {
     if (err) throw err
@@ -228,7 +228,7 @@ var saveConf = function (conf, callback) {
     fs.writeFile(file, JSON.stringify(conf), function (err) {
       if (err) throw err
       console.log('Saved config:', file)
-      callback()
+      cb()
     })
   })
 }

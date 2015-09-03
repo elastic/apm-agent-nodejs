@@ -6,24 +6,24 @@ var parsers = require('../lib/parsers')
 
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {
-    var options = {}
-    parsers.parseMessage('Howdy', options)
-    t.equal(options.message, 'Howdy')
+    var opts = {}
+    parsers.parseMessage('Howdy', opts)
+    t.equal(opts.message, 'Howdy')
     t.end()
   })
 
   t.test('should parse object', function (t) {
-    var options = {}
-    parsers.parseMessage({ message: 'foo%s', params: ['bar'] }, options)
-    t.equal(options.message, 'foobar')
-    t.equal(options.param_message, 'foo%s')
+    var opts = {}
+    parsers.parseMessage({ message: 'foo%s', params: ['bar'] }, opts)
+    t.equal(opts.message, 'foobar')
+    t.equal(opts.param_message, 'foo%s')
     t.end()
   })
 
   t.test('should parse an invalid object', function (t) {
-    var options = {}
-    parsers.parseMessage({ foo: /bar/ }, options)
-    t.equal(options.message, '{ foo: /bar/ }')
+    var opts = {}
+    parsers.parseMessage({ foo: /bar/ }, opts)
+    t.equal(opts.message, '{ foo: /bar/ }')
     t.end()
   })
 })
