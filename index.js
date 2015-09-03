@@ -67,6 +67,8 @@ Client.prototype._internalErrorLogger = function (err) {
 
 Client.prototype.captureError = function (err, opts, cb) {
   var client = this
+  var captureTime = new Date()
+
   if (typeof opts === 'function') {
     cb = opts
     opts = {}
@@ -106,7 +108,7 @@ Client.prototype.captureError = function (err, opts, cb) {
       opts.machine = { hostname: client.hostname }
       opts.extra = opts.extra || {}
       opts.extra.node = process.version
-      opts.timestamp = new Date().toISOString()
+      opts.timestamp = captureTime.toISOString()
 
       if (client.filter) opts = client.filter(err, opts)
       if (client.active) request.error(client, opts, cb)
