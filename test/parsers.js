@@ -43,8 +43,7 @@ test('#parseRequest()', function (t) {
       }
     }
     var parsed = parsers.parseRequest(mockReq)
-    t.ok('http' in parsed)
-    t.equal(parsed.http.url, 'https://example.com/some/path?key=value')
+    t.equal(parsed.url, 'https://example.com/some/path?key=value')
     t.end()
   })
 })
