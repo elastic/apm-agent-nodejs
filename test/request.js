@@ -14,9 +14,12 @@ var opts = {
   captureExceptions: false
 }
 
+var data = { extra: { uuid: 'foo' } }
+var body = JSON.stringify(data)
+
 test('#error()', function (t) {
   t.test('without callback and successful request', function (t) {
-    zlib.deflate('{}', function (err, buffer) {
+    zlib.deflate(body, function (err, buffer) {
       t.error(err)
       var client = opbeat(opts)
       var scope = nock('https://intake.opbeat.com')
@@ -32,12 +35,12 @@ test('#error()', function (t) {
         t.equal(url, 'foo')
         t.end()
       })
-      request.error(client, {})
+      request.error(client, data)
     })
   })
 
   t.test('with callback and successful request', function (t) {
-    zlib.deflate('{}', function (err, buffer) {
+    zlib.deflate(body, function (err, buffer) {
       t.error(err)
       var client = opbeat(opts)
       var scope = nock('https://intake.opbeat.com')
@@ -48,7 +51,7 @@ test('#error()', function (t) {
         .defaultReplyHeaders({'Location': 'foo'})
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', 'ok')
         .reply(200)
-      request.error(client, {}, function (err, url) {
+      request.error(client, data, function (err, url) {
         scope.done()
         t.error(err)
         t.equal(url, 'foo')
@@ -70,7 +73,7 @@ test('#error()', function (t) {
       t.end()
     })
     helpers.mockLogger()
-    request.error(client, {})
+    request.error(client, data)
   })
 
   t.test('with callback and bad request', function (t) {
@@ -88,7 +91,7 @@ test('#error()', function (t) {
       t.end()
     })
     helpers.mockLogger()
-    request.error(client, {}, function (err) {
+    request.error(client, data, function (err) {
       called = true
       t.equal(err.message, 'Opbeat error (500): ')
     })

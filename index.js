@@ -3,6 +3,7 @@
 var http = require('http')
 var util = require('util')
 var events = require('events')
+var uuid = require('node-uuid')
 var OpbeatHttpClient = require('opbeat-http-client')
 var ReleaseTracker = require('opbeat-release-tracker')
 var config = require('./lib/config')
@@ -54,14 +55,15 @@ var Client = function (opts) {
   if (this.captureExceptions) this.handleUncaughtExceptions()
 
   this.on('error', this._internalErrorLogger)
-  this.on('logged', function (url) {
-    client.logger.info('Opbeat logged error successfully at ' + url)
+  this.on('logged', function (url, uuid) {
+    client.logger.info('[%s] Opbeat logged error successfully at %s', uuid, url)
   })
 }
 util.inherits(Client, events.EventEmitter)
 
-Client.prototype._internalErrorLogger = function (err) {
-  this.logger.info('Could not notify Opbeat!')
+Client.prototype._internalErrorLogger = function (err, uuid) {
+  if (uuid) this.logger.info('[%s] Could not notify Opbeat!', uuid)
+  else this.logger.info('Could not notify Opbeat!')
   this.logger.error(err.stack)
 }
 
@@ -82,17 +84,22 @@ Client.prototype.captureError = function (err, data, cb) {
   var level = this.exceptionLogLevel || 'error'
   level = level === 'warning' ? 'warn' : level
 
+  var errUUID = data.extra && data.extra.uuid || uuid.v4()
+
   if (!util.isError(err)) {
     var isMessage = true
     var customCulprit = 'culprit' in data
     parsers.parseMessage(err, data)
-    this.logger[level](data.message)
+    this.logger[level]('[%s]', errUUID, data.message)
     err = new Error(data.message)
   } else if (this._ff_captureFrame && !err.uncaught) {
     var captureFrameError = new Error()
   }
 
-  if (!isMessage) client.logger[level](err.stack)
+  if (!isMessage) {
+    client.logger.info('[%s] logging error with Opbeat:', errUUID)
+    client.logger[level](err.stack)
+  }
 
   parsers.parseError(err, data, function (data) {
     if (isMessage) {
@@ -108,6 +115,7 @@ Client.prototype.captureError = function (err, data, cb) {
       data.machine = { hostname: client.hostname }
       data.extra = data.extra || {}
       data.extra.node = process.version
+      if (!data.extra.uuid) data.extra.uuid = errUUID
       data.timestamp = captureTime.toISOString()
 
       if (client.filter) data = client.filter(err, data)
@@ -139,7 +147,12 @@ Client.prototype.handleUncaughtExceptions = function (cb) {
   if (this._uncaughtExceptionListener) process.removeListener('uncaughtException', this._uncaughtExceptionListener)
 
   this._uncaughtExceptionListener = function (err) {
-    client.logger.debug('Opbeat caught unhandled exception')
+    var data = {
+      extra: { uuid: uuid.v4() },
+      level: client.exceptionLogLevel
+    }
+
+    client.logger.debug('[%s] Opbeat caught unhandled exception', data.extra.uuid)
 
     // Since we exit the node-process we cannot guarantee that the
     // listeners will be called, so to ensure a uniform result,
@@ -152,15 +165,12 @@ Client.prototype.handleUncaughtExceptions = function (cb) {
 
     err.uncaught = true
 
-    var data = {
-      level: client.exceptionLogLevel
-    }
     client.captureError(err, data, function (opbeatErr, url) {
       if (opbeatErr) {
-        client.logger.info('Could not notify Opbeat!')
+        client.logger.info('[%s] Could not notify Opbeat!', data.extra.uuid)
         client.logger.error(opbeatErr.stack)
       } else {
-        client.logger.info('Opbeat logged error successfully at ' + url)
+        client.logger.info('[%s] Opbeat logged error successfully at %s', data.extra.uuid, url)
       }
       cb ? cb(err, url) : process.exit(1)
     })

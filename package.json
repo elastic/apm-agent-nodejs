@@ -42,6 +42,7 @@
   "dependencies": {
     "console-log-level": "^1.0.0",
     "json-stringify-safe": "^5.0.0",
+    "node-uuid": "^1.4.3",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
     "stackman": "^1.0.0"
