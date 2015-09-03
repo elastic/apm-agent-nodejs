@@ -79,7 +79,7 @@ Client.prototype.captureError = function (err, opts, cb) {
   }
   delete opts.request
 
-  var level = opts.exceptionLogLevel || 'error'
+  var level = this.exceptionLogLevel || 'error'
   level = level === 'warning' ? 'warn' : level
 
   if (!util.isError(err)) {
