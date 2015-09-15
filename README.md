@@ -265,6 +265,11 @@ opbeat.captureError(err, {
 This will log the URL that was requested, the HTTP headers, cookies and
 other useful details to help you debug the error.
 
+In most cases this isn't needed though, as the Opbeat agent is pretty
+smart at figuring out if your Node.js app is an HTTP server and if an
+error occurred during an incoming request. If so, it will automate the
+above processes for you.
+
 ### Callback
 
 The `captureError()` function can also be given an optional callback

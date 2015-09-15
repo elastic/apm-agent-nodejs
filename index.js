@@ -4,9 +4,11 @@ var http = require('http')
 var util = require('util')
 var events = require('events')
 var uuid = require('node-uuid')
+var asyncState = require('async-state')
 var OpbeatHttpClient = require('opbeat-http-client')
 var ReleaseTracker = require('opbeat-release-tracker')
 var config = require('./lib/config')
+var hooks = require('./lib/hooks')
 var parsers = require('./lib/parsers')
 var request = require('./lib/request')
 var connect = require('./lib/middleware/connect')
@@ -44,6 +46,8 @@ var Client = function (opts) {
     return
   }
 
+  hooks(this) // hook into node for enhanced error tracking
+
   this._httpClient = OpbeatHttpClient({
     appId: this.appId,
     organizationId: this.organizationId,
@@ -80,6 +84,8 @@ Client.prototype.captureError = function (err, data, cb) {
     data.http = parsers.parseRequest(data.request)
   }
   delete data.request
+
+  if (!data.http && asyncState.req) data.http = parsers.parseRequest(asyncState.req)
 
   var level = this.exceptionLogLevel || 'error'
   level = level === 'warning' ? 'warn' : level

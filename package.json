@@ -40,11 +40,13 @@
   },
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
+    "async-state": "^1.1.1",
     "console-log-level": "^1.1.2",
     "json-stringify-safe": "^5.0.0",
     "node-uuid": "^1.4.3",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
+    "shimmer": "^1.0.0",
     "stackman": "^1.0.1"
   },
   "devDependencies": {
