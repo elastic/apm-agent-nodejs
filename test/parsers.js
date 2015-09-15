@@ -99,7 +99,7 @@ test('#parseError()', function (t) {
   t.test('should parse thrown Error', function (t) {
     try {
       throw new Error('Derp')
-    } catch(e) {
+    } catch (e) {
       parsers.parseError(e, {}, function (parsed) {
         t.equal(parsed.message, 'Error: Derp')
         t.ok('exception' in parsed)
@@ -116,7 +116,7 @@ test('#parseError()', function (t) {
     try {
       var o = {}
       o['...']['Derp']()
-    } catch(e) {
+    } catch (e) {
       parsers.parseError(e, {}, function (parsed) {
         var msg = semver.lt(process.version, '0.11.0')
           ? 'Cannot call method \'Derp\' of undefined'
