@@ -3,7 +3,6 @@ node_js:
 - '0.12'
 - '0.10'
 - 'iojs'
-sudo: false
 notifications:
   slack:
     secure: Yub5oEMfOzNDSAtXlC+B2IoALF7uMB8xX5l+FWy1PIKF4950Uelw1l9fN7Y6cXn+qPF8JxePcVCBn0HF5jp+MHRmLTUYqcCVxi10f5DkmTbDz31N40WiDMuo77fMlWgdieaLiHulbvbp93A6rSWyLCyjt9RvFit7JxWdcyqyDDk=
