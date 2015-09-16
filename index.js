@@ -70,12 +70,6 @@ Opbeat.prototype._start = function () {
   })
 }
 
-Opbeat.prototype._internalErrorLogger = function (err, uuid) {
-  if (uuid) this.logger.info('[%s] Could not notify Opbeat!', uuid)
-  else this.logger.info('Could not notify Opbeat!')
-  this.logger.error(err.stack)
-}
-
 Opbeat.prototype.captureError = function (err, data, cb) {
   var client = this
   var captureTime = new Date()
@@ -204,3 +198,9 @@ Opbeat.prototype.trackRelease = function (data, cb) {
 }
 
 Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
+
+Opbeat.prototype._internalErrorLogger = function (err, uuid) {
+  if (uuid) this.logger.info('[%s] Could not notify Opbeat!', uuid)
+  else this.logger.info('Could not notify Opbeat!')
+  this.logger.error(err.stack)
+}
