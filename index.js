@@ -18,6 +18,8 @@ var userAgent = 'opbeat-nodejs/' + require('./package').version
 var Opbeat = module.exports = function (opts) {
   if (!(this instanceof Opbeat)) return new Opbeat(opts)
 
+  events.EventEmitter.call(this)
+
   opts = config(opts)
   this.appId = opts.appId
   this.organizationId = opts.organizationId
