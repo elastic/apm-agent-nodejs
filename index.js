@@ -12,6 +12,7 @@ var hooks = require('./lib/hooks')
 var parsers = require('./lib/parsers')
 var request = require('./lib/request')
 var connect = require('./lib/middleware/connect')
+var Transactions = require('./lib/instrumentation/transactions')
 
 var userAgent = 'opbeat-nodejs/' + require('./package').version
 
@@ -36,6 +37,8 @@ var Opbeat = module.exports = function (opts) {
 
   connect = connect.bind(this)
   this.middleware = { connect: connect, express: connect }
+
+  this._transactions = new Transactions(this)
 
   if (!this.active) {
     this.logger.info('Opbeat logging is disabled for now')
@@ -195,6 +198,10 @@ Opbeat.prototype.trackRelease = function (data, cb) {
     if (cb) cb(err)
     if (err) client.emit('error', err)
   })
+}
+
+Opbeat.prototype.startTransaction = function (name, type, result) {
+  return this._transactions.new(name, type, result)
 }
 
 Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
