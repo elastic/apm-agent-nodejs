@@ -18,8 +18,6 @@ var userAgent = 'opbeat-nodejs/' + require('./package').version
 var Opbeat = module.exports = function (opts) {
   if (!(this instanceof Opbeat)) return new Opbeat(opts)
 
-  var client = this
-
   opts = config(opts)
   this.appId = opts.appId
   this.organizationId = opts.organizationId
@@ -39,12 +37,18 @@ var Opbeat = module.exports = function (opts) {
 
   if (!this.active) {
     this.logger.info('Opbeat logging is disabled for now')
-    return
   } else if (!this.appId || !this.organizationId || !this.secretToken) {
     this.logger.info('[WARNING] Opbeat logging is disabled. To enable, specify organization id, app id and secret token')
     this.active = false
-    return
+  } else {
+    this._start()
   }
+}
+
+util.inherits(Opbeat, events.EventEmitter)
+
+Opbeat.prototype._start = function () {
+  var client = this
 
   hooks(this) // hook into node for enhanced error tracking
 
@@ -63,7 +67,6 @@ var Opbeat = module.exports = function (opts) {
     client.logger.info('[%s] Opbeat logged error successfully at %s', uuid, url)
   })
 }
-util.inherits(Opbeat, events.EventEmitter)
 
 Opbeat.prototype._internalErrorLogger = function (err, uuid) {
   if (uuid) this.logger.info('[%s] Could not notify Opbeat!', uuid)
