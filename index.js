@@ -15,8 +15,8 @@ var connect = require('./lib/middleware/connect')
 
 var userAgent = 'opbeat-nodejs/' + require('./package').version
 
-var Client = function (opts) {
-  if (!(this instanceof Client)) return new Client(opts)
+var Opbeat = module.exports = function (opts) {
+  if (!(this instanceof Opbeat)) return new Opbeat(opts)
 
   var client = this
 
@@ -63,15 +63,15 @@ var Client = function (opts) {
     client.logger.info('[%s] Opbeat logged error successfully at %s', uuid, url)
   })
 }
-util.inherits(Client, events.EventEmitter)
+util.inherits(Opbeat, events.EventEmitter)
 
-Client.prototype._internalErrorLogger = function (err, uuid) {
+Opbeat.prototype._internalErrorLogger = function (err, uuid) {
   if (uuid) this.logger.info('[%s] Could not notify Opbeat!', uuid)
   else this.logger.info('Could not notify Opbeat!')
   this.logger.error(err.stack)
 }
 
-Client.prototype.captureError = function (err, data, cb) {
+Opbeat.prototype.captureError = function (err, data, cb) {
   var client = this
   var captureTime = new Date()
 
@@ -147,7 +147,7 @@ Client.prototype.captureError = function (err, data, cb) {
 // error have been logged to Opbeat. If no callback have been provided
 // we will automatically terminate the process, so if you provide a
 // callback you must remember to terminate the process manually.
-Client.prototype.handleUncaughtExceptions = function (cb) {
+Opbeat.prototype.handleUncaughtExceptions = function (cb) {
   var client = this
 
   if (this._uncaughtExceptionListener) process.removeListener('uncaughtException', this._uncaughtExceptionListener)
@@ -185,7 +185,7 @@ Client.prototype.handleUncaughtExceptions = function (cb) {
   process.on('uncaughtException', this._uncaughtExceptionListener)
 }
 
-Client.prototype.trackRelease = function (data, cb) {
+Opbeat.prototype.trackRelease = function (data, cb) {
   if (data.path) {
     this.logger.warn('Detected use of deprecated path option to trackRelease function!')
     if (!data.cwd) data.cwd = data.path
@@ -198,6 +198,4 @@ Client.prototype.trackRelease = function (data, cb) {
   })
 }
 
-Client.prototype.trackDeployment = Client.prototype.trackRelease
-
-module.exports = Client
+Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
