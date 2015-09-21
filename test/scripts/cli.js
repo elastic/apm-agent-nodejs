@@ -207,6 +207,50 @@ var expressTest = function (client) {
   })
 }
 
+var transactionTest = function (client) {
+  console.log('Tracking transaction...')
+  var maxSeconds = 55
+  var start = Date.now()
+
+  makeTransaction()
+
+  function makeTransaction () {
+    if ((Date.now() - start) / 1000 > maxSeconds) {
+      console.log('Done making transactions')
+      return
+    }
+
+    console.log('Starting new transaction')
+
+    var trans = client.startTransaction('foo', 'bar')
+    var trace
+    setTimeout(function () {
+      trace = trans.startTrace('sig1', 'foo.bar.baz')
+      setTimeout(function () {
+        trace.end()
+
+        trace = trans.startTrace('sig2', 'foo.bar.baz')
+        setTimeout(function () {
+          trace.end()
+
+          trace = trans.startTrace('sig3', 'foo.bar.baz')
+          setTimeout(function () {
+            trace.end()
+
+            // trans.result = Math.round(Math.random() * 350 + 200)
+            trans.result = 204
+
+            console.log('Ending transaction')
+            trans.end()
+
+            makeTransaction()
+          }, Math.random() * 100 + 50)
+        }, Math.random() * 100 + 50)
+      }, Math.random() * 100 + 50)
+    }, Math.random() * 100 + 50)
+  }
+}
+
 var test = function (suite, opts) {
   opts.env = 'production'
   opts.clientLogLevel = 'fatal'
@@ -228,6 +272,7 @@ var test = function (suite, opts) {
     case 'restify': return restifyTest(client)
     case 'connect': return connectTest(client)
     case 'express': return expressTest(client)
+    case 'transaction': return transactionTest(client)
     default: console.log('Unknown test suite selected:', suite)
   }
 }
@@ -261,7 +306,7 @@ loadConf(function (conf) {
     { name: 'appId', message: 'App ID', 'default': conf.appId },
     { name: 'organizationId', message: 'Organization ID', 'default': conf.organizationId },
     { name: 'secretToken', message: 'Secret token', 'default': conf.secretToken },
-    { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard', 'http', 'restify', 'connect', 'express'] },
+    { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard', 'http', 'restify', 'connect', 'express', 'transaction'] },
     { name: 'save', message: 'Save answers?', type: 'confirm' }
   ]
 
