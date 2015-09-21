@@ -266,6 +266,11 @@ opbeat.captureError(err, {
 This will log the URL that was requested, the HTTP headers, cookies and
 other useful details to help you debug the error.
 
+In most cases this isn't needed though, as the Opbeat agent is pretty
+smart at figuring out if your Node.js app is an HTTP server and if an
+error occurred during an incoming request. If so, it will automate the
+above processes for you.
+
 ### Callback
 
 The `captureError()` function can also be given an optional callback
@@ -282,7 +287,7 @@ The callback is called with two arguments:
 - `opbeatErr` - set if something went wrong while trying to log the error
 - `url` - the URL of where you can find the sent error on Opbeat
 
-### Non-exceptions
+### Non-Error Objects
 
 Instead of an `Error` object, you can log a plain text error-message:
 
@@ -311,11 +316,11 @@ opbeat.captureError({
 
 To ease debugging it's possible to send some extra data with each
 error you send to Opbeat. The Opbeat API supports a lot of different
-metadata fields, most of which are automatlically managed by the
-opbeat node client. But if you wish you can supply some extra details
-using `client_supplied_id`, `extra`, `user` or `query`. If you want to
-know more about all the fields, you should take a look at the full
-[Opbeat API docs](https://opbeat.com/docs/api/intake/v1/#error-logging).
+metadata fields, most of which are automatically managed by the opbeat
+node client. But if you wish you can supply some extra details using
+`client_supplied_id`, `extra`, `user` or `query`. If you want to know
+more about all the fields, you should take a look at the full [Opbeat
+API docs](https://opbeat.com/docs/api/intake/v1/#error-logging).
 
 To supply any of these extra fields, use the optional options argument
 when calling `opbeat.captureError()`.
@@ -446,4 +451,4 @@ the main author [Matt Robenolt](https://github.com/mattrobenolt).
 
 ## License
 
-BSD
+BSD-2-Clause

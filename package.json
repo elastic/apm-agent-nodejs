@@ -1,6 +1,6 @@
 {
   "name": "opbeat",
-  "version": "1.5.0",
+  "version": "1.5.1-beta.3",
   "description": "The official Opbeat client",
   "main": "index.js",
   "scripts": {
@@ -33,33 +33,37 @@
     "release",
     "stacktrace"
   ],
-  "author": "Thomas Watson Steen <w@tson.dk>",
-  "license": "BSD",
+  "author": "Thomas Watson Steen <w@tson.dk> (https://twitter.com/wa7son)",
+  "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/opbeat/opbeat-node/issues"
   },
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
-    "console-log-level": "^1.0.0",
+    "async-state": "^2.0.0",
+    "console-log-level": "^1.1.2",
     "json-stringify-safe": "^5.0.0",
+    "node-uuid": "^1.4.3",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
-    "stackman": "^0.2.2"
+    "shimmer": "^1.0.0",
+    "stackman": "^1.0.1"
   },
   "devDependencies": {
+    "aws-sdk": "^2.1.49",
     "connect": "^3.3.5",
     "express": "^4.12.3",
-    "inquirer": "^0.8.2",
+    "inquirer": "^0.9.0",
     "mkdirp": "^0.5.0",
-    "nock": "^1.6.1",
-    "restify": "^3.0.2",
-    "semver": "^4.3.3",
+    "nock": "^2.10.0",
+    "restify": "^4.0.0",
+    "semver": "^5.0.1",
     "standard": "^5.1.1",
     "tape": "^4.0.0",
     "untildify": "^2.0.0"
   },
   "coordinates": [
-    55.6665873,
-    12.5797557
+    55.68206439999999,
+    12.5831521
   ]
 }

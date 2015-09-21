@@ -9,7 +9,7 @@ var helpers = require('./_helpers')
 var request = require('../lib/request')
 var opbeat = require('../')
 
-var options = {
+var opts = {
   organizationId: 'some-org-id',
   appId: 'some-app-id',
   secretToken: 'secret',
@@ -62,13 +62,13 @@ optionFixtures.forEach(function (fixture) {
 
     test('should overwrite OPBEAT_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
       setup()
-      var options = {}
+      var opts = {}
       var bool = typeof fixture[2] === 'boolean'
       var value1 = bool ? (fixture[2] ? '0' : '1') : 'overwriting-value'
       var value2 = bool ? (fixture[2] ? '1' : '0') : 'custom-value'
-      options[fixture[0]] = value1
+      opts[fixture[0]] = value1
       process.env['OPBEAT_' + fixture[1]] = value2
-      var client = opbeat(options)
+      var client = opbeat(opts)
       t.equal(client[fixture[0]], bool ? !fixture[2] : value1)
       delete process.env['OPBEAT_' + fixture[1]]
       t.end()
@@ -107,9 +107,9 @@ truthyValues.forEach(function (val) {
 
 test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {
   setup()
-  var options = { appId: 'foo', organizationId: 'bar', secretToken: 'baz', active: false }
+  var opts = { appId: 'foo', organizationId: 'bar', secretToken: 'baz', active: false }
   process.env.OPBEAT_ACTIVE = '1'
-  var client = opbeat(options)
+  var client = opbeat(opts)
   t.equal(client.active, false)
   delete process.env.OPBEAT_ACTIVE
   t.end()
@@ -139,7 +139,7 @@ test('should force active to false if required options have not been specified',
 test('#captureError()', function (t) {
   t.test('should send a plain text message to Opbeat server', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
@@ -156,7 +156,7 @@ test('#captureError()', function (t) {
 
   t.test('should emit error when request returns non 200', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -171,7 +171,7 @@ test('#captureError()', function (t) {
 
   t.test('shouldn\'t shit it\'s pants when error is emitted without a listener', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -186,7 +186,7 @@ test('#captureError()', function (t) {
 
   t.test('should attach an Error object when emitting error', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
@@ -203,13 +203,13 @@ test('#captureError()', function (t) {
 
   t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var oldErrorFn = request.error
-    request.error = function (client, options, callback) {
-      t.ok('message' in options)
-      t.ok('param_message' in options)
-      t.equal(options.message, 'Hello World')
-      t.equal(options.param_message, 'Hello %s')
+    request.error = function (client, data, cb) {
+      t.ok('message' in data)
+      t.ok('param_message' in data)
+      t.equal(data.message, 'Hello World')
+      t.equal(data.param_message, 'Hello %s')
       request.error = oldErrorFn
       t.end()
     }
@@ -218,7 +218,7 @@ test('#captureError()', function (t) {
 
   t.test('should send an Error to Opbeat server', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
@@ -236,23 +236,23 @@ test('#captureError()', function (t) {
   t.test('should use filter if provided', function (t) {
     setup()
     var called = false
-    var options = {
+    var opts = {
       appId: 'foo',
       organizationId: 'bar',
       secretToken: 'baz',
-      filter: function (err, options) {
-        t.equal(options.foo, 'bar')
+      filter: function (err, data) {
+        t.equal(data.foo, 'bar')
         t.ok(err instanceof Error)
         t.equal(err.message, 'foo')
         called = true
         return { owned: true }
       }
     }
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var oldErrorFn = request.error
-    request.error = function (client, options, callback) {
+    request.error = function (client, data, cb) {
       t.ok(called, 'called')
-      t.deepEqual(options, { owned: true })
+      t.deepEqual(data, { owned: true })
       request.error = oldErrorFn
       t.end()
     }
@@ -264,7 +264,7 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should add itself to the uncaughtException event list', function (t) {
     setup()
     t.equal(process._events.uncaughtException, undefined)
-    var client = opbeat(options)
+    var client = opbeat(opts)
     client.handleUncaughtExceptions()
     t.equal(process._events.uncaughtException.length, 1)
     t.end()
@@ -272,7 +272,7 @@ test('#handleUncaughtExceptions()', function (t) {
 
   t.test('should not add more than one listener for the uncaughtException event', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     client.handleUncaughtExceptions()
     var before = process._events.uncaughtException.length
     client.handleUncaughtExceptions()
@@ -289,7 +289,7 @@ test('#handleUncaughtExceptions()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(200)
 
-    var client = opbeat(options)
+    var client = opbeat(opts)
     client.handleUncaughtExceptions(function (err, url) {
       t.ok(util.isError(err))
       scope.done()
@@ -304,7 +304,7 @@ test('#handleUncaughtExceptions()', function (t) {
 test('#trackRelease()', function (t) {
   t.test('should send release request to the Opbeat server with given rev', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
@@ -332,7 +332,7 @@ test('#trackRelease()', function (t) {
 
   t.test('should send release request to the Opbeat server with given rev and branch', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
@@ -358,7 +358,7 @@ test('#trackRelease()', function (t) {
 
   t.test('should send release request to the Opbeat server with given rev and branch automatically generated', function (t) {
     setup()
-    var client = opbeat(options)
+    var client = opbeat(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {

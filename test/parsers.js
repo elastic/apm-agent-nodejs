@@ -6,45 +6,55 @@ var parsers = require('../lib/parsers')
 
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {
-    var options = {}
-    parsers.parseMessage('Howdy', options)
-    t.equal(options.message, 'Howdy')
+    var data = {}
+    parsers.parseMessage('Howdy', data)
+    t.equal(data.message, 'Howdy')
     t.end()
   })
 
   t.test('should parse object', function (t) {
-    var options = {}
-    parsers.parseMessage({ message: 'foo%s', params: ['bar'] }, options)
-    t.equal(options.message, 'foobar')
-    t.equal(options.param_message, 'foo%s')
+    var data = {}
+    parsers.parseMessage({ message: 'foo%s', params: ['bar'] }, data)
+    t.equal(data.message, 'foobar')
+    t.equal(data.param_message, 'foo%s')
     t.end()
   })
 
   t.test('should parse an invalid object', function (t) {
-    var options = {}
-    parsers.parseMessage({ foo: /bar/ }, options)
-    t.equal(options.message, '{ foo: /bar/ }')
+    var data = {}
+    parsers.parseMessage({ foo: /bar/ }, data)
+    t.equal(data.message, '{ foo: /bar/ }')
     t.end()
   })
 })
 
 test('#parseRequest()', function (t) {
+  var mockReq = {
+    method: 'GET',
+    url: '/some/path?key=value',
+    headers: {
+      host: 'example.com'
+    },
+    body: '',
+    cookies: {},
+    socket: {
+      encrypted: true
+    }
+  }
+
   t.test('should parse a request object', function () {
-    var mockReq = {
-      method: 'GET',
-      url: '/some/path?key=value',
-      headers: {
-        host: 'example.com'
-      },
-      body: '',
-      cookies: {},
-      socket: {
-        encrypted: true
-      }
+    var parsed = parsers.parseRequest(mockReq)
+    t.equal(parsed.url, 'https://example.com/some/path?key=value')
+    t.end()
+  })
+
+  t.test('should slice too large body\'s', function (t) {
+    mockReq.body = ''
+    for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
+      mockReq.body += 'x'
     }
     var parsed = parsers.parseRequest(mockReq)
-    t.ok('http' in parsed)
-    t.equal(parsed.http.url, 'https://example.com/some/path?key=value')
+    t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
     t.end()
   })
 })
@@ -89,7 +99,7 @@ test('#parseError()', function (t) {
   t.test('should parse thrown Error', function (t) {
     try {
       throw new Error('Derp')
-    } catch(e) {
+    } catch (e) {
       parsers.parseError(e, {}, function (parsed) {
         t.equal(parsed.message, 'Error: Derp')
         t.ok('exception' in parsed)
@@ -106,11 +116,11 @@ test('#parseError()', function (t) {
     try {
       var o = {}
       o['...']['Derp']()
-    } catch(e) {
+    } catch (e) {
       parsers.parseError(e, {}, function (parsed) {
-        var msg = semver.lt(process.version, '0.11.0') ?
-          'Cannot call method \'Derp\' of undefined' :
-          'Cannot read property \'Derp\' of undefined'
+        var msg = semver.lt(process.version, '0.11.0')
+          ? 'Cannot call method \'Derp\' of undefined'
+          : 'Cannot read property \'Derp\' of undefined'
         t.equal(parsed.message, 'TypeError: ' + msg)
         t.ok('exception' in parsed)
         t.equal(parsed.exception.type, 'TypeError')

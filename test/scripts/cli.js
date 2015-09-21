@@ -34,11 +34,25 @@ var standardTest = function (client) {
 }
 
 var httpTest = function (client) {
-  var server = http.createServer(function (req, res) {
+  var server1 = http.createServer(function (req, res) {
+    var err = new Error('This is a request related error')
+    client.captureError(err, function (err, url) {
+      if (err) console.log('Something went wrong:', err.message)
+      console.log('The error have been logged at:', url)
+      res.end()
+
+      testServer2()
+    })
+    res.writeHead(500)
+  })
+
+  var server2 = http.createServer()
+
+  server2.on('request', function (req, res) {
     switch (req.url) {
       case '/error':
         var err = new Error('This is a request related error')
-        client.captureError(err, { request: req }, function (err, url) {
+        client.captureError(err, function (err, url) {
           if (err) console.log('Something went wrong:', err.message)
           console.log('The error have been logged at:', url)
           res.end()
@@ -47,30 +61,42 @@ var httpTest = function (client) {
         break
       case '/throw':
         throw new Error('This Error was thrown from wihtin a http server')
-      default:
-        res.end()
     }
   })
 
-  server.listen(function () {
-    var port = server.address().port
-    var base = 'http://localhost:' + port
-    console.log('Test server running on port', port)
+  testServer1()
 
-    console.log('Capturing request error...')
-    http.get(base + '/error', function (res) {
+  function testServer1 () {
+    server1.listen(function () {
+      var port = server1.address().port
+      var base = 'http://localhost:' + port
+      console.log('Test server running on port', port)
 
-      console.log('Throwing http exception...')
-      http.get(base + '/throw', function () {})
+      console.log('Capturing request error...')
+      http.get(base + '/error')
     })
-  })
+  }
+
+  function testServer2 () {
+    server2.listen(function () {
+      var port = server2.address().port
+      var base = 'http://localhost:' + port
+      console.log('Test server running on port', port)
+
+      console.log('Capturing request error...')
+      http.get(base + '/error', function (res) {
+        console.log('Throwing http exception...')
+        http.get(base + '/throw')
+      })
+    })
+  }
 }
 
 var restifyTest = function (client) {
   var server = restify.createServer({ name: 'foo', version: '1.0.0' })
 
   server.on('uncaughtException', function (req, res, route, err) {
-    client.captureError(err, { request: req }, function (err, url) {
+    client.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       process.exit()
@@ -79,7 +105,7 @@ var restifyTest = function (client) {
 
   server.get('/error', function (req, res, next) {
     var err = new Error('This is a request related error')
-    client.captureError(err, { request: req }, function (err, url) {
+    client.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       res.end()
@@ -104,7 +130,6 @@ var restifyTest = function (client) {
 
     console.log('Capturing request error...')
     client.get('/error', function (err, req, res, obj) { // eslint-disable-line handle-callback-err
-
       console.log('Throwing http exception...')
       client.get('/throw', function () {})
     })
@@ -141,7 +166,6 @@ var connectTest = function (client) {
 
     console.log('Capturing request error...')
     http.get(base + '/error', function (res) {
-
       console.log('Throwing http exception...')
       http.get(base + '/throw', function () {})
     })
@@ -177,18 +201,17 @@ var expressTest = function (client) {
 
     console.log('Capturing request error...')
     http.get(base + '/error', function (res) {
-
       console.log('Throwing http exception...')
       http.get(base + '/throw', function () {})
     })
   })
 }
 
-var test = function (suite, options) {
-  options.env = 'production'
-  options.clientLogLevel = 'fatal'
-  options.captureExceptions = false
-  var client = opbeat(options)
+var test = function (suite, opts) {
+  opts.env = 'production'
+  opts.clientLogLevel = 'fatal'
+  opts.captureExceptions = false
+  var client = opbeat(opts)
 
   client.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
     console.log('The uncaught exception have been logged at:', url)
@@ -209,18 +232,18 @@ var test = function (suite, options) {
   }
 }
 
-var loadConf = function (callback) {
+var loadConf = function (cb) {
   var file = untildify('~/.config/opbeat.json')
   fs.exists(file, function (exists) {
-    if (!exists) return callback({})
+    if (!exists) return cb({})
     fs.readFile(file, function (err, data) {
       if (err) throw err
-      callback(JSON.parse(data))
+      cb(JSON.parse(data))
     })
   })
 }
 
-var saveConf = function (conf, callback) {
+var saveConf = function (conf, cb) {
   var dir = untildify('~/.config')
   mkdirp(dir, '0755', function (err) {
     if (err) throw err
@@ -228,7 +251,7 @@ var saveConf = function (conf, callback) {
     fs.writeFile(file, JSON.stringify(conf), function (err) {
       if (err) throw err
       console.log('Saved config:', file)
-      callback()
+      cb()
     })
   })
 }
