@@ -1,3 +1,13 @@
+# 1.6.0 - 2015/09/21
+  * New: Add automatic HTTP server request logging
+  * New: Prefix all output with the an error id
+  * Output stack traces closer in the log to where the error happened
+  * Use milliseconds in timestamps
+  * Improve exactness of error capture time
+  * Limit logged body to 2048 UTF8 chars
+  * Update lincense to one approved by SPDX OSI
+  * Bug fix: Make sure the specified exceptionLogLevel is used
+
 # 1.5.0 - 2015/09/01
   * Experimental: Log location in code where error was discovered (feature flag: _ff_captureFrame)
 
