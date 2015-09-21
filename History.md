@@ -5,7 +5,7 @@
   * Use milliseconds in timestamps
   * Improve exactness of error capture time
   * Limit logged body to 2048 UTF8 chars
-  * Update lincense to one approved by SPDX OSI
+  * Update license to one approved by SPDX OSI
   * Bug fix: Make sure the specified exceptionLogLevel is used
 
 # 1.5.0 - 2015/09/01
