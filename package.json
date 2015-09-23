@@ -50,6 +50,7 @@
     "stackman": "^1.0.1"
   },
   "devDependencies": {
+    "after-all": "^2.0.2",
     "aws-sdk": "^2.1.49",
     "connect": "^3.3.5",
     "express": "^4.12.3",
