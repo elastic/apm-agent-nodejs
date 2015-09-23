@@ -223,31 +223,42 @@ var transactionTest = function (client) {
     console.log('Starting new transaction')
 
     var trans = client.startTransaction('foo', 'bar')
-    var trace
+    var t1 = trans.startTrace('sig1', 'foo.bar.baz1')
+    var t2 = trans.startTrace('sig2', 'foo.bar.baz1')
+
     setTimeout(function () {
-      trace = trans.startTrace('sig1', 'foo.bar.baz')
+      var t3 = trans.startTrace('sig3', 'foo.bar.baz2')
       setTimeout(function () {
-        trace.end()
-
-        trace = trans.startTrace('sig2', 'foo.bar.baz')
+        var t4 = trans.startTrace('sig4', 'foo.bar.baz3')
         setTimeout(function () {
-          trace.end()
+          t3.end()
+          t4.end()
+          t1.end()
+        }, Math.random() * 100 + 50)
+      }, Math.random() * 100 + 50)
+    }, Math.random() * 100 + 25)
 
-          trace = trans.startTrace('sig3', 'foo.bar.baz')
-          setTimeout(function () {
-            trace.end()
-
-            // trans.result = Math.round(Math.random() * 350 + 200)
-            trans.result = 204
-
-            console.log('Ending transaction')
-            trans.end()
-
-            makeTransaction()
-          }, Math.random() * 100 + 50)
+    setTimeout(function () {
+      var t5 = trans.startTrace('sig5', 'foo.bar.baz2')
+      setTimeout(function () {
+        var t6 = trans.startTrace('sig6', 'foo.bar.baz4')
+        setTimeout(function () {
+          t6.end()
+          t5.end()
+          t2.end()
         }, Math.random() * 100 + 50)
       }, Math.random() * 100 + 50)
     }, Math.random() * 100 + 50)
+
+    setTimeout(function () {
+      trans.result = Math.round(Math.random() * 350 + 200)
+      trans.result = 204
+
+      console.log('Ending transaction')
+      trans.end()
+    }, 500)
+
+    setTimeout(makeTransaction, Math.random() * 300 + 200)
   }
 }
 
