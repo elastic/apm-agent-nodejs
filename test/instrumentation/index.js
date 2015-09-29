@@ -90,7 +90,7 @@ test('same tick', function (t) {
   ins._send()
 })
 
-test('seriel - no parents', function (t) {
+test('serial - no parents', function (t) {
   var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
     t.equal(data.traces[0].signature, 't0')
     t.equal(data.traces[1].signature, 't1')
@@ -114,7 +114,7 @@ test('seriel - no parents', function (t) {
   })
 })
 
-test('seriel - no parents', function (t) {
+test('serial - no parents', function (t) {
   var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
     t.equal(data.traces[0].signature, 't0')
     t.equal(data.traces[1].signature, 't1')
@@ -140,7 +140,7 @@ test('seriel - no parents', function (t) {
   })
 })
 
-test('seriel - with parents', function (t) {
+test('serial - with parents', function (t) {
   var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
     t.equal(data.traces.length, 2)
     t.equal(data.traces[0].signature, 't0')
