@@ -114,32 +114,6 @@ test('serial - no parents', function (t) {
   })
 })
 
-test('serial - no parents', function (t) {
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
-    t.equal(data.traces[0].signature, 't0')
-    t.equal(data.traces[1].signature, 't1')
-    t.deepEqual(data.traces[0].parents, [])
-    t.deepEqual(data.traces[1].parents, [])
-    t.end()
-  }))
-
-  var trans = ins.startTransaction()
-  var t0 = trans.startTrace('t0')
-  var t1
-
-  process.nextTick(function () {
-    t0.end()
-    process.nextTick(function () {
-      t1 = trans.startTrace('t1')
-      process.nextTick(function () {
-        t1.end()
-        trans.end()
-        ins._send()
-      })
-    })
-  })
-})
-
 test('serial - with parents', function (t) {
   var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
     t.equal(data.traces.length, 2)
