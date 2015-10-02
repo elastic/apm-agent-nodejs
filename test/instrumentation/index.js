@@ -314,21 +314,6 @@ test('stack branching - with parents', function (t) {
   }, 25)
 })
 
-// test('same trace signature/type, different transactions', function (t) {
-//   var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
-
-//   }))
-//   var trans0 = ins.startTransaction()
-//   var trans1 = ins.startTransaction()
-//   var t0 = trans0.startTrace('sig', 'type')
-//   var t1 = trans1.startTrace('sig', 'type')
-//   t0.end()
-//   t1.end()
-//   trans0.end()
-//   trans1.end()
-//   ins._send()
-// })
-
 function mockClient (cb) {
   return {
     active: true,
