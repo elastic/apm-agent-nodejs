@@ -2,7 +2,7 @@
 
 var afterAll = require('after-all')
 var test = require('tape')
-var Instrumentation = require('../../lib/instrumentation')
+var mockClient = require('./_client')
 
 test('basic', function (t) {
   var expexted = [
@@ -14,7 +14,7 @@ test('basic', function (t) {
     { transaction: 'foo1', signature: 'transaction', kind: 'transaction' }
   ]
 
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
+  var client = mockClient(function (endpoint, data, cb) {
     var now = new Date()
     var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
 
@@ -60,7 +60,8 @@ test('basic', function (t) {
     })
 
     t.end()
-  }))
+  })
+  var ins = client._instrumentation
 
   generateTransaction(0, function () {
     generateTransaction(1, function () {
@@ -85,7 +86,7 @@ test('basic', function (t) {
 })
 
 test('same tick', function (t) {
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
+  var client = mockClient(function (endpoint, data, cb) {
     t.equal(data.traces.length, 3)
     t.equal(data.traces[0].signature, 't1')
     t.equal(data.traces[1].signature, 't0')
@@ -94,7 +95,8 @@ test('same tick', function (t) {
     t.deepEqual(data.traces[1].parents, ['transaction'])
     t.deepEqual(data.traces[2].parents, [])
     t.end()
-  }))
+  })
+  var ins = client._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0')
@@ -106,7 +108,7 @@ test('same tick', function (t) {
 })
 
 test('serial - no parents', function (t) {
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
+  var client = mockClient(function (endpoint, data, cb) {
     t.equal(data.traces.length, 3)
     t.equal(data.traces[0].signature, 't0')
     t.equal(data.traces[1].signature, 't1')
@@ -115,7 +117,8 @@ test('serial - no parents', function (t) {
     t.deepEqual(data.traces[1].parents, ['transaction'])
     t.deepEqual(data.traces[2].parents, [])
     t.end()
-  }))
+  })
+  var ins = client._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0')
@@ -133,7 +136,7 @@ test('serial - no parents', function (t) {
 })
 
 test('serial - with parents', function (t) {
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
+  var client = mockClient(function (endpoint, data, cb) {
     t.equal(data.traces.length, 3)
     t.equal(data.traces[0].signature, 't1')
     t.equal(data.traces[1].signature, 't0')
@@ -142,7 +145,8 @@ test('serial - with parents', function (t) {
     t.deepEqual(data.traces[1].parents, ['transaction'])
     t.deepEqual(data.traces[2].parents, [])
     t.end()
-  }))
+  })
+  var ins = client._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0')
@@ -158,7 +162,7 @@ test('serial - with parents', function (t) {
 })
 
 test('cross stack parenting', function (t) {
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
+  var client = mockClient(function (endpoint, data, cb) {
     t.equal(pointerChain('_stackPrevStarted', t0), 't0 -> transaction')
     t.equal(pointerChain('_stackPrevStarted', t1), 't1 -> transaction')
 
@@ -170,7 +174,8 @@ test('cross stack parenting', function (t) {
     t.deepEqual(data.traces[1].parents, ['transaction'])
     t.deepEqual(data.traces[2].parents, [])
     t.end()
-  }))
+  })
+  var ins = client._instrumentation
 
   var trans = ins.startTransaction()
   var t0, t1
@@ -192,7 +197,7 @@ test('cross stack parenting', function (t) {
 })
 
 test('stack merging', function (t) {
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
+  var client = mockClient(function (endpoint, data, cb) {
     t.equal(pointerChain('_stackPrevStarted', t0), 't0 -> transaction')
     t.equal(pointerChain('_stackPrevStarted', t1), 't1 -> transaction')
 
@@ -204,7 +209,8 @@ test('stack merging', function (t) {
     t.deepEqual(data.traces[1].parents, ['transaction'])
     t.deepEqual(data.traces[2].parents, [])
     t.end()
-  }))
+  })
+  var ins = client._instrumentation
 
   var trans = ins.startTransaction()
   var t0, t1
@@ -229,7 +235,7 @@ test('stack merging', function (t) {
 })
 
 test('stack branching - no parents', function (t) {
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
+  var client = mockClient(function (endpoint, data, cb) {
     t.equal(pointerChain('_stackPrevStarted', t0), 't0 -> transaction')
     t.equal(pointerChain('_stackPrevStarted', t1), 't1 -> t0 -> transaction')
 
@@ -241,7 +247,8 @@ test('stack branching - no parents', function (t) {
     t.deepEqual(data.traces[1].parents, ['transaction'])
     t.deepEqual(data.traces[2].parents, [])
     t.end()
-  }))
+  })
+  var ins = client._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0') // 1
@@ -257,7 +264,7 @@ test('stack branching - no parents', function (t) {
 })
 
 test('stack branching - with parents', function (t) {
-  var ins = new Instrumentation(mockClient(function (endpoint, data, cb) {
+  var client = mockClient(function (endpoint, data, cb) {
     t.equal(pointerChain('_stackPrevStarted', t0), 't0 -> transaction')
     t.equal(pointerChain('_stackPrevStarted', t1), 't1 -> t0 -> transaction')
     t.equal(pointerChain('_stackPrevStarted', t2), 't2 -> t1 -> t0 -> transaction')
@@ -281,7 +288,8 @@ test('stack branching - with parents', function (t) {
     t.deepEqual(data.traces[5].parents, ['transaction'])
     t.deepEqual(data.traces[6].parents, [])
     t.end()
-  }))
+  })
+  var ins = client._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0') // 1
@@ -313,15 +321,6 @@ test('stack branching - with parents', function (t) {
     }, 50)
   }, 25)
 })
-
-function mockClient (cb) {
-  return {
-    active: true,
-    _httpClient: {
-      request: cb
-    }
-  }
-}
 
 function pointerChain (pointerName, trace) {
   var arr = [trace.signature]
