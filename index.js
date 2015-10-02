@@ -34,6 +34,7 @@ var Opbeat = module.exports = function (opts) {
   this.exceptionLogLevel = opts.exceptionLogLevel
   this.filter = opts.filter
   this._ff_captureFrame = opts._ff_captureFrame
+  this._ff_instrument = opts._ff_instrument
 
   connect = connect.bind(this)
   this.middleware = { connect: connect, express: connect }
