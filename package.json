@@ -46,7 +46,7 @@
     "node-uuid": "^1.4.3",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
-    "shimmer": "^1.0.0",
+    "shimmer": "watson/shimmer#5eedd8d",
     "stackman": "^1.0.1"
   },
   "devDependencies": {
