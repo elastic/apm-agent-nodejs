@@ -41,7 +41,7 @@
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
     "async-listener": "^0.5.6",
-    "console-log-level": "^1.1.2",
+    "console-log-level": "^1.2.0",
     "json-stringify-safe": "^5.0.0",
     "node-uuid": "^1.4.3",
     "opbeat-http-client": "^1.0.3",
