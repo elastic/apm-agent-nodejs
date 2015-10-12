@@ -214,6 +214,11 @@ Opbeat.prototype.setTransactionName = function (name) {
   asyncState.req.__opbeat_trans.name = name
 }
 
+Opbeat.prototype.trans = function () {
+  if (!asyncState.req) return null
+  return asyncState.req.__opbeat_trans
+}
+
 Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
 
 Opbeat.prototype._internalErrorLogger = function (err, uuid) {
