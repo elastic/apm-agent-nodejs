@@ -40,7 +40,7 @@
   },
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
-    "async-state": "^2.0.1",
+    "async-listener": "^0.5.6",
     "console-log-level": "^1.1.2",
     "json-stringify-safe": "^5.0.0",
     "node-uuid": "^1.4.3",
