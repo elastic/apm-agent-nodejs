@@ -205,6 +205,15 @@ Opbeat.prototype.startTransaction = function (name, type, result) {
   return this._instrumentation.startTransaction(name, type, result)
 }
 
+Opbeat.prototype.setTransactionName = function (name) {
+  if (!asyncState.req || !asyncState.req.__opbeat_trans) {
+    this.logger.warn('no active transaction found!')
+    return
+  }
+  this.logger.trace('setting transaction name: %s', name)
+  asyncState.req.__opbeat_trans.name = name
+}
+
 Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
 
 Opbeat.prototype._internalErrorLogger = function (err, uuid) {
