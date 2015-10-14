@@ -210,7 +210,7 @@ Opbeat.prototype.setTransactionName = function (name) {
     this.logger.warn('no active transaction found!')
     return
   }
-  this.logger.trace('setting transaction name: %s', name)
+  this.logger.trace('[%s] setting transaction name: %s', asyncState.req.__opbeat_trans._uuid, name)
   asyncState.req.__opbeat_trans.name = name
 }
 
