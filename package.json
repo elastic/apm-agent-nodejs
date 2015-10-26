@@ -40,18 +40,19 @@
   },
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
+    "after-all": "^2.0.2",
     "async-listener": "^0.5.6",
     "console-log-level": "^1.2.0",
     "json-stringify-safe": "^5.0.0",
+    "lru-cache": "^2.7.0",
     "node-uuid": "^1.4.3",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
     "shimmer": "watson/shimmer#5eedd8d",
     "sql-summary": "^1.0.0",
-    "stackman": "^1.0.1"
+    "stackman": "^1.1.0"
   },
   "devDependencies": {
-    "after-all": "^2.0.2",
     "aws-sdk": "^2.1.49",
     "connect": "^3.3.5",
     "express": "^4.12.3",
