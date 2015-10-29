@@ -33,6 +33,7 @@ var Opbeat = module.exports = function (opts) {
   this.captureExceptions = opts.captureExceptions
   this.exceptionLogLevel = opts.exceptionLogLevel
   this.filter = opts.filter
+  this._apiHost = opts._apiHost
   this._ff_captureFrame = opts._ff_captureFrame
   this._ff_instrument = opts._ff_instrument
 
@@ -62,7 +63,8 @@ Opbeat.prototype._start = function () {
     appId: this.appId,
     organizationId: this.organizationId,
     secretToken: this.secretToken,
-    userAgent: userAgent
+    userAgent: userAgent,
+    _apiHost: this._apiHost
   })
 
   Error.stackTraceLimit = this.stackTraceLimit
