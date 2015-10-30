@@ -11,7 +11,7 @@ module.exports = function mockClient (cb) {
     _httpClient: {
       request: cb || noop
     },
-    logger: require('console-log-level')({ level: 'trace' })
+    logger: require('console-log-level')({ level: 'fatal' })
   }
   client._instrumentation = new Instrumentation(client)
   return client
