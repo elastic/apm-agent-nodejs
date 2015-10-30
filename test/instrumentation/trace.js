@@ -4,13 +4,12 @@ var test = require('tape')
 var mockClient = require('./_client')
 var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
-var Trace = require('../../lib/instrumentation/trace')
 
 var client = mockClient()
 
 test('properties', function (t) {
   var trans = new Transaction(client)
-  var trace = new Trace(trans, 'sig', 'type')
+  var trace = trans.startTrace('sig', 'type')
   t.equal(trace.transaction, trans)
   t.equal(trace.signature, 'sig')
   t.equal(trace.type, 'type')
@@ -20,7 +19,7 @@ test('properties', function (t) {
 
 test('#end()', function (t) {
   var trans = new Transaction(client)
-  var trace = new Trace(trans, 'sig', 'type')
+  var trace = trans.startTrace('sig', 'type')
   t.equal(trace.ended, false)
   t.equal(trans.traces.indexOf(trace), -1)
   trace.end()
@@ -31,7 +30,7 @@ test('#end()', function (t) {
 
 test('#duration()', function (t) {
   var trans = new Transaction(client)
-  var trace = new Trace(trans)
+  var trace = trans.startTrace()
   setTimeout(function () {
     trace.end()
     t.ok(trace.duration() >= 50, trace.duration() + ' should be at least 50')
@@ -42,14 +41,14 @@ test('#duration()', function (t) {
 
 test('#duration() - return null if not ended', function (t) {
   var trans = new Transaction(client)
-  var trace = new Trace(trans)
+  var trace = trans.startTrace()
   t.equal(trace.duration(), null)
   t.end()
 })
 
 test('#startTime() - return null if transaction isn\'t ended', function (t) {
   var trans = new Transaction(client)
-  var trace = new Trace(trans)
+  var trace = trans.startTrace()
   trace.end()
   t.equal(trace.startTime(), null)
   t.end()
@@ -71,7 +70,7 @@ test('#startTime() - sub trace', function (t) {
   })._client)
   var trace
   setTimeout(function () {
-    trace = new Trace(trans)
+    trace = trans.startTrace()
     trace.end()
     trans.end()
   }, 50)
@@ -90,7 +89,7 @@ test('#ancestors() - sub trace, start/end on same tick', function (t) {
     t.deepEqual(trace.ancestors(), ['transaction'])
     t.end()
   })._client)
-  var trace = new Trace(trans)
+  var trace = trans.startTrace()
   trace.end()
   trans.end()
 })
@@ -100,7 +99,7 @@ test('#ancestors() - sub trace, end on next tick', function (t) {
     t.deepEqual(trace.ancestors(), ['transaction'])
     t.end()
   })._client)
-  var trace = new Trace(trans)
+  var trace = trans.startTrace()
   process.nextTick(function () {
     trace.end()
     trans.end()
@@ -112,10 +111,10 @@ test('#ancestors() - sub sub trace', function (t) {
     t.deepEqual(t2.ancestors(), ['transaction', 'sig1'])
     t.end()
   })._client)
-  var t1 = new Trace(trans, 'sig1')
+  var t1 = trans.startTrace('sig1')
   var t2
   process.nextTick(function () {
-    t2 = new Trace(trans, 'sig2')
+    t2 = trans.startTrace('sig2')
     t2.end()
     t1.end()
     trans.end()
@@ -125,11 +124,11 @@ test('#ancestors() - sub sub trace', function (t) {
 test('#ancestors() - parallel sub traces, start/end on same tick', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.deepEqual(t1.ancestors(), ['transaction'])
-    t.deepEqual(t2.ancestors(), ['transaction', 'sig1a']) // TODO: Do we acutally want sig1a as a parent?
+    t.deepEqual(t2.ancestors(), ['transaction', 'sig1a'])
     t.end()
   })._client)
-  var t1 = new Trace(trans, 'sig1a')
-  var t2 = new Trace(trans, 'sig1b')
+  var t1 = trans.startTrace('sig1a')
+  var t2 = trans.startTrace('sig1b')
   t2.end()
   t1.end()
   trans.end()
@@ -138,11 +137,11 @@ test('#ancestors() - parallel sub traces, start/end on same tick', function (t) 
 test('#ancestors() - parallel sub traces, end on same tick', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.deepEqual(t1.ancestors(), ['transaction'])
-    t.deepEqual(t2.ancestors(), ['transaction', 'sig1a']) // TODO: Do we acutally want sig1a as a parent?
+    t.deepEqual(t2.ancestors(), ['transaction', 'sig1a'])
     t.end()
   })._client)
-  var t1 = new Trace(trans, 'sig1a')
-  var t2 = new Trace(trans, 'sig1b')
+  var t1 = trans.startTrace('sig1a')
+  var t2 = trans.startTrace('sig1b')
   process.nextTick(function () {
     t2.end()
     t1.end()
@@ -153,11 +152,11 @@ test('#ancestors() - parallel sub traces, end on same tick', function (t) {
 test('#ancestors() - parallel sub traces, end on different ticks', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.deepEqual(t1.ancestors(), ['transaction'])
-    t.deepEqual(t2.ancestors(), ['transaction', 'sig1a']) // TODO: Do we acutally want sig1a as a parent?
+    t.deepEqual(t2.ancestors(), ['transaction', 'sig1a'])
     t.end()
   })._client)
-  var t1 = new Trace(trans, 'sig1a')
-  var t2 = new Trace(trans, 'sig1b')
+  var t1 = trans.startTrace('sig1a')
+  var t2 = trans.startTrace('sig1b')
   process.nextTick(function () {
     t2.end()
   })
@@ -165,46 +164,4 @@ test('#ancestors() - parallel sub traces, end on different ticks', function (t) 
     t1.end()
     trans.end()
   }, 25)
-})
-
-test('#ancestors() - parallel sub traces, start on different, end on same tick', function (t) {
-  var trans = new Transaction(mockInstrumentation(function () {
-    t.deepEqual(t1.ancestors(), ['transaction'])
-    t.deepEqual(t2.ancestors(), ['transaction'])
-    t.end()
-  })._client)
-  var t1, t2
-  process.nextTick(function () {
-    t1 = new Trace(trans, 'sig1a')
-  })
-  setTimeout(function () {
-    t2 = new Trace(trans, 'sig1b')
-  }, 25)
-  setTimeout(function () {
-    t2.end()
-    t1.end()
-    trans.end()
-  }, 50)
-})
-
-test('#ancestors() - parallel sub traces, start/end on different tick', function (t) {
-  var trans = new Transaction(mockInstrumentation(function () {
-    t.deepEqual(t1.ancestors(), ['transaction'])
-    t.deepEqual(t2.ancestors(), ['transaction'])
-    t.end()
-  })._client)
-  var t1, t2
-  process.nextTick(function () {
-    t1 = new Trace(trans, 'sig1a')
-  })
-  setTimeout(function () {
-    t2 = new Trace(trans, 'sig1b')
-    process.nextTick(function () {
-      t2.end()
-    })
-  }, 25)
-  setTimeout(function () {
-    t1.end()
-    trans.end()
-  }, 50)
 })
