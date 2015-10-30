@@ -7,6 +7,7 @@ var noop = function () {}
 module.exports = function mockClient (cb) {
   var client = {
     active: true,
+    _ff_instrument: true,
     _httpClient: {
       request: cb || noop
     },
