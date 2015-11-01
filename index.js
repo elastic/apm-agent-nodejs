@@ -217,7 +217,8 @@ Opbeat.prototype.setTransactionName = function (name) {
 }
 
 Opbeat.prototype.trans = function () {
-  return asyncState.trans
+  var trans = asyncState.trans
+  if (trans && !trans.ended) return trans
 }
 
 Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
