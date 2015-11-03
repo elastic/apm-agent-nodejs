@@ -26,7 +26,7 @@ var Opbeat = module.exports = function (opts) {
   this.organizationId = opts.organizationId
   this.secretToken = opts.secretToken
   this.active = opts.active
-  this.clientLogLevel = opts.clientLogLevel
+  this.agentLogLevel = opts.agentLogLevel
   this.logger = opts.logger
   this.hostname = opts.hostname
   this.stackTraceLimit = opts.stackTraceLimit
@@ -55,7 +55,7 @@ var Opbeat = module.exports = function (opts) {
 util.inherits(Opbeat, events.EventEmitter)
 
 Opbeat.prototype._start = function () {
-  var client = this
+  var agent = this
 
   hooks(this) // hook into node for enhanced error tracking
 
@@ -72,12 +72,12 @@ Opbeat.prototype._start = function () {
 
   this.on('error', this._internalErrorLogger)
   this.on('logged', function (url, uuid) {
-    client.logger.info('[%s] Opbeat logged error successfully at %s', uuid, url)
+    agent.logger.info('[%s] Opbeat logged error successfully at %s', uuid, url)
   })
 }
 
 Opbeat.prototype.captureError = function (err, data, cb) {
-  var client = this
+  var agent = this
   var captureTime = new Date()
 
   if (typeof data === 'function') {
@@ -108,14 +108,14 @@ Opbeat.prototype.captureError = function (err, data, cb) {
   }
 
   if (!isMessage) {
-    client.logger.info('[%s] logging error with Opbeat:', errUUID)
-    client.logger[level](err.stack)
+    agent.logger.info('[%s] logging error with Opbeat:', errUUID)
+    agent.logger[level](err.stack)
   }
 
   parsers.parseError(err, data, function (data) {
     if (isMessage) {
       // Messages shouldn't have an exception and the algorithm for finding the
-      // culprit might show the Opbeat client and we don't want that
+      // culprit might show the Opbeat agent and we don't want that
       delete data.exception
       if (!customCulprit) delete data.culprit
       data.stacktrace.frames.shift()
@@ -123,14 +123,14 @@ Opbeat.prototype.captureError = function (err, data, cb) {
 
     var done = function () {
       data.stacktrace.frames.reverse() // opbeat expects frames in reverse order
-      data.machine = { hostname: client.hostname }
+      data.machine = { hostname: agent.hostname }
       data.extra = data.extra || {}
       data.extra.node = process.version
       if (!data.extra.uuid) data.extra.uuid = errUUID
       data.timestamp = captureTime.toISOString()
 
-      if (client.filter) data = client.filter(err, data)
-      if (client.active) request.error(client, data, cb)
+      if (agent.filter) data = agent.filter(err, data)
+      if (agent.active) request.error(agent, data, cb)
     }
 
     if (captureFrameError && !data.stacktrace.frames.some(function (frame) { return frame.in_app })) {
@@ -153,35 +153,35 @@ Opbeat.prototype.captureError = function (err, data, cb) {
 // we will automatically terminate the process, so if you provide a
 // callback you must remember to terminate the process manually.
 Opbeat.prototype.handleUncaughtExceptions = function (cb) {
-  var client = this
+  var agent = this
 
   if (this._uncaughtExceptionListener) process.removeListener('uncaughtException', this._uncaughtExceptionListener)
 
   this._uncaughtExceptionListener = function (err) {
     var data = {
       extra: { uuid: uuid.v4() },
-      level: client.exceptionLogLevel
+      level: agent.exceptionLogLevel
     }
 
-    client.logger.debug('[%s] Opbeat caught unhandled exception', data.extra.uuid)
+    agent.logger.debug('[%s] Opbeat caught unhandled exception', data.extra.uuid)
 
     // Since we exit the node-process we cannot guarantee that the
     // listeners will be called, so to ensure a uniform result,
     // we'll remove all event listeners if an uncaught exception is
     // found
-    client.removeAllListeners()
+    agent.removeAllListeners()
     // But make sure emitted errors doesn't cause yet another uncaught
     // exception
-    client.on('error', client._internalErrorLogger)
+    agent.on('error', agent._internalErrorLogger)
 
     err.uncaught = true
 
-    client.captureError(err, data, function (opbeatErr, url) {
+    agent.captureError(err, data, function (opbeatErr, url) {
       if (opbeatErr) {
-        client.logger.info('[%s] Could not notify Opbeat!', data.extra.uuid)
-        client.logger.error(opbeatErr.stack)
+        agent.logger.info('[%s] Could not notify Opbeat!', data.extra.uuid)
+        agent.logger.error(opbeatErr.stack)
       } else {
-        client.logger.info('[%s] Opbeat logged error successfully at %s', data.extra.uuid, url)
+        agent.logger.info('[%s] Opbeat logged error successfully at %s', data.extra.uuid, url)
       }
       cb ? cb(err, url) : process.exit(1)
     })
@@ -196,10 +196,10 @@ Opbeat.prototype.trackRelease = function (data, cb) {
     if (!data.cwd) data.cwd = data.path
   }
   if (!this._releaseTracker) this._releaseTracker = ReleaseTracker(this._httpClient)
-  var client = this
+  var agent = this
   this._releaseTracker(data, function (err) {
     if (cb) cb(err)
-    if (err) client.emit('error', err)
+    if (err) agent.emit('error', err)
   })
 }
 

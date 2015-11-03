@@ -1,7 +1,7 @@
 'use strict'
 
 var test = require('tape')
-var mockClient = require('./_client')
+var mockAgent = require('./_agent')
 
 test('basic', function (t) {
   var expexted = [
@@ -13,7 +13,7 @@ test('basic', function (t) {
     { transaction: 'foo1', signature: 'transaction', kind: 'transaction' }
   ]
 
-  var client = mockClient(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, data, cb) {
     var now = new Date()
     var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
 
@@ -63,7 +63,7 @@ test('basic', function (t) {
 
     t.end()
   })
-  var ins = client._instrumentation
+  var ins = agent._instrumentation
 
   generateTransaction(0, function () {
     generateTransaction(1, function () {
@@ -88,7 +88,7 @@ test('basic', function (t) {
 })
 
 test('same tick', function (t) {
-  var client = mockClient(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, data, cb) {
     t.equal(data.traces.groups.length, 3)
     t.equal(data.traces.groups[0].signature, 't1')
     t.equal(data.traces.groups[1].signature, 't0')
@@ -98,7 +98,7 @@ test('same tick', function (t) {
     t.deepEqual(data.traces.groups[2].parents, [])
     t.end()
   })
-  var ins = client._instrumentation
+  var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0')
@@ -110,7 +110,7 @@ test('same tick', function (t) {
 })
 
 test('serial - no parents', function (t) {
-  var client = mockClient(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, data, cb) {
     t.equal(data.traces.groups.length, 3)
     t.equal(data.traces.groups[0].signature, 't0')
     t.equal(data.traces.groups[1].signature, 't1')
@@ -120,7 +120,7 @@ test('serial - no parents', function (t) {
     t.deepEqual(data.traces.groups[2].parents, [])
     t.end()
   })
-  var ins = client._instrumentation
+  var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0')
@@ -138,7 +138,7 @@ test('serial - no parents', function (t) {
 })
 
 test('serial - with parents', function (t) {
-  var client = mockClient(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, data, cb) {
     t.equal(data.traces.groups.length, 3)
     t.equal(data.traces.groups[0].signature, 't1')
     t.equal(data.traces.groups[1].signature, 't0')
@@ -148,7 +148,7 @@ test('serial - with parents', function (t) {
     t.deepEqual(data.traces.groups[2].parents, [])
     t.end()
   })
-  var ins = client._instrumentation
+  var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0')
@@ -164,7 +164,7 @@ test('serial - with parents', function (t) {
 })
 
 test('stack branching - no parents', function (t) {
-  var client = mockClient(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, data, cb) {
     t.equal(pointerChain(t0), 't0 -> transaction')
     t.equal(pointerChain(t1), 't1 -> t0 -> transaction')
 
@@ -177,7 +177,7 @@ test('stack branching - no parents', function (t) {
     t.deepEqual(data.traces.groups[2].parents, [])
     t.end()
   })
-  var ins = client._instrumentation
+  var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
   var t0 = trans.startTrace('t0') // 1

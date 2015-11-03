@@ -4,8 +4,8 @@ var Instrumentation = require('../../lib/instrumentation')
 
 var noop = function () {}
 
-module.exports = function mockClient (cb) {
-  var client = {
+module.exports = function mockAgent (cb) {
+  var agent = {
     active: true,
     _ff_instrument: true,
     _httpClient: {
@@ -13,6 +13,6 @@ module.exports = function mockClient (cb) {
     },
     logger: require('console-log-level')({ level: 'fatal' })
   }
-  client._instrumentation = new Instrumentation(client)
-  return client
+  agent._instrumentation = new Instrumentation(agent)
+  return agent
 }

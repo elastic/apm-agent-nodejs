@@ -20,7 +20,7 @@ var optionFixtures = [
   ['appId', 'APP_ID'],
   ['organizationId', 'ORGANIZATION_ID'],
   ['secretToken', 'SECRET_TOKEN'],
-  ['clientLogLevel', 'CLIENT_LOG_LEVEL', 'info'],
+  ['agentLogLevel', 'AGENT_LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
@@ -54,8 +54,8 @@ optionFixtures.forEach(function (fixture) {
       var bool = typeof fixture[2] === 'boolean'
       var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value'
       process.env['OPBEAT_' + fixture[1]] = value
-      var client = opbeat()
-      t.equal(client[fixture[0]], bool ? !fixture[2] : value)
+      var agent = opbeat()
+      t.equal(agent[fixture[0]], bool ? !fixture[2] : value)
       delete process.env['OPBEAT_' + fixture[1]]
       t.end()
     })
@@ -68,8 +68,8 @@ optionFixtures.forEach(function (fixture) {
       var value2 = bool ? (fixture[2] ? '1' : '0') : 'custom-value'
       opts[fixture[0]] = value1
       process.env['OPBEAT_' + fixture[1]] = value2
-      var client = opbeat(opts)
-      t.equal(client[fixture[0]], bool ? !fixture[2] : value1)
+      var agent = opbeat(opts)
+      t.equal(agent[fixture[0]], bool ? !fixture[2] : value1)
       delete process.env['OPBEAT_' + fixture[1]]
       t.end()
     })
@@ -77,8 +77,8 @@ optionFixtures.forEach(function (fixture) {
 
   test('should default ' + fixture[0] + ' to ' + fixture[2], function (t) {
     setup()
-    var client = opbeat()
-    t.equal(client[fixture[0]], fixture[2])
+    var agent = opbeat()
+    t.equal(agent[fixture[0]], fixture[2])
     t.end()
   })
 })
@@ -87,8 +87,8 @@ falsyValues.forEach(function (val) {
   test('should be disabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
     process.env.OPBEAT_ACTIVE = val
-    var client = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
-    t.equal(client.active, false)
+    var agent = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    t.equal(agent.active, false)
     delete process.env.OPBEAT_ACTIVE
     t.end()
   })
@@ -98,8 +98,8 @@ truthyValues.forEach(function (val) {
   test('should be enabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
     process.env.OPBEAT_ACTIVE = val
-    var client = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
-    t.equal(client.active, true)
+    var agent = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    t.equal(agent.active, true)
     delete process.env.OPBEAT_ACTIVE
     t.end()
   })
@@ -109,75 +109,75 @@ test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {
   setup()
   var opts = { appId: 'foo', organizationId: 'bar', secretToken: 'baz', active: false }
   process.env.OPBEAT_ACTIVE = '1'
-  var client = opbeat(opts)
-  t.equal(client.active, false)
+  var agent = opbeat(opts)
+  t.equal(agent.active, false)
   delete process.env.OPBEAT_ACTIVE
   t.end()
 })
 
 test('should default active to true if required options have been specified', function (t) {
   setup()
-  var client = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
-  t.equal(client.active, true)
+  var agent = opbeat({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+  t.equal(agent.active, true)
   t.end()
 })
 
 test('should default active to false if required options have not been specified', function (t) {
   setup()
-  var client = opbeat()
-  t.equal(client.active, false)
+  var agent = opbeat()
+  t.equal(agent.active, false)
   t.end()
 })
 
 test('should force active to false if required options have not been specified', function (t) {
   setup()
-  var client = opbeat({ active: true })
-  t.equal(client.active, false)
+  var agent = opbeat({ active: true })
+  t.equal(agent.active, false)
   t.end()
 })
 
 test('#captureError()', function (t) {
   t.test('should send a plain text message to Opbeat server', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(200)
 
-    client.on('logged', function (result) {
+    agent.on('logged', function (result) {
       scope.done()
       t.equal(result, 'foo')
       t.end()
     })
-    client.captureError('Hey!')
+    agent.captureError('Hey!')
   })
 
   t.test('should emit error when request returns non 200', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
-    client.on('error', function () {
+    agent.on('error', function () {
       scope.done()
       t.end()
     })
-    client.captureError('Hey!')
+    agent.captureError('Hey!')
   })
 
   t.test('shouldn\'t shit it\'s pants when error is emitted without a listener', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
-    client.captureError('Hey!')
+    agent.captureError('Hey!')
     setTimeout(function () {
       scope.done()
       t.end()
@@ -186,26 +186,26 @@ test('#captureError()', function (t) {
 
   t.test('should attach an Error object when emitting error', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
-    client.on('error', function (err) {
+    agent.on('error', function (err) {
       scope.done()
       t.equal(err.message, 'Opbeat error (500): {"error":"Oops!"}')
       t.end()
     })
 
-    client.captureError('Hey!')
+    agent.captureError('Hey!')
   })
 
   t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var oldErrorFn = request.error
-    request.error = function (client, data, cb) {
+    request.error = function (agent, data, cb) {
       t.ok('message' in data)
       t.ok('param_message' in data)
       t.equal(data.message, 'Hello World')
@@ -213,24 +213,24 @@ test('#captureError()', function (t) {
       request.error = oldErrorFn
       t.end()
     }
-    client.captureError({ message: 'Hello %s', params: ['World'] })
+    agent.captureError({ message: 'Hello %s', params: ['World'] })
   })
 
   t.test('should send an Error to Opbeat server', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(200)
 
-    client.on('logged', function (result) {
+    agent.on('logged', function (result) {
       scope.done()
       t.equal(result, 'foo')
       t.end()
     })
-    client.captureError(new Error('wtf?'))
+    agent.captureError(new Error('wtf?'))
   })
 
   t.test('should use filter if provided', function (t) {
@@ -248,15 +248,15 @@ test('#captureError()', function (t) {
         return { owned: true }
       }
     }
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var oldErrorFn = request.error
-    request.error = function (client, data, cb) {
+    request.error = function (agent, data, cb) {
       t.ok(called, 'called')
       t.deepEqual(data, { owned: true })
       request.error = oldErrorFn
       t.end()
     }
-    client.captureError(new Error('foo'), { foo: 'bar' })
+    agent.captureError(new Error('foo'), { foo: 'bar' })
   })
 })
 
@@ -264,18 +264,18 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should add itself to the uncaughtException event list', function (t) {
     setup()
     t.equal(process._events.uncaughtException, undefined)
-    var client = opbeat(opts)
-    client.handleUncaughtExceptions()
+    var agent = opbeat(opts)
+    agent.handleUncaughtExceptions()
     t.equal(process._events.uncaughtException.length, 1)
     t.end()
   })
 
   t.test('should not add more than one listener for the uncaughtException event', function (t) {
     setup()
-    var client = opbeat(opts)
-    client.handleUncaughtExceptions()
+    var agent = opbeat(opts)
+    agent.handleUncaughtExceptions()
     var before = process._events.uncaughtException.length
-    client.handleUncaughtExceptions()
+    agent.handleUncaughtExceptions()
     t.equal(process._events.uncaughtException.length, before)
     t.end()
   })
@@ -289,8 +289,8 @@ test('#handleUncaughtExceptions()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(200)
 
-    var client = opbeat(opts)
-    client.handleUncaughtExceptions(function (err, url) {
+    var agent = opbeat(opts)
+    agent.handleUncaughtExceptions(function (err, url) {
       t.ok(util.isError(err))
       scope.done()
       t.equal(url, 'foo')
@@ -304,7 +304,7 @@ test('#handleUncaughtExceptions()', function (t) {
 test('#trackRelease()', function (t) {
   t.test('should send release request to the Opbeat server with given rev', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
@@ -314,7 +314,7 @@ test('#trackRelease()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
       .reply(200)
 
-    client.trackRelease({ rev: 'foo' }, function () {
+    agent.trackRelease({ rev: 'foo' }, function () {
       scope.done()
       zlib.inflate(buffer, function (err, buffer) {
         t.error(err)
@@ -332,7 +332,7 @@ test('#trackRelease()', function (t) {
 
   t.test('should send release request to the Opbeat server with given rev and branch', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
@@ -342,7 +342,7 @@ test('#trackRelease()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
       .reply(200)
 
-    client.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
+    agent.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
       scope.done()
       zlib.inflate(buffer, function (err, buffer) {
         t.error(err)
@@ -358,7 +358,7 @@ test('#trackRelease()', function (t) {
 
   t.test('should send release request to the Opbeat server with given rev and branch automatically generated', function (t) {
     setup()
-    var client = opbeat(opts)
+    var agent = opbeat(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
@@ -368,7 +368,7 @@ test('#trackRelease()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
       .reply(200)
 
-    client.trackRelease(function () {
+    agent.trackRelease(function () {
       scope.done()
       zlib.inflate(buffer, function (err, buffer) {
         t.error(err)

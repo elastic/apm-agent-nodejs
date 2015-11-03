@@ -11,18 +11,18 @@ var restify = require('restify')
 var connect = require('connect')
 var express = require('express')
 
-var standardTest = function (client) {
+var standardTest = function (agent) {
   console.log('Tracking release...')
-  client.trackRelease(function () {
+  agent.trackRelease(function () {
     console.log('The release have been tracked!')
 
     console.log('Capturing error...')
-    client.captureError(new Error('This is an Error object'), function (err, url) {
+    agent.captureError(new Error('This is an Error object'), function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
 
       console.log('Capturing message...')
-      client.captureError('This is a string', function (err, url) {
+      agent.captureError('This is a string', function (err, url) {
         if (err) console.log('Something went wrong:', err.message)
         console.log('The message have been logged at:', url)
 
@@ -33,10 +33,10 @@ var standardTest = function (client) {
   })
 }
 
-var httpTest = function (client) {
+var httpTest = function (agent) {
   var server1 = http.createServer(function (req, res) {
     var err = new Error('This is a request related error')
-    client.captureError(err, function (err, url) {
+    agent.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       res.end()
@@ -52,7 +52,7 @@ var httpTest = function (client) {
     switch (req.url) {
       case '/error':
         var err = new Error('This is a request related error')
-        client.captureError(err, function (err, url) {
+        agent.captureError(err, function (err, url) {
           if (err) console.log('Something went wrong:', err.message)
           console.log('The error have been logged at:', url)
           res.end()
@@ -92,11 +92,11 @@ var httpTest = function (client) {
   }
 }
 
-var restifyTest = function (client) {
+var restifyTest = function (agent) {
   var server = restify.createServer({ name: 'foo', version: '1.0.0' })
 
   server.on('uncaughtException', function (req, res, route, err) {
-    client.captureError(err, function (err, url) {
+    agent.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       process.exit()
@@ -105,7 +105,7 @@ var restifyTest = function (client) {
 
   server.get('/error', function (req, res, next) {
     var err = new Error('This is a request related error')
-    client.captureError(err, function (err, url) {
+    agent.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       res.end()
@@ -136,7 +136,7 @@ var restifyTest = function (client) {
   })
 }
 
-var connectTest = function (client) {
+var connectTest = function (agent) {
   var testsLeft = 2
   var app = connect()
   app.use(function (req, res, next) {
@@ -152,7 +152,7 @@ var connectTest = function (client) {
         res.end()
     }
   })
-  app.use(client.middleware.connect())
+  app.use(agent.middleware.connect())
   app.use(function (err, req, res, next) { // eslint-disable-line handle-callback-err
     if (!--testsLeft) process.exit()
   })
@@ -172,7 +172,7 @@ var connectTest = function (client) {
   })
 }
 
-var expressTest = function (client) {
+var expressTest = function (agent) {
   var testsLeft = 2
   var app = express()
 
@@ -183,7 +183,7 @@ var expressTest = function (client) {
   app.get('/throw', function (req, res) {
     throw new Error('foobar')
   })
-  app.use(client.middleware.express())
+  app.use(agent.middleware.express())
   app.use(function (err, req, res, next) {
     if (!err) return
     if (!res.headersSent) {
@@ -207,7 +207,7 @@ var expressTest = function (client) {
   })
 }
 
-var transactionTest = function (client) {
+var transactionTest = function (agent) {
   console.log('Tracking transaction...')
   var maxSeconds = 55
   var start = Date.now()
@@ -222,7 +222,7 @@ var transactionTest = function (client) {
 
     console.log('Starting new transaction')
 
-    var trans = client.startTransaction('foo', 'bar')
+    var trans = agent.startTransaction('foo', 'bar')
     var t1 = trans.startTrace('sig1', 'foo.bar.baz1')
     var t2 = trans.startTrace('sig2', 'foo.bar.baz1')
 
@@ -264,26 +264,26 @@ var transactionTest = function (client) {
 
 var test = function (suite, opts) {
   opts.env = 'production'
-  opts.clientLogLevel = 'fatal'
+  opts.agentLogLevel = 'fatal'
   opts.captureExceptions = false
-  var client = opbeat(opts)
+  var agent = opbeat(opts)
 
-  client.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
+  agent.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
     console.log('The uncaught exception have been logged at:', url)
     process.exit()
   })
 
-  client.on('error', function (err) {
+  agent.on('error', function (err) {
     console.log(err.stack)
   })
 
   switch (suite) {
-    case 'standard': return standardTest(client)
-    case 'http': return httpTest(client)
-    case 'restify': return restifyTest(client)
-    case 'connect': return connectTest(client)
-    case 'express': return expressTest(client)
-    case 'transaction': return transactionTest(client)
+    case 'standard': return standardTest(agent)
+    case 'http': return httpTest(agent)
+    case 'restify': return restifyTest(agent)
+    case 'connect': return connectTest(agent)
+    case 'express': return expressTest(agent)
+    case 'transaction': return transactionTest(agent)
     default: console.log('Unknown test suite selected:', suite)
   }
 }

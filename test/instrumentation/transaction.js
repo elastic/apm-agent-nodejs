@@ -8,7 +8,7 @@ test('init', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.ok(false)
   })
-  var trans = new Transaction(ins._client, 'name', 'type', 'result')
+  var trans = new Transaction(ins._agent, 'name', 'type', 'result')
   t.equal(trans.name, 'name')
   t.equal(trans.type, 'type')
   t.equal(trans.result, 'result')
@@ -21,7 +21,7 @@ test('#startTrace()', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.ok(false)
   })
-  var trans = new Transaction(ins._client)
+  var trans = new Transaction(ins._agent)
   var trace = trans.startTrace('sig', 'type')
   t.deepEqual(trans.traces, [])
   t.equal(trace.transaction, trans)
@@ -38,7 +38,7 @@ test('#end() - no traces', function (t) {
     t.deepEqual(trans.traces, [trans._rootTrace])
     t.end()
   })
-  var trans = new Transaction(ins._client)
+  var trans = new Transaction(ins._agent)
   trans.end()
 })
 
@@ -50,7 +50,7 @@ test('#end() - with traces', function (t) {
     t.deepEqual(trans.traces, [trace, trans._rootTrace])
     t.end()
   })
-  var trans = new Transaction(ins._client)
+  var trans = new Transaction(ins._agent)
   var trace = trans.startTrace()
   trace.end()
   trans.end()
@@ -62,7 +62,7 @@ test('#duration()', function (t) {
     t.ok(added.duration() < 35)
     t.end()
   })
-  var trans = new Transaction(ins._client)
+  var trans = new Transaction(ins._agent)
   setTimeout(function () {
     trans.end()
   }, 25)
@@ -72,7 +72,7 @@ test('#duration() - un-ended transaction', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.ok(false)
   })
-  var trans = new Transaction(ins._client)
+  var trans = new Transaction(ins._agent)
   t.equal(trans.duration(), null)
   t.end()
 })

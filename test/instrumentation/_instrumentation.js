@@ -1,13 +1,13 @@
 'use strict'
 
-var mockClient = require('./_client')
+var mockAgent = require('./_agent')
 
 module.exports = function mockInstrumentation (cb) {
-  var client = mockClient()
+  var agent = mockAgent()
   var ins = {
     add: cb,
-    _client: client
+    _agent: agent
   }
-  client._instrumentation = ins
+  agent._instrumentation = ins
   return ins
 }

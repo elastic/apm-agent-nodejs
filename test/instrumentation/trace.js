@@ -1,14 +1,14 @@
 'use strict'
 
 var test = require('tape')
-var mockClient = require('./_client')
+var mockAgent = require('./_agent')
 var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
 
-var client = mockClient()
+var agent = mockAgent()
 
 test('properties', function (t) {
-  var trans = new Transaction(client)
+  var trans = new Transaction(agent)
   var trace = trans.startTrace('sig', 'type')
   t.equal(trace.transaction, trans)
   t.equal(trace.signature, 'sig')
@@ -18,7 +18,7 @@ test('properties', function (t) {
 })
 
 test('#end()', function (t) {
-  var trans = new Transaction(client)
+  var trans = new Transaction(agent)
   var trace = trans.startTrace('sig', 'type')
   t.equal(trace.ended, false)
   t.equal(trans.traces.indexOf(trace), -1)
@@ -29,7 +29,7 @@ test('#end()', function (t) {
 })
 
 test('#duration()', function (t) {
-  var trans = new Transaction(client)
+  var trans = new Transaction(agent)
   var trace = trans.startTrace()
   setTimeout(function () {
     trace.end()
@@ -40,14 +40,14 @@ test('#duration()', function (t) {
 })
 
 test('#duration() - return null if not ended', function (t) {
-  var trans = new Transaction(client)
+  var trans = new Transaction(agent)
   var trace = trans.startTrace()
   t.equal(trace.duration(), null)
   t.end()
 })
 
 test('#startTime() - return null if transaction isn\'t ended', function (t) {
-  var trans = new Transaction(client)
+  var trans = new Transaction(agent)
   var trace = trans.startTrace()
   trace.end()
   t.equal(trace.startTime(), null)
@@ -58,7 +58,7 @@ test('#startTime() - root trace', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.equal(trans.traces[0].startTime(), 0)
     t.end()
-  })._client)
+  })._agent)
   trans.end()
 })
 
@@ -67,7 +67,7 @@ test('#startTime() - sub trace', function (t) {
     t.ok(trace.startTime() >= 50, trace.startTime() + ' should be at least 50')
     t.ok(trace.startTime() < 60, trace.startTime() + ' should be less than 60')
     t.end()
-  })._client)
+  })._agent)
   var trace
   setTimeout(function () {
     trace = trans.startTrace()
@@ -80,7 +80,7 @@ test('#ancestors() - root trace', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.deepEqual(trans.traces[0].ancestors(), [])
     t.end()
-  })._client)
+  })._agent)
   trans.end()
 })
 
@@ -88,7 +88,7 @@ test('#ancestors() - sub trace, start/end on same tick', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.deepEqual(trace.ancestors(), ['transaction'])
     t.end()
-  })._client)
+  })._agent)
   var trace = trans.startTrace()
   trace.end()
   trans.end()
@@ -98,7 +98,7 @@ test('#ancestors() - sub trace, end on next tick', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.deepEqual(trace.ancestors(), ['transaction'])
     t.end()
-  })._client)
+  })._agent)
   var trace = trans.startTrace()
   process.nextTick(function () {
     trace.end()
@@ -110,7 +110,7 @@ test('#ancestors() - sub sub trace', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.deepEqual(t2.ancestors(), ['transaction', 'sig1'])
     t.end()
-  })._client)
+  })._agent)
   var t1 = trans.startTrace('sig1')
   var t2
   process.nextTick(function () {
@@ -126,7 +126,7 @@ test('#ancestors() - parallel sub traces, start/end on same tick', function (t) 
     t.deepEqual(t1.ancestors(), ['transaction'])
     t.deepEqual(t2.ancestors(), ['transaction', 'sig1a'])
     t.end()
-  })._client)
+  })._agent)
   var t1 = trans.startTrace('sig1a')
   var t2 = trans.startTrace('sig1b')
   t2.end()
@@ -139,7 +139,7 @@ test('#ancestors() - parallel sub traces, end on same tick', function (t) {
     t.deepEqual(t1.ancestors(), ['transaction'])
     t.deepEqual(t2.ancestors(), ['transaction', 'sig1a'])
     t.end()
-  })._client)
+  })._agent)
   var t1 = trans.startTrace('sig1a')
   var t2 = trans.startTrace('sig1b')
   process.nextTick(function () {
@@ -154,7 +154,7 @@ test('#ancestors() - parallel sub traces, end on different ticks', function (t) 
     t.deepEqual(t1.ancestors(), ['transaction'])
     t.deepEqual(t2.ancestors(), ['transaction', 'sig1a'])
     t.end()
-  })._client)
+  })._agent)
   var t1 = trans.startTrace('sig1a')
   var t2 = trans.startTrace('sig1b')
   process.nextTick(function () {

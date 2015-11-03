@@ -57,7 +57,7 @@ opbeat.captureError(new Error('Ups, something broke'));
 ## Configuration
 
 When you've required the Opbeat module you can supply an optional
-options object to configure the client.
+options object to configure the agent.
 
 ```javascript
 require('opbeat')({
@@ -101,7 +101,7 @@ Your secret Opbeat token. Required unless set via the
 - **Default:** `true`
 - **Env:** `OPBEAT_ACTIVE`
 
-A boolean specifying if errors should be collected by the Opbeat client
+A boolean specifying if errors should be collected by the Opbeat agent
 or not. Normally you would not want to capture errors in your
 development or testing environments. If you are using the `NODE_ENV`
 envrionment variable, you can use this to determine the state:
@@ -122,15 +122,15 @@ The OS hostname is automatically logged along with all errors (you can
 see it under the "Environment" tab on each error. If you want to
 overwrite this, use this option.
 
-### clientLogLevel
+### agentLogLevel
 
 - **Type:** String
 - **Default:** `'info'`
-- **Env:** `OPBEAT_CLIENT_LOG_LEVEL`
+- **Env:** `OPBEAT_AGENT_LOG_LEVEL`
 
-Set the verbosity level the Opbeat client. Note that this does not have
+Set the verbosity level the Opbeat agent. Note that this does not have
 any influence on what types of errors that are sent to Opbeat. This only
-controls how chatty the Opbeat client are in your logs.
+controls how chatty the Opbeat agent are in your logs.
 
 Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
 
@@ -153,7 +153,7 @@ which will log to STDOUT and STDERR depending on the log level.
 The logger should expose the following functions: `debug`, `info`,
 `warn`, `error` and `fatal`.
 
-Note that if a custom logger is provided, the `clientLogLevel` option
+Note that if a custom logger is provided, the `agentLogLevel` option
 will be ignored.
 
 ### captureExceptions
@@ -162,7 +162,7 @@ will be ignored.
 - **Default:** `true`
 - **Env:** `OPBEAT_CAPTURE_EXCEPTIONS`
 
-Whether or not the Opbeat client should monitor for uncaught exceptions
+Whether or not the Opbeat agent should monitor for uncaught exceptions
 and sent them to Opbeat automatically.
 
 ### stackTraceLimit
@@ -194,7 +194,7 @@ The function will be called with two arguments:
 
 ## Events
 
-The client emits two events: `logged` and `error`.
+The agent emits two events: `logged` and `error`.
 
 ```javascript
 opbeat.on('logged', function (url) {
@@ -210,9 +210,9 @@ opbeat.captureError('Boom');
 
 ## Uncaught exceptions
 
-The client captures uncaught exceptions automatically and reports them
+The agent captures uncaught exceptions automatically and reports them
 to Opbeat. To disable this, set the configuration option
-`captureExceptions` to `false` when initializing the Opbeat client.
+`captureExceptions` to `false` when initializing the Opbeat agent.
 
 You can enable capturing of uncaught exceptions later by calling the
 `handleUncaughtExceptions()` function. This also gives you the option to
@@ -317,7 +317,7 @@ opbeat.captureError({
 To ease debugging it's possible to send some extra data with each
 error you send to Opbeat. The Opbeat API supports a lot of different
 metadata fields, most of which are automatically managed by the opbeat
-node client. But if you wish you can supply some extra details using
+node agent. But if you wish you can supply some extra details using
 `client_supplied_id`, `extra`, `user` or `query`. If you want to know
 more about all the fields, you should take a look at the full [Opbeat
 API docs](https://opbeat.com/docs/api/intake/v1/#error-logging).
@@ -348,10 +348,9 @@ opbeat.captureError(error, {
 
 ## Singleton access
 
-Don't waste time initializing the Opbeat client more than once. If you
-need access the client in multiple files, just create an *opbeat.js*
-file somewhere in your project, initialize Opbeat in there and export
-it:
+You should only initialize the Opbeat agent once. If you need access the
+agent in multiple files, create an *opbeat.js* file somewhere in your
+project, initialize Opbeat in there and export it:
 
 ```javascript
 // opbeat.js
@@ -416,7 +415,7 @@ to Opbeat.
 
 Though Opbeat provides other means of handling [release
 tracking](https://opbeat.com/docs/articles/get-started-with-release-tracking/),
-you can also use this client to do the same.
+you can also use this agent to do the same.
 
 Use the `trackRelease()` function with the optional options and
 callback arguments:
