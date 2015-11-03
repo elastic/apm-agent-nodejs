@@ -20,7 +20,7 @@ var optionFixtures = [
   ['appId', 'APP_ID'],
   ['organizationId', 'ORGANIZATION_ID'],
   ['secretToken', 'SECRET_TOKEN'],
-  ['agentLogLevel', 'AGENT_LOG_LEVEL', 'info'],
+  ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],

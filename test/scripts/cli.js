@@ -264,7 +264,7 @@ var transactionTest = function (agent) {
 
 var test = function (suite, opts) {
   opts.env = 'production'
-  opts.agentLogLevel = 'fatal'
+  opts.logLevel = 'fatal'
   opts.captureExceptions = false
   var agent = opbeat(opts)
 

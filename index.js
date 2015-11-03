@@ -26,7 +26,7 @@ var Opbeat = module.exports = function (opts) {
   this.organizationId = opts.organizationId
   this.secretToken = opts.secretToken
   this.active = opts.active
-  this.agentLogLevel = opts.agentLogLevel
+  this.logLevel = opts.logLevel
   this.logger = opts.logger
   this.hostname = opts.hostname
   this.stackTraceLimit = opts.stackTraceLimit

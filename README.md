@@ -122,11 +122,11 @@ The OS hostname is automatically logged along with all errors (you can
 see it under the "Environment" tab on each error. If you want to
 overwrite this, use this option.
 
-### agentLogLevel
+### logLevel
 
 - **Type:** String
 - **Default:** `'info'`
-- **Env:** `OPBEAT_AGENT_LOG_LEVEL`
+- **Env:** `OPBEAT_LOG_LEVEL`
 
 Set the verbosity level the Opbeat agent. Note that this does not have
 any influence on what types of errors that are sent to Opbeat. This only
@@ -153,8 +153,8 @@ which will log to STDOUT and STDERR depending on the log level.
 The logger should expose the following functions: `debug`, `info`,
 `warn`, `error` and `fatal`.
 
-Note that if a custom logger is provided, the `agentLogLevel` option
-will be ignored.
+Note that if a custom logger is provided, the `logLevel` option will be
+ignored.
 
 ### captureExceptions
 
