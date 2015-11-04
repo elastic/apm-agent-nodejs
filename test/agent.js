@@ -44,6 +44,7 @@ var setup = function () {
 }
 
 var clean = function () {
+  global.__opbeat_agent = null
   process._events.uncaughtException = uncaughtExceptionListeners
   helpers.restoreLogger()
 }

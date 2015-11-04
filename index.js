@@ -7,8 +7,6 @@ var uuid = require('node-uuid')
 var OpbeatHttpClient = require('opbeat-http-client')
 var ReleaseTracker = require('opbeat-release-tracker')
 var config = require('./lib/config')
-var asyncState = require('./lib/async-state')
-var hooks = require('./lib/hooks')
 var parsers = require('./lib/parsers')
 var request = require('./lib/request')
 var connect = require('./lib/middleware/connect')
@@ -19,7 +17,8 @@ var agent // singleton agent
 
 var Opbeat = module.exports = function (opts) {
   if (!(this instanceof Opbeat)) return new Opbeat(opts)
-  if (agent) throw new Error('Cannot initialize the Opbeat agent more than once')
+  if (global.__opbeat_agent) throw new Error('Cannot initialize the Opbeat agent more than once')
+  global.__opbeat_agent = true
   agent = this
 
   events.EventEmitter.call(this)
@@ -58,8 +57,6 @@ var Opbeat = module.exports = function (opts) {
 util.inherits(Opbeat, events.EventEmitter)
 
 Opbeat.prototype._start = function () {
-  hooks(this) // hook into node for enhanced error tracking
-
   this._httpClient = OpbeatHttpClient({
     appId: this.appId,
     organizationId: this.organizationId,
@@ -90,7 +87,8 @@ Opbeat.prototype.captureError = function (err, data, cb) {
   }
   delete data.request
 
-  if (!data.http && asyncState.req) data.http = parsers.parseRequest(asyncState.req)
+  var trans = this._instrumentation.currentTransaction
+  if (!data.http && trans && trans.req) data.http = parsers.parseRequest(trans.req)
 
   var level = this.exceptionLogLevel || 'error'
   level = level === 'warning' ? 'warn' : level
@@ -206,18 +204,16 @@ Opbeat.prototype.startTransaction = function (name, type, result) {
   return this._instrumentation.startTransaction(name, type, result)
 }
 
-Opbeat.prototype.setTransactionName = function (name) {
-  if (!asyncState.trans) {
-    this.logger.warn('no transaction found!')
-    return
-  }
-  this.logger.trace('[%s] setting transaction name: %s', asyncState.trans._uuid, name)
-  asyncState.trans.name = name
+Opbeat.prototype.endTransaction = function () {
+  this._instrumentation.endTransaction()
 }
 
-Opbeat.prototype.trans = function () {
-  var trans = asyncState.trans
-  if (trans && !trans.ended) return trans
+Opbeat.prototype.setTransactionName = function (name) {
+  this._instrumentation.setTransactionName(name)
+}
+
+Opbeat.prototype.activeTransaction = function () {
+  return this._instrumentation.activeTransaction()
 }
 
 Opbeat.prototype._internalErrorLogger = function (err, uuid) {

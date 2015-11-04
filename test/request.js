@@ -21,6 +21,7 @@ test('#error()', function (t) {
   t.test('without callback and successful request', function (t) {
     zlib.deflate(body, function (err, buffer) {
       t.error(err)
+      global.__opbeat_agent = null
       var agent = opbeat(opts)
       var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
@@ -42,6 +43,7 @@ test('#error()', function (t) {
   t.test('with callback and successful request', function (t) {
     zlib.deflate(body, function (err, buffer) {
       t.error(err)
+      global.__opbeat_agent = null
       var agent = opbeat(opts)
       var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
@@ -61,6 +63,7 @@ test('#error()', function (t) {
   })
 
   t.test('without callback and bad request', function (t) {
+    global.__opbeat_agent = null
     var agent = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
@@ -78,6 +81,7 @@ test('#error()', function (t) {
 
   t.test('with callback and bad request', function (t) {
     var called = false
+    global.__opbeat_agent = null
     var agent = opbeat(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
