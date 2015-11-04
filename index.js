@@ -200,6 +200,8 @@ Opbeat.prototype.trackRelease = function (data, cb) {
   })
 }
 
+Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
+
 Opbeat.prototype.startTransaction = function (name, type, result) {
   return this._instrumentation.startTransaction(name, type, result)
 }
@@ -217,8 +219,6 @@ Opbeat.prototype.trans = function () {
   var trans = asyncState.trans
   if (trans && !trans.ended) return trans
 }
-
-Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
 
 Opbeat.prototype._internalErrorLogger = function (err, uuid) {
   if (uuid) this.logger.info('[%s] Could not notify Opbeat!', uuid)
