@@ -15,9 +15,12 @@ var connect = require('./lib/middleware/connect')
 var Instrumentation = require('./lib/instrumentation')
 
 var userAgent = 'opbeat-nodejs/' + require('./package').version
+var agent // singleton agent
 
 var Opbeat = module.exports = function (opts) {
   if (!(this instanceof Opbeat)) return new Opbeat(opts)
+  if (agent) throw new Error('Cannot initialize the Opbeat agent more than once')
+  agent = this
 
   events.EventEmitter.call(this)
 
@@ -55,8 +58,6 @@ var Opbeat = module.exports = function (opts) {
 util.inherits(Opbeat, events.EventEmitter)
 
 Opbeat.prototype._start = function () {
-  var agent = this
-
   hooks(this) // hook into node for enhanced error tracking
 
   this._httpClient = OpbeatHttpClient({
@@ -77,7 +78,6 @@ Opbeat.prototype._start = function () {
 }
 
 Opbeat.prototype.captureError = function (err, data, cb) {
-  var agent = this
   var captureTime = new Date()
 
   if (typeof data === 'function') {
@@ -153,8 +153,6 @@ Opbeat.prototype.captureError = function (err, data, cb) {
 // we will automatically terminate the process, so if you provide a
 // callback you must remember to terminate the process manually.
 Opbeat.prototype.handleUncaughtExceptions = function (cb) {
-  var agent = this
-
   if (this._uncaughtExceptionListener) process.removeListener('uncaughtException', this._uncaughtExceptionListener)
 
   this._uncaughtExceptionListener = function (err) {
@@ -196,7 +194,6 @@ Opbeat.prototype.trackRelease = function (data, cb) {
     if (!data.cwd) data.cwd = data.path
   }
   if (!this._releaseTracker) this._releaseTracker = ReleaseTracker(this._httpClient)
-  var agent = this
   this._releaseTracker(data, function (err) {
     if (cb) cb(err)
     if (err) agent.emit('error', err)
