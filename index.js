@@ -47,7 +47,7 @@ var Opbeat = module.exports = function (opts) {
   this.startTransaction = ins.startTransaction.bind(ins)
   this.endTransaction = ins.endTransaction.bind(ins)
   this.setTransactionName = ins.setTransactionName.bind(ins)
-  this.activeTransaction = ins.activeTransaction.bind(ins)
+  this.buildTrace = ins.buildTrace.bind(ins)
 
   if (!this.active) {
     this.logger.info('Opbeat logging is disabled for now')
@@ -92,8 +92,8 @@ Opbeat.prototype.captureError = function (err, data, cb) {
   }
   delete data.request
 
-  var trans = this._instrumentation.currentTransaction
-  if (!data.http && trans && trans.req) data.http = parsers.parseRequest(trans.req)
+  var trace = this._instrumentation.currentTrace
+  if (!data.http && trace && trace.transaction.req) data.http = parsers.parseRequest(trace.transaction.req)
 
   var level = this.exceptionLogLevel || 'error'
   level = level === 'warning' ? 'warn' : level

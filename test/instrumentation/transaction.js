@@ -3,6 +3,7 @@
 var test = require('tape')
 var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
+var Trace = require('../../lib/instrumentation/trace')
 
 test('init', function (t) {
   var ins = mockInstrumentation(function (added) {
@@ -14,19 +15,6 @@ test('init', function (t) {
   t.equal(trans.result, 'result')
   t.equal(trans.ended, false)
   t.deepEqual(trans.traces, [])
-  t.end()
-})
-
-test('#startTrace()', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.ok(false)
-  })
-  var trans = new Transaction(ins._agent)
-  var trace = trans.startTrace('sig', 'type')
-  t.deepEqual(trans.traces, [])
-  t.equal(trace.transaction, trans)
-  t.equal(trace.signature, 'sig')
-  t.equal(trace.type, 'type')
   t.end()
 })
 
@@ -51,7 +39,8 @@ test('#end() - with traces', function (t) {
     t.end()
   })
   var trans = new Transaction(ins._agent)
-  var trace = trans.startTrace()
+  var trace = new Trace(trans)
+  trace.start()
   trace.end()
   trans.end()
 })

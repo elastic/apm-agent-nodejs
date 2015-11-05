@@ -73,11 +73,11 @@ test('basic', function (t) {
 
   function generateTransaction (id, cb) {
     var trans = ins.startTransaction('foo' + id, 'bar' + id, 'baz' + id)
-    var trace = trans.startTrace('t' + id + '0', 'type')
+    var trace = startTrace(ins, 't' + id + '0', 'type')
 
     process.nextTick(function () {
       trace.end()
-      trace = trans.startTrace('t' + id + '1', 'type')
+      trace = startTrace(ins, 't' + id + '1', 'type')
       process.nextTick(function () {
         trace.end()
         trans.end()
@@ -93,7 +93,7 @@ test('same tick', function (t) {
     t.equal(data.traces.groups[0].signature, 't1')
     t.equal(data.traces.groups[1].signature, 't0')
     t.equal(data.traces.groups[2].signature, 'transaction')
-    t.deepEqual(data.traces.groups[0].parents, ['transaction', 't0'])
+    t.deepEqual(data.traces.groups[0].parents, ['transaction'])
     t.deepEqual(data.traces.groups[1].parents, ['transaction'])
     t.deepEqual(data.traces.groups[2].parents, [])
     t.end()
@@ -101,8 +101,8 @@ test('same tick', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
-  var t0 = trans.startTrace('t0')
-  var t1 = trans.startTrace('t1')
+  var t0 = startTrace(ins, 't0')
+  var t1 = startTrace(ins, 't1')
   t1.end()
   t0.end()
   trans.end()
@@ -123,12 +123,10 @@ test('serial - no parents', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
-  var t0 = trans.startTrace('t0')
-  var t1
-
+  var t0 = startTrace(ins, 't0')
   process.nextTick(function () {
     t0.end()
-    t1 = trans.startTrace('t1')
+    var t1 = startTrace(ins, 't1')
     process.nextTick(function () {
       t1.end()
       trans.end()
@@ -143,7 +141,7 @@ test('serial - with parents', function (t) {
     t.equal(data.traces.groups[0].signature, 't1')
     t.equal(data.traces.groups[1].signature, 't0')
     t.equal(data.traces.groups[2].signature, 'transaction')
-    t.deepEqual(data.traces.groups[0].parents, ['transaction', 't0'])
+    t.deepEqual(data.traces.groups[0].parents, ['transaction'])
     t.deepEqual(data.traces.groups[1].parents, ['transaction'])
     t.deepEqual(data.traces.groups[2].parents, [])
     t.end()
@@ -151,9 +149,9 @@ test('serial - with parents', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
-  var t0 = trans.startTrace('t0')
+  var t0 = startTrace(ins, 't0')
   process.nextTick(function () {
-    var t1 = trans.startTrace('t1')
+    var t1 = startTrace(ins, 't1')
     process.nextTick(function () {
       t1.end()
       t0.end()
@@ -166,7 +164,7 @@ test('serial - with parents', function (t) {
 test('stack branching - no parents', function (t) {
   var agent = mockAgent(function (endpoint, data, cb) {
     t.equal(pointerChain(t0), 't0 -> transaction')
-    t.equal(pointerChain(t1), 't1 -> t0 -> transaction')
+    t.equal(pointerChain(t1), 't1 -> transaction')
 
     t.equal(data.traces.groups.length, 3)
     t.equal(data.traces.groups[0].signature, 't0')
@@ -180,8 +178,8 @@ test('stack branching - no parents', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
-  var t0 = trans.startTrace('t0') // 1
-  var t1 = trans.startTrace('t1') // 2
+  var t0 = startTrace(ins, 't0') // 1
+  var t1 = startTrace(ins, 't1') // 2
   setTimeout(function () {
     t0.end() // 3
   }, 25)
@@ -194,10 +192,16 @@ test('stack branching - no parents', function (t) {
 
 function pointerChain (trace) {
   var arr = [trace.signature]
-  var prev = trace._prevTrace
+  var prev = trace._parent
   while (prev) {
     arr.push(prev.signature)
-    prev = prev._prevTrace
+    prev = prev._parent
   }
   return arr.join(' -> ')
+}
+
+function startTrace (ins, signature, type) {
+  var trace = ins.buildTrace()
+  if (trace) trace.start(signature, type)
+  return trace
 }
