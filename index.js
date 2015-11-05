@@ -42,7 +42,12 @@ var Opbeat = module.exports = function (opts) {
   connect = connect.bind(this)
   this.middleware = { connect: connect, express: connect }
 
-  this._instrumentation = new Instrumentation(this)
+  var ins = new Instrumentation(this)
+  this._instrumentation = ins
+  this.startTransaction = ins.startTransaction.bind(ins)
+  this.endTransaction = ins.endTransaction.bind(ins)
+  this.setTransactionName = ins.setTransactionName.bind(ins)
+  this.activeTransaction = ins.activeTransaction.bind(ins)
 
   if (!this.active) {
     this.logger.info('Opbeat logging is disabled for now')
@@ -199,22 +204,6 @@ Opbeat.prototype.trackRelease = function (data, cb) {
 }
 
 Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
-
-Opbeat.prototype.startTransaction = function (name, type, result) {
-  return this._instrumentation.startTransaction(name, type, result)
-}
-
-Opbeat.prototype.endTransaction = function () {
-  this._instrumentation.endTransaction()
-}
-
-Opbeat.prototype.setTransactionName = function (name) {
-  this._instrumentation.setTransactionName(name)
-}
-
-Opbeat.prototype.activeTransaction = function () {
-  return this._instrumentation.activeTransaction()
-}
 
 Opbeat.prototype._internalErrorLogger = function (err, uuid) {
   if (uuid) this.logger.info('[%s] Could not notify Opbeat!', uuid)
