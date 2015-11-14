@@ -37,7 +37,7 @@ test('#duration()', function (t) {
   trace.start()
   setTimeout(function () {
     trace.end()
-    t.ok(trace.duration() >= 50, trace.duration() + ' should be at least 50')
+    t.ok(trace.duration() > 49, trace.duration() + ' should be at least 50')
     t.ok(trace.duration() < 60, trace.duration() + ' should be less than 60')
     t.end()
   }, 50)

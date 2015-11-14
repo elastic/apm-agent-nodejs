@@ -47,7 +47,7 @@ test('#end() - with traces', function (t) {
 
 test('#duration()', function (t) {
   var ins = mockInstrumentation(function (added) {
-    t.ok(added.duration() >= 25)
+    t.ok(added.duration() > 24)
     t.ok(added.duration() < 35)
     t.end()
   })
