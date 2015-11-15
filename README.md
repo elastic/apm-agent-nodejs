@@ -141,7 +141,8 @@ Set the verbosity level the Opbeat agent. Note that this does not have
 any influence on what types of errors that are sent to Opbeat. This only
 controls how chatty the Opbeat agent are in your logs.
 
-Possible levels are: `debug`, `info`, `warn`, `error` and `fatal`.
+Possible levels are: `trace`, `debug`, `info`, `warn`, `error` and
+`fatal`.
 
 ### logger
 
