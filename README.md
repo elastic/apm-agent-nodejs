@@ -112,6 +112,15 @@ var options = {
 };
 ```
 
+### instrument
+
+- **Type:** Boolean
+- **Default:** `true`
+- **Env:** `OPBEAT_INSTRUMENT`
+
+A boolean specifying if the Opbeat agent should collect performance
+metrics for the app.
+
 ### hostname
 
 - **Type:** String

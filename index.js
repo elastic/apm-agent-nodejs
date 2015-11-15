@@ -34,10 +34,10 @@ var Opbeat = module.exports = function (opts) {
   this.stackTraceLimit = opts.stackTraceLimit
   this.captureExceptions = opts.captureExceptions
   this.exceptionLogLevel = opts.exceptionLogLevel
+  this.instrument = opts.instrument
   this.filter = opts.filter
   this._apiHost = opts._apiHost
   this._ff_captureFrame = opts._ff_captureFrame
-  this._ff_instrument = opts._ff_instrument
 
   connect = connect.bind(this)
   this.middleware = { connect: connect, express: connect }

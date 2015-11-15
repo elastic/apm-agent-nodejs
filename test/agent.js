@@ -25,9 +25,9 @@ var optionFixtures = [
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal'],
+  ['instrument', 'INSTRUMENT', true],
   ['filter'],
-  ['_ff_captureFrame', 'FF_CAPTURE_FRAME', false],
-  ['_ff_instrument', 'FF_INSTRUMENT', false]
+  ['_ff_captureFrame', 'FF_CAPTURE_FRAME', false]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']

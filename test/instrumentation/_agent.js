@@ -7,7 +7,7 @@ var noop = function () {}
 module.exports = function mockAgent (cb) {
   var agent = {
     active: true,
-    _ff_instrument: true,
+    instrument: true,
     _httpClient: {
       request: cb || noop
     },
