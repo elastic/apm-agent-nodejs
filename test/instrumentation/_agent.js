@@ -14,5 +14,6 @@ module.exports = function mockAgent (cb) {
     logger: require('console-log-level')({ level: 'fatal' })
   }
   agent._instrumentation = new Instrumentation(agent)
+  agent._instrumentation.start()
   return agent
 }

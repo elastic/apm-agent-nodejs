@@ -35,12 +35,15 @@ npm install opbeat
 
 ## Basic Usage
 
-To get started just require and initialize the Opbeat module in the top
-of your app's main module. Out of the box this will catch unhandled
-exceptions automatically.
+To get started just require and initialize the Opbeat module **at the
+very top** of your apps main file. The Opbeat agent will be returned.
+The agent will now instrument your Node.js application and track
+unhandled exceptions automatically.
 
 ```js
-var opbeat = require('opbeat')({
+var opbeat = require('opbeat')
+
+opbeat.start({
   appId: '...',
   organizationId: '...',
   secretToken: '...'
@@ -56,16 +59,24 @@ opbeat.captureError(new Error('Ups, something broke'))
 
 ## Configuration
 
-When you've required the Opbeat module you can supply an optional
-options object to configure the agent.
+The Opbeat agent can be configured either by pasing in an options object
+as the first arugment when calling the initialization function or via
+environment variables (or a combination of both).
 
 ```js
-require('opbeat')({
-  appId: '...',
-  organizationId: '...',
-  secretToken: '...',
-  ...
+var opbeat = require('opbeat')
+
+opbeat.start({
+  // configuration options
 })
+```
+
+Note that even if you rely purely on environment variables to configure
+the Opbeat agent, `opbeat.start()` should still be called:
+
+```js
+var opbeat = require('opbeat')
+opbeat.start()
 ```
 
 The available options are listed below, but can alternatively be set via
@@ -353,21 +364,6 @@ opbeat.captureError(error, {
   extra: {
     some_important_metric: 'foobar'
   }
-})
-```
-
-## Singleton access
-
-You should only initialize the Opbeat agent once. If you need access the
-agent in multiple files, create an *opbeat.js* file somewhere in your
-project, initialize Opbeat in there and export it:
-
-```js
-// opbeat.js
-module.exports = require('opbeat')({
-  appId: '...',
-  organizationId: '...',
-  secretToken: '...'
 })
 ```
 
