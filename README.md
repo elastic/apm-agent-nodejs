@@ -271,6 +271,22 @@ server with the following arguments:
 
 ## Advanced usage
 
+### Instrumentation
+
+By default, the Opbeat agent will track incoming HTTP requests and group
+them in transactions. During a transaction, the associated database
+queries, requests to external services etc. are measured along with the
+total transaction time.
+
+If you are using Express 4.x the transactions will be grouped together
+based on the names of your routes. If you use another framework or a
+custom router you will see that the transactions are simply grouped
+together in a few big chunks named "unknown route". In that case, you
+will need to help us out a little by supplying a name for each
+transaction. You can do that by calling `opbeat.setTransactionName()`
+at any time during the transaction with the name of the transaction as
+the first argument.
+
 ### HTTP requests
 
 You can specify an optional options argument as the 2nd argument to
