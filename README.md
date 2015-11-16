@@ -44,14 +44,14 @@ var opbeat = require('opbeat')({
   appId: '...',
   organizationId: '...',
   secretToken: '...'
-});
+})
 ```
 
 If you want to manually send an error to Opbeat, use the
 `captureError()` function:
 
 ```js
-opbeat.captureError(new Error('Ups, something broke'));
+opbeat.captureError(new Error('Ups, something broke'))
 ```
 
 ## Configuration
@@ -65,7 +65,7 @@ require('opbeat')({
   organizationId: '...',
   secretToken: '...',
   ...
-});
+})
 ```
 
 The available options are listed below, but can alternatively be set via
@@ -109,7 +109,7 @@ envrionment variable, you can use this to determine the state:
 ```js
 var options = {
   active: process.env.NODE_ENV === 'production'
-};
+}
 ```
 
 ### instrument
@@ -154,7 +154,7 @@ Set a custom logger, e.g.
 ```js
 require('opbeat')({
   logger: require('bunyan')({ level: 'info' })
-});
+})
 ```
 
 If no custom logger is provided, Opbeat will use its built-in logger
@@ -208,14 +208,14 @@ The agent emits two events: `logged` and `error`.
 
 ```js
 opbeat.on('logged', function (url) {
-  console.log('Yay, it worked! View online at: ' + url);
-});
+  console.log('Yay, it worked! View online at: ' + url)
+})
 
 opbeat.on('error', function (err) {
-  console.log('Something went wrong. The error was not logged!');
-});
+  console.log('Something went wrong. The error was not logged!')
+})
 
-opbeat.captureError('Boom');
+opbeat.captureError('Boom')
 ```
 
 ## Uncaught exceptions
@@ -230,7 +230,7 @@ add a callback which will be called once an uncaught exception have been
 sent to Opbeat.
 
 ```js
-opbeat.handleUncaughtExceptions([callback]);
+opbeat.handleUncaughtExceptions([callback])
 ```
 
 If you don't specify a callback, the node process is terminated
@@ -244,12 +244,12 @@ that you don't leave the process running after receiving an
 to terminate the node process:
 
 ```js
-var opbeat = require('opbeat')();
+var opbeat = require('opbeat')()
 
 opbeat.handleUncaughtExceptions(function (err, url) {
   // Do your own stuff... and then exit:
-  process.exit(1);
-});
+  process.exit(1)
+})
 ```
 
 The callback is called **after** the event has been sent to the Opbeat
@@ -270,7 +270,7 @@ an HTTP request:
 ```js
 opbeat.captureError(err, {
   request: req // an instance of http.IncomingMessage
-});
+})
 ```
 
 This will log the URL that was requested, the HTTP headers, cookies and
@@ -289,7 +289,7 @@ which will be called once the error have been sent to Opbeat:
 ```js
 opbeat.captureError(error, function (opbeatErr, url) {
   // ...
-});
+})
 ```
 
 The callback is called with two arguments:
@@ -302,7 +302,7 @@ The callback is called with two arguments:
 Instead of an `Error` object, you can log a plain text error-message:
 
 ```js
-opbeat.captureError('Something happened!');
+opbeat.captureError('Something happened!')
 ```
 
 This will also be logged as an error in Opbeat, but will not be
@@ -319,7 +319,7 @@ the message as a parameterized message:
 opbeat.captureError({
   message: 'Timeout exeeded by %d seconds',
   params: [seconds]
-});
+})
 ```
 
 ### Metadata
@@ -346,14 +346,14 @@ opbeat.captureError(error, {
     username: 'foo',
     email: 'foo@example.com'
   }
-});
+})
 
 // Sending some abitrary extra details using the `extra` field
 opbeat.captureError(error, {
   extra: {
     some_important_metric: 'foobar'
   }
-});
+})
 ```
 
 ## Singleton access
@@ -368,7 +368,7 @@ module.exports = require('opbeat')({
   appId: '...',
   organizationId: '...',
   secretToken: '...'
-});
+})
 ```
 
 ## Integrations
@@ -383,10 +383,10 @@ handling a request.
 #### Connect
 
 ```js
-var opbeat = require('opbeat')();
-var connect = require('connect');
+var opbeat = require('opbeat')()
+var connect = require('connect')
 
-var app = connect();
+var app = connect()
 
 // your regular middleware:
 // app.use(...)
@@ -394,26 +394,26 @@ var app = connect();
 
 // your main HTTP handler
 app.use(function (req, res, next) {
-  throw new Error('Broke!');
-});
+  throw new Error('Broke!')
+})
 
 // add Opbeat in the bottom of the middleware stack
-app.use(opbeat.middleware.connect());
+app.use(opbeat.middleware.connect())
 
-app.listen(3000);
+app.listen(3000)
 ```
 
 #### Express
 
 ```js
-var opbeat = require('opbeat')();
-var app = require('express').createServer();
+var opbeat = require('opbeat')()
+var app = require('express').createServer()
 
-app.use(opbeat.middleware.express());
+app.use(opbeat.middleware.express())
 app.get('/', function mainHandler(req, res) {
-  throw new Error('Broke!');
-});
-app.listen(3000);
+  throw new Error('Broke!')
+})
+app.listen(3000)
 ```
 
 __Note__: `opbeat.middleware.express` or `opbeat.middleware.connect`
@@ -431,7 +431,7 @@ Use the `trackRelease()` function with the optional options and
 callback arguments:
 
 ```js
-opbeat.trackRelease(options, callback);
+opbeat.trackRelease(options, callback)
 ```
 
 Options:
