@@ -39,7 +39,7 @@ To get started just require and initialize the Opbeat module in the top
 of your app's main module. Out of the box this will catch unhandled
 exceptions automatically.
 
-```javascript
+```js
 var opbeat = require('opbeat')({
   appId: '...',
   organizationId: '...',
@@ -50,7 +50,7 @@ var opbeat = require('opbeat')({
 If you want to manually send an error to Opbeat, use the
 `captureError()` function:
 
-```javascript
+```js
 opbeat.captureError(new Error('Ups, something broke'));
 ```
 
@@ -59,7 +59,7 @@ opbeat.captureError(new Error('Ups, something broke'));
 When you've required the Opbeat module you can supply an optional
 options object to configure the agent.
 
-```javascript
+```js
 require('opbeat')({
   appId: '...',
   organizationId: '...',
@@ -106,7 +106,7 @@ or not. Normally you would not want to capture errors in your
 development or testing environments. If you are using the `NODE_ENV`
 envrionment variable, you can use this to determine the state:
 
-```javascript
+```js
 var options = {
   active: process.env.NODE_ENV === 'production'
 };
@@ -206,7 +206,7 @@ The function will be called with two arguments:
 
 The agent emits two events: `logged` and `error`.
 
-```javascript
+```js
 opbeat.on('logged', function (url) {
   console.log('Yay, it worked! View online at: ' + url);
 });
@@ -229,7 +229,7 @@ You can enable capturing of uncaught exceptions later by calling the
 add a callback which will be called once an uncaught exception have been
 sent to Opbeat.
 
-```javascript
+```js
 opbeat.handleUncaughtExceptions([callback]);
 ```
 
@@ -243,7 +243,7 @@ that you don't leave the process running after receiving an
 `uncaughtException`, so if you are using the optional callback, remember
 to terminate the node process:
 
-```javascript
+```js
 var opbeat = require('opbeat')();
 
 opbeat.handleUncaughtExceptions(function (err, url) {
@@ -267,7 +267,7 @@ You can specify an optional options argument as the 2nd argument to
 section](#metadata), you can use the options to associate the error with
 an HTTP request:
 
-```javascript
+```js
 opbeat.captureError(err, {
   request: req // an instance of http.IncomingMessage
 });
@@ -286,7 +286,7 @@ above processes for you.
 The `captureError()` function can also be given an optional callback
 which will be called once the error have been sent to Opbeat:
 
-```javascript
+```js
 opbeat.captureError(error, function (opbeatErr, url) {
   // ...
 });
@@ -301,7 +301,7 @@ The callback is called with two arguments:
 
 Instead of an `Error` object, you can log a plain text error-message:
 
-```javascript
+```js
 opbeat.captureError('Something happened!');
 ```
 
@@ -315,7 +315,7 @@ not always recognize multiple errors as belonging to the same group,
 since the message text differs. To group these kind of messages, send
 the message as a parameterized message:
 
-```javascript
+```js
 opbeat.captureError({
   message: 'Timeout exeeded by %d seconds',
   params: [seconds]
@@ -337,7 +337,7 @@ when calling `opbeat.captureError()`.
 
 Here are some examples:
 
-```javascript
+```js
 // Sending some extra details about the user
 opbeat.captureError(error, {
   user: {
@@ -362,7 +362,7 @@ You should only initialize the Opbeat agent once. If you need access the
 agent in multiple files, create an *opbeat.js* file somewhere in your
 project, initialize Opbeat in there and export it:
 
-```javascript
+```js
 // opbeat.js
 module.exports = require('opbeat')({
   appId: '...',
@@ -382,7 +382,7 @@ handling a request.
 
 #### Connect
 
-```javascript
+```js
 var opbeat = require('opbeat')();
 var connect = require('connect');
 
@@ -405,7 +405,7 @@ app.listen(3000);
 
 #### Express
 
-```javascript
+```js
 var opbeat = require('opbeat')();
 var app = require('express').createServer();
 
@@ -430,7 +430,7 @@ you can also use this agent to do the same.
 Use the `trackRelease()` function with the optional options and
 callback arguments:
 
-```javascript
+```js
 opbeat.trackRelease(options, callback);
 ```
 
