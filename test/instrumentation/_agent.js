@@ -1,6 +1,9 @@
 'use strict'
 
 var Instrumentation = require('../../lib/instrumentation')
+var logger = require('../../lib/logger')
+
+logger.init({ level: 'fatal' })
 
 var noop = function () {}
 
@@ -10,8 +13,7 @@ module.exports = function mockAgent (cb) {
     instrument: true,
     _httpClient: {
       request: cb || noop
-    },
-    logger: require('console-log-level')({ level: 'fatal' })
+    }
   }
   agent._instrumentation = new Instrumentation(agent)
   agent._instrumentation.start()
