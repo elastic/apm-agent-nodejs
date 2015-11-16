@@ -203,8 +203,6 @@ Opbeat.prototype.trackRelease = function (data, cb) {
   })
 }
 
-Opbeat.prototype.trackDeployment = Opbeat.prototype.trackRelease
-
 Opbeat.prototype._internalErrorLogger = function (err, uuid) {
   if (uuid) this.logger.info('[%s] Could not notify Opbeat!', uuid)
   else this.logger.info('Could not notify Opbeat!')
