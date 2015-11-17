@@ -57,9 +57,31 @@ test('basic', function (t) {
       t.equal(trace.kind, expected[index].kind)
       t.equal(trace.timestamp, ts.toISOString())
       t.deepEqual(trace.parents, parents)
-      t.ok('_frames' in trace.extra)
-      t.ok(Array.isArray(trace.extra._frames))
     })
+
+    var traceKey = function (trace) {
+      return trace.signature + '|' + trace.parents.join(',')
+    }
+
+    var allKeys = []
+    data.traces.groups.forEach(function (trace, idx) {
+      if (allKeys.indexOf(traceKey(trace)) < 0) {
+        allKeys.push(traceKey(trace))
+      }
+    })
+
+    var keysWithFrames = []
+    data.traces.groups.forEach(function (trace, index) {
+      if ('_frames' in trace.extra) {
+        var key = traceKey(trace)
+        t.ok(Array.isArray(trace.extra._frames))
+        t.notOk(key in keysWithFrames)
+
+        keysWithFrames.push(key)
+      }
+    })
+
+    t.deepEqual(keysWithFrames, allKeys)
 
     t.end()
   })
