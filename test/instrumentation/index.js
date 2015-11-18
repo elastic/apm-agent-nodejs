@@ -4,7 +4,7 @@ var test = require('tape')
 var mockAgent = require('./_agent')
 
 test('basic', function (t) {
-  var expexted = [
+  var expected = [
     { transaction: 'foo0', signature: 't00', kind: 'type' },
     { transaction: 'foo0', signature: 't01', kind: 'type' },
     { transaction: 'foo0', signature: 'transaction', kind: 'transaction' },
@@ -49,12 +49,12 @@ test('basic', function (t) {
 
     data.traces.groups.forEach(function (trace, index) {
       var trans = 0
-      var rootTrans = expexted[index].signature === 'transaction'
+      var rootTrans = expected[index].signature === 'transaction'
       var parents = rootTrans ? [] : ['transaction']
       if (index > 2) trans++
-      t.equal(trace.transaction, expexted[index].transaction)
-      t.equal(trace.signature, expexted[index].signature)
-      t.equal(trace.kind, expexted[index].kind)
+      t.equal(trace.transaction, expected[index].transaction)
+      t.equal(trace.signature, expected[index].signature)
+      t.equal(trace.kind, expected[index].kind)
       t.equal(trace.timestamp, ts.toISOString())
       t.deepEqual(trace.parents, parents)
       t.ok('_frames' in trace.extra)

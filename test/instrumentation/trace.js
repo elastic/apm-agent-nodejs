@@ -38,7 +38,6 @@ test('#duration()', function (t) {
   setTimeout(function () {
     trace.end()
     t.ok(trace.duration() > 49, trace.duration() + ' should be at least 50')
-    t.ok(trace.duration() < 60, trace.duration() + ' should be less than 60')
     t.end()
   }, 50)
 })
@@ -71,7 +70,6 @@ test('#startTime() - root trace', function (t) {
 test('#startTime() - sub trace', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
     t.ok(trace.startTime() >= 50, trace.startTime() + ' should be at least 50')
-    t.ok(trace.startTime() < 60, trace.startTime() + ' should be less than 60')
     t.end()
   })._agent)
   var trace
