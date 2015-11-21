@@ -218,16 +218,19 @@ The function will be called with two arguments:
 The agent emits two events: `logged` and `error`.
 
 ```js
-opbeat.on('logged', function (url) {
+opbeat.on('logged', function (url, uuid) {
   console.log('Yay, it worked! View online at: ' + url)
 })
 
-opbeat.on('error', function (err) {
+opbeat.on('error', function (err, uuid) {
   console.log('Something went wrong. The error was not logged!')
 })
 
 opbeat.captureError('Boom')
 ```
+
+Note that the `uuid` argument might not always be available when the
+`error` event is emitted depending on the type of error emitted.
 
 ## Uncaught exceptions
 
