@@ -163,7 +163,7 @@ Set a custom logger, e.g.
 [bunyan](https://github.com/trentm/node-bunyan):
 
 ```js
-require('opbeat')({
+require('opbeat').start({
   logger: require('bunyan')({ level: 'info' })
 })
 ```
@@ -258,7 +258,7 @@ that you don't leave the process running after receiving an
 to terminate the node process:
 
 ```js
-var opbeat = require('opbeat')()
+var opbeat = require('opbeat').start()
 
 opbeat.handleUncaughtExceptions(function (err, url) {
   // Do your own stuff... and then exit:
@@ -398,7 +398,7 @@ handling a request.
 #### Connect
 
 ```js
-var opbeat = require('opbeat')()
+var opbeat = require('opbeat').start()
 var connect = require('connect')
 
 var app = connect()
@@ -421,7 +421,7 @@ app.listen(3000)
 #### Express
 
 ```js
-var opbeat = require('opbeat')()
+var opbeat = require('opbeat').start()
 var app = require('express').createServer()
 
 app.use(opbeat.middleware.express())
