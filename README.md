@@ -171,8 +171,8 @@ require('opbeat')({
 If no custom logger is provided, Opbeat will use its built-in logger
 which will log to STDOUT and STDERR depending on the log level.
 
-The logger should expose the following functions: `debug`, `info`,
-`warn`, `error` and `fatal`.
+The logger should expose the following functions: `trace`, `debug`,
+`info`, `warn`, `error` and `fatal`.
 
 Note that if a custom logger is provided, the `logLevel` option will be
 ignored.
