@@ -1,28 +1,28 @@
 'use strict'
 
+var opbeat = require('../../')
+
 var fs = require('fs')
 var path = require('path')
-var http = require('http')
-var opbeat = require('../../')
+var mkdirp = require('mkdirp')
 var inquirer = require('inquirer')
 var untildify = require('untildify')
-var mkdirp = require('mkdirp')
-var restify = require('restify')
-var connect = require('connect')
-var express = require('express')
 
-var standardTest = function (agent) {
+// the following modules have to be loaded after the opbeat agent starts
+var http, restify, connect, express
+
+var standardTest = function () {
   console.log('Tracking release...')
-  agent.trackRelease(function () {
+  opbeat.trackRelease(function () {
     console.log('The release have been tracked!')
 
     console.log('Capturing error...')
-    agent.captureError(new Error('This is an Error object'), function (err, url) {
+    opbeat.captureError(new Error('This is an Error object'), function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
 
       console.log('Capturing message...')
-      agent.captureError('This is a string', function (err, url) {
+      opbeat.captureError('This is a string', function (err, url) {
         if (err) console.log('Something went wrong:', err.message)
         console.log('The message have been logged at:', url)
 
@@ -33,10 +33,10 @@ var standardTest = function (agent) {
   })
 }
 
-var httpTest = function (agent) {
+var httpTest = function () {
   var server1 = http.createServer(function (req, res) {
     var err = new Error('This is a request related error')
-    agent.captureError(err, function (err, url) {
+    opbeat.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       res.end()
@@ -52,7 +52,7 @@ var httpTest = function (agent) {
     switch (req.url) {
       case '/error':
         var err = new Error('This is a request related error')
-        agent.captureError(err, function (err, url) {
+        opbeat.captureError(err, function (err, url) {
           if (err) console.log('Something went wrong:', err.message)
           console.log('The error have been logged at:', url)
           res.end()
@@ -92,11 +92,11 @@ var httpTest = function (agent) {
   }
 }
 
-var restifyTest = function (agent) {
+var restifyTest = function () {
   var server = restify.createServer({ name: 'foo', version: '1.0.0' })
 
   server.on('uncaughtException', function (req, res, route, err) {
-    agent.captureError(err, function (err, url) {
+    opbeat.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       process.exit()
@@ -105,7 +105,7 @@ var restifyTest = function (agent) {
 
   server.get('/error', function (req, res, next) {
     var err = new Error('This is a request related error')
-    agent.captureError(err, function (err, url) {
+    opbeat.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       res.end()
@@ -136,7 +136,7 @@ var restifyTest = function (agent) {
   })
 }
 
-var connectTest = function (agent) {
+var connectTest = function () {
   var testsLeft = 2
   var app = connect()
   app.use(function (req, res, next) {
@@ -152,7 +152,7 @@ var connectTest = function (agent) {
         res.end()
     }
   })
-  app.use(agent.middleware.connect())
+  app.use(opbeat.middleware.connect())
   app.use(function (err, req, res, next) { // eslint-disable-line handle-callback-err
     if (!--testsLeft) process.exit()
   })
@@ -172,7 +172,7 @@ var connectTest = function (agent) {
   })
 }
 
-var expressTest = function (agent) {
+var expressTest = function () {
   var testsLeft = 2
   var app = express()
 
@@ -183,7 +183,7 @@ var expressTest = function (agent) {
   app.get('/throw', function (req, res) {
     throw new Error('foobar')
   })
-  app.use(agent.middleware.express())
+  app.use(opbeat.middleware.express())
   app.use(function (err, req, res, next) {
     if (!err) return
     if (!res.headersSent) {
@@ -207,7 +207,7 @@ var expressTest = function (agent) {
   })
 }
 
-var transactionTest = function (agent) {
+var transactionTest = function () {
   console.log('Tracking transaction...')
   var maxSeconds = 55
   var start = Date.now()
@@ -222,7 +222,7 @@ var transactionTest = function (agent) {
 
     console.log('Starting new transaction')
 
-    var trans = agent.startTransaction('foo', 'bar')
+    var trans = opbeat.startTransaction('foo', 'bar')
     var t1 = trans.startTrace('sig1', 'foo.bar.baz1')
     var t2 = trans.startTrace('sig2', 'foo.bar.baz1')
 
@@ -266,24 +266,29 @@ var test = function (suite, opts) {
   opts.env = 'production'
   opts.logLevel = 'fatal'
   opts.captureExceptions = false
-  var agent = opbeat(opts)
+  opbeat.start(opts)
 
-  agent.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
+  http = require('http')
+  restify = require('restify')
+  connect = require('connect')
+  express = require('express')
+
+  opbeat.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
     console.log('The uncaught exception have been logged at:', url)
     process.exit()
   })
 
-  agent.on('error', function (err) {
+  opbeat.on('error', function (err) {
     console.log(err.stack)
   })
 
   switch (suite) {
-    case 'standard': return standardTest(agent)
-    case 'http': return httpTest(agent)
-    case 'restify': return restifyTest(agent)
-    case 'connect': return connectTest(agent)
-    case 'express': return expressTest(agent)
-    case 'transaction': return transactionTest(agent)
+    case 'standard': return standardTest()
+    case 'http': return httpTest()
+    case 'restify': return restifyTest()
+    case 'connect': return connectTest()
+    case 'express': return expressTest()
+    case 'transaction': return transactionTest()
     default: console.log('Unknown test suite selected:', suite)
   }
 }
