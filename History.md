@@ -1,4 +1,4 @@
-# 3.0.0 - 2015/11/16
+# 3.0.0 - 2015/11/22
   * New: Performance metrics
   * Breaking: New configuration API
   * Breaking: Remove deprecated `trackDeployment` function
