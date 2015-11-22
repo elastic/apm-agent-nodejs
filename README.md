@@ -19,8 +19,8 @@ your Node.js applications. Includes middleware support for
 - [Credit](#credit)
 - [License](#license)
 
-**Important:** If you've been using version 0.3.x or earlier, please
-read our [upgrade guide](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-1.0).
+**Important:** If you've been using version 2.x or earlier, please
+read our [upgrade guide](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-3.x).
 
 **Compatibility:** Make sure you read our [Compatibility
 Guide](https://github.com/opbeat/opbeat-node/wiki/Compatibility-Guide)
