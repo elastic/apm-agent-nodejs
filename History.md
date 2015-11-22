@@ -1,3 +1,6 @@
+# 3.0.1 - 2015/11/22
+  * Remove temp files
+
 # 3.0.0 - 2015/11/22
   * New: Performance metrics
   * Breaking: New configuration API
