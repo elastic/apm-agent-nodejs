@@ -1,3 +1,10 @@
+# 3.0.0 - 2015/11/16
+  * New: Performance metrics
+  * Breaking: New configuration API
+  * Breaking: Remove deprecated `trackDeployment` function
+  * Breaking: Renamed `agentLogLevel` config option to `logLevel`
+  * Breaking: Throw if agent is started more than once
+
 # 1.6.0 - 2015/09/21
   * New: Add automatic HTTP server request logging
   * New: Prefix all output with the an error id
