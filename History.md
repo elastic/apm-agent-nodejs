@@ -1,3 +1,6 @@
+# 3.0.2 - 2015/11/22
+  * Fix crash if the stacktrace for some reason is missing
+
 # 3.0.1 - 2015/11/22
   * Remove temp files
 
