@@ -112,10 +112,11 @@ Your secret Opbeat token. Required unless set via the
 - **Default:** `true`
 - **Env:** `OPBEAT_ACTIVE`
 
-A boolean specifying if errors should be collected by the Opbeat agent
-or not. Normally you would not want to capture errors in your
-development or testing environments. If you are using the `NODE_ENV`
-envrionment variable, you can use this to determine the state:
+A boolean specifying if the agent should be active or not. If active,
+the agent will instrument incoming HTTP requests and track errors.
+Normally you would not want to run the agent in your development or
+testing environments. If you are using the `NODE_ENV` envrionment
+variable, you can use this to determine the state:
 
 ```js
 var options = {
