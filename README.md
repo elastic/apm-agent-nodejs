@@ -133,6 +133,9 @@ var options = {
 A boolean specifying if the Opbeat agent should collect performance
 metrics for the app.
 
+Note that both `active` and `instrument` needs to be `true` for
+instrumentation to be running.
+
 ### hostname
 
 - **Type:** String
