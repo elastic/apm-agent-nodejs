@@ -143,7 +143,7 @@ instrumentation to be running.
 - **Env:** `OPBEAT_HOSTNAME`
 
 The OS hostname is automatically logged along with all errors (you can
-see it under the "Environment" tab on each error. If you want to
+see it under the "Environment" tab on each error). If you want to
 overwrite this, use this option.
 
 ### logLevel
