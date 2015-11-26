@@ -1,3 +1,6 @@
+# 3.0.3 - 2015/11/26
+  * Improve MongoDB query instrumentation
+
 # 3.0.2 - 2015/11/22
   * Fix crash if the stacktrace for some reason is missing
 
