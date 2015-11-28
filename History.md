@@ -1,3 +1,6 @@
+# 3.0.4 - 2015/11/28
+  * Improve debug logging for edge cases
+
 # 3.0.3 - 2015/11/26
   * Improve MongoDB query instrumentation
 
