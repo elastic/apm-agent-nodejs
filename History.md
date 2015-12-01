@@ -1,3 +1,6 @@
+# 3.0.5 - 2015/12/1
+  * Fix stacktrace collection bug that sometimes would result in an uncaught exception
+
 # 3.0.4 - 2015/11/28
   * Improve debug logging for edge cases
 
