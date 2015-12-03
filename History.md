@@ -1,3 +1,6 @@
+# 3.1.0 - 2015/12/3
+  * Add Hapi support
+
 # 3.0.6 - 2015/12/3
   * Fix another stacktrace collection bug that sometimes would result in an uncaught exception
 
