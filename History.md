@@ -1,3 +1,6 @@
+# 3.1.3 - 2015/12/3
+  * Fix support for instrumenting HTTPS servers
+
 # 3.1.2 - 2015/12/3
   * Add more debugging information on startup
 
