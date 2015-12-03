@@ -21,7 +21,7 @@ your Node.js applications. Includes middleware support for
 
 **Troubleshooting:** If you encounter any problems setting up the Opbeat
 agent, please see our [troubleshooting
-guide](https://github.com/opbeat/opbeat-node/wiki/Troubleshooting)
+guide](https://github.com/opbeat/opbeat-node/wiki/Troubleshooting).
 
 **Upgrading:** If you've been using version 2.x or earlier, please
 read our [upgrade guide](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-3.x).
@@ -45,9 +45,8 @@ The agent will now instrument your Node.js application and track
 unhandled exceptions automatically.
 
 ```js
-var opbeat = require('opbeat')
-
-opbeat.start({
+// add this snippet to the VERY top of your main file
+var opbeat = require('opbeat').start({
   appId: '...',
   organizationId: '...',
   secretToken: '...'
