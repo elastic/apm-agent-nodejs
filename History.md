@@ -1,3 +1,6 @@
+# 3.1.1 - 2015/12/3
+  * Improve npmjs.com documentation
+
 # 3.1.0 - 2015/12/3
   * Add Hapi support
 
