@@ -19,7 +19,11 @@ your Node.js applications. Includes middleware support for
 - [Credit](#credit)
 - [License](#license)
 
-**Important:** If you've been using version 2.x or earlier, please
+**Troubleshooting:** If you encounter any problems setting up the Opbeat
+agent, please see our [troubleshooting
+guide](https://github.com/opbeat/opbeat-node/wiki/Troubleshooting)
+
+**Upgrading:** If you've been using version 2.x or earlier, please
 read our [upgrade guide](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-3.x).
 
 **Compatibility:** Make sure you read our [Compatibility
