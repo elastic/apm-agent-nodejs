@@ -1,3 +1,6 @@
+# 3.1.2 - 2015/12/3
+  * Add more debugging information on startup
+
 # 3.1.1 - 2015/12/3
   * Improve npmjs.com documentation
 
