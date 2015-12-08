@@ -3,10 +3,9 @@
 [![Build status](https://travis-ci.org/opbeat/opbeat-node.svg?branch=master)](https://travis-ci.org/opbeat/opbeat-node)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
 
-Log errors and stacktraces in [Opbeat](http://opbeat.com/) from within
-your Node.js applications. Includes middleware support for
-[Connect](http://www.senchalabs.org/connect/) and
-[Express](http://expressjs.com/).
+[Opbeat](https://opbeat.com/nodejs) combines performance metrics,
+release tracking, and error logging into a single simple service for you
+Node.js application.
 
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
