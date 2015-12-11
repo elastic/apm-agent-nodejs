@@ -33,15 +33,15 @@ uncaught exceptions or modifies the stacktraces.
 ## Installation
 
 ```
-npm install opbeat
+npm install opbeat --save
 ```
 
 ## Basic Usage
 
-To get started just require and initialize the Opbeat module **at the
-very top** of your apps main file. The Opbeat agent will be returned.
-The agent will now instrument your Node.js application and track
-unhandled exceptions automatically.
+To get started just require and start the Opbeat module **at the very
+top** of your apps main file. The Opbeat agent will be returned. The
+agent will now instrument your Node.js application and track unhandled
+exceptions automatically.
 
 ```js
 // add this snippet to the VERY top of your main file
@@ -62,23 +62,20 @@ opbeat.captureError(new Error('Ups, something broke'))
 ## Configuration
 
 The Opbeat agent can be configured either by pasing in an options object
-as the first arugment when calling the initialization function or via
+as the first arugment when calling the `start` function or via
 environment variables (or a combination of both).
 
 ```js
-var opbeat = require('opbeat')
-
-opbeat.start({
+require('opbeat').start({
   // configuration options
 })
 ```
 
 Note that even if you rely purely on environment variables to configure
-the Opbeat agent, `opbeat.start()` should still be called:
+the Opbeat agent, `.start()` should still be called:
 
 ```js
-var opbeat = require('opbeat')
-opbeat.start()
+require('opbeat').start()
 ```
 
 The available options are listed below, but can alternatively be set via
