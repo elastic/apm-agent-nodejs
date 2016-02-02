@@ -1,3 +1,10 @@
+# 3.2.0 - 2016/2/2
+  * Express: group all static file requests in same transaction
+  * Log path of outgoing requests in performance metrics
+
+# 3.1.4 - 2015/12/16
+  * Fix minor PostgreSQL instrumentation bug
+
 # 3.1.3 - 2015/12/3
   * Fix support for instrumenting HTTPS servers
 
