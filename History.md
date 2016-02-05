@@ -1,3 +1,6 @@
+# 3.3.0 - 2016/2/5
+  * Express: support sub-apps and sub-routes
+
 # 3.2.0 - 2016/2/2
   * Express: group all static file requests in same transaction
   * Log path of outgoing requests in performance metrics
