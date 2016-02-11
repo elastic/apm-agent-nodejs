@@ -1,3 +1,6 @@
+# 3.4.0 - 2016/2/11
+  * Make 2nd argument to trace.start optional
+
 # 3.3.0 - 2016/2/5
   * Express: support sub-apps and sub-routes
 
