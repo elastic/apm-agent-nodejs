@@ -52,7 +52,8 @@
     "semver": "^5.1.0",
     "shimmer": "^1.1.0",
     "sql-summary": "^1.0.0",
-    "stackman": "^1.2.3"
+    "stackman": "^1.2.3",
+    "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
     "aws-sdk": "^2.2.13",

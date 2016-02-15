@@ -122,7 +122,7 @@ test('same tick', function (t) {
   })
   var ins = agent._instrumentation
 
-  var trans = ins.startTransaction()
+  var trans = ins.startTransaction('foo')
   var t0 = startTrace(ins, 't0')
   var t1 = startTrace(ins, 't1')
   t1.end()
@@ -144,7 +144,7 @@ test('serial - no parents', function (t) {
   })
   var ins = agent._instrumentation
 
-  var trans = ins.startTransaction()
+  var trans = ins.startTransaction('foo')
   var t0 = startTrace(ins, 't0')
   process.nextTick(function () {
     t0.end()
@@ -170,7 +170,7 @@ test('serial - with parents', function (t) {
   })
   var ins = agent._instrumentation
 
-  var trans = ins.startTransaction()
+  var trans = ins.startTransaction('foo')
   var t0 = startTrace(ins, 't0')
   process.nextTick(function () {
     var t1 = startTrace(ins, 't1')
@@ -199,7 +199,7 @@ test('stack branching - no parents', function (t) {
   })
   var ins = agent._instrumentation
 
-  var trans = ins.startTransaction()
+  var trans = ins.startTransaction('foo')
   var t0 = startTrace(ins, 't0') // 1
   var t1 = startTrace(ins, 't1') // 2
   setTimeout(function () {
