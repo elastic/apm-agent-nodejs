@@ -1,3 +1,7 @@
+# 3.4.1 - 2016/2/15
+  * Fix: Handle API limits client-side
+  * Fix: Only instrument supported module versions
+
 # 3.4.0 - 2016/2/11
   * Make 2nd argument to trace.start optional
 
