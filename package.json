@@ -48,6 +48,7 @@
     "node-uuid": "^1.4.3",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
+    "require-in-the-middle": "^2.0.1",
     "shimmer": "^1.1.0",
     "sql-summary": "^1.0.0",
     "stackman": "^1.2.3"
