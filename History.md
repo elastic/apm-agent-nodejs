@@ -1,3 +1,6 @@
+# 3.4.2 - 2016/2/15
+  * Fix: Do not fail on modules with no main in package.json or index.js file
+
 # 3.4.1 - 2016/2/15
   * Fix: Handle API limits client-side
   * Fix: Only instrument supported module versions
