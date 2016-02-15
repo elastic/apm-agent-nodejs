@@ -8,9 +8,6 @@ var mkdirp = require('mkdirp')
 var inquirer = require('inquirer')
 var untildify = require('untildify')
 
-// the following modules have to be loaded after the opbeat agent starts
-var http, restify, connect, express
-
 var standardTest = function () {
   console.log('Tracking release...')
   opbeat.trackRelease(function () {
@@ -34,6 +31,8 @@ var standardTest = function () {
 }
 
 var httpTest = function () {
+  var http = require('http')
+
   var server1 = http.createServer(function (req, res) {
     var err = new Error('This is a request related error')
     opbeat.captureError(err, function (err, url) {
@@ -93,6 +92,8 @@ var httpTest = function () {
 }
 
 var restifyTest = function () {
+  var restify = require('restify')
+
   var server = restify.createServer({ name: 'foo', version: '1.0.0' })
 
   server.on('uncaughtException', function (req, res, route, err) {
@@ -137,6 +138,9 @@ var restifyTest = function () {
 }
 
 var connectTest = function () {
+  var http = require('http')
+  var connect = require('connect')
+
   var testsLeft = 2
   var app = connect()
   app.use(function (req, res, next) {
@@ -173,6 +177,9 @@ var connectTest = function () {
 }
 
 var expressTest = function () {
+  var http = require('http')
+  var express = require('express')
+
   var testsLeft = 2
   var app = express()
 
@@ -267,11 +274,6 @@ var test = function (suite, opts) {
   opts.logLevel = 'fatal'
   opts.captureExceptions = false
   opbeat.start(opts)
-
-  http = require('http')
-  restify = require('restify')
-  connect = require('connect')
-  express = require('express')
 
   opbeat.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
     console.log('The uncaught exception have been logged at:', url)
