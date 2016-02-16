@@ -1,3 +1,6 @@
+# 3.4.3 - 2016/2/16
+  * Improve caching of stack traces during instrumentation (in some use cases this will also reduce memory usage)
+
 # 3.4.2 - 2016/2/15
   * Fix: Do not fail on modules with no main in package.json or index.js file
 
