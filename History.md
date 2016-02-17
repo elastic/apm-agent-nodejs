@@ -1,3 +1,6 @@
+# 3.5.0 - 2016/2/17
+  * Hapi: Automatically attach HTTP body to errors
+
 # 3.4.3 - 2016/2/16
   * Improve caching of stack traces during instrumentation (in some use cases this will also reduce memory usage)
 
