@@ -1,3 +1,7 @@
+# 3.5.1 - 2016/2/17
+  * Lower memory consumption
+  * Fix: Long running transactions sometimes did not have any associated traces
+
 # 3.5.0 - 2016/2/17
   * Hapi: Automatically attach HTTP body to errors
 
