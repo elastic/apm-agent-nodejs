@@ -65,3 +65,35 @@ test('#duration() - un-ended transaction', function (t) {
   t.equal(trans.duration(), null)
   t.end()
 })
+
+test('parallel transactions', function (t) {
+  var calls = 0
+  var ins = mockInstrumentation(function (added) {
+    t.equal(added._rootTrace.signature, 'transaction')
+    t.equal(added.traces.length, 1, added.name + ' should have 1 trace')
+    t.equal(added.traces[0], added._rootTrace)
+
+    calls++
+    if (calls === 1) {
+      t.equal(added.name, 'second')
+    } else if (calls === 2) {
+      t.equal(added.name, 'first')
+      t.end()
+    }
+  })
+  ins.currentTrace = null
+
+  setImmediate(function () {
+    var t1 = new Transaction(ins._agent, 'first')
+    setTimeout(function () {
+      t1.end()
+    }, 100)
+  })
+
+  setTimeout(function () {
+    var t2 = new Transaction(ins._agent, 'second')
+    setTimeout(function () {
+      t2.end()
+    }, 25)
+  }, 25)
+})
