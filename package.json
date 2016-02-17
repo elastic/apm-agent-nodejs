@@ -56,15 +56,15 @@
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.2.13",
-    "connect": "^3.3.5",
-    "express": "^4.12.3",
-    "inquirer": "^0.11.0",
+    "aws-sdk": "^2.2.36",
+    "connect": "^3.4.1",
+    "express": "^4.13.4",
+    "inquirer": "^0.12.0",
     "mkdirp": "^0.5.0",
-    "nock": "^2.17.0",
-    "restify": "^4.0.0",
-    "standard": "^5.3.1",
-    "tape": "^4.2.2",
+    "nock": "^7.2.1",
+    "restify": "^4.0.4",
+    "standard": "^6.0.5",
+    "tape": "^4.4.0",
     "untildify": "^2.0.0"
   },
   "coordinates": [
