@@ -41,11 +41,11 @@
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
     "after-all": "^2.0.2",
-    "console-log-level": "^1.2.0",
+    "console-log-level": "^1.2.1",
     "debug": "^2.2.0",
     "json-stringify-safe": "^5.0.0",
     "lru-cache": "^4.0.0",
-    "node-uuid": "^1.4.3",
+    "node-uuid": "^1.4.7",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
     "require-in-the-middle": "^2.1.0",
