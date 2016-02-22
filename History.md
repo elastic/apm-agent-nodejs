@@ -1,3 +1,9 @@
+# 3.5.3 - 2016/2/22
+  * Improve debugging output
+
+# 3.5.2 - 2016/2/17
+  * Upgrade dependencies
+
 # 3.5.1 - 2016/2/17
   * Lower memory consumption
   * Fix: Long running transactions sometimes did not have any associated traces
