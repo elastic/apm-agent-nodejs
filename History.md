@@ -1,3 +1,6 @@
+# 3.5.4 - 2016/2/23
+  * Fix: Improve extraction of PostgreSQL quries
+
 # 3.5.3 - 2016/2/22
   * Improve debugging output
 
