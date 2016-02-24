@@ -1,3 +1,7 @@
+# 3.6.0 - 2016/2/24
+  * hapi: Improved route naming in case of errors during the request (PR #34, @AdriVanHoudt)
+  * hapi: Automatic CORS detection
+
 # 3.5.4 - 2016/2/23
   * Fix: Improve extraction of PostgreSQL quries
 
