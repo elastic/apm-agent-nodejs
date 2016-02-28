@@ -1,3 +1,6 @@
+# 3.6.2 - 2016/2/28
+  * Fix: error parsing support for Node.js 0.10
+
 # 3.6.1 - 2016/2/28
   * Fix: Read stack trace source code on Windows
 
