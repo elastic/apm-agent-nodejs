@@ -1,3 +1,6 @@
+# 3.6.1 - 2016/2/28
+  * Fix: Read stack trace source code on Windows
+
 # 3.6.0 - 2016/2/24
   * hapi: Improved route naming in case of errors during the request (PR #34, @AdriVanHoudt)
   * hapi: Automatic CORS detection
