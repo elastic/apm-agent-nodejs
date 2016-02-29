@@ -1,3 +1,6 @@
+# 3.6.3 - 2016/2/29
+  * Fix: no longer log outgoing https requests twice on Opbeat
+
 # 3.6.2 - 2016/2/28
   * Fix: error parsing support for Node.js 0.10
 
