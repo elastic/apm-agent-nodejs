@@ -1,3 +1,6 @@
+# 3.6.4 - 2016/2/29
+  * Fix: Ensure Express middleware calls next() even if agent is inactive
+
 # 3.6.3 - 2016/2/29
   * Fix: no longer log outgoing https requests twice on Opbeat
 
