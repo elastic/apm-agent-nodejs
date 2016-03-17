@@ -1,3 +1,7 @@
+# 3.6.5 - 2016/3/17
+  * Express: Fix naming of mounted routes
+  * Misc cleanup
+
 # 3.6.4 - 2016/2/29
   * Fix: Ensure Express middleware calls next() even if agent is inactive
 
