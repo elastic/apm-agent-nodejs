@@ -1,3 +1,6 @@
+# 3.6.6 - 2016/3/24
+  * Fix: Recover from certain cases of missing traces that would result in a missing performance breakdown
+
 # 3.6.5 - 2016/3/17
   * Express: Fix naming of mounted routes
   * Misc cleanup
