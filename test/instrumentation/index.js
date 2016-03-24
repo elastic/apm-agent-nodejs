@@ -212,6 +212,61 @@ test('stack branching - no parents', function (t) {
   }, 50)
 })
 
+test('currentTrace missing - recoverable', function (t) {
+  var agent = mockAgent(function (endpoint, data, cb) {
+    t.equal(pointerChain(t0), 't0 -> transaction')
+
+    t.equal(data.traces.groups.length, 2)
+    t.equal(data.traces.groups[0].signature, 't0')
+    t.equal(data.traces.groups[1].signature, 'transaction')
+    t.deepEqual(data.traces.groups[0].parents, ['transaction'])
+    t.deepEqual(data.traces.groups[1].parents, [])
+    t.end()
+  })
+  var ins = agent._instrumentation
+  var t0
+
+  var trans = ins.startTransaction('foo')
+  setImmediate(function () {
+    t0 = startTrace(ins, 't0')
+    ins.currentTrace = undefined
+    setImmediate(function () {
+      t0.end()
+      setImmediate(function () {
+        ins.currentTrace = undefined
+        trans.end()
+        ins._send()
+      })
+    })
+  })
+})
+
+test('currentTrace missing - not recoverable', function (t) {
+  var agent = mockAgent(function (endpoint, data, cb) {
+    t.equal(data.traces.groups.length, 0)
+    t.end()
+  })
+  var ins = agent._instrumentation
+  var t0, t1
+
+  var trans = ins.startTransaction('foo')
+  setImmediate(function () {
+    t0 = startTrace(ins, 't0')
+    setImmediate(function () {
+      t0.end()
+      ins.currentTrace = undefined
+      t1 = startTrace(ins, 't1')
+      t.equal(t1, null)
+      setImmediate(function () {
+        setImmediate(function () {
+          trans.end()
+          ins._send()
+        })
+      })
+    })
+  })
+})
+
 function pointerChain (trace) {
   var arr = [trace.signature]
   var prev = trace._parent
