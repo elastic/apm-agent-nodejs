@@ -3,9 +3,7 @@
 [![Build status](https://travis-ci.org/opbeat/opbeat-node.svg?branch=master)](https://travis-ci.org/opbeat/opbeat-node)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
 
-[Opbeat](https://opbeat.com/nodejs) combines performance metrics,
-release tracking, and error logging into a single simple service for you
-Node.js application.
+[Opbeat](https://opbeat.com/nodejs) provides instant performance insights, built for Node.js developers. 
 
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
