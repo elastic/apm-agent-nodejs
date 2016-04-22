@@ -1,3 +1,6 @@
+# 3.6.7 - 2016/4/22
+  * Improve debugging output for unknown routes
+
 # 3.6.6 - 2016/3/24
   * Fix: Recover from certain cases of missing traces that would result in a missing performance breakdown
 
