@@ -45,7 +45,7 @@
     "debug": "^2.2.0",
     "is-native": "^1.0.1",
     "json-stringify-safe": "^5.0.0",
-    "lru-cache": "^4.0.0",
+    "lru-cache": "^4.0.1",
     "node-uuid": "^1.4.7",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
