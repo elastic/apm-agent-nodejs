@@ -57,7 +57,6 @@
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.3.5",
     "connect": "^3.4.1",
     "express": "^4.13.4",
     "inquirer": "^1.0.2",
