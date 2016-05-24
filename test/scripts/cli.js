@@ -230,13 +230,17 @@ var transactionTest = function () {
     console.log('Starting new transaction')
 
     var trans = opbeat.startTransaction('foo', 'bar')
-    var t1 = trans.startTrace('sig1', 'foo.bar.baz1')
-    var t2 = trans.startTrace('sig2', 'foo.bar.baz1')
+    var t1 = opbeat.buildTrace()
+    t1.start('sig1', 'foo.bar.baz1')
+    var t2 = opbeat.buildTrace()
+    t2.start('sig2', 'foo.bar.baz1')
 
     setTimeout(function () {
-      var t3 = trans.startTrace('sig3', 'foo.bar.baz2')
+      var t3 = opbeat.buildTrace()
+      t3.start('sig3', 'foo.bar.baz2')
       setTimeout(function () {
-        var t4 = trans.startTrace('sig4', 'foo.bar.baz3')
+        var t4 = opbeat.buildTrace()
+        t4.start('sig4', 'foo.bar.baz3')
         setTimeout(function () {
           t3.end()
           t4.end()
@@ -246,9 +250,11 @@ var transactionTest = function () {
     }, Math.random() * 100 + 25)
 
     setTimeout(function () {
-      var t5 = trans.startTrace('sig5', 'foo.bar.baz2')
+      var t5 = opbeat.buildTrace()
+      t5.start('sig5', 'foo.bar.baz2')
       setTimeout(function () {
-        var t6 = trans.startTrace('sig6', 'foo.bar.baz4')
+        var t6 = opbeat.buildTrace()
+        t6.start('sig6', 'foo.bar.baz4')
         setTimeout(function () {
           t6.end()
           t5.end()
