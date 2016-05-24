@@ -1,3 +1,8 @@
+# 3.6.8 - 2016/5/24
+  * Improve core Node.js instrumentation
+  * Update dependencies
+  * Fix test-cli
+
 # 3.6.7 - 2016/4/22
   * Improve debugging output for unknown routes
 
