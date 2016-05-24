@@ -216,7 +216,7 @@ var expressTest = function () {
 
 var transactionTest = function () {
   console.log('Tracking transaction...')
-  var maxSeconds = 55
+  var maxSeconds = 65
   var start = Date.now()
 
   makeTransaction()
