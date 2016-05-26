@@ -1,3 +1,6 @@
+# 3.6.9 - 2016/5/26
+  * Revert new Promise instrumentation as it caused issues in certain cases
+
 # 3.6.8 - 2016/5/24
   * Improve core Node.js instrumentation
   * Update dependencies
