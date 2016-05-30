@@ -66,6 +66,50 @@ test('#duration() - un-ended transaction', function (t) {
   t.end()
 })
 
+test('#setDefaultName() - with initial value', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.ok(false)
+  })
+  var trans = new Transaction(ins._agent, 'default-1')
+  t.equal(trans.name, 'default-1')
+  trans.setDefaultName('default-2')
+  t.equal(trans.name, 'default-2')
+  t.end()
+})
+
+test('#setDefaultName() - no initial value', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.ok(false)
+  })
+  var trans = new Transaction(ins._agent)
+  t.equal(trans.name, undefined)
+  trans.setDefaultName('default')
+  t.equal(trans.name, 'default')
+  t.end()
+})
+
+test('name - custom first, then default', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.ok(false)
+  })
+  var trans = new Transaction(ins._agent)
+  trans.name = 'custom'
+  trans.setDefaultName('default')
+  t.equal(trans.name, 'custom')
+  t.end()
+})
+
+test('name - default first, then custom', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.ok(false)
+  })
+  var trans = new Transaction(ins._agent)
+  trans.setDefaultName('default')
+  trans.name = 'custom'
+  t.equal(trans.name, 'custom')
+  t.end()
+})
+
 test('parallel transactions', function (t) {
   var calls = 0
   var ins = mockInstrumentation(function (added) {
