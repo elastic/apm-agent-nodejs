@@ -212,7 +212,7 @@ test('stack branching - no parents', function (t) {
   }, 50)
 })
 
-test('currentTrace missing - recoverable', function (t) {
+test('currentTransaction missing - recoverable', function (t) {
   var agent = mockAgent(function (endpoint, data, cb) {
     t.equal(pointerChain(t0), 't0 -> transaction')
 
@@ -229,11 +229,11 @@ test('currentTrace missing - recoverable', function (t) {
   var trans = ins.startTransaction('foo')
   setImmediate(function () {
     t0 = startTrace(ins, 't0')
-    ins.currentTrace = undefined
+    ins.currentTransaction = undefined
     setImmediate(function () {
       t0.end()
       setImmediate(function () {
-        ins.currentTrace = undefined
+        ins.currentTransaction = undefined
         trans.end()
         ins._send()
       })
@@ -241,7 +241,7 @@ test('currentTrace missing - recoverable', function (t) {
   })
 })
 
-test('currentTrace missing - not recoverable', function (t) {
+test('currentTransaction missing - not recoverable', function (t) {
   var agent = mockAgent(function (endpoint, data, cb) {
     t.equal(data.traces.groups.length, 0)
     t.end()
@@ -254,7 +254,7 @@ test('currentTrace missing - not recoverable', function (t) {
     t0 = startTrace(ins, 't0')
     setImmediate(function () {
       t0.end()
-      ins.currentTrace = undefined
+      ins.currentTransaction = undefined
       t1 = startTrace(ins, 't1')
       t.equal(t1, null)
       setImmediate(function () {
