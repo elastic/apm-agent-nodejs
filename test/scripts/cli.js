@@ -23,8 +23,18 @@ var standardTest = function () {
         if (err) console.log('Something went wrong:', err.message)
         console.log('The message have been logged at:', url)
 
-        console.log('Throwing exception...')
-        throw new Error('This Error was thrown')
+        console.log('Capturing parameterized message...')
+        var params = {
+          message: 'Timeout exeeded by %d seconds',
+          params: [Math.random()]
+        }
+        opbeat.captureError(params, function (err, url) {
+          if (err) console.log('Something went wrong:', err.message)
+          console.log('The parameterized message have been logged at:', url)
+
+          console.log('Throwing exception...')
+          throw new Error('This Error was thrown')
+        })
       })
     })
   })
