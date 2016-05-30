@@ -125,7 +125,7 @@ test('parallel transactions', function (t) {
       t.end()
     }
   })
-  ins.currentTrace = null
+  ins.currentTransaction = null
 
   setImmediate(function () {
     var t1 = new Transaction(ins._agent, 'first')
