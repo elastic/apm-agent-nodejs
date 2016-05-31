@@ -241,9 +241,15 @@ test('currentTransaction missing - recoverable', function (t) {
   })
 })
 
-test('currentTransaction missing - not recoverable', function (t) {
+test('currentTransaction missing - not recoverable - last trace failed', function (t) {
   var agent = mockAgent(function (endpoint, data, cb) {
-    t.equal(data.traces.groups.length, 0)
+    t.equal(pointerChain(t0), 't0 -> transaction')
+
+    t.equal(data.traces.groups.length, 2)
+    t.equal(data.traces.groups[0].signature, 't0')
+    t.equal(data.traces.groups[1].signature, 'transaction')
+    t.deepEqual(data.traces.groups[0].parents, ['transaction'])
+    t.deepEqual(data.traces.groups[1].parents, [])
     t.end()
   })
   var ins = agent._instrumentation
@@ -258,9 +264,46 @@ test('currentTransaction missing - not recoverable', function (t) {
       t1 = startTrace(ins, 't1')
       t.equal(t1, null)
       setImmediate(function () {
+        trans.end()
+        ins._send()
+      })
+    })
+  })
+})
+
+test('currentTransaction missing - not recoverable - middle trace failed', function (t) {
+  var agent = mockAgent(function (endpoint, data, cb) {
+    t.equal(pointerChain(t0), 't0 -> transaction')
+    t.equal(pointerChain(t2), 't2 -> transaction')
+
+    t.equal(data.traces.groups.length, 3)
+    t.equal(data.traces.groups[0].signature, 't0')
+    t.equal(data.traces.groups[1].signature, 't2')
+    t.equal(data.traces.groups[2].signature, 'transaction')
+    t.deepEqual(data.traces.groups[0].parents, ['transaction'])
+    t.deepEqual(data.traces.groups[1].parents, ['transaction'])
+    t.deepEqual(data.traces.groups[2].parents, [])
+    t.end()
+  })
+  var ins = agent._instrumentation
+  var t0, t1, t2
+
+  var trans = ins.startTransaction('foo')
+  setImmediate(function () {
+    t0 = startTrace(ins, 't0')
+    setImmediate(function () {
+      ins.currentTransaction = undefined
+      t1 = startTrace(ins, 't1')
+      t.equal(t1, null)
+      setImmediate(function () {
+        t0.end()
+        t2 = startTrace(ins, 't2')
         setImmediate(function () {
-          trans.end()
-          ins._send()
+          t2.end()
+          setImmediate(function () {
+            trans.end()
+            ins._send()
+          })
         })
       })
     })
