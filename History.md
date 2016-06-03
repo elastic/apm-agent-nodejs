@@ -1,3 +1,7 @@
+# 3.6.10 - 2016/6/3
+  * Fix: Traces should now be associated with the correct transaction
+  * Improve debug info and tests
+
 # 3.6.9 - 2016/5/26
   * Revert new Promise instrumentation as it caused issues in certain cases
 
