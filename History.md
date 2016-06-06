@@ -1,3 +1,7 @@
+# 3.6.11 - 2016/6/6
+  * Don't contact intake api if agent is inactive [Fixes #50]
+  * Don't try to patch mongodb-core pre version 1.2.7
+
 # 3.6.10 - 2016/6/3
   * Fix: Traces should now be associated with the correct transaction
   * Improve debug info and tests
