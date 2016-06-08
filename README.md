@@ -24,12 +24,12 @@ npm install opbeat --save
 ```
 
 To get started just require and start the Opbeat agent **at the very
-top** of your app's main file. The Opbeat agent will be returned. The
+top** of your app's startup script. The Opbeat agent will be returned. The
 agent will now instrument your Node.js application and track unhandled
 exceptions automatically.
 
 ```js
-// Add this snippet to the VERY top of your main file
+// Add this snippet to the VERY top of your app's startup script
 var opbeat = require('opbeat').start({
   appId: '...',
   organizationId: '...',
