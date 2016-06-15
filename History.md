@@ -1,3 +1,7 @@
+# 3.6.12 - 2016/6/15
+  * Send first batch of transactions within 5 seconds of the first request after the Node process boots
+  * Fix: Don't record same request multipe times if multiple request listeners are added to the HTTP server
+
 # 3.6.11 - 2016/6/6
   * Don't contact intake api if agent is inactive [Fixes #50]
   * Don't try to patch mongodb-core pre version 1.2.7
