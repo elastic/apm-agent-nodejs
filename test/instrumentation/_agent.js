@@ -22,10 +22,18 @@ module.exports = function mockAgent (cb) {
   if (!sharedInstrumentation) {
     sharedInstrumentation = new Instrumentation(agent)
     agent._instrumentation = sharedInstrumentation
+    agent.startTransaction = sharedInstrumentation.startTransaction.bind(sharedInstrumentation)
+    agent.endTransaction = sharedInstrumentation.endTransaction.bind(sharedInstrumentation)
+    agent.setTransactionName = sharedInstrumentation.setTransactionName.bind(sharedInstrumentation)
+    agent.buildTrace = sharedInstrumentation.buildTrace.bind(sharedInstrumentation)
     agent._instrumentation.start()
   } else {
     sharedInstrumentation._agent = agent
     agent._instrumentation = sharedInstrumentation
+    agent.startTransaction = sharedInstrumentation.startTransaction.bind(sharedInstrumentation)
+    agent.endTransaction = sharedInstrumentation.endTransaction.bind(sharedInstrumentation)
+    agent.setTransactionName = sharedInstrumentation.setTransactionName.bind(sharedInstrumentation)
+    agent.buildTrace = sharedInstrumentation.buildTrace.bind(sharedInstrumentation)
   }
 
   return agent
