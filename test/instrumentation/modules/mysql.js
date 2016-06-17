@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('opbeat').start({
+var agent = require('../../..').start({
   appId: 'test',
   organizationId: 'test',
   secretToken: 'test',
