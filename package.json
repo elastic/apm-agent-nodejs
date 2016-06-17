@@ -4,7 +4,7 @@
   "description": "The official Opbeat agent for Node.js",
   "main": "index.js",
   "scripts": {
-    "test": "standard && tape test/*.js test/instrumentation/*.js",
+    "test": "standard && tape test/*.js test/instrumentation/**/*.js",
     "test-cli": "node test/scripts/cli.js"
   },
   "directories": {
