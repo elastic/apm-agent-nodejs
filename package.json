@@ -4,7 +4,7 @@
   "description": "The official Opbeat agent for Node.js",
   "main": "index.js",
   "scripts": {
-    "test": "standard && tape test/*.js test/instrumentation/**/*.js",
+    "test": "standard && tape test/*.js test/instrumentation/**/*.js && tav",
     "test-cli": "node test/scripts/cli.js"
   },
   "directories": {
@@ -48,7 +48,7 @@
     "node-uuid": "^1.4.7",
     "opbeat-http-client": "^1.0.3",
     "opbeat-release-tracker": "^1.1.1",
-    "require-in-the-middle": "^2.1.0",
+    "require-in-the-middle": "^2.1.2",
     "semver": "^5.1.0",
     "shimmer": "^1.1.0",
     "sql-summary": "^1.0.0",
@@ -65,6 +65,7 @@
     "restify": "^4.0.4",
     "standard": "^6.0.8",
     "tape": "^4.5.1",
+    "test-all-versions": "^1.1.2",
     "untildify": "^2.0.0"
   },
   "coordinates": [
