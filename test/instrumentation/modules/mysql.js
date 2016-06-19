@@ -214,6 +214,8 @@ function assertBasicQuery (t, sql, data) {
 
   t.equal(data.transactions.length, 1)
   t.equal(data.transactions[0].transaction, 'foo')
+  t.equal(data.transactions[0].durations.length, 1)
+  t.ok(data.transactions[0].durations[0] > 0)
 }
 
 function setup (cb) {
