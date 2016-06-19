@@ -170,6 +170,22 @@ test('mysql.createConnection', function (t) {
         basicQueryStream(stream, t, trans)
       })
     })
+
+    t.test('do not consume stream', function (t) {
+      resetAgent(function (endpoint, data, cb) {
+        assertBasicQuery(t, sql, data)
+        t.end()
+      })
+      var sql = 'SELECT 1 + 1 AS solution'
+      setup(function () {
+        var trans = agent.startTransaction('foo')
+        connection.query(sql)
+        setTimeout(function () {
+          trans.end()
+          agent._instrumentation._send()
+        }, 100)
+      })
+    })
   })
 })
 
