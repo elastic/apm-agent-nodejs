@@ -1,3 +1,7 @@
+# 3.6.13 - 2016/6/19
+  * Add mysql support (feature flag: ff_mysql)
+  * Minor speed/memory improvements
+
 # 3.6.12 - 2016/6/15
   * Send first batch of transactions within 5 seconds of the first request after the Node process boots
   * Fix: Don't record same request multipe times if multiple request listeners are added to the HTTP server
