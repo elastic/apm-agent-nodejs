@@ -17,7 +17,9 @@ var queryable
 var factories = [
   [createConnection, 'connection'],
   [createPool, 'pool'],
-  [createPoolAndGetConnection, 'pool > connection']
+  [createPoolAndGetConnection, 'pool > connection'],
+  [createPoolClusterAndGetConnection, 'poolCluster > connection'],
+  [createPoolClusterAndGetConnectionViaOf, 'poolCluster > of > connection']
 ]
 
 factories.forEach(function (f) {
@@ -310,6 +312,47 @@ function createPoolAndGetConnection (cb) {
       database: 'test_opbeat'
     })
     pool.getConnection(function (err, conn) {
+      if (err) throw err
+      queryable = conn
+      cb()
+    })
+  })
+}
+
+function createPoolClusterAndGetConnection (cb) {
+  setup(function () {
+    teardown = function teardown () {
+      if (cluster) {
+        cluster.end()
+        cluster = undefined
+      }
+    }
+
+    var cluster = mysql.createPoolCluster()
+    cluster.add({
+      user: 'root',
+      database: 'test_opbeat'
+    })
+    cluster.getConnection(function (err, conn) {
+      if (err) throw err
+      queryable = conn
+      cb()
+    })
+  })
+}
+
+function createPoolClusterAndGetConnectionViaOf (cb) {
+  setup(function () {
+    teardown = function teardown () {
+      cluster.end()
+    }
+
+    var cluster = mysql.createPoolCluster()
+    cluster.add({
+      user: 'root',
+      database: 'test_opbeat'
+    })
+    cluster.of('*').getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn
       cb()
