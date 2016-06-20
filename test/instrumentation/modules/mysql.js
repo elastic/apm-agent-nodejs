@@ -4,7 +4,8 @@ var agent = require('../../..').start({
   appId: 'test',
   organizationId: 'test',
   secretToken: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  ff_mysql: true
 })
 
 var test = require('tape')
