@@ -242,6 +242,7 @@ function basicQueryStream (stream, t, trans) {
 }
 
 function assertBasicQuery (t, sql, data) {
+  // data.traces.groups:
   t.equal(data.traces.groups.length, 2)
 
   t.equal(data.traces.groups[0].extra.sql, sql)
@@ -255,10 +256,36 @@ function assertBasicQuery (t, sql, data) {
   t.equal(data.traces.groups[1].signature, 'transaction')
   t.equal(data.traces.groups[1].transaction, 'foo')
 
+  // data.transactions:
   t.equal(data.transactions.length, 1)
   t.equal(data.transactions[0].transaction, 'foo')
   t.equal(data.transactions[0].durations.length, 1)
   t.ok(data.transactions[0].durations[0] > 0)
+
+  // data.traces.raw:
+  //
+  // [
+  //   [
+  //     6.000953,                  // total transaction time
+  //     [ 0, 1.185584, 3.121107 ], // sql trace
+  //     [ 1, 0, 6.000953 ]         // root trace
+  //   ]
+  // ]
+  t.equal(data.traces.raw.length, 1)
+  t.equal(data.traces.raw[0].length, 3)
+  t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
+  t.equal(data.traces.raw[0][1].length, 3)
+  t.equal(data.traces.raw[0][2].length, 3)
+
+  t.equal(data.traces.raw[0][1][0], 0)
+  t.ok(data.traces.raw[0][1][1] > 0)
+  t.ok(data.traces.raw[0][1][2] > 0)
+  t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
+  t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
+
+  t.equal(data.traces.raw[0][2][0], 1)
+  t.equal(data.traces.raw[0][2][1], 0)
+  t.equal(data.traces.raw[0][2][2], data.traces.raw[0][0])
 }
 
 function createConnection (cb) {
