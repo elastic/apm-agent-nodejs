@@ -1,3 +1,7 @@
+# 3.6.14 - 2016/6/22
+  * mysql: improve grouping of mysql errors
+  * mysql: don't record pool cluster queries multiple times
+
 # 3.6.13 - 2016/6/19
   * Add mysql support (feature flag: ff_mysql)
   * Minor speed/memory improvements
