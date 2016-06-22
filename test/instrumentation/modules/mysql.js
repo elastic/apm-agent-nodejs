@@ -213,6 +213,276 @@ factories.forEach(function (f) {
         })
       })
     })
+
+    t.test('simultaneous queries', function (t) {
+      resetAgent(function (endpoint, data, cb) {
+        // data.traces.groups:
+        t.equal(data.traces.groups.length, 2)
+
+        t.equal(data.traces.groups[0].extra.sql, sql)
+        t.equal(data.traces.groups[0].kind, 'db.mysql.query')
+        t.deepEqual(data.traces.groups[0].parents, ['transaction'])
+        t.equal(data.traces.groups[0].signature, 'SELECT')
+        t.equal(data.traces.groups[0].transaction, 'foo')
+
+        t.equal(data.traces.groups[1].kind, 'transaction')
+        t.deepEqual(data.traces.groups[1].parents, [])
+        t.equal(data.traces.groups[1].signature, 'transaction')
+        t.equal(data.traces.groups[1].transaction, 'foo')
+
+        // data.transactions:
+        t.equal(data.transactions.length, 1)
+        t.equal(data.transactions[0].transaction, 'foo')
+        t.equal(data.transactions[0].durations.length, 1)
+        t.ok(data.transactions[0].durations[0] > 0)
+
+        // data.traces.raw:
+        //
+        // [
+        //   [
+        //     17.05574,                   // total transaction time
+        //     [ 0, 1.922771, 10.838852 ], // sql trace 1
+        //     [ 0, 3.41268, 12.03623 ],   // sql trace 2
+        //     [ 0, 4.188621, 12.202625 ], // sql trace 3
+        //     [ 1, 0, 17.05574 ]          // root trace
+        //   ]
+        // ]
+        t.equal(data.traces.raw.length, 1)
+        t.equal(data.traces.raw[0].length, 5)
+        t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
+        t.equal(data.traces.raw[0][1].length, 3)
+        t.equal(data.traces.raw[0][2].length, 3)
+        t.equal(data.traces.raw[0][3].length, 3)
+        t.equal(data.traces.raw[0][4].length, 3)
+
+        t.equal(data.traces.raw[0][1][0], 0)
+        t.ok(data.traces.raw[0][1][1] > 0)
+        t.ok(data.traces.raw[0][1][2] > 0)
+        t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
+        t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
+
+        t.equal(data.traces.raw[0][2][0], 0)
+        t.ok(data.traces.raw[0][2][1] > 0)
+        t.ok(data.traces.raw[0][2][2] > 0)
+        t.ok(data.traces.raw[0][2][1] < data.traces.raw[0][0])
+        t.ok(data.traces.raw[0][2][2] < data.traces.raw[0][0])
+
+        t.equal(data.traces.raw[0][3][0], 0)
+        t.ok(data.traces.raw[0][3][1] > 0)
+        t.ok(data.traces.raw[0][3][2] > 0)
+        t.ok(data.traces.raw[0][3][1] < data.traces.raw[0][0])
+        t.ok(data.traces.raw[0][3][2] < data.traces.raw[0][0])
+
+        t.equal(data.traces.raw[0][4][0], 1)
+        t.equal(data.traces.raw[0][4][1], 0)
+        t.equal(data.traces.raw[0][4][2], data.traces.raw[0][0])
+
+        t.end()
+      })
+
+      var sql = 'SELECT 1 + ? AS solution'
+
+      factory(function () {
+        var n = 0
+        var trans = agent.startTransaction('foo')
+
+        queryable.query(sql, [1], function (err, rows, fields) {
+          t.error(err)
+          t.equal(rows[0].solution, 2)
+          if (++n === 3) done()
+        })
+        queryable.query(sql, [2], function (err, rows, fields) {
+          t.error(err)
+          t.equal(rows[0].solution, 3)
+          if (++n === 3) done()
+        })
+        queryable.query(sql, [3], function (err, rows, fields) {
+          t.error(err)
+          t.equal(rows[0].solution, 4)
+          if (++n === 3) done()
+        })
+
+        function done () {
+          trans.end()
+          agent._instrumentation._send()
+        }
+      })
+    })
+
+    t.test('simultaneous transactions', function (t) {
+      resetAgent(function (endpoint, data, cb) {
+        var fooIndex, barIndex, bazIndex
+        for (var n = 0; n < 3; n++) {
+          switch (data.transactions[n].transaction) {
+            case 'foo':
+              fooIndex = n
+              break
+            case 'bar':
+              barIndex = n
+              break
+            case 'baz':
+              bazIndex = n
+              break
+          }
+        }
+
+        // data.traces.groups:
+        t.equal(data.traces.groups.length, 6)
+
+        t.equal(data.traces.groups[fooIndex * 2].extra.sql, sql)
+        t.equal(data.traces.groups[fooIndex * 2].kind, 'db.mysql.query')
+        t.deepEqual(data.traces.groups[fooIndex * 2].parents, ['transaction'])
+        t.equal(data.traces.groups[fooIndex * 2].signature, 'SELECT')
+        t.equal(data.traces.groups[fooIndex * 2].transaction, 'foo')
+
+        t.equal(data.traces.groups[fooIndex * 2 + 1].kind, 'transaction')
+        t.deepEqual(data.traces.groups[fooIndex * 2 + 1].parents, [])
+        t.equal(data.traces.groups[fooIndex * 2 + 1].signature, 'transaction')
+        t.equal(data.traces.groups[fooIndex * 2 + 1].transaction, 'foo')
+
+        t.equal(data.traces.groups[barIndex * 2].extra.sql, sql)
+        t.equal(data.traces.groups[barIndex * 2].kind, 'db.mysql.query')
+        t.deepEqual(data.traces.groups[barIndex * 2].parents, ['transaction'])
+        t.equal(data.traces.groups[barIndex * 2].signature, 'SELECT')
+        t.equal(data.traces.groups[barIndex * 2].transaction, 'bar')
+
+        t.equal(data.traces.groups[barIndex * 2 + 1].kind, 'transaction')
+        t.deepEqual(data.traces.groups[barIndex * 2 + 1].parents, [])
+        t.equal(data.traces.groups[barIndex * 2 + 1].signature, 'transaction')
+        t.equal(data.traces.groups[barIndex * 2 + 1].transaction, 'bar')
+
+        t.equal(data.traces.groups[bazIndex * 2].extra.sql, sql)
+        t.equal(data.traces.groups[bazIndex * 2].kind, 'db.mysql.query')
+        t.deepEqual(data.traces.groups[bazIndex * 2].parents, ['transaction'])
+        t.equal(data.traces.groups[bazIndex * 2].signature, 'SELECT')
+        t.equal(data.traces.groups[bazIndex * 2].transaction, 'baz')
+
+        t.equal(data.traces.groups[bazIndex * 2 + 1].kind, 'transaction')
+        t.deepEqual(data.traces.groups[bazIndex * 2 + 1].parents, [])
+        t.equal(data.traces.groups[bazIndex * 2 + 1].signature, 'transaction')
+        t.equal(data.traces.groups[bazIndex * 2 + 1].transaction, 'baz')
+
+        // data.transactions:
+        t.equal(data.transactions.length, 3)
+        t.equal(data.transactions[fooIndex].transaction, 'foo')
+        t.equal(data.transactions[fooIndex].durations.length, 1)
+        t.ok(data.transactions[fooIndex].durations[0] > 0)
+        t.equal(data.transactions[barIndex].transaction, 'bar')
+        t.equal(data.transactions[barIndex].durations.length, 1)
+        t.ok(data.transactions[barIndex].durations[0] > 0)
+        t.equal(data.transactions[bazIndex].transaction, 'baz')
+        t.equal(data.transactions[bazIndex].durations.length, 1)
+        t.ok(data.transactions[bazIndex].durations[0] > 0)
+
+        // data.traces.raw:
+        //
+        // [
+        //   [
+        //     12.670418,                 // total transaction time
+        //     [ 0, 0.90207, 10.712994 ], // sql trace
+        //     [ 1, 0, 12.670418 ]        // root trace
+        //   ],
+        //   [
+        //     13.269366,
+        //     [ 2, 1.285107, 10.929622 ],
+        //     [ 3, 0, 13.269366 ]
+        //   ],
+        //   [
+        //     13.627345,
+        //     [ 4, 1.214202, 11.254304 ],
+        //     [ 5, 0, 13.627345 ]
+        //   ]
+        // ]
+        t.equal(data.traces.raw.length, 3)
+
+        t.equal(data.traces.raw[0].length, 3)
+        t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
+        t.equal(data.traces.raw[0][1].length, 3)
+        t.equal(data.traces.raw[0][2].length, 3)
+
+        t.equal(data.traces.raw[0][1][0], 0)
+        t.ok(data.traces.raw[0][1][1] > 0)
+        t.ok(data.traces.raw[0][1][2] > 0)
+        t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
+        t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
+
+        t.equal(data.traces.raw[0][2][0], 1)
+        t.equal(data.traces.raw[0][2][1], 0)
+        t.equal(data.traces.raw[0][2][2], data.traces.raw[0][0])
+
+        t.equal(data.traces.raw[1].length, 3)
+        t.equal(data.traces.raw[1][0], data.transactions[1].durations[0])
+        t.equal(data.traces.raw[1][1].length, 3)
+        t.equal(data.traces.raw[1][2].length, 3)
+
+        t.equal(data.traces.raw[1][1][0], 2)
+        t.ok(data.traces.raw[1][1][1] > 0)
+        t.ok(data.traces.raw[1][1][2] > 0)
+        t.ok(data.traces.raw[1][1][1] < data.traces.raw[1][0])
+        t.ok(data.traces.raw[1][1][2] < data.traces.raw[1][0])
+
+        t.equal(data.traces.raw[1][2][0], 3)
+        t.equal(data.traces.raw[1][2][1], 0)
+        t.equal(data.traces.raw[1][2][2], data.traces.raw[1][0])
+
+        t.equal(data.traces.raw[2].length, 3)
+        t.equal(data.traces.raw[2][0], data.transactions[2].durations[0])
+        t.equal(data.traces.raw[2][1].length, 3)
+        t.equal(data.traces.raw[2][2].length, 3)
+
+        t.equal(data.traces.raw[2][1][0], 4)
+        t.ok(data.traces.raw[2][1][1] > 0)
+        t.ok(data.traces.raw[2][1][2] > 0)
+        t.ok(data.traces.raw[2][1][1] < data.traces.raw[2][0])
+        t.ok(data.traces.raw[2][1][2] < data.traces.raw[2][0])
+
+        t.equal(data.traces.raw[2][2][0], 5)
+        t.equal(data.traces.raw[2][2][1], 0)
+        t.equal(data.traces.raw[2][2][2], data.traces.raw[2][0])
+
+        t.end()
+      })
+
+      var sql = 'SELECT 1 + ? AS solution'
+
+      factory(function () {
+        var n = 0
+
+        setImmediate(function () {
+          var trans = agent.startTransaction('foo')
+          queryable.query(sql, [1], function (err, rows, fields) {
+            t.error(err)
+            t.equal(rows[0].solution, 2)
+            trans.end()
+            if (++n === 3) done()
+          })
+        })
+
+        setImmediate(function () {
+          var trans = agent.startTransaction('bar')
+          queryable.query(sql, [2], function (err, rows, fields) {
+            t.error(err)
+            t.equal(rows[0].solution, 3)
+            trans.end()
+            if (++n === 3) done()
+          })
+        })
+
+        setImmediate(function () {
+          var trans = agent.startTransaction('baz')
+          queryable.query(sql, [3], function (err, rows, fields) {
+            t.error(err)
+            t.equal(rows[0].solution, 4)
+            trans.end()
+            if (++n === 3) done()
+          })
+        })
+
+        function done () {
+          agent._instrumentation._send()
+        }
+      })
+    })
   })
 })
 
