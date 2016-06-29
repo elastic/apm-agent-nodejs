@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 for file in test/*.js; do
   node "$file" || exit $?;
