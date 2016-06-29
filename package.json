@@ -50,7 +50,6 @@
     "opbeat-release-tracker": "^1.1.1",
     "require-in-the-middle": "^2.1.2",
     "semver": "^5.1.0",
-    "shimmer": "^1.1.0",
     "sql-summary": "^1.0.0",
     "stackman": "^1.2.6",
     "unicode-byte-truncate": "^1.0.0"
