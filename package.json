@@ -62,7 +62,7 @@
     "mysql": "^2.11.1",
     "nock": "^8.0.0",
     "restify": "^4.0.4",
-    "standard": "^6.0.8",
+    "standard": "^7.1.2",
     "tape": "^4.5.1",
     "test-all-versions": "^1.2.0",
     "untildify": "^2.0.0"
