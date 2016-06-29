@@ -589,6 +589,32 @@ factories.forEach(function (f) {
         }
       })
     })
+
+    // Only pools have a getConnection function
+    if (type === 'pool') {
+      t.test('connection.release()', function (t) {
+        resetAgent(function (endpoint, data, cb) {
+          assertBasicQuery(t, sql, data)
+          t.end()
+        })
+
+        var sql = 'SELECT 1 + 1 AS solution'
+
+        factory(function () {
+          var trans = agent.startTransaction('foo')
+
+          queryable.getConnection(function (err, conn) {
+            t.error(err)
+            conn.release()
+
+            queryable.getConnection(function (err, conn) {
+              t.error(err)
+              conn.query(sql, basicQueryCallback(t, trans))
+            })
+          })
+        })
+      })
+    }
   })
 })
 
