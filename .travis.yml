@@ -11,4 +11,8 @@ node_js:
 - '0.10'
 notifications:
   slack:
-    secure: Yub5oEMfOzNDSAtXlC+B2IoALF7uMB8xX5l+FWy1PIKF4950Uelw1l9fN7Y6cXn+qPF8JxePcVCBn0HF5jp+MHRmLTUYqcCVxi10f5DkmTbDz31N40WiDMuo77fMlWgdieaLiHulbvbp93A6rSWyLCyjt9RvFit7JxWdcyqyDDk=
+    rooms:
+      secure: k+Ky/oNWErqCODqov6N22P3buYg0hqVTUO3FLp/cbrq9KAcef0EKFCPqyjr0izKkN6xt3NLI4DYOI4IVv24+n3GtdUiSQTq+s6Y0wnbjLnu4pc/BRvdWh4aJR4KBSH22CsZ33GxhAUDFW8Xkv47L8dl3k9MKmlZaLXh3mF1pinY=
+    on_success: change
+    on_failure: always
+    on_pull_requests: true
