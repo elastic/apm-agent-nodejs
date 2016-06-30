@@ -1,3 +1,8 @@
+# 3.6.15 - 2016/6/30
+  * mysql: fix duplicate query traces when connection have been released
+  * Refactor shimming
+  * Improve tests
+
 # 3.6.14 - 2016/6/22
   * mysql: improve grouping of mysql errors
   * mysql: don't record pool cluster queries multiple times
