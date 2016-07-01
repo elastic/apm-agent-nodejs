@@ -1,3 +1,6 @@
+# 3.7.0 - 2016/7/1
+  * mysql: official support for mysql (no feature flag required)
+
 # 3.6.15 - 2016/6/30
   * mysql: fix duplicate query traces when connection have been released
   * Refactor shimming
