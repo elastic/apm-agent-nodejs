@@ -27,8 +27,7 @@ var optionFixtures = [
   ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal'],
   ['instrument', 'INSTRUMENT', true],
   ['filter'],
-  ['ff_captureFrame', 'FF_CAPTURE_FRAME', false],
-  ['ff_mysql', 'FF_MYSQL', false]
+  ['ff_captureFrame', 'FF_CAPTURE_FRAME', false]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']
