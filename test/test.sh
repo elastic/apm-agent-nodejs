@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-for file in test/*.js; do
+shopt -s extglob # allow for complex regex like globs
+
+for file in test/!(_*).js; do
   node "$file" || exit $?;
 done
 
-for file in test/instrumentation/*.js; do
+for file in test/instrumentation/!(_*).js; do
   node "$file" || exit $?;
 done
 
-for file in test/instrumentation/modules/*.js; do
+for file in test/instrumentation/modules/!(_*).js; do
   node "$file" || exit $?;
 done
