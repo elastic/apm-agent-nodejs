@@ -64,7 +64,7 @@
     "restify": "^4.1.1",
     "standard": "^7.1.2",
     "tape": "^4.6.0",
-    "test-all-versions": "^1.2.0",
+    "test-all-versions": "^1.2.1",
     "untildify": "^3.0.2"
   },
   "coordinates": [
