@@ -1,3 +1,7 @@
+# 3.7.1 - 2016/7/5
+  * mysql: ensure context is always kept when using pool.getConnection
+  * Improve tests
+
 # 3.7.0 - 2016/7/1
   * mysql: official support for mysql (no feature flag required)
 
