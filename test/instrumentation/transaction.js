@@ -82,7 +82,7 @@ test('#setDefaultName() - no initial value', function (t) {
     t.ok(false)
   })
   var trans = new Transaction(ins._agent)
-  t.equal(trans.name, undefined)
+  t.equal(trans.name, '')
   trans.setDefaultName('default')
   t.equal(trans.name, 'default')
   t.end()
