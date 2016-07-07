@@ -18,6 +18,36 @@ var data = { extra: { uuid: 'foo' } }
 var body = JSON.stringify(data)
 
 test('#error()', function (t) {
+  t.test('non-string exception.value', function (t) {
+    global.__opbeat_initialized = null
+    var opbeat = new Agent()
+    opbeat.start(opts)
+    opbeat._httpClient.request = function () {
+      t.end()
+    }
+    request.error(opbeat, { exception: { value: 1 } })
+  })
+
+  t.test('non-string culprit', function (t) {
+    global.__opbeat_initialized = null
+    var opbeat = new Agent()
+    opbeat.start(opts)
+    opbeat._httpClient.request = function () {
+      t.end()
+    }
+    request.error(opbeat, { culprit: 1 })
+  })
+
+  t.test('non-string message', function (t) {
+    global.__opbeat_initialized = null
+    var opbeat = new Agent()
+    opbeat.start(opts)
+    opbeat._httpClient.request = function () {
+      t.end()
+    }
+    request.error(opbeat, { message: 1 })
+  })
+
   t.test('without callback and successful request', function (t) {
     zlib.deflate(body, function (err, buffer) {
       t.error(err)
@@ -103,5 +133,57 @@ test('#error()', function (t) {
       called = true
       t.equal(err.message, 'Opbeat error (500): ')
     })
+  })
+})
+
+test('#transactions()', function (t) {
+  t.test('non-string transactions.$.transaction', function (t) {
+    global.__opbeat_initialized = null
+    var opbeat = new Agent()
+    opbeat.start(opts)
+    opbeat._httpClient.request = function () {
+      t.end()
+    }
+    request.transactions(opbeat, { transactions: [{ transaction: 1 }] })
+  })
+
+  t.test('non-string traces.groups.$.transaction', function (t) {
+    global.__opbeat_initialized = null
+    var opbeat = new Agent()
+    opbeat.start(opts)
+    opbeat._httpClient.request = function () {
+      t.end()
+    }
+    request.transactions(opbeat, { traces: { groups: [{ transaction: 1 }] } })
+  })
+
+  t.test('non-string traces.groups.$.extra._frames.$.context_line', function (t) {
+    global.__opbeat_initialized = null
+    var opbeat = new Agent()
+    opbeat.start(opts)
+    opbeat._httpClient.request = function () {
+      t.end()
+    }
+    request.transactions(opbeat, { traces: { groups: [{ extra: { _frames: [{ context_line: 1 }] } }] } })
+  })
+
+  t.test('non-string traces.groups.$.extra._frames.$.pre_context.$', function (t) {
+    global.__opbeat_initialized = null
+    var opbeat = new Agent()
+    opbeat.start(opts)
+    opbeat._httpClient.request = function () {
+      t.end()
+    }
+    request.transactions(opbeat, { traces: { groups: [{ extra: { _frames: [{ pre_context: [1] }] } }] } })
+  })
+
+  t.test('non-string traces.groups.$.extra._frames.$.pre_context.$', function (t) {
+    global.__opbeat_initialized = null
+    var opbeat = new Agent()
+    opbeat.start(opts)
+    opbeat._httpClient.request = function () {
+      t.end()
+    }
+    request.transactions(opbeat, { traces: { groups: [{ extra: { _frames: [{ post_context: [1] }] } }] } })
   })
 })
