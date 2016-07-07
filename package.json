@@ -1,6 +1,6 @@
 {
   "name": "opbeat",
-  "version": "3.7.1",
+  "version": "3.8.0",
   "description": "The official Opbeat agent for Node.js",
   "main": "index.js",
   "scripts": {
@@ -72,7 +72,7 @@
     "untildify": "^3.0.2"
   },
   "coordinates": [
-    55.6665553,
-    12.5799728
+    55.6666475,
+    12.5798038
   ]
 }

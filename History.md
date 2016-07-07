@@ -1,3 +1,6 @@
+# 3.8.0 - 2016/7/7
+  * pg: support all pg v5.x versions
+
 # 3.7.1 - 2016/7/5
   * mysql: ensure context is always kept when using pool.getConnection
   * Improve tests
