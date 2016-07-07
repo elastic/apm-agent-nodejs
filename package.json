@@ -71,6 +71,9 @@
     "test-all-versions": "^1.2.1",
     "untildify": "^3.0.2"
   },
+  "greenkeeper": {
+    "ignore": ["inquirer"]
+  },
   "coordinates": [
     55.6666475,
     12.5798038
