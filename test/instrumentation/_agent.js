@@ -12,6 +12,7 @@ module.exports = function mockAgent (cb) {
   var agent = {
     active: true,
     instrument: true,
+    timeout: { active: false },
     _httpClient: {
       request: cb || noop
     }
