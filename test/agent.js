@@ -185,7 +185,7 @@ test('#captureError()', function (t) {
     setTimeout(function () {
       scope.done()
       t.end()
-    }, 25)
+    }, 50)
   })
 
   t.test('should attach an Error object when emitting error', function (t) {
