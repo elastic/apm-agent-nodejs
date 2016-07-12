@@ -1,6 +1,6 @@
 {
   "name": "opbeat",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "description": "The official Opbeat agent for Node.js",
   "main": "index.js",
   "scripts": {
@@ -72,10 +72,12 @@
     "untildify": "^3.0.2"
   },
   "greenkeeper": {
-    "ignore": ["inquirer"]
+    "ignore": [
+      "inquirer"
+    ]
   },
   "coordinates": [
-    55.6666475,
-    12.5798038
+    55.686766,
+    12.58961
   ]
 }

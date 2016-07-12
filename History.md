@@ -1,3 +1,6 @@
+# 3.8.1 - 2016/7/12
+  * fix issue when associating https requests to captured errors in Node.js v0.10
+
 # 3.8.0 - 2016/7/7
   * pg: support all pg v5.x versions
 
