@@ -1,3 +1,6 @@
+# 3.8.2 - 2016/7/14
+  * express: fix route naming for mounted middleware requests
+
 # 3.8.1 - 2016/7/12
   * fix issue when associating https requests to captured errors in Node.js v0.10
 
