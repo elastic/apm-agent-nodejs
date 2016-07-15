@@ -7,6 +7,11 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
+var semver = require('semver')
+
+// hapi doesn't work in versions of Node.js prior to v4
+if (!semver.satisfies(process.version, '>=4')) process.exit()
+
 var test = require('tape')
 var http = require('http')
 var Hapi = require('hapi')
