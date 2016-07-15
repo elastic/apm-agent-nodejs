@@ -1,3 +1,6 @@
+# 3.9.0 - 2016/7/15
+  * mongodb: instrument mongodb-core v2.x
+
 # 3.8.2 - 2016/7/14
   * express: fix route naming for mounted middleware requests
 
