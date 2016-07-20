@@ -1,3 +1,6 @@
+# 3.10.0 - 2016/7/20
+  * hapi: automatically capture request errors
+
 # 3.9.0 - 2016/7/15
   * mongodb: instrument mongodb-core v2.x
 
