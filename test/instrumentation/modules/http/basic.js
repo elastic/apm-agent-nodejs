@@ -1,7 +1,8 @@
 'use strict'
 
-var agent = require('../_agent')()
+var agent = require('../../_agent')()
 
+var assert = require('./_assert')
 var test = require('tape')
 var http = require('http')
 
@@ -79,43 +80,27 @@ test('new http.Server', function (t) {
   })
 })
 
-// {
-//   traces: {
-//     groups: [ { extra: { _frames: [Object] }, kind: 'transaction', parents: [], signature: 'transaction', timestamp: '2016-06-14T22:34:00.000Z', transaction: 'GET unknown route' } ],
-//     raw: [ [ 5.404068, [ 0, 0, 5.404068 ] ] ]
-//   },
-//   transactions: [ { durations: [ 5.404068 ], kind: 'web.http', result: 200, timestamp: '2016-06-14T22:34:00.000Z', transaction: 'GET unknown route' } ]
-// }
-function assert (t, data) {
-  t.equal(data.transactions[0].kind, 'web.http')
-  t.equal(data.transactions[0].result, 200)
-  t.equal(data.transactions[0].transaction, 'GET unknown route')
-
-  t.equal(data.traces.groups.length, 1)
-  t.equal(data.traces.raw.length, 1)
-  t.equal(data.transactions.length, 1)
-  t.equal(data.traces.groups[0].kind, 'transaction')
-  t.deepEqual(data.traces.groups[0].parents, [])
-  t.equal(data.traces.groups[0].signature, 'transaction')
-  t.equal(data.traces.groups[0].transaction, 'GET unknown route')
-
-  t.equal(data.traces.raw[0].length, 2)
-  t.equal(data.traces.raw[0][1].length, 3)
-  t.equal(data.traces.raw[0][1][0], 0)
-  t.equal(data.traces.raw[0][1][1], 0)
-  t.equal(data.traces.raw[0][1][2], data.traces.raw[0][0])
-  t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
-}
-
-function sendRequest (server) {
+function sendRequest (server, timeout) {
   server.listen(function () {
     var port = server.address().port
-    http.get('http://localhost:' + port, function (res) {
+    var req = http.get('http://localhost:' + port, function (res) {
+      if (timeout) throw new Error('should not get to here')
       res.on('end', function () {
         agent._instrumentation._send()
       })
       res.resume()
     })
+
+    if (timeout) {
+      req.on('error', function (err) {
+        if (err.code !== 'ECONNRESET') throw err
+        agent._instrumentation._send()
+      })
+
+      process.nextTick(function () {
+        req.abort()
+      })
+    }
   })
 }
 
@@ -124,5 +109,7 @@ function onRequest (req, res) {
 }
 
 function resetAgent (cb) {
+  agent.timeout.active = false
+  agent._instrumentation._queue = []
   agent._httpClient = { request: cb }
 }
