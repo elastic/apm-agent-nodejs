@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 
-shopt -s extglob # allow for complex regex like globs
+shopt -s extglob # allow for complex regex-like globs
 
-for file in test/!(_*).js; do
+files () {
+  [ -f "$1" ] && echo "$@"
+}
+
+for file in $(files test/!(_*).js); do
   node "$file" || exit $?;
 done
 
-for file in test/instrumentation/!(_*).js; do
+for file in $(files test/instrumentation/!(_*).js); do
   node "$file" || exit $?;
 done
 
-for file in test/instrumentation/modules/!(_*).js; do
+for file in $(files test/instrumentation/modules/!(_*).js); do
   node "$file" || exit $?;
 done
 
-for file in test/instrumentation/modules/mysql/!(_*).js; do
+for file in $(files test/instrumentation/modules/mysql/!(_*).js); do
   node "$file" || exit $?;
 done
