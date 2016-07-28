@@ -15,8 +15,7 @@ module.exports = function mockAgent (cb) {
     timeout: {
       active: false,
       errorResult: 42,
-      errorThreshold: 500,
-      socketClosedDelay: 800
+      errorThreshold: 250
     },
     _httpClient: {
       request: cb || noop

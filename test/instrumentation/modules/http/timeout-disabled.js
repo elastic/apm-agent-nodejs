@@ -12,10 +12,20 @@ test('client-side timeout - call end', function (t) {
   var clientReq
 
   var server = http.createServer(function (req, res) {
+    res.on('close', function () {
+      setTimeout(function () {
+        t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
+        server.close()
+        t.end()
+      }, 50)
+    })
+
     clientReq.abort()
-    res.write('Hello')
     setTimeout(function () {
-      res.end(' World')
+      res.write('Hello') // server emits clientError if written in same tick as abort
+      setTimeout(function () {
+        res.end(' World')
+      }, 10)
     }, 10)
   })
 
@@ -26,11 +36,6 @@ test('client-side timeout - call end', function (t) {
     })
     clientReq.on('error', function (err) {
       if (err.code !== 'ECONNRESET') throw err
-      setTimeout(function () {
-        t.equal(agent._instrumentation._queue.length, 0, 'should not add transactions to queue')
-        server.close()
-        t.end()
-      }, agent.timeout.socketClosedDelay + 100)
     })
   })
 })
@@ -40,8 +45,18 @@ test('client-side timeout - don\'t call end', function (t) {
   var clientReq
 
   var server = http.createServer(function (req, res) {
+    res.on('close', function () {
+      setTimeout(function () {
+        t.equal(agent._instrumentation._queue.length, 0, 'should not add transactions to queue')
+        server.close()
+        t.end()
+      }, 50)
+    })
+
     clientReq.abort()
-    res.write('Hello')
+    setTimeout(function () {
+      res.write('Hello') // server emits clientError if written in same tick as abort
+    }, 10)
   })
 
   server.listen(function () {
@@ -51,11 +66,6 @@ test('client-side timeout - don\'t call end', function (t) {
     })
     clientReq.on('error', function (err) {
       if (err.code !== 'ECONNRESET') throw err
-      setTimeout(function () {
-        t.equal(agent._instrumentation._queue.length, 0, 'should not add transactions to queue')
-        server.close()
-        t.end()
-      }, agent.timeout.socketClosedDelay + 100)
     })
   })
 })
@@ -63,17 +73,27 @@ test('client-side timeout - don\'t call end', function (t) {
 test('server-side timeout - call end', function (t) {
   agent._instrumentation._queue = []
   var timedout = false
-  var ended = false
+  var closeEvent = false
 
   var server = http.createServer(function (req, res) {
+    res.on('close', function () {
+      closeEvent = true
+    })
+
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
+      t.ok(closeEvent, 'res should emit close event')
       res.end('Hello World')
-      ended = true
-    }, agent.timeout.socketClosedDelay + 100)
+
+      setTimeout(function () {
+        t.equal(agent._instrumentation._queue.length, 1, 'should not add transactions to queue')
+        server.close()
+        t.end()
+      }, 50)
+    }, 200)
   })
 
-  server.setTimeout(agent.timeout.socketClosedDelay)
+  server.setTimeout(100)
 
   server.listen(function () {
     var port = server.address().port
@@ -83,12 +103,6 @@ test('server-side timeout - call end', function (t) {
     clientReq.on('error', function (err) {
       if (err.code !== 'ECONNRESET') throw err
       timedout = true
-      setTimeout(function () {
-        t.ok(ended, 'should have called res.end')
-        t.equal(agent._instrumentation._queue.length, 0, 'should not add transactions to queue')
-        server.close()
-        t.end()
-      }, 100)
     })
   })
 })
@@ -96,17 +110,23 @@ test('server-side timeout - call end', function (t) {
 test('server-side timeout - don\'t call end', function (t) {
   agent._instrumentation._queue = []
   var timedout = false
+  var closeEvent = false
 
   var server = http.createServer(function (req, res) {
+    res.on('close', function () {
+      closeEvent = true
+    })
+
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
+      t.ok(closeEvent, 'res should emit close event')
       t.equal(agent._instrumentation._queue.length, 0, 'should not add transactions to queue')
       server.close()
       t.end()
-    }, agent.timeout.socketClosedDelay + 100)
+    }, 200)
   })
 
-  server.setTimeout(agent.timeout.socketClosedDelay)
+  server.setTimeout(100)
 
   server.listen(function () {
     var port = server.address().port
