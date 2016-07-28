@@ -1,3 +1,6 @@
+# 3.12.0 - 2016/7/28
+  * redis: official support (v2.x)
+
 # 3.11.0 - 2016/7/28
   * detect and report HTTP timeouts
 
