@@ -33,9 +33,6 @@ var Server = require('mongodb-core').Server
 //      raw: [ [ 3.287613, [ 0, 0.60478, 1.661918 ], [ 1, 0, 3.287613 ] ] ] } }
 test('trace simple command', function (t) {
   resetAgent(function (endpoint, data, cb) {
-// console.log(require('util').inspect(data, { depth: 4 }))
-// return
-
     var groups = [
       'system.$cmd.ismaster',
       // 'opbeat.$cmd.command', // only appears in mongodb-core 1.x
