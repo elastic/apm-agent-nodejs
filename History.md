@@ -1,3 +1,6 @@
+# 3.11.0 - 2016/7/28
+  * detect and report HTTP timeouts
+
 # 3.10.0 - 2016/7/20
   * hapi: automatically capture request errors
 
