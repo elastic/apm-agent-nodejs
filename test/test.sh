@@ -18,6 +18,10 @@ for file in $(files test/instrumentation/modules/!(_*).js); do
   node "$file" || exit $?;
 done
 
+for file in $(files test/instrumentation/modules/http/!(_*).js); do
+  node "$file" || exit $?;
+done
+
 for file in $(files test/instrumentation/modules/mysql/!(_*).js); do
   node "$file" || exit $?;
 done
