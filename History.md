@@ -2,7 +2,7 @@
   * redis: add support for ioredis@2.x
 
 # 3.12.0 - 2016/7/28
-  * redis: official support (v2.x)
+  * redis: add support for redis@2.x
 
 # 3.11.0 - 2016/7/28
   * detect and report HTTP timeouts
