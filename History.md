@@ -1,3 +1,6 @@
+# 3.13.0 - 2016/7/29
+  * redis: add support for ioredis@2.x
+
 # 3.12.0 - 2016/7/28
   * redis: official support (v2.x)
 
