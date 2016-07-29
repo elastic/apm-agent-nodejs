@@ -55,6 +55,22 @@ guide](https://opbeat.com/docs/articles/troubleshooting-opbeat-for-nodejs/)
 - [Compatibility with other modules](https://github.com/opbeat/opbeat-node/wiki/Compatibility-Guide)
 - [Upgrading to v3](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-3.x)
 
+## Testing
+
+The test suite expects the following databases to be running:
+
+- mysql: `mysql.server start`
+- mongodb: `mongod --config /usr/local/etc/mongod.conf`
+- redis: `redis-server /usr/local/etc/redis.conf`
+
+Each of the commands listed is the default command normally used on OS X
+to start the database if installed using [Homebrew](http://brew.sh).
+
+When the databases are running, simply run the test suite using:
+
+```
+npm test
+```
 
 ## License
 
