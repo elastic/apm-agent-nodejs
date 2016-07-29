@@ -88,7 +88,7 @@ test(function (t) {
     var totalTime = data.traces.raw[0][0]
 
     t.equal(data.traces.raw.length, 1)
-    t.equal(totalTraces, groups.length + 2) // +1 for an extra ismaster command, +1 for the root trace
+    t.equal(totalTraces, groups.length + 2) // +1 for an extra hset command, +1 for the root trace
 
     for (var i = 1; i < totalTraces + 1; i++) {
       t.equal(data.traces.raw[0][i].length, 3)
