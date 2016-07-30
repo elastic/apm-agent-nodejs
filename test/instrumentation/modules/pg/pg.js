@@ -17,7 +17,9 @@ var queryable
 var factories = [
   [createClient, 'client']
 ]
-if (global.Promise) factories.push([createPoolAndConnect, 'pool'])
+
+// In pg@6 native promises are required for pool operations
+if (global.Promise || semver.satisfies(pgVersion, '<6')) factories.push([createPoolAndConnect, 'pool'])
 
 factories.forEach(function (f) {
   var factory = f[0]
@@ -497,7 +499,8 @@ factories.forEach(function (f) {
   })
 })
 
-if (global.Promise) {
+// In pg@6 native promises are required for pool operations
+if (global.Promise || semver.satisfies(pgVersion, '<6')) {
   test('simultaneous queries on different connections', function (t) {
     resetAgent(function (endpoint, data, cb) {
       // data.traces.groups:
