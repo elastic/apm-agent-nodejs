@@ -4,7 +4,9 @@
   "description": "The official Opbeat agent for Node.js",
   "main": "index.js",
   "scripts": {
+    "pretest": "test/pretest.sh",
     "test": "standard && test/test.sh && tav --ci",
+    "posttest": "test/posttest.sh",
     "test-cli": "node test/scripts/cli.js"
   },
   "directories": {
