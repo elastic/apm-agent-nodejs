@@ -1,3 +1,6 @@
+# 3.14.0 - 2016/7/30
+  * pg: support all pg v6.x versions
+
 # 3.13.0 - 2016/7/29
   * redis: add support for ioredis@2.x
 
