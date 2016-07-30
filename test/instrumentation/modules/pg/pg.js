@@ -15,9 +15,9 @@ var pgVersion = require('../../../../node_modules/pg/package.json').version
 
 var queryable
 var factories = [
-  [createClient, 'client'],
-  [createPoolAndConnect, 'pool']
+  [createClient, 'client']
 ]
+if (global.Promise) factories.push([createPoolAndConnect, 'pool'])
 
 factories.forEach(function (f) {
   var factory = f[0]
@@ -497,138 +497,140 @@ factories.forEach(function (f) {
   })
 })
 
-test('simultaneous queries on different connections', function (t) {
-  resetAgent(function (endpoint, data, cb) {
-    // data.traces.groups:
-    t.equal(data.traces.groups.length, 2)
+if (global.Promise) {
+  test('simultaneous queries on different connections', function (t) {
+    resetAgent(function (endpoint, data, cb) {
+      // data.traces.groups:
+      t.equal(data.traces.groups.length, 2)
 
-    t.equal(data.traces.groups[0].extra.sql, sql)
-    t.equal(data.traces.groups[0].kind, 'db.postgresql.query')
-    t.deepEqual(data.traces.groups[0].parents, ['transaction'])
-    t.equal(data.traces.groups[0].signature, 'SELECT')
-    t.equal(data.traces.groups[0].transaction, 'foo')
+      t.equal(data.traces.groups[0].extra.sql, sql)
+      t.equal(data.traces.groups[0].kind, 'db.postgresql.query')
+      t.deepEqual(data.traces.groups[0].parents, ['transaction'])
+      t.equal(data.traces.groups[0].signature, 'SELECT')
+      t.equal(data.traces.groups[0].transaction, 'foo')
 
-    t.equal(data.traces.groups[1].kind, 'transaction')
-    t.deepEqual(data.traces.groups[1].parents, [])
-    t.equal(data.traces.groups[1].signature, 'transaction')
-    t.equal(data.traces.groups[1].transaction, 'foo')
+      t.equal(data.traces.groups[1].kind, 'transaction')
+      t.deepEqual(data.traces.groups[1].parents, [])
+      t.equal(data.traces.groups[1].signature, 'transaction')
+      t.equal(data.traces.groups[1].transaction, 'foo')
 
-    // data.transactions:
-    t.equal(data.transactions.length, 1)
-    t.equal(data.transactions[0].transaction, 'foo')
-    t.equal(data.transactions[0].durations.length, 1)
-    t.ok(data.transactions[0].durations[0] > 0)
+      // data.transactions:
+      t.equal(data.transactions.length, 1)
+      t.equal(data.transactions[0].transaction, 'foo')
+      t.equal(data.transactions[0].durations.length, 1)
+      t.ok(data.transactions[0].durations[0] > 0)
 
-    // data.traces.raw:
-    //
-    // [
-    //   [
-    //     17.05574,                   // total transaction time
-    //     [ 0, 1.922771, 10.838852 ], // sql trace 1
-    //     [ 0, 3.41268, 12.03623 ],   // sql trace 2
-    //     [ 0, 4.188621, 12.202625 ], // sql trace 3
-    //     [ 1, 0, 17.05574 ]          // root trace
-    //   ]
-    // ]
-    t.equal(data.traces.raw.length, 1)
-    t.equal(data.traces.raw[0].length, 5)
-    t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
-    t.equal(data.traces.raw[0][1].length, 3)
-    t.equal(data.traces.raw[0][2].length, 3)
-    t.equal(data.traces.raw[0][3].length, 3)
-    t.equal(data.traces.raw[0][4].length, 3)
+      // data.traces.raw:
+      //
+      // [
+      //   [
+      //     17.05574,                   // total transaction time
+      //     [ 0, 1.922771, 10.838852 ], // sql trace 1
+      //     [ 0, 3.41268, 12.03623 ],   // sql trace 2
+      //     [ 0, 4.188621, 12.202625 ], // sql trace 3
+      //     [ 1, 0, 17.05574 ]          // root trace
+      //   ]
+      // ]
+      t.equal(data.traces.raw.length, 1)
+      t.equal(data.traces.raw[0].length, 5)
+      t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
+      t.equal(data.traces.raw[0][1].length, 3)
+      t.equal(data.traces.raw[0][2].length, 3)
+      t.equal(data.traces.raw[0][3].length, 3)
+      t.equal(data.traces.raw[0][4].length, 3)
 
-    t.equal(data.traces.raw[0][1][0], 0)
-    t.ok(data.traces.raw[0][1][1] > 0)
-    t.ok(data.traces.raw[0][1][2] > 0)
-    t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
-    t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
+      t.equal(data.traces.raw[0][1][0], 0)
+      t.ok(data.traces.raw[0][1][1] > 0)
+      t.ok(data.traces.raw[0][1][2] > 0)
+      t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
+      t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
 
-    t.equal(data.traces.raw[0][2][0], 0)
-    t.ok(data.traces.raw[0][2][1] > 0)
-    t.ok(data.traces.raw[0][2][2] > 0)
-    t.ok(data.traces.raw[0][2][1] < data.traces.raw[0][0])
-    t.ok(data.traces.raw[0][2][2] < data.traces.raw[0][0])
+      t.equal(data.traces.raw[0][2][0], 0)
+      t.ok(data.traces.raw[0][2][1] > 0)
+      t.ok(data.traces.raw[0][2][2] > 0)
+      t.ok(data.traces.raw[0][2][1] < data.traces.raw[0][0])
+      t.ok(data.traces.raw[0][2][2] < data.traces.raw[0][0])
 
-    t.equal(data.traces.raw[0][3][0], 0)
-    t.ok(data.traces.raw[0][3][1] > 0)
-    t.ok(data.traces.raw[0][3][2] > 0)
-    t.ok(data.traces.raw[0][3][1] < data.traces.raw[0][0])
-    t.ok(data.traces.raw[0][3][2] < data.traces.raw[0][0])
+      t.equal(data.traces.raw[0][3][0], 0)
+      t.ok(data.traces.raw[0][3][1] > 0)
+      t.ok(data.traces.raw[0][3][2] > 0)
+      t.ok(data.traces.raw[0][3][1] < data.traces.raw[0][0])
+      t.ok(data.traces.raw[0][3][2] < data.traces.raw[0][0])
 
-    t.equal(data.traces.raw[0][4][0], 1)
-    t.equal(data.traces.raw[0][4][1], 0)
-    t.equal(data.traces.raw[0][4][2], data.traces.raw[0][0])
+      t.equal(data.traces.raw[0][4][0], 1)
+      t.equal(data.traces.raw[0][4][1], 0)
+      t.equal(data.traces.raw[0][4][2], data.traces.raw[0][0])
 
-    t.end()
-  })
-
-  var sql = 'SELECT 1 + $1 AS solution'
-
-  createPool(function (connector) {
-    var n = 0
-    var trans = agent.startTransaction('foo')
-
-    connector(function (err, client, release) {
-      t.error(err)
-      client.query(sql, [1], function (err, result, fields) {
-        t.error(err)
-        t.equal(result.rows[0].solution, 2)
-        if (++n === 3) done()
-        release()
-      })
-    })
-    connector(function (err, client, release) {
-      t.error(err)
-      client.query(sql, [2], function (err, result, fields) {
-        t.error(err)
-        t.equal(result.rows[0].solution, 3)
-        if (++n === 3) done()
-        release()
-      })
-    })
-    connector(function (err, client, release) {
-      t.error(err)
-      client.query(sql, [3], function (err, result, fields) {
-        t.error(err)
-        t.equal(result.rows[0].solution, 4)
-        if (++n === 3) done()
-        release()
-      })
+      t.end()
     })
 
-    function done () {
-      trans.end()
-      agent._instrumentation._send()
-    }
-  })
-})
+    var sql = 'SELECT 1 + $1 AS solution'
 
-test('connection.release()', function (t) {
-  resetAgent(function (endpoint, data, cb) {
-    assertBasicQuery(t, sql, data)
-    lastRelease()
-    t.end()
-  })
-
-  var sql = 'SELECT 1 + 1 AS solution'
-  var lastRelease
-
-  createPool(function (connector) {
-    var trans = agent.startTransaction('foo')
-
-    connector(function (err, client, release) {
-      t.error(err)
-      release()
+    createPool(function (connector) {
+      var n = 0
+      var trans = agent.startTransaction('foo')
 
       connector(function (err, client, release) {
-        lastRelease = release
         t.error(err)
-        client.query(sql, basicQueryCallback(t, trans))
+        client.query(sql, [1], function (err, result, fields) {
+          t.error(err)
+          t.equal(result.rows[0].solution, 2)
+          if (++n === 3) done()
+          release()
+        })
+      })
+      connector(function (err, client, release) {
+        t.error(err)
+        client.query(sql, [2], function (err, result, fields) {
+          t.error(err)
+          t.equal(result.rows[0].solution, 3)
+          if (++n === 3) done()
+          release()
+        })
+      })
+      connector(function (err, client, release) {
+        t.error(err)
+        client.query(sql, [3], function (err, result, fields) {
+          t.error(err)
+          t.equal(result.rows[0].solution, 4)
+          if (++n === 3) done()
+          release()
+        })
+      })
+
+      function done () {
+        trans.end()
+        agent._instrumentation._send()
+      }
+    })
+  })
+
+  test('connection.release()', function (t) {
+    resetAgent(function (endpoint, data, cb) {
+      assertBasicQuery(t, sql, data)
+      lastRelease()
+      t.end()
+    })
+
+    var sql = 'SELECT 1 + 1 AS solution'
+    var lastRelease
+
+    createPool(function (connector) {
+      var trans = agent.startTransaction('foo')
+
+      connector(function (err, client, release) {
+        t.error(err)
+        release()
+
+        connector(function (err, client, release) {
+          lastRelease = release
+          t.error(err)
+          client.query(sql, basicQueryCallback(t, trans))
+        })
       })
     })
   })
-})
+}
 
 function basicQueryCallback (t) {
   return function queryCallback (err, result, fields) {
