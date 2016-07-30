@@ -59,6 +59,7 @@ guide](https://opbeat.com/docs/articles/troubleshooting-opbeat-for-nodejs/)
 
 The test suite expects the following databases to be running:
 
+- postgresql: `postgres -D /usr/local/var/postgres`
 - mysql: `mysql.server start`
 - mongodb: `mongod --config /usr/local/etc/mongod.conf`
 - redis: `redis-server /usr/local/etc/redis.conf`
