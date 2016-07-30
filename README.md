@@ -60,7 +60,7 @@ guide](https://opbeat.com/docs/articles/troubleshooting-opbeat-for-nodejs/)
 The test suite expects the databases PostgreSQL, MySQL, MongoDB and
 Redis to be present. The `npm test` command will try and start them all
 automatically before running the tests. This should work on OS X if the
-databases are all instaled using [Homebrew](http://brew.sh).
+databases are all installed using [Homebrew](http://brew.sh).
 
 ## License
 
