@@ -9,3 +9,6 @@ redis:
 ioredis:
   versions: ^2.0.0
   commands: node test/instrumentation/modules/ioredis.js
+pg:
+  versions: >=4 <7
+  commands: node test/instrumentation/modules/pg/pg.js
