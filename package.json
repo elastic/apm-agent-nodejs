@@ -1,6 +1,6 @@
 {
   "name": "opbeat",
-  "version": "3.14.0",
+  "version": "3.14.1",
   "description": "The official Opbeat agent for Node.js",
   "main": "index.js",
   "scripts": {

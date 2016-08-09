@@ -1,3 +1,6 @@
+# 3.14.1 - 2016/8/4
+  * redis: fix issue with optional callback
+
 # 3.14.0 - 2016/7/30
   * pg: support all pg v6.x versions
 
