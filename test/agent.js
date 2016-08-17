@@ -3,6 +3,7 @@
 var os = require('os')
 var zlib = require('zlib')
 var util = require('util')
+var http = require('http')
 var test = require('tape')
 var nock = require('nock')
 var helpers = require('./_helpers')
@@ -385,6 +386,71 @@ test('#captureError()', function (t) {
       request.error = oldErrorFn
     }
     opbeat.captureError(new Error('foo'), { order: 0 })
+  })
+
+  t.test('should anonymize the http Authorization header by default', function (t) {
+    t.plan(2)
+    setup()
+    opbeat.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+
+    var oldErrorFn = request.error
+    request.error = function (agent, data, cb) {
+      t.equal(data.http.headers.authorization, '[REDACTED]')
+      request.error = oldErrorFn
+    }
+
+    var server = http.createServer(function (req, res) {
+      opbeat.captureError(new Error('foo'), { request: req })
+      res.end()
+    })
+
+    server.listen(function () {
+      http.request({
+        port: server.address().port,
+        headers: { Authorization: 'secret' }
+      }, function (res) {
+        res.resume()
+        res.on('end', function () {
+          server.close()
+          t.ok(true)
+        })
+      }).end()
+    })
+  })
+
+  t.test('should not anonymize the http Authorization header if disabled', function (t) {
+    t.plan(2)
+    setup()
+    opbeat.start({
+      appId: 'foo',
+      organizationId: 'bar',
+      secretToken: 'baz',
+      filterHttpHeaders: false
+    })
+
+    var oldErrorFn = request.error
+    request.error = function (agent, data, cb) {
+      t.equal(data.http.headers.authorization, 'secret')
+      request.error = oldErrorFn
+    }
+
+    var server = http.createServer(function (req, res) {
+      opbeat.captureError(new Error('foo'), { request: req })
+      res.end()
+    })
+
+    server.listen(function () {
+      http.request({
+        port: server.address().port,
+        headers: { Authorization: 'secret' }
+      }, function (res) {
+        res.resume()
+        res.on('end', function () {
+          server.close()
+          t.ok(true)
+        })
+      }).end()
+    })
   })
 })
 
