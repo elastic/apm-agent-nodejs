@@ -1,3 +1,7 @@
+# 3.15.0 - 2016/8/18
+  * Allow use of filtering middleware using opbeat.addFilter()
+  * deprecate: the filter option is deprecated in favor of opbeat.addFilter()
+
 # 3.14.1 - 2016/8/4
   * redis: fix issue with optional callback
 
