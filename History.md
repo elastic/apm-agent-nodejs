@@ -1,3 +1,6 @@
+# 3.16.0 - 2016/8/22
+  * http: add support for SSE
+
 # 3.15.0 - 2016/8/18
   * Anonymize HTTP Authorization headers
   * Allow use of filtering middleware using opbeat.addFilter()
