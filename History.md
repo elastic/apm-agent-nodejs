@@ -1,4 +1,5 @@
 # 3.15.0 - 2016/8/18
+  * Anonymize HTTP Authorization headers
   * Allow use of filtering middleware using opbeat.addFilter()
   * deprecate: the filter option is deprecated in favor of opbeat.addFilter()
 
