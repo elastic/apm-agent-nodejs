@@ -1,3 +1,6 @@
+# 3.17.0 - 2016/8/24
+  * allow not instrumenting certain requests via `ignoreUrls` and `ignoreUserAgents`
+
 # 3.16.0 - 2016/8/22
   * http: add support for SSE
 
