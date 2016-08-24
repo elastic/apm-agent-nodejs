@@ -48,10 +48,8 @@ test('basic', function (t) {
     }, 0), data.traces.groups.length)
 
     data.traces.groups.forEach(function (trace, index) {
-      var trans = 0
       var rootTrans = expected[index].signature === 'transaction'
       var parents = rootTrans ? [] : ['transaction']
-      if (index > 2) trans++
       t.equal(trace.transaction, expected[index].transaction)
       t.equal(trace.signature, expected[index].signature)
       t.equal(trace.kind, expected[index].kind)
