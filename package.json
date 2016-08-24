@@ -48,7 +48,7 @@
     "json-stringify-safe": "^5.0.0",
     "lru-cache": "^4.0.1",
     "node-uuid": "^1.4.7",
-    "opbeat-http-client": "^1.0.3",
+    "opbeat-http-client": "^1.1.0",
     "opbeat-release-tracker": "^1.1.1",
     "require-in-the-middle": "^2.1.2",
     "semver": "^5.2.0",
