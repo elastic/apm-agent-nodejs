@@ -142,6 +142,37 @@ test('should force active to false if required options have not been specified',
   t.end()
 })
 
+test('should default to empty request blacklist arrays', function (t) {
+  setup()
+  opbeat.start()
+  t.equal(opbeat._ignoreUrlStr.length, 0)
+  t.equal(opbeat._ignoreUrlRegExp.length, 0)
+  t.equal(opbeat._ignoreUserAgentStr.length, 0)
+  t.equal(opbeat._ignoreUserAgentRegExp.length, 0)
+  t.end()
+})
+
+test('should separate strings and regexes into their own blacklist arrays', function (t) {
+  setup()
+  opbeat.start({
+    ignoreUrls: ['str1', /regex1/],
+    ignoreUserAgents: ['str2', /regex2/]
+  })
+
+  t.deepEqual(opbeat._ignoreUrlStr, ['str1'])
+  t.deepEqual(opbeat._ignoreUserAgentStr, ['str2'])
+
+  t.equal(opbeat._ignoreUrlRegExp.length, 1)
+  t.ok(util.isRegExp(opbeat._ignoreUrlRegExp[0]))
+  t.equal(opbeat._ignoreUrlRegExp[0].toString(), '/regex1/')
+
+  t.equal(opbeat._ignoreUserAgentRegExp.length, 1)
+  t.ok(util.isRegExp(opbeat._ignoreUserAgentRegExp[0]))
+  t.equal(opbeat._ignoreUserAgentRegExp[0].toString(), '/regex2/')
+
+  t.end()
+})
+
 test('#captureError()', function (t) {
   t.test('should send a plain text message to Opbeat server', function (t) {
     setup()

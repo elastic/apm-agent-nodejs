@@ -19,7 +19,11 @@ module.exports = function mockAgent (cb) {
     },
     _httpClient: {
       request: cb || noop
-    }
+    },
+    _ignoreUrlStr: [],
+    _ignoreUrlRegExp: [],
+    _ignoreUserAgentStr: [],
+    _ignoreUserAgentRegExp: []
   }
 
   // We do not want to start the instrumenation multiple times during testing.
