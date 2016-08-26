@@ -43,8 +43,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          queryable.query(sql, basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          queryable.query(sql, basicQueryCallback(t))
         })
       })
 
@@ -55,8 +55,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + ? AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          queryable.query(sql, [1], basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          queryable.query(sql, [1], basicQueryCallback(t))
         })
       })
 
@@ -67,8 +67,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          queryable.query({ sql: sql }, basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          queryable.query({ sql: sql }, basicQueryCallback(t))
         })
       })
 
@@ -79,8 +79,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + ? AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          queryable.query({ sql: sql }, [1], basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          queryable.query({ sql: sql }, [1], basicQueryCallback(t))
         })
       })
 
@@ -91,8 +91,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          var query = mysql.createQuery(sql, basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          var query = mysql.createQuery(sql, basicQueryCallback(t))
           queryable.query(query)
         })
       })
@@ -104,8 +104,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + ? AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          var query = mysql.createQuery(sql, [1], basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          var query = mysql.createQuery(sql, [1], basicQueryCallback(t))
           queryable.query(query)
         })
       })
@@ -139,9 +139,9 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query(sql)
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -152,9 +152,9 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + ? AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query(sql, [1])
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -165,9 +165,9 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query({ sql: sql })
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -178,9 +178,9 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + ? AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query({ sql: sql }, [1])
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -191,10 +191,10 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var query = mysql.createQuery(sql)
           var stream = queryable.query(query)
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -205,10 +205,10 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + ? AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var query = mysql.createQuery(sql, [1])
           var stream = queryable.query(query)
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
     })
@@ -600,7 +600,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + 1 AS solution'
 
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
 
           queryable.getConnection(function (err, conn) {
             t.error(err)
@@ -608,7 +608,7 @@ factories.forEach(function (f) {
 
             queryable.getConnection(function (err, conn) {
               t.error(err)
-              conn.query(sql, basicQueryCallback(t, trans))
+              conn.query(sql, basicQueryCallback(t))
             })
           })
         })
@@ -617,16 +617,16 @@ factories.forEach(function (f) {
   })
 })
 
-function basicQueryCallback (t, trans) {
+function basicQueryCallback (t) {
   return function (err, rows, fields) {
     t.error(err)
     t.equal(rows[0].solution, 2)
-    trans.end()
+    agent.endTransaction()
     agent._instrumentation._send()
   }
 }
 
-function basicQueryStream (stream, t, trans) {
+function basicQueryStream (stream, t) {
   var results = 0
   stream.on('error', function (err) {
     t.error(err)
@@ -637,7 +637,7 @@ function basicQueryStream (stream, t, trans) {
   })
   stream.on('end', function () {
     t.equal(results, 1)
-    trans.end()
+    agent.endTransaction()
     agent._instrumentation._send()
   })
 }

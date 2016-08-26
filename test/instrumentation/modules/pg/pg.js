@@ -46,8 +46,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          queryable.query(sql, [1], basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          queryable.query(sql, [1], basicQueryCallback(t))
         })
       })
 
@@ -58,8 +58,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          queryable.query({ text: sql }, basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          queryable.query({ text: sql }, basicQueryCallback(t))
         })
       })
 
@@ -70,8 +70,8 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          queryable.query({ text: sql }, [1], basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          queryable.query({ text: sql }, [1], basicQueryCallback(t))
         })
       })
 
@@ -82,36 +82,10 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
-          queryable.query({ text: sql, values: [1] }, basicQueryCallback(t, trans))
+          agent.startTransaction('foo')
+          queryable.query({ text: sql, values: [1] }, basicQueryCallback(t))
         })
       })
-
-      // t.test(type + '.query(query)', function (t) {
-      //   resetAgent(function (endpoint, headers, data, cb) {
-      //     assertBasicQuery(t, sql, data)
-      //     t.end()
-      //   })
-      //   var sql = 'SELECT 1 + 1 AS solution'
-      //   factory(function () {
-      //     var trans = agent.startTransaction('foo')
-      //     var query = new pg.Query(sql, basicQueryCallback(t, trans))
-      //     queryable.query(query)
-      //   })
-      // })
-
-      // t.test(type + '.query(query_with_values)', function (t) {
-      //   resetAgent(function (endpoint, headers, data, cb) {
-      //     assertBasicQuery(t, sql, data)
-      //     t.end()
-      //   })
-      //   var sql = 'SELECT 1 + $1 AS solution'
-      //   factory(function () {
-      //     var trans = agent.startTransaction('foo')
-      //     var query = new pg.Query(sql, [1], basicQueryCallback(t, trans))
-      //     queryable.query(query)
-      //   })
-      // })
 
       t.test(type + '.query(sql) - no callback', function (t) {
         resetAgent(function (endpoint, headers, data, cb) {
@@ -138,9 +112,9 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query(sql)
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -151,9 +125,9 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query(sql, [1])
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -164,9 +138,9 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query({ text: sql })
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -177,9 +151,9 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query({ text: sql }, [1])
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
 
@@ -190,39 +164,11 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          agent.startTransaction('foo')
           var stream = queryable.query({ text: sql, values: [1] })
-          basicQueryStream(stream, t, trans)
+          basicQueryStream(stream, t)
         })
       })
-
-      // t.test(type + '.query(query)', function (t) {
-      //   resetAgent(function (endpoint, headers, data, cb) {
-      //     assertBasicQuery(t, sql, data)
-      //     t.end()
-      //   })
-      //   var sql = 'SELECT 1 + 1 AS solution'
-      //   factory(function () {
-      //     var trans = agent.startTransaction('foo')
-      //     var query = new pg.Query(sql)
-      //     var stream = queryable.query(query)
-      //     basicQueryStream(stream, t, trans)
-      //   })
-      // })
-
-      // t.test(type + '.query(query_with_values)', function (t) {
-      //   resetAgent(function (endpoint, headers, data, cb) {
-      //     assertBasicQuery(t, sql, data)
-      //     t.end()
-      //   })
-      //   var sql = 'SELECT 1 + $1 AS solution'
-      //   factory(function () {
-      //     var trans = agent.startTransaction('foo')
-      //     var query = new pg.Query(sql, [1])
-      //     var stream = queryable.query(query)
-      //     basicQueryStream(stream, t, trans)
-      //   })
-      // })
     })
 
     t.test('simultaneous queries', function (t) {
@@ -619,7 +565,7 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
     var lastRelease
 
     createPool(function (connector) {
-      var trans = agent.startTransaction('foo')
+      agent.startTransaction('foo')
 
       connector(function (err, client, release) {
         t.error(err)
@@ -628,7 +574,7 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
         connector(function (err, client, release) {
           lastRelease = release
           t.error(err)
-          client.query(sql, basicQueryCallback(t, trans))
+          client.query(sql, basicQueryCallback(t))
         })
       })
     })
@@ -644,7 +590,7 @@ function basicQueryCallback (t) {
   }
 }
 
-function basicQueryStream (stream, t, trans) {
+function basicQueryStream (stream, t) {
   var results = 0
   stream.on('error', function (err) {
     t.error(err)
@@ -655,7 +601,7 @@ function basicQueryStream (stream, t, trans) {
   })
   stream.on('end', function () {
     t.equal(results, 1)
-    trans.end()
+    agent.endTransaction()
     agent._instrumentation._send()
   })
 }
