@@ -6,7 +6,7 @@ var test = require('tape')
 var http = require('http')
 
 test('normal response', function (t) {
-  resetAgent(function (endpoint, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     assertNonSSEResponse(t, data)
     t.end()
   })
@@ -24,7 +24,7 @@ test('normal response', function (t) {
 })
 
 test('SSE response with explicit headers', function (t) {
-  resetAgent(function (endpoint, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     assertSSEResponse(t, data)
     t.end()
   })
@@ -43,7 +43,7 @@ test('SSE response with explicit headers', function (t) {
 })
 
 test('SSE response with implicit headers', function (t) {
-  resetAgent(function (endpoint, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     assertSSEResponse(t, data)
     t.end()
   })

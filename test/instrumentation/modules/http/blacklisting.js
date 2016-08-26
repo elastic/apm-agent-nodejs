@@ -8,7 +8,7 @@ var http = require('http')
 test('ignore url string - no match', function (t) {
   resetAgent({
     _ignoreUrlStr: ['/exact']
-  }, function (endpoint, data, cb) {
+  }, function (endpoint, headers, data, cb) {
     assertNoMatch(t, data)
     t.end()
   })
@@ -18,7 +18,7 @@ test('ignore url string - no match', function (t) {
 test('ignore url string - match', function (t) {
   resetAgent({
     _ignoreUrlStr: ['/exact']
-  }, function (endpoint, data, cb) {
+  }, function (endpoint, headers, data, cb) {
     assertMatch(t, data)
     t.end()
   })
@@ -28,7 +28,7 @@ test('ignore url string - match', function (t) {
 test('ignore url regex - no match', function (t) {
   resetAgent({
     _ignoreUrlRegExp: [/regex/]
-  }, function (endpoint, data, cb) {
+  }, function (endpoint, headers, data, cb) {
     assertNoMatch(t, data)
     t.end()
   })
@@ -38,7 +38,7 @@ test('ignore url regex - no match', function (t) {
 test('ignore url regex - match', function (t) {
   resetAgent({
     _ignoreUrlRegExp: [/regex/]
-  }, function (endpoint, data, cb) {
+  }, function (endpoint, headers, data, cb) {
     assertMatch(t, data)
     t.end()
   })
@@ -48,7 +48,7 @@ test('ignore url regex - match', function (t) {
 test('ignore User-Agent string - no match', function (t) {
   resetAgent({
     _ignoreUserAgentStr: ['exact']
-  }, function (endpoint, data, cb) {
+  }, function (endpoint, headers, data, cb) {
     assertNoMatch(t, data)
     t.end()
   })
@@ -58,7 +58,7 @@ test('ignore User-Agent string - no match', function (t) {
 test('ignore User-Agent string - match', function (t) {
   resetAgent({
     _ignoreUserAgentStr: ['exact']
-  }, function (endpoint, data, cb) {
+  }, function (endpoint, headers, data, cb) {
     assertMatch(t, data)
     t.end()
   })
@@ -68,7 +68,7 @@ test('ignore User-Agent string - match', function (t) {
 test('ignore User-Agent regex - no match', function (t) {
   resetAgent({
     _ignoreUserAgentRegExp: [/regex/]
-  }, function (endpoint, data, cb) {
+  }, function (endpoint, headers, data, cb) {
     assertNoMatch(t, data)
     t.end()
   })
@@ -78,7 +78,7 @@ test('ignore User-Agent regex - no match', function (t) {
 test('ignore User-Agent regex - match', function (t) {
   resetAgent({
     _ignoreUserAgentRegExp: [/regex/]
-  }, function (endpoint, data, cb) {
+  }, function (endpoint, headers, data, cb) {
     assertMatch(t, data)
     t.end()
   })

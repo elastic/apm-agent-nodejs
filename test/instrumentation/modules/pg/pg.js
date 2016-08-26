@@ -28,7 +28,7 @@ factories.forEach(function (f) {
   test('pg.' + factory.name, function (t) {
     t.test('basic query with callback', function (t) {
       t.test(type + '.query(sql, callback)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -40,7 +40,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(sql, values, callback)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -52,7 +52,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options, callback)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -64,7 +64,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options, values, callback)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -76,7 +76,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options-with-values, callback)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -88,7 +88,7 @@ factories.forEach(function (f) {
       })
 
       // t.test(type + '.query(query)', function (t) {
-      //   resetAgent(function (endpoint, data, cb) {
+      //   resetAgent(function (endpoint, headers, data, cb) {
       //     assertBasicQuery(t, sql, data)
       //     t.end()
       //   })
@@ -101,7 +101,7 @@ factories.forEach(function (f) {
       // })
 
       // t.test(type + '.query(query_with_values)', function (t) {
-      //   resetAgent(function (endpoint, data, cb) {
+      //   resetAgent(function (endpoint, headers, data, cb) {
       //     assertBasicQuery(t, sql, data)
       //     t.end()
       //   })
@@ -114,7 +114,7 @@ factories.forEach(function (f) {
       // })
 
       t.test(type + '.query(sql) - no callback', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -132,7 +132,7 @@ factories.forEach(function (f) {
 
     t.test('basic query streaming', function (t) {
       t.test(type + '.query(sql)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -145,7 +145,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(sql, values)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -158,7 +158,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -171,7 +171,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options, values)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -184,7 +184,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options-with-values)', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -197,7 +197,7 @@ factories.forEach(function (f) {
       })
 
       // t.test(type + '.query(query)', function (t) {
-      //   resetAgent(function (endpoint, data, cb) {
+      //   resetAgent(function (endpoint, headers, data, cb) {
       //     assertBasicQuery(t, sql, data)
       //     t.end()
       //   })
@@ -211,7 +211,7 @@ factories.forEach(function (f) {
       // })
 
       // t.test(type + '.query(query_with_values)', function (t) {
-      //   resetAgent(function (endpoint, data, cb) {
+      //   resetAgent(function (endpoint, headers, data, cb) {
       //     assertBasicQuery(t, sql, data)
       //     t.end()
       //   })
@@ -227,7 +227,7 @@ factories.forEach(function (f) {
 
     t.test('simultaneous queries', function (t) {
       t.test('on same connection', function (t) {
-        resetAgent(function (endpoint, data, cb) {
+        resetAgent(function (endpoint, headers, data, cb) {
           // data.traces.groups:
           t.equal(data.traces.groups.length, 2)
 
@@ -323,7 +323,7 @@ factories.forEach(function (f) {
     })
 
     t.test('simultaneous transactions', function (t) {
-      resetAgent(function (endpoint, data, cb) {
+      resetAgent(function (endpoint, headers, data, cb) {
         var fooIndex, barIndex, bazIndex
         for (var n = 0; n < 3; n++) {
           switch (data.transactions[n].transaction) {
@@ -502,7 +502,7 @@ factories.forEach(function (f) {
 // In pg@6 native promises are required for pool operations
 if (global.Promise || semver.satisfies(pgVersion, '<6')) {
   test('simultaneous queries on different connections', function (t) {
-    resetAgent(function (endpoint, data, cb) {
+    resetAgent(function (endpoint, headers, data, cb) {
       // data.traces.groups:
       t.equal(data.traces.groups.length, 2)
 
@@ -609,7 +609,7 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
   })
 
   test('connection.release()', function (t) {
-    resetAgent(function (endpoint, data, cb) {
+    resetAgent(function (endpoint, headers, data, cb) {
       assertBasicQuery(t, sql, data)
       lastRelease()
       t.end()

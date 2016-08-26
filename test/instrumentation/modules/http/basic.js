@@ -8,7 +8,7 @@ var http = require('http')
 
 test('http.createServer', function (t) {
   t.test('direct callback', function (t) {
-    resetAgent(function (endpoint, data, cb) {
+    resetAgent(function (endpoint, headers, data, cb) {
       assert(t, data)
       server.close()
       t.end()
@@ -19,7 +19,7 @@ test('http.createServer', function (t) {
   })
 
   t.test('server.addListener()', function (t) {
-    resetAgent(function (endpoint, data, cb) {
+    resetAgent(function (endpoint, headers, data, cb) {
       assert(t, data)
       server.close()
       t.end()
@@ -31,7 +31,7 @@ test('http.createServer', function (t) {
   })
 
   t.test('server.on()', function (t) {
-    resetAgent(function (endpoint, data, cb) {
+    resetAgent(function (endpoint, headers, data, cb) {
       assert(t, data)
       server.close()
       t.end()
@@ -45,7 +45,7 @@ test('http.createServer', function (t) {
 
 test('new http.Server', function (t) {
   t.test('direct callback', function (t) {
-    resetAgent(function (endpoint, data, cb) {
+    resetAgent(function (endpoint, headers, data, cb) {
       assert(t, data)
       server.close()
       t.end()
@@ -56,7 +56,7 @@ test('new http.Server', function (t) {
   })
 
   t.test('server.addListener()', function (t) {
-    resetAgent(function (endpoint, data, cb) {
+    resetAgent(function (endpoint, headers, data, cb) {
       assert(t, data)
       server.close()
       t.end()
@@ -68,7 +68,7 @@ test('new http.Server', function (t) {
   })
 
   t.test('server.on()', function (t) {
-    resetAgent(function (endpoint, data, cb) {
+    resetAgent(function (endpoint, headers, data, cb) {
       assert(t, data)
       server.close()
       t.end()

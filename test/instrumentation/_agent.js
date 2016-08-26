@@ -23,7 +23,8 @@ module.exports = function mockAgent (cb) {
     _ignoreUrlStr: [],
     _ignoreUrlRegExp: [],
     _ignoreUserAgentStr: [],
-    _ignoreUserAgentRegExp: []
+    _ignoreUserAgentRegExp: [],
+    _platform: {}
   }
 
   // We do not want to start the instrumenation multiple times during testing.

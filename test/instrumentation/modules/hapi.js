@@ -19,7 +19,7 @@ var Hapi = require('hapi')
 test('route naming', function (t) {
   t.plan(18)
 
-  resetAgent(function (endpoint, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data)
     server.stop()
   })
@@ -40,7 +40,7 @@ test('route naming', function (t) {
 test('error handling', function (t) {
   t.plan(20)
 
-  resetAgent(function (endpoint, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data, { status: 500, name: 'GET /error' })
     server.stop()
   })

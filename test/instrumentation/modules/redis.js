@@ -57,7 +57,7 @@ var redis = require('redis')
 //           [ 3, 16.915787, 2.167231 ],
 //           [ 4, 0, 20.077148 ] ] ] } }
 test(function (t) {
-  resetAgent(function (endpoint, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     var groups = [
       'FLUSHALL',
       'SET',

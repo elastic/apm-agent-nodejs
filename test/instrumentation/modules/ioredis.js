@@ -150,7 +150,7 @@ test('nested', function (t) {
 //           [ 4, 26.094776, 4.187654 ],
 //           [ 5, 0, 31.891944 ] ] ] } }
 function done (t) {
-  return function (endpoint, data, cb) {
+  return function (endpoint, headers, data, cb) {
     var groups = [
       'FLUSHALL',
       'SET',

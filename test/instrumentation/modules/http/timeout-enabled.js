@@ -14,7 +14,7 @@ test('client-side timeout below error threshold - call end', function (t) {
   t.plan(17)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
   }}
@@ -55,7 +55,7 @@ test('client-side timeout above error threshold - call end', function (t) {
   t.plan(19)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data, { result: agent.timeout.errorResult })
     server.close()
   }}
@@ -97,7 +97,7 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
   t.plan(17)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
   }}
@@ -135,7 +135,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
   t.plan(19)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data, { result: agent.timeout.errorResult })
     server.close()
   }}
@@ -175,7 +175,7 @@ test('server-side timeout below error threshold and socket closed - call end', f
   t.plan(19)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
@@ -217,7 +217,7 @@ test('server-side timeout above error threshold and socket closed - call end', f
   t.plan(21)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data, { result: agent.timeout.errorResult })
   }}
   agent.captureError = function (err, opts) {
@@ -260,7 +260,7 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
   t.plan(19)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
@@ -301,7 +301,7 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
   t.plan(21)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data, { result: agent.timeout.errorResult })
   }}
   agent.captureError = function (err, opts) {
@@ -341,7 +341,7 @@ test('server-side timeout below error threshold but socket not closed - call end
   t.plan(17)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
   }}
@@ -378,7 +378,7 @@ test('server-side timeout above error threshold but socket not closed - call end
   t.plan(17)
 
   agent._instrumentation._queue = []
-  agent._httpClient = {request: function (endpoint, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
   }}

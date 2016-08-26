@@ -13,7 +13,7 @@ test('basic', function (t) {
     { transaction: 'foo1', signature: 'transaction', kind: 'transaction' }
   ]
 
-  var agent = mockAgent(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
     var now = new Date()
     var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
 
@@ -108,7 +108,7 @@ test('basic', function (t) {
 })
 
 test('same tick', function (t) {
-  var agent = mockAgent(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
     t.equal(data.traces.groups.length, 3)
     t.equal(data.traces.groups[0].signature, 't1')
     t.equal(data.traces.groups[1].signature, 't0')
@@ -130,7 +130,7 @@ test('same tick', function (t) {
 })
 
 test('serial - no parents', function (t) {
-  var agent = mockAgent(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
     t.equal(data.traces.groups.length, 3)
     t.equal(data.traces.groups[0].signature, 't0')
     t.equal(data.traces.groups[1].signature, 't1')
@@ -156,7 +156,7 @@ test('serial - no parents', function (t) {
 })
 
 test('serial - with parents', function (t) {
-  var agent = mockAgent(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
     t.equal(data.traces.groups.length, 3)
     t.equal(data.traces.groups[0].signature, 't1')
     t.equal(data.traces.groups[1].signature, 't0')
@@ -182,7 +182,7 @@ test('serial - with parents', function (t) {
 })
 
 test('stack branching - no parents', function (t) {
-  var agent = mockAgent(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
     t.equal(pointerChain(t0), 't0 -> transaction')
     t.equal(pointerChain(t1), 't1 -> transaction')
 
@@ -211,7 +211,7 @@ test('stack branching - no parents', function (t) {
 })
 
 test('currentTransaction missing - recoverable', function (t) {
-  var agent = mockAgent(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
     t.equal(pointerChain(t0), 't0 -> transaction')
 
     t.equal(data.traces.groups.length, 2)
@@ -240,7 +240,7 @@ test('currentTransaction missing - recoverable', function (t) {
 })
 
 test('currentTransaction missing - not recoverable - last trace failed', function (t) {
-  var agent = mockAgent(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
     t.equal(pointerChain(t0), 't0 -> transaction')
 
     t.equal(data.traces.groups.length, 2)
@@ -270,7 +270,7 @@ test('currentTransaction missing - not recoverable - last trace failed', functio
 })
 
 test('currentTransaction missing - not recoverable - middle trace failed', function (t) {
-  var agent = mockAgent(function (endpoint, data, cb) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
     t.equal(pointerChain(t0), 't0 -> transaction')
     t.equal(pointerChain(t2), 't2 -> transaction')
 
