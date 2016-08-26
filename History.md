@@ -1,3 +1,6 @@
+# 3.17.1 - 2016/8/26
+  * core: logging of runtime and framework details to Opbeat intake API
+
 # 3.17.0 - 2016/8/24
   * allow not instrumenting certain requests via `ignoreUrls` and `ignoreUserAgents`
 
