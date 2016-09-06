@@ -131,4 +131,31 @@ test('#parseError()', function (t) {
       })
     }
   })
+
+  t.test('should gracefully handle .stack already being accessed', function (t) {
+    var err = new Error('foo')
+    t.ok(typeof err.stack === 'string')
+    parsers.parseError(err, {}, function (parsed) {
+      t.equal(parsed.message, 'Error: foo')
+      t.ok('exception' in parsed)
+      t.equal(parsed.exception.type, 'Error')
+      t.equal(parsed.exception.value, 'foo')
+      t.ok('stacktrace' in parsed)
+      t.ok('frames' in parsed.stacktrace)
+      t.end()
+    })
+  })
+
+  t.test('should gracefully handle .stack being overwritten', function (t) {
+    var err = new Error('foo')
+    err.stack = 'foo'
+    parsers.parseError(err, {}, function (parsed) {
+      t.equal(parsed.message, 'Error: foo')
+      t.ok('exception' in parsed)
+      t.equal(parsed.exception.type, 'Error')
+      t.equal(parsed.exception.value, 'foo')
+      t.ok(!('stacktrace' in parsed))
+      t.end()
+    })
+  })
 })
