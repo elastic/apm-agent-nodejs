@@ -1,3 +1,6 @@
+# 3.17.2 - 2016/9/12
+  * core: improve native promise instrumentation
+
 # 3.17.1 - 2016/8/26
   * core: logging of runtime and framework details to Opbeat intake API
 
