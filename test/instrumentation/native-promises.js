@@ -257,7 +257,7 @@ test('Promise.defer -> resolve', function (t) {
     setImmediate(function () {
       var trans = ins.startTransaction()
       var deferred = Promise.defer()
-      setTimeout(deferred.resolve, 10, 'foo')
+      setTimeout(deferred.resolve.bind(deferred), 10, 'foo')
       deferred.promise.then(function (data) {
         t.equal(data, 'foo')
         t.equal(ins.currentTransaction._uuid, trans._uuid)
@@ -277,7 +277,7 @@ test('Promise.defer -> reject', function (t) {
     setImmediate(function () {
       var trans = ins.startTransaction()
       var deferred = Promise.defer()
-      setTimeout(deferred.reject, 10, 'foo')
+      setTimeout(deferred.reject.bind(deferred), 10, 'foo')
       deferred.promise.then(function (data) {
         t.fail('should not resolve')
       }, function (reason) {
