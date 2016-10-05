@@ -30,3 +30,8 @@ for file in $(files test/instrumentation/modules/mysql/!(_*).js); do
   echo "running: node $file"
   node "$file" || exit $?;
 done
+
+for file in $(files test/instrumentation/modules/bluebird/!(_*).js); do
+  echo "running: node $file"
+  node "$file" || exit $?;
+done

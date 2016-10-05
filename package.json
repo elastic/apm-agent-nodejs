@@ -58,6 +58,7 @@
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
+    "bluebird": "^3.4.6",
     "connect": "^3.4.1",
     "express": "^4.14.0",
     "generic-pool": "^2.4.2",
