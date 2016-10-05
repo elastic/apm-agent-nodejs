@@ -27,7 +27,7 @@ test('Promise.prototype.chain - short', function (t) {
     }).chain(function (data) {
       t.equal(data, 'foo')
       t.equal(ins.currentTransaction._uuid, trans._uuid)
-    }, function (reason) {
+    }, function () {
       t.fail('should not reject')
     })
   })
@@ -44,12 +44,12 @@ test('Promise.prototype.chain - long', function (t) {
       t.equal(data, 'foo')
       t.equal(ins.currentTransaction._uuid, trans._uuid)
       return 'bar'
-    }, function (reason) {
+    }, function () {
       t.fail('should not reject')
     }).chain(function (data) {
       t.equal(data, 'bar')
       t.equal(ins.currentTransaction._uuid, trans._uuid)
-    }, function (reason) {
+    }, function () {
       t.fail('should not reject')
     })
   })
@@ -65,7 +65,7 @@ test('Promise.accept', function (t) {
         t.equal(data, 'foo')
         t.equal(ins.currentTransaction._uuid, trans._uuid)
       })
-      .catch(function (reason) {
+      .catch(function () {
         t.fail('should not reject')
       })
   })
