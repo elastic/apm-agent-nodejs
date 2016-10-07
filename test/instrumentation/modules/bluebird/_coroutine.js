@@ -14,14 +14,16 @@ module.exports = function (test, Promise, ins) {
       twice(function () {
         var trans = ins.startTransaction()
         var start = Date.now()
+        var pongTime
 
         function PingPong () {}
 
         PingPong.prototype.ping = Promise.coroutine(function* (val) {
           if (val === 2) {
-            // timing is hard, let's give it a +/- 5ms slack
-            t.ok(start + 90 <= Date.now(), 'after pong, min 100ms should have passed')
-            t.ok(start + 125 > Date.now(), 'after pong, max 125ms should have passed')
+            // timing is hard, let's give it a -5ms slack
+            var pingTime = Date.now()
+            t.ok(pongTime + 45 <= pingTime, 'after pong, min 100ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
+            t.ok(pongTime + 100 > pingTime, 'after pong, max 125ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
             t.equal(ins.currentTransaction._uuid, trans._uuid)
             return
           }
@@ -30,9 +32,10 @@ module.exports = function (test, Promise, ins) {
         })
 
         PingPong.prototype.pong = Promise.coroutine(function* (val) {
-          // timing is hard, let's give it a +/- 5ms slack
-          t.ok(start + 45 <= Date.now(), 'after ping, min 50ms should have passed')
-          t.ok(start + 75 > Date.now(), 'after ping, max 75ms should have passed')
+          // timing is hard, let's give it a -5ms slack
+          pongTime = Date.now()
+          t.ok(start + 45 <= pongTime, 'after ping, min 50ms should have passed (took ' + (pongTime - start) + 'ms)')
+          t.ok(start + 100 > pongTime, 'after ping, max 75ms should have passed (took ' + (pongTime - start) + 'ms)')
           yield Promise.delay(50)
           this.ping(val + 1)
         })
@@ -56,14 +59,16 @@ module.exports = function (test, Promise, ins) {
       twice(function () {
         var trans = ins.startTransaction()
         var start = Date.now()
+        var pongTime
 
         function PingPong () {}
 
         PingPong.prototype.ping = Promise.coroutine(function* (val) {
           if (val === 2) {
-            // timing is hard, let's give it a +/- 5ms slack
-            t.ok(start + 90 <= Date.now(), 'after pong, min 100ms should have passed')
-            t.ok(start + 125 > Date.now(), 'after pong, max 125ms should have passed')
+            // timing is hard, let's give it a -5ms slack
+            var pingTime = Date.now()
+            t.ok(pongTime + 45 <= pingTime, 'after pong, min 100ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
+            t.ok(pongTime + 100 > pingTime, 'after pong, max 125ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
             t.equal(ins.currentTransaction._uuid, trans._uuid)
             return
           }
@@ -72,9 +77,10 @@ module.exports = function (test, Promise, ins) {
         })
 
         PingPong.prototype.pong = Promise.coroutine(function* (val) {
-          // timing is hard, let's give it a +/- 5ms slack
-          t.ok(start + 45 <= Date.now(), 'after ping, min 50ms should have passed')
-          t.ok(start + 75 > Date.now(), 'after ping, max 75ms should have passed')
+          // timing is hard, let's give it a -5ms slack
+          pongTime = Date.now()
+          t.ok(start + 45 <= pongTime, 'after ping, min 50ms should have passed (took ' + (pongTime - start) + 'ms)')
+          t.ok(start + 100 > pongTime, 'after ping, max 75ms should have passed (took ' + (pongTime - start) + 'ms)')
           yield 50
           this.ping(val + 1)
         })
