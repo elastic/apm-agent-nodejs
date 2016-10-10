@@ -4,6 +4,7 @@ services:
 - mysql
 - mongodb
 - redis-server
+- postgresql
 node_js:
 - '6'
 - '5'
