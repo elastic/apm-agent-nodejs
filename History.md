@@ -1,3 +1,6 @@
+# 3.19.0 - 2016/10/11
+  * bluebird: add support for bluebird ^2.0.0 (instrumented to ensure context is preserved across async boundaries)
+
 # 3.18.0 - 2016/10/10
   * bluebird: instrument ^3.0.0 (instrumented to ensure context is preserved across async boundaries)
 
