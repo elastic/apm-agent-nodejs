@@ -90,6 +90,20 @@ module.exports = function (test, Promise, ins) {
       })
     })
   }
+
+  test('Promise.spawn', function (t) {
+    t.plan(4)
+    twice(function () {
+      var trans = ins.startTransaction()
+
+      Promise.spawn(function* () {
+        return yield Promise.resolve('foo')
+      }).then(function (value) {
+        t.equal(value, 'foo')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
+    })
+  })
 }
 
 function twice (fn) {

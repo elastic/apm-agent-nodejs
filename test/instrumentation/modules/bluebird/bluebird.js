@@ -374,7 +374,7 @@ test('new Promise -> bind -> then', function (t) {
   })
 })
 
-test('Promise.bind', function (t) {
+test('Promise.bind - with value', function (t) {
   t.plan(6)
 
   function Obj () {}
@@ -391,6 +391,42 @@ test('Promise.bind', function (t) {
     p.then(function (result) {
       t.equal(this.n, n)
       t.equal(result, 'foo')
+      t.equal(ins.currentTransaction._uuid, trans._uuid)
+    })
+  })
+})
+
+test('Promise.bind - promise, without value', function (t) {
+  t.plan(4)
+  twice(function () {
+    var trans = ins.startTransaction()
+
+    var p = resolved('foo')
+
+    p = Promise.bind(p)
+
+    p.then(function (result) {
+      t.equal(result, undefined)
+      t.equal(ins.currentTransaction._uuid, trans._uuid)
+    })
+  })
+})
+
+test('Promise.bind - non-promise, without value', function (t) {
+  t.plan(6)
+
+  function Obj () {}
+
+  twice(function () {
+    var trans = ins.startTransaction()
+    var obj = new Obj()
+    var n = obj.n = Math.random()
+
+    var p = Promise.bind(obj)
+
+    p.then(function (result) {
+      t.equal(this.n, n)
+      t.equal(result, undefined)
       t.equal(ins.currentTransaction._uuid, trans._uuid)
     })
   })
@@ -442,6 +478,56 @@ TRY_NAMES.forEach(function (fnName) {
       }).catch(function (err) {
         t.equal(err.message, 'foo')
         t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
+    })
+  })
+
+  test('Promise.' + fnName + ' with args value', function (t) {
+    t.plan(6)
+    twice(function () {
+      var trans = ins.startTransaction()
+      Promise[fnName](function (value) {
+        t.equal(value, 'bar')
+        return 'foo'
+      }, 'bar').then(function (result) {
+        t.equal(result, 'foo')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      }).catch(function () {
+        t.fail('should not reject')
+      })
+    })
+  })
+
+  test('Promise.' + fnName + ' with args array', function (t) {
+    t.plan(6)
+    twice(function () {
+      var trans = ins.startTransaction()
+      Promise[fnName](function () {
+        t.deepEqual([].slice.call(arguments), [1, 2, 3])
+        return 'foo'
+      }, [1, 2, 3]).then(function (result) {
+        t.equal(result, 'foo')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      }).catch(function () {
+        t.fail('should not reject')
+      })
+    })
+  })
+
+  test('Promise.' + fnName + ' with context', function (t) {
+    t.plan(8)
+    twice(function () {
+      var trans = ins.startTransaction()
+      var obj = {}
+      Promise[fnName](function (value) {
+        t.equal(value, undefined)
+        t.equal(this, obj)
+        return 'foo'
+      }, undefined, obj).then(function (result) {
+        t.equal(result, 'foo')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      }).catch(function () {
+        t.fail('should not reject')
       })
     })
   })
@@ -867,86 +953,92 @@ test('Promise.promisifyAll', function (t) {
   })
 })
 
-test('Promise.fromCallback - resolve', function (t) {
-  t.plan(4)
-  twice(function () {
-    var trans = ins.startTransaction()
+var FROM_CALLBACK_NAMES = ['fromNode', 'fromCallback']
+FROM_CALLBACK_NAMES.forEach(function (fnName) {
+  test('Promise.' + fnName + ' - resolve', function (t) {
+    t.plan(4)
+    twice(function () {
+      var trans = ins.startTransaction()
 
-    Promise.fromCallback(function (cb) {
-      setImmediate(function () {
-        cb(null, 'foo')
+      Promise[fnName](function (cb) {
+        setImmediate(function () {
+          cb(null, 'foo')
+        })
+      }).then(function (value) {
+        t.equal(value, 'foo')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      }).catch(function () {
+        t.fail('should not reject')
       })
-    }).then(function (value) {
-      t.equal(value, 'foo')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
-    }).catch(function () {
-      t.fail('should not reject')
     })
   })
-})
 
-test('Promise.fromCallback - reject', function (t) {
-  t.plan(4)
-  twice(function () {
-    var trans = ins.startTransaction()
+  test('Promise.' + fnName + ' - reject', function (t) {
+    t.plan(4)
+    twice(function () {
+      var trans = ins.startTransaction()
 
-    Promise.fromCallback(function (cb) {
-      setImmediate(function () {
-        cb(new Error('bar'))
-      })
-    }).then(function () {
-      t.fail('should not resolve')
-    }).catch(function (err) {
-      t.equal(err.message, 'bar')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
-    })
-  })
-})
-
-test('new Promise -> asCallback (resolve)', function (t) {
-  t.plan(10)
-  twice(function () {
-    var trans = ins.startTransaction()
-
-    getSomething().then(function (value) {
-      t.equal(value, 'foo')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
-    })
-
-    getSomething(function (err, value) {
-      t.equal(err, null)
-      t.equal(value, 'foo')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
-    })
-
-    function getSomething (cb) {
-      return resolved('foo').asCallback(cb)
-    }
-  })
-})
-
-test('new Promise -> asCallback (reject)', function (t) {
-  t.plan(10)
-  twice(function () {
-    var trans = ins.startTransaction()
-
-    getSomething()
-      .then(function () {
+      Promise[fnName](function (cb) {
+        setImmediate(function () {
+          cb(new Error('bar'))
+        })
+      }).then(function () {
         t.fail('should not resolve')
       }).catch(function (err) {
-        t.equal(err, 'foo')
+        t.equal(err.message, 'bar')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
+    })
+  })
+})
+
+var AS_CALLBACK_NAMES = ['nodeify', 'asCallback']
+AS_CALLBACK_NAMES.forEach(function (fnName) {
+  test('new Promise -> ' + fnName + ' (resolve)', function (t) {
+    t.plan(10)
+    twice(function () {
+      var trans = ins.startTransaction()
+
+      getSomething().then(function (value) {
+        t.equal(value, 'foo')
         t.equal(ins.currentTransaction._uuid, trans._uuid)
       })
 
-    getSomething(function (err, value) {
-      t.equal(err, 'foo')
-      t.equal(value, undefined)
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
-    })
+      getSomething(function (err, value) {
+        t.equal(err, null)
+        t.equal(value, 'foo')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
 
-    function getSomething (cb) {
-      return rejected('foo').asCallback(cb)
-    }
+      function getSomething (cb) {
+        return resolved('foo')[fnName](cb)
+      }
+    })
+  })
+
+  test('new Promise -> ' + fnName + ' (reject)', function (t) {
+    t.plan(10)
+    twice(function () {
+      var trans = ins.startTransaction()
+
+      getSomething()
+        .then(function () {
+          t.fail('should not resolve')
+        }).catch(function (err) {
+          t.equal(err, 'foo')
+          t.equal(ins.currentTransaction._uuid, trans._uuid)
+        })
+
+      getSomething(function (err, value) {
+        t.equal(err, 'foo')
+        t.equal(value, undefined)
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
+
+      function getSomething (cb) {
+        return rejected('foo')[fnName](cb)
+      }
+    })
   })
 })
 
@@ -1233,6 +1325,18 @@ test('new Promise -> reflect', function (t) {
     var trans = ins.startTransaction()
     resolved('foo').reflect().then(function (p) {
       t.ok(p.isFulfilled())
+      t.equal(ins.currentTransaction._uuid, trans._uuid)
+    })
+  })
+})
+
+test('new Promise -> settle', function (t) {
+  t.plan(6)
+  twice(function () {
+    var trans = ins.startTransaction()
+    Promise.settle([resolved('foo')]).then(function (result) {
+      t.equal(result.length, 1)
+      t.ok(result[0].isFulfilled())
       t.equal(ins.currentTransaction._uuid, trans._uuid)
     })
   })
