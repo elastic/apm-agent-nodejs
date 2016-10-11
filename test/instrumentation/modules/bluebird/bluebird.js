@@ -12,6 +12,8 @@ var semver = require('semver')
 var test = require('tape')
 var Promise = require('bluebird')
 
+var BLUEBIRD_VERSION = require('bluebird/package').version
+
 require('../../_shared-promise-tests')(test, Promise, ins)
 
 if (semver.satisfies(process.version, '>=1.0.0')) require('./_coroutine')(test, Promise, ins)
@@ -221,26 +223,28 @@ CATCH_NAMES.forEach(function (fnName) {
     })
   })
 
-  test('new Promise -> reject -> ' + fnName + ' (filtered, predicate shorthand)', function (t) {
-    t.plan(6)
-    twice(function () {
-      var trans = ins.startTransaction()
-      var err = new URIError('foo')
-      err.code = 42
-      rejected(err)
-        .then(function () {
-          t.fail('should not resolve')
-        })[fnName]({code: 41}, function () {
-          t.fail('should not reject if predicate doesn\'t match')
-        })[fnName]({code: 42}, function (err) {
-          t.ok(err instanceof URIError)
-          t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
-        })[fnName](function () {
-          t.fail('should not catch a generic error')
-        })
+  if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
+    test('new Promise -> reject -> ' + fnName + ' (filtered, predicate shorthand)', function (t) {
+      t.plan(6)
+      twice(function () {
+        var trans = ins.startTransaction()
+        var err = new URIError('foo')
+        err.code = 42
+        rejected(err)
+          .then(function () {
+            t.fail('should not resolve')
+          })[fnName]({code: 41}, function () {
+            t.fail('should not reject if predicate doesn\'t match')
+          })[fnName]({code: 42}, function (err) {
+            t.ok(err instanceof URIError)
+            t.equal(err.message, 'foo')
+            t.equal(ins.currentTransaction._uuid, trans._uuid)
+          })[fnName](function () {
+            t.fail('should not catch a generic error')
+          })
+      })
     })
-  })
+  }
 })
 
 test('new Promise -> reject -> error', function (t) {
@@ -374,27 +378,29 @@ test('new Promise -> bind -> then', function (t) {
   })
 })
 
-test('Promise.bind - with value', function (t) {
-  t.plan(6)
+if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.0')) {
+  test('Promise.bind - with value', function (t) {
+    t.plan(6)
 
-  function Obj () {}
+    function Obj () {}
 
-  twice(function () {
-    var trans = ins.startTransaction()
-    var obj = new Obj()
-    var n = obj.n = Math.random()
+    twice(function () {
+      var trans = ins.startTransaction()
+      var obj = new Obj()
+      var n = obj.n = Math.random()
 
-    var p = resolved('foo')
+      var p = resolved('foo')
 
-    p = Promise.bind(obj, p)
+      p = Promise.bind(obj, p)
 
-    p.then(function (result) {
-      t.equal(this.n, n)
-      t.equal(result, 'foo')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      p.then(function (result) {
+        t.equal(this.n, n)
+        t.equal(result, 'foo')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
     })
   })
-})
+}
 
 test('Promise.bind - promise, without value', function (t) {
   t.plan(4)
@@ -807,6 +813,9 @@ test('new Promise -> filter', function (t) {
   })
 })
 
+// WARNING: this test is flaky on bluebird@2 unless bluebird.each is shimmed.
+// If you remove the shim, this test might still pass as it only fails once in
+// a while
 test('Promise.each', function (t) {
   t.plan(24)
   twice(function () {
@@ -824,6 +833,9 @@ test('Promise.each', function (t) {
   })
 })
 
+// WARNING: this test is flaky on bluebird@2 unless bluebird.prototype.each is
+// shimmed. If you remove the shim, this test might still pass as it only fails
+// once in a while
 test('new Promise -> each', function (t) {
   t.plan(24)
   twice(function () {
@@ -841,47 +853,49 @@ test('new Promise -> each', function (t) {
   })
 })
 
-test('Promise.mapSeries', function (t) {
-  t.plan(24)
-  twice(function () {
-    var trans = ins.startTransaction()
-    var p1 = resolved(1)
-    var p2 = resolved(2)
-    var p3 = resolved(3)
-    var arr = [p2, p3, p1]
-    var results = [2, 3, 1]
-    var i = 0
+if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
+  test('Promise.mapSeries', function (t) {
+    t.plan(24)
+    twice(function () {
+      var trans = ins.startTransaction()
+      var p1 = resolved(1)
+      var p2 = resolved(2)
+      var p3 = resolved(3)
+      var arr = [p2, p3, p1]
+      var results = [2, 3, 1]
+      var i = 0
 
-    Promise.mapSeries(arr, function (item, index, length) {
-      var expected = results.shift()
-      t.equal(item, expected)
-      t.equal(index, i++)
-      t.equal(length, 3, 'length should be 3')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      Promise.mapSeries(arr, function (item, index, length) {
+        var expected = results.shift()
+        t.equal(item, expected)
+        t.equal(index, i++)
+        t.equal(length, 3, 'length should be 3')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
     })
   })
-})
 
-test('new Promise -> mapSeries', function (t) {
-  t.plan(24)
-  twice(function () {
-    var trans = ins.startTransaction()
-    var p1 = resolved(1)
-    var p2 = resolved(2)
-    var p3 = resolved(3)
-    var arr = [p2, p3, p1]
-    var results = [2, 3, 1]
-    var i = 0
+  test('new Promise -> mapSeries', function (t) {
+    t.plan(24)
+    twice(function () {
+      var trans = ins.startTransaction()
+      var p1 = resolved(1)
+      var p2 = resolved(2)
+      var p3 = resolved(3)
+      var arr = [p2, p3, p1]
+      var results = [2, 3, 1]
+      var i = 0
 
-    resolved(arr).mapSeries(function (item, index, length) {
-      var expected = results.shift()
-      t.equal(item, expected)
-      t.equal(index, i++)
-      t.equal(length, 3, 'length should be 3')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      resolved(arr).mapSeries(function (item, index, length) {
+        var expected = results.shift()
+        t.equal(item, expected)
+        t.equal(index, i++)
+        t.equal(length, 3, 'length should be 3')
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
     })
   })
-})
+}
 
 test('Promise.using', function (t) {
   t.plan(6)
@@ -953,8 +967,10 @@ test('Promise.promisifyAll', function (t) {
   })
 })
 
-var FROM_CALLBACK_NAMES = ['fromNode', 'fromCallback']
-FROM_CALLBACK_NAMES.forEach(function (fnName) {
+var fromCallbackNames = []
+if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.0')) fromCallbackNames.push('fromNode')
+if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) fromCallbackNames.push('fromCallback')
+fromCallbackNames.forEach(function (fnName) {
   test('Promise.' + fnName + ' - resolve', function (t) {
     t.plan(4)
     twice(function () {
@@ -992,8 +1008,9 @@ FROM_CALLBACK_NAMES.forEach(function (fnName) {
   })
 })
 
-var AS_CALLBACK_NAMES = ['nodeify', 'asCallback']
-AS_CALLBACK_NAMES.forEach(function (fnName) {
+var asCallbackNames = ['nodeify']
+if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.15')) asCallbackNames.push('asCallback')
+asCallbackNames.forEach(function (fnName) {
   test('new Promise -> ' + fnName + ' (resolve)', function (t) {
     t.plan(10)
     twice(function () {
@@ -1247,88 +1264,92 @@ THROW_NAMES.forEach(function (fnName) {
   })
 })
 
-test('new Promise -> resolve -> catchReturn', function (t) {
-  t.plan(8)
-  twice(function () {
-    var trans = ins.startTransaction()
-    resolved('foo')
-      .then(function (value) {
-        t.deepEqual(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
-      })
-      .catchReturn('bar')
-      .then(function (value) {
-        t.deepEqual(value, undefined)
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
-      })
-  })
-})
-
-test('new Promise -> reject -> catchReturn', function (t) {
-  t.plan(4)
-  twice(function () {
-    var trans = ins.startTransaction()
-    rejected('foo')
-      .then(function () {
-        t.fail('should not resolve')
-      })
-      .catchReturn('bar')
-      .then(function (value) {
-        t.deepEqual(value, 'bar')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
-      })
-  })
-})
-
-test('new Promise -> resolve -> catchThrow', function (t) {
-  t.plan(8)
-  twice(function () {
-    var trans = ins.startTransaction()
-    resolved('foo')
-      .then(function (value) {
-        t.deepEqual(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
-      })
-      .catchThrow(new Error('bar'))
-      .then(function (value) {
-        t.deepEqual(value, undefined)
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
-      })
-      .catch(function () {
-        t.fail('should not reject')
-      })
-  })
-})
-
-test('new Promise -> reject -> catchThrow', function (t) {
-  t.plan(4)
-  twice(function () {
-    var trans = ins.startTransaction()
-    rejected('foo')
-      .then(function () {
-        t.fail('should not resolve')
-      })
-      .catchThrow(new Error('bar'))
-      .then(function () {
-        t.fail('should not resolve')
-      })
-      .catch(function (err) {
-        t.deepEqual(err.message, 'bar')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
-      })
-  })
-})
-
-test('new Promise -> reflect', function (t) {
-  t.plan(4)
-  twice(function () {
-    var trans = ins.startTransaction()
-    resolved('foo').reflect().then(function (p) {
-      t.ok(p.isFulfilled())
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
+  test('new Promise -> resolve -> catchReturn', function (t) {
+    t.plan(8)
+    twice(function () {
+      var trans = ins.startTransaction()
+      resolved('foo')
+        .then(function (value) {
+          t.deepEqual(value, 'foo')
+          t.equal(ins.currentTransaction._uuid, trans._uuid)
+        })
+        .catchReturn('bar')
+        .then(function (value) {
+          t.deepEqual(value, undefined)
+          t.equal(ins.currentTransaction._uuid, trans._uuid)
+        })
     })
   })
-})
+
+  test('new Promise -> reject -> catchReturn', function (t) {
+    t.plan(4)
+    twice(function () {
+      var trans = ins.startTransaction()
+      rejected('foo')
+        .then(function () {
+          t.fail('should not resolve')
+        })
+        .catchReturn('bar')
+        .then(function (value) {
+          t.deepEqual(value, 'bar')
+          t.equal(ins.currentTransaction._uuid, trans._uuid)
+        })
+    })
+  })
+
+  test('new Promise -> resolve -> catchThrow', function (t) {
+    t.plan(8)
+    twice(function () {
+      var trans = ins.startTransaction()
+      resolved('foo')
+        .then(function (value) {
+          t.deepEqual(value, 'foo')
+          t.equal(ins.currentTransaction._uuid, trans._uuid)
+        })
+        .catchThrow(new Error('bar'))
+        .then(function (value) {
+          t.deepEqual(value, undefined)
+          t.equal(ins.currentTransaction._uuid, trans._uuid)
+        })
+        .catch(function () {
+          t.fail('should not reject')
+        })
+    })
+  })
+
+  test('new Promise -> reject -> catchThrow', function (t) {
+    t.plan(4)
+    twice(function () {
+      var trans = ins.startTransaction()
+      rejected('foo')
+        .then(function () {
+          t.fail('should not resolve')
+        })
+        .catchThrow(new Error('bar'))
+        .then(function () {
+          t.fail('should not resolve')
+        })
+        .catch(function (err) {
+          t.deepEqual(err.message, 'bar')
+          t.equal(ins.currentTransaction._uuid, trans._uuid)
+        })
+    })
+  })
+}
+
+if (semver.satisfies(BLUEBIRD_VERSION, '>=2.3.6')) {
+  test('new Promise -> reflect', function (t) {
+    t.plan(4)
+    twice(function () {
+      var trans = ins.startTransaction()
+      resolved('foo').reflect().then(function (p) {
+        t.ok(p.isFulfilled())
+        t.equal(ins.currentTransaction._uuid, trans._uuid)
+      })
+    })
+  })
+}
 
 test('new Promise -> settle', function (t) {
   t.plan(6)
