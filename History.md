@@ -1,3 +1,6 @@
+# 3.19.1 - 2016/10/12
+  * express: expose express.static.mime
+
 # 3.19.0 - 2016/10/11
   * bluebird: add support for bluebird ^2.0.0 (instrumented to ensure context is preserved across async boundaries)
 
