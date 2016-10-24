@@ -58,7 +58,10 @@ test('basic', function (t) {
     })
 
     var traceKey = function (trace) {
-      return trace.signature + '|' + trace.parents.join(',')
+      return trace.kind +
+        '|' + trace.signature +
+        '|' + trace.transaction +
+        '|' + trace.parents.join('|')
     }
 
     var allKeys = []
