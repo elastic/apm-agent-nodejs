@@ -1,3 +1,6 @@
+# 3.19.2 - 2016/10/25
+  * core: fix issue with missing stack traces for certain traces
+
 # 3.19.1 - 2016/10/12
   * express: expose express.static.mime
 
