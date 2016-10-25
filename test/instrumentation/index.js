@@ -64,15 +64,14 @@ test('basic', function (t) {
         '|' + trace.parents.join('|')
     }
 
-    var allKeys = []
-    data.traces.groups.forEach(function (trace, idx) {
-      if (allKeys.indexOf(traceKey(trace)) < 0) {
-        allKeys.push(traceKey(trace))
-      }
+    var uniqueKeys = []
+    data.traces.groups.forEach(function (trace) {
+      var key = traceKey(trace)
+      if (uniqueKeys.indexOf(key) === -1) uniqueKeys.push(key)
     })
 
     var keysWithFrames = []
-    data.traces.groups.forEach(function (trace, index) {
+    data.traces.groups.forEach(function (trace) {
       if ('_frames' in trace.extra) {
         var key = traceKey(trace)
         t.ok(Array.isArray(trace.extra._frames))
@@ -82,7 +81,7 @@ test('basic', function (t) {
       }
     })
 
-    t.deepEqual(keysWithFrames, allKeys)
+    t.deepEqual(keysWithFrames, uniqueKeys)
 
     t.end()
   })
