@@ -54,7 +54,7 @@
     "require-in-the-middle": "^2.1.2",
     "semver": "^5.3.0",
     "sql-summary": "^1.0.0",
-    "stackman": "^1.2.6",
+    "stackman": "^1.2.7",
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
