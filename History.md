@@ -1,3 +1,6 @@
+# 3.19.3 - 2016/10/27
+  * core: fix Node.js v7.0.0 support
+
 # 3.19.2 - 2016/10/25
   * core: fix issue with missing stack traces for certain traces
 
