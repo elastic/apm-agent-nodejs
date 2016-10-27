@@ -286,7 +286,6 @@ var transactionTest = function () {
 }
 
 var test = function (suite, opts) {
-  opts.env = 'production'
   opts.logLevel = 'fatal'
   opts.captureExceptions = false
   opbeat.start(opts)
