@@ -6,6 +6,7 @@ services:
 - redis-server
 - postgresql
 node_js:
+- '7'
 - '6'
 - '5'
 - '4'
