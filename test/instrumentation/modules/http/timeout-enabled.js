@@ -13,7 +13,7 @@ test('client-side timeout below error threshold - call end', function (t) {
   var clientReq
   t.plan(17)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
@@ -23,8 +23,8 @@ test('client-side timeout below error threshold - call end', function (t) {
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
-    t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-    agent._instrumentation._send()
+    t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+    agent._instrumentation._queue._flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -54,7 +54,7 @@ test('client-side timeout above error threshold - call end', function (t) {
   var clientReq
   t.plan(19)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data, { result: agent.timeout.errorResult })
     server.close()
@@ -65,8 +65,8 @@ test('client-side timeout above error threshold - call end', function (t) {
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
-    t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-    agent._instrumentation._send()
+    t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+    agent._instrumentation._queue._flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -96,7 +96,7 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
   var clientReq
   t.plan(17)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
@@ -106,8 +106,8 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
-    t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-    agent._instrumentation._send()
+    t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+    agent._instrumentation._queue._flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -134,7 +134,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
   var clientReq
   t.plan(19)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data, { result: agent.timeout.errorResult })
     server.close()
@@ -145,8 +145,8 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
-    t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-    agent._instrumentation._send()
+    t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+    agent._instrumentation._queue._flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -174,7 +174,7 @@ test('server-side timeout below error threshold and socket closed - call end', f
   var ended = false
   t.plan(19)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
   }}
@@ -184,8 +184,8 @@ test('server-side timeout below error threshold and socket closed - call end', f
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     ended = true
-    t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-    agent._instrumentation._send()
+    t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+    agent._instrumentation._queue._flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -216,7 +216,7 @@ test('server-side timeout above error threshold and socket closed - call end', f
   var ended = false
   t.plan(21)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data, { result: agent.timeout.errorResult })
   }}
@@ -227,8 +227,8 @@ test('server-side timeout above error threshold and socket closed - call end', f
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     ended = true
-    t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-    agent._instrumentation._send()
+    t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+    agent._instrumentation._queue._flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -259,7 +259,7 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
   var ended = false
   t.plan(19)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
   }}
@@ -269,8 +269,8 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     ended = true
-    t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-    agent._instrumentation._send()
+    t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+    agent._instrumentation._queue._flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -300,7 +300,7 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
   var ended = false
   t.plan(21)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data, { result: agent.timeout.errorResult })
   }}
@@ -311,8 +311,8 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     ended = true
-    t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-    agent._instrumentation._send()
+    t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+    agent._instrumentation._queue._flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -340,7 +340,7 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
 test('server-side timeout below error threshold but socket not closed - call end', function (t) {
   t.plan(17)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
@@ -366,8 +366,8 @@ test('server-side timeout below error threshold but socket not closed - call end
     var port = server.address().port
     http.get('http://localhost:' + port, function (res) {
       res.on('end', function () {
-        t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-        agent._instrumentation._send()
+        t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+        agent._instrumentation._queue._flush()
       })
       res.resume()
     })
@@ -377,7 +377,7 @@ test('server-side timeout below error threshold but socket not closed - call end
 test('server-side timeout above error threshold but socket not closed - call end', function (t) {
   t.plan(17)
 
-  agent._instrumentation._queue = []
+  resetAgent()
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
@@ -403,10 +403,15 @@ test('server-side timeout above error threshold but socket not closed - call end
     var port = server.address().port
     http.get('http://localhost:' + port, function (res) {
       res.on('end', function () {
-        t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
-        agent._instrumentation._send()
+        t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+        agent._instrumentation._queue._flush()
       })
       res.resume()
     })
   })
 })
+
+function resetAgent () {
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
+}

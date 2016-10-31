@@ -40,6 +40,8 @@ module.exports = function mockAgent (cb) {
   } else {
     sharedInstrumentation._agent = agent
     agent._instrumentation = sharedInstrumentation
+    agent._instrumentation.currentTransaction = null
+    agent._instrumentation._queue._clear()
     agent.startTransaction = sharedInstrumentation.startTransaction.bind(sharedInstrumentation)
     agent.endTransaction = sharedInstrumentation.endTransaction.bind(sharedInstrumentation)
     agent.setTransactionName = sharedInstrumentation.setTransactionName.bind(sharedInstrumentation)

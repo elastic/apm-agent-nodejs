@@ -86,7 +86,7 @@ function sendRequest (server, timeout) {
     var req = http.get('http://localhost:' + port, function (res) {
       if (timeout) throw new Error('should not get to here')
       res.on('end', function () {
-        agent._instrumentation._send()
+        agent._instrumentation._queue._flush()
       })
       res.resume()
     })
@@ -94,7 +94,7 @@ function sendRequest (server, timeout) {
     if (timeout) {
       req.on('error', function (err) {
         if (err.code !== 'ECONNRESET') throw err
-        agent._instrumentation._send()
+        agent._instrumentation._queue._flush()
       })
 
       process.nextTick(function () {
@@ -110,6 +110,7 @@ function onRequest (req, res) {
 
 function resetAgent (cb) {
   agent.timeout.active = false
-  agent._instrumentation._queue = []
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
   agent._httpClient = { request: cb }
 }

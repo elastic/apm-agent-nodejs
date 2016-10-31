@@ -31,7 +31,7 @@ test('route naming', function (t) {
         t.equal(chunk.toString(), 'hello world')
       })
       res.on('end', function () {
-        agent._instrumentation._send()
+        agent._instrumentation._queue._flush()
       })
     })
   })
@@ -62,7 +62,7 @@ test('error handling', function (t) {
         })
       })
       res.on('end', function () {
-        agent._instrumentation._send()
+        agent._instrumentation._queue._flush()
       })
     })
   })
@@ -136,7 +136,8 @@ function assert (t, data, results) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue = []
+  agent._instrumentation.currentTransaction = null
+  agent._instrumentation._queue._clear()
   agent._httpClient = { request: cb || function () {} }
   agent.captureError = function (err) { throw err }
 }

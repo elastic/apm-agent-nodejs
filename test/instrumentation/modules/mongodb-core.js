@@ -115,7 +115,7 @@ test('trace simple command', function (t) {
                 t.error(err)
                 agent.endTransaction()
                 _server.destroy()
-                agent._instrumentation._send()
+                agent._instrumentation._queue._flush()
               })
             })
           })
@@ -128,7 +128,8 @@ test('trace simple command', function (t) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation._queue = []
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
   agent._httpClient = { request: cb || function () {} }
   agent.captureError = function (err) { throw err }
 }

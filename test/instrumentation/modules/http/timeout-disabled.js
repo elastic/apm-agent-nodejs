@@ -8,13 +8,13 @@ var http = require('http')
 agent.timeout.active = false
 
 test('client-side timeout - call end', function (t) {
-  agent._instrumentation._queue = []
+  resetAgent()
   var clientReq
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue.length, 1, 'should add transactions to queue')
+        t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
         server.close()
         t.end()
       }, 50)
@@ -41,13 +41,13 @@ test('client-side timeout - call end', function (t) {
 })
 
 test('client-side timeout - don\'t call end', function (t) {
-  agent._instrumentation._queue = []
+  resetAgent()
   var clientReq
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue.length, 0, 'should not add transactions to queue')
+        t.equal(agent._instrumentation._queue._queue.length, 0, 'should not add transactions to queue')
         server.close()
         t.end()
       }, 50)
@@ -71,7 +71,7 @@ test('client-side timeout - don\'t call end', function (t) {
 })
 
 test('server-side timeout - call end', function (t) {
-  agent._instrumentation._queue = []
+  resetAgent()
   var timedout = false
   var closeEvent = false
 
@@ -86,7 +86,7 @@ test('server-side timeout - call end', function (t) {
       res.end('Hello World')
 
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue.length, 1, 'should not add transactions to queue')
+        t.equal(agent._instrumentation._queue._queue.length, 1, 'should not add transactions to queue')
         server.close()
         t.end()
       }, 50)
@@ -108,7 +108,7 @@ test('server-side timeout - call end', function (t) {
 })
 
 test('server-side timeout - don\'t call end', function (t) {
-  agent._instrumentation._queue = []
+  resetAgent()
   var timedout = false
   var closeEvent = false
 
@@ -120,7 +120,7 @@ test('server-side timeout - don\'t call end', function (t) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
       t.ok(closeEvent, 'res should emit close event')
-      t.equal(agent._instrumentation._queue.length, 0, 'should not add transactions to queue')
+      t.equal(agent._instrumentation._queue._queue.length, 0, 'should not add transactions to queue')
       server.close()
       t.end()
     }, 200)
@@ -139,3 +139,8 @@ test('server-side timeout - don\'t call end', function (t) {
     })
   })
 })
+
+function resetAgent () {
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
+}

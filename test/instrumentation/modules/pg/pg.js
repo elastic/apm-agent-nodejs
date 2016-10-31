@@ -719,11 +719,6 @@ function resetAgent (cb) {
     teardown()
     cb.apply(this, arguments)
   } }
-
-  var ins = agent._instrumentation
-  if (ins._timeout) {
-    clearTimeout(ins._timeout)
-    ins._timeout = null
-  }
-  ins._queue = []
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
 }

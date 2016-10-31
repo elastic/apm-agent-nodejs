@@ -49,7 +49,7 @@ test('not nested', function (t) {
 
     agent.endTransaction()
     redis.quit()
-    agent._instrumentation._send()
+    agent._instrumentation._queue._flush()
   })
 })
 
@@ -89,7 +89,7 @@ test('nested', function (t) {
 
       agent.endTransaction()
       redis.quit()
-      agent._instrumentation._send()
+      agent._instrumentation._queue._flush()
     })
   })
 })
@@ -202,7 +202,8 @@ function done (t) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue = []
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
   agent._httpClient = { request: cb || function () {} }
   agent.captureError = function (err) { throw err }
 }

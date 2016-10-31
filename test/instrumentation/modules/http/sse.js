@@ -146,7 +146,7 @@ function request (server) {
     var port = server.address().port
     http.request({ port: port }, function (res) {
       res.on('end', function () {
-        agent._instrumentation._send()
+        agent._instrumentation._queue._flush()
         server.close()
       })
       res.resume()
@@ -156,11 +156,6 @@ function request (server) {
 
 function resetAgent (cb) {
   agent._httpClient = { request: cb }
-
-  var ins = agent._instrumentation
-  if (ins._timeout) {
-    clearTimeout(ins._timeout)
-    ins._timeout = null
-  }
-  ins._queue = []
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
 }

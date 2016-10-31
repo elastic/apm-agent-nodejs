@@ -135,7 +135,7 @@ function request (path, headers) {
     }
     http.request(opts, function (res) {
       res.on('end', function () {
-        agent._instrumentation._send()
+        agent._instrumentation._queue._flush()
         server.close()
       })
       res.resume()
@@ -149,11 +149,6 @@ function resetAgent (opts, cb) {
   agent._ignoreUrlRegExp = opts._ignoreUrlRegExp || []
   agent._ignoreUserAgentStr = opts._ignoreUserAgentStr || []
   agent._ignoreUserAgentRegExp = opts._ignoreUserAgentRegExp || []
-
-  var ins = agent._instrumentation
-  if (ins._timeout) {
-    clearTimeout(ins._timeout)
-    ins._timeout = null
-  }
-  ins._queue = []
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
 }

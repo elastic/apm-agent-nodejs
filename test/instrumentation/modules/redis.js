@@ -145,13 +145,14 @@ test(function (t) {
 
       agent.endTransaction()
       client.quit()
-      agent._instrumentation._send()
+      agent._instrumentation._queue._flush()
     })
   })
 })
 
 function resetAgent (cb) {
-  agent._instrumentation._queue = []
+  agent._instrumentation._queue._clear()
+  agent._instrumentation.currentTransaction = null
   agent._httpClient = { request: cb || function () {} }
   agent.captureError = function (err) { throw err }
 }
