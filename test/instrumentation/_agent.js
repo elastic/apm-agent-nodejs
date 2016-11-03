@@ -27,7 +27,7 @@ module.exports = function mockAgent (cb) {
     _platform: {}
   }
 
-  // We do not want to start the instrumenation multiple times during testing.
+  // We do not want to start the instrumentation multiple times during testing.
   // This would result in core functions being patched multiple times
   if (!sharedInstrumentation) {
     sharedInstrumentation = new Instrumentation(agent)
