@@ -33,7 +33,7 @@ test('protocol.encode - empty', function (t) {
 test('protocol.encode - single transaction', function (t) {
   var agent = mockAgent()
 
-  var t0 = new Transaction(agent, 'name0', 'type0', 'result0')
+  var t0 = new Transaction(agent, 'single-name0', 'type0', 'result0')
   t0.end()
 
   var samples = [t0]
@@ -46,7 +46,7 @@ test('protocol.encode - single transaction', function (t) {
     var now = new Date()
     var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
     var expected = [
-      { transaction: 'name0', signature: 'transaction', kind: 'transaction' }
+      { transaction: 'single-name0', signature: 'transaction', kind: 'transaction' }
     ]
 
     t.equal(data.transactions.length, 1, 'should have 1 transaction')
@@ -54,7 +54,7 @@ test('protocol.encode - single transaction', function (t) {
     t.equal(data.traces.raw.length, 1, 'should have 1 raw')
 
     data.transactions.forEach(function (trans, index) {
-      t.equal(trans.transaction, 'name' + index)
+      t.equal(trans.transaction, 'single-name' + index)
       t.equal(trans.kind, 'type' + index)
       t.equal(trans.result, 'result' + index)
       t.equal(trans.timestamp, ts.toISOString())
