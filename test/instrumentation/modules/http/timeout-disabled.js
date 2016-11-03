@@ -11,10 +11,12 @@ test('client-side timeout - call end', function (t) {
   resetAgent()
   var clientReq
 
+  t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
+
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue._queue.length, 1, 'should add transactions to queue')
+        t.equal(agent._instrumentation._queue._samples.length, 1, 'should add transactions to queue')
         server.close()
         t.end()
       }, 50)
@@ -44,10 +46,12 @@ test('client-side timeout - don\'t call end', function (t) {
   resetAgent()
   var clientReq
 
+  t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
+
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue._queue.length, 0, 'should not add transactions to queue')
+        t.equal(agent._instrumentation._queue._samples.length, 0, 'should not add transactions to queue')
         server.close()
         t.end()
       }, 50)
@@ -75,6 +79,8 @@ test('server-side timeout - call end', function (t) {
   var timedout = false
   var closeEvent = false
 
+  t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
+
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       closeEvent = true
@@ -86,7 +92,7 @@ test('server-side timeout - call end', function (t) {
       res.end('Hello World')
 
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue._queue.length, 1, 'should not add transactions to queue')
+        t.equal(agent._instrumentation._queue._samples.length, 1, 'should not add transactions to queue')
         server.close()
         t.end()
       }, 50)
@@ -112,6 +118,8 @@ test('server-side timeout - don\'t call end', function (t) {
   var timedout = false
   var closeEvent = false
 
+  t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
+
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       closeEvent = true
@@ -120,7 +128,7 @@ test('server-side timeout - don\'t call end', function (t) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
       t.ok(closeEvent, 'res should emit close event')
-      t.equal(agent._instrumentation._queue._queue.length, 0, 'should not add transactions to queue')
+      t.equal(agent._instrumentation._queue._samples.length, 0, 'should not add transactions to queue')
       server.close()
       t.end()
     }, 200)
