@@ -9,11 +9,9 @@ module.exports = assert
 //   },
 //   transactions: [ { durations: [ 5.404068 ], kind: 'web.http', result: 200, timestamp: '2016-06-14T22:34:00.000Z', transaction: 'GET unknown route' } ]
 // }
-function assert (t, data, results) {
-  if (!results) results = {}
-
+function assert (t, data) {
   t.equal(data.transactions[0].kind, 'web.http')
-  t.equal(data.transactions[0].result, results.result || 200)
+  t.equal(data.transactions[0].result, 200)
   t.equal(data.transactions[0].transaction, 'GET unknown route')
 
   t.equal(data.traces.groups.length, 1)

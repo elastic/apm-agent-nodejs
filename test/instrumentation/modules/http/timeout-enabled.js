@@ -62,7 +62,7 @@ test('client-side timeout above error threshold - call end', function (t) {
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    assert(t, data, { result: agent.timeout.errorResult })
+    assert(t, data)
     server.close()
   }}
   agent.captureError = function (err, opts) {
@@ -100,23 +100,18 @@ test('client-side timeout above error threshold - call end', function (t) {
 
 test('client-side timeout below error threshold - don\'t call end', function (t) {
   var clientReq
-  t.plan(18)
-
   resetAgent()
 
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    assert(t, data)
-    server.close()
+    t.fail('should not send any data to opbeat')
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the timeout as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
-    addEndedTransaction.apply(this, arguments)
-    t.equal(agent._instrumentation._queue._samples.length, 1, 'should add transactions to queue')
-    agent._instrumentation._queue._flush()
+    t.fail('should not end the transaction')
   }
 
   var server = http.createServer(function (req, res) {
@@ -124,6 +119,10 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
       clientReq.abort()
       setTimeout(function () {
         res.write('Hello') // server emits clientError if written in same tick as abort
+        setTimeout(function () {
+          server.close()
+          t.end()
+        }, 10)
       }, 10)
     }, agent.timeout.errorThreshold / 2)
   })
@@ -141,24 +140,21 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
 
 test('client-side timeout above error threshold - don\'t call end', function (t) {
   var clientReq
-  t.plan(20)
-
   resetAgent()
 
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    assert(t, data, { result: agent.timeout.errorResult })
-    server.close()
+    t.fail('should not send any data to opbeat')
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
     t.ok(opts.extra.abortTime > agent.timeout.errorThreshold)
+    server.close()
+    t.end()
   }
   agent._instrumentation.addEndedTransaction = function () {
-    addEndedTransaction.apply(this, arguments)
-    t.equal(agent._instrumentation._queue._samples.length, 1, 'should add transactions to queue')
-    agent._instrumentation._queue._flush()
+    t.fail('should not end the transaction')
   }
 
   var server = http.createServer(function (req, res) {
@@ -184,7 +180,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
 test('server-side timeout below error threshold and socket closed - call end', function (t) {
   var timedout = false
   var ended = false
-  t.plan(20)
+  t.plan(21)
 
   resetAgent()
 
@@ -206,8 +202,9 @@ test('server-side timeout below error threshold and socket closed - call end', f
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
-      t.ok(ended, 'should have ended transaction')
+      t.notOk(ended, 'should not have ended transaction')
       res.end('Hello World')
+      t.ok(ended, 'should have ended transaction')
       server.close()
     }, agent.timeout.errorThreshold / 2 + 100)
   })
@@ -229,14 +226,14 @@ test('server-side timeout below error threshold and socket closed - call end', f
 test('server-side timeout above error threshold and socket closed - call end', function (t) {
   var timedout = false
   var ended = false
-  t.plan(22)
+  t.plan(23)
 
   resetAgent()
 
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    assert(t, data, { result: agent.timeout.errorResult })
+    assert(t, data)
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
@@ -252,8 +249,9 @@ test('server-side timeout above error threshold and socket closed - call end', f
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
-      t.ok(ended, 'should have ended transaction')
+      t.notOk(ended, 'should not have ended transaction')
       res.end('Hello World')
+      t.ok(ended, 'should have ended transaction')
       server.close()
     }, agent.timeout.errorThreshold + 100)
   })
@@ -275,29 +273,26 @@ test('server-side timeout above error threshold and socket closed - call end', f
 test('server-side timeout below error threshold and socket closed - don\'t call end', function (t) {
   var timedout = false
   var ended = false
-  t.plan(20)
+  t.plan(3)
 
   resetAgent()
 
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    assert(t, data)
+    t.fail('should not send any data to opbeat')
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the timeout as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
-    addEndedTransaction.apply(this, arguments)
-    ended = true
-    t.equal(agent._instrumentation._queue._samples.length, 1, 'should add transactions to queue')
-    agent._instrumentation._queue._flush()
+    t.fail('should not end the transaction')
   }
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
-      t.ok(ended, 'should have ended transaction')
+      t.notOk(ended, 'should not have ended transaction')
       server.close()
     }, agent.timeout.errorThreshold / 2 + 100)
   })
@@ -319,30 +314,27 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
 test('server-side timeout above error threshold and socket closed - don\'t call end', function (t) {
   var timedout = false
   var ended = false
-  t.plan(22)
+  t.plan(5)
 
   resetAgent()
 
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    assert(t, data, { result: agent.timeout.errorResult })
+    t.fail('should not send any data to opbeat')
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
     t.ok(opts.extra.abortTime > agent.timeout.errorThreshold)
   }
   agent._instrumentation.addEndedTransaction = function () {
-    addEndedTransaction.apply(this, arguments)
-    ended = true
-    t.equal(agent._instrumentation._queue._samples.length, 1, 'should add transactions to queue')
-    agent._instrumentation._queue._flush()
+    t.fail('should not end the transaction')
   }
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
-      t.ok(ended, 'should have ended transaction')
+      t.notOk(ended, 'should have ended transaction')
       server.close()
     }, agent.timeout.errorThreshold + 100)
   })
