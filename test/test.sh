@@ -26,6 +26,11 @@ for file in $(files test/instrumentation/modules/http/!(_*).js); do
   node "$file" || exit $?;
 done
 
+for file in $(files test/instrumentation/modules/pg/!(_*).js); do
+  echo "running: node $file"
+  node "$file" || exit $?;
+done
+
 for file in $(files test/instrumentation/modules/mysql/!(_*).js); do
   echo "running: node $file"
   node "$file" || exit $?;
