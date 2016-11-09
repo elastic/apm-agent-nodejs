@@ -1,3 +1,12 @@
+# 3.20.0 - 2016/11/9
+  * core: sample transactions to reduce bandwidth and memory usage
+  * core: don't close transactions on premature close of tcp socket (wait till parent request ends)
+  * core: ensure transaction name and result are always set in case of SSE
+  * core: freeze transaction result when ended
+  * core: freeze transaction name when ended
+  * core: don't leak transactions when blacklisting
+  * core: improve detection of ended responses
+
 # 3.19.3 - 2016/10/27
   * core: fix Node.js v7.0.0 support
 
