@@ -17,7 +17,7 @@ var http = require('http')
 var Hapi = require('hapi')
 
 test('route naming', function (t) {
-  t.plan(18)
+  t.plan(19)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -38,7 +38,7 @@ test('route naming', function (t) {
 })
 
 test('error handling', function (t) {
-  t.plan(20)
+  t.plan(21)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data, { status: 500, name: 'GET /error' })
@@ -127,11 +127,12 @@ function assert (t, data, results) {
   t.equal(data.traces.groups[0].transaction, results.name)
 
   t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, 2)
+  t.equal(data.traces.raw[0].length, 3)
   t.equal(data.traces.raw[0][1].length, 3)
   t.equal(data.traces.raw[0][1][0], 0)
   t.equal(data.traces.raw[0][1][1], 0)
   t.equal(data.traces.raw[0][1][2], data.traces.raw[0][0])
+  t.equal(data.traces.raw[0][2].http.method, 'GET')
   t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
 }
 

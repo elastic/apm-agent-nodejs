@@ -109,13 +109,15 @@ function assertNoMatch (t, data) {
   //   ]
   // ]
   t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, 2)
+  t.equal(data.traces.raw[0].length, 3)
   t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
   t.equal(data.traces.raw[0][1].length, 3)
 
   t.equal(data.traces.raw[0][1][0], 0)
   t.equal(data.traces.raw[0][1][1], 0)
   t.equal(data.traces.raw[0][1][2], data.traces.raw[0][0])
+
+  t.equal(data.traces.raw[0][2].http.method, 'GET')
 }
 
 function assertMatch (t, data) {
