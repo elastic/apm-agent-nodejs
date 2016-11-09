@@ -196,7 +196,7 @@ test('protocol.encode - multiple transactions', function (t) {
       })
 
       data.traces.raw.forEach(function (raw, i) {
-        t.equal(raw.length, 2)
+        t.equal(raw.length, 4)
         t.ok(data.transactions.some(function (trans) {
           return ~trans.durations.indexOf(raw[0])
         }), 'data.traces.raw[' + i + '][0] should be a valid transaction duration')
@@ -251,7 +251,7 @@ test('protocol.encode - multiple transactions', function (t) {
   }
 })
 
-test.only('protocol.encode - http request meta data', function (t) {
+test('protocol.encode - http request meta data', function (t) {
   var agent = mockAgent()
 
   var t0 = new Transaction(agent, 'http-name0', 'type0', 'result0')
