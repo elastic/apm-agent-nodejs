@@ -54,8 +54,16 @@ test('#parseRequest()', function (t) {
       mockReq.body += 'x'
     }
     mockReq.headers['content-length'] = String(mockReq.body.length)
-    var parsed = parsers.parseRequest(mockReq)
+    var parsed = parsers.parseRequest(mockReq, {body: true})
     t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
+    t.end()
+  })
+
+  t.test('should not log body if opts.body is false', function (t) {
+    mockReq.body = 'secret stuff'
+    mockReq.headers['content-length'] = String(mockReq.body.length)
+    var parsed = parsers.parseRequest(mockReq, {body: false})
+    t.equal(parsed.data, '[REDACTED]')
     t.end()
   })
 })
