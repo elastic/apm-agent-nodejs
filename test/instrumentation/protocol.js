@@ -262,10 +262,10 @@ test('protocol.encode - http request meta data', function (t) {
       'host': 'example.com',
       'user-agent': 'user-agent-header',
       'content-length': 42,
+      'cookie': 'cookie1=foo;cookie2=bar',
       'x-foo': 'bar',
       'x-bar': 'baz'
     },
-    cookies: 'cookie1=foo;cookie2=bar',
     socket: {
       encrypted: true,
       remoteAddress: '127.0.0.1'
@@ -322,7 +322,7 @@ test('protocol.encode - http request meta data', function (t) {
         t.ok(n >= 0, 'all data.traces[' + i + '][1][' + i2 + '] >= 0')
       })
       t.deepEqual(raw[2].extra.node, process.version)
-      t.deepEqual(raw[2].http, { cookies: 'cookie1=foo;cookie2=bar', data: { foo: 42 }, headers: { host: 'example.com', 'user-agent': 'user-agent-header', 'content-length': 42, 'x-bar': 'baz', 'x-foo': 'bar' }, method: 'POST', query_string: 'bar=baz', remote_host: '127.0.0.1', secure: true, url: 'https://example.com/foo?bar=baz', user_agent: 'user-agent-header' })
+      t.deepEqual(raw[2].http, { cookies: { cookie1: 'foo', cookie2: 'bar' }, data: { foo: 42 }, headers: { host: 'example.com', 'user-agent': 'user-agent-header', 'content-length': 42, 'x-bar': 'baz', 'x-foo': 'bar' }, method: 'POST', query_string: 'bar=baz', remote_host: '127.0.0.1', secure: true, url: 'https://example.com/foo?bar=baz', user_agent: 'user-agent-header' })
     })
 
     t.equal(data.traces.raw.reduce(function (total, raw) {
