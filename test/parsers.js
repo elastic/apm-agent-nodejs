@@ -53,6 +53,7 @@ test('#parseRequest()', function (t) {
     for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
       mockReq.body += 'x'
     }
+    mockReq.headers['content-length'] = String(mockReq.body.length)
     var parsed = parsers.parseRequest(mockReq)
     t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
     t.end()
