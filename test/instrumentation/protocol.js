@@ -270,7 +270,7 @@ test('protocol.encode - http request meta data', function (t) {
       encrypted: true,
       remoteAddress: '127.0.0.1'
     },
-    json: {
+    body: {
       foo: 42
     }
   }
