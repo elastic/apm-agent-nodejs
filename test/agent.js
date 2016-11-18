@@ -306,20 +306,20 @@ test('#captureError()', function (t) {
       secretToken: 'baz'
     }
     opbeat.addFilter(function (data) {
-      t.equal(++data.order, 1)
+      t.equal(++data.extra.order, 1)
       return data
     })
     opbeat.addFilter(function (data) {
-      t.equal(++data.order, 2)
-      return { owned: true }
+      t.equal(++data.extra.order, 2)
+      return {extra: {owned: true}}
     })
     opbeat.start(opts)
     var oldErrorFn = request.error
     request.error = function (agent, data, cb) {
-      t.deepEqual(data, { owned: true })
+      t.deepEqual(data.extra, {owned: true})
       request.error = oldErrorFn
     }
-    opbeat.captureError(new Error('foo'), { order: 0 })
+    opbeat.captureError(new Error('foo'), {extra: {order: 0}})
   })
 
   // deprecated functionality
@@ -396,27 +396,27 @@ test('#captureError()', function (t) {
       organizationId: 'bar',
       secretToken: 'baz',
       filter: function (err, data) {
-        t.equal(++data.order, 1)
+        t.equal(++data.extra.order, 1)
         t.ok(err instanceof Error)
         t.equal(err.message, 'foo')
         return data
       }
     }
     opbeat.addFilter(function (data) {
-      t.equal(++data.order, 2)
+      t.equal(++data.extra.order, 2)
       return data
     })
     opbeat.addFilter(function (data) {
-      t.equal(++data.order, 3)
-      return { owned: true }
+      t.equal(++data.extra.order, 3)
+      return {extra: {owned: true}}
     })
     opbeat.start(opts)
     var oldErrorFn = request.error
     request.error = function (agent, data, cb) {
-      t.deepEqual(data, { owned: true })
+      t.deepEqual(data.extra, {owned: true})
       request.error = oldErrorFn
     }
-    opbeat.captureError(new Error('foo'), { order: 0 })
+    opbeat.captureError(new Error('foo'), {extra: {order: 0}})
   })
 
   t.test('should anonymize the http Authorization header by default', function (t) {
