@@ -1,6 +1,7 @@
 'use strict'
 
 var Instrumentation = require('../../lib/instrumentation')
+var Filters = require('../../lib/filters')
 var logger = require('../../lib/logger')
 
 logger.init({ level: 'fatal' })
@@ -23,7 +24,8 @@ module.exports = function mockAgent (cb) {
     _ignoreUrlRegExp: [],
     _ignoreUserAgentStr: [],
     _ignoreUserAgentRegExp: [],
-    _platform: {}
+    _platform: {},
+    _filters: new Filters()
   }
 
   // We do not want to start the instrumentation multiple times during testing.
