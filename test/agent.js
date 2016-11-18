@@ -27,7 +27,6 @@ var optionFixtures = [
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal'],
   ['instrument', 'INSTRUMENT', true],
-  ['filter'], // deprecated
   ['ff_captureFrame', 'FF_CAPTURE_FRAME', false]
 ]
 
@@ -270,33 +269,6 @@ test('#captureError()', function (t) {
     opbeat.captureError(new Error('wtf?'))
   })
 
-  // deprecated functionality
-  t.test('should use old style filter if provided', function (t) {
-    setup()
-    var called = false
-    var opts = {
-      appId: 'foo',
-      organizationId: 'bar',
-      secretToken: 'baz',
-      filter: function (err, data) {
-        t.equal(data.foo, 'bar')
-        t.ok(err instanceof Error)
-        t.equal(err.message, 'foo')
-        called = true
-        return { owned: true }
-      }
-    }
-    opbeat.start(opts)
-    var oldErrorFn = request.error
-    request.error = function (agent, data, cb) {
-      t.ok(called, 'called')
-      t.deepEqual(data, { owned: true })
-      request.error = oldErrorFn
-      t.end()
-    }
-    opbeat.captureError(new Error('foo'), { foo: 'bar' })
-  })
-
   t.test('should use filters if provided', function (t) {
     t.plan(3)
     setup()
@@ -322,26 +294,6 @@ test('#captureError()', function (t) {
     opbeat.captureError(new Error('foo'), {extra: {order: 0}})
   })
 
-  // deprecated functionality
-  t.test('should abort if old style filter returns falsy', function (t) {
-    setup()
-    var opts = {
-      appId: 'foo',
-      organizationId: 'bar',
-      secretToken: 'baz',
-      filter: function () {}
-    }
-    opbeat.start(opts)
-    var oldErrorFn = request.error
-    request.error = function () {
-      t.fail('should not send error to intake')
-    }
-    opbeat.captureError(new Error(), {}, function _opbeatMiddleware () {
-      request.error = oldErrorFn
-      t.end()
-    })
-  })
-
   t.test('should abort if any filter returns falsy', function (t) {
     setup()
     var opts = {
@@ -362,61 +314,6 @@ test('#captureError()', function (t) {
       request.error = oldErrorFn
       t.end()
     })
-  })
-
-  // deprecated functionality
-  t.test('should not run new style filters if old style filter returns falsy', function (t) {
-    setup()
-    var opts = {
-      appId: 'foo',
-      organizationId: 'bar',
-      secretToken: 'baz',
-      filter: function () {}
-    }
-    opbeat.addFilter(function () {
-      t.fail('should not 2nd filter')
-    })
-    opbeat.start(opts)
-    var oldErrorFn = request.error
-    request.error = function () {
-      t.fail('should not send error to intake')
-    }
-    opbeat.captureError(new Error(), {}, function _opbeatMiddleware () {
-      request.error = oldErrorFn
-      t.end()
-    })
-  })
-
-  // deprecated functionality
-  t.test('should use both old and new style filters if used together', function (t) {
-    t.plan(6)
-    setup()
-    var opts = {
-      appId: 'foo',
-      organizationId: 'bar',
-      secretToken: 'baz',
-      filter: function (err, data) {
-        t.equal(++data.extra.order, 1)
-        t.ok(err instanceof Error)
-        t.equal(err.message, 'foo')
-        return data
-      }
-    }
-    opbeat.addFilter(function (data) {
-      t.equal(++data.extra.order, 2)
-      return data
-    })
-    opbeat.addFilter(function (data) {
-      t.equal(++data.extra.order, 3)
-      return {extra: {owned: true}}
-    })
-    opbeat.start(opts)
-    var oldErrorFn = request.error
-    request.error = function (agent, data, cb) {
-      t.deepEqual(data.extra, {owned: true})
-      request.error = oldErrorFn
-    }
-    opbeat.captureError(new Error('foo'), {extra: {order: 0}})
   })
 
   t.test('should anonymize the http Authorization header by default', function (t) {
