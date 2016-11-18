@@ -144,7 +144,10 @@ test('#transactions()', function (t) {
     opbeat._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, { transactions: [{ transaction: 1 }] })
+    request.transactions(opbeat, {
+      transactions: [{ transaction: 1 }],
+      traces: { raw: [], groups: [] }
+    })
   })
 
   t.test('non-string traces.groups.$.transaction', function (t) {
@@ -154,7 +157,10 @@ test('#transactions()', function (t) {
     opbeat._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, { traces: { groups: [{ transaction: 1 }] } })
+    request.transactions(opbeat, {
+      transactions: [{ transaction: 1 }],
+      traces: { raw: [], groups: [{ transaction: 1 }] }
+    })
   })
 
   t.test('non-string traces.groups.$.extra._frames.$.context_line', function (t) {
@@ -164,7 +170,13 @@ test('#transactions()', function (t) {
     opbeat._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, { traces: { groups: [{ extra: { _frames: [{ context_line: 1 }] } }] } })
+    request.transactions(opbeat, {
+      transactions: [{ transaction: 'foo' }],
+      traces: {
+        raw: [],
+        groups: [{transaction: 'foo', extra: {_frames: [{context_line: 1}]}}]
+      }
+    })
   })
 
   t.test('non-string traces.groups.$.extra._frames.$.pre_context.$', function (t) {
@@ -174,7 +186,13 @@ test('#transactions()', function (t) {
     opbeat._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, { traces: { groups: [{ extra: { _frames: [{ pre_context: [1] }] } }] } })
+    request.transactions(opbeat, {
+      transactions: [{ transaction: 'foo' }],
+      traces: {
+        raw: [],
+        groups: [{transaction: 'foo', extra: {_frames: [{pre_context: [1]}]}}]
+      }
+    })
   })
 
   t.test('non-string traces.groups.$.extra._frames.$.pre_context.$', function (t) {
@@ -184,6 +202,12 @@ test('#transactions()', function (t) {
     opbeat._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, { traces: { groups: [{ extra: { _frames: [{ post_context: [1] }] } }] } })
+    request.transactions(opbeat, {
+      transactions: [{ transaction: 'foo' }],
+      traces: {
+        raw: [],
+        groups: [{transaction: 'foo', extra: {_frames: [{post_context: [1]}]}}]
+      }
+    })
   })
 })
