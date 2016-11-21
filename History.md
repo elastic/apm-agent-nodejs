@@ -1,3 +1,11 @@
+# 3.21.0 - 2016/11/21
+  * core: log extra meta data along with instrumented http request
+  * core: don't log HTTP body by default (use `logBody` config option if you wish to log the HTTP body)
+  * core: pretty print JSON and form data bodies on opbeat.com (only for smaller bodies)
+  * core: filter sensitive cookies
+  * core: don't log false '{}' request body
+  * core: fix NA endpoint issue
+
 # 3.20.0 - 2016/11/9
   * core: sample transactions to reduce bandwidth and memory usage
   * core: don't close transactions on premature close of tcp socket (wait till parent request ends)
