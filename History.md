@@ -1,3 +1,6 @@
+# 3.21.1 - 2016/11/22
+  * express: show full URL path for errors and sampled requests
+
 # 3.21.0 - 2016/11/21
   * core: log extra meta data along with instrumented http request
   * core: don't log HTTP body by default (use `logBody` config option if you wish to log the HTTP body)
