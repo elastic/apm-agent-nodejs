@@ -248,7 +248,7 @@ factories.forEach(function (f) {
           //   ]
           // ]
           t.equal(data.traces.raw.length, 1)
-          t.equal(data.traces.raw[0].length, 5)
+          t.equal(data.traces.raw[0].length, 6)
           t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
           t.equal(data.traces.raw[0][1].length, 3)
           t.equal(data.traces.raw[0][2].length, 3)
@@ -343,7 +343,7 @@ factories.forEach(function (f) {
           //   ]
           // ]
           t.equal(data.traces.raw.length, 1)
-          t.equal(data.traces.raw[0].length, 5)
+          t.equal(data.traces.raw[0].length, 6)
           t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
           t.equal(data.traces.raw[0][1].length, 3)
           t.equal(data.traces.raw[0][2].length, 3)
@@ -500,7 +500,7 @@ factories.forEach(function (f) {
         // ]
         t.equal(data.traces.raw.length, 3)
 
-        t.equal(data.traces.raw[0].length, 3)
+        t.equal(data.traces.raw[0].length, 4)
         t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
         t.equal(data.traces.raw[0][1].length, 3)
         t.equal(data.traces.raw[0][2].length, 3)
@@ -515,7 +515,7 @@ factories.forEach(function (f) {
         t.equal(data.traces.raw[0][2][1], 0)
         t.equal(data.traces.raw[0][2][2], data.traces.raw[0][0])
 
-        t.equal(data.traces.raw[1].length, 3)
+        t.equal(data.traces.raw[1].length, 4)
         t.equal(data.traces.raw[1][0], data.transactions[1].durations[0])
         t.equal(data.traces.raw[1][1].length, 3)
         t.equal(data.traces.raw[1][2].length, 3)
@@ -530,7 +530,7 @@ factories.forEach(function (f) {
         t.equal(data.traces.raw[1][2][1], 0)
         t.equal(data.traces.raw[1][2][2], data.traces.raw[1][0])
 
-        t.equal(data.traces.raw[2].length, 3)
+        t.equal(data.traces.raw[2].length, 4)
         t.equal(data.traces.raw[2][0], data.transactions[2].durations[0])
         t.equal(data.traces.raw[2][1].length, 3)
         t.equal(data.traces.raw[2][2].length, 3)
@@ -673,7 +673,7 @@ function assertBasicQuery (t, sql, data) {
   //   ]
   // ]
   t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, 3)
+  t.equal(data.traces.raw[0].length, 4)
   t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
   t.equal(data.traces.raw[0][1].length, 3)
   t.equal(data.traces.raw[0][2].length, 3)

@@ -44,7 +44,7 @@ test('basic', function (t) {
     })
 
     t.equal(data.traces.raw.reduce(function (total, raw) {
-      return total + raw.length - 1
+      return total + raw.length - 2
     }, 0), data.traces.groups.length)
 
     data.traces.groups.forEach(function (trace, index) {

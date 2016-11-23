@@ -65,9 +65,9 @@ test('queue sampling', function (t) {
     t.equal(data.traces.groups[1].transaction, 'other-name')
 
     t.equal(data.traces.raw.length, 2, 'should have 2 raws')
-    t.equal(data.traces.raw[0].length, 2)
+    t.equal(data.traces.raw[0].length, 3)
     t.equal(data.traces.raw[0][0], t0.duration())
-    t.equal(data.traces.raw[1].length, 2)
+    t.equal(data.traces.raw[1].length, 3)
     t.equal(data.traces.raw[1][0], t2.duration())
 
     t.end()

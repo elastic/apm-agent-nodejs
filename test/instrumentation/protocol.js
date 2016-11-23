@@ -73,7 +73,7 @@ test('protocol.encode - single transaction', function (t) {
     })
 
     data.traces.raw.forEach(function (raw, i) {
-      t.equal(raw.length, 2)
+      t.equal(raw.length, 3)
       t.ok(data.transactions.some(function (trans) {
         return ~trans.durations.indexOf(raw[0])
       }), 'data.traces.raw[' + i + '][0] should be a valid transaction duration')
@@ -84,7 +84,7 @@ test('protocol.encode - single transaction', function (t) {
     })
 
     t.equal(data.traces.raw.reduce(function (total, raw) {
-      return total + raw.length - 1
+      return total + raw.length - 2
     }, 0), data.traces.groups.length)
 
     data.traces.groups.forEach(function (trace, index) {
@@ -196,7 +196,7 @@ test('protocol.encode - multiple transactions', function (t) {
       })
 
       data.traces.raw.forEach(function (raw, i) {
-        t.equal(raw.length, 4)
+        t.equal(raw.length, 5)
         t.ok(data.transactions.some(function (trans) {
           return ~trans.durations.indexOf(raw[0])
         }), 'data.traces.raw[' + i + '][0] should be a valid transaction duration')
@@ -207,7 +207,7 @@ test('protocol.encode - multiple transactions', function (t) {
       })
 
       t.equal(data.traces.raw.reduce(function (total, raw) {
-        return total + raw.length - 1
+        return total + raw.length - 2
       }, 0), data.traces.groups.length)
 
       data.traces.groups.forEach(function (trace, index) {

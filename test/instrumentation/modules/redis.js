@@ -84,7 +84,7 @@ test(function (t) {
     t.equal(data.traces.groups[groups.length].signature, 'transaction')
     t.equal(data.traces.groups[groups.length].transaction, 'foo')
 
-    var totalTraces = data.traces.raw[0].length - 1
+    var totalTraces = data.traces.raw[0].length - 2
     var totalTime = data.traces.raw[0][0]
 
     t.equal(data.traces.raw.length, 1)
