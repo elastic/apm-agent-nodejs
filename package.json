@@ -50,7 +50,6 @@
     "is-native": "^1.0.1",
     "json-stringify-safe": "^5.0.0",
     "lru-cache": "^4.0.1",
-    "node-uuid": "^1.4.7",
     "object-assign": "^4.1.0",
     "opbeat-http-client": "^1.2.0",
     "opbeat-release-tracker": "^1.1.1",
@@ -59,7 +58,8 @@
     "semver": "^5.3.0",
     "sql-summary": "^1.0.0",
     "stackman": "^1.2.7",
-    "unicode-byte-truncate": "^1.0.0"
+    "unicode-byte-truncate": "^1.0.0",
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "bluebird": "^3.4.6",
