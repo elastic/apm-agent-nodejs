@@ -1,3 +1,9 @@
+# 4.0.0 - 2016/11/25
+  * core: allow filtering of sampled request details when instrumenting
+  * core: [breaking] change input data given to filtering methods added via addFilter to support instrumentation filtering
+  * core: [breaking] remove deprecated `filter` config option
+  * core: [breaking] always call captureError callback even if agent is inactive
+
 # 3.21.1 - 2016/11/22
   * express: show full URL path for errors and sampled requests
 
