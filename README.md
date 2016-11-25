@@ -53,7 +53,7 @@ opbeat.captureError(new Error('Ups, something broke'))
 - [Troubleshooting
 guide](https://opbeat.com/docs/articles/troubleshooting-opbeat-for-nodejs/)
 - [Compatibility with other modules](https://github.com/opbeat/opbeat-node/wiki/Compatibility-Guide)
-- [Upgrading to v3](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-3.x)
+- [Upgrading to v4](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-4.x)
 
 ## Testing
 
