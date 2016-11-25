@@ -1,4 +1,4 @@
-# 4.0.0 - 2016/11/25
+# 4.0.0 - 2016/11/25 [Upgrade wiki](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-4.x)
   * core: allow filtering of sampled request details when instrumenting
   * core: [breaking] change input data given to filtering methods added via addFilter to support instrumentation filtering
   * core: [breaking] remove deprecated `filter` config option
@@ -221,7 +221,7 @@
 # 3.0.1 - 2015/11/22
   * Remove temp files
 
-# 3.0.0 - 2015/11/22
+# 3.0.0 - 2015/11/22 [Upgrade wiki](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-3.x)
   * New: Performance metrics
   * Breaking: New configuration API
   * Breaking: Remove deprecated `trackDeployment` function
@@ -299,7 +299,7 @@
 # 1.0.1 - 2014/10/23
   * Minor bugfixes and improvements
 
-# 1.0.0 - 2014/9/25
+# 1.0.0 - 2014/9/25 [Upgrade wiki](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-1.0)
   * Remove createClient() function
   * Replace options.env with options.active
   * Rename options.handleExceptions to options.captureExceptions
