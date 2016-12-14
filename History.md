@@ -1,3 +1,7 @@
+# 4.1.0 - 2016/12/14
+  * core: allow cookie filtering to be disabled using filterHttpHeaders
+  * core: use less CPU intensive json-stringify algorithm (when sending data to the Opbeat intake API)
+
 # 4.0.0 - 2016/11/25 [Upgrade wiki](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-4.x)
   * core: allow filtering of sampled request details when instrumenting
   * core: [breaking] change input data given to filtering methods added via addFilter to support instrumentation filtering
