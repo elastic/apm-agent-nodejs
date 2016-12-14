@@ -43,7 +43,7 @@
   "homepage": "https://github.com/opbeat/opbeat-node",
   "dependencies": {
     "after-all": "^2.0.2",
-    "console-log-level": "^1.3.0",
+    "console-log-level": "^1.4.0",
     "cookie": "^0.3.1",
     "debug": "^2.3.0",
     "end-of-stream": "^1.1.0",
