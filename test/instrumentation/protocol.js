@@ -368,3 +368,76 @@ test('protocol.encode - http request meta data', function (t) {
     t.end()
   })
 })
+
+test.only('protocol.encode - disable stack traces', function (t) {
+  var agent = mockAgent()
+  agent.captureTraceStackTraces = false
+
+  var t0 = new Transaction(agent, 'single-name0', 'type0', 'result0')
+  t0.end()
+
+  var samples = [t0]
+  var durations = {}
+
+  var key = protocol.transactionGroupingKey(t0)
+  durations[key] = [t0.duration()]
+
+  protocol.encode(samples, durations, function (data) {
+    var now = new Date()
+    var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
+    var expected = [
+      { transaction: 'single-name0', signature: 'transaction', kind: 'transaction' }
+    ]
+
+    t.equal(data.transactions.length, 1, 'should have 1 transaction')
+    t.equal(data.traces.groups.length, 1, 'should have 1 group')
+    t.equal(data.traces.raw.length, 1, 'should have 1 raw')
+
+    data.transactions.forEach(function (trans, index) {
+      t.equal(trans.transaction, 'single-name' + index)
+      t.equal(trans.kind, 'type' + index)
+      t.equal(trans.result, 'result' + index)
+      t.equal(trans.timestamp, ts.toISOString())
+      t.equal(trans.durations.length, 1)
+      t.ok(trans.durations.every(Number.isFinite.bind(Number)))
+    })
+
+    data.traces.groups.forEach(function (trace, index) {
+      var rootTrans = expected[index].signature === 'transaction'
+      var parents = rootTrans ? [] : ['transaction']
+      t.equal(trace.transaction, expected[index].transaction)
+      t.equal(trace.signature, expected[index].signature)
+      t.equal(trace.kind, expected[index].kind)
+      t.equal(trace.timestamp, ts.toISOString())
+      t.deepEqual(trace.parents, parents)
+    })
+
+    data.traces.raw.forEach(function (raw, i) {
+      t.equal(raw.length, 3)
+      t.ok(data.transactions.some(function (trans) {
+        return ~trans.durations.indexOf(raw[0])
+      }), 'data.traces.raw[' + i + '][0] should be a valid transaction duration')
+      t.ok(raw[1][0] in data.traces.groups, 'data.traces.raw[' + i + '][1][0] should be an index for data.traces.groups')
+      raw[1].every(function (n, i2) {
+        t.ok(n >= 0, 'all data.traces[' + i + '][1][' + i2 + '] >= 0')
+      })
+    })
+
+    t.equal(data.traces.raw.reduce(function (total, raw) {
+      return total + raw.length - 2
+    }, 0), data.traces.groups.length)
+
+    data.traces.groups.forEach(function (trace, index) {
+      var rootTrans = expected[index].signature === 'transaction'
+      var parents = rootTrans ? [] : ['transaction']
+      t.equal(trace.transaction, expected[index].transaction)
+      t.equal(trace.signature, expected[index].signature)
+      t.equal(trace.kind, expected[index].kind)
+      t.equal(trace.timestamp, ts.toISOString())
+      t.deepEqual(trace.parents, parents)
+      t.notOk('_frames' in trace.extra)
+    })
+
+    t.end()
+  })
+})

@@ -13,6 +13,7 @@ module.exports = function mockAgent (cb) {
   var agent = {
     active: true,
     instrument: true,
+    captureTraceStackTraces: true,
     timeout: {
       active: false,
       errorThreshold: 250
