@@ -59,7 +59,7 @@
     "sql-summary": "^1.0.0",
     "stackman": "^1.2.7",
     "unicode-byte-truncate": "^1.0.0",
-    "uuid": "^3.0.0"
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "bluebird": "^3.4.6",
