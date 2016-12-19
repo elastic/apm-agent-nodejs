@@ -336,10 +336,10 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
       t.ok(timedout, 'should have closed socket')
       t.notOk(ended, 'should have ended transaction')
       server.close()
-    }, agent.timeout.errorThreshold + 100)
+    }, agent.timeout.errorThreshold + 150)
   })
 
-  server.setTimeout(agent.timeout.errorThreshold + 10)
+  server.setTimeout(agent.timeout.errorThreshold + 50)
 
   server.listen(function () {
     var port = server.address().port
