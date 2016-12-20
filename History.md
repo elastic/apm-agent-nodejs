@@ -1,3 +1,7 @@
+# 4.2.0 - 2016/12/20
+  * http/https: add path to external http request traces
+  * core: add captureTraceStackTraces config option
+
 # 4.1.0 - 2016/12/14
   * core: allow cookie filtering to be disabled using filterHttpHeaders
   * core: use less CPU intensive json-stringify algorithm (when sending data to the Opbeat intake API)
