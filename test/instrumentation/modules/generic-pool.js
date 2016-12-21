@@ -6,50 +6,102 @@ var agent = require('../../..').start({
   secretToken: 'test',
   captureExceptions: false
 })
-var ins = agent._instrumentation
+var ins = global.ins = agent._instrumentation
 
 var test = require('tape')
-var Pool = require('generic-pool').Pool
+var genericPool = require('generic-pool')
 
-test(function (t) {
-  var active = 0
+if (genericPool.createPool) {
+  test('v3.x', function (t) {
+    var active = 0
 
-  var pool = new Pool({
-    create: function (cb) {
-      process.nextTick(function () {
-        var client = {id: ++active}
-        cb(null, client)
-      })
-    },
-    destroy: function (client) {
-      if (--active <= 0) {
-        t.end()
+    var pool = genericPool.createPool({
+      create: function () {
+        var p = new Promise(function (resolve, reject) {
+          process.nextTick(function () {
+            resolve({id: ++active})
+          })
+        })
+        p.foo = 42
+        return p
+      },
+      destroy: function (resource) {
+        return new Promise(function (resolve, reject) {
+          process.nextTick(function () {
+            resolve()
+            if (--active <= 0) t.end()
+          })
+        })
       }
-    }
-  })
+    })
 
-  var t1 = ins.startTransaction()
+    var t1 = ins.startTransaction()
 
-  pool.acquire(function (err, client) {
-    t.error(err)
-    t.equal(client.id, 1)
+    pool.acquire().then(function (resource) {
+      t.equal(resource.id, 1)
+      t.equal(ins.currentTransaction._uuid, t1._uuid)
+      pool.release(resource)
+    }).catch(function (err) {
+      t.error(err)
+    })
+
     t.equal(ins.currentTransaction._uuid, t1._uuid)
-    pool.release(client)
-  })
+    var t2 = ins.startTransaction()
 
-  t.equal(ins.currentTransaction._uuid, t1._uuid)
-  var t2 = ins.startTransaction()
+    pool.acquire().then(function (resource) {
+      t.equal(resource.id, 1)
+      t.equal(ins.currentTransaction._uuid, t2._uuid)
+      pool.release(resource)
+    }).catch(function (err) {
+      t.error(err)
+    })
 
-  pool.acquire(function (err, client) {
-    t.error(err)
-    t.equal(client.id, 1)
     t.equal(ins.currentTransaction._uuid, t2._uuid)
-    pool.release(client)
-  })
 
-  t.equal(ins.currentTransaction._uuid, t2._uuid)
-
-  pool.drain(function () {
-    pool.destroyAllNow()
+    pool.drain().then(function () {
+      pool.clear()
+    }).catch(function (err) {
+      t.error(err)
+    })
   })
-})
+} else {
+  test('v2.x', function (t) {
+    var active = 0
+
+    var pool = new genericPool.Pool({
+      create: function (cb) {
+        process.nextTick(function () {
+          cb(null, {id: ++active})
+        })
+      },
+      destroy: function (resource) {
+        if (--active <= 0) t.end()
+      }
+    })
+
+    var t1 = ins.startTransaction()
+
+    pool.acquire(function (err, resource) {
+      t.error(err)
+      t.equal(resource.id, 1)
+      t.equal(ins.currentTransaction._uuid, t1._uuid)
+      pool.release(resource)
+    })
+
+    t.equal(ins.currentTransaction._uuid, t1._uuid)
+    var t2 = ins.startTransaction()
+
+    pool.acquire(function (err, resource) {
+      t.error(err)
+      t.equal(resource.id, 1)
+      t.equal(ins.currentTransaction._uuid, t2._uuid)
+      pool.release(resource)
+    })
+
+    t.equal(ins.currentTransaction._uuid, t2._uuid)
+
+    pool.drain(function () {
+      pool.destroyAllNow()
+    })
+  })
+}

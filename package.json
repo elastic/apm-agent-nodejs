@@ -65,7 +65,7 @@
     "bluebird": "^3.4.6",
     "connect": "^3.5.0",
     "express": "^4.14.0",
-    "generic-pool": "^2.5.0",
+    "generic-pool": "^3.1.5",
     "hapi": "^16.0.1",
     "inquirer": "^0.12.0",
     "ioredis": "^2.4.2",
