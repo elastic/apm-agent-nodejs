@@ -1,3 +1,6 @@
+# 4.3.0 - 2016/12/22
+  * generic-pool: add support for ^3.1.0
+
 # 4.2.0 - 2016/12/20
   * http/https: add path to external http request traces
   * core: add captureTraceStackTraces config option
