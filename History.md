@@ -1,3 +1,6 @@
+# 4.4.0 - 2016/12/23
+  * core: log truncated traces
+
 # 4.3.1 - 2016/12/23
   * http/https: only warn on prematurely closed sockets if transaction is active
 
