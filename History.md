@@ -1,3 +1,6 @@
+# 4.3.1 - 2016/12/23
+  * http/https: only warn on prematurely closed sockets if transaction is active
+
 # 4.3.0 - 2016/12/22
   * generic-pool: add support for ^3.1.0
 
