@@ -645,7 +645,7 @@ test('Promise.any', function (t) {
     var p1 = new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve('p1')
-      }, 20)
+      }, 100)
     })
     var p2 = rejected('p2')
     var p3 = resolved('p3')
@@ -665,7 +665,7 @@ test('new Promise -> any', function (t) {
     var p1 = new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve('p1')
-      }, 20)
+      }, 100)
     })
     var p2 = rejected('p2')
     var p3 = resolved('p3')
@@ -685,7 +685,7 @@ test('Promise.some', function (t) {
     var p1 = new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve('p1')
-      }, 20)
+      }, 100)
     })
     var p2 = resolved('p2')
     var p3 = rejected('p3')
@@ -706,7 +706,7 @@ test('new Promise -> some', function (t) {
     var p1 = new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve('p1')
-      }, 20)
+      }, 100)
     })
     var p2 = resolved('p2')
     var p3 = rejected('p3')
