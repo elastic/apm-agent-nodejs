@@ -26,6 +26,13 @@ test('#parseMessage()', function (t) {
     t.equal(data.message, '{ foo: /bar/ }')
     t.end()
   })
+
+  t.test('should parse null', function (t) {
+    var data = {}
+    parsers.parseMessage(null, data)
+    t.equal(data.message, null)
+    t.end()
+  })
 })
 
 test('#parseRequest()', function (t) {
