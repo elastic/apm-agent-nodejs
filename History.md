@@ -1,3 +1,7 @@
+# 4.5.0 - 2017/1/12
+  * core: make transaction type optional: `opbeat.startTransaction(name[, type])`
+  * knex: get better performance stack traces when using knex
+
 # 4.4.0 - 2016/12/23
   * core: log truncated traces
 
