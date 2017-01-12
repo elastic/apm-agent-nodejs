@@ -88,17 +88,6 @@ test('protocol.encode - single transaction', function (t) {
       return total + raw.length - 2
     }, 0), data.traces.groups.length)
 
-    data.traces.groups.forEach(function (trace, index) {
-      var rootTrans = expected[index].signature === 'transaction'
-      var parents = rootTrans ? [] : ['transaction']
-      t.equal(trace.transaction, expected[index].transaction)
-      t.equal(trace.signature, expected[index].signature)
-      t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, 'request')
-      t.equal(trace.timestamp, ts.toISOString())
-      t.deepEqual(trace.parents, parents)
-    })
-
     var traceKey = function (trace) {
       return trace.kind +
         '|' + trace.signature +
@@ -213,17 +202,6 @@ test('protocol.encode - multiple transactions', function (t) {
         return total + raw.length - 2
       }, 0), data.traces.groups.length)
 
-      data.traces.groups.forEach(function (trace, index) {
-        var rootTrans = expected[index].signature === 'transaction'
-        var parents = rootTrans ? [] : ['transaction']
-        t.equal(trace.transaction, expected[index].transaction)
-        t.equal(trace.signature, expected[index].signature)
-        t.equal(trace.kind, expected[index].kind)
-        t.equal(trace.transaction_kind, 'request')
-        t.equal(trace.timestamp, ts.toISOString())
-        t.deepEqual(trace.parents, parents)
-      })
-
       var traceKey = function (trace) {
         return trace.kind +
           '|' + trace.signature +
@@ -334,17 +312,6 @@ test('protocol.encode - http request meta data', function (t) {
       return total + raw.length - 2
     }, 0), data.traces.groups.length)
 
-    data.traces.groups.forEach(function (trace, index) {
-      var rootTrans = expected[index].signature === 'transaction'
-      var parents = rootTrans ? [] : ['transaction']
-      t.equal(trace.transaction, expected[index].transaction)
-      t.equal(trace.signature, expected[index].signature)
-      t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, 'request')
-      t.equal(trace.timestamp, ts.toISOString())
-      t.deepEqual(trace.parents, parents)
-    })
-
     var traceKey = function (trace) {
       return trace.kind +
         '|' + trace.signature +
@@ -433,18 +400,6 @@ test('protocol.encode - disable stack traces', function (t) {
     t.equal(data.traces.raw.reduce(function (total, raw) {
       return total + raw.length - 2
     }, 0), data.traces.groups.length)
-
-    data.traces.groups.forEach(function (trace, index) {
-      var rootTrans = expected[index].signature === 'transaction'
-      var parents = rootTrans ? [] : ['transaction']
-      t.equal(trace.transaction, expected[index].transaction)
-      t.equal(trace.signature, expected[index].signature)
-      t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, 'request')
-      t.equal(trace.timestamp, ts.toISOString())
-      t.deepEqual(trace.parents, parents)
-      t.notOk('_frames' in trace.extra)
-    })
 
     t.end()
   })
@@ -552,18 +507,6 @@ test('protocol.encode - truncated traces', function (t) {
     t.equal(data.traces.raw.reduce(function (total, raw) {
       return total + raw.length - 2
     }, 0), data.traces.groups.length)
-
-    data.traces.groups.forEach(function (trace, index) {
-      var rootTrans = expected[index].signature === 'transaction'
-      var parents = rootTrans ? [] : ['transaction']
-      t.equal(trace.transaction, expected[index].transaction)
-      t.equal(trace.signature, expected[index].signature)
-      t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, 'request')
-      t.equal(trace.timestamp, ts.toISOString())
-      t.deepEqual(trace.parents, parents)
-      t.notOk('_frames' in trace.extra)
-    })
 
     t.end()
   })
