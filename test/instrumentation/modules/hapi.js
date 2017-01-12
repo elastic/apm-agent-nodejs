@@ -99,7 +99,7 @@ function buildServer () {
 
 // {
 //   transactions: [
-//     { transaction: 'GET /hello', result: 200, kind: 'web.http', timestamp: '2016-07-15T10:14:00.000Z', durations: [ 20.051362 ] }
+//     { transaction: 'GET /hello', result: 200, kind: 'request', timestamp: '2016-07-15T10:14:00.000Z', durations: [ 20.051362 ] }
 //   ],
 //   traces: {
 //     groups: [
@@ -116,7 +116,7 @@ function assert (t, data, results) {
   results.name = results.name || 'GET /hello'
 
   t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].kind, 'web.http')
+  t.equal(data.transactions[0].kind, 'request')
   t.equal(data.transactions[0].result, results.status)
   t.equal(data.transactions[0].transaction, results.name)
 

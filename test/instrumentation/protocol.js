@@ -68,7 +68,7 @@ test('protocol.encode - single transaction', function (t) {
       t.equal(trace.transaction, expected[index].transaction)
       t.equal(trace.signature, expected[index].signature)
       t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, 'request')
+      t.equal(trace.transaction_kind, t0.type)
       t.equal(trace.timestamp, ts.toISOString())
       t.deepEqual(trace.parents, parents)
     })
@@ -155,12 +155,12 @@ test('protocol.encode - multiple transactions', function (t) {
       var now = new Date()
       var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
       var expected = [
-        { transaction: 'name0', signature: 't00', kind: 'type' },
-        { transaction: 'name0', signature: 't01', kind: 'type' },
-        { transaction: 'name0', signature: 'transaction', kind: 'transaction' },
-        { transaction: 'name1', signature: 't10', kind: 'type' },
-        { transaction: 'name1', signature: 't11', kind: 'type' },
-        { transaction: 'name1', signature: 'transaction', kind: 'transaction' }
+        { transaction: 'name0', signature: 't00', kind: 'type', tkind: 'type0' },
+        { transaction: 'name0', signature: 't01', kind: 'type', tkind: 'type0' },
+        { transaction: 'name0', signature: 'transaction', kind: 'transaction', tkind: 'type0' },
+        { transaction: 'name1', signature: 't10', kind: 'type', tkind: 'type1' },
+        { transaction: 'name1', signature: 't11', kind: 'type', tkind: 'type1' },
+        { transaction: 'name1', signature: 'transaction', kind: 'transaction', tkind: 'type1' }
       ]
 
       t.equal(data.transactions.length, 2, 'should have 2 transactions')
@@ -182,7 +182,7 @@ test('protocol.encode - multiple transactions', function (t) {
         t.equal(trace.transaction, expected[index].transaction)
         t.equal(trace.signature, expected[index].signature)
         t.equal(trace.kind, expected[index].kind)
-        t.equal(trace.transaction_kind, 'request')
+        t.equal(trace.transaction_kind, expected[index].tkind)
         t.equal(trace.timestamp, ts.toISOString())
         t.deepEqual(trace.parents, parents)
       })
@@ -290,7 +290,7 @@ test('protocol.encode - http request meta data', function (t) {
       t.equal(trace.transaction, expected[index].transaction)
       t.equal(trace.signature, expected[index].signature)
       t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, 'request')
+      t.equal(trace.transaction_kind, t0.type)
       t.equal(trace.timestamp, ts.toISOString())
       t.deepEqual(trace.parents, parents)
     })
@@ -381,7 +381,7 @@ test('protocol.encode - disable stack traces', function (t) {
       t.equal(trace.transaction, expected[index].transaction)
       t.equal(trace.signature, expected[index].signature)
       t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, 'request')
+      t.equal(trace.transaction_kind, t0.type)
       t.equal(trace.timestamp, ts.toISOString())
       t.deepEqual(trace.parents, parents)
     })
@@ -488,7 +488,7 @@ test('protocol.encode - truncated traces', function (t) {
       t.equal(trace.transaction, expected[index].transaction)
       t.equal(trace.signature, expected[index].signature)
       t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, 'request')
+      t.equal(trace.transaction_kind, t0.type)
       t.equal(trace.timestamp, ts.toISOString())
       t.deepEqual(trace.parents, parents)
     })
