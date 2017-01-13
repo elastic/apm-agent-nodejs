@@ -8,12 +8,12 @@ files () {
 
 echo "running: test/start/env/test.js"
 cd test/start/env
-OPBEAT_APP_ID=from-env node -r opbeat/start test.js || exit $?;
+OPBEAT_APP_ID=from-env node -r ../../../start test.js || exit $?;
 cd ../../..
 
 echo "running: test/start/file/test.js"
 cd test/start/file
-node -r opbeat/start test.js || exit $?;
+node -r ../../../start test.js || exit $?;
 cd ../../..
 
 for file in $(files test/!(_*).js); do
