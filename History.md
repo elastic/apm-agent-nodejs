@@ -1,3 +1,6 @@
+# 4.6.0 - 2017/1/13
+  * koa-router: add support for koa-router ^5.2.0
+
 # 4.5.0 - 2017/1/12
   * core: make transaction type optional: `opbeat.startTransaction(name[, type])`
   * knex: get better performance stack traces when using knex
