@@ -1,3 +1,7 @@
+# 4.7.0 - 2017/1/13
+  * core: allow starting of Opbeat using `node -r` flag (see 28ae364)
+  * ws: trace sent websocket messages from the ws module
+
 # 4.6.0 - 2017/1/13
   * koa-router: add support for koa-router ^5.2.0
 
