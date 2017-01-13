@@ -25,3 +25,6 @@ bluebird:
 knex:
   versions: ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
   commands: node test/instrumentation/modules/pg/knex.js
+ws:
+  versions: ^1.0.0
+  commands: node test/instrumentation/modules/ws.js
