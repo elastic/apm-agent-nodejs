@@ -73,6 +73,27 @@ test('#parseRequest()', function (t) {
     t.equal(parsed.data, '[REDACTED]')
     t.end()
   })
+
+  t.test('body is object', function (t) {
+    mockReq.body = {foo: 42}
+    mockReq.headers['content-length'] = JSON.stringify(mockReq.body).length
+    var parsed = parsers.parseRequest(mockReq, {body: true})
+    t.deepEqual(parsed.data, {foo: 42})
+    t.end()
+  })
+
+  t.test('body is object, but too large', function (t) {
+    mockReq.body = {foo: ''}
+    for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
+      mockReq.body.foo += 'x'
+    }
+    mockReq.headers['content-length'] = JSON.stringify(mockReq.body).length
+    var parsed = parsers.parseRequest(mockReq, {body: true})
+    t.equal(typeof parsed.data, 'string')
+    t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
+    t.equal(parsed.data.slice(0, 10), '{"foo":"xx')
+    t.end()
+  })
 })
 
 test('#parseError()', function (t) {
