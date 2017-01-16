@@ -49,7 +49,7 @@ test('#parseRequest()', function (t) {
     }
   }
 
-  t.test('should parse a request object', function () {
+  t.test('should parse a request object', function (t) {
     var parsed = parsers.parseRequest(mockReq)
     t.equal(parsed.url, 'https://example.com/some/path?key=value')
     t.end()
