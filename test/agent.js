@@ -172,6 +172,42 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.end()
 })
 
+test('#setUserContext()', function (t) {
+  t.test('no active transaction', function (t) {
+    setup()
+    opbeat.start()
+    t.equal(opbeat.setUserContext({foo: 1}), false)
+    t.end()
+  })
+
+  t.test('active transaction', function (t) {
+    setup()
+    opbeat.start()
+    var trans = opbeat.startTransaction()
+    t.equal(opbeat.setUserContext({foo: 1}), true)
+    t.deepEqual(trans._context, {user: {foo: 1}})
+    t.end()
+  })
+})
+
+test('#setExtraContext()', function (t) {
+  t.test('no active transaction', function (t) {
+    setup()
+    opbeat.start()
+    t.equal(opbeat.setExtraContext({foo: 1}), false)
+    t.end()
+  })
+
+  t.test('active transaction', function (t) {
+    setup()
+    opbeat.start()
+    var trans = opbeat.startTransaction()
+    t.equal(opbeat.setExtraContext({foo: 1}), true)
+    t.deepEqual(trans._context, {extra: {foo: 1}})
+    t.end()
+  })
+})
+
 test('#captureError()', function (t) {
   t.test('should send a plain text message to Opbeat server', function (t) {
     setup()
@@ -376,6 +412,43 @@ test('#captureError()', function (t) {
         res.on('end', function () {
           server.close()
           t.ok(true)
+        })
+      }).end()
+    })
+  })
+
+  t.test('should merge context', function (t) {
+    setup()
+    opbeat.start({
+      appId: 'foo',
+      organizationId: 'bar',
+      secretToken: 'baz',
+      filterHttpHeaders: false
+    })
+
+    var oldErrorFn = request.error
+    request.error = function (agent, data, cb) {
+      t.deepEqual(data.user, {a: 1, b: 1, merge: {shallow: true}})
+      t.deepEqual(data.extra, {a: 3, b: 2, merge: {shallow: true}, node: process.version, uuid: data.extra.uuid})
+      request.error = oldErrorFn
+      t.end()
+    }
+
+    var server = http.createServer(function (req, res) {
+      opbeat.startTransaction()
+      t.equal(opbeat.setUserContext({a: 1, merge: {a: 2}}), true)
+      t.equal(opbeat.setExtraContext({a: 3, merge: {a: 4}}), true)
+      opbeat.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, extra: {b: 2, merge: {shallow: true}}})
+      res.end()
+    })
+
+    server.listen(function () {
+      http.request({
+        port: server.address().port
+      }, function (res) {
+        res.resume()
+        res.on('end', function () {
+          server.close()
         })
       }).end()
     })

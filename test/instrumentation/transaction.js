@@ -18,6 +18,67 @@ test('init', function (t) {
   t.end()
 })
 
+test('#setUserContext', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.equal(added.ended, true)
+    t.equal(added, trans)
+    t.equal(trans.traces.length, 1)
+    t.deepEqual(trans.traces, [trans._rootTrace])
+    t.end()
+  })
+  var trans = new Transaction(ins._agent)
+  t.equal(trans._context, null)
+  trans.setUserContext()
+  t.equal(trans._context, null)
+  trans.setUserContext({foo: 1})
+  t.deepEqual(trans._context, {user: {foo: 1}})
+  trans.setUserContext({bar: {baz: 2}})
+  t.deepEqual(trans._context, {user: {foo: 1, bar: {baz: 2}}})
+  trans.setUserContext({foo: 3})
+  t.deepEqual(trans._context, {user: {foo: 3, bar: {baz: 2}}})
+  trans.setUserContext({bar: {shallow: true}})
+  t.deepEqual(trans._context, {user: {foo: 3, bar: {shallow: true}}})
+  t.end()
+})
+
+test('#setExtraContext', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.equal(added.ended, true)
+    t.equal(added, trans)
+    t.equal(trans.traces.length, 1)
+    t.deepEqual(trans.traces, [trans._rootTrace])
+    t.end()
+  })
+  var trans = new Transaction(ins._agent)
+  t.equal(trans._context, null)
+  trans.setExtraContext()
+  t.equal(trans._context, null)
+  trans.setExtraContext({foo: 1})
+  t.deepEqual(trans._context, {extra: {foo: 1}})
+  trans.setExtraContext({bar: {baz: 2}})
+  t.deepEqual(trans._context, {extra: {foo: 1, bar: {baz: 2}}})
+  trans.setExtraContext({foo: 3})
+  t.deepEqual(trans._context, {extra: {foo: 3, bar: {baz: 2}}})
+  trans.setExtraContext({bar: {shallow: true}})
+  t.deepEqual(trans._context, {extra: {foo: 3, bar: {shallow: true}}})
+  t.end()
+})
+
+test('#setUserContext + #setExtraContext', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.equal(added.ended, true)
+    t.equal(added, trans)
+    t.equal(trans.traces.length, 1)
+    t.deepEqual(trans.traces, [trans._rootTrace])
+    t.end()
+  })
+  var trans = new Transaction(ins._agent)
+  trans.setUserContext({foo: 1})
+  trans.setExtraContext({bar: 1})
+  t.deepEqual(trans._context, {user: {foo: 1}, extra: {bar: 1}})
+  t.end()
+})
+
 test('#end() - no traces', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
