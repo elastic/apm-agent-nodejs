@@ -35,7 +35,7 @@ test('#parseMessage()', function (t) {
   })
 })
 
-test('#parseRequest()', function (t) {
+test('#getHTTPContextFromRequest()', function (t) {
   var mockReq = {
     method: 'GET',
     url: '/some/path?key=value',
@@ -50,7 +50,7 @@ test('#parseRequest()', function (t) {
   }
 
   t.test('should parse a request object', function (t) {
-    var parsed = parsers.parseRequest(mockReq)
+    var parsed = parsers.getHTTPContextFromRequest(mockReq)
     t.equal(parsed.url, 'https://example.com/some/path?key=value')
     t.end()
   })
@@ -61,7 +61,7 @@ test('#parseRequest()', function (t) {
       mockReq.body += 'x'
     }
     mockReq.headers['content-length'] = String(mockReq.body.length)
-    var parsed = parsers.parseRequest(mockReq, {body: true})
+    var parsed = parsers.getHTTPContextFromRequest(mockReq, {body: true})
     t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
     t.end()
   })
@@ -69,7 +69,7 @@ test('#parseRequest()', function (t) {
   t.test('should not log body if opts.body is false', function (t) {
     mockReq.body = 'secret stuff'
     mockReq.headers['content-length'] = String(mockReq.body.length)
-    var parsed = parsers.parseRequest(mockReq, {body: false})
+    var parsed = parsers.getHTTPContextFromRequest(mockReq, {body: false})
     t.equal(parsed.data, '[REDACTED]')
     t.end()
   })
@@ -77,7 +77,7 @@ test('#parseRequest()', function (t) {
   t.test('body is object', function (t) {
     mockReq.body = {foo: 42}
     mockReq.headers['content-length'] = JSON.stringify(mockReq.body).length
-    var parsed = parsers.parseRequest(mockReq, {body: true})
+    var parsed = parsers.getHTTPContextFromRequest(mockReq, {body: true})
     t.deepEqual(parsed.data, {foo: 42})
     t.end()
   })
@@ -88,7 +88,7 @@ test('#parseRequest()', function (t) {
       mockReq.body.foo += 'x'
     }
     mockReq.headers['content-length'] = JSON.stringify(mockReq.body).length
-    var parsed = parsers.parseRequest(mockReq, {body: true})
+    var parsed = parsers.getHTTPContextFromRequest(mockReq, {body: true})
     t.equal(typeof parsed.data, 'string')
     t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
     t.equal(parsed.data.slice(0, 10), '{"foo":"xx')
