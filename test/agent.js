@@ -346,7 +346,7 @@ test('#captureError()', function (t) {
     request.error = function () {
       t.fail('should not send error to intake')
     }
-    opbeat.captureError(new Error(), {}, function opbeatMiddleware () {
+    opbeat.captureError(new Error(), {}, function () {
       request.error = oldErrorFn
       t.end()
     })
