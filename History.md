@@ -1,3 +1,7 @@
+# 4.8.0 - 2017/1/25
+  * core: allow setting per-transaction context data using setUserContext() and setExtraContext()
+  * core: populate errors with logged in user details
+
 # 4.7.0 - 2017/1/13
   * core: allow starting of Opbeat using `node -r` flag (see 28ae364)
   * ws: trace sent websocket messages from the ws module
