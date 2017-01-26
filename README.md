@@ -11,8 +11,7 @@ This is the official Node.js agent for Opbeat.
 If you are looking for a module for your frontend JS applications, please see [Opbeat for JS](https://github.com/opbeat/opbeat-js) on GitHub.
 
 **Troubleshooting:** If you encounter any problems setting up the Opbeat
-agent, please see our [troubleshooting
-guide](https://opbeat.com/docs/articles/troubleshooting-opbeat-for-nodejs/).
+agent, please see our [troubleshooting guide](https://opbeat.com/docs/articles/nodejs-agent-troubleshooting/).
 
 
 ## Quick start
@@ -49,9 +48,9 @@ opbeat.captureError(new Error('Ups, something broke'))
 - [Documentation overview](https://opbeat.com/docs/topics/node-js/)
 - [Get started with Express](https://opbeat.com/docs/articles/get-started-with-express/) 
 - [Get started with Hapi](https://opbeat.com/docs/articles/get-started-with-hapi/)
-- [Module API](https://opbeat.com/docs/articles/opbeat-for-nodejs-api/)
-- [Troubleshooting
-guide](https://opbeat.com/docs/articles/troubleshooting-opbeat-for-nodejs/)
+- [Get started with Koa](https://opbeat.com/docs/articles/get-started-with-koa/)
+- [Agent API](https://opbeat.com/docs/articles/nodejs-agent-api/)
+- [Troubleshooting guide](https://opbeat.com/docs/articles/nodejs-agent-troubleshooting/)
 - [Compatibility with other modules](https://github.com/opbeat/opbeat-node/wiki/Compatibility-Guide)
 - [Upgrading to v4](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-4.x)
 
