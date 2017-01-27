@@ -1,3 +1,7 @@
+# 4.9.0 - 2017/1/27
+  * core: add OPBEAT_CONFIG_FILE environment variable for use with start.js (#117)
+  * hapi: improve error logging (#77)
+
 # 4.8.0 - 2017/1/25
   * core: allow setting per-transaction context data using setUserContext() and setExtraContext()
   * core: populate errors with logged in user details
