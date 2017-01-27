@@ -99,7 +99,7 @@ factories.forEach(function (f) {
           setTimeout(function () {
             trans.end()
             agent._instrumentation._queue._flush()
-          }, 100)
+          }, 150)
         })
       })
     })
