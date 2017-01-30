@@ -1,3 +1,6 @@
+# 4.10.0 - 2017/1/30
+  * ws: support version ^2.0.0 of the ws module
+
 # 4.9.0 - 2017/1/27
   * core: add OPBEAT_CONFIG_FILE environment variable for use with start.js (#117)
   * hapi: improve error logging (#77)
