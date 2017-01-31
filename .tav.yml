@@ -30,10 +30,11 @@ ws:
   commands: node test/instrumentation/modules/ws.js
 graphql:
   node: '>=1.0.0'
+  pretest: rm -fr node_modules/express-graphql
   versions: '>=0.7.0 <1.0.0'
   commands: node test/instrumentation/modules/graphql.js
 express-graphql:
   node: '>=1.0.0'
-  peerDependencies: graphql@0.9.1
+  peerDependencies: graphql@0.8.2
   versions: ^0.6.1
   commands: node test/instrumentation/modules/express-graphql.js
