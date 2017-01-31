@@ -1,3 +1,7 @@
+# 4.11.0 - 2017/1/31
+  * express-graphql: better transaction naming when using express-graphql
+  * graphql: trace GraphQL queries
+
 # 4.10.0 - 2017/1/30
   * ws: support version ^2.0.0 of the ws module
 
