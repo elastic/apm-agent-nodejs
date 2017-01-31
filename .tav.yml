@@ -32,3 +32,7 @@ graphql:
   node: >=1.0.0
   versions: >=0.7.0 <1.0.0
   commands: node test/instrumentation/modules/graphql.js
+express-graphql:
+  node: >=1.0.0
+  versions: ^0.6.1
+  commands: node test/instrumentation/modules/express-graphql.js
