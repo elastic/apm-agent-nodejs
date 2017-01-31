@@ -13,12 +13,12 @@ ioredis:
   versions: ^2.0.0
   commands: node test/instrumentation/modules/ioredis.js
 pg:
-  versions: >=4 <7
+  versions: '>=4 <7'
   commands:
     - node test/instrumentation/modules/pg/pg.js
     - node test/instrumentation/modules/pg/knex.js
 bluebird:
-  versions: >=2 <4
+  versions: '>=2 <4'
   commands:
     - node test/instrumentation/modules/bluebird/bluebird.js
     - node test/instrumentation/modules/bluebird/cancel.js
@@ -26,7 +26,7 @@ knex:
   versions: ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
   commands: node test/instrumentation/modules/pg/knex.js
 ws:
-  versions: >=1 <3
+  versions: '>=1 <3'
   commands: node test/instrumentation/modules/ws.js
 graphql:
   node: '>=1.0.0'
