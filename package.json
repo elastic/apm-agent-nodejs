@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "test/pretest.sh",
-    "test": "standard && test/test.sh && tav --ci --quiet",
+    "test": "standard && test/test.sh",
     "posttest": "test/posttest.sh",
     "test-cli": "node test/scripts/cli.js"
   },
