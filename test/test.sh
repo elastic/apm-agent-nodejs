@@ -54,7 +54,3 @@ for file in $(files test/instrumentation/modules/bluebird/!(_*).js); do
   echo "running: node $file"
   node "$file" || exit $?;
 done
-
-if [[ "$TRAVIS_EVENT_TYPE" == "cron" ]]; then
-  tav --quiet || exit $?;
-fi

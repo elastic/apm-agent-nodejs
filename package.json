@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "test/pretest.sh",
-    "test": "standard && test/test.sh",
+    "test": "standard && test/test.sh && tav --ci --quiet",
     "posttest": "test/posttest.sh",
     "test-cli": "node test/scripts/cli.js"
   },
@@ -87,7 +87,7 @@
     "restify": "^4.3.0",
     "standard": "^8.6.0",
     "tape": "^4.6.3",
-    "test-all-versions": "^2.3.0",
+    "test-all-versions": "^2.4.0",
     "untildify": "^3.0.2",
     "ws": "^2.0.0"
   },
