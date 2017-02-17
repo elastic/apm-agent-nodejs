@@ -11,7 +11,7 @@ var test = require('tape')
 var exec = require('child_process').exec
 var semver = require('semver')
 var pg = require('pg')
-var pgVersion = require('../../../../node_modules/pg/package.json').version
+var pgVersion = require('pg/package.json').version
 
 var queryable
 var factories = [

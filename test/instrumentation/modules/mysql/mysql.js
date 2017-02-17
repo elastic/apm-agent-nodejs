@@ -11,7 +11,7 @@ var test = require('tape')
 var exec = require('child_process').exec
 var semver = require('semver')
 var mysql = require('mysql')
-var mysqlVersion = require('../../../../node_modules/mysql/package.json').version
+var mysqlVersion = require('mysql/package.json').version
 
 var queryable
 var factories = [
