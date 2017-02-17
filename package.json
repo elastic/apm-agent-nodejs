@@ -87,7 +87,7 @@
     "restify": "^4.3.0",
     "standard": "^8.6.0",
     "tape": "^4.6.3",
-    "test-all-versions": "^2.4.0",
+    "test-all-versions": "^2.4.1",
     "untildify": "^3.0.2",
     "ws": "^2.0.0"
   },
