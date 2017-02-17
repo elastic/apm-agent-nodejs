@@ -1,3 +1,6 @@
+# 4.11.1 - 2017/2/17
+  * pg: lazy patch pg-native to avoid STDERR output if not installed
+
 # 4.11.0 - 2017/1/31
   * express-graphql: better transaction naming when using express-graphql
   * graphql: trace GraphQL queries
