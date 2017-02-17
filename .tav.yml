@@ -14,6 +14,7 @@ ioredis:
   commands: node test/instrumentation/modules/ioredis.js
 pg:
   versions: '>=4 <7'
+  peerDependencies: bluebird@^3.0.0
   commands:
     - node test/instrumentation/modules/pg/pg.js
     - node test/instrumentation/modules/pg/knex.js
