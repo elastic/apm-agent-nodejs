@@ -216,7 +216,7 @@
   * Fix: Long running transactions sometimes did not have any associated traces
 
 # 3.5.0 - 2016/2/17
-  * Hapi: Automatically attach HTTP body to errors
+  * hapi: Automatically attach HTTP body to errors
 
 # 3.4.3 - 2016/2/16
   * Improve caching of stack traces during instrumentation (in some use cases this will also reduce memory usage)
@@ -251,7 +251,7 @@
   * Improve npmjs.com documentation
 
 # 3.1.0 - 2015/12/3
-  * Add Hapi support
+  * Add hapi support
 
 # 3.0.6 - 2015/12/3
   * Fix another stacktrace collection bug that sometimes would result in an uncaught exception
