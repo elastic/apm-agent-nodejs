@@ -1,3 +1,7 @@
+# 4.11.2 - 2017/3/8
+  * core: fix bug related to net.connect in Node.js v7.7.2
+  * chore: reduce package size by not including test files
+
 # 4.11.1 - 2017/2/17
   * pg: lazy patch pg-native to avoid STDERR output if not installed
 
