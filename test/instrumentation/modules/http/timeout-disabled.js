@@ -19,7 +19,7 @@ test('client-side timeout - call end', function (t) {
         t.equal(agent._instrumentation._queue._samples.length, 1, 'should add transactions to queue')
         server.close()
         t.end()
-      }, 50)
+      }, 100)
     })
 
     clientReq.abort()
@@ -54,7 +54,7 @@ test('client-side timeout - don\'t call end', function (t) {
         t.equal(agent._instrumentation._queue._samples.length, 0, 'should not add transactions to queue')
         server.close()
         t.end()
-      }, 50)
+      }, 100)
     })
 
     clientReq.abort()
