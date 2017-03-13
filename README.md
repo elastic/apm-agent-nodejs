@@ -4,9 +4,9 @@
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
 <a href="https://opbeat.com" title="Opbeat"><img src="http://opbeat-brand-assets.s3-website-us-east-1.amazonaws.com/svg/logo/logo.svg" align="right" height="25px"></a>
 
-This is the official Node.js agent for Opbeat. 
+This is the official Node.js agent for Opbeat.
 
-[Opbeat](https://opbeat.com/nodejs) provides instant performance insights, built for Node.js developers. 
+[Opbeat](https://opbeat.com/nodejs) provides instant performance insights, built for Node.js developers.
 
 If you are looking for a module for your frontend JS applications, please see [Opbeat for JS](https://github.com/opbeat/opbeat-js) on GitHub.
 
@@ -46,8 +46,8 @@ opbeat.captureError(new Error('Ups, something broke'))
 ## Documentation
 
 - [Documentation overview](https://opbeat.com/docs/topics/node-js/)
-- [Get started with Express](https://opbeat.com/docs/articles/get-started-with-express/) 
-- [Get started with Hapi](https://opbeat.com/docs/articles/get-started-with-hapi/)
+- [Get started with Express](https://opbeat.com/docs/articles/get-started-with-express/)
+- [Get started with hapi](https://opbeat.com/docs/articles/get-started-with-hapi/)
 - [Get started with Koa](https://opbeat.com/docs/articles/get-started-with-koa/)
 - [Agent API](https://opbeat.com/docs/articles/nodejs-agent-api/)
 - [Troubleshooting guide](https://opbeat.com/docs/articles/nodejs-agent-troubleshooting/)
