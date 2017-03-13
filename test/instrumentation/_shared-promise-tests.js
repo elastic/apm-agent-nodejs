@@ -25,11 +25,11 @@ module.exports = function (test, Promise, ins) {
       twice(function () {
         var trans = ins.startTransaction()
         new Promise(function (resolve, reject) {
-          reject('foo')
+          reject(new Error('foo'))
         }).then(function () {
           t.fail('should not resolve')
         })[fnName](function (reason) {
-          t.equal(reason, 'foo')
+          t.equal(reason.message, 'foo')
           t.equal(ins.currentTransaction._uuid, trans._uuid)
         })
       })
@@ -40,9 +40,9 @@ module.exports = function (test, Promise, ins) {
       twice(function () {
         var trans = ins.startTransaction()
         new Promise(function (resolve, reject) {
-          reject('foo')
+          reject(new Error('foo'))
         })[fnName](function (err) {
-          t.equal(err, 'foo')
+          t.equal(err.message, 'foo')
           t.equal(ins.currentTransaction._uuid, trans._uuid)
           return Promise.resolve('bar')
         }).then(function (result) {
@@ -58,11 +58,11 @@ module.exports = function (test, Promise, ins) {
     twice(function () {
       var trans = ins.startTransaction()
       new Promise(function (resolve, reject) {
-        reject('foo')
+        reject(new Error('foo'))
       }).then(function () {
         t.fail('should not resolve')
       }, function (reason) {
-        t.equal(reason, 'foo')
+        t.equal(reason.message, 'foo')
         t.equal(ins.currentTransaction._uuid, trans._uuid)
       })
     })
@@ -87,12 +87,12 @@ module.exports = function (test, Promise, ins) {
     t.plan(4)
     twice(function () {
       var trans = ins.startTransaction()
-      Promise.reject('foo')
+      Promise.reject(new Error('foo'))
         .then(function () {
           t.fail('should not resolve')
         })
         .catch(function (reason) {
-          t.equal(reason, 'foo')
+          t.equal(reason.message, 'foo')
           t.equal(ins.currentTransaction._uuid, trans._uuid)
         })
     })
