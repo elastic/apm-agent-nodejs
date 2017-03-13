@@ -1,3 +1,9 @@
+# 4.11.3 - 2017/3/13
+  * hapi: don't try to instrument hapi servers where `server.connection()` isn't called
+
+# 3.9.1 - 2017/3/13 (maintenance release)
+  * core: fix bug related to net.connect in Node.js v7.7.2 (backported from v4.11.2)
+
 # 4.11.2 - 2017/3/8
   * core: fix bug related to net.connect in Node.js v7.7.2
   * chore: reduce package size by not including test files
