@@ -18,7 +18,7 @@ module.exports = function (test, Promise, ins) {
 
         function PingPong () {}
 
-        PingPong.prototype.ping = Promise.coroutine(function* (val) {
+        PingPong.prototype.ping = Promise.coroutine(function * (val) {
           if (val === 2) {
             // timing is hard, let's give it a -5ms slack
             var pingTime = Date.now()
@@ -31,7 +31,7 @@ module.exports = function (test, Promise, ins) {
           this.pong(val + 1)
         })
 
-        PingPong.prototype.pong = Promise.coroutine(function* (val) {
+        PingPong.prototype.pong = Promise.coroutine(function * (val) {
           // timing is hard, let's give it a -5ms slack
           pongTime = Date.now()
           t.ok(start + 45 <= pongTime, 'after ping, min 50ms should have passed (took ' + (pongTime - start) + 'ms)')
@@ -63,7 +63,7 @@ module.exports = function (test, Promise, ins) {
 
         function PingPong () {}
 
-        PingPong.prototype.ping = Promise.coroutine(function* (val) {
+        PingPong.prototype.ping = Promise.coroutine(function * (val) {
           if (val === 2) {
             // timing is hard, let's give it a -5ms slack
             var pingTime = Date.now()
@@ -76,7 +76,7 @@ module.exports = function (test, Promise, ins) {
           this.pong(val + 1)
         })
 
-        PingPong.prototype.pong = Promise.coroutine(function* (val) {
+        PingPong.prototype.pong = Promise.coroutine(function * (val) {
           // timing is hard, let's give it a -5ms slack
           pongTime = Date.now()
           t.ok(start + 45 <= pongTime, 'after ping, min 50ms should have passed (took ' + (pongTime - start) + 'ms)')
@@ -98,7 +98,7 @@ module.exports = function (test, Promise, ins) {
       twice(function () {
         var trans = ins.startTransaction()
 
-        Promise.spawn(function* () {
+        Promise.spawn(function * () {
           return yield Promise.resolve('foo')
         }).then(function (value) {
           t.equal(value, 'foo')
