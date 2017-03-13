@@ -4,6 +4,8 @@
   "description": "The official Opbeat agent for Node.js",
   "main": "index.js",
   "scripts": {
+    "lint": "standard",
+    "lint-fix": "standard --fix",
     "pretest": "test/pretest.sh",
     "test": "standard && test/test.sh && tav --ci --quiet",
     "posttest": "test/posttest.sh",

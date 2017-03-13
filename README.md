@@ -61,6 +61,9 @@ Redis to be present. The `npm test` command will try and start them all
 automatically before running the tests. This should work on OS X if the
 databases are all installed using [Homebrew](http://brew.sh).
 
+To run the linter without running any tests, run `npm run lint`. To
+automatically fix linting errors run `npm run lint-fix`.
+
 ## License
 
 BSD-2-Clause
