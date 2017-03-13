@@ -1,3 +1,6 @@
+# 4.11.4 - 2017/3/13
+  * core: handle edge case where err.message isn't a string (#130)
+
 # 4.11.3 - 2017/3/13
   * hapi: don't try to instrument hapi servers where `server.connection()` isn't called
 
