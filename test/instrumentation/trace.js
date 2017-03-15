@@ -13,7 +13,7 @@ test('properties', function (t) {
   var trace = new Trace(trans)
   trace.start('sig', 'type')
   t.equal(trace.transaction, trans)
-  t.equal(trace.signature, 'sig')
+  t.equal(trace.name, 'sig')
   t.equal(trace.type, 'type')
   t.equal(trace.ended, false)
   t.end()

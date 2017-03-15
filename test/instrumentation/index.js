@@ -312,17 +312,17 @@ test('currentTransaction missing - not recoverable - middle trace failed', funct
 })
 
 function pointerChain (trace) {
-  var arr = [trace.signature]
+  var arr = [trace.name]
   var prev = trace._parent
   while (prev) {
-    arr.push(prev.signature)
+    arr.push(prev.name)
     prev = prev._parent
   }
   return arr.join(' -> ')
 }
 
-function startTrace (ins, signature, type) {
+function startTrace (ins, name, type) {
   var trace = ins.buildTrace()
-  if (trace) trace.start(signature, type)
+  if (trace) trace.start(name, type)
   return trace
 }
