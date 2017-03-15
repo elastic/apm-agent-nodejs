@@ -233,7 +233,8 @@ var transactionTest = function () {
 
   function makeTransaction () {
     if ((Date.now() - start) / 1000 > maxSeconds) {
-      console.log('Done making transactions')
+      console.log('Done making transactions - flushing queue...')
+      opbeat._instrumentation._queue._flush()
       return
     }
 
