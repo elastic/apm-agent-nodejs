@@ -240,7 +240,8 @@ var transactionTest = function () {
 
     console.log('Starting new transaction')
 
-    var trans = opbeat.startTransaction('foo', 'bar')
+    var type = Math.random() > 0.5 ? 'request' : 'my-custom-type'
+    var trans = opbeat.startTransaction('foo', type)
     var t1 = opbeat.buildTrace()
     t1.start('sig1', 'foo.bar.baz1')
     var t2 = opbeat.buildTrace()
@@ -278,7 +279,7 @@ var transactionTest = function () {
       trans.result = Math.round(Math.random() * 350 + 200)
       trans.result = 204
 
-      console.log('Ending transaction')
+      console.log('Ending transaction (name: %s, type: %s)', trans.name, trans.type)
       trans.end()
     }, 500)
 
