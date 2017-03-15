@@ -15,7 +15,7 @@ test('not nested', function (t) {
 
   var redis = new Redis()
 
-  agent.startTransaction('foo', 'bar', 'baz')
+  agent.startTransaction('foo', 'bar')
 
   var calls = 0
 
@@ -58,7 +58,7 @@ test('nested', function (t) {
 
   var redis = new Redis()
 
-  agent.startTransaction('foo', 'bar', 'baz')
+  agent.startTransaction('foo', 'bar')
 
   redis.flushall(function (err, reply) {
     t.error(err)
@@ -96,7 +96,7 @@ test('nested', function (t) {
 
 // { transactions:
 //    [ { transaction: 'foo',
-//        result: 'baz',
+//        result: 200,
 //        kind: 'bar',
 //        timestamp: '2016-07-29T09:58:00.000Z',
 //        durations: [ 31.891944 ] } ],
@@ -162,7 +162,7 @@ function done (t) {
     t.equal(data.transactions.length, 1)
     t.equal(data.transactions[0].transaction, 'foo')
     t.equal(data.transactions[0].kind, 'bar')
-    t.equal(data.transactions[0].result, 'baz')
+    t.equal(data.transactions[0].result, 200)
 
     t.equal(data.traces.groups.length, groups.length + 1)
 

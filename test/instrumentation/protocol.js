@@ -8,7 +8,8 @@ var protocol = require('../../lib/instrumentation/protocol')
 
 test('protocol.transactionGroupingKey', function (t) {
   var agent = mockAgent()
-  var trans = new Transaction(agent, 'name', 'type', 'result')
+  var trans = new Transaction(agent, 'name', 'type')
+  trans.result = 'result'
   trans._start = 1477949286049
   var key = protocol.transactionGroupingKey(trans)
   t.equal(key, '1477949280000|name|result|type')
@@ -33,7 +34,8 @@ test('protocol.encode - empty', function (t) {
 test('protocol.encode - single transaction', function (t) {
   var agent = mockAgent()
 
-  var t0 = new Transaction(agent, 'single-name0', 'type0', 'result0')
+  var t0 = new Transaction(agent, 'single-name0', 'type0')
+  t0.result = 'result0'
   t0.setUserContext({foo: 1})
   t0.setExtraContext({bar: 1})
   t0.end()
@@ -132,7 +134,8 @@ test('protocol.encode - multiple transactions', function (t) {
   })
 
   function generateTransaction (id, cb) {
-    var trans = new Transaction(agent, 'name' + id, 'type' + id, 'result' + id)
+    var trans = new Transaction(agent, 'name' + id, 'type' + id)
+    trans.result = 'result' + id
     var trace = new Trace(trans)
     trace.start('t' + id + '0', 'type')
 
@@ -240,7 +243,8 @@ test('protocol.encode - multiple transactions', function (t) {
 test('protocol.encode - http request meta data', function (t) {
   var agent = mockAgent()
 
-  var t0 = new Transaction(agent, 'http-name0', 'type0', 'result0')
+  var t0 = new Transaction(agent, 'http-name0', 'type0')
+  t0.result = 'result0'
   t0.req = {
     method: 'POST',
     url: '/foo?bar=baz',
@@ -351,7 +355,8 @@ test('protocol.encode - disable stack traces', function (t) {
   var agent = mockAgent()
   agent.captureTraceStackTraces = false
 
-  var t0 = new Transaction(agent, 'single-name0', 'type0', 'result0')
+  var t0 = new Transaction(agent, 'single-name0', 'type0')
+  t0.result = 'result0'
   t0.end()
 
   var samples = [t0]
@@ -450,7 +455,8 @@ test('protocol.encode - truncated traces', function (t) {
   var agent = mockAgent()
   agent.captureTraceStackTraces = false
 
-  var t0 = new Transaction(agent, 'single-name0', 'type0', 'result0')
+  var t0 = new Transaction(agent, 'single-name0', 'type0')
+  t0.result = 'result0'
   var trace0 = t0.buildTrace()
   trace0.start('sig0', 'type0')
   var trace1 = t0.buildTrace()

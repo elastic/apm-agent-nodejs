@@ -9,10 +9,10 @@ test('init', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.ok(false)
   })
-  var trans = new Transaction(ins._agent, 'name', 'type', 'result')
+  var trans = new Transaction(ins._agent, 'name', 'type')
   t.equal(trans.name, 'name')
   t.equal(trans.type, 'type')
-  t.equal(trans.result, 'result')
+  t.equal(trans.result, 200)
   t.equal(trans.ended, false)
   t.deepEqual(trans.traces, [])
   t.end()

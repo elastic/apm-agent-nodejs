@@ -12,7 +12,7 @@ var redis = require('redis')
 
 // { transactions:
 //    [ { transaction: 'foo',
-//        result: 'baz',
+//        result: 200,
 //        kind: 'bar',
 //        timestamp: '2016-07-28T17:57:00.000Z',
 //        durations: [ 20.077148 ] } ],
@@ -68,7 +68,7 @@ test(function (t) {
     t.equal(data.transactions.length, 1)
     t.equal(data.transactions[0].transaction, 'foo')
     t.equal(data.transactions[0].kind, 'bar')
-    t.equal(data.transactions[0].result, 'baz')
+    t.equal(data.transactions[0].result, 200)
 
     t.equal(data.traces.groups.length, groups.length + 1)
 
@@ -108,7 +108,7 @@ test(function (t) {
 
   var client = redis.createClient()
 
-  agent.startTransaction('foo', 'bar', 'baz')
+  agent.startTransaction('foo', 'bar')
 
   client.flushall(function (err, reply) {
     t.error(err)

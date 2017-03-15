@@ -45,7 +45,7 @@ test('trace simple command', function (t) {
     t.equal(data.transactions.length, 1)
     t.equal(data.transactions[0].transaction, 'foo')
     t.equal(data.transactions[0].kind, 'bar')
-    t.equal(data.transactions[0].result, 'baz')
+    t.equal(data.transactions[0].result, 200)
 
     t.equal(data.traces.groups.length, groups.length + 1)
 
@@ -85,7 +85,7 @@ test('trace simple command', function (t) {
 
   var server = new Server({})
 
-  agent.startTransaction('foo', 'bar', 'baz')
+  agent.startTransaction('foo', 'bar')
 
   // test example lifted from https://github.com/christkv/mongodb-core/blob/2.0/README.md#connecting-to-mongodb
   server.on('connect', function (_server) {

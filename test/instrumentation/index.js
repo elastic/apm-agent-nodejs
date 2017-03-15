@@ -94,7 +94,8 @@ test('basic', function (t) {
   })
 
   function generateTransaction (id, cb) {
-    var trans = ins.startTransaction('foo' + id, 'bar' + id, 'baz' + id)
+    var trans = ins.startTransaction('foo' + id, 'bar' + id)
+    trans.result = 'baz' + id
     var trace = startTrace(ins, 't' + id + '0', 'type')
 
     process.nextTick(function () {

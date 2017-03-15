@@ -8,8 +8,10 @@ var Queue = require('../../lib/instrumentation/queue')
 test('queue flush isolation', function (t) {
   var agent = mockAgent()
   var flush = 0
-  var t0 = new Transaction(agent, 'foo0', 'bar0', 'baz0')
-  var t1 = new Transaction(agent, 'foo1', 'bar1', 'baz1')
+  var t0 = new Transaction(agent, 'foo0', 'bar0')
+  var t1 = new Transaction(agent, 'foo1', 'bar1')
+  t0.result = 'baz0'
+  t1.result = 'baz1'
 
   var queue = new Queue(function (data) {
     t.equal(data.transactions.length, 1, 'should have 1 transaction')
@@ -42,9 +44,12 @@ test('queue flush isolation', function (t) {
 
 test('queue sampling', function (t) {
   var agent = mockAgent()
-  var t0 = new Transaction(agent, 'same-name', 'same-type', 'same-result')
-  var t1 = new Transaction(agent, 'same-name', 'same-type', 'same-result')
-  var t2 = new Transaction(agent, 'other-name', 'other-type', 'other-result')
+  var t0 = new Transaction(agent, 'same-name', 'same-type')
+  var t1 = new Transaction(agent, 'same-name', 'same-type')
+  var t2 = new Transaction(agent, 'other-name', 'other-type')
+  t0.result = 'same-result'
+  t1.result = 'same-result'
+  t2.result = 'other-result'
 
   var queue = new Queue(function (data) {
     t.equal(data.transactions.length, 2, 'should have 2 transaction')
