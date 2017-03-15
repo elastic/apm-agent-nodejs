@@ -49,6 +49,86 @@ test('connectionless', function (t) {
   })
 })
 
+test('connectionless server error logging with Error', function (t) {
+  t.plan(6)
+
+  var customError = new Error('custom error')
+
+  resetAgent()
+
+  agent.captureError = function (err, opts) {
+    server.stop()
+
+    t.equal(err, customError)
+    t.ok(opts.extra)
+    t.deepEqual(opts.extra.tags, { error: true })
+    t.false(opts.extra.internals)
+    t.ok(opts.extra.data instanceof Error)
+  }
+
+  var server = new Hapi.Server()
+
+  server.initialize(function (err) {
+    t.error(err, 'start error')
+
+    server.log(['error'], customError)
+  })
+})
+
+test('connectionless server error logging with String', function (t) {
+  t.plan(6)
+
+  var customError = 'custom error'
+
+  resetAgent()
+
+  agent.captureError = function (err, opts) {
+    server.stop()
+
+    t.equal(err, customError)
+    t.ok(opts.extra)
+    t.deepEqual(opts.extra.tags, { error: true })
+    t.false(opts.extra.internals)
+    t.ok(typeof opts.extra.data === 'string')
+  }
+
+  var server = new Hapi.Server()
+
+  server.initialize(function (err) {
+    t.error(err, 'start error')
+
+    server.log(['error'], customError)
+  })
+})
+
+test('connectionless server error logging with Object', function (t) {
+  t.plan(6)
+
+  var customError = {
+    error: 'I forgot to turn this into an actual Error'
+  }
+
+  resetAgent()
+
+  agent.captureError = function (err, opts) {
+    server.stop()
+
+    t.equal(err, 'hapi server emitted a log event tagged error')
+    t.ok(opts.extra)
+    t.deepEqual(opts.extra.tags, { error: true })
+    t.false(opts.extra.internals)
+    t.deepEqual(opts.extra.data, customError)
+  }
+
+  var server = new Hapi.Server()
+
+  server.initialize(function (err) {
+    t.error(err, 'start error')
+
+    server.log(['error'], customError)
+  })
+})
+
 test('server error logging with Error', function (t) {
   t.plan(6)
 
