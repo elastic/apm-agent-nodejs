@@ -54,7 +54,7 @@ test('graphql.execute', function (t) {
 // { transactions:
 //    [ { transaction: 'foo',
 //        result: undefined,
-//        kind: 'request',
+//        kind: 'custom',
 //        timestamp: '2017-01-30T16:15:00.000Z',
 //        durations: [ 6.560766 ] } ],
 //   traces:
@@ -62,14 +62,14 @@ test('graphql.execute', function (t) {
 //       [ { transaction: 'foo',
 //           signature: 'GraphQL: hello',
 //           kind: 'db.graphql.execute',
-//           transaction_kind: 'request',
+//           transaction_kind: 'custom',
 //           timestamp: '2017-01-30T16:15:00.000Z',
 //           parents: [ 'transaction' ],
 //           extra: { _frames: [Object] } },
 //         { transaction: 'foo',
 //           signature: 'transaction',
 //           kind: 'transaction',
-//           transaction_kind: 'request',
+//           transaction_kind: 'custom',
 //           timestamp: '2017-01-30T16:15:00.000Z',
 //           parents: [],
 //           extra: { _frames: [Object] } } ],
@@ -82,18 +82,18 @@ function done (t) {
   return function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
     t.equal(data.transactions[0].transaction, 'foo')
-    t.equal(data.transactions[0].kind, 'request')
+    t.equal(data.transactions[0].kind, 'custom')
 
     t.equal(data.traces.groups.length, 2)
 
     t.equal(data.traces.groups[0].kind, 'db.graphql.execute')
-    t.equal(data.traces.groups[0].transaction_kind, 'request')
+    t.equal(data.traces.groups[0].transaction_kind, 'custom')
     t.deepEqual(data.traces.groups[0].parents, ['transaction'])
     t.equal(data.traces.groups[0].signature, 'GraphQL: hello')
     t.equal(data.traces.groups[0].transaction, 'foo')
 
     t.equal(data.traces.groups[1].kind, 'transaction')
-    t.equal(data.traces.groups[1].transaction_kind, 'request')
+    t.equal(data.traces.groups[1].transaction_kind, 'custom')
     t.deepEqual(data.traces.groups[1].parents, [])
     t.equal(data.traces.groups[1].signature, 'transaction')
     t.equal(data.traces.groups[1].transaction, 'foo')
