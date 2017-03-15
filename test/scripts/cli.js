@@ -276,8 +276,7 @@ var transactionTest = function () {
     }, Math.random() * 100 + 50)
 
     setTimeout(function () {
-      trans.result = Math.round(Math.random() * 350 + 200)
-      trans.result = 204
+      trans.result = Math.round(Math.random() * 300 + 200)
 
       console.log('Ending transaction (name: %s, type: %s)', trans.name, trans.type)
       trans.end()
