@@ -8,11 +8,11 @@
     * core: change default trace.type to 'custom'
   * core: add [flushInterval](https://opbeat.com/docs/articles/nodejs-agent-api/#flushinterval) config option
   * core: read [config file](https://opbeat.com/docs/articles/nodejs-agent-api/#opbeat-configuration-file) when calling opbeat.start()
-  * hapi: allow server event handlers in connectionless hapi server (#132)
-  * hapi: fix logging of errors in hapi log events (#131)
+  * hapi: allow server event handlers in connectionless hapi server ([#132](https://github.com/opbeat/opbeat-node/pull/132))
+  * hapi: fix logging of errors in hapi log events ([#131](https://github.com/opbeat/opbeat-node/pull/131))
 
 # 4.11.4 - 2017/3/13
-  * core: handle edge case where err.message isn't a string (#130)
+  * core: handle edge case where err.message isn't a string ([#130](https://github.com/opbeat/opbeat-node/issues/130))
 
 # 4.11.3 - 2017/3/13
   * hapi: don't try to instrument hapi servers where `server.connection()` isn't called
