@@ -1,3 +1,16 @@
+# 4.12.0 - 2017/3/16
+  * core: take the custom transactions and traces API out of beta:
+    * core: default trace.name to 'unnamed'
+    * core: rename trace.signature to trace.name
+    * core: don't accept result as argument to startTransaction
+    * core: change default transaction type to 'custom'
+    * core: default transaction result to 200
+    * core: change default trace.type to 'custom'
+  * core: add [flushInterval](https://opbeat.com/docs/articles/nodejs-agent-api/#flushinterval) config option
+  * core: read [config file](https://opbeat.com/docs/articles/nodejs-agent-api/#opbeat-configuration-file) when calling opbeat.start()
+  * hapi: allow server event handlers in connectionless hapi server (#132)
+  * hapi: fix logging of errors in hapi log events (#131)
+
 # 4.11.4 - 2017/3/13
   * core: handle edge case where err.message isn't a string (#130)
 
