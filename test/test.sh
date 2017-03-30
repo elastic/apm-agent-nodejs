@@ -25,6 +25,11 @@ for file in $(files test/!(_*).js); do
   node "$file" || exit $?;
 done
 
+for file in $(files test/sourcemaps/!(_*).js); do
+  echo "running: node $file"
+  node "$file" || exit $?;
+done
+
 for file in $(files test/instrumentation/!(_*).js); do
   echo "running: node $file"
   node "$file" || exit $?;

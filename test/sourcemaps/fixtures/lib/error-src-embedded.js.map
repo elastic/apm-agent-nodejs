@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/error.js"],"names":[],"mappings":";;AAAA;AACA,IAAM,gBAAgB,SAAhB,aAAgB;AAAA,MAAC,GAAD,uEAAO,KAAP;AAAA,SAAiB,IAAI,KAAJ,CAAU,GAAV,CAAjB;AAAA,CAAtB;;AAEA,OAAO,OAAP,GAAiB,aAAjB","file":"error.js","sourcesContent":["// Just a little prefixing line\nconst generateError = (msg = 'foo') => new Error(msg)\n\nmodule.exports = generateError\n"]}
