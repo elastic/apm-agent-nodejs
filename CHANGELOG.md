@@ -1,3 +1,7 @@
+# 4.13.0 - 2017/4/3
+  * core: add source map support
+  * core: fix error culprit detection
+
 # 4.12.0 - 2017/3/16
   * core: take the custom transactions and traces API out of beta:
     * core: default trace.name to 'unnamed'
