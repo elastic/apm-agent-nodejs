@@ -158,8 +158,8 @@ test('protocol.encode - multiple transactions', function (t) {
   }
 
   function encode () {
+    var now = new Date()
     protocol.encode(samples, durations, function (data) {
-      var now = new Date()
       var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
       var expected = [
         { transaction: 'name0', signature: 't00', kind: 'type', tkind: 'type0' },
