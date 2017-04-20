@@ -65,3 +65,6 @@ koa-router:
   peerDependencies: koa@2
   versions: '>=5.2.0 <8'
   commands: node test/instrumentation/modules/koa-router/index.js
+elasticsearch:
+  versions: '>=8.0.0'
+  commands: node test/instrumentation/modules/elasticsearch.js
