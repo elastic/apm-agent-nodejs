@@ -13,6 +13,7 @@ services:
 - mongodb
 - redis-server
 - postgresql
+- elasticsearch
 
 # There's a bug npm@5 which ships with Node 8 that means we get a currupted
 # install when using the test-all-versions command. For details see:
@@ -20,6 +21,9 @@ services:
 # https://github.com/npm/npm/issues/17212
 before_install:
   - 'if [ "${TRAVIS_NODE_VERSION}" == "8" ]; then npm install -g npm@4; fi'
+
+before_script:
+  - wait-on tcp:9200
 
 node_js:
   - '8'
@@ -55,7 +59,7 @@ jobs:
       script: tav --quiet
     -
       node_js: '8'
-      env: TAV=knex,ws,graphql,express-graphql
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch
       script: tav --quiet
 
     # Node.js 7
@@ -73,7 +77,7 @@ jobs:
       script: tav --quiet
     -
       node_js: '7'
-      env: TAV=knex,ws,graphql,express-graphql
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch
       script: tav --quiet
 
     # Node.js 6
@@ -91,7 +95,7 @@ jobs:
       script: tav --quiet
     -
       node_js: '6'
-      env: TAV=knex,ws,graphql,express-graphql
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch
       script: tav --quiet
 
     # Node.js 5
@@ -109,7 +113,7 @@ jobs:
       script: tav --quiet
     -
       node_js: '5'
-      env: TAV=knex,ws,graphql,express-graphql
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch
       script: tav --quiet
 
     # Node.js 4
@@ -127,7 +131,7 @@ jobs:
       script: tav --quiet
     -
       node_js: '4'
-      env: TAV=knex,ws,graphql,express-graphql
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch
       script: tav --quiet
 
     # Node.js 0.12
@@ -145,7 +149,7 @@ jobs:
       script: tav --quiet
     -
       node_js: '0.12'
-      env: TAV=knex,ws,graphql,express-graphql
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch
       script: tav --quiet
 
     # Node.js 0.10
@@ -163,7 +167,7 @@ jobs:
       script: tav --quiet
     -
       node_js: '0.10'
-      env: TAV=knex,ws,graphql,express-graphql
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch
       script: tav --quiet
 
 addons:

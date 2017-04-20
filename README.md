@@ -50,10 +50,11 @@ them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 
 ## Testing
 
-The test suite expects the databases PostgreSQL, MySQL, MongoDB and
-Redis to be present. The `npm test` command will try and start them all
-automatically before running the tests. This should work on OS X if the
-databases are all installed using [Homebrew](http://brew.sh).
+The test suite expects the databases PostgreSQL, MySQL, MongoDB,
+Elasticsearch and Redis to be present. The `npm test` command will try
+and start them all automatically before running the tests. This should
+work on OS X if the databases are all installed using
+[Homebrew](http://brew.sh).
 
 To run the linter without running any tests, run `npm run lint`. To
 automatically fix linting errors run `npm run lint-fix`.
