@@ -313,11 +313,14 @@ var test = function (suite, opts) {
 
 var loadConf = function (cb) {
   var file = untildify('~/.config/opbeat.json')
-  fs.exists(file, function (exists) {
-    if (!exists) return cb({})
+  fs.stat(file, function (err) {
+    if (err) {
+      if (err.code !== 'ENOENT') return cb(err)
+      return cb(null, {})
+    }
     fs.readFile(file, function (err, data) {
-      if (err) throw err
-      cb(JSON.parse(data))
+      if (err) return cb(err)
+      cb(null, JSON.parse(data))
     })
   })
 }
@@ -335,7 +338,8 @@ var saveConf = function (conf, cb) {
   })
 }
 
-loadConf(function (conf) {
+loadConf(function (err, conf) {
+  if (err) throw err
   var questions = [
     { name: 'appId', message: 'App ID', 'default': conf.appId },
     { name: 'organizationId', message: 'Organization ID', 'default': conf.organizationId },
