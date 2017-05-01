@@ -53,6 +53,7 @@
     "after-all-results": "^2.0.0",
     "console-log-level": "^1.4.0",
     "cookie": "^0.3.1",
+    "core-util-is": "^1.0.2",
     "debug": "^2.4.5",
     "end-of-stream": "^1.1.0",
     "fast-safe-stringify": "^1.1.3",

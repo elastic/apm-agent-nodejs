@@ -6,6 +6,8 @@ var util = require('util')
 var http = require('http')
 var test = require('tape')
 var nock = require('nock')
+var isRegExp = require('core-util-is').isRegExp
+var isError = require('core-util-is').isError
 var helpers = require('./_helpers')
 var request = require('../lib/request')
 var Agent = require('../lib/agent')
@@ -162,11 +164,11 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.deepEqual(opbeat._ignoreUserAgentStr, ['str2'])
 
   t.equal(opbeat._ignoreUrlRegExp.length, 1)
-  t.ok(util.isRegExp(opbeat._ignoreUrlRegExp[0]))
+  t.ok(isRegExp(opbeat._ignoreUrlRegExp[0]))
   t.equal(opbeat._ignoreUrlRegExp[0].toString(), '/regex1/')
 
   t.equal(opbeat._ignoreUserAgentRegExp.length, 1)
-  t.ok(util.isRegExp(opbeat._ignoreUserAgentRegExp[0]))
+  t.ok(isRegExp(opbeat._ignoreUserAgentRegExp[0]))
   t.equal(opbeat._ignoreUserAgentRegExp[0].toString(), '/regex2/')
 
   t.end()
@@ -486,7 +488,7 @@ test('#handleUncaughtExceptions()', function (t) {
 
     opbeat.start(opts)
     opbeat.handleUncaughtExceptions(function (err, url) {
-      t.ok(util.isError(err))
+      t.ok(isError(err))
       scope.done()
       t.equal(url, 'foo')
       t.end()
