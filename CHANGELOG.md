@@ -1,3 +1,8 @@
+# 4.13.1 - 2017/5/1
+  * core: improve promise instrumentation for Node.js v7.x
+  * core: stop using deprecated core API's
+  * http/https: end trace before response end event callback is called
+
 # 4.13.0 - 2017/4/3
   * core: add source map support
   * core: fix error culprit detection
