@@ -505,7 +505,7 @@ test('#trackRelease()', function (t) {
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
-        buffer = new Buffer(body, 'hex')
+        buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
         return '*'
       })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
@@ -533,7 +533,7 @@ test('#trackRelease()', function (t) {
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
-        buffer = new Buffer(body, 'hex')
+        buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
         return '*'
       })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
@@ -559,7 +559,7 @@ test('#trackRelease()', function (t) {
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
-        buffer = new Buffer(body, 'hex')
+        buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
         return '*'
       })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
