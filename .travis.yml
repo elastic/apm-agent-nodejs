@@ -7,6 +7,7 @@ services:
 - postgresql
 node_js:
 - '7'
+- '7.9.0'
 - '6'
 - '5'
 - '4'
@@ -16,6 +17,10 @@ env:
 - TAV=generic-pool,mysql,redis
 - TAV=ioredis,pg,bluebird
 - TAV=knex,ws,graphql,express-graphql
+matrix:
+  fast_finish: true
+  allow_failures:
+    - node_js: '7'
 notifications:
   slack:
     rooms:
