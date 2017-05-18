@@ -61,7 +61,7 @@ test('connectionless server error logging with Error', function (t) {
 
     t.equal(err, customError)
     t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.ok(opts.extra.data instanceof Error)
   }
@@ -87,7 +87,7 @@ test('connectionless server error logging with String', function (t) {
 
     t.equal(err, customError)
     t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.ok(typeof opts.extra.data === 'string')
   }
@@ -115,7 +115,7 @@ test('connectionless server error logging with Object', function (t) {
 
     t.equal(err, 'hapi server emitted a log event tagged error')
     t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.deepEqual(opts.extra.data, customError)
   }
@@ -141,7 +141,7 @@ test('server error logging with Error', function (t) {
 
     t.equal(err, customError)
     t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.ok(opts.extra.data instanceof Error)
   }
@@ -151,6 +151,41 @@ test('server error logging with Error', function (t) {
 
   server.start(function (err) {
     t.error(err, 'start error')
+
+    server.log(['error'], customError)
+  })
+})
+
+test('server error logging with Error does not affect event tags', function (t) {
+  t.plan(8)
+
+  var customError = new Error('custom error')
+
+  resetAgent()
+
+  agent.captureError = function (err, opts) {
+    server.stop()
+
+    t.equal(err, customError)
+    t.ok(opts.extra)
+    t.deepEqual(opts.extra.tags, ['error'])
+    t.false(opts.extra.internals)
+    t.ok(opts.extra.data instanceof Error)
+  }
+
+  var server = new Hapi.Server()
+  server.connection()
+
+  server.on('log', function (event, tags) {
+    t.deepEqual(event.tags, ['error'])
+  })
+
+  server.start(function (err) {
+    t.error(err, 'start error')
+
+    server.on('log', function (event, tags) {
+      t.deepEqual(event.tags, ['error'])
+    })
 
     server.log(['error'], customError)
   })
@@ -168,7 +203,7 @@ test('server error logging with String', function (t) {
 
     t.equal(err, customError)
     t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.ok(typeof opts.extra.data === 'string')
   }
@@ -197,7 +232,7 @@ test('server error logging with Object', function (t) {
 
     t.equal(err, 'hapi server emitted a log event tagged error')
     t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.deepEqual(opts.extra.data, customError)
   }
@@ -227,7 +262,7 @@ test('request error logging with Error', function (t) {
     t.equal(err, customError)
     t.ok(opts.extra)
     t.ok(opts.request)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.ok(opts.extra.data instanceof Error)
   }
@@ -258,6 +293,60 @@ test('request error logging with Error', function (t) {
   })
 })
 
+test('request error logging with Error does not affect event tags', function (t) {
+  t.plan(27)
+
+  var customError = new Error('custom error')
+
+  resetAgent(function (endpoint, headers, data, cb) {
+    assert(t, data, { status: 200, name: 'GET /error' })
+
+    server.stop()
+  })
+
+  agent.captureError = function (err, opts) {
+    t.equal(err, customError)
+    t.ok(opts.extra)
+    t.ok(opts.request)
+    t.deepEqual(opts.extra.tags, ['opbeat', 'error'])
+    t.false(opts.extra.internals)
+    t.ok(opts.extra.data instanceof Error)
+  }
+
+  var server = new Hapi.Server()
+  server.connection()
+
+  server.route({
+    method: 'GET',
+    path: '/error',
+    handler: function (request, reply) {
+      request.log(['opbeat', 'error'], customError)
+
+      return reply('hello world')
+    }
+  })
+
+  server.on('request', function (req, event, tags) {
+    t.deepEqual(event.tags, ['opbeat', 'error'])
+  })
+
+  server.start(function (err) {
+    t.error(err, 'start error')
+
+    server.on('request', function (req, event, tags) {
+      t.deepEqual(event.tags, ['opbeat', 'error'])
+    })
+
+    http.get('http://localhost:' + server.info.port + '/error', function (res) {
+      t.equal(res.statusCode, 200)
+
+      res.resume().on('end', function () {
+        agent._instrumentation._queue._flush()
+      })
+    })
+  })
+})
+
 test('request error logging with String', function (t) {
   t.plan(25)
 
@@ -273,7 +362,7 @@ test('request error logging with String', function (t) {
     t.equal(err, customError)
     t.ok(opts.extra)
     t.ok(opts.request)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.ok(typeof opts.extra.data === 'string')
   }
@@ -321,7 +410,7 @@ test('request error logging with Object', function (t) {
     t.equal(err, 'hapi server emitted a request event tagged error')
     t.ok(opts.extra)
     t.ok(opts.request)
-    t.deepEqual(opts.extra.tags, { error: true })
+    t.deepEqual(opts.extra.tags, ['error'])
     t.false(opts.extra.internals)
     t.deepEqual(opts.extra.data, customError)
   }
