@@ -1,5 +1,5 @@
 # 4.13.2 - 2017/5/18
-  * hapi: do not overwrite tags of events in the extra context
+  * hapi: do not overwrite tags of events in the extra context ([#147](https://github.com/opbeat/opbeat-node/pull/147))
 
 # 4.13.1 - 2017/5/1
   * core: improve promise instrumentation for Node.js v7.x
