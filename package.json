@@ -93,7 +93,7 @@
     "tape": "^4.6.3",
     "test-all-versions": "^2.4.2",
     "untildify": "^3.0.2",
-    "ws": "^2.0.0"
+    "ws": "^3.0.0"
   },
   "greenkeeper": {
     "ignore": [
