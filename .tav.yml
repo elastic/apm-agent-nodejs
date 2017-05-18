@@ -10,7 +10,7 @@ redis:
   versions: ^2.0.0
   commands: node test/instrumentation/modules/redis.js
 ioredis:
-  versions: ^2.0.0
+  versions: '>=2 <4'
   commands: node test/instrumentation/modules/ioredis.js
 pg:
   versions: '>=4 <7'
