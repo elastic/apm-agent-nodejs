@@ -1,3 +1,7 @@
+# 4.13.3 - 2017/5/18
+  * ws: add support for ws ^3.0.0
+  * ioredis: add support for ioredis ^3.0.0
+
 # 4.13.2 - 2017/5/18
   * hapi: do not overwrite tags of events in the extra context ([#147](https://github.com/opbeat/opbeat-node/pull/147))
 
