@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   appId: 'test',
   organizationId: 'test',
   secretToken: 'test',
@@ -73,19 +73,9 @@ function buildServer () {
   var router = new Router()
 
   if (semver.lt(version, '6.0.0')) {
-    router.get('/hello', function * (next) {
-      this.body = 'hello world'
-    })
-    router.get('/hello/:name', function * (next) {
-      this.body = 'hello ' + this.params.name
-    })
+    require('./_generators')(router)
   } else if (semver.gte(version, '6.0.0')) {
-    router.get('/hello', function (ctx, next) {
-      ctx.body = 'hello world'
-    })
-    router.get('/hello/:name', function (ctx, next) {
-      ctx.body = 'hello ' + ctx.params.name
-    })
+    require('./_non-generators')(router)
   }
 
   app

@@ -43,4 +43,4 @@ koa-router:
   node: '>=6.0.0'
   peerDependencies: koa@2
   versions: '>=5.2.0 <8'
-  commands: node test/instrumentation/modules/koa-router.js
+  commands: node test/instrumentation/modules/koa-router/index.js
