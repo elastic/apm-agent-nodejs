@@ -7,11 +7,16 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
+var semver = require('semver')
+var version = require('koa-router/package').version
+var koaVersion = require('koa/package').version
+
+if (semver.gte(koaVersion, '2.0.0') && semver.lt(process.version, '6.0.0')) process.exit()
+
 var test = require('tape')
 var http = require('http')
 var Koa = require('koa')
 var Router = require('koa-router')
-var version = require('koa-router/package').version
 
 test('route naming', function (t) {
   t.plan(19)
@@ -67,12 +72,21 @@ function buildServer () {
   var app = new Koa()
   var router = new Router()
 
-  router.get('/hello', function *(next) {
-    this.body = 'hello world'
-  })
-  router.get('/hello/:name', function *(next) {
-    this.body = 'hello ' + this.params.name
-  })
+  if (semver.lt(version, '6.0.0')) {
+    router.get('/hello', function *(next) {
+      this.body = 'hello world'
+    })
+    router.get('/hello/:name', function *(next) {
+      this.body = 'hello ' + this.params.name
+    })
+  } else if (semver.gte(version, '6.0.0')) {
+    router.get('/hello', function (ctx, next) {
+      ctx.body = 'hello world'
+    })
+    router.get('/hello/:name', function (ctx, next) {
+      ctx.body = 'hello ' + ctx.params.name
+    })
+  }
 
   app
     .use(router.routes())
