@@ -73,10 +73,10 @@ function buildServer () {
   var router = new Router()
 
   if (semver.lt(version, '6.0.0')) {
-    router.get('/hello', function *(next) {
+    router.get('/hello', function * (next) {
       this.body = 'hello world'
     })
-    router.get('/hello/:name', function *(next) {
+    router.get('/hello/:name', function * (next) {
       this.body = 'hello ' + this.params.name
     })
   } else if (semver.gte(version, '6.0.0')) {
