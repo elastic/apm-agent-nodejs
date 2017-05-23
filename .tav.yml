@@ -39,3 +39,7 @@ express-graphql:
   peerDependencies: graphql@0.8.2
   versions: ^0.6.1
   commands: node test/instrumentation/modules/express-graphql.js
+koa-router:
+  peerDependencies: koa@1
+  versions: ^5.2.0
+  commands: node test/instrumentation/modules/koa-router.js
