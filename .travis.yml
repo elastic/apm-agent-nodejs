@@ -24,7 +24,7 @@ matrix:
 notifications:
   slack:
     rooms:
-      secure: k+Ky/oNWErqCODqov6N22P3buYg0hqVTUO3FLp/cbrq9KAcef0EKFCPqyjr0izKkN6xt3NLI4DYOI4IVv24+n3GtdUiSQTq+s6Y0wnbjLnu4pc/BRvdWh4aJR4KBSH22CsZ33GxhAUDFW8Xkv47L8dl3k9MKmlZaLXh3mF1pinY=
+      secure: PR+vjohDfGmidHhaIboj896iad3OIa4pked1Mib+XB5FF3tWfpDjBBNmEBizRbpwzxy4oHgOr22LBNvi+zkE674wXY3VUM+Wx9pJztlqotcON/hBjcJd993MfixRHN0RShxn4omaLfiqrZ+8iUFD5MQKdLKqBG/IG2toxdhuDkU=
     on_success: change
     on_failure: change
     on_pull_requests: false
