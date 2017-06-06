@@ -7,7 +7,7 @@ services:
 - postgresql
 node_js:
 - '7'
-- '7.9.0'
+- 7.9.0
 - '6'
 - '5'
 - '4'
@@ -20,7 +20,7 @@ env:
 matrix:
   fast_finish: true
   allow_failures:
-    - node_js: '7'
+  - node_js: '7'
 notifications:
   slack:
     rooms:
