@@ -18,7 +18,8 @@ node_js:
 - '0.10'
 env:
 - TAV=generic-pool,mysql,redis,koa-router
-- TAV=ioredis,pg,bluebird
+- TAV=ioredis,pg
+- TAV=bluebird
 - TAV=knex,ws,graphql,express-graphql
 matrix:
   fast_finish: true
