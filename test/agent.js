@@ -14,13 +14,13 @@ var Agent = require('../lib/agent')
 
 var opts = {
   organizationId: 'some-org-id',
-  appId: 'some-app-id',
+  appName: 'some-app-name',
   secretToken: 'secret',
   captureExceptions: false
 }
 
 var optionFixtures = [
-  ['appId', 'APP_ID'],
+  ['appName', 'APP_NAME'],
   ['organizationId', 'ORGANIZATION_ID'],
   ['secretToken', 'SECRET_TOKEN'],
   ['logLevel', 'LOG_LEVEL', 'info'],
@@ -94,7 +94,7 @@ falsyValues.forEach(function (val) {
   test('should be disabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
     process.env.OPBEAT_ACTIVE = val
-    agent.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    agent.start({ appName: 'foo', organizationId: 'bar', secretToken: 'baz' })
     t.equal(agent.active, false)
     delete process.env.OPBEAT_ACTIVE
     t.end()
@@ -105,7 +105,7 @@ truthyValues.forEach(function (val) {
   test('should be enabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
     process.env.OPBEAT_ACTIVE = val
-    agent.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    agent.start({ appName: 'foo', organizationId: 'bar', secretToken: 'baz' })
     t.equal(agent.active, true)
     delete process.env.OPBEAT_ACTIVE
     t.end()
@@ -114,7 +114,7 @@ truthyValues.forEach(function (val) {
 
 test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {
   setup()
-  var opts = { appId: 'foo', organizationId: 'bar', secretToken: 'baz', active: false }
+  var opts = { appName: 'foo', organizationId: 'bar', secretToken: 'baz', active: false }
   process.env.OPBEAT_ACTIVE = '1'
   agent.start(opts)
   t.equal(agent.active, false)
@@ -124,7 +124,7 @@ test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {
 
 test('should default active to true if required options have been specified', function (t) {
   setup()
-  agent.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+  agent.start({ appName: 'foo', organizationId: 'bar', secretToken: 'baz' })
   t.equal(agent.active, true)
   t.end()
 })
@@ -217,7 +217,7 @@ test('#captureError()', function (t) {
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
       .reply(200)
 
     agent.on('logged', function (result) {
@@ -233,7 +233,7 @@ test('#captureError()', function (t) {
     agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
     agent.on('error', function () {
@@ -248,7 +248,7 @@ test('#captureError()', function (t) {
     agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
     agent.captureError('Hey!')
@@ -263,7 +263,7 @@ test('#captureError()', function (t) {
     agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
     agent.on('error', function (err) {
@@ -296,7 +296,7 @@ test('#captureError()', function (t) {
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
       .reply(200)
 
     agent.on('logged', function (result) {
@@ -311,7 +311,7 @@ test('#captureError()', function (t) {
     t.plan(3)
     setup()
     var opts = {
-      appId: 'foo',
+      appName: 'foo',
       organizationId: 'bar',
       secretToken: 'baz'
     }
@@ -335,7 +335,7 @@ test('#captureError()', function (t) {
   t.test('should abort if any filter returns falsy', function (t) {
     setup()
     var opts = {
-      appId: 'foo',
+      appName: 'foo',
       organizationId: 'bar',
       secretToken: 'baz'
     }
@@ -357,7 +357,7 @@ test('#captureError()', function (t) {
   t.test('should anonymize the http Authorization header by default', function (t) {
     t.plan(2)
     setup()
-    agent.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    agent.start({ appName: 'foo', organizationId: 'bar', secretToken: 'baz' })
 
     var oldErrorFn = request.error
     request.error = function (agent, data, cb) {
@@ -388,7 +388,7 @@ test('#captureError()', function (t) {
     t.plan(2)
     setup()
     agent.start({
-      appId: 'foo',
+      appName: 'foo',
       organizationId: 'bar',
       secretToken: 'baz',
       filterHttpHeaders: false
@@ -422,7 +422,7 @@ test('#captureError()', function (t) {
   t.test('should merge context', function (t) {
     setup()
     agent.start({
-      appId: 'foo',
+      appName: 'foo',
       organizationId: 'bar',
       secretToken: 'baz',
       filterHttpHeaders: false
@@ -483,7 +483,7 @@ test('#handleUncaughtExceptions()', function (t) {
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
       .reply(200)
 
     agent.start(opts)
@@ -508,7 +508,7 @@ test('#trackRelease()', function (t) {
         buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
         return '*'
       })
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/releases/', '*')
       .reply(200)
 
     agent.trackRelease({ rev: 'foo' }, function () {
@@ -536,7 +536,7 @@ test('#trackRelease()', function (t) {
         buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
         return '*'
       })
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/releases/', '*')
       .reply(200)
 
     agent.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
@@ -562,7 +562,7 @@ test('#trackRelease()', function (t) {
         buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
         return '*'
       })
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/releases/', '*')
       .reply(200)
 
     agent.trackRelease(function () {

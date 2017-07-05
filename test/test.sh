@@ -11,7 +11,7 @@ NODE_VERSION="$(node --version)"
 if [[ "${NODE_VERSION:0:6}" != "v0.10." && "${NODE_VERSION:0:6}" != "v0.12." ]]; then
   echo "running: test/start/env/test.js"
   cd test/start/env
-  OPBEAT_APP_ID=from-env node -r ../../../start test.js || exit $?;
+  OPBEAT_APP_NAME=from-env node -r ../../../start test.js || exit $?;
   cd ../../..
 
   echo "running: test/start/file/test.js"

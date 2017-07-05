@@ -9,7 +9,7 @@ var request = require('../lib/request')
 
 var opts = {
   organizationId: 'some-org-id',
-  appId: 'some-app-id',
+  appName: 'some-app-name',
   secretToken: 'secret',
   captureExceptions: false
 }
@@ -60,7 +60,7 @@ test('#error()', function (t) {
           return 'ok'
         })
         .defaultReplyHeaders({'Location': 'foo'})
-        .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', 'ok')
+        .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', 'ok')
         .reply(200)
       agent.on('logged', function (url) {
         scope.done()
@@ -83,7 +83,7 @@ test('#error()', function (t) {
           return 'ok'
         })
         .defaultReplyHeaders({'Location': 'foo'})
-        .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', 'ok')
+        .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', 'ok')
         .reply(200)
       request.error(agent, data, function (err, url) {
         scope.done()
@@ -100,7 +100,7 @@ test('#error()', function (t) {
     agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
       .reply(500)
     agent.on('error', function (err) {
       helpers.restoreLogger()
@@ -119,7 +119,7 @@ test('#error()', function (t) {
     agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
-      .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
+      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
       .reply(500)
     agent.on('error', function (err) {
       helpers.restoreLogger()

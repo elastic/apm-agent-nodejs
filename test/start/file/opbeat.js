@@ -1,3 +1,3 @@
 module.exports = {
-  appId: 'from-file'
+  appName: 'from-file'
 }

@@ -341,7 +341,7 @@ var saveConf = function (conf, cb) {
 loadConf(function (err, conf) {
   if (err) throw err
   var questions = [
-    { name: 'appId', message: 'App ID', 'default': conf.appId },
+    { name: 'appName', message: 'App name', 'default': conf.appName },
     { name: 'organizationId', message: 'Organization ID', 'default': conf.organizationId },
     { name: 'secretToken', message: 'Secret token', 'default': conf.secretToken },
     { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard', 'http', 'restify', 'connect', 'express', 'transaction'] },
