@@ -11,7 +11,7 @@ agent.timeout.active = true
 
 test('client-side timeout below error threshold - call end', function (t) {
   var clientReq
-  t.plan(19)
+  t.plan(8)
 
   resetAgent()
 
@@ -55,7 +55,7 @@ test('client-side timeout below error threshold - call end', function (t) {
 
 test('client-side timeout above error threshold - call end', function (t) {
   var clientReq
-  t.plan(21)
+  t.plan(10)
 
   resetAgent()
 
@@ -180,7 +180,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
 test('server-side timeout below error threshold and socket closed - call end', function (t) {
   var timedout = false
   var ended = false
-  t.plan(22)
+  t.plan(11)
 
   resetAgent()
 
@@ -226,7 +226,7 @@ test('server-side timeout below error threshold and socket closed - call end', f
 test('server-side timeout above error threshold and socket closed - call end', function (t) {
   var timedout = false
   var ended = false
-  t.plan(24)
+  t.plan(13)
 
   resetAgent()
 
@@ -354,7 +354,7 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
 })
 
 test('server-side timeout below error threshold but socket not closed - call end', function (t) {
-  t.plan(19)
+  t.plan(8)
 
   resetAgent()
 
@@ -394,7 +394,7 @@ test('server-side timeout below error threshold but socket not closed - call end
 })
 
 test('server-side timeout above error threshold but socket not closed - call end', function (t) {
-  t.plan(19)
+  t.plan(8)
 
   resetAgent()
 

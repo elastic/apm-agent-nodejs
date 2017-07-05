@@ -64,59 +64,11 @@ test('SSE response with implicit headers', function (t) {
 
 function assertNonSSEResponse (t, data) {
   // data.traces.groups:
-  t.equal(data.traces.groups.length, 2)
+  t.equal(data.traces.groups.length, 1)
 
   t.equal(data.traces.groups[0].transaction, 'GET unknown route')
   t.equal(data.traces.groups[0].signature, 'foo')
   t.equal(data.traces.groups[0].kind, 'bar')
-  t.deepEqual(data.traces.groups[0].parents, ['transaction'])
-
-  t.equal(data.traces.groups[1].transaction, 'GET unknown route')
-  t.equal(data.traces.groups[1].signature, 'transaction')
-  t.equal(data.traces.groups[1].kind, 'transaction')
-  t.deepEqual(data.traces.groups[1].parents, [])
-
-  // data.transactions:
-  t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].transaction, 'GET unknown route')
-  t.equal(data.transactions[0].durations.length, 1)
-  t.ok(data.transactions[0].durations[0] > 0)
-
-  // data.traces.raw:
-  //
-  // [
-  //   [
-  //     15.240414,                  // total transaction time
-  //     [ 0, 0.428756, 11.062134 ], // foo trace
-  //     [ 1, 0, 15.240414 ]         // root trace
-  //   ]
-  // ]
-  t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, 4)
-  t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
-  t.equal(data.traces.raw[0][1].length, 3)
-  t.equal(data.traces.raw[0][2].length, 3)
-
-  t.equal(data.traces.raw[0][1][0], 0)
-  t.ok(data.traces.raw[0][1][1] > 0)
-  t.ok(data.traces.raw[0][1][2] > 0)
-  t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
-  t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
-
-  t.equal(data.traces.raw[0][2][0], 1)
-  t.equal(data.traces.raw[0][2][1], 0)
-  t.equal(data.traces.raw[0][2][2], data.traces.raw[0][0])
-
-  t.equal(data.traces.raw[0][3].http.method, 'GET')
-}
-
-function assertSSEResponse (t, data) {
-  // data.traces.groups:
-  t.equal(data.traces.groups.length, 1)
-
-  t.equal(data.traces.groups[0].transaction, 'GET unknown route')
-  t.equal(data.traces.groups[0].signature, 'transaction')
-  t.equal(data.traces.groups[0].kind, 'transaction')
   t.deepEqual(data.traces.groups[0].parents, [])
 
   // data.transactions:
@@ -129,8 +81,8 @@ function assertSSEResponse (t, data) {
   //
   // [
   //   [
-  //     15.240414,          // total transaction time
-  //     [ 0, 0, 15.240414 ] // root trace
+  //     15.240414,                  // total transaction time
+  //     [ 0, 0.428756, 11.062134 ]  // foo trace
   //   ]
   // ]
   t.equal(data.traces.raw.length, 1)
@@ -139,10 +91,26 @@ function assertSSEResponse (t, data) {
   t.equal(data.traces.raw[0][1].length, 3)
 
   t.equal(data.traces.raw[0][1][0], 0)
-  t.equal(data.traces.raw[0][1][1], 0)
-  t.equal(data.traces.raw[0][1][2], data.traces.raw[0][0])
+  t.ok(data.traces.raw[0][1][1] > 0)
+  t.ok(data.traces.raw[0][1][2] > 0)
+  t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
+  t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
 
   t.equal(data.traces.raw[0][2].http.method, 'GET')
+}
+
+function assertSSEResponse (t, data) {
+  // data.traces.groups:
+  t.equal(data.traces.groups.length, 0)
+
+  // data.transactions:
+  t.equal(data.transactions.length, 1)
+  t.equal(data.transactions[0].transaction, 'GET unknown route')
+  t.equal(data.transactions[0].durations.length, 1)
+  t.ok(data.transactions[0].durations[0] > 0)
+
+  // data.traces.raw:
+  t.equal(data.traces.raw.length, 0)
 }
 
 function request (server) {

@@ -125,19 +125,14 @@ function assertBasicQuery (t, data) {
   })
 
   // data.traces.groups:
-  t.equal(data.traces.groups.length, 2)
+  t.equal(data.traces.groups.length, 1)
 
   t.equal(data.traces.groups[0].kind, 'db.postgresql.query')
-  t.deepEqual(data.traces.groups[0].parents, ['transaction'])
+  t.deepEqual(data.traces.groups[0].parents, [])
   t.equal(data.traces.groups[0].transaction, 'foo' + transNo)
   t.ok(data.traces.groups[0].extra._frames.some(function (frame) {
     return frame.function === 'userLandCode'
   }), 'include user-land code frame')
-
-  t.equal(data.traces.groups[1].kind, 'transaction')
-  t.deepEqual(data.traces.groups[1].parents, [])
-  t.equal(data.traces.groups[1].signature, 'transaction')
-  t.equal(data.traces.groups[1].transaction, 'foo' + transNo)
 
   // data.transactions:
   t.equal(data.transactions.length, 1)
@@ -152,28 +147,22 @@ function assertBasicQuery (t, data) {
   //     59.695363,                  // total transaction time
   //     [ 0, 31.647005, 18.31168 ], // sql trace (version)
   //     [ 1, 48.408276, 4.157207 ], // sql trace (select)
-  //     [ 2, 0, 59.695363 ],        // root trace
   //     { extra: [Object] }         // extra
   //   ]
   // ]
   t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, selectVersion ? 5 : 4)
+  t.equal(data.traces.raw[0].length, selectVersion ? 4 : 3)
   t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
   t.equal(data.traces.raw[0][1].length, 3)
-  t.equal(data.traces.raw[0][2].length, 3)
-  if (selectVersion) t.equal(data.traces.raw[0][3].length, 3)
+  if (selectVersion) t.equal(data.traces.raw[0][2].length, 3)
 
-  for (var rawNo = 1; rawNo <= (selectVersion ? 2 : 1); rawNo++) {
+  for (var rawNo = 1; rawNo <= (selectVersion ? 1 : 0); rawNo++) {
     t.equal(data.traces.raw[0][rawNo][0], rawNo - 1)
     t.ok(data.traces.raw[0][rawNo][1] > 0)
     t.ok(data.traces.raw[0][rawNo][2] > 0)
     t.ok(data.traces.raw[0][rawNo][1] < data.traces.raw[0][0])
     t.ok(data.traces.raw[0][rawNo][2] < data.traces.raw[0][0])
   }
-
-  t.equal(data.traces.raw[0][rawNo][0], rawNo - 1)
-  t.equal(data.traces.raw[0][rawNo][1], 0)
-  t.equal(data.traces.raw[0][rawNo][2], data.traces.raw[0][0])
 
   t.ok('extra' in data.traces.raw[0][rawNo + 1])
 }

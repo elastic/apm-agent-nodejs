@@ -164,25 +164,20 @@ function done (t) {
     t.equal(data.transactions[0].kind, 'bar')
     t.equal(data.transactions[0].result, 200)
 
-    t.equal(data.traces.groups.length, groups.length + 1)
+    t.equal(data.traces.groups.length, groups.length)
 
     groups.forEach(function (signature, i) {
       t.equal(data.traces.groups[i].kind, 'cache.redis')
-      t.deepEqual(data.traces.groups[i].parents, ['transaction'])
+      t.deepEqual(data.traces.groups[i].parents, [])
       t.equal(data.traces.groups[i].signature, signature)
       t.equal(data.traces.groups[i].transaction, 'foo')
     })
-
-    t.equal(data.traces.groups[groups.length].kind, 'transaction')
-    t.deepEqual(data.traces.groups[groups.length].parents, [])
-    t.equal(data.traces.groups[groups.length].signature, 'transaction')
-    t.equal(data.traces.groups[groups.length].transaction, 'foo')
 
     var totalTraces = data.traces.raw[0].length - 2
     var totalTime = data.traces.raw[0][0]
 
     t.equal(data.traces.raw.length, 1)
-    t.equal(totalTraces, groups.length + 4) // +3 for double set, get and sadd commands, +1 for the root trace
+    t.equal(totalTraces, groups.length + 3) // +3 for double set, get and sadd commands
 
     for (var i = 1; i < totalTraces + 1; i++) {
       t.equal(data.traces.raw[0][i].length, 3)
@@ -191,9 +186,6 @@ function done (t) {
       t.ok(data.traces.raw[0][i][1] >= 0)
       t.ok(data.traces.raw[0][i][2] <= totalTime)
     }
-
-    t.equal(data.traces.raw[0][totalTraces][1], 0, 'root trace should start at 0')
-    t.equal(data.traces.raw[0][totalTraces][2], data.traces.raw[0][0], 'root trace should last to total time')
 
     t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
 

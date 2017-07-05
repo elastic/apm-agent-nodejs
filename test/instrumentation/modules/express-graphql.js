@@ -156,25 +156,19 @@ function done (t, query) {
     t.equal(data.transactions[0].transaction, query + ' (/graphql)')
     t.equal(data.transactions[0].kind, 'request')
 
-    t.equal(data.traces.groups.length, 2)
+    t.equal(data.traces.groups.length, 1)
 
     t.equal(data.traces.groups[0].kind, 'db.graphql.execute')
     t.equal(data.traces.groups[0].transaction_kind, 'request')
-    t.deepEqual(data.traces.groups[0].parents, ['transaction'])
+    t.deepEqual(data.traces.groups[0].parents, [])
     t.equal(data.traces.groups[0].signature, 'GraphQL: ' + query)
     t.equal(data.traces.groups[0].transaction, query + ' (/graphql)')
-
-    t.equal(data.traces.groups[1].kind, 'transaction')
-    t.equal(data.traces.groups[1].transaction_kind, 'request')
-    t.deepEqual(data.traces.groups[1].parents, [])
-    t.equal(data.traces.groups[1].signature, 'transaction')
-    t.equal(data.traces.groups[1].transaction, query + ' (/graphql)')
 
     var totalTraces = data.traces.raw[0].length - 2
     var totalTime = data.traces.raw[0][0]
 
     t.equal(data.traces.raw.length, 1)
-    t.equal(totalTraces, 2)
+    t.equal(totalTraces, 1)
 
     for (var i = 1; i < totalTraces + 1; i++) {
       t.equal(data.traces.raw[0][i].length, 3)
@@ -183,9 +177,6 @@ function done (t, query) {
       t.ok(data.traces.raw[0][i][1] >= 0)
       t.ok(data.traces.raw[0][i][2] <= totalTime)
     }
-
-    t.equal(data.traces.raw[0][totalTraces][1], 0, 'root trace should start at 0')
-    t.equal(data.traces.raw[0][totalTraces][2], data.traces.raw[0][0], 'root trace should last to total time')
 
     t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
 

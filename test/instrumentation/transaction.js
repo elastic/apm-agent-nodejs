@@ -83,8 +83,8 @@ test('#end() - no traces', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.traces.length, 1)
-    t.deepEqual(trans.traces, [trans._rootTrace])
+    t.equal(trans.traces.length, 0)
+    t.deepEqual(trans.traces, [])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -95,8 +95,8 @@ test('#end() - with traces', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.traces.length, 2)
-    t.deepEqual(trans.traces, [trace, trans._rootTrace])
+    t.equal(trans.traces.length, 1)
+    t.deepEqual(trans.traces, [trace])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -174,8 +174,7 @@ test('name - default first, then custom', function (t) {
 test('parallel transactions', function (t) {
   var calls = 0
   var ins = mockInstrumentation(function (added) {
-    t.equal(added._rootTrace.name, 'transaction')
-    t.equal(added.traces.length, 1, added.name + ' should have 1 trace')
+    t.equal(added.traces.length, 0, added.name + ' should have 0 traces')
     t.equal(added.traces[0], added._rootTrace)
 
     calls++

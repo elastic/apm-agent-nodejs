@@ -15,8 +15,8 @@ test('queue flush isolation', function (t) {
 
   var queue = new Queue(function (data) {
     t.equal(data.transactions.length, 1, 'should have 1 transaction')
-    t.equal(data.traces.groups.length, 1, 'should have 1 group')
-    t.equal(data.traces.raw.length, 1, 'should have 1 raw')
+    t.equal(data.traces.groups.length, 0, 'should have 0 groups')
+    t.equal(data.traces.raw.length, 0, 'should have 0 raw')
 
     switch (++flush) {
       case 1:
@@ -65,15 +65,8 @@ test('queue sampling', function (t) {
     t.equal(data.transactions[1].durations.length, 1)
     t.equal(data.transactions[1].durations[0], t2.duration())
 
-    t.equal(data.traces.groups.length, 2, 'should have 2 groups')
-    t.equal(data.traces.groups[0].transaction, 'same-name')
-    t.equal(data.traces.groups[1].transaction, 'other-name')
-
-    t.equal(data.traces.raw.length, 2, 'should have 2 raws')
-    t.equal(data.traces.raw[0].length, 3)
-    t.equal(data.traces.raw[0][0], t0.duration())
-    t.equal(data.traces.raw[1].length, 3)
-    t.equal(data.traces.raw[1][0], t2.duration())
+    t.equal(data.traces.groups.length, 0, 'should have 0 groups')
+    t.equal(data.traces.raw.length, 0, 'should have 0 raws')
 
     t.end()
   })

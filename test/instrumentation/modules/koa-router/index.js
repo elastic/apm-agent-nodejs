@@ -19,7 +19,7 @@ var Koa = require('koa')
 var Router = require('koa-router')
 
 test('route naming', function (t) {
-  t.plan(19)
+  t.plan(7)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -40,7 +40,7 @@ test('route naming', function (t) {
 })
 
 test('route naming with params', function (t) {
-  t.plan(19)
+  t.plan(7)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data, {name: 'GET /hello/:name'})
@@ -95,20 +95,7 @@ function assert (t, data, results) {
   t.equal(data.transactions[0].result, results.status)
   t.equal(data.transactions[0].transaction, results.name)
 
-  t.equal(data.traces.groups.length, 1)
-  t.equal(data.traces.groups[0].kind, 'transaction')
-  t.deepEqual(data.traces.groups[0].parents, [])
-  t.equal(data.traces.groups[0].signature, 'transaction')
-  t.equal(data.traces.groups[0].transaction, results.name)
-
-  t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, 3)
-  t.equal(data.traces.raw[0][1].length, 3)
-  t.equal(data.traces.raw[0][1][0], 0)
-  t.equal(data.traces.raw[0][1][1], 0)
-  t.equal(data.traces.raw[0][1][2], data.traces.raw[0][0])
-  t.equal(data.traces.raw[0][2].http.method, 'GET')
-  t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
+  t.equal(data.traces.raw.length, 0)
 }
 
 function resetAgent (cb) {

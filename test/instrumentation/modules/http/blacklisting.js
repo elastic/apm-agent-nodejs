@@ -87,12 +87,7 @@ test('ignore User-Agent regex - match', function (t) {
 
 function assertNoMatch (t, data) {
   // data.traces.groups:
-  t.equal(data.traces.groups.length, 1)
-
-  t.equal(data.traces.groups[0].transaction, 'GET unknown route')
-  t.equal(data.traces.groups[0].signature, 'transaction')
-  t.equal(data.traces.groups[0].kind, 'transaction')
-  t.deepEqual(data.traces.groups[0].parents, [])
+  t.equal(data.traces.groups.length, 0)
 
   // data.transactions:
   t.equal(data.transactions.length, 1)
@@ -101,23 +96,7 @@ function assertNoMatch (t, data) {
   t.ok(data.transactions[0].durations[0] > 0)
 
   // data.traces.raw:
-  //
-  // [
-  //   [
-  //     15.240414,          // total transaction time
-  //     [ 0, 0, 15.240414 ] // root trace
-  //   ]
-  // ]
-  t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, 3)
-  t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
-  t.equal(data.traces.raw[0][1].length, 3)
-
-  t.equal(data.traces.raw[0][1][0], 0)
-  t.equal(data.traces.raw[0][1][1], 0)
-  t.equal(data.traces.raw[0][1][2], data.traces.raw[0][0])
-
-  t.equal(data.traces.raw[0][2].http.method, 'GET')
+  t.equal(data.traces.raw.length, 0)
 }
 
 function assertMatch (t, data) {
