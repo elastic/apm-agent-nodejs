@@ -50,12 +50,19 @@ test('#duration() - return null if not ended', function (t) {
   t.end()
 })
 
-test('#startTime() - return null if transaction isn\'t ended', function (t) {
+test('#startTime() - return null if trace isn\'t started', function (t) {
+  var trans = new Transaction(agent)
+  var trace = new Trace(trans)
+  t.equal(trace.startTime(), null)
+  t.end()
+})
+
+test('#startTime() - not return null if trace is started', function (t) {
   var trans = new Transaction(agent)
   var trace = new Trace(trans)
   trace.start()
-  trace.end()
-  t.equal(trace.startTime(), null)
+  t.ok(trace.startTime() > 0)
+  t.ok(trace.startTime() < 100)
   t.end()
 })
 
