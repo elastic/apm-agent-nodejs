@@ -87,7 +87,7 @@ test('protocol.encode - single transaction', function (t) {
         t.ok(n >= 0, 'all data.traces[' + i + '][1][' + i2 + '] >= 0')
       })
       t.deepEqual(raw[2].user, {foo: 1})
-      t.deepEqual(raw[2].extra, {bar: 1, node: process.version, uuid: t0._uuid})
+      t.deepEqual(raw[2].extra, {bar: 1, node: process.version, id: t0.id})
     })
 
     t.equal(data.traces.raw.reduce(function (total, raw) {
@@ -313,7 +313,7 @@ test('protocol.encode - http request meta data', function (t) {
         t.ok(n >= 0, 'all data.traces[' + i + '][1][' + i2 + '] >= 0')
       })
       t.deepEqual(raw[2].user, {})
-      t.deepEqual(raw[2].extra, {node: process.version, uuid: t0._uuid})
+      t.deepEqual(raw[2].extra, {node: process.version, id: t0.id})
       t.deepEqual(raw[2].http, { cookies: { cookie1: 'foo', cookie2: 'bar' }, data: '[REDACTED]', headers: { host: 'example.com', 'user-agent': 'user-agent-header', 'content-length': 42, 'x-bar': 'baz', 'x-foo': 'bar' }, method: 'POST', query_string: 'bar=baz', remote_host: '127.0.0.1', secure: true, url: 'https://example.com/foo?bar=baz', user_agent: 'user-agent-header' })
     })
 
@@ -448,7 +448,7 @@ test('protocol.encode - disable stack traces', function (t) {
 //           [ 0, 0.25884, 0.103199 ],
 //           [ 1, 0.284222, 0.345159 ],
 //           [ 2, 0, 0.717205 ],
-//           { extra: { node: 'v6.9.1', uuid: 'e5be120b-a85b-468e-a9f9-5b88e1795dbc' } }
+//           { extra: { node: 'v6.9.1', id: 'e5be120b-a85b-468e-a9f9-5b88e1795dbc' } }
 //         ]
 //       ] } }
 test('protocol.encode - truncated traces', function (t) {

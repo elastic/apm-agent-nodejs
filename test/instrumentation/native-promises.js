@@ -27,7 +27,7 @@ if (semver.lt(process.version, '7.0.0')) {
         resolve('foo')
       }).chain(function (data) {
         t.equal(data, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }, function () {
         t.fail('should not reject')
       })
@@ -43,13 +43,13 @@ if (semver.lt(process.version, '7.0.0')) {
         resolve('foo')
       }).chain(function (data) {
         t.equal(data, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
         return 'bar'
       }, function () {
         t.fail('should not reject')
       }).chain(function (data) {
         t.equal(data, 'bar')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }, function () {
         t.fail('should not reject')
       })
@@ -64,7 +64,7 @@ if (semver.lt(process.version, '7.0.0')) {
       Promise.accept('foo')
         .then(function (data) {
           t.equal(data, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
         .catch(function () {
           t.fail('should not reject')

@@ -24,7 +24,7 @@ module.exports = function (test, Promise, ins) {
             var pingTime = Date.now()
             t.ok(pongTime + 45 <= pingTime, 'after pong, min 100ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
             t.ok(pongTime + 100 > pingTime, 'after pong, max 125ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
-            t.equal(ins.currentTransaction._uuid, trans._uuid)
+            t.equal(ins.currentTransaction.id, trans.id)
             return
           }
           yield Promise.delay(50)
@@ -69,7 +69,7 @@ module.exports = function (test, Promise, ins) {
             var pingTime = Date.now()
             t.ok(pongTime + 45 <= pingTime, 'after pong, min 100ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
             t.ok(pongTime + 100 > pingTime, 'after pong, max 125ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
-            t.equal(ins.currentTransaction._uuid, trans._uuid)
+            t.equal(ins.currentTransaction.id, trans.id)
             return
           }
           yield 50
@@ -102,7 +102,7 @@ module.exports = function (test, Promise, ins) {
           return yield Promise.resolve('foo')
         }).then(function (value) {
           t.equal(value, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
       })
     })

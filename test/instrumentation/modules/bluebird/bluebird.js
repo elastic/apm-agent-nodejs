@@ -25,7 +25,7 @@ test('Promise.prototype.spread - all formal', function (t) {
     Promise.all(['foo', 'bar']).spread(function (a, b) {
       t.equal(a, 'foo')
       t.equal(b, 'bar')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -38,7 +38,7 @@ test('Promise.prototype.spread - all promises', function (t) {
     Promise.all(arr).spread(function (a, b) {
       t.equal(a, 'foo')
       t.equal(b, 'bar')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -52,7 +52,7 @@ test('Promise.prototype.spread - then formal', function (t) {
     }).spread(function (a, b) {
       t.equal(a, 'foo')
       t.equal(b, 'bar')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -66,7 +66,7 @@ test('Promise.prototype.spread - then promises', function (t) {
     }).spread(function (a, b) {
       t.equal(a, 'foo')
       t.equal(b, 'bar')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -83,7 +83,7 @@ CATCH_NAMES.forEach(function (fnName) {
         })[fnName](TypeError, function (err) {
           t.ok(err instanceof TypeError)
           t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })[fnName](ReferenceError, function () {
           t.fail('should not catch a ReferenceError')
         })[fnName](function () {
@@ -104,7 +104,7 @@ CATCH_NAMES.forEach(function (fnName) {
         })[fnName](ReferenceError, function (err) {
           t.ok(err instanceof ReferenceError)
           t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.fail('should not catch a generic error')
         })
@@ -126,7 +126,7 @@ CATCH_NAMES.forEach(function (fnName) {
           })[fnName](function (err) {
             t.ok(err instanceof SyntaxError)
             t.equal(err.message, 'foo')
-            t.equal(ins.currentTransaction._uuid, trans._uuid)
+            t.equal(ins.currentTransaction.id, trans.id)
           })
       })
     })
@@ -142,7 +142,7 @@ CATCH_NAMES.forEach(function (fnName) {
         })[fnName](TypeError, SyntaxError, function (err) {
           t.ok(err instanceof SyntaxError)
           t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })[fnName](ReferenceError, RangeError, function () {
           t.fail('should not catch a ReferenceError or RangeError')
         })[fnName](function () {
@@ -163,7 +163,7 @@ CATCH_NAMES.forEach(function (fnName) {
         })[fnName](ReferenceError, RangeError, function (err) {
           t.ok(err instanceof RangeError)
           t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.fail('should not catch a generic error')
         })
@@ -184,7 +184,7 @@ CATCH_NAMES.forEach(function (fnName) {
         })[fnName](function (err) {
           t.ok(err instanceof URIError)
           t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -202,7 +202,7 @@ CATCH_NAMES.forEach(function (fnName) {
         })[fnName](PredicateTestMatch, function (err) {
           t.ok(err instanceof URIError)
           t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.fail('should not catch a generic error')
         })
@@ -210,14 +210,14 @@ CATCH_NAMES.forEach(function (fnName) {
       function PredicateTestNoMatch (err) {
         t.ok(err instanceof URIError)
         t.equal(err.message, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
         return false
       }
 
       function PredicateTestMatch (err) {
         t.ok(err instanceof URIError)
         t.equal(err.message, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
         return true
       }
     })
@@ -238,7 +238,7 @@ CATCH_NAMES.forEach(function (fnName) {
           })[fnName]({code: 42}, function (err) {
             t.ok(err instanceof URIError)
             t.equal(err.message, 'foo')
-            t.equal(ins.currentTransaction._uuid, trans._uuid)
+            t.equal(ins.currentTransaction.id, trans.id)
           })[fnName](function () {
             t.fail('should not catch a generic error')
           })
@@ -257,7 +257,7 @@ test('new Promise -> reject -> error', function (t) {
       }).error(function (err) {
         t.ok(err instanceof Promise.OperationalError)
         t.equal(err.message, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not call catch')
       })
@@ -275,7 +275,7 @@ FINALLY_NAMES.forEach(function (fnName) {
           t.fail('should not resolve')
         })[fnName](function () {
           t.ok('should call ' + fnName)
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -289,7 +289,7 @@ FINALLY_NAMES.forEach(function (fnName) {
           t.fail('should not resolve')
         }).catch(function (err) {
           t.equal(err, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.ok('should call ' + fnName)
         })
@@ -305,7 +305,7 @@ FINALLY_NAMES.forEach(function (fnName) {
           t.fail('should not resolve')
         }).catch(function (err) {
           t.equal(err, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.ok('should call ' + fnName)
           return resolved('bar')
@@ -332,7 +332,7 @@ FINALLY_NAMES.forEach(function (fnName) {
         }).then(function (result) {
           t.ok(finallyCalled)
           t.equal(result, undefined)
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -352,7 +352,7 @@ FINALLY_NAMES.forEach(function (fnName) {
         }).then(function (result) {
           t.ok(finallyCalled)
           t.equal(result, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -373,7 +373,7 @@ test('new Promise -> bind -> then', function (t) {
       .then(function (result) {
         t.equal(this.n, n)
         t.equal(result, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -396,7 +396,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.0')) {
       p.then(function (result) {
         t.equal(this.n, n)
         t.equal(result, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -413,7 +413,7 @@ test('Promise.bind - promise, without value', function (t) {
 
     p.then(function (result) {
       t.equal(result, undefined)
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -433,7 +433,7 @@ test('Promise.bind - non-promise, without value', function (t) {
     p.then(function (result) {
       t.equal(this.n, n)
       t.equal(result, undefined)
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -451,7 +451,7 @@ test('Promise.join', function (t) {
       t.equal(a, 'p1')
       t.equal(b, 'p2')
       t.equal(c, 'p3')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -466,7 +466,7 @@ TRY_NAMES.forEach(function (fnName) {
         return 'foo'
       }).then(function (result) {
         t.equal(result, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -483,7 +483,7 @@ TRY_NAMES.forEach(function (fnName) {
         t.fail('should not resolve')
       }).catch(function (err) {
         t.equal(err.message, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -497,7 +497,7 @@ TRY_NAMES.forEach(function (fnName) {
         return 'foo'
       }, 'bar').then(function (result) {
         t.equal(result, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -513,7 +513,7 @@ TRY_NAMES.forEach(function (fnName) {
         return 'foo'
       }, [1, 2, 3]).then(function (result) {
         t.equal(result, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -531,7 +531,7 @@ TRY_NAMES.forEach(function (fnName) {
         return 'foo'
       }, undefined, obj).then(function (result) {
         t.equal(result, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -547,7 +547,7 @@ test('Promise.method -> return value', function (t) {
       return 'foo'
     })().then(function (result) {
       t.equal(result, 'foo')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     }).catch(function () {
       t.fail('should not reject')
     })
@@ -564,7 +564,7 @@ test('Promise.method -> throw', function (t) {
       t.fail('should not resolve')
     }).catch(function (err) {
       t.equal(err.message, 'foo')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -580,7 +580,7 @@ test('Promise.all', function (t) {
 
     Promise.all([p1, p2, p3]).then(function (result) {
       t.deepEqual(result, ['p1', 'p2', 'p3'])
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -596,7 +596,7 @@ test('new Promise -> all', function (t) {
 
     resolved([p1, p2, p3]).all().then(function (result) {
       t.deepEqual(result, ['p1', 'p2', 'p3'])
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -614,7 +614,7 @@ test('Promise.props', function (t) {
 
     Promise.props(props).then(function (result) {
       t.deepEqual(result, {p1: 'p1', p2: 'p2', p3: 'p3'})
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -632,7 +632,7 @@ test('new Promise -> props', function (t) {
 
     resolved(props).props().then(function (result) {
       t.deepEqual(result, {p1: 'p1', p2: 'p2', p3: 'p3'})
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -652,7 +652,7 @@ test('Promise.any', function (t) {
 
     Promise.any([p1, p2, p3]).then(function (result) {
       t.equal(result, 'p3')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -672,7 +672,7 @@ test('new Promise -> any', function (t) {
 
     resolved([p1, p2, p3]).any().then(function (result) {
       t.equal(result, 'p3')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -693,7 +693,7 @@ test('Promise.some', function (t) {
 
     Promise.some([p1, p2, p3, p4], 2).then(function (result) {
       t.deepEqual(result, ['p2', 'p4'])
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -714,7 +714,7 @@ test('new Promise -> some', function (t) {
 
     resolved([p1, p2, p3, p4]).some(2).then(function (result) {
       t.deepEqual(result, ['p2', 'p4'])
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -728,7 +728,7 @@ test('Promise.map', function (t) {
       return resolved(value)
     }).then(function (result) {
       t.deepEqual(result, [1, 2, 3])
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -742,7 +742,7 @@ test('new Promise -> map', function (t) {
       return resolved(value)
     }).then(function (result) {
       t.deepEqual(result, [1, 2, 3])
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -760,7 +760,7 @@ test('Promise.reduce', function (t) {
       })
     }, 36).then(function (result) {
       t.equal(result, 42)
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -778,7 +778,7 @@ test('new Promise -> reduce', function (t) {
       })
     }, 36).then(function (result) {
       t.equal(result, 42)
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -793,7 +793,7 @@ test('Promise.filter', function (t) {
       return value > 2
     }).then(function (result) {
       t.deepEqual(result, [3, 4])
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -808,7 +808,7 @@ test('new Promise -> filter', function (t) {
       return value > 2
     }).then(function (result) {
       t.deepEqual(result, [3, 4])
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -828,7 +828,7 @@ test('Promise.each', function (t) {
       t.equal(item, expected)
       t.equal(index, expected - 1, 'index should be expected - 1')
       t.equal(length, 3, 'length should be 3')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -848,7 +848,7 @@ test('new Promise -> each', function (t) {
       t.equal(item, expected)
       t.equal(index, expected - 1, 'index should be expected - 1')
       t.equal(length, 3, 'length should be 3')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -870,7 +870,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
         t.equal(item, expected)
         t.equal(index, i++)
         t.equal(length, 3, 'length should be 3')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -891,7 +891,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
         t.equal(item, expected)
         t.equal(index, i++)
         t.equal(length, 3, 'length should be 3')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -904,7 +904,7 @@ test('Promise.using', function (t) {
 
     Promise.using(getResource(), function (resource) {
       t.equal(resource, 'foo')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
 
     function getResource () {
@@ -924,7 +924,7 @@ test('Promise.promisify', function (t) {
     readFile(__filename, 'utf8').then(function (contents) {
       var firstLine = contents.split('\n')[0]
       t.equal(firstLine, '\'use strict\'')
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -952,7 +952,7 @@ test('Promise.promisifyAll', function (t) {
     obj.successAsync()
       .then(function (value) {
         t.equal(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -962,7 +962,7 @@ test('Promise.promisifyAll', function (t) {
         t.fail('should not resolve')
       }).catch(function (err) {
         t.equal(err.message, 'bar')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -982,7 +982,7 @@ fromCallbackNames.forEach(function (fnName) {
         })
       }).then(function (value) {
         t.equal(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -1002,7 +1002,7 @@ fromCallbackNames.forEach(function (fnName) {
         t.fail('should not resolve')
       }).catch(function (err) {
         t.equal(err.message, 'bar')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -1018,13 +1018,13 @@ asCallbackNames.forEach(function (fnName) {
 
       getSomething().then(function (value) {
         t.equal(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
 
       getSomething(function (err, value) {
         t.equal(err, null)
         t.equal(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
 
       function getSomething (cb) {
@@ -1043,13 +1043,13 @@ asCallbackNames.forEach(function (fnName) {
           t.fail('should not resolve')
         }).catch(function (err) {
           t.equal(err, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
 
       getSomething(function (err, value) {
         t.equal(err, 'foo')
         t.equal(value, undefined)
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
 
       function getSomething (cb) {
@@ -1069,7 +1069,7 @@ test('Promise.delay', function (t) {
       var expected = start + 49 // timings are hard
       var now = Date.now()
       t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -1084,7 +1084,7 @@ test('new Promise -> delay', function (t) {
       var expected = start + 49 // timings are hard
       var now = Date.now()
       t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -1098,7 +1098,7 @@ test('new Promise -> timeout (resolve in time)', function (t) {
       .timeout(50)
       .then(function (value) {
         t.equal(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
       .catch(function () {
         t.fail('should not reject')
@@ -1118,7 +1118,7 @@ test('new Promise -> timeout (reject in time)', function (t) {
       })
       .catch(function (err) {
         t.equal(err, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1140,7 +1140,7 @@ test('new Promise -> timeout (timed out)', function (t) {
       var now = Date.now()
       t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
       t.ok(err instanceof Promise.TimeoutError)
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -1158,7 +1158,7 @@ test('new Promise -> reject -> tap -> catch', function (t) {
       })
       .catch(function (err) {
         t.equal(err, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1173,7 +1173,7 @@ test('new Promise -> resolve -> tap -> then (no return)', function (t) {
       })
       .then(function (value) {
         t.equal(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1189,7 +1189,7 @@ test('new Promise -> resolve -> tap -> then (return)', function (t) {
       })
       .then(function (value) {
         t.equal(value, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1209,7 +1209,7 @@ test('new Promise -> call', function (t) {
       .call('foo', 1, 2)
       .then(function (value) {
         t.deepEqual(value, 3)
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1222,7 +1222,7 @@ test('new Promise -> get', function (t) {
       .get('foo')
       .then(function (value) {
         t.deepEqual(value, 42)
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1236,11 +1236,11 @@ RETURN_NAMES.forEach(function (fnName) {
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })[fnName]('bar')
         .then(function (value) {
           t.deepEqual(value, 'bar')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1258,7 +1258,7 @@ THROW_NAMES.forEach(function (fnName) {
         })
         .catch(function (err) {
           t.deepEqual(err.message, 'bar')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1272,12 +1272,12 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
         .catchReturn('bar')
         .then(function (value) {
           t.deepEqual(value, undefined)
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1293,7 +1293,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
         .catchReturn('bar')
         .then(function (value) {
           t.deepEqual(value, 'bar')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1305,12 +1305,12 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
         .catchThrow(new Error('bar'))
         .then(function (value) {
           t.deepEqual(value, undefined)
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
         .catch(function () {
           t.fail('should not reject')
@@ -1332,7 +1332,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
         })
         .catch(function (err) {
           t.deepEqual(err.message, 'bar')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1345,7 +1345,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=2.3.6')) {
       var trans = ins.startTransaction()
       resolved('foo').reflect().then(function (p) {
         t.ok(p.isFulfilled())
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -1358,7 +1358,7 @@ test('new Promise -> settle', function (t) {
     Promise.settle([resolved('foo')]).then(function (result) {
       t.equal(result.length, 1)
       t.ok(result[0].isFulfilled())
-      t.equal(ins.currentTransaction._uuid, trans._uuid)
+      t.equal(ins.currentTransaction.id, trans.id)
     })
   })
 })

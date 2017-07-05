@@ -11,7 +11,7 @@ module.exports = function (test, Promise, ins) {
         resolve('foo')
       }).then(function (data) {
         t.equal(data, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -30,7 +30,7 @@ module.exports = function (test, Promise, ins) {
           t.fail('should not resolve')
         })[fnName](function (reason) {
           t.equal(reason.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
       })
     })
@@ -43,11 +43,11 @@ module.exports = function (test, Promise, ins) {
           reject(new Error('foo'))
         })[fnName](function (err) {
           t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
           return Promise.resolve('bar')
         }).then(function (result) {
           t.equal(result, 'bar')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
       })
     })
@@ -63,7 +63,7 @@ module.exports = function (test, Promise, ins) {
         t.fail('should not resolve')
       }, function (reason) {
         t.equal(reason.message, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -75,7 +75,7 @@ module.exports = function (test, Promise, ins) {
       Promise.resolve('foo')
         .then(function (data) {
           t.equal(data, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
         .catch(function () {
           t.fail('should not reject')
@@ -93,7 +93,7 @@ module.exports = function (test, Promise, ins) {
         })
         .catch(function (reason) {
           t.equal(reason.message, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -110,7 +110,7 @@ module.exports = function (test, Promise, ins) {
 
       Promise.all([p1, p2, p3]).then(function (values) {
         t.deepEqual(values, [3, 1337, 'foo'])
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -128,7 +128,7 @@ module.exports = function (test, Promise, ins) {
 
       Promise.race([p1, p2]).then(function (data) {
         t.equal(data, 'two')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -146,7 +146,7 @@ module.exports = function (test, Promise, ins) {
 
       Promise.race([p1, p2]).then(function (data) {
         t.equal(data, 'one')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       }, function () {
         t.fail('should not reject')
       })
@@ -168,7 +168,7 @@ module.exports = function (test, Promise, ins) {
         t.fail('should not resolve')
       }, function (reason) {
         t.equal(reason, 'two')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -181,17 +181,17 @@ module.exports = function (test, Promise, ins) {
         resolve('foo')
       }).then(function (data) {
         t.equal(data, 'foo')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
         return new Promise(function (resolve) {
           resolve('bar')
         })
       }).then(function (data) {
         t.equal(data, 'bar')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
         return Promise.resolve('baz')
       }).then(function (data) {
         t.equal(data, 'baz')
-        t.equal(ins.currentTransaction._uuid, trans._uuid)
+        t.equal(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -206,7 +206,7 @@ module.exports = function (test, Promise, ins) {
         setTimeout(deferred.resolve.bind(deferred), 10, 'foo')
         deferred.promise.then(function (data) {
           t.equal(data, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
       })
     })
@@ -222,7 +222,7 @@ module.exports = function (test, Promise, ins) {
           t.fail('should not resolve')
         }, function (reason) {
           t.equal(reason, 'foo')
-          t.equal(ins.currentTransaction._uuid, trans._uuid)
+          t.equal(ins.currentTransaction.id, trans.id)
         })
       })
     })
