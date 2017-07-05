@@ -31,7 +31,6 @@ exceptions automatically.
 // Add this snippet to the VERY top of your app's startup script
 var opbeat = require('opbeat').start({
   appName: '...',
-  organizationId: '...',
   secretToken: '...'
 })
 ```

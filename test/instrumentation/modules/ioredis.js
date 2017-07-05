@@ -2,7 +2,6 @@
 
 var agent = require('../../..').start({
   appName: 'test',
-  organizationId: 'test',
   secretToken: 'test',
   captureExceptions: false
 })

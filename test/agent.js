@@ -12,7 +12,6 @@ var request = require('../lib/request')
 var Agent = require('../lib/agent')
 
 var opts = {
-  organizationId: 'some-org-id',
   appName: 'some-app-name',
   secretToken: 'secret',
   captureExceptions: false
@@ -20,7 +19,6 @@ var opts = {
 
 var optionFixtures = [
   ['appName', 'APP_NAME'],
-  ['organizationId', 'ORGANIZATION_ID'],
   ['secretToken', 'SECRET_TOKEN'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
@@ -93,7 +91,7 @@ falsyValues.forEach(function (val) {
   test('should be disabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
     process.env.OPBEAT_ACTIVE = val
-    agent.start({ appName: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    agent.start({ appName: 'foo', secretToken: 'baz' })
     t.equal(agent.active, false)
     delete process.env.OPBEAT_ACTIVE
     t.end()
@@ -104,7 +102,7 @@ truthyValues.forEach(function (val) {
   test('should be enabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
     process.env.OPBEAT_ACTIVE = val
-    agent.start({ appName: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    agent.start({ appName: 'foo', secretToken: 'baz' })
     t.equal(agent.active, true)
     delete process.env.OPBEAT_ACTIVE
     t.end()
@@ -113,7 +111,7 @@ truthyValues.forEach(function (val) {
 
 test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {
   setup()
-  var opts = { appName: 'foo', organizationId: 'bar', secretToken: 'baz', active: false }
+  var opts = { appName: 'foo', secretToken: 'baz', active: false }
   process.env.OPBEAT_ACTIVE = '1'
   agent.start(opts)
   t.equal(agent.active, false)
@@ -123,7 +121,7 @@ test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {
 
 test('should default active to true if required options have been specified', function (t) {
   setup()
-  agent.start({ appName: 'foo', organizationId: 'bar', secretToken: 'baz' })
+  agent.start({ appName: 'foo', secretToken: 'baz' })
   t.equal(agent.active, true)
   t.end()
 })
@@ -213,10 +211,10 @@ test('#captureError()', function (t) {
   t.test('should send a plain text message to server', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('https://intake.opbeat.com')
+    var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
+      .post('/v1/errors', '*')
       .reply(200)
 
     agent.on('logged', function (result) {
@@ -230,9 +228,9 @@ test('#captureError()', function (t) {
   t.test('should emit error when request returns non 200', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('https://intake.opbeat.com')
+    var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
+      .post('/v1/errors', '*')
       .reply(500, { error: 'Oops!' })
 
     agent.on('error', function () {
@@ -245,9 +243,9 @@ test('#captureError()', function (t) {
   t.test('shouldn\'t shit it\'s pants when error is emitted without a listener', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('https://intake.opbeat.com')
+    var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
+      .post('/v1/errors', '*')
       .reply(500, { error: 'Oops!' })
 
     agent.captureError('Hey!')
@@ -260,9 +258,9 @@ test('#captureError()', function (t) {
   t.test('should attach an Error object when emitting error', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('https://intake.opbeat.com')
+    var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
+      .post('/v1/errors', '*')
       .reply(500, { error: 'Oops!' })
 
     agent.on('error', function (err) {
@@ -292,10 +290,10 @@ test('#captureError()', function (t) {
   t.test('should send an Error to server', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('https://intake.opbeat.com')
+    var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
+      .post('/v1/errors', '*')
       .reply(200)
 
     agent.on('logged', function (result) {
@@ -311,7 +309,6 @@ test('#captureError()', function (t) {
     setup()
     var opts = {
       appName: 'foo',
-      organizationId: 'bar',
       secretToken: 'baz'
     }
     agent.addFilter(function (data) {
@@ -335,7 +332,6 @@ test('#captureError()', function (t) {
     setup()
     var opts = {
       appName: 'foo',
-      organizationId: 'bar',
       secretToken: 'baz'
     }
     agent.addFilter(function () {})
@@ -356,7 +352,7 @@ test('#captureError()', function (t) {
   t.test('should anonymize the http Authorization header by default', function (t) {
     t.plan(2)
     setup()
-    agent.start({ appName: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    agent.start({ appName: 'foo', secretToken: 'baz' })
 
     var oldErrorFn = request.error
     request.error = function (agent, data, cb) {
@@ -388,7 +384,6 @@ test('#captureError()', function (t) {
     setup()
     agent.start({
       appName: 'foo',
-      organizationId: 'bar',
       secretToken: 'baz',
       filterHttpHeaders: false
     })
@@ -422,7 +417,6 @@ test('#captureError()', function (t) {
     setup()
     agent.start({
       appName: 'foo',
-      organizationId: 'bar',
       secretToken: 'baz',
       filterHttpHeaders: false
     })
@@ -479,10 +473,10 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should send an uncaughtException to server', function (t) {
     setup()
 
-    var scope = nock('https://intake.opbeat.com')
+    var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/errors/', '*')
+      .post('/v1/errors', '*')
       .reply(200)
 
     agent.start(opts)

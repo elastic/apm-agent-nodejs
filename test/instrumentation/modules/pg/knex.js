@@ -4,7 +4,6 @@ process.env.OPBEAT_TEST = true
 
 var agent = require('../../../..').start({
   appName: 'test',
-  organizationId: 'test',
   secretToken: 'test',
   captureExceptions: false
 })

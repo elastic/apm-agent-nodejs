@@ -4,7 +4,6 @@ var path = require('path')
 var test = require('tape')
 
 var agent = require('../../').start({
-  organizationId: 'test',
   appName: 'test',
   secretToken: 'test',
   captureExceptions: false,
