@@ -158,6 +158,8 @@ jobs:
   - node_js: '8'
   - node_js: '7'
 notifications:
+  email:
+  - watson@elastic.co
   slack:
     rooms:
       secure: PR+vjohDfGmidHhaIboj896iad3OIa4pked1Mib+XB5FF3tWfpDjBBNmEBizRbpwzxy4oHgOr22LBNvi+zkE674wXY3VUM+Wx9pJztlqotcON/hBjcJd993MfixRHN0RShxn4omaLfiqrZ+8iUFD5MQKdLKqBG/IG2toxdhuDkU=
