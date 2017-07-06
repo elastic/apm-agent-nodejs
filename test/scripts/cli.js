@@ -9,32 +9,27 @@ var inquirer = require('inquirer')
 var untildify = require('untildify')
 
 var standardTest = function () {
-  console.log('Tracking release...')
-  agent.trackRelease(function () {
-    console.log('The release have been tracked!')
+  console.log('Capturing error...')
+  agent.captureError(new Error('This is an Error object'), function (err, url) {
+    if (err) console.log('Something went wrong:', err.message)
+    console.log('The error have been logged at:', url)
 
-    console.log('Capturing error...')
-    agent.captureError(new Error('This is an Error object'), function (err, url) {
+    console.log('Capturing message...')
+    agent.captureError('This is a string', function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
-      console.log('The error have been logged at:', url)
+      console.log('The message have been logged at:', url)
 
-      console.log('Capturing message...')
-      agent.captureError('This is a string', function (err, url) {
+      console.log('Capturing parameterized message...')
+      var params = {
+        message: 'Timeout exeeded by %d seconds',
+        params: [Math.random()]
+      }
+      agent.captureError(params, function (err, url) {
         if (err) console.log('Something went wrong:', err.message)
-        console.log('The message have been logged at:', url)
+        console.log('The parameterized message have been logged at:', url)
 
-        console.log('Capturing parameterized message...')
-        var params = {
-          message: 'Timeout exeeded by %d seconds',
-          params: [Math.random()]
-        }
-        agent.captureError(params, function (err, url) {
-          if (err) console.log('Something went wrong:', err.message)
-          console.log('The parameterized message have been logged at:', url)
-
-          console.log('Throwing exception...')
-          throw new Error('This Error was thrown')
-        })
+        console.log('Throwing exception...')
+        throw new Error('This Error was thrown')
       })
     })
   })

@@ -1,7 +1,6 @@
 'use strict'
 
 var os = require('os')
-var zlib = require('zlib')
 var util = require('util')
 var http = require('http')
 var test = require('tape')
@@ -495,89 +494,5 @@ test('#handleUncaughtExceptions()', function (t) {
     })
 
     process.emit('uncaughtException', new Error('derp'))
-  })
-})
-
-test('#trackRelease()', function (t) {
-  t.test('should send release request to the server with given rev', function (t) {
-    setup()
-    agent.start(opts)
-    var buffer
-    var scope = nock('https://intake.opbeat.com')
-      .filteringRequestBody(function (body) {
-        buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
-        return '*'
-      })
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/releases/', '*')
-      .reply(200)
-
-    agent.trackRelease({ rev: 'foo' }, function () {
-      scope.done()
-      zlib.inflate(buffer, function (err, buffer) {
-        t.error(err)
-        var body = JSON.parse(buffer.toString())
-        t.equal(Object.keys(body).length, 3)
-        t.equal(body.status, 'completed')
-        t.equal(body.rev, 'foo')
-        t.ok('branch' in body)
-        t.equal(typeof body.branch, 'string')
-        t.ok(body.branch.length > 0)
-        t.end()
-      })
-    })
-  })
-
-  t.test('should send release request to the server with given rev and branch', function (t) {
-    setup()
-    agent.start(opts)
-    var buffer
-    var scope = nock('https://intake.opbeat.com')
-      .filteringRequestBody(function (body) {
-        buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
-        return '*'
-      })
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/releases/', '*')
-      .reply(200)
-
-    agent.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
-      scope.done()
-      zlib.inflate(buffer, function (err, buffer) {
-        t.error(err)
-        var body = JSON.parse(buffer.toString())
-        t.equal(Object.keys(body).length, 3)
-        t.equal(body.status, 'completed')
-        t.equal(body.rev, 'foo')
-        t.equal(body.branch, 'bar')
-        t.end()
-      })
-    })
-  })
-
-  t.test('should send release request to the server with given rev and branch automatically generated', function (t) {
-    setup()
-    agent.start(opts)
-    var buffer
-    var scope = nock('https://intake.opbeat.com')
-      .filteringRequestBody(function (body) {
-        buffer = new Buffer(body, 'hex') // eslint-disable-line node/no-deprecated-api
-        return '*'
-      })
-      .post('/api/v1/organizations/some-org-id/apps/some-app-name/releases/', '*')
-      .reply(200)
-
-    agent.trackRelease(function () {
-      scope.done()
-      zlib.inflate(buffer, function (err, buffer) {
-        t.error(err)
-        var body = JSON.parse(buffer.toString())
-        t.equal(Object.keys(body).length, 3)
-        t.equal(body.status, 'completed')
-        t.ok(/^[\da-f]{40}$/.test(body.rev))
-        t.ok('branch' in body)
-        t.equal(typeof body.branch, 'string')
-        t.ok(body.branch.length > 0)
-        t.end()
-      })
-    })
   })
 })
