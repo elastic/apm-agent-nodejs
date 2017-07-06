@@ -35,11 +35,13 @@ test('source map linked', function (t) {
 test('fails', function (t) {
   t.test('inlined source map broken', function (t) {
     onError(t, function (t, data) {
-      t.equal(data.message, 'Error: foo')
-      t.deepEqual(data.exception, {type: 'Error', value: 'foo'})
-      t.equal(data.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-inline-broken.js)')
+      t.equal(data.errors.length, 1)
+      var error = data.errors[0]
+      t.equal(error.exception.message, 'foo')
+      t.equal(error.exception.type, 'Error')
+      t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-inline-broken.js)')
 
-      var frame = data.stacktrace.frames.reverse()[0]
+      var frame = error.exception.stacktrace[0]
       t.equal(frame.filename, 'test/sourcemaps/fixtures/lib/error-inline-broken.js')
       t.equal(frame.lineno, 6)
       t.equal(frame.function, 'generateError')
@@ -52,11 +54,13 @@ test('fails', function (t) {
 
   t.test('linked source map not found', function (t) {
     onError(t, function (t, data) {
-      t.equal(data.message, 'Error: foo')
-      t.deepEqual(data.exception, {type: 'Error', value: 'foo'})
-      t.equal(data.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-map-missing.js)')
+      t.equal(data.errors.length, 1)
+      var error = data.errors[0]
+      t.equal(error.exception.message, 'foo')
+      t.equal(error.exception.type, 'Error')
+      t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-map-missing.js)')
 
-      var frame = data.stacktrace.frames.reverse()[0]
+      var frame = error.exception.stacktrace[0]
       t.equal(frame.filename, 'test/sourcemaps/fixtures/lib/error-map-missing.js')
       t.equal(frame.lineno, 6)
       t.equal(frame.function, 'generateError')
@@ -69,11 +73,13 @@ test('fails', function (t) {
 
   t.test('linked source map broken', function (t) {
     onError(t, function (t, data) {
-      t.equal(data.message, 'Error: foo')
-      t.deepEqual(data.exception, {type: 'Error', value: 'foo'})
-      t.equal(data.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-broken.js)')
+      t.equal(data.errors.length, 1)
+      var error = data.errors[0]
+      t.equal(error.exception.message, 'foo')
+      t.equal(error.exception.type, 'Error')
+      t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-broken.js)')
 
-      var frame = data.stacktrace.frames.reverse()[0]
+      var frame = error.exception.stacktrace[0]
       t.equal(frame.filename, 'test/sourcemaps/fixtures/lib/error-broken.js')
       t.equal(frame.lineno, 6)
       t.equal(frame.function, 'generateError')
@@ -93,11 +99,13 @@ function onError (t, assert) {
 }
 
 function assertSourceFound (t, data) {
-  t.equal(data.message, 'Error: foo')
-  t.deepEqual(data.exception, {type: 'Error', value: 'foo'})
-  t.equal(data.culprit, 'generateError (test/sourcemaps/fixtures/src/error.js)')
+  t.equal(data.errors.length, 1)
+  var error = data.errors[0]
+  t.equal(error.exception.message, 'foo')
+  t.equal(error.exception.type, 'Error')
+  t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/src/error.js)')
 
-  var frame = data.stacktrace.frames.reverse()[0]
+  var frame = error.exception.stacktrace[0]
   t.equal(frame.filename, 'test/sourcemaps/fixtures/src/error.js')
   t.equal(frame.lineno, 2)
   t.equal(frame.function, 'generateError')
@@ -109,11 +117,13 @@ function assertSourceFound (t, data) {
 }
 
 function assertSourceNotFound (t, data) {
-  t.equal(data.message, 'Error: foo')
-  t.deepEqual(data.exception, {type: 'Error', value: 'foo'})
-  t.equal(data.culprit, 'generateError (test/sourcemaps/fixtures/src/not/found.js)')
+  t.equal(data.errors.length, 1)
+  var error = data.errors[0]
+  t.equal(error.exception.message, 'foo')
+  t.equal(error.exception.type, 'Error')
+  t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/src/not/found.js)')
 
-  var frame = data.stacktrace.frames.reverse()[0]
+  var frame = error.exception.stacktrace[0]
   t.equal(frame.filename, 'test/sourcemaps/fixtures/src/not/found.js')
   t.equal(frame.lineno, 2)
   t.equal(frame.function, 'generateError')

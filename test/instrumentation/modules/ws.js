@@ -47,62 +47,18 @@ test('ws.send', function (t) {
   })
 })
 
-// { transactions:
-//    [ { transaction: 'foo',
-//        result: undefined,
-//        kind: 'websocket',
-//        timestamp: '2017-01-13T13:44:00.000Z',
-//        durations: [ 8.973545 ] } ],
-//   traces:
-//    { groups:
-//       [ { transaction: 'foo',
-//           signature: 'Send WebSocket Message',
-//           kind: 'websocket.send',
-//           transaction_kind: 'websocket',
-//           timestamp: '2017-01-13T13:44:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'transaction',
-//           kind: 'transaction',
-//           transaction_kind: 'websocket',
-//           timestamp: '2017-01-13T13:44:00.000Z',
-//           parents: [],
-//           extra: { _frames: [Object] } } ],
-//      raw:
-//       [ [ 8.973545,
-//           [ 0, 1.216082, 7.105701 ],
-//           [ 1, 0, 8.973545 ],
-//           { extra: [Object] } ] ] } }
 function done (t) {
   return function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
-    t.equal(data.transactions[0].transaction, 'foo')
-    t.equal(data.transactions[0].kind, 'websocket')
 
-    t.equal(data.traces.groups.length, 1)
+    var trans = data.transactions[0]
 
-    t.equal(data.traces.groups[0].kind, 'websocket.send')
-    t.equal(data.traces.groups[0].transaction_kind, 'websocket')
-    t.deepEqual(data.traces.groups[0].parents, [])
-    t.equal(data.traces.groups[0].signature, 'Send WebSocket Message')
-    t.equal(data.traces.groups[0].transaction, 'foo')
-
-    var totalTraces = data.traces.raw[0].length - 2
-    var totalTime = data.traces.raw[0][0]
-
-    t.equal(data.traces.raw.length, 1)
-    t.equal(totalTraces, 1)
-
-    for (var i = 1; i < totalTraces + 1; i++) {
-      t.equal(data.traces.raw[0][i].length, 3)
-      t.ok(data.traces.raw[0][i][0] >= 0, 'group index should be >= 0')
-      t.ok(data.traces.raw[0][i][0] < data.traces.groups.length, 'group index should be within allowed range')
-      t.ok(data.traces.raw[0][i][1] >= 0)
-      t.ok(data.traces.raw[0][i][2] <= totalTime)
-    }
-
-    t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'websocket')
+    t.equal(trans.traces.length, 1)
+    t.equal(trans.traces[0].name, 'Send WebSocket Message')
+    t.equal(trans.traces[0].type, 'websocket.send')
+    t.ok(trans.traces[0].start + trans.traces[0].duration < trans.duration)
 
     t.end()
   }

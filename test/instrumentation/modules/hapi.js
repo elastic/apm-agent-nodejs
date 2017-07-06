@@ -16,7 +16,7 @@ var http = require('http')
 var Hapi = require('hapi')
 
 test('route naming', function (t) {
-  t.plan(7)
+  t.plan(8)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -59,10 +59,10 @@ test('connectionless server error logging with Error', function (t) {
     server.stop()
 
     t.equal(err, customError)
-    t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.ok(opts.extra.data instanceof Error)
+    t.ok(opts.custom)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.ok(opts.custom.data instanceof Error)
   }
 
   var server = new Hapi.Server()
@@ -85,10 +85,10 @@ test('connectionless server error logging with String', function (t) {
     server.stop()
 
     t.equal(err, customError)
-    t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.ok(typeof opts.extra.data === 'string')
+    t.ok(opts.custom)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.ok(typeof opts.custom.data === 'string')
   }
 
   var server = new Hapi.Server()
@@ -113,10 +113,10 @@ test('connectionless server error logging with Object', function (t) {
     server.stop()
 
     t.equal(err, 'hapi server emitted a log event tagged error')
-    t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.deepEqual(opts.extra.data, customError)
+    t.ok(opts.custom)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.deepEqual(opts.custom.data, customError)
   }
 
   var server = new Hapi.Server()
@@ -139,10 +139,10 @@ test('server error logging with Error', function (t) {
     server.stop()
 
     t.equal(err, customError)
-    t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.ok(opts.extra.data instanceof Error)
+    t.ok(opts.custom)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.ok(opts.custom.data instanceof Error)
   }
 
   var server = new Hapi.Server()
@@ -166,10 +166,10 @@ test('server error logging with Error does not affect event tags', function (t) 
     server.stop()
 
     t.equal(err, customError)
-    t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.ok(opts.extra.data instanceof Error)
+    t.ok(opts.custom)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.ok(opts.custom.data instanceof Error)
   }
 
   var server = new Hapi.Server()
@@ -201,10 +201,10 @@ test('server error logging with String', function (t) {
     server.stop()
 
     t.equal(err, customError)
-    t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.ok(typeof opts.extra.data === 'string')
+    t.ok(opts.custom)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.ok(typeof opts.custom.data === 'string')
   }
 
   var server = new Hapi.Server()
@@ -230,10 +230,10 @@ test('server error logging with Object', function (t) {
     server.stop()
 
     t.equal(err, 'hapi server emitted a log event tagged error')
-    t.ok(opts.extra)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.deepEqual(opts.extra.data, customError)
+    t.ok(opts.custom)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.deepEqual(opts.custom.data, customError)
   }
 
   var server = new Hapi.Server()
@@ -247,23 +247,23 @@ test('server error logging with Object', function (t) {
 })
 
 test('request error logging with Error', function (t) {
-  t.plan(13)
+  t.plan(14)
 
   var customError = new Error('custom error')
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: 200, name: 'GET /error' })
+    assert(t, data, { status: '200', name: 'GET /error' })
 
     server.stop()
   })
 
   agent.captureError = function (err, opts) {
     t.equal(err, customError)
-    t.ok(opts.extra)
+    t.ok(opts.custom)
     t.ok(opts.request)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.ok(opts.extra.data instanceof Error)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.ok(opts.custom.data instanceof Error)
   }
 
   var server = new Hapi.Server()
@@ -293,23 +293,23 @@ test('request error logging with Error', function (t) {
 })
 
 test('request error logging with Error does not affect event tags', function (t) {
-  t.plan(15)
+  t.plan(16)
 
   var customError = new Error('custom error')
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: 200, name: 'GET /error' })
+    assert(t, data, { status: '200', name: 'GET /error' })
 
     server.stop()
   })
 
   agent.captureError = function (err, opts) {
     t.equal(err, customError)
-    t.ok(opts.extra)
+    t.ok(opts.custom)
     t.ok(opts.request)
-    t.deepEqual(opts.extra.tags, ['opbeat', 'error'])
-    t.false(opts.extra.internals)
-    t.ok(opts.extra.data instanceof Error)
+    t.deepEqual(opts.custom.tags, ['opbeat', 'error'])
+    t.false(opts.custom.internals)
+    t.ok(opts.custom.data instanceof Error)
   }
 
   var server = new Hapi.Server()
@@ -347,23 +347,23 @@ test('request error logging with Error does not affect event tags', function (t)
 })
 
 test('request error logging with String', function (t) {
-  t.plan(13)
+  t.plan(14)
 
   var customError = 'custom error'
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: 200, name: 'GET /error' })
+    assert(t, data, { status: '200', name: 'GET /error' })
 
     server.stop()
   })
 
   agent.captureError = function (err, opts) {
     t.equal(err, customError)
-    t.ok(opts.extra)
+    t.ok(opts.custom)
     t.ok(opts.request)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.ok(typeof opts.extra.data === 'string')
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.ok(typeof opts.custom.data === 'string')
   }
 
   var server = new Hapi.Server()
@@ -393,25 +393,25 @@ test('request error logging with String', function (t) {
 })
 
 test('request error logging with Object', function (t) {
-  t.plan(13)
+  t.plan(14)
 
   var customError = {
     error: 'I forgot to turn this into an actual Error'
   }
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: 200, name: 'GET /error' })
+    assert(t, data, { status: '200', name: 'GET /error' })
 
     server.stop()
   })
 
   agent.captureError = function (err, opts) {
     t.equal(err, 'hapi server emitted a request event tagged error')
-    t.ok(opts.extra)
+    t.ok(opts.custom)
     t.ok(opts.request)
-    t.deepEqual(opts.extra.tags, ['error'])
-    t.false(opts.extra.internals)
-    t.deepEqual(opts.extra.data, customError)
+    t.deepEqual(opts.custom.tags, ['error'])
+    t.false(opts.custom.internals)
+    t.deepEqual(opts.custom.data, customError)
   }
 
   var server = new Hapi.Server()
@@ -441,10 +441,10 @@ test('request error logging with Object', function (t) {
 })
 
 test('error handling', function (t) {
-  t.plan(9)
+  t.plan(10)
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: 500, name: 'GET /error' })
+    assert(t, data, { status: '500', name: 'GET /error' })
     server.stop()
   })
 
@@ -500,30 +500,20 @@ function buildServer () {
   return server
 }
 
-// {
-//   transactions: [
-//     { transaction: 'GET /hello', result: 200, kind: 'request', timestamp: '2016-07-15T10:14:00.000Z', durations: [ 20.051362 ] }
-//   ],
-//   traces: {
-//     groups: [
-//       { transaction: 'GET /hello', signature: 'transaction', kind: 'transaction', timestamp: '2016-07-15T10:14:00.000Z', parents: [], extra: { _frames: [Object] } }
-//     ],
-//     raw: [
-//       [ 20.051362, [ 0, 0, 20.051362 ] ]
-//     ]
-//   }
-// }
 function assert (t, data, results) {
   if (!results) results = {}
-  results.status = results.status || 200
+  results.status = results.status || '200'
   results.name = results.name || 'GET /hello'
 
   t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].kind, 'request')
-  t.equal(data.transactions[0].result, results.status)
-  t.equal(data.transactions[0].transaction, results.name)
 
-  t.equal(data.traces.raw.length, 0)
+  var trans = data.transactions[0]
+
+  t.equal(trans.name, results.name)
+  t.equal(trans.type, 'request')
+  t.equal(trans.result, results.status)
+  t.equal(trans.traces.length, 0)
+  t.equal(trans.context.request.method, 'GET')
 }
 
 function resetAgent (cb) {

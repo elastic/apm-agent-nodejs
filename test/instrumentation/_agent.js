@@ -11,6 +11,7 @@ var sharedInstrumentation
 
 module.exports = function mockAgent (cb) {
   var agent = {
+    appName: 'app-name',
     active: true,
     instrument: true,
     captureTraceStackTraces: true,

@@ -1,30 +1,54 @@
 'use strict'
 
+var os = require('os')
 var zlib = require('zlib')
 var test = require('tape')
 var nock = require('nock')
-var helpers = require('./_helpers')
+var objectAssign = require('object-assign')
 var Agent = require('../lib/agent')
 var request = require('../lib/request')
+
+var agentVersion = require('../package.json').version
 
 var opts = {
   appName: 'some-app-name',
   secretToken: 'secret',
-  captureExceptions: false
+  captureExceptions: false,
+  logLevel: 'error'
 }
 
-var data = { extra: { uuid: 'foo' } }
-var body = JSON.stringify(data)
+test('#errors()', function (t) {
+  t.test('envelope', function (t) {
+    global.__opbeat_initialized = null
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function (endpoint, headers, data, cb) {
+      t.equal(endpoint, 'errors')
+      t.equal(data.errors.length, 1)
+      assertRoot(t, data)
+      t.end()
+    }
+    request.errors(agent, [{}], function () {})
+  })
 
-test('#error()', function (t) {
-  t.test('non-string exception.value', function (t) {
+  t.test('non-string log.message', function (t) {
     global.__opbeat_initialized = null
     var agent = new Agent()
     agent.start(opts)
     agent._httpClient.request = function () {
       t.end()
     }
-    request.error(agent, { exception: { value: 1 } })
+    request.errors(agent, [{log: {message: 1}}], function () {})
+  })
+
+  t.test('non-string exception.message', function (t) {
+    global.__opbeat_initialized = null
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
+      t.end()
+    }
+    request.errors(agent, [{exception: {message: 1}}], function () {})
   })
 
   t.test('non-string culprit', function (t) {
@@ -34,179 +58,146 @@ test('#error()', function (t) {
     agent._httpClient.request = function () {
       t.end()
     }
-    request.error(agent, { culprit: 1 })
+    request.errors(agent, [{culprit: 1}], function () {})
   })
 
-  t.test('non-string message', function (t) {
+  t.test('successful request', function (t) {
     global.__opbeat_initialized = null
     var agent = new Agent()
     agent.start(opts)
-    agent._httpClient.request = function () {
+
+    var errors = [{context: {custom: {foo: 'bar'}}}]
+    var payload = request._envelope(agent)
+    payload.errors = errors
+    var body = JSON.stringify(payload)
+
+    zlib.gzip(body, function (err, buffer) {
+      t.error(err)
+      var scope = nock('http://localhost:8080')
+        .filteringRequestBody(function (body) {
+          t.equal(body, buffer.toString('hex'))
+          return 'ok'
+        })
+        .post('/v1/errors', 'ok')
+        .reply(200)
+      request.errors(agent, errors, function () {
+        scope.done()
+        t.end()
+      })
+    })
+  })
+
+  t.test('bad request', function (t) {
+    var errors = [{context: {custom: {foo: 'bar'}}}]
+    global.__opbeat_initialized = null
+    var agent = new Agent()
+    agent.start(opts)
+    var scope = nock('http://localhost:8080')
+      .filteringRequestBody(function () { return '*' })
+      .post('/v1/errors', '*')
+      .reply(500)
+    request.errors(agent, errors, function () {
+      scope.done()
+      t.end()
+    })
+  })
+
+  t.test('should use filters if provided', function (t) {
+    t.plan(3)
+    global.__opbeat_initialized = null
+    var agent = new Agent()
+    agent.addFilter(function (data) {
+      var error = data.errors[0]
+      t.equal(++error.context.custom.order, 1)
+      return data
+    })
+    agent.addFilter(function (data) {
+      var error = data.errors[0]
+      t.equal(++error.context.custom.order, 2)
+      return {errors: [{owned: true}]}
+    })
+    agent.start(opts)
+    agent._httpClient.request = function (endpoint, headers, data, cb) {
+      t.deepEqual(data, {errors: [{owned: true}]})
       t.end()
     }
-    request.error(agent, { message: 1 })
+    var errors = [{context: {custom: {order: 0}}}]
+    request.errors(agent, errors, function () {})
   })
 
-  t.test('without callback and successful request', function (t) {
-    zlib.gzip(body, function (err, buffer) {
-      t.error(err)
-      global.__opbeat_initialized = null
-      var agent = new Agent()
-      agent.start(opts)
-      var scope = nock('http://localhost:8080')
-        .filteringRequestBody(function (body) {
-          t.equal(body, buffer.toString('hex'))
-          return 'ok'
-        })
-        .defaultReplyHeaders({'Location': 'foo'})
-        .post('/v1/errors', 'ok')
-        .reply(200)
-      agent.on('logged', function (url) {
-        scope.done()
-        t.equal(url, 'foo')
-        t.end()
-      })
-      request.error(agent, data)
+  t.test('should abort if any filter returns falsy', function (t) {
+    global.__opbeat_initialized = null
+    var agent = new Agent()
+    agent.addFilter(function () {})
+    agent.addFilter(function () {
+      t.fail('should not 2nd filter')
+    })
+    agent.start(opts)
+    agent._httpClient.request = function () {
+      t.fail('should not send error to intake')
+    }
+    var errors = [{exception: {message: 'foo'}}]
+    request.errors(agent, errors, function () {
+      t.end()
     })
   })
 
-  t.test('with callback and successful request', function (t) {
-    zlib.gzip(body, function (err, buffer) {
-      t.error(err)
-      global.__opbeat_initialized = null
-      var agent = new Agent()
-      agent.start(opts)
-      var scope = nock('http://localhost:8080')
-        .filteringRequestBody(function (body) {
-          t.equal(body, buffer.toString('hex'))
-          return 'ok'
-        })
-        .defaultReplyHeaders({'Location': 'foo'})
-        .post('/v1/errors', 'ok')
-        .reply(200)
-      request.error(agent, data, function (err, url) {
-        scope.done()
-        t.error(err)
-        t.equal(url, 'foo')
-        t.end()
-      })
-    })
-  })
-
-  t.test('without callback and bad request', function (t) {
+  t.test('should anonymize the http Authorization header by default', function (t) {
     global.__opbeat_initialized = null
     var agent = new Agent()
     agent.start(opts)
-    var scope = nock('http://localhost:8080')
-      .filteringRequestBody(function () { return '*' })
-      .post('/v1/errors', '*')
-      .reply(500)
-    agent.on('error', function (err) {
-      helpers.restoreLogger()
-      scope.done()
-      t.equal(err.message, 'Opbeat error (500): ')
+
+    agent._httpClient.request = function (endpoint, headers, data, cb) {
+      t.equal(data.errors.length, 1)
+      t.equal(data.errors[0].context.request.headers.authorization, '[REDACTED]')
       t.end()
-    })
-    helpers.mockLogger()
-    request.error(agent, data)
+    }
+
+    var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
+    request.errors(agent, errors, function () {})
   })
 
-  t.test('with callback and bad request', function (t) {
-    var called = false
+  t.test('should not anonymize the http Authorization header if disabled', function (t) {
     global.__opbeat_initialized = null
     var agent = new Agent()
-    agent.start(opts)
-    var scope = nock('http://localhost:8080')
-      .filteringRequestBody(function () { return '*' })
-      .post('/v1/errors', '*')
-      .reply(500)
-    agent.on('error', function (err) {
-      helpers.restoreLogger()
-      scope.done()
-      t.ok(called)
-      t.equal(err.message, 'Opbeat error (500): ')
+    agent.start(objectAssign({filterHttpHeaders: false}, opts))
+
+    agent._httpClient.request = function (endpoint, headers, data, cb) {
+      t.equal(data.errors.length, 1)
+      t.equal(data.errors[0].context.request.headers.authorization, 'secret')
       t.end()
-    })
-    helpers.mockLogger()
-    request.error(agent, data, function (err) {
-      called = true
-      t.equal(err.message, 'Opbeat error (500): ')
-    })
+    }
+
+    var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
+    request.errors(agent, errors, function () {})
   })
 })
 
 test('#transactions()', function (t) {
-  t.test('non-string transactions.$.transaction', function (t) {
-    global.__opbeat_initialized = null
-    var agent = new Agent()
-    agent.start(opts)
-    agent._httpClient.request = function () {
-      t.end()
-    }
-    request.transactions(agent, {
-      transactions: [{ transaction: 1 }],
-      traces: { raw: [], groups: [] }
-    })
-  })
-
-  t.test('non-string traces.groups.$.transaction', function (t) {
-    global.__opbeat_initialized = null
-    var agent = new Agent()
-    agent.start(opts)
-    agent._httpClient.request = function () {
-      t.end()
-    }
-    request.transactions(agent, {
-      transactions: [{ transaction: 1 }],
-      traces: { raw: [], groups: [{ transaction: 1 }] }
-    })
-  })
-
-  t.test('non-string traces.groups.$.extra._frames.$.context_line', function (t) {
-    global.__opbeat_initialized = null
-    var agent = new Agent()
-    agent.start(opts)
-    agent._httpClient.request = function () {
-      t.end()
-    }
-    request.transactions(agent, {
-      transactions: [{ transaction: 'foo' }],
-      traces: {
-        raw: [],
-        groups: [{transaction: 'foo', extra: {_frames: [{context_line: 1}]}}]
-      }
-    })
-  })
-
-  t.test('non-string traces.groups.$.extra._frames.$.pre_context.$', function (t) {
-    global.__opbeat_initialized = null
-    var agent = new Agent()
-    agent.start(opts)
-    agent._httpClient.request = function () {
-      t.end()
-    }
-    request.transactions(agent, {
-      transactions: [{ transaction: 'foo' }],
-      traces: {
-        raw: [],
-        groups: [{transaction: 'foo', extra: {_frames: [{pre_context: [1]}]}}]
-      }
-    })
-  })
-
-  t.test('non-string traces.groups.$.extra._frames.$.pre_context.$', function (t) {
-    global.__opbeat_initialized = null
-    var agent = new Agent()
-    agent.start(opts)
-    agent._httpClient.request = function () {
-      t.end()
-    }
-    request.transactions(agent, {
-      transactions: [{ transaction: 'foo' }],
-      traces: {
-        raw: [],
-        groups: [{transaction: 'foo', extra: {_frames: [{post_context: [1]}]}}]
-      }
-    })
-  })
+  global.__opbeat_initialized = null
+  var agent = new Agent()
+  agent.start(opts)
+  agent._httpClient.request = function (endpoint, headers, data, cb) {
+    t.equal(endpoint, 'transactions')
+    assertRoot(t, data)
+    t.equal(data.transactions.length, 1)
+    t.end()
+  }
+  request.transactions(agent, [{traces: []}], function () {})
 })
+
+function assertRoot (t, payload) {
+  t.equal(payload.app.name, 'some-app-name')
+  t.equal(payload.app.pid, process.pid)
+  t.ok(payload.app.pid > 0)
+  t.equal(payload.app.process_title, 'node')
+  t.deepEqual(payload.app.argv, process.argv)
+  t.ok(payload.app.argv.length >= 2)
+  t.deepEqual(payload.app.runtime, {name: 'node', version: process.version})
+  t.deepEqual(payload.app.agent, {name: 'nodejs', version: agentVersion})
+  t.deepEqual(payload.system, {
+    hostname: os.hostname(),
+    architecture: process.arch,
+    platform: process.platform
+  })
+}

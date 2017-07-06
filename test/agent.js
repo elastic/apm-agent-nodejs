@@ -7,14 +7,14 @@ var test = require('tape')
 var nock = require('nock')
 var isRegExp = require('core-util-is').isRegExp
 var isError = require('core-util-is').isError
-var helpers = require('./_helpers')
 var request = require('../lib/request')
 var Agent = require('../lib/agent')
 
 var opts = {
   appName: 'some-app-name',
   secretToken: 'secret',
-  captureExceptions: false
+  captureExceptions: false,
+  logLevel: 'error'
 }
 
 var optionFixtures = [
@@ -24,7 +24,6 @@ var optionFixtures = [
   ['hostname', 'HOSTNAME', os.hostname()],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
-  ['exceptionLogLevel', 'EXCEPTION_LOG_LEVEL', 'fatal'],
   ['instrument', 'INSTRUMENT', true],
   ['ff_captureFrame', 'FF_CAPTURE_FRAME', false]
 ]
@@ -40,14 +39,12 @@ var setup = function () {
   clean()
   uncaughtExceptionListeners = process._events.uncaughtException
   process.removeAllListeners('uncaughtException')
-  helpers.mockLogger()
   agent = new Agent()
 }
 
 var clean = function () {
   global.__opbeat_initialized = null
   process._events.uncaughtException = uncaughtExceptionListeners
-  helpers.restoreLogger()
   if (agent) agent._filters = []
 }
 
@@ -184,16 +181,16 @@ test('#setUserContext()', function (t) {
     agent.start()
     var trans = agent.startTransaction()
     t.equal(agent.setUserContext({foo: 1}), true)
-    t.deepEqual(trans._context, {user: {foo: 1}})
+    t.deepEqual(trans._user, {foo: 1})
     t.end()
   })
 })
 
-test('#setExtraContext()', function (t) {
+test('#setCustomContext()', function (t) {
   t.test('no active transaction', function (t) {
     setup()
     agent.start()
-    t.equal(agent.setExtraContext({foo: 1}), false)
+    t.equal(agent.setCustomContext({foo: 1}), false)
     t.end()
   })
 
@@ -201,87 +198,84 @@ test('#setExtraContext()', function (t) {
     setup()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.setExtraContext({foo: 1}), true)
-    t.deepEqual(trans._context, {extra: {foo: 1}})
+    t.equal(agent.setCustomContext({foo: 1}), true)
+    t.deepEqual(trans._custom, {foo: 1})
+    t.end()
+  })
+})
+
+test('#setTag()', function (t) {
+  t.test('no active transaction', function (t) {
+    setup()
+    agent.start()
+    t.equal(agent.setTag('foo', 1), false)
+    t.end()
+  })
+
+  t.test('active transaction', function (t) {
+    setup()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(agent.setTag('foo', 1), true)
+    t.deepEqual(trans._tags, {foo: '1'})
     t.end()
   })
 })
 
 test('#captureError()', function (t) {
-  t.test('should send a plain text message to server', function (t) {
+  t.test('with callback', function (t) {
     setup()
     agent.start(opts)
     var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
-      .defaultReplyHeaders({'Location': 'foo'})
       .post('/v1/errors', '*')
       .reply(200)
 
-    agent.on('logged', function (result) {
+    agent.captureError(new Error(), function () {
       scope.done()
-      t.equal(result, 'foo')
       t.end()
     })
-    agent.captureError('Hey!')
   })
 
-  t.test('should emit error when request returns non 200', function (t) {
+  t.test('without callback', function (t) {
     setup()
     agent.start(opts)
     var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
       .post('/v1/errors', '*')
-      .reply(500, { error: 'Oops!' })
+      .reply(200)
 
-    agent.on('error', function () {
-      scope.done()
-      t.end()
-    })
-    agent.captureError('Hey!')
-  })
+    agent.captureError(new Error())
 
-  t.test('shouldn\'t shit it\'s pants when error is emitted without a listener', function (t) {
-    setup()
-    agent.start(opts)
-    var scope = nock('http://localhost:8080')
-      .filteringRequestBody(skipBody)
-      .post('/v1/errors', '*')
-      .reply(500, { error: 'Oops!' })
-
-    agent.captureError('Hey!')
     setTimeout(function () {
       scope.done()
       t.end()
     }, 50)
   })
 
-  t.test('should attach an Error object when emitting error', function (t) {
+  t.test('should send a plain text message to the server', function (t) {
     setup()
     agent.start(opts)
     var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
       .post('/v1/errors', '*')
-      .reply(500, { error: 'Oops!' })
+      .reply(200)
 
-    agent.on('error', function (err) {
+    agent.captureError('Hey!', function () {
       scope.done()
-      t.equal(err.message, 'Opbeat error (500): {"error":"Oops!"}')
       t.end()
     })
-
-    agent.captureError('Hey!')
   })
 
   t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
     setup()
     agent.start(opts)
-    var oldErrorFn = request.error
-    request.error = function (agent, data, cb) {
-      t.ok('message' in data)
-      t.ok('param_message' in data)
-      t.equal(data.message, 'Hello World')
-      t.equal(data.param_message, 'Hello %s')
-      request.error = oldErrorFn
+    var oldErrorsFn = request.errors
+    request.errors = function (agent, errors, cb) {
+      var error = errors[0]
+      t.equal(error.log.message, 'Hello World')
+      t.equal(error.log.param_message, 'Hello %s')
+      request.errors = oldErrorsFn
       t.end()
     }
     agent.captureError({ message: 'Hello %s', params: ['World'] })
@@ -292,124 +286,12 @@ test('#captureError()', function (t) {
     agent.start(opts)
     var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
-      .defaultReplyHeaders({'Location': 'foo'})
       .post('/v1/errors', '*')
       .reply(200)
 
-    agent.on('logged', function (result) {
+    agent.captureError(new Error('wtf?'), function () {
       scope.done()
-      t.equal(result, 'foo')
       t.end()
-    })
-    agent.captureError(new Error('wtf?'))
-  })
-
-  t.test('should use filters if provided', function (t) {
-    t.plan(3)
-    setup()
-    var opts = {
-      appName: 'foo',
-      secretToken: 'baz'
-    }
-    agent.addFilter(function (data) {
-      t.equal(++data.extra.order, 1)
-      return data
-    })
-    agent.addFilter(function (data) {
-      t.equal(++data.extra.order, 2)
-      return {extra: {owned: true}}
-    })
-    agent.start(opts)
-    var oldErrorFn = request.error
-    request.error = function (agent, data, cb) {
-      t.deepEqual(data.extra, {owned: true})
-      request.error = oldErrorFn
-    }
-    agent.captureError(new Error('foo'), {extra: {order: 0}})
-  })
-
-  t.test('should abort if any filter returns falsy', function (t) {
-    setup()
-    var opts = {
-      appName: 'foo',
-      secretToken: 'baz'
-    }
-    agent.addFilter(function () {})
-    agent.addFilter(function () {
-      t.fail('should not 2nd filter')
-    })
-    agent.start(opts)
-    var oldErrorFn = request.error
-    request.error = function () {
-      t.fail('should not send error to intake')
-    }
-    agent.captureError(new Error(), {}, function () {
-      request.error = oldErrorFn
-      t.end()
-    })
-  })
-
-  t.test('should anonymize the http Authorization header by default', function (t) {
-    t.plan(2)
-    setup()
-    agent.start({ appName: 'foo', secretToken: 'baz' })
-
-    var oldErrorFn = request.error
-    request.error = function (agent, data, cb) {
-      t.equal(data.http.headers.authorization, '[REDACTED]')
-      request.error = oldErrorFn
-    }
-
-    var server = http.createServer(function (req, res) {
-      agent.captureError(new Error('foo'), { request: req })
-      res.end()
-    })
-
-    server.listen(function () {
-      http.request({
-        port: server.address().port,
-        headers: { Authorization: 'secret' }
-      }, function (res) {
-        res.resume()
-        res.on('end', function () {
-          server.close()
-          t.ok(true)
-        })
-      }).end()
-    })
-  })
-
-  t.test('should not anonymize the http Authorization header if disabled', function (t) {
-    t.plan(2)
-    setup()
-    agent.start({
-      appName: 'foo',
-      secretToken: 'baz',
-      filterHttpHeaders: false
-    })
-
-    var oldErrorFn = request.error
-    request.error = function (agent, data, cb) {
-      t.equal(data.http.headers.authorization, 'secret')
-      request.error = oldErrorFn
-    }
-
-    var server = http.createServer(function (req, res) {
-      agent.captureError(new Error('foo'), { request: req })
-      res.end()
-    })
-
-    server.listen(function () {
-      http.request({
-        port: server.address().port,
-        headers: { Authorization: 'secret' }
-      }, function (res) {
-        res.resume()
-        res.on('end', function () {
-          server.close()
-          t.ok(true)
-        })
-      }).end()
     })
   })
 
@@ -418,22 +300,24 @@ test('#captureError()', function (t) {
     agent.start({
       appName: 'foo',
       secretToken: 'baz',
-      filterHttpHeaders: false
+      filterHttpHeaders: false,
+      logLevel: 'error'
     })
 
-    var oldErrorFn = request.error
-    request.error = function (agent, data, cb) {
-      t.deepEqual(data.user, {a: 1, b: 1, merge: {shallow: true}})
-      t.deepEqual(data.extra, {a: 3, b: 2, merge: {shallow: true}, node: process.version, uuid: data.extra.uuid})
-      request.error = oldErrorFn
+    var oldErrorsFn = request.errors
+    request.errors = function (agent, errors, cb) {
+      var context = errors[0].context
+      t.deepEqual(context.user, {a: 1, b: 1, merge: {shallow: true}})
+      t.deepEqual(context.custom, {a: 3, b: 2, merge: {shallow: true}})
+      request.errors = oldErrorsFn
       t.end()
     }
 
     var server = http.createServer(function (req, res) {
       agent.startTransaction()
       t.equal(agent.setUserContext({a: 1, merge: {a: 2}}), true)
-      t.equal(agent.setExtraContext({a: 3, merge: {a: 4}}), true)
-      agent.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, extra: {b: 2, merge: {shallow: true}}})
+      t.equal(agent.setCustomContext({a: 3, merge: {a: 4}}), true)
+      agent.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, custom: {b: 2, merge: {shallow: true}}})
       res.end()
     })
 
@@ -475,15 +359,13 @@ test('#handleUncaughtExceptions()', function (t) {
 
     var scope = nock('http://localhost:8080')
       .filteringRequestBody(skipBody)
-      .defaultReplyHeaders({'Location': 'foo'})
       .post('/v1/errors', '*')
       .reply(200)
 
     agent.start(opts)
-    agent.handleUncaughtExceptions(function (err, url) {
+    agent.handleUncaughtExceptions(function (err) {
       t.ok(isError(err))
       scope.done()
-      t.equal(url, 'foo')
       t.end()
     })
 

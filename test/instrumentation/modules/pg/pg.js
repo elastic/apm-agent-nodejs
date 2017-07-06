@@ -261,55 +261,17 @@ factories.forEach(function (f) {
     t.test('simultaneous queries', function (t) {
       t.test('on same connection', function (t) {
         resetAgent(function (endpoint, headers, data, cb) {
-          // data.traces.groups:
-          t.equal(data.traces.groups.length, 1)
-
-          t.equal(data.traces.groups[0].extra.sql, sql)
-          t.equal(data.traces.groups[0].kind, 'db.postgresql.query')
-          t.deepEqual(data.traces.groups[0].parents, [])
-          t.equal(data.traces.groups[0].signature, 'SELECT')
-          t.equal(data.traces.groups[0].transaction, 'foo')
-
-          // data.transactions:
           t.equal(data.transactions.length, 1)
-          t.equal(data.transactions[0].transaction, 'foo')
-          t.equal(data.transactions[0].durations.length, 1)
-          t.ok(data.transactions[0].durations[0] > 0)
 
-          // data.traces.raw:
-          //
-          // [
-          //   [
-          //     17.05574,                   // total transaction time
-          //     [ 0, 1.922771, 10.838852 ], // sql trace 1
-          //     [ 0, 3.41268, 12.03623 ],   // sql trace 2
-          //     [ 0, 4.188621, 12.202625 ]  // sql trace 3
-          //   ]
-          // ]
-          t.equal(data.traces.raw.length, 1)
-          t.equal(data.traces.raw[0].length, 5)
-          t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
-          t.equal(data.traces.raw[0][1].length, 3)
-          t.equal(data.traces.raw[0][2].length, 3)
-          t.equal(data.traces.raw[0][3].length, 3)
+          var trans = data.transactions[0]
 
-          t.equal(data.traces.raw[0][1][0], 0)
-          t.ok(data.traces.raw[0][1][1] > 0)
-          t.ok(data.traces.raw[0][1][2] > 0)
-          t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
-          t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
-
-          t.equal(data.traces.raw[0][2][0], 0)
-          t.ok(data.traces.raw[0][2][1] > 0)
-          t.ok(data.traces.raw[0][2][2] > 0)
-          t.ok(data.traces.raw[0][2][1] < data.traces.raw[0][0])
-          t.ok(data.traces.raw[0][2][2] < data.traces.raw[0][0])
-
-          t.equal(data.traces.raw[0][3][0], 0)
-          t.ok(data.traces.raw[0][3][1] > 0)
-          t.ok(data.traces.raw[0][3][2] > 0)
-          t.ok(data.traces.raw[0][3][1] < data.traces.raw[0][0])
-          t.ok(data.traces.raw[0][3][2] < data.traces.raw[0][0])
+          t.equal(trans.name, 'foo')
+          t.equal(trans.traces.length, 3)
+          trans.traces.forEach(function (trace) {
+            t.equal(trace.name, 'SELECT')
+            t.equal(trace.type, 'db.postgresql.query')
+            t.equal(trace.context.sql, sql)
+          })
 
           t.end()
         })
@@ -346,101 +308,18 @@ factories.forEach(function (f) {
 
     t.test('simultaneous transactions', function (t) {
       resetAgent(function (endpoint, headers, data, cb) {
-        var fooIndex, barIndex, bazIndex
-        for (var n = 0; n < 3; n++) {
-          switch (data.transactions[n].transaction) {
-            case 'foo':
-              fooIndex = n
-              break
-            case 'bar':
-              barIndex = n
-              break
-            case 'baz':
-              bazIndex = n
-              break
-          }
-        }
-
-        // data.traces.groups:
-        t.equal(data.traces.groups.length, 3)
-
-        t.equal(data.traces.groups[fooIndex].extra.sql, sql)
-        t.equal(data.traces.groups[fooIndex].kind, 'db.postgresql.query')
-        t.deepEqual(data.traces.groups[fooIndex].parents, [])
-        t.equal(data.traces.groups[fooIndex].signature, 'SELECT')
-        t.equal(data.traces.groups[fooIndex].transaction, 'foo')
-
-        t.equal(data.traces.groups[barIndex].extra.sql, sql)
-        t.equal(data.traces.groups[barIndex].kind, 'db.postgresql.query')
-        t.deepEqual(data.traces.groups[barIndex].parents, [])
-        t.equal(data.traces.groups[barIndex].signature, 'SELECT')
-        t.equal(data.traces.groups[barIndex].transaction, 'bar')
-
-        t.equal(data.traces.groups[bazIndex].extra.sql, sql)
-        t.equal(data.traces.groups[bazIndex].kind, 'db.postgresql.query')
-        t.deepEqual(data.traces.groups[bazIndex].parents, [])
-        t.equal(data.traces.groups[bazIndex].signature, 'SELECT')
-        t.equal(data.traces.groups[bazIndex].transaction, 'baz')
-
-        // data.transactions:
         t.equal(data.transactions.length, 3)
-        t.equal(data.transactions[fooIndex].transaction, 'foo')
-        t.equal(data.transactions[fooIndex].durations.length, 1)
-        t.ok(data.transactions[fooIndex].durations[0] > 0)
-        t.equal(data.transactions[barIndex].transaction, 'bar')
-        t.equal(data.transactions[barIndex].durations.length, 1)
-        t.ok(data.transactions[barIndex].durations[0] > 0)
-        t.equal(data.transactions[bazIndex].transaction, 'baz')
-        t.equal(data.transactions[bazIndex].durations.length, 1)
-        t.ok(data.transactions[bazIndex].durations[0] > 0)
+        var names = data.transactions.map(function (trans) {
+          return trans.name
+        }).sort()
+        t.deepEqual(names, ['bar', 'baz', 'foo'])
 
-        // data.traces.raw:
-        //
-        // [
-        //   [
-        //     12.670418,                 // total transaction time
-        //     [ 0, 0.90207, 10.712994 ]  // sql trace
-        //   ],
-        //   [
-        //     13.269366,
-        //     [ 1, 1.285107, 10.929622 ]
-        //   ],
-        //   [
-        //     13.627345,
-        //     [ 2, 1.214202, 11.254304 ]
-        //   ]
-        // ]
-        t.equal(data.traces.raw.length, 3)
-
-        t.equal(data.traces.raw[0].length, 3)
-        t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
-        t.equal(data.traces.raw[0][1].length, 3)
-
-        t.equal(data.traces.raw[0][1][0], 0)
-        t.ok(data.traces.raw[0][1][1] > 0)
-        t.ok(data.traces.raw[0][1][2] > 0)
-        t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
-        t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
-
-        t.equal(data.traces.raw[1].length, 3)
-        t.equal(data.traces.raw[1][0], data.transactions[1].durations[0])
-        t.equal(data.traces.raw[1][1].length, 3)
-
-        t.equal(data.traces.raw[1][1][0], 1)
-        t.ok(data.traces.raw[1][1][1] > 0)
-        t.ok(data.traces.raw[1][1][2] > 0)
-        t.ok(data.traces.raw[1][1][1] < data.traces.raw[1][0])
-        t.ok(data.traces.raw[1][1][2] < data.traces.raw[1][0])
-
-        t.equal(data.traces.raw[2].length, 3)
-        t.equal(data.traces.raw[2][0], data.transactions[2].durations[0])
-        t.equal(data.traces.raw[2][1].length, 3)
-
-        t.equal(data.traces.raw[2][1][0], 2)
-        t.ok(data.traces.raw[2][1][1] > 0)
-        t.ok(data.traces.raw[2][1][2] > 0)
-        t.ok(data.traces.raw[2][1][1] < data.traces.raw[2][0])
-        t.ok(data.traces.raw[2][1][2] < data.traces.raw[2][0])
+        data.transactions.forEach(function (trans) {
+          t.equal(trans.traces.length, 1)
+          t.equal(trans.traces[0].name, 'SELECT')
+          t.equal(trans.traces[0].type, 'db.postgresql.query')
+          t.equal(trans.traces[0].context.sql, sql)
+        })
 
         t.end()
       })
@@ -492,55 +371,17 @@ factories.forEach(function (f) {
 if (global.Promise || semver.satisfies(pgVersion, '<6')) {
   test('simultaneous queries on different connections', function (t) {
     resetAgent(function (endpoint, headers, data, cb) {
-      // data.traces.groups:
-      t.equal(data.traces.groups.length, 1)
-
-      t.equal(data.traces.groups[0].extra.sql, sql)
-      t.equal(data.traces.groups[0].kind, 'db.postgresql.query')
-      t.deepEqual(data.traces.groups[0].parents, [])
-      t.equal(data.traces.groups[0].signature, 'SELECT')
-      t.equal(data.traces.groups[0].transaction, 'foo')
-
-      // data.transactions:
       t.equal(data.transactions.length, 1)
-      t.equal(data.transactions[0].transaction, 'foo')
-      t.equal(data.transactions[0].durations.length, 1)
-      t.ok(data.transactions[0].durations[0] > 0)
 
-      // data.traces.raw:
-      //
-      // [
-      //   [
-      //     17.05574,                   // total transaction time
-      //     [ 0, 1.922771, 10.838852 ], // sql trace 1
-      //     [ 0, 3.41268, 12.03623 ],   // sql trace 2
-      //     [ 0, 4.188621, 12.202625 ]  // sql trace 3
-      //   ]
-      // ]
-      t.equal(data.traces.raw.length, 1)
-      t.equal(data.traces.raw[0].length, 5)
-      t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
-      t.equal(data.traces.raw[0][1].length, 3)
-      t.equal(data.traces.raw[0][2].length, 3)
-      t.equal(data.traces.raw[0][3].length, 3)
+      var trans = data.transactions[0]
 
-      t.equal(data.traces.raw[0][1][0], 0)
-      t.ok(data.traces.raw[0][1][1] > 0)
-      t.ok(data.traces.raw[0][1][2] > 0)
-      t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
-      t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
-
-      t.equal(data.traces.raw[0][2][0], 0)
-      t.ok(data.traces.raw[0][2][1] > 0)
-      t.ok(data.traces.raw[0][2][2] > 0)
-      t.ok(data.traces.raw[0][2][1] < data.traces.raw[0][0])
-      t.ok(data.traces.raw[0][2][2] < data.traces.raw[0][0])
-
-      t.equal(data.traces.raw[0][3][0], 0)
-      t.ok(data.traces.raw[0][3][1] > 0)
-      t.ok(data.traces.raw[0][3][2] > 0)
-      t.ok(data.traces.raw[0][3][1] < data.traces.raw[0][0])
-      t.ok(data.traces.raw[0][3][2] < data.traces.raw[0][0])
+      t.equal(trans.name, 'foo')
+      t.equal(trans.traces.length, 3)
+      trans.traces.forEach(function (trace) {
+        t.equal(trace.name, 'SELECT')
+        t.equal(trace.type, 'db.postgresql.query')
+        t.equal(trace.context.sql, sql)
+      })
 
       t.end()
     })
@@ -651,39 +492,15 @@ function basicQueryPromise (p, t) {
 }
 
 function assertBasicQuery (t, sql, data) {
-  // data.traces.groups:
-  t.equal(data.traces.groups.length, 1)
-
-  t.equal(data.traces.groups[0].extra.sql, sql)
-  t.equal(data.traces.groups[0].kind, 'db.postgresql.query')
-  t.deepEqual(data.traces.groups[0].parents, [])
-  t.equal(data.traces.groups[0].signature, 'SELECT')
-  t.equal(data.traces.groups[0].transaction, 'foo')
-
-  // data.transactions:
   t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].transaction, 'foo')
-  t.equal(data.transactions[0].durations.length, 1)
-  t.ok(data.transactions[0].durations[0] > 0)
 
-  // data.traces.raw:
-  //
-  // [
-  //   [
-  //     6.000953,                  // total transaction time
-  //     [ 0, 1.185584, 3.121107 ]  // sql trace
-  //   ]
-  // ]
-  t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, 3)
-  t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
-  t.equal(data.traces.raw[0][1].length, 3)
+  var trans = data.transactions[0]
 
-  t.equal(data.traces.raw[0][1][0], 0)
-  t.ok(data.traces.raw[0][1][1] > 0)
-  t.ok(data.traces.raw[0][1][2] > 0)
-  t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
-  t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
+  t.equal(trans.name, 'foo')
+  t.equal(trans.traces.length, 1)
+  t.equal(trans.traces[0].name, 'SELECT')
+  t.equal(trans.traces[0].type, 'db.postgresql.query')
+  t.equal(trans.traces[0].context.sql, sql)
 }
 
 function createClient (cb) {

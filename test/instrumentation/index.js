@@ -4,80 +4,40 @@ var test = require('tape')
 var mockAgent = require('./_agent')
 
 test('basic', function (t) {
-  var expected = [
-    { transaction: 'foo0', signature: 't00', kind: 'type' },
-    { transaction: 'foo0', signature: 't01', kind: 'type' },
-    { transaction: 'foo1', signature: 't10', kind: 'type' },
-    { transaction: 'foo1', signature: 't11', kind: 'type' }
-  ]
-
   var agent = mockAgent(function (endpoint, headers, data, cb) {
-    var now = new Date()
-    var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
-
     t.equal(endpoint, 'transactions')
 
     t.equal(data.transactions.length, 2)
 
     data.transactions.forEach(function (trans, index) {
-      t.equal(trans.transaction, 'foo' + index)
-      t.equal(trans.kind, 'bar' + index)
+      t.ok(/[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}/.test(trans.id))
+      t.equal(trans.name, 'foo' + index)
+      t.equal(trans.type, 'bar' + index)
+      t.ok(trans.duration > 0, 'duration should be >0ms')
+      t.ok(trans.duration < 100, 'duration should be <100ms')
+      t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
       t.equal(trans.result, 'baz' + index)
-      t.equal(trans.timestamp, ts.toISOString())
-      t.equal(trans.durations.length, 1)
-      t.ok(trans.durations.every(Number.isFinite.bind(Number)))
-    })
 
-    t.equal(data.traces.raw.length, 2)
-    t.equal(data.traces.groups.length, 4)
+      t.equal(trans.traces.length, 2)
 
-    data.traces.raw.forEach(function (raw) {
-      t.ok(data.transactions.some(function (trans) {
-        return ~trans.durations.indexOf(raw[0])
-      }))
-      t.ok(raw[1][0] in data.traces.groups)
-      raw[1].every(function (n) {
-        t.ok(n >= 0)
+      trans.traces.forEach(function (trace, index2) {
+        t.equal(trace.name, 't' + index + index2)
+        t.equal(trace.type, 'type')
+        t.ok(trace.start > 0, 'trace start should be >0ms')
+        t.ok(trace.start < 100, 'trace start should be <100ms')
+        t.ok(trace.duration > 0, 'trace duration should be >0ms')
+        t.ok(trace.duration < 100, 'trace duration should be <100ms')
+        t.ok(trace.stacktrace.length > 0, 'should have stack trace')
+
+        trace.stacktrace.forEach(function (frame) {
+          t.equal(typeof frame.filename, 'string')
+          t.ok(Number.isFinite(frame.lineno))
+          t.equal(typeof frame.function, 'string')
+          t.equal(typeof frame.in_app, 'boolean')
+          t.equal(typeof frame.abs_path, 'string')
+        })
       })
     })
-
-    t.equal(data.traces.raw.reduce(function (total, raw) {
-      return total + raw.length - 2
-    }, 0), data.traces.groups.length)
-
-    data.traces.groups.forEach(function (trace, index) {
-      t.equal(trace.transaction, expected[index].transaction)
-      t.equal(trace.signature, expected[index].signature)
-      t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.timestamp, ts.toISOString())
-      t.deepEqual(trace.parents, [])
-    })
-
-    var traceKey = function (trace) {
-      return trace.kind +
-        '|' + trace.signature +
-        '|' + trace.transaction +
-        '|' + trace.parents.join('|')
-    }
-
-    var uniqueKeys = []
-    data.traces.groups.forEach(function (trace) {
-      var key = traceKey(trace)
-      if (uniqueKeys.indexOf(key) === -1) uniqueKeys.push(key)
-    })
-
-    var keysWithFrames = []
-    data.traces.groups.forEach(function (trace) {
-      if ('_frames' in trace.extra) {
-        var key = traceKey(trace)
-        t.ok(Array.isArray(trace.extra._frames))
-        t.notOk(key in keysWithFrames)
-
-        keysWithFrames.push(key)
-      }
-    })
-
-    t.deepEqual(keysWithFrames, uniqueKeys)
 
     t.end()
   })
@@ -108,11 +68,11 @@ test('basic', function (t) {
 
 test('same tick', function (t) {
   var agent = mockAgent(function (endpoint, headers, data, cb) {
-    t.equal(data.traces.groups.length, 2)
-    t.equal(data.traces.groups[0].signature, 't1')
-    t.equal(data.traces.groups[1].signature, 't0')
-    t.deepEqual(data.traces.groups[0].parents, [])
-    t.deepEqual(data.traces.groups[1].parents, [])
+    t.equal(data.transactions.length, 1)
+    var traces = data.transactions[0].traces
+    t.equal(traces.length, 2)
+    t.equal(traces[0].name, 't1')
+    t.equal(traces[1].name, 't0')
     t.end()
   })
   var ins = agent._instrumentation
@@ -128,11 +88,11 @@ test('same tick', function (t) {
 
 test('serial - no parents', function (t) {
   var agent = mockAgent(function (endpoint, headers, data, cb) {
-    t.equal(data.traces.groups.length, 2)
-    t.equal(data.traces.groups[0].signature, 't0')
-    t.equal(data.traces.groups[1].signature, 't1')
-    t.deepEqual(data.traces.groups[0].parents, [])
-    t.deepEqual(data.traces.groups[1].parents, [])
+    t.equal(data.transactions.length, 1)
+    var traces = data.transactions[0].traces
+    t.equal(traces.length, 2)
+    t.equal(traces[0].name, 't0')
+    t.equal(traces[1].name, 't1')
     t.end()
   })
   var ins = agent._instrumentation
@@ -152,11 +112,11 @@ test('serial - no parents', function (t) {
 
 test('serial - with parents', function (t) {
   var agent = mockAgent(function (endpoint, headers, data, cb) {
-    t.equal(data.traces.groups.length, 2)
-    t.equal(data.traces.groups[0].signature, 't1')
-    t.equal(data.traces.groups[1].signature, 't0')
-    t.deepEqual(data.traces.groups[0].parents, [])
-    t.deepEqual(data.traces.groups[1].parents, [])
+    t.equal(data.transactions.length, 1)
+    var traces = data.transactions[0].traces
+    t.equal(traces.length, 2)
+    t.equal(traces[0].name, 't1')
+    t.equal(traces[1].name, 't0')
     t.end()
   })
   var ins = agent._instrumentation
@@ -176,14 +136,11 @@ test('serial - with parents', function (t) {
 
 test('stack branching - no parents', function (t) {
   var agent = mockAgent(function (endpoint, headers, data, cb) {
-    t.equal(pointerChain(t0), 't0')
-    t.equal(pointerChain(t1), 't1')
-
-    t.equal(data.traces.groups.length, 2)
-    t.equal(data.traces.groups[0].signature, 't0')
-    t.equal(data.traces.groups[1].signature, 't1')
-    t.deepEqual(data.traces.groups[0].parents, [])
-    t.deepEqual(data.traces.groups[1].parents, [])
+    t.equal(data.transactions.length, 1)
+    var traces = data.transactions[0].traces
+    t.equal(traces.length, 2)
+    t.equal(traces[0].name, 't0')
+    t.equal(traces[1].name, 't1')
     t.end()
   })
   var ins = agent._instrumentation
@@ -203,11 +160,10 @@ test('stack branching - no parents', function (t) {
 
 test('currentTransaction missing - recoverable', function (t) {
   var agent = mockAgent(function (endpoint, headers, data, cb) {
-    t.equal(pointerChain(t0), 't0')
-
-    t.equal(data.traces.groups.length, 1)
-    t.equal(data.traces.groups[0].signature, 't0')
-    t.deepEqual(data.traces.groups[0].parents, [])
+    t.equal(data.transactions.length, 1)
+    var traces = data.transactions[0].traces
+    t.equal(traces.length, 1)
+    t.equal(traces[0].name, 't0')
     t.end()
   })
   var ins = agent._instrumentation
@@ -230,11 +186,10 @@ test('currentTransaction missing - recoverable', function (t) {
 
 test('currentTransaction missing - not recoverable - last trace failed', function (t) {
   var agent = mockAgent(function (endpoint, headers, data, cb) {
-    t.equal(pointerChain(t0), 't0')
-
-    t.equal(data.traces.groups.length, 1)
-    t.equal(data.traces.groups[0].signature, 't0')
-    t.deepEqual(data.traces.groups[0].parents, [])
+    t.equal(data.transactions.length, 1)
+    var traces = data.transactions[0].traces
+    t.equal(traces.length, 1)
+    t.equal(traces[0].name, 't0')
     t.end()
   })
   var ins = agent._instrumentation
@@ -259,14 +214,11 @@ test('currentTransaction missing - not recoverable - last trace failed', functio
 
 test('currentTransaction missing - not recoverable - middle trace failed', function (t) {
   var agent = mockAgent(function (endpoint, headers, data, cb) {
-    t.equal(pointerChain(t0), 't0')
-    t.equal(pointerChain(t2), 't2')
-
-    t.equal(data.traces.groups.length, 2)
-    t.equal(data.traces.groups[0].signature, 't0')
-    t.equal(data.traces.groups[1].signature, 't2')
-    t.deepEqual(data.traces.groups[0].parents, [])
-    t.deepEqual(data.traces.groups[1].parents, [])
+    t.equal(data.transactions.length, 1)
+    var traces = data.transactions[0].traces
+    t.equal(traces.length, 2)
+    t.equal(traces[0].name, 't0')
+    t.equal(traces[1].name, 't2')
     t.end()
   })
   var ins = agent._instrumentation
@@ -293,16 +245,6 @@ test('currentTransaction missing - not recoverable - middle trace failed', funct
     })
   })
 })
-
-function pointerChain (trace) {
-  var arr = [trace.name]
-  var prev = trace._parent
-  while (prev) {
-    arr.push(prev.name)
-    prev = prev._parent
-  }
-  return arr.join(' -> ')
-}
 
 function startTrace (ins, name, type) {
   var trace = ins.buildTrace()

@@ -9,90 +9,32 @@ var agent = require('../../..').start({
 var test = require('tape')
 var redis = require('redis')
 
-// { transactions:
-//    [ { transaction: 'foo',
-//        result: 200,
-//        kind: 'bar',
-//        timestamp: '2016-07-28T17:57:00.000Z',
-//        durations: [ 20.077148 ] } ],
-//   traces:
-//    { groups:
-//       [ { transaction: 'foo',
-//           signature: 'FLUSHALL',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-28T17:57:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'SET',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-28T17:57:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'HSET',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-28T17:57:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'HKEYS',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-28T17:57:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'transaction',
-//           kind: 'transaction',
-//           timestamp: '2016-07-28T17:57:00.000Z',
-//           parents: [],
-//           extra: { _frames: [Object] } } ],
-//      raw:
-//       [ [ 20.077148,
-//           [ 0, 0.591359, 11.905252 ],
-//           [ 1, 13.884884, 3.74471 ],
-//           [ 2, 14.508829, 3.65903 ],
-//           [ 2, 15.342503, 3.294208 ],
-//           [ 3, 16.915787, 2.167231 ],
-//           [ 4, 0, 20.077148 ] ] ] } }
 test(function (t) {
   resetAgent(function (endpoint, headers, data, cb) {
     var groups = [
       'FLUSHALL',
       'SET',
+      'SET',
+      'HSET',
       'HSET',
       'HKEYS'
     ]
 
     t.equal(data.transactions.length, 1)
-    t.equal(data.transactions[0].transaction, 'foo')
-    t.equal(data.transactions[0].kind, 'bar')
-    t.equal(data.transactions[0].result, 200)
 
-    t.equal(data.traces.groups.length, groups.length)
+    var trans = data.transactions[0]
 
-    groups.forEach(function (signature, i) {
-      t.equal(data.traces.groups[i].kind, 'cache.redis')
-      t.deepEqual(data.traces.groups[i].parents, [])
-      t.equal(data.traces.groups[i].signature, signature)
-      t.equal(data.traces.groups[i].transaction, 'foo')
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'bar')
+    t.equal(trans.result, '200')
+
+    t.equal(trans.traces.length, groups.length)
+
+    groups.forEach(function (name, i) {
+      t.equal(trans.traces[i].name, name)
+      t.equal(trans.traces[i].type, 'cache.redis')
+      t.ok(trans.traces[i].start + trans.traces[i].duration < trans.duration)
     })
-
-    var totalTraces = data.traces.raw[0].length - 2
-    var totalTime = data.traces.raw[0][0]
-
-    t.equal(data.traces.raw.length, 1)
-    t.equal(totalTraces, groups.length + 2) // +1 for an extra hset command, +1 for the callback-less SET
-
-    for (var i = 1; i < totalTraces + 1; i++) {
-      t.equal(data.traces.raw[0][i].length, 3)
-      t.ok(data.traces.raw[0][i][0] >= 0, 'group index should be >= 0')
-      t.ok(data.traces.raw[0][i][0] < data.traces.groups.length, 'group index should be within allowed range')
-      t.ok(data.traces.raw[0][i][1] >= 0)
-      t.ok(data.traces.raw[0][i][2] <= totalTime)
-    }
-
-    t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
 
     t.end()
   })

@@ -93,100 +93,34 @@ test('nested', function (t) {
   })
 })
 
-// { transactions:
-//    [ { transaction: 'foo',
-//        result: 200,
-//        kind: 'bar',
-//        timestamp: '2016-07-29T09:58:00.000Z',
-//        durations: [ 31.891944 ] } ],
-//   traces:
-//    { groups:
-//       [ { transaction: 'foo',
-//           signature: 'FLUSHALL',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-29T09:58:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'SET',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-29T09:58:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'GET',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-29T09:58:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'SADD',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-29T09:58:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'KEYS',
-//           kind: 'cache.redis',
-//           timestamp: '2016-07-29T09:58:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'transaction',
-//           kind: 'transaction',
-//           timestamp: '2016-07-29T09:58:00.000Z',
-//           parents: [],
-//           extra: { _frames: [Object] } } ],
-//      raw:
-//       [ [ 31.891944,
-//           [ 0, 1.905168, 16.86911 ],
-//           [ 1, 21.505805, 6.67724 ],
-//           [ 2, 22.866657, 5.70388 ],
-//           [ 2, 23.724921, 5.359812 ],
-//           [ 3, 24.354847, 5.082269 ],
-//           [ 3, 24.979798, 4.675697 ],
-//           [ 1, 25.492804, 4.582025 ],
-//           [ 4, 26.094776, 4.187654 ],
-//           [ 5, 0, 31.891944 ] ] ] } }
 function done (t) {
   return function (endpoint, headers, data, cb) {
     var groups = [
       'FLUSHALL',
       'SET',
       'GET',
+      'GET',
       'SADD',
+      'SADD',
+      'SET',
       'KEYS'
     ]
 
     t.equal(data.transactions.length, 1)
-    t.equal(data.transactions[0].transaction, 'foo')
-    t.equal(data.transactions[0].kind, 'bar')
-    t.equal(data.transactions[0].result, 200)
 
-    t.equal(data.traces.groups.length, groups.length)
+    var trans = data.transactions[0]
 
-    groups.forEach(function (signature, i) {
-      t.equal(data.traces.groups[i].kind, 'cache.redis')
-      t.deepEqual(data.traces.groups[i].parents, [])
-      t.equal(data.traces.groups[i].signature, signature)
-      t.equal(data.traces.groups[i].transaction, 'foo')
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'bar')
+    t.equal(trans.result, '200')
+
+    t.equal(trans.traces.length, groups.length)
+
+    groups.forEach(function (name, i) {
+      t.equal(trans.traces[i].name, name)
+      t.equal(trans.traces[i].type, 'cache.redis')
+      t.ok(trans.traces[i].start + trans.traces[i].duration < trans.duration)
     })
-
-    var totalTraces = data.traces.raw[0].length - 2
-    var totalTime = data.traces.raw[0][0]
-
-    t.equal(data.traces.raw.length, 1)
-    t.equal(totalTraces, groups.length + 3) // +3 for double set, get and sadd commands
-
-    for (var i = 1; i < totalTraces + 1; i++) {
-      t.equal(data.traces.raw[0][i].length, 3)
-      t.ok(data.traces.raw[0][i][0] >= 0, 'group index should be >= 0')
-      t.ok(data.traces.raw[0][i][0] < data.traces.groups.length, 'group index should be within allowed range')
-      t.ok(data.traces.raw[0][i][1] >= 0)
-      t.ok(data.traces.raw[0][i][2] <= totalTime)
-    }
-
-    t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
 
     t.end()
   }

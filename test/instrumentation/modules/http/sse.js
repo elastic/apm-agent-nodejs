@@ -63,54 +63,25 @@ test('SSE response with implicit headers', function (t) {
 })
 
 function assertNonSSEResponse (t, data) {
-  // data.traces.groups:
-  t.equal(data.traces.groups.length, 1)
-
-  t.equal(data.traces.groups[0].transaction, 'GET unknown route')
-  t.equal(data.traces.groups[0].signature, 'foo')
-  t.equal(data.traces.groups[0].kind, 'bar')
-  t.deepEqual(data.traces.groups[0].parents, [])
-
-  // data.transactions:
   t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].transaction, 'GET unknown route')
-  t.equal(data.transactions[0].durations.length, 1)
-  t.ok(data.transactions[0].durations[0] > 0)
 
-  // data.traces.raw:
-  //
-  // [
-  //   [
-  //     15.240414,                  // total transaction time
-  //     [ 0, 0.428756, 11.062134 ]  // foo trace
-  //   ]
-  // ]
-  t.equal(data.traces.raw.length, 1)
-  t.equal(data.traces.raw[0].length, 3)
-  t.equal(data.traces.raw[0][0], data.transactions[0].durations[0])
-  t.equal(data.traces.raw[0][1].length, 3)
+  var trans = data.transactions[0]
 
-  t.equal(data.traces.raw[0][1][0], 0)
-  t.ok(data.traces.raw[0][1][1] > 0)
-  t.ok(data.traces.raw[0][1][2] > 0)
-  t.ok(data.traces.raw[0][1][1] < data.traces.raw[0][0])
-  t.ok(data.traces.raw[0][1][2] < data.traces.raw[0][0])
-
-  t.equal(data.traces.raw[0][2].http.method, 'GET')
+  t.equal(trans.name, 'GET unknown route')
+  t.equal(trans.traces.length, 1)
+  t.equal(trans.traces[0].name, 'foo')
+  t.equal(trans.traces[0].type, 'bar')
+  t.equal(trans.context.request.method, 'GET')
 }
 
 function assertSSEResponse (t, data) {
-  // data.traces.groups:
-  t.equal(data.traces.groups.length, 0)
-
-  // data.transactions:
   t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].transaction, 'GET unknown route')
-  t.equal(data.transactions[0].durations.length, 1)
-  t.ok(data.transactions[0].durations[0] > 0)
 
-  // data.traces.raw:
-  t.equal(data.traces.raw.length, 0)
+  var trans = data.transactions[0]
+
+  t.equal(trans.name, 'GET unknown route')
+  t.equal(trans.traces.length, 0)
+  t.equal(trans.context.request.method, 'GET')
 }
 
 function request (server) {

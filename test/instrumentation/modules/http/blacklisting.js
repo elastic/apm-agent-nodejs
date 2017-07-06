@@ -19,10 +19,11 @@ test('ignore url string - match', function (t) {
   resetAgent({
     _ignoreUrlStr: ['/exact']
   }, function (endpoint, headers, data, cb) {
-    assertMatch(t, data)
+    t.fail('should not have any data')
+  })
+  request('/exact', null, function () {
     t.end()
   })
-  request('/exact')
 })
 
 test('ignore url regex - no match', function (t) {
@@ -39,10 +40,11 @@ test('ignore url regex - match', function (t) {
   resetAgent({
     _ignoreUrlRegExp: [/regex/]
   }, function (endpoint, headers, data, cb) {
-    assertMatch(t, data)
+    t.fail('should not have any data')
+  })
+  request('/foo/regex/bar', null, function () {
     t.end()
   })
-  request('/foo/regex/bar')
 })
 
 test('ignore User-Agent string - no match', function (t) {
@@ -59,10 +61,11 @@ test('ignore User-Agent string - match', function (t) {
   resetAgent({
     _ignoreUserAgentStr: ['exact']
   }, function (endpoint, headers, data, cb) {
-    assertMatch(t, data)
+    t.fail('should not have any data')
+  })
+  request('/', { 'User-Agent': 'exact-start' }, function () {
     t.end()
   })
-  request('/', { 'User-Agent': 'exact-start' })
 })
 
 test('ignore User-Agent regex - no match', function (t) {
@@ -79,31 +82,19 @@ test('ignore User-Agent regex - match', function (t) {
   resetAgent({
     _ignoreUserAgentRegExp: [/regex/]
   }, function (endpoint, headers, data, cb) {
-    assertMatch(t, data)
+    t.fail('should not have any data')
+  })
+  request('/', { 'User-Agent': 'foo-regex-bar' }, function () {
     t.end()
   })
-  request('/', { 'User-Agent': 'foo-regex-bar' })
 })
 
 function assertNoMatch (t, data) {
-  // data.traces.groups:
-  t.equal(data.traces.groups.length, 0)
-
-  // data.transactions:
   t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].transaction, 'GET unknown route')
-  t.equal(data.transactions[0].durations.length, 1)
-  t.ok(data.transactions[0].durations[0] > 0)
-
-  // data.traces.raw:
-  t.equal(data.traces.raw.length, 0)
+  t.equal(data.transactions[0].name, 'GET unknown route')
 }
 
-function assertMatch (t, data) {
-  t.deepEqual(data, { transactions: [], traces: { groups: [], raw: [] } })
-}
-
-function request (path, headers) {
+function request (path, headers, cb) {
   var server = http.createServer(function (req, res) {
     res.end()
   })
@@ -118,6 +109,7 @@ function request (path, headers) {
       res.on('end', function () {
         agent._instrumentation._queue._flush()
         server.close()
+        if (cb) setTimeout(cb, 100)
       })
       res.resume()
     }).end()

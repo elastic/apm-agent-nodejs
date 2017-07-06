@@ -15,8 +15,8 @@ transports.forEach(function (tuple) {
     echoServer(name, function (cp, port) {
       resetAgent(function (endpoint, headers, data, cb) {
         t.equal(data.transactions.length, 1)
-        t.equal(data.traces.groups.length, 1)
-        t.equal(data.traces.groups[0].signature, 'GET localhost:' + port + '/')
+        t.equal(data.transactions[0].traces.length, 1)
+        t.equal(data.transactions[0].traces[0].name, 'GET localhost:' + port + '/')
         t.end()
         cp.kill()
       })

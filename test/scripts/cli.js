@@ -10,23 +10,23 @@ var untildify = require('untildify')
 
 var standardTest = function () {
   console.log('Capturing error...')
-  agent.captureError(new Error('This is an Error object'), function (err, url) {
+  agent.captureError(new Error('This is an Error object'), function (err) {
     if (err) console.log('Something went wrong:', err.message)
-    console.log('The error have been logged at:', url)
+    console.log('The error have been logged')
 
     console.log('Capturing message...')
-    agent.captureError('This is a string', function (err, url) {
+    agent.captureError('This is a string', function (err) {
       if (err) console.log('Something went wrong:', err.message)
-      console.log('The message have been logged at:', url)
+      console.log('The message have been logged')
 
       console.log('Capturing parameterized message...')
       var params = {
         message: 'Timeout exeeded by %d seconds',
         params: [Math.random()]
       }
-      agent.captureError(params, function (err, url) {
+      agent.captureError(params, function (err) {
         if (err) console.log('Something went wrong:', err.message)
-        console.log('The parameterized message have been logged at:', url)
+        console.log('The parameterized message have been logged')
 
         console.log('Throwing exception...')
         throw new Error('This Error was thrown')
@@ -40,9 +40,9 @@ var httpTest = function () {
 
   var server1 = http.createServer(function (req, res) {
     var err = new Error('This is a request related error')
-    agent.captureError(err, function (err, url) {
+    agent.captureError(err, function (err) {
       if (err) console.log('Something went wrong:', err.message)
-      console.log('The error have been logged at:', url)
+      console.log('The error have been logged')
       res.end()
 
       testServer2()
@@ -56,9 +56,9 @@ var httpTest = function () {
     switch (req.url) {
       case '/error':
         var err = new Error('This is a request related error')
-        agent.captureError(err, function (err, url) {
+        agent.captureError(err, function (err) {
           if (err) console.log('Something went wrong:', err.message)
-          console.log('The error have been logged at:', url)
+          console.log('The error have been logged')
           res.end()
         })
         res.writeHead(500)
@@ -102,18 +102,18 @@ var restifyTest = function () {
   var server = restify.createServer({ name: 'foo', version: '1.0.0' })
 
   server.on('uncaughtException', function (req, res, route, err) {
-    agent.captureError(err, function (err, url) {
+    agent.captureError(err, function (err) {
       if (err) console.log('Something went wrong:', err.message)
-      console.log('The error have been logged at:', url)
+      console.log('The error have been logged')
       process.exit()
     })
   })
 
   server.get('/error', function (req, res, next) {
     var err = new Error('This is a request related error')
-    agent.captureError(err, function (err, url) {
+    agent.captureError(err, function (err) {
       if (err) console.log('Something went wrong:', err.message)
-      console.log('The error have been logged at:', url)
+      console.log('The error have been logged')
       res.end()
       next()
     })
@@ -171,7 +171,6 @@ var connectTest = function () {
     var port = server.address().port
     var base = 'http://localhost:' + port
     console.log('Test server running on port', port)
-    console.log('NOTE: No Opbeat error urls will be displayed during this test!')
 
     console.log('Capturing request error...')
     http.get(base + '/error', function (res) {
@@ -209,7 +208,6 @@ var expressTest = function () {
     var port = server.address().port
     var base = 'http://localhost:' + port
     console.log('Test server running on port', port)
-    console.log('NOTE: No Opbeat error urls will be displayed during this test!')
 
     console.log('Capturing request error...')
     http.get(base + '/error', function (res) {
@@ -286,13 +284,9 @@ var test = function (suite, opts) {
   opts.captureExceptions = false
   agent.start(opts)
 
-  agent.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
-    console.log('The uncaught exception have been logged at:', url)
+  agent.handleUncaughtExceptions(function (err) { // eslint-disable-line handle-callback-err
+    console.log('The uncaught exception have been logged')
     process.exit()
-  })
-
-  agent.on('error', function (err) {
-    console.log(err.stack)
   })
 
   switch (suite) {

@@ -6,52 +6,77 @@ var parsers = require('../lib/parsers')
 
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {
-    var data = {}
-    parsers.parseMessage('Howdy', data)
-    t.equal(data.message, 'Howdy')
+    var data = parsers.parseMessage('Howdy')
+    t.deepEqual(data, {log: {message: 'Howdy'}})
     t.end()
   })
 
   t.test('should parse object', function (t) {
-    var data = {}
-    parsers.parseMessage({ message: 'foo%s', params: ['bar'] }, data)
-    t.equal(data.message, 'foobar')
-    t.equal(data.param_message, 'foo%s')
+    var data = parsers.parseMessage({message: 'foo%s', params: ['bar']})
+    t.deepEqual(data, {log: {message: 'foobar', param_message: 'foo%s'}})
     t.end()
   })
 
   t.test('should parse an invalid object', function (t) {
-    var data = {}
-    parsers.parseMessage({ foo: /bar/ }, data)
-    t.equal(data.message, '{ foo: /bar/ }')
+    var data = parsers.parseMessage({foo: /bar/})
+    t.deepEqual(data, {log: {message: '{ foo: /bar/ }'}})
     t.end()
   })
 
   t.test('should parse null', function (t) {
-    var data = {}
-    parsers.parseMessage(null, data)
-    t.equal(data.message, null)
+    var data = parsers.parseMessage(null)
+    t.deepEqual(data, {log: {message: 'null'}})
     t.end()
   })
 })
 
-test('#getHTTPContextFromRequest()', function (t) {
+test('#getContextFromRequest()', function (t) {
   var mockReq = {
     method: 'GET',
     url: '/some/path?key=value',
     headers: {
-      host: 'example.com'
+      host: 'example.com',
+      'user-agent': 'Mozilla Chrome Edge'
     },
     body: '',
     cookies: {},
     socket: {
+      remoteAddress: '127.0.0.1',
       encrypted: true
     }
   }
 
   t.test('should parse a request object', function (t) {
-    var parsed = parsers.getHTTPContextFromRequest(mockReq)
-    t.equal(parsed.url, 'https://example.com/some/path?key=value')
+    var parsed = parsers.getContextFromRequest(mockReq)
+    t.deepEqual(parsed, {
+      method: 'GET',
+      url: {
+        hostname: 'example.com',
+        pathname: '/some/path',
+        search: '?key=value',
+        raw: '/some/path?key=value'
+      },
+      socket: {
+        remote_address: '127.0.0.1',
+        encrypted: true
+      },
+      headers: {
+        host: 'example.com',
+        'user-agent': 'Mozilla Chrome Edge'
+      }
+    })
+    t.end()
+  })
+
+  t.test('empty query string', function (t) {
+    mockReq.url = '/some/path?'
+    var parsed = parsers.getContextFromRequest(mockReq)
+    t.deepEqual(parsed.url, {
+      hostname: 'example.com',
+      pathname: '/some/path',
+      search: '?',
+      raw: '/some/path?'
+    })
     t.end()
   })
 
@@ -61,24 +86,24 @@ test('#getHTTPContextFromRequest()', function (t) {
       mockReq.body += 'x'
     }
     mockReq.headers['content-length'] = String(mockReq.body.length)
-    var parsed = parsers.getHTTPContextFromRequest(mockReq, {body: true})
-    t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
+    var parsed = parsers.getContextFromRequest(mockReq, true)
+    t.equal(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
     t.end()
   })
 
   t.test('should not log body if opts.body is false', function (t) {
     mockReq.body = 'secret stuff'
     mockReq.headers['content-length'] = String(mockReq.body.length)
-    var parsed = parsers.getHTTPContextFromRequest(mockReq, {body: false})
-    t.equal(parsed.data, '[REDACTED]')
+    var parsed = parsers.getContextFromRequest(mockReq, false)
+    t.equal(parsed.body, '[REDACTED]')
     t.end()
   })
 
   t.test('body is object', function (t) {
     mockReq.body = {foo: 42}
     mockReq.headers['content-length'] = JSON.stringify(mockReq.body).length
-    var parsed = parsers.getHTTPContextFromRequest(mockReq, {body: true})
-    t.deepEqual(parsed.data, {foo: 42})
+    var parsed = parsers.getContextFromRequest(mockReq, true)
+    t.deepEqual(parsed.body, {foo: 42})
     t.end()
   })
 
@@ -88,47 +113,62 @@ test('#getHTTPContextFromRequest()', function (t) {
       mockReq.body.foo += 'x'
     }
     mockReq.headers['content-length'] = JSON.stringify(mockReq.body).length
-    var parsed = parsers.getHTTPContextFromRequest(mockReq, {body: true})
-    t.equal(typeof parsed.data, 'string')
-    t.equal(parsed.data.length, parsers._MAX_HTTP_BODY_CHARS)
-    t.equal(parsed.data.slice(0, 10), '{"foo":"xx')
+    var parsed = parsers.getContextFromRequest(mockReq, true)
+    t.equal(typeof parsed.body, 'string')
+    t.equal(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
+    t.equal(parsed.body.slice(0, 10), '{"foo":"xx')
     t.end()
   })
 })
 
 test('#parseError()', function (t) {
   t.test('should parse plain Error object', function (t) {
-    parsers.parseError(new Error(), {}, function (parsed) {
-      t.equal(parsed.message, 'Error: <no message>')
+    parsers.parseError(new Error(), function (err, parsed) {
+      t.error(err)
+      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.notOk('log' in parsed)
       t.ok('exception' in parsed)
+      t.equal(parsed.exception.message, '')
       t.equal(parsed.exception.type, 'Error')
-      t.equal(parsed.exception.value, '')
-      t.ok('stacktrace' in parsed)
-      t.ok('frames' in parsed.stacktrace)
+      t.notOk('code' in parsed.exception)
+      t.notOk('uncaught' in parsed.exception)
+      t.notOk('attributes' in parsed.exception)
+      t.ok('stacktrace' in parsed.exception)
+      t.ok(parsed.exception.stacktrace.length > 0)
       t.end()
     })
   })
 
   t.test('should parse Error with message', function (t) {
-    parsers.parseError(new Error('Crap'), {}, function (parsed) {
-      t.equal(parsed.message, 'Error: Crap')
+    parsers.parseError(new Error('Crap'), function (err, parsed) {
+      t.error(err)
+      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.notOk('log' in parsed)
       t.ok('exception' in parsed)
+      t.equal(parsed.exception.message, 'Crap')
       t.equal(parsed.exception.type, 'Error')
-      t.equal(parsed.exception.value, 'Crap')
-      t.ok('stacktrace' in parsed)
-      t.ok('frames' in parsed.stacktrace)
+      t.notOk('code' in parsed.exception)
+      t.notOk('uncaught' in parsed.exception)
+      t.notOk('attributes' in parsed.exception)
+      t.ok('stacktrace' in parsed.exception)
+      t.ok(parsed.exception.stacktrace.length > 0)
       t.end()
     })
   })
 
   t.test('should parse TypeError with message', function (t) {
-    parsers.parseError(new TypeError('Crap'), {}, function (parsed) {
-      t.equal(parsed.message, 'TypeError: Crap')
+    parsers.parseError(new TypeError('Crap'), function (err, parsed) {
+      t.error(err)
+      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.notOk('log' in parsed)
       t.ok('exception' in parsed)
+      t.equal(parsed.exception.message, 'Crap')
       t.equal(parsed.exception.type, 'TypeError')
-      t.equal(parsed.exception.value, 'Crap')
-      t.ok('stacktrace' in parsed)
-      t.ok('frames' in parsed.stacktrace)
+      t.notOk('code' in parsed.exception)
+      t.notOk('uncaught' in parsed.exception)
+      t.notOk('attributes' in parsed.exception)
+      t.ok('stacktrace' in parsed.exception)
+      t.ok(parsed.exception.stacktrace.length > 0)
       t.end()
     })
   })
@@ -137,13 +177,18 @@ test('#parseError()', function (t) {
     try {
       throw new Error('Derp')
     } catch (e) {
-      parsers.parseError(e, {}, function (parsed) {
-        t.equal(parsed.message, 'Error: Derp')
+      parsers.parseError(e, function (err, parsed) {
+        t.error(err)
+        t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+        t.notOk('log' in parsed)
         t.ok('exception' in parsed)
+        t.equal(parsed.exception.message, 'Derp')
         t.equal(parsed.exception.type, 'Error')
-        t.equal(parsed.exception.value, 'Derp')
-        t.ok('stacktrace' in parsed)
-        t.ok('frames' in parsed.stacktrace)
+        t.notOk('code' in parsed.exception)
+        t.notOk('uncaught' in parsed.exception)
+        t.notOk('attributes' in parsed.exception)
+        t.ok('stacktrace' in parsed.exception)
+        t.ok(parsed.exception.stacktrace.length > 0)
         t.end()
       })
     }
@@ -154,16 +199,21 @@ test('#parseError()', function (t) {
       var o = {}
       o['...']['Derp']()
     } catch (e) {
-      parsers.parseError(e, {}, function (parsed) {
+      parsers.parseError(e, function (err, parsed) {
+        t.error(err)
         var msg = semver.lt(process.version, '0.11.0')
           ? 'Cannot call method \'Derp\' of undefined'
           : 'Cannot read property \'Derp\' of undefined'
-        t.equal(parsed.message, 'TypeError: ' + msg)
+        t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+        t.notOk('log' in parsed)
         t.ok('exception' in parsed)
+        t.equal(parsed.exception.message, msg)
         t.equal(parsed.exception.type, 'TypeError')
-        t.equal(parsed.exception.value, msg)
-        t.ok('stacktrace' in parsed)
-        t.ok('frames' in parsed.stacktrace)
+        t.notOk('code' in parsed.exception)
+        t.notOk('uncaught' in parsed.exception)
+        t.notOk('attributes' in parsed.exception)
+        t.ok('stacktrace' in parsed.exception)
+        t.ok(parsed.exception.stacktrace.length > 0)
         t.end()
       })
     }
@@ -172,13 +222,18 @@ test('#parseError()', function (t) {
   t.test('should gracefully handle .stack already being accessed', function (t) {
     var err = new Error('foo')
     t.ok(typeof err.stack === 'string')
-    parsers.parseError(err, {}, function (parsed) {
-      t.equal(parsed.message, 'Error: foo')
+    parsers.parseError(err, function (err, parsed) {
+      t.error(err)
+      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.notOk('log' in parsed)
       t.ok('exception' in parsed)
+      t.equal(parsed.exception.message, 'foo')
       t.equal(parsed.exception.type, 'Error')
-      t.equal(parsed.exception.value, 'foo')
-      t.ok('stacktrace' in parsed)
-      t.ok('frames' in parsed.stacktrace)
+      t.notOk('code' in parsed.exception)
+      t.notOk('uncaught' in parsed.exception)
+      t.notOk('attributes' in parsed.exception)
+      t.ok('stacktrace' in parsed.exception)
+      t.ok(parsed.exception.stacktrace.length > 0)
       t.end()
     })
   })
@@ -186,12 +241,18 @@ test('#parseError()', function (t) {
   t.test('should gracefully handle .stack being overwritten', function (t) {
     var err = new Error('foo')
     err.stack = 'foo'
-    parsers.parseError(err, {}, function (parsed) {
-      t.equal(parsed.message, 'Error: foo')
+    parsers.parseError(err, function (err, parsed) {
+      t.error(err)
+      t.notOk('culprit' in parsed)
+      t.notOk('log' in parsed)
       t.ok('exception' in parsed)
+      t.equal(parsed.exception.message, 'foo')
       t.equal(parsed.exception.type, 'Error')
-      t.equal(parsed.exception.value, 'foo')
-      t.ok(!('stacktrace' in parsed))
+      t.notOk('code' in parsed.exception)
+      t.notOk('uncaught' in parsed.exception)
+      t.notOk('attributes' in parsed.exception)
+      t.ok('stacktrace' in parsed.exception)
+      t.equal(parsed.exception.stacktrace.length, 0)
       t.end()
     })
   })

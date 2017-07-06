@@ -18,7 +18,7 @@ var Koa = require('koa')
 var Router = require('koa-router')
 
 test('route naming', function (t) {
-  t.plan(7)
+  t.plan(8)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -39,7 +39,7 @@ test('route naming', function (t) {
 })
 
 test('route naming with params', function (t) {
-  t.plan(7)
+  t.plan(8)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data, {name: 'GET /hello/:name'})
@@ -86,15 +86,18 @@ function buildServer () {
 
 function assert (t, data, results) {
   if (!results) results = {}
-  results.status = results.status || 200
+  results.status = results.status || '200'
   results.name = results.name || 'GET /hello'
 
   t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].kind, 'request')
-  t.equal(data.transactions[0].result, results.status)
-  t.equal(data.transactions[0].transaction, results.name)
 
-  t.equal(data.traces.raw.length, 0)
+  var trans = data.transactions[0]
+
+  t.equal(trans.name, results.name)
+  t.equal(trans.type, 'request')
+  t.equal(trans.result, results.status)
+  t.equal(trans.traces.length, 0)
+  t.equal(trans.context.request.method, 'GET')
 }
 
 function resetAgent (cb) {

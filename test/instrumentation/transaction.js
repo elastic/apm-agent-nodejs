@@ -27,21 +27,21 @@ test('#setUserContext', function (t) {
     t.end()
   })
   var trans = new Transaction(ins._agent)
-  t.equal(trans._context, null)
+  t.equal(trans._user, null)
   trans.setUserContext()
-  t.equal(trans._context, null)
+  t.equal(trans._user, null)
   trans.setUserContext({foo: 1})
-  t.deepEqual(trans._context, {user: {foo: 1}})
+  t.deepEqual(trans._user, {foo: 1})
   trans.setUserContext({bar: {baz: 2}})
-  t.deepEqual(trans._context, {user: {foo: 1, bar: {baz: 2}}})
+  t.deepEqual(trans._user, {foo: 1, bar: {baz: 2}})
   trans.setUserContext({foo: 3})
-  t.deepEqual(trans._context, {user: {foo: 3, bar: {baz: 2}}})
+  t.deepEqual(trans._user, {foo: 3, bar: {baz: 2}})
   trans.setUserContext({bar: {shallow: true}})
-  t.deepEqual(trans._context, {user: {foo: 3, bar: {shallow: true}}})
+  t.deepEqual(trans._user, {foo: 3, bar: {shallow: true}})
   t.end()
 })
 
-test('#setExtraContext', function (t) {
+test('#setCustomContext', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
@@ -50,21 +50,21 @@ test('#setExtraContext', function (t) {
     t.end()
   })
   var trans = new Transaction(ins._agent)
-  t.equal(trans._context, null)
-  trans.setExtraContext()
-  t.equal(trans._context, null)
-  trans.setExtraContext({foo: 1})
-  t.deepEqual(trans._context, {extra: {foo: 1}})
-  trans.setExtraContext({bar: {baz: 2}})
-  t.deepEqual(trans._context, {extra: {foo: 1, bar: {baz: 2}}})
-  trans.setExtraContext({foo: 3})
-  t.deepEqual(trans._context, {extra: {foo: 3, bar: {baz: 2}}})
-  trans.setExtraContext({bar: {shallow: true}})
-  t.deepEqual(trans._context, {extra: {foo: 3, bar: {shallow: true}}})
+  t.equal(trans._custom, null)
+  trans.setCustomContext()
+  t.equal(trans._custom, null)
+  trans.setCustomContext({foo: 1})
+  t.deepEqual(trans._custom, {foo: 1})
+  trans.setCustomContext({bar: {baz: 2}})
+  t.deepEqual(trans._custom, {foo: 1, bar: {baz: 2}})
+  trans.setCustomContext({foo: 3})
+  t.deepEqual(trans._custom, {foo: 3, bar: {baz: 2}})
+  trans.setCustomContext({bar: {shallow: true}})
+  t.deepEqual(trans._custom, {foo: 3, bar: {shallow: true}})
   t.end()
 })
 
-test('#setUserContext + #setExtraContext', function (t) {
+test('#setTag', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
@@ -73,9 +73,15 @@ test('#setUserContext + #setExtraContext', function (t) {
     t.end()
   })
   var trans = new Transaction(ins._agent)
-  trans.setUserContext({foo: 1})
-  trans.setExtraContext({bar: 1})
-  t.deepEqual(trans._context, {user: {foo: 1}, extra: {bar: 1}})
+  t.equal(trans._tags, null)
+  t.equal(trans.setTag(), false)
+  t.equal(trans._tags, null)
+  trans.setTag('foo', 1)
+  t.deepEqual(trans._tags, {foo: '1'})
+  trans.setTag('bar', {baz: 2})
+  t.deepEqual(trans._tags, {foo: '1', bar: '[object Object]'})
+  trans.setTag('foo', 3)
+  t.deepEqual(trans._tags, {foo: '3', bar: '[object Object]'})
   t.end()
 })
 
@@ -84,7 +90,6 @@ test('#end() - no traces', function (t) {
     t.equal(added.ended, true)
     t.equal(added, trans)
     t.equal(trans.traces.length, 0)
-    t.deepEqual(trans.traces, [])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -174,9 +179,6 @@ test('name - default first, then custom', function (t) {
 test('parallel transactions', function (t) {
   var calls = 0
   var ins = mockInstrumentation(function (added) {
-    t.equal(added.traces.length, 0, added.name + ' should have 0 traces')
-    t.equal(added.traces[0], added._rootTrace)
-
     calls++
     if (calls === 1) {
       t.equal(added.name, 'second')

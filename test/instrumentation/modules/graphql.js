@@ -50,62 +50,18 @@ test('graphql.execute', function (t) {
   })
 })
 
-// { transactions:
-//    [ { transaction: 'foo',
-//        result: undefined,
-//        kind: 'custom',
-//        timestamp: '2017-01-30T16:15:00.000Z',
-//        durations: [ 6.560766 ] } ],
-//   traces:
-//    { groups:
-//       [ { transaction: 'foo',
-//           signature: 'GraphQL: hello',
-//           kind: 'db.graphql.execute',
-//           transaction_kind: 'custom',
-//           timestamp: '2017-01-30T16:15:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: { _frames: [Object] } },
-//         { transaction: 'foo',
-//           signature: 'transaction',
-//           kind: 'transaction',
-//           transaction_kind: 'custom',
-//           timestamp: '2017-01-30T16:15:00.000Z',
-//           parents: [],
-//           extra: { _frames: [Object] } } ],
-//      raw:
-//       [ [ 6.560766,
-//           [ 0, 1.392375, 3.968823 ],
-//           [ 1, 0, 6.560766 ],
-//           { extra: [Object], user: {} } ] ] } }
 function done (t) {
   return function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
-    t.equal(data.transactions[0].transaction, 'foo')
-    t.equal(data.transactions[0].kind, 'custom')
 
-    t.equal(data.traces.groups.length, 1)
+    var trans = data.transactions[0]
 
-    t.equal(data.traces.groups[0].kind, 'db.graphql.execute')
-    t.equal(data.traces.groups[0].transaction_kind, 'custom')
-    t.deepEqual(data.traces.groups[0].parents, [])
-    t.equal(data.traces.groups[0].signature, 'GraphQL: hello')
-    t.equal(data.traces.groups[0].transaction, 'foo')
-
-    var totalTraces = data.traces.raw[0].length - 2
-    var totalTime = data.traces.raw[0][0]
-
-    t.equal(data.traces.raw.length, 1)
-    t.equal(totalTraces, 1)
-
-    for (var i = 1; i < totalTraces + 1; i++) {
-      t.equal(data.traces.raw[0][i].length, 3)
-      t.ok(data.traces.raw[0][i][0] >= 0, 'group index should be >= 0')
-      t.ok(data.traces.raw[0][i][0] < data.traces.groups.length, 'group index should be within allowed range')
-      t.ok(data.traces.raw[0][i][1] >= 0)
-      t.ok(data.traces.raw[0][i][2] <= totalTime)
-    }
-
-    t.deepEqual(data.transactions[0].durations, [data.traces.raw[0][0]])
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'custom')
+    t.equal(trans.traces.length, 1)
+    t.equal(trans.traces[0].name, 'GraphQL: hello')
+    t.equal(trans.traces[0].type, 'db.graphql.execute')
+    t.ok(trans.traces[0].start + trans.traces[0].duration < trans.duration)
 
     t.end()
   }

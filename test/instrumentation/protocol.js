@@ -6,27 +6,10 @@ var Transaction = require('../../lib/instrumentation/transaction')
 var Trace = require('../../lib/instrumentation/trace')
 var protocol = require('../../lib/instrumentation/protocol')
 
-test('protocol.transactionGroupingKey', function (t) {
-  var agent = mockAgent()
-  var trans = new Transaction(agent, 'name', 'type')
-  trans.result = 'result'
-  trans._timer.start = 1477949286049
-  var key = protocol.transactionGroupingKey(trans)
-  t.equal(key, '1477949280000|name|result|type')
-  t.end()
-})
-
 test('protocol.encode - empty', function (t) {
-  var samples = []
-  var durations = {}
-  protocol.encode(samples, durations, function (result) {
-    t.deepEqual(result, {
-      transactions: [],
-      traces: {
-        groups: [],
-        raw: []
-      }
-    })
+  protocol.encode([], function (err, result) {
+    t.error(err)
+    t.equal(result, undefined)
     t.end()
   })
 })
@@ -37,30 +20,28 @@ test('protocol.encode - single transaction', function (t) {
   var t0 = new Transaction(agent, 'single-name0', 'type0')
   t0.result = 'result0'
   t0.setUserContext({foo: 1})
-  t0.setExtraContext({bar: 1})
+  t0.setCustomContext({bar: 1})
+  t0.setTag('baz', 1)
   t0.end()
 
-  var samples = [t0]
-  var durations = {}
+  protocol.encode([t0], function (err, transactions) {
+    t.error(err)
+    t.equal(transactions.length, 1, 'should have 1 transaction')
 
-  var key = protocol.transactionGroupingKey(t0)
-  durations[key] = [t0.duration()]
-
-  protocol.encode(samples, durations, function (data) {
-    var now = new Date()
-    var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
-
-    t.equal(data.transactions.length, 1, 'should have 1 transaction')
-    t.equal(data.traces.groups.length, 0, 'should have 0 groups')
-    t.equal(data.traces.raw.length, 0, 'should have 0 raw')
-
-    data.transactions.forEach(function (trans, index) {
-      t.equal(trans.transaction, 'single-name' + index)
-      t.equal(trans.kind, 'type' + index)
+    transactions.forEach(function (trans, index) {
+      t.ok(/[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}/.test(trans.id))
+      t.equal(trans.name, 'single-name' + index)
+      t.equal(trans.type, 'type' + index)
       t.equal(trans.result, 'result' + index)
-      t.equal(trans.timestamp, ts.toISOString())
-      t.equal(trans.durations.length, 1)
-      t.ok(trans.durations.every(Number.isFinite.bind(Number)))
+      t.equal(trans.timestamp, new Date(t0._timer.start).toISOString())
+      t.ok(trans.duration > 0, 'should have a duration >0ms')
+      t.ok(trans.duration < 100, 'should have a duration <100ms')
+      t.deepEqual(trans.context, {
+        user: {foo: 1},
+        tags: {baz: '1'},
+        custom: {bar: 1}
+      })
+      t.equal(trans.traces.length, 0)
     })
 
     t.end()
@@ -70,7 +51,6 @@ test('protocol.encode - single transaction', function (t) {
 test('protocol.encode - multiple transactions', function (t) {
   var agent = mockAgent()
   var samples = []
-  var durations = {}
 
   generateTransaction(0, function () {
     generateTransaction(1, encode)
@@ -91,9 +71,6 @@ test('protocol.encode - multiple transactions', function (t) {
         trans.end()
 
         samples.push(trans)
-        var key = protocol.transactionGroupingKey(trans)
-        if (key in durations) durations.push(trans.duration())
-        else durations[key] = [trans.duration()]
 
         cb()
       })
@@ -101,78 +78,43 @@ test('protocol.encode - multiple transactions', function (t) {
   }
 
   function encode () {
-    var now = new Date()
-    protocol.encode(samples, durations, function (data) {
-      var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
-      var expected = [
-        { transaction: 'name0', signature: 't00', kind: 'type', tkind: 'type0' },
-        { transaction: 'name0', signature: 't01', kind: 'type', tkind: 'type0' },
-        { transaction: 'name1', signature: 't10', kind: 'type', tkind: 'type1' },
-        { transaction: 'name1', signature: 't11', kind: 'type', tkind: 'type1' }
-      ]
+    protocol.encode(samples, function (err, transactions) {
+      t.error(err)
+      t.equal(transactions.length, 2, 'should have 2 transactions')
 
-      t.equal(data.transactions.length, 2, 'should have 2 transactions')
-      t.equal(data.traces.groups.length, 4, 'should have 6 group')
-      t.equal(data.traces.raw.length, 2, 'should have 2 raw')
-
-      data.transactions.forEach(function (trans, index) {
-        t.equal(trans.transaction, 'name' + index)
-        t.equal(trans.kind, 'type' + index)
+      transactions.forEach(function (trans, index) {
+        t.equal(trans.name, 'name' + index)
+        t.equal(trans.type, 'type' + index)
         t.equal(trans.result, 'result' + index)
-        t.equal(trans.timestamp, ts.toISOString())
-        t.equal(trans.durations.length, 1)
-        t.ok(trans.durations.every(Number.isFinite.bind(Number)))
-      })
+        t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
+        t.ok(trans.duration > 0, 'should have a duration >0ms')
+        t.ok(trans.duration < 100, 'should have a duration <100ms')
+        t.deepEqual(trans.context, {
+          user: {},
+          tags: {},
+          custom: {}
+        })
 
-      data.traces.groups.forEach(function (trace, index) {
-        t.equal(trace.transaction, expected[index].transaction)
-        t.equal(trace.signature, expected[index].signature)
-        t.equal(trace.kind, expected[index].kind)
-        t.equal(trace.transaction_kind, expected[index].tkind)
-        t.equal(trace.timestamp, ts.toISOString())
-        t.deepEqual(trace.parents, [])
-      })
+        t.equal(trans.traces.length, 2)
 
-      data.traces.raw.forEach(function (raw, i) {
-        t.equal(raw.length, 4)
-        t.ok(data.transactions.some(function (trans) {
-          return ~trans.durations.indexOf(raw[0])
-        }), 'data.traces.raw[' + i + '][0] should be a valid transaction duration')
-        t.ok(raw[1][0] in data.traces.groups, 'data.traces.raw[' + i + '][1][0] should be an index for data.traces.groups')
-        raw[1].every(function (n, i2) {
-          t.ok(n >= 0, 'all data.traces[' + i + '][1][' + i2 + '] >= 0')
+        trans.traces.forEach(function (trace, index2) {
+          t.equal(trace.name, 't' + index + index2)
+          t.equal(trace.type, 'type')
+          t.ok(trace.start > 0, 'trace start should be >0ms')
+          t.ok(trace.start < 100, 'trace start should be <100ms')
+          t.ok(trace.duration > 0, 'trace duration should be >0ms')
+          t.ok(trace.duration < 100, 'trace duration should be <100ms')
+          t.ok(trace.stacktrace.length > 0, 'should have stack trace')
+
+          trace.stacktrace.forEach(function (frame) {
+            t.equal(typeof frame.filename, 'string')
+            t.ok(Number.isFinite(frame.lineno))
+            t.equal(typeof frame.function, 'string')
+            t.equal(typeof frame.in_app, 'boolean')
+            t.equal(typeof frame.abs_path, 'string')
+          })
         })
       })
-
-      t.equal(data.traces.raw.reduce(function (total, raw) {
-        return total + raw.length - 2
-      }, 0), data.traces.groups.length)
-
-      var traceKey = function (trace) {
-        return trace.kind +
-          '|' + trace.signature +
-          '|' + trace.transaction +
-          '|' + trace.parents.join('|')
-      }
-
-      var uniqueKeys = []
-      data.traces.groups.forEach(function (trace) {
-        var key = traceKey(trace)
-        if (uniqueKeys.indexOf(key) === -1) uniqueKeys.push(key)
-      })
-
-      var keysWithFrames = []
-      data.traces.groups.forEach(function (trace) {
-        if ('_frames' in trace.extra) {
-          var key = traceKey(trace)
-          t.ok(Array.isArray(trace.extra._frames))
-          t.notOk(key in keysWithFrames)
-
-          keysWithFrames.push(key)
-        }
-      })
-
-      t.deepEqual(keysWithFrames, uniqueKeys)
 
       t.end()
     })
@@ -205,27 +147,45 @@ test('protocol.encode - http request meta data', function (t) {
   }
   t0.end()
 
-  var samples = [t0]
-  var durations = {}
+  protocol.encode([t0], function (err, transactions) {
+    t.error(err)
+    t.equal(transactions.length, 1, 'should have 1 transaction')
 
-  var key = protocol.transactionGroupingKey(t0)
-  durations[key] = [t0.duration()]
-
-  protocol.encode(samples, durations, function (data) {
-    var now = new Date()
-    var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
-
-    t.equal(data.transactions.length, 1, 'should have 1 transaction')
-    t.equal(data.traces.groups.length, 0, 'should have 0 groups')
-    t.equal(data.traces.raw.length, 0, 'should have 0 raw')
-
-    data.transactions.forEach(function (trans, index) {
-      t.equal(trans.transaction, 'http-name' + index)
-      t.equal(trans.kind, 'type' + index)
+    transactions.forEach(function (trans, index) {
+      t.equal(trans.name, 'http-name' + index)
+      t.equal(trans.type, 'type' + index)
       t.equal(trans.result, 'result' + index)
-      t.equal(trans.timestamp, ts.toISOString())
-      t.equal(trans.durations.length, 1)
-      t.ok(trans.durations.every(Number.isFinite.bind(Number)))
+      t.equal(trans.timestamp, new Date(t0._timer.start).toISOString())
+      t.ok(trans.duration > 0, 'should have a duration >0ms')
+      t.ok(trans.duration < 100, 'should have a duration <100ms')
+      t.deepEqual(trans.context, {
+        request: {
+          method: 'POST',
+          url: {
+            hostname: 'example.com',
+            pathname: '/foo',
+            search: '?bar=baz',
+            raw: '/foo?bar=baz'
+          },
+          headers: {
+            host: 'example.com',
+            'user-agent': 'user-agent-header',
+            'content-length': 42,
+            cookie: 'cookie1=foo;cookie2=bar',
+            'x-bar': 'baz',
+            'x-foo': 'bar'
+          },
+          socket: {
+            remote_address: '127.0.0.1',
+            encrypted: true
+          },
+          body: '[REDACTED]'
+        },
+        user: {},
+        tags: {},
+        custom: {}
+      })
+      t.equal(trans.traces.length, 0)
     })
 
     t.end()
@@ -238,71 +198,45 @@ test('protocol.encode - disable stack traces', function (t) {
 
   var t0 = new Transaction(agent, 'single-name0', 'type0')
   t0.result = 'result0'
+  var trace0 = t0.buildTrace()
+  trace0.start('t00', 'type')
+  trace0.end()
   t0.end()
 
-  var samples = [t0]
-  var durations = {}
+  protocol.encode([t0], function (err, transactions) {
+    t.error(err)
+    t.equal(transactions.length, 1, 'should have 1 transaction')
 
-  var key = protocol.transactionGroupingKey(t0)
-  durations[key] = [t0.duration()]
-
-  protocol.encode(samples, durations, function (data) {
-    var now = new Date()
-    var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
-
-    t.equal(data.transactions.length, 1, 'should have 1 transaction')
-    t.equal(data.traces.groups.length, 0, 'should have 0 groups')
-    t.equal(data.traces.raw.length, 0, 'should have 0 raw')
-
-    data.transactions.forEach(function (trans, index) {
-      t.equal(trans.transaction, 'single-name' + index)
-      t.equal(trans.kind, 'type' + index)
+    transactions.forEach(function (trans, index) {
+      t.equal(trans.name, 'single-name' + index)
+      t.equal(trans.type, 'type' + index)
       t.equal(trans.result, 'result' + index)
-      t.equal(trans.timestamp, ts.toISOString())
-      t.equal(trans.durations.length, 1)
-      t.ok(trans.durations.every(Number.isFinite.bind(Number)))
+      t.equal(trans.timestamp, new Date(t0._timer.start).toISOString())
+      t.ok(trans.duration > 0, 'should have a duration >0ms')
+      t.ok(trans.duration < 100, 'should have a duration <100ms')
+      t.deepEqual(trans.context, {
+        user: {},
+        tags: {},
+        custom: {}
+      })
+
+      t.equal(trans.traces.length, 1)
+
+      trans.traces.forEach(function (trace, index2) {
+        t.equal(trace.name, 't' + index + index2)
+        t.equal(trace.type, 'type')
+        t.ok(trace.start > 0, 'trace start should be >0ms')
+        t.ok(trace.start < 100, 'trace start should be <100ms')
+        t.ok(trace.duration > 0, 'trace duration should be >0ms')
+        t.ok(trace.duration < 100, 'trace duration should be <100ms')
+        t.notOk('stacktrace' in trace, 'should not have stack trace')
+      })
     })
 
     t.end()
   })
 })
 
-// { transactions:
-//    [ { transaction: 'single-name0',
-//        result: 'result0',
-//        kind: 'type0',
-//        timestamp: '2016-12-23T14:36:00.000Z',
-//        durations: [ 0.717205 ] } ],
-//   traces:
-//    { groups:
-//       [ { transaction: 'single-name0',
-//           signature: 'sig0',
-//           kind: 'type0',
-//           timestamp: '2016-12-23T14:36:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: {} },
-//         { transaction: 'single-name0',
-//           signature: 'sig1',
-//           kind: 'type1.truncated',
-//           timestamp: '2016-12-23T14:36:00.000Z',
-//           parents: [ 'transaction' ],
-//           extra: {} },
-//         { transaction: 'single-name0',
-//           signature: 'transaction',
-//           kind: 'transaction',
-//           timestamp: '2016-12-23T14:36:00.000Z',
-//           parents: [],
-//           extra: {} } ],
-//      raw:
-//       [
-//         [
-//           0.717205,
-//           [ 0, 0.25884, 0.103199 ],
-//           [ 1, 0.284222, 0.345159 ],
-//           [ 2, 0, 0.717205 ],
-//           { extra: { node: 'v6.9.1', id: 'e5be120b-a85b-468e-a9f9-5b88e1795dbc' } }
-//         ]
-//       ] } }
 test('protocol.encode - truncated traces', function (t) {
   var agent = mockAgent()
   agent.captureTraceStackTraces = false
@@ -310,63 +244,42 @@ test('protocol.encode - truncated traces', function (t) {
   var t0 = new Transaction(agent, 'single-name0', 'type0')
   t0.result = 'result0'
   var trace0 = t0.buildTrace()
-  trace0.start('sig0', 'type0')
+  trace0.start('t00', 'type0')
   var trace1 = t0.buildTrace()
-  trace1.start('sig1', 'type1')
+  trace1.start('t01', 'type1')
   t0.buildTrace()
   trace0.end()
   t0.end()
 
-  var samples = [t0]
-  var durations = {}
+  protocol.encode([t0], function (err, transactions) {
+    t.error(err)
+    t.equal(transactions.length, 1, 'should have 1 transaction')
 
-  var key = protocol.transactionGroupingKey(t0)
-  durations[key] = [t0.duration()]
-
-  protocol.encode(samples, durations, function (data) {
-    var now = new Date()
-    var ts = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes())
-    var expected = [
-      { transaction: 'single-name0', signature: 'sig0', kind: 'type0' },
-      { transaction: 'single-name0', signature: 'sig1', kind: 'type1.truncated' }
-    ]
-
-    t.equal(data.transactions.length, 1, 'should have 1 transaction')
-    t.equal(data.traces.groups.length, 2, 'should have 2 groups')
-    t.equal(data.traces.raw.length, 1, 'should have 1 raw')
-
-    data.transactions.forEach(function (trans, index) {
-      t.equal(trans.transaction, 'single-name' + index)
-      t.equal(trans.kind, 'type' + index)
+    transactions.forEach(function (trans, index) {
+      t.equal(trans.name, 'single-name' + index)
+      t.equal(trans.type, 'type' + index)
       t.equal(trans.result, 'result' + index)
-      t.equal(trans.timestamp, ts.toISOString())
-      t.equal(trans.durations.length, 1)
-      t.ok(trans.durations.every(Number.isFinite.bind(Number)))
-    })
+      t.equal(trans.timestamp, new Date(t0._timer.start).toISOString())
+      t.ok(trans.duration > 0, 'should have a duration >0ms')
+      t.ok(trans.duration < 100, 'should have a duration <100ms')
+      t.deepEqual(trans.context, {
+        user: {},
+        tags: {},
+        custom: {}
+      })
 
-    data.traces.groups.forEach(function (trace, index) {
-      t.equal(trace.transaction, expected[index].transaction)
-      t.equal(trace.signature, expected[index].signature)
-      t.equal(trace.kind, expected[index].kind)
-      t.equal(trace.transaction_kind, t0.type)
-      t.equal(trace.timestamp, ts.toISOString())
-      t.deepEqual(trace.parents, [])
-    })
+      t.equal(trans.traces.length, 2)
 
-    data.traces.raw.forEach(function (raw, i) {
-      t.equal(raw.length, 4)
-      t.ok(data.transactions.some(function (trans) {
-        return ~trans.durations.indexOf(raw[0])
-      }), 'data.traces.raw[' + i + '][0] should be a valid transaction duration')
-      t.ok(raw[1][0] in data.traces.groups, 'data.traces.raw[' + i + '][1][0] should be an index for data.traces.groups')
-      raw[1].every(function (n, i2) {
-        t.ok(n >= 0, 'all data.traces[' + i + '][1][' + i2 + '] >= 0')
+      trans.traces.forEach(function (trace, index2) {
+        t.equal(trace.name, 't' + index + index2)
+        t.equal(trace.type, 'type' + index2 + (index2 === 1 ? '.truncated' : ''))
+        t.ok(trace.start > 0, 'trace start should be >0ms')
+        t.ok(trace.start < 100, 'trace start should be <100ms')
+        t.ok(trace.duration > 0, 'trace duration should be >0ms')
+        t.ok(trace.duration < 100, 'trace duration should be <100ms')
+        t.notOk('stacktrace' in trace, 'should not have stack trace')
       })
     })
-
-    t.equal(data.traces.raw.reduce(function (total, raw) {
-      return total + raw.length - 2
-    }, 0), data.traces.groups.length)
 
     t.end()
   })
