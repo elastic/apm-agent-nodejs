@@ -50,25 +50,25 @@ test('#duration() - return null if not ended', function (t) {
   t.end()
 })
 
-test('#startTime() - return null if trace isn\'t started', function (t) {
+test('#offsetTime() - return null if trace isn\'t started', function (t) {
   var trans = new Transaction(agent)
   var trace = new Trace(trans)
-  t.equal(trace.startTime(), null)
+  t.equal(trace.offsetTime(), null)
   t.end()
 })
 
-test('#startTime() - not return null if trace is started', function (t) {
+test('#offsetTime() - not return null if trace is started', function (t) {
   var trans = new Transaction(agent)
   var trace = new Trace(trans)
   trace.start()
-  t.ok(trace.startTime() > 0)
-  t.ok(trace.startTime() < 100)
+  t.ok(trace.offsetTime() > 0)
+  t.ok(trace.offsetTime() < 100)
   t.end()
 })
 
-test('#startTime() - sub trace', function (t) {
+test('#offsetTime() - sub trace', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
-    t.ok(trace.startTime() > 49, trace.startTime() + ' should be larger than 49')
+    t.ok(trace.offsetTime() > 49, trace.offsetTime() + ' should be larger than 49')
     t.end()
   })._agent)
   var trace
