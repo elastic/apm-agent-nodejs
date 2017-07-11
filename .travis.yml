@@ -1,165 +1,183 @@
 language: node_js
+
 services:
 - mysql
 - mongodb
 - redis-server
 - postgresql
+
+# There's a bug npm@5 which ships with Node 8 that means we get a currupted
+# install when using the test-all-versions command. For details see:
+# https://github.com/npm/npm/issues/17061
+# https://github.com/npm/npm/issues/17212
 before_install:
-- 'if [ "${TRAVIS_NODE_VERSION}" == "8" ]; then npm install -g npm@4; fi'
+  - 'if [ "${TRAVIS_NODE_VERSION}" == "8" ]; then npm install -g npm@4; fi'
+
 node_js:
-- '8'
-- '7'
-- 7.9.0
-- '6'
-- '5'
-- '4'
-- '0.12'
-- '0.10'
+  - '8'
+  - '7'
+  - '7.9.0' # currently 7.10.0 fails. For details see: https://github.com/nodejs/node/pull/12861
+  - '6'
+  - '5'
+  - '4'
+  - '0.12'
+  - '0.10'
+
 jobs:
   fast_finish: true
-  include:
-  # Node.js 7.9.0
-  - stage: dependencies
-    node_js: '7.9.0'
-    env: TAV=generic-pool,mysql,redis,koa-router
-    script: tav --quiet
-  -
-    node_js: '7.9.0'
-    env: TAV=ioredis,pg
-    script: tav --quiet
-  -
-    node_js: '7.9.0'
-    env: TAV=bluebird
-    script: tav --quiet
-  -
-    node_js: '7.9.0'
-    env: TAV=knex,ws,graphql,express-graphql
-    script: tav --quiet
-  # Node.js 6
-  -
-    node_js: '6'
-    env: TAV=generic-pool,mysql,redis,koa-router
-    script: tav --quiet
-  -
-    node_js: '6'
-    env: TAV=ioredis,pg
-    script: tav --quiet
-  -
-    node_js: '6'
-    env: TAV=bluebird
-    script: tav --quiet
-  -
-    node_js: '6'
-    env: TAV=knex,ws,graphql,express-graphql
-    script: tav --quiet
-  # Node.js 5
-  -
-    node_js: '5'
-    env: TAV=generic-pool,mysql,redis,koa-router
-    script: tav --quiet
-  -
-    node_js: '5'
-    env: TAV=ioredis,pg
-    script: tav --quiet
-  -
-    node_js: '5'
-    env: TAV=bluebird
-    script: tav --quiet
-  -
-    node_js: '5'
-    env: TAV=knex,ws,graphql,express-graphql
-    script: tav --quiet
-  # Node.js 4
-  -
-    node_js: '4'
-    env: TAV=generic-pool,mysql,redis,koa-router
-    script: tav --quiet
-  -
-    node_js: '4'
-    env: TAV=ioredis,pg
-    script: tav --quiet
-  -
-    node_js: '4'
-    env: TAV=bluebird
-    script: tav --quiet
-  -
-    node_js: '4'
-    env: TAV=knex,ws,graphql,express-graphql
-    script: tav --quiet
-  # Node.js 0.12
-  -
-    node_js: '0.12'
-    env: TAV=generic-pool,mysql,redis,koa-router
-    script: tav --quiet
-  -
-    node_js: '0.12'
-    env: TAV=ioredis,pg
-    script: tav --quiet
-  -
-    node_js: '0.12'
-    env: TAV=bluebird
-    script: tav --quiet
-  -
-    node_js: '0.12'
-    env: TAV=knex,ws,graphql,express-graphql
-    script: tav --quiet
-  # Node.js 0.10
-  -
-    node_js: '0.10'
-    env: TAV=generic-pool,mysql,redis,koa-router
-    script: tav --quiet
-  -
-    node_js: '0.10'
-    env: TAV=ioredis,pg
-    script: tav --quiet
-  -
-    node_js: '0.10'
-    env: TAV=bluebird
-    script: tav --quiet
-  -
-    node_js: '0.10'
-    env: TAV=knex,ws,graphql,express-graphql
-    script: tav --quiet
-  # Node.js 8
-  -
-    node_js: '8'
-    env: TAV=generic-pool,mysql,redis,koa-router
-    script: tav --quiet
-  -
-    node_js: '8'
-    env: TAV=ioredis,pg
-    script: tav --quiet
-  -
-    node_js: '8'
-    env: TAV=bluebird
-    script: tav --quiet
-  -
-    node_js: '8'
-    env: TAV=knex,ws,graphql,express-graphql
-    script: tav --quiet
-  # Node.js 7
-  -
-    node_js: '7'
-    env: TAV=generic-pool,mysql,redis,koa-router
-    script: tav --quiet
-  -
-    node_js: '7'
-    env: TAV=ioredis,pg
-    script: tav --quiet
-  -
-    node_js: '7'
-    env: TAV=bluebird
-    script: tav --quiet
-  -
-    node_js: '7'
-    env: TAV=knex,ws,graphql,express-graphql
-    script: tav --quiet
+
   allow_failures:
-  - node_js: '8'
-  - node_js: '7'
+    - node_js: '7' # the latest version of 7.x (7.10.0) fails. For details see: https://github.com/nodejs/node/pull/12861
+
+  include:
+
+    # Node.js 8
+    - stage: dependencies
+      node_js: '8'
+      env: TAV=generic-pool,mysql,redis,koa-router
+      script: tav --quiet
+    -
+      node_js: '8'
+      env: TAV=ioredis,pg
+      script: tav --quiet
+    -
+      node_js: '8'
+      env: TAV=bluebird
+      script: tav --quiet
+    -
+      node_js: '8'
+      env: TAV=knex,ws,graphql,express-graphql
+      script: tav --quiet
+
+    # Node.js 7.9.0
+    -
+      node_js: '7.9.0'
+      env: TAV=generic-pool,mysql,redis,koa-router
+      script: tav --quiet
+    -
+      node_js: '7.9.0'
+      env: TAV=ioredis,pg
+      script: tav --quiet
+    -
+      node_js: '7.9.0'
+      env: TAV=bluebird
+      script: tav --quiet
+    -
+      node_js: '7.9.0'
+      env: TAV=knex,ws,graphql,express-graphql
+      script: tav --quiet
+
+    # Node.js 6
+    -
+      node_js: '6'
+      env: TAV=generic-pool,mysql,redis,koa-router
+      script: tav --quiet
+    -
+      node_js: '6'
+      env: TAV=ioredis,pg
+      script: tav --quiet
+    -
+      node_js: '6'
+      env: TAV=bluebird
+      script: tav --quiet
+    -
+      node_js: '6'
+      env: TAV=knex,ws,graphql,express-graphql
+      script: tav --quiet
+
+    # Node.js 5
+    -
+      node_js: '5'
+      env: TAV=generic-pool,mysql,redis,koa-router
+      script: tav --quiet
+    -
+      node_js: '5'
+      env: TAV=ioredis,pg
+      script: tav --quiet
+    -
+      node_js: '5'
+      env: TAV=bluebird
+      script: tav --quiet
+    -
+      node_js: '5'
+      env: TAV=knex,ws,graphql,express-graphql
+      script: tav --quiet
+
+    # Node.js 4
+    -
+      node_js: '4'
+      env: TAV=generic-pool,mysql,redis,koa-router
+      script: tav --quiet
+    -
+      node_js: '4'
+      env: TAV=ioredis,pg
+      script: tav --quiet
+    -
+      node_js: '4'
+      env: TAV=bluebird
+      script: tav --quiet
+    -
+      node_js: '4'
+      env: TAV=knex,ws,graphql,express-graphql
+      script: tav --quiet
+
+    # Node.js 0.12
+    -
+      node_js: '0.12'
+      env: TAV=generic-pool,mysql,redis,koa-router
+      script: tav --quiet
+    -
+      node_js: '0.12'
+      env: TAV=ioredis,pg
+      script: tav --quiet
+    -
+      node_js: '0.12'
+      env: TAV=bluebird
+      script: tav --quiet
+    -
+      node_js: '0.12'
+      env: TAV=knex,ws,graphql,express-graphql
+      script: tav --quiet
+
+    # Node.js 0.10
+    -
+      node_js: '0.10'
+      env: TAV=generic-pool,mysql,redis,koa-router
+      script: tav --quiet
+    -
+      node_js: '0.10'
+      env: TAV=ioredis,pg
+      script: tav --quiet
+    -
+      node_js: '0.10'
+      env: TAV=bluebird
+      script: tav --quiet
+    -
+      node_js: '0.10'
+      env: TAV=knex,ws,graphql,express-graphql
+      script: tav --quiet
+
+    # Node.js 7
+    -
+      node_js: '7'
+      env: TAV=generic-pool,mysql,redis,koa-router
+      script: tav --quiet
+    -
+      node_js: '7'
+      env: TAV=ioredis,pg
+      script: tav --quiet
+    -
+      node_js: '7'
+      env: TAV=bluebird
+      script: tav --quiet
+    -
+      node_js: '7'
+      env: TAV=knex,ws,graphql,express-graphql
+      script: tav --quiet
+
 notifications:
   email:
-  - watson@elastic.co
+    - watson@elastic.co
   slack:
     rooms:
       secure: PR+vjohDfGmidHhaIboj896iad3OIa4pked1Mib+XB5FF3tWfpDjBBNmEBizRbpwzxy4oHgOr22LBNvi+zkE674wXY3VUM+Wx9pJztlqotcON/hBjcJd993MfixRHN0RShxn4omaLfiqrZ+8iUFD5MQKdLKqBG/IG2toxdhuDkU=
