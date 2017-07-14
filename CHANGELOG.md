@@ -1,7 +1,7 @@
 # 4.14.1 - 2017/7/14
   * graphql: don't trace graphql after transaction ends
 
-# 4.14.0 - 2018/5/22
+# 4.14.0 - 2017/5/22
   * koa-router: add support for version 6.x and 7.x
 
 # 4.13.3 - 2017/5/18
