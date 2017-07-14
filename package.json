@@ -99,7 +99,8 @@
   },
   "greenkeeper": {
     "ignore": [
-      "inquirer"
+      "inquirer",
+      "restify"
     ]
   },
   "standard": {
