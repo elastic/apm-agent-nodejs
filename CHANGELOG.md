@@ -1,3 +1,6 @@
+# 4.14.2 - 2017/7/21
+  * core: truncate trace signatures to max 512 chars ([#35](https://github.com/opbeat/opbeat-node/issues/35)) 
+
 # 4.14.1 - 2017/7/14
   * graphql: don't trace graphql after transaction ends
 
