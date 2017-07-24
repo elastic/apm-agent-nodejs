@@ -9,11 +9,16 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var semver = require('semver')
+var pgVersion = require('pg/package').version
+var knexVersion = require('knex/package').version
+
+// pg@7+ doesn't support Node.js pre 4.5.0
+if (semver.lt(process.version, '4.5.0') && semver.gte(pgVersion, '7.0.0')) process.exit()
+
+var test = require('tape')
 var exec = require('child_process').exec
 var Knex = require('knex')
-var pkg = require('knex/package')
 
 var transNo = 0
 var knex
@@ -25,7 +30,7 @@ var selectTests = [
   'knex(\'test\').select()'
 ]
 
-if (semver.gte(pkg.version, '0.11.0')) {
+if (semver.gte(knexVersion, '0.11.0')) {
   selectTests.push('knex.select().from(\'test\').timeout(10000)')
 }
 

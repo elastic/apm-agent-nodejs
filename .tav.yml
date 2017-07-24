@@ -13,7 +13,7 @@ ioredis:
   versions: '>=2 <4'
   commands: node test/instrumentation/modules/ioredis.js
 pg:
-  versions: '>=4 <7'
+  versions: '>=4 <8'
   peerDependencies:
     - bluebird@^3.0.0
     - knex@^0.13.0

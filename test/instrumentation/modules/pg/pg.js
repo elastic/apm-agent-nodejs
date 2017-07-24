@@ -7,11 +7,15 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
+var semver = require('semver')
+var pgVersion = require('pg/package.json').version
+
+// pg@7+ doesn't support Node.js pre 4.5.0
+if (semver.lt(process.version, '4.5.0') && semver.gte(pgVersion, '7.0.0')) process.exit()
+
 var test = require('tape')
 var exec = require('child_process').exec
-var semver = require('semver')
 var pg = require('pg')
-var pgVersion = require('pg/package.json').version
 
 var queryable
 var factories = [
@@ -105,6 +109,21 @@ factories.forEach(function (f) {
     })
 
     t.test('basic query streaming', function (t) {
+      t.test(type + '.query(new Query(sql))', function (t) {
+        resetAgent(function (endpoint, headers, data, cb) {
+          assertBasicQuery(t, sql, data)
+          t.end()
+        })
+        var sql = 'SELECT 1 + 1 AS solution'
+        factory(function () {
+          agent.startTransaction('foo')
+          var stream = queryable.query(new pg.Query(sql))
+          basicQueryStream(stream, t)
+        })
+      })
+
+      if (semver.gte(pgVersion, '7.0.0')) return
+
       t.test(type + '.query(sql)', function (t) {
         resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
@@ -170,6 +189,75 @@ factories.forEach(function (f) {
         })
       })
     })
+
+    if (semver.gte(pgVersion, '5.1.0') && global.Promise) {
+      t.test('basic query promise', function (t) {
+        t.test(type + '.query(sql)', function (t) {
+          resetAgent(function (endpoint, headers, data, cb) {
+            assertBasicQuery(t, sql, data)
+            t.end()
+          })
+          var sql = 'SELECT 1 + 1 AS solution'
+          factory(function () {
+            agent.startTransaction('foo')
+            var p = queryable.query(sql)
+            basicQueryPromise(p, t)
+          })
+        })
+
+        t.test(type + '.query(sql, values)', function (t) {
+          resetAgent(function (endpoint, headers, data, cb) {
+            assertBasicQuery(t, sql, data)
+            t.end()
+          })
+          var sql = 'SELECT 1 + $1 AS solution'
+          factory(function () {
+            agent.startTransaction('foo')
+            var p = queryable.query(sql, [1])
+            basicQueryPromise(p, t)
+          })
+        })
+
+        t.test(type + '.query(options)', function (t) {
+          resetAgent(function (endpoint, headers, data, cb) {
+            assertBasicQuery(t, sql, data)
+            t.end()
+          })
+          var sql = 'SELECT 1 + 1 AS solution'
+          factory(function () {
+            agent.startTransaction('foo')
+            var p = queryable.query({ text: sql })
+            basicQueryPromise(p, t)
+          })
+        })
+
+        t.test(type + '.query(options, values)', function (t) {
+          resetAgent(function (endpoint, headers, data, cb) {
+            assertBasicQuery(t, sql, data)
+            t.end()
+          })
+          var sql = 'SELECT 1 + $1 AS solution'
+          factory(function () {
+            agent.startTransaction('foo')
+            var p = queryable.query({ text: sql }, [1])
+            basicQueryPromise(p, t)
+          })
+        })
+
+        t.test(type + '.query(options-with-values)', function (t) {
+          resetAgent(function (endpoint, headers, data, cb) {
+            assertBasicQuery(t, sql, data)
+            t.end()
+          })
+          var sql = 'SELECT 1 + $1 AS solution'
+          factory(function () {
+            agent.startTransaction('foo')
+            var p = queryable.query({ text: sql, values: [1] })
+            basicQueryPromise(p, t)
+          })
+        })
+      })
+    }
 
     t.test('simultaneous queries', function (t) {
       t.test('on same connection', function (t) {
@@ -601,6 +689,18 @@ function basicQueryStream (stream, t) {
   })
   stream.on('end', function () {
     t.equal(results, 1)
+    agent.endTransaction()
+    agent._instrumentation._queue._flush()
+  })
+}
+
+function basicQueryPromise (p, t) {
+  p.catch(function (err) {
+    t.error(err)
+  })
+  p.then(function (results) {
+    t.equal(results.rows.length, 1)
+    t.equal(results.rows[0].solution, 2)
     agent.endTransaction()
     agent._instrumentation._queue._flush()
   })
