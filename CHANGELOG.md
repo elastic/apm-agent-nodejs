@@ -1,3 +1,6 @@
+# 4.15.0 - 2017/7/27
+  * pg: add support for pg version 7
+
 # 4.14.2 - 2017/7/21
   * core: truncate trace signatures to max 512 chars ([#35](https://github.com/opbeat/opbeat-node/issues/35))
 
