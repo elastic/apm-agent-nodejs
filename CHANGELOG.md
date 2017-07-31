@@ -1,3 +1,6 @@
+# 4.15.1 - 2017/7/31
+  * http/https: fix issue with outgoing http requests ([#179](https://github.com/opbeat/opbeat-node/issues/179))
+
 # 4.15.0 - 2017/7/27
   * pg: add support for pg version 7
 
