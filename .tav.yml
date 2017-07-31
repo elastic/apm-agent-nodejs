@@ -33,13 +33,26 @@ ws:
   commands: node test/instrumentation/modules/ws.js
 graphql:
   node: '>=1.0.0'
-  pretest: rm -fr node_modules/express-graphql
+  preinstall: rm -fr node_modules/express-graphql
   versions: '>=0.7.0 <1.0.0'
   commands: node test/instrumentation/modules/graphql.js
-express-graphql:
+express-graphql-1:
+  name: express-graphql
   node: '>=1.0.0'
-  peerDependencies: graphql@0.8.2
-  versions: ^0.6.1
+  peerDependencies: graphql@^0.8.2
+  versions: '0.6.1'
+  commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-2:
+  name: express-graphql
+  node: '>=1.0.0'
+  peerDependencies: graphql@^0.9.0
+  versions: '>=0.6.2 <0.6.6'
+  commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-3:
+  name: express-graphql
+  node: '>=1.0.0'
+  peerDependencies: graphql@^0.10.0
+  versions: '^0.6.6'
   commands: node test/instrumentation/modules/express-graphql.js
 koa-router:
   node: '>=6.0.0'
