@@ -187,8 +187,7 @@ notifications:
   email:
     - watson@elastic.co
   slack:
-    rooms:
-      secure: PR+vjohDfGmidHhaIboj896iad3OIa4pked1Mib+XB5FF3tWfpDjBBNmEBizRbpwzxy4oHgOr22LBNvi+zkE674wXY3VUM+Wx9pJztlqotcON/hBjcJd993MfixRHN0RShxn4omaLfiqrZ+8iUFD5MQKdLKqBG/IG2toxdhuDkU=
+    secure: Jq9ST6TYsZZtPgUdn60rZCfcclNF1cXaCqemt9ZKvqlDie9kbyJjU9t0K+EFdlQXgzM5sGAC+okRO9c29zMDuWvsuY6wb5K2p9j1cxfOn1FTc4xcxh/fKelu1Q7nGaMOIPvQuoI/TQBo4pwACyjli+ohz7DMVMRcans6GR+P0S8=
     on_success: change
     on_failure: change
     on_pull_requests: false
