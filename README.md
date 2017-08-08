@@ -1,57 +1,38 @@
-# Opbeat for Node.js
+# Elastic APM Node.js Agent (Experimental)
 
-[![Build status](https://travis-ci.org/opbeat/opbeat-node.svg?branch=master)](https://travis-ci.org/opbeat/opbeat-node)
-[![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
-<a href="https://opbeat.com" title="Opbeat"><img src="http://opbeat-brand-assets.s3-website-us-east-1.amazonaws.com/svg/logo/logo.svg" align="right" height="25px"></a>
+[![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=master)](https://travis-ci.org/elastic/apm-agent-nodejs)
+[![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/standard/standard)
 
-This is the official Node.js agent for Opbeat.
-
-[Opbeat](https://opbeat.com/nodejs) provides instant performance insights, built for Node.js developers.
-
-If you are looking for a module for your frontend JS applications, please see [Opbeat for JS](https://github.com/opbeat/opbeat-js) on GitHub.
-
-**Troubleshooting:** If you encounter any problems setting up the Opbeat
-agent, please see our [troubleshooting guide](https://opbeat.com/docs/articles/nodejs-agent-troubleshooting/).
-
+**Warning: This project is currently in a pre-alpha stage and no support
+or documentation is currently provided. Use it at your own risk.**
 
 ## Quick start
 
 Install the module:
 
 ```
-npm install opbeat --save
+npm install elastic/apm-agent-nodejs --save
 ```
 
-To get started just require and start the Opbeat agent **at the very
-top** of your app's startup script. The Opbeat agent will be returned. The
-agent will now instrument your Node.js application and track unhandled
-exceptions automatically.
+To get started just require and start the Elastic APM agent **at the
+very top** of your app's startup script. The Elastic APM agent will be
+returned. The agent will now instrument your Node.js application and
+track unhandled exceptions automatically.
 
 ```js
 // Add this snippet to the VERY top of your app's startup script
-var opbeat = require('opbeat').start({
-  appName: '...',
+var apm = require('elastic-apm').start({
+  appName: 'my-app',
   secretToken: '...'
 })
 ```
 
-If you want to manually send an error to Opbeat, use the
+If you want to manually send an error to Elastic APM, use the
 `captureError()` function:
 
 ```js
-opbeat.captureError(new Error('Ups, something broke'))
+apm.captureError(new Error('Ups, something broke'))
 ```
-
-## Documentation
-
-- [Documentation overview](https://opbeat.com/docs/topics/node-js/)
-- [Get started with Express](https://opbeat.com/docs/articles/get-started-with-express/)
-- [Get started with hapi](https://opbeat.com/docs/articles/get-started-with-hapi/)
-- [Get started with Koa](https://opbeat.com/docs/articles/get-started-with-koa/)
-- [Agent API](https://opbeat.com/docs/articles/nodejs-agent-api/)
-- [Troubleshooting guide](https://opbeat.com/docs/articles/nodejs-agent-troubleshooting/)
-- [Compatibility with other modules](https://github.com/opbeat/opbeat-node/wiki/Compatibility-Guide)
-- [Upgrading to v4](https://github.com/opbeat/opbeat-node/wiki/Upgrade-to-version-4.x)
 
 ## Testing
 
@@ -67,4 +48,4 @@ automatically fix linting errors run `npm run lint-fix`.
 
 BSD-2-Clause
 
-<br>Made with ♥️ and ☕️ by Opbeat and our community.
+<br>Made with ♥️ and ☕️ by Elastic and our community.

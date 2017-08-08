@@ -1,7 +1,7 @@
 {
-  "name": "opbeat",
-  "version": "4.15.1",
-  "description": "The official Opbeat agent for Node.js",
+  "name": "elastic-apm",
+  "version": "0.0.0",
+  "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "scripts": {
     "lint": "standard",
@@ -16,10 +16,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/opbeat/opbeat-node.git"
+    "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "keywords": [
     "opbeat",
+    "elastic",
+    "elasticapm",
+    "elasticsearch",
     "log",
     "logging",
     "bug",
@@ -46,9 +49,9 @@
   "author": "Thomas Watson Steen <w@tson.dk> (https://twitter.com/wa7son)",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/opbeat/opbeat-node/issues"
+    "url": "https://github.com/elastic/apm-agent-nodejs/issues"
   },
-  "homepage": "https://github.com/opbeat/opbeat-node",
+  "homepage": "https://github.com/elastic/apm-agent-nodejs",
   "dependencies": {
     "after-all-results": "^2.0.0",
     "console-log-level": "^1.4.0",
