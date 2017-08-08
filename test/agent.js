@@ -37,21 +37,21 @@ var truthyValues = [true, 1, '1', 'true', 'yes', 'on', 'enabled']
 
 var skipBody = function () { return '*' }
 var uncaughtExceptionListeners = process._events.uncaughtException
-var opbeat
+var agent
 
 var setup = function () {
   clean()
   uncaughtExceptionListeners = process._events.uncaughtException
   process.removeAllListeners('uncaughtException')
   helpers.mockLogger()
-  opbeat = new Agent()
+  agent = new Agent()
 }
 
 var clean = function () {
   global.__opbeat_initialized = null
   process._events.uncaughtException = uncaughtExceptionListeners
   helpers.restoreLogger()
-  if (opbeat) opbeat._filters = []
+  if (agent) agent._filters = []
 }
 
 optionFixtures.forEach(function (fixture) {
@@ -61,8 +61,8 @@ optionFixtures.forEach(function (fixture) {
       var bool = typeof fixture[2] === 'boolean'
       var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value'
       process.env['OPBEAT_' + fixture[1]] = value
-      opbeat.start()
-      t.equal(opbeat[fixture[0]], bool ? !fixture[2] : value)
+      agent.start()
+      t.equal(agent[fixture[0]], bool ? !fixture[2] : value)
       delete process.env['OPBEAT_' + fixture[1]]
       t.end()
     })
@@ -75,8 +75,8 @@ optionFixtures.forEach(function (fixture) {
       var value2 = bool ? (fixture[2] ? '1' : '0') : 'custom-value'
       opts[fixture[0]] = value1
       process.env['OPBEAT_' + fixture[1]] = value2
-      opbeat.start(opts)
-      t.equal(opbeat[fixture[0]], bool ? !fixture[2] : value1)
+      agent.start(opts)
+      t.equal(agent[fixture[0]], bool ? !fixture[2] : value1)
       delete process.env['OPBEAT_' + fixture[1]]
       t.end()
     })
@@ -84,8 +84,8 @@ optionFixtures.forEach(function (fixture) {
 
   test('should default ' + fixture[0] + ' to ' + fixture[2], function (t) {
     setup()
-    opbeat.start()
-    t.equal(opbeat[fixture[0]], fixture[2])
+    agent.start()
+    t.equal(agent[fixture[0]], fixture[2])
     t.end()
   })
 })
@@ -94,8 +94,8 @@ falsyValues.forEach(function (val) {
   test('should be disabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
     process.env.OPBEAT_ACTIVE = val
-    opbeat.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
-    t.equal(opbeat.active, false)
+    agent.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    t.equal(agent.active, false)
     delete process.env.OPBEAT_ACTIVE
     t.end()
   })
@@ -105,8 +105,8 @@ truthyValues.forEach(function (val) {
   test('should be enabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
     process.env.OPBEAT_ACTIVE = val
-    opbeat.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
-    t.equal(opbeat.active, true)
+    agent.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    t.equal(agent.active, true)
     delete process.env.OPBEAT_ACTIVE
     t.end()
   })
@@ -116,60 +116,60 @@ test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {
   setup()
   var opts = { appId: 'foo', organizationId: 'bar', secretToken: 'baz', active: false }
   process.env.OPBEAT_ACTIVE = '1'
-  opbeat.start(opts)
-  t.equal(opbeat.active, false)
+  agent.start(opts)
+  t.equal(agent.active, false)
   delete process.env.OPBEAT_ACTIVE
   t.end()
 })
 
 test('should default active to true if required options have been specified', function (t) {
   setup()
-  opbeat.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
-  t.equal(opbeat.active, true)
+  agent.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+  t.equal(agent.active, true)
   t.end()
 })
 
 test('should default active to false if required options have not been specified', function (t) {
   setup()
-  opbeat.start()
-  t.equal(opbeat.active, false)
+  agent.start()
+  t.equal(agent.active, false)
   t.end()
 })
 
 test('should force active to false if required options have not been specified', function (t) {
   setup()
-  opbeat.start({ active: true })
-  t.equal(opbeat.active, false)
+  agent.start({ active: true })
+  t.equal(agent.active, false)
   t.end()
 })
 
 test('should default to empty request blacklist arrays', function (t) {
   setup()
-  opbeat.start()
-  t.equal(opbeat._ignoreUrlStr.length, 0)
-  t.equal(opbeat._ignoreUrlRegExp.length, 0)
-  t.equal(opbeat._ignoreUserAgentStr.length, 0)
-  t.equal(opbeat._ignoreUserAgentRegExp.length, 0)
+  agent.start()
+  t.equal(agent._ignoreUrlStr.length, 0)
+  t.equal(agent._ignoreUrlRegExp.length, 0)
+  t.equal(agent._ignoreUserAgentStr.length, 0)
+  t.equal(agent._ignoreUserAgentRegExp.length, 0)
   t.end()
 })
 
 test('should separate strings and regexes into their own blacklist arrays', function (t) {
   setup()
-  opbeat.start({
+  agent.start({
     ignoreUrls: ['str1', /regex1/],
     ignoreUserAgents: ['str2', /regex2/]
   })
 
-  t.deepEqual(opbeat._ignoreUrlStr, ['str1'])
-  t.deepEqual(opbeat._ignoreUserAgentStr, ['str2'])
+  t.deepEqual(agent._ignoreUrlStr, ['str1'])
+  t.deepEqual(agent._ignoreUserAgentStr, ['str2'])
 
-  t.equal(opbeat._ignoreUrlRegExp.length, 1)
-  t.ok(isRegExp(opbeat._ignoreUrlRegExp[0]))
-  t.equal(opbeat._ignoreUrlRegExp[0].toString(), '/regex1/')
+  t.equal(agent._ignoreUrlRegExp.length, 1)
+  t.ok(isRegExp(agent._ignoreUrlRegExp[0]))
+  t.equal(agent._ignoreUrlRegExp[0].toString(), '/regex1/')
 
-  t.equal(opbeat._ignoreUserAgentRegExp.length, 1)
-  t.ok(isRegExp(opbeat._ignoreUserAgentRegExp[0]))
-  t.equal(opbeat._ignoreUserAgentRegExp[0].toString(), '/regex2/')
+  t.equal(agent._ignoreUserAgentRegExp.length, 1)
+  t.ok(isRegExp(agent._ignoreUserAgentRegExp[0]))
+  t.equal(agent._ignoreUserAgentRegExp[0].toString(), '/regex2/')
 
   t.end()
 })
@@ -177,16 +177,16 @@ test('should separate strings and regexes into their own blacklist arrays', func
 test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
     setup()
-    opbeat.start()
-    t.equal(opbeat.setUserContext({foo: 1}), false)
+    agent.start()
+    t.equal(agent.setUserContext({foo: 1}), false)
     t.end()
   })
 
   t.test('active transaction', function (t) {
     setup()
-    opbeat.start()
-    var trans = opbeat.startTransaction()
-    t.equal(opbeat.setUserContext({foo: 1}), true)
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(agent.setUserContext({foo: 1}), true)
     t.deepEqual(trans._context, {user: {foo: 1}})
     t.end()
   })
@@ -195,63 +195,63 @@ test('#setUserContext()', function (t) {
 test('#setExtraContext()', function (t) {
   t.test('no active transaction', function (t) {
     setup()
-    opbeat.start()
-    t.equal(opbeat.setExtraContext({foo: 1}), false)
+    agent.start()
+    t.equal(agent.setExtraContext({foo: 1}), false)
     t.end()
   })
 
   t.test('active transaction', function (t) {
     setup()
-    opbeat.start()
-    var trans = opbeat.startTransaction()
-    t.equal(opbeat.setExtraContext({foo: 1}), true)
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(agent.setExtraContext({foo: 1}), true)
     t.deepEqual(trans._context, {extra: {foo: 1}})
     t.end()
   })
 })
 
 test('#captureError()', function (t) {
-  t.test('should send a plain text message to Opbeat server', function (t) {
+  t.test('should send a plain text message to server', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(200)
 
-    opbeat.on('logged', function (result) {
+    agent.on('logged', function (result) {
       scope.done()
       t.equal(result, 'foo')
       t.end()
     })
-    opbeat.captureError('Hey!')
+    agent.captureError('Hey!')
   })
 
   t.test('should emit error when request returns non 200', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
-    opbeat.on('error', function () {
+    agent.on('error', function () {
       scope.done()
       t.end()
     })
-    opbeat.captureError('Hey!')
+    agent.captureError('Hey!')
   })
 
   t.test('shouldn\'t shit it\'s pants when error is emitted without a listener', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
-    opbeat.captureError('Hey!')
+    agent.captureError('Hey!')
     setTimeout(function () {
       scope.done()
       t.end()
@@ -260,24 +260,24 @@ test('#captureError()', function (t) {
 
   t.test('should attach an Error object when emitting error', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500, { error: 'Oops!' })
 
-    opbeat.on('error', function (err) {
+    agent.on('error', function (err) {
       scope.done()
       t.equal(err.message, 'Opbeat error (500): {"error":"Oops!"}')
       t.end()
     })
 
-    opbeat.captureError('Hey!')
+    agent.captureError('Hey!')
   })
 
   t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var oldErrorFn = request.error
     request.error = function (agent, data, cb) {
       t.ok('message' in data)
@@ -287,24 +287,24 @@ test('#captureError()', function (t) {
       request.error = oldErrorFn
       t.end()
     }
-    opbeat.captureError({ message: 'Hello %s', params: ['World'] })
+    agent.captureError({ message: 'Hello %s', params: ['World'] })
   })
 
-  t.test('should send an Error to Opbeat server', function (t) {
+  t.test('should send an Error to server', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(skipBody)
       .defaultReplyHeaders({'Location': 'foo'})
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(200)
 
-    opbeat.on('logged', function (result) {
+    agent.on('logged', function (result) {
       scope.done()
       t.equal(result, 'foo')
       t.end()
     })
-    opbeat.captureError(new Error('wtf?'))
+    agent.captureError(new Error('wtf?'))
   })
 
   t.test('should use filters if provided', function (t) {
@@ -315,21 +315,21 @@ test('#captureError()', function (t) {
       organizationId: 'bar',
       secretToken: 'baz'
     }
-    opbeat.addFilter(function (data) {
+    agent.addFilter(function (data) {
       t.equal(++data.extra.order, 1)
       return data
     })
-    opbeat.addFilter(function (data) {
+    agent.addFilter(function (data) {
       t.equal(++data.extra.order, 2)
       return {extra: {owned: true}}
     })
-    opbeat.start(opts)
+    agent.start(opts)
     var oldErrorFn = request.error
     request.error = function (agent, data, cb) {
       t.deepEqual(data.extra, {owned: true})
       request.error = oldErrorFn
     }
-    opbeat.captureError(new Error('foo'), {extra: {order: 0}})
+    agent.captureError(new Error('foo'), {extra: {order: 0}})
   })
 
   t.test('should abort if any filter returns falsy', function (t) {
@@ -339,16 +339,16 @@ test('#captureError()', function (t) {
       organizationId: 'bar',
       secretToken: 'baz'
     }
-    opbeat.addFilter(function () {})
-    opbeat.addFilter(function () {
+    agent.addFilter(function () {})
+    agent.addFilter(function () {
       t.fail('should not 2nd filter')
     })
-    opbeat.start(opts)
+    agent.start(opts)
     var oldErrorFn = request.error
     request.error = function () {
       t.fail('should not send error to intake')
     }
-    opbeat.captureError(new Error(), {}, function () {
+    agent.captureError(new Error(), {}, function () {
       request.error = oldErrorFn
       t.end()
     })
@@ -357,7 +357,7 @@ test('#captureError()', function (t) {
   t.test('should anonymize the http Authorization header by default', function (t) {
     t.plan(2)
     setup()
-    opbeat.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
+    agent.start({ appId: 'foo', organizationId: 'bar', secretToken: 'baz' })
 
     var oldErrorFn = request.error
     request.error = function (agent, data, cb) {
@@ -366,7 +366,7 @@ test('#captureError()', function (t) {
     }
 
     var server = http.createServer(function (req, res) {
-      opbeat.captureError(new Error('foo'), { request: req })
+      agent.captureError(new Error('foo'), { request: req })
       res.end()
     })
 
@@ -387,7 +387,7 @@ test('#captureError()', function (t) {
   t.test('should not anonymize the http Authorization header if disabled', function (t) {
     t.plan(2)
     setup()
-    opbeat.start({
+    agent.start({
       appId: 'foo',
       organizationId: 'bar',
       secretToken: 'baz',
@@ -401,7 +401,7 @@ test('#captureError()', function (t) {
     }
 
     var server = http.createServer(function (req, res) {
-      opbeat.captureError(new Error('foo'), { request: req })
+      agent.captureError(new Error('foo'), { request: req })
       res.end()
     })
 
@@ -421,7 +421,7 @@ test('#captureError()', function (t) {
 
   t.test('should merge context', function (t) {
     setup()
-    opbeat.start({
+    agent.start({
       appId: 'foo',
       organizationId: 'bar',
       secretToken: 'baz',
@@ -437,10 +437,10 @@ test('#captureError()', function (t) {
     }
 
     var server = http.createServer(function (req, res) {
-      opbeat.startTransaction()
-      t.equal(opbeat.setUserContext({a: 1, merge: {a: 2}}), true)
-      t.equal(opbeat.setExtraContext({a: 3, merge: {a: 4}}), true)
-      opbeat.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, extra: {b: 2, merge: {shallow: true}}})
+      agent.startTransaction()
+      t.equal(agent.setUserContext({a: 1, merge: {a: 2}}), true)
+      t.equal(agent.setExtraContext({a: 3, merge: {a: 4}}), true)
+      agent.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, extra: {b: 2, merge: {shallow: true}}})
       res.end()
     })
 
@@ -461,23 +461,23 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should add itself to the uncaughtException event list', function (t) {
     setup()
     t.equal(process._events.uncaughtException, undefined)
-    opbeat.start(opts)
-    opbeat.handleUncaughtExceptions()
+    agent.start(opts)
+    agent.handleUncaughtExceptions()
     t.equal(process._events.uncaughtException.length, 1)
     t.end()
   })
 
   t.test('should not add more than one listener for the uncaughtException event', function (t) {
     setup()
-    opbeat.start(opts)
-    opbeat.handleUncaughtExceptions()
+    agent.start(opts)
+    agent.handleUncaughtExceptions()
     var before = process._events.uncaughtException.length
-    opbeat.handleUncaughtExceptions()
+    agent.handleUncaughtExceptions()
     t.equal(process._events.uncaughtException.length, before)
     t.end()
   })
 
-  t.test('should send an uncaughtException to Opbeat server', function (t) {
+  t.test('should send an uncaughtException to server', function (t) {
     setup()
 
     var scope = nock('https://intake.opbeat.com')
@@ -486,8 +486,8 @@ test('#handleUncaughtExceptions()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(200)
 
-    opbeat.start(opts)
-    opbeat.handleUncaughtExceptions(function (err, url) {
+    agent.start(opts)
+    agent.handleUncaughtExceptions(function (err, url) {
       t.ok(isError(err))
       scope.done()
       t.equal(url, 'foo')
@@ -499,9 +499,9 @@ test('#handleUncaughtExceptions()', function (t) {
 })
 
 test('#trackRelease()', function (t) {
-  t.test('should send release request to the Opbeat server with given rev', function (t) {
+  t.test('should send release request to the server with given rev', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
@@ -511,7 +511,7 @@ test('#trackRelease()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
       .reply(200)
 
-    opbeat.trackRelease({ rev: 'foo' }, function () {
+    agent.trackRelease({ rev: 'foo' }, function () {
       scope.done()
       zlib.inflate(buffer, function (err, buffer) {
         t.error(err)
@@ -527,9 +527,9 @@ test('#trackRelease()', function (t) {
     })
   })
 
-  t.test('should send release request to the Opbeat server with given rev and branch', function (t) {
+  t.test('should send release request to the server with given rev and branch', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
@@ -539,7 +539,7 @@ test('#trackRelease()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
       .reply(200)
 
-    opbeat.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
+    agent.trackRelease({ rev: 'foo', branch: 'bar' }, function () {
       scope.done()
       zlib.inflate(buffer, function (err, buffer) {
         t.error(err)
@@ -553,9 +553,9 @@ test('#trackRelease()', function (t) {
     })
   })
 
-  t.test('should send release request to the Opbeat server with given rev and branch automatically generated', function (t) {
+  t.test('should send release request to the server with given rev and branch automatically generated', function (t) {
     setup()
-    opbeat.start(opts)
+    agent.start(opts)
     var buffer
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function (body) {
@@ -565,7 +565,7 @@ test('#trackRelease()', function (t) {
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/releases/', '*')
       .reply(200)
 
-    opbeat.trackRelease(function () {
+    agent.trackRelease(function () {
       scope.done()
       zlib.inflate(buffer, function (err, buffer) {
         t.error(err)

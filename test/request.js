@@ -20,40 +20,40 @@ var body = JSON.stringify(data)
 test('#error()', function (t) {
   t.test('non-string exception.value', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
-    opbeat._httpClient.request = function () {
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
       t.end()
     }
-    request.error(opbeat, { exception: { value: 1 } })
+    request.error(agent, { exception: { value: 1 } })
   })
 
   t.test('non-string culprit', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
-    opbeat._httpClient.request = function () {
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
       t.end()
     }
-    request.error(opbeat, { culprit: 1 })
+    request.error(agent, { culprit: 1 })
   })
 
   t.test('non-string message', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
-    opbeat._httpClient.request = function () {
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
       t.end()
     }
-    request.error(opbeat, { message: 1 })
+    request.error(agent, { message: 1 })
   })
 
   t.test('without callback and successful request', function (t) {
     zlib.deflate(body, function (err, buffer) {
       t.error(err)
       global.__opbeat_initialized = null
-      var opbeat = new Agent()
-      opbeat.start(opts)
+      var agent = new Agent()
+      agent.start(opts)
       var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'))
@@ -62,12 +62,12 @@ test('#error()', function (t) {
         .defaultReplyHeaders({'Location': 'foo'})
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', 'ok')
         .reply(200)
-      opbeat.on('logged', function (url) {
+      agent.on('logged', function (url) {
         scope.done()
         t.equal(url, 'foo')
         t.end()
       })
-      request.error(opbeat, data)
+      request.error(agent, data)
     })
   })
 
@@ -75,8 +75,8 @@ test('#error()', function (t) {
     zlib.deflate(body, function (err, buffer) {
       t.error(err)
       global.__opbeat_initialized = null
-      var opbeat = new Agent()
-      opbeat.start(opts)
+      var agent = new Agent()
+      agent.start(opts)
       var scope = nock('https://intake.opbeat.com')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'))
@@ -85,7 +85,7 @@ test('#error()', function (t) {
         .defaultReplyHeaders({'Location': 'foo'})
         .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', 'ok')
         .reply(200)
-      request.error(opbeat, data, function (err, url) {
+      request.error(agent, data, function (err, url) {
         scope.done()
         t.error(err)
         t.equal(url, 'foo')
@@ -96,32 +96,32 @@ test('#error()', function (t) {
 
   t.test('without callback and bad request', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
+    var agent = new Agent()
+    agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500)
-    opbeat.on('error', function (err) {
+    agent.on('error', function (err) {
       helpers.restoreLogger()
       scope.done()
       t.equal(err.message, 'Opbeat error (500): ')
       t.end()
     })
     helpers.mockLogger()
-    request.error(opbeat, data)
+    request.error(agent, data)
   })
 
   t.test('with callback and bad request', function (t) {
     var called = false
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
+    var agent = new Agent()
+    agent.start(opts)
     var scope = nock('https://intake.opbeat.com')
       .filteringRequestBody(function () { return '*' })
       .post('/api/v1/organizations/some-org-id/apps/some-app-id/errors/', '*')
       .reply(500)
-    opbeat.on('error', function (err) {
+    agent.on('error', function (err) {
       helpers.restoreLogger()
       scope.done()
       t.ok(called)
@@ -129,7 +129,7 @@ test('#error()', function (t) {
       t.end()
     })
     helpers.mockLogger()
-    request.error(opbeat, data, function (err) {
+    request.error(agent, data, function (err) {
       called = true
       t.equal(err.message, 'Opbeat error (500): ')
     })
@@ -139,12 +139,12 @@ test('#error()', function (t) {
 test('#transactions()', function (t) {
   t.test('non-string transactions.$.transaction', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
-    opbeat._httpClient.request = function () {
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, {
+    request.transactions(agent, {
       transactions: [{ transaction: 1 }],
       traces: { raw: [], groups: [] }
     })
@@ -152,12 +152,12 @@ test('#transactions()', function (t) {
 
   t.test('non-string traces.groups.$.transaction', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
-    opbeat._httpClient.request = function () {
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, {
+    request.transactions(agent, {
       transactions: [{ transaction: 1 }],
       traces: { raw: [], groups: [{ transaction: 1 }] }
     })
@@ -165,12 +165,12 @@ test('#transactions()', function (t) {
 
   t.test('non-string traces.groups.$.extra._frames.$.context_line', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
-    opbeat._httpClient.request = function () {
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, {
+    request.transactions(agent, {
       transactions: [{ transaction: 'foo' }],
       traces: {
         raw: [],
@@ -181,12 +181,12 @@ test('#transactions()', function (t) {
 
   t.test('non-string traces.groups.$.extra._frames.$.pre_context.$', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
-    opbeat._httpClient.request = function () {
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, {
+    request.transactions(agent, {
       transactions: [{ transaction: 'foo' }],
       traces: {
         raw: [],
@@ -197,12 +197,12 @@ test('#transactions()', function (t) {
 
   t.test('non-string traces.groups.$.extra._frames.$.pre_context.$', function (t) {
     global.__opbeat_initialized = null
-    var opbeat = new Agent()
-    opbeat.start(opts)
-    opbeat._httpClient.request = function () {
+    var agent = new Agent()
+    agent.start(opts)
+    agent._httpClient.request = function () {
       t.end()
     }
-    request.transactions(opbeat, {
+    request.transactions(agent, {
       transactions: [{ transaction: 'foo' }],
       traces: {
         raw: [],

@@ -1,6 +1,6 @@
 'use strict'
 
-var opbeat = require('../../')
+var agent = require('../../')
 
 var fs = require('fs')
 var path = require('path')
@@ -10,16 +10,16 @@ var untildify = require('untildify')
 
 var standardTest = function () {
   console.log('Tracking release...')
-  opbeat.trackRelease(function () {
+  agent.trackRelease(function () {
     console.log('The release have been tracked!')
 
     console.log('Capturing error...')
-    opbeat.captureError(new Error('This is an Error object'), function (err, url) {
+    agent.captureError(new Error('This is an Error object'), function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
 
       console.log('Capturing message...')
-      opbeat.captureError('This is a string', function (err, url) {
+      agent.captureError('This is a string', function (err, url) {
         if (err) console.log('Something went wrong:', err.message)
         console.log('The message have been logged at:', url)
 
@@ -28,7 +28,7 @@ var standardTest = function () {
           message: 'Timeout exeeded by %d seconds',
           params: [Math.random()]
         }
-        opbeat.captureError(params, function (err, url) {
+        agent.captureError(params, function (err, url) {
           if (err) console.log('Something went wrong:', err.message)
           console.log('The parameterized message have been logged at:', url)
 
@@ -45,7 +45,7 @@ var httpTest = function () {
 
   var server1 = http.createServer(function (req, res) {
     var err = new Error('This is a request related error')
-    opbeat.captureError(err, function (err, url) {
+    agent.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       res.end()
@@ -61,7 +61,7 @@ var httpTest = function () {
     switch (req.url) {
       case '/error':
         var err = new Error('This is a request related error')
-        opbeat.captureError(err, function (err, url) {
+        agent.captureError(err, function (err, url) {
           if (err) console.log('Something went wrong:', err.message)
           console.log('The error have been logged at:', url)
           res.end()
@@ -107,7 +107,7 @@ var restifyTest = function () {
   var server = restify.createServer({ name: 'foo', version: '1.0.0' })
 
   server.on('uncaughtException', function (req, res, route, err) {
-    opbeat.captureError(err, function (err, url) {
+    agent.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       process.exit()
@@ -116,7 +116,7 @@ var restifyTest = function () {
 
   server.get('/error', function (req, res, next) {
     var err = new Error('This is a request related error')
-    opbeat.captureError(err, function (err, url) {
+    agent.captureError(err, function (err, url) {
       if (err) console.log('Something went wrong:', err.message)
       console.log('The error have been logged at:', url)
       res.end()
@@ -166,7 +166,7 @@ var connectTest = function () {
         res.end()
     }
   })
-  app.use(opbeat.middleware.connect())
+  app.use(agent.middleware.connect())
   app.use(function (err, req, res, next) { // eslint-disable-line handle-callback-err
     if (!--testsLeft) process.exit()
   })
@@ -200,7 +200,7 @@ var expressTest = function () {
   app.get('/throw', function (req, res) {
     throw new Error('foobar')
   })
-  app.use(opbeat.middleware.express())
+  app.use(agent.middleware.express())
   app.use(function (err, req, res, next) {
     if (!err) return
     if (!res.headersSent) {
@@ -234,24 +234,24 @@ var transactionTest = function () {
   function makeTransaction () {
     if ((Date.now() - start) / 1000 > maxSeconds) {
       console.log('Done making transactions - flushing queue...')
-      opbeat._instrumentation._queue._flush()
+      agent._instrumentation._queue._flush()
       return
     }
 
     console.log('Starting new transaction')
 
     var type = Math.random() > 0.5 ? 'request' : 'my-custom-type'
-    var trans = opbeat.startTransaction('foo', type)
-    var t1 = opbeat.buildTrace()
+    var trans = agent.startTransaction('foo', type)
+    var t1 = agent.buildTrace()
     t1.start('sig1', 'foo.bar.baz1')
-    var t2 = opbeat.buildTrace()
+    var t2 = agent.buildTrace()
     t2.start('sig2', 'foo.bar.baz1')
 
     setTimeout(function () {
-      var t3 = opbeat.buildTrace()
+      var t3 = agent.buildTrace()
       t3.start('sig3', 'foo.bar.baz2')
       setTimeout(function () {
-        var t4 = opbeat.buildTrace()
+        var t4 = agent.buildTrace()
         t4.start('sig4', 'foo.bar.baz3')
         setTimeout(function () {
           t3.end()
@@ -262,10 +262,10 @@ var transactionTest = function () {
     }, Math.random() * 100 + 25)
 
     setTimeout(function () {
-      var t5 = opbeat.buildTrace()
+      var t5 = agent.buildTrace()
       t5.start('sig5', 'foo.bar.baz2')
       setTimeout(function () {
-        var t6 = opbeat.buildTrace()
+        var t6 = agent.buildTrace()
         t6.start('sig6', 'foo.bar.baz4')
         setTimeout(function () {
           t6.end()
@@ -289,14 +289,14 @@ var transactionTest = function () {
 var test = function (suite, opts) {
   opts.logLevel = 'fatal'
   opts.captureExceptions = false
-  opbeat.start(opts)
+  agent.start(opts)
 
-  opbeat.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
+  agent.handleUncaughtExceptions(function (err, url) { // eslint-disable-line handle-callback-err
     console.log('The uncaught exception have been logged at:', url)
     process.exit()
   })
 
-  opbeat.on('error', function (err) {
+  agent.on('error', function (err) {
     console.log(err.stack)
   })
 

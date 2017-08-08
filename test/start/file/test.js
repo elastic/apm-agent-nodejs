@@ -1,6 +1,6 @@
 'use strict'
 
 var assert = require('assert')
-var opbeat = require('../../..')
+var agent = require('../../..')
 
-assert.equal(opbeat.appId, 'from-file')
+assert.equal(agent.appId, 'from-file')

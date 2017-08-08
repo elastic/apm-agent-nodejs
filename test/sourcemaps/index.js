@@ -3,7 +3,7 @@
 var path = require('path')
 var test = require('tape')
 
-var opbeat = require('../../').start({
+var agent = require('../../').start({
   organizationId: 'test',
   appId: 'test',
   secretToken: 'test',
@@ -13,23 +13,23 @@ var opbeat = require('../../').start({
 
 test('source map inlined', function (t) {
   onError(t, assertSourceFound)
-  opbeat.captureError(require('./fixtures/lib/error-inline')())
+  agent.captureError(require('./fixtures/lib/error-inline')())
 })
 
 test('source map linked', function (t) {
   t.test('source mapped source code embedded', function (t) {
     onError(t, assertSourceFound)
-    opbeat.captureError(require('./fixtures/lib/error-src-embedded')())
+    agent.captureError(require('./fixtures/lib/error-src-embedded')())
   })
 
   t.test('source mapped source code on disk', function (t) {
     onError(t, assertSourceFound)
-    opbeat.captureError(require('./fixtures/lib/error')())
+    agent.captureError(require('./fixtures/lib/error')())
   })
 
   t.test('source mapped source code not found', function (t) {
     onError(t, assertSourceNotFound)
-    opbeat.captureError(require('./fixtures/lib/error-src-missing')())
+    agent.captureError(require('./fixtures/lib/error-src-missing')())
   })
 })
 
@@ -48,7 +48,7 @@ test('fails', function (t) {
       t.equal(frame.abs_path, path.join(__dirname, 'fixtures', 'lib', 'error-inline-broken.js'))
       t.equal(frame.context_line, '  return new Error(msg);')
     })
-    opbeat.captureError(require('./fixtures/lib/error-inline-broken')())
+    agent.captureError(require('./fixtures/lib/error-inline-broken')())
   })
 
   t.test('linked source map not found', function (t) {
@@ -65,7 +65,7 @@ test('fails', function (t) {
       t.equal(frame.abs_path, path.join(__dirname, 'fixtures', 'lib', 'error-map-missing.js'))
       t.equal(frame.context_line, '  return new Error(msg);')
     })
-    opbeat.captureError(require('./fixtures/lib/error-map-missing')())
+    agent.captureError(require('./fixtures/lib/error-map-missing')())
   })
 
   t.test('linked source map broken', function (t) {
@@ -82,12 +82,12 @@ test('fails', function (t) {
       t.equal(frame.abs_path, path.join(__dirname, 'fixtures', 'lib', 'error-broken.js'))
       t.equal(frame.context_line, '  return new Error(msg);')
     })
-    opbeat.captureError(require('./fixtures/lib/error-broken')())
+    agent.captureError(require('./fixtures/lib/error-broken')())
   })
 })
 
 function onError (t, assert) {
-  opbeat._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
     t.end()
   }}

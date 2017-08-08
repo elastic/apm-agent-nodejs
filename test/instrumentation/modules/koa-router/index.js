@@ -48,10 +48,10 @@ test('route naming with params', function (t) {
   })
 
   var server = startServer(function (port) {
-    http.get('http://localhost:' + port + '/hello/opbeat', function (res) {
+    http.get('http://localhost:' + port + '/hello/thomas', function (res) {
       t.equal(res.statusCode, 200)
       res.on('data', function (chunk) {
-        t.equal(chunk.toString(), 'hello opbeat')
+        t.equal(chunk.toString(), 'hello thomas')
       })
       res.on('end', function () {
         agent._instrumentation._queue._flush()

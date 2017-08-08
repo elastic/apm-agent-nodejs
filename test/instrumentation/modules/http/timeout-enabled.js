@@ -105,7 +105,7 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    t.fail('should not send any data to opbeat')
+    t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the timeout as an error')
@@ -145,7 +145,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    t.fail('should not send any data to opbeat')
+    t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
@@ -280,7 +280,7 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    t.fail('should not send any data to opbeat')
+    t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the timeout as an error')
@@ -321,7 +321,7 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
   t.equal(agent._instrumentation._queue._samples.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
-    t.fail('should not send any data to opbeat')
+    t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')

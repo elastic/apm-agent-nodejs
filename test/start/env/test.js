@@ -1,6 +1,6 @@
 'use strict'
 
 var assert = require('assert')
-var opbeat = require('../../..')
+var agent = require('../../..')
 
-assert.equal(opbeat.appId, 'from-env')
+assert.equal(agent.appId, 'from-env')
