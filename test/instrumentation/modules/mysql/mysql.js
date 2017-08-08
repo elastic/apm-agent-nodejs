@@ -452,7 +452,7 @@ function createConnection (cb) {
 
     queryable = mysql.createConnection({
       user: 'root',
-      database: 'test_opbeat'
+      database: 'test_elastic_apm'
     })
     queryable.connect()
 
@@ -471,7 +471,7 @@ function createPool (cb) {
 
     var pool = mysql.createPool({
       user: 'root',
-      database: 'test_opbeat'
+      database: 'test_elastic_apm'
     })
     queryable = pool
 
@@ -490,7 +490,7 @@ function createPoolAndGetConnection (cb) {
 
     var pool = mysql.createPool({
       user: 'root',
-      database: 'test_opbeat'
+      database: 'test_elastic_apm'
     })
     pool.getConnection(function (err, conn) {
       if (err) throw err
@@ -512,7 +512,7 @@ function createPoolClusterAndGetConnection (cb) {
     var cluster = mysql.createPoolCluster()
     cluster.add({
       user: 'root',
-      database: 'test_opbeat'
+      database: 'test_elastic_apm'
     })
     cluster.getConnection(function (err, conn) {
       if (err) throw err
@@ -531,7 +531,7 @@ function createPoolClusterAndGetConnectionViaOf (cb) {
     var cluster = mysql.createPoolCluster()
     cluster.add({
       user: 'root',
-      database: 'test_opbeat'
+      database: 'test_elastic_apm'
     })
     cluster.of('*').getConnection(function (err, conn) {
       if (err) throw err

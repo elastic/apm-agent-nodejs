@@ -307,7 +307,7 @@ test('request error logging with Error does not affect event tags', function (t)
     t.equal(err, customError)
     t.ok(opts.custom)
     t.ok(opts.request)
-    t.deepEqual(opts.custom.tags, ['opbeat', 'error'])
+    t.deepEqual(opts.custom.tags, ['elastic-apm', 'error'])
     t.false(opts.custom.internals)
     t.ok(opts.custom.data instanceof Error)
   }
@@ -319,21 +319,21 @@ test('request error logging with Error does not affect event tags', function (t)
     method: 'GET',
     path: '/error',
     handler: function (request, reply) {
-      request.log(['opbeat', 'error'], customError)
+      request.log(['elastic-apm', 'error'], customError)
 
       return reply('hello world')
     }
   })
 
   server.on('request', function (req, event, tags) {
-    t.deepEqual(event.tags, ['opbeat', 'error'])
+    t.deepEqual(event.tags, ['elastic-apm', 'error'])
   })
 
   server.start(function (err) {
     t.error(err, 'start error')
 
     server.on('request', function (req, event, tags) {
-      t.deepEqual(event.tags, ['opbeat', 'error'])
+      t.deepEqual(event.tags, ['elastic-apm', 'error'])
     })
 
     http.get('http://localhost:' + server.info.port + '/error', function (res) {

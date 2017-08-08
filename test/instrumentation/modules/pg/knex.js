@@ -1,6 +1,6 @@
 'use strict'
 
-process.env.OPBEAT_TEST = true
+process.env.ELASTIC_APM_TEST = true
 
 var agent = require('../../../..').start({
   appName: 'test',
@@ -135,7 +135,7 @@ function createClient (cb) {
   setup(function () {
     knex = Knex({
       client: 'pg',
-      connection: 'postgres://localhost/test_opbeat'
+      connection: 'postgres://localhost/test_elastic_apm'
     })
     cb()
   })
@@ -146,7 +146,7 @@ function setup (cb) {
   teardown(function () {
     exec('psql -d postgres -f pg_reset.sql', { cwd: __dirname }, function (err) {
       if (err) throw err
-      exec('psql -d test_opbeat -f pg_data.sql', { cwd: __dirname }, function (err) {
+      exec('psql -d test_elastic_apm -f pg_data.sql', { cwd: __dirname }, function (err) {
         if (err) throw err
         cb()
       })

@@ -13,11 +13,11 @@ test('trace simple command', function (t) {
   resetAgent(function (endpoint, headers, data, cb) {
     var groups = [
       'system.$cmd.ismaster',
-      // 'opbeat.$cmd.command', // only appears in mongodb-core 1.x
-      'opbeat.test.insert',
-      'opbeat.test.update',
-      'opbeat.test.remove',
-      'opbeat.test.find',
+      // 'elasticapm.$cmd.command', // only appears in mongodb-core 1.x
+      'elasticapm.test.insert',
+      'elasticapm.test.update',
+      'elasticapm.test.remove',
+      'elasticapm.test.find',
       'system.$cmd.ismaster'
     ]
 
@@ -50,19 +50,19 @@ test('trace simple command', function (t) {
       t.error(err)
       t.equal(results.result.ismaster, true)
 
-      _server.insert('opbeat.test', [{a: 1}, {a: 2}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
+      _server.insert('elasticapm.test', [{a: 1}, {a: 2}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
         t.error(err)
         t.equal(results.result.n, 2)
 
-        _server.update('opbeat.test', [{q: {a: 1}, u: {'$set': {b: 1}}}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
+        _server.update('elasticapm.test', [{q: {a: 1}, u: {'$set': {b: 1}}}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
           t.error(err)
           t.equal(results.result.n, 1)
 
-          _server.remove('opbeat.test', [{q: {a: 1}, limit: 1}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
+          _server.remove('elasticapm.test', [{q: {a: 1}, limit: 1}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
             t.error(err)
             t.equal(results.result.n, 1)
 
-            var cursor = _server.cursor('opbeat.test', {find: 'opbeat.test', query: {a: 2}})
+            var cursor = _server.cursor('elasticapm.test', {find: 'elasticapm.test', query: {a: 2}})
 
             cursor.next(function (err, doc) {
               t.error(err)

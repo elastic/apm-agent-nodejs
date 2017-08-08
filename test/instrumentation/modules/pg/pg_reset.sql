@@ -1,2 +1,2 @@
-DROP DATABASE IF EXISTS test_opbeat;
-CREATE DATABASE test_opbeat;
+DROP DATABASE IF EXISTS test_elastic_apm;
+CREATE DATABASE test_elastic_apm;

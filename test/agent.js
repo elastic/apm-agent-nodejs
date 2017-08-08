@@ -43,35 +43,35 @@ var setup = function () {
 }
 
 var clean = function () {
-  global.__opbeat_initialized = null
+  global._elastic_apm_initialized = null
   process._events.uncaughtException = uncaughtExceptionListeners
   if (agent) agent._filters = []
 }
 
 optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
-    test('should be configurable by envrionment variable OPBEAT_' + fixture[1], function (t) {
+    test('should be configurable by envrionment variable ELASTIC_APM_' + fixture[1], function (t) {
       setup()
       var bool = typeof fixture[2] === 'boolean'
       var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value'
-      process.env['OPBEAT_' + fixture[1]] = value
+      process.env['ELASTIC_APM_' + fixture[1]] = value
       agent.start()
       t.equal(agent[fixture[0]], bool ? !fixture[2] : value)
-      delete process.env['OPBEAT_' + fixture[1]]
+      delete process.env['ELASTIC_APM_' + fixture[1]]
       t.end()
     })
 
-    test('should overwrite OPBEAT_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
+    test('should overwrite ELASTIC_APM_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
       setup()
       var opts = {}
       var bool = typeof fixture[2] === 'boolean'
       var value1 = bool ? (fixture[2] ? '0' : '1') : 'overwriting-value'
       var value2 = bool ? (fixture[2] ? '1' : '0') : 'custom-value'
       opts[fixture[0]] = value1
-      process.env['OPBEAT_' + fixture[1]] = value2
+      process.env['ELASTIC_APM_' + fixture[1]] = value2
       agent.start(opts)
       t.equal(agent[fixture[0]], bool ? !fixture[2] : value1)
-      delete process.env['OPBEAT_' + fixture[1]]
+      delete process.env['ELASTIC_APM_' + fixture[1]]
       t.end()
     })
   }
@@ -85,34 +85,34 @@ optionFixtures.forEach(function (fixture) {
 })
 
 falsyValues.forEach(function (val) {
-  test('should be disabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
+  test('should be disabled by envrionment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
-    process.env.OPBEAT_ACTIVE = val
+    process.env.ELASTIC_APM_ACTIVE = val
     agent.start({ appName: 'foo', secretToken: 'baz' })
     t.equal(agent.active, false)
-    delete process.env.OPBEAT_ACTIVE
+    delete process.env.ELASTIC_APM_ACTIVE
     t.end()
   })
 })
 
 truthyValues.forEach(function (val) {
-  test('should be enabled by envrionment variable OPBEAT_ACTIVE set to: ' + util.inspect(val), function (t) {
+  test('should be enabled by envrionment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     setup()
-    process.env.OPBEAT_ACTIVE = val
+    process.env.ELASTIC_APM_ACTIVE = val
     agent.start({ appName: 'foo', secretToken: 'baz' })
     t.equal(agent.active, true)
-    delete process.env.OPBEAT_ACTIVE
+    delete process.env.ELASTIC_APM_ACTIVE
     t.end()
   })
 })
 
-test('should overwrite OPBEAT_ACTIVE by option property active', function (t) {
+test('should overwrite ELASTIC_APM_ACTIVE by option property active', function (t) {
   setup()
   var opts = { appName: 'foo', secretToken: 'baz', active: false }
-  process.env.OPBEAT_ACTIVE = '1'
+  process.env.ELASTIC_APM_ACTIVE = '1'
   agent.start(opts)
   t.equal(agent.active, false)
-  delete process.env.OPBEAT_ACTIVE
+  delete process.env.ELASTIC_APM_ACTIVE
   t.end()
 })
 

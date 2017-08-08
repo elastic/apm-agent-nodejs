@@ -506,7 +506,7 @@ function assertBasicQuery (t, sql, data) {
 function createClient (cb) {
   setup(function () {
     queryable = new pg.Client({
-      database: 'test_opbeat'
+      database: 'test_elastic_apm'
     })
     queryable.connect(function (err) {
       if (err) throw err
@@ -522,12 +522,12 @@ function createPool (cb) {
     if (semver.satisfies(pgVersion, '<6.0.0')) {
       queryable = pg // TODO: Can this be done?
       connector = function connector (cb) {
-        var conString = 'postgres://localhost/test_opbeat'
+        var conString = 'postgres://localhost/test_elastic_apm'
         return pg.connect(conString, cb)
       }
     } else {
       var pool = new pg.Pool({
-        database: 'test_opbeat'
+        database: 'test_elastic_apm'
       })
       queryable = pool // TODO: Can this be done?
       connector = function connector (cb) {

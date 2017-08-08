@@ -19,7 +19,7 @@ var opts = {
 
 test('#errors()', function (t) {
   t.test('envelope', function (t) {
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(opts)
     agent._httpClient.request = function (endpoint, headers, data, cb) {
@@ -32,7 +32,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string log.message', function (t) {
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(opts)
     agent._httpClient.request = function () {
@@ -42,7 +42,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string exception.message', function (t) {
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(opts)
     agent._httpClient.request = function () {
@@ -52,7 +52,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string culprit', function (t) {
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(opts)
     agent._httpClient.request = function () {
@@ -62,7 +62,7 @@ test('#errors()', function (t) {
   })
 
   t.test('successful request', function (t) {
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(opts)
 
@@ -89,7 +89,7 @@ test('#errors()', function (t) {
 
   t.test('bad request', function (t) {
     var errors = [{context: {custom: {foo: 'bar'}}}]
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(opts)
     var scope = nock('http://localhost:8080')
@@ -104,7 +104,7 @@ test('#errors()', function (t) {
 
   t.test('should use filters if provided', function (t) {
     t.plan(3)
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.addFilter(function (data) {
       var error = data.errors[0]
@@ -126,7 +126,7 @@ test('#errors()', function (t) {
   })
 
   t.test('should abort if any filter returns falsy', function (t) {
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.addFilter(function () {})
     agent.addFilter(function () {
@@ -143,7 +143,7 @@ test('#errors()', function (t) {
   })
 
   t.test('should anonymize the http Authorization header by default', function (t) {
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(opts)
 
@@ -158,7 +158,7 @@ test('#errors()', function (t) {
   })
 
   t.test('should not anonymize the http Authorization header if disabled', function (t) {
-    global.__opbeat_initialized = null
+    global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(objectAssign({filterHttpHeaders: false}, opts))
 
@@ -174,7 +174,7 @@ test('#errors()', function (t) {
 })
 
 test('#transactions()', function (t) {
-  global.__opbeat_initialized = null
+  global._elastic_apm_initialized = null
   var agent = new Agent()
   agent.start(opts)
   agent._httpClient.request = function (endpoint, headers, data, cb) {

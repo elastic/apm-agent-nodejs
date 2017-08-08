@@ -33,7 +33,7 @@ function createPool (cb) {
   setup(function () {
     var pool = mysql.createPool({
       user: 'root',
-      database: 'test_opbeat'
+      database: 'test_elastic_apm'
     })
 
     cb(pool)
