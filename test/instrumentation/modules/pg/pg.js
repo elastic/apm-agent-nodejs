@@ -17,7 +17,7 @@ var test = require('tape')
 var exec = require('child_process').exec
 var pg = require('pg')
 
-var queryable
+var queryable, connectionDone
 var factories = [
   [createClient, 'client']
 ]
@@ -769,7 +769,7 @@ function createPool (cb) {
   setup(function () {
     var connector
 
-    if (semver.satisfies(pgVersion, '<5.2.0')) {
+    if (semver.satisfies(pgVersion, '<6.0.0')) {
       queryable = pg // TODO: Can this be done?
       connector = function connector (cb) {
         var conString = 'postgres://localhost/test_opbeat'
@@ -794,6 +794,7 @@ function createPoolAndConnect (cb) {
     connector(function (err, client, done) {
       if (err) throw err
       queryable = client
+      connectionDone = done
       cb()
     })
   })
@@ -809,7 +810,19 @@ function setup (cb) {
 
 function teardown () {
   if (queryable) {
-    queryable.end()
+    if (connectionDone && semver.satisfies(pgVersion, '^5.2.1')) {
+      // Version 5.2.1 doesn't release the connection back into the pool when
+      // calling client.end(), so we'll instead drain the pool completely. This
+      // takes a lot longer, so we don't wanna do this normally.
+      //
+      // For details see:
+      // https://github.com/brianc/node-postgres/issues/1414
+      // pg.end()
+      connectionDone()
+      connectionDone = undefined
+    } else {
+      queryable.end()
+    }
     queryable = undefined
   }
 }
