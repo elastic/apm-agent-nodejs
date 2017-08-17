@@ -20,6 +20,7 @@ var opts = {
 var optionFixtures = [
   ['appName', 'APP_NAME'],
   ['secretToken', 'SECRET_TOKEN'],
+  ['appVersion', 'APP_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],

@@ -13,6 +13,7 @@ var agentVersion = require('../package.json').version
 var opts = {
   appName: 'some-app-name',
   secretToken: 'secret',
+  appVersion: 'my-app-version',
   captureExceptions: false,
   logLevel: 'error'
 }
@@ -195,6 +196,7 @@ function assertRoot (t, payload) {
   t.ok(payload.app.argv.length >= 2)
   t.deepEqual(payload.app.runtime, {name: 'node', version: process.version})
   t.deepEqual(payload.app.agent, {name: 'nodejs', version: agentVersion})
+  t.equal(payload.app.version, 'my-app-version')
   t.deepEqual(payload.system, {
     hostname: os.hostname(),
     architecture: process.arch,
