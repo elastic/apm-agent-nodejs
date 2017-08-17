@@ -13,37 +13,37 @@ them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 
 ## Quick start
 
-Install the module:
+1. To run Elastic APM for your own applications make sure you have the
+   prerequisites in place first. For details see ["APM Getting
+   Started"](https://github.com/elastic/apm-server#apm-getting-started).
 
-```
-npm install elastic-apm --save
-```
+1. Install the module:
+   ```
+   npm install elastic-apm --save
+   ```
 
-To get started just require and start the Elastic APM agent **at the
-very top** of your app's startup script. The Elastic APM agent will be
-returned. The agent will now instrument your Node.js application and
-track unhandled exceptions automatically.
+1. To get started just require and start the Elastic APM agent **at the
+   very top** of your app's startup script. The Elastic APM agent will
+   be returned. The agent will now instrument your Node.js application
+   and track unhandled exceptions automatically.
+   ```js
+   // Add this to the VERY top of the first file loaded in your app
+   var apm = require('elastic-apm').start({
+     // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+     appName: '',
 
-```js
-// Add this to the VERY top of the first file loaded in your app
-var apm = require('elastic-apm').start({
-  // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
-  appName: '',
+     // Use if APM Server requires a token
+     secretToken: '',
 
-  // Use if APM Server requires a token
-  secretToken: '',
-
-  // Set custom APM Server URL (default: http://localhost:8080)
-  serverUrl: ''
-})
-```
-
-If you want to manually send an error to Elastic APM, use the
-`captureError()` function:
-
-```js
-apm.captureError(new Error('Ups, something broke'))
-```
+     // Set custom APM Server URL (default: http://localhost:8080)
+     serverUrl: ''
+   })
+   ```
+   If you want to manually send an error to Elastic APM, use the
+   `captureError()` function:
+   ```js
+   apm.captureError(new Error('Ups, something broke'))
+   ```
 
 ## Testing
 
