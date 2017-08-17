@@ -6,12 +6,17 @@
 **Warning: This project is currently in a pre-alpha stage and no support
 or documentation is currently provided. Use it at your own risk.**
 
+This is the official Node.js agent for Elastic APM.
+
+If you are trying out APM and have feedback or problems, please post
+them on the [Discuss forum](https://discuss.elastic.co/c/apm).
+
 ## Quick start
 
 Install the module:
 
 ```
-npm install elastic/apm-agent-nodejs --save
+npm install elastic-apm --save
 ```
 
 To get started just require and start the Elastic APM agent **at the
