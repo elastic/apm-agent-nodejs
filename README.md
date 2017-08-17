@@ -6,7 +6,10 @@
 **Warning: This project is currently in a pre-alpha stage and no support
 or documentation is currently provided. Use it at your own risk.**
 
-This is the official Node.js agent for Elastic APM.
+This is the official Node.js agent for Elastic APM. Read our
+[announcement blog
+post](https://www.elastic.co/blog/starting-down-the-path-for-elastic-apm)
+for details.
 
 If you are trying out APM and have feedback or problems, please post
 them on the [Discuss forum](https://discuss.elastic.co/c/apm).
