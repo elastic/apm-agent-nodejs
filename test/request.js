@@ -14,6 +14,7 @@ var opts = {
   appName: 'some-app-name',
   secretToken: 'secret',
   appVersion: 'my-app-version',
+  appGitRef: 'my-git-ref',
   captureExceptions: false,
   logLevel: 'error'
 }
@@ -197,6 +198,7 @@ function assertRoot (t, payload) {
   t.deepEqual(payload.app.runtime, {name: 'node', version: process.version})
   t.deepEqual(payload.app.agent, {name: 'nodejs', version: agentVersion})
   t.equal(payload.app.version, 'my-app-version')
+  t.equal(payload.app.git_ref, 'my-git-ref')
   t.deepEqual(payload.system, {
     hostname: os.hostname(),
     architecture: process.arch,
