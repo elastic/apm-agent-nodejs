@@ -127,6 +127,7 @@ test('protocol.encode - http request meta data', function (t) {
   var t0 = new Transaction(agent, 'http-name0', 'type0')
   t0.result = 'result0'
   t0.req = {
+    httpVersion: '1.1',
     method: 'POST',
     url: '/foo?bar=baz',
     headers: {
@@ -160,6 +161,7 @@ test('protocol.encode - http request meta data', function (t) {
       t.ok(trans.duration < 100, 'should have a duration <100ms')
       t.deepEqual(trans.context, {
         request: {
+          http_version: '1.1',
           method: 'POST',
           url: {
             hostname: 'example.com',

@@ -32,6 +32,7 @@ test('#parseMessage()', function (t) {
 
 test('#getContextFromRequest()', function (t) {
   var mockReq = {
+    httpVersion: '1.1',
     method: 'GET',
     url: '/some/path?key=value',
     headers: {
@@ -49,6 +50,7 @@ test('#getContextFromRequest()', function (t) {
   t.test('should parse a request object', function (t) {
     var parsed = parsers.getContextFromRequest(mockReq)
     t.deepEqual(parsed, {
+      http_version: '1.1',
       method: 'GET',
       url: {
         hostname: 'example.com',
