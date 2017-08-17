@@ -121,7 +121,7 @@ function assertBasicQuery (t, data) {
   // remove the 'select versions();' query that knex injects - just makes
   // testing too hard
   trans.traces = trans.traces.filter(function (trace) {
-    return trace.context.sql !== 'select version();'
+    return trace.context.db.statement !== 'select version();'
   })
 
   t.equal(trans.traces.length, 1)
