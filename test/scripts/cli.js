@@ -332,6 +332,7 @@ loadConf(function (err, conf) {
   var questions = [
     { name: 'appName', message: 'App name', 'default': conf.appName },
     { name: 'secretToken', message: 'Secret token', 'default': conf.secretToken },
+    { name: 'serverUrl', message: 'APM Server URL', 'default': conf.serverUrl },
     { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard', 'http', 'restify', 'connect', 'express', 'transaction'] },
     { name: 'save', message: 'Save answers?', type: 'confirm' }
   ]
