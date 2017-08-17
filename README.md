@@ -25,10 +25,16 @@ returned. The agent will now instrument your Node.js application and
 track unhandled exceptions automatically.
 
 ```js
-// Add this snippet to the VERY top of your app's startup script
+// Add this to the VERY top of the first file loaded in your app
 var apm = require('elastic-apm').start({
-  appName: 'my-app',
-  secretToken: '...'
+  // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+  appName: '',
+
+  // Use if APM Server requires a token
+  secretToken: '',
+
+  // Set custom APM Server URL (default: http://localhost:8080)
+  serverUrl: ''
 })
 ```
 
