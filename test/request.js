@@ -30,7 +30,7 @@ test('#errors()', function (t) {
       assertRoot(t, data)
       t.end()
     }
-    request.errors(agent, [{}], function () {})
+    request.errors(agent, [{}])
   })
 
   t.test('non-string log.message', function (t) {
@@ -40,7 +40,7 @@ test('#errors()', function (t) {
     agent._httpClient.request = function () {
       t.end()
     }
-    request.errors(agent, [{log: {message: 1}}], function () {})
+    request.errors(agent, [{log: {message: 1}}])
   })
 
   t.test('non-string exception.message', function (t) {
@@ -50,7 +50,7 @@ test('#errors()', function (t) {
     agent._httpClient.request = function () {
       t.end()
     }
-    request.errors(agent, [{exception: {message: 1}}], function () {})
+    request.errors(agent, [{exception: {message: 1}}])
   })
 
   t.test('non-string culprit', function (t) {
@@ -60,7 +60,7 @@ test('#errors()', function (t) {
     agent._httpClient.request = function () {
       t.end()
     }
-    request.errors(agent, [{culprit: 1}], function () {})
+    request.errors(agent, [{culprit: 1}])
   })
 
   t.test('successful request', function (t) {
@@ -124,7 +124,7 @@ test('#errors()', function (t) {
       t.end()
     }
     var errors = [{context: {custom: {order: 0}}}]
-    request.errors(agent, errors, function () {})
+    request.errors(agent, errors)
   })
 
   t.test('should abort if any filter returns falsy', function (t) {
@@ -156,7 +156,7 @@ test('#errors()', function (t) {
     }
 
     var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
-    request.errors(agent, errors, function () {})
+    request.errors(agent, errors)
   })
 
   t.test('should not anonymize the http Authorization header if disabled', function (t) {
@@ -171,7 +171,7 @@ test('#errors()', function (t) {
     }
 
     var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
-    request.errors(agent, errors, function () {})
+    request.errors(agent, errors)
   })
 })
 
@@ -185,7 +185,7 @@ test('#transactions()', function (t) {
     t.equal(data.transactions.length, 1)
     t.end()
   }
-  request.transactions(agent, [{traces: []}], function () {})
+  request.transactions(agent, [{traces: []}])
 })
 
 function assertRoot (t, payload) {
