@@ -1,8 +1,12 @@
 'use strict'
 
+var http = require('http')
 var test = require('tape')
 var semver = require('semver')
 var parsers = require('../lib/parsers')
+
+var pre3 = semver.satisfies(process.version, '<3')
+var zero10 = semver.satisfies(process.version, '0.10.x')
 
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {
@@ -27,6 +31,89 @@ test('#parseMessage()', function (t) {
     var data = parsers.parseMessage(null)
     t.deepEqual(data, {log: {message: 'null'}})
     t.end()
+  })
+})
+
+test('#getContextFromResponse()', function (t) {
+  var connection = zero10 ? 'keep-alive' : 'close'
+
+  t.test('for error (before headers)', function (t) {
+    onRequest(function (req, res) {
+      req.on('end', function () {
+        t.end()
+      })
+
+      res.sendDate = false
+
+      var context = parsers.getContextFromResponse(res, true)
+      t.deepEqual(context, {
+        status_code: 200,
+        headers: {},
+        headers_sent: false,
+        finished: false
+      })
+
+      res.end()
+    })
+  })
+
+  t.test('for error (after headers)', function (t) {
+    onRequest(function (req, res) {
+      req.on('end', function () {
+        t.end()
+      })
+
+      res.sendDate = false
+      res.write('foo')
+
+      var context = parsers.getContextFromResponse(res, true)
+      t.deepEqual(context, {
+        status_code: 200,
+        headers: {connection: connection, 'transfer-encoding': 'chunked'},
+        headers_sent: true,
+        finished: false
+      })
+
+      res.end()
+    })
+  })
+
+  t.test('for error (request finished)', function (t) {
+    onRequest(function (req, res) {
+      req.on('end', function () {
+        var context = parsers.getContextFromResponse(res, true)
+        t.deepEqual(context, {
+          status_code: 200,
+          headers: pre3
+            ? {connection: connection, 'transfer-encoding': 'chunked'}
+            : {connection: 'close', 'content-length': '0'},
+          headers_sent: true,
+          finished: true
+        })
+        t.end()
+      })
+
+      res.sendDate = false
+
+      res.end()
+    })
+  })
+
+  t.test('for transaction', function (t) {
+    onRequest(function (req, res) {
+      req.on('end', function () {
+        var context = parsers.getContextFromResponse(res, false)
+        t.deepEqual(context, {
+          status_code: 200,
+          headers: pre3
+            ? {connection: connection, 'transfer-encoding': 'chunked'}
+            : {connection: 'close', 'content-length': '0'}
+        })
+        t.end()
+      })
+      res.sendDate = false
+      res.end()
+    })
   })
 })
 
@@ -259,3 +346,20 @@ test('#parseError()', function (t) {
     })
   })
 })
+
+function onRequest (cb) {
+  var server = http.createServer(cb)
+
+  server.listen(function () {
+    var opts = {
+      port: server.address().port
+    }
+    var req = http.request(opts, function (res) {
+      res.on('end', function () {
+        server.close()
+      })
+      res.resume()
+    })
+    req.end()
+  })
+}
