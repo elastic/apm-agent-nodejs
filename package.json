@@ -4,6 +4,7 @@
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "scripts": {
+    "docs": "./script/build_docs.sh apm-agent-nodejs ./docs ./build",
     "lint": "standard",
     "lint-fix": "standard --fix",
     "pretest": "test/pretest.sh",

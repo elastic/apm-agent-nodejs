@@ -1,0 +1,6 @@
+= APM Node.js Agent Reference
+
+
+== APM Node.js Agent
+
+Welcome to the APM Node.js agent docs.
