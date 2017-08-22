@@ -23,7 +23,6 @@ before_install:
 
 node_js:
   - '8'
-  - '7'
   - '7.9.0' # currently 7.10.0 fails. For details see: https://github.com/nodejs/node/pull/12861
   - '6'
   - '5'
@@ -33,9 +32,6 @@ node_js:
 
 jobs:
   fast_finish: true
-
-  allow_failures:
-    - node_js: '7' # the latest version of 7.x (7.10.0) fails. For details see: https://github.com/nodejs/node/pull/12861
 
   include:
 
@@ -57,21 +53,21 @@ jobs:
       env: TAV=knex,ws,graphql,express-graphql
       script: tav --quiet
 
-    # Node.js 7.9.0
+    # Node.js 7
     -
-      node_js: '7.9.0'
+      node_js: '7'
       env: TAV=generic-pool,mysql,redis,koa-router
       script: tav --quiet
     -
-      node_js: '7.9.0'
+      node_js: '7'
       env: TAV=ioredis,pg
       script: tav --quiet
     -
-      node_js: '7.9.0'
+      node_js: '7'
       env: TAV=bluebird
       script: tav --quiet
     -
-      node_js: '7.9.0'
+      node_js: '7'
       env: TAV=knex,ws,graphql,express-graphql
       script: tav --quiet
 
@@ -162,24 +158,6 @@ jobs:
       script: tav --quiet
     -
       node_js: '0.10'
-      env: TAV=knex,ws,graphql,express-graphql
-      script: tav --quiet
-
-    # Node.js 7
-    -
-      node_js: '7'
-      env: TAV=generic-pool,mysql,redis,koa-router
-      script: tav --quiet
-    -
-      node_js: '7'
-      env: TAV=ioredis,pg
-      script: tav --quiet
-    -
-      node_js: '7'
-      env: TAV=bluebird
-      script: tav --quiet
-    -
-      node_js: '7'
       env: TAV=knex,ws,graphql,express-graphql
       script: tav --quiet
 
