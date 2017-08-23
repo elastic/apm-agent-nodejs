@@ -1,6 +1,6 @@
-= APM Node.js Agent Reference
+= APM Node.js Agent Reference (Experimental)
 
 
 == APM Node.js Agent
 
-Welcome to the APM Node.js agent docs.
+Welcome to the APM Node.js agent docs. The documentation pages are still work in progress. For more details also check the APM Node.js Agent https://github.com/elastic/apm-agent-nodejs[Github repository].
