@@ -35,6 +35,11 @@ jobs:
 
   include:
 
+    # Docs
+    - stage: 'test'
+      script: npm run docs
+      perl: "5.26"
+
     # Node.js 8
     - stage: dependencies
       node_js: '8'
@@ -160,6 +165,12 @@ jobs:
       node_js: '0.10'
       env: TAV=knex,ws,graphql,express-graphql
       script: tav --quiet
+
+addons:
+  apt:
+    packages:
+     - xsltproc
+     - libxml2-utils
 
 notifications:
   email:
