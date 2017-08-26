@@ -34,7 +34,7 @@ ws:
 graphql:
   node: '>=1.0.0'
   preinstall: rm -fr node_modules/express-graphql
-  versions: '>=0.7.0 <1.0.0'
+  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <1.0.0' # 0.11.0 is buggy
   commands: node test/instrumentation/modules/graphql.js
 express-graphql-1:
   name: express-graphql
