@@ -7,14 +7,15 @@ var agent = require('../../../..').start({
 })
 
 var semver = require('semver')
+var once = require('once')
 var pgVersion = require('pg/package.json').version
 
 // pg@7+ doesn't support Node.js pre 4.5.0
 if (semver.lt(process.version, '4.5.0') && semver.gte(pgVersion, '7.0.0')) process.exit()
 
 var test = require('tape')
-var exec = require('child_process').exec
 var pg = require('pg')
+var utils = require('./_utils')
 
 var queryable, connectionDone
 var factories = [
@@ -430,12 +431,10 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
   test('connection.release()', function (t) {
     resetAgent(function (endpoint, headers, data, cb) {
       assertBasicQuery(t, sql, data)
-      lastRelease()
       t.end()
     })
 
     var sql = 'SELECT 1 + 1 AS solution'
-    var lastRelease
 
     createPool(function (connector) {
       agent.startTransaction('foo')
@@ -445,9 +444,9 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
         release()
 
         connector(function (err, client, release) {
-          lastRelease = release
           t.error(err)
           client.query(sql, basicQueryCallback(t))
+          release()
         })
       })
     })
@@ -551,15 +550,20 @@ function createPoolAndConnect (cb) {
 }
 
 function setup (cb) {
-  teardown() // just in case it didn't happen at the end of the previous test
-  exec('psql -d postgres -f pg_reset.sql', { cwd: __dirname }, function (err) {
-    if (err) throw err
-    cb()
+  // just in case it didn't happen at the end of the previous test
+  teardown(function () {
+    utils.reset(cb)
   })
 }
 
-function teardown () {
+function teardown (cb) {
+  cb = once(cb)
+
   if (queryable) {
+    // this will not work for pools, where we instead rely on the queryable.end
+    // callback
+    queryable.once('end', cb)
+
     if (connectionDone && semver.satisfies(pgVersion, '^5.2.1')) {
       // Version 5.2.1 doesn't release the connection back into the pool when
       // calling client.end(), so we'll instead drain the pool completely. This
@@ -568,19 +572,24 @@ function teardown () {
       // For details see:
       // https://github.com/brianc/node-postgres/issues/1414
       // pg.end()
-      connectionDone()
+      connectionDone(true) // true: disconnect and destroy the client
       connectionDone = undefined
     } else {
-      queryable.end()
+      queryable.end(cb)
     }
     queryable = undefined
+  } else {
+    process.nextTick(cb)
   }
 }
 
 function resetAgent (cb) {
   agent._httpClient = { request: function () {
-    teardown()
-    cb.apply(this, arguments)
+    var self = this
+    var args = [].slice.call(arguments)
+    teardown(function () {
+      cb.apply(self, args)
+    })
   } }
   agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null

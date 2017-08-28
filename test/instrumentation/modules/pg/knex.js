@@ -15,8 +15,9 @@ var knexVersion = require('knex/package').version
 // pg@7+ doesn't support Node.js pre 4.5.0
 if (semver.lt(process.version, '4.5.0') && semver.gte(pgVersion, '7.0.0')) process.exit()
 
+var utils = require('./_utils')
+
 var test = require('tape')
-var exec = require('child_process').exec
 var Knex = require('knex')
 
 var transNo = 0
@@ -144,12 +145,8 @@ function createClient (cb) {
 function setup (cb) {
   // just in case it didn't happen at the end of the previous test
   teardown(function () {
-    exec('psql -d postgres -f pg_reset.sql', { cwd: __dirname }, function (err) {
-      if (err) throw err
-      exec('psql -d test_elastic_apm -f pg_data.sql', { cwd: __dirname }, function (err) {
-        if (err) throw err
-        cb()
-      })
+    utils.reset(function () {
+      utils.loadData(cb)
     })
   })
 }
