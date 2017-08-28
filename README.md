@@ -38,7 +38,7 @@ them on the [Discuss forum](https://discuss.elastic.co/c/apm).
      // Use if APM Server requires a token
      secretToken: '',
 
-     // Set custom APM Server URL (default: http://localhost:8080)
+     // Set custom APM Server URL (default: http://localhost:8200)
      serverUrl: ''
    })
    ```

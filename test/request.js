@@ -75,7 +75,7 @@ test('#errors()', function (t) {
 
     zlib.gzip(body, function (err, buffer) {
       t.error(err)
-      var scope = nock('http://localhost:8080')
+      var scope = nock('http://localhost:8200')
         .filteringRequestBody(function (body) {
           t.equal(body, buffer.toString('hex'))
           return 'ok'
@@ -94,7 +94,7 @@ test('#errors()', function (t) {
     global._elastic_apm_initialized = null
     var agent = new Agent()
     agent.start(opts)
-    var scope = nock('http://localhost:8080')
+    var scope = nock('http://localhost:8200')
       .filteringRequestBody(function () { return '*' })
       .post('/v1/errors', '*')
       .reply(500)

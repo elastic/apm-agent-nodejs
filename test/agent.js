@@ -228,7 +228,7 @@ test('#captureError()', function (t) {
   t.test('with callback', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('http://localhost:8080')
+    var scope = nock('http://localhost:8200')
       .filteringRequestBody(skipBody)
       .post('/v1/errors', '*')
       .reply(200)
@@ -242,7 +242,7 @@ test('#captureError()', function (t) {
   t.test('without callback', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('http://localhost:8080')
+    var scope = nock('http://localhost:8200')
       .filteringRequestBody(skipBody)
       .post('/v1/errors', '*')
       .reply(200)
@@ -258,7 +258,7 @@ test('#captureError()', function (t) {
   t.test('should send a plain text message to the server', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('http://localhost:8080')
+    var scope = nock('http://localhost:8200')
       .filteringRequestBody(skipBody)
       .post('/v1/errors', '*')
       .reply(200)
@@ -286,7 +286,7 @@ test('#captureError()', function (t) {
   t.test('should send an Error to server', function (t) {
     setup()
     agent.start(opts)
-    var scope = nock('http://localhost:8080')
+    var scope = nock('http://localhost:8200')
       .filteringRequestBody(skipBody)
       .post('/v1/errors', '*')
       .reply(200)
@@ -359,7 +359,7 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should send an uncaughtException to server', function (t) {
     setup()
 
-    var scope = nock('http://localhost:8080')
+    var scope = nock('http://localhost:8200')
       .filteringRequestBody(skipBody)
       .post('/v1/errors', '*')
       .reply(200)
