@@ -54,6 +54,12 @@ express-graphql-3:
   peerDependencies: graphql@^0.10.0
   versions: '^0.6.6'
   commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-4:
+  name: express-graphql
+  node: '>=1.0.0'
+  peerDependencies: graphql@^0.11.0
+  versions: '^0.6.8'
+  commands: node test/instrumentation/modules/express-graphql.js
 koa-router:
   node: '>=6.0.0'
   peerDependencies: koa@2
