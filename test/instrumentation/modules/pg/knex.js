@@ -166,7 +166,7 @@ function teardown (cb) {
 function resetAgent (cb) {
   agent._httpClient = { request: function () {
     var self = this
-    var args = arguments
+    var args = [].slice.call(arguments)
     teardown(function () {
       cb.apply(self, args)
     })
