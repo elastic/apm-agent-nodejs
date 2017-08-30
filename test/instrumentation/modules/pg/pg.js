@@ -571,7 +571,6 @@ function teardown (cb) {
       //
       // For details see:
       // https://github.com/brianc/node-postgres/issues/1414
-      // pg.end()
       connectionDone(true) // true: disconnect and destroy the client
       connectionDone = undefined
     } else {
