@@ -7,10 +7,10 @@ var agent = require('../../../..').start({
 })
 
 var test = require('tape')
-var exec = require('child_process').exec
 var semver = require('semver')
 var mysql = require('mysql')
 var mysqlVersion = require('mysql/package.json').version
+var utils = require('./_utils')
 
 var queryable
 var factories = [
@@ -543,10 +543,7 @@ function createPoolClusterAndGetConnectionViaOf (cb) {
 
 function setup (cb) {
   teardown() // just in case it didn't happen at the end of the previous test
-  exec('mysql -u root < mysql_reset.sql', { cwd: __dirname }, function (err) {
-    if (err) throw err
-    cb()
-  })
+  utils.reset(cb)
 }
 
 // placeholder variable to hold the teardown function created by the setup function
