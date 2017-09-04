@@ -170,6 +170,27 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.end()
 })
 
+test('missing appName => inactive', function (t) {
+  setup()
+  agent.start()
+  t.equal(agent.active, false)
+  t.end()
+})
+
+test('invalid appName => inactive', function (t) {
+  setup()
+  agent.start({appName: 'foo&bar'})
+  t.equal(agent.active, false)
+  t.end()
+})
+
+test('valid appName => active', function (t) {
+  setup()
+  agent.start({appName: 'fooBAR0123456789_- '})
+  t.equal(agent.active, true)
+  t.end()
+})
+
 test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
     setup()
