@@ -5,7 +5,7 @@ var mysql = require('mysql')
 exports.reset = reset
 
 function reset (cb) {
-  var client = mysql.createConnection({user: 'root', database: 'mysql'})
+  var client = mysql.createConnection({user: 'root', database: 'mysql', host: process.env.MYSQL_HOST})
 
   client.connect(function (err) {
     if (err) throw err

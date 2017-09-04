@@ -40,7 +40,7 @@ test('trace simple command', function (t) {
     t.end()
   })
 
-  var server = new Server({})
+  var server = new Server({host: process.env.MONGODB_HOST})
 
   agent.startTransaction('foo', 'bar')
 

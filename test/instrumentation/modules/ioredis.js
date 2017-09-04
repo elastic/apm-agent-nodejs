@@ -12,7 +12,7 @@ var Redis = require('ioredis')
 test('not nested', function (t) {
   resetAgent(done(t))
 
-  var redis = new Redis()
+  var redis = new Redis(process.env.REDIS_HOST)
 
   agent.startTransaction('foo', 'bar')
 
@@ -55,7 +55,7 @@ test('not nested', function (t) {
 test('nested', function (t) {
   resetAgent(done(t))
 
-  var redis = new Redis()
+  var redis = new Redis(process.env.REDIS_HOST)
 
   agent.startTransaction('foo', 'bar')
 
