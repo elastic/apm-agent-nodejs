@@ -136,7 +136,7 @@ function createClient (cb) {
   setup(function () {
     knex = Knex({
       client: 'pg',
-      connection: 'postgres://localhost/test_elastic_apm'
+      connection: 'postgres:///test_elastic_apm'
     })
     cb()
   })

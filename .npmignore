@@ -2,3 +2,5 @@ build
 docs
 script
 test
+Dockerfile
+docker-compose.yml

@@ -1,0 +1,64 @@
+version: '2.1'
+
+services:
+  postgres:
+    user: postgres
+    image: postgres
+    ports: 
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_DB: 'test_elastic_apm'
+
+  mongodb:
+    image: mongo
+    ports: 
+      - "27017:27017"
+
+  mysql:
+    image: mysql 
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports: 
+      - "3306:3306"
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0-beta1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "network.host="
+      - "transport.host=127.0.0.1"
+      - "http.host=0.0.0.0"
+      - "xpack.security.enabled=false"
+    ports:
+      - "9200:9200"
+
+  node_tests:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment: 
+      MONGODB_HOST: 'mongodb'
+      REDIS_HOST: 'redis'
+      ES_HOST: 'elasticsearch'
+      MYSQL_HOST: 'mysql'
+      PGHOST: 'postgres'
+      PGUSER: 'postgres'
+    depends_on:
+      postgres:
+        condition: service_started
+      mongodb:
+        condition: service_started
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started

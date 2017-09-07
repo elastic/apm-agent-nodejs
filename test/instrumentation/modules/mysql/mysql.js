@@ -1,5 +1,6 @@
 'use strict'
 
+var host = process.env.MYSQL_HOST
 var agent = require('../../../..').start({
   appName: 'test',
   secretToken: 'test',
@@ -451,6 +452,7 @@ function createConnection (cb) {
     }
 
     queryable = mysql.createConnection({
+      host: host,
       user: 'root',
       database: 'test_elastic_apm'
     })
@@ -470,6 +472,7 @@ function createPool (cb) {
     }
 
     var pool = mysql.createPool({
+      host: host,
       user: 'root',
       database: 'test_elastic_apm'
     })
@@ -489,6 +492,7 @@ function createPoolAndGetConnection (cb) {
     }
 
     var pool = mysql.createPool({
+      host: host,
       user: 'root',
       database: 'test_elastic_apm'
     })
@@ -511,6 +515,7 @@ function createPoolClusterAndGetConnection (cb) {
 
     var cluster = mysql.createPoolCluster()
     cluster.add({
+      host: host,
       user: 'root',
       database: 'test_elastic_apm'
     })
@@ -530,6 +535,7 @@ function createPoolClusterAndGetConnectionViaOf (cb) {
 
     var cluster = mysql.createPoolCluster()
     cluster.add({
+      host: host,
       user: 'root',
       database: 'test_elastic_apm'
     })

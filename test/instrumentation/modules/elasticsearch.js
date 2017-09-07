@@ -1,6 +1,7 @@
 'use strict'
 
 process.env.ELASTIC_APM_TEST = true
+var host = (process.env.ES_HOST || 'localhost') + ':9200'
 
 var agent = require('../../..').start({
   appName: 'test',
@@ -22,7 +23,7 @@ test('client.ping with callback', function userLandCode (t) {
 
   agent.startTransaction('foo1')
 
-  var client = new elasticsearch.Client()
+  var client = new elasticsearch.Client({host: host})
 
   client.ping(function (err) {
     t.error(err)
@@ -37,7 +38,7 @@ test('client.ping with promise', function userLandCode (t) {
 
   agent.startTransaction('foo2')
 
-  var client = new elasticsearch.Client()
+  var client = new elasticsearch.Client({host: host})
 
   client.ping().then(function () {
     agent.endTransaction()
@@ -54,7 +55,7 @@ test('client.search with callback', function userLandCode (t) {
 
   agent.startTransaction('foo3')
 
-  var client = new elasticsearch.Client()
+  var client = new elasticsearch.Client({host: host})
   var query = {q: 'pants'}
 
   client.search(query, function (err) {
@@ -85,7 +86,7 @@ function done (t, method, path, query) {
 
     t.equal(trans.traces.length, 2)
 
-    t.equal(trans.traces[0].name, method + ' localhost:9200' + path)
+    t.equal(trans.traces[0].name, method + ' ' + host + path)
     t.equal(trans.traces[0].type, 'ext.http.http')
 
     t.equal(trans.traces[1].name, 'Elasticsearch: ' + method + ' ' + path)

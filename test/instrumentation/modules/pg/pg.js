@@ -521,8 +521,7 @@ function createPool (cb) {
     if (semver.satisfies(pgVersion, '<6.0.0')) {
       queryable = pg
       connector = function connector (cb) {
-        var conString = 'postgres://localhost/test_elastic_apm'
-        return pg.connect(conString, cb)
+        return pg.connect('postgres:///test_elastic_apm', cb)
       }
     } else {
       var pool = new pg.Pool({

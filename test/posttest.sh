@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ "$TRAVIS" != "true" ]; then
+if [[ "$CI" != "true" ]]; then
   killall postgres
   killall mongod
   kill `cat /tmp/elasticsearch.pid`
