@@ -19,8 +19,10 @@ node{
             test_jobs['docs'] = {
                 node('linux'){
                     checkout scm
-                    sh("./test/script/docker/cleanup.sh")
-                    sh("./test/script/docker/run_docs.sh")
+                    dir('src/github.com/elastic/apm-agent-nodejs/'){
+                        sh("./test/script/docker/cleanup.sh")
+                        sh("./test/script/docker/run_docs.sh")
+                    }
                 }
             }
             for (int i=0; i<nodejs_versions.size(); i++){
@@ -28,8 +30,10 @@ node{
                 test_jobs[nodejs_version] = {
                     node('linux'){
                         checkout scm
-                        sh("./test/script/docker/cleanup.sh")
-                        sh("./test/script/docker/run_tests.sh ${nodejs_version}")
+                        dir('src/github.com/elastic/apm-agent-nodejs/'){
+                            sh("./test/script/docker/cleanup.sh")
+                            sh("./test/script/docker/run_tests.sh ${nodejs_version}")
+                        }
                     }
                 }
             }
@@ -45,8 +49,10 @@ node{
                     tav_jobs[job] = {
                         node('linux'){
                             checkout scm
-                            sh("./test/script/docker/cleanup.sh")
-                            sh("./test/script/docker/run_tests.sh ${nodejs_version} ${environment}")
+                            dir('src/github.com/elastic/apm-agent-nodejs/'){
+                                sh("./test/script/docker/cleanup.sh")
+                                sh("./test/script/docker/run_tests.sh ${nodejs_version} ${environment}")
+                            }
                         }
                     }
                 }
