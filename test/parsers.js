@@ -157,6 +157,20 @@ test('#getContextFromRequest()', function (t) {
     t.end()
   })
 
+  t.test('full URI', function (t) {
+    mockReq.url = 'https://www.example.com:8080/some/path?key=value'
+    var parsed = parsers.getContextFromRequest(mockReq)
+    t.deepEqual(parsed.url, {
+      pathname: '/some/path',
+      search: '?key=value',
+      raw: 'https://www.example.com:8080/some/path?key=value',
+      protocol: 'https:',
+      hostname: 'www.example.com',
+      port: '8080'
+    })
+    t.end()
+  })
+
   t.test('empty query string', function (t) {
     mockReq.url = '/some/path?'
     var parsed = parsers.getContextFromRequest(mockReq)
