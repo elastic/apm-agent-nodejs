@@ -1,0 +1,58 @@
+[[transaction-api]]
+=== `Transaction` API
+
+A transaction groups multiple traces in a logical group.
+
+To get a `Transaction` object,
+you need to call <<apm-start-transaction,`apm.startTransaction()`>>.
+
+To see an example of using custom transactions,
+see the <<custom-transactions,Custom Transactions in Node.js>> article.
+
+[[transaction-name]]
+==== `transaction.name`
+
+* *Type:* String
+* *Default:* `unnamed`
+
+The name of the transaction.
+
+Can be used to set or overwrite the name of the transaction (visible in the performance monitoring breakdown).
+If you don't have access to the current transaction,
+you can also set the name using <<apm-set-transaction-name,`apm.setTransactionName()`>>.
+
+Transaction with the same name and <<transaction-type,type>> are grouped together.
+
+[[transaction-type]]
+==== `transaction.type`
+
+* *Type:* String
+* *Default:* `custom`
+
+The type of the transaction.
+
+There's a special type called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
+
+[[transaction-result]]
+==== `transaction.result`
+
+* *Type:* Number
+* *Default:* `200`
+
+The transaction result.
+
+Think of the transaction result as equivalent to the status code of an HTTP response.
+
+[[transaction-end]]
+==== `transaction.end()`
+
+[source,js]
+----
+transaction.end()
+----
+
+Ends the transaction and <<trace-truncate,truncates>> all un-ended child traces.
+If the transaction has already ended,
+nothing happens.
+
+Alternatively you can call <<apm-end-transaction,`apm.endTransaction()`>> to end the active transaction.

@@ -1,0 +1,723 @@
+[[agent-api]]
+=== `Agent` API
+
+NOTE: This is the API documentation for the Elastic APM Node.js Agent.
+For getting started,
+we recommend that you take a look at our framework specific documentation for either <<express,Express>>, <<hapi,hapi>>, <<koa,Koa>>, or <<custom-stack,custom frameworks>>.
+
+The Elastic APM agent for Node.js is a singleton.
+You get the agent instance by either requiring `elastic-apm` or `elastic-apm/start`.
+For details on the two approaches,
+see the <<setup,Setup and Configuration>> guide.
+
+The agent is also returned by the `start()` function,
+which allows you to require and start the agent on the same line:
+
+[source,js]
+----
+var apm = require('elastic-apm').start(...)
+----
+
+If you need to access the `Agent` in any part of your codebase,
+you can simply require `elastic-apm` to access the already started singleton.
+You therefore don't need to manage or pass around the started `Agent` yourself.
+
+[[apm-start]]
+==== `apm.start()`
+
+[source,js]
+----
+apm.start([options])
+----
+
+Starts the Elastic APM agent for Node.js and returns it self.
+
+IMPORTANT: Put the call to this function at the very top of your main app file - before requiring/importing any other modules.
+
+The available configuration options are listed below.
+Most configuration options can be set either in the optional `options` object,
+by using environment variables,
+or via the <<agent-configuration-file,agent configuration file>>.
+Their equivalent environment variable name is listed together with each option.
+
+Properties on the `options` object will always take precedence over environment variables.
+
+The only required parameter is <<app-name,`appName`>>.
+
+Example usage configuring the agent to only be active in production:
+
+[source,js]
+----
+// Add this to the VERY top of the first file loaded in your app
+require('elastic-apm').start({
+  // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+  appName: '',
+
+  // Use if APM Server requires a token
+  secretToken: '',
+
+  // Set custom APM Server URL (default: http://localhost:8200)
+  serverUrl: '',
+
+  // Only activate the agent if it's running in production
+  active: process.env.NODE_ENV === 'production'
+})
+----
+
+[[app-name]]
+===== `appName`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_APP_NAME`
+
+Your Elastic APM app name.
+Required unless set <<configuring-the-agent,via other means>>.
+
+[[secret-token]]
+===== `secretToken`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_SECRET_TOKEN`
+
+The The secret token optionally expected by the APM Server.
+
+[[server-url]]
+===== `serverUrl`
+
+* *Type:* String
+* *Default:* `http://localhost:8200`
+* *Env:* `ELASTIC_APM_SERVER_URL`
+
+The URL to where the APM Server is deployed.
+
+[[app-version]]
+===== `appVersion`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_APP_VERSION`
+
+The version of the app currently running.
+This could be the version from your `package.json` file,
+a git commit reference,
+or any other string that might help you pinpoint a specific version or deploy.
+
+[[active]]
+===== `active`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_ACTIVE`
+
+A boolean specifying if the agent should be active or not.
+If active,
+the agent will instrument incoming HTTP requests and track errors.
+Normally you would not want to run the agent in your development or testing environments.
+If you are using the `NODE_ENV` environment variable,
+you can use this to determine the state:
+
+[source,js]
+----
+var options = {
+  active: process.env.NODE_ENV === 'production'
+}
+----
+
+[[instrument]]
+===== `instrument`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_INSTRUMENT`
+
+A boolean specifying if the agent should collect performance metrics for the app.
+
+Note that both `active` and `instrument` needs to be `true` for instrumentation to be running.
+
+[[ignore-urls]]
+===== `ignoreUrls`
+
+* *Type:* Array
+* *Default:* `undefined`
+
+Used to restrict requests to certain URL's from being instrumented.
+
+This property should be set to an array containing one or more strings or `RegExp` objects.
+When an incoming HTTP request is detected,
+its URL will be tested against each element in this list.
+If an element in the array is a `String`,
+an exact match will be performed.
+If an element in the array is a `RegExp` object,
+its test function will be called with the URL being tested.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm').start({
+  ignoreUrls: [
+    '/ping',
+    /^\/admin\//i,
+    new RegExp('^/api/v1')
+  ]
+})
+----
+
+[[ignore-user-agents]]
+===== `ignoreUserAgents`
+
+* *Type:* Array
+* *Default:* `undefined`
+
+Used to restrict requests from certain User-Agents from being instrumented.
+
+This property should be set to an array containing one or more strings or `RegExp` objects.
+When an incoming HTTP request is detected,
+the User-Agent from the request headers will be tested against each element in this list.
+If an element in the array is a `String`,
+it's matched against the beginning of the User-Agent.
+If an element in the array is a `RegExp` object,
+its test function will be called with the User-Agent string being tested.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm').start({
+  ignoreUserAgents: [
+    'curl/',
+    /pingdom/i,
+    new RegExp('Safari/[0-9\.]+')
+  ]
+})
+----
+
+[[log-body]]
+===== `logBody`
+
+* *Type:* Boolean
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_LOG_BODY`
+
+The HTTP body of incoming HTTP requests is not recorded and sent to the APM Server by default.
+If you wish to collect the HTTP request body,
+set this config option to `true`.
+
+[[timeout]]
+===== `timeout`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_TIMEOUT`
+
+A boolean specifying if the agent should monitor for aborted TCP connections with un-ended HTTP requests.
+An error will be generated and sent to the APM Server in if this happens.
+
+[[timeout-error-threshold]]
+===== `timeoutErrorThreshold`
+
+* *Type:* Number
+* *Default:* `25000`
+* *Env:* `ELASTIC_APM_TIMEOUT_ERROR_THRESHOLD`
+
+Specify the threshold (in milliseconds) for when an aborted TCP connection with an un-ended HTTP request is considered an error.
+
+If the `timeout` property is `false`, this property is ignored.
+
+[[hostname]]
+===== `hostname`
+
+* *Type:* String
+* *Default:* OS hostname
+* *Env:* `ELASTIC_APM_HOSTNAME`
+
+The OS hostname is automatically logged along with all errors and transactions.
+If you want to overwrite this,
+use this option.
+
+[[log-level]]
+===== `logLevel`
+
+* *Type:* String
+* *Default:* `'info'`
+* *Env:* `ELASTIC_APM_LOG_LEVEL`
+
+Set the verbosity level the agent.
+Note that this does not have any influence on what types of errors that are sent to the APM Server.
+This only controls how chatty the agent are in your logs.
+
+Possible levels are: `trace`, `debug`, `info`, `warn`, `error`, and `fatal`.
+
+[[logger]]
+===== `logger`
+
+* *Type:* object
+
+Set a custom logger, e.g. https://github.com/trentm/node-bunyan[bunyan]:
+
+[source,js]
+----
+require('elastic-apm').start({
+  logger: require('bunyan')({ level: 'info' })
+})
+----
+
+If no custom logger is provided,
+the agent will use its built-in logger which will log to STDOUT and STDERR depending on the log level.
+
+The logger should expose the following functions: `trace`, `debug`,`info`, `warn`, `error`, and `fatal`.
+
+Note that if a custom logger is provided, the `logLevel` option will be ignored.
+
+[[capture-exceptions]]
+===== `captureExceptions`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_CAPTURE_EXCEPTIONS`
+
+Whether or not the agent should monitor for uncaught exceptions and sent them to the APM Server automatically.
+
+[[capture-trace-stack-traces]]
+===== `captureTraceStackTraces`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_CAPTURE_TRACE_STACK_TRACES`
+
+Set it option to `false` to disable capture of stack traces for measured traces during instrumentation.
+
+[[stack-trace-limit]]
+===== `stackTraceLimit`
+
+* *Type:* Number
+* *Default:* `Infinity`
+* *Env:* `ELASTIC_APM_STACK_TRACE_LIMIT`
+
+Setting it to `0` will disable stack trace collection.
+Any finite integer value will be used as the maximum number of frames to collect.
+Setting it to `Infinity` means that all frames will be collected.
+
+[[flush-interval]]
+===== `flushInterval`
+
+* *Type:* Number
+* *Default:* `60`
+* *Env:* `ELASTIC_APM_FLUSH_INTERVAL`
+
+The agent maintains an in-memory queue to which recorded metrics and sampled transactions are added when they end.
+By default,
+this queue is flushed and sent to the APM Server for processing every 60 seconds.
+
+Use this option to change that interval.
+The value is expected to be in seconds.
+
+Lowering this interval can reduce memory usage on Node.js applications with a high number of transactions.
+
+NOTE: The queue is flushed only 5 seconds after the first transaction have ended on a newly started Node process.
+This ensures that you don't have to wait for the entire `flushInterval` to pass for the first data to be sent to the APM Server.
+From there on the `flushInterval` option is used.
+
+[[filter-http-headers]]
+===== `filterHttpHeaders`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_FILTER_HTTP_HEADERS`
+
+A boolean specifying if the agent should anonymize certain sensitive HTTP headers by default before they are sent to the APM Server.
+When anonymized,
+the header value will be set to `[REDACTED]`
+
+Currently the following HTTP headers are anonymized by default:
+
+* `Authorization` - The full value of this header is redacted
+
+* `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
+See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
+
+[[apm-add-filter]]
+==== `apm.addFilter()`
+
+[source,js]
+----
+apm.addFilter(callback)
+----
+
+Use `addFilter()` to supply a filter function.
+
+Each filter function will be called just before data is being sent to the APM Server.
+This will allow you to manipulate the data being sent,
+for instance to remove sensitive information like passwords etc.
+
+Each filter function will be called in the order they were added,
+and will receive a `payload` object as the only argument,
+containing the data about to be sent to the APM Server.
+
+For details on the format of the payload,
+see the https://github.com/elastic/apm-server/tree/master/docs/spec[intake API JSON Schema] for the APM Server.
+
+The filter function is synchronous and should return the manipulated payload object.
+If a filter function doesn't return any value or returns a falsy value,
+the remaining filter functions will not be called and the payload *will not* be sent to the APM Server.
+
+Example usage:
+
+[source,js]
+----
+apm.addFilter(function (payload) {
+  if (payload.context.request && payload.context.request.headers) {
+    // remove sensitive data
+    delete payload.context.request.headers['x-secret-data']
+  }
+
+  // remember to return the modified payload
+  return payload
+})
+----
+
+A set of built-in filters are added by default.
+See <<filter-http-headers,`filterHttpHeaders`>> for details.
+
+Though you can also use filter functions to add new contextual information to the `user` and `custom` properties,
+it's recommended that you use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context,`apm.setCustomContext()`>> for that purpose.
+
+[[apm-set-user-context]]
+==== `apm.setUserContext()`
+
+[source,js]
+----
+apm.setUserContext(context)
+----
+
+Call this to enrich collected performance data and errors with information about the user/client.
+This function can be called at any point during the request/response life cycle (i.e. while a transaction is active).
+
+The given `context` argument must be an object and can contain the following properties (all optional):
+
+* `id` - The users ID
+* `username` - The users username
+* `email` - The users e-mail
+
+The given `context` will be added to the active transaction.
+If no active transaction can be found,
+`false` is returned.
+Otherwise `true`.
+
+It's possible to call this function multiple times within the scope of the same active transaction.
+Each time the properties of the `context` argument is shallow merged with the context previously given.
+
+If an error is captured,
+the context from the active transaction is used as context for the captured error and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
+
+The provided user context is stored under `context.user` in Elasticsearch on both errors and transactions.
+
+[[apm-set-custom-context]]
+==== `apm.setCustomContext()`
+
+[source,js]
+----
+apm.setCustomContext(context)
+----
+
+Call this to enrich collected errors and transactions with any information that you think will help you debug performance issues or errors.
+This function can be called at any point while a transaction is active (e.g. during the request/response life cycle of an incoming HTTP request).
+
+The provided custom context is stored under `context.custom` in Elasticsearch on both errors and transactions.
+
+The given `context` argument must be an object and can contain any property that can be JSON encoded.
+
+The given `context` will be added to the active transaction.
+If no active transaction can be found,
+`false` is returned.
+Otherwise `true`.
+
+It's possible to call this function multiple times within the scope of the same active transaction.
+Each time the properties of the `context` argument is shallow merged with the context previously given.
+
+If an error is captured,
+the context from the active transaction is used as context for the captured error and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
+
+[[apm-set-tag]]
+==== `apm.setTag()`
+
+[source,js]
+----
+apm.setTag(name, value)
+----
+
+Set a tag on the current transaction.
+You can set multiple tags on the same transaction.
+If an error happens during the current transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via `setCustomContext()`).
+
+Arguments:
+
+* `name` - Any string.
+Must not contain periods (`.`) as those have special meaning in Elasticsearch
+* `value` - Any string.
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
+[[apm-capture-error]]
+==== `apm.captureError()`
+
+[source,js]
+----
+apm.captureError(error[, options][, callback])
+----
+
+Send an error to the APM Server:
+
+[source,js]
+----
+apm.captureError(new Error('boom!'))
+----
+
+The `error` argument can be either an `Error` object,
+a <<message-strings,message string>> or a special parameterized object.
+
+The optional `options` object can be used to log additional metadata with the error.
+For details see the <<metadata,metadata section>>.
+
+The optional `callback` will be called once the error have been sent to the APM Server.
+
+[[message-strings]]
+===== Message strings
+
+Instead of an `Error` object,
+you can log a plain text message:
+
+[source,js]
+----
+apm.captureError('Something happened!')
+----
+
+This will also be sent as an error to the APM Server,
+but will not be associated with an exception.
+
+[[metadata]]
+===== Metadata
+
+To ease debugging it's possible to send some extra data with each error you sent to the APM Server.
+The APM Server intake API supports a lot of different metadata fields,
+most of which are automatically managed by the Elastic APM Node.js Agent.
+But if you wish you can supply some extra details using `user` or `custom`.
+For more details on the properties accepted by the error intake API see the https://www.elastic.co/guide/en/apm/server/current/_error_api.html[intake error API docs].
+
+To supply any of these extra fields,
+use the optional options argument when calling `apm.captureError()`.
+
+Here are some examples:
+
+[source,js]
+----
+// Sending some extra details about the user
+apm.captureError(error, {
+  user: {
+    id: 'unique_id',
+    username: 'foo',
+    email: 'foo@example.com'
+  }
+})
+
+// Sending some arbitrary details using the `custom` field
+apm.captureError(error, {
+  custom: {
+    some_important_metric: 'foobar'
+  }
+})
+----
+
+To supply per-request metadata to all errors captured in one central location,
+use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context,`apm.setCustomContext()`>>.
+
+[[http-requests]]
+===== HTTP requests
+
+Besides the options described in the <<metadata,the metadata section>>,
+you can use the `options` argument to associate the error with an HTTP request:
+
+[source,js]
+----
+apm.captureError(err, {
+  request: req // an instance of http.IncomingMessage
+})
+----
+
+This will log the URL that was requested,
+the HTTP headers,
+cookies and other useful details to help you debug the error.
+
+In most cases this isn't needed though,
+as the agent is pretty smart at figuring out if your Node.js app is an HTTP server and if an error occurred during an incoming request.
+In which case it will automate this processes for you.
+
+[[http-responses]]
+===== HTTP responses
+
+Besides the options described in the <<metadata,the metadata section>>,
+you can use the `options` argument to associate the error with an HTTP response:
+
+[source,js]
+----
+apm.captureError(err, {
+  response: res // an instance of http.ServerResponse
+})
+----
+
+This will log the response status code,
+headers and other useful details to help you debug the error.
+
+In most cases this isn't needed though,
+as the agent is pretty smart at figuring out if your Node.js app is an HTTP server and if an error occurred during an incoming request.
+In which case it will automate this processes for you.
+
+[[apm-middleware-connect]]
+==== `apm.middleware.connect()`
+
+[source,js]
+----
+apm.middleware.connect()
+----
+
+Alias: `apm.middleware.express()`
+
+The agent provided middleware can be used as-is with either Connect or Express in the same way.
+Take note that in your middlewares,
+the agent middleware must appear _after_ your router to pick up any errors that may result from handling a request.
+
+[source,js]
+----
+var apm = require('elastic-apm').start()
+var connect = require('connect')
+
+var app = connect()
+
+// your regular middleware:
+app.use(...)
+app.use(...)
+
+// your main HTTP router
+app.use(function (req, res, next) {
+  throw new Error('Broke!')
+})
+
+// add Elastic APM in the bottom of the middleware stack
+app.use(apm.middleware.connect())
+
+app.listen(3000)
+----
+
+NOTE: `apm.middleware.express` or `apm.middleware.connect` _must_ be added to the middleware stack _before_ any other error handling middlewares or there's a chance that the error will never get to the agent.
+
+[[apm-start-transaction]]
+==== `apm.startTransaction()`
+
+[source,js]
+----
+var transaction = apm.startTransaction([name][, type])
+----
+
+Start a new transaction.
+
+Arguments:
+
+* `name` - The name of the transaction (string).
+You can always set this later via <<transaction-name,`transaction.name`>> or <<apm-set-transaction-name,`apm.setTransactionName()`>>.
+Defaults to `unnamed`
+
+* `type` - The type of transaction (string).
+You can always set this later via <<transaction-type,`transaction.type`>>.
+Defaults to `custom`
+
+Use this function to create a custom transaction.
+Note that the agent will do this for you automatically when ever your application receives an incoming HTTP request.
+You only need to use this function to create custom transactions.
+
+There's a special `type` called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
+
+See <<transaction-api,Transaction API>> docs for details on how to use custom transactions.
+
+[[apm-end-transaction]]
+==== `apm.endTransaction()`
+
+[source,js]
+----
+apm.endTransaction()
+----
+
+Ends the active transaction.
+If no transaction is currently active,
+nothing happens.
+
+Note that the agent will do this for you automatically for all regular HTTP transactions.
+You only need to use this function to end custom transactions created by <<apm-start-transaction,`apm.startTransaction()`>> or if you wish the end a regular transaction prematurely.
+
+Alternatively you can call <<transaction-end,`end()`>> directly on an active transaction object.
+
+[[apm-set-transaction-name]]
+==== `apm.setTransactionName()`
+
+[source,js]
+----
+apm.setTransactionName(name)
+----
+
+Set or overwrite the name of the current transaction.
+The `name` argument must be a string.
+
+If you use a supported router/framework the agent will automatically set the transaction name for you.
+
+If you do not use Express, hapi, or koa-router or if the agent for some reason cannot detect the name of the HTTP route,
+the transaction name will default to `METHOD unknown route` (e.g. `POST unknown route`).
+
+Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
+
+[[apm-build-trace]]
+==== `apm.buildTrace()`
+
+[source,js]
+----
+var trace = apm.buildTrace()
+----
+
+Prepare and return a new custom trace associated with the current active transaction.
+
+See <<trace-api,Trace API>> docs for details on how to use custom traces.
+
+NOTE: If there's no active transaction available,
+`null` will be returned.
+
+[[apm-handle-uncaught-exceptions]]
+==== `apm.handleUncaughtExceptions()`
+
+[source,js]
+----
+apm.handleUncaughtExceptions([callback])
+----
+
+By default the agent will terminate the Node.js process when an uncaught exception is detected.
+Use this function if you need to run any custom code before the process is terminated.
+
+[source,js]
+----
+apm.handleUncaughtExceptions(function (err) {
+  // Do your own stuff... and then exit:
+  process.exit(1)
+})
+----
+
+The callback is called *after* the event has been sent to the APM Server with the following arguments:
+
+* `err` - the captured exception
+
+This function will also enable the uncaught exception handler if it was disabled using the <<capture-exceptions,`captureExceptions`>> configuration option.
+
+If you don't specify a callback,
+the node process is terminated automatically when an uncaught exception have been captured and sent to the APM Server.
+
+https://nodejs.org/api/process.html#process_event_uncaughtexception[It is recommended] that you don't leave the process running after receiving an uncaught exception,
+so if you are using the optional callback,
+remember to terminate the node process.

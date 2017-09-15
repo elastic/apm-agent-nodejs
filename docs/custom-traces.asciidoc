@@ -1,0 +1,75 @@
+[[custom-traces]]
+== Custom Traces
+
+If you want to track and time a custom event that happens in your application during a transaction,
+you can add a new trace to an existing transaction.
+
+This is an example of how to use custom traces.
+For general information about the Elastic APM Node.js Trace API,
+see the <<trace-api,Trace API documentation>>.
+
+In the example below we create an Express app that:
+
+1. Times how long it takes to receive the body of an HTTP POST or PUT request
+2. And times how long it takes to parse JSON sent by the client
+
+[source,js]
+----
+var apm = require('elastic-apm').start()
+var app = require('express')()
+
+// body reader middleware
+app.use(function (req, res, next) {
+  if (req.method !== 'POST' && req.method !== 'PUT') {
+    return next()
+  }
+
+  // `buildTrace` will only return a trace if there's an
+  // active transaction
+  var trace = apm.buildTrace()
+
+  // start the trace to measure the time it takes to receive
+  // the body of the HTTP request
+  if (trace) trace.start('receiving body')
+
+  var buffers = []
+  req.on('data', function (chunk) {
+    buffers.push(chunk)
+  })
+  req.on('end', function () {
+    req.body = Buffer.concat(buffers).toString()
+
+    // end the trace after we're done loading data from the
+    // client
+    if (trace) trace.end()
+
+    next()
+  })
+})
+
+// JSON parser middleware
+app.use(function (req, res, next) {
+  if (req.headers['content-type'] !== 'application/json') {
+    return next()
+  }
+
+  var trace = apm.buildTrace()
+
+  // start the trace to measure the time it takes to parse
+  // the JSON
+  if (trace) trace.start('parse json')
+
+  try {
+    req.json = JSON.parse(req.body)
+  } catch (e) {}
+
+  // when we've processed the json, stop the custom trace
+  if (trace) trace.end()
+
+  next()
+})
+
+// ...your route handler goes here...
+
+app.listen(3000)
+----

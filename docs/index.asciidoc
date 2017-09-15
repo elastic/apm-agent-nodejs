@@ -1,6 +1,19 @@
 = APM Node.js Agent Reference (Experimental)
 
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/index.html[elastic.co]
+endif::[]
 
-== APM Node.js Agent
-
-Welcome to the APM Node.js agent docs. The documentation pages are still work in progress. For more details also check the APM Node.js Agent https://github.com/elastic/apm-agent-nodejs[Github repository].
+include::./intro.asciidoc[]
+include::./express.asciidoc[]
+include::./hapi.asciidoc[]
+include::./koa.asciidoc[]
+include::./custom-stack.asciidoc[]
+include::./setup.asciidoc[]
+include::./api.asciidoc[]
+include::./compatibility.asciidoc[]
+include::./troubleshooting.asciidoc[]
+include::./custom-transactions.asciidoc[]
+include::./custom-traces.asciidoc[]
+include::./source-maps.asciidoc[]
