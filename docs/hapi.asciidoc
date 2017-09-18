@@ -1,0 +1,189 @@
+[[hapi]]
+== Getting started with hapi
+
+Getting Elastic APM set up for your hapi app is easy,
+and there are various ways you can tweak it to fit your needs.
+
+Follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
+
+[[hapi-installation]]
+=== Installation
+
+Add the `elastic-apm` module as a dependency to your application:
+
+[source,bash]
+----
+npm install elastic-apm --save
+----
+
+[[hapi-initialization]]
+=== Initialization
+
+It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `hapi`, `http`, etc.
+
+This means that you should probably require and start the agent in your application's main file (usually `index.js`, `server.js` or `app.js`).
+
+Here's a simple hapi example with the Elastic APM agent installed:
+
+[source,js]
+----
+// Add this to the VERY top of the first file loaded in your app
+var apm = require('elastic-apm').start({
+  // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+  appName: '',
+
+  // Use if APM Server requires a token
+  secretToken: '',
+
+  // Set custom APM Server URL (default: http://localhost:8200)
+  serverUrl: '',
+})
+
+var Hapi = require('hapi')
+
+var server = new Hapi.Server()
+
+server.connection({
+  host: 'localhost',
+  port: 8000
+})
+
+server.route({
+  method: 'GET',
+  path: '/hello',
+  handler: function (request, reply) {
+    return reply('hello world')
+  }
+})
+
+server.start()
+----
+
+The agent will now monitor the performance of your hapi application and record any uncaught exceptions.
+
+[[hapi-advanced-configuration]]
+==== Advanced configuration
+
+In the above example we initialize the agent by calling the <<apm-start,`start()`>> function.
+This function takes an optional options object used to configure the agent.
+Any option not supplied via the options object can instead be configured using environment variables.
+So if you prefer, you can set the same configuration options using environment variables:
+
+[source,bash]
+----
+ELASTIC_APM_APP_NAME=<app name>
+ELASTIC_APM_SECRET_TOKEN=<token>
+ELASTIC_APM_SERVER_URL=<server url>
+----
+
+And then just start the agent like so:
+
+[source,js]
+----
+// Start the agent before any thing else in your app
+var apm = require('elastic-apm').start()
+----
+
+See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
+
+[[hapi-full-documentation]]
+==== Full documentation
+
+* <<advanced-setup,Setup and Configuration>>
+* <<api,API Reference>>
+
+[[hapi-performance-monitoring]]
+=== Performance monitoring
+
+Elastic APM automatically measures the performance of your hapi application.
+It records traces for database queries,
+external HTTP requests,
+and other slow operations that happen during requests to your hapi app.
+
+By default the agent will trace <<compatibility,the most common modules>>.
+To trace other events,
+you can use custom traces.
+For information about custom traces,
+see the <<custom-traces,Custom Traces section>>.
+
+Traces are grouped in transactions - by default one for each incoming HTTP request.
+But it's possible to create custom transactions not associated with an HTTP request.
+See the <<custom-transactions,Custom Transactions section>> for details.
+
+[[hapi-unknown-routes]]
+==== Unknown routes
+
+When viewing the performance metrics of your application in Elastic APM,
+you might see some transactions named "unknown route".
+This indicates that the agent detected an incoming HTTP request to your application,
+but didn't know which route in your hapi app the HTTP request matched.
+
+This might simply be 404 requests,
+which by definition don't match any route,
+or it might be a symptom that the agent wasn't installed correctly.
+If you see this or can't get any meaningful metrics to show up,
+please follow the <<troubleshooting,Troubleshooting Guide>>.
+
+[[hapi-error-logging]]
+=== Error logging
+
+By default the Node.js agent will watch for uncaught exceptions and send them to Elastic APM automatically.
+But in most cases errors are not thrown but returned via a callback,
+caught by a promise,
+or simply manually created.
+Those errors will not automatically be sent to Elastic APM.
+To manually send an error to Elastic APM,
+simply call `apm.captureError()` with the error:
+
+[source,js]
+----
+var err = new Error('Ups, something broke!')
+
+apm.captureError(err)
+----
+
+For advanced logging of errors,
+including adding extra metadata to the error,
+see <<apm-capture-error,the API documentation>>.
+
+[[hapi-filter-sensitive-information]]
+=== Filter sensitive information
+
+By default the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
+
+It's possible for you to tweak these defaults or remove any information you don't want to send to Elastic APM:
+
+* By default the Node.js agent will not log the body of HTTP requests.
+To enable this,
+use the <<log-body,`logBody`>> config option
+* By default the Node.js agent will filter certain HTTP headers known to contain sensitive information.
+To disable this,
+use the <<filter-http-headers,`filterHttpHeaders`>> config option
+* To apply custom filters,
+use the <<apm-add-filter,`apm.addFilter()`>> function
+
+[[hapi-add-your-own-data]]
+=== Add your own data
+
+The Node.js agent will keep track of the active HTTP request and will link it to errors and recorded transaction metrics when they are sent to the Elastic APM server.
+This allows you to see details about which request resulted in a particular error or which requests cause a certain HTTP endpoint to be slow.
+
+But in many cases,
+information about the HTTP request itself isn't enough.
+To add even more metadata to errors and transactions,
+use one of the two functions below:
+
+* <<apm-set-user-context,`apm.setUserContext()`>> - Call this to enrich collected performance data and errors with information about the user/client
+* <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors (this data is only stored, but not indexed in Elasticsearch)
+* <<apm-set-tag,`apm.setTag()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (tags are indexed in Elasticsearch)
+
+[[hapi-compatibility]]
+=== Compatibility
+
+See the <<compatibility,Compatibility section>> for details.
+
+[[hapi-troubleshooting]]
+=== Troubleshooting
+
+If you can't get the Node.js agent to work as expected,
+please follow the <<troubleshooting,Troubleshooting Guide>>.

@@ -1,0 +1,114 @@
+[[compatibility]]
+== Compatibility Overview
+
+The Elastic APM Node.js agent is tested against Node.js v0.10 and above.
+Previous versions of Node.js are not supported.
+
+[[compatibility-frameworks]]
+=== Frameworks
+
+Though you can use Elastic APM <<custom-stack,with any Node.js framework>>,
+we automate a few things for the most popular Node.js modules.
+
+These are the frameworks that we officially support:
+
+[options="header"]
+|=======================================================================
+|Framework |Version |Note
+|<<express,Express>> |^4.0.0 |
+|<<hapi,hapi>> |>=9.0.0 |
+|<<koa,Koa>> via koa-router |>=5.2.0 <8.0.0 |Koa doesn't have a built in router,
+so we can't support Koa directly since we rely on router information for full support.
+We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router]
+|=======================================================================
+
+[[compatibility-custom-transactions]]
+=== Custom Transactions
+
+By default transactions are named based on their matched HTTP route if the framework used is listed above.
+These modules override that behavior to give better insights into specialized HTTP servers:
+
+[options="header"]
+|=======================================================================
+|Module |Version |Note
+|https://www.npmjs.com/package/express-graphql[express-graphql] |^0.6.1 |Will name all transactions by the GraphQL query name
+|=======================================================================
+
+[[compatibility-tracing-and-instrumentation]]
+=== Tracing and Instrumentation
+
+The Node.js agent will automatically instrument the following modules to give you detailed performance metrics:
+
+[options="header"]
+|=======================================================================
+|Module |Version |Note
+|https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 |Will trace all
+queries
+|https://www.npmjs.com/package/ioredis[ioredis] |\^2.0.0 \|\| ^3.0.0 |Will
+trace all queries
+|https://www.npmjs.com/package/mongodb-core[mongodb-core]
+|\^1.2.7 \|\| ^2.0.0 |Will trace all queries. A lot of higher level MongoDB
+modules use mongodb-core, so those should be supported as well
+|https://www.npmjs.com/package/mongodb[mongodb] |>=2.0.0 |Supported via
+mongodb-core
+|https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 |Supported via
+mongodb-core
+|https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 |Supported
+via mongodb-core
+|https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will trace all
+queries
+|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <8.0.0 |Will trace all
+queries
+|https://www.npmjs.com/package/redis[redis] |^2.0.0 |Will trace all
+queries
+|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <4.0.0 |Will trace
+outgoing WebSocket messages
+|=======================================================================
+
+[[compatibility-better-stack-traces]]
+==== Better Stack Traces
+
+When viewing a trace in Elastic APM,
+you'll see where in your code you initiated the trace (e.g. a database query).
+
+Given the async nature of Node.js,
+it's not possible for us to see further back than the last async boundary.
+We therefore make sure to monitor as close to your code as possible.
+But some modules will interfere with this monitoring by injecting an async call between your code and the actual monitored function.
+
+We monitor these "offending" modules directly to give you a better experience.
+
+The modules and versions listed below are the ones we support.
+If you use an unsupported version you might not be able to see your own code in the performance traces.
+This does not impact the stability of your application in any way - only the collected metrics.
+
+If you don't see your own code in traces,
+please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM discuss forum] and include information about your dependencies.
+
+[options="header"]
+|=================================================
+|Module |Version
+|https://www.npmjs.com/package/knex[knex] |>=0.9.0
+|=================================================
+
+[[compatibility-continuity]]
+==== Continuity
+
+The Elastic APM agent monitors async operations in your Node.js application to maintain awareness of which request is the active request at any given time.
+Certain modules can interfere with this monitoring if not handled properly.
+
+Below is a list of modules known to cause issues with this monitoring.
+The versions listed are the versions we support.
+If you use an unsupported version you might experience missing traces.
+This does not impact the stability of your application in any way - only the collected metrics.
+
+If you do experience missing traces in your performance metrics,
+please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM discuss forum] and include information about your dependencies and what data is missing.
+
+[options="header"]
+|=======================================================================
+|Module |Version |Note
+|https://www.npmjs.com/package/bluebird[bluebird] |>=2.0.0 <4.0.0 |
+|https://www.npmjs.com/package/generic-pool[generic-pool] |^2.0.0 |Used
+by a lot of database modules like for instance "pg"
+|=======================================================================
