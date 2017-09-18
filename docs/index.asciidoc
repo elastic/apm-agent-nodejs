@@ -1,8 +1,10 @@
 = APM Node.js Agent Reference (Experimental)
+:branch: current
+include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 ifdef::env-github[]
 NOTE: For the best reading experience,
-please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/index.html[elastic.co]
+please view this documentation at {apm-node-ref}/index.html[elastic.co]
 endif::[]
 
 include::./intro.asciidoc[]
