@@ -176,7 +176,8 @@ To add even more metadata to errors and transactions,
 use one of the two functions below:
 
 * <<apm-set-user-context,`apm.setUserContext()`>> - Call this to enrich collected performance data and errors with information about the user/client
-* <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors
+* <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors (this data is only stored, but not indexed in Elasticsearch)
+* <<apm-set-tag,`apm.setTag()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (tags are indexed in Elasticsearch)
 
 [[koa-compatibility]]
 === Compatibility
