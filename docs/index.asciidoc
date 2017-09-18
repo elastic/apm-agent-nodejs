@@ -1,6 +1,7 @@
-= APM Node.js Agent Reference (Experimental)
 :branch: current
 include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
+
+= APM Node.js Agent Reference (Experimental)
 
 ifdef::env-github[]
 NOTE: For the best reading experience,
