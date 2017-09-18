@@ -41,7 +41,7 @@ For instance,
 all traces of MySQL queries are given the type `db.mysql.query`.
 
 In the above example `db` is considered the type prefix.
-Though there's no restrictions on what to name this prefix,
+Though there are no naming restrictions for this prefix,
 the following are standardized across all Elastic APM agents:
 `app`, `db`, `cache`, `template`, and `ext`.
 

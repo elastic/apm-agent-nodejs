@@ -30,7 +30,7 @@ You therefore don't need to manage or pass around the started `Agent` yourself.
 apm.start([options])
 ----
 
-Starts the Elastic APM agent for Node.js and returns it self.
+Starts the Elastic APM agent for Node.js and returns itself.
 
 IMPORTANT: Put the call to this function at the very top of your main app file - before requiring/importing any other modules.
 
@@ -79,7 +79,7 @@ Required unless set <<configuring-the-agent,via other means>>.
 * *Type:* String
 * *Env:* `ELASTIC_APM_SECRET_TOKEN`
 
-The The secret token optionally expected by the APM Server.
+The secret token optionally expected by the APM Server.
 
 [[server-url]]
 ===== `serverUrl`
@@ -99,7 +99,7 @@ The URL to where the APM Server is deployed.
 The version of the app currently running.
 This could be the version from your `package.json` file,
 a git commit reference,
-or any other string that might help you pinpoint a specific version or deploy.
+or any other string that might help you pinpoint a specific version or deployment.
 
 [[active]]
 ===== `active`
@@ -210,7 +210,7 @@ set this config option to `true`.
 * *Env:* `ELASTIC_APM_TIMEOUT`
 
 A boolean specifying if the agent should monitor for aborted TCP connections with un-ended HTTP requests.
-An error will be generated and sent to the APM Server in if this happens.
+An error will be generated and sent to the APM Server if this happens.
 
 [[timeout-error-threshold]]
 ===== `timeoutErrorThreshold`
@@ -241,9 +241,9 @@ use this option.
 * *Default:* `'info'`
 * *Env:* `ELASTIC_APM_LOG_LEVEL`
 
-Set the verbosity level the agent.
-Note that this does not have any influence on what types of errors that are sent to the APM Server.
-This only controls how chatty the agent are in your logs.
+Set the verbosity level for the agent.
+Note that this does not have any influence on the types of errors that are sent to the APM Server.
+This only controls how chatty the agent is in your logs.
 
 Possible levels are: `trace`, `debug`, `info`, `warn`, `error`, and `fatal`.
 
@@ -275,7 +275,7 @@ Note that if a custom logger is provided, the `logLevel` option will be ignored.
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_CAPTURE_EXCEPTIONS`
 
-Whether or not the agent should monitor for uncaught exceptions and sent them to the APM Server automatically.
+Whether or not the agent should monitor for uncaught exceptions and send them to the APM Server automatically.
 
 [[capture-trace-stack-traces]]
 ===== `captureTraceStackTraces`
@@ -284,7 +284,7 @@ Whether or not the agent should monitor for uncaught exceptions and sent them to
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_CAPTURE_TRACE_STACK_TRACES`
 
-Set it option to `false` to disable capture of stack traces for measured traces during instrumentation.
+Set this option to `false` to disable capture of stack traces for measured traces during instrumentation.
 
 [[stack-trace-limit]]
 ===== `stackTraceLimit`
@@ -313,7 +313,7 @@ The value is expected to be in seconds.
 
 Lowering this interval can reduce memory usage on Node.js applications with a high number of transactions.
 
-NOTE: The queue is flushed only 5 seconds after the first transaction have ended on a newly started Node process.
+NOTE: The queue is flushed only 5 seconds after the first transaction has ended on a newly started Node process.
 This ensures that you don't have to wait for the entire `flushInterval` to pass for the first data to be sent to the APM Server.
 From there on the `flushInterval` option is used.
 
@@ -404,10 +404,11 @@ If no active transaction can be found,
 Otherwise `true`.
 
 It's possible to call this function multiple times within the scope of the same active transaction.
-Each time the properties of the `context` argument is shallow merged with the context previously given.
+For each call, the properties of the `context` argument are shallow merged with the context previously given.
 
 If an error is captured,
-the context from the active transaction is used as context for the captured error and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
+the context from the active transaction is used as context for the captured error,
+and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
 
 The provided user context is stored under `context.user` in Elasticsearch on both errors and transactions.
 
@@ -432,10 +433,11 @@ If no active transaction can be found,
 Otherwise `true`.
 
 It's possible to call this function multiple times within the scope of the same active transaction.
-Each time the properties of the `context` argument is shallow merged with the context previously given.
+For each call, the properties of the `context` argument are shallow merged with the context previously given.
 
 If an error is captured,
-the context from the active transaction is used as context for the captured error and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
+the context from the active transaction is used as context for the captured error,
+and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
 
 [[apm-set-tag]]
 ==== `apm.setTag()`
@@ -481,7 +483,7 @@ a <<message-strings,message string>> or a special parameterized object.
 The optional `options` object can be used to log additional metadata with the error.
 For details see the <<metadata,metadata section>>.
 
-The optional `callback` will be called once the error have been sent to the APM Server.
+The optional `callback` will be called after the error has been sent to the APM Server.
 
 [[message-strings]]
 ===== Message strings
@@ -500,7 +502,7 @@ but will not be associated with an exception.
 [[metadata]]
 ===== Metadata
 
-To ease debugging it's possible to send some extra data with each error you sent to the APM Server.
+To ease debugging it's possible to send some extra data with each error you send to the APM Server.
 The APM Server intake API supports a lot of different metadata fields,
 most of which are automatically managed by the Elastic APM Node.js Agent.
 But if you wish you can supply some extra details using `user` or `custom`.
@@ -536,7 +538,7 @@ use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context
 [[http-requests]]
 ===== HTTP requests
 
-Besides the options described in the <<metadata,the metadata section>>,
+Besides the options described in the <<metadata,metadata section>>,
 you can use the `options` argument to associate the error with an HTTP request:
 
 [source,js]
@@ -557,7 +559,7 @@ In which case it will automate this processes for you.
 [[http-responses]]
 ===== HTTP responses
 
-Besides the options described in the <<metadata,the metadata section>>,
+Besides the options described in the <<metadata,metadata section>>,
 you can use the `options` argument to associate the error with an HTTP response:
 
 [source,js]
@@ -584,9 +586,11 @@ apm.middleware.connect()
 
 Alias: `apm.middleware.express()`
 
-The agent provided middleware can be used as-is with either Connect or Express in the same way.
-Take note that in your middlewares,
-the agent middleware must appear _after_ your router to pick up any errors that may result from handling a request.
+Returns a middleware function used to collect and send errors to the APM Server.
+
+The middleware can be used as-is with either Connect or Express in the same way.
+
+The middleware must be added _after_ your router to pick up any errors that may result from handling a request.
 
 [source,js]
 ----
@@ -610,7 +614,7 @@ app.use(apm.middleware.connect())
 app.listen(3000)
 ----
 
-NOTE: `apm.middleware.express` or `apm.middleware.connect` _must_ be added to the middleware stack _before_ any other error handling middlewares or there's a chance that the error will never get to the agent.
+NOTE: `apm.middleware.express` or `apm.middleware.connect` _must_ be added to the middleware stack _before_ any other error handling middleware functions or there's a chance that the error will never get to the agent.
 
 [[apm-start-transaction]]
 ==== `apm.startTransaction()`
@@ -638,7 +642,7 @@ You only need to use this function to create custom transactions.
 
 There's a special `type` called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
 
-See <<transaction-api,Transaction API>> docs for details on how to use custom transactions.
+See the <<transaction-api,Transaction API>> docs for details on how to use custom transactions.
 
 [[apm-end-transaction]]
 ==== `apm.endTransaction()`
@@ -716,7 +720,7 @@ The callback is called *after* the event has been sent to the APM Server with th
 This function will also enable the uncaught exception handler if it was disabled using the <<capture-exceptions,`captureExceptions`>> configuration option.
 
 If you don't specify a callback,
-the node process is terminated automatically when an uncaught exception have been captured and sent to the APM Server.
+the node process is terminated automatically when an uncaught exception has been captured and sent to the APM Server.
 
 https://nodejs.org/api/process.html#process_event_uncaughtexception[It is recommended] that you don't leave the process running after receiving an uncaught exception,
 so if you are using the optional callback,

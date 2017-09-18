@@ -4,7 +4,7 @@
 IMPORTANT: The Elastic APM agent for Node.js needs to be started as the first thing in your application - *before any other module is required/imported*.
 This means that you should probably require and start it in your applications main file (usually `index.js`, `server.js` or `app.js`).
 
-There is two ways to start the Elastic APM agent for Node.js:
+There are two ways to start the Elastic APM agent for Node.js:
 
 * Require the `elastic-apm` module and call the <<apm-start,`start`>> function on the returned agent:
 +
@@ -25,7 +25,7 @@ NOTE: If you are using Babel, you need to use the `elastic-apm/start` approach.
 [[configuring-the-agent]]
 === Configuring the agent
 
-There is three ways to configure the Node.js agent:
+There are three ways to configure the Node.js agent:
 
 1. If calling the <<apm-start,`start`>> function,
 you can supply a configurations object as the first argument.

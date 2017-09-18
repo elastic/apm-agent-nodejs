@@ -2,7 +2,7 @@
 == Getting started with Koa
 
 Getting Elastic APM set up for your Koa app is easy,
-and there are various ways you can tweak it to fit to your needs.
+and there are various ways you can tweak it to fit your needs.
 
 Follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
 
@@ -29,7 +29,7 @@ npm install elastic-apm --save
 
 It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `koa`, `http`, etc.
 
-This means that you should probably require and start it in your applications main file (usually `index.js`, `server.js` or `app.js`).
+This means that you should probably require and start the agent in your application's main file (usually `index.js`, `server.js` or `app.js`).
 
 Here's a simple Koa example with the Elastic APM agent installed:
 
@@ -100,7 +100,7 @@ See all possible ways to configure the agent <<configuring-the-agent,in the API 
 Elastic APM automatically measures the performance of your Koa application.
 It records traces for database queries,
 external HTTP requests,
-and other slow operations that happens during requests to your Koa app.
+and other slow operations that happen during requests to your Koa app.
 
 By default the agent will trace <<compatibility,the most common modules>>.
 To trace other events,
@@ -121,7 +121,7 @@ This indicates that the agent detected an incoming HTTP request to your applicat
 but didn't know which route in your Koa app the HTTP request matched.
 
 This might simply be 404 requests,
-which by definition doesn't match any route,
+which by definition don't match any route,
 or it might be a symptom that the agent wasn't installed correctly.
 If you see this or can't get any meaningful metrics to show up,
 please follow the <<troubleshooting,Troubleshooting Guide>>.
@@ -145,7 +145,7 @@ apm.captureError(err)
 ----
 
 For advanced logging of errors,
-including adding extra meta-data to the error,
+including adding extra metadata to the error,
 see <<apm-capture-error,the API documentation>>.
 
 [[koa-filter-sensitive-information]]
@@ -171,7 +171,7 @@ The Node.js agent will keep track of the active HTTP request and will link it to
 This allows you to see details about which request resulted in a particular error or which requests cause a certain HTTP endpoint to be slow.
 
 But in many cases,
-information about the HTTP request it self isn't enough.
+information about the HTTP request itself isn't enough.
 To add even more metadata to errors and transactions,
 use one of the two functions below:
 

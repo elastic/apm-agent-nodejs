@@ -21,7 +21,7 @@ Can be used to set or overwrite the name of the transaction (visible in the perf
 If you don't have access to the current transaction,
 you can also set the name using <<apm-set-transaction-name,`apm.setTransactionName()`>>.
 
-Transaction with the same name and <<transaction-type,type>> are grouped together.
+Transactions with the same name and <<transaction-type,type>> are grouped together.
 
 [[transaction-type]]
 ==== `transaction.type`

@@ -71,8 +71,8 @@ your app dependencies might be incompatible with the agent.
 Please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM discuss forum] and try to include as much information as possible, e.g:
 
 * The dependencies in you `package.json` file
-* Your apps main js file showing how the agent is initialized (usually the `index.js`, `server.js` or `app.js` file)
-* Your server logs with Elastic APM debugging enabled (see below for details)
+* Your app's main js file showing how the agent is initialized (usually the `index.js`, `server.js` or `app.js` file)
+* Your server logs with Elastic APM debugging enabled
 
 [[debug-mode]]
 === Debug mode

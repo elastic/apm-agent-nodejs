@@ -2,7 +2,7 @@
 == Compatibility Overview
 
 The Elastic APM Node.js agent is tested against Node.js v0.10 and above.
-Previous versions of Node.js is not supported.
+Previous versions of Node.js are not supported.
 
 [[compatibility-frameworks]]
 === Frameworks
@@ -78,8 +78,8 @@ But some modules will interfere with this monitoring by injecting an async call 
 
 We monitor these "offending" modules directly to give you a better experience.
 
-The modules and versions listed below are the once we support.
-If you use a version not supported you might not be able to see your own code in the performance traces.
+The modules and versions listed below are the ones we support.
+If you use an unsupported version you might not be able to see your own code in the performance traces.
 This does not impact the stability of your application in any way - only the collected metrics.
 
 If you don't see your own code in traces,
@@ -99,7 +99,7 @@ Certain modules can interfere with this monitoring if not handled properly.
 
 Below is a list of modules known to cause issues with this monitoring.
 The versions listed are the versions we support.
-If you use a version not supported you might experience missing traces.
+If you use an unsupported version you might experience missing traces.
 This does not impact the stability of your application in any way - only the collected metrics.
 
 If you do experience missing traces in your performance metrics,

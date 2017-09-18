@@ -6,14 +6,25 @@ please view this documentation at https://www.elastic.co/guide/en/apm/agent/node
 endif::[]
 
 include::./intro.asciidoc[]
+
 include::./express.asciidoc[]
+
 include::./hapi.asciidoc[]
+
 include::./koa.asciidoc[]
+
 include::./custom-stack.asciidoc[]
+
 include::./setup.asciidoc[]
+
 include::./api.asciidoc[]
+
 include::./compatibility.asciidoc[]
+
 include::./troubleshooting.asciidoc[]
+
 include::./custom-transactions.asciidoc[]
+
 include::./custom-traces.asciidoc[]
+
 include::./source-maps.asciidoc[]

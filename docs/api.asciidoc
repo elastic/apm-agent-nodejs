@@ -2,5 +2,7 @@
 == API Reference
 
 include::./agent-api.asciidoc[Agent API documentation]
+
 include::./transaction-api.asciidoc[Transaction API documentation]
+
 include::./trace-api.asciidoc[Trace API documentation]
