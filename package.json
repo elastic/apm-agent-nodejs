@@ -59,7 +59,7 @@
     "cookie": "^0.3.1",
     "core-util-is": "^1.0.2",
     "debug": "^3.0.0",
-    "elastic-apm-http-client": "^4.0.0",
+    "elastic-apm-http-client": "^4.1.0",
     "end-of-stream": "^1.1.0",
     "fast-safe-stringify": "^1.1.3",
     "http-headers": "^3.0.1",
@@ -82,6 +82,7 @@
     "express": "^4.14.0",
     "express-graphql": "^0.6.11",
     "generic-pool": "^3.1.5",
+    "get-port": "^2.1.0",
     "graphql": "^0.11.2",
     "hapi": "^16.5.2",
     "inquirer": "^0.12.0",
@@ -107,6 +108,7 @@
   },
   "greenkeeper": {
     "ignore": [
+      "get-port",
       "inquirer",
       "restify"
     ]

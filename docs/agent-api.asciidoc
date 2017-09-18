@@ -90,6 +90,17 @@ The secret token optionally expected by the APM Server.
 
 The URL to where the APM Server is deployed.
 
+[[validate-server-cert]]
+===== `validateServerCert`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_VALIDATE_SERVER_CERT`
+
+By default the agent will validate the TLS/SSL certificate of the APM Server if using HTTPS.
+You can switch this behavior off by setting this option to `false`.
+Disabling validation is normally required if using self-signed certificates.
+
 [[app-version]]
 ===== `appVersion`
 
