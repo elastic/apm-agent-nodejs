@@ -14,3 +14,19 @@ Please also have a look at the documentation for
 
 * {apm-server-ref}/index.html[APM Server]
 * {ref}/index.html[Elasticsearch]
+
+=== Getting started
+
+To get you off the ground, we've prepared guides for the most popular web frameworks:
+
+* <<express,Get started with Express>>
+* <<hapi,Get started with hapi>>
+* <<koa,Get started with Koa>>
+
+Alternatively you should check out our guide for <<custom-stack,getting started with a custom Node.js stack>>.
+
+Other useful documentation include:
+
+- <<advanced-setup,Advanced Setup and Configuration>>
+- <<api,API reference>>
+- <<troubleshooting,Troubleshooting>>
