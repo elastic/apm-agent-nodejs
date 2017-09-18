@@ -22,12 +22,12 @@ include::./setup.asciidoc[]
 
 include::./api.asciidoc[]
 
-include::./compatibility.asciidoc[]
-
-include::./troubleshooting.asciidoc[]
-
 include::./custom-transactions.asciidoc[]
 
 include::./custom-traces.asciidoc[]
 
 include::./source-maps.asciidoc[]
+
+include::./compatibility.asciidoc[]
+
+include::./troubleshooting.asciidoc[]
