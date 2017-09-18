@@ -1,6 +1,7 @@
 [[advanced-setup]]
 == Advanced Setup and Configuration
 
+[float]
 [[starting-the-agent]]
 === Starting the agent
 
@@ -31,6 +32,7 @@ but instead have to rely on <<configuring-the-agent,one of the other methods of 
 NOTE: If you are using Babel, you need to use the `elastic-apm/start` approach.
 <<es-modules,Read more>>.
 
+[float]
 [[configuring-the-agent]]
 === Configuring the agent
 
@@ -49,6 +51,7 @@ You can see the expected names of these environment variables in the documentati
 
 For information on the available configuration properties, see the <<apm-start,API reference>>.
 
+[float]
 [[agent-configuration-file]]
 ==== Agent configuration file
 
@@ -77,6 +80,7 @@ module.exports = {
 }
 ----
 
+[float]
 [[es-modules]]
 === Babel / ES Modules support
 

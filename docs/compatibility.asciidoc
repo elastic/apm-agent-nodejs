@@ -4,6 +4,7 @@
 The Elastic APM Node.js agent is tested against Node.js v0.10 and above.
 Previous versions of Node.js are not supported.
 
+[float]
 [[compatibility-frameworks]]
 === Frameworks
 
@@ -22,6 +23,7 @@ so we can't support Koa directly since we rely on router information for full su
 We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router]
 |=======================================================================
 
+[float]
 [[compatibility-custom-transactions]]
 === Custom Transactions
 
@@ -34,6 +36,7 @@ These modules override that behavior to give better insights into specialized HT
 |https://www.npmjs.com/package/express-graphql[express-graphql] |^0.6.1 |Will name all transactions by the GraphQL query name
 |=======================================================================
 
+[float]
 [[compatibility-tracing-and-instrumentation]]
 === Tracing and Instrumentation
 
@@ -65,6 +68,7 @@ queries
 outgoing WebSocket messages
 |=======================================================================
 
+[float]
 [[compatibility-better-stack-traces]]
 ==== Better Stack Traces
 
@@ -91,6 +95,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 |https://www.npmjs.com/package/knex[knex] |>=0.9.0
 |=================================================
 
+[float]
 [[compatibility-continuity]]
 ==== Continuity
 

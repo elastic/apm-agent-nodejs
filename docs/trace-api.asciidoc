@@ -1,3 +1,4 @@
+[float]
 [[trace-api]]
 === `Trace` API
 
@@ -9,6 +10,7 @@ you need to call <<apm-build-trace,`apm.buildTrace()`>>.
 To see an example of using custom traces,
 see the <<custom-traces,Custom Traces in Node.js>> article.
 
+[float]
 [[trace-transaction]]
 ==== `trace.transaction`
 
@@ -18,6 +20,7 @@ A reference to the parent transaction object.
 
 All traces belongs to a transaction.
 
+[float]
 [[trace-name]]
 ==== `trace.name`
 
@@ -27,6 +30,7 @@ All traces belongs to a transaction.
 The name of the trace.
 This can also be set via <<trace-start,`trace.start()`>>.
 
+[float]
 [[trace-type]]
 ==== `trace.type`
 
@@ -45,6 +49,7 @@ Though there are no naming restrictions for this prefix,
 the following are standardized across all Elastic APM agents:
 `app`, `db`, `cache`, `template`, and `ext`.
 
+[float]
 [[trace-start]]
 ==== `trace.start()`
 
@@ -67,6 +72,7 @@ Defaults to `custom.code`
 
 When a trace is started it will measure the time until <<trace-end,`trace.end()`>> or <<trace-truncate,`trace.truncate()`>> is called.
 
+[float]
 [[trace-end]]
 ==== `trace.end()`
 
@@ -81,6 +87,7 @@ nothing happens.
 
 A trace that isn't ended before the parent transaction ends will be <<trace-truncate,truncated>>.
 
+[float]
 [[trace-truncate]]
 ==== `trace.truncate()`
 

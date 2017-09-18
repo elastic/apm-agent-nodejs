@@ -22,6 +22,7 @@ Or you can inline the source map using base64 encoding:
 
 All modern build toolchains support generating source maps and adding these comments to the transpiled source code.
 
+[float]
 [[original-source-code]]
 === Original source code
 
@@ -36,6 +37,7 @@ or that you deploy the original source code to your production server along with
 If you choose to deploy the original source code,
 make sure that it's accessible via the file system at the path specified with the `sourceRoot` property in the source map.
 
+[float]
 [[public-access]]
 === Public access?
 

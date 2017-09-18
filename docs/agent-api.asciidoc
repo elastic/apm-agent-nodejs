@@ -1,3 +1,4 @@
+[float]
 [[agent-api]]
 === `Agent` API
 
@@ -22,6 +23,7 @@ If you need to access the `Agent` in any part of your codebase,
 you can simply require `elastic-apm` to access the already started singleton.
 You therefore don't need to manage or pass around the started `Agent` yourself.
 
+[float]
 [[apm-start]]
 ==== `apm.start()`
 
@@ -64,6 +66,7 @@ require('elastic-apm').start({
 })
 ----
 
+[float]
 [[app-name]]
 ===== `appName`
 
@@ -73,6 +76,7 @@ require('elastic-apm').start({
 Your Elastic APM app name.
 Required unless set <<configuring-the-agent,via other means>>.
 
+[float]
 [[secret-token]]
 ===== `secretToken`
 
@@ -81,6 +85,7 @@ Required unless set <<configuring-the-agent,via other means>>.
 
 The secret token optionally expected by the APM Server.
 
+[float]
 [[server-url]]
 ===== `serverUrl`
 
@@ -90,6 +95,7 @@ The secret token optionally expected by the APM Server.
 
 The URL to where the APM Server is deployed.
 
+[float]
 [[app-version]]
 ===== `appVersion`
 
@@ -101,6 +107,7 @@ This could be the version from your `package.json` file,
 a git commit reference,
 or any other string that might help you pinpoint a specific version or deployment.
 
+[float]
 [[active]]
 ===== `active`
 
@@ -122,6 +129,7 @@ var options = {
 }
 ----
 
+[float]
 [[instrument]]
 ===== `instrument`
 
@@ -133,6 +141,7 @@ A boolean specifying if the agent should collect performance metrics for the app
 
 Note that both `active` and `instrument` needs to be `true` for instrumentation to be running.
 
+[float]
 [[ignore-urls]]
 ===== `ignoreUrls`
 
@@ -162,6 +171,7 @@ require('elastic-apm').start({
 })
 ----
 
+[float]
 [[ignore-user-agents]]
 ===== `ignoreUserAgents`
 
@@ -191,6 +201,7 @@ require('elastic-apm').start({
 })
 ----
 
+[float]
 [[log-body]]
 ===== `logBody`
 
@@ -202,6 +213,7 @@ The HTTP body of incoming HTTP requests is not recorded and sent to the APM Serv
 If you wish to collect the HTTP request body,
 set this config option to `true`.
 
+[float]
 [[timeout]]
 ===== `timeout`
 
@@ -212,6 +224,7 @@ set this config option to `true`.
 A boolean specifying if the agent should monitor for aborted TCP connections with un-ended HTTP requests.
 An error will be generated and sent to the APM Server if this happens.
 
+[float]
 [[timeout-error-threshold]]
 ===== `timeoutErrorThreshold`
 
@@ -223,6 +236,7 @@ Specify the threshold (in milliseconds) for when an aborted TCP connection with 
 
 If the `timeout` property is `false`, this property is ignored.
 
+[float]
 [[hostname]]
 ===== `hostname`
 
@@ -234,6 +248,7 @@ The OS hostname is automatically logged along with all errors and transactions.
 If you want to overwrite this,
 use this option.
 
+[float]
 [[log-level]]
 ===== `logLevel`
 
@@ -247,6 +262,7 @@ This only controls how chatty the agent is in your logs.
 
 Possible levels are: `trace`, `debug`, `info`, `warn`, `error`, and `fatal`.
 
+[float]
 [[logger]]
 ===== `logger`
 
@@ -268,6 +284,7 @@ The logger should expose the following functions: `trace`, `debug`,`info`, `warn
 
 Note that if a custom logger is provided, the `logLevel` option will be ignored.
 
+[float]
 [[capture-exceptions]]
 ===== `captureExceptions`
 
@@ -277,6 +294,7 @@ Note that if a custom logger is provided, the `logLevel` option will be ignored.
 
 Whether or not the agent should monitor for uncaught exceptions and send them to the APM Server automatically.
 
+[float]
 [[capture-trace-stack-traces]]
 ===== `captureTraceStackTraces`
 
@@ -286,6 +304,7 @@ Whether or not the agent should monitor for uncaught exceptions and send them to
 
 Set this option to `false` to disable capture of stack traces for measured traces during instrumentation.
 
+[float]
 [[stack-trace-limit]]
 ===== `stackTraceLimit`
 
@@ -297,6 +316,7 @@ Setting it to `0` will disable stack trace collection.
 Any finite integer value will be used as the maximum number of frames to collect.
 Setting it to `Infinity` means that all frames will be collected.
 
+[float]
 [[flush-interval]]
 ===== `flushInterval`
 
@@ -317,6 +337,7 @@ NOTE: The queue is flushed only 5 seconds after the first transaction has ended 
 This ensures that you don't have to wait for the entire `flushInterval` to pass for the first data to be sent to the APM Server.
 From there on the `flushInterval` option is used.
 
+[float]
 [[filter-http-headers]]
 ===== `filterHttpHeaders`
 
@@ -335,6 +356,7 @@ Currently the following HTTP headers are anonymized by default:
 * `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
 See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
 
+[float]
 [[apm-add-filter]]
 ==== `apm.addFilter()`
 
@@ -381,6 +403,7 @@ See <<filter-http-headers,`filterHttpHeaders`>> for details.
 Though you can also use filter functions to add new contextual information to the `user` and `custom` properties,
 it's recommended that you use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context,`apm.setCustomContext()`>> for that purpose.
 
+[float]
 [[apm-set-user-context]]
 ==== `apm.setUserContext()`
 
@@ -412,6 +435,7 @@ and any custom context given as the 2nd argument to <<apm-capture-error,`apm.cap
 
 The provided user context is stored under `context.user` in Elasticsearch on both errors and transactions.
 
+[float]
 [[apm-set-custom-context]]
 ==== `apm.setCustomContext()`
 
@@ -439,6 +463,7 @@ If an error is captured,
 the context from the active transaction is used as context for the captured error,
 and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
 
+[float]
 [[apm-set-tag]]
 ==== `apm.setTag()`
 
@@ -462,6 +487,7 @@ Must not contain periods (`.`) as those have special meaning in Elasticsearch
 If a non-string data type is given,
 it's converted to a string before being sent to the APM Server
 
+[float]
 [[apm-capture-error]]
 ==== `apm.captureError()`
 
@@ -485,6 +511,7 @@ For details see the <<metadata,metadata section>>.
 
 The optional `callback` will be called after the error has been sent to the APM Server.
 
+[float]
 [[message-strings]]
 ===== Message strings
 
@@ -499,6 +526,7 @@ apm.captureError('Something happened!')
 This will also be sent as an error to the APM Server,
 but will not be associated with an exception.
 
+[float]
 [[metadata]]
 ===== Metadata
 
@@ -535,6 +563,7 @@ apm.captureError(error, {
 To supply per-request metadata to all errors captured in one central location,
 use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context,`apm.setCustomContext()`>>.
 
+[float]
 [[http-requests]]
 ===== HTTP requests
 
@@ -556,6 +585,7 @@ In most cases this isn't needed though,
 as the agent is pretty smart at figuring out if your Node.js app is an HTTP server and if an error occurred during an incoming request.
 In which case it will automate this processes for you.
 
+[float]
 [[http-responses]]
 ===== HTTP responses
 
@@ -576,6 +606,7 @@ In most cases this isn't needed though,
 as the agent is pretty smart at figuring out if your Node.js app is an HTTP server and if an error occurred during an incoming request.
 In which case it will automate this processes for you.
 
+[float]
 [[apm-middleware-connect]]
 ==== `apm.middleware.connect()`
 
@@ -616,6 +647,7 @@ app.listen(3000)
 
 NOTE: `apm.middleware.express` or `apm.middleware.connect` _must_ be added to the middleware stack _before_ any other error handling middleware functions or there's a chance that the error will never get to the agent.
 
+[float]
 [[apm-start-transaction]]
 ==== `apm.startTransaction()`
 
@@ -644,6 +676,7 @@ There's a special `type` called `request` which is used by the agent for the tra
 
 See the <<transaction-api,Transaction API>> docs for details on how to use custom transactions.
 
+[float]
 [[apm-end-transaction]]
 ==== `apm.endTransaction()`
 
@@ -661,6 +694,7 @@ You only need to use this function to end custom transactions created by <<apm-s
 
 Alternatively you can call <<transaction-end,`end()`>> directly on an active transaction object.
 
+[float]
 [[apm-set-transaction-name]]
 ==== `apm.setTransactionName()`
 
@@ -679,6 +713,7 @@ the transaction name will default to `METHOD unknown route` (e.g. `POST unknown 
 
 Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
 
+[float]
 [[apm-build-trace]]
 ==== `apm.buildTrace()`
 
@@ -694,6 +729,7 @@ See <<trace-api,Trace API>> docs for details on how to use custom traces.
 NOTE: If there's no active transaction available,
 `null` will be returned.
 
+[float]
 [[apm-handle-uncaught-exceptions]]
 ==== `apm.handleUncaughtExceptions()`
 

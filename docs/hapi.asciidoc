@@ -6,6 +6,7 @@ and there are various ways you can tweak it to fit your needs.
 
 Follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
 
+[float]
 [[hapi-installation]]
 === Installation
 
@@ -16,6 +17,7 @@ Add the `elastic-apm` module as a dependency to your application:
 npm install elastic-apm --save
 ----
 
+[float]
 [[hapi-initialization]]
 === Initialization
 
@@ -61,6 +63,7 @@ server.start()
 
 The agent will now monitor the performance of your hapi application and record any uncaught exceptions.
 
+[float]
 [[hapi-advanced-configuration]]
 ==== Advanced configuration
 
@@ -86,12 +89,14 @@ var apm = require('elastic-apm').start()
 
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
 
+[float]
 [[hapi-full-documentation]]
 ==== Full documentation
 
 * <<advanced-setup,Setup and Configuration>>
 * <<api,API Reference>>
 
+[float]
 [[hapi-performance-monitoring]]
 === Performance monitoring
 
@@ -110,6 +115,7 @@ Traces are grouped in transactions - by default one for each incoming HTTP reque
 But it's possible to create custom transactions not associated with an HTTP request.
 See the <<custom-transactions,Custom Transactions section>> for details.
 
+[float]
 [[hapi-unknown-routes]]
 ==== Unknown routes
 
@@ -124,6 +130,7 @@ or it might be a symptom that the agent wasn't installed correctly.
 If you see this or can't get any meaningful metrics to show up,
 please follow the <<troubleshooting,Troubleshooting Guide>>.
 
+[float]
 [[hapi-error-logging]]
 === Error logging
 
@@ -146,6 +153,7 @@ For advanced logging of errors,
 including adding extra metadata to the error,
 see <<apm-capture-error,the API documentation>>.
 
+[float]
 [[hapi-filter-sensitive-information]]
 === Filter sensitive information
 
@@ -162,6 +170,7 @@ use the <<filter-http-headers,`filterHttpHeaders`>> config option
 * To apply custom filters,
 use the <<apm-add-filter,`apm.addFilter()`>> function
 
+[float]
 [[hapi-add-your-own-data]]
 === Add your own data
 
@@ -177,11 +186,13 @@ use one of the two functions below:
 * <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors (this data is only stored, but not indexed in Elasticsearch)
 * <<apm-set-tag,`apm.setTag()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (tags are indexed in Elasticsearch)
 
+[float]
 [[hapi-compatibility]]
 === Compatibility
 
 See the <<compatibility,Compatibility section>> for details.
 
+[float]
 [[hapi-troubleshooting]]
 === Troubleshooting
 

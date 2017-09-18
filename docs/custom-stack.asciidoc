@@ -14,6 +14,7 @@ we recommend that you read these articles instead:
 For a custom Node.js app,
 follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
 
+[float]
 [[custom-stack-installation]]
 === Installation
 
@@ -24,6 +25,7 @@ Add the `elastic-apm` module as a dependency to your application:
 npm install elastic-apm --save
 ----
 
+[float]
 [[custom-stack-initialization]]
 === Initialization
 
@@ -50,6 +52,7 @@ var apm = require('elastic-apm').start({
 
 The agent will now monitor the performance of your application and record any uncaught exceptions.
 
+[float]
 [[custom-stack-advanced-configuration]]
 ==== Advanced configuration
 
@@ -75,12 +78,14 @@ var apm = require('elastic-apm').start()
 
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
 
+[float]
 [[custom-stack-full-documentation]]
 ==== Full documentation
 
 * <<advanced-setup,Setup and Configuration>>
 * <<api,API Reference>>
 
+[float]
 [[custom-stack-performance-monitoring]]
 === Performance monitoring
 
@@ -99,6 +104,7 @@ Traces are grouped in transactions - by default one for each incoming HTTP reque
 But it's possible to create custom transactions not associated with an HTTP request.
 See the <<custom-transactions,Custom Transactions section>> for details.
 
+[float]
 [[custom-stack-route-naming]]
 ==== Route naming
 
@@ -151,6 +157,7 @@ http.createServer(function (req, res) {
 }).listen(3000)
 ----
 
+[float]
 [[custom-stack-unknown-routes]]
 ==== Unknown routes
 
@@ -166,6 +173,7 @@ Make sure we either support your router or that you <<custom-stack-route-naming,
 If you still can't get any meaningful metrics to show up,
 please follow the <<troubleshooting,Troubleshooting Guide>>.
 
+[float]
 [[custom-stack-error-logging]]
 === Error logging
 
@@ -188,6 +196,7 @@ For advanced logging of errors,
 including adding extra metadata to the error,
 see <<apm-capture-error,the API documentation>>.
 
+[float]
 [[custom-stack-middleware-error-handler]]
 ==== Middleware error handler
 
@@ -219,6 +228,7 @@ app.use(function (err, req, res, next) {
 })
 ----
 
+[float]
 [[custom-stack-filter-sensitive-information]]
 === Filter sensitive information
 
@@ -235,6 +245,7 @@ use the <<filter-http-headers,`filterHttpHeaders`>> config option
 * To apply custom filters,
 use the <<apm-add-filter,`apm.addFilter()`>> function
 
+[float]
 [[custom-stack-add-your-own-data]]
 === Add your own data
 
@@ -250,11 +261,13 @@ use one of the two functions below:
 * <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors (this data is only stored, but not indexed in Elasticsearch)
 * <<apm-set-tag,`apm.setTag()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (tags are indexed in Elasticsearch)
 
+[float]
 [[custom-stack-compatibility]]
 === Compatibility
 
 See the <<compatibility,Compatibility section>> for details.
 
+[float]
 [[custom-stack-troubleshooting]]
 === Troubleshooting
 

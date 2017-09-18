@@ -1,15 +1,18 @@
 [[troubleshooting]]
 == Troubleshooting
 
+[float]
 [[no-data-sent]]
 === No data is sent to the APM Server
 
 If neither errors or performance metrics are being sent to the APM Server,
 it's a good idea to first check your log file and look for output just as the app starts.
 
+[float]
 [[error-messages]]
 ==== Explanation of error messages
 
+[float]
 [[message-agent-inactive]]
 ===== Agent Inactive
 
@@ -22,6 +25,7 @@ Ensure that it's set to `true` and try again.
 
 See the API documentation about <<active,`active`>> for details.
 
+[float]
 [[message-missing-app-name]]
 ===== Missing `appName`
 
@@ -35,6 +39,7 @@ or by using environment variables.
 
 See the API documentation on <<app-name,`appName`>> for details.
 
+[float]
 [[message-invalid-app-name]]
 ===== Invalid `appName`
 
@@ -47,6 +52,7 @@ You can only use the the letters a-z (both upper and lowercase), numbers, unders
 
 See the API documentation on <<app-name,`appName`>> for details.
 
+[float]
 [[missing-performance-metrics]]
 === No performance metrics sent to APM Server
 
@@ -74,6 +80,7 @@ Please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 * Your app's main js file showing how the agent is initialized (usually the `index.js`, `server.js` or `app.js` file)
 * Your server logs with Elastic APM debugging enabled
 
+[float]
 [[debug-mode]]
 === Debug mode
 

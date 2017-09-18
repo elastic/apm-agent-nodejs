@@ -14,6 +14,7 @@ If you use another router with your Koa application,
 please https://github.com/elastic/apm-agent-nodejs/issues[open an issue] so we can make sure to support your stack.
 In the mean time you can <<custom-stack,configure Elastic APM to work with any stack>>.
 
+[float]
 [[koa-installation]]
 === Installation
 
@@ -24,6 +25,7 @@ Add the `elastic-apm` module as a dependency to your application:
 npm install elastic-apm --save
 ----
 
+[float]
 [[koa-initialization]]
 === Initialization
 
@@ -63,6 +65,7 @@ app.listen(3000)
 
 The agent will now monitor the performance of your Koa application and record any uncaught exceptions.
 
+[float]
 [[koa-advanced-configuration]]
 ==== Advanced configuration
 
@@ -88,12 +91,14 @@ var apm = require('elastic-apm').start()
 
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
 
+[float]
 [[koa-full-documentation]]
 ==== Full documentation
 
 * <<advanced-setup,Setup and Configuration>>
 * <<api,API Reference>>
 
+[float]
 [[koa-performance-monitoring]]
 === Performance monitoring
 
@@ -112,6 +117,7 @@ Traces are grouped in transactions - by default one for each incoming HTTP reque
 But it's possible to create custom transactions not associated with an HTTP request.
 See the <<custom-transactions,Custom Transactions section>> for details.
 
+[float]
 [[koa-unknown-routes]]
 ==== Unknown routes
 
@@ -126,6 +132,7 @@ or it might be a symptom that the agent wasn't installed correctly.
 If you see this or can't get any meaningful metrics to show up,
 please follow the <<troubleshooting,Troubleshooting Guide>>.
 
+[float]
 [[koa-error-logging]]
 === Error logging
 
@@ -148,6 +155,7 @@ For advanced logging of errors,
 including adding extra metadata to the error,
 see <<apm-capture-error,the API documentation>>.
 
+[float]
 [[koa-filter-sensitive-information]]
 === Filter sensitive information
 
@@ -164,6 +172,7 @@ use the <<filter-http-headers,`filterHttpHeaders`>> config option
 * To apply custom filters,
 use the <<apm-add-filter,`apm.addFilter()`>> function
 
+[float]
 [[koa-add-your-own-data]]
 === Add your own data
 
@@ -179,11 +188,13 @@ use one of the two functions below:
 * <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors (this data is only stored, but not indexed in Elasticsearch)
 * <<apm-set-tag,`apm.setTag()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (tags are indexed in Elasticsearch)
 
+[float]
 [[koa-compatibility]]
 === Compatibility
 
 See the <<compatibility,Compatibility section>> for details.
 
+[float]
 [[koa-troubleshooting]]
 === Troubleshooting
 
