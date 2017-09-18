@@ -1,5 +1,5 @@
-[[setup]]
-== Setup and Configuration
+[[advanced-setup]]
+== Advanced Setup and Configuration
 
 IMPORTANT: The Elastic APM agent for Node.js needs to be started as the first thing in your application - *before any other module is required/imported*.
 This means that you should probably require and start it in your applications main file (usually `index.js`, `server.js` or `app.js`).

@@ -8,7 +8,7 @@ we recommend that you take a look at our framework specific documentation for ei
 The Elastic APM agent for Node.js is a singleton.
 You get the agent instance by either requiring `elastic-apm` or `elastic-apm/start`.
 For details on the two approaches,
-see the <<setup,Setup and Configuration>> guide.
+see the <<advanced-setup,Setup and Configuration>> guide.
 
 The agent is also returned by the `start()` function,
 which allows you to require and start the agent on the same line:

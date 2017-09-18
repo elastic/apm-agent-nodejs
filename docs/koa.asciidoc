@@ -91,7 +91,7 @@ See all possible ways to configure the agent <<configuring-the-agent,in the API 
 [[koa-full-documentation]]
 ==== Full documentation
 
-* <<setup,Setup and Configuration>>
+* <<advanced-setup,Setup and Configuration>>
 * <<api,API Reference>>
 
 [[koa-performance-monitoring]]
