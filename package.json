@@ -10,7 +10,7 @@
     "pretest": "test/pretest.sh",
     "test": "standard && test/test.sh",
     "posttest": "test/posttest.sh",
-    "test-cli": "node test/scripts/cli.js"
+    "test-cli": "node test/script/cli.js"
   },
   "directories": {
     "test": "test"
