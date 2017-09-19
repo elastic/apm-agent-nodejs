@@ -5,7 +5,10 @@ def tav_nodejs_versions = ['8','7','6', '5', '4', '0.10', '0.12']
 def tav_envs = ['generic-pool,mysql,redis,koa-router','ioredis,pg','bluebird','knex,ws,graphql,express-graphql,elasticsearch']
 def tav_jobs = [:]
 
+properties([pipelineTriggers([githubPush()])])
+
 node{
+    git url: 'https://github.com/elastic/apm-agent-nodejs.git', branch: 'master'
     withEnv(["HOME=/var/lib/jenkins"
              ]) {
         stage('Checkout'){
