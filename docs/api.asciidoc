@@ -1,6 +1,18 @@
 [[api]]
 == API Reference
 
+The API reference documentation is divided into three parts:
+
+* <<agent-api,The `Agent` API>> - All functions and properties on the `Agent` object.
+An instance of the `Agent` object is acquired by requiring/importing the Node.js APM Agent module.
+The `Agent` is a singleton and the instance is usually referred by the variable `apm` in this documentation
+
+* <<transaction-api,The `Transaction` API>> - All functions and properties on the `Transaction` object.
+An instance of the `Transaction` object is acquired by calling `apm.startTransaction()`
+
+* <<trace-api,The `Trace` API>> - All functions and properties on the `Trace` object.
+An instance of the `Trace` object is acquired by calling `apm.buildTrace()`
+
 include::./agent-api.asciidoc[Agent API documentation]
 
 include::./transaction-api.asciidoc[Transaction API documentation]

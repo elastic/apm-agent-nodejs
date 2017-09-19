@@ -1,4 +1,3 @@
-[float]
 [[transaction-api]]
 === `Transaction` API
 
@@ -10,7 +9,6 @@ you need to call <<apm-start-transaction,`apm.startTransaction()`>>.
 To see an example of using custom transactions,
 see the <<custom-transactions,Custom Transactions in Node.js>> article.
 
-[float]
 [[transaction-name]]
 ==== `transaction.name`
 
@@ -25,7 +23,6 @@ you can also set the name using <<apm-set-transaction-name,`apm.setTransactionNa
 
 Transactions with the same name and <<transaction-type,type>> are grouped together.
 
-[float]
 [[transaction-type]]
 ==== `transaction.type`
 
@@ -36,7 +33,6 @@ The type of the transaction.
 
 There's a special type called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
 
-[float]
 [[transaction-result]]
 ==== `transaction.result`
 
@@ -47,7 +43,6 @@ The transaction result.
 
 Think of the transaction result as equivalent to the status code of an HTTP response.
 
-[float]
 [[transaction-end]]
 ==== `transaction.end()`
 
