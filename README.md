@@ -4,7 +4,7 @@
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/standard/standard)
 
 **Warning: This project is currently in a pre-alpha stage and no support
-or documentation is currently provided. Use it at your own risk.**
+is currently provided. Use it at your own risk.**
 
 This is the official Node.js agent for Elastic APM. Read our
 [announcement blog
@@ -17,36 +17,27 @@ them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 ## Quick start
 
 1. To run Elastic APM for your own applications make sure you have the
-   prerequisites in place first. For details see ["APM Getting
-   Started"](https://github.com/elastic/apm-server#apm-getting-started).
+   prerequisites in place first. For details see [Getting Started with
+   Elastic APM](https://www.elastic.co/guide/en/apm/get-started)
 
-1. Install the module:
-   ```
-   npm install elastic-apm --save
-   ```
+1. Now follow the documentation links below relevant to your framework
+   or stack to get set up
 
-1. To get started just require and start the Elastic APM agent **at the
-   very top** of your app's startup script. The Elastic APM agent will
-   be returned. The agent will now instrument your Node.js application
-   and track unhandled exceptions automatically.
-   ```js
-   // Add this to the VERY top of the first file loaded in your app
-   var apm = require('elastic-apm').start({
-     // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
-     appName: '',
+## Documentation
 
-     // Use if APM Server requires a token
-     secretToken: '',
-
-     // Set custom APM Server URL (default: http://localhost:8200)
-     serverUrl: ''
-   })
-   ```
-   If you want to manually send an error to Elastic APM, use the
-   `captureError()` function:
-   ```js
-   apm.captureError(new Error('Ups, something broke'))
-   ```
+- [Table of contents](https://www.elastic.co/guide/en/apm/agent/nodejs)
+- [Introduction](https://www.elastic.co/guide/en/apm/agent/nodejs/current/intro.html)
+- [Get started with Express](https://www.elastic.co/guide/en/apm/agent/nodejs/current/express.html)
+- [Get started with hapi](https://www.elastic.co/guide/en/apm/agent/nodejs/current/hapi.html)
+- [Get started with Koa](https://www.elastic.co/guide/en/apm/agent/nodejs/current/koa.html)
+- [Get started with a custom Node.js stack](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-stack.html)
+- [Advanced Setup and Configuration](https://www.elastic.co/guide/en/apm/agent/nodejs/current/advanced-setup.html)
+- [API Reference](https://www.elastic.co/guide/en/apm/agent/nodejs/current/api.html)
+- [Custom Transactions](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html)
+- [Custom Traces](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-traces.html)
+- [Source Map Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/source-maps.html)
+- [Compatibility Overview](https://www.elastic.co/guide/en/apm/agent/nodejs/current/compatibility.html)
+- [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)
 
 ## Testing
 
