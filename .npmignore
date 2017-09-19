@@ -2,5 +2,7 @@ build
 docs
 script
 test
+CHANGELOG.md
 Dockerfile
 docker-compose.yml
+Jenkinsfile
