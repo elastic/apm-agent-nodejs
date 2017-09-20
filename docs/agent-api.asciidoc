@@ -517,7 +517,7 @@ To ease debugging it's possible to send some extra data with each error you send
 The APM Server intake API supports a lot of different metadata fields,
 most of which are automatically managed by the Elastic APM Node.js Agent.
 But if you wish you can supply some extra details using `user` or `custom`.
-For more details on the properties accepted by the error intake API see the {apm-server-ref}/_error_api.html[intake error API docs].
+For more details on the properties accepted by the error intake API see the {apm-server-ref}/error-api.html[intake error API docs].
 
 To supply any of these extra fields,
 use the optional options argument when calling `apm.captureError()`.
