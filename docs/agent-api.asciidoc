@@ -32,7 +32,13 @@ apm.start([options])
 
 Starts the Elastic APM agent for Node.js and returns itself.
 
-IMPORTANT: Put the call to this function at the very top of your main app file - before requiring/importing any other modules.
+[IMPORTANT]
+====
+Put the call to this function at the very top of your main app file - before requiring any other modules.
+
+If you are using Babel calling this function will not have the desired effect.
+See the <<es-modules,Babel / ES Modules support documentation>> for details.
+====
 
 The available configuration options are listed below.
 Most configuration options can be set either in the optional `options` object,
