@@ -1,10 +1,10 @@
-# Elastic APM Node.js Agent (Experimental)
+# Elastic APM Node.js Agent (Alpha)
 
 [![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=master)](https://travis-ci.org/elastic/apm-agent-nodejs)
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/standard/standard)
 
-**Warning: This project is currently in a pre-alpha stage. Use it at
-your own risk.**
+**Warning: This project is currently in alpha. Use it at your own
+risk.**
 
 This is the official Node.js agent for Elastic APM. Read our
 [announcement blog
