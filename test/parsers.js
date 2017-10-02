@@ -118,24 +118,8 @@ test('#getContextFromResponse()', function (t) {
 })
 
 test('#getContextFromRequest()', function (t) {
-  var mockReq = {
-    httpVersion: '1.1',
-    method: 'GET',
-    url: '/some/path?key=value',
-    headers: {
-      host: 'example.com',
-      'user-agent': 'Mozilla Chrome Edge'
-    },
-    body: '',
-    cookies: {},
-    socket: {
-      remoteAddress: '127.0.0.1',
-      encrypted: true
-    }
-  }
-
   t.test('should parse a request object', function (t) {
-    var parsed = parsers.getContextFromRequest(mockReq)
+    var parsed = parsers.getContextFromRequest(getMockReq())
     t.deepEqual(parsed, {
       http_version: '1.1',
       method: 'GET',
@@ -158,8 +142,9 @@ test('#getContextFromRequest()', function (t) {
   })
 
   t.test('full URI', function (t) {
-    mockReq.url = 'https://www.example.com:8080/some/path?key=value'
-    var parsed = parsers.getContextFromRequest(mockReq)
+    var req = getMockReq()
+    req.url = 'https://www.example.com:8080/some/path?key=value'
+    var parsed = parsers.getContextFromRequest(req)
     t.deepEqual(parsed.url, {
       pathname: '/some/path',
       search: '?key=value',
@@ -171,9 +156,24 @@ test('#getContextFromRequest()', function (t) {
     t.end()
   })
 
+  t.test('port in host header', function (t) {
+    var req = getMockReq()
+    req.headers.host = 'example.com:8080'
+    var parsed = parsers.getContextFromRequest(req)
+    t.deepEqual(parsed.url, {
+      raw: '/some/path?key=value',
+      hostname: 'example.com',
+      port: '8080',
+      pathname: '/some/path',
+      search: '?key=value'
+    })
+    t.end()
+  })
+
   t.test('empty query string', function (t) {
-    mockReq.url = '/some/path?'
-    var parsed = parsers.getContextFromRequest(mockReq)
+    var req = getMockReq()
+    req.url = '/some/path?'
+    var parsed = parsers.getContextFromRequest(req)
     t.deepEqual(parsed.url, {
       hostname: 'example.com',
       pathname: '/some/path',
@@ -184,44 +184,66 @@ test('#getContextFromRequest()', function (t) {
   })
 
   t.test('should slice too large body\'s', function (t) {
-    mockReq.body = ''
+    var req = getMockReq()
+    req.body = ''
     for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
-      mockReq.body += 'x'
+      req.body += 'x'
     }
-    mockReq.headers['content-length'] = String(mockReq.body.length)
-    var parsed = parsers.getContextFromRequest(mockReq, true)
+    req.headers['content-length'] = String(req.body.length)
+    var parsed = parsers.getContextFromRequest(req, true)
     t.equal(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
     t.end()
   })
 
   t.test('should not log body if opts.body is false', function (t) {
-    mockReq.body = 'secret stuff'
-    mockReq.headers['content-length'] = String(mockReq.body.length)
-    var parsed = parsers.getContextFromRequest(mockReq, false)
+    var req = getMockReq()
+    req.body = 'secret stuff'
+    req.headers['content-length'] = String(req.body.length)
+    var parsed = parsers.getContextFromRequest(req, false)
     t.equal(parsed.body, '[REDACTED]')
     t.end()
   })
 
   t.test('body is object', function (t) {
-    mockReq.body = {foo: 42}
-    mockReq.headers['content-length'] = JSON.stringify(mockReq.body).length
-    var parsed = parsers.getContextFromRequest(mockReq, true)
+    var req = getMockReq()
+    req.body = {foo: 42}
+    req.headers['content-length'] = JSON.stringify(req.body).length
+    var parsed = parsers.getContextFromRequest(req, true)
     t.deepEqual(parsed.body, {foo: 42})
     t.end()
   })
 
   t.test('body is object, but too large', function (t) {
-    mockReq.body = {foo: ''}
+    var req = getMockReq()
+    req.body = {foo: ''}
     for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
-      mockReq.body.foo += 'x'
+      req.body.foo += 'x'
     }
-    mockReq.headers['content-length'] = JSON.stringify(mockReq.body).length
-    var parsed = parsers.getContextFromRequest(mockReq, true)
+    req.headers['content-length'] = JSON.stringify(req.body).length
+    var parsed = parsers.getContextFromRequest(req, true)
     t.equal(typeof parsed.body, 'string')
     t.equal(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
     t.equal(parsed.body.slice(0, 10), '{"foo":"xx')
     t.end()
   })
+
+  function getMockReq () {
+    return {
+      httpVersion: '1.1',
+      method: 'GET',
+      url: '/some/path?key=value',
+      headers: {
+        host: 'example.com',
+        'user-agent': 'Mozilla Chrome Edge'
+      },
+      body: '',
+      cookies: {},
+      socket: {
+        remoteAddress: '127.0.0.1',
+        encrypted: true
+      }
+    }
+  }
 })
 
 test('#parseError()', function (t) {
