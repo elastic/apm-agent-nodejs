@@ -39,7 +39,13 @@ them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 - [Compatibility Overview](https://www.elastic.co/guide/en/apm/agent/nodejs/current/compatibility.html)
 - [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)
 
-## Testing
+## Development Notes
+
+To ease development, set the environment variable `DEBUG_PAYLOAD=1` to
+have the agent dump the JSON payload sent to the APM Server to a
+temporary file on your local harddrive.
+
+### Testing
 
 The test suite expects the databases PostgreSQL, MySQL, MongoDB,
 Elasticsearch and Redis to be present. The `npm test` command will try
