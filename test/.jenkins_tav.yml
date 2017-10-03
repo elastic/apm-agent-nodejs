@@ -1,4 +1,4 @@
-ENVS:
+TAV:
   - generic-pool,mysql,redis,koa-router
   - ioredis,pg
   - bluebird
