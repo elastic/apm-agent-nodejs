@@ -321,8 +321,8 @@ Setting it to `Infinity` means that all frames will be collected.
 * *Default:* `60`
 * *Env:* `ELASTIC_APM_FLUSH_INTERVAL`
 
-The agent maintains an in-memory queue to which recorded metrics and sampled transactions are added when they end.
-By default,
+The agent maintains an in-memory queue to which recorded transactions are added when they end.
+Unless empty,
 this queue is flushed and sent to the APM Server for processing every 60 seconds.
 
 Use this option to change that interval.
@@ -330,9 +330,21 @@ The value is expected to be in seconds.
 
 Lowering this interval can reduce memory usage on Node.js applications with a high number of transactions.
 
-NOTE: The queue is flushed only 5 seconds after the first transaction has ended on a newly started Node process.
+[NOTE]
+====
+The queue is flushed only 5 seconds after the first transaction has ended on a newly started Node process.
+
 This ensures that you don't have to wait for the entire `flushInterval` to pass for the first data to be sent to the APM Server.
 From there on the `flushInterval` option is used.
+====
+
+[NOTE]
+====
+After each flush of the queue,
+the next flush isn't scheduled until a transaction have ended.
+
+This is done to introduce variance and also ensures that empty queues are not scheduled for flushing.
+====
 
 [[filter-http-headers]]
 ===== `filterHttpHeaders`
