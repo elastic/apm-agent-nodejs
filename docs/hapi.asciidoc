@@ -1,5 +1,5 @@
 [[hapi]]
-== Getting started with hapi
+== Get started with hapi
 
 Getting Elastic APM set up for your hapi app is easy,
 and there are various ways you can tweak it to fit your needs.

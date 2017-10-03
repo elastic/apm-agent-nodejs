@@ -1,5 +1,5 @@
 [[express]]
-== Getting started with Express
+== Get started with Express
 
 Getting Elastic APM set up for your Express app is easy,
 and there are various ways you can tweak it to fit your needs.

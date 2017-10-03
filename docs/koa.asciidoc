@@ -1,5 +1,5 @@
 [[koa]]
-== Getting started with Koa
+== Get started with Koa
 
 Getting Elastic APM set up for your Koa app is easy,
 and there are various ways you can tweak it to fit your needs.

@@ -1,5 +1,5 @@
 [[custom-stack]]
-== Getting started with a custom Node.js stack
+== Get started with a custom Node.js stack
 
 Getting Elastic APM set up for your Node.js app is easy,
 and there are various ways you can tweak it to fit your needs.
