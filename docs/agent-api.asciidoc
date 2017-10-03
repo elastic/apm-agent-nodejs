@@ -219,26 +219,26 @@ The HTTP body of incoming HTTP requests is not recorded and sent to the APM Serv
 If you wish to collect the HTTP request body,
 set this config option to `true`.
 
-[[timeout]]
-===== `timeout`
+[[error-on-aborted-requests]]
+===== `errorOnAbortedRequests`
 
 * *Type:* Boolean
-* *Default:* `true`
-* *Env:* `ELASTIC_APM_TIMEOUT`
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_ERROR_ON_ABORTED_REQUESTS`
 
 A boolean specifying if the agent should monitor for aborted TCP connections with un-ended HTTP requests.
 An error will be generated and sent to the APM Server if this happens.
 
-[[timeout-error-threshold]]
-===== `timeoutErrorThreshold`
+[[aborted-error-threshold]]
+===== `abortedErrorThreshold`
 
 * *Type:* Number
 * *Default:* `25000`
-* *Env:* `ELASTIC_APM_TIMEOUT_ERROR_THRESHOLD`
+* *Env:* `ELASTIC_APM_ABORTED_ERROR_THRESHOLD`
 
 Specify the threshold (in milliseconds) for when an aborted TCP connection with an un-ended HTTP request is considered an error.
 
-If the `timeout` property is `false`, this property is ignored.
+If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 
 [[hostname]]
 ===== `hostname`

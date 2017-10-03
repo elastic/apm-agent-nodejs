@@ -109,7 +109,6 @@ function onRequest (req, res) {
 }
 
 function resetAgent (cb) {
-  agent.timeout.active = false
   agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
   agent._httpClient = { request: cb }
