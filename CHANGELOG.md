@@ -1,3 +1,7 @@
+# 0.3.1 - 2017/10/3
+  * fix(parsers): don't log context.request.url.search as null (#48)
+  * fix(parsers): separate hostname and port when parsing Host header (#47)
+
 # 0.3.0 - 2017/9/20
   * fix(instrumentation): don't sample transactions (#40)
   * feat(graphql): include GraphQL operation name in trace and transaction names (#27)
