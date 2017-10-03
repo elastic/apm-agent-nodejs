@@ -351,6 +351,21 @@ the actual interval is ajusted by +/- 5% between each flush.
 This all helps to ensure that multiple servers started at the same time will not establish connections to the APM Server simultaneously.
 ====
 
+[[max-queue-size]]
+===== `maxQueueSize`
+
+* *Type:* Number
+* *Default:* `-1`
+* *Env:* `ELASTIC_APM_MAX_QUEUE_SIZE`
+
+The agent maintains an in-memory queue to which recorded transactions are added when they end.
+The queue is flushed with regular intervals controlled by the <<flush-interval,`flushInterval`>> config option.
+
+Use the `maxQueueSize` option to force a flush of the queue when it reaches a certain size (number of ended transactions) - even if the `flushInterval` time isn't reached yet.
+
+Set to `-1` to disable,
+in which case only `flushInterval` counts.
+
 [[filter-http-headers]]
 ===== `filterHttpHeaders`
 
