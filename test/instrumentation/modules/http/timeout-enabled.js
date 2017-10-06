@@ -15,7 +15,7 @@ test('client-side timeout below error threshold - call end', function (t) {
 
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -26,7 +26,7 @@ test('client-side timeout below error threshold - call end', function (t) {
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
-    t.equal(agent._instrumentation._queue._transactions.length, 1, 'should add transactions to queue')
+    t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
     agent._instrumentation._queue._flush()
   }
 
@@ -59,7 +59,7 @@ test('client-side timeout above error threshold - call end', function (t) {
 
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -71,7 +71,7 @@ test('client-side timeout above error threshold - call end', function (t) {
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
-    t.equal(agent._instrumentation._queue._transactions.length, 1, 'should add transactions to queue')
+    t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
     agent._instrumentation._queue._flush()
   }
 
@@ -102,7 +102,7 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
   var clientReq
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     t.fail('should not send any data')
@@ -142,7 +142,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
   var clientReq
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     t.fail('should not send any data')
@@ -184,7 +184,7 @@ test('server-side timeout below error threshold and socket closed - call end', f
 
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -195,7 +195,7 @@ test('server-side timeout below error threshold and socket closed - call end', f
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     ended = true
-    t.equal(agent._instrumentation._queue._transactions.length, 1, 'should add transactions to queue')
+    t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
     agent._instrumentation._queue._flush()
   }
 
@@ -230,7 +230,7 @@ test('server-side timeout above error threshold and socket closed - call end', f
 
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -242,7 +242,7 @@ test('server-side timeout above error threshold and socket closed - call end', f
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     ended = true
-    t.equal(agent._instrumentation._queue._transactions.length, 1, 'should add transactions to queue')
+    t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
     agent._instrumentation._queue._flush()
   }
 
@@ -277,7 +277,7 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
 
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     t.fail('should not send any data')
@@ -318,7 +318,7 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
 
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     t.fail('should not send any data')
@@ -358,7 +358,7 @@ test('server-side timeout below error threshold but socket not closed - call end
 
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -385,7 +385,7 @@ test('server-side timeout below error threshold but socket not closed - call end
     var port = server.address().port
     http.get('http://localhost:' + port, function (res) {
       res.on('end', function () {
-        t.equal(agent._instrumentation._queue._transactions.length, 1, 'should add transactions to queue')
+        t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
         agent._instrumentation._queue._flush()
       })
       res.resume()
@@ -398,7 +398,7 @@ test('server-side timeout above error threshold but socket not closed - call end
 
   resetAgent()
 
-  t.equal(agent._instrumentation._queue._transactions.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
   agent._httpClient = {request: function (endpoint, headers, data, cb) {
     assert(t, data)
@@ -425,7 +425,7 @@ test('server-side timeout above error threshold but socket not closed - call end
     var port = server.address().port
     http.get('http://localhost:' + port, function (res) {
       res.on('end', function () {
-        t.equal(agent._instrumentation._queue._transactions.length, 1, 'should add transactions to queue')
+        t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
         agent._instrumentation._queue._flush()
       })
       res.resume()
