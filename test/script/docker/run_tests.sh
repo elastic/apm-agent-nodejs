@@ -12,6 +12,7 @@ docker_npm_cache="/home/node/.npm"
 
 NODE_VERSION=$1
 if [[ ! -z $2  ]]; then
+  TAV_VERSIONS=`echo "$2" | sed -e 's/\+/,/g'`
   CMD='npm i test-all-versions &&
        export PATH=./node_modules/.bin:$PATH &&
        tav --quiet'
@@ -21,7 +22,7 @@ fi
 
 docker-compose build --build-arg NODE_VERSION=$1 node_tests
 docker-compose run \
-  -e NODE_VERSION=${NODE_VERSION} -e TAV=$2 -e CI=true \
+  -e NODE_VERSION=${NODE_VERSION} -e TAV=${TAV_VERSIONS} -e CI=true \
   -v ${npm_cache}:${docker_npm_cache} \
   --rm node_tests \
   /bin/bash \
