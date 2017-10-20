@@ -13,8 +13,8 @@ Please also have a look at the documentation for
 * {ref}/index.html[Elasticsearch]
 
 [float]
-[[getting-started]]
-=== Getting started
+[[get-started]]
+=== Get started
 
 To get you off the ground, we've prepared guides for the most popular web frameworks:
 
