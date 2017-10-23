@@ -20,7 +20,7 @@ else
   CMD='npm test'
 fi
 
-docker-compose build --build-arg NODE_VERSION=$1 node_tests
+docker-compose build --pull --build-arg NODE_VERSION=$1 node_tests
 docker-compose run \
   -e NODE_VERSION=${NODE_VERSION} -e TAV=${TAV_VERSIONS} -e CI=true \
   -v ${npm_cache}:${docker_npm_cache} \
