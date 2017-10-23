@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-docker build -t node_docs --build-arg NODE_VERSION='latest' .
+docker build --pull -t node_docs --build-arg NODE_VERSION='latest' .
 docker run \
   -e CI=true \
   --rm node_docs \
