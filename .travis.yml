@@ -15,13 +15,6 @@ services:
 - postgresql
 - elasticsearch
 
-# There's a bug npm@5 which ships with Node 8 that means we get a currupted
-# install when using the test-all-versions command. For details see:
-# https://github.com/npm/npm/issues/17061
-# https://github.com/npm/npm/issues/17212
-before_install:
-  - 'if [ "${TRAVIS_NODE_VERSION}" == "8" ]; then npm install -g npm@4; fi'
-
 before_script:
   - wait-on tcp:9200
 
