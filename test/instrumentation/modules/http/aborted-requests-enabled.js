@@ -7,9 +7,9 @@ var test = require('tape')
 var http = require('http')
 
 var addEndedTransaction = agent._instrumentation.addEndedTransaction
-agent.timeout.active = true
+agent.abortedRequests.active = true
 
-test('client-side timeout below error threshold - call end', function (t) {
+test('client-side abort below error threshold - call end', function (t) {
   var clientReq
   t.plan(8)
 
@@ -22,7 +22,7 @@ test('client-side timeout below error threshold - call end', function (t) {
     server.close()
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
-    t.fail('should not register the timeout as an error')
+    t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
@@ -39,7 +39,7 @@ test('client-side timeout below error threshold - call end', function (t) {
           res.end(' World')
         }, 10)
       }, 10)
-    }, agent.timeout.errorThreshold / 2)
+    }, agent.abortedRequests.errorThreshold / 2)
   })
 
   server.listen(function () {
@@ -53,7 +53,7 @@ test('client-side timeout below error threshold - call end', function (t) {
   })
 })
 
-test('client-side timeout above error threshold - call end', function (t) {
+test('client-side abort above error threshold - call end', function (t) {
   var clientReq
   t.plan(10)
 
@@ -67,7 +67,7 @@ test('client-side timeout above error threshold - call end', function (t) {
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > agent.timeout.errorThreshold)
+    t.ok(opts.extra.abortTime > agent.abortedRequests.errorThreshold)
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
@@ -84,7 +84,7 @@ test('client-side timeout above error threshold - call end', function (t) {
           res.end(' World')
         }, 10)
       }, 10)
-    }, agent.timeout.errorThreshold + 10)
+    }, agent.abortedRequests.errorThreshold + 10)
   })
 
   server.listen(function () {
@@ -98,7 +98,7 @@ test('client-side timeout above error threshold - call end', function (t) {
   })
 })
 
-test('client-side timeout below error threshold - don\'t call end', function (t) {
+test('client-side abort below error threshold - don\'t call end', function (t) {
   var clientReq
   resetAgent()
 
@@ -108,7 +108,7 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
     t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
-    t.fail('should not register the timeout as an error')
+    t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
     t.fail('should not end the transaction')
@@ -124,7 +124,7 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
           t.end()
         }, 10)
       }, 10)
-    }, agent.timeout.errorThreshold / 2)
+    }, agent.abortedRequests.errorThreshold / 2)
   })
 
   server.listen(function () {
@@ -138,7 +138,7 @@ test('client-side timeout below error threshold - don\'t call end', function (t)
   })
 })
 
-test('client-side timeout above error threshold - don\'t call end', function (t) {
+test('client-side abort above error threshold - don\'t call end', function (t) {
   var clientReq
   resetAgent()
 
@@ -149,7 +149,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > agent.timeout.errorThreshold)
+    t.ok(opts.extra.abortTime > agent.abortedRequests.errorThreshold)
     server.close()
     t.end()
   }
@@ -163,7 +163,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
       setTimeout(function () {
         res.write('Hello') // server emits clientError if written in same tick as abort
       }, 10)
-    }, agent.timeout.errorThreshold + 10)
+    }, agent.abortedRequests.errorThreshold + 10)
   })
 
   server.listen(function () {
@@ -177,7 +177,7 @@ test('client-side timeout above error threshold - don\'t call end', function (t)
   })
 })
 
-test('server-side timeout below error threshold and socket closed - call end', function (t) {
+test('server-side abort below error threshold and socket closed - call end', function (t) {
   var timedout = false
   var ended = false
   t.plan(11)
@@ -190,7 +190,7 @@ test('server-side timeout below error threshold and socket closed - call end', f
     assert(t, data)
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
-    t.fail('should not register the timeout as an error')
+    t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
@@ -206,10 +206,10 @@ test('server-side timeout below error threshold and socket closed - call end', f
       res.end('Hello World')
       t.ok(ended, 'should have ended transaction')
       server.close()
-    }, agent.timeout.errorThreshold / 2 + 100)
+    }, agent.abortedRequests.errorThreshold / 2 + 100)
   })
 
-  server.setTimeout(agent.timeout.errorThreshold / 2)
+  server.setTimeout(agent.abortedRequests.errorThreshold / 2)
 
   server.listen(function () {
     var port = server.address().port
@@ -223,7 +223,7 @@ test('server-side timeout below error threshold and socket closed - call end', f
   })
 })
 
-test('server-side timeout above error threshold and socket closed - call end', function (t) {
+test('server-side abort above error threshold and socket closed - call end', function (t) {
   var timedout = false
   var ended = false
   t.plan(13)
@@ -237,7 +237,7 @@ test('server-side timeout above error threshold and socket closed - call end', f
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > agent.timeout.errorThreshold)
+    t.ok(opts.extra.abortTime > agent.abortedRequests.errorThreshold)
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
@@ -253,10 +253,10 @@ test('server-side timeout above error threshold and socket closed - call end', f
       res.end('Hello World')
       t.ok(ended, 'should have ended transaction')
       server.close()
-    }, agent.timeout.errorThreshold + 100)
+    }, agent.abortedRequests.errorThreshold + 100)
   })
 
-  server.setTimeout(agent.timeout.errorThreshold + 10)
+  server.setTimeout(agent.abortedRequests.errorThreshold + 10)
 
   server.listen(function () {
     var port = server.address().port
@@ -270,7 +270,7 @@ test('server-side timeout above error threshold and socket closed - call end', f
   })
 })
 
-test('server-side timeout below error threshold and socket closed - don\'t call end', function (t) {
+test('server-side abort below error threshold and socket closed - don\'t call end', function (t) {
   var timedout = false
   var ended = false
   t.plan(3)
@@ -283,7 +283,7 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
     t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
-    t.fail('should not register the timeout as an error')
+    t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
     t.fail('should not end the transaction')
@@ -294,10 +294,10 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
       t.ok(timedout, 'should have closed socket')
       t.notOk(ended, 'should not have ended transaction')
       server.close()
-    }, agent.timeout.errorThreshold / 2 + 100)
+    }, agent.abortedRequests.errorThreshold / 2 + 100)
   })
 
-  server.setTimeout(agent.timeout.errorThreshold / 2)
+  server.setTimeout(agent.abortedRequests.errorThreshold / 2)
 
   server.listen(function () {
     var port = server.address().port
@@ -311,7 +311,7 @@ test('server-side timeout below error threshold and socket closed - don\'t call 
   })
 })
 
-test('server-side timeout above error threshold and socket closed - don\'t call end', function (t) {
+test('server-side abort above error threshold and socket closed - don\'t call end', function (t) {
   var timedout = false
   var ended = false
   t.plan(5)
@@ -325,7 +325,7 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > agent.timeout.errorThreshold)
+    t.ok(opts.extra.abortTime > agent.abortedRequests.errorThreshold)
   }
   agent._instrumentation.addEndedTransaction = function () {
     t.fail('should not end the transaction')
@@ -336,10 +336,10 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
       t.ok(timedout, 'should have closed socket')
       t.notOk(ended, 'should have ended transaction')
       server.close()
-    }, agent.timeout.errorThreshold + 150)
+    }, agent.abortedRequests.errorThreshold + 150)
   })
 
-  server.setTimeout(agent.timeout.errorThreshold + 50)
+  server.setTimeout(agent.abortedRequests.errorThreshold + 50)
 
   server.listen(function () {
     var port = server.address().port
@@ -353,7 +353,7 @@ test('server-side timeout above error threshold and socket closed - don\'t call 
   })
 })
 
-test('server-side timeout below error threshold but socket not closed - call end', function (t) {
+test('server-side abort below error threshold but socket not closed - call end', function (t) {
   t.plan(8)
 
   resetAgent()
@@ -365,7 +365,7 @@ test('server-side timeout below error threshold but socket not closed - call end
     server.close()
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
-    t.fail('should not register the timeout as an error')
+    t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = addEndedTransaction
 
@@ -376,10 +376,10 @@ test('server-side timeout below error threshold but socket not closed - call end
 
     setTimeout(function () {
       res.end('Hello World')
-    }, agent.timeout.errorThreshold / 2 + 100)
+    }, agent.abortedRequests.errorThreshold / 2 + 100)
   })
 
-  server.setTimeout(agent.timeout.errorThreshold / 2)
+  server.setTimeout(agent.abortedRequests.errorThreshold / 2)
 
   server.listen(function () {
     var port = server.address().port
@@ -393,7 +393,7 @@ test('server-side timeout below error threshold but socket not closed - call end
   })
 })
 
-test('server-side timeout above error threshold but socket not closed - call end', function (t) {
+test('server-side abort above error threshold but socket not closed - call end', function (t) {
   t.plan(8)
 
   resetAgent()
@@ -405,7 +405,7 @@ test('server-side timeout above error threshold but socket not closed - call end
     server.close()
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
-    t.fail('should not register the timeout as an error')
+    t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = addEndedTransaction
 
@@ -416,10 +416,10 @@ test('server-side timeout above error threshold but socket not closed - call end
 
     setTimeout(function () {
       res.end('Hello World')
-    }, agent.timeout.errorThreshold + 100)
+    }, agent.abortedRequests.errorThreshold + 100)
   })
 
-  server.setTimeout(agent.timeout.errorThreshold + 10)
+  server.setTimeout(agent.abortedRequests.errorThreshold + 10)
 
   server.listen(function () {
     var port = server.address().port

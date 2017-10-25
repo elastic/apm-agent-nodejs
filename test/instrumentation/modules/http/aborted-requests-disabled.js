@@ -5,9 +5,9 @@ var agent = require('../../_agent')()
 var test = require('tape')
 var http = require('http')
 
-agent.timeout.active = false
+agent.abortedRequests.active = false
 
-test('client-side timeout - call end', function (t) {
+test('client-side abort - call end', function (t) {
   resetAgent()
   var clientReq
 
@@ -42,7 +42,7 @@ test('client-side timeout - call end', function (t) {
   })
 })
 
-test('client-side timeout - don\'t call end', function (t) {
+test('client-side abort - don\'t call end', function (t) {
   resetAgent()
   var clientReq
 
@@ -74,7 +74,7 @@ test('client-side timeout - don\'t call end', function (t) {
   })
 })
 
-test('server-side timeout - call end', function (t) {
+test('server-side abort - call end', function (t) {
   resetAgent()
   var timedout = false
   var closeEvent = false
@@ -113,7 +113,7 @@ test('server-side timeout - call end', function (t) {
   })
 })
 
-test('server-side timeout - don\'t call end', function (t) {
+test('server-side abort - don\'t call end', function (t) {
   resetAgent()
   var timedout = false
   var closeEvent = false
