@@ -6,8 +6,6 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-if (require('semver').lt(process.version, '1.0.0')) process.exit()
-
 var test = require('tape')
 var http = require('http')
 var querystring = require('querystring')

@@ -6,9 +6,6 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var semver = require('semver')
-if (semver.lt(process.version, '1.0.0')) process.exit()
-
 var test = require('tape')
 var graphql = require('graphql')
 
