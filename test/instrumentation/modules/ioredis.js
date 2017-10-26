@@ -112,7 +112,7 @@ function done (t) {
 
     t.equal(trans.name, 'foo')
     t.equal(trans.type, 'bar')
-    t.equal(trans.result, '200')
+    t.equal(trans.result, 'success')
 
     t.equal(trans.traces.length, groups.length)
 
