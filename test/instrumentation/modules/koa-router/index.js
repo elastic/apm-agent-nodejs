@@ -86,7 +86,7 @@ function buildServer () {
 
 function assert (t, data, results) {
   if (!results) results = {}
-  results.status = results.status || '200'
+  results.status = results.status || 'HTTP 2xx'
   results.name = results.name || 'GET /hello'
 
   t.equal(data.transactions.length, 1)
