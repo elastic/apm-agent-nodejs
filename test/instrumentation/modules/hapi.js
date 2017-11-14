@@ -276,7 +276,7 @@ test('request error logging with Error', function (t) {
   var customError = new Error('custom error')
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: '200', name: 'GET /error' })
+    assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
 
     server.stop()
   })
@@ -322,7 +322,7 @@ test('request error logging with Error does not affect event tags', function (t)
   var customError = new Error('custom error')
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: '200', name: 'GET /error' })
+    assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
 
     server.stop()
   })
@@ -376,7 +376,7 @@ test('request error logging with String', function (t) {
   var customError = 'custom error'
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: '200', name: 'GET /error' })
+    assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
 
     server.stop()
   })
@@ -424,7 +424,7 @@ test('request error logging with Object', function (t) {
   }
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: '200', name: 'GET /error' })
+    assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
 
     server.stop()
   })
@@ -468,7 +468,7 @@ test('error handling', function (t) {
   t.plan(10)
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, { status: '500', name: 'GET /error' })
+    assert(t, data, { status: 'HTTP 5xx', name: 'GET /error' })
     server.stop()
   })
 
@@ -534,7 +534,7 @@ function buildServer () {
 
 function assert (t, data, results) {
   if (!results) results = {}
-  results.status = results.status || '200'
+  results.status = results.status || 'HTTP 2xx'
   results.name = results.name || 'GET /hello'
 
   t.equal(data.transactions.length, 1)
