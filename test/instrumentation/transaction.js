@@ -12,7 +12,7 @@ test('init', function (t) {
   var trans = new Transaction(ins._agent, 'name', 'type')
   t.equal(trans.name, 'name')
   t.equal(trans.type, 'type')
-  t.equal(trans.result, 200)
+  t.equal(trans.result, 'success')
   t.equal(trans.ended, false)
   t.deepEqual(trans.traces, [])
   t.end()
