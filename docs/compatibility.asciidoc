@@ -1,7 +1,7 @@
 [[compatibility]]
 == Compatibility Overview
 
-The Elastic APM Node.js agent is tested against Node.js v0.10 and above.
+The Elastic APM Node.js agent is tested against Node.js v4.0.0 and above.
 Previous versions of Node.js are not supported.
 
 [float]

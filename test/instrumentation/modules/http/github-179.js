@@ -7,9 +7,6 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
-var semver = require('semver')
-if (semver.lt(process.version, '4.0.0')) process.exit()
-
 var test = require('tape')
 
 var zlib = require('zlib')

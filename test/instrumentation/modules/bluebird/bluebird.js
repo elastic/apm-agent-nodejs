@@ -14,8 +14,7 @@ var Promise = require('bluebird')
 var BLUEBIRD_VERSION = require('bluebird/package').version
 
 require('../../_shared-promise-tests')(test, Promise, ins)
-
-if (semver.satisfies(process.version, '>=1.0.0')) require('./_coroutine')(test, Promise, ins)
+require('./_coroutine')(test, Promise, ins)
 
 test('Promise.prototype.spread - all formal', function (t) {
   t.plan(6)

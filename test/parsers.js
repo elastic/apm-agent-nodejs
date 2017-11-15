@@ -5,9 +5,6 @@ var test = require('tape')
 var semver = require('semver')
 var parsers = require('../lib/parsers')
 
-var pre3 = semver.satisfies(process.version, '<3')
-var zero10 = semver.satisfies(process.version, '0.10.x')
-
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {
     var data = parsers.parseMessage('Howdy')
@@ -35,8 +32,6 @@ test('#parseMessage()', function (t) {
 })
 
 test('#getContextFromResponse()', function (t) {
-  var connection = zero10 ? 'keep-alive' : 'close'
-
   t.test('for error (before headers)', function (t) {
     onRequest(function (req, res) {
       req.on('end', function () {
@@ -69,7 +64,7 @@ test('#getContextFromResponse()', function (t) {
       var context = parsers.getContextFromResponse(res, true)
       t.deepEqual(context, {
         status_code: 200,
-        headers: {connection: connection, 'transfer-encoding': 'chunked'},
+        headers: {connection: 'close', 'transfer-encoding': 'chunked'},
         headers_sent: true,
         finished: false
       })
@@ -84,9 +79,7 @@ test('#getContextFromResponse()', function (t) {
         var context = parsers.getContextFromResponse(res, true)
         t.deepEqual(context, {
           status_code: 200,
-          headers: pre3
-            ? {connection: connection, 'transfer-encoding': 'chunked'}
-            : {connection: 'close', 'content-length': '0'},
+          headers: {connection: 'close', 'content-length': '0'},
           headers_sent: true,
           finished: true
         })
@@ -105,9 +98,7 @@ test('#getContextFromResponse()', function (t) {
         var context = parsers.getContextFromResponse(res, false)
         t.deepEqual(context, {
           status_code: 200,
-          headers: pre3
-            ? {connection: connection, 'transfer-encoding': 'chunked'}
-            : {connection: 'close', 'content-length': '0'}
+          headers: {connection: 'close', 'content-length': '0'}
         })
         t.end()
       })

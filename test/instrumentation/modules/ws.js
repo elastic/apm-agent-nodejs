@@ -6,13 +6,6 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-// ws >2 doesn't support Node.js v0.x
-var semver = require('semver')
-var pkg = require('ws/package')
-if (semver.lt(process.version, '1.0.0') && semver.gte(pkg.version, '2.0.0')) {
-  process.exit()
-}
-
 var PORT = 12342
 
 var test = require('tape')

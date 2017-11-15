@@ -7,14 +7,6 @@ var agent = require('../../..').start({
 })
 var ins = global.ins = agent._instrumentation
 
-var semver = require('semver')
-var pkg = require('generic-pool/package')
-
-if (semver.lt(process.version, '4.0.0') && semver.gte(pkg.version, '3.0.0')) {
-  console.log('Unsupported version of Node.js')
-  process.exit()
-}
-
 var test = require('tape')
 var genericPool = require('generic-pool')
 

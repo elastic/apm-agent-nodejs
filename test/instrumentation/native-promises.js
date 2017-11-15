@@ -9,9 +9,6 @@ var ins = agent._instrumentation
 
 var semver = require('semver')
 
-// Native promises wasn't available until Node.js 0.12
-if (!semver.satisfies(process.version, '>=0.12')) process.exit()
-
 var test = require('tape')
 
 require('./_shared-promise-tests')(test, Promise, ins)

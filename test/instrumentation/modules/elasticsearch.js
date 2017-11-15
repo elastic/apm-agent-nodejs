@@ -9,12 +9,6 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-// In Node.js v0.10 there's no built-in Promise library
-if (!global.Promise) global.Promise = require('bluebird')
-
-var semver = require('semver')
-var esVersion = require('elasticsearch/package').version
-
 var test = require('tape')
 var elasticsearch = require('elasticsearch')
 
@@ -29,7 +23,6 @@ test('client.ping with callback', function userLandCode (t) {
     t.error(err)
     agent.endTransaction()
     agent._instrumentation._queue._flush()
-    cleanup(client)
   })
 })
 
@@ -43,10 +36,8 @@ test('client.ping with promise', function userLandCode (t) {
   client.ping().then(function () {
     agent.endTransaction()
     agent._instrumentation._queue._flush()
-    cleanup(client)
   }, function (err) {
     t.error(err)
-    cleanup(client)
   })
 })
 
@@ -62,18 +53,8 @@ test('client.search with callback', function userLandCode (t) {
     t.error(err)
     agent.endTransaction()
     agent._instrumentation._queue._flush()
-    cleanup(client)
   })
 })
-
-function cleanup (client) {
-  // When running Node.js 0.10 together with elasticsearch pre v13, the process
-  // never quits unless the connection to the Elasticsearch database is
-  // manually closed
-  if (semver.satisfies(process.version, '^0.10.0') && semver.satisfies(esVersion, '<13')) {
-    client.close()
-  }
-}
 
 function done (t, method, path, query) {
   return function (endpoint, headers, data, cb) {
