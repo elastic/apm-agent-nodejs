@@ -28,7 +28,7 @@ services:
       - "6379:6379"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0-beta1
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200"]
     environment:
