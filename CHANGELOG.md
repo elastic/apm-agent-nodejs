@@ -1,3 +1,10 @@
+# 0.4.0 - 2017/11/15
+  * fix(https): instrument https.request in Node.js v9
+  * refactor(http): log HTTP results in groups of 100 (#68)
+  * fix(api): add language to APM Server requests (#64)
+  * refactor(trans): set default transaction.result to success (#67)
+  * refactor(config): rename timeout config options (#59)
+
 # 0.3.1 - 2017/10/3
   * fix(parsers): don't log context.request.url.search as null (#48)
   * fix(parsers): separate hostname and port when parsing Host header (#47)
