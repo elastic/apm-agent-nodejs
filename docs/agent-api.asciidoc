@@ -6,7 +6,7 @@ For getting started,
 we recommend that you take a look at our framework specific documentation for either <<express,Express>>, <<hapi,hapi>>, <<koa,Koa>>, or <<custom-stack,custom frameworks>>.
 
 The Elastic APM agent for Node.js is a singleton.
-You get the agent instance by either requiring `elastic-apm` or `elastic-apm/start`.
+You get the agent instance by either requiring `elastic-apm-node` or `elastic-apm-node/start`.
 For details on the two approaches,
 see the <<advanced-setup,Setup and Configuration>> guide.
 
@@ -15,11 +15,11 @@ which allows you to require and start the agent on the same line:
 
 [source,js]
 ----
-var apm = require('elastic-apm').start(...)
+var apm = require('elastic-apm-node').start(...)
 ----
 
 If you need to access the `Agent` in any part of your codebase,
-you can simply require `elastic-apm` to access the already started singleton.
+you can simply require `elastic-apm-node` to access the already started singleton.
 You therefore don't need to manage or pass around the started `Agent` yourself.
 
 [[apm-start]]
@@ -55,7 +55,7 @@ Example usage configuring the agent to only be active in production:
 [source,js]
 ----
 // Add this to the VERY top of the first file loaded in your app
-require('elastic-apm').start({
+require('elastic-apm-node').start({
   // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
   appName: '',
 
@@ -170,7 +170,7 @@ Example usage:
 
 [source,js]
 ----
-require('elastic-apm').start({
+require('elastic-apm-node').start({
   ignoreUrls: [
     '/ping',
     /^\/admin\//i,
@@ -199,7 +199,7 @@ Example usage:
 
 [source,js]
 ----
-require('elastic-apm').start({
+require('elastic-apm-node').start({
   ignoreUserAgents: [
     'curl/',
     /pingdom/i,
@@ -273,7 +273,7 @@ Set a custom logger, e.g. https://github.com/trentm/node-bunyan[bunyan]:
 
 [source,js]
 ----
-require('elastic-apm').start({
+require('elastic-apm-node').start({
   logger: require('bunyan')({ level: 'info' })
 })
 ----
@@ -623,7 +623,7 @@ The middleware must be added _after_ your router to pick up any errors that may 
 
 [source,js]
 ----
-var apm = require('elastic-apm').start()
+var apm = require('elastic-apm-node').start()
 var connect = require('connect')
 
 var app = connect()

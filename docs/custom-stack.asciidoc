@@ -18,11 +18,11 @@ follow the guide below and refer to the <<api,API documentation>> for all the ad
 [[custom-stack-installation]]
 === Installation
 
-Add the `elastic-apm` module as a dependency to your application:
+Add the `elastic-apm-node` module as a dependency to your application:
 
 [source,bash]
 ----
-npm install elastic-apm --save
+npm install elastic-apm-node --save
 ----
 
 [float]
@@ -38,7 +38,7 @@ Here's a simple example of how Elastic APM is normally required and started:
 [source,js]
 ----
 // Add this to the VERY top of the first file loaded in your app
-var apm = require('elastic-apm').start({
+var apm = require('elastic-apm-node').start({
   // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
   appName: '',
 
@@ -73,7 +73,7 @@ And then just start the agent like so:
 [source,js]
 ----
 // Start the agent before any thing else in your app
-var apm = require('elastic-apm').start()
+var apm = require('elastic-apm-node').start()
 ----
 
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
@@ -125,7 +125,7 @@ Except of an application using the https://github.com/watson/patterns[patterns] 
 
 [source,js]
 ----
-var apm = require('elastic-apm').start()
+var apm = require('elastic-apm-node').start()
 var http = require('http')
 var patterns = require('patterns')()
 
@@ -209,7 +209,7 @@ the agent error handler should be the first in the chain to ensure that it will 
 
 [source,js]
 ----
-var apm = require('elastic-apm').start()
+var apm = require('elastic-apm-node').start()
 var conncet = require('connect')
 
 var app = connect()

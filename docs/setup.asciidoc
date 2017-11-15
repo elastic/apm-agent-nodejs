@@ -10,26 +10,26 @@ This means that you should probably require and start it in your applications ma
 
 There are two ways to start the Elastic APM agent for Node.js:
 
-* Require the `elastic-apm` module and call the <<apm-start,`start`>> function on the returned agent:
+* Require the `elastic-apm-node` module and call the <<apm-start,`start`>> function on the returned agent:
 +
 [source,js]
 ----
-var apm = require('elastic-apm').start({
+var apm = require('elastic-apm-node').start({
   // add configuration options here
 })
 ----
-* Require the `elastic-apm/start` script:
+* Require the `elastic-apm-node/start` script:
 +
 [source,js]
 ----
-var apm = require('elastic-apm/start')
+var apm = require('elastic-apm-node/start')
 ----
 +
 If using this approach,
 you can't configure the agent by passing in an options object,
 but instead have to rely on <<configuring-the-agent,one of the other methods of configuration>>.
 
-NOTE: If you are using Babel, you need to use the `elastic-apm/start` approach.
+NOTE: If you are using Babel, you need to use the `elastic-apm-node/start` approach.
 <<es-modules,Read more>>.
 
 [float]
@@ -42,7 +42,7 @@ There are three ways to configure the Node.js agent:
 you can supply a configurations object as the first argument.
 The option parameters given here will take precedence over config options provided by other means
 
-2. If a given config option is not provided in the call to the <<apm-start,`start`>> function (or if requiring the `elastic-apm/start` script),
+2. If a given config option is not provided in the call to the <<apm-start,`start`>> function (or if requiring the `elastic-apm-node/start` script),
 the agent will look for the config option in the optional <<agent-configuration-file,agent configuration file>>
 
 3. If a config option is not provided in any of the above means,
@@ -55,12 +55,12 @@ For information on the available configuration properties, see the <<apm-start,A
 [[agent-configuration-file]]
 ==== Agent configuration file
 
-The Node.js agent will look for a file named `elastic-apm.js` in the current working directory. You can specify a custom path for this file using
+The Node.js agent will look for a file named `elastic-apm-node.js` in the current working directory. You can specify a custom path for this file using
 the `ELASTIC_APM_CONFIG_FILE` environment variable (this path must include the filename), e.g:
 
 [source,bash]
 ----
-ELASTIC_APM_CONFIG_FILE=/path/to/elastic-apm.js
+ELASTIC_APM_CONFIG_FILE=/path/to/elastic-apm-node.js
 ----
 
 The configuration file is expected to export an object following the same conventions as the `options` object given as the first argument
@@ -89,11 +89,11 @@ for instance with the help of Babel,
 all import statements are evaluated prior to calling any functions.
 In that case you can't configure the agent by passing a configuration object to the `start` function,
 as this call will happen after all the modules have been loaded.
-Instead you need to import the `elastic-apm/start` module:
+Instead you need to import the `elastic-apm-node/start` module:
 
 [source,js]
 ----
-import apm from 'elastic-apm/start'
+import apm from 'elastic-apm-node/start'
 ----
 
 Then either configure the agent using the environment variables associated with each <<apm-start,config option>>,

@@ -301,7 +301,7 @@ var test = function (suite, opts) {
 }
 
 var loadConf = function (cb) {
-  var file = untildify('~/.config/elastic-apm.json')
+  var file = untildify('~/.config/elastic-apm-node.json')
   fs.stat(file, function (err) {
     if (err) {
       if (err.code !== 'ENOENT') return cb(err)
@@ -318,7 +318,7 @@ var saveConf = function (conf, cb) {
   var dir = untildify('~/.config')
   mkdirp(dir, '0755', function (err) {
     if (err) throw err
-    var file = path.join(dir, 'elastic-apm.json')
+    var file = path.join(dir, 'elastic-apm-node.json')
     fs.writeFile(file, JSON.stringify(conf), function (err) {
       if (err) throw err
       console.log('Saved config:', file)

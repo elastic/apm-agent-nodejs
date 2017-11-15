@@ -59,7 +59,7 @@ See the API documentation on <<app-name,`appName`>> for details.
 Errors gets tracked just fine,
 but you don't see any performance metrics.
 
-First make sure you have https://www.npmjs.com/package/elastic-apm[the latest version] of the Elastic APM Node.js agent.
+First make sure you have https://www.npmjs.com/package/elastic-apm-node[the latest version] of the Elastic APM Node.js agent.
 Issues are fixed and support for new metrics are added all the time,
 so make sure you keep your dependency up to date.
 
