@@ -323,7 +323,7 @@ Setting it to `Infinity` means that all frames will be collected.
 
 The agent maintains an in-memory queue to which recorded transactions are added when they end.
 Unless empty,
-this queue is flushed and sent to the APM Server for processing every 60 seconds.
+this queue is flushed and sent to the APM Server for processing approximately every 60 seconds.
 
 Use this option to change that interval.
 The value is expected to be in seconds.
@@ -332,7 +332,7 @@ Lowering this interval can reduce memory usage on Node.js applications with a hi
 
 [NOTE]
 ====
-The queue is flushed only 5 seconds after the first transaction has ended on a newly started Node process.
+The queue is flushed approximately 5 seconds after the first transaction has ended on a newly started Node process.
 
 This ensures that you don't have to wait for the entire `flushInterval` to pass for the first data to be sent to the APM Server.
 From there on the `flushInterval` option is used.
@@ -344,6 +344,11 @@ After each flush of the queue,
 the next flush isn't scheduled until a transaction have ended.
 
 This is done to introduce variance and also ensures that empty queues are not scheduled for flushing.
+
+On top of that,
+the actual interval is ajusted by +/- 5% between each flush.
+
+This all helps to ensure that multiple servers started at the same time will not establish connections to the APM Server simultaneously.
 ====
 
 [[filter-http-headers]]
