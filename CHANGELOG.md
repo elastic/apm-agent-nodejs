@@ -1,3 +1,6 @@
+# 0.6.0 - 2017/11/17
+  * feat(queue): add maxQueueSize config option (#56)
+
 # 0.5.0 - 2017/11/17
   * refactor(\*): drop support for Node.js <4 (#65)
   * refactor(\*): rename module to elastic-apm-node (#71)
