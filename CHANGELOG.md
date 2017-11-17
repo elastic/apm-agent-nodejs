@@ -1,3 +1,8 @@
+# 0.5.0 - 2017/11/17
+  * refactor(\*): drop support for Node.js <4 (#65)
+  * refactor(\*): rename module to elastic-apm-node (#71)
+  * feat(queue): add fuzziness to flushInterval (#63)
+
 # 0.4.0 - 2017/11/15
   * fix(https): instrument https.request in Node.js v9
   * refactor(http): log HTTP results in groups of 100 (#68)
