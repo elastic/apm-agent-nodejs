@@ -10,11 +10,11 @@ Follow the guide below and refer to the <<api,API documentation>> for all the ad
 [[hapi-installation]]
 === Installation
 
-Add the `elastic-apm-node` module as a dependency to your application:
+Add the `elastic-apm` module as a dependency to your application:
 
 [source,bash]
 ----
-npm install elastic-apm-node --save
+npm install elastic-apm --save
 ----
 
 [float]
@@ -30,7 +30,7 @@ Here's a simple hapi example with the Elastic APM agent installed:
 [source,js]
 ----
 // Add this to the VERY top of the first file loaded in your app
-var apm = require('elastic-apm-node').start({
+var apm = require('elastic-apm').start({
   // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
   appName: '',
 
@@ -84,7 +84,7 @@ And then just start the agent like so:
 [source,js]
 ----
 // Start the agent before any thing else in your app
-var apm = require('elastic-apm-node').start()
+var apm = require('elastic-apm').start()
 ----
 
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
