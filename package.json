@@ -17,7 +17,7 @@
     "test": "npm run check && node test/test.js",
     "posttest": "test/posttest.sh",
     "test-cli": "node test/script/cli.js",
-    "test-deps": "dependency-check . && dependency-check . --unused --no-dev --entry lib/instrumentation/modules/*"
+    "test-deps": "dependency-check . -i async_hooks && dependency-check . --unused --no-dev --entry lib/instrumentation/modules/*"
   },
   "directories": {
     "test": "test"
@@ -112,6 +112,7 @@
     "pg": "^7.1.0",
     "redis": "^2.6.3",
     "restify": "^4.3.0",
+    "send": "^0.16.1",
     "standard": "^10.0.2",
     "tape": "^4.8.0",
     "test-all-versions": "^3.1.1",

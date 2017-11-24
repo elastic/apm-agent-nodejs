@@ -7,7 +7,8 @@ Previous versions of Node.js are not supported.
 Some versions of Node.js contain bugs or issues that limit our ability to instrument them correctly.
 The following versions of Node.js are known to not be fully instrumented:
 
-- v7.10.x - Recommended solution: Upgrade to v8.0.0 or higher to get full support
+- v7.10.x - Recommended solution: Upgrade to v8.1.0 or higher to get full support
+- v8.0.0 - Recommended solution: Upgrade to v8.1.0 or higher to get full support
 
 [float]
 [[compatibility-frameworks]]
