@@ -239,7 +239,10 @@ test('#getContextFromRequest()', function (t) {
 
 test('#parseError()', function (t) {
   t.test('should parse plain Error object', function (t) {
-    parsers.parseError(new Error(), function (err, parsed) {
+    var fakeAgent = {
+      sourceContext: true
+    }
+    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
       t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
       t.notOk('log' in parsed)
@@ -256,7 +259,10 @@ test('#parseError()', function (t) {
   })
 
   t.test('should parse Error with message', function (t) {
-    parsers.parseError(new Error('Crap'), function (err, parsed) {
+    var fakeAgent = {
+      sourceContext: true
+    }
+    parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
       t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
       t.notOk('log' in parsed)
@@ -273,7 +279,10 @@ test('#parseError()', function (t) {
   })
 
   t.test('should parse TypeError with message', function (t) {
-    parsers.parseError(new TypeError('Crap'), function (err, parsed) {
+    var fakeAgent = {
+      sourceContext: true
+    }
+    parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
       t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
       t.notOk('log' in parsed)
@@ -290,10 +299,13 @@ test('#parseError()', function (t) {
   })
 
   t.test('should parse thrown Error', function (t) {
+    var fakeAgent = {
+      sourceContext: true
+    }
     try {
       throw new Error('Derp')
     } catch (e) {
-      parsers.parseError(e, function (err, parsed) {
+      parsers.parseError(e, fakeAgent, function (err, parsed) {
         t.error(err)
         t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
         t.notOk('log' in parsed)
@@ -311,11 +323,14 @@ test('#parseError()', function (t) {
   })
 
   t.test('should parse caught real error', function (t) {
+    var fakeAgent = {
+      sourceContext: true
+    }
     try {
       var o = {}
       o['...']['Derp']()
     } catch (e) {
-      parsers.parseError(e, function (err, parsed) {
+      parsers.parseError(e, fakeAgent, function (err, parsed) {
         t.error(err)
         var msg = semver.lt(process.version, '0.11.0')
           ? 'Cannot call method \'Derp\' of undefined'
@@ -336,9 +351,12 @@ test('#parseError()', function (t) {
   })
 
   t.test('should gracefully handle .stack already being accessed', function (t) {
+    var fakeAgent = {
+      sourceContext: true
+    }
     var err = new Error('foo')
     t.ok(typeof err.stack === 'string')
-    parsers.parseError(err, function (err, parsed) {
+    parsers.parseError(err, fakeAgent, function (err, parsed) {
       t.error(err)
       t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
       t.notOk('log' in parsed)
@@ -355,9 +373,12 @@ test('#parseError()', function (t) {
   })
 
   t.test('should gracefully handle .stack being overwritten', function (t) {
+    var fakeAgent = {
+      sourceContext: true
+    }
     var err = new Error('foo')
     err.stack = 'foo'
-    parsers.parseError(err, function (err, parsed) {
+    parsers.parseError(err, fakeAgent, function (err, parsed) {
       t.error(err)
       t.notOk('culprit' in parsed)
       t.notOk('log' in parsed)
@@ -369,6 +390,36 @@ test('#parseError()', function (t) {
       t.notOk('attributes' in parsed.exception)
       t.ok('stacktrace' in parsed.exception)
       t.equal(parsed.exception.stacktrace.length, 0)
+      t.end()
+    })
+  })
+
+  t.test('should be able to exclude source context data', function (t) {
+    var fakeAgent = {
+      sourceContext: false
+    }
+    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.notOk('log' in parsed)
+      t.ok('exception' in parsed)
+      t.equal(parsed.exception.message, '')
+      t.equal(parsed.exception.type, 'Error')
+      t.notOk('code' in parsed.exception)
+      t.notOk('uncaught' in parsed.exception)
+      t.notOk('attributes' in parsed.exception)
+      t.ok('stacktrace' in parsed.exception)
+      t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(function (callsite) {
+        t.ok('filename' in callsite)
+        t.ok('lineno' in callsite)
+        t.ok('function' in callsite)
+        t.ok('in_app' in callsite)
+        t.ok('abs_path' in callsite)
+        t.notOk('pre_context' in callsite)
+        t.notOk('context_line' in callsite)
+        t.notOk('post_context' in callsite)
+      })
       t.end()
     })
   })
