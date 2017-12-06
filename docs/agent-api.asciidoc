@@ -303,6 +303,15 @@ Whether or not the agent should monitor for uncaught exceptions and send them to
 
 Set this option to `false` to disable capture of stack traces for measured traces during instrumentation.
 
+[[source-context]]
+===== `sourceContext`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_SOURCE_CONTEXT`
+
+Set this option to `false` to disable collecting and reporting source code context with stack traces.
+
 [[stack-trace-limit]]
 ===== `stackTraceLimit`
 
