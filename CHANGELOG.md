@@ -1,3 +1,7 @@
+# 0.7.0 - 2017/12/6
+  * feat(parser): add sourceContext config option to control if code snippets are sent to the APM Server (#87)
+  * fix(*): move https-pem to list of devDependencies
+
 # 0.6.0 - 2017/11/17
   * feat(queue): add maxQueueSize config option (#56)
 
