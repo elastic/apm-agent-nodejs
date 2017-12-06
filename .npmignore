@@ -6,3 +6,5 @@ CHANGELOG.md
 Dockerfile
 docker-compose.yml
 Jenkinsfile
+.nyc_output
+coverage
