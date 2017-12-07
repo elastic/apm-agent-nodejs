@@ -3,7 +3,7 @@
 var test = require('tape')
 var mockAgent = require('./_agent')
 var Transaction = require('../../lib/instrumentation/transaction')
-var Trace = require('../../lib/instrumentation/trace')
+var Span = require('../../lib/instrumentation/span')
 var protocol = require('../../lib/instrumentation/protocol')
 
 test('protocol.encode - empty', function (t) {
@@ -41,7 +41,7 @@ test('protocol.encode - single transaction', function (t) {
         tags: {baz: '1'},
         custom: {bar: 1}
       })
-      t.equal(trans.traces.length, 0)
+      t.equal(trans.spans.length, 0)
     })
 
     t.end()
@@ -59,15 +59,15 @@ test('protocol.encode - multiple transactions', function (t) {
   function generateTransaction (id, cb) {
     var trans = new Transaction(agent, 'name' + id, 'type' + id)
     trans.result = 'result' + id
-    var trace = new Trace(trans)
-    trace.start('t' + id + '0', 'type')
+    var span = new Span(trans)
+    span.start('t' + id + '0', 'type')
 
     process.nextTick(function () {
-      trace.end()
-      trace = new Trace(trans)
-      trace.start('t' + id + '1', 'type')
+      span.end()
+      span = new Span(trans)
+      span.start('t' + id + '1', 'type')
       process.nextTick(function () {
-        trace.end()
+        span.end()
         trans.end()
 
         samples.push(trans)
@@ -95,18 +95,18 @@ test('protocol.encode - multiple transactions', function (t) {
           custom: {}
         })
 
-        t.equal(trans.traces.length, 2)
+        t.equal(trans.spans.length, 2)
 
-        trans.traces.forEach(function (trace, index2) {
-          t.equal(trace.name, 't' + index + index2)
-          t.equal(trace.type, 'type')
-          t.ok(trace.start > 0, 'trace start should be >0ms')
-          t.ok(trace.start < 100, 'trace start should be <100ms')
-          t.ok(trace.duration > 0, 'trace duration should be >0ms')
-          t.ok(trace.duration < 100, 'trace duration should be <100ms')
-          t.ok(trace.stacktrace.length > 0, 'should have stack trace')
+        trans.spans.forEach(function (span, index2) {
+          t.equal(span.name, 't' + index + index2)
+          t.equal(span.type, 'type')
+          t.ok(span.start > 0, 'span start should be >0ms')
+          t.ok(span.start < 100, 'span start should be <100ms')
+          t.ok(span.duration > 0, 'span duration should be >0ms')
+          t.ok(span.duration < 100, 'span duration should be <100ms')
+          t.ok(span.stacktrace.length > 0, 'should have stack trace')
 
-          trace.stacktrace.forEach(function (frame) {
+          span.stacktrace.forEach(function (frame) {
             t.equal(typeof frame.filename, 'string')
             t.ok(Number.isFinite(frame.lineno))
             t.equal(typeof frame.function, 'string')
@@ -187,7 +187,7 @@ test('protocol.encode - http request meta data', function (t) {
         tags: {},
         custom: {}
       })
-      t.equal(trans.traces.length, 0)
+      t.equal(trans.spans.length, 0)
     })
 
     t.end()
@@ -196,13 +196,13 @@ test('protocol.encode - http request meta data', function (t) {
 
 test('protocol.encode - disable stack traces', function (t) {
   var agent = mockAgent()
-  agent.captureTraceStackTraces = false
+  agent.captureSpanStackTraces = false
 
   var t0 = new Transaction(agent, 'single-name0', 'type0')
   t0.result = 'result0'
-  var trace0 = t0.buildTrace()
-  trace0.start('t00', 'type')
-  trace0.end()
+  var span0 = t0.buildSpan()
+  span0.start('t00', 'type')
+  span0.end()
   t0.end()
 
   protocol.encode([t0], function (err, transactions) {
@@ -222,16 +222,16 @@ test('protocol.encode - disable stack traces', function (t) {
         custom: {}
       })
 
-      t.equal(trans.traces.length, 1)
+      t.equal(trans.spans.length, 1)
 
-      trans.traces.forEach(function (trace, index2) {
-        t.equal(trace.name, 't' + index + index2)
-        t.equal(trace.type, 'type')
-        t.ok(trace.start > 0, 'trace start should be >0ms')
-        t.ok(trace.start < 100, 'trace start should be <100ms')
-        t.ok(trace.duration > 0, 'trace duration should be >0ms')
-        t.ok(trace.duration < 100, 'trace duration should be <100ms')
-        t.notOk('stacktrace' in trace, 'should not have stack trace')
+      trans.spans.forEach(function (span, index2) {
+        t.equal(span.name, 't' + index + index2)
+        t.equal(span.type, 'type')
+        t.ok(span.start > 0, 'span start should be >0ms')
+        t.ok(span.start < 100, 'span start should be <100ms')
+        t.ok(span.duration > 0, 'span duration should be >0ms')
+        t.ok(span.duration < 100, 'span duration should be <100ms')
+        t.notOk('stacktrace' in span, 'should not have stack trace')
       })
     })
 
@@ -239,18 +239,18 @@ test('protocol.encode - disable stack traces', function (t) {
   })
 })
 
-test('protocol.encode - truncated traces', function (t) {
+test('protocol.encode - truncated spans', function (t) {
   var agent = mockAgent()
-  agent.captureTraceStackTraces = false
+  agent.captureSpanStackTraces = false
 
   var t0 = new Transaction(agent, 'single-name0', 'type0')
   t0.result = 'result0'
-  var trace0 = t0.buildTrace()
-  trace0.start('t00', 'type0')
-  var trace1 = t0.buildTrace()
-  trace1.start('t01', 'type1')
-  t0.buildTrace()
-  trace0.end()
+  var span0 = t0.buildSpan()
+  span0.start('t00', 'type0')
+  var span1 = t0.buildSpan()
+  span1.start('t01', 'type1')
+  t0.buildSpan()
+  span0.end()
   t0.end()
 
   protocol.encode([t0], function (err, transactions) {
@@ -270,16 +270,16 @@ test('protocol.encode - truncated traces', function (t) {
         custom: {}
       })
 
-      t.equal(trans.traces.length, 2)
+      t.equal(trans.spans.length, 2)
 
-      trans.traces.forEach(function (trace, index2) {
-        t.equal(trace.name, 't' + index + index2)
-        t.equal(trace.type, 'type' + index2 + (index2 === 1 ? '.truncated' : ''))
-        t.ok(trace.start > 0, 'trace start should be >0ms')
-        t.ok(trace.start < 100, 'trace start should be <100ms')
-        t.ok(trace.duration > 0, 'trace duration should be >0ms')
-        t.ok(trace.duration < 100, 'trace duration should be <100ms')
-        t.notOk('stacktrace' in trace, 'should not have stack trace')
+      trans.spans.forEach(function (span, index2) {
+        t.equal(span.name, 't' + index + index2)
+        t.equal(span.type, 'type' + index2 + (index2 === 1 ? '.truncated' : ''))
+        t.ok(span.start > 0, 'span start should be >0ms')
+        t.ok(span.start < 100, 'span start should be <100ms')
+        t.ok(span.duration > 0, 'span duration should be >0ms')
+        t.ok(span.duration < 100, 'span duration should be <100ms')
+        t.notOk('stacktrace' in span, 'should not have stack trace')
       })
     })
 

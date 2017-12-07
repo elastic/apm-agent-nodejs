@@ -101,17 +101,17 @@ See all possible ways to configure the agent <<configuring-the-agent,in the API 
 === Performance monitoring
 
 Elastic APM automatically measures the performance of your hapi application.
-It records traces for database queries,
+It records spans for database queries,
 external HTTP requests,
 and other slow operations that happen during requests to your hapi app.
 
-By default the agent will trace <<compatibility,the most common modules>>.
-To trace other events,
-you can use custom traces.
-For information about custom traces,
-see the <<custom-traces,Custom Traces section>>.
+By default the agent will instrument <<compatibility,the most common modules>>.
+To instrument other events,
+you can use custom spans.
+For information about custom spans,
+see the <<custom-spans,Custom Spans section>>.
 
-Traces are grouped in transactions - by default one for each incoming HTTP request.
+Spans are grouped in transactions - by default one for each incoming HTTP request.
 But it's possible to create custom transactions not associated with an HTTP request.
 See the <<custom-transactions,Custom Transactions section>> for details.
 

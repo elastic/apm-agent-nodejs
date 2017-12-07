@@ -1,12 +1,12 @@
-[[custom-traces]]
-== Custom Traces
+[[custom-spans]]
+== Custom Spans
 
 If you want to track and time a custom event that happens in your application during a transaction,
-you can add a new trace to an existing transaction.
+you can add a new span to an existing transaction.
 
-This is an example of how to use custom traces.
-For general information about the Elastic APM Node.js Trace API,
-see the <<trace-api,Trace API documentation>>.
+This is an example of how to use custom spans.
+For general information about the Elastic APM Node.js Span API,
+see the <<span-api,Span API documentation>>.
 
 In the example below we create an Express app that times how long it takes to:
 
@@ -24,13 +24,13 @@ app.use(function (req, res, next) {
     return next()
   }
 
-  // `buildTrace` will only return a trace if there's an
+  // `buildSpan` will only return a span if there's an
   // active transaction
-  var trace = apm.buildTrace()
+  var span = apm.buildSpan()
 
-  // start the trace to measure the time it takes to receive
+  // start the span to measure the time it takes to receive
   // the body of the HTTP request
-  if (trace) trace.start('receiving body')
+  if (span) span.start('receiving body')
 
   var buffers = []
   req.on('data', function (chunk) {
@@ -39,9 +39,9 @@ app.use(function (req, res, next) {
   req.on('end', function () {
     req.body = Buffer.concat(buffers).toString()
 
-    // end the trace after we're done loading data from the
+    // end the span after we're done loading data from the
     // client
-    if (trace) trace.end()
+    if (span) span.end()
 
     next()
   })
@@ -53,18 +53,18 @@ app.use(function (req, res, next) {
     return next()
   }
 
-  var trace = apm.buildTrace()
+  var span = apm.buildSpan()
 
-  // start the trace to measure the time it takes to parse
+  // start the span to measure the time it takes to parse
   // the JSON
-  if (trace) trace.start('parse json')
+  if (span) span.start('parse json')
 
   try {
     req.json = JSON.parse(req.body)
   } catch (e) {}
 
-  // when we've processed the json, stop the custom trace
-  if (trace) trace.end()
+  // when we've processed the json, stop the custom span
+  if (span) span.end()
 
   next()
 })

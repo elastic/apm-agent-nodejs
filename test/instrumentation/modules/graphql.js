@@ -55,10 +55,10 @@ function done (t) {
 
     t.equal(trans.name, 'foo')
     t.equal(trans.type, 'custom')
-    t.equal(trans.traces.length, 1)
-    t.equal(trans.traces[0].name, 'GraphQL: hello')
-    t.equal(trans.traces[0].type, 'db.graphql.execute')
-    t.ok(trans.traces[0].start + trans.traces[0].duration < trans.duration)
+    t.equal(trans.spans.length, 1)
+    t.equal(trans.spans[0].name, 'GraphQL: hello')
+    t.equal(trans.spans[0].type, 'db.graphql.execute')
+    t.ok(trans.spans[0].start + trans.spans[0].duration < trans.duration)
 
     t.end()
   }

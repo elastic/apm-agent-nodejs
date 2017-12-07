@@ -9,7 +9,7 @@ var agent = require('../../..').start({
 var test = require('tape')
 var Server = require('mongodb-core').Server
 
-test('trace simple command', function (t) {
+test('instrument simple command', function (t) {
   resetAgent(function (endpoint, headers, data, cb) {
     var groups = [
       'system.$cmd.ismaster',
@@ -29,12 +29,12 @@ test('trace simple command', function (t) {
     t.equal(trans.type, 'bar')
     t.equal(trans.result, 'success')
 
-    t.equal(trans.traces.length, groups.length)
+    t.equal(trans.spans.length, groups.length)
 
     groups.forEach(function (name, i) {
-      t.equal(trans.traces[i].name, name)
-      t.equal(trans.traces[i].type, 'db.mongodb.query')
-      t.ok(trans.traces[i].start + trans.traces[i].duration < trans.duration)
+      t.equal(trans.spans[i].name, name)
+      t.equal(trans.spans[i].type, 'db.mongodb.query')
+      t.ok(trans.spans[i].start + trans.spans[i].duration < trans.duration)
     })
 
     t.end()
