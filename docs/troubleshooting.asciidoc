@@ -26,31 +26,31 @@ Ensure that it's set to `true` and try again.
 See the API documentation about <<active,`active`>> for details.
 
 [float]
-[[message-missing-app-name]]
-===== Missing `appName`
+[[message-missing-service-name]]
+===== Missing `serviceName`
 
 ----
-Elastic APM isn't correctly configured: Missing appName
+Elastic APM isn't correctly configured: Missing serviceName
 ----
 
-Ensure that the agent is correctly configured with an `appName` config option either by passing it to the `start()` function,
+Ensure that the agent is correctly configured with an `serviceName` config option either by passing it to the `start()` function,
 by specifying it in the optional configuration file,
 or by using environment variables.
 
-See the API documentation on <<app-name,`appName`>> for details.
+See the API documentation on <<service-name,`serviceName`>> for details.
 
 [float]
-[[message-invalid-app-name]]
-===== Invalid `appName`
+[[message-invalid-service-name]]
+===== Invalid `serviceName`
 
 ----
-Elastic APM isn't correctly configured: appName "..." contains invalid characters! (allowed: a-z, A-Z, 0-9, _, -, <space>)
+Elastic APM isn't correctly configured: serviceName "..." contains invalid characters! (allowed: a-z, A-Z, 0-9, _, -, <space>)
 ----
 
-The `appName` you provided contained invalid characters.
+The `serviceName` you provided contained invalid characters.
 You can only use the the letters a-z (both upper and lowercase), numbers, underscore (`_`), hyphen (`-`), and space (` `).
 
-See the API documentation on <<app-name,`appName`>> for details.
+See the API documentation on <<service-name,`serviceName`>> for details.
 
 [float]
 [[missing-performance-metrics]]

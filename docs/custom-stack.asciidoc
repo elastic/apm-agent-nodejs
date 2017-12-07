@@ -39,8 +39,8 @@ Here's a simple example of how Elastic APM is normally required and started:
 ----
 // Add this to the VERY top of the first file loaded in your app
 var apm = require('elastic-apm-node').start({
-  // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
-  appName: '',
+  // Set required service name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+  serviceName: '',
 
   // Use if APM Server requires a token
   secretToken: '',
@@ -63,7 +63,7 @@ So if you prefer, you can set the same configuration options using environment v
 
 [source,bash]
 ----
-ELASTIC_APM_APP_NAME=<app name>
+ELASTIC_APM_SERVICE_NAME=<service name>
 ELASTIC_APM_SECRET_TOKEN=<token>
 ELASTIC_APM_SERVER_URL=<server url>
 ----
