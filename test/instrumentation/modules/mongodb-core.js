@@ -11,7 +11,7 @@ var semver = require('semver')
 var Server = require('mongodb-core').Server
 var version = require('mongodb-core/package').version
 
-test('trace simple command', function (t) {
+test('instrument simple command', function (t) {
   resetAgent(function (endpoint, headers, data, cb) {
     var trans = data.transactions[0]
     var groups
@@ -26,7 +26,7 @@ test('trace simple command', function (t) {
       // mongodb-core v1.x will sometimes perform two `ismaster` queries
       // towards the admin and/or the system database. This doesn't always
       // happen, but if it does, we'll accept it.
-      if (trans.traces[0].name === 'admin.$cmd.ismaster') {
+      if (trans.spans[0].name === 'admin.$cmd.ismaster') {
         groups = [
           'admin.$cmd.ismaster',
           'system.$cmd.ismaster',
@@ -39,7 +39,7 @@ test('trace simple command', function (t) {
           'elasticapm.test.find',
           'system.$cmd.ismaster'
         ]
-      } else if (trans.traces[1].name === 'system.$cmd.ismaster') {
+      } else if (trans.spans[1].name === 'system.$cmd.ismaster') {
         groups = [
           'system.$cmd.ismaster',
           'system.$cmd.ismaster',
@@ -76,12 +76,12 @@ test('trace simple command', function (t) {
       ]
     }
 
-    t.equal(trans.traces.length, groups.length)
+    t.equal(trans.spans.length, groups.length)
 
     groups.forEach(function (name, i) {
-      t.equal(trans.traces[i].name, name)
-      t.equal(trans.traces[i].type, 'db.mongodb.query')
-      t.ok(trans.traces[i].start + trans.traces[i].duration < trans.duration)
+      t.equal(trans.spans[i].name, name)
+      t.equal(trans.spans[i].type, 'db.mongodb.query')
+      t.ok(trans.spans[i].start + trans.spans[i].duration < trans.duration)
     })
 
     t.end()

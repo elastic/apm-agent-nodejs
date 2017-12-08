@@ -20,8 +20,8 @@ var optionFixtures = [
   ['asyncHooks', 'ASYNC_HOOKS', true],
   ['sourceContextErrorAppFrames', 'SOURCE_CONTEXT_ERROR_APP_FRAMES', 5],
   ['sourceContextErrorLibraryFrames', 'SOURCE_CONTEXT_ERROR_LIBRARY_FRAMES', 5],
-  ['sourceContextTraceAppFrames', 'SOURCE_CONTEXT_TRACE_APP_FRAMES', 5],
-  ['sourceContextTraceLibraryFrames', 'SOURCE_CONTEXT_TRACE_LIBRARY_FRAMES', 0]
+  ['sourceContextSpanAppFrames', 'SOURCE_CONTEXT_SPAN_APP_FRAMES', 5],
+  ['sourceContextSpanLibraryFrames', 'SOURCE_CONTEXT_SPAN_LIBRARY_FRAMES', 0]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']

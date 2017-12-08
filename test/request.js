@@ -192,7 +192,7 @@ test('#errors()', function (t) {
 
 test('#transactions()', function (t) {
   t.plan(13)
-  var transactions = [{traces: []}]
+  var transactions = [{spans: []}]
   APMServer()
     .on('listening', function () {
       request.transactions(this.agent, transactions)

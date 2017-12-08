@@ -617,8 +617,8 @@ function validateParseCallsite (t, opts) {
   var conf = {
     sourceContextErrorAppFrames: opts.isError && opts.isApp ? opts.lines : 10,
     sourceContextErrorLibraryFrames: opts.isError && !opts.isApp ? opts.lines : 10,
-    sourceContextTraceAppFrames: !opts.isError && opts.isApp ? opts.lines : 10,
-    sourceContextTraceLibraryFrames: !opts.isError && !opts.isApp ? opts.lines : 10
+    sourceContextSpanAppFrames: !opts.isError && opts.isApp ? opts.lines : 10,
+    sourceContextSpanLibraryFrames: !opts.isError && !opts.isApp ? opts.lines : 10
   }
 
   stackman.callsites(err, function (err, callsites) {

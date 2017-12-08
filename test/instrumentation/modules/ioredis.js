@@ -114,12 +114,12 @@ function done (t) {
     t.equal(trans.type, 'bar')
     t.equal(trans.result, 'success')
 
-    t.equal(trans.traces.length, groups.length)
+    t.equal(trans.spans.length, groups.length)
 
     groups.forEach(function (name, i) {
-      t.equal(trans.traces[i].name, name)
-      t.equal(trans.traces[i].type, 'cache.redis')
-      t.ok(trans.traces[i].start + trans.traces[i].duration < trans.duration)
+      t.equal(trans.spans[i].name, name)
+      t.equal(trans.spans[i].type, 'cache.redis')
+      t.ok(trans.spans[i].start + trans.spans[i].duration < trans.duration)
     })
 
     t.end()
