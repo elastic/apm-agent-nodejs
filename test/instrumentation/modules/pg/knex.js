@@ -121,13 +121,13 @@ function assertBasicQuery (t, data) {
 
   // remove the 'select versions();' query that knex injects - just makes
   // testing too hard
-  trans.traces = trans.traces.filter(function (trace) {
-    return trace.context.db.statement !== 'select version();'
+  trans.spans = trans.spans.filter(function (span) {
+    return span.context.db.statement !== 'select version();'
   })
 
-  t.equal(trans.traces.length, 1)
-  t.equal(trans.traces[0].type, 'db.postgresql.query')
-  t.ok(trans.traces[0].stacktrace.some(function (frame) {
+  t.equal(trans.spans.length, 1)
+  t.equal(trans.spans[0].type, 'db.postgresql.query')
+  t.ok(trans.spans[0].stacktrace.some(function (frame) {
     return frame.function === 'userLandCode'
   }), 'include user-land code frame')
 }

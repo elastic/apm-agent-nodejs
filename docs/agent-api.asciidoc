@@ -315,14 +315,14 @@ Note that if a custom logger is provided, the `logLevel` option will be ignored.
 
 Whether or not the agent should monitor for uncaught exceptions and send them to the APM Server automatically.
 
-[[capture-trace-stack-traces]]
-===== `captureTraceStackTraces`
+[[capture-span-stack-traces]]
+===== `captureSpanStackTraces`
 
 * *Type:* Boolean
 * *Default:* `true`
-* *Env:* `ELASTIC_APM_CAPTURE_TRACE_STACK_TRACES`
+* *Env:* `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES`
 
-Set this option to `false` to disable capture of stack traces for measured traces during instrumentation.
+Set this option to `false` to disable capture of stack traces for measured spans during instrumentation.
 
 [[source-context-error]]
 ===== `sourceContextErrorAppFrames` + `sourceContextErrorLibraryFrames`
@@ -363,16 +363,16 @@ The default value `5` means that 5 lines of source code will be collected for er
 
 Setting this config option to `0` means that no source code will be collected for error library frames.
 
-[[source-context-trace]]
-===== `sourceContextTraceAppFrames` + `sourceContextTraceLibraryFrames`
+[[source-context-span]]
+===== `sourceContextSpanAppFrames` + `sourceContextSpanLibraryFrames`
 
-When a trace is recorded by the agent,
-a stack trace is recorded together with the trace,
-pointing to the location where the trace was initiated.
-This stack trace is stored in Elasticsearch along with the other trace data.
+When a span is recorded by the agent,
+a stack trace is recorded together with the span,
+pointing to the location where the span was initiated.
+This stack trace is stored in Elasticsearch along with the other span data.
 
 By default the agent will also collect a few lines of source code around the lines for each frame in the stack trace.
-This can make it easier to determine why and how the trace was initiated as the source code related to the trace is visible directly in Kibana.
+This can make it easier to determine why and how the span was initiated as the source code related to the span is visible directly in Kibana.
 
 The agent differentiates between so called in-app frames and library frames.
 Library frames are frames belonging to Node core and code inside the applications `node_modules` folder.
@@ -380,26 +380,26 @@ In-app frames are everything else.
 
 Use the following two config options to change how many lines of source code to include for the different types of stack frames:
 
-[[source-context-trace-app-frames]]
-*`sourceContextTraceAppFrames`*
+[[source-context-span-app-frames]]
+*`sourceContextSpanAppFrames`*
 
 * *Type:* Number
 * *Default:* `5`
-* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_TRACE_APP_FRAMES`
+* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_SPAN_APP_FRAMES`
 
-The default value `5` means that 5 lines of source code will be collected for in-app trace frames.
+The default value `5` means that 5 lines of source code will be collected for in-app span frames.
 2 lines above the stack frame line + 2 below + the stack frame line it self.
 
-Setting this config option to `0` means that no source code will be collected for in-app trace frames.
+Setting this config option to `0` means that no source code will be collected for in-app span frames.
 
-[[source-context-trace-library-frames]]
-*`sourceContextTraceLibraryFrames`*
+[[source-context-span-library-frames]]
+*`sourceContextSpanLibraryFrames`*
 
 * *Type:* Number
 * *Default:* `0`
-* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_TRACE_LIBRARY_FRAMES`
+* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_SPAN_LIBRARY_FRAMES`
 
-The default value `0` means that no source code will be collected for trace library frames.
+The default value `0` means that no source code will be collected for span library frames.
 
 [[stack-trace-limit]]
 ===== `stackTraceLimit`
@@ -837,17 +837,17 @@ the transaction name will default to `METHOD unknown route` (e.g. `POST unknown 
 
 Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
 
-[[apm-build-trace]]
-==== `apm.buildTrace()`
+[[apm-build-span]]
+==== `apm.buildSpan()`
 
 [source,js]
 ----
-var trace = apm.buildTrace()
+var span = apm.buildSpan()
 ----
 
-Prepare and return a new custom trace associated with the current active transaction.
+Prepare and return a new custom span associated with the current active transaction.
 
-See <<trace-api,Trace API>> docs for details on how to use custom traces.
+See <<span-api,Span API>> docs for details on how to use custom spans.
 
 NOTE: If there's no active transaction available,
 `null` will be returned.

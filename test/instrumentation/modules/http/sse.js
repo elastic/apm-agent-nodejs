@@ -12,10 +12,10 @@ test('normal response', function (t) {
   })
 
   var server = http.createServer(function (req, res) {
-    var trace = agent.buildTrace()
-    if (trace) trace.start('foo', 'bar')
+    var span = agent.buildSpan()
+    if (span) span.start('foo', 'bar')
     setTimeout(function () {
-      if (trace) trace.end()
+      if (span) span.end()
       res.end()
     }, 10)
   })
@@ -31,10 +31,10 @@ test('SSE response with explicit headers', function (t) {
 
   var server = http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/event-stream'})
-    var trace = agent.buildTrace()
-    if (trace) trace.start('foo', 'bar')
+    var span = agent.buildSpan()
+    if (span) span.start('foo', 'bar')
     setTimeout(function () {
-      if (trace) trace.end()
+      if (span) span.end()
       res.end()
     }, 10)
   })
@@ -51,10 +51,10 @@ test('SSE response with implicit headers', function (t) {
   var server = http.createServer(function (req, res) {
     res.setHeader('Content-type', 'text/event-stream; foo')
     res.write('data: hello world\n\n')
-    var trace = agent.buildTrace()
-    if (trace) trace.start('foo', 'bar')
+    var span = agent.buildSpan()
+    if (span) span.start('foo', 'bar')
     setTimeout(function () {
-      if (trace) trace.end()
+      if (span) span.end()
       res.end()
     }, 10)
   })
@@ -68,9 +68,9 @@ function assertNonSSEResponse (t, data) {
   var trans = data.transactions[0]
 
   t.equal(trans.name, 'GET unknown route')
-  t.equal(trans.traces.length, 1)
-  t.equal(trans.traces[0].name, 'foo')
-  t.equal(trans.traces[0].type, 'bar')
+  t.equal(trans.spans.length, 1)
+  t.equal(trans.spans[0].name, 'foo')
+  t.equal(trans.spans[0].type, 'bar')
   t.equal(trans.context.request.method, 'GET')
 }
 
@@ -80,7 +80,7 @@ function assertSSEResponse (t, data) {
   var trans = data.transactions[0]
 
   t.equal(trans.name, 'GET unknown route')
-  t.equal(trans.traces.length, 0)
+  t.equal(trans.spans.length, 0)
   t.equal(trans.context.request.method, 'GET')
 }
 
