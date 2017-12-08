@@ -10,7 +10,7 @@ var Agent = require('./_agent')
 var request = require('../lib/request')
 
 var opts = {
-  appName: 'some-app-name',
+  serviceName: 'some-service-name',
   secretToken: 'secret',
   captureExceptions: false,
   logLevel: 'error'
@@ -222,7 +222,7 @@ test('#captureError()', function (t) {
   t.test('should merge context', function (t) {
     var agent = Agent()
     agent.start({
-      appName: 'foo',
+      serviceName: 'foo',
       secretToken: 'baz',
       filterHttpHeaders: false,
       logLevel: 'error'
