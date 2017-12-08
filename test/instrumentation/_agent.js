@@ -15,7 +15,7 @@ module.exports = function mockAgent (cb) {
       appName: 'app-name',
       active: true,
       instrument: true,
-      captureTraceStackTraces: true,
+      captureSpanStackTraces: true,
       errorOnAbortedRequests: false,
       abortedErrorThreshold: 250,
       flushInterval: 10,
@@ -39,7 +39,7 @@ module.exports = function mockAgent (cb) {
     agent.startTransaction = sharedInstrumentation.startTransaction.bind(sharedInstrumentation)
     agent.endTransaction = sharedInstrumentation.endTransaction.bind(sharedInstrumentation)
     agent.setTransactionName = sharedInstrumentation.setTransactionName.bind(sharedInstrumentation)
-    agent.buildTrace = sharedInstrumentation.buildTrace.bind(sharedInstrumentation)
+    agent.buildSpan = sharedInstrumentation.buildSpan.bind(sharedInstrumentation)
     agent._instrumentation.start()
   } else {
     sharedInstrumentation._agent = agent
@@ -49,7 +49,7 @@ module.exports = function mockAgent (cb) {
     agent.startTransaction = sharedInstrumentation.startTransaction.bind(sharedInstrumentation)
     agent.endTransaction = sharedInstrumentation.endTransaction.bind(sharedInstrumentation)
     agent.setTransactionName = sharedInstrumentation.setTransactionName.bind(sharedInstrumentation)
-    agent.buildTrace = sharedInstrumentation.buildTrace.bind(sharedInstrumentation)
+    agent.buildSpan = sharedInstrumentation.buildSpan.bind(sharedInstrumentation)
   }
 
   return agent

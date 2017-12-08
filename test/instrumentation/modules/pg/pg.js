@@ -267,11 +267,11 @@ factories.forEach(function (f) {
           var trans = data.transactions[0]
 
           t.equal(trans.name, 'foo')
-          t.equal(trans.traces.length, 3)
-          trans.traces.forEach(function (trace) {
-            t.equal(trace.name, 'SELECT')
-            t.equal(trace.type, 'db.postgresql.query')
-            t.deepEqual(trace.context.db, {statement: sql, type: 'sql'})
+          t.equal(trans.spans.length, 3)
+          trans.spans.forEach(function (span) {
+            t.equal(span.name, 'SELECT')
+            t.equal(span.type, 'db.postgresql.query')
+            t.deepEqual(span.context.db, {statement: sql, type: 'sql'})
           })
 
           t.end()
@@ -316,10 +316,10 @@ factories.forEach(function (f) {
         t.deepEqual(names, ['bar', 'baz', 'foo'])
 
         data.transactions.forEach(function (trans) {
-          t.equal(trans.traces.length, 1)
-          t.equal(trans.traces[0].name, 'SELECT')
-          t.equal(trans.traces[0].type, 'db.postgresql.query')
-          t.deepEqual(trans.traces[0].context.db, {statement: sql, type: 'sql'})
+          t.equal(trans.spans.length, 1)
+          t.equal(trans.spans[0].name, 'SELECT')
+          t.equal(trans.spans[0].type, 'db.postgresql.query')
+          t.deepEqual(trans.spans[0].context.db, {statement: sql, type: 'sql'})
         })
 
         t.end()
@@ -377,11 +377,11 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
       var trans = data.transactions[0]
 
       t.equal(trans.name, 'foo')
-      t.equal(trans.traces.length, 3)
-      trans.traces.forEach(function (trace) {
-        t.equal(trace.name, 'SELECT')
-        t.equal(trace.type, 'db.postgresql.query')
-        t.deepEqual(trace.context.db, {statement: sql, type: 'sql'})
+      t.equal(trans.spans.length, 3)
+      trans.spans.forEach(function (span) {
+        t.equal(span.name, 'SELECT')
+        t.equal(span.type, 'db.postgresql.query')
+        t.deepEqual(span.context.db, {statement: sql, type: 'sql'})
       })
 
       t.end()
@@ -496,10 +496,10 @@ function assertBasicQuery (t, sql, data) {
   var trans = data.transactions[0]
 
   t.equal(trans.name, 'foo')
-  t.equal(trans.traces.length, 1)
-  t.equal(trans.traces[0].name, 'SELECT')
-  t.equal(trans.traces[0].type, 'db.postgresql.query')
-  t.deepEqual(trans.traces[0].context.db, {statement: sql, type: 'sql'})
+  t.equal(trans.spans.length, 1)
+  t.equal(trans.spans[0].name, 'SELECT')
+  t.equal(trans.spans[0].type, 'db.postgresql.query')
+  t.deepEqual(trans.spans[0].context.db, {statement: sql, type: 'sql'})
 }
 
 function createClient (cb) {

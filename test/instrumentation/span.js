@@ -6,107 +6,107 @@ var test = require('tape')
 var mockAgent = require('./_agent')
 var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
-var Trace = require('../../lib/instrumentation/trace')
+var Span = require('../../lib/instrumentation/span')
 
 var agent = mockAgent()
 
 test('properties', function (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start('sig', 'type')
-  t.equal(trace.transaction, trans)
-  t.equal(trace.name, 'sig')
-  t.equal(trace.type, 'type')
-  t.equal(trace.ended, false)
+  var span = new Span(trans)
+  span.start('sig', 'type')
+  t.equal(span.transaction, trans)
+  t.equal(span.name, 'sig')
+  t.equal(span.type, 'type')
+  t.equal(span.ended, false)
   t.end()
 })
 
 test('#end()', function (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start('sig', 'type')
-  t.equal(trace.ended, false)
-  t.equal(trans.traces.indexOf(trace), -1)
-  trace.end()
-  t.equal(trace.ended, true)
-  t.equal(trans.traces.indexOf(trace), 0)
+  var span = new Span(trans)
+  span.start('sig', 'type')
+  t.equal(span.ended, false)
+  t.equal(trans.spans.indexOf(span), -1)
+  span.end()
+  t.equal(span.ended, true)
+  t.equal(trans.spans.indexOf(span), 0)
   t.end()
 })
 
 test('#duration()', function (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start()
+  var span = new Span(trans)
+  span.start()
   setTimeout(function () {
-    trace.end()
-    t.ok(trace.duration() > 49, trace.duration() + ' should be larger than 49')
+    span.end()
+    t.ok(span.duration() > 49, span.duration() + ' should be larger than 49')
     t.end()
   }, 50)
 })
 
 test('#duration() - return null if not ended', function (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start()
-  t.equal(trace.duration(), null)
+  var span = new Span(trans)
+  span.start()
+  t.equal(span.duration(), null)
   t.end()
 })
 
-test('#offsetTime() - return null if trace isn\'t started', function (t) {
+test('#offsetTime() - return null if span isn\'t started', function (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  t.equal(trace.offsetTime(), null)
+  var span = new Span(trans)
+  t.equal(span.offsetTime(), null)
   t.end()
 })
 
-test('#offsetTime() - not return null if trace is started', function (t) {
+test('#offsetTime() - not return null if span is started', function (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start()
-  t.ok(trace.offsetTime() > 0)
-  t.ok(trace.offsetTime() < 100)
+  var span = new Span(trans)
+  span.start()
+  t.ok(span.offsetTime() > 0)
+  t.ok(span.offsetTime() < 100)
   t.end()
 })
 
-test('#offsetTime() - sub trace', function (t) {
+test('#offsetTime() - sub span', function (t) {
   var trans = new Transaction(mockInstrumentation(function () {
-    t.ok(trace.offsetTime() > 49, trace.offsetTime() + ' should be larger than 49')
+    t.ok(span.offsetTime() > 49, span.offsetTime() + ' should be larger than 49')
     t.end()
   })._agent)
-  var trace
+  var span
   setTimeout(function () {
-    trace = new Trace(trans)
-    trace.start()
-    trace.end()
+    span = new Span(trans)
+    span.start()
+    span.end()
     trans.end()
   }, 50)
 })
 
 test('#_encode() - un-started', function (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace._encode(function (err, payload) {
-    t.equal(err.message, 'cannot encode un-started trace')
+  var span = new Span(trans)
+  span._encode(function (err, payload) {
+    t.equal(err.message, 'cannot encode un-started span')
     t.end()
   })
 })
 
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start()
-  trace._encode(function (err, payload) {
-    t.equal(err.message, 'cannot encode un-ended trace')
+  var span = new Span(trans)
+  span.start()
+  span._encode(function (err, payload) {
+    t.equal(err.message, 'cannot encode un-ended span')
     t.end()
   })
 })
 
 test('#_encode() - ended unnamed', function myTest1 (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start()
-  trace.end()
-  trace._encode(function (err, payload) {
+  var span = new Span(trans)
+  span.start()
+  span.end()
+  span._encode(function (err, payload) {
     t.error(err)
     t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
     t.equal(payload.name, 'unnamed')
@@ -131,10 +131,10 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
 
 test('#_encode() - ended named', function myTest2 (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start('foo', 'bar')
-  trace.end()
-  trace._encode(function (err, payload) {
+  var span = new Span(trans)
+  span.start('foo', 'bar')
+  span.end()
+  span._encode(function (err, payload) {
     t.error(err)
     t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
     t.equal(payload.name, 'foo')
@@ -159,10 +159,10 @@ test('#_encode() - ended named', function myTest2 (t) {
 
 test('#_encode() - truncated', function myTest3 (t) {
   var trans = new Transaction(agent)
-  var trace = new Trace(trans)
-  trace.start('foo', 'bar')
-  trace.truncate()
-  trace._encode(function (err, payload) {
+  var span = new Span(trans)
+  span.start('foo', 'bar')
+  span.truncate()
+  span._encode(function (err, payload) {
     t.error(err)
     t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
     t.equal(payload.name, 'foo')

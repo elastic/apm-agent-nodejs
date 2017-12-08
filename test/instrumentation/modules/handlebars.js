@@ -20,17 +20,17 @@ test('handlebars compile and render', function userLandCode (t) {
     t.ok(/^foo\d$/.test(trans.name))
     t.equal(trans.type, 'custom')
 
-    t.equal(trans.traces.length, 2)
+    t.equal(trans.spans.length, 2)
 
-    t.equal(trans.traces[0].name, 'handlebars')
-    t.equal(trans.traces[0].type, 'template.handlebars.compile')
-    t.ok(trans.traces[0].stacktrace.some(function (frame) {
+    t.equal(trans.spans[0].name, 'handlebars')
+    t.equal(trans.spans[0].type, 'template.handlebars.compile')
+    t.ok(trans.spans[0].stacktrace.some(function (frame) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
 
-    t.equal(trans.traces[1].name, 'handlebars')
-    t.equal(trans.traces[1].type, 'template.handlebars.render')
-    t.ok(trans.traces[1].stacktrace.some(function (frame) {
+    t.equal(trans.spans[1].name, 'handlebars')
+    t.equal(trans.spans[1].type, 'template.handlebars.render')
+    t.ok(trans.spans[1].stacktrace.some(function (frame) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
 
