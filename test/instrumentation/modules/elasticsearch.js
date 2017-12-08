@@ -65,20 +65,20 @@ function done (t, method, path, query) {
     t.ok(/^foo\d$/.test(trans.name))
     t.equal(trans.type, 'custom')
 
-    t.equal(trans.traces.length, 2)
+    t.equal(trans.spans.length, 2)
 
-    t.equal(trans.traces[0].name, method + ' ' + host + path)
-    t.equal(trans.traces[0].type, 'ext.http.http')
+    t.equal(trans.spans[0].name, method + ' ' + host + path)
+    t.equal(trans.spans[0].type, 'ext.http.http')
 
-    t.equal(trans.traces[1].name, 'Elasticsearch: ' + method + ' ' + path)
-    t.equal(trans.traces[1].type, 'db.elasticsearch.request')
-    t.ok(trans.traces[1].stacktrace.some(function (frame) {
+    t.equal(trans.spans[1].name, 'Elasticsearch: ' + method + ' ' + path)
+    t.equal(trans.spans[1].type, 'db.elasticsearch.request')
+    t.ok(trans.spans[1].stacktrace.some(function (frame) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
-    t.deepEqual(trans.traces[1].context.db, {statement: query || '{}', type: 'elasticsearch'})
+    t.deepEqual(trans.spans[1].context.db, {statement: query || '{}', type: 'elasticsearch'})
 
-    t.ok(trans.traces[0].start > trans.traces[1].start, 'http trace should start after elasticsearch trace')
-    t.ok(trans.traces[0].start + trans.traces[0].duration < trans.traces[1].start + trans.traces[1].duration, 'http trace should end before elasticsearch trace')
+    t.ok(trans.spans[0].start > trans.spans[1].start, 'http span should start after elasticsearch span')
+    t.ok(trans.spans[0].start + trans.spans[0].duration < trans.spans[1].start + trans.spans[1].duration, 'http span should end before elasticsearch span')
 
     t.end()
   }

@@ -235,16 +235,16 @@ var transactionTest = function () {
 
     var type = Math.random() > 0.5 ? 'request' : 'my-custom-type'
     var trans = agent.startTransaction('foo', type)
-    var t1 = agent.buildTrace()
+    var t1 = agent.buildSpan()
     t1.start('sig1', 'foo.bar.baz1')
-    var t2 = agent.buildTrace()
+    var t2 = agent.buildSpan()
     t2.start('sig2', 'foo.bar.baz1')
 
     setTimeout(function () {
-      var t3 = agent.buildTrace()
+      var t3 = agent.buildSpan()
       t3.start('sig3', 'foo.bar.baz2')
       setTimeout(function () {
-        var t4 = agent.buildTrace()
+        var t4 = agent.buildSpan()
         t4.start('sig4', 'foo.bar.baz3')
         setTimeout(function () {
           t3.end()
@@ -255,10 +255,10 @@ var transactionTest = function () {
     }, Math.random() * 100 + 25)
 
     setTimeout(function () {
-      var t5 = agent.buildTrace()
+      var t5 = agent.buildSpan()
       t5.start('sig5', 'foo.bar.baz2')
       setTimeout(function () {
-        var t6 = agent.buildTrace()
+        var t6 = agent.buildSpan()
         t6.start('sig6', 'foo.bar.baz4')
         setTimeout(function () {
           t6.end()
