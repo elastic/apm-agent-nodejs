@@ -1,7 +1,7 @@
 [[transaction-api]]
 === `Transaction` API
 
-A transaction groups multiple traces in a logical group.
+A transaction groups multiple spans in a logical group.
 
 To get a `Transaction` object,
 you need to call <<apm-start-transaction,`apm.startTransaction()`>>.
@@ -51,7 +51,7 @@ Think of the transaction result as equivalent to the status code of an HTTP resp
 transaction.end()
 ----
 
-Ends the transaction and <<trace-truncate,truncates>> all un-ended child traces.
+Ends the transaction and <<span-truncate,truncates>> all un-ended child spans.
 If the transaction has already ended,
 nothing happens.
 

@@ -10,11 +10,11 @@ The `Agent` is a singleton and the instance is usually referred by the variable 
 * <<transaction-api,The `Transaction` API>> - All functions and properties on the `Transaction` object.
 An instance of the `Transaction` object is acquired by calling `apm.startTransaction()`
 
-* <<trace-api,The `Trace` API>> - All functions and properties on the `Trace` object.
-An instance of the `Trace` object is acquired by calling `apm.buildTrace()`
+* <<span-api,The `Span` API>> - All functions and properties on the `Span` object.
+An instance of the `Span` object is acquired by calling `apm.buildSpan()`
 
 include::./agent-api.asciidoc[Agent API documentation]
 
 include::./transaction-api.asciidoc[Transaction API documentation]
 
-include::./trace-api.asciidoc[Trace API documentation]
+include::./span-api.asciidoc[Span API documentation]
