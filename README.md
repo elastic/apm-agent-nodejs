@@ -34,7 +34,7 @@ them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 - [Advanced Setup and Configuration](https://www.elastic.co/guide/en/apm/agent/nodejs/current/advanced-setup.html)
 - [API Reference](https://www.elastic.co/guide/en/apm/agent/nodejs/current/api.html)
 - [Custom Transactions](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html)
-- [Custom Traces](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-traces.html)
+- [Custom Spans](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-spans.html)
 - [Source Map Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/source-maps.html)
 - [Compatibility Overview](https://www.elastic.co/guide/en/apm/agent/nodejs/current/compatibility.html)
 - [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)

@@ -50,12 +50,12 @@ The Node.js agent will automatically instrument the following modules to give yo
 [options="header"]
 |=======================================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 |Will trace all
+|https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 |Will instrument all
 queries
 |https://www.npmjs.com/package/ioredis[ioredis] |\^2.0.0 \|\| ^3.0.0 |Will
-trace all queries
+instrument all queries
 |https://www.npmjs.com/package/mongodb-core[mongodb-core]
-|\^1.2.7 \|\| ^2.0.0 |Will trace all queries. A lot of higher level MongoDB
+|\^1.2.7 \|\| ^2.0.0 |Will instrument all queries. A lot of higher level MongoDB
 modules use mongodb-core, so those should be supported as well
 |https://www.npmjs.com/package/mongodb[mongodb] |>=2.0.0 |Supported via
 mongodb-core
@@ -63,13 +63,13 @@ mongodb-core
 mongodb-core
 |https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 |Supported
 via mongodb-core
-|https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will trace all
+|https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all
 queries
-|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <8.0.0 |Will trace all
+|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <8.0.0 |Will instrument all
 queries
-|https://www.npmjs.com/package/redis[redis] |^2.0.0 |Will trace all
+|https://www.npmjs.com/package/redis[redis] |^2.0.0 |Will instrument all
 queries
-|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <4.0.0 |Will trace
+|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <4.0.0 |Will instrument
 outgoing WebSocket messages
 |=======================================================================
 
@@ -77,8 +77,8 @@ outgoing WebSocket messages
 [[compatibility-better-stack-traces]]
 ==== Better Stack Traces
 
-When viewing a trace in Elastic APM,
-you'll see where in your code you initiated the trace (e.g. a database query).
+When viewing a span in Elastic APM,
+you'll see where in your code you initiated the span (e.g. a database query).
 
 Given the async nature of Node.js,
 it's not possible for us to see further back than the last async boundary.
@@ -88,10 +88,10 @@ But some modules will interfere with this monitoring by injecting an async call 
 We monitor these "offending" modules directly to give you a better experience.
 
 The modules and versions listed below are the ones we support.
-If you use an unsupported version you might not be able to see your own code in the performance traces.
+If you use an unsupported version you might not be able to see your own code in the spans.
 This does not impact the stability of your application in any way - only the collected metrics.
 
-If you don't see your own code in traces,
+If you don't see your own code in spans,
 please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM discuss forum] and include information about your dependencies.
 
 [options="header"]
@@ -109,10 +109,10 @@ Certain modules can interfere with this monitoring if not handled properly.
 
 Below is a list of modules known to cause issues with this monitoring.
 The versions listed are the versions we support.
-If you use an unsupported version you might experience missing traces.
+If you use an unsupported version you might experience missing spans.
 This does not impact the stability of your application in any way - only the collected metrics.
 
-If you do experience missing traces in your performance metrics,
+If you do experience missing spans in your performance metrics,
 please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM discuss forum] and include information about your dependencies and what data is missing.
 
 [options="header"]

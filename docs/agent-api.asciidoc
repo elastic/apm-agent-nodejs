@@ -294,14 +294,14 @@ Note that if a custom logger is provided, the `logLevel` option will be ignored.
 
 Whether or not the agent should monitor for uncaught exceptions and send them to the APM Server automatically.
 
-[[capture-trace-stack-traces]]
-===== `captureTraceStackTraces`
+[[capture-span-stack-traces]]
+===== `captureSpanStackTraces`
 
 * *Type:* Boolean
 * *Default:* `true`
-* *Env:* `ELASTIC_APM_CAPTURE_TRACE_STACK_TRACES`
+* *Env:* `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES`
 
-Set this option to `false` to disable capture of stack traces for measured traces during instrumentation.
+Set this option to `false` to disable capture of stack traces for measured spans during instrumentation.
 
 [[source-context]]
 ===== `sourceContext`
@@ -737,17 +737,17 @@ the transaction name will default to `METHOD unknown route` (e.g. `POST unknown 
 
 Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
 
-[[apm-build-trace]]
-==== `apm.buildTrace()`
+[[apm-build-span]]
+==== `apm.buildSpan()`
 
 [source,js]
 ----
-var trace = apm.buildTrace()
+var span = apm.buildSpan()
 ----
 
-Prepare and return a new custom trace associated with the current active transaction.
+Prepare and return a new custom span associated with the current active transaction.
 
-See <<trace-api,Trace API>> docs for details on how to use custom traces.
+See <<span-api,Span API>> docs for details on how to use custom spans.
 
 NOTE: If there's no active transaction available,
 `null` will be returned.

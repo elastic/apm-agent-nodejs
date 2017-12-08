@@ -1,0 +1,97 @@
+[[span-api]]
+=== `Span` API
+
+A span measures the duration of a single event.
+
+To get a `Span` object,
+you need to call <<apm-build-span,`apm.buildSpan()`>>.
+
+To see an example of using custom spans,
+see the <<custom-spans,Custom Spans in Node.js>> article.
+
+[[span-transaction]]
+==== `span.transaction`
+
+* *Type:* Transaction
+
+A reference to the parent transaction object.
+
+All spans belongs to a transaction.
+
+[[span-name]]
+==== `span.name`
+
+* *Type:* String
+* *Default:* `unnamed`
+
+The name of the span.
+This can also be set via <<span-start,`span.start()`>>.
+
+[[span-type]]
+==== `span.type`
+
+* *Type:* String
+* *Default:* `custom`
+
+The type of span.
+This can also be set via <<span-start,`span.start()`>>.
+
+The type is a hierarchical string used to group similar spans together.
+For instance,
+all spans of MySQL queries are given the type `db.mysql.query`.
+
+In the above example `db` is considered the type prefix.
+Though there are no naming restrictions for this prefix,
+the following are standardized across all Elastic APM agents:
+`app`, `db`, `cache`, `template`, and `ext`.
+
+[[span-start]]
+==== `span.start()`
+
+[source,js]
+----
+span.start([name][, type])
+----
+
+Start a span.
+
+Arguments:
+
+* `name` - The name of the span (string).
+You can alternatively set this via <<span-name,`span.name`>>.
+Defaults to `unnamed`
+
+* `type` - The type of span (string).
+You can alternatively set this via <<span-type,`span.type`>>.
+Defaults to `custom.code`
+
+When a span is started it will measure the time until <<span-end,`span.end()`>> or <<span-truncate,`span.truncate()`>> is called.
+
+[[span-end]]
+==== `span.end()`
+
+[source,js]
+----
+span.end()
+----
+
+End the span.
+If the span has already ended,
+nothing happens.
+
+A span that isn't ended before the parent transaction ends will be <<span-truncate,truncated>>.
+
+[[span-truncate]]
+==== `span.truncate()`
+
+[source,js]
+----
+span.truncate()
+----
+
+Truncates and ends the span.
+If the span is already ended or truncated,
+nothing happens.
+
+A truncated span is a special type of ended span.
+It's used to indicate that the measured event took longer than the duration recorded by the span.

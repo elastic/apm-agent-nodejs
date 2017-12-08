@@ -24,7 +24,7 @@ include::./api.asciidoc[]
 
 include::./custom-transactions.asciidoc[]
 
-include::./custom-traces.asciidoc[]
+include::./custom-spans.asciidoc[]
 
 include::./source-maps.asciidoc[]
 

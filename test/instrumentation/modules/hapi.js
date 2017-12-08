@@ -539,7 +539,7 @@ function assert (t, data, results) {
   t.equal(trans.name, results.name)
   t.equal(trans.type, 'request')
   t.equal(trans.result, results.status)
-  t.equal(trans.traces.length, 0)
+  t.equal(trans.spans.length, 0)
   t.equal(trans.context.request.method, 'GET')
 }
 
