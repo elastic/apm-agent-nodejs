@@ -48,7 +48,7 @@ Their equivalent environment variable name is listed together with each option.
 
 Properties on the `options` object will always take precedence over environment variables.
 
-The only required parameter is <<app-name,`appName`>>.
+The only required parameter is <<service-name,`serviceName`>>.
 
 Example usage configuring the agent to only be active in production:
 
@@ -56,8 +56,8 @@ Example usage configuring the agent to only be active in production:
 ----
 // Add this to the VERY top of the first file loaded in your app
 require('elastic-apm-node').start({
-  // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
-  appName: '',
+  // Set required service name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+  serviceName: '',
 
   // Use if APM Server requires a token
   secretToken: '',
@@ -70,13 +70,13 @@ require('elastic-apm-node').start({
 })
 ----
 
-[[app-name]]
-===== `appName`
+[[service-name]]
+===== `serviceName`
 
 * *Type:* String
-* *Env:* `ELASTIC_APM_APP_NAME`
+* *Env:* `ELASTIC_APM_SERVICE_NAME`
 
-Your Elastic APM app name.
+Your Elastic APM service name.
 Required unless set <<configuring-the-agent,via other means>>.
 
 [[secret-token]]
@@ -107,11 +107,11 @@ By default the agent will validate the TLS/SSL certificate of the APM Server if 
 You can switch this behavior off by setting this option to `false`.
 Disabling validation is normally required if using self-signed certificates.
 
-[[app-version]]
-===== `appVersion`
+[[service-version]]
+===== `serviceVersion`
 
 * *Type:* String
-* *Env:* `ELASTIC_APM_APP_VERSION`
+* *Env:* `ELASTIC_APM_SERVICE_VERSION`
 
 The version of the app currently running.
 This could be the version from your `package.json` file,
