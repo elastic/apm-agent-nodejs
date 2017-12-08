@@ -337,7 +337,7 @@ test('#handleUncaughtExceptions()', function (t) {
     var agent = Agent()
     t.equal(process._events.uncaughtException, undefined)
     agent.start({
-      appName: 'some-app-name',
+      serviceName: 'some-service-name',
       captureExceptions: false,
       logLevel: 'error'
     })
@@ -349,7 +349,7 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should not add more than one listener for the uncaughtException event', function (t) {
     var agent = Agent()
     agent.start({
-      appName: 'some-app-name',
+      serviceName: 'some-service-name',
       captureExceptions: false,
       logLevel: 'error'
     })

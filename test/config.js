@@ -8,9 +8,9 @@ var Agent = require('./_agent')
 var config = require('../lib/config')
 
 var optionFixtures = [
-  ['appName', 'APP_NAME'],
+  ['serviceName', 'SERVICE_NAME'],
   ['secretToken', 'SECRET_TOKEN'],
-  ['appVersion', 'APP_VERSION'],
+  ['serviceVersion', 'SERVICE_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
   ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
@@ -67,7 +67,7 @@ falsyValues.forEach(function (val) {
   test('should be disabled by envrionment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
-    agent.start({ appName: 'foo', secretToken: 'baz' })
+    agent.start({ serviceName: 'foo', secretToken: 'baz' })
     t.equal(agent._conf.active, false)
     delete process.env.ELASTIC_APM_ACTIVE
     t.end()
@@ -78,7 +78,7 @@ truthyValues.forEach(function (val) {
   test('should be enabled by envrionment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
-    agent.start({ appName: 'foo', secretToken: 'baz' })
+    agent.start({ serviceName: 'foo', secretToken: 'baz' })
     t.equal(agent._conf.active, true)
     delete process.env.ELASTIC_APM_ACTIVE
     t.end()
@@ -87,7 +87,7 @@ truthyValues.forEach(function (val) {
 
 test('should overwrite ELASTIC_APM_ACTIVE by option property active', function (t) {
   var agent = Agent()
-  var opts = { appName: 'foo', secretToken: 'baz', active: false }
+  var opts = { serviceName: 'foo', secretToken: 'baz', active: false }
   process.env.ELASTIC_APM_ACTIVE = '1'
   agent.start(opts)
   t.equal(agent._conf.active, false)
@@ -97,7 +97,7 @@ test('should overwrite ELASTIC_APM_ACTIVE by option property active', function (
 
 test('should default active to true if required options have been specified', function (t) {
   var agent = Agent()
-  agent.start({ appName: 'foo', secretToken: 'baz' })
+  agent.start({ serviceName: 'foo', secretToken: 'baz' })
   t.equal(agent._conf.active, true)
   t.end()
 })
@@ -147,23 +147,23 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.end()
 })
 
-test('missing appName => inactive', function (t) {
+test('missing serviceName => inactive', function (t) {
   var agent = Agent()
   agent.start()
   t.equal(agent._conf.active, false)
   t.end()
 })
 
-test('invalid appName => inactive', function (t) {
+test('invalid serviceName => inactive', function (t) {
   var agent = Agent()
-  agent.start({appName: 'foo&bar'})
+  agent.start({serviceName: 'foo&bar'})
   t.equal(agent._conf.active, false)
   t.end()
 })
 
-test('valid appName => active', function (t) {
+test('valid serviceName => active', function (t) {
   var agent = Agent()
-  agent.start({appName: 'fooBAR0123456789_- '})
+  agent.start({serviceName: 'fooBAR0123456789_- '})
   t.equal(agent._conf.active, true)
   t.end()
 })

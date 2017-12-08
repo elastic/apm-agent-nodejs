@@ -8,7 +8,7 @@ var getPort = require('get-port')
 var Agent = require('./_agent')
 
 var defaultAgentOpts = {
-  appName: 'some-app-name',
+  serviceName: 'some-service-name',
   captureExceptions: false,
   logLevel: 'error'
 }

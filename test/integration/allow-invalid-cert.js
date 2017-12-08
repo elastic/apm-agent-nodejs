@@ -4,7 +4,7 @@ var getPort = require('get-port')
 
 getPort().then(function (port) {
   var agent = require('../../').start({
-    appName: 'test',
+    serviceName: 'test',
     serverUrl: 'https://localhost:' + port,
     validateServerCert: false
   })
