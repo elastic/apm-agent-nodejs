@@ -184,7 +184,7 @@ test('#transactions()', function (t) {
     t.equal(data.transactions.length, 1)
     t.end()
   }
-  request.transactions(agent, [{traces: []}])
+  request.transactions(agent, [{spans: []}])
 })
 
 function assertRoot (t, payload) {

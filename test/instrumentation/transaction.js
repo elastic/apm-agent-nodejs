@@ -3,7 +3,7 @@
 var test = require('tape')
 var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
-var Trace = require('../../lib/instrumentation/trace')
+var Span = require('../../lib/instrumentation/span')
 
 test('init', function (t) {
   var ins = mockInstrumentation(function (added) {
@@ -14,7 +14,7 @@ test('init', function (t) {
   t.equal(trans.type, 'type')
   t.equal(trans.result, 'success')
   t.equal(trans.ended, false)
-  t.deepEqual(trans.traces, [])
+  t.deepEqual(trans.spans, [])
   t.end()
 })
 
@@ -22,8 +22,8 @@ test('#setUserContext', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.traces.length, 1)
-    t.deepEqual(trans.traces, [trans._rootTrace])
+    t.equal(trans.spans.length, 1)
+    t.deepEqual(trans.spans, [trans._rootSpan])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -45,8 +45,8 @@ test('#setCustomContext', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.traces.length, 1)
-    t.deepEqual(trans.traces, [trans._rootTrace])
+    t.equal(trans.spans.length, 1)
+    t.deepEqual(trans.spans, [trans._rootSpan])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -68,8 +68,8 @@ test('#setTag', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.traces.length, 1)
-    t.deepEqual(trans.traces, [trans._rootTrace])
+    t.equal(trans.spans.length, 1)
+    t.deepEqual(trans.spans, [trans._rootSpan])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -85,29 +85,29 @@ test('#setTag', function (t) {
   t.end()
 })
 
-test('#end() - no traces', function (t) {
+test('#end() - no spans', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.traces.length, 0)
+    t.equal(trans.spans.length, 0)
     t.end()
   })
   var trans = new Transaction(ins._agent)
   trans.end()
 })
 
-test('#end() - with traces', function (t) {
+test('#end() - with spans', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.traces.length, 1)
-    t.deepEqual(trans.traces, [trace])
+    t.equal(trans.spans.length, 1)
+    t.deepEqual(trans.spans, [span])
     t.end()
   })
   var trans = new Transaction(ins._agent)
-  var trace = new Trace(trans)
-  trace.start()
-  trace.end()
+  var span = new Span(trans)
+  span.start()
+  span.end()
   trans.end()
 })
 
