@@ -16,8 +16,8 @@ times(5, function (n, done) {
     resetAgent(function (endpoint, headers, data, cb) {
       t.equal(data.transactions.length, 2, 'should create transactions')
       data.transactions.forEach(function (trans) {
-        t.equal(trans.traces.length, 1, 'transaction should have one trace')
-        t.equal(trans.traces[0].name, trans.id, 'trace should belong to transaction')
+        t.equal(trans.spans.length, 1, 'transaction should have one span')
+        t.equal(trans.spans[0].name, trans.id, 'span should belong to transaction')
       })
       server.close()
       t.end()
@@ -25,10 +25,10 @@ times(5, function (n, done) {
     })
 
     var server = http.createServer(function (req, res) {
-      var trace = agent.buildTrace()
-      trace.start(agent._instrumentation.currentTransaction.id)
+      var span = agent.buildSpan()
+      span.start(agent._instrumentation.currentTransaction.id)
       setTimeout(function () {
-        trace.end()
+        span.end()
         send(req, __filename).pipe(res)
       }, 50)
     })
