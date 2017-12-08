@@ -11,9 +11,9 @@ var request = require('../lib/request')
 var agentVersion = require('../package.json').version
 
 var opts = {
-  appName: 'some-app-name',
+  serviceName: 'some-service-name',
   secretToken: 'secret',
-  appVersion: 'my-app-version',
+  serviceVersion: 'my-service-version',
   captureExceptions: false,
   logLevel: 'error'
 }
@@ -188,16 +188,16 @@ test('#transactions()', function (t) {
 })
 
 function assertRoot (t, payload) {
-  t.equal(payload.app.name, 'some-app-name')
-  t.equal(payload.app.pid, process.pid)
-  t.ok(payload.app.pid > 0)
-  t.ok(payload.app.process_title)
-  t.ok(/(\/usr\/local\/bin\/)?node/.test(payload.app.process_title))
-  t.deepEqual(payload.app.argv, process.argv)
-  t.ok(payload.app.argv.length >= 2)
-  t.deepEqual(payload.app.runtime, {name: 'node', version: process.version})
-  t.deepEqual(payload.app.agent, {name: 'nodejs', version: agentVersion})
-  t.equal(payload.app.version, 'my-app-version')
+  t.equal(payload.service.name, 'some-service-name')
+  t.equal(payload.service.pid, process.pid)
+  t.ok(payload.service.pid > 0)
+  t.ok(payload.service.process_title)
+  t.ok(/(\/usr\/local\/bin\/)?node/.test(payload.service.process_title))
+  t.deepEqual(payload.service.argv, process.argv)
+  t.ok(payload.service.argv.length >= 2)
+  t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
+  t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
+  t.equal(payload.service.version, 'my-service-version')
   t.deepEqual(payload.system, {
     hostname: os.hostname(),
     architecture: process.arch,

@@ -1,3 +1,3 @@
 module.exports = {
-  appName: 'from-file'
+  serviceName: 'from-file'
 }
