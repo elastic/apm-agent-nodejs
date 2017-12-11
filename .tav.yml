@@ -63,3 +63,6 @@ koa-router:
 elasticsearch:
   versions: '>=8.0.0'
   commands: node test/instrumentation/modules/elasticsearch.js
+handlebars:
+  versions: '*'
+  commands: node test/instrumentation/modules/handlebars.js
