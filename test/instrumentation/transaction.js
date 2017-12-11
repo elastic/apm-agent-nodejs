@@ -289,11 +289,11 @@ test('#_encode() - spans', function (t) {
       t.equal(span.stacktrace[0].function, 'genSpans')
       t.equal(span.stacktrace[0].abs_path, __filename)
       span.stacktrace.forEach(function (frame) {
-        t.deepEqual(Object.keys(frame), ['filename', 'lineno', 'function', 'in_app', 'abs_path'])
+        t.deepEqual(Object.keys(frame), ['filename', 'lineno', 'function', 'library_frame', 'abs_path'])
         t.equal(typeof frame.filename, 'string')
         t.ok(Number.isFinite(frame.lineno))
         t.equal(typeof frame.function, 'string')
-        t.equal(typeof frame.in_app, 'boolean')
+        t.equal(typeof frame.library_frame, 'boolean')
         t.equal(typeof frame.abs_path, 'string')
       })
       start = span.start + span.duration
