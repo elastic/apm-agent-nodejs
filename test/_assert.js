@@ -12,17 +12,17 @@ exports.stacktrace = function (t, topFunctionName, topAbsPath, stacktrace) {
 function stackFrameValidator (t) {
   return function (frame) {
     var nodeCore = frame.abs_path.indexOf('/') === -1
-    var shouldHaveSource = !nodeCore && frame.in_app
+    var shouldHaveSource = !nodeCore && !frame.library_frame
 
     var expectedKeys = shouldHaveSource
-      ? ['filename', 'lineno', 'function', 'in_app', 'abs_path', 'pre_context', 'context_line', 'post_context']
-      : ['filename', 'lineno', 'function', 'in_app', 'abs_path']
+      ? ['filename', 'lineno', 'function', 'library_frame', 'abs_path', 'pre_context', 'context_line', 'post_context']
+      : ['filename', 'lineno', 'function', 'library_frame', 'abs_path']
     t.deepEqual(Object.keys(frame), expectedKeys, 'frame should have expected properties')
 
     t.equal(typeof frame.filename, 'string', 'frame.filename should be a string')
     t.ok(frame.lineno > 0, 'frame.lineno should be greater than 0')
     t.equal(typeof frame.function, 'string', 'frame.function should be a string')
-    t.equal(typeof frame.in_app, 'boolean', 'frame.in_app should be a boolean')
+    t.equal(typeof frame.library_frame, 'boolean', 'frame.library_frame should be a boolean')
     t.equal(typeof frame.abs_path, 'string', 'frame.abs_path should be a string')
 
     if (shouldHaveSource) {

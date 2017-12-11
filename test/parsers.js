@@ -439,7 +439,7 @@ test('#parseError()', function (t) {
         t.ok('filename' in callsite)
         t.ok('lineno' in callsite)
         t.ok('function' in callsite)
-        t.ok('in_app' in callsite)
+        t.ok('library_frame' in callsite)
         t.ok('abs_path' in callsite)
         t.notOk('pre_context' in callsite)
         t.notOk('context_line' in callsite)
@@ -460,7 +460,7 @@ test('#parseError()', function (t) {
       t.error(err)
       t.ok(parsed.exception.stacktrace.length > 0)
       parsed.exception.stacktrace.forEach(function (callsite) {
-        if (!callsite.in_app) {
+        if (callsite.library_frame) {
           t.notOk('pre_context' in callsite)
           t.notOk('context_line' in callsite)
           t.notOk('post_context' in callsite)
@@ -489,7 +489,7 @@ test('#parseError()', function (t) {
       t.ok(parsed.exception.stacktrace.length > 0)
       parsed.exception.stacktrace.forEach(function (callsite) {
         var nodeCore = !/\//.test(callsite.abs_path)
-        if (!callsite.in_app && !nodeCore) {
+        if (callsite.library_frame && !nodeCore) {
           t.ok(Array.isArray(callsite.pre_context))
           t.equal(callsite.pre_context.length, 2)
           t.equal(typeof callsite.context_line, 'string')
@@ -522,7 +522,7 @@ test('#parseError()', function (t) {
           t.notOk('pre_context' in callsite)
           t.notOk('context_line' in callsite)
           t.notOk('post_context' in callsite)
-        } else if (!callsite.in_app) {
+        } else if (callsite.library_frame) {
           t.ok(Array.isArray(callsite.pre_context))
           t.equal(callsite.pre_context.length, 3)
           t.equal(typeof callsite.context_line, 'string')
@@ -629,7 +629,7 @@ function validateParseCallsite (t, opts) {
       t.equal(frame.filename, callsite.getRelativeFileName())
       t.equal(frame.lineno, callsite.getLineNumber())
       t.equal(frame.function, callsite.getFunctionNameSanitized())
-      t.equal(frame.in_app, callsite.isApp())
+      t.equal(frame.library_frame, !callsite.isApp())
       t.equal(frame.abs_path, callsite.getFileName())
       t.deepEqual(frame.pre_context, opts.pre)
       t.equal(frame.context_line, opts.line)
