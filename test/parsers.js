@@ -414,7 +414,7 @@ test('#parseError()', function (t) {
         t.ok('filename' in callsite)
         t.ok('lineno' in callsite)
         t.ok('function' in callsite)
-        t.ok('in_app' in callsite)
+        t.ok('library_frame' in callsite)
         t.ok('abs_path' in callsite)
         t.notOk('pre_context' in callsite)
         t.notOk('context_line' in callsite)
