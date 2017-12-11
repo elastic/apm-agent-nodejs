@@ -33,7 +33,7 @@ test('basic', function (t) {
           t.equal(typeof frame.filename, 'string')
           t.ok(Number.isFinite(frame.lineno))
           t.equal(typeof frame.function, 'string')
-          t.equal(typeof frame.in_app, 'boolean')
+          t.equal(typeof frame.library_frame, 'boolean')
           t.equal(typeof frame.abs_path, 'string')
         })
       })
