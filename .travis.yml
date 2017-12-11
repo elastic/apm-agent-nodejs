@@ -31,6 +31,14 @@ jobs:
 
   include:
 
+    # Coverage
+    - stage: 'coverage'
+      script:
+        - npm run coverage
+        - ./node_modules/.bin/nyc report --reporter=lcov > coverage.lcov
+        - npm install -g codecov
+        - codecov
+
     # Docs
     - stage: 'test'
       script: npm run docs
