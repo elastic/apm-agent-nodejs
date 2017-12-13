@@ -52,6 +52,8 @@ The Node.js agent will automatically instrument the following modules to give yo
 |Module |Version |Note
 |https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 |Will trace all
 queries
+|https://www.npmjs.com/package/handlebars[handlebars] |* |Will trace compile
+and render calls
 |https://www.npmjs.com/package/ioredis[ioredis] |\^2.0.0 \|\| ^3.0.0 |Will
 trace all queries
 |https://www.npmjs.com/package/mongodb-core[mongodb-core]
