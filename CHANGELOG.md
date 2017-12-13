@@ -1,3 +1,6 @@
+# 0.8.1 - 2017/12/13
+  * docs(*): we're now in beta! (#103)
+
 # 0.8.0 - 2017/12/13
   * feat(handlebars): instrument handlebars (#98)
 
