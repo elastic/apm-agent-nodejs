@@ -113,14 +113,14 @@ test('#end() - with traces', function (t) {
 
 test('#duration()', function (t) {
   var ins = mockInstrumentation(function (added) {
-    t.ok(added.duration() > 24)
-    t.ok(added.duration() < 35)
+    t.ok(added.duration() > 40)
+    t.ok(added.duration() < 60)
     t.end()
   })
   var trans = new Transaction(ins._agent)
   setTimeout(function () {
     trans.end()
-  }, 25)
+  }, 50)
 })
 
 test('#duration() - un-ended transaction', function (t) {
