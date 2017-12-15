@@ -3,4 +3,4 @@
 var assert = require('assert')
 var agent = require('../../..')
 
-assert.equal(agent.appName, 'from-file')
+assert.equal(agent._conf.appName, 'from-file')

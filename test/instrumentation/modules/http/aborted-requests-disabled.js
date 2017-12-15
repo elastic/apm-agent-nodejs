@@ -5,7 +5,7 @@ var agent = require('../../_agent')()
 var test = require('tape')
 var http = require('http')
 
-agent.abortedRequests.active = false
+agent._conf.errorOnAbortedRequests = false
 
 test('client-side abort - call end', function (t) {
   resetAgent()
