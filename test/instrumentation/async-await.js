@@ -1,7 +1,7 @@
 'use strict'
 
 var agent = require('../..').start({
-  appName: 'test',
+  serviceName: 'test',
   captureExceptions: false
 })
 var ins = agent._instrumentation

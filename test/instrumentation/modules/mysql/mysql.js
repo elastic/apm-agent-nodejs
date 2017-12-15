@@ -2,7 +2,7 @@
 
 var host = process.env.MYSQL_HOST
 var agent = require('../../../..').start({
-  appName: 'test',
+  serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false
 })

@@ -3,7 +3,7 @@
 process.env.ELASTIC_APM_TEST = true
 
 var agent = require('../../../..').start({
-  appName: 'test',
+  serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false
 })
