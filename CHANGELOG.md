@@ -1,3 +1,7 @@
+# 0.9.0 - 2017/12/15
+  * feat(conf): allow serverUrl to contain a sub-path (#116)
+  * refactor(\*): better format of error messages from the APM Server (#108)
+
 # 0.8.1 - 2017/12/13
   * docs(\*): we're now in beta! (#103)
 
