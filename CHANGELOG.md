@@ -1,12 +1,12 @@
 # 0.8.1 - 2017/12/13
-  * docs(*): we're now in beta! (#103)
+  * docs(\*): we're now in beta! (#103)
 
 # 0.8.0 - 2017/12/13
   * feat(handlebars): instrument handlebars (#98)
 
 # 0.7.0 - 2017/12/6
   * feat(parser): add sourceContext config option to control if code snippets are sent to the APM Server (#87)
-  * fix(*): move https-pem to list of devDependencies
+  * fix(\*): move https-pem to list of devDependencies
 
 # 0.6.0 - 2017/11/17
   * feat(queue): add maxQueueSize config option (#56)
