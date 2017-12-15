@@ -3,4 +3,4 @@
 var assert = require('assert')
 var agent = require('../../..')
 
-assert.equal(agent.appName, 'from-env')
+assert.equal(agent.serviceName, 'from-env')

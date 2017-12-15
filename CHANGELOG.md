@@ -35,7 +35,7 @@
   * refactor(\*): remove appGitRef config option
   * fix(instrumentation): fix setting of custom flushInterval
   * feat(elasticsearch): add simple Elasticsearch instrumentation
-  * fix(\*): don't start agent if appName is invalid
+  * fix(\*): don't start agent if serviceName is invalid
 
 # 0.2.0 - 2017/8/28
   * refactor(\*): support new default port 8200 in APM Server
