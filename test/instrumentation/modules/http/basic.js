@@ -6,7 +6,7 @@ var http = require('http')
 
 var test = require('tape')
 
-var assert = require('./_assert')
+var assert = require('../_http_assert')
 
 test('http.createServer', function (t) {
   t.test('direct callback', function (t) {
