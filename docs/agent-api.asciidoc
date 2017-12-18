@@ -642,13 +642,7 @@ In which case it will automate this processes for you.
 apm.middleware.connect()
 ----
 
-Alias: `apm.middleware.express()`
-
 Returns a middleware function used to collect and send errors to the APM Server.
-
-The middleware can be used as-is with either Connect or Express in the same way.
-
-The middleware must be added _after_ your router to pick up any errors that may result from handling a request.
 
 [source,js]
 ----
@@ -672,7 +666,7 @@ app.use(apm.middleware.connect())
 app.listen(3000)
 ----
 
-NOTE: `apm.middleware.express` or `apm.middleware.connect` _must_ be added to the middleware stack _before_ any other error handling middleware functions or there's a chance that the error will never get to the agent.
+NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ any other error handling middleware functions or there's a chance that the error will never get to the agent.
 
 [[apm-start-transaction]]
 ==== `apm.startTransaction()`
