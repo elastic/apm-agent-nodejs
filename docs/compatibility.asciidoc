@@ -22,7 +22,7 @@ These are the frameworks that we officially support:
 |=======================================================================
 |Framework |Version |Note
 |<<express,Express>> |^4.0.0 |
-|<<hapi,hapi>> |>=9.0.0 |
+|<<hapi,hapi>> |>=9.0.0 <17.0.0 |
 |<<koa,Koa>> via koa-router |>=5.2.0 <8.0.0 |Koa doesn't have a built in router,
 so we can't support Koa directly since we rely on router information for full support.
 We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router]
@@ -50,7 +50,7 @@ The Node.js agent will automatically instrument the following modules to give yo
 [options="header"]
 |=======================================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 |Will trace all
+|https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 <0.12.0 |Will trace all
 queries
 |https://www.npmjs.com/package/handlebars[handlebars] |* |Will trace compile
 and render calls
