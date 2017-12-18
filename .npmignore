@@ -8,3 +8,4 @@ docker-compose.yml
 Jenkinsfile
 .nyc_output
 coverage
+codecov.yml
