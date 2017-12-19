@@ -50,29 +50,19 @@ The Node.js agent will automatically instrument the following modules to give yo
 [options="header"]
 |=======================================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 <0.12.0 |Will trace all
-queries
-|https://www.npmjs.com/package/handlebars[handlebars] |* |Will trace compile
-and render calls
-|https://www.npmjs.com/package/ioredis[ioredis] |\^2.0.0 \|\| ^3.0.0 |Will
-trace all queries
-|https://www.npmjs.com/package/mongodb-core[mongodb-core]
-|\^1.2.7 \|\| ^2.0.0 |Will trace all queries. A lot of higher level MongoDB
-modules use mongodb-core, so those should be supported as well
-|https://www.npmjs.com/package/mongodb[mongodb] |>=2.0.0 |Supported via
-mongodb-core
-|https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 |Supported via
-mongodb-core
-|https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 |Supported
-via mongodb-core
-|https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will trace all
-queries
-|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <8.0.0 |Will trace all
-queries
-|https://www.npmjs.com/package/redis[redis] |^2.0.0 |Will trace all
-queries
-|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <4.0.0 |Will trace
-outgoing WebSocket messages
+|https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 <0.12.0 |Will trace all queries
+|https://www.npmjs.com/package/handlebars[handlebars] |* |Will trace compile and render calls
+|https://www.npmjs.com/package/ioredis[ioredis] |\^2.0.0 \|\| ^3.0.0 |Will trace all queries
+|https://www.npmjs.com/package/mongodb-core[mongodb-core] |\^1.2.7 \|\| ^2.0.0 |Will trace all queries.
+A lot of higher level MongoDB modules use mongodb-core,
+so those should be supported as well
+|https://www.npmjs.com/package/mongodb[mongodb] |>=2.0.0 |Supported via mongodb-core
+|https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 |Supported via mongodb-core
+|https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 |Supported via mongodb-core
+|https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will trace all queries
+|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <8.0.0 |Will trace all queries
+|https://www.npmjs.com/package/redis[redis] |^2.0.0 |Will trace all queries
+|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <4.0.0 |Will trace outgoing WebSocket messages
 |=======================================================================
 
 [float]
