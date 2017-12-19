@@ -31,18 +31,29 @@ jobs:
 
   include:
 
-    # Coverage
-    - stage: 'coverage'
+    ###########################################
+    #                TEST STAGE               #
+    ###########################################
+
+    # Docs
+    -
+      script: npm run docs
+      perl: '5.26'
+
+    ###########################################
+    #             CONVERAGE STAGE             #
+    ###########################################
+
+    - stage: coverage
       script:
         - npm run coverage
         - ./node_modules/.bin/nyc report --reporter=lcov > coverage.lcov
         - npm install -g codecov
         - codecov
 
-    # Docs
-    - stage: 'test'
-      script: npm run docs
-      perl: "5.26"
+    ###########################################
+    #            DEPENDENCY STAGE             #
+    ###########################################
 
     # Node.js 9
     - stage: dependencies
