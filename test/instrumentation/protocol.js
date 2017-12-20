@@ -196,7 +196,7 @@ test('protocol.encode - http request meta data', function (t) {
 
 test('protocol.encode - disable stack traces', function (t) {
   var agent = mockAgent()
-  agent.captureTraceStackTraces = false
+  agent._conf.captureTraceStackTraces = false
 
   var t0 = new Transaction(agent, 'single-name0', 'type0')
   t0.result = 'result0'
@@ -241,7 +241,7 @@ test('protocol.encode - disable stack traces', function (t) {
 
 test('protocol.encode - truncated traces', function (t) {
   var agent = mockAgent()
-  agent.captureTraceStackTraces = false
+  agent._conf.captureTraceStackTraces = false
 
   var t0 = new Transaction(agent, 'single-name0', 'type0')
   t0.result = 'result0'
