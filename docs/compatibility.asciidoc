@@ -61,7 +61,7 @@ The Node.js agent will automatically instrument the following modules to give yo
 |https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 <0.12.0 |Will trace all queries
 |https://www.npmjs.com/package/handlebars[handlebars] |* |Will trace compile and render calls
 |https://www.npmjs.com/package/ioredis[ioredis] |\^2.0.0 \|\| ^3.0.0 |Will trace all queries
-|https://www.npmjs.com/package/mongodb-core[mongodb-core] |\^1.2.7 \|\| ^2.0.0 |Will trace all queries.
+|https://www.npmjs.com/package/mongodb-core[mongodb-core] |\^1.2.19 \|\| ^2.0.0 |Will trace all queries.
 A lot of higher level MongoDB modules use mongodb-core,
 so those should be supported as well
 |https://www.npmjs.com/package/mongodb[mongodb] |>=2.0.0 |Supported via mongodb-core

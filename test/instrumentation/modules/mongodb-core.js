@@ -7,27 +7,74 @@ var agent = require('../../..').start({
 })
 
 var test = require('tape')
+var semver = require('semver')
 var Server = require('mongodb-core').Server
+var version = require('mongodb-core/package').version
 
 test('trace simple command', function (t) {
   resetAgent(function (endpoint, headers, data, cb) {
-    var groups = [
-      'system.$cmd.ismaster',
-      // 'elasticapm.$cmd.command', // only appears in mongodb-core 1.x
-      'elasticapm.test.insert',
-      'elasticapm.test.update',
-      'elasticapm.test.remove',
-      'elasticapm.test.find',
-      'system.$cmd.ismaster'
-    ]
+    var trans = data.transactions[0]
+    var groups
 
     t.equal(data.transactions.length, 1)
-
-    var trans = data.transactions[0]
 
     t.equal(trans.name, 'foo')
     t.equal(trans.type, 'bar')
     t.equal(trans.result, 'success')
+
+    if (semver.lt(version, '2.0.0')) {
+      // mongodb-core v1.x will sometimes perform two `ismaster` queries
+      // towards the admin and/or the system database. This doesn't always
+      // happen, but if it does, we'll accept it.
+      if (trans.traces[0].name === 'admin.$cmd.ismaster') {
+        groups = [
+          'admin.$cmd.ismaster',
+          'system.$cmd.ismaster',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.insert',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.update',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.remove',
+          'elasticapm.test.find',
+          'system.$cmd.ismaster'
+        ]
+      } else if (trans.traces[1].name === 'system.$cmd.ismaster') {
+        groups = [
+          'system.$cmd.ismaster',
+          'system.$cmd.ismaster',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.insert',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.update',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.remove',
+          'elasticapm.test.find',
+          'system.$cmd.ismaster'
+        ]
+      } else {
+        groups = [
+          'system.$cmd.ismaster',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.insert',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.update',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.remove',
+          'elasticapm.test.find',
+          'system.$cmd.ismaster'
+        ]
+      }
+    } else {
+      groups = [
+        'system.$cmd.ismaster',
+        'elasticapm.test.insert',
+        'elasticapm.test.update',
+        'elasticapm.test.remove',
+        'elasticapm.test.find',
+        'system.$cmd.ismaster'
+      ]
+    }
 
     t.equal(trans.traces.length, groups.length)
 
