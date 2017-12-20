@@ -8,6 +8,8 @@ var agent = require('../../..').start({
 
 var test = require('tape')
 var graphql = require('graphql')
+var pkg = require('graphql/package.json')
+var semver = require('semver')
 
 test('graphql.graphql', function (t) {
   resetAgent(done(t))
@@ -32,7 +34,7 @@ test('graphql.execute', function (t) {
 
   var schema = graphql.buildSchema('type Query { hello: String }')
   var root = {hello: function () {
-    return 'Hello world!'
+    return Promise.resolve('Hello world!')
   }}
   var query = '{ hello }'
   var source = new graphql.Source(query)
@@ -46,6 +48,28 @@ test('graphql.execute', function (t) {
     agent._instrumentation._queue._flush()
   })
 })
+
+if (semver.satisfies(pkg.version, '>=0.12')) {
+  test('graphql.execute sync', function (t) {
+    resetAgent(done(t))
+
+    var schema = graphql.buildSchema('type Query { hello: String }')
+    var root = {hello: function () {
+      return 'Hello world!'
+    }}
+    var query = '{ hello }'
+    var source = new graphql.Source(query)
+    var documentAST = graphql.parse(source)
+
+    agent.startTransaction('foo')
+
+    var response = graphql.execute(schema, documentAST, root)
+
+    agent.endTransaction()
+    t.deepEqual(response, {data: {hello: 'Hello world!'}})
+    agent._instrumentation._queue._flush()
+  })
+}
 
 function done (t) {
   return function (endpoint, headers, data, cb) {
