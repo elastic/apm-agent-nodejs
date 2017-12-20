@@ -1,5 +1,7 @@
 # Elastic APM Node.js Agent (Beta)
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/elastic/apm-agent-nodejs.svg)](https://greenkeeper.io/)
+
 [![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=master)](https://travis-ci.org/elastic/apm-agent-nodejs)
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/standard/standard)
 
