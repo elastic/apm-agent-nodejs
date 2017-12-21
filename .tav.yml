@@ -66,3 +66,6 @@ elasticsearch:
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.js
+hapi:
+  versions: '>=9.0.1 <17.0.0'
+  commands: node test/instrumentation/modules/hapi.js
