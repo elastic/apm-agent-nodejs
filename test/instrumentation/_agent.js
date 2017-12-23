@@ -11,23 +11,23 @@ var sharedInstrumentation
 
 module.exports = function mockAgent (cb) {
   var agent = {
-    appName: 'app-name',
-    active: true,
-    instrument: true,
-    captureTraceStackTraces: true,
-    abortedRequests: {
-      active: false,
-      errorThreshold: 250
+    _conf: {
+      appName: 'app-name',
+      active: true,
+      instrument: true,
+      captureTraceStackTraces: true,
+      errorOnAbortedRequests: false,
+      abortedErrorThreshold: 250,
+      ignoreUrlStr: [],
+      ignoreUrlRegExp: [],
+      ignoreUserAgentStr: [],
+      ignoreUserAgentRegExp: []
     },
+    _platform: {},
+    _filters: new Filters(),
     _httpClient: {
       request: cb || noop
-    },
-    _ignoreUrlStr: [],
-    _ignoreUrlRegExp: [],
-    _ignoreUserAgentStr: [],
-    _ignoreUserAgentRegExp: [],
-    _platform: {},
-    _filters: new Filters()
+    }
   }
 
   // We do not want to start the instrumentation multiple times during testing.

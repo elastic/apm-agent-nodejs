@@ -7,7 +7,7 @@ var test = require('tape')
 var http = require('http')
 
 var addEndedTransaction = agent._instrumentation.addEndedTransaction
-agent.abortedRequests.active = true
+agent._conf.errorOnAbortedRequests = true
 
 test('client-side abort below error threshold - call end', function (t) {
   var clientReq
@@ -39,7 +39,7 @@ test('client-side abort below error threshold - call end', function (t) {
           res.end(' World')
         }, 10)
       }, 10)
-    }, agent.abortedRequests.errorThreshold / 2)
+    }, agent._conf.abortedErrorThreshold / 2)
   })
 
   server.listen(function () {
@@ -67,7 +67,7 @@ test('client-side abort above error threshold - call end', function (t) {
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > agent.abortedRequests.errorThreshold)
+    t.ok(opts.extra.abortTime > agent._conf.abortedErrorThreshold)
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
@@ -84,7 +84,7 @@ test('client-side abort above error threshold - call end', function (t) {
           res.end(' World')
         }, 10)
       }, 10)
-    }, agent.abortedRequests.errorThreshold + 10)
+    }, agent._conf.abortedErrorThreshold + 10)
   })
 
   server.listen(function () {
@@ -124,7 +124,7 @@ test('client-side abort below error threshold - don\'t call end', function (t) {
           t.end()
         }, 10)
       }, 10)
-    }, agent.abortedRequests.errorThreshold / 2)
+    }, agent._conf.abortedErrorThreshold / 2)
   })
 
   server.listen(function () {
@@ -149,7 +149,7 @@ test('client-side abort above error threshold - don\'t call end', function (t) {
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > agent.abortedRequests.errorThreshold)
+    t.ok(opts.extra.abortTime > agent._conf.abortedErrorThreshold)
     server.close()
     t.end()
   }
@@ -163,7 +163,7 @@ test('client-side abort above error threshold - don\'t call end', function (t) {
       setTimeout(function () {
         res.write('Hello') // server emits clientError if written in same tick as abort
       }, 10)
-    }, agent.abortedRequests.errorThreshold + 10)
+    }, agent._conf.abortedErrorThreshold + 10)
   })
 
   server.listen(function () {
@@ -206,10 +206,10 @@ test('server-side abort below error threshold and socket closed - call end', fun
       res.end('Hello World')
       t.ok(ended, 'should have ended transaction')
       server.close()
-    }, agent.abortedRequests.errorThreshold / 2 + 100)
+    }, agent._conf.abortedErrorThreshold / 2 + 100)
   })
 
-  server.setTimeout(agent.abortedRequests.errorThreshold / 2)
+  server.setTimeout(agent._conf.abortedErrorThreshold / 2)
 
   server.listen(function () {
     var port = server.address().port
@@ -237,7 +237,7 @@ test('server-side abort above error threshold and socket closed - call end', fun
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > agent.abortedRequests.errorThreshold)
+    t.ok(opts.extra.abortTime > agent._conf.abortedErrorThreshold)
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
@@ -253,10 +253,10 @@ test('server-side abort above error threshold and socket closed - call end', fun
       res.end('Hello World')
       t.ok(ended, 'should have ended transaction')
       server.close()
-    }, agent.abortedRequests.errorThreshold + 100)
+    }, agent._conf.abortedErrorThreshold + 100)
   })
 
-  server.setTimeout(agent.abortedRequests.errorThreshold + 10)
+  server.setTimeout(agent._conf.abortedErrorThreshold + 10)
 
   server.listen(function () {
     var port = server.address().port
@@ -294,10 +294,10 @@ test('server-side abort below error threshold and socket closed - don\'t call en
       t.ok(timedout, 'should have closed socket')
       t.notOk(ended, 'should not have ended transaction')
       server.close()
-    }, agent.abortedRequests.errorThreshold / 2 + 100)
+    }, agent._conf.abortedErrorThreshold / 2 + 100)
   })
 
-  server.setTimeout(agent.abortedRequests.errorThreshold / 2)
+  server.setTimeout(agent._conf.abortedErrorThreshold / 2)
 
   server.listen(function () {
     var port = server.address().port
@@ -325,7 +325,7 @@ test('server-side abort above error threshold and socket closed - don\'t call en
   }}
   agent.captureError = function (err, opts) {
     t.equal(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > agent.abortedRequests.errorThreshold)
+    t.ok(opts.extra.abortTime > agent._conf.abortedErrorThreshold)
   }
   agent._instrumentation.addEndedTransaction = function () {
     t.fail('should not end the transaction')
@@ -336,10 +336,10 @@ test('server-side abort above error threshold and socket closed - don\'t call en
       t.ok(timedout, 'should have closed socket')
       t.notOk(ended, 'should have ended transaction')
       server.close()
-    }, agent.abortedRequests.errorThreshold + 150)
+    }, agent._conf.abortedErrorThreshold + 150)
   })
 
-  server.setTimeout(agent.abortedRequests.errorThreshold + 50)
+  server.setTimeout(agent._conf.abortedErrorThreshold + 50)
 
   server.listen(function () {
     var port = server.address().port
@@ -376,10 +376,10 @@ test('server-side abort below error threshold but socket not closed - call end',
 
     setTimeout(function () {
       res.end('Hello World')
-    }, agent.abortedRequests.errorThreshold / 2 + 100)
+    }, agent._conf.abortedErrorThreshold / 2 + 100)
   })
 
-  server.setTimeout(agent.abortedRequests.errorThreshold / 2)
+  server.setTimeout(agent._conf.abortedErrorThreshold / 2)
 
   server.listen(function () {
     var port = server.address().port
@@ -416,10 +416,10 @@ test('server-side abort above error threshold but socket not closed - call end',
 
     setTimeout(function () {
       res.end('Hello World')
-    }, agent.abortedRequests.errorThreshold + 100)
+    }, agent._conf.abortedErrorThreshold + 100)
   })
 
-  server.setTimeout(agent.abortedRequests.errorThreshold + 10)
+  server.setTimeout(agent._conf.abortedErrorThreshold + 10)
 
   server.listen(function () {
     var port = server.address().port

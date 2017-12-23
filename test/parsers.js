@@ -240,7 +240,7 @@ test('#getContextFromRequest()', function (t) {
 test('#parseError()', function (t) {
   t.test('should parse plain Error object', function (t) {
     var fakeAgent = {
-      sourceContext: true
+      _conf: {sourceContext: true}
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -260,7 +260,7 @@ test('#parseError()', function (t) {
 
   t.test('should parse Error with message', function (t) {
     var fakeAgent = {
-      sourceContext: true
+      _conf: {sourceContext: true}
     }
     parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -280,7 +280,7 @@ test('#parseError()', function (t) {
 
   t.test('should parse TypeError with message', function (t) {
     var fakeAgent = {
-      sourceContext: true
+      _conf: {sourceContext: true}
     }
     parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -300,7 +300,7 @@ test('#parseError()', function (t) {
 
   t.test('should parse thrown Error', function (t) {
     var fakeAgent = {
-      sourceContext: true
+      _conf: {sourceContext: true}
     }
     try {
       throw new Error('Derp')
@@ -324,7 +324,7 @@ test('#parseError()', function (t) {
 
   t.test('should parse caught real error', function (t) {
     var fakeAgent = {
-      sourceContext: true
+      _conf: {sourceContext: true}
     }
     try {
       var o = {}
@@ -352,7 +352,7 @@ test('#parseError()', function (t) {
 
   t.test('should gracefully handle .stack already being accessed', function (t) {
     var fakeAgent = {
-      sourceContext: true
+      _conf: {sourceContext: true}
     }
     var err = new Error('foo')
     t.ok(typeof err.stack === 'string')
@@ -374,7 +374,7 @@ test('#parseError()', function (t) {
 
   t.test('should gracefully handle .stack being overwritten', function (t) {
     var fakeAgent = {
-      sourceContext: true
+      _conf: {sourceContext: true}
     }
     var err = new Error('foo')
     err.stack = 'foo'
@@ -396,7 +396,7 @@ test('#parseError()', function (t) {
 
   t.test('should be able to exclude source context data', function (t) {
     var fakeAgent = {
-      sourceContext: false
+      _conf: {sourceContext: false}
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)

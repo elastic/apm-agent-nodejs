@@ -7,7 +7,7 @@ var http = require('http')
 
 test('ignore url string - no match', function (t) {
   resetAgent({
-    _ignoreUrlStr: ['/exact']
+    ignoreUrlStr: ['/exact']
   }, function (endpoint, headers, data, cb) {
     assertNoMatch(t, data)
     t.end()
@@ -17,7 +17,7 @@ test('ignore url string - no match', function (t) {
 
 test('ignore url string - match', function (t) {
   resetAgent({
-    _ignoreUrlStr: ['/exact']
+    ignoreUrlStr: ['/exact']
   }, function (endpoint, headers, data, cb) {
     t.fail('should not have any data')
   })
@@ -28,7 +28,7 @@ test('ignore url string - match', function (t) {
 
 test('ignore url regex - no match', function (t) {
   resetAgent({
-    _ignoreUrlRegExp: [/regex/]
+    ignoreUrlRegExp: [/regex/]
   }, function (endpoint, headers, data, cb) {
     assertNoMatch(t, data)
     t.end()
@@ -38,7 +38,7 @@ test('ignore url regex - no match', function (t) {
 
 test('ignore url regex - match', function (t) {
   resetAgent({
-    _ignoreUrlRegExp: [/regex/]
+    ignoreUrlRegExp: [/regex/]
   }, function (endpoint, headers, data, cb) {
     t.fail('should not have any data')
   })
@@ -49,7 +49,7 @@ test('ignore url regex - match', function (t) {
 
 test('ignore User-Agent string - no match', function (t) {
   resetAgent({
-    _ignoreUserAgentStr: ['exact']
+    ignoreUserAgentStr: ['exact']
   }, function (endpoint, headers, data, cb) {
     assertNoMatch(t, data)
     t.end()
@@ -59,7 +59,7 @@ test('ignore User-Agent string - no match', function (t) {
 
 test('ignore User-Agent string - match', function (t) {
   resetAgent({
-    _ignoreUserAgentStr: ['exact']
+    ignoreUserAgentStr: ['exact']
   }, function (endpoint, headers, data, cb) {
     t.fail('should not have any data')
   })
@@ -70,7 +70,7 @@ test('ignore User-Agent string - match', function (t) {
 
 test('ignore User-Agent regex - no match', function (t) {
   resetAgent({
-    _ignoreUserAgentRegExp: [/regex/]
+    ignoreUserAgentRegExp: [/regex/]
   }, function (endpoint, headers, data, cb) {
     assertNoMatch(t, data)
     t.end()
@@ -80,7 +80,7 @@ test('ignore User-Agent regex - no match', function (t) {
 
 test('ignore User-Agent regex - match', function (t) {
   resetAgent({
-    _ignoreUserAgentRegExp: [/regex/]
+    ignoreUserAgentRegExp: [/regex/]
   }, function (endpoint, headers, data, cb) {
     t.fail('should not have any data')
   })
@@ -118,10 +118,10 @@ function request (path, headers, cb) {
 
 function resetAgent (opts, cb) {
   agent._httpClient = { request: cb }
-  agent._ignoreUrlStr = opts._ignoreUrlStr || []
-  agent._ignoreUrlRegExp = opts._ignoreUrlRegExp || []
-  agent._ignoreUserAgentStr = opts._ignoreUserAgentStr || []
-  agent._ignoreUserAgentRegExp = opts._ignoreUserAgentRegExp || []
+  agent._conf.ignoreUrlStr = opts.ignoreUrlStr || []
+  agent._conf.ignoreUrlRegExp = opts.ignoreUrlRegExp || []
+  agent._conf.ignoreUserAgentStr = opts.ignoreUserAgentStr || []
+  agent._conf.ignoreUserAgentRegExp = opts.ignoreUserAgentRegExp || []
   agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
 }
