@@ -26,7 +26,7 @@ var optionFixtures = [
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
-  ['ff_asyncHooks', 'FF_ASYNC_HOOKS', false],
+  ['asyncHooks', 'ASYNC_HOOKS', true],
   ['ff_captureFrame', 'FF_CAPTURE_FRAME', false]
 ]
 

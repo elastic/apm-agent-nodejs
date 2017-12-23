@@ -2,8 +2,7 @@
 
 var agent = require('../..').start({
   appName: 'test',
-  captureExceptions: false,
-  ff_asyncHooks: true
+  captureExceptions: false
 })
 var ins = agent._instrumentation
 
