@@ -7,8 +7,15 @@ Previous versions of Node.js are not supported.
 Some versions of Node.js contain bugs or issues that limit our ability to instrument them correctly.
 The following versions of Node.js are known to not be fully instrumented:
 
-- v7.10.x - Recommended solution: Upgrade to v8.1.0 or higher to get full support
-- v8.0.0 - Recommended solution: Upgrade to v8.1.0 or higher to get full support
+- v7.10.x - Recommended solution: Upgrade to v8.2.0 or higher to get full support
+- v8.0.x - Recommended solution: Upgrade to v8.2.0 or higher to get full support
+- v8.1.x - Recommended solution: Upgrade to v8.2.0 or higher to get full support
+
+NOTE: Support for Node.js 8.2.0 and above is experimental as it makes use the experimental core API https://nodejs.org/api/async_hooks.html[Async Hooks].
+If you experience any issues related to using Async Hooks,
+you can always disable the use of this API by setting the <<async-hooks,`asyncHooks`>> config option to `false`.
+Note however,
+that not all core Node.js API's can be instrumented without the use of Async Hooks if running Node.js 8 or above.
 
 [float]
 [[compatibility-frameworks]]
