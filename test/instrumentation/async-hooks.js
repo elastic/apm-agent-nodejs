@@ -2,7 +2,8 @@
 
 var agent = require('../..').start({
   appName: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  asyncHooks: true
 })
 var ins = agent._instrumentation
 
@@ -52,7 +53,7 @@ test('process.nextTick', function (t) {
 
 // We can't instrument ore-defined promises properly without async-hooks, so
 // lets not run these tests on versions of Node.js without async-hooks
-if (semver.gte(process.version, '8.1.0')) {
+if (semver.gte(process.version, '8.2.0')) {
   test('pre-defined, pre-resolved shared promise', function (t) {
     t.plan(4)
 

@@ -2,7 +2,8 @@
 
 var agent = require('../..').start({
   appName: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  asyncHooks: true
 })
 
 var http = require('http')
