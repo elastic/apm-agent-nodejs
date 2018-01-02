@@ -35,6 +35,14 @@ jobs:
     #                TEST STAGE               #
     ###########################################
 
+    # Disable Async Hooks
+    -
+      node_js: '9'
+      env: ELASTIC_APM_ASYNC_HOOKS=0
+    -
+      node_js: '8'
+      env: ELASTIC_APM_ASYNC_HOOKS=0
+
     # Docs
     -
       script: npm run docs
