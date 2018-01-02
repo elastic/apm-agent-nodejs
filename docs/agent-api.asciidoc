@@ -266,6 +266,17 @@ The OS hostname is automatically logged along with all errors and transactions.
 If you want to overwrite this,
 use this option.
 
+[[environment]]
+===== `environment`
+
+* *Type:* String
+* *Default:* `process.env.NODE_ENV || 'development'`
+* *Env:* `ELASTIC_APM_ENVIRONMENT`
+
+The environment name is automatically logged along with all errors and transactions.
+If you want to overwrite this,
+use this option.
+
 [[log-level]]
 ===== `logLevel`
 
