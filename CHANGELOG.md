@@ -1,3 +1,10 @@
+# 0.10.0 - 2018/1/3
+  * feat(express): auto-track errors (BREAKING CHANGE: removed express middleware) (#127)
+  * feat(hapi): add hapi 17 support (#146)
+  * fix(\*): fix Node.js 8 support using async\_hooks (#77)
+  * fix(graphql): support sync execute (#139)
+  * refactor(agent): make all config properties private (BREAKING CHANGE) (#107)
+
 # 0.9.0 - 2017/12/15
   * feat(conf): allow serverUrl to contain a sub-path (#116)
   * refactor(\*): better format of error messages from the APM Server (#108)
