@@ -66,6 +66,12 @@ elasticsearch:
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.js
-hapi:
+hapi-no-async-await:
+  name: hapi
   versions: '>=9.0.1 <17.0.0'
+  commands: node test/instrumentation/modules/hapi.js
+hapi-async-await:
+  name: hapi
+  node: '>=8.2'
+  versions: '^17.0.0'
   commands: node test/instrumentation/modules/hapi.js

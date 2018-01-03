@@ -33,20 +33,22 @@ test('extract URL from request', function (t) {
 
   agent.captureError = originalCaptureError
 
-  var server = startServer(function (port) {
+  var server = startServer(function (err, port) {
+    t.error(err)
     http.get('http://localhost:' + port + '/captureError?foo=bar')
   })
 })
 
 test('route naming', function (t) {
-  t.plan(8)
+  t.plan(9)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data)
     server.stop(noop)
   })
 
-  var server = startServer(function (port) {
+  var server = startServer(function (err, port) {
+    t.error(err)
     http.get('http://localhost:' + port + '/hello', function (res) {
       t.equal(res.statusCode, 200)
       res.on('data', function (chunk) {
@@ -70,8 +72,8 @@ test('connectionless', function (t) {
 
   resetAgent()
 
-  var server = new Hapi.Server()
-  server.initialize(function (err) {
+  var server = makeServer()
+  initServer(server, function (err) {
     server.stop(noop)
     t.error(err, 'start error')
   })
@@ -100,9 +102,8 @@ test('connectionless server error logging with Error', function (t) {
     t.ok(opts.custom.data instanceof Error)
   }
 
-  var server = new Hapi.Server()
-
-  server.initialize(function (err) {
+  var server = makeServer()
+  initServer(server, function (err) {
     t.error(err, 'start error')
 
     server.log(['error'], customError)
@@ -132,9 +133,8 @@ test('connectionless server error logging with String', function (t) {
     t.ok(typeof opts.custom.data === 'string')
   }
 
-  var server = new Hapi.Server()
-
-  server.initialize(function (err) {
+  var server = makeServer()
+  initServer(server, function (err) {
     t.error(err, 'start error')
 
     server.log(['error'], customError)
@@ -166,9 +166,8 @@ test('connectionless server error logging with Object', function (t) {
     t.deepEqual(opts.custom.data, customError)
   }
 
-  var server = new Hapi.Server()
-
-  server.initialize(function (err) {
+  var server = makeServer()
+  initServer(server, function (err) {
     t.error(err, 'start error')
 
     server.log(['error'], customError)
@@ -192,10 +191,7 @@ test('server error logging with Error', function (t) {
     t.ok(opts.custom.data instanceof Error)
   }
 
-  var server = new Hapi.Server()
-  server.connection()
-
-  server.start(function (err) {
+  var server = startServer(function (err) {
     t.error(err, 'start error')
 
     server.log(['error'], customError)
@@ -219,17 +215,17 @@ test('server error logging with Error does not affect event tags', function (t) 
     t.ok(opts.custom.data instanceof Error)
   }
 
-  var server = new Hapi.Server()
-  server.connection()
+  var server = makeServer()
 
-  server.on('log', function (event, tags) {
+  var emitter = server.events || server
+  emitter.on('log', function (event, tags) {
     t.deepEqual(event.tags, ['error'])
   })
 
-  server.start(function (err) {
+  runServer(server, function (err) {
     t.error(err, 'start error')
 
-    server.on('log', function (event, tags) {
+    emitter.on('log', function (event, tags) {
       t.deepEqual(event.tags, ['error'])
     })
 
@@ -254,10 +250,7 @@ test('server error logging with String', function (t) {
     t.ok(typeof opts.custom.data === 'string')
   }
 
-  var server = new Hapi.Server()
-  server.connection()
-
-  server.start(function (err) {
+  var server = startServer(function (err) {
     t.error(err, 'start error')
 
     server.log(['error'], customError)
@@ -283,10 +276,7 @@ test('server error logging with Object', function (t) {
     t.deepEqual(opts.custom.data, customError)
   }
 
-  var server = new Hapi.Server()
-  server.connection()
-
-  server.start(function (err) {
+  var server = startServer(function (err) {
     t.error(err, 'start error')
 
     server.log(['error'], customError)
@@ -313,20 +303,19 @@ test('request error logging with Error', function (t) {
     t.ok(opts.custom.data instanceof Error)
   }
 
-  var server = new Hapi.Server()
-  server.connection()
+  var server = makeServer()
 
   server.route({
     method: 'GET',
     path: '/error',
-    handler: function (request, reply) {
+    handler: handler(function (request) {
       request.log(['error'], customError)
 
-      return reply('hello world')
-    }
+      return 'hello world'
+    })
   })
 
-  server.start(function (err) {
+  runServer(server, function (err) {
     t.error(err, 'start error')
 
     http.get('http://localhost:' + server.info.port + '/error', function (res) {
@@ -359,27 +348,27 @@ test('request error logging with Error does not affect event tags', function (t)
     t.ok(opts.custom.data instanceof Error)
   }
 
-  var server = new Hapi.Server()
-  server.connection()
+  var server = makeServer()
 
   server.route({
     method: 'GET',
     path: '/error',
-    handler: function (request, reply) {
+    handler: handler(function (request) {
       request.log(['elastic-apm', 'error'], customError)
 
-      return reply('hello world')
-    }
+      return 'hello world'
+    })
   })
 
-  server.on('request', function (req, event, tags) {
+  var emitter = server.events || server
+  emitter.on('request', function (req, event, tags) {
     t.deepEqual(event.tags, ['elastic-apm', 'error'])
   })
 
-  server.start(function (err) {
+  runServer(server, function (err) {
     t.error(err, 'start error')
 
-    server.on('request', function (req, event, tags) {
+    emitter.on('request', function (req, event, tags) {
       t.deepEqual(event.tags, ['elastic-apm', 'error'])
     })
 
@@ -413,20 +402,19 @@ test('request error logging with String', function (t) {
     t.ok(typeof opts.custom.data === 'string')
   }
 
-  var server = new Hapi.Server()
-  server.connection()
+  var server = makeServer()
 
   server.route({
     method: 'GET',
     path: '/error',
-    handler: function (request, reply) {
+    handler: handler(function (request) {
       request.log(['error'], customError)
 
-      return reply('hello world')
-    }
+      return 'hello world'
+    })
   })
 
-  server.start(function (err) {
+  runServer(server, function (err) {
     t.error(err, 'start error')
 
     http.get('http://localhost:' + server.info.port + '/error', function (res) {
@@ -461,20 +449,19 @@ test('request error logging with Object', function (t) {
     t.deepEqual(opts.custom.data, customError)
   }
 
-  var server = new Hapi.Server()
-  server.connection()
+  var server = makeServer()
 
   server.route({
     method: 'GET',
     path: '/error',
-    handler: function (request, reply) {
+    handler: handler(function (request) {
       request.log(['error'], customError)
 
-      return reply('hello world')
-    }
+      return 'hello world'
+    })
   })
 
-  server.start(function (err) {
+  runServer(server, function (err) {
     t.error(err, 'start error')
 
     http.get('http://localhost:' + server.info.port + '/error', function (res) {
@@ -488,7 +475,7 @@ test('request error logging with Object', function (t) {
 })
 
 test('error handling', function (t) {
-  t.plan(10)
+  t.plan(semver.satisfies(pkg.version, '>=17') ? 13 : 11)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data, { status: 'HTTP 5xx', name: 'GET /error' })
@@ -500,7 +487,8 @@ test('error handling', function (t) {
     t.ok(opts.request instanceof http.IncomingMessage)
   }
 
-  var server = startServer(function (port) {
+  var server = startServer(function (err, port) {
+    t.error(err)
     http.get('http://localhost:' + port + '/error', function (res) {
       t.equal(res.statusCode, 500)
       res.on('data', function (chunk) {
@@ -518,39 +506,79 @@ test('error handling', function (t) {
   })
 })
 
-function startServer (cb) {
-  var server = buildServer()
-  server.start(function (err) {
-    if (err) throw err
-    cb(server.info.port)
-  })
+function makeServer (opts) {
+  var server = new Hapi.Server()
+  if (semver.satisfies(pkg.version, '<17')) {
+    server.connection(opts)
+  }
   return server
 }
 
+function initServer (server, cb) {
+  if (semver.satisfies(pkg.version, '<17')) {
+    server.initialize(cb)
+  } else {
+    server.initialize().then(
+      cb.bind(null, null),
+      cb
+    )
+  }
+}
+
+function runServer (server, cb) {
+  if (semver.satisfies(pkg.version, '<17')) {
+    server.start(function (err) {
+      if (err) throw err
+      cb(null, server.info.port)
+    })
+  } else {
+    server.start().then(
+      () => cb(null, server.info.port),
+      cb
+    )
+  }
+}
+
+function startServer (cb) {
+  var server = buildServer()
+  runServer(server, cb)
+  return server
+}
+
+function handler (fn) {
+  if (semver.satisfies(pkg.version, '>=17')) return fn
+  return function (request, reply) {
+    var p = new Promise(function (resolve, reject) {
+      resolve(fn(request))
+    })
+    p.then(reply, reply)
+  }
+}
+
 function buildServer () {
-  var server = new Hapi.Server()
-  server.connection()
+  var server = makeServer()
+
   server.route({
     method: 'GET',
     path: '/hello',
-    handler: function (request, reply) {
-      return reply('hello world')
-    }
+    handler: handler(function (request) {
+      return 'hello world'
+    })
   })
   server.route({
     method: 'GET',
     path: '/error',
-    handler: function (request, reply) {
-      return reply(new Error('foo'))
-    }
+    handler: handler(function (request) {
+      throw new Error('foo')
+    })
   })
   server.route({
     method: 'GET',
     path: '/captureError',
-    handler: function (request, reply) {
+    handler: handler(function (request) {
       agent.captureError(new Error())
-      return reply()
-    }
+      return ''
+    })
   })
   return server
 }
