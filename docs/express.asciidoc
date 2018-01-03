@@ -47,9 +47,6 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
-// any errors caught by Express can be logged by the agent as well
-app.use(apm.middleware.express())
-
 app.listen(3000)
 ----
 
@@ -126,47 +123,6 @@ please follow the <<troubleshooting,Troubleshooting Guide>>.
 [[express-error-logging]]
 === Error logging
 
-The Node.js agent will by default watch for uncaught exceptions and log these with Elastic APM.
-But in most cases you also want to log non-thrown errors.
-This section explains how.
-
-[float]
-[[express-error-handlers]]
-==== Express error handlers
-
-Express works by funneling all incoming http requests through a series of middleware functions (one of which being your router).
-If an error is either thrown synchronously inside one of the middleware functions or is
-passed as the first argument to the middleware `next()` function,
-it will be passed to the http://expressjs.com/en/guide/error-handling.html[Express error handler].
-
-In the case where you have multiple Express error handlers,
-the Elastic APM error handler should be the first in the chain to ensure that it will receive the error correctly.
-
-[source,js]
-----
-var apm = require('elastic-apm-node').start()
-var express = require('express')
-
-var app = express()
-
-// Your regular middleware and router...
-app.use(...)
-app.use(...)
-app.use(...)
-
-// Add the Elastic APM middleware after your regular middleware
-app.use(apm.middleware.express())
-
-// ...but before any other error handler
-app.use(function (err, req, res, next) {
-  // Custom error handling goes here
-})
-----
-
-[float]
-[[express-manual-error-logging]]
-==== Manual error logging
-
 By default the Node.js agent will watch for uncaught exceptions and send them to Elastic APM automatically.
 But in most cases errors are not thrown but returned via a callback,
 caught by a promise,
@@ -185,38 +141,6 @@ apm.captureError(err)
 For advanced logging of errors,
 including adding extra metadata to the error,
 see <<apm-capture-error,the API documentation>>.
-
-[float]
-[[express-ignore-404-not-found-errors]]
-==== Ignore "404 Not Found" errors
-
-By default Express will treat http requests that do not match any route as an error.
-This is a good idea in development,
-but usually not something you want in production.
-To avoid sending "404 Not Found" errors to Elastic APM,
-make sure you handle those *before* they reach the Elastic APM middleware:
-
-[source,js]
-----
-// Your regular middleware and router...
-app.use(...)
-app.use(...)
-app.use(...)
-
-// Put a catch-all route handler as the very last route handler
-app.use(function (req, res) {
-  // If we reach this point it means that no prior route matched.
-  // This means that we should render a "404 Not Found" page. Notice
-  // that we do not call next() here as we don't want to forward the
-  // request to the error handler below.
-
-  // Send a 404 to the user
-  res.status(404).send('This isn\'t the page you\'re looking for..')
-})
-
-// After the 404 Not Found handler, add the Elastic APM error handler
-app.use(apm.middleware.express())
-----
 
 [float]
 [[express-filter-sensitive-information]]
