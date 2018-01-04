@@ -343,3 +343,34 @@ test('protocol.encode - dropped spans', function (t) {
     t.end()
   })
 })
+
+test('protocol.encode - not sampled', function (t) {
+  var agent = mockAgent()
+  agent._conf.transactionSampleRate = 0
+
+  var t0 = new Transaction(agent, 'single-name0', 'type0')
+  t0.result = 'result0'
+  var span0 = t0.buildSpan()
+  if (span0) span0.start('t00', 'type0')
+  t0.buildSpan()
+  if (span0) span0.end()
+  t0.end()
+
+  protocol.encode([t0], function (err, transactions) {
+    t.error(err)
+    t.equal(transactions.length, 1, 'should have 1 transaction')
+
+    transactions.forEach(function (trans, index) {
+      t.equal(trans.name, 'single-name' + index)
+      t.equal(trans.type, 'type' + index)
+      t.equal(trans.result, 'result' + index)
+      t.equal(trans.timestamp, new Date(t0._timer.start).toISOString())
+      t.ok(trans.duration > 0, 'should have a duration >0ms')
+      t.ok(trans.duration < 100, 'should have a duration <100ms')
+      t.notOk(trans.spans)
+      t.notOk(trans.context)
+    })
+
+    t.end()
+  })
+})
