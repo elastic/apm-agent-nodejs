@@ -1,4 +1,10 @@
 [[advanced-setup]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/advanced-setup.html[elastic.co]
+endif::[]
+
 == Advanced Setup and Configuration
 
 [float]

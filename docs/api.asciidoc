@@ -1,4 +1,10 @@
 [[api]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/api.html[elastic.co]
+endif::[]
+
 == API Reference
 
 The API reference documentation is divided into three parts:

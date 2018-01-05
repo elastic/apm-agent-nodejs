@@ -1,4 +1,10 @@
 [[intro]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/intro.html[elastic.co]
+endif::[]
+
 == Introduction
 
 Welcome to the APM Node.js Agent documentation.
