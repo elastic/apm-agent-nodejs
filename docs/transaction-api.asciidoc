@@ -1,4 +1,10 @@
 [[transaction-api]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/transaction-api.html[elastic.co]
+endif::[]
+
 === `Transaction` API
 
 A transaction groups multiple traces in a logical group.
