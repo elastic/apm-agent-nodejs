@@ -5,6 +5,8 @@ var agent = require('../..').start({
   captureExceptions: false
 })
 
+var origCaptureError = agent.captureError
+
 var test = require('tape')
 
 test('basic', function (t) {
@@ -248,6 +250,41 @@ test('currentTransaction missing - not recoverable - middle trace failed', funct
       })
     })
   })
+})
+
+test('errors should not have a transaction id if no transaction is present', function (t) {
+  resetAgent(function (endpoint, headers, data, cb) {
+    t.equal(data.errors.length, 1)
+    t.equal(data.errors[0].transaction, undefined)
+    t.end()
+  })
+  agent.captureError = origCaptureError
+  agent.captureError(new Error('bar'))
+})
+
+test('errors should have a transaction id - non-ended transaction', function (t) {
+  resetAgent(function (endpoint, headers, data, cb) {
+    t.equal(data.errors.length, 1)
+    t.deepEqual(data.errors[0].transaction, {id: trans.id})
+    t.equal(typeof data.errors[0].transaction.id, 'string')
+    t.end()
+  })
+  agent.captureError = origCaptureError
+  var trans = agent.startTransaction('foo')
+  agent.captureError(new Error('bar'))
+})
+
+test('errors should have a transaction id - ended transaction', function (t) {
+  resetAgent(function (endpoint, headers, data, cb) {
+    t.equal(data.errors.length, 1)
+    t.deepEqual(data.errors[0].transaction, {id: trans.id})
+    t.equal(typeof data.errors[0].transaction.id, 'string')
+    t.end()
+  })
+  agent.captureError = origCaptureError
+  var trans = agent.startTransaction('foo')
+  trans.end()
+  agent.captureError(new Error('bar'))
 })
 
 function startTrace (ins, name, type) {
