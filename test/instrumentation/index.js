@@ -1,10 +1,14 @@
 'use strict'
 
+var agent = require('../..').start({
+  appName: 'test',
+  captureExceptions: false
+})
+
 var test = require('tape')
-var mockAgent = require('./_agent')
 
 test('basic', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     t.equal(endpoint, 'transactions')
 
     t.equal(data.transactions.length, 2)
@@ -67,7 +71,7 @@ test('basic', function (t) {
 })
 
 test('same tick', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
     var traces = data.transactions[0].traces
     t.equal(traces.length, 2)
@@ -87,7 +91,7 @@ test('same tick', function (t) {
 })
 
 test('serial - no parents', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
     var traces = data.transactions[0].traces
     t.equal(traces.length, 2)
@@ -111,7 +115,7 @@ test('serial - no parents', function (t) {
 })
 
 test('serial - with parents', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
     var traces = data.transactions[0].traces
     t.equal(traces.length, 2)
@@ -135,7 +139,7 @@ test('serial - with parents', function (t) {
 })
 
 test('stack branching - no parents', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
     var traces = data.transactions[0].traces
     t.equal(traces.length, 2)
@@ -159,7 +163,7 @@ test('stack branching - no parents', function (t) {
 })
 
 test('currentTransaction missing - recoverable', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
     var traces = data.transactions[0].traces
     t.equal(traces.length, 1)
@@ -185,7 +189,7 @@ test('currentTransaction missing - recoverable', function (t) {
 })
 
 test('currentTransaction missing - not recoverable - last trace failed', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
     var traces = data.transactions[0].traces
     t.equal(traces.length, 1)
@@ -213,7 +217,7 @@ test('currentTransaction missing - not recoverable - last trace failed', functio
 })
 
 test('currentTransaction missing - not recoverable - middle trace failed', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
     var traces = data.transactions[0].traces
     t.equal(traces.length, 2)
@@ -250,4 +254,11 @@ function startTrace (ins, name, type) {
   var trace = ins.buildTrace()
   if (trace) trace.start(name, type)
   return trace
+}
+
+function resetAgent (cb) {
+  agent._instrumentation.currentTransaction = null
+  agent._instrumentation._queue._clear()
+  agent._httpClient = { request: cb || function () {} }
+  agent.captureError = function (err) { throw err }
 }
