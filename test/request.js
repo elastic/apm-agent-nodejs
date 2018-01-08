@@ -188,12 +188,6 @@ test('#transactions()', function (t) {
 
 function assertRoot (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
-  t.equal(payload.service.pid, process.pid)
-  t.ok(payload.service.pid > 0)
-  t.ok(payload.service.process_title)
-  t.ok(/(\/usr\/local\/bin\/)?node/.test(payload.service.process_title))
-  t.deepEqual(payload.service.argv, process.argv)
-  t.ok(payload.service.argv.length >= 2)
   t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
   t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
   t.equal(payload.service.version, 'my-service-version')
@@ -202,4 +196,12 @@ function assertRoot (t, payload) {
     architecture: process.arch,
     platform: process.platform
   })
+
+  t.ok(payload.process)
+  t.equal(payload.process.pid, process.pid)
+  t.ok(payload.process.pid > 0)
+  t.ok(payload.process.title)
+  t.ok(/(\/usr\/local\/bin\/)?node/.test(payload.process.title))
+  t.deepEqual(payload.process.argv, process.argv)
+  t.ok(payload.process.argv.length >= 2)
 }
