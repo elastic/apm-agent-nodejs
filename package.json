@@ -76,6 +76,7 @@
     "is-native": "^1.0.1",
     "normalize-bool": "^1.0.0",
     "object-assign": "^4.1.1",
+    "original-url": "^1.2.0",
     "redact-secrets": "^1.0.0",
     "require-in-the-middle": "^2.1.2",
     "semver": "^5.3.0",
