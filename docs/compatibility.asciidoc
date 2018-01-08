@@ -70,7 +70,7 @@ so those should be supported as well
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will trace all queries
 |https://www.npmjs.com/package/pg[pg] |>=4.0.0 <8.0.0 |Will trace all queries
 |https://www.npmjs.com/package/redis[redis] |^2.0.0 |Will trace all queries
-|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <4.0.0 |Will trace outgoing WebSocket messages
+|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <5.0.0 |Will trace outgoing WebSocket messages
 |=======================================================================
 
 [float]

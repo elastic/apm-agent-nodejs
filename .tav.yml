@@ -29,7 +29,7 @@ knex:
   versions: ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
   commands: node test/instrumentation/modules/pg/knex.js
 ws:
-  versions: '>=1 <4'
+  versions: '>=1 <5'
   commands: node test/instrumentation/modules/ws.js
 graphql:
   preinstall: rm -fr node_modules/express-graphql
