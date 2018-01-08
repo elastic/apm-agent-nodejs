@@ -11,7 +11,7 @@ var agentVersion = require('../package.json').version
 
 test('#errors()', function (t) {
   t.test('envelope', function (t) {
-    t.plan(13)
+    t.plan(14)
     var errors = [{}]
     APMServer()
       .on('listening', function () {
@@ -26,7 +26,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string log.message', function (t) {
-    t.plan(13)
+    t.plan(14)
     var errors = [{log: {message: 1}}]
     APMServer()
       .on('listening', function () {
@@ -41,7 +41,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string exception.message', function (t) {
-    t.plan(13)
+    t.plan(14)
     var errors = [{exception: {message: 1}}]
     APMServer()
       .on('listening', function () {
@@ -56,7 +56,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string culprit', function (t) {
-    t.plan(13)
+    t.plan(14)
     var errors = [{culprit: 1}]
     APMServer()
       .on('listening', function () {
@@ -71,7 +71,7 @@ test('#errors()', function (t) {
   })
 
   t.test('successful request', function (t) {
-    t.plan(13)
+    t.plan(14)
     var errors = [{context: {custom: {foo: 'bar'}}}]
     APMServer()
       .on('listening', function () {
@@ -158,7 +158,7 @@ test('#errors()', function (t) {
   })
 
   t.test('should anonymize the http Authorization header by default', function (t) {
-    t.plan(14)
+    t.plan(15)
     var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
     APMServer()
       .on('listening', function () {
@@ -174,7 +174,7 @@ test('#errors()', function (t) {
   })
 
   t.test('should not anonymize the http Authorization header if disabled', function (t) {
-    t.plan(14)
+    t.plan(15)
     var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
     APMServer({filterHttpHeaders: false})
       .on('listening', function () {
@@ -191,7 +191,7 @@ test('#errors()', function (t) {
 })
 
 test('#transactions()', function (t) {
-  t.plan(13)
+  t.plan(14)
   var transactions = [{spans: []}]
   APMServer()
     .on('listening', function () {
@@ -207,15 +207,6 @@ test('#transactions()', function (t) {
 
 function assertRoot (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
-  t.equal(payload.service.pid, process.pid)
-  t.ok(payload.service.pid > 0)
-  t.ok(payload.service.process_title)
-  t.ok(
-    /(npm|node)/.test(payload.service.process_title),
-    `service.process_title should contain expected value (was: "${payload.service.process_title}")`
-  )
-  t.deepEqual(payload.service.argv, process.argv)
-  t.ok(payload.service.argv.length >= 2)
   t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
   t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
   t.deepEqual(payload.system, {
@@ -223,6 +214,17 @@ function assertRoot (t, payload) {
     architecture: process.arch,
     platform: process.platform
   })
+
+  t.ok(payload.process)
+  t.equal(payload.process.pid, process.pid)
+  t.ok(payload.process.pid > 0)
+  t.ok(payload.process.title)
+  t.ok(
+    /(npm|node)/.test(payload.process.title),
+    `process.title should contain expected value (was: "${payload.process.title}")`
+  )
+  t.deepEqual(payload.process.argv, process.argv)
+  t.ok(payload.process.argv.length >= 2)
 }
 
 function validateErrorRequest (t) {
