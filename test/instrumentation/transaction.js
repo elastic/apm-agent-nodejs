@@ -203,3 +203,22 @@ test('parallel transactions', function (t) {
     }, 25)
   }, 25)
 })
+
+test('span truncation', function (t) {
+  var ins = mockInstrumentation(function (transaction) {
+    t.equal(transaction._buildSpans.length, 20)
+    for (var i = 0; i < 20; i++) {
+      var span = transaction._buildSpans[i]
+      t.equal(span.name, 'span ' + i)
+    }
+    t.end()
+  })
+  ins._agent._conf.transactionMaxSpans = 20
+
+  var transaction = new Transaction(ins._agent, 'first')
+  for (var i = 0; i < 100; i++) {
+    var span = transaction.buildSpan()
+    if (span) span.name = 'span ' + i
+  }
+  transaction.end()
+})
