@@ -344,6 +344,17 @@ Setting it to `0` will disable stack trace collection.
 Any finite integer value will be used as the maximum number of frames to collect.
 Setting it to `Infinity` means that all frames will be collected.
 
+[[transaction-max-spans]]
+===== `transactionMaxSpans`
+
+* *Type:* Number
+* *Default:* `Infinity`
+* *Env:* `ELASTIC_APM_TRANSACTION_MAX_SPANS`
+
+Specify the maximum number of spans to capture within a request transaction
+before truncating further spans.
+Setting to `Infinity` means that spans will never be truncated.
+
 [[flush-interval]]
 ===== `flushInterval`
 
