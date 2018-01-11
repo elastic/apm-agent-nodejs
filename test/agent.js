@@ -3,8 +3,10 @@
 var os = require('os')
 var util = require('util')
 var http = require('http')
+var zlib = require('zlib')
 var test = require('tape')
 var nock = require('nock')
+var getPort = require('get-port')
 var isRegExp = require('core-util-is').isRegExp
 var isError = require('core-util-is').isError
 var request = require('../lib/request')
@@ -23,7 +25,7 @@ var optionFixtures = [
   ['appVersion', 'APP_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
-  ['stackTraceLimit', 'STACK_TRACE_LIMIT', Infinity],
+  ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
   ['asyncHooks', 'ASYNC_HOOKS', true],
@@ -315,6 +317,80 @@ test('#captureError()', function (t) {
     agent.captureError(new Error('wtf?'), function () {
       scope.done()
       t.end()
+    })
+  })
+
+  t.test('should adhere to default stackTraceLimit', function (t) {
+    getPort().then(function (port) {
+      setup()
+      agent.start(Object.assign(
+        {serverUrl: 'http://localhost:' + port},
+        opts
+      ))
+
+      var server = http.createServer(function (req, res) {
+        var buffers = []
+        var gunzip = zlib.createGunzip()
+        var unzipped = req.pipe(gunzip)
+
+        unzipped.on('data', buffers.push.bind(buffers))
+        unzipped.on('end', function () {
+          res.end()
+          server.close()
+          var data = JSON.parse(Buffer.concat(buffers))
+          t.equal(data.errors.length, 1)
+          t.equal(data.errors[0].exception.stacktrace.length, 50)
+          t.equal(data.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
+          t.end()
+        })
+      })
+
+      server.listen(port, function () {
+        agent.captureError(deep(256))
+      })
+
+      function deep (depth, n) {
+        if (!n) n = 0
+        if (n < depth) return deep(depth, ++n)
+        return new Error()
+      }
+    })
+  })
+
+  t.test('should adhere to custom stackTraceLimit', function (t) {
+    getPort().then(function (port) {
+      setup()
+      agent.start(Object.assign(
+        {stackTraceLimit: 5, serverUrl: 'http://localhost:' + port},
+        opts
+      ))
+
+      var server = http.createServer(function (req, res) {
+        var buffers = []
+        var gunzip = zlib.createGunzip()
+        var unzipped = req.pipe(gunzip)
+
+        unzipped.on('data', buffers.push.bind(buffers))
+        unzipped.on('end', function () {
+          res.end()
+          server.close()
+          var data = JSON.parse(Buffer.concat(buffers))
+          t.equal(data.errors.length, 1)
+          t.equal(data.errors[0].exception.stacktrace.length, 5)
+          t.equal(data.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
+          t.end()
+        })
+      })
+
+      server.listen(port, function () {
+        agent.captureError(deep(42))
+      })
+
+      function deep (depth, n) {
+        if (!n) n = 0
+        if (n < depth) return deep(depth, ++n)
+        return new Error()
+      }
     })
   })
 
