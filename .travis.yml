@@ -21,9 +21,7 @@ before_script:
 node_js:
   - '9'
   - '8'
-  - '7.9.0' # currently 7.10.0 fails. For details see: https://github.com/nodejs/node/pull/12861
   - '6'
-  - '5'
   - '4'
 
 jobs:
@@ -99,24 +97,6 @@ jobs:
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
 
-    # Node.js 7.9
-    -
-      node_js: '7.9'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
-    -
-      node_js: '7.9'
-      env: TAV=ioredis,pg
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
-    -
-      node_js: '7.9'
-      env: TAV=bluebird
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
-    -
-      node_js: '7.9'
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
-
     # Node.js 6
     -
       node_js: '6'
@@ -132,24 +112,6 @@ jobs:
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '6'
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
-
-    # Node.js 5
-    -
-      node_js: '5'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
-    -
-      node_js: '5'
-      env: TAV=ioredis,pg
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
-    -
-      node_js: '5'
-      env: TAV=bluebird
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
-    -
-      node_js: '5'
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
 

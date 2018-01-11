@@ -7,17 +7,18 @@ endif::[]
 
 == Compatibility Overview
 
-The Elastic APM Node.js agent is tested against Node.js v4.0.0 and above.
-Previous versions of Node.js are not supported.
+Support for the Elastic APM Node.js agent follows the support schedule of Node.js itself to the end-of-line period of each version after its maintenance term.
+Versions of Node.js past their end-of-life date are not supported.
+
+image::https://raw.githubusercontent.com/nodejs/Release/master/schedule.png[]
 
 Some versions of Node.js contain bugs or issues that limit our ability to instrument them correctly.
 The following versions of Node.js are known to not be fully instrumented:
 
-- v7.10.x - Recommended solution: Upgrade to v8.2.0 or higher to get full support
 - v8.0.x - Recommended solution: Upgrade to v8.2.0 or higher to get full support
 - v8.1.x - Recommended solution: Upgrade to v8.2.0 or higher to get full support
 
-NOTE: Support for Node.js 8.2.0 and above is experimental as it makes use the experimental core API https://nodejs.org/api/async_hooks.html[Async Hooks].
+NOTE: Support for Node.js 8.2.0 and above is experimental as it makes use of the experimental core API https://nodejs.org/api/async_hooks.html[Async Hooks].
 If you experience any issues related to using Async Hooks,
 you can always disable the use of this API by setting the <<async-hooks,`asyncHooks`>> config option to `false`.
 Note however,
