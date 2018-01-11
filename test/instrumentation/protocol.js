@@ -286,3 +286,58 @@ test('protocol.encode - truncated spans', function (t) {
     t.end()
   })
 })
+
+test('protocol.encode - dropped spans', function (t) {
+  var agent = mockAgent()
+  agent._conf.transactionMaxSpans = 2
+
+  var t0 = new Transaction(agent, 'single-name0', 'type0')
+  t0.result = 'result0'
+  var span0 = t0.buildSpan()
+  span0.start('t00', 'type0')
+  var span1 = t0.buildSpan()
+  span1.start('t01', 'type1')
+  var span2 = t0.buildSpan()
+  if (span2) {
+    t.fail('should have dropped the span')
+  }
+  span0.end()
+  t0.end()
+
+  protocol.encode([t0], function (err, transactions) {
+    t.error(err)
+    t.equal(transactions.length, 1, 'should have 1 transaction')
+
+    transactions.forEach(function (trans, index) {
+      t.equal(trans.name, 'single-name' + index)
+      t.equal(trans.type, 'type' + index)
+      t.equal(trans.result, 'result' + index)
+      t.equal(trans.timestamp, new Date(t0._timer.start).toISOString())
+      t.ok(trans.duration > 0, 'should have a duration >0ms')
+      t.ok(trans.duration < 100, 'should have a duration <100ms')
+      t.deepEqual(trans.context, {
+        user: {},
+        tags: {},
+        custom: {}
+      })
+
+      t.equal(trans.spans.length, 2)
+      t.deepEqual(trans.span_count, {
+        dropped: {
+          total: 1
+        }
+      })
+
+      trans.spans.forEach(function (span, index2) {
+        t.equal(span.name, 't' + index + index2)
+        t.equal(span.type, 'type' + index2 + (index2 === 1 ? '.truncated' : ''))
+        t.ok(span.start > 0, 'span start should be >0ms')
+        t.ok(span.start < 100, 'span start should be <100ms')
+        t.ok(span.duration > 0, 'span duration should be >0ms')
+        t.ok(span.duration < 100, 'span duration should be <100ms')
+      })
+    })
+
+    t.end()
+  })
+})
