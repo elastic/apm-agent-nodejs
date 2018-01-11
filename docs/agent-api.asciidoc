@@ -337,7 +337,7 @@ Set this option to `false` to disable collecting and reporting source code conte
 ===== `stackTraceLimit`
 
 * *Type:* Number
-* *Default:* `Infinity`
+* *Default:* `50`
 * *Env:* `ELASTIC_APM_STACK_TRACE_LIMIT`
 
 Setting it to `0` will disable stack trace collection.
