@@ -58,7 +58,7 @@ jobs:
     # Node.js 9
     - stage: dependencies
       node_js: '9'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '9'
@@ -76,7 +76,7 @@ jobs:
     # Node.js 8
     -
       node_js: '8'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '8'
@@ -94,7 +94,7 @@ jobs:
     # Node.js 7
     -
       node_js: '7'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '7'
@@ -112,7 +112,7 @@ jobs:
     # Node.js 6
     -
       node_js: '6'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '6'
@@ -130,7 +130,7 @@ jobs:
     # Node.js 5
     -
       node_js: '5'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '5'
@@ -148,7 +148,7 @@ jobs:
     # Node.js 4
     -
       node_js: '4'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars
       script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '4'

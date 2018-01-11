@@ -1,5 +1,5 @@
 TAV:
-  - generic-pool+mysql+redis+koa-router+handlebars
+  - generic-pool+mysql+mysql2+redis+koa-router+handlebars
   - ioredis+pg
   - bluebird
   - knex+ws+graphql+express-graphql+elasticsearch+hapi
