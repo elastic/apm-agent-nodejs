@@ -1,3 +1,8 @@
+# 0.11.0 - 2018/1/11
+  * feat(\*): Set default stack trace limit to 50 frames (#171)
+  * feat(ws): add support for ws@4.x (#164)
+  * feat(errors): associate errors with active transaction
+
 # 0.10.0 - 2018/1/3
   * feat(express): auto-track errors (BREAKING CHANGE: removed express middleware) (#127)
   * feat(hapi): add hapi 17 support (#146)
