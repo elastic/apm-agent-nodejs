@@ -120,6 +120,8 @@ test('#getContextFromRequest()', function (t) {
         hostname: 'example.com',
         pathname: '/some/path',
         search: '?key=value',
+        full: 'http://example.com/some/path?key=value',
+        protocol: 'http:',
         raw: '/some/path?key=value'
       },
       socket: {
@@ -141,10 +143,11 @@ test('#getContextFromRequest()', function (t) {
     t.deepEqual(parsed.url, {
       pathname: '/some/path',
       search: '?key=value',
-      raw: 'https://www.example.com:8080/some/path?key=value',
       protocol: 'https:',
       hostname: 'www.example.com',
-      port: '8080'
+      port: 8080,
+      full: 'https://www.example.com:8080/some/path?key=value',
+      raw: 'https://www.example.com:8080/some/path?key=value'
     })
     t.end()
   })
@@ -154,11 +157,13 @@ test('#getContextFromRequest()', function (t) {
     req.headers.host = 'example.com:8080'
     var parsed = parsers.getContextFromRequest(req)
     t.deepEqual(parsed.url, {
-      raw: '/some/path?key=value',
       hostname: 'example.com',
-      port: '8080',
+      port: 8080,
       pathname: '/some/path',
-      search: '?key=value'
+      search: '?key=value',
+      protocol: 'http:',
+      full: 'http://example.com:8080/some/path?key=value',
+      raw: '/some/path?key=value'
     })
     t.end()
   })
@@ -171,6 +176,8 @@ test('#getContextFromRequest()', function (t) {
       hostname: 'example.com',
       pathname: '/some/path',
       search: '?',
+      protocol: 'http:',
+      full: 'http://example.com/some/path?',
       raw: '/some/path?'
     })
     t.end()
