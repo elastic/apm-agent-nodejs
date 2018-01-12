@@ -436,3 +436,55 @@ test('#_encode() - truncated spans', function (t) {
     t.end()
   })
 })
+
+test('#_encode() - dropped spans', function (t) {
+  var ins = mockInstrumentation(function () {})
+  ins._agent._conf.transactionMaxSpans = 2
+
+  var trans = new Transaction(ins._agent, 'single-name', 'type')
+  trans.result = 'result'
+  var span0 = trans.buildSpan()
+  span0.start('s0', 'type0')
+  var span1 = trans.buildSpan()
+  span1.start('s1', 'type1')
+  var span2 = trans.buildSpan()
+  if (span2) {
+    t.fail('should have dropped the span')
+  }
+  span0.end()
+  trans.end()
+
+  trans._encode(function (err, payload) {
+    t.error(err)
+
+    t.equal(payload.name, 'single-name')
+    t.equal(payload.type, 'type')
+    t.equal(payload.result, 'result')
+    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+    t.ok(payload.duration > 0, 'should have a duration >0ms')
+    t.ok(payload.duration < 100, 'should have a duration <100ms')
+    t.deepEqual(payload.context, {
+      user: {},
+      tags: {},
+      custom: {}
+    })
+
+    t.equal(payload.spans.length, 2)
+    t.deepEqual(payload.span_count, {
+      dropped: {
+        total: 1
+      }
+    })
+
+    payload.spans.forEach(function (span, index) {
+      t.equal(span.name, 's' + index)
+      t.equal(span.type, 'type' + index + (index === 1 ? '.truncated' : ''))
+      t.ok(span.start > 0, 'span start should be >0ms')
+      t.ok(span.start < 100, 'span start should be <100ms')
+      t.ok(span.duration > 0, 'span duration should be >0ms')
+      t.ok(span.duration < 100, 'span duration should be <100ms')
+    })
+
+    t.end()
+  })
+})
