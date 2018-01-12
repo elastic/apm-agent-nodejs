@@ -167,7 +167,9 @@ test('protocol.encode - http request meta data', function (t) {
             hostname: 'example.com',
             pathname: '/foo',
             search: '?bar=baz',
-            raw: '/foo?bar=baz'
+            raw: '/foo?bar=baz',
+            protocol: 'http:',
+            full: 'http://example.com/foo?bar=baz'
           },
           headers: {
             host: 'example.com',
