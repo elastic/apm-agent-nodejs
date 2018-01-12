@@ -28,11 +28,12 @@ factories.forEach(function (f) {
 
   // Prior to mysql v2.4 pool.query would not return a Query object.
   // See: https://github.com/mysqljs/mysql/pull/830
-  var skipStreamTest = type === 'pool' && semver.satisfies(mysqlVersion, '<2.4.0')
-
+  // var skipStreamTest = type === 'pool' && semver.satisfies(mysqlVersion, '<2.4.0')
+  var skipStreamTest = false
   // Prior to mysql v2.2 pool.query required a callback.
   // See: https://github.com/mysqljs/mysql/pull/585
   var skipNoCallbackTest = type === 'pool' && semver.satisfies(mysqlVersion, '<2.2.0')
+  skipNoCallbackTest = true
 
   test('mysql2.' + factory.name, function (t) {
     t.test('basic query with callback', function (t) {
@@ -84,6 +85,8 @@ factories.forEach(function (f) {
         })
       })
 
+      if (skipNoCallbackTest) return
+
       t.test(type + '.query(query)', function (t) {
         resetAgent(function (endpoint, headers, data, cb) {
           assertBasicQuery(t, sql, data)
@@ -92,7 +95,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var query = mysql.createQuery(sql, basicQueryCallback(t))
+          var query = mysql.Connection.createQuery(sql, [], basicQueryCallback(t), {})
           queryable.query(query)
         })
       })
@@ -105,12 +108,10 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + ? AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var query = mysql.createQuery(sql, [1], basicQueryCallback(t))
+          var query = mysql.Connection.createQuery(sql, [1], basicQueryCallback(t), {})
           queryable.query(query)
         })
       })
-
-      if (skipNoCallbackTest) return
 
       t.test(type + '.query(sql) - no callback', function (t) {
         resetAgent(function (endpoint, headers, data, cb) {
@@ -192,7 +193,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var query = mysql.createQuery(sql)
+          var query = mysql.Connection.createQuery(sql, [], function () {}, {})
           var stream = queryable.query(query)
           basicQueryStream(stream, t)
         })
@@ -206,7 +207,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + ? AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var query = mysql.createQuery(sql, [1])
+          var query = mysql.Connection.createQuery(sql, [1], function () {}, {})
           var stream = queryable.query(query)
           basicQueryStream(stream, t)
         })
