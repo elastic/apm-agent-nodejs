@@ -4,7 +4,6 @@ var os = require('os')
 var zlib = require('zlib')
 var test = require('tape')
 var nock = require('nock')
-var objectAssign = require('object-assign')
 var Agent = require('../lib/agent')
 var request = require('../lib/request')
 
@@ -161,7 +160,7 @@ test('#errors()', function (t) {
   t.test('should not anonymize the http Authorization header if disabled', function (t) {
     global._elastic_apm_initialized = null
     var agent = new Agent()
-    agent.start(objectAssign({filterHttpHeaders: false}, opts))
+    agent.start(Object.assign({filterHttpHeaders: false}, opts))
 
     agent._httpClient.request = function (endpoint, headers, data, cb) {
       t.equal(data.errors.length, 1)

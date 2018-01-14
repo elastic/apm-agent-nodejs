@@ -75,7 +75,6 @@
     "http-headers": "^3.0.1",
     "is-native": "^1.0.1",
     "normalize-bool": "^1.0.0",
-    "object-assign": "^4.1.1",
     "redact-secrets": "^1.0.0",
     "require-in-the-middle": "^2.1.2",
     "semver": "^5.3.0",
