@@ -1,22 +1,10 @@
 'use strict'
 
 var http = require('http')
-var zlib = require('zlib')
 var test = require('tape')
-var nock = require('nock')
-var getPort = require('get-port')
 var isError = require('core-util-is').isError
 var Agent = require('./_agent')
-var request = require('../lib/request')
-
-var opts = {
-  appName: 'some-app-name',
-  secretToken: 'secret',
-  captureExceptions: false,
-  logLevel: 'error'
-}
-
-var skipBody = function () { return '*' }
+var APMServer = require('./_apm_server')
 
 test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
@@ -74,187 +62,126 @@ test('#setTag()', function (t) {
 
 test('#captureError()', function (t) {
   t.test('with callback', function (t) {
-    var agent = Agent()
-    agent.start(opts)
-    var scope = nock('http://localhost:8200')
-      .filteringRequestBody(skipBody)
-      .post('/v1/errors', '*')
-      .reply(200)
-
-    agent.captureError(new Error(), function () {
-      scope.done()
-      t.end()
-    })
+    t.plan(5)
+    APMServer()
+      .on('listening', function () {
+        this.agent.captureError(new Error('with callback'), function () {
+          t.ok(true, 'called callback')
+          t.end()
+        })
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.message, 'with callback')
+      })
   })
 
   t.test('without callback', function (t) {
-    var agent = Agent()
-    agent.start(opts)
-    var scope = nock('http://localhost:8200')
-      .filteringRequestBody(skipBody)
-      .post('/v1/errors', '*')
-      .reply(200)
-
-    agent.captureError(new Error())
-
-    setTimeout(function () {
-      scope.done()
-      t.end()
-    }, 50)
+    t.plan(4)
+    APMServer()
+      .on('listening', function () {
+        this.agent.captureError(new Error('without callback'))
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.message, 'without callback')
+        t.end()
+      })
   })
 
   t.test('should send a plain text message to the server', function (t) {
-    var agent = Agent()
-    agent.start(opts)
-    var scope = nock('http://localhost:8200')
-      .filteringRequestBody(skipBody)
-      .post('/v1/errors', '*')
-      .reply(200)
-
-    agent.captureError('Hey!', function () {
-      scope.done()
-      t.end()
-    })
+    t.plan(4)
+    APMServer()
+      .on('listening', function () {
+        this.agent.captureError('Hey!')
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'Hey!')
+        t.end()
+      })
   })
 
   t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
-    var agent = Agent()
-    agent.start(opts)
-    var oldErrorsFn = request.errors
-    request.errors = function (agent, errors, cb) {
-      var error = errors[0]
-      t.equal(error.log.message, 'Hello World')
-      t.equal(error.log.param_message, 'Hello %s')
-      request.errors = oldErrorsFn
-      t.end()
-    }
-    agent.captureError({ message: 'Hello %s', params: ['World'] })
-  })
-
-  t.test('should send an Error to server', function (t) {
-    var agent = Agent()
-    agent.start(opts)
-    var scope = nock('http://localhost:8200')
-      .filteringRequestBody(skipBody)
-      .post('/v1/errors', '*')
-      .reply(200)
-
-    agent.captureError(new Error('wtf?'), function () {
-      scope.done()
-      t.end()
-    })
+    t.plan(5)
+    APMServer()
+      .on('listening', function () {
+        this.agent.captureError({message: 'Hello %s', params: ['World']})
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'Hello World')
+        t.equal(body.errors[0].log.param_message, 'Hello %s')
+        t.end()
+      })
   })
 
   t.test('should adhere to default stackTraceLimit', function (t) {
-    getPort().then(function (port) {
-      var agent = Agent()
-      agent.start(Object.assign(
-        {serverUrl: 'http://localhost:' + port},
-        opts
-      ))
-
-      var server = http.createServer(function (req, res) {
-        var buffers = []
-        var gunzip = zlib.createGunzip()
-        var unzipped = req.pipe(gunzip)
-
-        unzipped.on('data', buffers.push.bind(buffers))
-        unzipped.on('end', function () {
-          res.end()
-          server.close()
-          var data = JSON.parse(Buffer.concat(buffers))
-          t.equal(data.errors.length, 1)
-          t.equal(data.errors[0].exception.stacktrace.length, 50)
-          t.equal(data.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
-          t.end()
-        })
+    t.plan(5)
+    APMServer()
+      .on('listening', function () {
+        this.agent.captureError(deep(256))
       })
-
-      server.listen(port, function () {
-        agent.captureError(deep(256))
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.stacktrace.length, 50)
+        t.equal(body.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
+        t.end()
       })
-
-      function deep (depth, n) {
-        if (!n) n = 0
-        if (n < depth) return deep(depth, ++n)
-        return new Error()
-      }
-    })
   })
 
   t.test('should adhere to custom stackTraceLimit', function (t) {
-    getPort().then(function (port) {
-      var agent = Agent()
-      agent.start(Object.assign(
-        {stackTraceLimit: 5, serverUrl: 'http://localhost:' + port},
-        opts
-      ))
-
-      var server = http.createServer(function (req, res) {
-        var buffers = []
-        var gunzip = zlib.createGunzip()
-        var unzipped = req.pipe(gunzip)
-
-        unzipped.on('data', buffers.push.bind(buffers))
-        unzipped.on('end', function () {
-          res.end()
-          server.close()
-          var data = JSON.parse(Buffer.concat(buffers))
-          t.equal(data.errors.length, 1)
-          t.equal(data.errors[0].exception.stacktrace.length, 5)
-          t.equal(data.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
-          t.end()
-        })
+    t.plan(5)
+    APMServer({stackTraceLimit: 5})
+      .on('listening', function () {
+        this.agent.captureError(deep(42))
       })
-
-      server.listen(port, function () {
-        agent.captureError(deep(42))
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.stacktrace.length, 5)
+        t.equal(body.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
+        t.end()
       })
-
-      function deep (depth, n) {
-        if (!n) n = 0
-        if (n < depth) return deep(depth, ++n)
-        return new Error()
-      }
-    })
   })
 
   t.test('should merge context', function (t) {
-    var agent = Agent()
-    agent.start({
-      appName: 'foo',
-      secretToken: 'baz',
-      filterHttpHeaders: false,
-      logLevel: 'error'
-    })
-
-    var oldErrorsFn = request.errors
-    request.errors = function (agent, errors, cb) {
-      var context = errors[0].context
-      t.deepEqual(context.user, {a: 1, b: 1, merge: {shallow: true}})
-      t.deepEqual(context.custom, {a: 3, b: 2, merge: {shallow: true}})
-      request.errors = oldErrorsFn
-      t.end()
-    }
-
-    var server = http.createServer(function (req, res) {
-      agent.startTransaction()
-      t.equal(agent.setUserContext({a: 1, merge: {a: 2}}), true)
-      t.equal(agent.setCustomContext({a: 3, merge: {a: 4}}), true)
-      agent.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, custom: {b: 2, merge: {shallow: true}}})
-      res.end()
-    })
-
-    server.listen(function () {
-      http.request({
-        port: server.address().port
-      }, function (res) {
-        res.resume()
-        res.on('end', function () {
-          server.close()
+    t.plan(7)
+    APMServer()
+      .on('listening', function () {
+        var agent = this.agent
+        var server = http.createServer(function (req, res) {
+          agent.startTransaction()
+          t.equal(agent.setUserContext({a: 1, merge: {a: 2}}), true)
+          t.equal(agent.setCustomContext({a: 3, merge: {a: 4}}), true)
+          agent.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, custom: {b: 2, merge: {shallow: true}}})
+          res.end()
         })
-      }).end()
-    })
+
+        server.listen(function () {
+          http.request({
+            port: server.address().port
+          }, function (res) {
+            res.resume()
+            res.on('end', function () {
+              server.close()
+            })
+          }).end()
+        })
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        var context = body.errors[0].context
+        t.deepEqual(context.user, {a: 1, b: 1, merge: {shallow: true}})
+        t.deepEqual(context.custom, {a: 3, b: 2, merge: {shallow: true}})
+        t.end()
+      })
   })
 })
 
@@ -262,7 +189,11 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should add itself to the uncaughtException event list', function (t) {
     var agent = Agent()
     t.equal(process._events.uncaughtException, undefined)
-    agent.start(opts)
+    agent.start({
+      appName: 'some-app-name',
+      captureExceptions: false,
+      logLevel: 'error'
+    })
     agent.handleUncaughtExceptions()
     t.equal(process._events.uncaughtException.length, 1)
     t.end()
@@ -270,7 +201,11 @@ test('#handleUncaughtExceptions()', function (t) {
 
   t.test('should not add more than one listener for the uncaughtException event', function (t) {
     var agent = Agent()
-    agent.start(opts)
+    agent.start({
+      appName: 'some-app-name',
+      captureExceptions: false,
+      logLevel: 'error'
+    })
     agent.handleUncaughtExceptions()
     var before = process._events.uncaughtException.length
     agent.handleUncaughtExceptions()
@@ -279,20 +214,32 @@ test('#handleUncaughtExceptions()', function (t) {
   })
 
   t.test('should send an uncaughtException to server', function (t) {
-    var agent = Agent()
-
-    var scope = nock('http://localhost:8200')
-      .filteringRequestBody(skipBody)
-      .post('/v1/errors', '*')
-      .reply(200)
-
-    agent.start(opts)
-    agent.handleUncaughtExceptions(function (err) {
-      t.ok(isError(err))
-      scope.done()
-      t.end()
-    })
-
-    process.emit('uncaughtException', new Error('derp'))
+    t.plan(5)
+    APMServer()
+      .on('listening', function () {
+        this.agent.handleUncaughtExceptions(function (err) {
+          t.ok(isError(err))
+          t.end()
+        })
+        process.emit('uncaughtException', new Error('uncaught'))
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.message, 'uncaught')
+      })
   })
 })
+
+function validateErrorRequest (t) {
+  return function (req) {
+    t.equal(req.method, 'POST', 'should be a POST request')
+    t.equal(req.url, '/v1/errors', 'should be sent to the errors endpoint')
+  }
+}
+
+function deep (depth, n) {
+  if (!n) n = 0
+  if (n < depth) return deep(depth, ++n)
+  return new Error()
+}
