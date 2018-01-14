@@ -12,6 +12,7 @@ var optionFixtures = [
   ['appVersion', 'APP_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
+  ['captureLocationStackTraces', 'CAPTURE_LOCATION_STACK_TRACES', 1],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
@@ -19,8 +20,7 @@ var optionFixtures = [
   ['sourceContextErrorAppFrames', 'SOURCE_CONTEXT_ERROR_APP_FRAMES', 5],
   ['sourceContextErrorLibraryFrames', 'SOURCE_CONTEXT_ERROR_LIBRARY_FRAMES', 5],
   ['sourceContextTraceAppFrames', 'SOURCE_CONTEXT_TRACE_APP_FRAMES', 5],
-  ['sourceContextTraceLibraryFrames', 'SOURCE_CONTEXT_TRACE_LIBRARY_FRAMES', 0],
-  ['ff_captureFrame', 'FF_CAPTURE_FRAME', false]
+  ['sourceContextTraceLibraryFrames', 'SOURCE_CONTEXT_TRACE_LIBRARY_FRAMES', 0]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']

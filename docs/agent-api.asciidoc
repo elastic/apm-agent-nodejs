@@ -315,6 +315,39 @@ Note that if a custom logger is provided, the `logLevel` option will be ignored.
 
 Whether or not the agent should monitor for uncaught exceptions and send them to the APM Server automatically.
 
+[[capture-location-stack-traces]]
+===== `captureLocationStackTraces`
+
+* *Type:* Number
+* *Default:* `1`
+* *Env:* `ELASTIC_APM_CAPTURE_LOCATION_STACK_TRACES`
+
+Normally only `Error` objects have a stack trace associated with them.
+This stack trace is stored along with the error message when the error is sent to the APM Server.
+The stack trace points to the place where the `Error` object was instantiated.
+
+But sometimes its valuable to know,
+not where the `Error` was instantiated,
+but where it was detected.
+For instance,
+when an error happens deep within a database driver,
+the location where the error bubbles up to,
+is sometimes more useful for debugging,
+than where the error occurred.
+
+Set this config option to `2` to --
+besides the error stack trace --
+also capture a stack trace at the location where <<apm-capture-error,`captureError`>> was called.
+
+By default,
+this config option have the value `1`,
+which means that a stack trace of the capture location will be recorded only when `captureError` is called with either a <<message-strings,string>> or the <<parameterized-error-object,special parameterized error object>>,
+in which case a normal stack trace isn't available.
+
+Set this config option to `0` to never record a capture location stack trace.
+
+A capture location stack trace is never generated for uncaught exceptions.
+
 [[capture-trace-stack-traces]]
 ===== `captureTraceStackTraces`
 
