@@ -56,6 +56,20 @@ test('client.search with callback', function userLandCode (t) {
   })
 })
 
+test('client.count with callback', function userLandCode (t) {
+  resetAgent(done(t, 'POST', '/_count'))
+
+  agent.startTransaction('foo3')
+
+  var client = new elasticsearch.Client({host: host})
+  client.count(function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent._instrumentation._queue._flush()
+  })
+})
+
+var searchRegexp = /_search$/
 function done (t, method, path, query) {
   return function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1)
@@ -75,7 +89,12 @@ function done (t, method, path, query) {
     t.ok(trans.spans[1].stacktrace.some(function (frame) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
-    t.deepEqual(trans.spans[1].context.db, {statement: query || '{}', type: 'elasticsearch'})
+
+    if (searchRegexp.test(path)) {
+      t.deepEqual(trans.spans[1].context.db, {statement: query || '{}', type: 'elasticsearch'})
+    } else {
+      t.notOk(trans.spans[1].context)
+    }
 
     t.ok(trans.spans[0].start > trans.spans[1].start, 'http span should start after elasticsearch span')
     t.ok(trans.spans[0].start + trans.spans[0].duration < trans.spans[1].start + trans.spans[1].duration, 'http span should end before elasticsearch span')
