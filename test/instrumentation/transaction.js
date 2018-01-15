@@ -243,7 +243,7 @@ test('#_encode() - ended', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'spans'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(typeof payload.id, 'string')
     t.equal(payload.id, trans.id)
     t.equal(payload.name, 'unnamed')
@@ -267,7 +267,7 @@ test('#_encode() - with meta data, no spans', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'spans'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(typeof payload.id, 'string')
     t.equal(payload.id, trans.id)
     t.equal(payload.name, 'foo')
@@ -288,7 +288,7 @@ test('#_encode() - spans', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'spans'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(typeof payload.id, 'string')
     t.equal(payload.id, trans.id)
     t.equal(payload.name, 'unnamed')
@@ -346,7 +346,7 @@ test('#_encode() - http request meta data', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'spans'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(typeof payload.id, 'string')
     t.equal(payload.id, trans.id)
     t.equal(payload.name, 'POST unknown route')
@@ -399,7 +399,7 @@ test('#_encode() - disable stack spans', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'spans'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(payload.spans.length, 1)
     t.deepEqual(Object.keys(payload.spans[0]), ['name', 'type', 'start', 'duration'])
     t.end()
@@ -418,7 +418,7 @@ test('#_encode() - truncated spans', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'spans'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(payload.spans.length, 2)
     t.equal(payload.spans[0].name, 'foo')
     t.equal(payload.spans[0].type, 'custom')
@@ -476,6 +476,32 @@ test('#_encode() - dropped spans', function (t) {
       t.ok(span.duration < 100, 'span duration should be <100ms')
     })
 
+    t.end()
+  })
+})
+
+test('#_encode() - not sampled', function (t) {
+  var ins = mockInstrumentation(function () {})
+  ins._agent._conf.transactionSampleRate = 0
+
+  var trans = new Transaction(ins._agent, 'single-name', 'type')
+  trans.result = 'result'
+  var span0 = trans.buildSpan()
+  if (span0) span0.start('s0', 'type0')
+  trans.buildSpan()
+  if (span0) span0.end()
+  trans.end()
+
+  trans._encode(function (err, payload) {
+    t.error(err)
+    t.equal(payload.name, 'single-name')
+    t.equal(payload.type, 'type')
+    t.equal(payload.result, 'result')
+    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+    t.ok(payload.duration > 0, 'should have a duration >0ms')
+    t.ok(payload.duration < 100, 'should have a duration <100ms')
+    t.notOk(payload.spans)
+    t.notOk(payload.context)
     t.end()
   })
 })
