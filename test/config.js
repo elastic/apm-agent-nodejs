@@ -24,10 +24,12 @@ var truthyValues = [true, 1, '1', 'true', 'yes', 'on', 'enabled']
 
 optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
+    var bool = typeof fixture[2] === 'boolean'
+    var number = typeof fixture[2] === 'number'
+
     test('should be configurable by envrionment variable ELASTIC_APM_' + fixture[1], function (t) {
       var agent = Agent()
-      var bool = typeof fixture[2] === 'boolean'
-      var value = bool ? (fixture[2] ? '0' : '1') : 'custom-value'
+      var value = bool ? (fixture[2] ? '0' : '1') : number ? 1 : 'custom-value'
       process.env['ELASTIC_APM_' + fixture[1]] = value
       agent.start()
       t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
@@ -38,9 +40,8 @@ optionFixtures.forEach(function (fixture) {
     test('should overwrite ELASTIC_APM_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
       var agent = Agent()
       var opts = {}
-      var bool = typeof fixture[2] === 'boolean'
-      var value1 = bool ? (fixture[2] ? '0' : '1') : 'overwriting-value'
-      var value2 = bool ? (fixture[2] ? '1' : '0') : 'custom-value'
+      var value1 = bool ? (fixture[2] ? '0' : '1') : number ? 2 : 'overwriting-value'
+      var value2 = bool ? (fixture[2] ? '1' : '0') : number ? 1 : 'custom-value'
       opts[fixture[0]] = value1
       process.env['ELASTIC_APM_' + fixture[1]] = value2
       agent.start(opts)

@@ -8,6 +8,8 @@ var agent = require('../..').start({
 var origCaptureError = agent.captureError
 
 var test = require('tape')
+var mockAgent = require('./_agent')
+var Instrumentation = require('../../lib/instrumentation')
 
 test('basic', function (t) {
   resetAgent(function (endpoint, headers, data, cb) {
@@ -285,6 +287,89 @@ test('errors should have a transaction id - ended transaction', function (t) {
   var trans = agent.startTransaction('foo')
   trans.end()
   agent.captureError(new Error('bar'))
+})
+
+test('sampling', function (t) {
+  function generateSamples (rate, count) {
+    count = count || 1000
+    var agent = {
+      _conf: {
+        transactionSampleRate: rate
+      }
+    }
+    var ins = new Instrumentation(agent)
+    agent._instrumentation = ins
+
+    var results = {
+      count: count,
+      sampled: 0,
+      unsampled: 0
+    }
+    for (var i = 0; i < count; i++) {
+      var trans = ins.startTransaction()
+      if (trans && trans.sampled) {
+        results.sampled++
+      } else {
+        results.unsampled++
+      }
+    }
+
+    return results
+  }
+
+  function toRatios (samples) {
+    return {
+      count: samples.count,
+      sampled: samples.sampled / samples.count,
+      unsampled: samples.unsampled / samples.count
+    }
+  }
+
+  var high = generateSamples(1.0)
+  t.ok(high.sampled > high.unsampled)
+
+  var low = generateSamples(0.1)
+  t.ok(low.sampled < low.unsampled)
+
+  var mid = toRatios(generateSamples(0.5))
+  t.ok(mid.sampled > 0.4 && mid.sampled < 0.6)
+  t.ok(mid.unsampled > 0.4 && mid.unsampled < 0.6)
+
+  t.end()
+})
+
+test('unsampled transactions do not include spans', function (t) {
+  var agent = mockAgent(function (endpoint, headers, data, cb) {
+    t.equal(endpoint, 'transactions')
+
+    t.equal(data.transactions.length, 1)
+
+    data.transactions.forEach(function (trans) {
+      t.ok(/[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}/.test(trans.id))
+      t.ok(trans.duration > 0, 'duration should be >0ms')
+      t.ok(trans.duration < 100, 'duration should be <100ms')
+      t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
+      t.equal(trans.sampled, false)
+      t.notOk(trans.spans)
+    })
+
+    t.end()
+  })
+
+  agent._conf.transactionSampleRate = 0.0
+  var ins = agent._instrumentation
+
+  var trans = ins.startTransaction()
+  var span = startSpan(ins, 'span 0', 'type')
+  process.nextTick(function () {
+    if (span) span.end()
+    span = startSpan(ins, 'span 1', 'type')
+    process.nextTick(function () {
+      if (span) span.end()
+      trans.end()
+      ins._queue._flush()
+    })
+  })
 })
 
 function startSpan (ins, name, type) {
