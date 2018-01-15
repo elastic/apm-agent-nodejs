@@ -91,11 +91,11 @@ test('server-side abort - call end', function (t) {
       t.ok(closeEvent, 'res should emit close event')
       res.end('Hello World')
 
-      setTimeout(function () {
+      setImmediate(function () {
         t.equal(agent._instrumentation._queue._items.length, 1, 'should not add transactions to queue')
         server.close()
         t.end()
-      }, 50)
+      })
     }, 200)
   })
 
