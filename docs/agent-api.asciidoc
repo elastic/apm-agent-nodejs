@@ -261,6 +261,17 @@ Specify the threshold (in milliseconds) for when an aborted TCP connection with 
 
 If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 
+[[transaction-sample-rate]]
+===== `transactionSampleRate`
+
+* *Type:* Number
+* *Default:* `1.0`
+* *Env:* `ELASTIC_APM_TRANSACTION_SAMPLE_RATE`
+
+Specify the sampling rate to use when deciding whether to trace a request.
+
+The value should between `0.0` and `1.0` where `1.0` is 100% of all requests.
+
 [[hostname]]
 ===== `hostname`
 
