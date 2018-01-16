@@ -123,7 +123,7 @@ factories.forEach(function (f) {
           queryable.query(sql)
           setTimeout(function () {
             trans.end()
-            agent._instrumentation._queue._flush()
+            agent.flush()
           }, 150)
         })
       })
@@ -256,7 +256,7 @@ factories.forEach(function (f) {
 
           function done () {
             trans.end()
-            agent._instrumentation._queue._flush()
+            agent.flush()
           }
         })
       })
@@ -312,7 +312,7 @@ factories.forEach(function (f) {
 
           function done () {
             trans.end()
-            agent._instrumentation._queue._flush()
+            agent.flush()
           }
         })
       })
@@ -372,7 +372,7 @@ factories.forEach(function (f) {
         })
 
         function done () {
-          agent._instrumentation._queue._flush()
+          agent.flush()
         }
       })
     })
@@ -410,7 +410,7 @@ function basicQueryCallback (t) {
     t.error(err)
     t.equal(rows[0].solution, 2)
     agent.endTransaction()
-    agent._instrumentation._queue._flush()
+    agent.flush()
   }
 }
 
@@ -426,7 +426,7 @@ function basicQueryStream (stream, t) {
   stream.on('end', function () {
     t.equal(results, 1)
     agent.endTransaction()
-    agent._instrumentation._queue._flush()
+    agent.flush()
   })
 }
 

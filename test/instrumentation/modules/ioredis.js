@@ -48,7 +48,7 @@ test('not nested', function (t) {
 
     agent.endTransaction()
     redis.quit()
-    agent._instrumentation._queue._flush()
+    agent.flush()
   })
 })
 
@@ -88,7 +88,7 @@ test('nested', function (t) {
 
       agent.endTransaction()
       redis.quit()
-      agent._instrumentation._queue._flush()
+      agent.flush()
     })
   })
 })

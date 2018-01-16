@@ -43,7 +43,7 @@ test('handlebars compile and render', function userLandCode (t) {
   template({ name: 'world' })
 
   agent.endTransaction()
-  agent._instrumentation._queue._flush()
+  agent.flush()
 })
 
 function resetAgent (cb) {

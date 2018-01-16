@@ -837,3 +837,21 @@ the node process is terminated automatically when an uncaught exception has been
 https://nodejs.org/api/process.html#process_event_uncaughtexception[It is recommended] that you don't leave the process running after receiving an uncaught exception,
 so if you are using the optional callback,
 remember to terminate the node process.
+
+[[apm-flush]]
+==== `apm.flush([callback])`
+
+[source,js]
+----
+apm.flush(function (err) {
+  // Flush complete
+})
+----
+
+Manually flush the in-memory transaction queue and send all the transactions to the APM Server.
+The queue is otherwise flushed automatically,
+controlled by the <<flush-interval,`flushInterval`>> and/or <<max-queue-size,`maxQueueSize`>> config options.
+
+The callback is called *after* the event has been sent to the APM Server with the following arguments:
+
+* `err` - the captured exception

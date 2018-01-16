@@ -119,7 +119,7 @@ test('instrument simple command', function (t) {
                 t.error(err)
                 agent.endTransaction()
                 _server.destroy()
-                agent._instrumentation._queue._flush()
+                agent.flush()
               })
             })
           })

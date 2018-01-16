@@ -35,7 +35,7 @@ test('ws.send', function (t) {
   ws.on('message', function (message) {
     t.equal(message, 'pong')
     wss.close(function () {
-      agent._instrumentation._queue._flush()
+      agent.flush()
     })
   })
 })

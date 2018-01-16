@@ -25,7 +25,7 @@ transports.forEach(function (tuple) {
       var req = transport.request({port: port, rejectUnauthorized: false}, function (res) {
         res.on('end', function () {
           agent.endTransaction()
-          agent._instrumentation._queue._flush()
+          agent.flush()
         })
         res.resume()
       })

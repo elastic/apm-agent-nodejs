@@ -29,6 +29,9 @@ module.exports = function mockAgent (cb) {
     _filters: new Filters(),
     _httpClient: {
       request: cb || noop
+    },
+    flush: function () {
+      this._instrumentation.flush()
     }
   }
 

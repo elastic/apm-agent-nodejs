@@ -61,7 +61,7 @@ test('error intercept', function (t) {
           error: error.message
         }), 'got correct body from error handler middleware')
         server.close()
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
     req.end()
@@ -108,7 +108,7 @@ test('ignore 404 errors', function (t) {
         const body = Buffer.concat(chunks).toString()
         t.equal(body, 'not found', 'got correct body from error handler middleware')
         server.close()
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
     req.end()

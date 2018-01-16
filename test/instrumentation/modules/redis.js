@@ -78,7 +78,7 @@ test(function (t) {
 
       agent.endTransaction()
       client.quit()
-      agent._instrumentation._queue._flush()
+      agent.flush()
     })
   })
 })

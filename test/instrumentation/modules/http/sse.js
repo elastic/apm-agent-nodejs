@@ -89,7 +89,7 @@ function request (server) {
     var port = server.address().port
     http.request({ port: port }, function (res) {
       res.on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
         server.close()
       })
       res.resume()

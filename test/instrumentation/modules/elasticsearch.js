@@ -22,7 +22,7 @@ test('client.ping with callback', function userLandCode (t) {
   client.ping(function (err) {
     t.error(err)
     agent.endTransaction()
-    agent._instrumentation._queue._flush()
+    agent.flush()
   })
 })
 
@@ -35,7 +35,7 @@ test('client.ping with promise', function userLandCode (t) {
 
   client.ping().then(function () {
     agent.endTransaction()
-    agent._instrumentation._queue._flush()
+    agent.flush()
   }, function (err) {
     t.error(err)
   })
@@ -52,7 +52,7 @@ test('client.search with callback', function userLandCode (t) {
   client.search(query, function (err) {
     t.error(err)
     agent.endTransaction()
-    agent._instrumentation._queue._flush()
+    agent.flush()
   })
 })
 
