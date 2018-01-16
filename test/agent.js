@@ -185,7 +185,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - off (error)', function (t) {
-    t.plan(8)
+    t.plan(9)
     APMServer({captureLocationStackTraces: 0})
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
@@ -193,6 +193,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.message, 'foo')
         t.notOk('log' in body.errors[0], 'should not have a log')
         assertStackTrace(t, body.errors[0].exception.stacktrace)
         t.end()
@@ -200,7 +201,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - off (string)', function (t) {
-    t.plan(5)
+    t.plan(6)
     APMServer({captureLocationStackTraces: 0})
       .on('listening', function () {
         this.agent.captureError('foo')
@@ -208,6 +209,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'foo')
         t.notOk('stacktrace' in body.errors[0].log, 'should not have a log.stacktrace')
         t.notOk('exception' in body.errors[0], 'should not have an exception')
         t.end()
@@ -215,7 +217,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - off (param msg)', function (t) {
-    t.plan(5)
+    t.plan(6)
     APMServer({captureLocationStackTraces: 0})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
@@ -223,6 +225,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'Hello World')
         t.notOk('stacktrace' in body.errors[0].log, 'should not have a log.stacktrace')
         t.notOk('exception' in body.errors[0], 'should not have an exception')
         t.end()
@@ -230,7 +233,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - non-errors (error)', function (t) {
-    t.plan(8)
+    t.plan(9)
     APMServer({captureLocationStackTraces: 1})
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
@@ -238,6 +241,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.message, 'foo')
         t.notOk('log' in body.errors[0], 'should not have a log')
         assertStackTrace(t, body.errors[0].exception.stacktrace)
         t.end()
@@ -245,7 +249,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - non-errors (string)', function (t) {
-    t.plan(8)
+    t.plan(9)
     APMServer({captureLocationStackTraces: 1})
       .on('listening', function () {
         this.agent.captureError('foo')
@@ -253,6 +257,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'foo')
         t.notOk('exception' in body.errors[0], 'should not have an exception')
         assertStackTrace(t, body.errors[0].log.stacktrace)
         t.end()
@@ -260,7 +265,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - non-errors (param msg)', function (t) {
-    t.plan(8)
+    t.plan(9)
     APMServer({captureLocationStackTraces: 1})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
@@ -268,6 +273,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'Hello World')
         t.notOk('exception' in body.errors[0], 'should not have an exception')
         assertStackTrace(t, body.errors[0].log.stacktrace)
         t.end()
@@ -275,7 +281,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - all (error)', function (t) {
-    t.plan(11)
+    t.plan(13)
     APMServer({captureLocationStackTraces: 2})
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
@@ -283,6 +289,8 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'n/a')
+        t.equal(body.errors[0].exception.message, 'foo')
         assertStackTrace(t, body.errors[0].log.stacktrace)
         assertStackTrace(t, body.errors[0].exception.stacktrace)
         t.end()
@@ -290,7 +298,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - all (string)', function (t) {
-    t.plan(8)
+    t.plan(9)
     APMServer({captureLocationStackTraces: 2})
       .on('listening', function () {
         this.agent.captureError('foo')
@@ -298,6 +306,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'foo')
         t.notOk('exception' in body.errors[0], 'should not have an exception')
         assertStackTrace(t, body.errors[0].log.stacktrace)
         t.end()
@@ -305,7 +314,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('capture location stack trace - all (param msg)', function (t) {
-    t.plan(8)
+    t.plan(9)
     APMServer({captureLocationStackTraces: 2})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
@@ -313,6 +322,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'Hello World')
         t.notOk('exception' in body.errors[0], 'should not have an exception')
         assertStackTrace(t, body.errors[0].log.stacktrace)
         t.end()
