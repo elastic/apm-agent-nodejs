@@ -348,7 +348,7 @@ Setting it to `Infinity` means that all frames will be collected.
 ===== `flushInterval`
 
 * *Type:* Number
-* *Default:* `60`
+* *Default:* `10`
 * *Env:* `ELASTIC_APM_FLUSH_INTERVAL`
 
 The agent maintains an in-memory queue to which recorded transactions are added when they end.

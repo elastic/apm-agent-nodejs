@@ -18,6 +18,7 @@ module.exports = function mockAgent (cb) {
       captureTraceStackTraces: true,
       errorOnAbortedRequests: false,
       abortedErrorThreshold: 250,
+      flushInterval: 10,
       ignoreUrlStr: [],
       ignoreUrlRegExp: [],
       ignoreUserAgentStr: [],
