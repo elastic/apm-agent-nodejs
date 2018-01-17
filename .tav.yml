@@ -21,7 +21,7 @@ pg:
     - node test/instrumentation/modules/pg/pg.js
     - node test/instrumentation/modules/pg/knex.js
 mongodb-core:
-  versions: ^1.2.19 || ^2.0.0
+  versions: '>=1.2.19 <4'
   commands: node test/instrumentation/modules/mongodb-core.js
 bluebird:
   versions: '>=2 <4'
