@@ -1,5 +1,7 @@
 'use strict'
 
+process.env.ELASTIC_APM_TEST = true
+
 var test = require('tape')
 var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
@@ -202,4 +204,214 @@ test('parallel transactions', function (t) {
       t2.end()
     }, 25)
   }, 25)
+})
+
+test('#_encode() - un-ended', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.ok(false)
+  })
+  var trans = new Transaction(ins._agent)
+  trans._encode(function (err, payload) {
+    t.equal(err.message, 'cannot encode un-ended trace')
+    t.end()
+  })
+})
+
+test('#_encode() - ended', function (t) {
+  var ins = mockInstrumentation(function () {})
+  var trans = new Transaction(ins._agent)
+  trans.end()
+  trans._encode(function (err, payload) {
+    t.error(err)
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'traces'])
+    t.equal(typeof payload.id, 'string')
+    t.equal(payload.id, trans.id)
+    t.equal(payload.name, 'unnamed')
+    t.equal(payload.type, 'custom')
+    t.ok(payload.duration > 0)
+    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+    t.equal(payload.result, 'success')
+    t.deepEqual(payload.context, {user: {}, tags: {}, custom: {}})
+    t.deepEqual(payload.traces, [])
+    t.end()
+  })
+})
+
+test('#_encode() - with meta data, no traces', function (t) {
+  var ins = mockInstrumentation(function () {})
+  var trans = new Transaction(ins._agent, 'foo', 'bar')
+  trans.result = 'baz'
+  trans.setUserContext({foo: 1})
+  trans.setTag('bar', 1)
+  trans.setCustomContext({baz: 1})
+  trans.end()
+  trans._encode(function (err, payload) {
+    t.error(err)
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'traces'])
+    t.equal(typeof payload.id, 'string')
+    t.equal(payload.id, trans.id)
+    t.equal(payload.name, 'foo')
+    t.equal(payload.type, 'bar')
+    t.ok(payload.duration > 0)
+    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+    t.equal(payload.result, 'baz')
+    t.deepEqual(payload.context, {user: {foo: 1}, tags: {bar: '1'}, custom: {baz: 1}})
+    t.deepEqual(payload.traces, [])
+    t.end()
+  })
+})
+
+test('#_encode() - traces', function (t) {
+  var ins = mockInstrumentation(function () {})
+  var trans = new Transaction(ins._agent)
+  genTraces(3)
+  trans.end()
+  trans._encode(function (err, payload) {
+    t.error(err)
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'traces'])
+    t.equal(typeof payload.id, 'string')
+    t.equal(payload.id, trans.id)
+    t.equal(payload.name, 'unnamed')
+    t.equal(payload.type, 'custom')
+    t.ok(payload.duration > 0)
+    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+    t.equal(payload.result, 'success')
+    t.deepEqual(payload.context, {user: {}, tags: {}, custom: {}})
+    t.equal(payload.traces.length, 3)
+    var start = 0
+    payload.traces.forEach(function (trace, index) {
+      t.deepEqual(Object.keys(trace), ['name', 'type', 'start', 'duration', 'stacktrace'])
+      t.equal(trace.name, 'trace-name' + index)
+      t.equal(trace.type, 'trace-type' + index)
+      t.ok(trace.start >= start)
+      t.ok(trace.duration > 0)
+      t.ok(trace.stacktrace.length > 0)
+      t.equal(trace.stacktrace[0].function, 'genTraces')
+      t.equal(trace.stacktrace[0].abs_path, __filename)
+      trace.stacktrace.forEach(function (frame) {
+        t.deepEqual(Object.keys(frame), ['filename', 'lineno', 'function', 'in_app', 'abs_path'])
+        t.equal(typeof frame.filename, 'string')
+        t.ok(Number.isFinite(frame.lineno))
+        t.equal(typeof frame.function, 'string')
+        t.equal(typeof frame.in_app, 'boolean')
+        t.equal(typeof frame.abs_path, 'string')
+      })
+      start = trace.start + trace.duration
+    })
+    t.end()
+  })
+
+  function genTraces (max, n) {
+    if (!n) n = 0
+    var trace = trans.buildTrace()
+    trace.start('trace-name' + n, 'trace-type' + n)
+    trace.end()
+    if (++n < max) genTraces(max, n)
+  }
+})
+
+test('#_encode() - http request meta data', function (t) {
+  var ins = mockInstrumentation(function () {})
+  var trans = new Transaction(ins._agent)
+  trans.req = {
+    httpVersion: '1.1',
+    method: 'POST',
+    url: '/foo?bar=baz',
+    headers: {
+      'host': 'example.com',
+      'user-agent': 'user-agent-header',
+      'content-length': 42,
+      'cookie': 'cookie1=foo;cookie2=bar',
+      'x-foo': 'bar',
+      'x-bar': 'baz'
+    },
+    socket: {
+      encrypted: true,
+      remoteAddress: '127.0.0.1'
+    },
+    body: {
+      foo: 42
+    }
+  }
+  trans.end()
+  trans._encode(function (err, payload) {
+    t.error(err)
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'traces'])
+    t.equal(typeof payload.id, 'string')
+    t.equal(payload.id, trans.id)
+    t.equal(payload.name, 'POST unknown route')
+    t.equal(payload.type, 'custom')
+    t.ok(payload.duration > 0)
+    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+    t.equal(payload.result, 'success')
+    t.deepEqual(payload.context, {
+      request: {
+        http_version: '1.1',
+        method: 'POST',
+        url: {
+          hostname: 'example.com',
+          pathname: '/foo',
+          search: '?bar=baz',
+          raw: '/foo?bar=baz'
+        },
+        headers: {
+          host: 'example.com',
+          'user-agent': 'user-agent-header',
+          'content-length': 42,
+          cookie: 'cookie1=foo;cookie2=bar',
+          'x-bar': 'baz',
+          'x-foo': 'bar'
+        },
+        socket: {
+          remote_address: '127.0.0.1',
+          encrypted: true
+        },
+        body: '[REDACTED]'
+      },
+      user: {},
+      tags: {},
+      custom: {}
+    })
+    t.deepEqual(payload.traces, [])
+    t.end()
+  })
+})
+
+test('#_encode() - disable stack traces', function (t) {
+  var ins = mockInstrumentation(function () {})
+  ins._agent._conf.captureTraceStackTraces = false
+  var trans = new Transaction(ins._agent)
+  var trace = trans.buildTrace()
+  trace.start()
+  trace.end()
+  trans.end()
+  trans._encode(function (err, payload) {
+    t.error(err)
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'traces'])
+    t.equal(payload.traces.length, 1)
+    t.deepEqual(Object.keys(payload.traces[0]), ['name', 'type', 'start', 'duration'])
+    t.end()
+  })
+})
+
+test('#_encode() - truncated traces', function (t) {
+  var ins = mockInstrumentation(function () {})
+  ins._agent._conf.captureTraceStackTraces = false
+  var trans = new Transaction(ins._agent)
+  var t1 = trans.buildTrace()
+  t1.start('foo')
+  t1.end()
+  var t2 = trans.buildTrace()
+  t2.start('bar')
+  trans.end()
+  trans._encode(function (err, payload) {
+    t.error(err)
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'context', 'traces'])
+    t.equal(payload.traces.length, 2)
+    t.equal(payload.traces[0].name, 'foo')
+    t.equal(payload.traces[0].type, 'custom')
+    t.equal(payload.traces[1].name, 'bar')
+    t.equal(payload.traces[1].type, 'custom.truncated')
+    t.end()
+  })
 })
