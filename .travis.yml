@@ -48,11 +48,8 @@ jobs:
       script: npm run docs
       perl: '5.26'
 
-    ###########################################
-    #             CONVERAGE STAGE             #
-    ###########################################
-
-    - stage: coverage
+    # Coverage
+    -
       script:
         - npm run coverage
         - ./node_modules/.bin/nyc report --reporter=lcov > coverage.lcov
