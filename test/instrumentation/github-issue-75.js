@@ -45,7 +45,7 @@ times(5, function (n, done) {
       http.get('http://localhost:' + port, function (res) {
         res.on('end', function () {
           if (++requestNo === 2) {
-            agent._instrumentation._queue._flush()
+            agent.flush()
           }
         })
         res.resume()

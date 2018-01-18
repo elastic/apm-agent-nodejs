@@ -27,7 +27,7 @@ test('client-side abort below error threshold - call end', function (t) {
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
-    agent._instrumentation._queue._flush()
+    agent.flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -72,7 +72,7 @@ test('client-side abort above error threshold - call end', function (t) {
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
-    agent._instrumentation._queue._flush()
+    agent.flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -196,7 +196,7 @@ test('server-side abort below error threshold and socket closed - call end', fun
     addEndedTransaction.apply(this, arguments)
     ended = true
     t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
-    agent._instrumentation._queue._flush()
+    agent.flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -243,7 +243,7 @@ test('server-side abort above error threshold and socket closed - call end', fun
     addEndedTransaction.apply(this, arguments)
     ended = true
     t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
-    agent._instrumentation._queue._flush()
+    agent.flush()
   }
 
   var server = http.createServer(function (req, res) {
@@ -386,7 +386,7 @@ test('server-side abort below error threshold but socket not closed - call end',
     http.get('http://localhost:' + port, function (res) {
       res.on('end', function () {
         t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
       res.resume()
     })
@@ -426,7 +426,7 @@ test('server-side abort above error threshold but socket not closed - call end',
     http.get('http://localhost:' + port, function (res) {
       res.on('end', function () {
         t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
       res.resume()
     })

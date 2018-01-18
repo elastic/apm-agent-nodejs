@@ -32,7 +32,7 @@ test('route naming', function (t) {
         t.equal(chunk.toString(), 'hello world')
       })
       res.on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
   })
@@ -53,7 +53,7 @@ test('route naming with params', function (t) {
         t.equal(chunk.toString(), 'hello thomas')
       })
       res.on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
   })

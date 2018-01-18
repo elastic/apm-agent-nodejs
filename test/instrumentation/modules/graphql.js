@@ -25,7 +25,7 @@ test('graphql.graphql', function (t) {
   graphql.graphql(schema, query, root).then(function (response) {
     agent.endTransaction()
     t.deepEqual(response, {data: {hello: 'Hello world!'}})
-    agent._instrumentation._queue._flush()
+    agent.flush()
   })
 })
 
@@ -45,7 +45,7 @@ test('graphql.execute', function (t) {
   graphql.execute(schema, documentAST, root).then(function (response) {
     agent.endTransaction()
     t.deepEqual(response, {data: {hello: 'Hello world!'}})
-    agent._instrumentation._queue._flush()
+    agent.flush()
   })
 })
 
@@ -67,7 +67,7 @@ if (semver.satisfies(pkg.version, '>=0.12')) {
 
     agent.endTransaction()
     t.deepEqual(response, {data: {hello: 'Hello world!'}})
-    agent._instrumentation._queue._flush()
+    agent.flush()
   })
 }
 

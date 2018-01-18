@@ -51,7 +51,7 @@ test('basic', function (t) {
 
   generateTransaction(0, function () {
     generateTransaction(1, function () {
-      ins._queue._flush()
+      ins.flush()
     })
   })
 
@@ -89,7 +89,7 @@ test('same tick', function (t) {
   t1.end()
   t0.end()
   trans.end()
-  ins._queue._flush()
+  ins.flush()
 })
 
 test('serial - no parents', function (t) {
@@ -111,7 +111,7 @@ test('serial - no parents', function (t) {
     process.nextTick(function () {
       t1.end()
       trans.end()
-      ins._queue._flush()
+      ins.flush()
     })
   })
 })
@@ -135,7 +135,7 @@ test('serial - with parents', function (t) {
       t1.end()
       t0.end()
       trans.end()
-      ins._queue._flush()
+      ins.flush()
     })
   })
 })
@@ -160,7 +160,7 @@ test('stack branching - no parents', function (t) {
   setTimeout(function () {
     t1.end() // 4
     trans.end()
-    ins._queue._flush()
+    ins.flush()
   }, 50)
 })
 
@@ -184,7 +184,7 @@ test('currentTransaction missing - recoverable', function (t) {
       setImmediate(function () {
         ins.currentTransaction = trans
         trans.end()
-        ins._queue._flush()
+        ins.flush()
       })
     })
   })
@@ -212,7 +212,7 @@ test('currentTransaction missing - not recoverable - last trace failed', functio
       setImmediate(function () {
         ins.currentTransaction = trans
         trans.end()
-        ins._queue._flush()
+        ins.flush()
       })
     })
   })
@@ -244,7 +244,7 @@ test('currentTransaction missing - not recoverable - middle trace failed', funct
           t2.end()
           setImmediate(function () {
             trans.end()
-            ins._queue._flush()
+            ins.flush()
           })
         })
       })

@@ -55,7 +55,7 @@ test('route naming', function (t) {
         t.equal(chunk.toString(), 'hello world')
       })
       res.on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
   })
@@ -322,7 +322,7 @@ test('request error logging with Error', function (t) {
       t.equal(res.statusCode, 200)
 
       res.resume().on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
   })
@@ -376,7 +376,7 @@ test('request error logging with Error does not affect event tags', function (t)
       t.equal(res.statusCode, 200)
 
       res.resume().on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
   })
@@ -421,7 +421,7 @@ test('request error logging with String', function (t) {
       t.equal(res.statusCode, 200)
 
       res.resume().on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
   })
@@ -468,7 +468,7 @@ test('request error logging with Object', function (t) {
       t.equal(res.statusCode, 200)
 
       res.resume().on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
   })
@@ -500,7 +500,7 @@ test('error handling', function (t) {
         })
       })
       res.on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
       })
     })
   })

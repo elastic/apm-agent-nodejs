@@ -227,7 +227,7 @@ var transactionTest = function () {
   function makeTransaction () {
     if ((Date.now() - start) / 1000 > maxSeconds) {
       console.log('Done making transactions - flushing queue...')
-      agent._instrumentation._queue._flush()
+      agent.flush()
       return
     }
 

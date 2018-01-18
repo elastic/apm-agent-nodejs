@@ -56,7 +56,7 @@ selectTests.forEach(function (source) {
           t.equal(row.c2, 'bar' + (i + 1))
         })
         agent.endTransaction()
-        agent._instrumentation._queue._flush()
+        agent.flush()
       }).catch(function (err) {
         t.error(err)
       })
@@ -79,7 +79,7 @@ insertTests.forEach(function (source) {
         t.equal(result.command, 'INSERT')
         t.equal(result.rowCount, 1)
         agent.endTransaction()
-        agent._instrumentation._queue._flush()
+        agent.flush()
       }).catch(function (err) {
         t.error(err)
       })
@@ -105,7 +105,7 @@ test('knex.raw', function (t) {
         t.equal(row.c2, 'bar' + (i + 1))
       })
       agent.endTransaction()
-      agent._instrumentation._queue._flush()
+      agent.flush()
     }).catch(function (err) {
       t.error(err)
     })

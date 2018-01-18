@@ -107,7 +107,7 @@ function request (path, headers, cb) {
     }
     http.request(opts, function (res) {
       res.on('end', function () {
-        agent._instrumentation._queue._flush()
+        agent.flush()
         server.close()
         if (cb) setTimeout(cb, 100)
       })
