@@ -113,7 +113,7 @@ function assertSourceFound (t, data) {
   t.equal(frame.abs_path, path.join(__dirname, 'fixtures', 'src', 'error.js'))
   t.deepEqual(frame.pre_context, ['// Just a little prefixing line'])
   t.equal(frame.context_line, 'const generateError = (msg = \'foo\') => new Error(msg)')
-  t.deepEqual(frame.post_context, ['', 'module.exports = generateError', ''])
+  t.deepEqual(frame.post_context, ['', 'module.exports = generateError'])
 }
 
 function assertSourceNotFound (t, data) {

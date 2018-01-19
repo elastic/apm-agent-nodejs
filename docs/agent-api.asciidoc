@@ -324,14 +324,82 @@ Whether or not the agent should monitor for uncaught exceptions and send them to
 
 Set this option to `false` to disable capture of stack traces for measured traces during instrumentation.
 
-[[source-context]]
-===== `sourceContext`
+[[source-context-error]]
+===== `sourceContextErrorAppFrames` + `sourceContextErrorLibraryFrames`
 
-* *Type:* Boolean
-* *Default:* `true`
-* *Env:* `ELASTIC_APM_SOURCE_CONTEXT`
+When an error is captured by the agent,
+its stack trace is stored in Elasticsearch.
 
-Set this option to `false` to disable collecting and reporting source code context with stack traces.
+By default the agent will also collect a few lines of source code around the lines for each frame in the stack trace.
+This can make it easier to determine the cause of an error as the source code related to the error is visible directly in Kibana.
+
+The agent differentiates between so called in-app frames and library frames.
+Library frames are frames belonging to Node core and code inside the applications `node_modules` folder.
+In-app frames are everything else.
+
+Use the following 2 config options to change how many lines of source code to include for the different types of stack frames:
+
+[[source-context-error-app-frames]]
+*`sourceContextErrorAppFrames`*
+
+* *Type:* Number
+* *Default:* `5`
+* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_ERROR_APP_FRAMES`
+
+The default value `5` means that 5 lines of source code will be collected for in-app error frames.
+2 lines above the stack frame line + 2 below + the stack frame line it self.
+
+Setting this config option to `0` means that no source code will be collected for in-app error frames.
+
+[[source-context-error-library-frames]]
+*`sourceContextErrorLibraryFrames`*
+
+* *Type:* Number
+* *Default:* `5`
+* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_ERROR_LIBRARY_FRAMES`
+
+The default value `5` means that 5 lines of source code will be collected for error library frames.
+2 lines above the stack frame line + 2 below + the stack frame line it self.
+
+Setting this config option to `0` means that no source code will be collected for error library frames.
+
+[[source-context-trace]]
+===== `sourceContextTraceAppFrames` + `sourceContextTraceLibraryFrames`
+
+When a trace is recorded by the agent,
+a stack trace is recorded together with the trace,
+pointing to the location where the trace was initiated.
+This stack trace is stored in Elasticsearch along with the other trace data.
+
+By default the agent will also collect a few lines of source code around the lines for each frame in the stack trace.
+This can make it easier to determine why and how the trace was initiated as the source code related to the trace is visible directly in Kibana.
+
+The agent differentiates between so called in-app frames and library frames.
+Library frames are frames belonging to Node core and code inside the applications `node_modules` folder.
+In-app frames are everything else.
+
+Use the following 2 config options to change how many lines of source code to include for the different types of stack frames:
+
+[[source-context-trace-app-frames]]
+*`sourceContextTraceAppFrames`*
+
+* *Type:* Number
+* *Default:* `5`
+* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_TRACE_APP_FRAMES`
+
+The default value `5` means that 5 lines of source code will be collected for in-app trace frames.
+2 lines above the stack frame line + 2 below + the stack frame line it self.
+
+Setting this config option to `0` means that no source code will be collected for in-app trace frames.
+
+[[source-context-trace-library-frames]]
+*`sourceContextTraceLibraryFrames`*
+
+* *Type:* Number
+* *Default:* `0`
+* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_TRACE_LIBRARY_FRAMES`
+
+The default value `0` means that no source code will be collected for trace library frames.
 
 [[stack-trace-limit]]
 ===== `stackTraceLimit`

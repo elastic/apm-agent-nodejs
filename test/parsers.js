@@ -240,7 +240,10 @@ test('#getContextFromRequest()', function (t) {
 test('#parseError()', function (t) {
   t.test('should parse plain Error object', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -260,7 +263,10 @@ test('#parseError()', function (t) {
 
   t.test('should parse Error with message', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -280,7 +286,10 @@ test('#parseError()', function (t) {
 
   t.test('should parse TypeError with message', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -300,7 +309,10 @@ test('#parseError()', function (t) {
 
   t.test('should parse thrown Error', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     try {
       throw new Error('Derp')
@@ -324,7 +336,10 @@ test('#parseError()', function (t) {
 
   t.test('should parse caught real error', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     try {
       var o = {}
@@ -352,7 +367,10 @@ test('#parseError()', function (t) {
 
   t.test('should gracefully handle .stack already being accessed', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     var err = new Error('foo')
     t.ok(typeof err.stack === 'string')
@@ -374,7 +392,10 @@ test('#parseError()', function (t) {
 
   t.test('should gracefully handle .stack being overwritten', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     var err = new Error('foo')
     err.stack = 'foo'
@@ -396,7 +417,10 @@ test('#parseError()', function (t) {
 
   t.test('should be able to exclude source context data', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: false}
+      _conf: {
+        sourceContextErrorAppFrames: 0,
+        sourceContextErrorLibraryFrames: 0
+      }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -419,6 +443,99 @@ test('#parseError()', function (t) {
         t.notOk('pre_context' in callsite)
         t.notOk('context_line' in callsite)
         t.notOk('post_context' in callsite)
+      })
+      t.end()
+    })
+  })
+
+  t.test('should be able to exclude source context data for library frames only', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 0
+      }
+    }
+    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(function (callsite) {
+        if (!callsite.in_app) {
+          t.notOk('pre_context' in callsite)
+          t.notOk('context_line' in callsite)
+          t.notOk('post_context' in callsite)
+        } else {
+          t.ok(Array.isArray(callsite.pre_context))
+          t.equal(callsite.pre_context.length, 2)
+          t.equal(typeof callsite.context_line, 'string')
+          t.ok(callsite.context_line.length > 0)
+          t.ok(Array.isArray(callsite.post_context))
+          t.equal(callsite.post_context.length, 2)
+        }
+      })
+      t.end()
+    })
+  })
+
+  t.test('should be able to exclude source context data for in-app frames only', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceContextErrorAppFrames: 0,
+        sourceContextErrorLibraryFrames: 5
+      }
+    }
+    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(function (callsite) {
+        var nodeCore = !/\//.test(callsite.abs_path)
+        if (!callsite.in_app && !nodeCore) {
+          t.ok(Array.isArray(callsite.pre_context))
+          t.equal(callsite.pre_context.length, 2)
+          t.equal(typeof callsite.context_line, 'string')
+          t.ok(callsite.context_line.length > 0)
+          t.ok(Array.isArray(callsite.post_context))
+          t.equal(callsite.post_context.length, 2)
+        } else {
+          t.notOk('pre_context' in callsite)
+          t.notOk('context_line' in callsite)
+          t.notOk('post_context' in callsite)
+        }
+      })
+      t.end()
+    })
+  })
+
+  t.test('should be able to choose number of source context line per frame type', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceContextErrorAppFrames: 3,
+        sourceContextErrorLibraryFrames: 6
+      }
+    }
+    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(function (callsite) {
+        var nodeCore = !/\//.test(callsite.abs_path)
+        if (nodeCore) {
+          t.notOk('pre_context' in callsite)
+          t.notOk('context_line' in callsite)
+          t.notOk('post_context' in callsite)
+        } else if (!callsite.in_app) {
+          t.ok(Array.isArray(callsite.pre_context))
+          t.equal(callsite.pre_context.length, 3)
+          t.equal(typeof callsite.context_line, 'string')
+          t.ok(callsite.context_line.length > 0)
+          t.ok(Array.isArray(callsite.post_context))
+          t.equal(callsite.post_context.length, 2)
+        } else {
+          t.ok(Array.isArray(callsite.pre_context))
+          t.equal(callsite.pre_context.length, 1)
+          t.equal(typeof callsite.context_line, 'string')
+          t.ok(callsite.context_line.length > 0)
+          t.ok(Array.isArray(callsite.post_context))
+          t.equal(callsite.post_context.length, 1)
+        }
       })
       t.end()
     })
