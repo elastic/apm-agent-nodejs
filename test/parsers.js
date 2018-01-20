@@ -3,6 +3,7 @@
 var http = require('http')
 var test = require('tape')
 var semver = require('semver')
+var stackman = require('../lib/stackman')
 var parsers = require('../lib/parsers')
 
 test('#parseMessage()', function (t) {
@@ -541,6 +542,159 @@ test('#parseError()', function (t) {
     })
   })
 })
+
+test('#parseCallsite()', function (t) {
+  /**
+   * ERROR APP FRAME
+   */
+  t.test('error app frame 0 lines', function (t) {
+    var err = new Error()
+    validateParseCallsite(t, err, {isApp: true, isError: true, lines: 0})
+  })
+
+  t.test('error app frame 1 line', function (t) {
+    var err = new Error()
+    validateParseCallsite(t, err, {
+      isApp: true,
+      isError: true,
+      lines: 1,
+      pre: [],
+      line: '    var err = new Error()',
+      post: []
+    })
+  })
+
+  t.test('error app frame 2 lines', function (t) {
+    // before 1
+    var err = new Error()
+    validateParseCallsite(t, err, {
+      isApp: true,
+      isError: true,
+      lines: 2,
+      pre: ['    // before 1'],
+      line: '    var err = new Error()',
+      post: []
+    })
+  })
+
+  t.test('error app frame 3 lines', function (t) {
+    // before 1
+    var err = new Error()
+    // after 1
+    validateParseCallsite(t, err, {
+      isApp: true,
+      isError: true,
+      lines: 3,
+      pre: ['    // before 1'],
+      line: '    var err = new Error()',
+      post: ['    // after 1']
+    })
+  })
+
+  t.test('error app frame 4 lines', function (t) {
+    // before 2
+    // before 1
+    var err = new Error()
+    // after 1
+    validateParseCallsite(t, err, {
+      isApp: true,
+      isError: true,
+      lines: 4,
+      pre: [
+        '    // before 2',
+        '    // before 1'
+      ],
+      line: '    var err = new Error()',
+      post: ['    // after 1']
+    })
+  })
+
+  /**
+   * ERROR LIBRARY FRAME
+   */
+  t.test('error library frame 0 lines', function (t) {
+    var err = new Error()
+    validateParseCallsite(t, err, {isApp: false, isError: true, lines: 0})
+  })
+
+  t.test('error library frame 1 line', function (t) {
+    var err = new Error()
+    validateParseCallsite(t, err, {
+      isApp: false,
+      isError: true,
+      lines: 1,
+      pre: [],
+      line: '    var err = new Error()',
+      post: []
+    })
+  })
+
+  /**
+   * TRACE APP FRAME
+   */
+  t.test('error library frame 0 lines', function (t) {
+    var err = new Error()
+    validateParseCallsite(t, err, {isApp: true, isError: false, lines: 0})
+  })
+
+  t.test('error library frame 1 line', function (t) {
+    var err = new Error()
+    validateParseCallsite(t, err, {
+      isApp: true,
+      isError: false,
+      lines: 1,
+      pre: [],
+      line: '    var err = new Error()',
+      post: []
+    })
+  })
+
+  /**
+   * TRACE LIBRARY FRAME
+   */
+  t.test('error library frame 0 lines', function (t) {
+    var err = new Error()
+    validateParseCallsite(t, err, {isApp: false, isError: false, lines: 0})
+  })
+
+  t.test('error library frame 1 line', function (t) {
+    var err = new Error()
+    validateParseCallsite(t, err, {
+      isApp: false,
+      isError: false,
+      lines: 1,
+      pre: [],
+      line: '    var err = new Error()',
+      post: []
+    })
+  })
+})
+
+function validateParseCallsite (t, err, opts) {
+  var conf = {
+    sourceContextErrorAppFrames: opts.isError && opts.isApp ? opts.lines : 10,
+    sourceContextErrorLibraryFrames: opts.isError && !opts.isApp ? opts.lines : 10,
+    sourceContextTraceAppFrames: !opts.isError && opts.isApp ? opts.lines : 10,
+    sourceContextTraceLibraryFrames: !opts.isError && !opts.isApp ? opts.lines : 10
+  }
+  stackman.callsites(err, function (err, callsites) {
+    t.error(err)
+    var callsite = callsites[0]
+    callsite.isApp = function () { return opts.isApp }
+    parsers.parseCallsite(callsite, opts.isError, conf, function (err, frame) {
+      t.error(err)
+      t.equal(frame.filename, callsite.getRelativeFileName())
+      t.equal(frame.lineno, callsite.getLineNumber())
+      t.equal(frame.function, callsite.getFunctionNameSanitized())
+      t.equal(frame.in_app, callsite.isApp())
+      t.equal(frame.abs_path, callsite.getFileName())
+      t.deepEqual(frame.pre_context, opts.pre)
+      t.equal(frame.context_line, opts.line)
+      t.deepEqual(frame.post_context, opts.post)
+      t.end()
+    })
+  })
+}
 
 function onRequest (cb) {
   var server = http.createServer(cb)
