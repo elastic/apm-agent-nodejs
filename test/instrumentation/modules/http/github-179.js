@@ -1,9 +1,7 @@
 'use strict'
 
 var agent = require('../../../..').start({
-  appId: 'test',
-  organizationId: 'test',
-  secretToken: 'test',
+  appName: 'test',
   captureExceptions: false
 })
 
