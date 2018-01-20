@@ -337,7 +337,7 @@ The agent differentiates between so called in-app frames and library frames.
 Library frames are frames belonging to Node core and code inside the applications `node_modules` folder.
 In-app frames are everything else.
 
-Use the following 2 config options to change how many lines of source code to include for the different types of stack frames:
+Use the following two config options to change how many lines of source code to include for the different types of stack frames:
 
 [[source-context-error-app-frames]]
 *`sourceContextErrorAppFrames`*
@@ -378,7 +378,7 @@ The agent differentiates between so called in-app frames and library frames.
 Library frames are frames belonging to Node core and code inside the applications `node_modules` folder.
 In-app frames are everything else.
 
-Use the following 2 config options to change how many lines of source code to include for the different types of stack frames:
+Use the following two config options to change how many lines of source code to include for the different types of stack frames:
 
 [[source-context-trace-app-frames]]
 *`sourceContextTraceAppFrames`*
