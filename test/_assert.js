@@ -11,9 +11,8 @@ exports.stacktrace = function (t, topFunctionName, topAbsPath, stacktrace) {
 
 function stackFrameValidator (t) {
   return function (frame) {
-    var nodeCore = frame.abs_path.indexOf('/') !== -1
-    var libraryFrame = frame.abs_path.indexOf('/node_modules/') !== -1
-    var shouldHaveSource = !nodeCore && !libraryFrame
+    var nodeCore = frame.abs_path.indexOf('/') === -1
+    var shouldHaveSource = !nodeCore && frame.in_app
 
     // FIXME: Remove when CI passes
     if (shouldHaveSource && !frame.context_line) {
