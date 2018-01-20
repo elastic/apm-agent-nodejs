@@ -15,6 +15,11 @@ function stackFrameValidator (t) {
     var libraryFrame = frame.abs_path.indexOf('/node_modules/') !== -1
     var shouldHaveSource = !nodeCore && !libraryFrame
 
+    // FIXME: Remove when CI passes
+    if (shouldHaveSource && !frame.context_line) {
+      console.log(frame)
+    }
+
     var expectedKeys = shouldHaveSource
       ? ['filename', 'lineno', 'function', 'in_app', 'abs_path', 'pre_context', 'context_line', 'post_context']
       : ['filename', 'lineno', 'function', 'in_app', 'abs_path']
