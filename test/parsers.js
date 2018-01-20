@@ -544,139 +544,82 @@ test('#parseError()', function (t) {
 })
 
 test('#parseCallsite()', function (t) {
-  /**
-   * ERROR APP FRAME
-   */
-  t.test('error app frame 0 lines', function (t) {
-    var err = new Error()
-    validateParseCallsite(t, err, {isApp: true, isError: true, lines: 0})
-  })
+  var cases = [
+    {isApp: true, isError: true, lines: 0},
+    {isApp: true, isError: true, lines: 1},
+    {isApp: true, isError: true, lines: 2},
+    {isApp: true, isError: true, lines: 3},
+    {isApp: true, isError: true, lines: 4},
+    {isApp: true, isError: true, lines: 5},
+    {isApp: true, isError: false, lines: 0},
+    {isApp: true, isError: false, lines: 1},
+    {isApp: true, isError: false, lines: 2},
+    {isApp: true, isError: false, lines: 3},
+    {isApp: true, isError: false, lines: 4},
+    {isApp: true, isError: false, lines: 5},
+    {isApp: false, isError: true, lines: 0},
+    {isApp: false, isError: true, lines: 1},
+    {isApp: false, isError: true, lines: 2},
+    {isApp: false, isError: true, lines: 3},
+    {isApp: false, isError: true, lines: 4},
+    {isApp: false, isError: true, lines: 5},
+    {isApp: false, isError: false, lines: 0},
+    {isApp: false, isError: false, lines: 1},
+    {isApp: false, isError: false, lines: 2},
+    {isApp: false, isError: false, lines: 3},
+    {isApp: false, isError: false, lines: 4},
+    {isApp: false, isError: false, lines: 5}
+  ]
 
-  t.test('error app frame 1 line', function (t) {
-    var err = new Error()
-    validateParseCallsite(t, err, {
-      isApp: true,
-      isError: true,
-      lines: 1,
-      pre: [],
-      line: '    var err = new Error()',
-      post: []
-    })
-  })
-
-  t.test('error app frame 2 lines', function (t) {
-    // before 1
-    var err = new Error()
-    validateParseCallsite(t, err, {
-      isApp: true,
-      isError: true,
-      lines: 2,
-      pre: ['    // before 1'],
-      line: '    var err = new Error()',
-      post: []
-    })
-  })
-
-  t.test('error app frame 3 lines', function (t) {
-    // before 1
-    var err = new Error()
-    // after 1
-    validateParseCallsite(t, err, {
-      isApp: true,
-      isError: true,
-      lines: 3,
-      pre: ['    // before 1'],
-      line: '    var err = new Error()',
-      post: ['    // after 1']
-    })
-  })
-
-  t.test('error app frame 4 lines', function (t) {
-    // before 2
-    // before 1
-    var err = new Error()
-    // after 1
-    validateParseCallsite(t, err, {
-      isApp: true,
-      isError: true,
-      lines: 4,
-      pre: [
-        '    // before 2',
-        '    // before 1'
-      ],
-      line: '    var err = new Error()',
-      post: ['    // after 1']
-    })
-  })
-
-  /**
-   * ERROR LIBRARY FRAME
-   */
-  t.test('error library frame 0 lines', function (t) {
-    var err = new Error()
-    validateParseCallsite(t, err, {isApp: false, isError: true, lines: 0})
-  })
-
-  t.test('error library frame 1 line', function (t) {
-    var err = new Error()
-    validateParseCallsite(t, err, {
-      isApp: false,
-      isError: true,
-      lines: 1,
-      pre: [],
-      line: '    var err = new Error()',
-      post: []
-    })
-  })
-
-  /**
-   * TRACE APP FRAME
-   */
-  t.test('error library frame 0 lines', function (t) {
-    var err = new Error()
-    validateParseCallsite(t, err, {isApp: true, isError: false, lines: 0})
-  })
-
-  t.test('error library frame 1 line', function (t) {
-    var err = new Error()
-    validateParseCallsite(t, err, {
-      isApp: true,
-      isError: false,
-      lines: 1,
-      pre: [],
-      line: '    var err = new Error()',
-      post: []
-    })
-  })
-
-  /**
-   * TRACE LIBRARY FRAME
-   */
-  t.test('error library frame 0 lines', function (t) {
-    var err = new Error()
-    validateParseCallsite(t, err, {isApp: false, isError: false, lines: 0})
-  })
-
-  t.test('error library frame 1 line', function (t) {
-    var err = new Error()
-    validateParseCallsite(t, err, {
-      isApp: false,
-      isError: false,
-      lines: 1,
-      pre: [],
-      line: '    var err = new Error()',
-      post: []
+  cases.forEach(function (opts) {
+    t.test('#parseCallsite() ' + JSON.stringify(opts), function (t) {
+      validateParseCallsite(t, opts)
     })
   })
 })
 
-function validateParseCallsite (t, err, opts) {
+function validateParseCallsite (t, opts) {
+  // before 2
+  // before 1
+  var err = new Error()
+  // after 1
+  // after 2
+
+  switch (opts.lines) {
+    case 1:
+      opts.pre = []
+      opts.line = '  var err = new Error()'
+      opts.post = []
+      break
+    case 2:
+      opts.pre = ['  // before 1']
+      opts.line = '  var err = new Error()'
+      opts.post = []
+      break
+    case 3:
+      opts.pre = ['  // before 1']
+      opts.line = '  var err = new Error()'
+      opts.post = ['  // after 1']
+      break
+    case 4:
+      opts.pre = ['  // before 2', '  // before 1']
+      opts.line = '  var err = new Error()'
+      opts.post = ['  // after 1']
+      break
+    case 5:
+      opts.pre = ['  // before 2', '  // before 1']
+      opts.line = '  var err = new Error()'
+      opts.post = ['  // after 1', '  // after 2']
+      break
+  }
+
   var conf = {
     sourceContextErrorAppFrames: opts.isError && opts.isApp ? opts.lines : 10,
     sourceContextErrorLibraryFrames: opts.isError && !opts.isApp ? opts.lines : 10,
     sourceContextTraceAppFrames: !opts.isError && opts.isApp ? opts.lines : 10,
     sourceContextTraceLibraryFrames: !opts.isError && !opts.isApp ? opts.lines : 10
   }
+
   stackman.callsites(err, function (err, callsites) {
     t.error(err)
     var callsite = callsites[0]
