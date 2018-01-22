@@ -340,7 +340,7 @@ besides the error stack trace --
 also capture a stack trace at the location where <<apm-capture-error,`captureError`>> was called.
 
 By default,
-this config option have the value `1`,
+this config option has the value `1`,
 which means that a stack trace of the capture location will be recorded only when `captureError` is called with either a <<message-strings,string>> or the <<parameterized-error-object,special parameterized error object>>,
 in which case a normal stack trace isn't available.
 
