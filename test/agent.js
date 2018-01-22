@@ -291,7 +291,7 @@ test('#captureError()', function (t) {
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'n/a')
+        t.equal(body.errors[0].log.message, 'foo')
         t.equal(body.errors[0].exception.message, 'foo')
         assertStackTrace(t, body.errors[0].log.stacktrace)
         assertStackTrace(t, body.errors[0].exception.stacktrace)
