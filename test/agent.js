@@ -5,6 +5,7 @@ var test = require('tape')
 var isError = require('core-util-is').isError
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
+var config = require('../lib/config')
 
 test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
@@ -186,7 +187,8 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - off (error)', function (t) {
     t.plan(9)
-    APMServer({captureLocationStackTraces: 0})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_OFF
+    })
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
@@ -202,7 +204,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - off (string)', function (t) {
     t.plan(6)
-    APMServer({captureLocationStackTraces: 0})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_OFF})
       .on('listening', function () {
         this.agent.captureError('foo')
       })
@@ -218,7 +220,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - off (param msg)', function (t) {
     t.plan(6)
-    APMServer({captureLocationStackTraces: 0})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_OFF})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
       })
@@ -234,7 +236,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - non-errors (error)', function (t) {
     t.plan(9)
-    APMServer({captureLocationStackTraces: 1})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_NON_ERRORS})
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
@@ -250,7 +252,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - non-errors (string)', function (t) {
     t.plan(9)
-    APMServer({captureLocationStackTraces: 1})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_NON_ERRORS})
       .on('listening', function () {
         this.agent.captureError('foo')
       })
@@ -266,7 +268,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - non-errors (param msg)', function (t) {
     t.plan(9)
-    APMServer({captureLocationStackTraces: 1})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_NON_ERRORS})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
       })
@@ -282,7 +284,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - all (error)', function (t) {
     t.plan(13)
-    APMServer({captureLocationStackTraces: 2})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_ALL})
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
@@ -299,7 +301,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - all (string)', function (t) {
     t.plan(9)
-    APMServer({captureLocationStackTraces: 2})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_ALL})
       .on('listening', function () {
         this.agent.captureError('foo')
       })
@@ -315,7 +317,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - all (param msg)', function (t) {
     t.plan(9)
-    APMServer({captureLocationStackTraces: 2})
+    APMServer({captureLocationStackTraces: config.CAPTURE_LOCATION_STACK_TRACE_ALL})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
       })

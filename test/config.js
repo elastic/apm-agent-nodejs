@@ -5,6 +5,7 @@ var util = require('util')
 var test = require('tape')
 var isRegExp = require('core-util-is').isRegExp
 var Agent = require('./_agent')
+var config = require('../lib/config')
 
 var optionFixtures = [
   ['appName', 'APP_NAME'],
@@ -12,7 +13,7 @@ var optionFixtures = [
   ['appVersion', 'APP_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
-  ['captureLocationStackTraces', 'CAPTURE_LOCATION_STACK_TRACES', 1],
+  ['captureLocationStackTraces', 'CAPTURE_LOCATION_STACK_TRACES', config.CAPTURE_LOCATION_STACK_TRACE_NON_ERRORS],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
