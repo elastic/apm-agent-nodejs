@@ -1,5 +1,7 @@
 'use strict'
 
+var path = require('path')
+
 exports.stacktrace = function (t, topFunctionName, topAbsPath, stacktrace) {
   t.ok(Array.isArray(stacktrace), 'stacktrace should be an array')
   t.ok(stacktrace.length > 0, 'stacktrace should have at least one frame')
@@ -11,7 +13,7 @@ exports.stacktrace = function (t, topFunctionName, topAbsPath, stacktrace) {
 
 function stackFrameValidator (t) {
   return function (frame) {
-    var nodeCore = frame.abs_path.indexOf('/') === -1
+    var nodeCore = frame.abs_path.indexOf(path.sep) === -1
     var shouldHaveSource = !nodeCore && frame.in_app
 
     var expectedKeys = shouldHaveSource

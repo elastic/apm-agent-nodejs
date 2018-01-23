@@ -39,10 +39,10 @@ test('fails', function (t) {
       var error = data.errors[0]
       t.equal(error.exception.message, 'foo')
       t.equal(error.exception.type, 'Error')
-      t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-inline-broken.js)')
+      t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-inline-broken.js')})`)
 
       var frame = error.exception.stacktrace[0]
-      t.equal(frame.filename, 'test/sourcemaps/fixtures/lib/error-inline-broken.js')
+      t.equal(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-inline-broken.js'))
       t.equal(frame.lineno, 6)
       t.equal(frame.function, 'generateError')
       t.equal(frame.in_app, __dirname.indexOf('node_modules') === -1)
@@ -58,10 +58,10 @@ test('fails', function (t) {
       var error = data.errors[0]
       t.equal(error.exception.message, 'foo')
       t.equal(error.exception.type, 'Error')
-      t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-map-missing.js)')
+      t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-map-missing.js')})`)
 
       var frame = error.exception.stacktrace[0]
-      t.equal(frame.filename, 'test/sourcemaps/fixtures/lib/error-map-missing.js')
+      t.equal(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-map-missing.js'))
       t.equal(frame.lineno, 6)
       t.equal(frame.function, 'generateError')
       t.equal(frame.in_app, __dirname.indexOf('node_modules') === -1)
@@ -77,10 +77,10 @@ test('fails', function (t) {
       var error = data.errors[0]
       t.equal(error.exception.message, 'foo')
       t.equal(error.exception.type, 'Error')
-      t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/lib/error-broken.js)')
+      t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-broken.js')})`)
 
       var frame = error.exception.stacktrace[0]
-      t.equal(frame.filename, 'test/sourcemaps/fixtures/lib/error-broken.js')
+      t.equal(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-broken.js'))
       t.equal(frame.lineno, 6)
       t.equal(frame.function, 'generateError')
       t.equal(frame.in_app, __dirname.indexOf('node_modules') === -1)
@@ -103,10 +103,10 @@ function assertSourceFound (t, data) {
   var error = data.errors[0]
   t.equal(error.exception.message, 'foo')
   t.equal(error.exception.type, 'Error')
-  t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/src/error.js)')
+  t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'src', 'error.js')})`)
 
   var frame = error.exception.stacktrace[0]
-  t.equal(frame.filename, 'test/sourcemaps/fixtures/src/error.js')
+  t.equal(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'src', 'error.js'))
   t.equal(frame.lineno, 2)
   t.equal(frame.function, 'generateError')
   t.equal(frame.in_app, __dirname.indexOf('node_modules') === -1)
@@ -121,10 +121,10 @@ function assertSourceNotFound (t, data) {
   var error = data.errors[0]
   t.equal(error.exception.message, 'foo')
   t.equal(error.exception.type, 'Error')
-  t.equal(error.culprit, 'generateError (test/sourcemaps/fixtures/src/not/found.js)')
+  t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'src', 'not', 'found.js')})`)
 
   var frame = error.exception.stacktrace[0]
-  t.equal(frame.filename, 'test/sourcemaps/fixtures/src/not/found.js')
+  t.equal(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'src', 'not', 'found.js'))
   t.equal(frame.lineno, 2)
   t.equal(frame.function, 'generateError')
   t.equal(frame.in_app, __dirname.indexOf('node_modules') === -1)

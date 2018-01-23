@@ -1,5 +1,6 @@
 'use strict'
 
+var path = require('path')
 var http = require('http')
 var test = require('tape')
 var isError = require('core-util-is').isError
@@ -381,7 +382,7 @@ function assertStackTrace (t, stacktrace) {
   t.ok(stacktrace !== undefined, 'should have a stack trace')
   t.ok(Array.isArray(stacktrace), 'stack trace should be an array')
   t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
-  t.equal(stacktrace[0].filename, 'test/agent.js')
+  t.equal(stacktrace[0].filename, path.join('test', 'agent.js'))
 }
 
 function validateErrorRequest (t) {
