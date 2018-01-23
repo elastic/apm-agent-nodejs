@@ -1,5 +1,6 @@
 'use strict'
 
+var path = require('path')
 var http = require('http')
 var test = require('tape')
 var semver = require('semver')
@@ -248,7 +249,7 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.equal(parsed.exception.message, '')
@@ -271,7 +272,7 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.equal(parsed.exception.message, 'Crap')
@@ -294,7 +295,7 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.equal(parsed.exception.message, 'Crap')
@@ -320,7 +321,7 @@ test('#parseError()', function (t) {
     } catch (e) {
       parsers.parseError(e, fakeAgent, function (err, parsed) {
         t.error(err)
-        t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+        t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
         t.notOk('log' in parsed)
         t.ok('exception' in parsed)
         t.equal(parsed.exception.message, 'Derp')
@@ -351,7 +352,7 @@ test('#parseError()', function (t) {
         var msg = semver.lt(process.version, '0.11.0')
           ? 'Cannot call method \'Derp\' of undefined'
           : 'Cannot read property \'Derp\' of undefined'
-        t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+        t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
         t.notOk('log' in parsed)
         t.ok('exception' in parsed)
         t.equal(parsed.exception.message, msg)
@@ -377,7 +378,7 @@ test('#parseError()', function (t) {
     t.ok(typeof err.stack === 'string')
     parsers.parseError(err, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.equal(parsed.exception.message, 'foo')
@@ -425,7 +426,7 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, 'Test.<anonymous> (test/parsers.js)')
+      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.equal(parsed.exception.message, '')
@@ -488,7 +489,7 @@ test('#parseError()', function (t) {
       t.error(err)
       t.ok(parsed.exception.stacktrace.length > 0)
       parsed.exception.stacktrace.forEach(function (callsite) {
-        var nodeCore = !/\//.test(callsite.abs_path)
+        var nodeCore = callsite.abs_path.indexOf(path.sep) === -1
         if (!callsite.in_app && !nodeCore) {
           t.ok(Array.isArray(callsite.pre_context))
           t.equal(callsite.pre_context.length, 2)
@@ -517,7 +518,7 @@ test('#parseError()', function (t) {
       t.error(err)
       t.ok(parsed.exception.stacktrace.length > 0)
       parsed.exception.stacktrace.forEach(function (callsite) {
-        var nodeCore = !/\//.test(callsite.abs_path)
+        var nodeCore = callsite.abs_path.indexOf(path.sep) === -1
         if (nodeCore) {
           t.notOk('pre_context' in callsite)
           t.notOk('context_line' in callsite)
