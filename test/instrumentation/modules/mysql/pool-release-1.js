@@ -31,13 +31,7 @@ test('release connection prior to transaction', function (t) {
 
 function createPool (cb) {
   setup(function () {
-    var pool = mysql.createPool({
-      host: process.env.MYSQL_HOST,
-      user: 'root',
-      database: 'test_elastic_apm'
-    })
-
-    cb(pool)
+    cb(mysql.createPool(utils.credentials()))
   })
 }
 
