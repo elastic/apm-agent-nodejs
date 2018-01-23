@@ -1,0 +1,26 @@
+environment:
+  PGUSER: "postgres"
+  PGPASSWORD: "Password12!"
+  MYSQL_PASSWORD: "Password12!"
+
+# Install scripts runs after repo cloning
+install:
+  - ps: .\test\script\appveyor\install-redis.ps1
+  - ps: .\test\script\appveyor\install-elasticsearch.ps1
+  - ps: Install-Product node 8 # Latest LTS
+  - npm install
+
+# Services are started after all install scripts have run
+services:
+  - mysql
+  - mongodb
+  - postgresql
+
+# Post-install test scripts
+test_script:
+  - node --version
+  - npm --version
+  - node test/test.js # we cannot run `npm test` because of https://github.com/elastic/apm-agent-nodejs/issues/199
+
+# Don't actually build
+build: off

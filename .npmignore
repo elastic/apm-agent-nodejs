@@ -1,4 +1,5 @@
 # Files to ignore
+.appveyor.yml
 .dockerignore
 .tav.yml
 .travis.yml
