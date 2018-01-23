@@ -1,6 +1,5 @@
 'use strict'
 
-var host = process.env.MYSQL_HOST
 var agent = require('../../../..').start({
   appName: 'test',
   secretToken: 'test',
@@ -451,11 +450,7 @@ function createConnection (cb) {
       }
     }
 
-    queryable = mysql.createConnection({
-      host: host,
-      user: 'root',
-      database: 'test_elastic_apm'
-    })
+    queryable = mysql.createConnection(utils.credentials())
     queryable.connect()
 
     cb()
@@ -471,11 +466,7 @@ function createPool (cb) {
       }
     }
 
-    var pool = mysql.createPool({
-      host: host,
-      user: 'root',
-      database: 'test_elastic_apm'
-    })
+    var pool = mysql.createPool(utils.credentials())
     queryable = pool
 
     cb()
@@ -491,11 +482,7 @@ function createPoolAndGetConnection (cb) {
       }
     }
 
-    var pool = mysql.createPool({
-      host: host,
-      user: 'root',
-      database: 'test_elastic_apm'
-    })
+    var pool = mysql.createPool(utils.credentials())
     pool.getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn
@@ -514,11 +501,7 @@ function createPoolClusterAndGetConnection (cb) {
     }
 
     var cluster = mysql.createPoolCluster()
-    cluster.add({
-      host: host,
-      user: 'root',
-      database: 'test_elastic_apm'
-    })
+    cluster.add(utils.credentials())
     cluster.getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn
@@ -534,11 +517,7 @@ function createPoolClusterAndGetConnectionViaOf (cb) {
     }
 
     var cluster = mysql.createPoolCluster()
-    cluster.add({
-      host: host,
-      user: 'root',
-      database: 'test_elastic_apm'
-    })
+    cluster.add(utils.credentials())
     cluster.of('*').getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn

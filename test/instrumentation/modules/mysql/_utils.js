@@ -3,9 +3,25 @@
 var mysql = require('mysql')
 
 exports.reset = reset
+exports.credentials = credentials
+
+var DEFAULTS = {
+  host: process.env.MYSQL_HOST || 'localhost',
+  user: process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE || 'test_elastic_apm'
+}
+
+function credentials (conf) {
+  return Object.assign(
+    {},
+    DEFAULTS,
+    conf
+  )
+}
 
 function reset (cb) {
-  var client = mysql.createConnection({user: 'root', database: 'mysql', host: process.env.MYSQL_HOST})
+  var client = mysql.createConnection(credentials({database: 'mysql'}))
 
   client.connect(function (err) {
     if (err) throw err
