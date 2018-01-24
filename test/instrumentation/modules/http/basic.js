@@ -2,7 +2,7 @@
 
 var agent = require('../../_agent')()
 
-var assert = require('./_assert')
+var assert = require('../_http_assert')
 var test = require('tape')
 var http = require('http')
 
