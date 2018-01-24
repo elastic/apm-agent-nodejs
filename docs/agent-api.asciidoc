@@ -558,7 +558,7 @@ apm.captureError(new Error('boom!'))
 
 The `error` argument can be either an `Error` object,
 a <<message-strings,message string>>,
-or a <<parameterized-error-object,special parameterized error object>>.
+or a <<parameterized-message-object,special parameterized message object>>.
 
 The optional `options` object can be used to log additional metadata with the error.
 For details see the <<metadata,metadata section>>.
@@ -579,11 +579,11 @@ apm.captureError('Something happened!')
 This will also be sent as an error to the APM Server,
 but will not be associated with an exception.
 
-[[parameterized-error-object]]
-===== Parameterized error object
+[[parameterized-message-object]]
+===== Parameterized message object
 
 Instead of an `Error` object or a string,
-you can supply a special parameterized error object:
+you can supply a special parameterized message object:
 
 [source,js]
 ----
