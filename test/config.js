@@ -13,7 +13,7 @@ var optionFixtures = [
   ['appVersion', 'APP_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
-  ['captureLocationStackTraces', 'CAPTURE_LOCATION_STACK_TRACES', config.CAPTURE_LOCATION_STACK_TRACE_NON_ERRORS],
+  ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
