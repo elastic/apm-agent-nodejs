@@ -3,6 +3,7 @@
 var http = require('http')
 var test = require('tape')
 var semver = require('semver')
+var stackman = require('../lib/stackman')
 var parsers = require('../lib/parsers')
 
 test('#parseMessage()', function (t) {
@@ -240,7 +241,10 @@ test('#getContextFromRequest()', function (t) {
 test('#parseError()', function (t) {
   t.test('should parse plain Error object', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -260,7 +264,10 @@ test('#parseError()', function (t) {
 
   t.test('should parse Error with message', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -280,7 +287,10 @@ test('#parseError()', function (t) {
 
   t.test('should parse TypeError with message', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -300,7 +310,10 @@ test('#parseError()', function (t) {
 
   t.test('should parse thrown Error', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     try {
       throw new Error('Derp')
@@ -324,7 +337,10 @@ test('#parseError()', function (t) {
 
   t.test('should parse caught real error', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     try {
       var o = {}
@@ -352,7 +368,10 @@ test('#parseError()', function (t) {
 
   t.test('should gracefully handle .stack already being accessed', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     var err = new Error('foo')
     t.ok(typeof err.stack === 'string')
@@ -374,7 +393,10 @@ test('#parseError()', function (t) {
 
   t.test('should gracefully handle .stack being overwritten', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: true}
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 5
+      }
     }
     var err = new Error('foo')
     err.stack = 'foo'
@@ -396,7 +418,10 @@ test('#parseError()', function (t) {
 
   t.test('should be able to exclude source context data', function (t) {
     var fakeAgent = {
-      _conf: {sourceContext: false}
+      _conf: {
+        sourceContextErrorAppFrames: 0,
+        sourceContextErrorLibraryFrames: 0
+      }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -423,7 +448,196 @@ test('#parseError()', function (t) {
       t.end()
     })
   })
+
+  t.test('should be able to exclude source context data for library frames only', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceContextErrorAppFrames: 5,
+        sourceContextErrorLibraryFrames: 0
+      }
+    }
+    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(function (callsite) {
+        if (!callsite.in_app) {
+          t.notOk('pre_context' in callsite)
+          t.notOk('context_line' in callsite)
+          t.notOk('post_context' in callsite)
+        } else {
+          t.ok(Array.isArray(callsite.pre_context))
+          t.equal(callsite.pre_context.length, 2)
+          t.equal(typeof callsite.context_line, 'string')
+          t.ok(callsite.context_line.length > 0)
+          t.ok(Array.isArray(callsite.post_context))
+          t.equal(callsite.post_context.length, 2)
+        }
+      })
+      t.end()
+    })
+  })
+
+  t.test('should be able to exclude source context data for in-app frames only', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceContextErrorAppFrames: 0,
+        sourceContextErrorLibraryFrames: 5
+      }
+    }
+    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(function (callsite) {
+        var nodeCore = !/\//.test(callsite.abs_path)
+        if (!callsite.in_app && !nodeCore) {
+          t.ok(Array.isArray(callsite.pre_context))
+          t.equal(callsite.pre_context.length, 2)
+          t.equal(typeof callsite.context_line, 'string')
+          t.ok(callsite.context_line.length > 0)
+          t.ok(Array.isArray(callsite.post_context))
+          t.equal(callsite.post_context.length, 2)
+        } else {
+          t.notOk('pre_context' in callsite)
+          t.notOk('context_line' in callsite)
+          t.notOk('post_context' in callsite)
+        }
+      })
+      t.end()
+    })
+  })
+
+  t.test('should be able to choose number of source context line per frame type', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceContextErrorAppFrames: 3,
+        sourceContextErrorLibraryFrames: 6
+      }
+    }
+    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(function (callsite) {
+        var nodeCore = !/\//.test(callsite.abs_path)
+        if (nodeCore) {
+          t.notOk('pre_context' in callsite)
+          t.notOk('context_line' in callsite)
+          t.notOk('post_context' in callsite)
+        } else if (!callsite.in_app) {
+          t.ok(Array.isArray(callsite.pre_context))
+          t.equal(callsite.pre_context.length, 3)
+          t.equal(typeof callsite.context_line, 'string')
+          t.ok(callsite.context_line.length > 0)
+          t.ok(Array.isArray(callsite.post_context))
+          t.equal(callsite.post_context.length, 2)
+        } else {
+          t.ok(Array.isArray(callsite.pre_context))
+          t.equal(callsite.pre_context.length, 1)
+          t.equal(typeof callsite.context_line, 'string')
+          t.ok(callsite.context_line.length > 0)
+          t.ok(Array.isArray(callsite.post_context))
+          t.equal(callsite.post_context.length, 1)
+        }
+      })
+      t.end()
+    })
+  })
 })
+
+test('#parseCallsite()', function (t) {
+  var cases = [
+    {isApp: true, isError: true, lines: 0},
+    {isApp: true, isError: true, lines: 1},
+    {isApp: true, isError: true, lines: 2},
+    {isApp: true, isError: true, lines: 3},
+    {isApp: true, isError: true, lines: 4},
+    {isApp: true, isError: true, lines: 5},
+    {isApp: true, isError: false, lines: 0},
+    {isApp: true, isError: false, lines: 1},
+    {isApp: true, isError: false, lines: 2},
+    {isApp: true, isError: false, lines: 3},
+    {isApp: true, isError: false, lines: 4},
+    {isApp: true, isError: false, lines: 5},
+    {isApp: false, isError: true, lines: 0},
+    {isApp: false, isError: true, lines: 1},
+    {isApp: false, isError: true, lines: 2},
+    {isApp: false, isError: true, lines: 3},
+    {isApp: false, isError: true, lines: 4},
+    {isApp: false, isError: true, lines: 5},
+    {isApp: false, isError: false, lines: 0},
+    {isApp: false, isError: false, lines: 1},
+    {isApp: false, isError: false, lines: 2},
+    {isApp: false, isError: false, lines: 3},
+    {isApp: false, isError: false, lines: 4},
+    {isApp: false, isError: false, lines: 5}
+  ]
+
+  cases.forEach(function (opts) {
+    t.test('#parseCallsite() ' + JSON.stringify(opts), function (t) {
+      validateParseCallsite(t, opts)
+    })
+  })
+})
+
+function validateParseCallsite (t, opts) {
+  // before 2
+  // before 1
+  var err = new Error()
+  // after 1
+  // after 2
+
+  switch (opts.lines) {
+    case 1:
+      opts.pre = []
+      opts.line = '  var err = new Error()'
+      opts.post = []
+      break
+    case 2:
+      opts.pre = ['  // before 1']
+      opts.line = '  var err = new Error()'
+      opts.post = []
+      break
+    case 3:
+      opts.pre = ['  // before 1']
+      opts.line = '  var err = new Error()'
+      opts.post = ['  // after 1']
+      break
+    case 4:
+      opts.pre = ['  // before 2', '  // before 1']
+      opts.line = '  var err = new Error()'
+      opts.post = ['  // after 1']
+      break
+    case 5:
+      opts.pre = ['  // before 2', '  // before 1']
+      opts.line = '  var err = new Error()'
+      opts.post = ['  // after 1', '  // after 2']
+      break
+  }
+
+  var conf = {
+    sourceContextErrorAppFrames: opts.isError && opts.isApp ? opts.lines : 10,
+    sourceContextErrorLibraryFrames: opts.isError && !opts.isApp ? opts.lines : 10,
+    sourceContextTraceAppFrames: !opts.isError && opts.isApp ? opts.lines : 10,
+    sourceContextTraceLibraryFrames: !opts.isError && !opts.isApp ? opts.lines : 10
+  }
+
+  stackman.callsites(err, function (err, callsites) {
+    t.error(err)
+    var callsite = callsites[0]
+    callsite.isApp = function () { return opts.isApp }
+    parsers.parseCallsite(callsite, opts.isError, conf, function (err, frame) {
+      t.error(err)
+      t.equal(frame.filename, callsite.getRelativeFileName())
+      t.equal(frame.lineno, callsite.getLineNumber())
+      t.equal(frame.function, callsite.getFunctionNameSanitized())
+      t.equal(frame.in_app, callsite.isApp())
+      t.equal(frame.abs_path, callsite.getFileName())
+      t.deepEqual(frame.pre_context, opts.pre)
+      t.equal(frame.context_line, opts.line)
+      t.deepEqual(frame.post_context, opts.post)
+      t.end()
+    })
+  })
+}
 
 function onRequest (cb) {
   var server = http.createServer(cb)

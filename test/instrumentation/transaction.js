@@ -4,6 +4,7 @@ process.env.ELASTIC_APM_TEST = true
 
 var test = require('tape')
 var mockInstrumentation = require('./_instrumentation')
+var assert = require('../_assert')
 var Transaction = require('../../lib/instrumentation/transaction')
 var Trace = require('../../lib/instrumentation/trace')
 
@@ -285,17 +286,7 @@ test('#_encode() - traces', function (t) {
       t.equal(trace.type, 'trace-type' + index)
       t.ok(trace.start >= start)
       t.ok(trace.duration > 0)
-      t.ok(trace.stacktrace.length > 0)
-      t.equal(trace.stacktrace[0].function, 'genTraces')
-      t.equal(trace.stacktrace[0].abs_path, __filename)
-      trace.stacktrace.forEach(function (frame) {
-        t.deepEqual(Object.keys(frame), ['filename', 'lineno', 'function', 'in_app', 'abs_path'])
-        t.equal(typeof frame.filename, 'string')
-        t.ok(Number.isFinite(frame.lineno))
-        t.equal(typeof frame.function, 'string')
-        t.equal(typeof frame.in_app, 'boolean')
-        t.equal(typeof frame.abs_path, 'string')
-      })
+      assert.stacktrace(t, 'genTraces', __filename, trace.stacktrace)
       start = trace.start + trace.duration
     })
     t.end()
