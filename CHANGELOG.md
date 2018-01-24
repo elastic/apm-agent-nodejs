@@ -1,3 +1,11 @@
+# 0.12.0 - 2018/1/24
+  * feat(\*): control amount of source context lines collected using new config options (#196)
+  * feat(agent): add public flush function to force flush of transaction queue: agent.flush([callback]) (#187)
+  * feat(mongodb): add support for mongodb-core 3.x (#190)
+  * refactor(config): update default flushInterval to 10 seconds (lower memory usage) (#186)
+  * chore(\*): drop support for Node.js 5 and 7 (#169)
+  * refactor(instrumentation): encode transactions as they are added to the queue (lower memory usage) (#184)
+
 # 0.11.0 - 2018/1/11
   * feat(\*): Set default stack trace limit to 50 frames (#171)
   * feat(ws): add support for ws@4.x (#164)
