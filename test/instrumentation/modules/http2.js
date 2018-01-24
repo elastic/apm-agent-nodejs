@@ -1,7 +1,7 @@
 'use strict'
 
 var agent = require('../../..').start({
-  appName: 'test',
+  serviceName: 'test',
   captureExceptions: false,
   maxQueueSize: 0
 })
@@ -12,49 +12,252 @@ var semver = require('semver')
 // The http2 module wasn't included before Node.js v8.4.0
 if (semver.lt(process.version, '8.4.0')) process.exit()
 
-var test = require('tape')
+var fs = require('fs')
 var http2 = require('http2')
+
+var test = require('tape')
 var pem = require('https-pem')
-var assert = require('./_http_assert')
 
-test('http2.createSecureServer', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data)
-    server.close()
-    t.end()
-  })
+var isSecure = [false, true]
+isSecure.forEach(secure => {
+  var method = secure ? 'createSecureServer' : 'createServer'
 
-  var server = http2.createSecureServer(pem)
-  server.on('error', onError)
-  server.on('socketError', onError)
-  server.on('stream', function (stream, headers) {
-    var trans = ins.currentTransaction
-    t.ok(trans, 'have current transaction')
-    t.equal(trans.type, 'request')
-
-    stream.respond({':status': 200})
-    stream.end('foo')
-  })
-
-  server.listen(function () {
-    var client = http2.connect('https://localhost:' + server.address().port, {
-      rejectUnauthorized: false
+  test(`http2.${method} compatibility mode`, t => {
+    resetAgent((endpoint, headers, data, cb) => {
+      assert(t, data, secure, port)
+      server.close()
+      t.end()
     })
-    client.on('error', onError)
-    client.on('socketError', onError)
 
-    var req = client.request({':path': '/'})
-    req.resume()
-    req.on('end', function () {
-      client.destroy()
+    function onRequest (req, res) {
+      var trans = ins.currentTransaction
+      t.ok(trans, 'have current transaction')
+      t.equal(trans.type, 'request')
+
+      res.writeHead(200, {
+        'content-type': 'text/plain'
+      })
+      res.end('foo')
+    }
+
+    var port
+    var server = secure
+      ? http2.createSecureServer(pem, onRequest)
+      : http2.createServer(onRequest)
+
+    var onError = err => t.error(err)
+    server.on('error', onError)
+    server.on('socketError', onError)
+
+    server.listen(() => {
+      port = server.address().port
+      var client = connect(secure, port)
+      client.on('error', onError)
+      client.on('socketError', onError)
+
+      var req = client.request({':path': '/'})
+      assertResponse(t, req, 'foo')
+      req.resume()
+      req.on('end', () => client.destroy())
+      req.end()
     })
-    req.end()
   })
 
-  function onError (err) {
-    t.error(err)
-  }
+  test(`http2.${method} stream respond`, t => {
+    resetAgent((endpoint, headers, data, cb) => {
+      assert(t, data, secure, port)
+      server.close()
+      t.end()
+    })
+
+    var port
+    var server = secure
+      ? http2.createSecureServer(pem)
+      : http2.createServer()
+
+    var onError = err => t.error(err)
+    server.on('error', onError)
+    server.on('socketError', onError)
+
+    server.on('stream', function (stream, headers) {
+      var trans = ins.currentTransaction
+      t.ok(trans, 'have current transaction')
+      t.equal(trans.type, 'request')
+
+      stream.respond({
+        'content-type': 'text/plain',
+        ':status': 200
+      })
+      stream.end('foo')
+    })
+
+    server.listen(() => {
+      port = server.address().port
+      var client = connect(secure, port)
+      client.on('error', onError)
+      client.on('socketError', onError)
+
+      var req = client.request({':path': '/'})
+      assertResponse(t, req, 'foo')
+      req.resume()
+      req.on('end', () => client.destroy())
+      req.end()
+    })
+  })
+
+  test(`http2.${method} stream respondWithFD`, t => {
+    resetAgent((endpoint, headers, data, cb) => {
+      assert(t, data, secure, port)
+      server.close()
+      t.end()
+    })
+
+    var port
+    var server = secure
+      ? http2.createSecureServer(pem)
+      : http2.createServer()
+
+    var onError = err => t.error(err)
+    server.on('error', onError)
+    server.on('socketError', onError)
+
+    server.on('stream', function (stream, headers) {
+      var trans = ins.currentTransaction
+      t.ok(trans, 'have current transaction')
+      t.equal(trans.type, 'request')
+
+      fs.open(__filename, 'r', function (err, fd) {
+        t.error(err)
+
+        stream.respondWithFD(fd, {
+          ':status': 200,
+          'content-type': 'text/plain'
+        })
+
+        stream.on('close', function () {
+          fs.close(fd, function () {})
+        })
+      })
+    })
+
+    server.listen(() => {
+      port = server.address().port
+      var client = connect(secure, port)
+      client.on('error', onError)
+      client.on('socketError', onError)
+
+      var req = client.request({':path': '/'})
+      assertResponse(t, req, fs.readFileSync(__filename).toString())
+      req.resume()
+      req.on('end', () => client.destroy())
+      req.end()
+    })
+  })
+
+  test(`http2.${method} stream respondWithFile`, t => {
+    resetAgent((endpoint, headers, data, cb) => {
+      assert(t, data, secure, port)
+      server.close()
+      t.end()
+    })
+
+    var port
+    var server = secure
+      ? http2.createSecureServer(pem)
+      : http2.createServer()
+
+    var onError = err => t.error(err)
+    server.on('error', onError)
+    server.on('socketError', onError)
+
+    server.on('stream', function (stream, headers) {
+      var trans = ins.currentTransaction
+      t.ok(trans, 'have current transaction')
+      t.equal(trans.type, 'request')
+
+      stream.respondWithFile(__filename, {
+        ':status': 200,
+        'content-type': 'text/plain'
+      })
+    })
+
+    server.listen(() => {
+      port = server.address().port
+      var client = connect(secure, port)
+      client.on('error', onError)
+      client.on('socketError', onError)
+
+      var req = client.request({':path': '/'})
+      assertResponse(t, req, fs.readFileSync(__filename).toString())
+      req.resume()
+      req.on('end', () => client.destroy())
+      req.end()
+    })
+  })
 })
+
+var matchId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+var matchTimestamp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/
+
+function assert (t, data, secure, port) {
+  t.equal(data.transactions.length, 1)
+
+  // Top-level props of the transaction need to be checked individually
+  // because there are a few dynamic properties
+  var trans = data.transactions[0]
+  t.ok(trans)
+  t.ok(matchId.test(trans.id))
+  t.equal(trans.name, 'GET unknown route')
+  t.equal(trans.type, 'request')
+  t.equal(trans.result, 'HTTP 2xx')
+  t.ok(trans.duration > 0)
+  t.ok(matchTimestamp.test(trans.timestamp))
+  t.equal(trans.spans.length, 0)
+
+  t.deepEqual(trans.context.request, {
+    http_version: '2.0',
+    method: 'GET',
+    url: {
+      raw: '/',
+      protocol: 'http:',
+      pathname: '/'
+    },
+    socket: {
+      remote_address: '::ffff:127.0.0.1',
+      encrypted: secure
+    },
+    headers: {
+      ':scheme': secure ? 'https' : 'http',
+      ':authority': `localhost:${port}`,
+      ':method': 'GET',
+      ':path': '/'
+    }
+  })
+
+  t.deepEqual(trans.context.response, {
+    status_code: 200,
+    headers: {
+      'content-type': 'text/plain',
+      ':status': 200
+    }
+  })
+}
+
+function assertResponse (t, stream, expected) {
+  const chunks = []
+  stream.on('data', function (chunk) {
+    chunks.push(chunk)
+  })
+  stream.on('end', function () {
+    t.equal(Buffer.concat(chunks).toString(), expected)
+  })
+}
+
+function connect (secure, port) {
+  var proto = secure ? 'https' : 'http'
+  var opts = { rejectUnauthorized: false }
+  return http2.connect(`${proto}://localhost:${port}`, opts)
+}
 
 function resetAgent (cb) {
   agent._instrumentation._queue._clear()
