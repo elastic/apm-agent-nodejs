@@ -40,3 +40,4 @@ docker-compose run \
 			node --version
 			npm --version
       ${CMD}"
+docker-compose down -v
