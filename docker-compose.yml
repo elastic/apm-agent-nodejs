@@ -6,6 +6,8 @@ services:
     image: postgres
     ports: 
       - "5432:5432"
+    volumes:
+      - nodepgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: 'postgres'
       POSTGRES_DB: 'test_elastic_apm'
@@ -14,6 +16,8 @@ services:
     image: mongo
     ports: 
       - "27017:27017"
+    volumes:
+      - nodemongodata:/data/db
 
   mysql:
     image: mysql 
@@ -21,6 +25,8 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
     ports: 
       - "3306:3306"
+    volumes:
+      - nodemysqldata:/var/lib/mysql
 
   redis:
     image: redis
@@ -39,6 +45,8 @@ services:
       - "xpack.security.enabled=false"
     ports:
       - "9200:9200"
+    volumes:
+      - nodeesdata:/usr/share/elasticsearch/data
 
   node_tests:
     build: 
