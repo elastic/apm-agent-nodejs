@@ -5,6 +5,7 @@ var util = require('util')
 var test = require('tape')
 var isRegExp = require('core-util-is').isRegExp
 var Agent = require('./_agent')
+var config = require('../lib/config')
 
 var optionFixtures = [
   ['appName', 'APP_NAME'],
@@ -12,6 +13,7 @@ var optionFixtures = [
   ['appVersion', 'APP_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
+  ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
@@ -19,8 +21,7 @@ var optionFixtures = [
   ['sourceContextErrorAppFrames', 'SOURCE_CONTEXT_ERROR_APP_FRAMES', 5],
   ['sourceContextErrorLibraryFrames', 'SOURCE_CONTEXT_ERROR_LIBRARY_FRAMES', 5],
   ['sourceContextTraceAppFrames', 'SOURCE_CONTEXT_TRACE_APP_FRAMES', 5],
-  ['sourceContextTraceLibraryFrames', 'SOURCE_CONTEXT_TRACE_LIBRARY_FRAMES', 0],
-  ['ff_captureFrame', 'FF_CAPTURE_FRAME', false]
+  ['sourceContextTraceLibraryFrames', 'SOURCE_CONTEXT_TRACE_LIBRARY_FRAMES', 0]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']

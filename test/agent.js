@@ -5,6 +5,7 @@ var test = require('tape')
 var isError = require('core-util-is').isError
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
+var config = require('../lib/config')
 
 test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
@@ -183,6 +184,151 @@ test('#captureError()', function (t) {
         t.end()
       })
   })
+
+  t.test('capture location stack trace - off (error)', function (t) {
+    t.plan(9)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'))
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.message, 'foo')
+        t.notOk('log' in body.errors[0], 'should not have a log')
+        assertStackTrace(t, body.errors[0].exception.stacktrace)
+        t.end()
+      })
+  })
+
+  t.test('capture location stack trace - off (string)', function (t) {
+    t.plan(6)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+      .on('listening', function () {
+        this.agent.captureError('foo')
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'foo')
+        t.notOk('stacktrace' in body.errors[0].log, 'should not have a log.stacktrace')
+        t.notOk('exception' in body.errors[0], 'should not have an exception')
+        t.end()
+      })
+  })
+
+  t.test('capture location stack trace - off (param msg)', function (t) {
+    t.plan(6)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+      .on('listening', function () {
+        this.agent.captureError({message: 'Hello %s', params: ['World']})
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'Hello World')
+        t.notOk('stacktrace' in body.errors[0].log, 'should not have a log.stacktrace')
+        t.notOk('exception' in body.errors[0], 'should not have an exception')
+        t.end()
+      })
+  })
+
+  t.test('capture location stack trace - non-errors (error)', function (t) {
+    t.plan(9)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'))
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.message, 'foo')
+        t.notOk('log' in body.errors[0], 'should not have a log')
+        assertStackTrace(t, body.errors[0].exception.stacktrace)
+        t.end()
+      })
+  })
+
+  t.test('capture location stack trace - non-errors (string)', function (t) {
+    t.plan(9)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+      .on('listening', function () {
+        this.agent.captureError('foo')
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'foo')
+        t.notOk('exception' in body.errors[0], 'should not have an exception')
+        assertStackTrace(t, body.errors[0].log.stacktrace)
+        t.end()
+      })
+  })
+
+  t.test('capture location stack trace - non-errors (param msg)', function (t) {
+    t.plan(9)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+      .on('listening', function () {
+        this.agent.captureError({message: 'Hello %s', params: ['World']})
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'Hello World')
+        t.notOk('exception' in body.errors[0], 'should not have an exception')
+        assertStackTrace(t, body.errors[0].log.stacktrace)
+        t.end()
+      })
+  })
+
+  t.test('capture location stack trace - all (error)', function (t) {
+    t.plan(13)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'))
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'foo')
+        t.equal(body.errors[0].exception.message, 'foo')
+        assertStackTrace(t, body.errors[0].log.stacktrace)
+        assertStackTrace(t, body.errors[0].exception.stacktrace)
+        t.end()
+      })
+  })
+
+  t.test('capture location stack trace - all (string)', function (t) {
+    t.plan(9)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+      .on('listening', function () {
+        this.agent.captureError('foo')
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'foo')
+        t.notOk('exception' in body.errors[0], 'should not have an exception')
+        assertStackTrace(t, body.errors[0].log.stacktrace)
+        t.end()
+      })
+  })
+
+  t.test('capture location stack trace - all (param msg)', function (t) {
+    t.plan(9)
+    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+      .on('listening', function () {
+        this.agent.captureError({message: 'Hello %s', params: ['World']})
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].log.message, 'Hello World')
+        t.notOk('exception' in body.errors[0], 'should not have an exception')
+        assertStackTrace(t, body.errors[0].log.stacktrace)
+        t.end()
+      })
+  })
 })
 
 test('#handleUncaughtExceptions()', function (t) {
@@ -230,6 +376,13 @@ test('#handleUncaughtExceptions()', function (t) {
       })
   })
 })
+
+function assertStackTrace (t, stacktrace) {
+  t.ok(stacktrace !== undefined, 'should have a stack trace')
+  t.ok(Array.isArray(stacktrace), 'stack trace should be an array')
+  t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
+  t.equal(stacktrace[0].filename, 'test/agent.js')
+}
 
 function validateErrorRequest (t) {
   return function (req) {
