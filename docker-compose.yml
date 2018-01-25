@@ -70,3 +70,13 @@ services:
         condition: service_started
       elasticsearch:
         condition: service_started
+
+volumes:
+  nodepgdata:
+    driver: local
+  nodemongodata:
+    driver: local
+  nodemysqldata:
+    driver: local
+  nodeesdata:
+    driver: local
