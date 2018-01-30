@@ -6,7 +6,7 @@ getPort().then(function (port) {
   var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'https://localhost:' + port,
-    validateServerCert: false
+    verifyServerCert: false
   })
 
   var https = require('https')

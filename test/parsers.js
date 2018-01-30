@@ -249,8 +249,8 @@ test('#parseError()', function (t) {
   t.test('should parse plain Error object', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 5,
-        sourceContextErrorLibraryFrames: 5
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
       }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
@@ -272,8 +272,8 @@ test('#parseError()', function (t) {
   t.test('should parse Error with message', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 5,
-        sourceContextErrorLibraryFrames: 5
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
       }
     }
     parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
@@ -295,8 +295,8 @@ test('#parseError()', function (t) {
   t.test('should parse TypeError with message', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 5,
-        sourceContextErrorLibraryFrames: 5
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
       }
     }
     parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
@@ -318,8 +318,8 @@ test('#parseError()', function (t) {
   t.test('should parse thrown Error', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 5,
-        sourceContextErrorLibraryFrames: 5
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
       }
     }
     try {
@@ -345,8 +345,8 @@ test('#parseError()', function (t) {
   t.test('should parse caught real error', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 5,
-        sourceContextErrorLibraryFrames: 5
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
       }
     }
     try {
@@ -376,8 +376,8 @@ test('#parseError()', function (t) {
   t.test('should gracefully handle .stack already being accessed', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 5,
-        sourceContextErrorLibraryFrames: 5
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
       }
     }
     var err = new Error('foo')
@@ -401,8 +401,8 @@ test('#parseError()', function (t) {
   t.test('should gracefully handle .stack being overwritten', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 5,
-        sourceContextErrorLibraryFrames: 5
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
       }
     }
     var err = new Error('foo')
@@ -426,8 +426,8 @@ test('#parseError()', function (t) {
   t.test('should be able to exclude source context data', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 0,
-        sourceContextErrorLibraryFrames: 0
+        sourceLinesErrorAppFrames: 0,
+        sourceLinesErrorLibraryFrames: 0
       }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
@@ -459,8 +459,8 @@ test('#parseError()', function (t) {
   t.test('should be able to exclude source context data for library frames only', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 5,
-        sourceContextErrorLibraryFrames: 0
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 0
       }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
@@ -487,8 +487,8 @@ test('#parseError()', function (t) {
   t.test('should be able to exclude source context data for in-app frames only', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 0,
-        sourceContextErrorLibraryFrames: 5
+        sourceLinesErrorAppFrames: 0,
+        sourceLinesErrorLibraryFrames: 5
       }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
@@ -516,8 +516,8 @@ test('#parseError()', function (t) {
   t.test('should be able to choose number of source context line per frame type', function (t) {
     var fakeAgent = {
       _conf: {
-        sourceContextErrorAppFrames: 3,
-        sourceContextErrorLibraryFrames: 6
+        sourceLinesErrorAppFrames: 3,
+        sourceLinesErrorLibraryFrames: 6
       }
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
@@ -621,10 +621,10 @@ function validateParseCallsite (t, opts) {
   }
 
   var conf = {
-    sourceContextErrorAppFrames: opts.isError && opts.isApp ? opts.lines : 10,
-    sourceContextErrorLibraryFrames: opts.isError && !opts.isApp ? opts.lines : 10,
-    sourceContextSpanAppFrames: !opts.isError && opts.isApp ? opts.lines : 10,
-    sourceContextSpanLibraryFrames: !opts.isError && !opts.isApp ? opts.lines : 10
+    sourceLinesErrorAppFrames: opts.isError && opts.isApp ? opts.lines : 10,
+    sourceLinesErrorLibraryFrames: opts.isError && !opts.isApp ? opts.lines : 10,
+    sourceLinesSpanAppFrames: !opts.isError && opts.isApp ? opts.lines : 10,
+    sourceLinesSpanLibraryFrames: !opts.isError && !opts.isApp ? opts.lines : 10
   }
 
   stackman.callsites(err, function (err, callsites) {
