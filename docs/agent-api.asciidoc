@@ -229,16 +229,21 @@ require('elastic-apm-node').start({
 })
 ----
 
-[[log-body]]
-===== `logBody`
+[[capture-body]]
+===== `captureBody`
 
-* *Type:* Boolean
-* *Default:* `false`
-* *Env:* `ELASTIC_APM_LOG_BODY`
+* *Type:* String
+* *Default:* `off`
+* *Env:* `ELASTIC_APM_CAPTURE_BODY`
 
 The HTTP body of incoming HTTP requests is not recorded and sent to the APM Server by default.
-If you wish to collect the HTTP request body,
-set this config option to `true`.
+
+Possible options are: `off`, `all`, `errors`, and `transactions`.
+
+* `off` - request bodies will never be reported
+* `errors` - request bodies will only be reported with errors
+* `transactions` - request bodies will only be reported with request transactions
+* `all` - request bodies will be reported with both errors and request transactions
 
 [[error-on-aborted-requests]]
 ===== `errorOnAbortedRequests`

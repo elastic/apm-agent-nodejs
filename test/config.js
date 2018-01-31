@@ -5,6 +5,8 @@ var util = require('util')
 var test = require('tape')
 var isRegExp = require('core-util-is').isRegExp
 var Agent = require('./_agent')
+var request = require('../lib/request')
+var IncomingMessage = require('http').IncomingMessage
 
 var optionFixtures = [
   ['serviceName', 'SERVICE_NAME'],
@@ -166,4 +168,49 @@ test('valid serviceName => active', function (t) {
   agent.start({serviceName: 'fooBAR0123456789_- '})
   t.equal(agent._conf.active, true)
   t.end()
+})
+
+var captureBodyTests = [
+  { value: 'off', errors: '[REDACTED]', transactions: '[REDACTED]' },
+  { value: 'transactions', errors: '[REDACTED]', transactions: 'test' },
+  { value: 'errors', errors: 'test', transactions: '[REDACTED]' },
+  { value: 'all', errors: 'test', transactions: 'test' }
+]
+
+captureBodyTests.forEach(function (captureBodyTest) {
+  test('captureBody => ' + captureBodyTest.value, function (t) {
+    t.plan(5)
+
+    var errors = request.errors
+    request.errors = function (agent, list, cb) {
+      request.errors = errors
+      return cb(list, agent)
+    }
+    var agent = Agent()
+    agent.start({ captureBody: captureBodyTest.value })
+
+    var req = new IncomingMessage()
+    req.socket = { remoteAddress: '127.0.0.1' }
+    req.headers['transfer-encoding'] = 'chunked'
+    req.headers['content-length'] = 4
+    req.body = 'test'
+
+    agent.captureError(new Error('wat'), {
+      request: req
+    }, function (list) {
+      var request = list[0].context.request
+      t.ok(request)
+      t.equal(request.body, captureBodyTest.errors)
+    })
+
+    var trans = agent.startTransaction()
+    trans.req = req
+    trans.end()
+    trans._encode(function (err, trans) {
+      t.error(err)
+      var request = trans.context.request
+      t.ok(request)
+      t.equal(request.body, captureBodyTest.transactions)
+    })
+  })
 })
