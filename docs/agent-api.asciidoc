@@ -103,11 +103,11 @@ The secret token optionally expected by the APM Server.
 The URL to where the APM Server is deployed.
 
 [[validate-server-cert]]
-===== `validateServerCert`
+===== `verifyServerCert`
 
 * *Type:* Boolean
 * *Default:* `true`
-* *Env:* `ELASTIC_APM_VALIDATE_SERVER_CERT`
+* *Env:* `ELASTIC_APM_VERIFY_SERVER_CERT`
 
 By default the agent will validate the TLS/SSL certificate of the APM Server if using HTTPS.
 You can switch this behavior off by setting this option to `false`.
@@ -369,7 +369,7 @@ A capture location stack trace is never generated for uncaught exceptions.
 Set this option to `false` to disable capture of stack traces for measured spans during instrumentation.
 
 [[source-context-error]]
-===== `sourceContextErrorAppFrames` + `sourceContextErrorLibraryFrames`
+===== `sourceLinesErrorAppFrames` + `sourceLinesErrorLibraryFrames`
 
 When an error is captured by the agent,
 its stack trace is stored in Elasticsearch.
@@ -384,11 +384,11 @@ In-app frames are everything else.
 Use the following two config options to change how many lines of source code to include for the different types of stack frames:
 
 [[source-context-error-app-frames]]
-*`sourceContextErrorAppFrames`*
+*`sourceLinesErrorAppFrames`*
 
 * *Type:* Number
 * *Default:* `5`
-* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_ERROR_APP_FRAMES`
+* *Env:* `ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES`
 
 The default value `5` means that 5 lines of source code will be collected for in-app error frames.
 2 lines above the stack frame line + 2 below + the stack frame line it self.
@@ -396,11 +396,11 @@ The default value `5` means that 5 lines of source code will be collected for in
 Setting this config option to `0` means that no source code will be collected for in-app error frames.
 
 [[source-context-error-library-frames]]
-*`sourceContextErrorLibraryFrames`*
+*`sourceLinesErrorLibraryFrames`*
 
 * *Type:* Number
 * *Default:* `5`
-* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_ERROR_LIBRARY_FRAMES`
+* *Env:* `ELASTIC_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES`
 
 The default value `5` means that 5 lines of source code will be collected for error library frames.
 2 lines above the stack frame line + 2 below + the stack frame line it self.
@@ -408,7 +408,7 @@ The default value `5` means that 5 lines of source code will be collected for er
 Setting this config option to `0` means that no source code will be collected for error library frames.
 
 [[source-context-span]]
-===== `sourceContextSpanAppFrames` + `sourceContextSpanLibraryFrames`
+===== `sourceLinesSpanAppFrames` + `sourceLinesSpanLibraryFrames`
 
 When a span is recorded by the agent,
 a stack trace is recorded together with the span,
@@ -425,11 +425,11 @@ In-app frames are everything else.
 Use the following two config options to change how many lines of source code to include for the different types of stack frames:
 
 [[source-context-span-app-frames]]
-*`sourceContextSpanAppFrames`*
+*`sourceLinesSpanAppFrames`*
 
 * *Type:* Number
 * *Default:* `5`
-* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_SPAN_APP_FRAMES`
+* *Env:* `ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES`
 
 The default value `5` means that 5 lines of source code will be collected for in-app span frames.
 2 lines above the stack frame line + 2 below + the stack frame line it self.
@@ -437,11 +437,11 @@ The default value `5` means that 5 lines of source code will be collected for in
 Setting this config option to `0` means that no source code will be collected for in-app span frames.
 
 [[source-context-span-library-frames]]
-*`sourceContextSpanLibraryFrames`*
+*`sourceLinesSpanLibraryFrames`*
 
 * *Type:* Number
 * *Default:* `0`
-* *Env:* `ELASTIC_APM_SOURCE_CONTEXT_SPAN_LIBRARY_FRAMES`
+* *Env:* `ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES`
 
 The default value `0` means that no source code will be collected for span library frames.
 

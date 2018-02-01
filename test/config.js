@@ -18,10 +18,10 @@ var optionFixtures = [
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
   ['asyncHooks', 'ASYNC_HOOKS', true],
-  ['sourceContextErrorAppFrames', 'SOURCE_CONTEXT_ERROR_APP_FRAMES', 5],
-  ['sourceContextErrorLibraryFrames', 'SOURCE_CONTEXT_ERROR_LIBRARY_FRAMES', 5],
-  ['sourceContextSpanAppFrames', 'SOURCE_CONTEXT_SPAN_APP_FRAMES', 5],
-  ['sourceContextSpanLibraryFrames', 'SOURCE_CONTEXT_SPAN_LIBRARY_FRAMES', 0]
+  ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
+  ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
+  ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 5],
+  ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']
