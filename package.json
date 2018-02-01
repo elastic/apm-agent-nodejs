@@ -79,7 +79,7 @@
     "require-in-the-middle": "^2.1.2",
     "semver": "^5.3.0",
     "sql-summary": "^1.0.0",
-    "stackman": "^3.0.0",
+    "stackman": "^3.0.1",
     "unicode-byte-truncate": "^1.0.0",
     "uuid": "^3.0.1"
   },
