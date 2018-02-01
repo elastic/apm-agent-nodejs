@@ -24,6 +24,12 @@ node_js:
   - '6'
   - '4'
 
+stages:
+  - test
+  - name: dependencies
+    if: 'head_branch =~ ^(?!greenkeeper/)' # No need to run tav tests for greenkeeper PR's
+    script: tav --quiet
+
 jobs:
   fast_finish: true
 
@@ -62,73 +68,57 @@ jobs:
     - stage: dependencies
       node_js: '9'
       env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '9'
       env: TAV=ioredis,pg
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '9'
       env: TAV=bluebird
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '9'
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
 
     # Node.js 8
     -
       node_js: '8'
       env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '8'
       env: TAV=ioredis,pg
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '8'
       env: TAV=bluebird
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '8'
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
 
     # Node.js 6
     -
       node_js: '6'
       env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '6'
       env: TAV=ioredis,pg
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '6'
       env: TAV=bluebird
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '6'
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
 
     # Node.js 4
     -
       node_js: '4'
       env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '4'
       env: TAV=ioredis,pg
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '4'
       env: TAV=bluebird
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
     -
       node_js: '4'
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if ! [[ $TRAVIS_BRANCH == greenkeeper/* ]]; then tav --quiet; fi'
 
 addons:
   apt:
