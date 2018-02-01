@@ -420,8 +420,7 @@ Setting it to `Infinity` means that all frames will be collected.
 * *Env:* `ELASTIC_APM_FLUSH_INTERVAL`
 
 The agent maintains an in-memory queue to which recorded transactions are added when they end.
-Unless empty,
-this queue is flushed and sent to the APM Server for processing approximately every 60 seconds.
+Unless empty, this queue is flushed and sent to the APM Server for processing approximately every 10 seconds.
 
 Use this option to change that interval.
 The value is expected to be in seconds.
