@@ -2,18 +2,21 @@
 
 The APM Agent is open source and we love to receive contributions from our community — you!
 
-There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code.
+There are many ways to contribute,
+from writing tutorials or blog posts,
+improving the documentation,
+submitting bug reports and feature requests or writing code.
 
 You can get in touch with us through [Discuss](https://discuss.elastic.co/c/apm), feedback and ideas are always welcome.
 
 ## Code contributions
 
-If you have a bugfix or new feature that you would like to contribute, please find or open an issue about it first.
+If you have a bugfix or new feature that you would like to contribute,
+please find or open an issue about it first.
 Talk about what you would like to do.
-It may be that somebody is already working on it, or that there are particular issues that you should know about before
+It may be that somebody is already working on it,
+or that there are particular issues that you should know about before
 implementing the change.
-
-You will have to fork the `apm-agent-nodejs` repo, please follow the instructions in the [readme](README.md).
 
 ### Submitting your changes
 
@@ -28,7 +31,7 @@ Once your changes are ready to submit for review:
 
 2. Test your changes
 
-    Run the test suite to make sure that nothing is broken. See [testing](TESTING.md) for details.
+    Run the test suite to make sure that nothing is broken. See [testing](#testing) for details.
 
 3. Rebase your changes
 
@@ -45,22 +48,56 @@ Once your changes are ready to submit for review:
     We might not be able to review your code as fast as we would like to, but we'll do our best to dedicate it the attention it deserves.
     Your effort is much appreciated!
 
+### Testing
+
+The test suite expects the databases PostgreSQL, MySQL, MongoDB,
+Elasticsearch and Redis to be present. The `npm test` command will try
+and start them all automatically before running the tests. This should
+work on OS X if the databases are all installed using
+[Homebrew](http://brew.sh).
+
+To run the linter without running any tests, run `npm run lint`. To
+automatically fix linting errors run `npm run lint-fix`.
+
+#### Using Docker for Testing
+
+Running the testsuite on _Jenkins_ is based on docker images.
+You can also make use of this setup when running tests locally.
+Scripts are provided for different stages of testing: testing the
+documentation, running tests against different Node.js versions and
+running tests against different versions of dependencies.
+The scripts are tested with a minimum docker version of `17.06.2-ce`.
+
+#### Testing Documentation
+
+```
+./test/script/docker/run_docs.sh
+```
+
+#### Testing against Node.js versions
+
+```
+./test/script/docker/run_tests.sh nodejs-version
+```
+
+E.g. `./test/script/docker/run_tests.sh 8`
+
+#### Testing Dependencies
+
+```
+./test/script/docker/run_tests.sh nodejs-version dependencies
+```
+
+E.g. `./test/script/docker/run_tests.sh 8 redis,pg`
+
+#### Cleanup Docker Container and Volumes
+
+```
+./test/script/docker/cleanup.sh
+```
+
 ### Workflow
 
 All feature development and most bug fixes hit the master branch first.
 Pull requests should be reviewed by someone with commit access.
 Once approved, the author of the pull request, or reviewer if the author does not have commit access, should "Squash and merge".
-
-### Backports
-
-Before or during review, a committer will tag the pull request with the target version(s).
-Once a version is released, new features are frozen for that minor version and will not be backported.
-For example, if 6.2 was just released, the soonest a new feature will be released is 6.3, not 6.2.1.
-Breaking changes may need to wait until the next major version.
-See [semver](https://semver.org/) for general information about major/minor versions.
-Bug fixes may be backported on a case by case basis.
-The committer of the original pull request, typically the author, is responsible for backporting the changes to the target versions.
-Each backport is performed through its own pull request, tagged with the target version and "backport", and merged with "Create a merge commit".
-Straightforward backports may be merged without review.
-
-[Backport](https://github.com/sqren/backport) is recommended for automating the backport process.
