@@ -9,11 +9,11 @@ sudo: required
 language: node_js
 
 services:
-- mysql
-- mongodb
-- redis-server
-- postgresql
-- elasticsearch
+  - mysql
+  - mongodb
+  - redis-server
+  - postgresql
+  - elasticsearch
 
 before_script:
   - wait-on tcp:9200
