@@ -97,6 +97,6 @@ E.g. `./test/script/docker/run_tests.sh 8 redis,pg`
 
 ## License
 
-BSD-2-Clause
+[BSD-2-Clause](https://github.com/elastic/apm-agent-nodejs/blob/master/LICENSE)
 
 <br>Made with ♥️ and ☕️ by Elastic and our community.
