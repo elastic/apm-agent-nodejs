@@ -244,7 +244,7 @@ It's possible for you to tweak these defaults or remove any information you don'
 
 * By default the Node.js agent will not log the body of HTTP requests.
 To enable this,
-use the <<log-body,`logBody`>> config option
+use the <<capture-body,`captureBody`>> config option
 * By default the Node.js agent will filter certain HTTP headers known to contain sensitive information.
 To disable this,
 use the <<filter-http-headers,`filterHttpHeaders`>> config option
