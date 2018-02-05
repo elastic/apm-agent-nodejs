@@ -1,4 +1,5 @@
 .DS_Store
+package-lock.json
 build
 node_modules
 .nyc_output
