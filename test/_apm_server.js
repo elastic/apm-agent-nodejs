@@ -27,6 +27,7 @@ function APMServer (agentOpts) {
 
   getPort().then(function (port) {
     self.agent.start(Object.assign(
+      {},
       defaultAgentOpts,
       {serverUrl: 'http://localhost:' + port},
       agentOpts

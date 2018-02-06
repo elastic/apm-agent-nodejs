@@ -15,6 +15,8 @@ var optionFixtures = [
   ['serviceVersion', 'SERVICE_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
+  ['frameworkName', 'FRAMEWORK_NAME'],
+  ['frameworkVersion', 'FRAMEWORK_VERSION'],
   ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],

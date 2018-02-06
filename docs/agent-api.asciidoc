@@ -288,6 +288,32 @@ The OS hostname is automatically logged along with all errors and transactions.
 If you want to overwrite this,
 use this option.
 
+[[framework-name]]
+===== `frameworkName`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_FRAMEWORK_NAME`
+
+Set the name of the web framework used by the instrumented service / application.
+The name will be available as metadata for all errors and transactions sent to the APM Server.
+This can be useful for debugging and filtering.
+
+By default,
+the agent will set the value of this config option if the framework can be detected automatically.
+
+[[framework-version]]
+===== `frameworkVersion`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_FRAMEWORK_VERSION`
+
+Set the version of the web framework used by the instrumented service / application.
+The version will be available as metadata for all errors and transactions sent to the APM Server.
+This can be useful for debugging and filtering.
+
+By default,
+the agent will set the value of this config option if the framework can be detected automatically.
+
 [[log-level]]
 ===== `logLevel`
 
