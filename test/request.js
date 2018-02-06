@@ -25,6 +25,38 @@ test('#errors()', function (t) {
       })
   })
 
+  t.test('no custom framework', function (t) {
+    t.plan(15)
+    var errors = [{}]
+    APMServer()
+      .on('listening', function () {
+        request.errors(this.agent, errors)
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        t.notOk(body.service.framework, 'should not have service.framework property')
+        t.deepEqual(body.errors, errors)
+        t.end()
+      })
+  })
+
+  t.test('custom framework', function (t) {
+    t.plan(15)
+    var errors = [{}]
+    APMServer({frameworkName: 'foo', frameworkVersion: 'bar'})
+      .on('listening', function () {
+        request.errors(this.agent, errors)
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        t.deepEqual(body.service.framework, {name: 'foo', version: 'bar'})
+        t.deepEqual(body.errors, errors)
+        t.end()
+      })
+  })
+
   t.test('non-string log.message', function (t) {
     t.plan(14)
     var errors = [{log: {message: 1}}]
@@ -191,18 +223,52 @@ test('#errors()', function (t) {
 })
 
 test('#transactions()', function (t) {
-  t.plan(14)
-  var transactions = [{spans: []}]
-  APMServer()
-    .on('listening', function () {
-      request.transactions(this.agent, transactions)
-    })
-    .on('request', validateTransactionsRequest(t))
-    .on('body', function (body) {
-      assertRoot(t, body)
-      t.deepEqual(body.transactions, transactions)
-      t.end()
-    })
+  test('envelope', function (t) {
+    t.plan(14)
+    var transactions = [{spans: []}]
+    APMServer()
+      .on('listening', function () {
+        request.transactions(this.agent, transactions)
+      })
+      .on('request', validateTransactionsRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        t.deepEqual(body.transactions, transactions)
+        t.end()
+      })
+  })
+
+  t.test('no custom framework', function (t) {
+    t.plan(15)
+    var transactions = [{spans: []}]
+    APMServer()
+      .on('listening', function () {
+        request.transactions(this.agent, transactions)
+      })
+      .on('request', validateTransactionsRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        t.notOk(body.service.framework, 'should not have service.framework property')
+        t.deepEqual(body.transactions, transactions)
+        t.end()
+      })
+  })
+
+  t.test('custom framework', function (t) {
+    t.plan(15)
+    var transactions = [{spans: []}]
+    APMServer({frameworkName: 'foo', frameworkVersion: 'bar'})
+      .on('listening', function () {
+        request.transactions(this.agent, transactions)
+      })
+      .on('request', validateTransactionsRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        t.deepEqual(body.service.framework, {name: 'foo', version: 'bar'})
+        t.deepEqual(body.transactions, transactions)
+        t.end()
+      })
+  })
 })
 
 function assertRoot (t, payload) {
