@@ -462,13 +462,10 @@ Use the following two config options to change how many lines of source code to 
 *`sourceLinesSpanAppFrames`*
 
 * *Type:* Number
-* *Default:* `5`
+* *Default:* `0`
 * *Env:* `ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES`
 
-The default value `5` means that 5 lines of source code will be collected for in-app span frames.
-2 lines above the stack frame line + 2 below + the stack frame line it self.
-
-Setting this config option to `0` means that no source code will be collected for in-app span frames.
+The default value `0` means that no source code will be collected for in-app span frames.
 
 [[source-context-span-library-frames]]
 *`sourceLinesSpanLibraryFrames`*
