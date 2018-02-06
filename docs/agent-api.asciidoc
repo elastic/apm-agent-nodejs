@@ -196,8 +196,7 @@ Example usage:
 require('elastic-apm-node').start({
   ignoreUrls: [
     '/ping',
-    /^\/admin\//i,
-    new RegExp('^/api/v1')
+    /^\/admin\//i
   ]
 })
 ----
@@ -535,16 +534,22 @@ in which case only `flushInterval` counts.
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_FILTER_HTTP_HEADERS`
 
-A boolean specifying if the agent should anonymize certain sensitive HTTP headers by default before they are sent to the APM Server.
+When tracing an incoming HTTP request,
+the agent will add metadata about the requests to the recorded transaction.
+The same applies for errors that occurs and are captured as a result of the request.
+
+This boolean specifies if the agent should anonymize certain sensitive HTTP headers by default before they are sent to the APM Server.
 When anonymized,
 the header value will be set to `[REDACTED]`
 
 Currently the following HTTP headers are anonymized by default:
 
 * `Authorization` - The full value of this header is redacted
-
 * `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
-See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
+  See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
+
+If you wish to filter or santitize other data,
+use the <<apm-add-filter,`apm.addFilter()`>> function.
 
 [[apm-add-filter]]
 ==== `apm.addFilter()`
@@ -565,7 +570,7 @@ and will receive a `payload` object as the only argument,
 containing the data about to be sent to the APM Server.
 
 For details on the format of the payload,
-see the https://github.com/elastic/apm-server/tree/master/docs/spec[intake API JSON Schema] for the APM Server.
+see the https://www.elastic.co/guide/en/apm/server/6.2/intake-api.html[APM Server intake API documentation].
 
 The filter function is synchronous and should return the manipulated payload object.
 If a filter function doesn't return any value or returns a falsy value,
