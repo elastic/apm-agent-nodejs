@@ -1,3 +1,20 @@
+# 1.0.0 - 2018/2/6
+  * feat(instrumentation): support sampling (#154)
+  * feat(transaction): add `transactionMaxSpans` config option (#170)
+  * feat(errors): add captureError call location stack trace (#181)
+  * feat: allow setting of framework name and version (#228)
+  * feat(protcol): add `url.full` to intake API payload (#166)
+  * refactor(config): replace `logBody` with `captureBody` (#214)
+  * refactor(config): unify config options with python (#213)
+  * fix: don't collect source code for in-app span frames by default (#229)
+  * fix(protocol): report dropped span counts in intake API payload (#172)
+  * refactor(protocol): always include handled flag in intake API payload (#191)
+  * refactor(protocol): move process fields to own namespace in intake API payload (#155)
+  * refactor(protocol): rename `uncaught` to `handled` in intake API payload (#140)
+  * refactor(protocol): rename `in_app` to `library_frame` in intake API payload (#96)
+  * refactor: rename app to service (#93)
+  * refactor: rename trace to span (#92)
+
 # 0.12.0 - 2018/1/24
   * feat(\*): control amount of source context lines collected using new config options (#196)
   * feat(agent): add public flush function to force flush of transaction queue: agent.flush([callback]) (#187)
