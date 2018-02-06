@@ -1,13 +1,12 @@
 # Elastic APM Node.js Agent
 
+This is the official Node.js agent for [Elastic APM](https://www.elastic.co/solutions/apm).
+
+If you are trying out APM and have feedback or questions,
+please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
+
 [![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=master)](https://travis-ci.org/elastic/apm-agent-nodejs)
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/standard/standard)
-
-This is the official Node.js agent for Elastic APM.
-Read our [announcement blog post](https://www.elastic.co/blog/starting-down-the-path-for-elastic-apm) for details.
-
-If you are trying out APM and have feedback or problems,
-please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 
 ## Quick start
 
