@@ -187,7 +187,7 @@ an exact match will be performed.
 If an element in the array is a `RegExp` object,
 its test function will be called with the URL being tested.
 
-Note that all errors that are captured during a request to an ignored URL are still sent to the APM Server regardles of this setting.
+Note that all errors that are captured during a request to an ignored URL are still sent to the APM Server regardless of this setting.
 
 Example usage:
 
@@ -218,7 +218,7 @@ it's matched against the beginning of the User-Agent.
 If an element in the array is a `RegExp` object,
 its test function will be called with the User-Agent string being tested.
 
-Note that all errors that are captured during a request by an ignored user agent are still sent to the APM Server regardles of this setting.
+Note that all errors that are captured during a request by an ignored user agent are still sent to the APM Server regardless of this setting.
 
 Example usage:
 
