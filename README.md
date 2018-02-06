@@ -13,6 +13,7 @@ please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 
 1. To run Elastic APM for your own applications,
    make sure you have the prerequisites in place first.
+   This agent is compatible with [APM Server v6.2](https://github.com/elastic/apm-server).
    For details see [Getting Started with Elastic APM](https://www.elastic.co/guide/en/apm/get-started)
 
 1. Now follow the documentation links below relevant to your framework or stack to get set up
