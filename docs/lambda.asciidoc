@@ -1,0 +1,140 @@
+[[lambda]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/lambda.html[elastic.co]
+endif::[]
+
+== Get started with Lambda
+
+Getting Elastic APM set up for your lambda functions is easy,
+and there are various ways you can tweak it to fit your needs.
+
+Follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
+
+[float]
+[[lambda-installation]]
+=== Installation
+
+Add the `elastic-apm-node` module as a dependency to your application:
+
+[source,bash]
+----
+npm install elastic-apm-node --save
+----
+
+[float]
+[[lambda-initialization]]
+=== Initialization
+
+It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `http`, etc.
+
+Here's a simple lambda example with the Elastic APM agent installed:
+
+[source,js]
+----
+// Add this to the VERY top of the first file loaded in your app
+var apm = require('elastic-apm-node').start({
+  // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+  appName: '',
+
+  // Use if APM Server requires a token
+  secretToken: '',
+
+  // Set custom APM Server URL (default: http://localhost:8200)
+  serverUrl: '',
+})
+
+function handler (payload, context, callback) {
+  callback(null, `Hello, ${payload.name}!`)
+}
+
+exports.handler = apm.lambda('hello.handler', handler)
+----
+
+The agent will now monitor the performance of your lambda function.
+
+[float]
+[[lambda-full-documentation]]
+==== Full documentation
+
+* <<advanced-setup,Setup and Configuration>>
+* <<api,API Reference>>
+
+[float]
+[[lambda-performance-monitoring]]
+=== Performance monitoring
+
+Elastic APM automatically measures the performance of everything within your lambda function executions.
+It records traces for database queries,
+external HTTP requests,
+and other slow operations that happen during execution.
+
+By default the agent will trace <<compatibility,the most common modules>>.
+To trace other events,
+you can use custom traces.
+For information about custom traces,
+see the <<custom-spans,Custom Spans section>>.
+
+[float]
+[[lambda-error-logging]]
+=== Error logging
+
+By default the Node.js agent will watch for uncaught exceptions and send them to Elastic APM automatically.
+But in most cases errors are not thrown but returned via a callback,
+caught by a promise,
+or simply manually created.
+Those errors will not automatically be sent to Elastic APM.
+To manually send an error to Elastic APM,
+simply call `apm.captureError()` with the error:
+
+[source,js]
+----
+var err = new Error('Ups, something broke!')
+
+apm.captureError(err)
+----
+
+For advanced logging of errors,
+including adding extra metadata to the error,
+see <<apm-capture-error,the API documentation>>.
+
+[float]
+[[lambda-filter-sensitive-information]]
+=== Filter sensitive information
+
+By default the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
+
+It's possible for you to tweak these defaults or remove any information you don't want to send to Elastic APM:
+
+* By default the Node.js agent will not log the body of HTTP requests.
+To enable this,
+use the <<capture-body,`logBody`>> config option
+* By default the Node.js agent will filter certain HTTP headers known to contain sensitive information.
+To disable this,
+use the <<filter-http-headers,`filterHttpHeaders`>> config option
+* To apply custom filters,
+use the <<apm-add-filter,`apm.addFilter()`>> function
+
+[float]
+[[lambda-add-your-own-data]]
+=== Add your own data
+
+The Node.js agent will keep track of the active lambda function execution and will link it to errors and recorded transaction metrics when they are sent to the Elastic APM server.
+This allows you to see details about which execution resulted in a particular error or which lambda functions are slow.
+
+But in many cases,
+information about the lambda execution itself isn't enough.
+To add even more metadata to errors and transactions,
+use one of the two functions below:
+
+* <<apm-set-user-context,`apm.setUserContext()`>> - Call this to enrich collected performance data and errors with information about the user/client
+* <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors (this data is only stored, but not indexed in Elasticsearch)
+* <<apm-set-tag,`apm.setTag()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (tags are indexed in Elasticsearch)
+
+[float]
+[[lambda-troubleshooting]]
+=== Troubleshooting
+
+If you can't get the Node.js agent to work as expected,
+please follow the <<troubleshooting,Troubleshooting Guide>>.

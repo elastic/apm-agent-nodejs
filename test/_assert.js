@@ -1,20 +1,29 @@
 'use strict'
 
 var path = require('path')
+var Agent = require('../lib/agent')
+var agent = new Agent()
+agent._config({})
 
-exports.stacktrace = function (t, topFunctionName, topAbsPath, stacktrace) {
+exports.stacktrace = function (t, topFunctionName, topAbsPath, stacktrace, _agent, isError) {
   t.ok(Array.isArray(stacktrace), 'stacktrace should be an array')
   t.ok(stacktrace.length > 0, 'stacktrace should have at least one frame')
   t.equal(stacktrace[0].function, topFunctionName, 'top frame should have expected function')
   t.equal(stacktrace[0].abs_path, topAbsPath, 'top frame should have expected abs_path')
 
-  stacktrace.forEach(stackFrameValidator(t))
+  stacktrace.forEach(stackFrameValidator(t, _agent || agent, isError))
 }
 
-function stackFrameValidator (t) {
+function stackFrameValidator (t, agent, isError) {
+  var conf = agent._conf
   return function (frame) {
-    var nodeCore = frame.abs_path.indexOf(path.sep) === -1
-    var shouldHaveSource = !nodeCore && !frame.library_frame
+    var nodeCore = !path.isAbsolute(frame.abs_path)
+
+    var lines = isError
+      ? (frame.library_frame ? conf.sourceLinesErrorLibraryFrames : conf.sourceLinesErrorAppFrames)
+      : (frame.library_frame ? conf.sourceLinesSpanLibraryFrames : conf.sourceLinesSpanAppFrames)
+
+    var shouldHaveSource = !nodeCore && lines !== 0
 
     var expectedKeys = shouldHaveSource
       ? ['filename', 'lineno', 'function', 'library_frame', 'abs_path', 'pre_context', 'context_line', 'post_context']

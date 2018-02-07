@@ -16,6 +16,8 @@ include::./hapi.asciidoc[]
 
 include::./koa.asciidoc[]
 
+include::./lambda.asciidoc[]
+
 include::./custom-stack.asciidoc[]
 
 include::./setup.asciidoc[]
