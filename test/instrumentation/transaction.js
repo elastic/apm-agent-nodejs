@@ -306,7 +306,7 @@ test('#_encode() - spans', function (t) {
       t.equal(span.type, 'span-type' + index)
       t.ok(span.start >= start)
       t.ok(span.duration > 0)
-      assert.stacktrace(t, 'genSpans', __filename, span.stacktrace)
+      assert.stacktrace(t, 'genSpans', __filename, span.stacktrace, ins._agent)
       start = span.start + span.duration
     })
     t.end()

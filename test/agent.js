@@ -2,13 +2,17 @@
 
 var http = require('http')
 var path = require('path')
+var os = require('os')
 
 var test = require('tape')
 var isError = require('core-util-is').isError
 
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
+var assert = require('./_assert')
 var config = require('../lib/config')
+
+var agentVersion = require('../package.json').version
 
 test('#startSpan()', function (t) {
   t.test('no active transaction', function (t) {
@@ -400,6 +404,273 @@ test('#handleUncaughtExceptions()', function (t) {
   })
 })
 
+test('#lambda()', function (t) {
+  process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs8.10'
+  process.env.AWS_REGION = 'us-east-1'
+  var baseContext = {
+    functionVersion: '1.2.3',
+    invokedFunctionArn: 'invokedFunctionArn',
+    memoryLimitInMB: 'memoryLimitInMB',
+    awsRequestId: 'awsRequestId',
+    logGroupName: 'logGroupName',
+    logStreamName: 'logStreamName'
+  }
+  class Lambda {
+    constructor () {
+      this.methods = {}
+    }
+
+    register (name, fn) {
+      this.methods[name] = fn
+    }
+
+    invoke (method, payload, callback) {
+      var fn = this.methods[method]
+      if (!fn) throw new Error(`no lambda function "${method}"`)
+      var context = {
+        functionName: method,
+        done: callback,
+        succeed (result) { callback(null, result) },
+        fail (error) { callback(error) }
+      }
+      fn(payload, Object.assign(context, baseContext), callback)
+    }
+  }
+
+  function assertContext (t, name, data) {
+    t.ok(data)
+    const lambda = data.lambda
+    t.ok(lambda)
+    t.equal(lambda.functionName, name)
+    var keys = Object.keys(baseContext)
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i]
+      t.equal(lambda[key], baseContext[key])
+    }
+    t.equal(lambda.executionEnv, process.env.AWS_EXECUTION_ENV)
+    t.equal(lambda.region, process.env.AWS_REGION)
+  }
+
+  t.test('success - basic callback', function (t) {
+    var name = 'greet.hello'
+    var input = { name: 'world' }
+    var output = 'Hello, world!'
+
+    APMServer()
+      .on('listening', function () {
+        var fn = this.agent.lambda((payload, context, callback) => {
+          callback(null, `Hello, ${payload.name}!`)
+        })
+        var lambda = new Lambda()
+        lambda.register(name, fn)
+        lambda.invoke(name, input, (err, result) => {
+          t.error(err)
+          t.equal(result, output)
+          this.server.close()
+          t.end()
+        })
+      })
+      .on('request', validateTransactionsRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        assertTransactions(t, body, name, input, output)
+        assertContext(t, name, body.transactions[0].context.custom)
+      })
+  })
+
+  t.test('success - context.succeed', function (t) {
+    var name = 'greet.hello'
+    var input = { name: 'world' }
+    var output = 'Hello, world!'
+
+    APMServer()
+      .on('listening', function () {
+        var fn = this.agent.lambda((payload, context, callback) => {
+          context.succeed(`Hello, ${payload.name}!`)
+        })
+        var lambda = new Lambda()
+        lambda.register(name, fn)
+        lambda.invoke(name, input, (err, result) => {
+          t.error(err)
+          t.equal(result, output)
+          this.server.close()
+          t.end()
+        })
+      })
+      .on('request', validateTransactionsRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        assertTransactions(t, body, name, input, output)
+        assertContext(t, name, body.transactions[0].context.custom)
+      })
+  })
+
+  t.test('success - context.done', function (t) {
+    var name = 'greet.hello'
+    var input = { name: 'world' }
+    var output = 'Hello, world!'
+
+    APMServer()
+      .on('listening', function () {
+        var fn = this.agent.lambda((payload, context, callback) => {
+          context.done(null, `Hello, ${payload.name}!`)
+        })
+        var lambda = new Lambda()
+        lambda.register(name, fn)
+        lambda.invoke(name, input, (err, result) => {
+          t.error(err)
+          t.equal(result, output)
+          this.server.close()
+          t.end()
+        })
+      })
+      .on('request', validateTransactionsRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        assertTransactions(t, body, name, input, output)
+        assertContext(t, name, body.transactions[0].context.custom)
+      })
+  })
+
+  t.test('fail - basic callback', function (t) {
+    var name = 'fn.fail'
+    var input = {}
+    var output
+    var error = new Error('fail')
+
+    var firstRequest = true
+    var firstBody = true
+
+    APMServer({
+      sourceContextErrorLibraryFrames: 0
+    }, {
+      skipClose: true
+    })
+      .on('listening', function () {
+        var fn = this.agent.lambda((payload, context, callback) => {
+          callback(error)
+        })
+        var lambda = new Lambda()
+        lambda.register(name, fn)
+        lambda.invoke(name, input, (err, result) => {
+          t.ok(err)
+          t.notOk(result)
+          this.server.close()
+          t.end()
+        })
+      })
+      .on('request', function (req) {
+        var fn = firstRequest
+          ? validateErrorRequest(t)
+          : validateTransactionsRequest(t)
+        fn(req)
+        firstRequest = false
+      })
+      .on('body', function (body) {
+        assertRoot(t, body)
+        if (firstBody) {
+          assertErrors(t, body, name, input, error)
+          firstBody = false
+        } else {
+          assertTransactions(t, body, name, input, output)
+          assertContext(t, name, body.transactions[0].context.custom)
+        }
+      })
+  })
+
+  t.test('fail - context.fail', function (t) {
+    var name = 'fn.fail'
+    var input = {}
+    var output
+    var error = new Error('fail')
+
+    var firstRequest = true
+    var firstBody = true
+
+    APMServer({
+      sourceContextErrorLibraryFrames: 0
+    }, {
+      skipClose: true
+    })
+      .on('listening', function () {
+        var fn = this.agent.lambda((payload, context, callback) => {
+          context.fail(error)
+        })
+        var lambda = new Lambda()
+        lambda.register(name, fn)
+        lambda.invoke(name, input, (err, result) => {
+          t.ok(err)
+          t.notOk(result)
+          this.server.close()
+          t.end()
+        })
+      })
+      .on('request', function (req) {
+        var fn = firstRequest
+          ? validateErrorRequest(t)
+          : validateTransactionsRequest(t)
+        fn(req)
+        firstRequest = false
+      })
+      .on('body', function (body) {
+        assertRoot(t, body)
+        if (firstBody) {
+          assertErrors(t, body, name, input, error, this.agent)
+          firstBody = false
+        } else {
+          assertTransactions(t, body, name, input, output)
+          assertContext(t, name, body.transactions[0].context.custom)
+        }
+      })
+  })
+})
+
+function assertRoot (t, payload) {
+  t.equal(payload.service.name, 'some-service-name')
+  t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
+  t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
+  t.deepEqual(payload.system, {
+    hostname: os.hostname(),
+    architecture: process.arch,
+    platform: process.platform
+  })
+
+  t.ok(payload.process)
+  t.equal(payload.process.pid, process.pid)
+  t.ok(payload.process.pid > 0, 'should have a pid greater than 0')
+  t.ok(payload.process.title, 'should have a process title')
+  t.ok(
+    /(npm|node)/.test(payload.process.title),
+    `process.title should contain expected value (was: "${payload.process.title}")`
+  )
+  t.deepEqual(payload.process.argv, process.argv)
+  t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
+}
+
+function assertTransactions (t, payload, name, input, output) {
+  t.equal(payload.transactions.length, 1)
+  var trans = payload.transactions[0]
+  t.equal(trans.name, name)
+  t.equal(trans.type, 'lambda')
+  t.equal(trans.result, 'success')
+  t.ok(trans.context)
+  var custom = trans.context.custom
+  t.ok(custom)
+  var lambda = custom.lambda
+  t.ok(lambda)
+  t.deepEqual(lambda.input, input)
+  t.equal(lambda.output, output)
+}
+
+function assertErrors (t, payload, name, input, expectedError, agent) {
+  t.equal(payload.errors.length, 1)
+  var exception = payload.errors[0].exception
+  t.ok(exception)
+  t.equal(exception.message, expectedError.message)
+  t.equal(exception.type, 'Error')
+  assert.stacktrace(t, 'Test.<anonymous>', __filename, exception.stacktrace, agent, true)
+}
+
 function assertStackTrace (t, stacktrace) {
   t.ok(stacktrace !== undefined, 'should have a stack trace')
   t.ok(Array.isArray(stacktrace), 'stack trace should be an array')
@@ -411,6 +682,13 @@ function validateErrorRequest (t) {
   return function (req) {
     t.equal(req.method, 'POST', 'should be a POST request')
     t.equal(req.url, '/v1/errors', 'should be sent to the errors endpoint')
+  }
+}
+
+function validateTransactionsRequest (t) {
+  return function (req) {
+    t.equal(req.method, 'POST', 'should be a POST request')
+    t.equal(req.url, '/v1/transactions', 'should be sent to the transactions endpoint')
   }
 }
 

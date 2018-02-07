@@ -6,8 +6,10 @@ var util = require('util')
 var zlib = require('zlib')
 
 var getPort = require('get-port')
+var HttpClient = require('elastic-apm-http-client')
 
 var Agent = require('./_agent')
+var pkg = require('../package.json')
 
 var defaultAgentOpts = {
   serviceName: 'some-service-name',
@@ -19,9 +21,10 @@ module.exports = APMServer
 
 util.inherits(APMServer, EventEmitter)
 
-function APMServer (agentOpts) {
-  if (!(this instanceof APMServer)) return new APMServer(agentOpts)
+function APMServer (agentOpts, mockOpts) {
+  if (!(this instanceof APMServer)) return new APMServer(agentOpts, mockOpts)
   var self = this
+  mockOpts = {}
 
   this.agent = Agent()
 
@@ -35,7 +38,7 @@ function APMServer (agentOpts) {
       agentOpts
     ))
 
-    var server = http.createServer(function (req, res) {
+    var server = self.server = http.createServer(function (req, res) {
       self.emit('request', req, res)
 
       var buffers = []
@@ -45,8 +48,18 @@ function APMServer (agentOpts) {
       unzipped.on('data', buffers.push.bind(buffers))
       unzipped.on('end', function () {
         res.end()
-        server.close()
-        self.emit('body', JSON.parse(Buffer.concat(buffers)))
+        if (mockOpts.skipClose !== true) {
+          server.close()
+        }
+        var body = JSON.parse(Buffer.concat(buffers))
+        if (mockOpts.forwardTo) {
+          var client = new HttpClient({
+            serverUrl: mockOpts.forwardTo,
+            userAgent: 'elastic-apm-node/' + pkg.version
+          })
+          client.request('transactions', {}, body, () => {})
+        }
+        self.emit('body', body)
       })
     })
 
