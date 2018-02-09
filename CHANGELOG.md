@@ -1,3 +1,6 @@
+# 1.0.1 - 2018/2/9
+  * fix: don't add req/res to unsampled transactions (#236)
+
 # 1.0.0 - 2018/2/6
   * feat(instrumentation): support sampling (#154)
   * feat(transaction): add `transactionMaxSpans` config option (#170)
