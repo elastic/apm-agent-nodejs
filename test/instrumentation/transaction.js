@@ -323,26 +323,7 @@ test('#_encode() - spans', function (t) {
 test('#_encode() - http request meta data', function (t) {
   var ins = mockInstrumentation(function () {})
   var trans = new Transaction(ins._agent)
-  trans.req = {
-    httpVersion: '1.1',
-    method: 'POST',
-    url: '/foo?bar=baz',
-    headers: {
-      'host': 'example.com',
-      'user-agent': 'user-agent-header',
-      'content-length': 42,
-      'cookie': 'cookie1=foo;cookie2=bar',
-      'x-foo': 'bar',
-      'x-bar': 'baz'
-    },
-    socket: {
-      encrypted: true,
-      remoteAddress: '127.0.0.1'
-    },
-    body: {
-      foo: 42
-    }
-  }
+  trans.req = mockRequest()
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
@@ -486,6 +467,8 @@ test('#_encode() - not sampled', function (t) {
 
   var trans = new Transaction(ins._agent, 'single-name', 'type')
   trans.result = 'result'
+  trans.req = mockRequest()
+  trans.res = mockResponse()
   var span0 = trans.buildSpan()
   if (span0) span0.start('s0', 'type0')
   trans.buildSpan()
@@ -505,3 +488,49 @@ test('#_encode() - not sampled', function (t) {
     t.end()
   })
 })
+
+function mockRequest () {
+  return {
+    httpVersion: '1.1',
+    method: 'POST',
+    url: '/foo?bar=baz',
+    headers: {
+      'host': 'example.com',
+      'user-agent': 'user-agent-header',
+      'content-length': 42,
+      'cookie': 'cookie1=foo;cookie2=bar',
+      'x-foo': 'bar',
+      'x-bar': 'baz'
+    },
+    socket: {
+      encrypted: true,
+      remoteAddress: '127.0.0.1'
+    },
+    body: {
+      foo: 42
+    }
+  }
+}
+
+function mockResponse () {
+  var statusLine = 'HTTP/1.1 200 OK\r\n'
+  var msgHeaders = 'Date: Tue, 10 Jun 2014 07:29:20 GMT\r\n' +
+    'Connection: keep-alive\r\n' +
+    'Transfer-Encoding: chunked\r\n' +
+    'Age: foo\r\n' +
+    'Age: bar\r\n' +
+    'Set-Cookie: cookie\r\n' +
+    'X-List: A\r\n' +
+    'X-Multi-Line-Header: Foo\r\n' +
+    ' Bar\r\n' +
+    'X-List: B\r\n' +
+    '\r\n'
+  return {
+    version: {major: 1, minor: 1},
+    statusCode: 200,
+    statusMessage: 'OK',
+    headersSent: true,
+    finished: true,
+    _header: statusLine + msgHeaders
+  }
+}
