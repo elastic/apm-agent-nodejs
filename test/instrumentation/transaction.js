@@ -243,7 +243,7 @@ test('#_encode() - ended', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'spans', 'context'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(typeof payload.id, 'string')
     t.equal(payload.id, trans.id)
     t.equal(payload.name, 'unnamed')
@@ -267,7 +267,7 @@ test('#_encode() - with meta data, no spans', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'spans', 'context'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(typeof payload.id, 'string')
     t.equal(payload.id, trans.id)
     t.equal(payload.name, 'foo')
@@ -288,7 +288,7 @@ test('#_encode() - spans', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'spans', 'context'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(typeof payload.id, 'string')
     t.equal(payload.id, trans.id)
     t.equal(payload.name, 'unnamed')
@@ -327,7 +327,7 @@ test('#_encode() - http request meta data', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'spans', 'context'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(typeof payload.id, 'string')
     t.equal(payload.id, trans.id)
     t.equal(payload.name, 'POST unknown route')
@@ -380,7 +380,7 @@ test('#_encode() - disable stack spans', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'spans', 'context'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(payload.spans.length, 1)
     t.deepEqual(Object.keys(payload.spans[0]), ['name', 'type', 'start', 'duration'])
     t.end()
@@ -399,7 +399,7 @@ test('#_encode() - truncated spans', function (t) {
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'spans', 'context'])
+    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
     t.equal(payload.spans.length, 2)
     t.equal(payload.spans[0].name, 'foo')
     t.equal(payload.spans[0].type, 'custom')
