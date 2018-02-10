@@ -534,6 +534,15 @@ the actual interval is ajusted by +/- 5% between each flush.
 This all helps to ensure that multiple servers started at the same time will not establish connections to the APM Server simultaneously.
 ====
 
+[[server-timeout]]
+===== `serverTimeout`
+
+* *Type:* Number
+* *Default:* `30`
+* *Env:* `ELASTIC_APM_SERVER_TIMEOUT`
+
+Specify the timeout in seconds when reporting transactions to APM Server.
+
 [[max-queue-size]]
 ===== `maxQueueSize`
 

@@ -223,7 +223,7 @@ test('#errors()', function (t) {
 })
 
 test('#transactions()', function (t) {
-  test('envelope', function (t) {
+  t.test('envelope', function (t) {
     t.plan(14)
     var transactions = [{spans: []}]
     APMServer()
@@ -269,6 +269,28 @@ test('#transactions()', function (t) {
         t.end()
       })
   })
+})
+
+test('timeout', function (t) {
+  var transactions = [{spans: []}]
+  APMServer({ serverTimeout: 0.01 })
+    .on('listening', function () {
+      request.transactions(this.agent, transactions, (err) => {
+        t.ok(err, 'request produced an error')
+        t.equal(err.code, 'ECONNRESET', 'socket hang up')
+        t.end()
+      })
+    })
+    .on('request', function (req, res) {
+      // Simulate slow request to force timeout
+      var realEnd = res.end
+      res.end = () => {
+        setTimeout(() => {
+          res.end = realEnd
+          res.end()
+        }, 20)
+      }
+    })
 })
 
 function assertRoot (t, payload) {
