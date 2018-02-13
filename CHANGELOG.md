@@ -1,3 +1,6 @@
+# 1.0.2 - 2018/2/13
+  * fix(express): prevent invalid errors from crashing (#240)
+
 # 1.0.1 - 2018/2/9
   * fix: don't add req/res to unsampled transactions (#236)
 
