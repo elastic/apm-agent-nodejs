@@ -115,6 +115,57 @@ test('ignore 404 errors', function (t) {
   })
 })
 
+test('ignore invalid errors', function (t) {
+  t.plan(4)
+
+  resetAgent(function (endpoint, headers, data, cb) {
+    t.equal(data.transactions.length, 1, 'has a transaction')
+
+    var trans = data.transactions[0]
+    t.equal(trans.name, 'GET /', 'transaction name is GET /')
+    t.equal(trans.type, 'request', 'transaction type is request')
+  })
+
+  var captureError = agent.captureError
+  agent.captureError = function (_, data) {
+    t.fail('should not capture invalid errors')
+  }
+  t.on('end', function () {
+    agent.captureError = captureError
+  })
+
+  var app = express()
+  app.set('env', 'production')
+
+  app.get('/', function (req, res, next) {
+    next(123)
+  })
+
+  app.use(function (_, req, res, next) {
+    res.status(200).send('done')
+  })
+
+  var server = app.listen(function () {
+    var port = server.address().port
+    var opts = {
+      method: 'GET',
+      port: port,
+      path: '/'
+    }
+    var req = http.request(opts, function (res) {
+      var chunks = []
+      res.on('data', chunks.push.bind(chunks))
+      res.on('end', function () {
+        const body = Buffer.concat(chunks).toString()
+        t.equal(body, 'done', 'got correct body from error handler middleware')
+        server.close()
+        agent.flush()
+      })
+    })
+    req.end()
+  })
+})
+
 function resetAgent (cb) {
   agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
