@@ -49,9 +49,7 @@ services:
       - nodeesdata:/usr/share/elasticsearch/data
 
   node_tests:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: apm-agent-nodejs:node-${NODE_VERSION}
     environment: 
       MONGODB_HOST: 'mongodb'
       REDIS_HOST: 'redis'

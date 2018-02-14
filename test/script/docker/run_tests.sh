@@ -26,8 +26,8 @@ else
   CMD='npm test'
 fi
 
-docker-compose build --pull --build-arg NODE_VERSION=$1 node_tests
-docker-compose run \
+docker build --pull --force-rm --build-arg NODE_VERSION=$1 -t apm-agent-nodejs:node-${1} .
+NODE_VERSION=${1} docker-compose run \
   -e NODE_VERSION=${NODE_VERSION} -e TAV=${TAV_VERSIONS} -e CI=true \
   -v ${npm_cache}:${docker_npm_cache} \
   -v ${nyc_output}:${docker_nyc_output} \
