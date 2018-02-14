@@ -1,3 +1,6 @@
+# 1.0.3 - 2018/2/14
+  * fix: ensure context.url.full property is truncated if too long (#242)
+
 # 1.0.2 - 2018/2/13
   * fix(express): prevent invalid errors from crashing (#240)
 
