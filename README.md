@@ -1,7 +1,5 @@
 # Elastic APM Node.js Agent
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/elastic/apm-agent-nodejs.svg)](https://greenkeeper.io/)
-
 This is the official Node.js agent for [Elastic APM](https://www.elastic.co/solutions/apm).
 
 If you are trying out APM and have feedback or questions,
