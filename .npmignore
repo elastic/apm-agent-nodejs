@@ -8,6 +8,7 @@ codecov.yml
 docker-compose.yml
 
 # Folders to ignore
+.github
 docs
 script
 test
