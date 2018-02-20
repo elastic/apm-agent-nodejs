@@ -38,55 +38,7 @@ please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 To ease development,
 set the environment variable `DEBUG_PAYLOAD=1` to have the agent dump the JSON payload sent to the APM Server to a temporary file on your local harddrive.
 
-### Testing
-
-The test suite expects the databases PostgreSQL,
-MySQL,
-MongoDB,
-Elasticsearch and Redis to be present.
-The `npm test` command will try and start them all automatically before running the tests.
-This should work on OS X if the databases are all installed using [Homebrew](http://brew.sh).
-
-To run the linter without running any tests,
-run `npm run lint`.
-To automatically fix linting errors run `npm run lint-fix`.
-
-### Using Docker for Testing
-
-Running the testsuite on _Jenkins_ is based on docker images.
-You can also make use of this setup when running tests locally.
-Scripts are provided for different stages of testing: testing the documentation,
-running tests against different Node.js versions and running tests against different versions of dependencies.
-The scripts are tested with a minimum docker version of `17.06.2-ce`.
-For a full overview of the supported test matrix have a look at [Jenkins Configuration](./Jenkinsfile).
-
-#### Testing Documentation
-
-```
-./test/script/docker/run_docs.sh
-```
-
-#### Testing against Node.js versions
-
-```
-./test/script/docker/run_tests.sh nodejs-version
-```
-
-E.g. `./test/script/docker/run_tests.sh 8`
-
-#### Testing Dependencies
-
-```
-./test/script/docker/run_tests.sh nodejs-version dependencies
-```
-
-E.g. `./test/script/docker/run_tests.sh 8 redis,pg`
-
-#### Cleanup Docker Container and Volumes 
-
-```
-./test/script/docker/cleanup.sh
-```
+Please see the [testing section](CONTRIBUTING.MD#testing) in CONTRIBUTING.md for testing instructions.
 
 ## License
 
