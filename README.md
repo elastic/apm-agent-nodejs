@@ -38,7 +38,7 @@ please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 To ease development,
 set the environment variable `DEBUG_PAYLOAD=1` to have the agent dump the JSON payload sent to the APM Server to a temporary file on your local harddrive.
 
-Please see the [testing section](CONTRIBUTING.MD#testing) in the CONTRIBUTING.md for testing instructions.
+Please see the [testing section](CONTRIBUTING.MD#testing) in CONTRIBUTING.md for testing instructions.
 
 ## License
 
