@@ -25,6 +25,12 @@ Note however,
 that not all core Node.js API's can be instrumented without the use of Async Hooks if running Node.js 8 or above.
 
 [float]
+[[elastic-stack-compatibility]]
+=== Elastic Stack Compatibility
+
+This agent is compatible with https://www.elastic.co/guide/en/apm/server/6.2[APM Server v6.2].
+
+[float]
 [[compatibility-frameworks]]
 === Frameworks
 
