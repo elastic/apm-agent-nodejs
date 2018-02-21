@@ -36,7 +36,7 @@ ws:
   commands: node test/instrumentation/modules/ws.js
 graphql:
   preinstall: rm -fr node_modules/express-graphql
-  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <0.13.0'
+  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <0.14.0'
   commands: node test/instrumentation/modules/graphql.js
 express:
   versions: '>=4'
@@ -54,12 +54,12 @@ express-graphql-2:
 express-graphql-3:
   name: express-graphql
   peerDependencies: graphql@^0.10.0
-  versions: '^0.6.6'
+  versions: '>=0.6.6 <0.6.8'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-4:
   name: express-graphql
   peerDependencies: graphql@^0.11.0
-  versions: '^0.6.8'
+  versions: '>=0.6.8'
   commands: node test/instrumentation/modules/express-graphql.js
 koa-router:
   node: '>=6.0.0'
