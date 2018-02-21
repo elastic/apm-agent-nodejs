@@ -77,6 +77,7 @@
     "normalize-bool": "^1.0.0",
     "original-url": "^1.2.0",
     "redact-secrets": "^1.0.0",
+    "require-ancestors": "^1.0.0",
     "require-in-the-middle": "^2.1.2",
     "semver": "^5.3.0",
     "sql-summary": "^1.0.0",
