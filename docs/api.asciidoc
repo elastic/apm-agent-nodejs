@@ -17,7 +17,7 @@ The `Agent` is a singleton and the instance is usually referred by the variable 
 An instance of the `Transaction` object is acquired by calling `apm.startTransaction()`
 
 * <<span-api,The `Span` API>> - All functions and properties on the `Span` object.
-An instance of the `Span` object is acquired by calling `apm.buildSpan()`
+An instance of the `Span` object is acquired by calling `apm.startSpan()`
 
 include::./agent-api.asciidoc[Agent API documentation]
 

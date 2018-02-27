@@ -929,8 +929,37 @@ the transaction name will default to `METHOD unknown route` (e.g. `POST unknown 
 
 Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
 
+[[apm-start-span]]
+==== `apm.startSpan([name][, type])`
+
+[source,js]
+----
+var span = apm.startSpan('My custom span')
+----
+
+Start and return a new custom span associated with the current active transaction.
+
+Arguments:
+
+* `name` - The name of the span (string).
+You can alternatively set this via <<span-name,`span.name`>>.
+Defaults to `unnamed`
+
+* `type` - The type of span (string).
+You can alternatively set this via <<span-type,`span.type`>>.
+Defaults to `custom.code`
+
+When a span is started it will measure the time until <<span-end,`span.end()`>> or <<span-truncate,`span.truncate()`>> is called.
+
+See <<span-api,Span API>> docs for details on how to use custom spans.
+
+NOTE: If there's no active transaction available,
+`null` will be returned.
+
 [[apm-build-span]]
 ==== `apm.buildSpan()`
+
+deprecated[1.1.0,Replaced by <<apm-start-span,apm.startSpan()>>]
 
 [source,js]
 ----

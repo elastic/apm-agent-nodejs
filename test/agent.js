@@ -8,6 +8,26 @@ var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
 var config = require('../lib/config')
 
+test('#startSpan()', function (t) {
+  t.test('no active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.equal(agent.startSpan(), null)
+    t.end()
+  })
+
+  t.test('active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var span = agent.startSpan('span-name', 'span-type')
+    t.ok(span, 'should return a span')
+    t.equal(span.name, 'span-name')
+    t.equal(span.type, 'span-type')
+    t.end()
+  })
+})
+
 test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
