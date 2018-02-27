@@ -367,7 +367,7 @@ test('unsampled transactions do not include spans', function (t) {
     process.nextTick(function () {
       if (span) span.end()
       trans.end()
-      ins._queue._flush()
+      agent.flush()
     })
   })
 })

@@ -65,7 +65,7 @@ test('client.count with callback', function userLandCode (t) {
   client.count(function (err) {
     t.error(err)
     agent.endTransaction()
-    agent._instrumentation._queue._flush()
+    agent.flush()
   })
 })
 
