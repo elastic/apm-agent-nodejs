@@ -605,8 +605,8 @@ Example usage:
 ----
 apm.addFilter(function (payload) {
   if (payload.context.request && payload.context.request.headers) {
-    // remove sensitive data
-    delete payload.context.request.headers['x-secret-data']
+    // redact sensitive data
+    payload.context.request.headers['x-secret'] = '[REDACTED]'
   }
 
   // remember to return the modified payload
