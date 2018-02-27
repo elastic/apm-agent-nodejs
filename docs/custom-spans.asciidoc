@@ -30,13 +30,9 @@ app.use(function (req, res, next) {
     return next()
   }
 
-  // `buildSpan` will only return a span if there's an
+  // `startSpan` will only return a span if there's an
   // active transaction
-  var span = apm.buildSpan()
-
-  // start the span to measure the time it takes to receive
-  // the body of the HTTP request
-  if (span) span.start('receiving body')
+  var span = apm.startSpan('receiving body')
 
   var buffers = []
   req.on('data', function (chunk) {
@@ -59,11 +55,9 @@ app.use(function (req, res, next) {
     return next()
   }
 
-  var span = apm.buildSpan()
-
-  // start the span to measure the time it takes to parse
+  // start a span to measure the time it takes to parse
   // the JSON
-  if (span) span.start('parse json')
+  var span = apm.startSpan('parse json')
 
   try {
     req.json = JSON.parse(req.body)
