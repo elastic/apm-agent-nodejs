@@ -1,3 +1,7 @@
+# 1.1.0 - 2018/2/28
+  * feat: add agent.startSpan() function (#262)
+  * feat(debug): output more debug info on start (#254)
+
 # 1.0.3 - 2018/2/14
   * fix: ensure context.url.full property is truncated if too long (#242)
 
