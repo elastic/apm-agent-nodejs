@@ -96,7 +96,7 @@
     "get-port": "^2.1.0",
     "graphql": "^0.11.7",
     "handlebars": "^4.0.11",
-    "hapi": "^16.6.2",
+    "hapi": "^17.2.1",
     "https-pem": "^2.0.0",
     "inquirer": "^0.12.0",
     "ioredis": "^3.0.0",
