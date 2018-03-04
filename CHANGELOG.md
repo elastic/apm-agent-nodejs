@@ -1,3 +1,6 @@
+# 1.1.1 - 2018/3/4
+  * fix(mongodb): don't throw if span cannot be built (#265)
+
 # 1.1.0 - 2018/2/28
   * feat: add agent.startSpan() function (#262)
   * feat(debug): output more debug info on start (#254)
