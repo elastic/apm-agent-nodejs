@@ -8,9 +8,9 @@ https://help.github.com/articles/closing-issues-using-keywords/
 
 -->
 
-### To-do
+### Checklist
 
-<!-- Potential tasks related to a new PR. Remove tasks that are not relavant -->
+<!-- Potential tasks related to a new PR. Remove tasks that are not relevant -->
 
 - [x] Implement code
 - [ ] Add tests
