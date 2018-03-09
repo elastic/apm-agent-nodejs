@@ -12,7 +12,7 @@ getPort().then(function (port) {
   var http = require('http')
   var test = require('tape')
 
-  test('should not sample', function (t) {
+  test('should allow path in serverUrl', function (t) {
     var server = http.createServer(function (req, res) {
       t.equal(req.url, '/sub/v1/errors')
       res.end()
