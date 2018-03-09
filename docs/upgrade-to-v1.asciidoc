@@ -1,0 +1,59 @@
+[[upgrade-to-v1]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrade-to-v1.html[elastic.co]
+endif::[]
+
+=== Upgrade to v1.x
+
+The following is a guide on upgrading your Node.js agent from version 0.x to version 1.x.
+
+[[v1-overview]]
+==== Overview
+
+Version 1.x of the Node.js agent requires version 6.2 of the APM Server or higher.
+
+The term "trace" was previously used to describe a small piece of work instrumented by the agent during a transaction.
+To align with modern APM vendors,
+we now refer to this as a "span"
+
+The term "app" was previously used to describe your Node.js application in relation to Elastic APM.
+To be more specific,
+we now refer to this as a "service".
+
+[[v1-config-options]]
+==== Config options
+
+The following config options have been removed in version 1.0.0:
+
+|=======================================================================
+|Name |Note
+|`logBody` |Use <<capture-body,`captureBody`>> instead. Note that this option is not a boolean
+|=======================================================================
+
+The following config options have been renamed between version 0.x and 1.x.
+
+NOTE: The associated environment variable for each renamed config option have been renamed accordingly as well.
+
+|=======================================================================
+|Old name |New name| Note
+|`appName` |<<service-name,`serviceName`>> | Renamed to align with new naming conventions
+|`appVersion` |<<service-version,`serviceVersion`>> | Renamed to align with new naming conventions
+|`captureTraceStackTrace` |<<capture-span-stack-traces,`captureSpanStackTraces`>> | Renamed to align with new naming conventions
+|`sourceContextErrorAppFrames` |<<source-context-error-app-frames,`sourceLinesErrorAppFrames`>> | Renamed to align with other agents
+|`sourceContextSpanAppFrames` |<<source-context-span-app-frames,`sourceLinesSpanAppFrames`>> | Renamed to align with other agents
+|`sourceContextErrorLibraryFrames` |<<source-context-error-library-frames,`sourceLinesErrorLibraryFrames`>> | Renamed to align with other agents
+|`sourceContextSpanLibraryFrames` |<<source-context-span-library-frames,`sourceLinesSpanLibraryFrames`>> | Renamed to align with other agents
+|`validateServerCert` |<<validate-server-cert,`verifyServerCert`>> | Renamed to align with other agents
+|=======================================================================
+
+[[v1-agent-api]]
+==== Agent API
+
+The following functions have been renamed between version 0.x and 1.x:
+
+|=======================================================================
+|Old name |New name| Note
+|`buildTrace()` |<<apm-build-span,`buildSpan()`>> | Renamed to align with new naming conventions
+|=======================================================================

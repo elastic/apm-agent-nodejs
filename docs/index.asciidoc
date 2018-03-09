@@ -30,4 +30,6 @@ include::./source-maps.asciidoc[]
 
 include::./compatibility.asciidoc[]
 
+include::./upgrading.asciidoc[]
+
 include::./troubleshooting.asciidoc[]
