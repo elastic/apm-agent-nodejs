@@ -226,8 +226,7 @@ Example usage:
 require('elastic-apm-node').start({
   ignoreUserAgents: [
     'curl/',
-    /pingdom/i,
-    new RegExp('Safari/[0-9\.]+')
+    /pingdom/i
   ]
 })
 ----
