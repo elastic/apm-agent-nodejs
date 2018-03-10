@@ -538,7 +538,7 @@ This all helps to ensure that multiple servers started at the same time will not
 ===== `maxQueueSize`
 
 * *Type:* Number
-* *Default:* `-1`
+* *Default:* `100`
 * *Env:* `ELASTIC_APM_MAX_QUEUE_SIZE`
 
 The agent maintains an in-memory queue to which recorded transactions are added when they end.
