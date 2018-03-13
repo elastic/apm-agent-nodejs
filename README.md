@@ -31,6 +31,7 @@ please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 - [Custom Spans](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-spans.html)
 - [Source Map Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/source-maps.html)
 - [Compatibility Overview](https://www.elastic.co/guide/en/apm/agent/nodejs/current/compatibility.html)
+- [Upgrading](https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrading.html)
 - [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)
 
 ## Development Notes
