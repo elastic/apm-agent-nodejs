@@ -1,3 +1,8 @@
+# 1.2.0 - 2018/3/13
+  * feat(config): add serverTimeout (#238)
+  * fix(config): set default maxQueueSize to 100 (#270)
+  * feat(ws): add support for ws v5 (#267)
+
 # 1.1.1 - 2018/3/4
   * fix(mongodb): don't throw if span cannot be built (#265)
 
