@@ -1,9 +1,11 @@
 'use strict'
 
-var path = require('path')
 var http = require('http')
+var path = require('path')
+
 var test = require('tape')
 var isError = require('core-util-is').isError
+
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
 var config = require('../lib/config')

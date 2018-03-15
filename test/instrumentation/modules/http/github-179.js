@@ -5,12 +5,13 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
-
 var zlib = require('zlib')
 var http = require('http')
 var PassThrough = require('stream').PassThrough
+
 var mimicResponse = require('mimic-response')
+var test = require('tape')
+
 var echoServer = require('./_echo_server_util').echoServer
 
 test('https://github.com/opbeat/opbeat-node/issues/179', function (t) {

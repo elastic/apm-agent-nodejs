@@ -2,8 +2,9 @@
 
 var agent = require('../../_agent')()
 
-var test = require('tape')
 var http = require('http')
+
+var test = require('tape')
 
 test('ignore url string - no match', function (t) {
   resetAgent({

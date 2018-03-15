@@ -6,10 +6,10 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var PORT = 12342
-
 var test = require('tape')
 var WebSocket = require('ws')
+
+var PORT = 12342
 
 test('ws.send', function (t) {
   resetAgent(done(t))

@@ -1,8 +1,10 @@
 'use strict'
 
-var os = require('os')
-var test = require('tape')
 var http = require('http')
+var os = require('os')
+
+var test = require('tape')
+
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
 var request = require('../lib/request')

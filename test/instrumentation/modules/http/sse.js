@@ -2,8 +2,9 @@
 
 var agent = require('../../_agent')()
 
-var test = require('tape')
 var http = require('http')
+
+var test = require('tape')
 
 test('normal response', function (t) {
   resetAgent(function (endpoint, headers, data, cb) {

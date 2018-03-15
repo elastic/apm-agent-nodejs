@@ -5,11 +5,11 @@ var agent = require('../..').start({
   secretToken: 'test',
   captureExceptions: false
 })
-var ins = agent._instrumentation
 
 var semver = require('semver')
-
 var test = require('tape')
+
+var ins = agent._instrumentation
 
 require('./_shared-promise-tests')(test, Promise, ins)
 

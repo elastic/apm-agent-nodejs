@@ -6,10 +6,11 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
-var semver = require('semver')
 var mysql = require('mysql')
 var mysqlVersion = require('mysql/package.json').version
+var semver = require('semver')
+var test = require('tape')
+
 var utils = require('./_utils')
 
 var queryable

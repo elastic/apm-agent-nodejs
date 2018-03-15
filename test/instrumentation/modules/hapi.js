@@ -7,15 +7,16 @@ var agent = require('../../..').start({
   logLevel: 'fatal'
 })
 
-var semver = require('semver')
 var pkg = require('hapi/package.json')
+var semver = require('semver')
 
 // hapi 17+ requires Node.js 8.9.0 or higher
 if (semver.lt(process.version, '8.9.0') && semver.gte(pkg.version, '17.0.0')) process.exit()
 
-var test = require('tape')
 var http = require('http')
+
 var Hapi = require('hapi')
+var test = require('tape')
 
 var originalCaptureError = agent.captureError
 

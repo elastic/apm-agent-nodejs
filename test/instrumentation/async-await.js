@@ -4,10 +4,11 @@ var agent = require('../..').start({
   serviceName: 'test',
   captureExceptions: false
 })
-var ins = agent._instrumentation
 
-var test = require('tape')
 var semver = require('semver')
+var test = require('tape')
+
+var ins = agent._instrumentation
 
 // async/await isn't supported in old versions of Node.js
 if (semver.lt(process.version, '7.0.0')) process.exit()

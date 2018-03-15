@@ -5,13 +5,13 @@ var agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false
 })
-var ins = agent._instrumentation
-
-var semver = require('semver')
-var test = require('tape')
-var Promise = require('bluebird')
 
 var BLUEBIRD_VERSION = require('bluebird/package').version
+var Promise = require('bluebird')
+var semver = require('semver')
+var test = require('tape')
+
+var ins = agent._instrumentation
 
 if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   Promise.config({cancellation: true})

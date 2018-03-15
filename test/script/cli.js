@@ -4,8 +4,9 @@ var agent = require('../../')
 
 var fs = require('fs')
 var path = require('path')
-var mkdirp = require('mkdirp')
+
 var inquirer = require('inquirer')
+var mkdirp = require('mkdirp')
 var untildify = require('untildify')
 
 var standardTest = function () {

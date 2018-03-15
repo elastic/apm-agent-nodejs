@@ -1,7 +1,7 @@
 'use strict'
 
-var Instrumentation = require('../../lib/instrumentation')
 var Filters = require('../../lib/filters')
+var Instrumentation = require('../../lib/instrumentation')
 var logger = require('../../lib/logger')
 
 logger.init({ level: 'fatal' })

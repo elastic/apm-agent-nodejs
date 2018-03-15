@@ -1,10 +1,12 @@
 'use strict'
 
-var http = require('http')
-var zlib = require('zlib')
-var util = require('util')
 var EventEmitter = require('events')
+var http = require('http')
+var util = require('util')
+var zlib = require('zlib')
+
 var getPort = require('get-port')
+
 var Agent = require('./_agent')
 
 var defaultAgentOpts = {

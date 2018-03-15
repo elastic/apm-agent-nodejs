@@ -6,12 +6,13 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var http = require('http')
-var querystring = require('querystring')
-var express = require('express')
-var graphqlHTTP = require('express-graphql')
+
 var buildSchema = require('graphql').buildSchema
+var express = require('express')
+var querystring = require('querystring')
+var graphqlHTTP = require('express-graphql')
+var test = require('tape')
 
 test('POST /graphql', function (t) {
   resetAgent(done(t, 'hello'))

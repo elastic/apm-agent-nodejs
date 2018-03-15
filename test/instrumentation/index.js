@@ -5,11 +5,12 @@ var agent = require('../..').start({
   captureExceptions: false
 })
 
-var origCaptureError = agent.captureError
-
 var test = require('tape')
+
 var mockAgent = require('./_agent')
 var Instrumentation = require('../../lib/instrumentation')
+
+var origCaptureError = agent.captureError
 
 test('basic', function (t) {
   resetAgent(function (endpoint, headers, data, cb) {

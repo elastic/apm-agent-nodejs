@@ -9,8 +9,8 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var elasticsearch = require('elasticsearch')
+var test = require('tape')
 
 test('client.ping with callback', function userLandCode (t) {
   resetAgent(done(t, 'HEAD', '/'))
