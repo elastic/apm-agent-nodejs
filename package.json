@@ -65,6 +65,7 @@
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
   "dependencies": {
     "after-all-results": "^2.0.0",
+    "async-value-promise": "^1.0.0",
     "console-log-level": "^1.4.0",
     "cookie": "^0.3.1",
     "core-util-is": "^1.0.2",
