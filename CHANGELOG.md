@@ -1,3 +1,6 @@
+# 1.2.1 - 2018/3/15
+  * fix(span): Do not pass stack frames into promises (memory leak fix) (#269)
+
 # 1.2.0 - 2018/3/13
   * feat(config): add serverTimeout (#238)
   * fix(config): set default maxQueueSize to 100 (#270)
