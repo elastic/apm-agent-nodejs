@@ -2,7 +2,7 @@
 
 This is the official Node.js agent for [Elastic APM](https://www.elastic.co/solutions/apm).
 
-If you are trying out APM and have feedback or questions,
+If you have any feedback or questions,
 please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 
 [![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=master)](https://travis-ci.org/elastic/apm-agent-nodejs)
@@ -34,7 +34,10 @@ please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 - [Upgrading](https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrading.html)
 - [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)
 
-## Development Notes
+## Contributing
+
+Contributions are welcome,
+but we recommend that you take a moment and read our [contribution guide](https://github.com/elastic/apm-agent-nodejs/blob/master/CONTRIBUTING.md) first.
 
 To ease development,
 set the environment variable `DEBUG_PAYLOAD=1` to have the agent dump the JSON payload sent to the APM Server to a temporary file on your local harddrive.
