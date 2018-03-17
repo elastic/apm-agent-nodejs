@@ -41,26 +41,57 @@ graphql:
 express:
   versions: '>=4'
   commands: node test/instrumentation/modules/express.js
+
 express-graphql-1:
   name: express-graphql
   peerDependencies: graphql@^0.8.2
   versions: '0.6.1'
   commands: node test/instrumentation/modules/express-graphql.js
+
 express-graphql-2:
   name: express-graphql
   peerDependencies: graphql@^0.9.0
   versions: '>=0.6.2 <0.6.6'
   commands: node test/instrumentation/modules/express-graphql.js
+
 express-graphql-3:
   name: express-graphql
   peerDependencies: graphql@^0.10.0
   versions: '>=0.6.6 <0.6.8'
   commands: node test/instrumentation/modules/express-graphql.js
-express-graphql-4:
+
+express-graphql-0.6.11_10:
+  name: express-graphql
+  peerDependencies: graphql@^0.10.0
+  versions: '0.6.11'
+  commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-0.6.11_11:
   name: express-graphql
   peerDependencies: graphql@^0.11.0
-  versions: '>=0.6.8'
+  versions: '0.6.11'
   commands: node test/instrumentation/modules/express-graphql.js
+
+express-graphql-0.6.12_10:
+  name: express-graphql
+  peerDependencies: graphql@^0.10.0
+  versions: '>=0.6.12'
+  commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-0.6.12_11:
+  name: express-graphql
+  peerDependencies: graphql@^0.11.0
+  versions: '>=0.6.12'
+  commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-0.6.12_12:
+  name: express-graphql
+  peerDependencies: graphql@^0.12.0
+  versions: '>=0.6.12'
+  commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-0.6.12_13:
+  name: express-graphql
+  peerDependencies: graphql@^0.13.0
+  versions: '>=0.6.12'
+  commands: node test/instrumentation/modules/express-graphql.js
+
 koa-router:
   node: '>=6.0.0'
   peerDependencies: koa@2
