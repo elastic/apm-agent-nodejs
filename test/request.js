@@ -11,7 +11,7 @@ var agentVersion = require('../package.json').version
 
 test('#errors()', function (t) {
   t.test('envelope', function (t) {
-    t.plan(14)
+    t.plan(15)
     var errors = [{}]
     APMServer()
       .on('listening', function () {
@@ -26,7 +26,7 @@ test('#errors()', function (t) {
   })
 
   t.test('no custom framework', function (t) {
-    t.plan(15)
+    t.plan(16)
     var errors = [{}]
     APMServer()
       .on('listening', function () {
@@ -42,7 +42,7 @@ test('#errors()', function (t) {
   })
 
   t.test('custom framework', function (t) {
-    t.plan(15)
+    t.plan(16)
     var errors = [{}]
     APMServer({frameworkName: 'foo', frameworkVersion: 'bar'})
       .on('listening', function () {
@@ -58,7 +58,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string log.message', function (t) {
-    t.plan(14)
+    t.plan(15)
     var errors = [{log: {message: 1}}]
     APMServer()
       .on('listening', function () {
@@ -73,7 +73,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string exception.message', function (t) {
-    t.plan(14)
+    t.plan(15)
     var errors = [{exception: {message: 1}}]
     APMServer()
       .on('listening', function () {
@@ -88,7 +88,7 @@ test('#errors()', function (t) {
   })
 
   t.test('non-string culprit', function (t) {
-    t.plan(14)
+    t.plan(15)
     var errors = [{culprit: 1}]
     APMServer()
       .on('listening', function () {
@@ -103,7 +103,7 @@ test('#errors()', function (t) {
   })
 
   t.test('successful request', function (t) {
-    t.plan(14)
+    t.plan(15)
     var errors = [{context: {custom: {foo: 'bar'}}}]
     APMServer()
       .on('listening', function () {
@@ -190,7 +190,7 @@ test('#errors()', function (t) {
   })
 
   t.test('should anonymize the http Authorization header by default', function (t) {
-    t.plan(15)
+    t.plan(16)
     var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
     APMServer()
       .on('listening', function () {
@@ -206,7 +206,7 @@ test('#errors()', function (t) {
   })
 
   t.test('should not anonymize the http Authorization header if disabled', function (t) {
-    t.plan(15)
+    t.plan(16)
     var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
     APMServer({filterHttpHeaders: false})
       .on('listening', function () {
@@ -224,7 +224,7 @@ test('#errors()', function (t) {
 
 test('#transactions()', function (t) {
   t.test('envelope', function (t) {
-    t.plan(14)
+    t.plan(15)
     var transactions = [{spans: []}]
     APMServer()
       .on('listening', function () {
@@ -239,7 +239,7 @@ test('#transactions()', function (t) {
   })
 
   t.test('no custom framework', function (t) {
-    t.plan(15)
+    t.plan(16)
     var transactions = [{spans: []}]
     APMServer()
       .on('listening', function () {
@@ -255,7 +255,7 @@ test('#transactions()', function (t) {
   })
 
   t.test('custom framework', function (t) {
-    t.plan(15)
+    t.plan(16)
     var transactions = [{spans: []}]
     APMServer({frameworkName: 'foo', frameworkVersion: 'bar'})
       .on('listening', function () {
@@ -305,6 +305,7 @@ function assertRoot (t, payload) {
 
   t.ok(payload.process)
   t.equal(payload.process.pid, process.pid)
+  t.equal(payload.process.ppid, process.ppid)
   t.ok(payload.process.pid > 0, 'should have a pid greater than 0')
   t.ok(payload.process.title, 'should have a process title')
   t.ok(
