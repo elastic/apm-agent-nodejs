@@ -233,7 +233,7 @@ test('#_encode() - un-ended', function (t) {
   })
   var trans = new Transaction(ins._agent)
   trans._encode(function (err, payload) {
-    t.equal(err.message, 'cannot encode un-ended span')
+    t.equal(err.message, 'cannot encode un-ended transaction')
     t.end()
   })
 })

@@ -316,6 +316,19 @@ This can be useful for debugging and filtering.
 By default,
 the agent will set the value of this config option if the framework can be detected automatically.
 
+Example of setting <<framework-name,`frameworkName`>> and `frameworkVersion` for a framework named `my-custom-framework`:
+
+[source,js]
+----
+// read the version from the package.json file
+var frameworkVersion = require('my-custom-framework/package').version
+
+require('elastic-apm-node').start({
+  frameworkName: 'my-custom-framework',
+  frameworkVersion: frameworkVersion
+})
+----
+
 [[log-level]]
 ===== `logLevel`
 

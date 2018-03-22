@@ -65,7 +65,7 @@
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
   "dependencies": {
     "after-all-results": "^2.0.0",
-    "async-value-promise": "^1.0.0",
+    "async-value-promise": "^1.1.0",
     "console-log-level": "^1.4.0",
     "cookie": "^0.3.1",
     "core-util-is": "^1.0.2",
@@ -92,10 +92,10 @@
     "dependency-check": "^3.0.0",
     "elasticsearch": "^14.0.0",
     "express": "^4.14.0",
-    "express-graphql": "^0.6.11",
+    "express-graphql": "^0.6.12",
     "generic-pool": "^3.1.5",
     "get-port": "^2.1.0",
-    "graphql": "^0.11.7",
+    "graphql": "^0.13.2",
     "handlebars": "^4.0.11",
     "hapi": "^17.2.2",
     "https-pem": "^2.0.0",
@@ -119,7 +119,7 @@
     "test-all-versions": "^3.1.1",
     "untildify": "^3.0.2",
     "wait-on": "^2.0.2",
-    "ws": "^4.0.0"
+    "ws": "^5.0.0"
   },
   "greenkeeper": {
     "ignore": [
