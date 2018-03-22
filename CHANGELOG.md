@@ -1,3 +1,6 @@
+# 1.3.0 - 2018/3/22
+  * feat(request): include ppid (#286)
+
 # 1.2.1 - 2018/3/15
   * fix(span): Do not pass stack frames into promises (memory leak fix) (#269)
 
