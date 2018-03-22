@@ -8,17 +8,17 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
-var semver = require('semver')
-var pgVersion = require('pg/package').version
 var knexVersion = require('knex/package').version
+var pgVersion = require('pg/package').version
+var semver = require('semver')
 
 // pg@7+ doesn't support Node.js pre 4.5.0
 if (semver.lt(process.version, '4.5.0') && semver.gte(pgVersion, '7.0.0')) process.exit()
 
-var utils = require('./_utils')
-
-var test = require('tape')
 var Knex = require('knex')
+var test = require('tape')
+
+var utils = require('./_utils')
 
 var transNo = 0
 var knex

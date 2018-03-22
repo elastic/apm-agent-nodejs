@@ -1,13 +1,15 @@
 'use strict'
 
+var IncomingMessage = require('http').IncomingMessage
 var os = require('os')
 var util = require('util')
+
 var test = require('tape')
 var isRegExp = require('core-util-is').isRegExp
+
 var Agent = require('./_agent')
 var config = require('../lib/config')
 var request = require('../lib/request')
-var IncomingMessage = require('http').IncomingMessage
 
 var optionFixtures = [
   ['serviceName', 'SERVICE_NAME'],

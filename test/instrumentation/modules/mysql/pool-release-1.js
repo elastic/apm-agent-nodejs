@@ -6,8 +6,9 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var mysql = require('mysql')
+var test = require('tape')
+
 var utils = require('./_utils')
 
 test('release connection prior to transaction', function (t) {

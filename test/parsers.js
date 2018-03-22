@@ -1,11 +1,13 @@
 'use strict'
 
-var path = require('path')
 var http = require('http')
-var test = require('tape')
+var path = require('path')
+
 var semver = require('semver')
-var stackman = require('../lib/stackman')
+var test = require('tape')
+
 var parsers = require('../lib/parsers')
+var stackman = require('../lib/stackman')
 
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {

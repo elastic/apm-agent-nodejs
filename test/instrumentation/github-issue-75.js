@@ -7,6 +7,7 @@ var agent = require('../..').start({
 })
 
 var http = require('http')
+
 var send = require('send')
 var test = require('tape')
 

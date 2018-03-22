@@ -3,6 +3,7 @@
 var agent = require('../../_agent')()
 
 var test = require('tape')
+
 var echoServer = require('./_echo_server_util').echoServer
 
 var transports = [['http', require('http')], ['https', require('https')]]

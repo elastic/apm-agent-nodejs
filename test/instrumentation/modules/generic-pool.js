@@ -5,10 +5,11 @@ var agent = require('../../..').start({
   secretToken: 'test',
   captureExceptions: false
 })
-var ins = global.ins = agent._instrumentation
 
-var test = require('tape')
 var genericPool = require('generic-pool')
+var test = require('tape')
+
+var ins = global.ins = agent._instrumentation
 
 if (genericPool.createPool) {
   test('v3.x', function (t) {

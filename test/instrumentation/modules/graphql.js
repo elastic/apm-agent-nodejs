@@ -6,10 +6,10 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var graphql = require('graphql')
 var pkg = require('graphql/package.json')
 var semver = require('semver')
+var test = require('tape')
 
 test('graphql.graphql', function (t) {
   resetAgent(done(t))

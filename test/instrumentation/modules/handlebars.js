@@ -8,8 +8,8 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var handlebars = require('handlebars')
+var test = require('tape')
 
 test('handlebars compile and render', function userLandCode (t) {
   resetAgent(function (endpoint, headers, data, cb) {

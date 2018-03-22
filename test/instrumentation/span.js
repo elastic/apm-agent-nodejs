@@ -3,9 +3,10 @@
 process.env.ELASTIC_APM_TEST = true
 
 var test = require('tape')
+
+var assert = require('../_assert')
 var mockAgent = require('./_agent')
 var mockInstrumentation = require('./_instrumentation')
-var assert = require('../_assert')
 var Transaction = require('../../lib/instrumentation/transaction')
 var Span = require('../../lib/instrumentation/span')
 

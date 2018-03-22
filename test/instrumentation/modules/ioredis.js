@@ -6,8 +6,8 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var Redis = require('ioredis')
+var test = require('tape')
 
 test('not nested', function (t) {
   resetAgent(done(t))

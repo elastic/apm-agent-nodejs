@@ -3,10 +3,11 @@
 process.env.ELASTIC_APM_TEST = true
 
 var test = require('tape')
-var mockInstrumentation = require('./_instrumentation')
+
 var assert = require('../_assert')
-var Transaction = require('../../lib/instrumentation/transaction')
+var mockInstrumentation = require('./_instrumentation')
 var Span = require('../../lib/instrumentation/span')
+var Transaction = require('../../lib/instrumentation/transaction')
 
 test('init', function (t) {
   var ins = mockInstrumentation(function (added) {

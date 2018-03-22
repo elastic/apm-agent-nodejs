@@ -6,16 +6,17 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
-var semver = require('semver')
 var version = require('koa-router/package').version
 var koaVersion = require('koa/package').version
+var semver = require('semver')
 
 if (semver.gte(koaVersion, '2.0.0') && semver.lt(process.version, '6.0.0')) process.exit()
 
-var test = require('tape')
 var http = require('http')
+
 var Koa = require('koa')
 var Router = require('koa-router')
+var test = require('tape')
 
 test('route naming', function (t) {
   t.plan(8)

@@ -5,10 +5,11 @@ var agent = require('../..').start({
   captureExceptions: false,
   asyncHooks: true
 })
-var ins = agent._instrumentation
 
-var test = require('tape')
 var semver = require('semver')
+var test = require('tape')
+
+var ins = agent._instrumentation
 
 test('setTimeout', function (t) {
   t.plan(2)

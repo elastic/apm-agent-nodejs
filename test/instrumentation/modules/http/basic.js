@@ -2,9 +2,11 @@
 
 var agent = require('../../_agent')()
 
-var assert = require('./_assert')
-var test = require('tape')
 var http = require('http')
+
+var test = require('tape')
+
+var assert = require('./_assert')
 
 test('http.createServer', function (t) {
   t.test('direct callback', function (t) {

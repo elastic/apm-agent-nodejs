@@ -6,8 +6,8 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var redis = require('redis')
+var test = require('tape')
 
 test(function (t) {
   resetAgent(function (endpoint, headers, data, cb) {

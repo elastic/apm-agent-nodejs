@@ -1,6 +1,7 @@
 'use strict'
 
 var test = require('tape')
+
 var Timer = require('../../lib/instrumentation/timer')
 
 test('started', function (t) {

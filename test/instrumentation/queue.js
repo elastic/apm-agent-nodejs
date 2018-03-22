@@ -1,6 +1,7 @@
 'use strict'
 
 var test = require('tape')
+
 var Queue = require('../../lib/instrumentation/queue')
 
 test('maxQueueSize', function (t) {

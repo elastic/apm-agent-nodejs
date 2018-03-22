@@ -6,9 +6,10 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
 var http = require('http')
+
 var express = require('express')
+var test = require('tape')
 
 test('error intercept', function (t) {
   t.plan(7)

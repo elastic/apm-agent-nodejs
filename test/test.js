@@ -1,6 +1,7 @@
-var spawn = require('child_process').spawn
-var readdir = require('fs').readdir
 var path = require('path')
+var readdir = require('fs').readdir
+var spawn = require('child_process').spawn
+
 var extname = path.extname
 var join = path.join
 

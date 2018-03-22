@@ -6,9 +6,9 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var test = require('tape')
-var semver = require('semver')
 var Server = require('mongodb-core').Server
+var semver = require('semver')
+var test = require('tape')
 var version = require('mongodb-core/package').version
 
 test('instrument simple command', function (t) {
