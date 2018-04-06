@@ -7,7 +7,7 @@ endif::[]
 
 == Compatibility Overview
 
-Support for the Elastic APM Node.js agent follows the support schedule of Node.js itself to the end-of-line period of each version after its maintenance term.
+Support for the Elastic APM Node.js agent follows the support schedule of Node.js itself to the end-of-life period of each version after its maintenance term.
 Versions of Node.js past their end-of-life date are not supported.
 
 image::https://raw.githubusercontent.com/nodejs/Release/master/schedule.png[]
