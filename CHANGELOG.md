@@ -1,3 +1,6 @@
+# 1.4.0 - 2018/4/9
+  * feat(lambda): implement manual lambda instrumentation (#234)
+
 # 1.3.0 - 2018/3/22
   * feat(request): include ppid (#286)
 
