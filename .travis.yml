@@ -46,6 +46,10 @@ jobs:
       script: npm run docs
       perl: '5.26'
 
+    # Commit Messages
+    -
+      script: commitlint-travis
+
     # Coverage
     -
       script:
