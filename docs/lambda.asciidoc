@@ -45,11 +45,9 @@ var apm = require('elastic-apm-node').start({
   serverUrl: '',
 })
 
-function handler (payload, context, callback) {
+exports.handler = apm.lambda(function handler (payload, context, callback) {
   callback(null, `Hello, ${payload.name}!`)
-}
-
-exports.handler = apm.lambda('hello.handler', handler)
+})
 ----
 
 The agent will now monitor the performance of your lambda function.
