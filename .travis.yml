@@ -48,9 +48,7 @@ jobs:
 
     # Commit Messages
     -
-      before_install: git fetch --unshallow
-      env: LINT_COMMIT_MESSAGES=true
-      script: test/lint-commits.sh
+      script: commitlint-travis
 
     # Coverage
     -
