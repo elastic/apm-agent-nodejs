@@ -625,10 +625,17 @@ Example usage:
 [source,js]
 ----
 apm.addFilter(function (payload) {
-  if (payload.context.request && payload.context.request.headers) {
-    // redact sensitive data
-    payload.context.request.headers['x-secret'] = '[REDACTED]'
-  }
+  // the payload can either contain an array of transactions or errors
+  var items = payload.transactions || payload.errors || []
+
+  // loop over each item in the array to redact any secrets we don't
+  // want sent to the APM Server
+  items.forEach(function (item) {
+    if (item.context.request && item.context.request.headers) {
+      // redact sensitive data
+      payload.context.request.headers['x-secret'] = '[REDACTED]'
+    }
+  })
 
   // remember to return the modified payload
   return payload
