@@ -2,7 +2,7 @@
 
 var test = require('tape')
 
-var Queue = require('../../lib/instrumentation/queue')
+var Queue = require('../lib/queue')
 
 test('maxQueueSize', function (t) {
   var opts = {
@@ -40,7 +40,7 @@ test('queue flush callback success', function (t) {
   })
 
   queue.add(1)
-  queue._flush(function (err) {
+  queue.flush(function (err) {
     t.error(err)
     t.equal(flush, 1)
     t.end()
@@ -58,7 +58,7 @@ test('queue flush callback error', function (t) {
   })
 
   queue.add(1)
-  queue._flush(function (err) {
+  queue.flush(function (err) {
     t.equal(err, error)
     t.equal(flush, 1)
     t.end()
