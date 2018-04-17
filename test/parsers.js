@@ -9,6 +9,13 @@ var test = require('tape')
 var parsers = require('../lib/parsers')
 var stackman = require('../lib/stackman')
 
+var logger = {
+  error () {},
+  warn () {},
+  info () {},
+  debug () {}
+}
+
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {
     var data = parsers.parseMessage('Howdy')
@@ -254,7 +261,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 5,
         sourceLinesErrorLibraryFrames: 5
-      }
+      },
+      logger: logger
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -277,7 +285,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 5,
         sourceLinesErrorLibraryFrames: 5
-      }
+      },
+      logger: logger
     }
     parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -300,7 +309,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 5,
         sourceLinesErrorLibraryFrames: 5
-      }
+      },
+      logger: logger
     }
     parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -323,7 +333,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 5,
         sourceLinesErrorLibraryFrames: 5
-      }
+      },
+      logger: logger
     }
     try {
       throw new Error('Derp')
@@ -350,7 +361,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 5,
         sourceLinesErrorLibraryFrames: 5
-      }
+      },
+      logger: logger
     }
     try {
       var o = {}
@@ -381,7 +393,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 5,
         sourceLinesErrorLibraryFrames: 5
-      }
+      },
+      logger: logger
     }
     var err = new Error('foo')
     t.ok(typeof err.stack === 'string')
@@ -406,7 +419,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 5,
         sourceLinesErrorLibraryFrames: 5
-      }
+      },
+      logger: logger
     }
     var err = new Error('foo')
     err.stack = 'foo'
@@ -431,7 +445,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 0,
         sourceLinesErrorLibraryFrames: 0
-      }
+      },
+      logger: logger
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -464,7 +479,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 5,
         sourceLinesErrorLibraryFrames: 0
-      }
+      },
+      logger: logger
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -492,7 +508,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 0,
         sourceLinesErrorLibraryFrames: 5
-      }
+      },
+      logger: logger
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -521,7 +538,8 @@ test('#parseError()', function (t) {
       _conf: {
         sourceLinesErrorAppFrames: 3,
         sourceLinesErrorLibraryFrames: 6
-      }
+      },
+      logger: logger
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
@@ -630,11 +648,16 @@ function validateParseCallsite (t, opts) {
     sourceLinesSpanLibraryFrames: !opts.isError && !opts.isApp ? opts.lines : 10
   }
 
+  var agent = {
+    _conf: conf,
+    logger: logger
+  }
+
   stackman.callsites(err, function (err, callsites) {
     t.error(err)
     var callsite = callsites[0]
     callsite.isApp = function () { return opts.isApp }
-    parsers.parseCallsite(callsite, opts.isError, conf, function (err, frame) {
+    parsers.parseCallsite(callsite, opts.isError, agent, function (err, frame) {
       t.error(err)
       t.equal(frame.filename, callsite.getRelativeFileName())
       t.equal(frame.lineno, callsite.getLineNumber())

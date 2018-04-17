@@ -2,9 +2,7 @@
 
 var Filters = require('../../lib/filters')
 var Instrumentation = require('../../lib/instrumentation')
-var logger = require('../../lib/logger')
-
-logger.init({ level: 'fatal' })
+var consoleLogLevel = require('console-log-level')
 
 var noop = function () {}
 var sharedInstrumentation
@@ -35,7 +33,10 @@ module.exports = function mockAgent (cb) {
     },
     flush: function () {
       this._instrumentation.flush()
-    }
+    },
+    logger: consoleLogLevel({
+      level: 'fatal'
+    })
   }
 
   // We do not want to start the instrumentation multiple times during testing.
