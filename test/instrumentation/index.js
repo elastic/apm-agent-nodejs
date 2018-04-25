@@ -296,6 +296,12 @@ test('sampling', function (t) {
     var agent = {
       _conf: {
         transactionSampleRate: rate
+      },
+      logger: {
+        error () {},
+        warn () {},
+        info () {},
+        debug () {}
       }
     }
     var ins = new Instrumentation(agent)
