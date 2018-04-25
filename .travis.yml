@@ -19,6 +19,7 @@ before_script:
   - wait-on tcp:9200
 
 node_js:
+  - '10'
   - '9'
   - '8'
   - '6'
@@ -34,6 +35,9 @@ jobs:
     ###########################################
 
     # Disable Async Hooks
+    -
+      node_js: '10'
+      env: ELASTIC_APM_ASYNC_HOOKS=0
     -
       node_js: '9'
       env: ELASTIC_APM_ASYNC_HOOKS=0
@@ -61,6 +65,24 @@ jobs:
     ###########################################
     #            DEPENDENCY STAGE             #
     ###########################################
+
+    # Node.js 10
+    - stage: dependencies
+      node_js: '10'
+      env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
+      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
+    -
+      node_js: '10'
+      env: TAV=ioredis,pg
+      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
+    -
+      node_js: '10'
+      env: TAV=bluebird
+      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
+    -
+      node_js: '10'
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
+      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
 
     # Node.js 9
     - stage: dependencies
