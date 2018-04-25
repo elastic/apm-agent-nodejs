@@ -52,10 +52,12 @@ jobs:
 
     # Commit Messages
     -
+      node_js: 'lts/*'
       script: commitlint-travis
 
     # Coverage
     -
+      node_js: 'lts/*'
       script:
         - npm run coverage
         - ./node_modules/.bin/nyc report --reporter=lcov > coverage.lcov
