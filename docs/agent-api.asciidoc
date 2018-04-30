@@ -595,6 +595,19 @@ Currently the following HTTP headers are anonymized by default:
 If you wish to filter or santitize other data,
 use the <<apm-add-filter,`apm.addFilter()`>> function.
 
+[[apm-is-started]]
+==== `apm.isStarted()`
+
+[source,js]
+----
+apm.isStarted()
+----
+
+Use `isStarted()` to check already instance started.
+If no instance can be found,
+`false` is returned.
+Otherwise `true`.
+
 [[apm-add-filter]]
 ==== `apm.addFilter()`
 
