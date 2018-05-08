@@ -266,17 +266,83 @@ isSecure.forEach(secure => {
       req.end()
     })
   })
+
+  test(`http2.request${secure ? ' secure' : ' '}`, t => {
+    resetAgent((endpoint, headers, data, cb) => {
+      t.equal(data.transactions.length, 2)
+
+      var sub = data.transactions[0]
+      assertPath(t, sub, secure, port, '/sub')
+
+      var root = data.transactions[1]
+      assertPath(t, root, secure, port, '/')
+
+      t.equal(root.spans.length, 1)
+      var span = root.spans[0]
+      t.equal(span.type, 'ext.http2')
+      t.equal(span.name, `undefined http${secure ? 's' : ''}://localhost:${port}/sub`)
+
+      server.close()
+      t.end()
+    })
+
+    agent._instrumentation._queue._maxQueueSize = 2
+
+    var port
+    var server = secure
+      ? http2.createSecureServer(pem)
+      : http2.createServer()
+
+    var onError = err => t.error(err)
+    server.on('error', onError)
+    server.on('socketError', onError)
+
+    server.on('stream', function (stream, headers) {
+      var trans = ins.currentTransaction
+      t.ok(trans, 'have current transaction')
+      t.equal(trans.type, 'request')
+
+      if (headers[':path'] === '/') {
+        var client = connect(secure, port)
+        client.on('error', onError)
+        client.on('socketError', onError)
+
+        stream.respond({
+          'content-type': 'text/plain',
+          ':status': 200
+        })
+
+        var req = client.request({ ':path': '/sub' })
+        req.on('end', () => client.destroy())
+        req.pipe(stream)
+      } else {
+        stream.respond({
+          'content-type': 'text/plain',
+          ':status': 200
+        })
+        stream.end('foo')
+      }
+    })
+
+    server.listen(() => {
+      port = server.address().port
+      var client = connect(secure, port)
+      client.on('error', onError)
+      client.on('socketError', onError)
+
+      var req = client.request({ ':path': '/' })
+      assertResponse(t, req, 'foo')
+      req.resume()
+      req.on('end', () => client.destroy())
+      req.end()
+    })
+  })
 })
 
 var matchId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 var matchTimestamp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/
 
-function assert (t, data, secure, port) {
-  t.equal(data.transactions.length, 1)
-
-  // Top-level props of the transaction need to be checked individually
-  // because there are a few dynamic properties
-  var trans = data.transactions[0]
+function assertPath (t, trans, secure, port, path) {
   t.ok(trans)
   t.ok(matchId.test(trans.id))
   t.equal(trans.name, 'GET unknown route')
@@ -284,15 +350,14 @@ function assert (t, data, secure, port) {
   t.equal(trans.result, 'HTTP 2xx')
   t.ok(trans.duration > 0)
   t.ok(matchTimestamp.test(trans.timestamp))
-  t.equal(trans.spans.length, 0)
 
   t.deepEqual(trans.context.request, {
     http_version: '2.0',
     method: 'GET',
     url: {
-      raw: '/',
+      raw: path,
       protocol: 'http:',
-      pathname: '/'
+      pathname: path
     },
     socket: {
       remote_address: '::ffff:127.0.0.1',
@@ -302,7 +367,7 @@ function assert (t, data, secure, port) {
       ':scheme': secure ? 'https' : 'http',
       ':authority': `localhost:${port}`,
       ':method': 'GET',
-      ':path': '/'
+      ':path': path
     }
   })
 
@@ -313,6 +378,16 @@ function assert (t, data, secure, port) {
       ':status': 200
     }
   })
+}
+
+function assert (t, data, secure, port) {
+  t.equal(data.transactions.length, 1)
+
+  // Top-level props of the transaction need to be checked individually
+  // because there are a few dynamic properties
+  var trans = data.transactions[0]
+  assertPath(t, trans, secure, port, '/')
+  t.equal(trans.spans.length, 0)
 }
 
 function assertResponse (t, stream, expected, done) {
