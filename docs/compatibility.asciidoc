@@ -15,7 +15,7 @@ image::https://raw.githubusercontent.com/nodejs/Release/master/schedule.png[]
 Some versions of Node.js contain bugs or issues that limit our ability to instrument them correctly.
 The following versions of Node.js are known to not be fully instrumented:
 
-- v10.x - Async/Await in Node.js 10 is currently buggy and can therefore not be supported (https://github.com/nodejs/node/issues/20274:[nodejs/node#20274])
+- v10.x - Async/Await in Node.js 10 is currently buggy and can therefore not be supported (https://github.com/nodejs/node/issues/20516:[nodejs/node#20516])
 - v8.1.x - Recommended solution: Upgrade to v8.2.0 or higher to get full support
 - v8.0.x - Recommended solution: Upgrade to v8.2.0 or higher to get full support
 
