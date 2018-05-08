@@ -194,6 +194,78 @@ isSecure.forEach(secure => {
       req.end()
     })
   })
+
+  test(`http2.${method} ignore push streams`, t => {
+    addShouldCall(t)
+
+    var done = after(3, () => {
+      client.destroy()
+      t.end()
+    })
+
+    resetAgent((endpoint, headers, data, cb) => {
+      assert(t, data, secure, port)
+      server.close()
+      done()
+    })
+
+    var port
+    var client
+    var server = secure
+      ? http2.createSecureServer(pem)
+      : http2.createServer()
+
+    var onError = err => t.error(err)
+    server.on('error', onError)
+    server.on('socketError', onError)
+
+    server.on('stream', function (stream, headers) {
+      var trans = ins.currentTransaction
+      t.ok(trans, 'have current transaction')
+      t.equal(trans.type, 'request')
+
+      function onPushStream (stream, headers) {
+        stream.respond({
+          'content-type': 'text/plain',
+          ':status': 200
+        })
+        stream.end('some pushed data')
+        done()
+      }
+
+      stream.pushStream({ ':path': '/pushed' }, t.shouldCall(
+        semver.lt(process.version, '9.0.0')
+          ? onPushStream
+          : (err, pushStream, headers) => {
+            t.error(err)
+            onPushStream(pushStream, headers)
+          }
+      ))
+
+      stream.respond({
+        'content-type': 'text/plain',
+        ':status': 200
+      })
+      stream.end('foo')
+    })
+
+    server.listen(() => {
+      port = server.address().port
+      client = connect(secure, port)
+      client.on('error', onError)
+      client.on('socketError', onError)
+
+      // Receive push stream
+      client.on('stream', t.shouldCall((stream, headers, flags) => {
+        t.equal(headers[':path'], '/pushed')
+        assertResponse(t, stream, 'some pushed data', done)
+      }))
+
+      var req = client.request({ ':path': '/' })
+      assertResponse(t, req, 'foo')
+      req.end()
+    })
+  })
 })
 
 var matchId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
@@ -243,13 +315,14 @@ function assert (t, data, secure, port) {
   })
 }
 
-function assertResponse (t, stream, expected) {
+function assertResponse (t, stream, expected, done) {
   const chunks = []
   stream.on('data', function (chunk) {
     chunks.push(chunk)
   })
   stream.on('end', function () {
     t.equal(Buffer.concat(chunks).toString(), expected)
+    if (done) done()
   })
 }
 
@@ -263,4 +336,31 @@ function resetAgent (cb) {
   agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
   agent._httpClient = { request: cb }
+}
+
+function addShouldCall (t) {
+  var calls = []
+  var realEnd = t.end
+
+  t.end = function end () {
+    for (var i = 0; i < calls.length; i++) {
+      t.equal(calls[i].called, true, 'should have called function')
+    }
+    return realEnd.apply(this, arguments)
+  }
+
+  t.shouldCall = function shouldCall (fn) {
+    var record = { called: false }
+    calls.push(record)
+    return function shouldCallWrap () {
+      record.called = true
+      return fn.apply(this, arguments)
+    }
+  }
+}
+
+function after (n, fn) {
+  return function () {
+    --n || fn()
+  }
 }
