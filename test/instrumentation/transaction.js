@@ -89,6 +89,46 @@ test('#setTag', function (t) {
   t.end()
 })
 
+test('#addTags', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.equal(added.ended, true)
+    t.equal(added, trans)
+    t.equal(trans.spans.length, 1)
+    t.deepEqual(trans.spans, [trans._rootSpan])
+    t.end()
+  })
+  var trans = new Transaction(ins._agent)
+  t.equal(trans._tags, null)
+
+  t.equal(trans.setTag(), false)
+  t.equal(trans._tags, null)
+
+  trans.addTags({ foo: 1 })
+  t.deepEqual(trans._tags, { foo: '1' })
+
+  trans.addTags({ bar: { baz: 2 } })
+  t.deepEqual(trans._tags, {
+    foo: '1',
+    bar: '[object Object]'
+  })
+
+  trans.addTags({ foo: 3 })
+  t.deepEqual(trans._tags, {
+    foo: '3',
+    bar: '[object Object]'
+  })
+
+  trans.addTags({ bux: 'bax', bix: 'bex' })
+  t.deepEqual(trans._tags, {
+    foo: '3',
+    bar: '[object Object]',
+    bux: 'bax',
+    bix: 'bex'
+  })
+
+  t.end()
+})
+
 test('#end() - no spans', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)

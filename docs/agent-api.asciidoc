@@ -742,6 +742,29 @@ Must not contain periods (`.`) as those have special meaning in Elasticsearch
 If a non-string data type is given,
 it's converted to a string before being sent to the APM Server
 
+[[apm-add-tags]]
+==== `apm.addTags()`
+
+[source,js]
+----
+apm.addTags({ [name]: value })
+----
+
+Add several tags on the current transaction.
+You can add tags multiple times.
+If an error happens during the current transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via `setCustomContext()`).
+
+Arguments:
+
+* `name` - Any string.
+Must not contain periods (`.`) as those have special meaning in Elasticsearch
+* `value` - Any string.
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
 [[apm-capture-error]]
 ==== `apm.captureError()`
 
