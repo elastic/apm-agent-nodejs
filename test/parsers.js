@@ -659,14 +659,20 @@ function validateParseCallsite (t, opts) {
     callsite.isApp = function () { return opts.isApp }
     parsers.parseCallsite(callsite, opts.isError, agent, function (err, frame) {
       t.error(err)
-      t.equal(frame.filename, callsite.getRelativeFileName())
-      t.equal(frame.lineno, callsite.getLineNumber())
-      t.equal(frame.function, callsite.getFunctionNameSanitized())
-      t.equal(frame.library_frame, !callsite.isApp())
-      t.equal(frame.abs_path, callsite.getFileName())
-      t.deepEqual(frame.pre_context, opts.pre)
-      t.equal(frame.context_line, opts.line)
-      t.deepEqual(frame.post_context, opts.post)
+      t.equal(frame.filename, callsite.getRelativeFileName(), 'should have expected frame filename')
+      t.equal(frame.lineno, callsite.getLineNumber(), 'should have expected frame lineno')
+      t.equal(frame.function, callsite.getFunctionNameSanitized(), 'should have expected frame function')
+      t.equal(frame.library_frame, !callsite.isApp(), 'should have expected frame library_frame')
+      t.equal(frame.abs_path, callsite.getFileName(), 'should have expected frame abs_path')
+      t.deepEqual(frame.pre_context, opts.pre, opts.pre
+        ? 'should have expected frame pre_context'
+        : 'should not have a frame pre_context')
+      t.equal(frame.context_line, opts.line, opts.line
+        ? 'should have expected frame context_line'
+        : 'should not have a frame context_line')
+      t.deepEqual(frame.post_context, opts.post, opts.post
+        ? 'should have expected frame post_context'
+        : 'should not have a frame post_context')
       t.end()
     })
   })
