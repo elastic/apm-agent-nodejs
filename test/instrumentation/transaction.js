@@ -115,6 +115,18 @@ test('#end() - with spans', function (t) {
   trans.end()
 })
 
+test('#end() - with result', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.equal(added.ended, true)
+    t.equal(added, trans)
+    t.equal(trans.spans.length, 0)
+    t.equal(trans.result, 'test')
+    t.end()
+  })
+  var trans = new Transaction(ins._agent)
+  trans.end('test')
+})
+
 test('#duration()', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.ok(added.duration() > 40)

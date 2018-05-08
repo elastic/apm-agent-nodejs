@@ -50,11 +50,11 @@ The transaction result.
 Think of the transaction result as equivalent to the status code of an HTTP response.
 
 [[transaction-end]]
-==== `transaction.end()`
+==== `transaction.end([result])`
 
 [source,js]
 ----
-transaction.end()
+transaction.end([result])
 ----
 
 Ends the transaction and <<span-truncate,truncates>> all un-ended child spans.
@@ -62,3 +62,5 @@ If the transaction has already ended,
 nothing happens.
 
 Alternatively you can call <<apm-end-transaction,`apm.endTransaction()`>> to end the active transaction.
+
+A value may be provided to set as a result.
