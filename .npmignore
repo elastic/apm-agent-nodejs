@@ -3,6 +3,7 @@
 .dockerignore
 .tav.yml
 .travis.yml
+CONTRIBUTING.md
 Dockerfile
 codecov.yml
 docker-compose.yml
