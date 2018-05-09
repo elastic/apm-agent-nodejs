@@ -959,11 +959,11 @@ There's a special `type` called `request` which is used by the agent for the tra
 See the <<transaction-api,Transaction API>> docs for details on how to use custom transactions.
 
 [[apm-end-transaction]]
-==== `apm.endTransaction()`
+==== `apm.endTransaction([result])`
 
 [source,js]
 ----
-apm.endTransaction()
+apm.endTransaction([result])
 ----
 
 Ends the active transaction.
@@ -974,6 +974,8 @@ Note that the agent will do this for you automatically for all regular HTTP tran
 You only need to use this function to end custom transactions created by <<apm-start-transaction,`apm.startTransaction()`>> or if you wish the end a regular transaction prematurely.
 
 Alternatively you can call <<transaction-end,`end()`>> directly on an active transaction object.
+
+A value may be provided to set as a result.
 
 [[apm-set-transaction-name]]
 ==== `apm.setTransactionName()`
