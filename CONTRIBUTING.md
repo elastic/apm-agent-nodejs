@@ -153,6 +153,6 @@ If you have access to make releases, the process is as follows:
 1. Reset the current major branch to point to the current master `git reset master --hard`
 1. Switch back to master with `git checkout master`
 1. Run tests with `npm test`
-1. Push commits and tags upstream with `git push upstream master && git push upstream --tags`
+1. Push commits and tags upstream with `git push upstream master && git push upstream --tags` (and optionally to your own fork as well)
 1. Update 1.x branch on upstream with `git push upstream 1.x`
 1. Publish to npm with `npm publish`
