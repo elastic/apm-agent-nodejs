@@ -140,3 +140,20 @@ The following is an overview of what's required in order to add support to the a
    To better balance the work requried to run each TAV group,
    pick the TAV group that is currently running the fastest.
    Look at the "Dependencies" stage of one of our latest [Travis cron job builds](https://travis-ci.org/elastic/apm-agent-nodejs/builds) for an overview
+
+### Releasing
+
+If you have access to make releases, the process is as follows:
+
+1. Update the version in `package.json` according to the scale of the change. (major, minor or patch) 
+1. Add commit messages to the changelog (You may skip non-user-visible changes)
+1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
+1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
+1. Check out the current major branch with `git checkout major.x`, for example `git checkout 1.x`
+1. Reset the current major branch to point to the current master `git reset master --hard`
+1. Switch back to master with `git checkout master`
+1. Run tests with `npm test`
+1. Push commits and tags to your fork with `git push && git push --tags`
+1. Push commits and tags upstream with `git push upstream && git push upstream --tags`
+1. Update 1.x branch on upstream with `git push upstream 1.x`
+1. Publish to npm with `npm publish`
