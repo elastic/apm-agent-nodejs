@@ -1,3 +1,11 @@
+# 1.5.0 - 2018/5/9
+  * feat: add agent.addTags() method (#313)
+  * feat: add agent.isStarted() method (#311)
+  * feat: allow calling transaction.end() with transaction result (#328)
+  * fix: encode spans even if their stack trace can't be captured (#321)
+  * fix(config): restore custom logger feature (#299)
+  * fix(doc): lambda getting started had old argument (#296)
+
 # 1.4.0 - 2018/4/9
   * feat(lambda): implement manual lambda instrumentation (#234)
 
