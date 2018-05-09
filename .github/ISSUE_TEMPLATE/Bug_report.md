@@ -23,7 +23,7 @@ A clear and concise description of what you expected to happen.
 - APM Server version:
 - Agent version:
 
-**How you're starting the agent (please tick one of the boxes)**
+**How are you starting the agent? (please tick one of the boxes)**
 - [ ] Calling `agent.start()` directly (e.g. `require('elastic-apm-node').start(...)`)
 - [ ] Requiring `elastic-apm-node/start` from within the source code
 - [ ] Starting node with `-r elastic-apm-node/start`
