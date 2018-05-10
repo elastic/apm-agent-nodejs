@@ -1,3 +1,6 @@
+# 1.5.1 - 2018/5/10
+  * fix: don't throw if span callsites can't be collected
+
 # 1.5.0 - 2018/5/9
   * feat: add agent.addTags() method (#313)
   * feat: add agent.isStarted() method (#311)
