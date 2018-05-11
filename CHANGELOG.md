@@ -1,3 +1,6 @@
+# 1.5.2 - 2018/5/11
+  * fix(express): string errors should not be reported
+
 # 1.5.1 - 2018/5/10
   * fix: don't throw if span callsites can't be collected
 
