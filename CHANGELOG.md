@@ -1,3 +1,6 @@
+# 1.5.3 - 2018/5/14
+  * fix: guard against non string err.message
+
 # 1.5.2 - 2018/5/11
   * fix(express): string errors should not be reported
 
