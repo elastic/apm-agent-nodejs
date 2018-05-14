@@ -148,6 +148,22 @@ test('#captureError()', function (t) {
       })
   })
 
+  t.test('should not fail on a non string err.message', function (t) {
+    t.plan(4)
+    APMServer()
+      .on('listening', function () {
+        var err = new Error()
+        err.message = {foo: 'bar'}
+        this.agent.captureError(err)
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        t.equal(body.errors.length, 1)
+        t.equal(body.errors[0].exception.message, '[object Object]')
+        t.end()
+      })
+  })
+
   t.test('should adhere to default stackTraceLimit', function (t) {
     t.plan(5)
     APMServer()
