@@ -14,6 +14,26 @@ var config = require('../lib/config')
 
 var agentVersion = require('../package.json').version
 
+test('#setTransactionName', function (t) {
+  t.test('no active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.doesNotThrow(function () {
+      agent.setTransactionName('foo')
+    })
+    t.end()
+  })
+
+  t.test('active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    agent.setTransactionName('foo')
+    t.equal(trans.name, 'foo')
+    t.end()
+  })
+})
+
 test('#startSpan()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
@@ -105,6 +125,30 @@ test('#addTags', function (t) {
     t.deepEqual(trans._tags, {foo: '3', bar: '2'})
     t.end()
   })
+})
+
+test('#addFilter() - invalid argument', function (t) {
+  t.plan(5)
+  APMServer()
+    .on('listening', function () {
+      this.agent.addFilter(function (data) {
+        var error = data.errors[0]
+        t.equal(++error.context.custom.order, 1)
+        return data
+      })
+      this.agent.addFilter('invalid')
+      this.agent.addFilter(function (data) {
+        var error = data.errors[0]
+        t.equal(++error.context.custom.order, 2)
+        return data
+      })
+      this.agent.captureError(new Error('foo'), {custom: {order: 0}})
+    })
+    .on('request', validateErrorRequest(t))
+    .on('body', function (body) {
+      t.deepEqual(body.errors[0].context.custom.order, 2)
+      t.end()
+    })
 })
 
 test('#captureError()', function (t) {
