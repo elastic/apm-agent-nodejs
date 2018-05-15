@@ -14,6 +14,37 @@ var config = require('../lib/config')
 
 var agentVersion = require('../package.json').version
 
+test('#endTransaction()', function (t) {
+  t.test('no active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.endTransaction()
+    t.end()
+  })
+
+  t.test('with no result', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(trans.ended, false)
+    agent.endTransaction()
+    t.equal(trans.ended, true)
+    t.equal(trans.result, 'success')
+    t.end()
+  })
+
+  t.test('with explicit result', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(trans.ended, false)
+    agent.endTransaction('done')
+    t.equal(trans.ended, true)
+    t.equal(trans.result, 'done')
+    t.end()
+  })
+})
+
 test('#startSpan()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
