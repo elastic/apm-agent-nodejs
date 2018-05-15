@@ -108,6 +108,30 @@ test('#setTag()', function (t) {
   })
 })
 
+test('#addFilter() - invalid argument', function (t) {
+  t.plan(5)
+  APMServer()
+    .on('listening', function () {
+      this.agent.addFilter(function (data) {
+        var error = data.errors[0]
+        t.equal(++error.context.custom.order, 1)
+        return data
+      })
+      this.agent.addFilter('invalid')
+      this.agent.addFilter(function (data) {
+        var error = data.errors[0]
+        t.equal(++error.context.custom.order, 2)
+        return data
+      })
+      this.agent.captureError(new Error('foo'), {custom: {order: 0}})
+    })
+    .on('request', validateErrorRequest(t))
+    .on('body', function (body) {
+      t.deepEqual(body.errors[0].context.custom.order, 2)
+      t.end()
+    })
+})
+
 test('#captureError()', function (t) {
   t.test('with callback', function (t) {
     t.plan(5)
