@@ -149,9 +149,7 @@ If you have access to make releases, the process is as follows:
 1. Add commit messages to the changelog (You may skip non-user-visible changes)
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
 1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
-1. Check out the current major branch with `git checkout major.x`, for example `git checkout 1.x`
-1. Reset the current major branch to point to the current master `git reset master --hard`
-1. Switch back to master with `git checkout master`
+1. Reset the current major branch (`1.x`, `2.x` etc) to point to the current master, e.g. `git branch -f 1.x master`
 1. Run tests with `npm test`
 1. Push commits and tags upstream with `git push upstream master && git push upstream --tags` (and optionally to your own fork as well)
 1. Update 1.x branch on upstream with `git push upstream 1.x`
