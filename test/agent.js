@@ -14,6 +14,15 @@ var config = require('../lib/config')
 
 var agentVersion = require('../package.json').version
 
+test('#startTransaction()', function (t) {
+  var agent = Agent()
+  agent.start()
+  var trans = agent.startTransaction('foo', 'bar')
+  t.equal(trans.name, 'foo')
+  t.equal(trans.type, 'bar')
+  t.end()
+})
+
 test('#setTransactionName', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
