@@ -1,3 +1,6 @@
+# 1.5.4 - 2018/5/15
+  * chore: allow Node.js 10 in package.json engines field (#345)
+
 # 1.5.3 - 2018/5/14
   * fix: guard against non string err.message
 
