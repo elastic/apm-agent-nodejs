@@ -88,6 +88,25 @@ test('#setTag()', function (t) {
   })
 })
 
+test('#addTags', function (t) {
+  t.test('no active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.equal(agent.addTags({foo: 1}), false)
+    t.end()
+  })
+
+  t.test('active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(agent.addTags({foo: 1, bar: 2}), true)
+    t.equal(agent.addTags({foo: 3}), true)
+    t.deepEqual(trans._tags, {foo: '3', bar: '2'})
+    t.end()
+  })
+})
+
 test('#captureError()', function (t) {
   t.test('with callback', function (t) {
     t.plan(5)
