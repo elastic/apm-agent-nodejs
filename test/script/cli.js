@@ -99,6 +99,7 @@ var httpTest = function () {
 
 var restifyTest = function () {
   var restify = require('restify')
+  var clients = require('restify-clients')
 
   var server = restify.createServer({ name: 'foo', version: '1.0.0' })
 
@@ -130,7 +131,7 @@ var restifyTest = function () {
     var base = 'http://localhost:' + port
     console.log('Test server running on port', port)
 
-    var client = restify.createJsonClient({
+    var client = clients.createJsonClient({
       url: base,
       version: '~1.0'
     })
