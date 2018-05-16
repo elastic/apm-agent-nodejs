@@ -5,7 +5,7 @@ This is the official Node.js agent for [Elastic APM](https://www.elastic.co/solu
 If you have any feedback or questions,
 please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 
-[![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=master)](https://travis-ci.org/elastic/apm-agent-nodejs)
+[![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=1.x)](https://travis-ci.org/elastic/apm-agent-nodejs)
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/standard/standard)
 
 ## Quick start
