@@ -10,6 +10,7 @@ var isRegExp = require('core-util-is').isRegExp
 var Agent = require('./_agent')
 var config = require('../lib/config')
 var request = require('../lib/request')
+var Instrumentation = require('../lib/instrumentation')
 
 var optionFixtures = [
   ['serviceName', 'SERVICE_NAME'],
@@ -28,7 +29,8 @@ var optionFixtures = [
   ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
   ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 0],
   ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0],
-  ['serverTimeout', 'SERVER_TIMEOUT', 30]
+  ['serverTimeout', 'SERVER_TIMEOUT', 30],
+  ['disableInstrumentation', 'DISABLE_INSTRUMENTATION', []]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']
@@ -38,13 +40,18 @@ optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
     var bool = typeof fixture[2] === 'boolean'
     var number = typeof fixture[2] === 'number'
+    var array = Array.isArray(fixture[2])
 
     test('should be configurable by envrionment variable ELASTIC_APM_' + fixture[1], function (t) {
       var agent = Agent()
       var value = bool ? (fixture[2] ? '0' : '1') : number ? 1 : 'custom-value'
       process.env['ELASTIC_APM_' + fixture[1]] = value
       agent.start()
-      t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
+      if (array) {
+        t.deepEqual(agent._conf[fixture[0]], [ value ])
+      } else {
+        t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
+      }
       delete process.env['ELASTIC_APM_' + fixture[1]]
       t.end()
     })
@@ -57,7 +64,11 @@ optionFixtures.forEach(function (fixture) {
       opts[fixture[0]] = value1
       process.env['ELASTIC_APM_' + fixture[1]] = value2
       agent.start(opts)
-      t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value1)
+      if (array) {
+        t.deepEqual(agent._conf[fixture[0]], [ value1 ])
+      } else {
+        t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value1)
+      }
       delete process.env['ELASTIC_APM_' + fixture[1]]
       t.end()
     })
@@ -66,7 +77,11 @@ optionFixtures.forEach(function (fixture) {
   test('should default ' + fixture[0] + ' to ' + fixture[2], function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent._conf[fixture[0]], fixture[2])
+    if (array) {
+      t.deepEqual(agent._conf[fixture[0]], fixture[2])
+    } else {
+      t.equal(agent._conf[fixture[0]], fixture[2])
+    }
     t.end()
   })
 })
@@ -218,5 +233,60 @@ captureBodyTests.forEach(function (captureBodyTest) {
       t.ok(request)
       t.equal(request.body, captureBodyTest.transactions)
     })
+  })
+})
+
+test('disableInstrumentation', function (t) {
+  t.test('individual modules', function (t) {
+    var modules = Instrumentation.modules
+    for (const mod of modules) {
+      const expected = modules.filter(v => v !== mod)
+      const agent = Agent()
+      agent._instrumentation._applyHooks = function (received) {
+        t.deepEqual(received, expected, 'can disable ' + mod)
+      }
+      agent.start({
+        serviceName: 'service',
+        disableInstrumentation: mod
+      })
+    }
+
+    t.end()
+  })
+
+  t.test('multiple modules by array', function (t) {
+    var modules = Instrumentation.modules
+    var mid = Math.floor(modules.length / 2)
+    var head = modules.slice(0, mid)
+    var tail = modules.slice(mid)
+
+    var agent = Agent()
+    agent._instrumentation._applyHooks = function (received) {
+      t.deepEqual(received, tail, 'can disable modules by array')
+    }
+    agent.start({
+      serviceName: 'service',
+      disableInstrumentation: head
+    })
+
+    t.end()
+  })
+
+  t.test('multiple modules by csv string', function (t) {
+    var modules = Instrumentation.modules
+    var mid = Math.floor(modules.length / 2)
+    var head = modules.slice(0, mid)
+    var tail = modules.slice(mid)
+
+    var agent = Agent()
+    agent._instrumentation._applyHooks = function (received) {
+      t.deepEqual(received, tail, 'can disable modules by comma-separated string')
+    }
+    agent.start({
+      serviceName: 'service',
+      disableInstrumentation: head.join(',')
+    })
+
+    t.end()
   })
 })
