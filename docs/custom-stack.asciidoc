@@ -10,12 +10,13 @@ endif::[]
 Getting Elastic APM set up for your Node.js app is easy,
 and there are various ways you can tweak it to fit your needs.
 
-If you are using either Express, hapi, or Koa,
+If you are using either Express, hapi, Koa, or AWS Lambda
 we recommend that you read these articles instead:
 
 * <<express,Get started with Express>>
 * <<hapi,Get started with hapi>>
 * <<koa,Get started with Koa>>
+* <<lambda,Get started with Lambda>>
 
 For a custom Node.js app,
 follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
