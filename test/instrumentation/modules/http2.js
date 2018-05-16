@@ -234,7 +234,7 @@ isSecure.forEach(secure => {
       }
 
       stream.pushStream({ ':path': '/pushed' }, t.shouldCall(
-        semver.lt(process.version, '9.0.0')
+        semver.lt(process.version, '8.11.2')
           ? onPushStream
           : (err, pushStream, headers) => {
             t.error(err)
