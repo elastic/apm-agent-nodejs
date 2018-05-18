@@ -18,145 +18,45 @@ services:
 before_script:
   - wait-on tcp:9200
 
-node_js:
-  - '10'
-  - '9'
-  - '8'
-  - '6'
-  - '4'
+git:
+  depth: false # allows us to check out master in the install step
 
-jobs:
-  fast_finish: true
+install:
+  - git checkout master
+  - npm install
 
+matrix:
   include:
-
-    ###########################################
-    #                TEST STAGE               #
-    ###########################################
-
-    # Disable Async Hooks
+    # Nightlies
+    -
+      node_js: '11'
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
       node_js: '10'
-      env: ELASTIC_APM_ASYNC_HOOKS=0
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
       node_js: '9'
-      env: ELASTIC_APM_ASYNC_HOOKS=0
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
       node_js: '8'
-      env: ELASTIC_APM_ASYNC_HOOKS=0
-
-    # Docs
-    -
-      script: npm run docs
-      perl: '5.26'
-
-    # Commit Messages
-    -
-      node_js: 'lts/*'
-      script: commitlint-travis
-
-    # Coverage
-    -
-      node_js: 'lts/*'
-      script:
-        - npm run coverage
-        - ./node_modules/.bin/nyc report --reporter=lcov > coverage.lcov
-        - npm install -g codecov
-        - codecov
-
-    ###########################################
-    #            DEPENDENCY STAGE             #
-    ###########################################
-
-    # Node.js 10
-    - stage: dependencies
-      node_js: '10'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '10'
-      env: TAV=ioredis,pg
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '10'
-      env: TAV=bluebird
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '10'
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-
-    # Node.js 9
-    - stage: dependencies
-      node_js: '9'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '9'
-      env: TAV=ioredis,pg
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '9'
-      env: TAV=bluebird
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '9'
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-
-    # Node.js 8
-    -
-      node_js: '8'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '8'
-      env: TAV=ioredis,pg
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '8'
-      env: TAV=bluebird
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '8'
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-
-    # Node.js 6
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
       node_js: '6'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '6'
-      env: TAV=ioredis,pg
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '6'
-      env: TAV=bluebird
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
-    -
-      node_js: '6'
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
 
-    # Node.js 4
+    # Release Candidates
     -
-      node_js: '4'
-      env: TAV=generic-pool,mysql,redis,koa-router,handlebars,mongodb-core
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
+      node_js: '10'
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
-      node_js: '4'
-      env: TAV=ioredis,pg
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
+      node_js: '9'
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
-      node_js: '4'
-      env: TAV=bluebird
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
+      node_js: '8'
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
-      node_js: '4'
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
-      script: 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || ("$TRAVIS_EVENT_TYPE" == "pull_request" && "$TRAVIS_BRANCH" != greenkeeper/*) ]]; then tav --quiet; fi'
+      node_js: '6'
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
 
 addons:
   apt:
@@ -167,8 +67,3 @@ addons:
 notifications:
   email:
     - watson@elastic.co
-  slack:
-    secure: Jq9ST6TYsZZtPgUdn60rZCfcclNF1cXaCqemt9ZKvqlDie9kbyJjU9t0K+EFdlQXgzM5sGAC+okRO9c29zMDuWvsuY6wb5K2p9j1cxfOn1FTc4xcxh/fKelu1Q7nGaMOIPvQuoI/TQBo4pwACyjli+ohz7DMVMRcans6GR+P0S8=
-    on_success: change
-    on_failure: change
-    on_pull_requests: false
