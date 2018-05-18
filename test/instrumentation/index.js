@@ -5,6 +5,8 @@ var agent = require('../..').start({
   captureExceptions: false
 })
 
+var http = require('http')
+
 var test = require('tape')
 
 var mockAgent = require('./_agent')
@@ -375,6 +377,39 @@ test('unsampled transactions do not include spans', function (t) {
       if (span) span.end()
       trans.end()
       agent.flush()
+    })
+  })
+})
+
+test('unsampled request transactions should have the correct result', function (t) {
+  resetAgent(function (endpoint, headers, data, cb) {
+    t.equal(endpoint, 'transactions')
+    t.equal(data.transactions.length, 1)
+
+    data.transactions.forEach(function (trans) {
+      t.equal(trans.sampled, false)
+      t.equal(trans.result, 'HTTP 2xx')
+    })
+
+    server.close()
+    t.end()
+  })
+
+  agent._conf.transactionSampleRate = 0.0
+
+  var server = http.createServer(function (req, res) {
+    setImmediate(function () {
+      res.end()
+    })
+  })
+
+  server.listen(function () {
+    var port = server.address().port
+    http.get('http://localhost:' + port, function (res) {
+      res.resume()
+      res.on('end', function () {
+        agent.flush()
+      })
     })
   })
 })
