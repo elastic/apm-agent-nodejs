@@ -4,6 +4,7 @@ var IncomingMessage = require('http').IncomingMessage
 var os = require('os')
 var util = require('util')
 
+var semver = require('semver')
 var test = require('tape')
 var isRegExp = require('core-util-is').isRegExp
 
@@ -237,56 +238,55 @@ captureBodyTests.forEach(function (captureBodyTest) {
 })
 
 test('disableInstrumentation', function (t) {
-  t.test('individual modules', function (t) {
-    var modules = Instrumentation.modules
-    for (const mod of modules) {
-      const expected = modules.filter(v => v !== mod)
-      const agent = Agent()
-      agent._instrumentation._applyHooks = function (received) {
-        t.deepEqual(received, expected, 'can disable ' + mod)
-      }
+  var hapiVersion = require('hapi/package.json').version
+
+  var modules = new Set(Instrumentation.modules)
+  if (semver.lt(process.version, '8.3.0')) {
+    modules.delete('http2')
+  }
+  if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
+    modules.delete('hapi')
+  }
+
+  function testSlice (t, name, selector) {
+    var selection = selector(modules)
+    var selectionSet = new Set(typeof selection === 'string' ? selection.split(',') : selection)
+
+    t.test(name + ' -> ' + Array.from(selectionSet).join(','), function (t) {
+      var agent = Agent()
       agent.start({
         serviceName: 'service',
-        disableInstrumentation: mod
+        disableInstrumentation: selection
       })
-    }
 
-    t.end()
-  })
+      var found = new Set()
 
-  t.test('multiple modules by array', function (t) {
-    var modules = Instrumentation.modules
-    var mid = Math.floor(modules.length / 2)
-    var head = modules.slice(0, mid)
-    var tail = modules.slice(mid)
+      agent._instrumentation._patchModule = function (exports, name, version, enabled) {
+        if (!enabled) found.add(name)
+        return exports
+      }
 
-    var agent = Agent()
-    agent._instrumentation._applyHooks = function (received) {
-      t.deepEqual(received, tail, 'can disable modules by array')
-    }
-    agent.start({
-      serviceName: 'service',
-      disableInstrumentation: head
+      for (const mod of modules) {
+        require(mod)
+      }
+
+      t.deepEqual(selectionSet, found, 'disabled all selected modules')
+
+      t.end()
     })
+  }
 
-    t.end()
+  for (const mod of modules) {
+    testSlice(t, 'individual modules', () => new Set([mod]))
+  }
+
+  testSlice(t, 'multiple modules by array', modules => {
+    return Array.from(modules).filter((value, index) => index % 2)
   })
 
-  t.test('multiple modules by csv string', function (t) {
-    var modules = Instrumentation.modules
-    var mid = Math.floor(modules.length / 2)
-    var head = modules.slice(0, mid)
-    var tail = modules.slice(mid)
-
-    var agent = Agent()
-    agent._instrumentation._applyHooks = function (received) {
-      t.deepEqual(received, tail, 'can disable modules by comma-separated string')
-    }
-    agent.start({
-      serviceName: 'service',
-      disableInstrumentation: head.join(',')
-    })
-
-    t.end()
+  testSlice(t, 'multiple modules by csv string', modules => {
+    return Array.from(modules).filter((value, index) => !(index % 2))
   })
+
+  t.end()
 })
