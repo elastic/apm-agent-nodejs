@@ -178,6 +178,50 @@ jobs:
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express
       script: tav --quiet
 
+    ###########################################
+    #        NODE.JS PRE-RELEASE STAGE        #
+    ###########################################
+
+    # Nightlies
+    - stage: Node.js pre-releases
+      node_js: '11'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+    -
+      node_js: '10'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+    -
+      node_js: '9'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+    -
+      node_js: '8'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+    -
+      node_js: '6'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+
+    # Release Candidates
+    -
+      node_js: '10'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+    -
+      node_js: '9'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+    -
+      node_js: '8'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+    -
+      node_js: '6'
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+
 addons:
   apt:
     packages:
