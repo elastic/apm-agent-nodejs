@@ -31,7 +31,7 @@ All spans belongs to a transaction.
 * *Default:* `unnamed`
 
 The name of the span.
-This can also be set via <<span-start,`span.start()`>>.
+This can also be set via <<apm-start-span,`apm.startSpan()`>>.
 
 [[span-type]]
 ==== `span.type`
@@ -40,7 +40,7 @@ This can also be set via <<span-start,`span.start()`>>.
 * *Default:* `custom`
 
 The type of span.
-This can also be set via <<span-start,`span.start()`>>.
+This can also be set via <<apm-start-span,`apm.startSpan()`>>.
 
 The type is a hierarchical string used to group similar spans together.
 For instance,
