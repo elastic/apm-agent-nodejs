@@ -1,3 +1,7 @@
+# 1.6.0 - 2018/5/28
+  * feat(http2): instrument incoming http2 requests (#205)
+  * fix(agent): allow agent.endTransaction() to set result (#350)
+
 # 1.5.4 - 2018/5/15
   * chore: allow Node.js 10 in package.json engines field (#345)
 
