@@ -72,6 +72,7 @@ var directories = [
   'test/instrumentation/modules/http',
   'test/instrumentation/modules/pg',
   'test/instrumentation/modules/mysql',
+  'test/instrumentation/modules/mysql2',
   'test/instrumentation/modules/bluebird',
   'test/instrumentation/modules/koa-router'
 ]
