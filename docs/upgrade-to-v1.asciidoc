@@ -38,14 +38,14 @@ NOTE: The associated environment variable for each renamed config option have be
 
 |=======================================================================
 |Old name |New name| Note
-|`appName` |<<service-name,`serviceName`>> | Renamed to align with new naming conventions
-|`appVersion` |<<service-version,`serviceVersion`>> | Renamed to align with new naming conventions
-|`captureTraceStackTrace` |<<capture-span-stack-traces,`captureSpanStackTraces`>> | Renamed to align with new naming conventions
-|`sourceContextErrorAppFrames` |<<source-context-error-app-frames,`sourceLinesErrorAppFrames`>> | Renamed to align with other agents
-|`sourceContextSpanAppFrames` |<<source-context-span-app-frames,`sourceLinesSpanAppFrames`>> | Renamed to align with other agents
-|`sourceContextErrorLibraryFrames` |<<source-context-error-library-frames,`sourceLinesErrorLibraryFrames`>> | Renamed to align with other agents
-|`sourceContextSpanLibraryFrames` |<<source-context-span-library-frames,`sourceLinesSpanLibraryFrames`>> | Renamed to align with other agents
-|`validateServerCert` |<<validate-server-cert,`verifyServerCert`>> | Renamed to align with other agents
+|`appName` |<<service-name,`serviceName`>> |Renamed to align with new naming conventions
+|`appVersion` |<<service-version,`serviceVersion`>> |Renamed to align with new naming conventions
+|`captureTraceStackTrace` |<<capture-span-stack-traces,`captureSpanStackTraces`>> |Renamed to align with new naming conventions
+|`sourceContextErrorAppFrames` |<<source-context-error-app-frames,`sourceLinesErrorAppFrames`>> |Renamed to align with other agents
+|`sourceContextSpanAppFrames` |<<source-context-span-app-frames,`sourceLinesSpanAppFrames`>> |Renamed to align with other agents
+|`sourceContextErrorLibraryFrames` |<<source-context-error-library-frames,`sourceLinesErrorLibraryFrames`>> |Renamed to align with other agents
+|`sourceContextSpanLibraryFrames` |<<source-context-span-library-frames,`sourceLinesSpanLibraryFrames`>> |Renamed to align with other agents
+|`validateServerCert` |<<validate-server-cert,`verifyServerCert`>> |Renamed to align with other agents
 |=======================================================================
 
 [[v1-agent-api]]
@@ -55,5 +55,5 @@ The following functions have been renamed between version 0.x and 1.x:
 
 |=======================================================================
 |Old name |New name| Note
-|`buildTrace()` |<<apm-build-span,`buildSpan()`>> | Renamed to align with new naming conventions
+|`buildTrace()` |<<apm-build-span,`buildSpan()`>> |Renamed to align with new naming conventions
 |=======================================================================
