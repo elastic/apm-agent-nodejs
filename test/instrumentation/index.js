@@ -5,8 +5,10 @@ var agent = require('../..').start({
   captureExceptions: false
 })
 
+var EventEmitter = require('events')
 var http = require('http')
 
+var semver = require('semver')
 var test = require('tape')
 
 var mockAgent = require('./_agent')
@@ -396,6 +398,9 @@ test('unsampled request transactions should have the correct result', function (
   })
 
   agent._conf.transactionSampleRate = 0.0
+  t.on('end', function () {
+    agent._conf.transactionSampleRate = 1.0
+  })
 
   var server = http.createServer(function (req, res) {
     setImmediate(function () {
@@ -410,6 +415,117 @@ test('unsampled request transactions should have the correct result', function (
       res.on('end', function () {
         agent.flush()
       })
+    })
+  })
+})
+
+test('bind', function (t) {
+  t.test('does not create spans in unbound function context', function (t) {
+    resetAgent(function (endpoint, headers, data, cb) {
+      t.equal(data.transactions.length, 1)
+      var spans = data.transactions[0].spans
+      t.equal(spans.length, 0)
+      t.end()
+    })
+    var ins = agent._instrumentation
+
+    var trans = ins.startTransaction('foo')
+
+    function fn () {
+      var t0 = startSpan(ins, 't0')
+      if (t0) t0.end()
+      trans.end()
+      ins.flush()
+    }
+
+    ins.currentTransaction = undefined
+    fn()
+  })
+
+  t.test('creates spans in bound function', function (t) {
+    resetAgent(function (endpoint, headers, data, cb) {
+      t.equal(data.transactions.length, 1)
+      var spans = data.transactions[0].spans
+      t.equal(spans.length, 1)
+      t.equal(spans[0].name, 't0')
+      t.end()
+    })
+    var ins = agent._instrumentation
+
+    var trans = ins.startTransaction('foo')
+
+    var fn = ins.bindFunction(function () {
+      var t0 = startSpan(ins, 't0')
+      if (t0) t0.end()
+      trans.end()
+      ins.flush()
+    })
+
+    ins.currentTransaction = null
+    fn()
+  })
+
+  var methods = [
+    'on',
+    'once',
+    'addListener'
+  ]
+
+  if (semver.satisfies(process.versions.node, '>=6')) {
+    methods.push('prependListener', 'prependOnceListener')
+  }
+
+  methods.forEach(function (method) {
+    t.test('does not create spans in unbound emitter with ' + method, function (t) {
+      resetAgent(function (endpoint, headers, data, cb) {
+        t.equal(data.transactions.length, 1)
+        var spans = data.transactions[0].spans
+        t.equal(spans.length, 0)
+        t.end()
+      })
+      var ins = agent._instrumentation
+
+      var trans = ins.startTransaction('foo')
+
+      var emitter = new EventEmitter()
+
+      emitter[method]('foo', function () {
+        var t0 = startSpan(ins, 't0')
+        if (t0) t0.end()
+        trans.end()
+        ins.flush()
+      })
+
+      ins.currentTransaction = null
+      emitter.emit('foo')
+    })
+  })
+
+  methods.forEach(function (method) {
+    t.test('creates spans in bound emitter with ' + method, function (t) {
+      resetAgent(function (endpoint, headers, data, cb) {
+        t.equal(data.transactions.length, 1)
+        var spans = data.transactions[0].spans
+        t.equal(spans.length, 1)
+        t.equal(spans[0].name, 't0')
+        t.end()
+      })
+      var ins = agent._instrumentation
+
+      var trans = ins.startTransaction('foo')
+
+      var emitter = new EventEmitter()
+      ins.bindEmitter(emitter)
+
+      emitter[method]('foo', function () {
+        var t0 = startSpan(ins, 't0')
+        if (t0) t0.end()
+        trans.end()
+        ins.flush()
+      })
+
+      ins.currentTransaction = null
+      emitter.emit('foo')
     })
   })
 })
