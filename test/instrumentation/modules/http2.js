@@ -333,7 +333,9 @@ isSecure.forEach(secure => {
       var req = client.request({ ':path': '/' })
       assertResponse(t, req, 'foo')
       req.resume()
-      req.on('end', () => client.destroy())
+      req.on('end', () => {
+        setTimeout(() => client.destroy(), 50)
+      })
       req.end()
     })
   })
