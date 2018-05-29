@@ -31,7 +31,7 @@ var optionFixtures = [
   ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 0],
   ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['disableInstrumentation', 'DISABLE_INSTRUMENTATION', []]
+  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']
@@ -237,7 +237,7 @@ captureBodyTests.forEach(function (captureBodyTest) {
   })
 })
 
-test('disableInstrumentation', function (t) {
+test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
 
   var modules = new Set(Instrumentation.modules)
@@ -256,7 +256,7 @@ test('disableInstrumentation', function (t) {
       var agent = Agent()
       agent.start({
         serviceName: 'service',
-        disableInstrumentation: selection
+        disableInstrumentations: selection
       })
 
       var found = new Set()
