@@ -10,8 +10,8 @@ var isRegExp = require('core-util-is').isRegExp
 
 var Agent = require('./_agent')
 var config = require('../lib/config')
-var request = require('../lib/request')
 var Instrumentation = require('../lib/instrumentation')
+var request = require('../lib/request')
 
 var optionFixtures = [
   ['serviceName', 'SERVICE_NAME'],
