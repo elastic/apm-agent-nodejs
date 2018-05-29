@@ -409,6 +409,7 @@ function connect (secure, port) {
 
 function resetAgent (cb) {
   agent._instrumentation._queue._clear()
+  agent._instrumentation._queue._maxQueueSize = 0
   agent._instrumentation.currentTransaction = null
   agent._httpClient = { request: cb }
 }
