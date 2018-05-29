@@ -396,7 +396,7 @@ function assertResponse (t, stream, expected, done) {
     chunks.push(chunk)
   })
   stream.on('end', function () {
-    t.equal(Buffer.concat(chunks).toString(), expected)
+    t.equal(Buffer.concat(chunks).toString(), expected, 'should have expected body')
     if (done) done()
   })
 }
