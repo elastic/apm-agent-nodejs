@@ -24,7 +24,7 @@ util.inherits(APMServer, EventEmitter)
 function APMServer (agentOpts, mockOpts) {
   if (!(this instanceof APMServer)) return new APMServer(agentOpts, mockOpts)
   var self = this
-  mockOpts = {}
+  mockOpts = mockOpts || {}
 
   this.agent = Agent()
 

@@ -657,8 +657,8 @@ test('#lambda()', function (t) {
     var output
     var error = new Error('fail')
 
-    var firstRequest = true
-    var firstBody = true
+    var requests = 0
+    var bodies = 0
 
     APMServer({
       sourceContextErrorLibraryFrames: 0
@@ -674,22 +674,22 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.ok(err)
           t.notOk(result)
+          t.equal(requests, 2, 'should have gotten two requests')
+          t.equal(bodies, 2, 'should have gotten two bodies')
           this.server.close()
           t.end()
         })
       })
       .on('request', function (req) {
-        var fn = firstRequest
+        var fn = ++requests === 1
           ? validateErrorRequest(t)
           : validateTransactionsRequest(t)
         fn(req)
-        firstRequest = false
       })
       .on('body', function (body) {
         assertRoot(t, body)
-        if (firstBody) {
+        if (++bodies === 1) {
           assertErrors(t, body, name, input, error)
-          firstBody = false
         } else {
           assertTransactions(t, body, name, input, output)
           assertContext(t, name, body.transactions[0].context.custom)
@@ -703,8 +703,8 @@ test('#lambda()', function (t) {
     var output
     var error = new Error('fail')
 
-    var firstRequest = true
-    var firstBody = true
+    var requests = 0
+    var bodies = 0
 
     APMServer({
       sourceContextErrorLibraryFrames: 0
@@ -720,22 +720,22 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.ok(err)
           t.notOk(result)
+          t.equal(requests, 2, 'should have gotten two requests')
+          t.equal(bodies, 2, 'should have gotten two bodies')
           this.server.close()
           t.end()
         })
       })
       .on('request', function (req) {
-        var fn = firstRequest
+        var fn = ++requests === 1
           ? validateErrorRequest(t)
           : validateTransactionsRequest(t)
         fn(req)
-        firstRequest = false
       })
       .on('body', function (body) {
         assertRoot(t, body)
-        if (firstBody) {
+        if (++bodies === 1) {
           assertErrors(t, body, name, input, error, this.agent)
-          firstBody = false
         } else {
           assertTransactions(t, body, name, input, output)
           assertContext(t, name, body.transactions[0].context.custom)
