@@ -596,6 +596,14 @@ Currently the following HTTP headers are anonymized by default:
 If you wish to filter or santitize other data,
 use the <<apm-add-filter,`apm.addFilter()`>> function.
 
+[[disable-instrumentations]]
+===== `disableInstrumentations`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_DISABLE_INSTRUMENTATIONS`
+
+Array or comma-separated string of modules to disable instrumentation for.
+
 [[apm-is-started]]
 ==== `apm.isStarted()`
 

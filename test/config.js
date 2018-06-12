@@ -4,11 +4,13 @@ var IncomingMessage = require('http').IncomingMessage
 var os = require('os')
 var util = require('util')
 
+var semver = require('semver')
 var test = require('tape')
 var isRegExp = require('core-util-is').isRegExp
 
 var Agent = require('./_agent')
 var config = require('../lib/config')
+var Instrumentation = require('../lib/instrumentation')
 var request = require('../lib/request')
 
 var optionFixtures = [
@@ -28,7 +30,8 @@ var optionFixtures = [
   ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
   ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 0],
   ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0],
-  ['serverTimeout', 'SERVER_TIMEOUT', 30]
+  ['serverTimeout', 'SERVER_TIMEOUT', 30],
+  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []]
 ]
 
 var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']
@@ -38,13 +41,18 @@ optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
     var bool = typeof fixture[2] === 'boolean'
     var number = typeof fixture[2] === 'number'
+    var array = Array.isArray(fixture[2])
 
     test('should be configurable by envrionment variable ELASTIC_APM_' + fixture[1], function (t) {
       var agent = Agent()
       var value = bool ? (fixture[2] ? '0' : '1') : number ? 1 : 'custom-value'
       process.env['ELASTIC_APM_' + fixture[1]] = value
       agent.start()
-      t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
+      if (array) {
+        t.deepEqual(agent._conf[fixture[0]], [ value ])
+      } else {
+        t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
+      }
       delete process.env['ELASTIC_APM_' + fixture[1]]
       t.end()
     })
@@ -57,7 +65,11 @@ optionFixtures.forEach(function (fixture) {
       opts[fixture[0]] = value1
       process.env['ELASTIC_APM_' + fixture[1]] = value2
       agent.start(opts)
-      t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value1)
+      if (array) {
+        t.deepEqual(agent._conf[fixture[0]], [ value1 ])
+      } else {
+        t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value1)
+      }
       delete process.env['ELASTIC_APM_' + fixture[1]]
       t.end()
     })
@@ -66,7 +78,11 @@ optionFixtures.forEach(function (fixture) {
   test('should default ' + fixture[0] + ' to ' + fixture[2], function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent._conf[fixture[0]], fixture[2])
+    if (array) {
+      t.deepEqual(agent._conf[fixture[0]], fixture[2])
+    } else {
+      t.equal(agent._conf[fixture[0]], fixture[2])
+    }
     t.end()
   })
 })
@@ -219,4 +235,58 @@ captureBodyTests.forEach(function (captureBodyTest) {
       t.equal(request.body, captureBodyTest.transactions)
     })
   })
+})
+
+test('disableInstrumentations', function (t) {
+  var hapiVersion = require('hapi/package.json').version
+
+  var modules = new Set(Instrumentation.modules)
+  if (semver.lt(process.version, '8.3.0')) {
+    modules.delete('http2')
+  }
+  if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
+    modules.delete('hapi')
+  }
+
+  function testSlice (t, name, selector) {
+    var selection = selector(modules)
+    var selectionSet = new Set(typeof selection === 'string' ? selection.split(',') : selection)
+
+    t.test(name + ' -> ' + Array.from(selectionSet).join(','), function (t) {
+      var agent = Agent()
+      agent.start({
+        serviceName: 'service',
+        disableInstrumentations: selection
+      })
+
+      var found = new Set()
+
+      agent._instrumentation._patchModule = function (exports, name, version, enabled) {
+        if (!enabled) found.add(name)
+        return exports
+      }
+
+      for (const mod of modules) {
+        require(mod)
+      }
+
+      t.deepEqual(selectionSet, found, 'disabled all selected modules')
+
+      t.end()
+    })
+  }
+
+  for (const mod of modules) {
+    testSlice(t, 'individual modules', () => new Set([mod]))
+  }
+
+  testSlice(t, 'multiple modules by array', modules => {
+    return Array.from(modules).filter((value, index) => index % 2)
+  })
+
+  testSlice(t, 'multiple modules by csv string', modules => {
+    return Array.from(modules).filter((value, index) => !(index % 2))
+  })
+
+  t.end()
 })

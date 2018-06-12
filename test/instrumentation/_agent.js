@@ -25,7 +25,8 @@ module.exports = function mockAgent (cb) {
       ignoreUrlRegExp: [],
       ignoreUserAgentStr: [],
       ignoreUserAgentRegExp: [],
-      transactionSampleRate: 1.0
+      transactionSampleRate: 1.0,
+      disableInstrumentations: []
     },
     _filters: new Filters(),
     _httpClient: {
