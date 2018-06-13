@@ -97,6 +97,10 @@ express-graphql-0.6.12_13:
   versions: '>=0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 
+express-queue:
+  versions: '>=0.0.11'
+  commands: node test/instrumentation/modules/express-queue.js
+
 koa-router:
   node: '>=6.0.0'
   peerDependencies: koa@2
