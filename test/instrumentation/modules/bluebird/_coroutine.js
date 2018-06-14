@@ -8,36 +8,33 @@ module.exports = function (test, Promise, ins) {
 
   test('Promise.coroutine', function (t) {
     t.plan(10)
+
+    function PingPong (trans) {
+      this.trans = trans
+      this.start = Date.now()
+      this.pingTime = null
+      this.pongTime = null
+    }
+
+    PingPong.prototype.ping = Promise.coroutine(function * (val) {
+      if (val === 2) {
+        this.pingTime = Date.now()
+        assertPingPong(t, ins, this)
+        return
+      }
+      yield Promise.delay(1)
+      this.pong(val + 1)
+    })
+
+    PingPong.prototype.pong = Promise.coroutine(function * (val) {
+      this.pongTime = Date.now()
+      yield Promise.delay(1)
+      this.ping(val + 1)
+    })
+
     twice(function () {
       var trans = ins.startTransaction()
-      var start = Date.now()
-      var pongTime
-
-      function PingPong () {}
-
-      PingPong.prototype.ping = Promise.coroutine(function * (val) {
-        if (val === 2) {
-          // timing is hard, let's give it a -5ms slack
-          var pingTime = Date.now()
-          t.ok(pongTime + 45 <= pingTime, 'after pong, min 100ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
-          t.ok(pongTime + 100 > pingTime, 'after pong, max 125ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
-          t.equal(ins.currentTransaction.id, trans.id)
-          return
-        }
-        yield Promise.delay(50)
-        this.pong(val + 1)
-      })
-
-      PingPong.prototype.pong = Promise.coroutine(function * (val) {
-        // timing is hard, let's give it a -5ms slack
-        pongTime = Date.now()
-        t.ok(start + 45 <= pongTime, 'after ping, min 50ms should have passed (took ' + (pongTime - start) + 'ms)')
-        t.ok(start + 100 > pongTime, 'after ping, max 75ms should have passed (took ' + (pongTime - start) + 'ms)')
-        yield Promise.delay(50)
-        this.ping(val + 1)
-      })
-
-      var a = new PingPong()
+      var a = new PingPong(trans)
       a.ping(0)
     })
   })
@@ -52,36 +49,32 @@ module.exports = function (test, Promise, ins) {
         return Promise.delay(value)
       })
 
+      function PingPong (trans) {
+        this.trans = trans
+        this.start = Date.now()
+        this.pingTime = null
+        this.pongTime = null
+      }
+
+      PingPong.prototype.ping = Promise.coroutine(function * (val) {
+        if (val === 2) {
+          this.pingTime = Date.now()
+          assertPingPong(t, ins, this)
+          return
+        }
+        yield 1
+        this.pong(val + 1)
+      })
+
+      PingPong.prototype.pong = Promise.coroutine(function * (val) {
+        this.pongTime = Date.now()
+        yield 1
+        this.ping(val + 1)
+      })
+
       twice(function () {
         var trans = ins.startTransaction()
-        var start = Date.now()
-        var pongTime
-
-        function PingPong () {}
-
-        PingPong.prototype.ping = Promise.coroutine(function * (val) {
-          if (val === 2) {
-            // timing is hard, let's give it a -5ms slack
-            var pingTime = Date.now()
-            t.ok(pongTime + 45 <= pingTime, 'after pong, min 100ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
-            t.ok(pongTime + 100 > pingTime, 'after pong, max 125ms should have passed (took ' + (pingTime - pongTime) + 'ms)')
-            t.equal(ins.currentTransaction.id, trans.id)
-            return
-          }
-          yield 50
-          this.pong(val + 1)
-        })
-
-        PingPong.prototype.pong = Promise.coroutine(function * (val) {
-          // timing is hard, let's give it a -5ms slack
-          pongTime = Date.now()
-          t.ok(start + 45 <= pongTime, 'after ping, min 50ms should have passed (took ' + (pongTime - start) + 'ms)')
-          t.ok(start + 100 > pongTime, 'after ping, max 75ms should have passed (took ' + (pongTime - start) + 'ms)')
-          yield 50
-          this.ping(val + 1)
-        })
-
-        var a = new PingPong()
+        var a = new PingPong(trans)
         a.ping(0)
       })
     })
@@ -103,6 +96,14 @@ module.exports = function (test, Promise, ins) {
       })
     })
   }
+}
+
+function assertPingPong (t, ins, p) {
+  t.ok(p.start <= p.pongTime, 'after ping, min 1ms should have passed (took ' + (p.pongTime - p.start) + 'ms)')
+  t.ok(p.start + 10 > p.pongTime, 'after ping, max 10ms should have passed (took ' + (p.pongTime - p.start) + 'ms)')
+  t.ok(p.pongTime <= p.pingTime, 'after pong, min 2ms should have passed (took ' + (p.pingTime - p.pongTime) + 'ms)')
+  t.ok(p.pongTime + 10 > p.pingTime, 'after pong, max 10ms should have passed (took ' + (p.pingTime - p.pongTime) + 'ms)')
+  t.equal(ins.currentTransaction.id, p.trans.id)
 }
 
 function twice (fn) {
