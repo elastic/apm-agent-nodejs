@@ -36,7 +36,7 @@ ws:
   commands: node test/instrumentation/modules/ws.js
 graphql:
   preinstall: rm -fr node_modules/express-graphql
-  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <0.14.0'
+  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <15.0.0 || ^14.0.0-rc'
   commands: node test/instrumentation/modules/graphql.js
 express:
   versions: '>=4'
