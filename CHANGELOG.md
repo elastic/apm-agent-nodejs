@@ -1,3 +1,11 @@
+# 1.7.0 - 2018/6/18
+  * feat(mysql): support mysql2 module (#298)
+  * feat(graphql): add support for the upcoming GraphQL v14.x (#399)
+  * feat(config): add option to disable certain instrumentations (#353)
+  * feat(http2): instrument client requests (#326)
+  * fix: get remoteAddress before HTTP request close event (#384)
+  * fix: improve capture of spans when EventEmitter is in use (#371)
+
 # 1.6.0 - 2018/5/28
   * feat(http2): instrument incoming http2 requests (#205)
   * fix(agent): allow agent.endTransaction() to set result (#350)
