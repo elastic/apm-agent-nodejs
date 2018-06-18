@@ -603,6 +603,29 @@ use the <<apm-add-filter,`apm.addFilter()`>> function.
 * *Env:* `ELASTIC_APM_DISABLE_INSTRUMENTATIONS`
 
 Array or comma-separated string of modules to disable instrumentation for.
+When instrumentation is disabled for a module,
+no spans will be collected for that module.
+
+Example using options object:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  disableInstrumentations: ['graphql', 'express-graphql']
+})
+----
+
+Example using environment variable:
+
+[source,bash]
+----
+ELASTIC_APM_DISABLE_INSTRUMENTATIONS=graphql,express-graphql
+----
+
+For an always up-to-date list of modules for which instrumentation can be disabled,
+see the https://github.com/elastic/apm-agent-nodejs/tree/master/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
+Note that not all modules represented in this directory will generate spans,
+and adding those to this array has no effect.
 
 [[apm-is-started]]
 ==== `apm.isStarted()`
