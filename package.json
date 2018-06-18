@@ -132,9 +132,7 @@
   },
   "greenkeeper": {
     "ignore": [
-      "get-port",
-      "inquirer",
-      "restify"
+      "inquirer"
     ]
   },
   "standard": {
