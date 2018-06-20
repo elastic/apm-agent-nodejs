@@ -247,6 +247,9 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
     modules.delete('hapi')
   }
+  if (semver.lt(process.version, '6.0.0')) {
+    modules.delete('express-queue')
+  }
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)
