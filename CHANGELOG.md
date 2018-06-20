@@ -1,3 +1,6 @@
+# 1.7.1 - 2018/6/20
+  * fix(express-queue): retain continuity through express-queue (#396)
+
 # 1.7.0 - 2018/6/18
   * feat(mysql): support mysql2 module (#298)
   * feat(graphql): add support for the upcoming GraphQL v14.x (#399)
