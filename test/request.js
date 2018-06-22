@@ -222,6 +222,46 @@ test('#errors()', function (t) {
         t.end()
       })
   })
+
+  t.test('should truncate error messages by default', function (t) {
+    t.plan(18)
+    var msg = new Array(10000).join('x')
+    var errors = [{log: {message: msg, param_message: msg}, exception: {message: msg}}]
+    APMServer({filterHttpHeaders: false})
+      .on('listening', function () {
+        request.errors(this.agent, errors)
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        t.equal(body.errors.length, 1)
+        var error = body.errors[0]
+        t.equal(error.log.message.length, 2048)
+        t.equal(error.log.param_message.length, 1024)
+        t.equal(error.exception.message.length, 2048)
+        t.end()
+      })
+  })
+
+  t.test('should not truncate error messages if disabled', function (t) {
+    t.plan(18)
+    var msg = new Array(10000).join('x')
+    var errors = [{log: {message: msg, param_message: msg}, exception: {message: msg}}]
+    APMServer({filterHttpHeaders: false, errorMessageMaxLength: -1})
+      .on('listening', function () {
+        request.errors(this.agent, errors)
+      })
+      .on('request', validateErrorRequest(t))
+      .on('body', function (body) {
+        assertRoot(t, body)
+        t.equal(body.errors.length, 1)
+        var error = body.errors[0]
+        t.equal(error.log.message, msg)
+        t.equal(error.log.param_message.length, 1024)
+        t.equal(error.exception.message, msg)
+        t.end()
+      })
+  })
 })
 
 test('#transactions()', function (t) {

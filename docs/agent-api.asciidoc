@@ -496,6 +496,23 @@ The default value `0` means that no source code will be collected for in-app spa
 
 The default value `0` means that no source code will be collected for span library frames.
 
+[[error-message-max-length]]
+===== `errorMessageMaxLength`
+
+* *Type:* Number
+* *Default:* `2048`
+* *Env:* `ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH`
+
+The maximum length allowed for error messages in bytes.
+Messages above this length will be truncated before being sent to the APM Server.
+
+Set to `-1` do disable truncation.
+
+This applies to the following properties:
+
+- `error.exception.message`
+- `error.log.message`
+
 [[stack-trace-limit]]
 ===== `stackTraceLimit`
 
