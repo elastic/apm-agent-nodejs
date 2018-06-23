@@ -1,3 +1,7 @@
+# 1.8.0 - 2018/6/23
+  * feat: truncate very long error messages (#413)
+  * fix: be unicode aware when truncating body (#412)
+
 # 1.7.1 - 2018/6/20
   * fix(express-queue): retain continuity through express-queue (#396)
 
