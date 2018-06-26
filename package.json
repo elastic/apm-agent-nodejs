@@ -79,7 +79,7 @@
     "original-url": "^1.2.1",
     "redact-secrets": "^1.0.0",
     "require-ancestors": "^1.0.0",
-    "require-in-the-middle": "^2.2.2",
+    "require-in-the-middle": "^3.0.0",
     "semver": "^5.5.0",
     "sql-summary": "^1.0.0",
     "stackman": "^3.0.2",
