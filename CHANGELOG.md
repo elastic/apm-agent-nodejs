@@ -1,3 +1,6 @@
+# 1.8.1 - 2018/6/27
+  * fix: improve ability to run in an environment with muliple APM vendors (#417) (via https://github.com/elastic/require-in-the-middle/issues/11)
+
 # 1.8.0 - 2018/6/23
   * feat: truncate very long error messages (#413)
   * fix: be unicode aware when truncating body (#412)
