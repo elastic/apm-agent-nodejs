@@ -99,6 +99,7 @@
     "express-queue": "0.0.12",
     "generic-pool": "^3.1.5",
     "get-port": "^3.2.0",
+    "got": "^8.3.1",
     "graphql": "^0.13.2",
     "handlebars": "^4.0.11",
     "hapi": "^17.2.2",

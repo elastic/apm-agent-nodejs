@@ -1,6 +1,9 @@
 generic-pool:
   versions: ^2.0.0 || ^3.1.0
   commands: node test/instrumentation/modules/generic-pool.js
+mimic-response:
+  versions: ^1.0.0
+  commands: node test/instrumentation/modules/mimic-response.js
 mysql:
   versions: ^2.0.0
   commands:
