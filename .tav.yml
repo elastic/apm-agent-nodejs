@@ -5,7 +5,7 @@ mimic-response:
   versions: ^1.0.0
   commands: node test/instrumentation/modules/mimic-response.js
 got:
-  versions: >=4.0.0
+  versions: '>=4.0.0'
   commands: node test/instrumentation/modules/http/github-423.js
 mysql:
   versions: ^2.0.0
