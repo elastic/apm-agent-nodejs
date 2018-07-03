@@ -11,6 +11,8 @@ var fs = require('fs')
 var got = require('got')
 var test = require('tape')
 
+var fileSize = fs.readFileSync(__filename, 'utf8').length
+
 test('https://github.com/elastic/apm-agent-nodejs/issues/423', function (t) {
   // Start dummy remote server to fetch gzip'ed data from
   var remote = http.createServer(function (req, res) {
@@ -25,7 +27,8 @@ test('https://github.com/elastic/apm-agent-nodejs/issues/423', function (t) {
     // Start simple server that performs got-request on every request
     var server = http.createServer(function (req, res) {
       got(url).then(function (response) {
-        t.equal(response.body[0], '\'', 'body should be uncompressed')
+        t.equal(response.body.length, fileSize, 'body should be expected size')
+        t.equal(response.body.slice(0, 12), '\'use strict\'', 'body should be uncompressed')
         res.end()
       })
     })
