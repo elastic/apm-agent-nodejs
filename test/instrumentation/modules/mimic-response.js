@@ -5,78 +5,40 @@ var agent = require('../../..').start({
   captureExceptions: false
 })
 
-var PassThrough = require('stream').PassThrough
+var stream = require('stream')
 var mimicResponse = require('mimic-response')
 var test = require('tape')
 
-test('none bound', function (t) {
-  const source = new PassThrough()
-  const target = new PassThrough()
+var cases = [
+  {name: 'none bound', source: false, target: false},
+  {name: 'source bound', source: true, target: false},
+  {name: 'target bound', source: false, target: true},
+  {name: 'both bound', source: true, target: true}
+]
 
-  mimicResponse(source, target)
+cases.forEach(function (testCase) {
+  test(testCase.name, function (t) {
+    const source = new stream.PassThrough()
+    const upcase = new stream.Transform({
+      transform (chunk, enc, cb) {
+        cb(null, chunk.toString().toUpperCase())
+      }
+    })
+    const target = new stream.PassThrough()
 
-  target.on('data', function (chunk) {
-    t.ok(this === target, 'target -> onData should be bound to target stream')
-    t.equal(chunk.toString(), 'hello world')
-    t.end()
+    if (testCase.source) agent._instrumentation.bindEmitter(source)
+    if (testCase.target) agent._instrumentation.bindEmitter(target)
+
+    mimicResponse(source, target)
+
+    target.on('data', function (chunk) {
+      t.ok(this === target, 'target -> onData should be bound to target stream')
+      t.equal(chunk.toString(), 'HELLO WORLD')
+      t.end()
+    })
+
+    source.pipe(upcase).pipe(target)
+
+    source.end('hello world')
   })
-
-  source.pipe(target)
-
-  source.end('hello world')
-})
-
-test('source bound', function (t) {
-  const source = new PassThrough()
-  const target = new PassThrough()
-
-  agent._instrumentation.bindEmitter(source)
-  mimicResponse(source, target)
-
-  target.on('data', function (chunk) {
-    t.ok(this === target, 'target -> onData should be bound to target stream')
-    t.equal(chunk.toString(), 'hello world')
-    t.end()
-  })
-
-  source.pipe(target)
-
-  source.end('hello world')
-})
-
-test('target bound', function (t) {
-  const source = new PassThrough()
-  const target = new PassThrough()
-
-  agent._instrumentation.bindEmitter(target)
-  mimicResponse(source, target)
-
-  target.on('data', function (chunk) {
-    t.ok(this === target, 'target -> onData should be bound to target stream')
-    t.equal(chunk.toString(), 'hello world')
-    t.end()
-  })
-
-  source.pipe(target)
-
-  source.end('hello world')
-})
-
-test('both bound', function (t) {
-  const source = new PassThrough()
-  const target = new PassThrough()
-
-  agent._instrumentation.bindEmitter(source)
-  agent._instrumentation.bindEmitter(target)
-  mimicResponse(source, target)
-
-  target.on('data', function (chunk) {
-    t.ok(this === target, 'target -> onData should be bound to target stream')
-    t.equal(chunk.toString(), 'hello world')
-    t.end()
-  })
-
-  source.pipe(target)
-
-  source.end('hello world')
 })
