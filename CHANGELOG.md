@@ -1,3 +1,6 @@
+# 1.8.2 - 2018/7/4
+  * fix: ensure correct streaming when using mimic-response (#429)
+
 # 1.8.1 - 2018/6/27
   * fix: improve ability to run in an environment with muliple APM vendors (#417) (via https://github.com/elastic/require-in-the-middle/issues/11)
 
