@@ -8,7 +8,9 @@ endif::[]
 == Performance Tuning
 
 There are many options available to tune agent performance.
-Which option to adjust depends on whether you are optimizing for speed, memory usage, bandwidth or storage.
+Which option to adjust depends on whether you are optimizing for speed,
+memory usage,
+bandwidth or storage.
 
 [float]
 [[performance-sampling]]
@@ -16,9 +18,12 @@ Which option to adjust depends on whether you are optimizing for speed, memory u
 
 The first knob to reach for when tuning the performance of the agent is <<transaction-sample-rate,`transactionSampleRate`>>.
 Adjusting the sampling rate controls what percent of requests are traced.
-By default, the sample rate is set at `1.0`, meaning _all_ requests are traced.
+By default,
+the sample rate is set at `1.0`,
+meaning _all_ requests are traced.
 
-The sample rate will impact all four performance categories, so simply turning down the sample rate is an easy way to improve performance.
+The sample rate will impact all four performance categories,
+so simply turning down the sample rate is an easy way to improve performance.
 
 [source,js]
 ----
@@ -31,27 +36,34 @@ var apm = require('elastic-apm-node').start({
 [[performance-stack-traces]]
 === Stack Traces
 
-Stack traces can be a significant contributor to memory usage. There are several settings to adjust how they are used.
+Stack traces can be a significant contributor to memory usage.
+There are several settings to adjust how they are used.
 
 [float]
 [[performance-span-stack-traces]]
 ==== Span Stack Traces
 
-In a complex application, a request may produce many spans.
+In a complex application,
+a request may produce many spans.
 Capturing a stack trace for every span can result in significant memory usage.
-To disable capturing stack traces for spans, set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.
+To disable capturing stack traces for spans,
+set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.
 
-This will mainly impact memory usage, but may also have a noticeable impact on speed too.
+This will mainly impact memory usage,
+but may also have a noticeable impact on speed too.
 The cpu time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
 
 [float]
 [[performance-source-lines]]
 === Source Lines
 
-If you want to keep span stack traces enabled for context, the next thing to try is adjusting how many source lines are reported for each stack trace.
-When a stack trace is captured, the agent will also capture several lines of source code around each stack frame location in the stack trace.
+If you want to keep span stack traces enabled for context,
+the next thing to try is adjusting how many source lines are reported for each stack trace.
+When a stack trace is captured,
+the agent will also capture several lines of source code around each stack frame location in the stack trace.
 
 The are four different settings to control this behaviour:
+
 - <<source-context-error-app-frames,`sourceLinesErrorAppFrames`>>
 - <<source-context-error-library-frames,`sourceLinesErrorLibraryFrames`>>
 - <<source-context-span-app-frames,`sourceLinesSpanAppFrames`>>
@@ -59,11 +71,16 @@ The are four different settings to control this behaviour:
 
 Source line settings are divided into app frames representing your app code and library frames representing the code of your dependencies.
 App and library categories are both split into error and span groups.
-Spans, by default, do not capture source lines.
-Errors, by default, will capture five lines of code around each stack frame.
+Spans,
+by default,
+do not capture source lines.
+Errors,
+by default,
+will capture five lines of code around each stack frame.
 
 Source lines are cached in-process.
-In memory-constrained environments, the source line cache may use more memory than desired.
+In memory-constrained environments,
+the source line cache may use more memory than desired.
 Turning the limits down will help prevent excessive memory use
 
 [float]
@@ -72,13 +89,17 @@ Turning the limits down will help prevent excessive memory use
 
 The <<stack-trace-limit,`stackTraceLimit`>> controls how many stack frames should be captured when producing an `Error` instance of any kind.
 
-This will mainly impact memory usage, but may also have a noticeable impact on speed too.
+This will mainly impact memory usage,
+but may also have a noticeable impact on speed too.
 The cpu time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
 
 [float]
 [[performance-error-log-stack-traces]]
 ==== Error Log Stack Traces
 
-Most stack traces recorded by the agent will point to where the error was instantiated, not where it was identified and reported to the agent with <<apm-capture-error,`captureError`>>.
-For this reason, the agent also has a feature to enable capturing an additional stack trace pointing to the place an error was reported to the agent.
-By default, it will only capture the stack trace to the reporting point when <<apm-capture-error,`captureError`>> is called with a string message.
+Most stack traces recorded by the agent will point to where the error was instantiated,
+not where it was identified and reported to the agent with <<apm-capture-error,`captureError`>>.
+For this reason,
+the agent also has a feature to enable capturing an additional stack trace pointing to the place an error was reported to the agent.
+By default,
+it will only capture the stack trace to the reporting point when <<apm-capture-error,`captureError`>> is called with a string message.
