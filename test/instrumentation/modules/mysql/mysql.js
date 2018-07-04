@@ -124,7 +124,7 @@ factories.forEach(function (f) {
           setTimeout(function () {
             trans.end()
             agent.flush()
-          }, 150)
+          }, 250)
         })
       })
     })
