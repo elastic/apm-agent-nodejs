@@ -10,7 +10,8 @@ endif::[]
 There are many options available to tune agent performance.
 Which option to adjust depends on whether you are optimizing for speed,
 memory usage,
-bandwidth or storage.
+bandwidth,
+or storage.
 
 [float]
 [[performance-sampling]]
