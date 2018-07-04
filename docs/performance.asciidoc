@@ -27,7 +27,7 @@ so simply turning down the sample rate is an easy way to improve performance.
 
 [source,js]
 ----
-var apm = require('elastic-apm-node').start({
+require('elastic-apm-node').start({
   transactionSampleRate: 0.2
 })
 ----
