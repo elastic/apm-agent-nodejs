@@ -34,6 +34,41 @@ require('elastic-apm-node').start({
 ----
 
 [float]
+[[performance-transaction-queue]]
+=== Transaction Queue
+
+The agent uses a queue to send to the apm server in batches.
+This queue uses both a time interval and a size limit to balance memory usage against socket descriptor saturation.
+
+[float]
+[[performance-max-queue-size]]
+==== Max Queue Size
+
+The <<max-queue-size,`maxQueueSize`>> controls the maximum number of request transactions that may remain in the queue before they must be sent.
+
+Lowering this will reduce memory consumption,
+however it will increase the number of requests made to the apm server.
+
+[float]
+[[performance-flush-interval]]
+==== Flush Interval
+
+To prevent items from staying in the queue for a long time during low activity,
+a flush interval is used to ensure the queue empties if anything in it is too old.
+
+Lowering the flush interval will ensure transactions are sent to the apm server faster,
+but may also result in increased HTTP traffic and cpu usage.
+
+[float]
+[[performance-server-timeout]]
+=== Server Timeout
+
+In the event that the connection to the apm server is slow or unstable,
+a server timeout can be set to ensure connections don't stay open too long.
+If the server timeout is too high,
+it may result in too many socket descriptors being held open.
+
+[float]
 [[performance-stack-traces]]
 === Stack Traces
 
@@ -56,7 +91,7 @@ The cpu time required to capture and convert a stack frame to something JavaScri
 
 [float]
 [[performance-source-lines]]
-=== Source Lines
+===== Source Lines
 
 If you want to keep span stack traces enabled for context,
 the next thing to try is adjusting how many source lines are reported for each stack trace.
@@ -104,3 +139,15 @@ For this reason,
 the agent also has a feature to enable capturing an additional stack trace pointing to the place an error was reported to the agent.
 By default,
 it will only capture the stack trace to the reporting point when <<apm-capture-error,`captureError`>> is called with a string message.
+
+[float]
+[[performance-transaction-max-spans]]
+=== Spans
+
+The <<transaction-max-spans,`transactionMaxSpans`>> setting limits the number of spans which may be recorded within a single transaction before remaining spans are dropped.
+
+Spans may include many things such as a stack trace and context data.
+Limiting the number of spans that may be recorded will reduce memory usage.
+
+Reducing max spans could result in loss of useful data about what occured within a request,
+if it is set too low.
