@@ -26,6 +26,8 @@ meaning _all_ requests are traced.
 The sample rate will impact all four performance categories,
 so simply turning down the sample rate is an easy way to improve performance.
 
+Example setting the sample rate to 20%:
+
 [source,js]
 ----
 require('elastic-apm-node').start({
