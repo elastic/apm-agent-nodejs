@@ -122,7 +122,7 @@ will capture five lines of code around each stack frame.
 Source lines are cached in-process.
 In memory-constrained environments,
 the source line cache may use more memory than desired.
-Turning the limits down will help prevent excessive memory use
+Turning the limits down will help prevent excessive memory use.
 
 [float]
 [[performance-stack-frame-limit]]
