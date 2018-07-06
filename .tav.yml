@@ -133,3 +133,8 @@ tedious:
   name: tedious
   versions: '>=0.0.5'
   commands: node test/instrumentation/modules/tedious.js
+
+cassandra-driver:
+  versions: '>3.1.0 <4'
+  commands:
+    - node test/instrumentation/modules/cassandra/cassandra.js

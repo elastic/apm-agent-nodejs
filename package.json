@@ -92,6 +92,7 @@
     "@commitlint/config-conventional": "^7.0.1",
     "@commitlint/travis-cli": "^7.0.0",
     "bluebird": "^3.4.6",
+    "cassandra-driver": "^3.5.0",
     "connect": "^3.6.3",
     "dependency-check": "^3.2.0",
     "elasticsearch": "^15.0.0",
