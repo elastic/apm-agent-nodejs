@@ -2,7 +2,7 @@
 
 ifdef::env-github[]
 NOTE: For the best reading experience,
-please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/performance.html[elastic.co]
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/performance-tuning.html[elastic.co]
 endif::[]
 
 == Performance Tuning
@@ -37,34 +37,37 @@ require('elastic-apm-node').start({
 [[performance-transaction-queue]]
 === Transaction Queue
 
-The agent uses a queue to send to the apm server in batches.
-This queue uses both a time interval and a size limit to balance memory usage against socket descriptor saturation.
-
-[float]
-[[performance-max-queue-size]]
-==== Max Queue Size
-
-The <<max-queue-size,`maxQueueSize`>> controls the maximum number of request transactions that may remain in the queue before they must be sent.
-
-Lowering this will reduce memory consumption,
-however it will increase the number of requests made to the apm server.
+The agent buffers the collected data using an in-memory queue before sending it to the APM Server.
+The queue is flushed either after a specific <<performance-flush-interval,amount of time>> or when it reaches <<performance-max-queue-size,a certain size>> -
+whichever comes first.
+Lowering these defaults can reduce memory usage,
+but will increase the number of requests to the APM Server.
 
 [float]
 [[performance-flush-interval]]
 ==== Flush Interval
 
 To prevent items from staying in the queue for a long time during low activity,
-a flush interval is used to ensure the queue empties if anything in it is too old.
+the <<flush-interval,`flushInterval`>> setting is used to ensure the queue empties if anything in it is too old.
 
-Lowering the flush interval will ensure transactions are sent to the apm server faster,
+Lowering the flush interval will ensure transactions are sent to the APM Server faster,
 but may also result in increased HTTP traffic and cpu usage.
 
 [float]
-[[performance-server-timeout]]
-=== Server Timeout
+[[performance-max-queue-size]]
+==== Max Queue Size
 
-In the event that the connection to the apm server is slow or unstable,
-a server timeout can be set to ensure connections don't stay open too long.
+The <<max-queue-size,`maxQueueSize`>> controls the maximum number of transactions that may remain in the queue before they must be sent.
+
+Lowering this will reduce memory consumption,
+however it will increase the number of requests made to the APM Server.
+
+[float]
+[[performance-server-timeout]]
+=== APM Server Timeout
+
+In the event that the connection to the APM Server is slow or unstable,
+the <<server-timeout,`serverTimeout`>> setting can be set to ensure connections don't stay open too long.
 If the server timeout is too high,
 it may result in too many socket descriptors being held open.
 
@@ -136,9 +139,12 @@ The cpu time required to capture and convert a stack frame to something JavaScri
 Most stack traces recorded by the agent will point to where the error was instantiated,
 not where it was identified and reported to the agent with <<apm-capture-error,`captureError`>>.
 For this reason,
-the agent also has a feature to enable capturing an additional stack trace pointing to the place an error was reported to the agent.
+the agent also has the <<capture-error-log-stack-traces,`captureErrorLogStackTraces`>> setting to enable capturing an additional stack trace pointing to the place an error was reported to the agent.
 By default,
 it will only capture the stack trace to the reporting point when <<apm-capture-error,`captureError`>> is called with a string message.
+
+Setting this to `always` will increase memory and bandwidth usage,
+so it helps to consider how frequently the app may capture errors.
 
 [float]
 [[performance-transaction-max-spans]]

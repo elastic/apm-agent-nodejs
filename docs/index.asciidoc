@@ -28,7 +28,7 @@ include::./custom-transactions.asciidoc[]
 
 include::./custom-spans.asciidoc[]
 
-include::./performance.asciidoc[]
+include::./performance-tuning.asciidoc[]
 
 include::./source-maps.asciidoc[]
 
