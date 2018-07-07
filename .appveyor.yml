@@ -7,6 +7,7 @@ environment:
 install:
   - ps: .\test\script\appveyor\install-redis.ps1
   - ps: .\test\script\appveyor\install-elasticsearch.ps1
+  - ps: .\test\script\appveyor\install-cassandra.ps1
   - ps: Install-Product node 8 # Latest LTS
   - npm install
 
