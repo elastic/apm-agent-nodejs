@@ -2,7 +2,7 @@ const cassandra = require('cassandra-driver')
 
 module.exports = function makeClient (t, opts) {
   const options = Object.assign({
-    contactPoints: ['localhost']
+    contactPoints: [process.env.CASSANDRA_HOST || 'localhost']
   }, opts)
 
   const client = new cassandra.Client(options)
