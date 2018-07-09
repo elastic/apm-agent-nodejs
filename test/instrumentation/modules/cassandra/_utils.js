@@ -1,18 +1,12 @@
 const cassandra = require('cassandra-driver')
 
-module.exports = function makeClient (t, opts) {
-  const options = Object.assign({
-    contactPoints: [process.env.CASSANDRA_HOST || 'localhost']
-  }, opts)
+const defaultOptions = {
+  contactPoints: [process.env.CASSANDRA_HOST || 'localhost']
+}
 
-  const client = new cassandra.Client(options)
-
-  t.on('end', () => {
-    client.shutdown()
-  })
-
+function maybeInitialize (options) {
   if (!options.keyspace) {
-    return Promise.resolve(client)
+    return Promise.resolve()
   }
 
   const keyspace = options.keyspace
@@ -26,7 +20,23 @@ module.exports = function makeClient (t, opts) {
     CREATE TABLE IF NOT EXISTS ${keyspace}.${keyspace}(id uuid,text varchar,PRIMARY KEY(id));
   `
 
+  const client = new cassandra.Client(defaultOptions)
+
   return client.execute(query1)
     .then(() => client.execute(query2))
-    .then(() => client)
+    .then(() => client.shutdown())
+}
+
+module.exports = function makeClient (t, opts) {
+  const options = Object.assign({}, defaultOptions, opts)
+
+  return maybeInitialize(options).then(() => {
+    const client = new cassandra.Client(options)
+
+    t.on('end', () => {
+      client.shutdown()
+    })
+
+    return client
+  })
 }
