@@ -36,6 +36,7 @@ npm install elastic-apm-node --save
 - [API Reference](https://www.elastic.co/guide/en/apm/agent/nodejs/current/api.html)
 - [Custom Transactions](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html)
 - [Custom Spans](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-spans.html)
+- [Performance Tuning](https://www.elastic.co/guide/en/apm/agent/nodejs/current/performance-tuning.html)
 - [Source Map Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/source-maps.html)
 - [Compatibility Overview](https://www.elastic.co/guide/en/apm/agent/nodejs/current/compatibility.html)
 - [Upgrading](https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrading.html)

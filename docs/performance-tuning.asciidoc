@@ -1,0 +1,161 @@
+[[performance-tuning]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/performance-tuning.html[elastic.co]
+endif::[]
+
+== Performance Tuning
+
+There are many options available to tune agent performance.
+Which option to adjust depends on whether you are optimizing for speed,
+memory usage,
+bandwidth,
+or storage.
+
+[float]
+[[performance-sampling]]
+=== Sampling
+
+The first knob to reach for when tuning the performance of the agent is <<transaction-sample-rate,`transactionSampleRate`>>.
+Adjusting the sampling rate controls what percent of requests are traced.
+By default,
+the sample rate is set at `1.0`,
+meaning _all_ requests are traced.
+
+The sample rate will impact all four performance categories,
+so simply turning down the sample rate is an easy way to improve performance.
+
+Example setting the sample rate to 20%:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  transactionSampleRate: 0.2
+})
+----
+
+[float]
+[[performance-transaction-queue]]
+=== Transaction Queue
+
+The agent buffers the collected data using an in-memory queue before sending it to the APM Server.
+The queue is flushed either after a specific <<performance-flush-interval,amount of time>> or when it reaches <<performance-max-queue-size,a certain size>> -
+whichever comes first.
+Lowering these defaults can reduce memory usage,
+but will increase the number of requests to the APM Server.
+
+[float]
+[[performance-flush-interval]]
+==== Flush Interval
+
+To prevent items from staying in the queue for a long time during low activity,
+the <<flush-interval,`flushInterval`>> setting is used to ensure the queue empties if anything in it is too old.
+
+Lowering the flush interval will ensure transactions are sent to the APM Server faster,
+but may also result in increased HTTP traffic and cpu usage.
+
+[float]
+[[performance-max-queue-size]]
+==== Max Queue Size
+
+The <<max-queue-size,`maxQueueSize`>> controls the maximum number of transactions that may remain in the queue before they must be sent.
+
+Lowering this will reduce memory consumption,
+however it will increase the number of requests made to the APM Server.
+
+[float]
+[[performance-server-timeout]]
+=== APM Server Timeout
+
+In the event that the connection to the APM Server is slow or unstable,
+the <<server-timeout,`serverTimeout`>> setting can be set to ensure connections don't stay open too long.
+If the server timeout is too high,
+it may result in too many socket descriptors being held open.
+
+[float]
+[[performance-stack-traces]]
+=== Stack Traces
+
+Stack traces can be a significant contributor to memory usage.
+There are several settings to adjust how they are used.
+
+[float]
+[[performance-span-stack-traces]]
+==== Span Stack Traces
+
+In a complex application,
+a request may produce many spans.
+Capturing a stack trace for every span can result in significant memory usage.
+To disable capturing stack traces for spans,
+set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.
+
+This will mainly impact memory usage,
+but may also have a noticeable impact on speed too.
+The cpu time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
+
+[float]
+[[performance-source-lines]]
+===== Source Lines
+
+If you want to keep span stack traces enabled for context,
+the next thing to try is adjusting how many source lines are reported for each stack trace.
+When a stack trace is captured,
+the agent will also capture several lines of source code around each stack frame location in the stack trace.
+
+The are four different settings to control this behaviour:
+
+- <<source-context-error-app-frames,`sourceLinesErrorAppFrames`>>
+- <<source-context-error-library-frames,`sourceLinesErrorLibraryFrames`>>
+- <<source-context-span-app-frames,`sourceLinesSpanAppFrames`>>
+- <<source-context-span-library-frames,`sourceLinesSpanLibraryFrames`>>
+
+Source line settings are divided into app frames representing your app code and library frames representing the code of your dependencies.
+App and library categories are both split into error and span groups.
+Spans,
+by default,
+do not capture source lines.
+Errors,
+by default,
+will capture five lines of code around each stack frame.
+
+Source lines are cached in-process.
+In memory-constrained environments,
+the source line cache may use more memory than desired.
+Turning the limits down will help prevent excessive memory use.
+
+[float]
+[[performance-stack-frame-limit]]
+==== Stack Frame Limit
+
+The <<stack-trace-limit,`stackTraceLimit`>> controls how many stack frames should be captured when producing an `Error` instance of any kind.
+
+This will mainly impact memory usage,
+but may also have a noticeable impact on speed too.
+The cpu time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
+
+[float]
+[[performance-error-log-stack-traces]]
+==== Error Log Stack Traces
+
+Most stack traces recorded by the agent will point to where the error was instantiated,
+not where it was identified and reported to the agent with <<apm-capture-error,`captureError`>>.
+For this reason,
+the agent also has the <<capture-error-log-stack-traces,`captureErrorLogStackTraces`>> setting to enable capturing an additional stack trace pointing to the place an error was reported to the agent.
+By default,
+it will only capture the stack trace to the reporting point when <<apm-capture-error,`captureError`>> is called with a string message.
+
+Setting this to `always` will increase memory and bandwidth usage,
+so it helps to consider how frequently the app may capture errors.
+
+[float]
+[[performance-transaction-max-spans]]
+=== Spans
+
+The <<transaction-max-spans,`transactionMaxSpans`>> setting limits the number of spans which may be recorded within a single transaction before remaining spans are dropped.
+
+Spans may include many things such as a stack trace and context data.
+Limiting the number of spans that may be recorded will reduce memory usage.
+
+Reducing max spans could result in loss of useful data about what occured within a request,
+if it is set too low.
