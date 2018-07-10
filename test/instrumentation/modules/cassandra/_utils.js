@@ -22,9 +22,15 @@ function maybeInitialize (options) {
 
   const client = new cassandra.Client(defaultOptions)
 
-  return client.execute(query1)
-    .then(() => client.execute(query2))
-    .then(() => client.shutdown())
+  return new Promise((resolve, reject) => {
+    client.execute(query1, (err) => {
+      if (err) return reject(err)
+      client.execute(query2, (err) => {
+        if (err) return reject(err)
+        client.shutdown(() => resolve())
+      })
+    })
+  })
 }
 
 module.exports = function makeClient (t, opts) {

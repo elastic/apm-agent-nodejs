@@ -14,6 +14,25 @@ const makeClient = require('./_utils')
 
 const hasPromises = semver.satisfies(version, '>=3.2')
 
+test('connect', function (t) {
+  resetAgent(function (endpoint, headers, data, cb) {
+    t.equal(data.transactions.length, 1, 'transaction count')
+
+    const trans = data.transactions[0]
+    t.equal(trans.name, 'foo', 'transaction name')
+    t.equal(trans.spans.length, 1, 'span count')
+    assertConnectSpan(t, trans.spans[0])
+
+    t.end()
+  })
+
+  makeClient(t).then(client => {
+    agent.startTransaction('foo')
+
+    client.connect(assertCallback(t))
+  })
+})
+
 if (hasPromises) {
   test('execute - promise', function (t) {
     const sql = 'SELECT key FROM system.local'
@@ -54,33 +73,36 @@ test('execute - callback', function (t) {
   })
 })
 
-test('batch - promise', function (t) {
-  const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
-  const summary = 'INSERT INTO test'
+if (hasPromises) {
+  test('batch - promise', function (t) {
+    const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
+    const summary = 'INSERT INTO test'
 
-  resetAgent(function (endpoint, headers, data, cb) {
-    t.equal(data.transactions.length, 1, 'transaction count')
+    resetAgent(function (endpoint, headers, data, cb) {
+      t.equal(data.transactions.length, 1, 'transaction count')
 
-    const trans = data.transactions[0]
-    t.equal(trans.name, 'foo', 'transaction name')
-    t.equal(trans.spans.length, 2, 'span count')
-    assertSpan(t, sql, summary, trans.spans[0])
-    assertSpan(t, sql, summary, trans.spans[1])
+      const trans = data.transactions[0]
+      t.equal(trans.name, 'foo', 'transaction name')
+      t.equal(trans.spans.length, 3, 'span count')
+      assertConnectSpan(t, trans.spans[0])
+      assertSpan(t, sql, summary, trans.spans[1])
+      assertSpan(t, sql, summary, trans.spans[2])
 
-    t.end()
+      t.end()
+    })
+
+    const queries = [
+      { query: sql, params: ['foo'] },
+      { query: sql, params: ['bar'] }
+    ]
+
+    makeClient(t, { keyspace: 'test' }).then(client => {
+      agent.startTransaction('foo')
+
+      assertPromise(t, client.batch(queries))
+    })
   })
-
-  const queries = [
-    { query: sql, params: ['foo'] },
-    { query: sql, params: ['bar'] }
-  ]
-
-  makeClient(t, { keyspace: 'test' }).then(client => {
-    agent.startTransaction('foo')
-
-    assertPromise(t, client.batch(queries))
-  })
-})
+}
 
 test('batch - callback', function (t) {
   const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
@@ -91,9 +113,10 @@ test('batch - callback', function (t) {
 
     const trans = data.transactions[0]
     t.equal(trans.name, 'foo', 'transaction name')
-    t.equal(trans.spans.length, 2, 'span count')
-    assertSpan(t, sql, summary, trans.spans[0])
+    t.equal(trans.spans.length, 3, 'span count')
+    assertConnectSpan(t, trans.spans[0])
     assertSpan(t, sql, summary, trans.spans[1])
+    assertSpan(t, sql, summary, trans.spans[2])
 
     t.end()
   })
@@ -188,10 +211,14 @@ function assertBasicQuery (t, sql, summary, data) {
 
   const trans = data.transactions[0]
   t.equal(trans.name, 'foo', 'transaction name')
-  t.equal(trans.spans.length, 1, 'span count')
+  t.equal(trans.spans.length, 2, 'span count')
 
-  const span = trans.spans[0]
-  assertSpan(t, sql, summary, span)
+  assertConnectSpan(t, trans.spans[0])
+  assertSpan(t, sql, summary, trans.spans[1])
+}
+
+function assertConnectSpan (t, span) {
+  t.equal(span.type, 'db.cassandra.connect', 'span type')
 }
 
 function assertSpan (t, sql, summary, span) {
