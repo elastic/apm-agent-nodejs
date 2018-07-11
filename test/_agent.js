@@ -19,5 +19,10 @@ function setup () {
 function clean () {
   global[symbols.agentInitialized] = null
   process._events.uncaughtException = uncaughtExceptionListeners
-  if (agent) agent._filters = []
+  if (agent) {
+    agent._filters = []
+    if (agent._instrumentation && agent._instrumentation._hook) {
+      agent._instrumentation._hook.unhook()
+    }
+  }
 }
