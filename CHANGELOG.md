@@ -1,3 +1,6 @@
+# 1.8.3 - 2018/7/11
+  * perf: don't patch newer versions of mimic-response (#442)
+
 # 1.8.2 - 2018/7/4
   * fix: ensure correct streaming when using mimic-response (#429)
 
