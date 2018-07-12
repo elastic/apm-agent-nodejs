@@ -15,6 +15,7 @@ services:
   - mysql
   - mongodb
   - postgresql
+  - mssql2017
 
 # Post-install test scripts
 test_script:
