@@ -76,17 +76,17 @@ test('execute - callback', function (t) {
 if (hasPromises) {
   test('batch - promise', function (t) {
     const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
-    const summary = 'INSERT INTO test'
+    const summary = 'BATCH INSERT INTO test; INSERT INTO test'
 
     resetAgent(function (endpoint, headers, data, cb) {
       t.equal(data.transactions.length, 1, 'transaction count')
 
       const trans = data.transactions[0]
       t.equal(trans.name, 'foo', 'transaction name')
-      t.equal(trans.spans.length, 3, 'span count')
+      t.equal(trans.spans.length, 2, 'span count')
       assertConnectSpan(t, trans.spans[0])
-      assertSpan(t, sql, summary, trans.spans[1])
-      assertSpan(t, sql, summary, trans.spans[2])
+      const joined = `${sql};\n${sql}`
+      assertSpan(t, joined, summary, trans.spans[1])
 
       t.end()
     })
@@ -106,17 +106,17 @@ if (hasPromises) {
 
 test('batch - callback', function (t) {
   const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
-  const summary = 'INSERT INTO test'
+  const summary = 'BATCH INSERT INTO test; INSERT INTO test'
 
   resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1, 'transaction count')
 
     const trans = data.transactions[0]
     t.equal(trans.name, 'foo', 'transaction name')
-    t.equal(trans.spans.length, 3, 'span count')
+    t.equal(trans.spans.length, 2, 'span count')
     assertConnectSpan(t, trans.spans[0])
-    assertSpan(t, sql, summary, trans.spans[1])
-    assertSpan(t, sql, summary, trans.spans[2])
+    const joined = `${sql};\n${sql}`
+    assertSpan(t, joined, summary, trans.spans[1])
 
     t.end()
   })
