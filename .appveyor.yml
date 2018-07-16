@@ -20,7 +20,7 @@ services:
 test_script:
   - node --version
   - npm --version
-  - node test/test.js # we cannot run `npm test` because of https://github.com/elastic/apm-agent-nodejs/issues/199
+  - npm test
 
 # Don't actually build
 build: off
