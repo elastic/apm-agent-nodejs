@@ -13,9 +13,6 @@ var semver = require('semver')
 // hapi 17+ requires Node.js 8.9.0 or higher
 if (semver.lt(process.version, '8.9.0') && semver.gte(pkg.version, '17.0.0')) process.exit()
 
-// hapi does not work on Node.js 10 because of https://github.com/nodejs/node/issues/20516
-if (semver.gte(process.version, '10.0.0-rc')) process.exit()
-
 var http = require('http')
 
 var Hapi = require('hapi')
