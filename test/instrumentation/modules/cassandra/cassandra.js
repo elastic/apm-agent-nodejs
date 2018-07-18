@@ -76,7 +76,7 @@ test('execute - callback', function (t) {
 if (hasPromises) {
   test('batch - promise', function (t) {
     const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
-    const summary = 'BATCH INSERT INTO test; INSERT INTO test'
+    const summary = 'Cassandra: Batch query'
 
     resetAgent(function (endpoint, headers, data, cb) {
       t.equal(data.transactions.length, 1, 'transaction count')
@@ -106,7 +106,7 @@ if (hasPromises) {
 
 test('batch - callback', function (t) {
   const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
-  const summary = 'BATCH INSERT INTO test; INSERT INTO test'
+  const summary = 'Cassandra: Batch query'
 
   resetAgent(function (endpoint, headers, data, cb) {
     t.equal(data.transactions.length, 1, 'transaction count')
@@ -218,6 +218,7 @@ function assertBasicQuery (t, sql, summary, data) {
 }
 
 function assertConnectSpan (t, span) {
+  t.equal(span.name, 'Cassandra: Connect', 'span name')
   t.equal(span.type, 'db.cassandra.connect', 'span type')
 }
 
