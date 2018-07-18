@@ -1,11 +1,12 @@
 # Files to ignore
 .appveyor.yml
+.codecov.yml
 .dockerignore
 .tav.yml
 .travis.yml
 CONTRIBUTING.md
+CODE_OF_CONDUCT.md
 Dockerfile
-codecov.yml
 docker-compose.yml
 
 # Folders to ignore
