@@ -197,11 +197,6 @@ jobs:
       if: type = cron
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
-      node_js: '9'
-      name: "Node.js: 9-nightly"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
-    -
       node_js: '8'
       name: "Node.js: 8-nightly"
       if: type = cron
@@ -228,13 +223,6 @@ jobs:
         - ELASTIC_APM_ASYNC_HOOKS=0
         - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
-      node_js: '9'
-      name: "Node.js: 9-nightly (no async hooks)"
-      if: type = cron
-      env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
-        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
-    -
       node_js: '8'
       name: "Node.js: 8-nightly (no async hooks)"
       if: type = cron
@@ -246,11 +234,6 @@ jobs:
     -
       node_js: '10'
       name: "Node.js: 10-rc"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
-    -
-      node_js: '9'
-      name: "Node.js: 9-rc"
       if: type = cron
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
@@ -268,13 +251,6 @@ jobs:
     -
       node_js: '10'
       name: "Node.js: 10-rc (no async hooks)"
-      if: type = cron
-      env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
-        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
-    -
-      node_js: '9'
-      name: "Node.js: 9-rc (no async hooks)"
       if: type = cron
       env:
         - ELASTIC_APM_ASYNC_HOOKS=0
