@@ -513,7 +513,7 @@ function setup (cb) {
 var teardown = function () {}
 
 function resetAgent (cb) {
-  agent._httpClient = { request: function () {
+  agent._httpClient = { request () {
     teardown()
     cb.apply(this, arguments)
   } }

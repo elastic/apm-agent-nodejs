@@ -933,12 +933,12 @@ test('Promise.promisifyAll', function (t) {
     var trans = ins.startTransaction()
 
     var obj = {
-      success: function (cb) {
+      success (cb) {
         setImmediate(function () {
           cb(null, 'foo')
         })
       },
-      failure: function (cb) {
+      failure (cb) {
         setImmediate(function () {
           cb(new Error('bar'))
         })
@@ -1197,7 +1197,7 @@ test('new Promise -> call', function (t) {
   twice(function () {
     var trans = ins.startTransaction()
     var obj = {
-      foo: function (a, b) {
+      foo (a, b) {
         t.equal(a, 1)
         t.equal(b, 2)
         return a + b

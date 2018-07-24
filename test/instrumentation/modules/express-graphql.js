@@ -18,7 +18,7 @@ test('POST /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello: function () {
+  var root = {hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
   }}
@@ -52,7 +52,7 @@ test('GET /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello: function () {
+  var root = {hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
   }}
@@ -85,7 +85,7 @@ test('POST /graphql - named query', function (t) {
   resetAgent(done(t, 'HelloQuery hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello: function () {
+  var root = {hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
   }}
@@ -120,11 +120,11 @@ test('POST /graphql - sort multiple queries', function (t) {
 
   var schema = buildSchema('type Query { hello: String, life: Int }')
   var root = {
-    hello: function () {
+    hello () {
       t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
       return 'Hello world!'
     },
-    life: function () {
+    life () {
       t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
       return 42
     }

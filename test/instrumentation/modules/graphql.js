@@ -15,7 +15,7 @@ test('graphql.graphql', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = {hello: function () {
+  var root = {hello () {
     return 'Hello world!'
   }}
   var query = '{ hello }'
@@ -33,7 +33,7 @@ test('graphql.execute', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = {hello: function () {
+  var root = {hello () {
     return Promise.resolve('Hello world!')
   }}
   var query = '{ hello }'
@@ -54,7 +54,7 @@ if (semver.satisfies(pkg.version, '>=0.12')) {
     resetAgent(done(t))
 
     var schema = graphql.buildSchema('type Query { hello: String }')
-    var root = {hello: function () {
+    var root = {hello () {
       return 'Hello world!'
     }}
     var query = '{ hello }'
