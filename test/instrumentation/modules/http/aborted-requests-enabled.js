@@ -19,7 +19,7 @@ test('client-side abort below error threshold - call end', function (t) {
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
   }}
@@ -63,7 +63,7 @@ test('client-side abort above error threshold - call end', function (t) {
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
   }}
@@ -106,7 +106,7 @@ test('client-side abort below error threshold - don\'t call end', function (t) {
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
@@ -146,7 +146,7 @@ test('client-side abort above error threshold - don\'t call end', function (t) {
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) {
@@ -188,7 +188,7 @@ test('server-side abort below error threshold and socket closed - call end', fun
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     assert(t, data)
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
@@ -234,7 +234,7 @@ test('server-side abort above error threshold and socket closed - call end', fun
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     assert(t, data)
   }}
   agent.captureError = function (err, opts) {
@@ -281,7 +281,7 @@ test('server-side abort below error threshold and socket closed - don\'t call en
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
@@ -322,7 +322,7 @@ test('server-side abort above error threshold and socket closed - don\'t call en
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     t.fail('should not send any data')
   }}
   agent.captureError = function (err, opts) {
@@ -362,7 +362,7 @@ test('server-side abort below error threshold but socket not closed - call end',
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
   }}
@@ -402,7 +402,7 @@ test('server-side abort above error threshold but socket not closed - call end',
 
   t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
 
-  agent._httpClient = {request: function (endpoint, headers, data, cb) {
+  agent._httpClient = {request (endpoint, headers, data, cb) {
     assert(t, data)
     server.close()
   }}

@@ -32,7 +32,7 @@ module.exports = function mockAgent (cb) {
     _httpClient: {
       request: cb || noop
     },
-    flush: function () {
+    flush () {
       this._instrumentation.flush()
     },
     logger: consoleLogLevel({
