@@ -54,6 +54,24 @@ test('#endTransaction()', function (t) {
   })
 })
 
+test('#currentTransaction', function (t) {
+  t.test('no active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.notOk(agent.currentTransaction)
+    t.end()
+  })
+
+  t.test('with active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(agent.currentTransaction, trans)
+    agent.endTransaction()
+    t.end()
+  })
+})
+
 test('#setTransactionName', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()

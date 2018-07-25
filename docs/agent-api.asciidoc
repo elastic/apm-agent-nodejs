@@ -1032,6 +1032,20 @@ Alternatively you can call <<transaction-end,`end()`>> directly on an active tra
 
 A value may be provided to set as a result.
 
+[[apm-current-transaction]]
+==== `apm.currentTransaction`
+
+[[source,js]]
+----
+var transaction = apm.currentTransaction
+----
+
+Get the currently active transaction,
+if used within the context of a transaction.
+
+NOTE: If there's no active transaction available,
+`null` will be returned.
+
 [[apm-set-transaction-name]]
 ==== `apm.setTransactionName()`
 
