@@ -1,3 +1,8 @@
+# 1.9.0 - 2018/7/25
+  * fix(parsers): use basic-auth rather than req.auth (#475)
+  * feat(agent): add currentTransaction getter (#462)
+  * feat: add support for ws 6.x (#464)
+
 # 1.8.3 - 2018/7/11
   * perf: don't patch newer versions of mimic-response (#442)
 
