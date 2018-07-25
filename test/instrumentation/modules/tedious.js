@@ -75,7 +75,6 @@ test('execSql', (t) => {
   })
 })
 
-// TODO: Figure out if it is valid that prepare also produces a span...
 test('prepare / execute', (t) => {
   const sql = 'select @value'
 
@@ -120,8 +119,8 @@ function assertTransaction (t, sql, data, spanCount) {
   t.equal(trans.spans.length, spanCount, 'span count')
 }
 
-function assertQuery (t, sql, span) {
-  t.equal(span.name, 'SELECT', 'span name')
+function assertQuery (t, sql, span, name) {
+  t.equal(span.name, name, 'span name')
   t.equal(span.type, 'db.mssql.query', 'span type')
   t.deepEqual(span.context.db, {
     statement: sql,
@@ -133,15 +132,15 @@ function assertBasicQuery (t, sql, data) {
   assertTransaction(t, sql, data, 1)
 
   var trans = data.transactions[0]
-  assertQuery(t, sql, trans.spans[0])
+  assertQuery(t, sql, trans.spans[0], 'SELECT')
 }
 
 function assertPreparedQuery (t, sql, data) {
   assertTransaction(t, sql, data, 2)
 
   var trans = data.transactions[0]
-  assertQuery(t, sql, trans.spans[0])
-  assertQuery(t, sql, trans.spans[1])
+  assertQuery(t, sql, trans.spans[0], 'SELECT')
+  assertQuery(t, sql, trans.spans[1], 'SELECT (prepare)')
 }
 
 function resetAgent (request) {
