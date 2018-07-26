@@ -82,7 +82,7 @@
     "require-ancestors": "^1.0.0",
     "require-in-the-middle": "^3.1.0",
     "semver": "^5.5.0",
-    "sql-summary": "^1.0.0",
+    "sql-summary": "^1.0.1",
     "stackman": "^3.0.2",
     "unicode-byte-truncate": "^1.0.0",
     "uuid": "^3.2.1"
@@ -127,6 +127,7 @@
     "send": "^0.16.1",
     "standard": "^11.0.0",
     "tape": "^4.8.0",
+    "tedious": "^2.6.1",
     "test-all-versions": "^3.3.3",
     "thunky": "^1.0.2",
     "untildify": "^3.0.2",

@@ -128,3 +128,8 @@ hapi-async-await:
   node: '>=8.2'
   versions: '^17.0.0'
   commands: node test/instrumentation/modules/hapi.js
+
+tedious:
+  name: tedious
+  versions: '>=0.0.5'
+  commands: node test/instrumentation/modules/tedious.js

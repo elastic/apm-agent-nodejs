@@ -19,6 +19,17 @@ services:
     volumes:
       - nodemongodata:/data/db
 
+  mssql:
+    image: microsoft/mssql-server-linux
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Very(!)Secure
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - nodemssqldata:/var/opt/mssql
+
   mysql:
     image: mysql:5.7
     environment:
@@ -54,6 +65,7 @@ services:
       MONGODB_HOST: 'mongodb'
       REDIS_HOST: 'redis'
       ES_HOST: 'elasticsearch'
+      MSSQL_HOST: 'mssql'
       MYSQL_HOST: 'mysql'
       PGHOST: 'postgres'
       PGUSER: 'postgres'
@@ -61,6 +73,8 @@ services:
       postgres:
         condition: service_started
       mongodb:
+        condition: service_started
+      mssql:
         condition: service_started
       mysql:
         condition: service_started
@@ -73,6 +87,8 @@ volumes:
   nodepgdata:
     driver: local
   nodemongodata:
+    driver: local
+  nodemssqldata:
     driver: local
   nodemysqldata:
     driver: local
