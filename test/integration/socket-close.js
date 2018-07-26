@@ -15,14 +15,14 @@ getPort().then(function (port) {
   test('should not throw on socket close', function (t) {
     var server = net.createServer(function (socket) {
       socket.destroy()
-      setTimeout(function () {
-        server.close()
-        t.end()
-      }, 10)
     })
 
     server.listen(port, function () {
-      agent.captureError(new Error('foo'))
+      agent.captureError(new Error('foo'), function (err) {
+        t.equal(err.code, 'ECONNRESET')
+        t.end()
+        server.close()
+      })
     })
   })
 }, function (err) {
