@@ -17,12 +17,14 @@ getPort().then(function (port) {
       res.statusCode = 503
       res.setHeader('Content-Type', 'application/json')
       res.end('{"error":"something"}')
-      server.close()
-      t.end()
     })
 
     server.listen(port, function () {
-      agent.captureError(new Error('foo'))
+      agent.captureError(new Error('foo'), function (err) {
+        t.error(err)
+        t.end()
+        server.close()
+      })
     })
   })
 }, function (err) {
