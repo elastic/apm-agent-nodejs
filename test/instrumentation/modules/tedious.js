@@ -139,8 +139,15 @@ function assertPreparedQuery (t, sql, data) {
   assertTransaction(t, sql, data, 2)
 
   var trans = data.transactions[0]
-  assertQuery(t, sql, trans.spans[0], 'SELECT')
-  assertQuery(t, sql, trans.spans[1], 'SELECT (prepare)')
+  var spans = sortSpansBy(trans.spans, span => span.name)
+  assertQuery(t, sql, spans[0], 'SELECT')
+  assertQuery(t, sql, spans[1], 'SELECT (prepare)')
+}
+
+function sortSpansBy (spans, fn) {
+  return spans.sort((a, b) => {
+    return fn(a) > fn(b) ? 1 : fn(b) > fn(a) ? -1 : 0
+  })
 }
 
 function resetAgent (request) {
