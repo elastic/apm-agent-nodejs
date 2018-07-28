@@ -5,6 +5,7 @@
 .travis.yml
 CONTRIBUTING.md
 CODE_OF_CONDUCT.md
+TESTING.md
 
 # Folders to ignore
 .github

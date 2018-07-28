@@ -1,0 +1,29 @@
+version: '2.1'
+
+services:
+  node_tests:
+    image: apm-agent-nodejs:node-${NODE_VERSION}
+    environment: 
+      MONGODB_HOST: 'mongodb'
+      REDIS_HOST: 'redis'
+      ES_HOST: 'elasticsearch'
+      MSSQL_HOST: 'mssql'
+      MYSQL_HOST: 'mysql'
+      CASSANDRA_HOST: 'cassandra'
+      PGHOST: 'postgres'
+      PGUSER: 'postgres'
+    depends_on:
+      postgres:
+        condition: service_started
+      mongodb:
+        condition: service_started
+      mssql:
+        condition: service_started
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
+      cassandra:
+        condition: service_started
