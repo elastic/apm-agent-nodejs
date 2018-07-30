@@ -1,3 +1,7 @@
+# 1.10.0 - 2018/7/30
+  * feat(cassandra): instrument Cassandra queries (#437)
+  * feat(mssql): instrument SQL Server queries (#444)
+
 # 1.9.0 - 2018/7/25
   * fix(parsers): use basic-auth rather than req.auth (#475)
   * feat(agent): add currentTransaction getter (#462)
