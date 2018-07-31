@@ -1,3 +1,6 @@
+# 1.10.1 - 2018/7/31
+  * fix(graphql): handle execute args object (#484)
+
 # 1.10.0 - 2018/7/30
   * feat(cassandra): instrument Cassandra queries (#437)
   * feat(mssql): instrument SQL Server queries (#444)
