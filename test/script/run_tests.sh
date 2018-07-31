@@ -44,9 +44,19 @@ run_test_suite () {
   fi
 }
 
-if [ "$1" == "all" ]
+if [[ "$CI" || "$1" == "none" ]]
 then
-  # run the tests inside docker
+  # We're running on a CI server where we expect all dependencies have
+  # been set up in advance, or the user specificailly used the "none"
+  # command to indicate that they do not want to spin up any
+  # dependencies
+  run_test_suite
+  exit $?
+elif [[ "$1" == "all" ]]
+then
+  # The user used the "all" command which indicates that they want to
+  # spin up all dependencies, and build+run the test suite inside of
+  # Docker as well
   if [ -z "$2" ]
   then
     node_version=`node --version | cut -d . -f 1 | cut -c 2-`
@@ -55,16 +65,14 @@ then
   fi
   ./test/script/docker/run_tests.sh $node_version $3
   exit $?
-elif [ "$1" == "none" ]
+elif [[ $# -gt 0 ]]
 then
-  run_test_suite
-  exit $?
-elif [ $# -gt 0 ]
-then
-  # if dependency whitelist is given in arguemnts, use those
+  # User have specified a shortlist of dependencies that they want us to
+  # spin up inside Docker before running the test sutie
   services=$@
 else
-  # else fall back to ALL dependencies
+  # No arguments was given. Let's just assume that the user wants to
+  # spin up all dependencies inside Docker and run the tests locally
   services=$(docker-compose  -f ./test/docker-compose.yml  config --services)
 fi
 
