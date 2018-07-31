@@ -1,21 +1,19 @@
 # Testing
 
-The test suite uses [Docker](https://www.docker.com/community-edition) to spin up the following databases when running `npm test`:
+The test suite uses [Docker](https://www.docker.com/community-edition) to spin up the databases required by the test suite.
 
-| Database      | Service Name |
-|---------------|--------------|
-| PostgreSQL    | `postgres` |
-| MySQL         | `mysql` |
-| MongoDB       | `mongodb` |
-| Elasticsearch | `elasticsearch` |
-| Cassandra     | `cassandra` |
-| SQL Server    | `mssql` |
-| Redis         | `redis` |
-
-Note:
-The `npm test` command uses [Docker Compose](https://docs.docker.com/compose/install/).
+The `npm test` command also uses [Docker Compose](https://docs.docker.com/compose/install/).
 If you have installed Docker,
 you most likely have Docker Compose as well.
+
+To get a list of the databases used by the test suite,
+run:
+
+```
+docker-compose -f test/docker-compose.yml config --services
+```
+
+This list can be useful if you want to specify which databases to start (more on that later).
 
 ## Run tests inside Docker
 
