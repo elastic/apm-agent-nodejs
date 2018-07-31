@@ -49,6 +49,31 @@ test('graphql.execute', function (t) {
   })
 })
 
+test('graphql.execute args object', function (t) {
+  resetAgent(done(t))
+
+  var schema = graphql.buildSchema('type Query { hello: String }')
+  var root = {hello () {
+    return Promise.resolve('Hello world!')
+  }}
+  var query = '{ hello }'
+  var source = new graphql.Source(query)
+  var documentAST = graphql.parse(source)
+  var args = {
+    schema: schema,
+    document: documentAST,
+    rootValue: root
+  }
+
+  agent.startTransaction('foo')
+
+  graphql.execute(args).then(function (response) {
+    agent.endTransaction()
+    t.deepEqual(response, {data: {hello: 'Hello world!'}})
+    agent.flush()
+  })
+})
+
 if (semver.satisfies(pkg.version, '>=0.12')) {
   test('graphql.execute sync', function (t) {
     resetAgent(done(t))
