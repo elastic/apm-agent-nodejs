@@ -21,6 +21,11 @@ getPort().then(function (port) {
       res.end()
     })
 
+    // because of keep-alive
+    server.on('connection', function (socket) {
+      socket.unref()
+    })
+
     server.listen(port, function () {
       agent.captureError(new Error('boom!'), function () {
         server.close()

@@ -11,7 +11,6 @@ var isRegExp = require('core-util-is').isRegExp
 var Agent = require('./_agent')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
-var request = require('../lib/request')
 
 var optionFixtures = [
   ['serviceName', 'SERVICE_NAME'],
@@ -19,6 +18,8 @@ var optionFixtures = [
   ['serviceVersion', 'SERVICE_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME', os.hostname()],
+  ['apiRequestSize', 'API_REQUEST_SIZE', 1024 * 1024],
+  ['apiRequestTime', 'API_REQUEST_TIME', 10],
   ['frameworkName', 'FRAMEWORK_NAME'],
   ['frameworkVersion', 'FRAMEWORK_VERSION'],
   ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
@@ -202,15 +203,33 @@ var captureBodyTests = [
 
 captureBodyTests.forEach(function (captureBodyTest) {
   test('captureBody => ' + captureBodyTest.value, function (t) {
-    t.plan(5)
+    t.plan(4)
 
-    var errors = request.errors
-    request.errors = function (agent, list, cb) {
-      request.errors = errors
-      return cb(list, agent)
-    }
     var agent = Agent()
-    agent.start({ captureBody: captureBodyTest.value })
+    agent.start({
+      serviceName: 'test',
+      captureExceptions: false,
+      captureBody: captureBodyTest.value
+    })
+
+    var sendError = agent._apmServer.sendError
+    var sendTransaction = agent._apmServer.sendTransaction
+    agent._apmServer.sendError = function (error, cb) {
+      var request = error.context.request
+      t.ok(request)
+      t.equal(request.body, captureBodyTest.errors)
+      if (cb) process.nextTick(cb)
+    }
+    agent._apmServer.sendTransaction = function (trans, cb) {
+      var request = trans.context.request
+      t.ok(request)
+      t.equal(request.body, captureBodyTest.transactions)
+      if (cb) process.nextTick(cb)
+    }
+    t.on('end', function () {
+      agent._apmServer.sendError = sendError
+      agent._apmServer.sendTransaction = sendTransaction
+    })
 
     var req = new IncomingMessage()
     req.socket = { remoteAddress: '127.0.0.1' }
@@ -218,23 +237,11 @@ captureBodyTests.forEach(function (captureBodyTest) {
     req.headers['content-length'] = 4
     req.body = 'test'
 
-    agent.captureError(new Error('wat'), {
-      request: req
-    }, function (list) {
-      var request = list[0].context.request
-      t.ok(request)
-      t.equal(request.body, captureBodyTest.errors)
-    })
+    agent.captureError(new Error('wat'), {request: req})
 
     var trans = agent.startTransaction()
     trans.req = req
     trans.end()
-    trans._encode(function (err, trans) {
-      t.error(err)
-      var request = trans.context.request
-      t.ok(request)
-      t.equal(request.body, captureBodyTest.transactions)
-    })
   })
 })
 

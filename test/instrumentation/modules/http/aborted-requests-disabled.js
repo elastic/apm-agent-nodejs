@@ -6,18 +6,20 @@ var http = require('http')
 
 var test = require('tape')
 
+var mockClient = require('../../../_mock_http_client')
+
 agent._conf.errorOnAbortedRequests = false
 
 test('client-side abort - call end', function (t) {
   resetAgent()
   var clientReq
 
-  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._apmServer._writes.length, 0, 'should not have any samples to begin with')
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
+        t.equal(agent._apmServer._writes.length, 1, 'should send transaction')
         server.close()
         t.end()
       }, 100)
@@ -47,12 +49,12 @@ test('client-side abort - don\'t call end', function (t) {
   resetAgent()
   var clientReq
 
-  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._apmServer._writes.length, 0, 'should not have any samples to begin with')
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue._items.length, 0, 'should not add transactions to queue')
+        t.equal(agent._apmServer._writes.length, 0, 'should not send transaction')
         server.close()
         t.end()
       }, 100)
@@ -80,7 +82,7 @@ test('server-side abort - call end', function (t) {
   var timedout = false
   var closeEvent = false
 
-  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._apmServer._writes.length, 0, 'should not have any samples to begin with')
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
@@ -93,7 +95,7 @@ test('server-side abort - call end', function (t) {
       res.end('Hello World')
 
       setTimeout(function () {
-        t.equal(agent._instrumentation._queue._items.length, 1, 'should not add transactions to queue')
+        t.equal(agent._apmServer._writes.length, 1, 'should not send transactions')
         server.close()
         t.end()
       }, 50)
@@ -119,7 +121,7 @@ test('server-side abort - don\'t call end', function (t) {
   var timedout = false
   var closeEvent = false
 
-  t.equal(agent._instrumentation._queue._items.length, 0, 'should not have any samples to begin with')
+  t.equal(agent._apmServer._writes.length, 0, 'should not have any samples to begin with')
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
@@ -129,7 +131,7 @@ test('server-side abort - don\'t call end', function (t) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
       t.ok(closeEvent, 'res should emit close event')
-      t.equal(agent._instrumentation._queue._items.length, 0, 'should not add transactions to queue')
+      t.equal(agent._apmServer._writes.length, 0, 'should not send transactions')
       server.close()
       t.end()
     }, 200)
@@ -150,6 +152,6 @@ test('server-side abort - don\'t call end', function (t) {
 })
 
 function resetAgent () {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
+  agent._apmServer = mockClient(1, function () {})
 }

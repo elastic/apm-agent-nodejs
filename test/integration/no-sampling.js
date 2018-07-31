@@ -1,13 +1,14 @@
 'use strict'
 
 var getPort = require('get-port')
+var ndjson = require('ndjson')
 
 getPort().then(function (port) {
   var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
-    flushInterval: 1
+    apiRequestTime: 1
   })
 
   var http = require('http')
@@ -16,17 +17,23 @@ getPort().then(function (port) {
 
   test('should not sample', function (t) {
     var server = http.createServer(function (req, res) {
-      var buffers = []
-      var gunzip = zlib.createGunzip()
-      var unzipped = req.pipe(gunzip)
+      req = req.pipe(zlib.createGunzip()).pipe(ndjson.parse())
 
-      unzipped.on('data', buffers.push.bind(buffers))
-      unzipped.on('end', function () {
+      const received = {
+        metadata: 0,
+        transaction: 0
+      }
+      req.on('data', function (obj) {
+        const type = Object.keys(obj)[0]
+        received[type]++
+      })
+      req.on('end', function () {
+        t.equal(received.metadata, 1, 'expected 1 metadata to be sent')
+        t.equal(received.transaction, 20, 'expected 20 transactions to be sent')
         res.end()
         server.close()
-        var data = JSON.parse(Buffer.concat(buffers))
-        t.equal(data.transactions.length, 20, 'expect 20 transactions to be sent')
         t.end()
+        process.exit()
       })
     })
 

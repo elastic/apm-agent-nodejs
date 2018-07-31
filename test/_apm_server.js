@@ -6,10 +6,9 @@ var util = require('util')
 var zlib = require('zlib')
 
 var getPort = require('get-port')
-var HttpClient = require('elastic-apm-http-client')
+var ndjson = require('ndjson')
 
 var Agent = require('./_agent')
-var pkg = require('../package.json')
 
 var defaultAgentOpts = {
   serviceName: 'some-service-name',
@@ -24,9 +23,23 @@ util.inherits(APMServer, EventEmitter)
 function APMServer (agentOpts, mockOpts) {
   if (!(this instanceof APMServer)) return new APMServer(agentOpts, mockOpts)
   var self = this
+
   mockOpts = mockOpts || {}
 
+  var requests = typeof mockOpts.expect === 'string'
+    ? ['metadata', mockOpts.expect]
+    : mockOpts.expect
+
+  // ensure the expected types for each unique request to the APM Server is
+  // nested in it's own array
+  requests = Array.isArray(requests[0]) ? requests : [requests]
+
   this.agent = Agent()
+
+  this.destroy = function () {
+    this.server.close()
+    this.agent.destroy()
+  }
 
   EventEmitter.call(this)
 
@@ -40,26 +53,25 @@ function APMServer (agentOpts, mockOpts) {
 
     var server = self.server = http.createServer(function (req, res) {
       self.emit('request', req, res)
+      var expect = requests.shift()
+      var index = 0
 
-      var buffers = []
-      var gunzip = zlib.createGunzip()
-      var unzipped = req.pipe(gunzip)
+      req.pipe(zlib.createGunzip()).pipe(ndjson.parse()).on('data', function (data) {
+        if (req.method !== 'POST') throw new Error(`Unexpected HTTP method: ${req.method}`)
+        if (req.url !== '/v2/intake') throw new Error(`Unexpected HTTP url: ${req.url}`)
+        if (Object.keys(data).length !== 1) throw new Error(`Expected number of root properties: ${Object.keys(data)}`)
+        var type = Object.keys(data)[0]
+        if (index === 0 && type !== 'metadata') throw new Error(`Unexpected data type at metadata index: ${type}`)
+        if (index !== 0 && type === 'metadata') throw new Error(`Unexpected metadata index: ${index}`)
+        if (expect) {
+          var _type = expect.shift()
+          if (type !== _type) throw new Error(`Unexpected type '${type}' at index ${index}`)
+        }
 
-      unzipped.on('data', buffers.push.bind(buffers))
-      unzipped.on('end', function () {
-        res.end()
-        if (mockOpts.skipClose !== true) {
-          server.close()
-        }
-        var body = JSON.parse(Buffer.concat(buffers))
-        if (mockOpts.forwardTo) {
-          var client = new HttpClient({
-            serverUrl: mockOpts.forwardTo,
-            userAgent: 'elastic-apm-node/' + pkg.version
-          })
-          client.request('transactions', {}, body, () => {})
-        }
-        self.emit('body', body)
+        self.emit('data', data, index)
+        self.emit('data-' + type, data[type], index)
+
+        index++
       })
     })
 

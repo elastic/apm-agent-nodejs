@@ -21,6 +21,7 @@ var Knex = require('knex')
 var test = require('tape')
 
 var utils = require('./_utils')
+var mockClient = require('../../../_mock_http_client')
 
 var transNo = 0
 var knex
@@ -42,7 +43,8 @@ var insertTests = [
 
 selectTests.forEach(function (source) {
   test(source, function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    t.on('end', teardown)
+    resetAgent(function (data) {
       assertBasicQuery(t, data)
       t.end()
     })
@@ -58,7 +60,6 @@ selectTests.forEach(function (source) {
           t.equal(row.c2, 'bar' + (i + 1))
         })
         agent.endTransaction()
-        agent.flush()
       }).catch(function (err) {
         t.error(err)
       })
@@ -68,7 +69,8 @@ selectTests.forEach(function (source) {
 
 insertTests.forEach(function (source) {
   test(source, function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    t.on('end', teardown)
+    resetAgent(function (data) {
       assertBasicQuery(t, data)
       t.end()
     })
@@ -81,7 +83,6 @@ insertTests.forEach(function (source) {
         t.equal(result.command, 'INSERT')
         t.equal(result.rowCount, 1)
         agent.endTransaction()
-        agent.flush()
       }).catch(function (err) {
         t.error(err)
       })
@@ -90,7 +91,8 @@ insertTests.forEach(function (source) {
 })
 
 test('knex.raw', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  t.on('end', teardown)
+  resetAgent(function (data) {
     assertBasicQuery(t, data)
     t.end()
   })
@@ -107,7 +109,6 @@ test('knex.raw', function (t) {
         t.equal(row.c2, 'bar' + (i + 1))
       })
       agent.endTransaction()
-      agent.flush()
     }).catch(function (err) {
       t.error(err)
     })
@@ -123,13 +124,13 @@ function assertBasicQuery (t, data) {
 
   // remove the 'select versions();' query that knex injects - just makes
   // testing too hard
-  trans.spans = trans.spans.filter(function (span) {
+  data.spans = data.spans.filter(function (span) {
     return span.context.db.statement !== 'select version();'
   })
 
-  t.equal(trans.spans.length, 1)
-  t.equal(trans.spans[0].type, 'db.postgresql.query')
-  t.ok(trans.spans[0].stacktrace.some(function (frame) {
+  t.equal(data.spans.length, 1)
+  t.equal(data.spans[0].type, 'db.postgresql.query')
+  t.ok(data.spans[0].stacktrace.some(function (frame) {
     return frame.function === 'userLandCode'
   }), 'include user-land code frame')
 }
@@ -145,7 +146,6 @@ function createClient (cb) {
 }
 
 function setup (cb) {
-  // just in case it didn't happen at the end of the previous test
   teardown(function () {
     utils.reset(function () {
       utils.loadData(cb)
@@ -158,21 +158,17 @@ function teardown (cb) {
     knex.destroy(function (err) {
       if (err) throw err
       knex = undefined
-      cb()
+      if (cb) cb()
     })
-  } else {
+  } else if (cb) {
     process.nextTick(cb)
   }
 }
 
 function resetAgent (cb) {
-  agent._httpClient = { request () {
-    var self = this
-    var args = [].slice.call(arguments)
-    teardown(function () {
-      cb.apply(self, args)
-    })
-  } }
-  agent._instrumentation._queue._clear()
+  // first time this function is called, the real client will be present - so
+  // let's just destroy it before creating the mock
+  if (agent._apmServer.destroy) agent._apmServer.destroy()
+  agent._apmServer = mockClient(cb)
   agent._instrumentation.currentTransaction = null
 }

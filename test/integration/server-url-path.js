@@ -14,10 +14,15 @@ getPort().then(function (port) {
 
   test('should allow path in serverUrl', function (t) {
     var server = http.createServer(function (req, res) {
-      t.equal(req.url, '/sub/v1/errors')
+      t.equal(req.url, '/sub/v2/intake')
       res.end()
       server.close()
       t.end()
+    })
+
+    // because of keep-alive
+    server.on('connection', function (socket) {
+      socket.unref()
     })
 
     server.listen(port, function () {

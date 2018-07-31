@@ -19,7 +19,7 @@ getPort().then(function (port) {
 
     server.listen(port, function () {
       agent.captureError(new Error('foo'), function (err) {
-        t.equal(err.code, 'ECONNRESET')
+        t.error(err)
         t.end()
         server.close()
       })

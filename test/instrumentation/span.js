@@ -28,10 +28,8 @@ test('#end()', function (t) {
   var span = new Span(trans)
   span.start('sig', 'type')
   t.equal(span.ended, false)
-  t.equal(trans.spans.indexOf(span), -1)
   span.end()
   t.equal(span.ended, true)
-  t.equal(trans.spans.indexOf(span), 0)
   t.end()
 })
 
@@ -110,7 +108,7 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['transactionId', 'timestamp', 'name', 'type', 'start', 'duration', 'stacktrace'])
     t.equal(payload.name, 'unnamed')
     t.equal(payload.type, 'custom')
     t.ok(payload.start > 0)
@@ -127,7 +125,7 @@ test('#_encode() - ended named', function myTest2 (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['transactionId', 'timestamp', 'name', 'type', 'start', 'duration', 'stacktrace'])
     t.equal(payload.name, 'foo')
     t.equal(payload.type, 'bar')
     t.ok(payload.start > 0)
@@ -137,19 +135,16 @@ test('#_encode() - ended named', function myTest2 (t) {
   })
 })
 
-test('#_encode() - truncated', function myTest3 (t) {
-  var trans = new Transaction(agent)
+test('#_encode() - disabled stack traces', function (t) {
+  var ins = mockInstrumentation(function () {})
+  ins._agent._conf.captureSpanStackTraces = false
+  var trans = new Transaction(ins._agent)
   var span = new Span(trans)
-  span.start('foo', 'bar')
-  span.truncate()
+  span.start()
+  span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
-    t.equal(payload.name, 'foo')
-    t.equal(payload.type, 'bar.truncated')
-    t.ok(payload.start > 0)
-    t.ok(payload.duration > 0)
-    assert.stacktrace(t, 'myTest3', __filename, payload.stacktrace, agent)
+    t.deepEqual(Object.keys(payload), ['transactionId', 'timestamp', 'name', 'type', 'start', 'duration'])
     t.end()
   })
 })
