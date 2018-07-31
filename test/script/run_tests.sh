@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e # abort if any of the commands exit badly
+
 number_of_started_containers () {
   echo "$(docker ps --format '{{.ID}}' | wc -l | awk '{$1=$1};1')"
 }
@@ -36,11 +38,15 @@ setup_env () {
 }
 
 run_test_suite () {
+  standard
+  npm run test-deps
+  npm run lint-commit
+
   if [ -z "$COVERAGE" ]
   then
-    npm run test-suite
+    node test/test.js
   else
-    npm run test-suite-coverage
+    nyc node test/test.js
   fi
 }
 
@@ -87,7 +93,6 @@ if [[ $healthy -lt $expected_healthy && $containers -eq $expected_containers ]]
 then
   wait_for_healthy
   setup_env
-  run_test_suite
 elif [[ $healthy -lt $expected_healthy || $containers -lt $expected_containers ]]
 then
   finish () {
@@ -98,7 +103,6 @@ then
   docker-compose -f ./test/docker-compose.yml up -d $services
   wait_for_healthy
   setup_env
-  run_test_suite
-else
-  run_test_suite
 fi
+
+run_test_suite
