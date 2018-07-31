@@ -17,7 +17,7 @@ docker_nyc_report_output="/app/.nyc_output"
 NODE_VERSION=$1
 if [[ ! -z $2  ]]; then
   TAV_VERSIONS=`echo "$2" | sed -e 's/\+/,/g'`
-  CMD='npm run tav --quiet'
+  CMD='npm run test-tav'
 elif [[ -n $COVERAGE ]]; then
   CMD='npm run report-coverage'
 else

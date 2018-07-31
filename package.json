@@ -17,7 +17,7 @@
     "test-suite-coverage": "npm run check && nyc node test/test.js",
     "test-cli": "node test/script/cli.js",
     "test-deps": "dependency-check . -i async_hooks && dependency-check . --unused --no-dev --entry lib/instrumentation/modules/*",
-    "test-tav": "tav",
+    "test-tav": "tav --quiet",
     "test-docs": "./test/script/docker/run_docs.sh",
     "local-start": "./test/script/local-deps-start.sh",
     "local-stop": "./test/script/local-deps-stop.sh",
