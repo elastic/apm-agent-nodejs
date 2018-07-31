@@ -31,6 +31,7 @@ Arguments:
 
 - `node_version` - Specify major version of Node.js to run test suite on (default: same version as is installed locally)
 - `packages` - Comma separated list of npm package names for which to run [tav](https://github.com/watson/test-all-versions) tests.
+  See [`.tav.yml`](https://github.com/elastic/apm-agent-nodejs/blob/master/.tav.yml) for list of possible names.
   If used,
   `node_version` must be specified (default: none)
 
@@ -49,7 +50,7 @@ npm test all 8 pg,redis
 ## Run tests outside Docker
 
 If running the test suite multiple times,
-it might be convenient to start these these databases in advance so that `npm test` doesn't have to do that.
+it might be convenient to start these databases in advance so that `npm test` doesn't have to do that.
 There's two ways to do this:
 
 ### Run databases via Docker
@@ -106,6 +107,18 @@ Run the documentation tests inside of Docker:
 
 ```
 npm run test-docs
+```
+
+Run all the tav tests:
+
+```
+npm run test-tav
+```
+
+Run only the tav tests for PostgreSQL and Redis:
+
+```
+TAV=pg,redis npm run test-tav
 ```
 
 Clean up Docker containers and volumes:
