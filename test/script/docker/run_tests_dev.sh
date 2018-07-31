@@ -44,7 +44,7 @@ run_test_suite () {
   fi
 }
 
-if [ "$1" == "--docker" ]
+if [ "$1" == "all" ]
 then
   # run the tests inside docker
   if [ -z "$2" ]
@@ -55,7 +55,7 @@ then
   fi
   ./test/script/docker/run_tests.sh $node_version $3
   exit $?
-elif [ "$1" == "--no-deps" ]
+elif [ "$1" == "none" ]
 then
   run_test_suite
   exit $?

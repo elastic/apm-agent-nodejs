@@ -22,8 +22,10 @@ you most likely have Docker Compose as well.
 You can also run the test site it self inside of a Docker container:
 
 ```
-npm test -- --docker [node_version] [packages]
+npm test all [node_version] [packages]
 ```
+
+The `all` command instructs the test suite to run everything inside of Docker.
 
 Arguments:
 
@@ -35,13 +37,13 @@ Arguments:
 Example running test suite on Node.js 8:
 
 ```
-npm test -- --docker 8
+npm test all 8
 ```
 
 Example running PostgreSQL and Redis tav tests on Node.js 8:
 
 ```
-npm test -- --docker 8 pg,redis
+npm test all 8 pg,redis
 ```
 
 ## Run tests outside Docker
@@ -67,11 +69,13 @@ npm run docker-start mssql cassandra
 ### Run databases locally
 
 If you already have _all_ the required databases installed and running locally,
-just run `npm test` with the `--no-deps` flag:
+just run `npm test` with the `none` command:
 
 ```
-npm test -- --no-deps
+npm test none
 ```
+
+The `none` command instructs the test suite to run nothing inside of Docker.
 
 If you only have a subset of the required databases installed and running locally,
 run `npm test` with a list of the datases you want it to start for you,
