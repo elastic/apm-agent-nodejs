@@ -6,7 +6,8 @@ getPort().then(function (port) {
   var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port + '/sub',
-    captureExceptions: false
+    captureExceptions: false,
+    disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
   })
 
   var http = require('http')
@@ -16,13 +17,9 @@ getPort().then(function (port) {
     var server = http.createServer(function (req, res) {
       t.equal(req.url, '/sub/v2/intake')
       res.end()
-      server.close()
       t.end()
-    })
-
-    // because of keep-alive
-    server.on('connection', function (socket) {
-      socket.unref()
+      server.close()
+      agent.destroy()
     })
 
     server.listen(port, function () {

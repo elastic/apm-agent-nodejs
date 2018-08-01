@@ -1,7 +1,6 @@
 'use strict'
 
 var IncomingMessage = require('http').IncomingMessage
-var os = require('os')
 var util = require('util')
 
 var semver = require('semver')
@@ -17,7 +16,7 @@ var optionFixtures = [
   ['secretToken', 'SECRET_TOKEN'],
   ['serviceVersion', 'SERVICE_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
-  ['hostname', 'HOSTNAME', os.hostname()],
+  ['hostname', 'HOSTNAME'],
   ['apiRequestSize', 'API_REQUEST_SIZE', 1024 * 1024],
   ['apiRequestTime', 'API_REQUEST_TIME', 10],
   ['frameworkName', 'FRAMEWORK_NAME'],

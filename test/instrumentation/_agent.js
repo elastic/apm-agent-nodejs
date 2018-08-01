@@ -49,7 +49,6 @@ module.exports = function mockAgent (expected, cb) {
     sharedInstrumentation._agent = agent
     agent._instrumentation = sharedInstrumentation
     agent._instrumentation.currentTransaction = null
-    agent._apmServer = mockClient(expected, cb || noop) // TODO: Expected will not work here
     agent.startTransaction = sharedInstrumentation.startTransaction.bind(sharedInstrumentation)
     agent.endTransaction = sharedInstrumentation.endTransaction.bind(sharedInstrumentation)
     agent.setTransactionName = sharedInstrumentation.setTransactionName.bind(sharedInstrumentation)

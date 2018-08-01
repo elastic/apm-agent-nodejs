@@ -1,5 +1,6 @@
 'use strict'
 
+var assert = require('assert')
 var EventEmitter = require('events')
 var http = require('http')
 var util = require('util')
@@ -52,21 +53,21 @@ function APMServer (agentOpts, mockOpts) {
     ))
 
     var server = self.server = http.createServer(function (req, res) {
+      assert.equal(req.method, 'POST', `Unexpected HTTP method: ${req.method}`)
+      assert.equal(req.url, '/v2/intake', `Unexpected HTTP url: ${req.url}`)
+
       self.emit('request', req, res)
       var expect = requests.shift()
       var index = 0
 
       req.pipe(zlib.createGunzip()).pipe(ndjson.parse()).on('data', function (data) {
-        if (req.method !== 'POST') throw new Error(`Unexpected HTTP method: ${req.method}`)
-        if (req.url !== '/v2/intake') throw new Error(`Unexpected HTTP url: ${req.url}`)
-        if (Object.keys(data).length !== 1) throw new Error(`Expected number of root properties: ${Object.keys(data)}`)
+        assert.equal(Object.keys(data).length, 1, `Expected number of root properties: ${Object.keys(data)}`)
+
         var type = Object.keys(data)[0]
-        if (index === 0 && type !== 'metadata') throw new Error(`Unexpected data type at metadata index: ${type}`)
-        if (index !== 0 && type === 'metadata') throw new Error(`Unexpected metadata index: ${index}`)
-        if (expect) {
-          var _type = expect.shift()
-          if (type !== _type) throw new Error(`Unexpected type '${type}' at index ${index}`)
-        }
+
+        if (index === 0 && type !== 'metadata') assert.fail(`Unexpected data type at metadata index: ${type}`)
+        if (index !== 0 && type === 'metadata') assert.fail(`Unexpected metadata index: ${index}`)
+        if (expect) assert.equal(type, expect.shift(), `Unexpected type '${type}' at index ${index}`)
 
         self.emit('data', data, index)
         self.emit('data-' + type, data[type], index)

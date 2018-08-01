@@ -8,6 +8,7 @@ getPort().then(function (port) {
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
+    disableInstrumentations: ['http'], // avoid the agent instrumenting the mock APM Server
     apiRequestTime: 1
   })
 
@@ -31,9 +32,9 @@ getPort().then(function (port) {
         t.equal(received.metadata, 1, 'expected 1 metadata to be sent')
         t.equal(received.transaction, 20, 'expected 20 transactions to be sent')
         res.end()
-        server.close()
         t.end()
-        process.exit()
+        server.close()
+        agent.destroy()
       })
     })
 
