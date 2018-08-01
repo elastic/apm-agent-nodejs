@@ -14,7 +14,10 @@ var version = require('mongodb-core/package').version
 var mockClient = require('../../_mock_http_client')
 
 test('instrument simple command', function (t) {
-  const expected = semver.lt(version, '2.0.0') ? 11 : 7
+  const expected = semver.lt(version, '2.0.0')
+    ? (semver.lt(process.version, '7.0.0') ? 10 : 11)
+    : 7
+
   resetAgent(expected, function (data) {
     var trans = data.transactions[0]
     var groups
@@ -55,7 +58,7 @@ test('instrument simple command', function (t) {
           'elasticapm.test.find',
           'system.$cmd.ismaster'
         ]
-      } else {
+      } else if (semver.lt(process.version, '7.0.0')) {
         groups = [
           'system.$cmd.ismaster',
           'elasticapm.test.insert',
@@ -67,6 +70,8 @@ test('instrument simple command', function (t) {
           'elasticapm.test.find',
           'system.$cmd.ismaster'
         ]
+      } else {
+        t.fail('unexpected group scenario')
       }
     } else {
       groups = [
