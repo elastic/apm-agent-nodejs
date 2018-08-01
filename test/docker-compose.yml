@@ -11,6 +11,11 @@ services:
     environment:
       POSTGRES_USER: 'postgres'
       POSTGRES_DB: 'test_elastic_apm'
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
 
   mongodb:
     image: mongo
@@ -18,6 +23,11 @@ services:
       - "27017:27017"
     volumes:
       - nodemongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
 
   mssql:
     image: microsoft/mssql-server-linux
@@ -29,6 +39,11 @@ services:
       - "1433:1433"
     volumes:
       - nodemssqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   mysql:
     image: mysql:5.7
@@ -38,16 +53,24 @@ services:
       - "3306:3306"
     volumes:
       - nodemysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysql" ,"-h", "mysql", "-P", "3306", "-u", "root", "-e", "SELECT 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
 
   redis:
     image: redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9200"]
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - "network.host="
@@ -58,41 +81,26 @@ services:
       - "9200:9200"
     volumes:
       - nodeesdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   cassandra:
     image: cassandra:3
     environment:
       MAX_HEAP_SIZE: "1G"
       HEAP_NEWSIZE: 400m
+    ports:
+      - "9042:9042"
     volumes:
       - nodecassandradata:/var/lib/cassandra
-
-  node_tests:
-    image: apm-agent-nodejs:node-${NODE_VERSION}
-    environment: 
-      MONGODB_HOST: 'mongodb'
-      REDIS_HOST: 'redis'
-      ES_HOST: 'elasticsearch'
-      MSSQL_HOST: 'mssql'
-      MYSQL_HOST: 'mysql'
-      CASSANDRA_HOST: 'cassandra'
-      PGHOST: 'postgres'
-      PGUSER: 'postgres'
-    depends_on:
-      postgres:
-        condition: service_started
-      mongodb:
-        condition: service_started
-      mssql:
-        condition: service_started
-      mysql:
-        condition: service_started
-      redis:
-        condition: service_started
-      elasticsearch:
-        condition: service_started
-      cassandra:
-        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
   nodepgdata:

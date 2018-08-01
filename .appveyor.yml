@@ -22,7 +22,7 @@ services:
 test_script:
   - node --version
   - npm --version
-  - npm test
+  - node test/test.js
 
 # Don't actually build
 build: off
