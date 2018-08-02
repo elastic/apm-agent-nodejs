@@ -12,8 +12,10 @@ const once = require('once')
 const restify = require('restify')
 const test = require('tape')
 
+const mockClient = require('../../_mock_http_client')
+
 test('transaction name', function (t) {
-  resetAgent((endpoint, headers, data, cb) => {
+  resetAgent((data) => {
     t.equal(data.transactions.length, 1, 'has a transaction')
 
     const trans = data.transactions[0]
@@ -56,7 +58,7 @@ test('transaction name', function (t) {
 })
 
 test('error reporting', function (t) {
-  resetAgent((endpoint, headers, data, cb) => {
+  resetAgent((data) => {
     t.ok(errored, 'reported an error')
     t.equal(data.transactions.length, 1, 'has a transaction')
 
@@ -106,7 +108,7 @@ test('error reporting', function (t) {
 })
 
 test('error reporting from chained handler', function (t) {
-  resetAgent((endpoint, headers, data, cb) => {
+  resetAgent((data) => {
     t.ok(errored, 'reported an error')
     t.equal(data.transactions.length, 1, 'has a transaction')
 
@@ -158,8 +160,7 @@ test('error reporting from chained handler', function (t) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._apmServer = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }

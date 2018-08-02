@@ -57,7 +57,7 @@ Think of the transaction result as equivalent to the status code of an HTTP resp
 transaction.end([result])
 ----
 
-Ends the transaction and <<span-truncate,truncates>> all un-ended child spans.
+Ends the transaction.
 If the transaction has already ended,
 nothing happens.
 
