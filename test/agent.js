@@ -573,6 +573,10 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
+<<<<<<< HEAD
+=======
+          t.end()
+>>>>>>> feat: support APM Server intake API version 2 (#465)
         })
       })
       .on('data-transaction', function (data) {
@@ -598,6 +602,10 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
+<<<<<<< HEAD
+=======
+          t.end()
+>>>>>>> feat: support APM Server intake API version 2 (#465)
         })
       })
       .on('data-transaction', function (data) {
@@ -623,6 +631,10 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
+<<<<<<< HEAD
+=======
+          t.end()
+>>>>>>> feat: support APM Server intake API version 2 (#465)
         })
       })
       .on('data-transaction', function (data) {
