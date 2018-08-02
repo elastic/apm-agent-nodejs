@@ -1090,7 +1090,7 @@ Defaults to `unnamed`
 You can alternatively set this via <<span-type,`span.type`>>.
 Defaults to `custom.code`
 
-When a span is started it will measure the time until <<span-end,`span.end()`>> or <<span-truncate,`span.truncate()`>> is called.
+When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
 
 See <<span-api,Span API>> docs for details on how to use custom spans.
 

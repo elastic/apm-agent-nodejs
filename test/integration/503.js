@@ -6,7 +6,8 @@ getPort().then(function (port) {
   var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port,
-    captureExceptions: false
+    captureExceptions: false,
+    disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
   })
 
   var http = require('http')
@@ -24,6 +25,7 @@ getPort().then(function (port) {
         t.error(err)
         t.end()
         server.close()
+        agent.destroy()
       })
     })
   })

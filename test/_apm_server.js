@@ -1,15 +1,15 @@
 'use strict'
 
+var assert = require('assert')
 var EventEmitter = require('events')
 var http = require('http')
 var util = require('util')
 var zlib = require('zlib')
 
 var getPort = require('get-port')
-var HttpClient = require('elastic-apm-http-client')
+var ndjson = require('ndjson')
 
 var Agent = require('./_agent')
-var pkg = require('../package.json')
 
 var defaultAgentOpts = {
   serviceName: 'some-service-name',
@@ -24,9 +24,23 @@ util.inherits(APMServer, EventEmitter)
 function APMServer (agentOpts, mockOpts) {
   if (!(this instanceof APMServer)) return new APMServer(agentOpts, mockOpts)
   var self = this
+
   mockOpts = mockOpts || {}
 
+  var requests = typeof mockOpts.expect === 'string'
+    ? ['metadata', mockOpts.expect]
+    : mockOpts.expect
+
+  // ensure the expected types for each unique request to the APM Server is
+  // nested in it's own array
+  requests = Array.isArray(requests[0]) ? requests : [requests]
+
   this.agent = Agent()
+
+  this.destroy = function () {
+    this.server.close()
+    this.agent.destroy()
+  }
 
   EventEmitter.call(this)
 
@@ -39,27 +53,26 @@ function APMServer (agentOpts, mockOpts) {
     ))
 
     var server = self.server = http.createServer(function (req, res) {
+      assert.strictEqual(req.method, 'POST', `Unexpected HTTP method: ${req.method}`)
+      assert.strictEqual(req.url, '/v2/intake', `Unexpected HTTP url: ${req.url}`)
+
       self.emit('request', req, res)
+      var expect = requests.shift()
+      var index = 0
 
-      var buffers = []
-      var gunzip = zlib.createGunzip()
-      var unzipped = req.pipe(gunzip)
+      req.pipe(zlib.createGunzip()).pipe(ndjson.parse()).on('data', function (data) {
+        assert.strictEqual(Object.keys(data).length, 1, `Expected number of root properties: ${Object.keys(data)}`)
 
-      unzipped.on('data', buffers.push.bind(buffers))
-      unzipped.on('end', function () {
-        res.end()
-        if (mockOpts.skipClose !== true) {
-          server.close()
-        }
-        var body = JSON.parse(Buffer.concat(buffers))
-        if (mockOpts.forwardTo) {
-          var client = new HttpClient({
-            serverUrl: mockOpts.forwardTo,
-            userAgent: 'elastic-apm-node/' + pkg.version
-          })
-          client.request('transactions', {}, body, () => {})
-        }
-        self.emit('body', body)
+        var type = Object.keys(data)[0]
+
+        if (index === 0 && type !== 'metadata') assert.fail(`Unexpected data type at metadata index: ${type}`)
+        if (index !== 0 && type === 'metadata') assert.fail(`Unexpected metadata index: ${index}`)
+        if (expect) assert.strictEqual(type, expect.shift(), `Unexpected type '${type}' at index ${index}`)
+
+        self.emit('data', data, index)
+        self.emit('data-' + type, data[type], index)
+
+        index++
       })
     })
 
