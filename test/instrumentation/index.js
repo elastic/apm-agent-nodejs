@@ -12,15 +12,16 @@ var semver = require('semver')
 var test = require('tape')
 
 var mockAgent = require('./_agent')
+var mockClient = require('../_mock_http_client')
 var Instrumentation = require('../../lib/instrumentation')
+var findObjInArray = require('../_utils').findObjInArray
 
 var origCaptureError = agent.captureError
 
 test('basic', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
-    t.equal(endpoint, 'transactions')
-
+  resetAgent(6, function (data) {
     t.equal(data.transactions.length, 2)
+    t.equal(data.spans.length, 4)
 
     data.transactions.forEach(function (trans, index) {
       t.ok(/[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}/.test(trans.id))
@@ -31,10 +32,11 @@ test('basic', function (t) {
       t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
       t.equal(trans.result, 'baz' + index)
 
-      t.equal(trans.spans.length, 2)
-
-      trans.spans.forEach(function (span, index2) {
-        t.equal(span.name, 't' + index + index2)
+      for (let i = 0; i < 2; i++) {
+        const name = 't' + index + i
+        const span = findObjInArray(data.spans, 'name', name)
+        t.ok(span, 'should have span named ' + name)
+        t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
         t.equal(span.type, 'type')
         t.ok(span.start > 0, 'span start should be >0ms')
         t.ok(span.start < 100, 'span start should be <100ms')
@@ -49,7 +51,7 @@ test('basic', function (t) {
           t.equal(typeof frame.library_frame, 'boolean')
           t.equal(typeof frame.abs_path, 'string')
         })
-      })
+      }
     })
 
     t.end()
@@ -57,9 +59,7 @@ test('basic', function (t) {
   var ins = agent._instrumentation
 
   generateTransaction(0, function () {
-    generateTransaction(1, function () {
-      ins.flush()
-    })
+    generateTransaction(1)
   })
 
   function generateTransaction (id, cb) {
@@ -73,19 +73,23 @@ test('basic', function (t) {
       process.nextTick(function () {
         span.end()
         trans.end()
-        cb()
+        if (cb) cb()
       })
     })
   }
 })
 
 test('same tick', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     t.equal(data.transactions.length, 1)
-    var spans = data.transactions[0].spans
-    t.equal(spans.length, 2)
-    t.equal(spans[0].name, 't1')
-    t.equal(spans[1].name, 't0')
+    t.equal(data.spans.length, 2)
+    const trans = data.transactions[0]
+    for (let i = 0; i < 2; i++) {
+      const name = 't' + i
+      const span = findObjInArray(data.spans, 'name', name)
+      t.ok(span, 'should have span named ' + name)
+      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+    }
     t.end()
   })
   var ins = agent._instrumentation
@@ -96,16 +100,19 @@ test('same tick', function (t) {
   t1.end()
   t0.end()
   trans.end()
-  ins.flush()
 })
 
 test('serial - no parents', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     t.equal(data.transactions.length, 1)
-    var spans = data.transactions[0].spans
-    t.equal(spans.length, 2)
-    t.equal(spans[0].name, 't0')
-    t.equal(spans[1].name, 't1')
+    t.equal(data.spans.length, 2)
+    const trans = data.transactions[0]
+    for (let i = 0; i < 2; i++) {
+      const name = 't' + i
+      const span = findObjInArray(data.spans, 'name', name)
+      t.ok(span, 'should have span named ' + name)
+      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+    }
     t.end()
   })
   var ins = agent._instrumentation
@@ -118,18 +125,21 @@ test('serial - no parents', function (t) {
     process.nextTick(function () {
       t1.end()
       trans.end()
-      ins.flush()
     })
   })
 })
 
 test('serial - with parents', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     t.equal(data.transactions.length, 1)
-    var spans = data.transactions[0].spans
-    t.equal(spans.length, 2)
-    t.equal(spans[0].name, 't1')
-    t.equal(spans[1].name, 't0')
+    t.equal(data.spans.length, 2)
+    const trans = data.transactions[0]
+    for (let i = 0; i < 2; i++) {
+      const name = 't' + i
+      const span = findObjInArray(data.spans, 'name', name)
+      t.ok(span, 'should have span named ' + name)
+      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+    }
     t.end()
   })
   var ins = agent._instrumentation
@@ -142,18 +152,21 @@ test('serial - with parents', function (t) {
       t1.end()
       t0.end()
       trans.end()
-      ins.flush()
     })
   })
 })
 
 test('stack branching - no parents', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     t.equal(data.transactions.length, 1)
-    var spans = data.transactions[0].spans
-    t.equal(spans.length, 2)
-    t.equal(spans[0].name, 't0')
-    t.equal(spans[1].name, 't1')
+    t.equal(data.spans.length, 2)
+    const trans = data.transactions[0]
+    for (let i = 0; i < 2; i++) {
+      const name = 't' + i
+      const span = findObjInArray(data.spans, 'name', name)
+      t.ok(span, 'should have span named ' + name)
+      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+    }
     t.end()
   })
   var ins = agent._instrumentation
@@ -167,16 +180,18 @@ test('stack branching - no parents', function (t) {
   setTimeout(function () {
     t1.end() // 4
     trans.end()
-    ins.flush()
   }, 50)
 })
 
 test('currentTransaction missing - recoverable', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(2, function (data) {
     t.equal(data.transactions.length, 1)
-    var spans = data.transactions[0].spans
-    t.equal(spans.length, 1)
-    t.equal(spans[0].name, 't0')
+    t.equal(data.spans.length, 1)
+    const trans = data.transactions[0]
+    const name = 't0'
+    const span = findObjInArray(data.spans, 'name', name)
+    t.ok(span, 'should have span named ' + name)
+    t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
     t.end()
   })
   var ins = agent._instrumentation
@@ -191,18 +206,20 @@ test('currentTransaction missing - recoverable', function (t) {
       setImmediate(function () {
         ins.currentTransaction = trans
         trans.end()
-        ins.flush()
       })
     })
   })
 })
 
 test('currentTransaction missing - not recoverable - last span failed', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(2, function (data) {
     t.equal(data.transactions.length, 1)
-    var spans = data.transactions[0].spans
-    t.equal(spans.length, 1)
-    t.equal(spans[0].name, 't0')
+    t.equal(data.spans.length, 1)
+    const trans = data.transactions[0]
+    const name = 't0'
+    const span = findObjInArray(data.spans, 'name', name)
+    t.ok(span, 'should have span named ' + name)
+    t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
     t.end()
   })
   var ins = agent._instrumentation
@@ -219,19 +236,22 @@ test('currentTransaction missing - not recoverable - last span failed', function
       setImmediate(function () {
         ins.currentTransaction = trans
         trans.end()
-        ins.flush()
       })
     })
   })
 })
 
 test('currentTransaction missing - not recoverable - middle span failed', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     t.equal(data.transactions.length, 1)
-    var spans = data.transactions[0].spans
-    t.equal(spans.length, 2)
-    t.equal(spans[0].name, 't0')
-    t.equal(spans[1].name, 't2')
+    t.equal(data.spans.length, 2)
+    const trans = data.transactions[0]
+    const names = ['t0', 't2']
+    for (const name of names) {
+      const span = findObjInArray(data.spans, 'name', name)
+      t.ok(span, 'should have span named ' + name)
+      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+    }
     t.end()
   })
   var ins = agent._instrumentation
@@ -251,7 +271,6 @@ test('currentTransaction missing - not recoverable - middle span failed', functi
           t2.end()
           setImmediate(function () {
             trans.end()
-            ins.flush()
           })
         })
       })
@@ -260,7 +279,7 @@ test('currentTransaction missing - not recoverable - middle span failed', functi
 })
 
 test('errors should not have a transaction id if no transaction is present', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     t.equal(data.errors.length, 1)
     t.equal(data.errors[0].transaction, undefined)
     t.end()
@@ -270,7 +289,7 @@ test('errors should not have a transaction id if no transaction is present', fun
 })
 
 test('errors should have a transaction id - non-ended transaction', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     t.equal(data.errors.length, 1)
     t.deepEqual(data.errors[0].transaction, {id: trans.id})
     t.equal(typeof data.errors[0].transaction.id, 'string')
@@ -282,15 +301,16 @@ test('errors should have a transaction id - non-ended transaction', function (t)
 })
 
 test('errors should have a transaction id - ended transaction', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions.length, 1)
     t.equal(data.errors.length, 1)
+    const trans = data.transactions[0]
     t.deepEqual(data.errors[0].transaction, {id: trans.id})
     t.equal(typeof data.errors[0].transaction.id, 'string')
     t.end()
   })
   agent.captureError = origCaptureError
-  var trans = agent.startTransaction('foo')
-  trans.end()
+  agent.startTransaction('foo').end()
   agent.captureError(new Error('bar'))
 })
 
@@ -350,9 +370,7 @@ test('sampling', function (t) {
 })
 
 test('unsampled transactions do not include spans', function (t) {
-  var agent = mockAgent(function (endpoint, headers, data, cb) {
-    t.equal(endpoint, 'transactions')
-
+  var agent = mockAgent(1, function (data, cb) {
     t.equal(data.transactions.length, 1)
 
     data.transactions.forEach(function (trans) {
@@ -361,7 +379,6 @@ test('unsampled transactions do not include spans', function (t) {
       t.ok(trans.duration < 100, 'duration should be <100ms')
       t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
       t.equal(trans.sampled, false)
-      t.notOk(trans.spans)
     })
 
     t.end()
@@ -378,14 +395,12 @@ test('unsampled transactions do not include spans', function (t) {
     process.nextTick(function () {
       if (span) span.end()
       trans.end()
-      agent.flush()
     })
   })
 })
 
 test('unsampled request transactions should have the correct result', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
-    t.equal(endpoint, 'transactions')
+  resetAgent(1, function (data) {
     t.equal(data.transactions.length, 1)
 
     data.transactions.forEach(function (trans) {
@@ -412,19 +427,14 @@ test('unsampled request transactions should have the correct result', function (
     var port = server.address().port
     http.get('http://localhost:' + port, function (res) {
       res.resume()
-      res.on('end', function () {
-        agent.flush()
-      })
     })
   })
 })
 
 test('bind', function (t) {
   t.test('does not create spans in unbound function context', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(1, function (data) {
       t.equal(data.transactions.length, 1)
-      var spans = data.transactions[0].spans
-      t.equal(spans.length, 0)
       t.end()
     })
     var ins = agent._instrumentation
@@ -435,7 +445,6 @@ test('bind', function (t) {
       var t0 = startSpan(ins, 't0')
       if (t0) t0.end()
       trans.end()
-      ins.flush()
     }
 
     ins.currentTransaction = undefined
@@ -443,11 +452,10 @@ test('bind', function (t) {
   })
 
   t.test('creates spans in bound function', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(2, function (data) {
       t.equal(data.transactions.length, 1)
-      var spans = data.transactions[0].spans
-      t.equal(spans.length, 1)
-      t.equal(spans[0].name, 't0')
+      t.equal(data.spans.length, 1)
+      t.equal(data.spans[0].name, 't0')
       t.end()
     })
     var ins = agent._instrumentation
@@ -458,7 +466,6 @@ test('bind', function (t) {
       var t0 = startSpan(ins, 't0')
       if (t0) t0.end()
       trans.end()
-      ins.flush()
     })
 
     ins.currentTransaction = null
@@ -477,10 +484,8 @@ test('bind', function (t) {
 
   methods.forEach(function (method) {
     t.test('does not create spans in unbound emitter with ' + method, function (t) {
-      resetAgent(function (endpoint, headers, data, cb) {
+      resetAgent(1, function (data) {
         t.equal(data.transactions.length, 1)
-        var spans = data.transactions[0].spans
-        t.equal(spans.length, 0)
         t.end()
       })
       var ins = agent._instrumentation
@@ -493,7 +498,6 @@ test('bind', function (t) {
         var t0 = startSpan(ins, 't0')
         if (t0) t0.end()
         trans.end()
-        ins.flush()
       })
 
       ins.currentTransaction = null
@@ -503,11 +507,10 @@ test('bind', function (t) {
 
   methods.forEach(function (method) {
     t.test('creates spans in bound emitter with ' + method, function (t) {
-      resetAgent(function (endpoint, headers, data, cb) {
+      resetAgent(2, function (data) {
         t.equal(data.transactions.length, 1)
-        var spans = data.transactions[0].spans
-        t.equal(spans.length, 1)
-        t.equal(spans[0].name, 't0')
+        t.equal(data.spans.length, 1)
+        t.equal(data.spans[0].name, 't0')
         t.end()
       })
       var ins = agent._instrumentation
@@ -521,7 +524,6 @@ test('bind', function (t) {
         var t0 = startSpan(ins, 't0')
         if (t0) t0.end()
         trans.end()
-        ins.flush()
       })
 
       ins.currentTransaction = null
@@ -536,9 +538,8 @@ function startSpan (ins, name, type) {
   return span
 }
 
-function resetAgent (cb) {
+function resetAgent (expected, cb) {
   agent._instrumentation.currentTransaction = null
-  agent._instrumentation._queue._clear()
-  agent._httpClient = { request: cb || function () {} }
+  agent._apmServer = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

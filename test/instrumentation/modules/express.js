@@ -11,10 +11,12 @@ var http = require('http')
 var express = require('express')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+
 test('error intercept', function (t) {
   t.plan(7)
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (data) {
     t.equal(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
@@ -72,7 +74,7 @@ test('error intercept', function (t) {
 test('ignore 404 errors', function (t) {
   t.plan(4)
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (data) {
     t.equal(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
@@ -119,7 +121,7 @@ test('ignore 404 errors', function (t) {
 test('ignore invalid errors', function (t) {
   t.plan(4)
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (data) {
     t.equal(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
@@ -168,8 +170,7 @@ test('ignore invalid errors', function (t) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._apmServer = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }
