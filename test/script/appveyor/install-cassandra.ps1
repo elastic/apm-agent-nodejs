@@ -1,5 +1,5 @@
-$cassandraVersion = "3.11.2"
-$downloadUrl = "http://mirrors.dotsrc.org/apache/cassandra/$cassandraVersion/apache-cassandra-$cassandraVersion-bin.tar.gz"
+$cassandraVersion = "3.11.3"
+$downloadUrl = "http://archive.apache.org/dist/cassandra/$cassandraVersion/apache-cassandra-$cassandraVersion-bin.tar.gz"
 $extractRoot = "$env:USERPROFILE"
 $tgzPath = "$extractRoot\cassandra.tar.gz"
 $tarPath = "$extractRoot\cassandra.tar"
