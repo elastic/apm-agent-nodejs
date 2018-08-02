@@ -5,6 +5,7 @@ var agent = require('../../_agent')()
 var test = require('tape')
 
 var echoServer = require('./_echo_server_util').echoServer
+var mockClient = require('../../../_mock_http_client')
 
 var transports = [['http', require('http')], ['https', require('https')]]
 
@@ -14,10 +15,10 @@ transports.forEach(function (tuple) {
 
   test(name + '.request', function (t) {
     echoServer(name, function (cp, port) {
-      resetAgent(function (endpoint, headers, data, cb) {
+      resetAgent(function (data) {
         t.equal(data.transactions.length, 1)
-        t.equal(data.transactions[0].spans.length, 1)
-        t.equal(data.transactions[0].spans[0].name, 'GET localhost:' + port + '/')
+        t.equal(data.spans.length, 1)
+        t.equal(data.spans[0].name, 'GET localhost:' + port + '/')
         t.end()
         cp.kill()
       })
@@ -26,7 +27,6 @@ transports.forEach(function (tuple) {
       var req = transport.request({port: port, rejectUnauthorized: false}, function (res) {
         res.on('end', function () {
           agent.endTransaction()
-          agent.flush()
         })
         res.resume()
       })
@@ -36,7 +36,6 @@ transports.forEach(function (tuple) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb }
+  agent._apmServer = mockClient(2, cb)
 }

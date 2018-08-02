@@ -18,12 +18,15 @@ var http2 = require('http2')
 var test = require('tape')
 var pem = require('https-pem')
 
+var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
+
 var isSecure = [false, true]
 isSecure.forEach(secure => {
   var method = secure ? 'createSecureServer' : 'createServer'
 
   test(`http2.${method} compatibility mode`, t => {
-    resetAgent((endpoint, headers, data, cb) => {
+    resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
       t.end()
@@ -64,7 +67,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respond`, t => {
-    resetAgent((endpoint, headers, data, cb) => {
+    resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
       t.end()
@@ -106,7 +109,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respondWithFD`, t => {
-    resetAgent((endpoint, headers, data, cb) => {
+    resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
       t.end()
@@ -155,7 +158,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respondWithFile`, t => {
-    resetAgent((endpoint, headers, data, cb) => {
+    resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
       t.end()
@@ -203,7 +206,7 @@ isSecure.forEach(secure => {
       t.end()
     })
 
-    resetAgent((endpoint, headers, data, cb) => {
+    resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
       done()
@@ -268,8 +271,9 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
-    resetAgent((endpoint, headers, data, cb) => {
+    resetAgent(3, (data) => {
       t.equal(data.transactions.length, 2)
+      t.equal(data.spans.length, 1)
 
       var sub = data.transactions[0]
       assertPath(t, sub, secure, port, '/sub')
@@ -277,16 +281,14 @@ isSecure.forEach(secure => {
       var root = data.transactions[1]
       assertPath(t, root, secure, port, '/')
 
-      t.equal(root.spans.length, 1)
-      var span = root.spans[0]
+      var span = findObjInArray(data.spans, 'transactionId', root.id)
+      t.ok(span, 'root transaction should have span')
       t.equal(span.type, 'ext.http2')
       t.equal(span.name, `undefined http${secure ? 's' : ''}://localhost:${port}/sub`)
 
       server.close()
       t.end()
     })
-
-    agent._instrumentation._queue._maxQueueSize = 2
 
     var port
     var server = secure
@@ -382,12 +384,12 @@ function assertPath (t, trans, secure, port, path) {
 
 function assert (t, data, secure, port) {
   t.equal(data.transactions.length, 1)
+  t.equal(data.spans.length, 0)
 
   // Top-level props of the transaction need to be checked individually
   // because there are a few dynamic properties
   var trans = data.transactions[0]
   assertPath(t, trans, secure, port, '/')
-  t.equal(trans.spans.length, 0)
 }
 
 function assertResponse (t, stream, expected, done) {
@@ -407,11 +409,10 @@ function connect (secure, port) {
   return http2.connect(`${proto}://localhost:${port}`, opts)
 }
 
-function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
-  agent._instrumentation._queue._maxQueueSize = 0
+function resetAgent (expected, cb) {
+  if (typeof expected === 'function') return resetAgent(1, expected)
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb }
+  agent._apmServer = mockClient(expected, cb)
 }
 
 function addShouldCall (t) {

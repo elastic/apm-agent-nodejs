@@ -186,138 +186,121 @@ test('#addTags', function (t) {
 })
 
 test('#addFilter() - invalid argument', function (t) {
-  t.plan(5)
-  APMServer()
+  t.plan(3 + APMServerWithDefaultAsserts.asserts)
+  APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
     .on('listening', function () {
-      this.agent.addFilter(function (data) {
-        var error = data.errors[0]
-        t.equal(++error.context.custom.order, 1)
-        return data
+      this.agent.addFilter(function (obj) {
+        t.equal(++obj.context.custom.order, 1)
+        return obj
       })
       this.agent.addFilter('invalid')
-      this.agent.addFilter(function (data) {
-        var error = data.errors[0]
-        t.equal(++error.context.custom.order, 2)
-        return data
+      this.agent.addFilter(function (obj) {
+        t.equal(++obj.context.custom.order, 2)
+        return obj
       })
       this.agent.captureError(new Error('foo'), {custom: {order: 0}})
     })
-    .on('request', validateErrorRequest(t))
-    .on('body', function (body) {
-      t.deepEqual(body.errors[0].context.custom.order, 2)
+    .on('data-error', function (data) {
+      t.deepEqual(data.context.custom.order, 2)
       t.end()
     })
 })
 
 test('#captureError()', function (t) {
   t.test('with callback', function (t) {
-    t.plan(5)
-    APMServer()
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError(new Error('with callback'), function () {
-          t.ok(true, 'called callback')
-          t.end()
+          t.pass('called callback')
         })
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'with callback')
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'with callback')
+        t.end()
       })
   })
 
   t.test('without callback', function (t) {
-    t.plan(4)
-    APMServer()
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError(new Error('without callback'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'without callback')
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'without callback')
         t.end()
       })
   })
 
   t.test('should send a plain text message to the server', function (t) {
-    t.plan(4)
-    APMServer()
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError('Hey!')
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hey!')
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hey!')
         t.end()
       })
   })
 
   t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
-    t.plan(5)
-    APMServer()
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hello World')
-        t.equal(body.errors[0].log.param_message, 'Hello %s')
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hello World')
+        t.equal(data.log.param_message, 'Hello %s')
         t.end()
       })
   })
 
   t.test('should not fail on a non string err.message', function (t) {
-    t.plan(4)
-    APMServer()
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
       .on('listening', function () {
         var err = new Error()
         err.message = {foo: 'bar'}
         this.agent.captureError(err)
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, '[object Object]')
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, '[object Object]')
         t.end()
       })
   })
 
   t.test('should adhere to default stackTraceLimit', function (t) {
-    t.plan(5)
-    APMServer()
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError(deep(256))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.stacktrace.length, 50)
-        t.equal(body.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
+      .on('data-error', function (data) {
+        t.equal(data.exception.stacktrace.length, 50)
+        t.equal(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
         t.end()
       })
   })
 
   t.test('should adhere to custom stackTraceLimit', function (t) {
-    t.plan(5)
-    APMServer({stackTraceLimit: 5})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {stackTraceLimit: 5}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError(deep(42))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.stacktrace.length, 5)
-        t.equal(body.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
+      .on('data-error', function (data) {
+        t.equal(data.exception.stacktrace.length, 5)
+        t.equal(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
         t.end()
       })
   })
 
   t.test('should merge context', function (t) {
-    t.plan(7)
-    APMServer()
+    t.plan(4 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
       .on('listening', function () {
         var agent = this.agent
         var server = http.createServer(function (req, res) {
@@ -339,159 +322,146 @@ test('#captureError()', function (t) {
           }).end()
         })
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        var context = body.errors[0].context
-        t.deepEqual(context.user, {a: 1, b: 1, merge: {shallow: true}})
-        t.deepEqual(context.custom, {a: 3, b: 2, merge: {shallow: true}})
+      .on('data-error', function (data) {
+        t.deepEqual(data.context.user, {a: 1, b: 1, merge: {shallow: true}})
+        t.deepEqual(data.context.custom, {a: 3, b: 2, merge: {shallow: true}})
         t.end()
       })
   })
 
   t.test('capture location stack trace - off (error)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'foo')
-        t.notOk('log' in body.errors[0], 'should not have a log')
-        assertStackTrace(t, body.errors[0].exception.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.notOk('log' in data, 'should not have a log')
+        assertStackTrace(t, data.exception.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - off (string)', function (t) {
-    t.plan(6)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    t.plan(3 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError('foo')
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'foo')
-        t.notOk('stacktrace' in body.errors[0].log, 'should not have a log.stacktrace')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'foo')
+        t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace')
+        t.notOk('exception' in data, 'should not have an exception')
         t.end()
       })
   })
 
   t.test('capture location stack trace - off (param msg)', function (t) {
-    t.plan(6)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    t.plan(3 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hello World')
-        t.notOk('stacktrace' in body.errors[0].log, 'should not have a log.stacktrace')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hello World')
+        t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace')
+        t.notOk('exception' in data, 'should not have an exception')
         t.end()
       })
   })
 
   t.test('capture location stack trace - non-errors (error)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'foo')
-        t.notOk('log' in body.errors[0], 'should not have a log')
-        assertStackTrace(t, body.errors[0].exception.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.notOk('log' in data, 'should not have a log')
+        assertStackTrace(t, data.exception.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - non-errors (string)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError('foo')
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'foo')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'foo')
+        t.notOk('exception' in data, 'should not have an exception')
+        assertStackTrace(t, data.log.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - non-errors (param msg)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hello World')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hello World')
+        t.notOk('exception' in data, 'should not have an exception')
+        assertStackTrace(t, data.log.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - all (error)', function (t) {
-    t.plan(13)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts * 2)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'foo')
-        t.equal(body.errors[0].exception.message, 'foo')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
-        assertStackTrace(t, body.errors[0].exception.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'foo')
+        t.equal(data.exception.message, 'foo')
+        assertStackTrace(t, data.log.stacktrace)
+        assertStackTrace(t, data.exception.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - all (string)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError('foo')
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'foo')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'foo')
+        t.notOk('exception' in data, 'should not have an exception')
+        assertStackTrace(t, data.log.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - all (param msg)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, {captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS}, {expect: 'error'})
       .on('listening', function () {
         this.agent.captureError({message: 'Hello %s', params: ['World']})
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hello World')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hello World')
+        t.notOk('exception' in data, 'should not have an exception')
+        assertStackTrace(t, data.log.stacktrace)
         t.end()
       })
+  })
+
+  t.test('capture error before agent is started', function (t) {
+    var agent = Agent()
+    agent.captureError(new Error('foo'), function (err) {
+      t.equal(err.message, 'cannot capture error before agent is started')
+      t.end()
+    })
   })
 })
 
@@ -524,19 +494,17 @@ test('#handleUncaughtExceptions()', function (t) {
   })
 
   t.test('should send an uncaughtException to server', function (t) {
-    t.plan(5)
-    APMServer()
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, {expect: 'error'})
       .on('listening', function () {
         this.agent.handleUncaughtExceptions(function (err) {
           t.ok(isError(err))
-          t.end()
         })
         process.emit('uncaughtException', new Error('uncaught'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'uncaught')
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'uncaught')
+        t.end()
       })
   })
 })
@@ -593,7 +561,7 @@ test('#lambda()', function (t) {
     var input = { name: 'world' }
     var output = 'Hello, world!'
 
-    APMServer()
+    APMServerWithDefaultAsserts(t, {}, {expect: 'transaction'})
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           callback(null, `Hello, ${payload.name}!`)
@@ -603,15 +571,12 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          this.server.close()
           t.end()
         })
       })
-      .on('request', validateTransactionsRequest(t))
-      .on('body', function (body) {
-        assertRoot(t, body)
-        assertTransactions(t, body, name, input, output)
-        assertContext(t, name, body.transactions[0].context.custom)
+      .on('data-transaction', function (data) {
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
       })
   })
 
@@ -620,7 +585,7 @@ test('#lambda()', function (t) {
     var input = { name: 'world' }
     var output = 'Hello, world!'
 
-    APMServer()
+    APMServerWithDefaultAsserts(t, {}, {expect: 'transaction'})
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           context.succeed(`Hello, ${payload.name}!`)
@@ -630,15 +595,12 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          this.server.close()
           t.end()
         })
       })
-      .on('request', validateTransactionsRequest(t))
-      .on('body', function (body) {
-        assertRoot(t, body)
-        assertTransactions(t, body, name, input, output)
-        assertContext(t, name, body.transactions[0].context.custom)
+      .on('data-transaction', function (data) {
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
       })
   })
 
@@ -647,7 +609,7 @@ test('#lambda()', function (t) {
     var input = { name: 'world' }
     var output = 'Hello, world!'
 
-    APMServer()
+    APMServerWithDefaultAsserts(t, {}, {expect: 'transaction'})
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           context.done(null, `Hello, ${payload.name}!`)
@@ -657,15 +619,12 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          this.server.close()
           t.end()
         })
       })
-      .on('request', validateTransactionsRequest(t))
-      .on('body', function (body) {
-        assertRoot(t, body)
-        assertTransactions(t, body, name, input, output)
-        assertContext(t, name, body.transactions[0].context.custom)
+      .on('data-transaction', function (data) {
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
       })
   })
 
@@ -674,15 +633,9 @@ test('#lambda()', function (t) {
     var input = {}
     var output
     var error = new Error('fail')
+    var dataEvents = 0
 
-    var requests = 0
-    var bodies = 0
-
-    APMServer({
-      sourceContextErrorLibraryFrames: 0
-    }, {
-      skipClose: true
-    })
+    APMServerWithDefaultAsserts(t, {sourceContextErrorLibraryFrames: 0}, {expect: [['metadata', 'error'], ['metadata', 'transaction']]})
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           callback(error)
@@ -692,26 +645,22 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.ok(err)
           t.notOk(result)
-          t.equal(requests, 2, 'should have gotten two requests')
-          t.equal(bodies, 2, 'should have gotten two bodies')
-          this.server.close()
-          t.end()
         })
       })
-      .on('request', function (req) {
-        var fn = ++requests === 1
-          ? validateErrorRequest(t)
-          : validateTransactionsRequest(t)
-        fn(req)
+      .on('data', function () {
+        dataEvents++
       })
-      .on('body', function (body) {
-        assertRoot(t, body)
-        if (++bodies === 1) {
-          assertErrors(t, body, name, input, error)
-        } else {
-          assertTransactions(t, body, name, input, output)
-          assertContext(t, name, body.transactions[0].context.custom)
-        }
+      .on('data-error', function (data, index) {
+        t.equal(index, 1)
+        t.equal(dataEvents, 2)
+        assertError(t, data, name, input, error)
+      })
+      .on('data-transaction', function (data, index) {
+        t.equal(index, 1)
+        t.equal(dataEvents, 4)
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
+        t.end()
       })
   })
 
@@ -720,15 +669,9 @@ test('#lambda()', function (t) {
     var input = {}
     var output
     var error = new Error('fail')
+    var dataEvents = 0
 
-    var requests = 0
-    var bodies = 0
-
-    APMServer({
-      sourceContextErrorLibraryFrames: 0
-    }, {
-      skipClose: true
-    })
+    APMServerWithDefaultAsserts(t, {sourceContextErrorLibraryFrames: 0}, {expect: [['metadata', 'error'], ['metadata', 'transaction']]})
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           context.fail(error)
@@ -738,31 +681,27 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.ok(err)
           t.notOk(result)
-          t.equal(requests, 2, 'should have gotten two requests')
-          t.equal(bodies, 2, 'should have gotten two bodies')
-          this.server.close()
-          t.end()
         })
       })
-      .on('request', function (req) {
-        var fn = ++requests === 1
-          ? validateErrorRequest(t)
-          : validateTransactionsRequest(t)
-        fn(req)
+      .on('data', function () {
+        dataEvents++
       })
-      .on('body', function (body) {
-        assertRoot(t, body)
-        if (++bodies === 1) {
-          assertErrors(t, body, name, input, error, this.agent)
-        } else {
-          assertTransactions(t, body, name, input, output)
-          assertContext(t, name, body.transactions[0].context.custom)
-        }
+      .on('data-error', function (data, index) {
+        t.equal(index, 1)
+        t.equal(dataEvents, 2)
+        assertError(t, data, name, input, error, this.agent)
+      })
+      .on('data-transaction', function (data, index) {
+        t.equal(index, 1)
+        t.equal(dataEvents, 4)
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
+        t.end()
       })
   })
 })
 
-function assertRoot (t, payload) {
+function assertMetadata (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
   t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
   t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
@@ -783,10 +722,9 @@ function assertRoot (t, payload) {
   t.deepEqual(payload.process.argv, process.argv)
   t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
 }
+assertMetadata.asserts = 11
 
-function assertTransactions (t, payload, name, input, output) {
-  t.equal(payload.transactions.length, 1)
-  var trans = payload.transactions[0]
+function assertTransaction (t, trans, name, input, output) {
   t.equal(trans.name, name)
   t.equal(trans.type, 'lambda')
   t.equal(trans.result, 'success')
@@ -798,10 +736,10 @@ function assertTransactions (t, payload, name, input, output) {
   t.deepEqual(lambda.input, input)
   t.equal(lambda.output, output)
 }
+assertTransaction.asserts = 8
 
-function assertErrors (t, payload, name, input, expectedError, agent) {
-  t.equal(payload.errors.length, 1)
-  var exception = payload.errors[0].exception
+function assertError (t, payload, name, input, expectedError, agent) {
+  var exception = payload.exception
   t.ok(exception)
   t.equal(exception.message, expectedError.message)
   t.equal(exception.type, 'Error')
@@ -814,20 +752,34 @@ function assertStackTrace (t, stacktrace) {
   t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
   t.equal(stacktrace[0].filename, path.join('test', 'agent.js'))
 }
+assertStackTrace.asserts = 4
 
-function validateErrorRequest (t) {
+function validateRequest (t) {
   return function (req) {
     t.equal(req.method, 'POST', 'should be a POST request')
-    t.equal(req.url, '/v1/errors', 'should be sent to the errors endpoint')
+    t.equal(req.url, '/v2/intake', 'should be sent to the intake endpoint')
   }
 }
+validateRequest.asserts = 2
 
-function validateTransactionsRequest (t) {
-  return function (req) {
-    t.equal(req.method, 'POST', 'should be a POST request')
-    t.equal(req.url, '/v1/transactions', 'should be sent to the transactions endpoint')
+function validateMetadata (t) {
+  return function (data, index) {
+    t.equal(index, 0, 'metadata should always be sent first')
+    assertMetadata(t, data)
   }
 }
+validateMetadata.asserts = 1 + assertMetadata.asserts
+
+function APMServerWithDefaultAsserts (t, opts, mockOpts) {
+  var server = APMServer(opts, mockOpts)
+    .on('request', validateRequest(t))
+    .on('data-metadata', validateMetadata(t))
+  t.on('end', function () {
+    server.destroy()
+  })
+  return server
+}
+APMServerWithDefaultAsserts.asserts = validateRequest.asserts + validateMetadata.asserts
 
 function deep (depth, n) {
   if (!n) n = 0
