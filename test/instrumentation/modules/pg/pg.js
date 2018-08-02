@@ -16,6 +16,8 @@ if (semver.lt(process.version, '4.5.0') && semver.gte(pgVersion, '7.0.0')) proce
 var test = require('tape')
 var pg = require('pg')
 var utils = require('./_utils')
+var mockClient = require('../../../_mock_http_client')
+var findObjInArray = require('../../../_utils').findObjInArray
 
 var queryable, connectionDone
 var factories = [
@@ -30,9 +32,10 @@ factories.forEach(function (f) {
   var type = f[1]
 
   test('pg.' + factory.name, function (t) {
+    t.on('end', teardown)
     t.test('basic query with callback', function (t) {
       t.test(type + '.query(sql, callback)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -44,7 +47,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(sql, values, callback)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -56,7 +59,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options, callback)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -68,7 +71,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options, values, callback)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -80,7 +83,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options-with-values, callback)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -92,7 +95,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(sql) - no callback', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -102,7 +105,6 @@ factories.forEach(function (f) {
           queryable.query(sql)
           setTimeout(function () {
             trans.end()
-            agent.flush()
           }, 250)
         })
       })
@@ -110,7 +112,7 @@ factories.forEach(function (f) {
 
     t.test('basic query streaming', function (t) {
       t.test(type + '.query(new Query(sql))', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -125,7 +127,7 @@ factories.forEach(function (f) {
       if (semver.gte(pgVersion, '7.0.0')) return
 
       t.test(type + '.query(sql)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -138,7 +140,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(sql, values)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -151,7 +153,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -164,7 +166,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options, values)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -177,7 +179,7 @@ factories.forEach(function (f) {
       })
 
       t.test(type + '.query(options-with-values)', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -193,7 +195,7 @@ factories.forEach(function (f) {
     if (semver.gte(pgVersion, '5.1.0') && global.Promise) {
       t.test('basic query promise', function (t) {
         t.test(type + '.query(sql)', function (t) {
-          resetAgent(function (endpoint, headers, data, cb) {
+          resetAgent(function (data) {
             assertBasicQuery(t, sql, data)
             t.end()
           })
@@ -206,7 +208,7 @@ factories.forEach(function (f) {
         })
 
         t.test(type + '.query(sql, values)', function (t) {
-          resetAgent(function (endpoint, headers, data, cb) {
+          resetAgent(function (data) {
             assertBasicQuery(t, sql, data)
             t.end()
           })
@@ -219,7 +221,7 @@ factories.forEach(function (f) {
         })
 
         t.test(type + '.query(options)', function (t) {
-          resetAgent(function (endpoint, headers, data, cb) {
+          resetAgent(function (data) {
             assertBasicQuery(t, sql, data)
             t.end()
           })
@@ -232,7 +234,7 @@ factories.forEach(function (f) {
         })
 
         t.test(type + '.query(options, values)', function (t) {
-          resetAgent(function (endpoint, headers, data, cb) {
+          resetAgent(function (data) {
             assertBasicQuery(t, sql, data)
             t.end()
           })
@@ -245,7 +247,7 @@ factories.forEach(function (f) {
         })
 
         t.test(type + '.query(options-with-values)', function (t) {
-          resetAgent(function (endpoint, headers, data, cb) {
+          resetAgent(function (data) {
             assertBasicQuery(t, sql, data)
             t.end()
           })
@@ -261,14 +263,14 @@ factories.forEach(function (f) {
 
     t.test('simultaneous queries', function (t) {
       t.test('on same connection', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(4, function (data) {
           t.equal(data.transactions.length, 1)
+          t.equal(data.spans.length, 3)
 
           var trans = data.transactions[0]
 
           t.equal(trans.name, 'foo')
-          t.equal(trans.spans.length, 3)
-          trans.spans.forEach(function (span) {
+          data.spans.forEach(function (span) {
             t.equal(span.name, 'SELECT')
             t.equal(span.type, 'db.postgresql.query')
             t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
@@ -301,25 +303,26 @@ factories.forEach(function (f) {
 
           function done () {
             trans.end()
-            agent.flush()
           }
         })
       })
     })
 
     t.test('simultaneous transactions', function (t) {
-      resetAgent(function (endpoint, headers, data, cb) {
+      resetAgent(6, function (data) {
         t.equal(data.transactions.length, 3)
+        t.equal(data.spans.length, 3)
         var names = data.transactions.map(function (trans) {
           return trans.name
         }).sort()
         t.deepEqual(names, ['bar', 'baz', 'foo'])
 
         data.transactions.forEach(function (trans) {
-          t.equal(trans.spans.length, 1)
-          t.equal(trans.spans[0].name, 'SELECT')
-          t.equal(trans.spans[0].type, 'db.postgresql.query')
-          t.deepEqual(trans.spans[0].context.db, { statement: sql, type: 'sql' })
+          const span = findObjInArray(data.spans, 'transactionId', trans.id)
+          t.ok(span, 'transaction should have span')
+          t.equal(span.name, 'SELECT')
+          t.equal(span.type, 'db.postgresql.query')
+          t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
         })
 
         t.end()
@@ -328,15 +331,12 @@ factories.forEach(function (f) {
       var sql = 'SELECT 1 + $1 AS solution'
 
       factory(function () {
-        var n = 0
-
         setImmediate(function () {
           var trans = agent.startTransaction('foo')
           queryable.query(sql, [1], function (err, result, fields) {
             t.error(err)
             t.equal(result.rows[0].solution, 2)
             trans.end()
-            if (++n === 3) done()
           })
         })
 
@@ -346,7 +346,6 @@ factories.forEach(function (f) {
             t.error(err)
             t.equal(result.rows[0].solution, 3)
             trans.end()
-            if (++n === 3) done()
           })
         })
 
@@ -356,13 +355,8 @@ factories.forEach(function (f) {
             t.error(err)
             t.equal(result.rows[0].solution, 4)
             trans.end()
-            if (++n === 3) done()
           })
         })
-
-        function done () {
-          agent.flush()
-        }
       })
     })
   })
@@ -371,14 +365,15 @@ factories.forEach(function (f) {
 // In pg@6 native promises are required for pool operations
 if (global.Promise || semver.satisfies(pgVersion, '<6')) {
   test('simultaneous queries on different connections', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    t.on('end', teardown)
+    resetAgent(4, function (data) {
       t.equal(data.transactions.length, 1)
+      t.equal(data.spans.length, 3)
 
       var trans = data.transactions[0]
 
       t.equal(trans.name, 'foo')
-      t.equal(trans.spans.length, 3)
-      trans.spans.forEach(function (span) {
+      data.spans.forEach(function (span) {
         t.equal(span.name, 'SELECT')
         t.equal(span.type, 'db.postgresql.query')
         t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
@@ -423,13 +418,13 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
 
       function done () {
         trans.end()
-        agent.flush()
       }
     })
   })
 
   test('connection.release()', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    t.on('end', teardown)
+    resetAgent(function (data) {
       assertBasicQuery(t, sql, data)
       t.end()
     })
@@ -458,7 +453,6 @@ function basicQueryCallback (t) {
     t.error(err)
     t.equal(result.rows[0].solution, 2)
     agent.endTransaction()
-    agent.flush()
   }
 }
 
@@ -474,7 +468,6 @@ function basicQueryStream (stream, t) {
   stream.on('end', function () {
     t.equal(results, 1)
     agent.endTransaction()
-    agent.flush()
   })
 }
 
@@ -486,20 +479,20 @@ function basicQueryPromise (p, t) {
     t.equal(results.rows.length, 1)
     t.equal(results.rows[0].solution, 2)
     agent.endTransaction()
-    agent.flush()
   })
 }
 
 function assertBasicQuery (t, sql, data) {
   t.equal(data.transactions.length, 1)
+  t.equal(data.spans.length, 1)
 
   var trans = data.transactions[0]
+  var span = data.spans[0]
 
   t.equal(trans.name, 'foo')
-  t.equal(trans.spans.length, 1)
-  t.equal(trans.spans[0].name, 'SELECT')
-  t.equal(trans.spans[0].type, 'db.postgresql.query')
-  t.deepEqual(trans.spans[0].context.db, { statement: sql, type: 'sql' })
+  t.equal(span.name, 'SELECT')
+  t.equal(span.type, 'db.postgresql.query')
+  t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
 }
 
 function createClient (cb) {
@@ -556,7 +549,7 @@ function setup (cb) {
 }
 
 function teardown (cb) {
-  cb = once(cb)
+  cb = once(cb || function () {})
 
   if (queryable) {
     // this will not work for pools, where we instead rely on the queryable.end
@@ -581,14 +574,11 @@ function teardown (cb) {
   }
 }
 
-function resetAgent (cb) {
-  agent._httpClient = { request () {
-    var self = this
-    var args = [].slice.call(arguments)
-    teardown(function () {
-      cb.apply(self, args)
-    })
-  } }
-  agent._instrumentation._queue._clear()
+function resetAgent (expected, cb) {
+  if (typeof expected === 'function') return resetAgent(2, expected)
+  // first time this function is called, the real client will be present - so
+  // let's just destroy it before creating the mock
+  if (agent._apmServer.destroy) agent._apmServer.destroy()
+  agent._apmServer = mockClient(expected, cb)
   agent._instrumentation.currentTransaction = null
 }

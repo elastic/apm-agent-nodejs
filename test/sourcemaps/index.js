@@ -35,9 +35,7 @@ test('source map linked', function (t) {
 
 test('fails', function (t) {
   t.test('inlined source map broken', function (t) {
-    onError(t, function (t, data) {
-      t.equal(data.errors.length, 1)
-      var error = data.errors[0]
+    onError(t, function (t, error) {
       t.equal(error.exception.message, 'foo')
       t.equal(error.exception.type, 'Error')
       t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-inline-broken.js')})`)
@@ -54,9 +52,7 @@ test('fails', function (t) {
   })
 
   t.test('linked source map not found', function (t) {
-    onError(t, function (t, data) {
-      t.equal(data.errors.length, 1)
-      var error = data.errors[0]
+    onError(t, function (t, error) {
       t.equal(error.exception.message, 'foo')
       t.equal(error.exception.type, 'Error')
       t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-map-missing.js')})`)
@@ -73,9 +69,7 @@ test('fails', function (t) {
   })
 
   t.test('linked source map broken', function (t) {
-    onError(t, function (t, data) {
-      t.equal(data.errors.length, 1)
-      var error = data.errors[0]
+    onError(t, function (t, error) {
       t.equal(error.exception.message, 'foo')
       t.equal(error.exception.type, 'Error')
       t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-broken.js')})`)
@@ -93,15 +87,15 @@ test('fails', function (t) {
 })
 
 function onError (t, assert) {
-  agent._httpClient = { request (endpoint, headers, data, cb) {
-    assert(t, data)
-    t.end()
-  } }
+  agent._apmServer = {
+    sendError (error, cb) {
+      assert(t, error)
+      t.end()
+    }
+  }
 }
 
-function assertSourceFound (t, data) {
-  t.equal(data.errors.length, 1)
-  var error = data.errors[0]
+function assertSourceFound (t, error) {
   t.equal(error.exception.message, 'foo')
   t.equal(error.exception.type, 'Error')
   t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'src', 'error.js')})`)
@@ -117,9 +111,7 @@ function assertSourceFound (t, data) {
   t.deepEqual(frame.post_context, ['', 'module.exports = generateError'])
 }
 
-function assertSourceNotFound (t, data) {
-  t.equal(data.errors.length, 1)
-  var error = data.errors[0]
+function assertSourceNotFound (t, error) {
   t.equal(error.exception.message, 'foo')
   t.equal(error.exception.type, 'Error')
   t.equal(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'src', 'not', 'found.js')})`)
