@@ -4,9 +4,7 @@ process.env.ELASTIC_APM_TEST = true
 
 var test = require('tape')
 
-var assert = require('../_assert')
 var mockInstrumentation = require('./_instrumentation')
-var Span = require('../../lib/instrumentation/span')
 var Transaction = require('../../lib/instrumentation/transaction')
 
 test('init', function (t) {
@@ -18,7 +16,6 @@ test('init', function (t) {
   t.equal(trans.type, 'type')
   t.equal(trans.result, 'success')
   t.equal(trans.ended, false)
-  t.deepEqual(trans.spans, [])
   t.end()
 })
 
@@ -26,8 +23,6 @@ test('#setUserContext', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.spans.length, 1)
-    t.deepEqual(trans.spans, [trans._rootSpan])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -49,8 +44,6 @@ test('#setCustomContext', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.spans.length, 1)
-    t.deepEqual(trans.spans, [trans._rootSpan])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -72,8 +65,6 @@ test('#setTag', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.spans.length, 1)
-    t.deepEqual(trans.spans, [trans._rootSpan])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -93,8 +84,6 @@ test('#addTags', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.spans.length, 1)
-    t.deepEqual(trans.spans, [trans._rootSpan])
     t.end()
   })
   var trans = new Transaction(ins._agent)
@@ -129,37 +118,10 @@ test('#addTags', function (t) {
   t.end()
 })
 
-test('#end() - no spans', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.equal(added.ended, true)
-    t.equal(added, trans)
-    t.equal(trans.spans.length, 0)
-    t.end()
-  })
-  var trans = new Transaction(ins._agent)
-  trans.end()
-})
-
-test('#end() - with spans', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.equal(added.ended, true)
-    t.equal(added, trans)
-    t.equal(trans.spans.length, 1)
-    t.deepEqual(trans.spans, [span])
-    t.end()
-  })
-  var trans = new Transaction(ins._agent)
-  var span = new Span(trans)
-  span.start()
-  span.end()
-  trans.end()
-})
-
 test('#end() - with result', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
     t.equal(added, trans)
-    t.equal(trans.spans.length, 0)
     t.equal(trans.result, 'test')
     t.end()
   })
@@ -260,210 +222,114 @@ test('parallel transactions', function (t) {
   }, 25)
 })
 
-test('span truncation', function (t) {
-  var ins = mockInstrumentation(function (transaction) {
-    t.equal(transaction._builtSpans.length, 20)
-    for (var i = 0; i < 20; i++) {
-      var span = transaction._builtSpans[i]
-      t.equal(span.name, 'span ' + i)
-    }
-    t.end()
-  })
-  ins._agent._conf.transactionMaxSpans = 20
-
-  var transaction = new Transaction(ins._agent, 'first')
-  for (var i = 0; i < 100; i++) {
-    var span = transaction.buildSpan()
-    if (span) span.name = 'span ' + i
-  }
-  transaction.end()
-})
-
 test('#_encode() - un-ended', function (t) {
   var ins = mockInstrumentation(function (added) {
-    t.ok(false)
+    t.fail('should not end the transaction')
   })
   var trans = new Transaction(ins._agent)
-  trans._encode(function (err, payload) {
-    t.equal(err.message, 'cannot encode un-ended transaction')
-    t.end()
-  })
+  t.equal(trans._encode(), null, 'cannot encode un-ended transaction')
+  t.end()
 })
 
 test('#_encode() - ended', function (t) {
-  var ins = mockInstrumentation(function () {})
+  t.plan(10)
+  var ins = mockInstrumentation(function () {
+    t.pass('should end the transaction')
+  })
   var trans = new Transaction(ins._agent)
   trans.end()
-  trans._encode(function (err, payload) {
-    t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
-    t.equal(typeof payload.id, 'string')
-    t.equal(payload.id, trans.id)
-    t.equal(payload.name, 'unnamed')
-    t.equal(payload.type, 'custom')
-    t.ok(payload.duration > 0)
-    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
-    t.equal(payload.result, 'success')
-    t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
-    t.deepEqual(payload.spans, [])
-    t.end()
-  })
+  const payload = trans._encode()
+  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context'])
+  t.equal(typeof payload.id, 'string')
+  t.equal(payload.id, trans.id)
+  t.equal(payload.name, 'unnamed')
+  t.equal(payload.type, 'custom')
+  t.ok(payload.duration > 0)
+  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.result, 'success')
+  t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
+  t.end()
 })
 
-test('#_encode() - with meta data, no spans', function (t) {
-  var ins = mockInstrumentation(function () {})
+test('#_encode() - with meta data', function (t) {
+  t.plan(10)
+  var ins = mockInstrumentation(function () {
+    t.pass('should end the transaction')
+  })
   var trans = new Transaction(ins._agent, 'foo', 'bar')
   trans.result = 'baz'
   trans.setUserContext({ foo: 1 })
   trans.setTag('bar', 1)
   trans.setCustomContext({ baz: 1 })
   trans.end()
-  trans._encode(function (err, payload) {
-    t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
-    t.equal(typeof payload.id, 'string')
-    t.equal(payload.id, trans.id)
-    t.equal(payload.name, 'foo')
-    t.equal(payload.type, 'bar')
-    t.ok(payload.duration > 0)
-    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
-    t.equal(payload.result, 'baz')
-    t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 } })
-    t.deepEqual(payload.spans, [])
-    t.end()
-  })
-})
-
-test('#_encode() - spans', function (t) {
-  var ins = mockInstrumentation(function () {})
-  var trans = new Transaction(ins._agent)
-  genSpans(3)
-  trans.end()
-  trans._encode(function (err, payload) {
-    t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
-    t.equal(typeof payload.id, 'string')
-    t.equal(payload.id, trans.id)
-    t.equal(payload.name, 'unnamed')
-    t.equal(payload.type, 'custom')
-    t.ok(payload.duration > 0)
-    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
-    t.equal(payload.result, 'success')
-    t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
-    t.equal(payload.spans.length, 3)
-    var start = 0
-    payload.spans.forEach(function (span, index) {
-      t.deepEqual(Object.keys(span), ['name', 'type', 'start', 'duration', 'stacktrace'])
-      t.equal(span.name, 'span-name' + index)
-      t.equal(span.type, 'span-type' + index)
-      t.ok(span.start >= start)
-      t.ok(span.duration > 0)
-      assert.stacktrace(t, 'genSpans', __filename, span.stacktrace, ins._agent)
-      start = span.start + span.duration
-    })
-    t.end()
-  })
-
-  function genSpans (max, n) {
-    if (!n) n = 0
-    var span = trans.buildSpan()
-    span.start('span-name' + n, 'span-type' + n)
-    span.end()
-    if (++n < max) genSpans(max, n)
-  }
+  const payload = trans._encode()
+  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context'])
+  t.equal(typeof payload.id, 'string')
+  t.equal(payload.id, trans.id)
+  t.equal(payload.name, 'foo')
+  t.equal(payload.type, 'bar')
+  t.ok(payload.duration > 0)
+  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.result, 'baz')
+  t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 } })
+  t.end()
 })
 
 test('#_encode() - http request meta data', function (t) {
-  var ins = mockInstrumentation(function () {})
+  t.plan(10)
+  var ins = mockInstrumentation(function () {
+    t.pass('should end the transaction')
+  })
   var trans = new Transaction(ins._agent)
   trans.req = mockRequest()
   trans.end()
-  trans._encode(function (err, payload) {
-    t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
-    t.equal(typeof payload.id, 'string')
-    t.equal(payload.id, trans.id)
-    t.equal(payload.name, 'POST unknown route')
-    t.equal(payload.type, 'custom')
-    t.ok(payload.duration > 0)
-    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
-    t.equal(payload.result, 'success')
-    t.deepEqual(payload.context, {
-      request: {
-        http_version: '1.1',
-        method: 'POST',
-        url: {
-          hostname: 'example.com',
-          pathname: '/foo',
-          search: '?bar=baz',
-          raw: '/foo?bar=baz',
-          protocol: 'http:',
-          full: 'http://example.com/foo?bar=baz'
-        },
-        headers: {
-          host: 'example.com',
-          'user-agent': 'user-agent-header',
-          'content-length': 42,
-          cookie: 'cookie1=foo;cookie2=bar',
-          'x-bar': 'baz',
-          'x-foo': 'bar'
-        },
-        socket: {
-          remote_address: '127.0.0.1',
-          encrypted: true
-        },
-        body: '[REDACTED]'
+  const payload = trans._encode()
+  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context'])
+  t.equal(typeof payload.id, 'string')
+  t.equal(payload.id, trans.id)
+  t.equal(payload.name, 'POST unknown route')
+  t.equal(payload.type, 'custom')
+  t.ok(payload.duration > 0)
+  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.result, 'success')
+  t.deepEqual(payload.context, {
+    request: {
+      http_version: '1.1',
+      method: 'POST',
+      url: {
+        hostname: 'example.com',
+        pathname: '/foo',
+        search: '?bar=baz',
+        raw: '/foo?bar=baz',
+        protocol: 'http:',
+        full: 'http://example.com/foo?bar=baz'
       },
-      user: {},
-      tags: {},
-      custom: {}
-    })
-    t.deepEqual(payload.spans, [])
-    t.end()
+      headers: {
+        host: 'example.com',
+        'user-agent': 'user-agent-header',
+        'content-length': 42,
+        cookie: 'cookie1=foo;cookie2=bar',
+        'x-bar': 'baz',
+        'x-foo': 'bar'
+      },
+      socket: {
+        remote_address: '127.0.0.1',
+        encrypted: true
+      },
+      body: '[REDACTED]'
+    },
+    user: {},
+    tags: {},
+    custom: {}
   })
-})
-
-test('#_encode() - disable stack spans', function (t) {
-  var ins = mockInstrumentation(function () {})
-  ins._agent._conf.captureSpanStackTraces = false
-  var trans = new Transaction(ins._agent)
-  var span = trans.buildSpan()
-  span.start()
-  span.end()
-  trans.end()
-  trans._encode(function (err, payload) {
-    t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
-    t.equal(payload.spans.length, 1)
-    t.deepEqual(Object.keys(payload.spans[0]), ['name', 'type', 'start', 'duration'])
-    t.end()
-  })
-})
-
-test('#_encode() - truncated spans', function (t) {
-  var ins = mockInstrumentation(function () {})
-  ins._agent._conf.captureSpanStackTraces = false
-  var trans = new Transaction(ins._agent)
-  var t1 = trans.buildSpan()
-  t1.start('foo')
-  t1.end()
-  var t2 = trans.buildSpan()
-  t2.start('bar')
-  trans.end()
-  trans._encode(function (err, payload) {
-    t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'spans'])
-    t.equal(payload.spans.length, 2)
-    t.equal(payload.spans[0].name, 'foo')
-    t.equal(payload.spans[0].type, 'custom')
-    t.equal(payload.spans[1].name, 'bar')
-    t.equal(payload.spans[1].type, 'custom.truncated')
-    t.end()
-  })
+  t.end()
 })
 
 test('#_encode() - dropped spans', function (t) {
-  var ins = mockInstrumentation(function () {})
+  t.plan(9)
+  var ins = mockInstrumentation(function () {
+    t.pass('should end the transaction')
+  })
   ins._agent._conf.transactionMaxSpans = 2
 
   var trans = new Transaction(ins._agent, 'single-name', 'type')
@@ -479,67 +345,52 @@ test('#_encode() - dropped spans', function (t) {
   span0.end()
   trans.end()
 
-  trans._encode(function (err, payload) {
-    t.error(err)
-
-    t.equal(payload.name, 'single-name')
-    t.equal(payload.type, 'type')
-    t.equal(payload.result, 'result')
-    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
-    t.ok(payload.duration > 0, 'should have a duration >0ms')
-    t.ok(payload.duration < 100, 'should have a duration <100ms')
-    t.deepEqual(payload.context, {
-      user: {},
-      tags: {},
-      custom: {}
-    })
-
-    t.equal(payload.spans.length, 2)
-    t.deepEqual(payload.span_count, {
-      dropped: {
-        total: 1
-      }
-    })
-
-    payload.spans.forEach(function (span, index) {
-      t.equal(span.name, 's' + index)
-      t.equal(span.type, 'type' + index + (index === 1 ? '.truncated' : ''))
-      t.ok(span.start > 0, 'span start should be >0ms')
-      t.ok(span.start < 100, 'span start should be <100ms')
-      t.ok(span.duration > 0, 'span duration should be >0ms')
-      t.ok(span.duration < 100, 'span duration should be <100ms')
-    })
-
-    t.end()
+  const payload = trans._encode()
+  t.equal(payload.name, 'single-name')
+  t.equal(payload.type, 'type')
+  t.equal(payload.result, 'result')
+  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.ok(payload.duration > 0, 'should have a duration >0ms')
+  t.ok(payload.duration < 100, 'should have a duration <100ms')
+  t.deepEqual(payload.context, {
+    user: {},
+    tags: {},
+    custom: {}
   })
+
+  t.deepEqual(payload.span_count, {
+    dropped: {
+      total: 1
+    }
+  })
+
+  t.end()
 })
 
 test('#_encode() - not sampled', function (t) {
-  var ins = mockInstrumentation(function () {})
+  t.plan(9)
+  var ins = mockInstrumentation(function () {
+    t.pass('should end the transaction')
+  })
   ins._agent._conf.transactionSampleRate = 0
 
   var trans = new Transaction(ins._agent, 'single-name', 'type')
   trans.result = 'result'
   trans.req = mockRequest()
   trans.res = mockResponse()
-  var span0 = trans.buildSpan()
-  if (span0) span0.start('s0', 'type0')
-  trans.buildSpan()
-  if (span0) span0.end()
+  var span = trans.buildSpan()
+  t.notOk(span)
   trans.end()
 
-  trans._encode(function (err, payload) {
-    t.error(err)
-    t.equal(payload.name, 'single-name')
-    t.equal(payload.type, 'type')
-    t.equal(payload.result, 'result')
-    t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
-    t.ok(payload.duration > 0, 'should have a duration >0ms')
-    t.ok(payload.duration < 100, 'should have a duration <100ms')
-    t.notOk(payload.spans)
-    t.notOk(payload.context)
-    t.end()
-  })
+  const payload = trans._encode()
+  t.equal(payload.name, 'single-name')
+  t.equal(payload.type, 'type')
+  t.equal(payload.result, 'result')
+  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.ok(payload.duration > 0, 'should have a duration >0ms')
+  t.ok(payload.duration < 100, 'should have a duration <100ms')
+  t.notOk(payload.context)
+  t.end()
 })
 
 function mockRequest () {
