@@ -1,3 +1,6 @@
+# Abort with non zero exit code on errors
+$ErrorActionPreference = "Stop"
+
 Write-Host "Downloading Redis..." -ForegroundColor Cyan
 $redisRoot = "$env:SYSTEMDRIVE\Redis"
 $zipPath = "$($env:USERPROFILE)\redis-2.8.19.zip"
