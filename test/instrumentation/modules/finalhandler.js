@@ -12,11 +12,13 @@ var express = require('express')
 var finalhandler = require('finalhandler')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+
 function makeTest (makeServer) {
   return function (t) {
     t.plan(7)
 
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(function (data) {
       t.equal(data.transactions.length, 1, 'has a transaction')
 
       var trans = data.transactions[0]
@@ -101,8 +103,7 @@ test('express with error handler', makeTest((error, setRequest) => {
 }))
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () { } }
+  agent._apmServer = mockClient(cb)
   agent.captureError = function (err) { throw err }
 }
