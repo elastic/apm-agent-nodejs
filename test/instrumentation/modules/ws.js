@@ -9,6 +9,8 @@ var agent = require('../../..').start({
 var test = require('tape')
 var WebSocket = require('ws')
 
+var mockClient = require('../../_mock_http_client')
+
 var PORT = 12342
 
 test('ws.send', function (t) {
@@ -41,25 +43,25 @@ test('ws.send', function (t) {
 })
 
 function done (t) {
-  return function (endpoint, headers, data, cb) {
+  return function (data, cb) {
     t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, 1)
 
     var trans = data.transactions[0]
+    var span = data.spans[0]
 
     t.equal(trans.name, 'foo')
     t.equal(trans.type, 'websocket')
-    t.equal(trans.spans.length, 1)
-    t.equal(trans.spans[0].name, 'Send WebSocket Message')
-    t.equal(trans.spans[0].type, 'websocket.send')
-    t.ok(trans.spans[0].start + trans.spans[0].duration < trans.duration)
+    t.equal(span.name, 'Send WebSocket Message')
+    t.equal(span.type, 'websocket.send')
+    t.ok(span.start + span.duration < trans.duration)
 
     t.end()
   }
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._apmServer = mockClient(2, cb)
   agent.captureError = function (err) { throw err }
 }
