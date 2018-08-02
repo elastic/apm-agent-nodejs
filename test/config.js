@@ -61,37 +61,66 @@ var truthyValues = [true, 1, '1', 'true', 'yes', 'on', 'enabled']
 optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
     var bool = typeof fixture[2] === 'boolean'
+    var url = fixture[0] === 'serverUrl' // special case for url's so they can be parsed using url.parse()
     var number = typeof fixture[2] === 'number'
     var array = Array.isArray(fixture[2])
 
     test('should be configurable by envrionment variable ELASTIC_APM_' + fixture[1], function (t) {
       var agent = Agent()
-      var value = bool ? (fixture[2] ? '0' : '1') : number ? 1 : 'custom-value'
-      process.env['ELASTIC_APM_' + fixture[1]] = value
+      var value
+
+      if (bool) value = !fixture[2]
+      else if (number) value = 1
+      else if (url) value = 'http://custom-value'
+      else value = 'custom-value'
+
+      process.env['ELASTIC_APM_' + fixture[1]] = value.toString()
+
       agent.start()
+
       if (array) {
         t.deepEqual(agent._conf[fixture[0]], [ value ])
       } else {
         t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
       }
+
       delete process.env['ELASTIC_APM_' + fixture[1]]
+
       t.end()
     })
 
     test('should overwrite ELASTIC_APM_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
       var agent = Agent()
       var opts = {}
-      var value1 = bool ? (fixture[2] ? '0' : '1') : number ? 2 : 'overwriting-value'
-      var value2 = bool ? (fixture[2] ? '1' : '0') : number ? 1 : 'custom-value'
+      var value1, value2
+
+      if (bool) {
+        value1 = !fixture[2]
+        value2 = fixture[2]
+      } else if (number) {
+        value1 = 2
+        value2 = 1
+      } else if (url) {
+        value1 = 'http://overwriting-value'
+        value2 = 'http://custom-value'
+      } else {
+        value1 = 'overwriting-value'
+        value2 = 'custom-value'
+      }
+
       opts[fixture[0]] = value1
-      process.env['ELASTIC_APM_' + fixture[1]] = value2
+      process.env['ELASTIC_APM_' + fixture[1]] = value2.toString()
+
       agent.start(opts)
+
       if (array) {
         t.deepEqual(agent._conf[fixture[0]], [ value1 ])
       } else {
         t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value1)
       }
+
       delete process.env['ELASTIC_APM_' + fixture[1]]
+
       t.end()
     })
   }
