@@ -73,7 +73,7 @@ Defaults to `unnamed`
 You can alternatively set this via <<span-type,`span.type`>>.
 Defaults to `custom.code`
 
-When a span is started it will measure the time until <<span-end,`span.end()`>> or <<span-truncate,`span.truncate()`>> is called.
+When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
 
 [[span-end]]
 ==== `span.end()`
@@ -86,20 +86,3 @@ span.end()
 End the span.
 If the span has already ended,
 nothing happens.
-
-A span that isn't ended before the parent transaction ends will be <<span-truncate,truncated>>.
-
-[[span-truncate]]
-==== `span.truncate()`
-
-[source,js]
-----
-span.truncate()
-----
-
-Truncates and ends the span.
-If the span is already ended or truncated,
-nothing happens.
-
-A truncated span is a special type of ended span.
-It's used to indicate that the measured event took longer than the duration recorded by the span.

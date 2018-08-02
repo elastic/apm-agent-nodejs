@@ -12,6 +12,9 @@ var agent = require('../../..').start({
 var elasticsearch = require('elasticsearch')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
+
 test('client.ping with callback', function userLandCode (t) {
   resetAgent(done(t, 'HEAD', '/'))
 
@@ -71,41 +74,48 @@ test('client.count with callback', function userLandCode (t) {
 
 var searchRegexp = /_search$/
 function done (t, method, path, query) {
-  return function (endpoint, headers, data, cb) {
+  return function (data, cb) {
     t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, 2)
 
     var trans = data.transactions[0]
 
     t.ok(/^foo\d$/.test(trans.name))
     t.equal(trans.type, 'custom')
 
-    t.equal(trans.spans.length, 2)
+    let span1, span2
+    {
+      const type = 'ext.http.http'
+      span1 = findObjInArray(data.spans, 'type', type)
+      t.ok(span1, 'should have span with type ' + type)
+    } {
+      const type = 'db.elasticsearch.request'
+      span2 = findObjInArray(data.spans, 'type', type)
+      t.ok(span2, 'should have span with type ' + type)
+    }
 
-    t.equal(trans.spans[0].name, method + ' ' + host + path)
-    t.equal(trans.spans[0].type, 'ext.http.http')
+    t.equal(span1.name, method + ' ' + host + path)
+    t.equal(span2.name, 'Elasticsearch: ' + method + ' ' + path)
 
-    t.equal(trans.spans[1].name, 'Elasticsearch: ' + method + ' ' + path)
-    t.equal(trans.spans[1].type, 'db.elasticsearch.request')
-    t.ok(trans.spans[1].stacktrace.some(function (frame) {
+    t.ok(span2.stacktrace.some(function (frame) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
 
     if (searchRegexp.test(path)) {
-      t.deepEqual(trans.spans[1].context.db, { statement: query || '{}', type: 'elasticsearch' })
+      t.deepEqual(span2.context.db, { statement: query || '{}', type: 'elasticsearch' })
     } else {
-      t.notOk(trans.spans[1].context)
+      t.notOk(span2.context)
     }
 
-    t.ok(trans.spans[0].start > trans.spans[1].start, 'http span should start after elasticsearch span')
-    t.ok(trans.spans[0].start + trans.spans[0].duration < trans.spans[1].start + trans.spans[1].duration, 'http span should end before elasticsearch span')
+    t.ok(span1.start > span2.start, 'http span should start after elasticsearch span')
+    t.ok(span1.start + span1.duration < span2.start + span2.duration, 'http span should end before elasticsearch span')
 
     t.end()
   }
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._apmServer = mockClient(3, cb)
   agent.captureError = function (err) { throw err }
 }
