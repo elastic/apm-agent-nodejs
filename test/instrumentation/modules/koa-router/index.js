@@ -18,10 +18,12 @@ var Koa = require('koa')
 var Router = require('koa-router')
 var test = require('tape')
 
+var mockClient = require('../../../_mock_http_client')
+
 test('route naming', function (t) {
   t.plan(8)
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (data) {
     assert(t, data)
     server.close()
   })
@@ -32,9 +34,6 @@ test('route naming', function (t) {
       res.on('data', function (chunk) {
         t.equal(chunk.toString(), 'hello world')
       })
-      res.on('end', function () {
-        agent.flush()
-      })
     })
   })
 })
@@ -42,7 +41,7 @@ test('route naming', function (t) {
 test('route naming with params', function (t) {
   t.plan(8)
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (data) {
     assert(t, data, { name: 'GET /hello/:name' })
     server.close()
   })
@@ -52,9 +51,6 @@ test('route naming with params', function (t) {
       t.equal(res.statusCode, 200)
       res.on('data', function (chunk) {
         t.equal(chunk.toString(), 'hello thomas')
-      })
-      res.on('end', function () {
-        agent.flush()
       })
     })
   })
@@ -91,19 +87,21 @@ function assert (t, data, results) {
   results.name = results.name || 'GET /hello'
 
   t.equal(data.transactions.length, 1)
+  t.equal(data.spans.length, 0)
 
   var trans = data.transactions[0]
 
   t.equal(trans.name, results.name)
   t.equal(trans.type, 'request')
   t.equal(trans.result, results.status)
-  t.equal(trans.spans.length, 0)
   t.equal(trans.context.request.method, 'GET')
 }
 
 function resetAgent (cb) {
+  // first time this function is called, the real client will be present - so
+  // let's just destroy it before creating the mock
+  if (agent._apmServer.destroy) agent._apmServer.destroy()
   agent._instrumentation.currentTransaction = null
-  agent._instrumentation._queue._clear()
-  agent._httpClient = { request: cb || function () {} }
+  agent._apmServer = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }

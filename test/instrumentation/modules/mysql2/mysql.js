@@ -15,6 +15,8 @@ var mysqlPromise = require('mysql2/promise')
 var test = require('tape')
 
 var utils = require('./_utils')
+var mockClient = require('../../../_mock_http_client')
+var findObjInArray = require('../../../_utils').findObjInArray
 
 var queryable
 var queryablePromise
@@ -72,6 +74,7 @@ factories.forEach(function (f) {
   var hasPromises = f[2]
 
   test('mysql2.' + factory.name, function (t) {
+    t.on('end', teardown)
     executors.forEach(function (executor) {
       t.test(executor, function (t) {
         var isQuery = executor === 'query'
@@ -89,7 +92,7 @@ factories.forEach(function (f) {
             var args = values(query, basicQueryCallback(t))
 
             t.test(name, function (t) {
-              resetAgent(function (endpoint, headers, data, cb) {
+              resetAgent(function (data) {
                 assertBasicQuery(t, query, data)
                 t.end()
               })
@@ -112,7 +115,7 @@ factories.forEach(function (f) {
               var args = values(query)
 
               t.test(name, function (t) {
-                resetAgent(function (endpoint, headers, data, cb) {
+                resetAgent(function (data) {
                   assertBasicQuery(t, query, data)
                   t.end()
                 })
@@ -137,7 +140,7 @@ factories.forEach(function (f) {
               var args = values(query)
 
               t.test(name, function (t) {
-                resetAgent(function (endpoint, headers, data, cb) {
+                resetAgent(function (data) {
                   assertBasicQuery(t, query, data)
                   t.end()
                 })
@@ -155,18 +158,18 @@ factories.forEach(function (f) {
 
     t.test('simultaneous queries', function (t) {
       t.test('on same connection', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(4, function (data) {
           t.equal(data.transactions.length, 1)
+          t.equal(data.spans.length, 3)
 
           var trans = data.transactions[0]
 
           t.equal(trans.name, 'foo')
-          t.equal(trans.spans.length, 3)
 
-          trans.spans.forEach(function (trace) {
-            t.equal(trace.name, 'SELECT')
-            t.equal(trace.type, 'db.mysql.query')
-            t.deepEqual(trace.context.db, { statement: sql, type: 'sql' })
+          data.spans.forEach(function (span) {
+            t.equal(span.name, 'SELECT')
+            t.equal(span.type, 'db.mysql.query')
+            t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
           })
 
           t.end()
@@ -196,24 +199,23 @@ factories.forEach(function (f) {
 
           function done () {
             trans.end()
-            agent.flush()
           }
         })
       })
 
       t.test('on different connections', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(4, function (data) {
           t.equal(data.transactions.length, 1)
+          t.equal(data.spans.length, 3)
 
           var trans = data.transactions[0]
 
           t.equal(trans.name, 'foo')
-          t.equal(trans.spans.length, 3)
 
-          trans.spans.forEach(function (trace) {
-            t.equal(trace.name, 'SELECT')
-            t.equal(trace.type, 'db.mysql.query')
-            t.deepEqual(trace.context.db, { statement: sql, type: 'sql' })
+          data.spans.forEach(function (span) {
+            t.equal(span.name, 'SELECT')
+            t.equal(span.type, 'db.mysql.query')
+            t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
           })
 
           t.end()
@@ -252,25 +254,26 @@ factories.forEach(function (f) {
 
           function done () {
             trans.end()
-            agent.flush()
           }
         })
       })
     })
 
     t.test('simultaneous transactions', function (t) {
-      resetAgent(function (endpoint, headers, data, cb) {
+      resetAgent(6, function (data) {
         t.equal(data.transactions.length, 3)
+        t.equal(data.spans.length, 3)
         var names = data.transactions.map(function (trans) {
           return trans.name
         }).sort()
         t.deepEqual(names, ['bar', 'baz', 'foo'])
 
         data.transactions.forEach(function (trans) {
-          t.equal(trans.spans.length, 1)
-          t.equal(trans.spans[0].name, 'SELECT')
-          t.equal(trans.spans[0].type, 'db.mysql.query')
-          t.deepEqual(trans.spans[0].context.db, { statement: sql, type: 'sql' })
+          const span = findObjInArray(data.spans, 'transactionId', trans.id)
+          t.ok(span, 'transaction should have span')
+          t.equal(span.name, 'SELECT')
+          t.equal(span.type, 'db.mysql.query')
+          t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
         })
 
         t.end()
@@ -279,15 +282,12 @@ factories.forEach(function (f) {
       var sql = 'SELECT 1 + ? AS solution'
 
       factory(function () {
-        var n = 0
-
         setImmediate(function () {
           var trans = agent.startTransaction('foo')
           queryable.query(sql, [1], function (err, rows, fields) {
             t.error(err)
             t.equal(rows[0].solution, 2)
             trans.end()
-            if (++n === 3) done()
           })
         })
 
@@ -297,7 +297,6 @@ factories.forEach(function (f) {
             t.error(err)
             t.equal(rows[0].solution, 3)
             trans.end()
-            if (++n === 3) done()
           })
         })
 
@@ -307,20 +306,15 @@ factories.forEach(function (f) {
             t.error(err)
             t.equal(rows[0].solution, 4)
             trans.end()
-            if (++n === 3) done()
           })
         })
-
-        function done () {
-          agent.flush()
-        }
       })
     })
 
     // Only pools have a getConnection function
     if (type === 'pool') {
       t.test('connection.release()', function (t) {
-        resetAgent(function (endpoint, headers, data, cb) {
+        resetAgent(function (data) {
           assertBasicQuery(t, sql, data)
           t.end()
         })
@@ -348,7 +342,6 @@ factories.forEach(function (f) {
 function basicQueryPromise (t, p) {
   function done () {
     agent.endTransaction()
-    agent.flush()
   }
 
   p.then(function (response) {
@@ -366,7 +359,6 @@ function basicQueryCallback (t) {
     t.error(err)
     t.equal(rows[0].solution, 2)
     agent.endTransaction()
-    agent.flush()
   }
 }
 
@@ -382,18 +374,17 @@ function basicQueryStream (stream, t) {
   stream.on('end', function () {
     t.equal(results, 1)
     agent.endTransaction()
-    agent.flush()
   })
 }
 
 function assertBasicQuery (t, sql, data) {
   t.equal(data.transactions.length, 1)
+  t.equal(data.spans.length, 1)
 
   var trans = data.transactions[0]
+  var span = data.spans[0]
 
-  t.equal(data.transactions[0].name, 'foo')
-  t.equal(trans.spans.length, 1)
-  var span = trans.spans[0]
+  t.equal(trans.name, 'foo')
   t.equal(span.name, 'SELECT')
   t.equal(span.type, 'db.mysql.query')
   t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
@@ -401,7 +392,7 @@ function assertBasicQuery (t, sql, data) {
 
 function createConnection (cb) {
   setup(function () {
-    teardown = function teardown () {
+    _teardown = function teardown () {
       if (queryable) {
         queryable.end()
         queryable = undefined
@@ -424,7 +415,7 @@ function createConnection (cb) {
 
 function createPool (cb) {
   setup(function () {
-    teardown = function teardown () {
+    _teardown = function teardown () {
       if (queryable) {
         queryable.end()
         queryable = undefined
@@ -444,7 +435,7 @@ function createPool (cb) {
 
 function createPoolAndGetConnection (cb) {
   setup(function () {
-    teardown = function teardown () {
+    _teardown = function teardown () {
       if (pool) {
         pool.end()
         pool = undefined
@@ -474,7 +465,7 @@ function createPoolAndGetConnection (cb) {
 
 function createPoolClusterAndGetConnection (cb) {
   setup(function () {
-    teardown = function teardown () {
+    _teardown = function teardown () {
       if (cluster) {
         cluster.end()
         cluster = undefined
@@ -494,7 +485,7 @@ function createPoolClusterAndGetConnection (cb) {
 
 function createPoolClusterAndGetConnectionViaOf (cb) {
   setup(function () {
-    teardown = function teardown () {
+    _teardown = function teardown () {
       cluster.end()
     }
 
@@ -514,13 +505,16 @@ function setup (cb) {
 }
 
 // placeholder variable to hold the teardown function created by the setup function
-var teardown = function () {}
+var _teardown = function () {}
+var teardown = function () {
+  _teardown()
+}
 
-function resetAgent (cb) {
-  agent._httpClient = { request () {
-    teardown()
-    cb.apply(this, arguments)
-  } }
-  agent._instrumentation._queue._clear()
+function resetAgent (expected, cb) {
+  if (typeof expected === 'function') return resetAgent(2, expected)
+  // first time this function is called, the real client will be present - so
+  // let's just destroy it before creating the mock
+  if (agent._apmServer.destroy) agent._apmServer.destroy()
+  agent._apmServer = mockClient(expected, cb)
   agent._instrumentation.currentTransaction = null
 }

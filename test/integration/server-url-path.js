@@ -6,7 +6,8 @@ getPort().then(function (port) {
   var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port + '/sub',
-    captureExceptions: false
+    captureExceptions: false,
+    disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
   })
 
   var http = require('http')
@@ -14,10 +15,11 @@ getPort().then(function (port) {
 
   test('should allow path in serverUrl', function (t) {
     var server = http.createServer(function (req, res) {
-      t.equal(req.url, '/sub/v1/errors')
+      t.equal(req.url, '/sub/v2/intake')
       res.end()
-      server.close()
       t.end()
+      server.close()
+      agent.destroy()
     })
 
     server.listen(port, function () {

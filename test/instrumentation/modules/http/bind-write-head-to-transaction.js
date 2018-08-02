@@ -6,8 +6,10 @@ var http = require('http')
 
 var test = require('tape')
 
+var mockClient = require('../../../_mock_http_client')
+
 test('response writeHead is bound to transaction', function (t) {
-  resetAgent((endpoint, headers, data, cb) => {
+  resetAgent(data => {
     t.equal(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
@@ -27,15 +29,13 @@ test('response writeHead is bound to transaction', function (t) {
       res.resume()
       res.on('end', () => {
         server.close()
-        agent.flush()
       })
     })
   })
 })
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () { } }
+  agent._apmServer = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }
