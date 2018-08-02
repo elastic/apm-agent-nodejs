@@ -65,7 +65,7 @@ function mapSeries (tasks, handler, cb) {
 var directories = [
   'test',
   'test/integration',
-  'test/integration/api-schema',
+  // 'test/integration/api-schema', // TODO: Update tests to use new v2 schemas
   'test/sourcemaps',
   'test/instrumentation',
   'test/instrumentation/modules',

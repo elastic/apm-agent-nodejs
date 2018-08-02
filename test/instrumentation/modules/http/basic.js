@@ -7,10 +7,11 @@ var http = require('http')
 var test = require('tape')
 
 var assert = require('./_assert')
+var mockClient = require('../../../_mock_http_client')
 
 test('http.createServer', function (t) {
   t.test('direct callback', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(function (data) {
       assert(t, data)
       server.close()
       t.end()
@@ -21,7 +22,7 @@ test('http.createServer', function (t) {
   })
 
   t.test('server.addListener()', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(function (data) {
       assert(t, data)
       server.close()
       t.end()
@@ -33,7 +34,7 @@ test('http.createServer', function (t) {
   })
 
   t.test('server.on()', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(function (data) {
       assert(t, data)
       server.close()
       t.end()
@@ -47,7 +48,7 @@ test('http.createServer', function (t) {
 
 test('new http.Server', function (t) {
   t.test('direct callback', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(function (data) {
       assert(t, data)
       server.close()
       t.end()
@@ -58,7 +59,7 @@ test('new http.Server', function (t) {
   })
 
   t.test('server.addListener()', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(function (data) {
       assert(t, data)
       server.close()
       t.end()
@@ -70,7 +71,7 @@ test('new http.Server', function (t) {
   })
 
   t.test('server.on()', function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(function (data) {
       assert(t, data)
       server.close()
       t.end()
@@ -87,18 +88,10 @@ function sendRequest (server, timeout) {
     var port = server.address().port
     var req = http.get('http://localhost:' + port, function (res) {
       if (timeout) throw new Error('should not get to here')
-      res.on('end', function () {
-        agent.flush()
-      })
       res.resume()
     })
 
     if (timeout) {
-      req.on('error', function (err) {
-        if (err.code !== 'ECONNRESET') throw err
-        agent.flush()
-      })
-
       process.nextTick(function () {
         req.abort()
       })
@@ -111,7 +104,6 @@ function onRequest (req, res) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb }
+  agent._apmServer = mockClient(1, cb)
 }

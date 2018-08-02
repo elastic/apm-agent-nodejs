@@ -11,8 +11,14 @@ var semver = require('semver')
 var test = require('tape')
 var version = require('mongodb-core/package').version
 
+var mockClient = require('../../_mock_http_client')
+
 test('instrument simple command', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  const expected = semver.lt(version, '2.0.0')
+    ? (semver.lt(process.version, '7.0.0') ? 10 : 11)
+    : 7
+
+  resetAgent(expected, function (data) {
     var trans = data.transactions[0]
     var groups
 
@@ -26,44 +32,46 @@ test('instrument simple command', function (t) {
       // mongodb-core v1.x will sometimes perform two `ismaster` queries
       // towards the admin and/or the system database. This doesn't always
       // happen, but if it does, we'll accept it.
-      if (trans.spans[0].name === 'admin.$cmd.ismaster') {
+      if (data.spans[0].name === 'admin.$cmd.ismaster') {
         groups = [
           'admin.$cmd.ismaster',
           'system.$cmd.ismaster',
-          'elasticapm.$cmd.command',
           'elasticapm.test.insert',
           'elasticapm.$cmd.command',
           'elasticapm.test.update',
           'elasticapm.$cmd.command',
           'elasticapm.test.remove',
+          'elasticapm.$cmd.command',
           'elasticapm.test.find',
           'system.$cmd.ismaster'
         ]
-      } else if (trans.spans[1].name === 'system.$cmd.ismaster') {
+      } else if (data.spans[1].name === 'system.$cmd.ismaster') {
         groups = [
           'system.$cmd.ismaster',
           'system.$cmd.ismaster',
-          'elasticapm.$cmd.command',
           'elasticapm.test.insert',
           'elasticapm.$cmd.command',
           'elasticapm.test.update',
           'elasticapm.$cmd.command',
           'elasticapm.test.remove',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.find',
+          'system.$cmd.ismaster'
+        ]
+      } else if (semver.lt(process.version, '7.0.0')) {
+        groups = [
+          'system.$cmd.ismaster',
+          'elasticapm.test.insert',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.update',
+          'elasticapm.$cmd.command',
+          'elasticapm.test.remove',
+          'elasticapm.$cmd.command',
           'elasticapm.test.find',
           'system.$cmd.ismaster'
         ]
       } else {
-        groups = [
-          'system.$cmd.ismaster',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.insert',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.update',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.remove',
-          'elasticapm.test.find',
-          'system.$cmd.ismaster'
-        ]
+        t.fail('unexpected group scenario')
       }
     } else {
       groups = [
@@ -76,12 +84,17 @@ test('instrument simple command', function (t) {
       ]
     }
 
-    t.equal(trans.spans.length, groups.length)
+    t.equal(data.spans.length, groups.length)
+
+    // spans are sorted by their end time - we need them sorted by their start time
+    data.spans = data.spans.sort(function (a, b) {
+      return a.start - b.start
+    })
 
     groups.forEach(function (name, i) {
-      t.equal(trans.spans[i].name, name)
-      t.equal(trans.spans[i].type, 'db.mongodb.query')
-      t.ok(trans.spans[i].start + trans.spans[i].duration < trans.duration)
+      t.equal(data.spans[i].name, name)
+      t.equal(data.spans[i].type, 'db.mongodb.query')
+      t.ok(data.spans[i].start + data.spans[i].duration < trans.duration)
     })
 
     t.end()
@@ -119,7 +132,6 @@ test('instrument simple command', function (t) {
                 t.error(err)
                 agent.endTransaction()
                 _server.destroy()
-                agent.flush()
               })
             })
           })
@@ -131,9 +143,8 @@ test('instrument simple command', function (t) {
   server.connect()
 })
 
-function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
+function resetAgent (expected, cb) {
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._apmServer = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

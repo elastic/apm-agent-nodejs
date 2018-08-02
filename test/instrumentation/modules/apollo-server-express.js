@@ -18,6 +18,8 @@ var querystring = require('querystring')
 var ApolloServer = require('apollo-server-express').ApolloServer
 var gql = require('apollo-server-express').gql
 
+var mockClient = require('../../_mock_http_client')
+
 test('POST /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
@@ -195,25 +197,27 @@ test('POST /graphql - sort multiple queries', function (t) {
 })
 
 function done (t, query) {
-  return function (endpoint, headers, data, cb) {
+  return function (data, cb) {
     t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, 1)
 
     var trans = data.transactions[0]
+    var span = data.spans[0]
 
     t.equal(trans.name, query + ' (/graphql)')
     t.equal(trans.type, 'request')
-    t.equal(trans.spans.length, 1)
-    t.equal(trans.spans[0].name, 'GraphQL: ' + query)
-    t.equal(trans.spans[0].type, 'db.graphql.execute')
-    t.ok(trans.spans[0].start + trans.spans[0].duration < trans.duration)
+    t.equal(span.name, 'GraphQL: ' + query)
+    t.equal(span.type, 'db.graphql.execute')
+
+    var offset = span.timestamp - trans.timestamp
+    t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()
   }
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._apmServer = mockClient(2, cb)
   agent.captureError = function (err) { throw err }
 }
