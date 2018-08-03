@@ -16,10 +16,23 @@ test('client-side abort - call end', function (t) {
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
-      setTimeout(function () {
-        t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
+      function end () {
+        clearInterval(interval)
+        clearTimeout(cancel)
         server.close()
         t.end()
+      }
+
+      var cancel = setTimeout(() => {
+        t.fail('should have queued a transaction')
+        end()
+      }, 1000)
+
+      var interval = setInterval(function () {
+        if (agent._instrumentation._queue._items.length) {
+          t.equal(agent._instrumentation._queue._items.length, 1, 'should add transactions to queue')
+          end()
+        }
       }, 100)
     })
 
