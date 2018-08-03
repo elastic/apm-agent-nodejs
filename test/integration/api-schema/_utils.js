@@ -10,7 +10,8 @@ const thunky = require('thunky')
 
 const schemaDir = thunky(function (cb) {
   const dir = join(tmpdir(), '.schemacache')
-  const cmd = join(__dirname, 'download-json-schemas.sh') + ' ' + dir
+  const script = join(__dirname, 'download-json-schemas.sh')
+  const cmd = `"${script}" "${dir}"`
   console.log('downloading schemas from GitHub to %s...', dir)
   exec(cmd, function (err) {
     if (err) return cb(err)
