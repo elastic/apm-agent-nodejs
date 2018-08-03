@@ -236,6 +236,16 @@ test('#getContextFromRequest()', function (t) {
     t.end()
   })
 
+  t.test('body is object, but not safe to stringify', function (t) {
+    var req = getMockReq()
+    req.body = {foo: 42}
+    req.body.bar = req.body
+    req.headers['transfer-encoding'] = 'chunked'
+    var parsed = parsers.getContextFromRequest(req, true)
+    t.deepEqual(parsed.body, req.body)
+    t.end()
+  })
+
   function getMockReq () {
     return {
       httpVersion: '1.1',
