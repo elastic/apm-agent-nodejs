@@ -1,3 +1,6 @@
+# Abort with non zero exit code on errors
+$ErrorActionPreference = "Stop"
+
 Write-Host "Preparing to download and install Elasticsearch..." -ForegroundColor Cyan
 $esVersion = "6.1.2"
 $downloadUrl = "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$($esVersion).zip"

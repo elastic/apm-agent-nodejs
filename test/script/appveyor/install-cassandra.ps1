@@ -1,3 +1,6 @@
+# Abort with non zero exit code on errors
+$ErrorActionPreference = "Stop"
+
 $cassandraVersion = "3.11.3"
 $downloadUrl = "http://archive.apache.org/dist/cassandra/$cassandraVersion/apache-cassandra-$cassandraVersion-bin.tar.gz"
 $extractRoot = "$env:USERPROFILE"
