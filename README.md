@@ -45,7 +45,7 @@ npm install elastic-apm-node --save
 ## Contributing
 
 Contributions are welcome,
-but we recommend that you take a moment and read our [contribution guide](https://github.com/elastic/apm-agent-nodejs/blob/master/CONTRIBUTING.md) first.
+but we recommend that you take a moment and read our [contribution guide](CONTRIBUTING.md) first.
 
 To ease development,
 set the environment variable `DEBUG_PAYLOAD=1` to have the agent dump the JSON payload sent to the APM Server to a temporary file on your local harddrive.
@@ -54,6 +54,6 @@ Please see the [testing section](CONTRIBUTING.MD#testing) in CONTRIBUTING.md for
 
 ## License
 
-[BSD-2-Clause](https://github.com/elastic/apm-agent-nodejs/blob/master/LICENSE)
+[BSD-2-Clause](LICENSE)
 
 <br>Made with ♥️ and ☕️ by Elastic and our community.

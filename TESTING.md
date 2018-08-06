@@ -29,7 +29,7 @@ Arguments:
 
 - `node_version` - Specify major version of Node.js to run test suite on (default: same version as is installed locally)
 - `packages` - Comma separated list of npm package names for which to run [tav](https://github.com/watson/test-all-versions) tests.
-  See [`.tav.yml`](https://github.com/elastic/apm-agent-nodejs/blob/master/.tav.yml) for list of possible names.
+  See [`.tav.yml`](.tav.yml) for list of possible names.
   If used,
   `node_version` must be specified (default: none)
 
