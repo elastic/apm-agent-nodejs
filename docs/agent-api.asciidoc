@@ -535,41 +535,47 @@ Specify the maximum number of spans to capture within a request transaction
 before dropping further spans.
 Setting to `Infinity` means that spans will never be dropped.
 
-[[flush-interval]]
-===== `flushInterval`
+[[api-request-time]]
+===== `apiRequestTime`
 
 * *Type:* Number
 * *Default:* `10`
-* *Env:* `ELASTIC_APM_FLUSH_INTERVAL`
+* *Env:* `ELASTIC_APM_API_REQUEST_TIME`
 
-The agent maintains an in-memory queue to which recorded transactions are added when they end.
-Unless empty,
-this queue is flushed and sent to the APM Server for processing approximately every 10 seconds.
+The agent maintains an open HTTP request to the APM Server that is used to transmit the collected transactions,
+spans,
+and errors to the server.
 
-Use this option to change that interval.
+To avoid problems with intermittent proxies,
+the HTTP request is ended and a new one created at regular intervals,
+controlled by this config option.
 The value is expected to be in seconds.
 
-Lowering this interval can reduce memory usage on Node.js applications with a high number of transactions.
+[NOTE]
+====
+The HTTP request is ended before the time threshold is reached if enough bytes are sent over it.
+Use the <<api-request-size,`apiRequestSize`>> config option to control the byte threshold.
+====
+
+[[api-request-size]]
+===== `apiRequestSize`
+
+* *Type:* Number
+* *Default:* `1048576` (1 MiB)
+* *Env:* `ELASTIC_APM_API_REQUEST_SIZE`
+
+The agent maintains an open HTTP request to the APM Server that is used to transmit the collected transactions,
+spans,
+and errors to the server.
+
+To avoid problems with intermittent proxies,
+the HTTP request is ended and a new one created if its body becomes too large.
+That limit is controlled by this config option.
+The value is expected to be in bytes.
 
 [NOTE]
 ====
-The queue is flushed approximately 5 seconds after the first transaction has ended on a newly started Node process.
-
-This ensures that you don't have to wait for the entire `flushInterval` to pass for the first data to be sent to the APM Server.
-From there on the `flushInterval` option is used.
-====
-
-[NOTE]
-====
-After each flush of the queue,
-the next flush isn't scheduled until a transaction have ended.
-
-This is done to introduce variance and also ensures that empty queues are not scheduled for flushing.
-
-On top of that,
-the actual interval is ajusted by +/- 5% between each flush.
-
-This all helps to ensure that multiple servers started at the same time will not establish connections to the APM Server simultaneously.
+The HTTP request is otherwise ended at regular intervals controlled by the <<api-request-time,`apiRequestTime`>> config option.
 ====
 
 [[server-timeout]]
@@ -580,21 +586,6 @@ This all helps to ensure that multiple servers started at the same time will not
 * *Env:* `ELASTIC_APM_SERVER_TIMEOUT`
 
 Specify the timeout in seconds when reporting transactions to APM Server.
-
-[[max-queue-size]]
-===== `maxQueueSize`
-
-* *Type:* Number
-* *Default:* `100`
-* *Env:* `ELASTIC_APM_MAX_QUEUE_SIZE`
-
-The agent maintains an in-memory queue to which recorded transactions are added when they end.
-The queue is flushed with regular intervals controlled by the <<flush-interval,`flushInterval`>> config option.
-
-Use the `maxQueueSize` option to force a flush of the queue when it reaches a certain size (number of ended transactions) - even if the `flushInterval` time isn't reached yet.
-
-Set to `-1` to disable,
-in which case only `flushInterval` counts.
 
 [[filter-http-headers]]
 ===== `filterHttpHeaders`
@@ -1150,11 +1141,12 @@ apm.flush(function (err) {
 })
 ----
 
-Manually flush the in-memory transaction queue and send all the transactions to the APM Server.
-The queue is otherwise flushed automatically,
-controlled by the <<flush-interval,`flushInterval`>> and/or <<max-queue-size,`maxQueueSize`>> config options.
+Manually end the active outgoing HTTP request to the APM Server.
+The HTTP request is otherwise ended automatically at regular intervals,
+controlled by the <<api-request-time,`apiRequestTime`>> and <<api-request-size,`apiRequestSize`>> config options.
 
-The callback is called *after* the event has been sent to the APM Server with a possible error argument.
+The callback is called *after* the active HTTP request have ended.
+The callback is called even if no HTTP request is currently active.
 
 [[apm-lambda]]
 ==== `apm.lambda([type, ] handler)`

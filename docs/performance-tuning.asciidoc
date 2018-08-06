@@ -36,35 +36,6 @@ require('elastic-apm-node').start({
 ----
 
 [float]
-[[performance-transaction-queue]]
-=== Transaction Queue
-
-The agent buffers the collected data using an in-memory queue before sending it to the APM Server.
-The queue is flushed either after a specific <<performance-flush-interval,amount of time>> or when it reaches <<performance-max-queue-size,a certain size>> -
-whichever comes first.
-Lowering these defaults can reduce memory usage,
-but will increase the number of requests to the APM Server.
-
-[float]
-[[performance-flush-interval]]
-==== Flush Interval
-
-To prevent items from staying in the queue for a long time during low activity,
-the <<flush-interval,`flushInterval`>> setting is used to ensure the queue empties if anything in it is too old.
-
-Lowering the flush interval will ensure transactions are sent to the APM Server faster,
-but may also result in increased HTTP traffic and cpu usage.
-
-[float]
-[[performance-max-queue-size]]
-==== Max Queue Size
-
-The <<max-queue-size,`maxQueueSize`>> controls the maximum number of transactions that may remain in the queue before they must be sent.
-
-Lowering this will reduce memory consumption,
-however it will increase the number of requests made to the APM Server.
-
-[float]
 [[performance-server-timeout]]
 === APM Server Timeout
 
