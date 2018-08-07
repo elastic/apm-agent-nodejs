@@ -65,7 +65,7 @@ Once your changes are ready to submit for review:
 ### Testing
 
 For information about how to run the test suite,
-see [TESTING.md](https://github.com/elastic/apm-agent-nodejs/blob/master/TESTING.md).
+see [TESTING.md](TESTING.md).
 
 ### Workflow
 
@@ -79,20 +79,20 @@ should "Squash and merge".
 
 The following is an overview of what's required in order to add support to the agent for automatic instrumentation of an npm package.
 
-1. Add the instrumentation logic to a new file in the [`lib/instrumentation/modules`](https://github.com/elastic/apm-agent-nodejs/tree/master/lib/instrumentation/modules) directory named `<package-name>.js`,
+1. Add the instrumentation logic to a new file in the [`lib/instrumentation/modules`](lib/instrumentation/modules) directory named `<package-name>.js`,
    E.g. `mysql.js` for the `mysql` package
-1. Add the name of the package to the `MODULES` array in [`lib/instrumentation/index.js`](https://github.com/elastic/apm-agent-nodejs/blob/master/lib/instrumentation/index.js)
-1. Add accompanying tests in the [`test/instrumentation/modules`](https://github.com/elastic/apm-agent-nodejs/tree/master/test/instrumentation/modules) directory.
+1. Add the name of the package to the `MODULES` array in [`lib/instrumentation/index.js`](lib/instrumentation/index.js)
+1. Add accompanying tests in the [`test/instrumentation/modules`](test/instrumentation/modules) directory.
    If you only have one test file,
    place it in the root of the `modules` directory and name it the same as the `lib` file.
    If you have more than one test file,
    create a sub-directory with the name of the package and place all test files inside that
    1. If you created a sub-directory under `test/instrumentation/modules`,
-      add it to the `directories` array in [`test/test.js`](https://github.com/elastic/apm-agent-nodejs/blob/master/test/test.js)
-1. List the supported versions of the package in [`docs/compatibility.asciidoc`](https://github.com/elastic/apm-agent-nodejs/blob/master/docs/compatibility.asciidoc)
+      add it to the `directories` array in [`test/test.js`](test/test.js)
+1. List the supported versions of the package in [`docs/compatibility.asciidoc`](docs/compatibility.asciidoc)
 1. We use the [test-all-versions](https://github.com/watson/test-all-versions) module to test the agent against all supported versions of each package we instrument.
-   Add the supported versions and required test commands to the [`.tav.yml`](https://github.com/elastic/apm-agent-nodejs/blob/master/.tav.yml) file
-1. Add the name of the module to one of the TAV groups in both [`.travis.yml`](https://github.com/elastic/apm-agent-nodejs/blob/master/.travis.yml) and [`test/.jenkins_tav.yml`](https://github.com/elastic/apm-agent-nodejs/blob/master/test/.jenkins_tav.yml) for all Node.js versions.
+   Add the supported versions and required test commands to the [`.tav.yml`](.tav.yml) file
+1. Add the name of the module to one of the TAV groups in both [`.travis.yml`](.travis.yml) and [`test/.jenkins_tav.yml`](test/.jenkins_tav.yml) for all Node.js versions.
    To better balance the work requried to run each TAV group,
    pick the TAV group that is currently running the fastest.
    Look at the "Dependencies" stage of one of our latest [Travis cron job builds](https://travis-ci.org/elastic/apm-agent-nodejs/builds) for an overview
