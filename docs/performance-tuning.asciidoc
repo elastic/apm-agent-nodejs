@@ -36,13 +36,55 @@ require('elastic-apm-node').start({
 ----
 
 [float]
-[[performance-server-timeout]]
-=== APM Server Timeout
+[[performance-apm-server-communication]]
+=== APM Server communication
 
-In the event that the connection to the APM Server is slow or unstable,
-the <<server-timeout,`serverTimeout`>> setting can be set to ensure connections don't stay open too long.
-If the server timeout is too high,
-it may result in too many socket descriptors being held open.
+The agent uses a persistent outgoing HTTP request to stream data to the APM Server.
+To avoid issues with intermittent proxies and load balancers,
+the HTTP request is ended and a new one created at regular intervals or when the size of the reqeust becomes too big.
+
+There's an overhead involved in each HTTP request:
+Besides sending new HTTP headers,
+the agent needs to re-send certain metadata to the APM Server each time a new HTTP request is made.
+However,
+if allowed by the network,
+the active TCP socket is reused between each HTTP request.
+
+[[performance-api-request-time]]
+==== Max HTTP request duration
+
+By default an HTTP request to the APM Server is ended after a maximum of 10 seconds.
+Using the <<api-request-time,`apiRequestTime`>> config option,
+this time limit can be modified.
+
+Lowering the time limit might be nessecary if dealing with very agressive proxies,
+but increasing the time limit means that the total overhead of these HTTP requests is reduced,
+as headers and metadata doesn't need to be re-sent that often.
+
+[[performance-api-request-size]]
+==== Max HTTP request size
+
+By default an HTTP request to the APM Server is ended after 1 MiB of gzip compressed data have been written to the body.
+Using the <<api-request-size,`apiRequestSize`>> config option,
+this time limit can be modified.
+
+Lowering the size limit might be nessecary if dealing with very agressive proxies,
+but increasing the size limit means that the total overhead of these HTTP requests is reduced,
+as headers and metadata doesn't need to be re-sent that often.
+
+[[performance-server-timeout]]
+==== APM Server Timeout
+
+In the event that the APM Server or the connection to the APM Server is slow or unstable,
+the <<server-timeout,`serverTimeout`>> setting can be set to ensure the agent doesn't wait too long for a response.
+
+The agent only allows for a single TCP socket to be opened to the APM Server at any given time.
+This is to avoid the overhead of opening too many sockets.
+If the agent is stuck waiting for a response from the previous HTTP request,
+it might start dropping new data in order to keep its memory footprint low.
+
+Keeping this timeout low,
+helps alleviate that problem.
 
 [float]
 [[performance-stack-traces]]
