@@ -50,7 +50,7 @@ but we recommend that you take a moment and read our [contribution guide](https:
 To ease development,
 set the environment variable `DEBUG_PAYLOAD=1` to have the agent dump the JSON payload sent to the APM Server to a temporary file on your local harddrive.
 
-Please see the [testing section](CONTRIBUTING.MD#testing) in CONTRIBUTING.md for testing instructions.
+Please see [TESTING.md](TESTING.md) for instructions on how to run the test suite.
 
 ## License
 
