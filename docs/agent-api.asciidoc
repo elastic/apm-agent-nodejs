@@ -584,7 +584,11 @@ The HTTP request is otherwise ended at regular intervals controlled by the <<api
 * *Default:* `30`
 * *Env:* `ELASTIC_APM_SERVER_TIMEOUT`
 
-Specify the timeout in seconds when reporting transactions to APM Server.
+Specify the response timeout in seconds when reporting transactions to APM Server.
+
+The timeout is applied once the agent have sent the entire request body to the APM Server.
+If the response from the server takes longer than allowed by this timeout,
+the HTTP request is terminated and the TCP socket closed.
 
 [[filter-http-headers]]
 ===== `filterHttpHeaders`
