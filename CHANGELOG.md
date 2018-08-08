@@ -1,3 +1,7 @@
+# 1.10.2 - 2018/8/8
+  * fix: ensure logger config can update ([503](https://github.com/elastic/apm-agent-nodejs/pull/503))
+  * perf: improve request body parsing speed ([492](https://github.com/elastic/apm-agent-nodejs/pull/492))
+
 # 1.10.1 - 2018/7/31
   * fix(graphql): handle execute args object ([484](https://github.com/elastic/apm-agent-nodejs/pull/484))
 
