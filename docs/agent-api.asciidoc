@@ -546,9 +546,8 @@ The agent maintains an open HTTP request to the APM Server that is used to trans
 spans,
 and errors to the server.
 
-To avoid problems with intermittent proxies,
-the HTTP request is ended and a new one created at regular intervals,
-controlled by this config option.
+To avoid issues with intermittent proxies and load balancers,
+the HTTP request is ended and a new one created at regular intervals controlled by this config option.
 The value is expected to be in seconds.
 
 [NOTE]
@@ -568,7 +567,7 @@ The agent maintains an open HTTP request to the APM Server that is used to trans
 spans,
 and errors to the server.
 
-To avoid problems with intermittent proxies,
+To avoid issues with intermittent proxies and load balancers,
 the HTTP request is ended and a new one created if its body becomes too large.
 That limit is controlled by this config option.
 The value is expected to be in bytes.
