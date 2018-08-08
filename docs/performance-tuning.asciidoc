@@ -41,7 +41,7 @@ require('elastic-apm-node').start({
 
 The agent uses a persistent outgoing HTTP request to stream data to the APM Server.
 To avoid issues with intermittent proxies and load balancers,
-the HTTP request is ended and a new one created at regular intervals or when the size of the reqeust becomes too big.
+the HTTP request is ended and a new one created at regular intervals or when the size of the request becomes too big.
 
 There's an overhead involved in each HTTP request:
 Besides sending new HTTP headers,
@@ -57,7 +57,7 @@ By default an HTTP request to the APM Server is ended after a maximum of 10 seco
 Using the <<api-request-time,`apiRequestTime`>> config option,
 this time limit can be modified.
 
-Lowering the time limit might be nessecary if dealing with very agressive proxies,
+Lowering the time limit might be necessary if dealing with very agressive proxies,
 but increasing the time limit means that the total overhead of these HTTP requests is reduced,
 as headers and metadata doesn't need to be re-sent that often.
 
@@ -68,7 +68,7 @@ By default an HTTP request to the APM Server is ended after 1 MiB of gzip compre
 Using the <<api-request-size,`apiRequestSize`>> config option,
 this time limit can be modified.
 
-Lowering the size limit might be nessecary if dealing with very agressive proxies,
+Lowering the size limit might be necessary if dealing with very agressive proxies,
 but increasing the size limit means that the total overhead of these HTTP requests is reduced,
 as headers and metadata doesn't need to be re-sent that often.
 
