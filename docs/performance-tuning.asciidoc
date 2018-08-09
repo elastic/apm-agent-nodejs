@@ -50,6 +50,7 @@ However,
 if allowed by the network,
 the TCP socket is reused between each HTTP request.
 
+[float]
 [[performance-api-request-time]]
 ==== Max HTTP request duration
 
@@ -61,6 +62,7 @@ Lowering the time limit might be necessary if dealing with very agressive proxie
 but increasing the time limit means that the combined overhead of these HTTP requests is reduced,
 as headers and metadata doesn't need to be re-sent that often.
 
+[float]
 [[performance-api-request-size]]
 ==== Max HTTP request size
 
@@ -72,6 +74,7 @@ Lowering the size limit might be necessary if dealing with very agressive proxie
 but increasing the size limit means that the combined overhead of these HTTP requests is reduced,
 as headers and metadata doesn't need to be re-sent that often.
 
+[float]
 [[performance-server-timeout]]
 ==== APM Server Timeout
 
