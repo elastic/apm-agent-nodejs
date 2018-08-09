@@ -41,8 +41,6 @@ var optionFixtures = [
   ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25000],
   ['instrument', 'INSTRUMENT', true],
-  ['flushInterval', 'FLUSH_INTERVAL', 10],
-  ['maxQueueSize', 'MAX_QUEUE_SIZE', 100],
   ['asyncHooks', 'ASYNC_HOOKS', true],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
   ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
@@ -160,7 +158,6 @@ truthyValues.forEach(function (val) {
 })
 
 var MINUS_ONE_EQUAL_INFINITY = [
-  'maxQueueSize',
   'transactionMaxSpans'
 ]
 
