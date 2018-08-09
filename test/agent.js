@@ -607,6 +607,8 @@ test('#lambda()', function (t) {
   }
 
   t.test('success - basic callback', function (t) {
+    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
+
     var name = 'greet.hello'
     var input = { name: 'world' }
     var output = 'Hello, world!'
@@ -621,7 +623,6 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          t.end()
         })
       })
       .on('data-transaction', function (data) {
@@ -631,6 +632,8 @@ test('#lambda()', function (t) {
   })
 
   t.test('success - context.succeed', function (t) {
+    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
+
     var name = 'greet.hello'
     var input = { name: 'world' }
     var output = 'Hello, world!'
@@ -645,7 +648,6 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          t.end()
         })
       })
       .on('data-transaction', function (data) {
@@ -655,6 +657,8 @@ test('#lambda()', function (t) {
   })
 
   t.test('success - context.done', function (t) {
+    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
+
     var name = 'greet.hello'
     var input = { name: 'world' }
     var output = 'Hello, world!'
@@ -669,7 +673,6 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          t.end()
         })
       })
       .on('data-transaction', function (data) {
