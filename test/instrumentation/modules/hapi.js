@@ -41,7 +41,7 @@ test('extract URL from request', function (t) {
     t.equal(request.url.search, '?foo=bar')
     t.equal(request.url.raw, '/captureError?foo=bar')
     t.equal(request.url.hostname, 'localhost')
-    t.equal(request.url.port, String(server.info.port))
+    t.equal(request.url.port, server.info.port)
     t.equal(request.socket.encrypted, false)
     server.stop(noop)
     t.end()
