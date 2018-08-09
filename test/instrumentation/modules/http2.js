@@ -2,8 +2,7 @@
 
 var agent = require('../../..').start({
   serviceName: 'test',
-  captureExceptions: false,
-  maxQueueSize: 0
+  captureExceptions: false
 })
 var ins = agent._instrumentation
 
