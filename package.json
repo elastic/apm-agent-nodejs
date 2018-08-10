@@ -80,6 +80,7 @@
     "is-native": "^1.0.1",
     "normalize-bool": "^1.0.0",
     "original-url": "^1.2.1",
+    "read-pkg-up": "^4.0.0",
     "redact-secrets": "^1.0.0",
     "require-ancestors": "^1.0.0",
     "require-in-the-middle": "^3.1.0",

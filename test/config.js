@@ -14,7 +14,7 @@ var Instrumentation = require('../lib/instrumentation')
 var request = require('../lib/request')
 
 var optionFixtures = [
-  ['serviceName', 'SERVICE_NAME'],
+  ['serviceName', 'SERVICE_NAME', 'elastic-apm-node'],
   ['secretToken', 'SECRET_TOKEN'],
   ['serviceVersion', 'SERVICE_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
@@ -120,24 +120,10 @@ test('should overwrite ELASTIC_APM_ACTIVE by option property active', function (
   t.end()
 })
 
-test('should default active to true if required options have been specified', function (t) {
-  var agent = Agent()
-  agent.start({ serviceName: 'foo', secretToken: 'baz' })
-  t.equal(agent._conf.active, true)
-  t.end()
-})
-
-test('should default active to false if required options have not been specified', function (t) {
+test('should default serviceName to package name', function (t) {
   var agent = Agent()
   agent.start()
-  t.equal(agent._conf.active, false)
-  t.end()
-})
-
-test('should force active to false if required options have not been specified', function (t) {
-  var agent = Agent()
-  agent.start({ active: true })
-  t.equal(agent._conf.active, false)
+  t.equal(agent._conf.serviceName, 'elastic-apm-node')
   t.end()
 })
 
@@ -169,13 +155,6 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.ok(isRegExp(agent._conf.ignoreUserAgentRegExp[0]))
   t.equal(agent._conf.ignoreUserAgentRegExp[0].toString(), '/regex2/')
 
-  t.end()
-})
-
-test('missing serviceName => inactive', function (t) {
-  var agent = Agent()
-  agent.start()
-  t.equal(agent._conf.active, false)
   t.end()
 })
 

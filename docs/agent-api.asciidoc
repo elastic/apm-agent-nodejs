@@ -80,10 +80,10 @@ require('elastic-apm-node').start({
 ===== `serviceName`
 
 * *Type:* String
+* *Default:* `name` field of `package.json`
 * *Env:* `ELASTIC_APM_SERVICE_NAME`
 
 Your Elastic APM service name.
-Required unless set <<configuring-the-agent,via other means>>.
 
 [[secret-token]]
 ===== `secretToken`
