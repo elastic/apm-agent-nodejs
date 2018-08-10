@@ -49,8 +49,13 @@ npm install elastic-apm-node --save
 Contributions are welcome,
 but we recommend that you take a moment and read our [contribution guide](CONTRIBUTING.md) first.
 
-To ease development,
-set the environment variable `DEBUG_PAYLOAD=1` to have the agent dump the JSON payload sent to the APM Server to a temporary file on your local harddrive.
+To see what data is being sent to the APM Server,
+use the environment variable `ELASTIC_APM_PAYLOAD_LOG_FILE` (or the config option `payloadLogFile`) to speicfy a log file,
+e.g:
+
+```
+ELASTIC_APM_PAYLOAD_LOG_FILE=/tmp/payload.ndjson
+```
 
 Please see [TESTING.md](TESTING.md) for instructions on how to run the test suite.
 
