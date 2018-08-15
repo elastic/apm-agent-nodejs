@@ -1,3 +1,7 @@
+# 1.11.0 - 2018/8/15
+  * feat(filters): filter set-cookie headers ([485](https://github.com/elastic/apm-agent-nodejs/pull/485))
+  * fix(express): cannot create property symbol ([510](https://github.com/elastic/apm-agent-nodejs/pull/510))
+
 # 1.10.2 - 2018/8/8
   * fix: ensure logger config can update ([503](https://github.com/elastic/apm-agent-nodejs/pull/503))
   * perf: improve request body parsing speed ([492](https://github.com/elastic/apm-agent-nodejs/pull/492))
