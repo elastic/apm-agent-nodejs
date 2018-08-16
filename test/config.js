@@ -1,12 +1,16 @@
 'use strict'
 
+var cp = require('child_process')
+var fs = require('fs')
 var IncomingMessage = require('http').IncomingMessage
 var os = require('os')
+var path = require('path')
 var util = require('util')
 
+var isRegExp = require('core-util-is').isRegExp
+var pFinally = require('p-finally')
 var semver = require('semver')
 var test = require('tape')
-var isRegExp = require('core-util-is').isRegExp
 
 var Agent = require('./_agent')
 var config = require('../lib/config')
@@ -170,6 +174,114 @@ test('valid serviceName => active', function (t) {
   agent.start({serviceName: 'fooBAR0123456789_- '})
   t.equal(agent._conf.active, true)
   t.end()
+})
+
+test('serviceName defaults to package name', function (t) {
+  // TODO:
+  // - Move up top with other requires?
+  // - Switch to some promisified fs module?
+  var mkdirp = util.promisify(require('mkdirp'))
+  var rimraf = util.promisify(require('rimraf'))
+  var writeFile = util.promisify(fs.writeFile)
+  var symlink = util.promisify(fs.symlink)
+  var exec = util.promisify(cp.exec)
+
+  function testServiceConfig (pkg, handle) {
+    var tmp = path.join(os.tmpdir(), 'elastic-apm-node-test')
+    var files = [
+      {
+        action: 'mkdirp',
+        dir: tmp
+      },
+      {
+        action: 'create',
+        path: path.join(tmp, 'package.json'),
+        contents: JSON.stringify(pkg)
+      },
+      {
+        action: 'create',
+        path: path.join(tmp, 'index.js'),
+        contents: `
+          var apm = require('elastic-apm-node').start()
+          console.log(JSON.stringify(apm._conf))
+        `
+      },
+      {
+        action: 'mkdirp',
+        dir: path.join(tmp, 'node_modules')
+      },
+      {
+        action: 'symlink',
+        from: path.resolve(__dirname, '..'),
+        to: path.join(tmp, 'node_modules/elastic-apm-node')
+      }
+    ]
+
+    // NOTE: Reduce the sequence to a promise chain rather
+    // than using Promise.all(), as the tasks are dependent.
+    let promise = files.reduce((p, file) => {
+      return p.then(() => {
+        switch (file.action) {
+          case 'create': {
+            return writeFile(file.path, file.contents)
+          }
+          case 'mkdirp': {
+            return mkdirp(file.dir)
+          }
+          case 'symlink': {
+            return symlink(file.from, file.to)
+          }
+        }
+      })
+    }, Promise.resolve())
+
+    promise = promise
+      .then(() => {
+        return exec('node index.js', {
+          cwd: tmp
+        })
+      })
+      .then(result => {
+        return JSON.parse(result.stdout)
+      })
+
+    return pFinally(promise, () => {
+      return rimraf(tmp)
+    })
+  }
+
+  t.test('should be active when valid', function (t) {
+    var pkg = {
+      name: 'valid'
+    }
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, true)
+      t.equal(conf.serviceName, pkg.name)
+      t.end()
+    })
+  })
+
+  t.test('should be inactive when blank', function (t) {
+    var pkg = {
+      name: ''
+    }
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, false)
+      t.equal(conf.serviceName, pkg.name)
+      t.end()
+    })
+  })
+
+  t.test('should be inactive when missing', function (t) {
+    var pkg = {}
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, false)
+      t.end()
+    })
+  })
 })
 
 var captureBodyTests = [
