@@ -27,6 +27,7 @@ To get you off the ground, we've prepared guides for the most popular web framew
 * <<express,Get started with Express>>
 * <<hapi,Get started with hapi>>
 * <<koa,Get started with Koa>>
+* <<restify,Get started with Restify>>
 
 Alternatively you should check out our guide for <<custom-stack,getting started with a custom Node.js stack>>.
 

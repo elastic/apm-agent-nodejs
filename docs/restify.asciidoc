@@ -1,29 +1,19 @@
-[[custom-stack]]
+[[restify]]
 
 ifdef::env-github[]
 NOTE: For the best reading experience,
-please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-stack.html[elastic.co]
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/restify.html[elastic.co]
 endif::[]
 
-== Get started with a custom Node.js stack
+== Get started with Restify
 
-Getting Elastic APM set up for your Node.js app is easy,
+Getting Elastic APM set up for your Restify app is easy,
 and there are various ways you can tweak it to fit your needs.
 
-If you are using either Express, hapi, Koa, Restify, or AWS Lambda
-we recommend that you read these articles instead:
-
-* <<express,Get started with Express>>
-* <<hapi,Get started with hapi>>
-* <<koa,Get started with Koa>>
-* <<restify,Get started with Restify>>
-* <<lambda,Get started with Lambda>>
-
-For a custom Node.js app,
-follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
+Follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
 
 [float]
-[[custom-stack-installation]]
+[[restify-installation]]
 === Installation
 
 Add the `elastic-apm-node` module as a dependency to your application:
@@ -34,14 +24,14 @@ npm install elastic-apm-node --save
 ----
 
 [float]
-[[custom-stack-initialization]]
+[[restify-initialization]]
 === Initialization
 
-It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `http` and before your router etc.
+It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `restify`, `http`, etc.
 
 This means that you should probably require and start the agent in your application's main file (usually `index.js`, `server.js` or `app.js`).
 
-Here's a simple example of how Elastic APM is normally required and started:
+Here's a simple Restify example with the Elastic APM agent installed:
 
 [source,js]
 ----
@@ -56,12 +46,23 @@ var apm = require('elastic-apm-node').start({
   // Set custom APM Server URL (default: http://localhost:8200)
   serverUrl: '',
 })
+
+var restify = require('restify')
+
+var app = restify.createServer()
+
+app.get('/hello/:name', function (req, res, next) {
+  res.send('hello ' + req.params.name)
+  next()
+})
+
+app.listen(3000)
 ----
 
-The agent will now monitor the performance of your application and record any uncaught exceptions.
+The agent will now monitor the performance of your Restify application and record any uncaught exceptions.
 
 [float]
-[[custom-stack-advanced-configuration]]
+[[restify-advanced-configuration]]
 ==== Advanced configuration
 
 In the above example we initialize the agent by calling the <<apm-start,`start()`>> function.
@@ -87,20 +88,20 @@ var apm = require('elastic-apm-node').start()
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
 
 [float]
-[[custom-stack-full-documentation]]
+[[restify-full-documentation]]
 ==== Full documentation
 
 * <<advanced-setup,Setup and Configuration>>
 * <<api,API Reference>>
 
 [float]
-[[custom-stack-performance-monitoring]]
+[[restify-performance-monitoring]]
 === Performance monitoring
 
-Elastic APM automatically measures the performance of your application.
+Elastic APM automatically measures the performance of your Restify application.
 It records spans for database queries,
 external HTTP requests,
-and other slow operations that happen during requests to your app.
+and other slow operations that happen during requests to your Restify app.
 
 By default the agent will instrument <<compatibility,the most common modules>>.
 To instrument other events,
@@ -113,76 +114,22 @@ But it's possible to create custom transactions not associated with an HTTP requ
 See the <<custom-transactions,Custom Transactions section>> for details.
 
 [float]
-[[custom-stack-route-naming]]
-==== Route naming
-
-The Node.js agent tracks incoming HTTP requests to your application in what are called "transactions".
-All transactions with the same name are grouped together automatically.
-
-In a normal web application you want to name transactions based on the route that matches the incoming HTTP request.
-So say you have a route to display posts on a blog identified by `GET /posts/{id}`.
-You want requests `GET /posts/12`, `GET /posts/42` etc to be grouped together under a transaction named `GET /posts/{id}`.
-
-If you are using Express, hapi, koa-router or Restify this naming happens automatically based on the names of your routes.
-If you use another framework or a custom router you will see that the transactions are simply grouped together in a few big chunks named "unknown route".
-In that case,
-you will need to help us out a little by supplying a name for each transaction.
-You can do that by calling <<apm-set-transaction-name,`apm.setTransactionName()`>> at any time during the request with the name of the transaction as the first argument.
-
-Except of an application using the https://github.com/watson/patterns[patterns] module for route handling:
-
-[source,js]
-----
-var apm = require('elastic-apm-node').start()
-var http = require('http')
-var patterns = require('patterns')()
-
-// Setup routes and their respective route handlers
-patterns.add('GET /', require('./routes/index'))
-patterns.add('GET /posts', require('./routes/posts').index)
-patterns.add('GET /posts/{id}', require('./routes/posts').show)
-
-http.createServer(function (req, res) {
-  // Check if we have a route matching the incoming request
-  var match = patterns.match(req.method + ' ' + req.url);
-
-  // If no match is found, respond with a 404. Elastic APM will in
-  // this case use the default transaction name "unknown route"
-  if (!match) {
-    res.writeHead(404)
-    res.end()
-    return
-  }
-
-  // The patterns module exposes the pattern used to match the
-  // request on the `pattern` property, e.g. `GET /posts/{id}`
-  apm.setTransactionName(match.pattern)
-
-  // Populate the params and call the matching route handler
-  var fn = match.value
-  req.params = match.params
-  fn(req, res)
-}).listen(3000)
-----
-
-[float]
-[[custom-stack-unknown-routes]]
+[[restify-unknown-routes]]
 ==== Unknown routes
 
 When viewing the performance metrics of your application in Elastic APM,
 you might see some transactions named "unknown route".
-This indicates that the Elastic APM Node.js agent detected an incoming HTTP request to your application,
-but didn't know what to name it.
+This indicates that the agent detected an incoming HTTP request to your application,
+but didn't know which route in your Restify app the HTTP request matched.
 
 This might simply be 404 requests,
 which by definition don't match any route,
 or it might be a symptom that the agent wasn't installed correctly.
-Make sure we either support your router or that you <<custom-stack-route-naming,manually name your routes>>.
-If you still can't get any meaningful metrics to show up,
+If you see this or can't get any meaningful metrics to show up,
 please follow the <<troubleshooting,Troubleshooting Guide>>.
 
 [float]
-[[custom-stack-error-logging]]
+[[restify-error-logging]]
 === Error logging
 
 By default the Node.js agent will watch for uncaught exceptions and send them to Elastic APM automatically.
@@ -205,39 +152,7 @@ including adding extra metadata to the error,
 see <<apm-capture-error,the API documentation>>.
 
 [float]
-[[custom-stack-middleware-error-handler]]
-==== Middleware error handler
-
-If you use the https://www.npmjs.com/package/connect[connect] module and an error is either thrown synchronously inside one of the middleware functions or is passed as the first argument to the middleware `next()` function,
-it will be passed to the https://www.npmjs.com/package/connect#error-middleware[Connect error handler].
-
-It's recommended that you register the agent as a Connect error handler.
-In the case where you have multiple Connect error handlers,
-the agent error handler should be the first in the chain to ensure that it will receive the error correctly.
-
-[source,js]
-----
-var apm = require('elastic-apm-node').start()
-var conncet = require('connect')
-
-var app = connect()
-
-// Your regular middleware and router...
-app.use(...)
-app.use(...)
-app.use(...)
-
-// Add the Elastic APM middleware after your regular middleware
-app.use(apm.middleware.connect())
-
-// ...but before any other error handler
-app.use(function (err, req, res, next) {
-  // Custom error handling goes here
-})
-----
-
-[float]
-[[custom-stack-filter-sensitive-information]]
+[[restify-filter-sensitive-information]]
 === Filter sensitive information
 
 By default the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
@@ -254,7 +169,7 @@ use the <<filter-http-headers,`filterHttpHeaders`>> config option
 use the <<apm-add-filter,`apm.addFilter()`>> function
 
 [float]
-[[custom-stack-add-your-own-data]]
+[[restify-add-your-own-data]]
 === Add your own data
 
 The Node.js agent will keep track of the active HTTP request and will link it to errors and recorded transaction metrics when they are sent to the Elastic APM server.
@@ -270,13 +185,13 @@ use one of the functions below:
 * <<apm-set-tag,`apm.setTag()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (tags are indexed in Elasticsearch)
 
 [float]
-[[custom-stack-compatibility]]
+[[restify-compatibility]]
 === Compatibility
 
 See the <<compatibility,Compatibility section>> for details.
 
 [float]
-[[custom-stack-troubleshooting]]
+[[restify-troubleshooting]]
 === Troubleshooting
 
 If you can't get the Node.js agent to work as expected,

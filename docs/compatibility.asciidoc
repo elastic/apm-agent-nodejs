@@ -47,6 +47,7 @@ These are the frameworks that we officially support:
 |<<koa,Koa>> via koa-router |>=5.2.0 <8.0.0 |Koa doesn't have a built in router,
 so we can't support Koa directly since we rely on router information for full support.
 We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router]
+|<<restify,Restify>> |>=4.4 <8 |
 |=======================================================================
 
 [float]
