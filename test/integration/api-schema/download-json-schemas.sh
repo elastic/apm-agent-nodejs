@@ -34,6 +34,7 @@ FILES=( \
   "service.json" \
   "stacktrace_frame.json" \
   "system.json" \
+  "tags.json" \
   "user.json" \
 )
 
