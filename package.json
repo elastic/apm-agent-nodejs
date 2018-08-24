@@ -80,7 +80,7 @@
     "is-native": "^1.0.1",
     "normalize-bool": "^1.0.0",
     "original-url": "^1.2.1",
-    "read-pkg-up": "^4.0.0",
+    "read-pkg-up": "^3.0.0",
     "redact-secrets": "^1.0.0",
     "require-ancestors": "^1.0.0",
     "require-in-the-middle": "^3.1.0",
@@ -138,6 +138,7 @@
     "test-all-versions": "^3.3.3",
     "thunky": "^1.0.2",
     "untildify": "^3.0.2",
+    "util.promisify": "^1.0.0",
     "wait-on": "^2.0.2",
     "ws": "^6.0.0"
   },

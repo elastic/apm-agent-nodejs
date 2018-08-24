@@ -8,9 +8,12 @@ var path = require('path')
 var util = require('util')
 
 var isRegExp = require('core-util-is').isRegExp
+var mkdirp = require('mkdirp')
 var pFinally = require('p-finally')
+var rimraf = require('rimraf')
 var semver = require('semver')
 var test = require('tape')
+var promisify = require('util.promisify')
 
 var Agent = require('./_agent')
 var config = require('../lib/config')
@@ -177,14 +180,11 @@ test('valid serviceName => active', function (t) {
 })
 
 test('serviceName defaults to package name', function (t) {
-  // TODO:
-  // - Move up top with other requires?
-  // - Switch to some promisified fs module?
-  var mkdirp = util.promisify(require('mkdirp'))
-  var rimraf = util.promisify(require('rimraf'))
-  var writeFile = util.promisify(fs.writeFile)
-  var symlink = util.promisify(fs.symlink)
-  var exec = util.promisify(cp.exec)
+  var mkdirpPromise = promisify(mkdirp)
+  var rimrafPromise = promisify(rimraf)
+  var writeFile = promisify(fs.writeFile)
+  var symlink = promisify(fs.symlink)
+  var exec = promisify(cp.exec)
 
   function testServiceConfig (pkg, handle) {
     var tmp = path.join(os.tmpdir(), 'elastic-apm-node-test')
@@ -226,7 +226,7 @@ test('serviceName defaults to package name', function (t) {
             return writeFile(file.path, file.contents)
           }
           case 'mkdirp': {
-            return mkdirp(file.dir)
+            return mkdirpPromise(file.dir)
           }
           case 'symlink': {
             return symlink(file.from, file.to)
@@ -242,11 +242,13 @@ test('serviceName defaults to package name', function (t) {
         })
       })
       .then(result => {
-        return JSON.parse(result.stdout)
+        // NOTE: Real util.promisify returns an object,
+        // the polyfill just returns stdout as a string.
+        return JSON.parse(result.stdout || result)
       })
 
     return pFinally(promise, () => {
-      return rimraf(tmp)
+      return rimrafPromise(tmp)
     })
   }
 
