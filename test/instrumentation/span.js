@@ -108,7 +108,9 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['transactionId', 'timestamp', 'name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transactionId', 'timestamp', 'name', 'type', 'start', 'duration', 'stacktrace'])
+    t.equal(typeof payload.id, 'string')
+    t.equal(payload.id, span.id)
     t.equal(payload.transactionId, trans.id)
     t.equal(payload.timestamp, trans.timestamp)
     t.notOk(Number.isNaN(Date.parse(payload.timestamp)))
@@ -128,7 +130,7 @@ test('#_encode() - ended named', function myTest2 (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['transactionId', 'timestamp', 'name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transactionId', 'timestamp', 'name', 'type', 'start', 'duration', 'stacktrace'])
     t.equal(payload.transactionId, trans.id)
     t.equal(payload.timestamp, trans.timestamp)
     t.notOk(Number.isNaN(Date.parse(payload.timestamp)))
@@ -150,7 +152,7 @@ test('#_encode() - disabled stack traces', function (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['transactionId', 'timestamp', 'name', 'type', 'start', 'duration'])
+    t.deepEqual(Object.keys(payload), ['id', 'transactionId', 'timestamp', 'name', 'type', 'start', 'duration'])
     t.equal(payload.transactionId, trans.id)
     t.equal(payload.timestamp, trans.timestamp)
     t.notOk(Number.isNaN(Date.parse(payload.timestamp)))
