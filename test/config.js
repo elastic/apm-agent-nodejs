@@ -1,12 +1,19 @@
 'use strict'
 
+var cp = require('child_process')
+var fs = require('fs')
 var IncomingMessage = require('http').IncomingMessage
 var os = require('os')
+var path = require('path')
 var util = require('util')
 
+var isRegExp = require('core-util-is').isRegExp
+var mkdirp = require('mkdirp')
+var pFinally = require('p-finally')
+var rimraf = require('rimraf')
 var semver = require('semver')
 var test = require('tape')
-var isRegExp = require('core-util-is').isRegExp
+var promisify = require('util.promisify')
 
 var Agent = require('./_agent')
 var config = require('../lib/config')
@@ -14,7 +21,7 @@ var Instrumentation = require('../lib/instrumentation')
 var request = require('../lib/request')
 
 var optionFixtures = [
-  ['serviceName', 'SERVICE_NAME'],
+  ['serviceName', 'SERVICE_NAME', 'elastic-apm-node'],
   ['secretToken', 'SECRET_TOKEN'],
   ['serviceVersion', 'SERVICE_VERSION'],
   ['logLevel', 'LOG_LEVEL', 'info'],
@@ -120,24 +127,10 @@ test('should overwrite ELASTIC_APM_ACTIVE by option property active', function (
   t.end()
 })
 
-test('should default active to true if required options have been specified', function (t) {
-  var agent = Agent()
-  agent.start({ serviceName: 'foo', secretToken: 'baz' })
-  t.equal(agent._conf.active, true)
-  t.end()
-})
-
-test('should default active to false if required options have not been specified', function (t) {
+test('should default serviceName to package name', function (t) {
   var agent = Agent()
   agent.start()
-  t.equal(agent._conf.active, false)
-  t.end()
-})
-
-test('should force active to false if required options have not been specified', function (t) {
-  var agent = Agent()
-  agent.start({ active: true })
-  t.equal(agent._conf.active, false)
+  t.equal(agent._conf.serviceName, 'elastic-apm-node')
   t.end()
 })
 
@@ -172,13 +165,6 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.end()
 })
 
-test('missing serviceName => inactive', function (t) {
-  var agent = Agent()
-  agent.start()
-  t.equal(agent._conf.active, false)
-  t.end()
-})
-
 test('invalid serviceName => inactive', function (t) {
   var agent = Agent()
   agent.start({serviceName: 'foo&bar'})
@@ -191,6 +177,113 @@ test('valid serviceName => active', function (t) {
   agent.start({serviceName: 'fooBAR0123456789_- '})
   t.equal(agent._conf.active, true)
   t.end()
+})
+
+test('serviceName defaults to package name', function (t) {
+  var mkdirpPromise = promisify(mkdirp)
+  var rimrafPromise = promisify(rimraf)
+  var writeFile = promisify(fs.writeFile)
+  var symlink = promisify(fs.symlink)
+  var exec = promisify(cp.exec)
+
+  function testServiceConfig (pkg, handle) {
+    var tmp = path.join(os.tmpdir(), 'elastic-apm-node-test')
+    var files = [
+      {
+        action: 'mkdirp',
+        dir: tmp
+      },
+      {
+        action: 'create',
+        path: path.join(tmp, 'package.json'),
+        contents: JSON.stringify(pkg)
+      },
+      {
+        action: 'create',
+        path: path.join(tmp, 'index.js'),
+        contents: `
+          var apm = require('elastic-apm-node').start()
+          console.log(JSON.stringify(apm._conf))
+        `
+      },
+      {
+        action: 'mkdirp',
+        dir: path.join(tmp, 'node_modules')
+      },
+      {
+        action: 'symlink',
+        from: path.resolve(__dirname, '..'),
+        to: path.join(tmp, 'node_modules/elastic-apm-node')
+      }
+    ]
+
+    // NOTE: Reduce the sequence to a promise chain rather
+    // than using Promise.all(), as the tasks are dependent.
+    let promise = files.reduce((p, file) => {
+      return p.then(() => {
+        switch (file.action) {
+          case 'create': {
+            return writeFile(file.path, file.contents)
+          }
+          case 'mkdirp': {
+            return mkdirpPromise(file.dir)
+          }
+          case 'symlink': {
+            return symlink(file.from, file.to)
+          }
+        }
+      })
+    }, Promise.resolve())
+
+    promise = promise
+      .then(() => {
+        return exec('node index.js', {
+          cwd: tmp
+        })
+      })
+      .then(result => {
+        // NOTE: Real util.promisify returns an object,
+        // the polyfill just returns stdout as a string.
+        return JSON.parse(result.stdout || result)
+      })
+
+    return pFinally(promise, () => {
+      return rimrafPromise(tmp)
+    })
+  }
+
+  t.test('should be active when valid', function (t) {
+    var pkg = {
+      name: 'valid'
+    }
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, true)
+      t.equal(conf.serviceName, pkg.name)
+      t.end()
+    })
+  })
+
+  t.test('should be inactive when blank', function (t) {
+    var pkg = {
+      name: ''
+    }
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, false)
+      t.equal(conf.serviceName, pkg.name)
+      t.end()
+    })
+  })
+
+  t.test('should be inactive when missing', function (t) {
+    var pkg = {}
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, false)
+      t.end()
+    })
+  })
 })
 
 var captureBodyTests = [
