@@ -818,6 +818,38 @@ test('#captureError()', function (t) {
     agent.captureError(new Error('foo'))
     t.end()
   })
+
+  t.test('include valid context ids', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+
+    let trans = null
+    let span = null
+    const expect = [
+      'metadata',
+      'transaction',
+      'span',
+      'error'
+    ]
+
+    APMServerWithDefaultAsserts(t, {}, { expect })
+      .on('listening', function () {
+        trans = this.agent.startTransaction('foo')
+        span = this.agent.startSpan('bar')
+        this.agent.captureError(new Error('with callback'), function () {
+          t.pass('called callback')
+        })
+        span.end()
+        trans.end()
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'with callback')
+        t.equal(data.id.length, 32, 'id is 32 characters')
+        t.equal(data.parent_id, span.id, 'parent_id matches span id')
+        t.equal(data.trace_id, trans.context.traceId, 'trace_id matches transaction trace id')
+        t.equal(data.transaction_id, trans.id, 'tranaction_id matches transaction id')
+        t.end()
+      })
+  })
 })
 
 test('#handleUncaughtExceptions()', function (t) {

@@ -292,8 +292,8 @@ test('errors should not have a transaction id if no transaction is present', fun
 test('errors should have a transaction id - non-ended transaction', function (t) {
   resetAgent(1, function (data) {
     t.equal(data.errors.length, 1)
-    t.deepEqual(data.errors[0].transaction, { id: trans.id })
-    t.equal(typeof data.errors[0].transaction.id, 'string')
+    t.equal(data.errors[0].transaction_id, trans.id)
+    t.equal(typeof data.errors[0].transaction_id, 'string')
     t.end()
   })
   agent.captureError = origCaptureError
@@ -306,8 +306,8 @@ test('errors should have a transaction id - ended transaction', function (t) {
     t.equal(data.transactions.length, 1)
     t.equal(data.errors.length, 1)
     const trans = data.transactions[0]
-    t.deepEqual(data.errors[0].transaction, { id: trans.id })
-    t.equal(typeof data.errors[0].transaction.id, 'string')
+    t.equal(data.errors[0].transaction_id, trans.id)
+    t.equal(typeof data.errors[0].transaction_id, 'string')
     t.end()
   })
   agent.captureError = origCaptureError

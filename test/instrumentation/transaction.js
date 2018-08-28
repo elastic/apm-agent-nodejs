@@ -234,17 +234,19 @@ test('#_encode() - un-ended', function (t) {
 })
 
 test('#_encode() - ended', function (t) {
-  t.plan(11)
+  t.plan(13)
   var ins = mockInstrumentation(function () {
     t.pass('should end the transaction')
   })
   var trans = new Transaction(ins._agent)
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)
+  t.equal(payload.trace_id, trans.context.traceId)
+  t.equal(payload.parent_id, undefined)
   t.equal(payload.name, 'unnamed')
   t.equal(payload.type, 'custom')
   t.ok(payload.duration > 0)
@@ -255,7 +257,7 @@ test('#_encode() - ended', function (t) {
 })
 
 test('#_encode() - with meta data', function (t) {
-  t.plan(11)
+  t.plan(13)
   var ins = mockInstrumentation(function () {
     t.pass('should end the transaction')
   })
@@ -266,10 +268,12 @@ test('#_encode() - with meta data', function (t) {
   trans.setCustomContext({ baz: 1 })
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)
+  t.equal(payload.trace_id, trans.context.traceId)
+  t.equal(payload.parent_id, undefined)
   t.equal(payload.name, 'foo')
   t.equal(payload.type, 'bar')
   t.ok(payload.duration > 0)
@@ -280,7 +284,7 @@ test('#_encode() - with meta data', function (t) {
 })
 
 test('#_encode() - http request meta data', function (t) {
-  t.plan(11)
+  t.plan(13)
   var ins = mockInstrumentation(function () {
     t.pass('should end the transaction')
   })
@@ -288,10 +292,12 @@ test('#_encode() - http request meta data', function (t) {
   trans.req = mockRequest()
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)
+  t.equal(payload.trace_id, trans.context.traceId)
+  t.equal(payload.parent_id, undefined)
   t.equal(payload.name, 'POST unknown route')
   t.equal(payload.type, 'custom')
   t.ok(payload.duration > 0)
