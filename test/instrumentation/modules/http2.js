@@ -55,7 +55,7 @@ isSecure.forEach(secure => {
       client.on('error', onError)
       client.on('socketError', onError)
 
-      var req = client.request({':path': '/'})
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, 'foo')
       req.resume()
       req.on('end', () => client.destroy())
@@ -97,7 +97,7 @@ isSecure.forEach(secure => {
       client.on('error', onError)
       client.on('socketError', onError)
 
-      var req = client.request({':path': '/'})
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, 'foo')
       req.resume()
       req.on('end', () => client.destroy())
@@ -146,7 +146,7 @@ isSecure.forEach(secure => {
       client.on('error', onError)
       client.on('socketError', onError)
 
-      var req = client.request({':path': '/'})
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, fs.readFileSync(__filename).toString())
       req.resume()
       req.on('end', () => client.destroy())
@@ -187,7 +187,7 @@ isSecure.forEach(secure => {
       client.on('error', onError)
       client.on('socketError', onError)
 
-      var req = client.request({':path': '/'})
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, fs.readFileSync(__filename).toString())
       req.resume()
       req.on('end', () => client.destroy())

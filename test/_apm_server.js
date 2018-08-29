@@ -34,7 +34,7 @@ function APMServer (agentOpts, mockOpts) {
     self.agent.start(Object.assign(
       {},
       defaultAgentOpts,
-      {serverUrl: 'http://localhost:' + port},
+      { serverUrl: 'http://localhost:' + port },
       agentOpts
     ))
 

@@ -87,35 +87,35 @@ test('instrument simple command', function (t) {
     t.end()
   })
 
-  var server = new Server({host: process.env.MONGODB_HOST})
+  var server = new Server({ host: process.env.MONGODB_HOST })
 
   agent.startTransaction('foo', 'bar')
 
   // test example lifted from https://github.com/christkv/mongodb-core/blob/2.0/README.md#connecting-to-mongodb
   server.on('connect', function (_server) {
-    _server.command('system.$cmd', {ismaster: true}, function (err, results) {
+    _server.command('system.$cmd', { ismaster: true }, function (err, results) {
       t.error(err)
       t.equal(results.result.ismaster, true)
 
-      _server.insert('elasticapm.test', [{a: 1}, {a: 2}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
+      _server.insert('elasticapm.test', [{ a: 1 }, { a: 2 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
         t.error(err)
         t.equal(results.result.n, 2)
 
-        _server.update('elasticapm.test', [{q: {a: 1}, u: {'$set': {b: 1}}}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
+        _server.update('elasticapm.test', [{ q: { a: 1 }, u: { '$set': { b: 1 } } }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
           t.error(err)
           t.equal(results.result.n, 1)
 
-          _server.remove('elasticapm.test', [{q: {a: 1}, limit: 1}], {writeConcern: {w: 1}, ordered: true}, function (err, results) {
+          _server.remove('elasticapm.test', [{ q: { a: 1 }, limit: 1 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
             t.error(err)
             t.equal(results.result.n, 1)
 
-            var cursor = _server.cursor('elasticapm.test', {find: 'elasticapm.test', query: {a: 2}})
+            var cursor = _server.cursor('elasticapm.test', { find: 'elasticapm.test', query: { a: 2 } })
 
             cursor.next(function (err, doc) {
               t.error(err)
               t.equal(doc.a, 2)
 
-              _server.command('system.$cmd', {ismaster: true}, function (err, result) {
+              _server.command('system.$cmd', { ismaster: true }, function (err, result) {
                 t.error(err)
                 agent.endTransaction()
                 _server.destroy()

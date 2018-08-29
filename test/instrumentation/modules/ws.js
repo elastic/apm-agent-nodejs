@@ -14,7 +14,7 @@ var PORT = 12342
 test('ws.send', function (t) {
   resetAgent(done(t))
 
-  var wss = new WebSocket.Server({port: PORT})
+  var wss = new WebSocket.Server({ port: PORT })
 
   wss.on('connection', function (ws) {
     ws.on('message', function (message) {
