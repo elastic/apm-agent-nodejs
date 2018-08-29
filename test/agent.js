@@ -116,7 +116,7 @@ test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.setUserContext({foo: 1}), false)
+    t.equal(agent.setUserContext({ foo: 1 }), false)
     t.end()
   })
 
@@ -124,8 +124,8 @@ test('#setUserContext()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.setUserContext({foo: 1}), true)
-    t.deepEqual(trans._user, {foo: 1})
+    t.equal(agent.setUserContext({ foo: 1 }), true)
+    t.deepEqual(trans._user, { foo: 1 })
     t.end()
   })
 })
@@ -134,7 +134,7 @@ test('#setCustomContext()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.setCustomContext({foo: 1}), false)
+    t.equal(agent.setCustomContext({ foo: 1 }), false)
     t.end()
   })
 
@@ -142,8 +142,8 @@ test('#setCustomContext()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.setCustomContext({foo: 1}), true)
-    t.deepEqual(trans._custom, {foo: 1})
+    t.equal(agent.setCustomContext({ foo: 1 }), true)
+    t.deepEqual(trans._custom, { foo: 1 })
     t.end()
   })
 })
@@ -161,7 +161,7 @@ test('#setTag()', function (t) {
     agent.start()
     var trans = agent.startTransaction()
     t.equal(agent.setTag('foo', 1), true)
-    t.deepEqual(trans._tags, {foo: '1'})
+    t.deepEqual(trans._tags, { foo: '1' })
     t.end()
   })
 })
@@ -170,7 +170,7 @@ test('#addTags', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.addTags({foo: 1}), false)
+    t.equal(agent.addTags({ foo: 1 }), false)
     t.end()
   })
 
@@ -178,9 +178,9 @@ test('#addTags', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.addTags({foo: 1, bar: 2}), true)
-    t.equal(agent.addTags({foo: 3}), true)
-    t.deepEqual(trans._tags, {foo: '3', bar: '2'})
+    t.equal(agent.addTags({ foo: 1, bar: 2 }), true)
+    t.equal(agent.addTags({ foo: 3 }), true)
+    t.deepEqual(trans._tags, { foo: '3', bar: '2' })
     t.end()
   })
 })
@@ -200,7 +200,7 @@ test('#addFilter() - invalid argument', function (t) {
         t.equal(++error.context.custom.order, 2)
         return data
       })
-      this.agent.captureError(new Error('foo'), {custom: {order: 0}})
+      this.agent.captureError(new Error('foo'), { custom: { order: 0 } })
     })
     .on('request', validateErrorRequest(t))
     .on('body', function (body) {
@@ -258,7 +258,7 @@ test('#captureError()', function (t) {
     t.plan(5)
     APMServer()
       .on('listening', function () {
-        this.agent.captureError({message: 'Hello %s', params: ['World']})
+        this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
@@ -274,7 +274,7 @@ test('#captureError()', function (t) {
     APMServer()
       .on('listening', function () {
         var err = new Error()
-        err.message = {foo: 'bar'}
+        err.message = { foo: 'bar' }
         this.agent.captureError(err)
       })
       .on('request', validateErrorRequest(t))
@@ -302,7 +302,7 @@ test('#captureError()', function (t) {
 
   t.test('should adhere to custom stackTraceLimit', function (t) {
     t.plan(5)
-    APMServer({stackTraceLimit: 5})
+    APMServer({ stackTraceLimit: 5 })
       .on('listening', function () {
         this.agent.captureError(deep(42))
       })
@@ -322,9 +322,9 @@ test('#captureError()', function (t) {
         var agent = this.agent
         var server = http.createServer(function (req, res) {
           agent.startTransaction()
-          t.equal(agent.setUserContext({a: 1, merge: {a: 2}}), true)
-          t.equal(agent.setCustomContext({a: 3, merge: {a: 4}}), true)
-          agent.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, custom: {b: 2, merge: {shallow: true}}})
+          t.equal(agent.setUserContext({ a: 1, merge: { a: 2 } }), true)
+          t.equal(agent.setCustomContext({ a: 3, merge: { a: 4 } }), true)
+          agent.captureError(new Error('foo'), { user: { b: 1, merge: { shallow: true } }, custom: { b: 2, merge: { shallow: true } } })
           res.end()
         })
 
@@ -343,15 +343,15 @@ test('#captureError()', function (t) {
       .on('body', function (body) {
         t.equal(body.errors.length, 1)
         var context = body.errors[0].context
-        t.deepEqual(context.user, {a: 1, b: 1, merge: {shallow: true}})
-        t.deepEqual(context.custom, {a: 3, b: 2, merge: {shallow: true}})
+        t.deepEqual(context.user, { a: 1, b: 1, merge: { shallow: true } })
+        t.deepEqual(context.custom, { a: 3, b: 2, merge: { shallow: true } })
         t.end()
       })
   })
 
   t.test('capture location stack trace - off (error)', function (t) {
     t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER })
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
@@ -367,7 +367,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - off (string)', function (t) {
     t.plan(6)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER })
       .on('listening', function () {
         this.agent.captureError('foo')
       })
@@ -383,9 +383,9 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - off (param msg)', function (t) {
     t.plan(6)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER })
       .on('listening', function () {
-        this.agent.captureError({message: 'Hello %s', params: ['World']})
+        this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
@@ -399,7 +399,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - non-errors (error)', function (t) {
     t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES })
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
@@ -415,7 +415,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - non-errors (string)', function (t) {
     t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES })
       .on('listening', function () {
         this.agent.captureError('foo')
       })
@@ -431,9 +431,9 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - non-errors (param msg)', function (t) {
     t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES })
       .on('listening', function () {
-        this.agent.captureError({message: 'Hello %s', params: ['World']})
+        this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
@@ -447,7 +447,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - all (error)', function (t) {
     t.plan(13)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS })
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
@@ -464,7 +464,7 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - all (string)', function (t) {
     t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS })
       .on('listening', function () {
         this.agent.captureError('foo')
       })
@@ -480,9 +480,9 @@ test('#captureError()', function (t) {
 
   t.test('capture location stack trace - all (param msg)', function (t) {
     t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    APMServer({ captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS })
       .on('listening', function () {
-        this.agent.captureError({message: 'Hello %s', params: ['World']})
+        this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
@@ -764,8 +764,8 @@ test('#lambda()', function (t) {
 
 function assertRoot (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
-  t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
-  t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
+  t.deepEqual(payload.service.runtime, { name: 'node', version: process.version })
+  t.deepEqual(payload.service.agent, { name: 'nodejs', version: agentVersion })
   t.deepEqual(payload.system, {
     hostname: os.hostname(),
     architecture: process.arch,

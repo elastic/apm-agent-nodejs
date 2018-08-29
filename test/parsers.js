@@ -19,25 +19,25 @@ var logger = {
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {
     var data = parsers.parseMessage('Howdy')
-    t.deepEqual(data, {log: {message: 'Howdy'}})
+    t.deepEqual(data, { log: { message: 'Howdy' } })
     t.end()
   })
 
   t.test('should parse object', function (t) {
-    var data = parsers.parseMessage({message: 'foo%s', params: ['bar']})
-    t.deepEqual(data, {log: {message: 'foobar', param_message: 'foo%s'}})
+    var data = parsers.parseMessage({ message: 'foo%s', params: ['bar'] })
+    t.deepEqual(data, { log: { message: 'foobar', param_message: 'foo%s' } })
     t.end()
   })
 
   t.test('should parse an invalid object', function (t) {
-    var data = parsers.parseMessage({foo: /bar/})
-    t.deepEqual(data, {log: {message: '{ foo: /bar/ }'}})
+    var data = parsers.parseMessage({ foo: /bar/ })
+    t.deepEqual(data, { log: { message: '{ foo: /bar/ }' } })
     t.end()
   })
 
   t.test('should parse null', function (t) {
     var data = parsers.parseMessage(null)
-    t.deepEqual(data, {log: {message: 'null'}})
+    t.deepEqual(data, { log: { message: 'null' } })
     t.end()
   })
 })
@@ -75,7 +75,7 @@ test('#getContextFromResponse()', function (t) {
       var context = parsers.getContextFromResponse(res, true)
       t.deepEqual(context, {
         status_code: 200,
-        headers: {connection: 'close', 'transfer-encoding': 'chunked'},
+        headers: { connection: 'close', 'transfer-encoding': 'chunked' },
         headers_sent: true,
         finished: false
       })
@@ -90,7 +90,7 @@ test('#getContextFromResponse()', function (t) {
         var context = parsers.getContextFromResponse(res, true)
         t.deepEqual(context, {
           status_code: 200,
-          headers: {connection: 'close', 'content-length': '0'},
+          headers: { connection: 'close', 'content-length': '0' },
           headers_sent: true,
           finished: true
         })
@@ -109,7 +109,7 @@ test('#getContextFromResponse()', function (t) {
         var context = parsers.getContextFromResponse(res, false)
         t.deepEqual(context, {
           status_code: 200,
-          headers: {connection: 'close', 'content-length': '0'}
+          headers: { connection: 'close', 'content-length': '0' }
         })
         t.end()
       })
@@ -215,16 +215,16 @@ test('#getContextFromRequest()', function (t) {
 
   t.test('body is object', function (t) {
     var req = getMockReq()
-    req.body = {foo: 42}
+    req.body = { foo: 42 }
     req.headers['content-length'] = JSON.stringify(req.body).length
     var parsed = parsers.getContextFromRequest(req, true)
-    t.deepEqual(parsed.body, {foo: 42})
+    t.deepEqual(parsed.body, { foo: 42 })
     t.end()
   })
 
   t.test('body is object, but too large', function (t) {
     var req = getMockReq()
-    req.body = {foo: ''}
+    req.body = { foo: '' }
     for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
       req.body.foo += 'x'
     }
@@ -238,7 +238,7 @@ test('#getContextFromRequest()', function (t) {
 
   t.test('body is object, but not safe to stringify', function (t) {
     var req = getMockReq()
-    req.body = {foo: 42}
+    req.body = { foo: 42 }
     req.body.bar = req.body
     req.headers['transfer-encoding'] = 'chunked'
     var parsed = parsers.getContextFromRequest(req, true)
@@ -583,30 +583,30 @@ test('#parseError()', function (t) {
 
 test('#parseCallsite()', function (t) {
   var cases = [
-    {isApp: true, isError: true, lines: 0},
-    {isApp: true, isError: true, lines: 1},
-    {isApp: true, isError: true, lines: 2},
-    {isApp: true, isError: true, lines: 3},
-    {isApp: true, isError: true, lines: 4},
-    {isApp: true, isError: true, lines: 5},
-    {isApp: true, isError: false, lines: 0},
-    {isApp: true, isError: false, lines: 1},
-    {isApp: true, isError: false, lines: 2},
-    {isApp: true, isError: false, lines: 3},
-    {isApp: true, isError: false, lines: 4},
-    {isApp: true, isError: false, lines: 5},
-    {isApp: false, isError: true, lines: 0},
-    {isApp: false, isError: true, lines: 1},
-    {isApp: false, isError: true, lines: 2},
-    {isApp: false, isError: true, lines: 3},
-    {isApp: false, isError: true, lines: 4},
-    {isApp: false, isError: true, lines: 5},
-    {isApp: false, isError: false, lines: 0},
-    {isApp: false, isError: false, lines: 1},
-    {isApp: false, isError: false, lines: 2},
-    {isApp: false, isError: false, lines: 3},
-    {isApp: false, isError: false, lines: 4},
-    {isApp: false, isError: false, lines: 5}
+    { isApp: true, isError: true, lines: 0 },
+    { isApp: true, isError: true, lines: 1 },
+    { isApp: true, isError: true, lines: 2 },
+    { isApp: true, isError: true, lines: 3 },
+    { isApp: true, isError: true, lines: 4 },
+    { isApp: true, isError: true, lines: 5 },
+    { isApp: true, isError: false, lines: 0 },
+    { isApp: true, isError: false, lines: 1 },
+    { isApp: true, isError: false, lines: 2 },
+    { isApp: true, isError: false, lines: 3 },
+    { isApp: true, isError: false, lines: 4 },
+    { isApp: true, isError: false, lines: 5 },
+    { isApp: false, isError: true, lines: 0 },
+    { isApp: false, isError: true, lines: 1 },
+    { isApp: false, isError: true, lines: 2 },
+    { isApp: false, isError: true, lines: 3 },
+    { isApp: false, isError: true, lines: 4 },
+    { isApp: false, isError: true, lines: 5 },
+    { isApp: false, isError: false, lines: 0 },
+    { isApp: false, isError: false, lines: 1 },
+    { isApp: false, isError: false, lines: 2 },
+    { isApp: false, isError: false, lines: 3 },
+    { isApp: false, isError: false, lines: 4 },
+    { isApp: false, isError: false, lines: 5 }
   ]
 
   cases.forEach(function (opts) {

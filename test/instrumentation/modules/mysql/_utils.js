@@ -21,7 +21,7 @@ function credentials (conf) {
 }
 
 function reset (cb) {
-  var client = mysql.createConnection(credentials({database: 'mysql'}))
+  var client = mysql.createConnection(credentials({ database: 'mysql' }))
 
   client.connect(function (err) {
     if (err) throw err

@@ -18,21 +18,21 @@ test('POST /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
-  }}
+  } }
   var query = '{"query":"{ hello }"}'
 
   var app = express()
-  app.use('/graphql', graphqlHTTP({schema: schema, rootValue: root}))
+  app.use('/graphql', graphqlHTTP({ schema: schema, rootValue: root }))
   var server = app.listen(function () {
     var port = server.address().port
     var opts = {
       method: 'POST',
       port: port,
       path: '/graphql',
-      headers: {'Content-Type': 'application/json'}
+      headers: { 'Content-Type': 'application/json' }
     }
     var req = http.request(opts, function (res) {
       var chunks = []
@@ -52,14 +52,14 @@ test('GET /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
-  }}
-  var query = querystring.stringify({query: '{ hello }'})
+  } }
+  var query = querystring.stringify({ query: '{ hello }' })
 
   var app = express()
-  app.use('/graphql', graphqlHTTP({schema: schema, rootValue: root}))
+  app.use('/graphql', graphqlHTTP({ schema: schema, rootValue: root }))
   var server = app.listen(function () {
     var port = server.address().port
     var opts = {
@@ -85,21 +85,21 @@ test('POST /graphql - named query', function (t) {
   resetAgent(done(t, 'HelloQuery hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
-  }}
+  } }
   var query = '{"query":"query HelloQuery { hello }"}'
 
   var app = express()
-  app.use('/graphql', graphqlHTTP({schema: schema, rootValue: root}))
+  app.use('/graphql', graphqlHTTP({ schema: schema, rootValue: root }))
   var server = app.listen(function () {
     var port = server.address().port
     var opts = {
       method: 'POST',
       port: port,
       path: '/graphql',
-      headers: {'Content-Type': 'application/json'}
+      headers: { 'Content-Type': 'application/json' }
     }
     var req = http.request(opts, function (res) {
       var chunks = []
@@ -132,14 +132,14 @@ test('POST /graphql - sort multiple queries', function (t) {
   var query = '{"query":"{ life, hello }"}'
 
   var app = express()
-  app.use('/graphql', graphqlHTTP({schema: schema, rootValue: root}))
+  app.use('/graphql', graphqlHTTP({ schema: schema, rootValue: root }))
   var server = app.listen(function () {
     var port = server.address().port
     var opts = {
       method: 'POST',
       port: port,
       path: '/graphql',
-      headers: {'Content-Type': 'application/json'}
+      headers: { 'Content-Type': 'application/json' }
     }
     var req = http.request(opts, function (res) {
       var chunks = []

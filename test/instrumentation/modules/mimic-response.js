@@ -10,10 +10,10 @@ var mimicResponse = require('mimic-response')
 var test = require('tape')
 
 var cases = [
-  {name: 'none bound', source: false, target: false},
-  {name: 'source bound', source: true, target: false},
-  {name: 'target bound', source: false, target: true},
-  {name: 'both bound', source: true, target: true}
+  { name: 'none bound', source: false, target: false },
+  { name: 'source bound', source: true, target: false },
+  { name: 'target bound', source: false, target: true },
+  { name: 'both bound', source: true, target: true }
 ]
 
 cases.forEach(function (testCase) {

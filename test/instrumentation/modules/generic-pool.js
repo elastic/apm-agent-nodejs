@@ -19,7 +19,7 @@ if (genericPool.createPool) {
       create () {
         var p = new Promise(function (resolve, reject) {
           process.nextTick(function () {
-            resolve({id: ++active})
+            resolve({ id: ++active })
           })
         })
         p.foo = 42
@@ -71,7 +71,7 @@ if (genericPool.createPool) {
     var pool = new genericPool.Pool({
       create (cb) {
         process.nextTick(function () {
-          cb(null, {id: ++active})
+          cb(null, { id: ++active })
         })
       },
       destroy (resource) {

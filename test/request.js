@@ -46,14 +46,14 @@ test('#errors()', function (t) {
   t.test('custom framework', function (t) {
     t.plan(16)
     var errors = [{}]
-    APMServer({frameworkName: 'foo', frameworkVersion: 'bar'})
+    APMServer({ frameworkName: 'foo', frameworkVersion: 'bar' })
       .on('listening', function () {
         request.errors(this.agent, errors)
       })
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
         assertRoot(t, body)
-        t.deepEqual(body.service.framework, {name: 'foo', version: 'bar'})
+        t.deepEqual(body.service.framework, { name: 'foo', version: 'bar' })
         t.deepEqual(body.errors, errors)
         t.end()
       })
@@ -61,7 +61,7 @@ test('#errors()', function (t) {
 
   t.test('non-string log.message', function (t) {
     t.plan(15)
-    var errors = [{log: {message: 1}}]
+    var errors = [{ log: { message: 1 } }]
     APMServer()
       .on('listening', function () {
         request.errors(this.agent, errors)
@@ -76,7 +76,7 @@ test('#errors()', function (t) {
 
   t.test('non-string exception.message', function (t) {
     t.plan(15)
-    var errors = [{exception: {message: 1}}]
+    var errors = [{ exception: { message: 1 } }]
     APMServer()
       .on('listening', function () {
         request.errors(this.agent, errors)
@@ -91,7 +91,7 @@ test('#errors()', function (t) {
 
   t.test('non-string culprit', function (t) {
     t.plan(15)
-    var errors = [{culprit: 1}]
+    var errors = [{ culprit: 1 }]
     APMServer()
       .on('listening', function () {
         request.errors(this.agent, errors)
@@ -106,7 +106,7 @@ test('#errors()', function (t) {
 
   t.test('successful request', function (t) {
     t.plan(15)
-    var errors = [{context: {custom: {foo: 'bar'}}}]
+    var errors = [{ context: { custom: { foo: 'bar' } } }]
     APMServer()
       .on('listening', function () {
         request.errors(this.agent, errors)
@@ -134,7 +134,7 @@ test('#errors()', function (t) {
         serviceName: 'foo',
         serverUrl: 'http://localhost:' + server.address().port
       })
-      var errors = [{context: {custom: {foo: 'bar'}}}]
+      var errors = [{ context: { custom: { foo: 'bar' } } }]
       request.errors(agent, errors, function () {
         server.close()
         t.ok(true, 'should call callback')
@@ -145,7 +145,7 @@ test('#errors()', function (t) {
 
   t.test('should use filters if provided', function (t) {
     t.plan(5)
-    var errors = [{context: {custom: {order: 0}}}]
+    var errors = [{ context: { custom: { order: 0 } } }]
     APMServer()
       .on('listening', function () {
         this.agent.addFilter(function (data) {
@@ -156,20 +156,20 @@ test('#errors()', function (t) {
         this.agent.addFilter(function (data) {
           var error = data.errors[0]
           t.equal(++error.context.custom.order, 2)
-          return {errors: [{owned: true}]}
+          return { errors: [{ owned: true }] }
         })
         request.errors(this.agent, errors)
       })
       .on('request', validateErrorRequest(t))
       .on('body', function (body) {
-        t.deepEqual(body, {errors: [{owned: true}]})
+        t.deepEqual(body, { errors: [{ owned: true }] })
         t.end()
       })
   })
 
   t.test('should abort if any filter returns falsy', function (t) {
     t.plan(1)
-    var errors = [{exception: {message: 'foo'}}]
+    var errors = [{ exception: { message: 'foo' } }]
     var server
     APMServer()
       .on('server', function (_server) {
@@ -193,7 +193,7 @@ test('#errors()', function (t) {
 
   t.test('should anonymize the http Authorization header by default', function (t) {
     t.plan(16)
-    var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
+    var errors = [{ context: { request: { headers: { authorization: 'secret' } } } }]
     APMServer()
       .on('listening', function () {
         request.errors(this.agent, errors)
@@ -209,8 +209,8 @@ test('#errors()', function (t) {
 
   t.test('should not anonymize the http Authorization header if disabled', function (t) {
     t.plan(16)
-    var errors = [{context: {request: {headers: {authorization: 'secret'}}}}]
-    APMServer({filterHttpHeaders: false})
+    var errors = [{ context: { request: { headers: { authorization: 'secret' } } } }]
+    APMServer({ filterHttpHeaders: false })
       .on('listening', function () {
         request.errors(this.agent, errors)
       })
@@ -226,8 +226,8 @@ test('#errors()', function (t) {
   t.test('should truncate error messages by default', function (t) {
     t.plan(18)
     var msg = new Array(10000).join('x')
-    var errors = [{log: {message: msg, param_message: msg}, exception: {message: msg}}]
-    APMServer({filterHttpHeaders: false})
+    var errors = [{ log: { message: msg, param_message: msg }, exception: { message: msg } }]
+    APMServer({ filterHttpHeaders: false })
       .on('listening', function () {
         request.errors(this.agent, errors)
       })
@@ -246,8 +246,8 @@ test('#errors()', function (t) {
   t.test('should not truncate error messages if disabled', function (t) {
     t.plan(18)
     var msg = new Array(10000).join('x')
-    var errors = [{log: {message: msg, param_message: msg}, exception: {message: msg}}]
-    APMServer({filterHttpHeaders: false, errorMessageMaxLength: -1})
+    var errors = [{ log: { message: msg, param_message: msg }, exception: { message: msg } }]
+    APMServer({ filterHttpHeaders: false, errorMessageMaxLength: -1 })
       .on('listening', function () {
         request.errors(this.agent, errors)
       })
@@ -267,7 +267,7 @@ test('#errors()', function (t) {
 test('#transactions()', function (t) {
   t.test('envelope', function (t) {
     t.plan(15)
-    var transactions = [{spans: []}]
+    var transactions = [{ spans: [] }]
     APMServer()
       .on('listening', function () {
         request.transactions(this.agent, transactions)
@@ -282,7 +282,7 @@ test('#transactions()', function (t) {
 
   t.test('no custom framework', function (t) {
     t.plan(16)
-    var transactions = [{spans: []}]
+    var transactions = [{ spans: [] }]
     APMServer()
       .on('listening', function () {
         request.transactions(this.agent, transactions)
@@ -298,15 +298,15 @@ test('#transactions()', function (t) {
 
   t.test('custom framework', function (t) {
     t.plan(16)
-    var transactions = [{spans: []}]
-    APMServer({frameworkName: 'foo', frameworkVersion: 'bar'})
+    var transactions = [{ spans: [] }]
+    APMServer({ frameworkName: 'foo', frameworkVersion: 'bar' })
       .on('listening', function () {
         request.transactions(this.agent, transactions)
       })
       .on('request', validateTransactionsRequest(t))
       .on('body', function (body) {
         assertRoot(t, body)
-        t.deepEqual(body.service.framework, {name: 'foo', version: 'bar'})
+        t.deepEqual(body.service.framework, { name: 'foo', version: 'bar' })
         t.deepEqual(body.transactions, transactions)
         t.end()
       })
@@ -314,7 +314,7 @@ test('#transactions()', function (t) {
 })
 
 test('timeout', function (t) {
-  var transactions = [{spans: []}]
+  var transactions = [{ spans: [] }]
   APMServer({ serverTimeout: 0.01 })
     .on('listening', function () {
       request.transactions(this.agent, transactions, (err) => {
@@ -337,8 +337,8 @@ test('timeout', function (t) {
 
 function assertRoot (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
-  t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
-  t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
+  t.deepEqual(payload.service.runtime, { name: 'node', version: process.version })
+  t.deepEqual(payload.service.agent, { name: 'nodejs', version: agentVersion })
   t.deepEqual(payload.system, {
     hostname: os.hostname(),
     architecture: process.arch,

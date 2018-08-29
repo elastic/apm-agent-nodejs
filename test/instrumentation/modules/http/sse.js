@@ -31,7 +31,7 @@ test('SSE response with explicit headers', function (t) {
   })
 
   var server = http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/event-stream'})
+    res.writeHead(200, { 'Content-Type': 'text/event-stream' })
     var span = agent.buildSpan()
     if (span) span.start('foo', 'bar')
     setTimeout(function () {
