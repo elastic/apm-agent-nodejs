@@ -24,7 +24,7 @@ test('basic', function (t) {
     t.equal(data.spans.length, 4)
 
     data.transactions.forEach(function (trans, index) {
-      t.ok(/[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}/.test(trans.id))
+      t.ok(/[\da-f]{16}/.test(trans.id))
       t.equal(trans.name, 'foo' + index)
       t.equal(trans.type, 'bar' + index)
       t.ok(trans.duration > 0, 'duration should be >0ms')
@@ -374,7 +374,7 @@ test('unsampled transactions do not include spans', function (t) {
     t.equal(data.transactions.length, 1)
 
     data.transactions.forEach(function (trans) {
-      t.ok(/[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}/.test(trans.id))
+      t.ok(/[\da-f]{16}/.test(trans.id))
       t.ok(trans.duration > 0, 'duration should be >0ms')
       t.ok(trans.duration < 100, 'duration should be <100ms')
       t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))

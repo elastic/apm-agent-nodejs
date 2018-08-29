@@ -340,7 +340,8 @@ isSecure.forEach(secure => {
   })
 })
 
-var matchId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+// var matchId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+var matchId = /^[0-9a-f]{16}/
 var matchTimestamp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/
 
 function assertPath (t, trans, secure, port, path) {
