@@ -93,10 +93,10 @@ test('fails', function (t) {
 })
 
 function onError (t, assert) {
-  agent._httpClient = {request (endpoint, headers, data, cb) {
+  agent._httpClient = { request (endpoint, headers, data, cb) {
     assert(t, data)
     t.end()
-  }}
+  } }
 }
 
 function assertSourceFound (t, data) {

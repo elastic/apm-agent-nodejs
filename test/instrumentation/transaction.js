@@ -34,14 +34,14 @@ test('#setUserContext', function (t) {
   t.equal(trans._user, null)
   trans.setUserContext()
   t.equal(trans._user, null)
-  trans.setUserContext({foo: 1})
-  t.deepEqual(trans._user, {foo: 1})
-  trans.setUserContext({bar: {baz: 2}})
-  t.deepEqual(trans._user, {foo: 1, bar: {baz: 2}})
-  trans.setUserContext({foo: 3})
-  t.deepEqual(trans._user, {foo: 3, bar: {baz: 2}})
-  trans.setUserContext({bar: {shallow: true}})
-  t.deepEqual(trans._user, {foo: 3, bar: {shallow: true}})
+  trans.setUserContext({ foo: 1 })
+  t.deepEqual(trans._user, { foo: 1 })
+  trans.setUserContext({ bar: { baz: 2 } })
+  t.deepEqual(trans._user, { foo: 1, bar: { baz: 2 } })
+  trans.setUserContext({ foo: 3 })
+  t.deepEqual(trans._user, { foo: 3, bar: { baz: 2 } })
+  trans.setUserContext({ bar: { shallow: true } })
+  t.deepEqual(trans._user, { foo: 3, bar: { shallow: true } })
   t.end()
 })
 
@@ -57,14 +57,14 @@ test('#setCustomContext', function (t) {
   t.equal(trans._custom, null)
   trans.setCustomContext()
   t.equal(trans._custom, null)
-  trans.setCustomContext({foo: 1})
-  t.deepEqual(trans._custom, {foo: 1})
-  trans.setCustomContext({bar: {baz: 2}})
-  t.deepEqual(trans._custom, {foo: 1, bar: {baz: 2}})
-  trans.setCustomContext({foo: 3})
-  t.deepEqual(trans._custom, {foo: 3, bar: {baz: 2}})
-  trans.setCustomContext({bar: {shallow: true}})
-  t.deepEqual(trans._custom, {foo: 3, bar: {shallow: true}})
+  trans.setCustomContext({ foo: 1 })
+  t.deepEqual(trans._custom, { foo: 1 })
+  trans.setCustomContext({ bar: { baz: 2 } })
+  t.deepEqual(trans._custom, { foo: 1, bar: { baz: 2 } })
+  trans.setCustomContext({ foo: 3 })
+  t.deepEqual(trans._custom, { foo: 3, bar: { baz: 2 } })
+  trans.setCustomContext({ bar: { shallow: true } })
+  t.deepEqual(trans._custom, { foo: 3, bar: { shallow: true } })
   t.end()
 })
 
@@ -81,11 +81,11 @@ test('#setTag', function (t) {
   t.equal(trans.setTag(), false)
   t.equal(trans._tags, null)
   trans.setTag('foo', 1)
-  t.deepEqual(trans._tags, {foo: '1'})
-  trans.setTag('bar', {baz: 2})
-  t.deepEqual(trans._tags, {foo: '1', bar: '[object Object]'})
+  t.deepEqual(trans._tags, { foo: '1' })
+  trans.setTag('bar', { baz: 2 })
+  t.deepEqual(trans._tags, { foo: '1', bar: '[object Object]' })
   trans.setTag('foo', 3)
-  t.deepEqual(trans._tags, {foo: '3', bar: '[object Object]'})
+  t.deepEqual(trans._tags, { foo: '3', bar: '[object Object]' })
   t.end()
 })
 
@@ -304,7 +304,7 @@ test('#_encode() - ended', function (t) {
     t.ok(payload.duration > 0)
     t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
     t.equal(payload.result, 'success')
-    t.deepEqual(payload.context, {user: {}, tags: {}, custom: {}})
+    t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
     t.deepEqual(payload.spans, [])
     t.end()
   })
@@ -314,9 +314,9 @@ test('#_encode() - with meta data, no spans', function (t) {
   var ins = mockInstrumentation(function () {})
   var trans = new Transaction(ins._agent, 'foo', 'bar')
   trans.result = 'baz'
-  trans.setUserContext({foo: 1})
+  trans.setUserContext({ foo: 1 })
   trans.setTag('bar', 1)
-  trans.setCustomContext({baz: 1})
+  trans.setCustomContext({ baz: 1 })
   trans.end()
   trans._encode(function (err, payload) {
     t.error(err)
@@ -328,7 +328,7 @@ test('#_encode() - with meta data, no spans', function (t) {
     t.ok(payload.duration > 0)
     t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
     t.equal(payload.result, 'baz')
-    t.deepEqual(payload.context, {user: {foo: 1}, tags: {bar: '1'}, custom: {baz: 1}})
+    t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 } })
     t.deepEqual(payload.spans, [])
     t.end()
   })
@@ -349,7 +349,7 @@ test('#_encode() - spans', function (t) {
     t.ok(payload.duration > 0)
     t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
     t.equal(payload.result, 'success')
-    t.deepEqual(payload.context, {user: {}, tags: {}, custom: {}})
+    t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
     t.equal(payload.spans.length, 3)
     var start = 0
     payload.spans.forEach(function (span, index) {
@@ -579,7 +579,7 @@ function mockResponse () {
     'X-List: B\r\n' +
     '\r\n'
   return {
-    version: {major: 1, minor: 1},
+    version: { major: 1, minor: 1 },
     statusCode: 200,
     statusMessage: 'OK',
     headersSent: true,

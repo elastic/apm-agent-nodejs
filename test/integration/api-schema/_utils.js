@@ -34,7 +34,7 @@ function loadSchema (relativePath, cb) {
     console.log('processing %s...', path)
     refParser.dereference(path, function (err, schema) {
       if (err) return cb(err)
-      cb(null, validator(schema, {verbose: true}))
+      cb(null, validator(schema, { verbose: true }))
     })
   })
 }

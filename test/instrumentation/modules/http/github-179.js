@@ -18,7 +18,7 @@ test('https://github.com/opbeat/opbeat-node/issues/179', function (t) {
   echoServer(function (cp, port) {
     var opts = {
       port: port,
-      headers: {'Accept-Encoding': 'gzip'}
+      headers: { 'Accept-Encoding': 'gzip' }
     }
 
     agent.startTransaction()

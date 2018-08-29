@@ -43,7 +43,7 @@ test('route naming with params', function (t) {
   t.plan(8)
 
   resetAgent(function (endpoint, headers, data, cb) {
-    assert(t, data, {name: 'GET /hello/:name'})
+    assert(t, data, { name: 'GET /hello/:name' })
     server.close()
   })
 

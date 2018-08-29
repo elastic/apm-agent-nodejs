@@ -15,16 +15,16 @@ test('graphql.graphql', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     return 'Hello world!'
-  }}
+  } }
   var query = '{ hello }'
 
   agent.startTransaction('foo')
 
   graphql.graphql(schema, query, root).then(function (response) {
     agent.endTransaction()
-    t.deepEqual(response, {data: {hello: 'Hello world!'}})
+    t.deepEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
   })
 })
@@ -33,9 +33,9 @@ test('graphql.execute', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     return Promise.resolve('Hello world!')
-  }}
+  } }
   var query = '{ hello }'
   var source = new graphql.Source(query)
   var documentAST = graphql.parse(source)
@@ -44,7 +44,7 @@ test('graphql.execute', function (t) {
 
   graphql.execute(schema, documentAST, root).then(function (response) {
     agent.endTransaction()
-    t.deepEqual(response, {data: {hello: 'Hello world!'}})
+    t.deepEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
   })
 })
@@ -53,9 +53,9 @@ test('graphql.execute args object', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     return Promise.resolve('Hello world!')
-  }}
+  } }
   var query = '{ hello }'
   var source = new graphql.Source(query)
   var documentAST = graphql.parse(source)
@@ -69,7 +69,7 @@ test('graphql.execute args object', function (t) {
 
   graphql.execute(args).then(function (response) {
     agent.endTransaction()
-    t.deepEqual(response, {data: {hello: 'Hello world!'}})
+    t.deepEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
   })
 })
@@ -79,9 +79,9 @@ if (semver.satisfies(pkg.version, '>=0.12')) {
     resetAgent(done(t))
 
     var schema = graphql.buildSchema('type Query { hello: String }')
-    var root = {hello () {
+    var root = { hello () {
       return 'Hello world!'
-    }}
+    } }
     var query = '{ hello }'
     var source = new graphql.Source(query)
     var documentAST = graphql.parse(source)
@@ -91,7 +91,7 @@ if (semver.satisfies(pkg.version, '>=0.12')) {
     var response = graphql.execute(schema, documentAST, root)
 
     agent.endTransaction()
-    t.deepEqual(response, {data: {hello: 'Hello world!'}})
+    t.deepEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
   })
 }
