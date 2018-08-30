@@ -298,9 +298,14 @@ captureBodyTests.forEach(function (captureBodyTest) {
     t.plan(5)
 
     var errors = request.errors
+    var transactions = request.transactions
     request.errors = function (agent, list, cb) {
       request.errors = errors
-      return cb(list, agent)
+      return cb(list)
+    }
+    request.transactions = function (agent, list, cb) {
+      request.transactions = transactions
+      return cb()
     }
     var agent = Agent()
     agent.start({ captureBody: captureBodyTest.value })
