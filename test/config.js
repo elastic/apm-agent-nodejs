@@ -353,7 +353,8 @@ test('disableInstrumentations', function (t) {
       var agent = Agent()
       agent.start({
         serviceName: 'service',
-        disableInstrumentations: selection
+        disableInstrumentations: selection,
+        captureExceptions: false
       })
 
       var found = new Set()
