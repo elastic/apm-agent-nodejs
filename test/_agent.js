@@ -1,6 +1,7 @@
 'use strict'
 
 var Agent = require('../lib/agent')
+var Filters = require('../lib/filters')
 var symbols = require('../lib/symbols')
 
 var uncaughtExceptionListeners = process._events.uncaughtException
@@ -20,7 +21,7 @@ function clean () {
   global[symbols.agentInitialized] = null
   process._events.uncaughtException = uncaughtExceptionListeners
   if (agent) {
-    agent._filters = []
+    agent._filters = new Filters()
     if (agent._instrumentation && agent._instrumentation._hook) {
       agent._instrumentation._hook.unhook()
     }
