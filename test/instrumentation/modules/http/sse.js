@@ -6,8 +6,10 @@ var http = require('http')
 
 var test = require('tape')
 
+var mockClient = require('../../../_mock_http_client')
+
 test('normal response', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(2, function (data) {
     assertNonSSEResponse(t, data)
     t.end()
   })
@@ -25,7 +27,7 @@ test('normal response', function (t) {
 })
 
 test('SSE response with explicit headers', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     assertSSEResponse(t, data)
     t.end()
   })
@@ -44,7 +46,7 @@ test('SSE response with explicit headers', function (t) {
 })
 
 test('SSE response with implicit headers', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     assertSSEResponse(t, data)
     t.end()
   })
@@ -65,23 +67,24 @@ test('SSE response with implicit headers', function (t) {
 
 function assertNonSSEResponse (t, data) {
   t.equal(data.transactions.length, 1)
+  t.equal(data.spans.length, 1)
 
   var trans = data.transactions[0]
+  var span = data.spans[0]
 
   t.equal(trans.name, 'GET unknown route')
-  t.equal(trans.spans.length, 1)
-  t.equal(trans.spans[0].name, 'foo')
-  t.equal(trans.spans[0].type, 'bar')
   t.equal(trans.context.request.method, 'GET')
+  t.equal(span.name, 'foo')
+  t.equal(span.type, 'bar')
 }
 
 function assertSSEResponse (t, data) {
   t.equal(data.transactions.length, 1)
+  t.equal(data.spans.length, 0)
 
   var trans = data.transactions[0]
 
   t.equal(trans.name, 'GET unknown route')
-  t.equal(trans.spans.length, 0)
   t.equal(trans.context.request.method, 'GET')
 }
 
@@ -90,7 +93,6 @@ function request (server) {
     var port = server.address().port
     http.request({ port: port }, function (res) {
       res.on('end', function () {
-        agent.flush()
         server.close()
       })
       res.resume()
@@ -98,8 +100,7 @@ function request (server) {
   })
 }
 
-function resetAgent (cb) {
-  agent._httpClient = { request: cb }
-  agent._instrumentation._queue._clear()
+function resetAgent (expected, cb) {
+  agent._apmServer = mockClient(expected, cb)
   agent._instrumentation.currentTransaction = null
 }
