@@ -24,8 +24,8 @@ getPort().then(function (port) {
       t.error(err)
       t.notOk(validate({}))
       t.deepEqual(validate.errors, [
-        {field: 'data.service', message: 'is required', value: {}, type: 'object', schemaPath: []},
-        {field: 'data.transactions', message: 'is required', value: {}, type: 'object', schemaPath: []}
+        { field: 'data.service', message: 'is required', value: {}, type: 'object', schemaPath: [] },
+        { field: 'data.transactions', message: 'is required', value: {}, type: 'object', schemaPath: [] }
       ])
       t.end()
     })
@@ -36,8 +36,8 @@ getPort().then(function (port) {
       t.error(err)
       t.notOk(validate({}))
       t.deepEqual(validate.errors, [
-        {field: 'data.service', message: 'is required', value: {}, type: 'object', schemaPath: []},
-        {field: 'data.errors', message: 'is required', value: {}, type: 'object', schemaPath: []}
+        { field: 'data.service', message: 'is required', value: {}, type: 'object', schemaPath: [] },
+        { field: 'data.errors', message: 'is required', value: {}, type: 'object', schemaPath: [] }
       ])
       t.end()
     })

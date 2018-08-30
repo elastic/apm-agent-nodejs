@@ -17,7 +17,7 @@ test('client.ping with callback', function userLandCode (t) {
 
   agent.startTransaction('foo1')
 
-  var client = new elasticsearch.Client({host: host})
+  var client = new elasticsearch.Client({ host: host })
 
   client.ping(function (err) {
     t.error(err)
@@ -31,7 +31,7 @@ test('client.ping with promise', function userLandCode (t) {
 
   agent.startTransaction('foo2')
 
-  var client = new elasticsearch.Client({host: host})
+  var client = new elasticsearch.Client({ host: host })
 
   client.ping().then(function () {
     agent.endTransaction()
@@ -46,8 +46,8 @@ test('client.search with callback', function userLandCode (t) {
 
   agent.startTransaction('foo3')
 
-  var client = new elasticsearch.Client({host: host})
-  var query = {q: 'pants'}
+  var client = new elasticsearch.Client({ host: host })
+  var query = { q: 'pants' }
 
   client.search(query, function (err) {
     t.error(err)
@@ -61,7 +61,7 @@ test('client.count with callback', function userLandCode (t) {
 
   agent.startTransaction('foo3')
 
-  var client = new elasticsearch.Client({host: host})
+  var client = new elasticsearch.Client({ host: host })
   client.count(function (err) {
     t.error(err)
     agent.endTransaction()
@@ -91,7 +91,7 @@ function done (t, method, path, query) {
     }), 'include user-land code frame')
 
     if (searchRegexp.test(path)) {
-      t.deepEqual(trans.spans[1].context.db, {statement: query || '{}', type: 'elasticsearch'})
+      t.deepEqual(trans.spans[1].context.db, { statement: query || '{}', type: 'elasticsearch' })
     } else {
       t.notOk(trans.spans[1].context)
     }

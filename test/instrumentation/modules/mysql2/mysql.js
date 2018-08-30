@@ -162,7 +162,7 @@ factories.forEach(function (f) {
           trans.spans.forEach(function (trace) {
             t.equal(trace.name, 'SELECT')
             t.equal(trace.type, 'db.mysql.query')
-            t.deepEqual(trace.context.db, {statement: sql, type: 'sql'})
+            t.deepEqual(trace.context.db, { statement: sql, type: 'sql' })
           })
 
           t.end()
@@ -209,7 +209,7 @@ factories.forEach(function (f) {
           trans.spans.forEach(function (trace) {
             t.equal(trace.name, 'SELECT')
             t.equal(trace.type, 'db.mysql.query')
-            t.deepEqual(trace.context.db, {statement: sql, type: 'sql'})
+            t.deepEqual(trace.context.db, { statement: sql, type: 'sql' })
           })
 
           t.end()
@@ -266,7 +266,7 @@ factories.forEach(function (f) {
           t.equal(trans.spans.length, 1)
           t.equal(trans.spans[0].name, 'SELECT')
           t.equal(trans.spans[0].type, 'db.mysql.query')
-          t.deepEqual(trans.spans[0].context.db, {statement: sql, type: 'sql'})
+          t.deepEqual(trans.spans[0].context.db, { statement: sql, type: 'sql' })
         })
 
         t.end()
@@ -392,7 +392,7 @@ function assertBasicQuery (t, sql, data) {
   var span = trans.spans[0]
   t.equal(span.name, 'SELECT')
   t.equal(span.type, 'db.mysql.query')
-  t.deepEqual(span.context.db, {statement: sql, type: 'sql'})
+  t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
 }
 
 function createConnection (cb) {

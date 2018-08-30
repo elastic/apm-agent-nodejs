@@ -16,10 +16,10 @@ server.on('request', function (req, res) {
   var acceptEncoding = req.headers['accept-encoding'] || ''
 
   if (/\bdeflate\b/.test(acceptEncoding)) {
-    res.writeHead(200, {'Content-Encoding': 'deflate'})
+    res.writeHead(200, { 'Content-Encoding': 'deflate' })
     req.pipe(zlib.createDeflate()).pipe(res)
   } else if (/\bgzip\b/.test(acceptEncoding)) {
-    res.writeHead(200, {'Content-Encoding': 'gzip'})
+    res.writeHead(200, { 'Content-Encoding': 'gzip' })
     req.pipe(zlib.createGzip()).pipe(res)
   } else {
     req.pipe(res)

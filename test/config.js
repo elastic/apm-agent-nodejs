@@ -167,14 +167,14 @@ test('should separate strings and regexes into their own blacklist arrays', func
 
 test('invalid serviceName => inactive', function (t) {
   var agent = Agent()
-  agent.start({serviceName: 'foo&bar'})
+  agent.start({ serviceName: 'foo&bar' })
   t.equal(agent._conf.active, false)
   t.end()
 })
 
 test('valid serviceName => active', function (t) {
   var agent = Agent()
-  agent.start({serviceName: 'fooBAR0123456789_- '})
+  agent.start({ serviceName: 'fooBAR0123456789_- ' })
   t.equal(agent._conf.active, true)
   t.end()
 })
