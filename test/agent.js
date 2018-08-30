@@ -222,7 +222,7 @@ test('#flush()', function (t) {
   t.test('start called, but agent inactive', function (t) {
     t.plan(2)
     var agent = Agent()
-    agent.start({active: false})
+    agent.start({ active: false })
     agent.flush(function (err) {
       t.error(err)
       t.pass('should call flush callback even if agent is inactive')
