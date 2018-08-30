@@ -209,6 +209,55 @@ test('#addFilter() - invalid argument', function (t) {
     })
 })
 
+test('#flush()', function (t) {
+  t.test('start not called', function (t) {
+    t.plan(2)
+    var agent = Agent()
+    agent.flush(function (err) {
+      t.error(err)
+      t.pass('should call flush callback even if agent.start() wasn\'t called')
+    })
+  })
+
+  t.test('start called, but agent inactive', function (t) {
+    t.plan(2)
+    var agent = Agent()
+    agent.start({active: false})
+    agent.flush(function (err) {
+      t.error(err)
+      t.pass('should call flush callback even if agent is inactive')
+    })
+  })
+
+  t.test('agent started, but no data in the queue', function (t) {
+    t.plan(2)
+    var agent = Agent()
+    agent.start()
+    agent.flush(function (err) {
+      t.error(err)
+      t.pass('should call flush callback even if there\'s nothing to flush')
+    })
+  })
+
+  t.test('agent started, but no data in the queue', function (t) {
+    t.plan(5)
+    APMServer()
+      .on('listening', function () {
+        this.agent.startTransaction('foo')
+        this.agent.endTransaction()
+        this.agent.flush(function (err) {
+          t.error(err)
+          t.pass('should call flush callback after flushing the queue')
+          t.end()
+        })
+      })
+      .on('request', validateTransactionsRequest(t))
+      .on('body', function (body) {
+        t.deepEqual(body.transactions[0].name, 'foo')
+      })
+  })
+})
+
 test('#captureError()', function (t) {
   t.test('with callback', function (t) {
     t.plan(5)
