@@ -1,3 +1,8 @@
+# 1.12.0 - 2018/8/31
+  * feat(restify): add Restify instrumentation ([517](https://github.com/elastic/apm-agent-nodejs/pull/517))
+  * feat(config): default serviceName to package name ([508](https://github.com/elastic/apm-agent-nodejs/pull/508))
+  * fix: always call agent.flush() callback ([537](https://github.com/elastic/apm-agent-nodejs/pull/537))
+
 # 1.11.0 - 2018/8/15
   * feat(filters): filter set-cookie headers ([485](https://github.com/elastic/apm-agent-nodejs/pull/485))
   * fix(express): cannot create property symbol ([510](https://github.com/elastic/apm-agent-nodejs/pull/510))

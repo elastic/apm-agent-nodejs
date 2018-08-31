@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "scripts": {
@@ -158,7 +158,7 @@
     ]
   },
   "coordinates": [
-    55.6809362,
-    12.5643515
+    55.6773705,
+    12.5526636
   ]
 }
