@@ -24,10 +24,8 @@ before_script:
 
 node_js:
   - '10'
-  - '9'
   - '8'
   - '6'
-  - '4'
 
 jobs:
   fast_finish: true
@@ -41,9 +39,6 @@ jobs:
     # Disable Async Hooks
     -
       node_js: '10'
-      env: ELASTIC_APM_ASYNC_HOOKS=0
-    -
-      node_js: '9'
       env: ELASTIC_APM_ASYNC_HOOKS=0
     -
       node_js: '8'
@@ -97,28 +92,6 @@ jobs:
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
 
-    # Node.js 9
-    - stage: dependencies
-      node_js: '9'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
-      script: tav --quiet
-    -
-      node_js: '9'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify
-      script: tav --quiet
-    -
-      node_js: '9'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird,apollo-server-express
-      script: tav --quiet
-    -
-      node_js: '9'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
-      script: tav --quiet
-
     # Node.js 8
     -
       node_js: '8'
@@ -159,28 +132,6 @@ jobs:
       script: tav --quiet
     -
       node_js: '6'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
-      script: tav --quiet
-
-    # Node.js 4
-    -
-      node_js: '4'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
-      script: tav --quiet
-    -
-      node_js: '4'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify
-      script: tav --quiet
-    -
-      node_js: '4'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
-      script: tav --quiet
-    -
-      node_js: '4'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
