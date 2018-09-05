@@ -706,7 +706,7 @@ test('#lambda()', function (t) {
 
 function assertMetadata (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
-  t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
+  t.deepEqual(payload.service.runtime, {name: 'node', version: process.versions.node})
   t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
   t.deepEqual(payload.system, {
     hostname: os.hostname(),
