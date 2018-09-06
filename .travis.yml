@@ -17,6 +17,7 @@ services:
   - cassandra
 
 before_script:
+  - npm install -g npm@latest
   - wait-on tcp:9200
 
 node_js:
