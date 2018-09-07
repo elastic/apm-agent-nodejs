@@ -104,14 +104,14 @@ services:
 
 volumes:
   nodepgdata:
-    driver: local
+    driver: inmemory
   nodemongodata:
-    driver: local
+    driver: inmemory
   nodemssqldata:
-    driver: local
+    driver: inmemory
   nodemysqldata:
-    driver: local
+    driver: inmemory
   nodeesdata:
-    driver: local
+    driver: inmemory
   nodecassandradata:
-    driver: local
+    driver: inmemory
