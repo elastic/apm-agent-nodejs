@@ -69,7 +69,7 @@ then
   else
     node_version=$2
   fi
-  ./test/script/docker/run_tests.sh $node_version $3
+  ./test/scripts/docker/run_tests.sh $node_version $3
   exit $?
 elif [[ $# -gt 0 ]]
 then
