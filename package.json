@@ -8,19 +8,19 @@
     "lint": "standard",
     "lint-fix": "standard --fix",
     "lint-commit": "test/lint-commits.sh",
-    "coverage": "COVERAGE=true ./test/script/run_tests.sh",
+    "coverage": "COVERAGE=true ./test/scripts/run_tests.sh",
     "prereport-coverage": "npm run coverage",
     "report-coverage": "nyc report --reporter=lcov",
-    "test": "./test/script/run_tests.sh",
-    "test-cli": "node test/script/cli.js",
+    "test": "./test/scripts/run_tests.sh",
+    "test-cli": "node test/scripts/cli.js",
     "test-deps": "dependency-check . -i async_hooks && dependency-check . --unused --no-dev --entry lib/instrumentation/modules/*",
     "test-tav": "tav --quiet",
-    "test-docs": "./test/script/docker/run_docs.sh",
-    "local-start": "./test/script/local-deps-start.sh",
-    "local-stop": "./test/script/local-deps-stop.sh",
+    "test-docs": "./test/scripts/docker/run_docs.sh",
+    "local-start": "./test/scripts/local-deps-start.sh",
+    "local-stop": "./test/scripts/local-deps-stop.sh",
     "docker-start": "docker-compose -f ./test/docker-compose.yml up -d",
     "docker-stop": "docker-compose -f ./test/docker-compose.yml down",
-    "docker-clean": "./test/script/docker/cleanup.sh"
+    "docker-clean": "./test/scripts/docker/cleanup.sh"
   },
   "directories": {
     "test": "test"
