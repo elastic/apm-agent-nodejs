@@ -11,4 +11,4 @@ docker run \
   -v "$(pwd)":/app \
   --rm node_docs \
   /bin/bash \
-  -c './script/build_docs.sh apm-agent-nodejs ./docs ./build'
+  -c './docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build'
