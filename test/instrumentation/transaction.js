@@ -239,7 +239,7 @@ test('#_encode() - ended', function (t) {
   var trans = new Transaction(ins._agent)
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context'])
+  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
   t.equal(typeof payload.id, 'string')
   t.equal(payload.id, trans.id)
   t.equal(payload.name, 'unnamed')
@@ -263,7 +263,7 @@ test('#_encode() - with meta data', function (t) {
   trans.setCustomContext({ baz: 1 })
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context'])
+  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
   t.equal(typeof payload.id, 'string')
   t.equal(payload.id, trans.id)
   t.equal(payload.name, 'foo')
@@ -284,7 +284,7 @@ test('#_encode() - http request meta data', function (t) {
   trans.req = mockRequest()
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context'])
+  t.deepEqual(Object.keys(payload), ['id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
   t.equal(typeof payload.id, 'string')
   t.equal(payload.id, trans.id)
   t.equal(payload.name, 'POST unknown route')
@@ -325,6 +325,39 @@ test('#_encode() - http request meta data', function (t) {
   t.end()
 })
 
+test('#_encode() - with spans', function (t) {
+  t.plan(9)
+  var ins = mockInstrumentation(function () {
+    t.pass('should end the transaction')
+  })
+
+  var trans = new Transaction(ins._agent, 'single-name', 'type')
+  trans.result = 'result'
+  var span = trans.buildSpan()
+  span.start('span')
+  span.end()
+  trans.end()
+
+  const payload = trans._encode()
+  t.equal(payload.name, 'single-name')
+  t.equal(payload.type, 'type')
+  t.equal(payload.result, 'result')
+  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.ok(payload.duration > 0, 'should have a duration >0ms')
+  t.ok(payload.duration < 100, 'should have a duration <100ms')
+  t.deepEqual(payload.context, {
+    user: {},
+    tags: {},
+    custom: {}
+  })
+
+  t.deepEqual(payload.span_count, {
+    started: 1
+  })
+
+  t.end()
+})
+
 test('#_encode() - dropped spans', function (t) {
   t.plan(9)
   var ins = mockInstrumentation(function () {
@@ -359,9 +392,8 @@ test('#_encode() - dropped spans', function (t) {
   })
 
   t.deepEqual(payload.span_count, {
-    dropped: {
-      total: 1
-    }
+    started: 2,
+    dropped: 1
   })
 
   t.end()
