@@ -25,6 +25,30 @@ node_js:
   - '8'
   - '6'
 
+_stage_dependencies: &_stage_dependencies
+  if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+  script: tav --quiet
+
+_stage_nightly: &_stage_nightly
+  if: type = cron
+  env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+
+_stage_nightly_no_async_hooks: &_stage_nightly_no_async_hooks
+  if: type = cron
+  env:
+    - ELASTIC_APM_ASYNC_HOOKS=0
+    - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+
+_stage_rc: &_stage_rc
+  if: type = cron
+  env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+
+_stage_rc_no_async_hooks: &_stage_rc_no_async_hooks
+  if: type = cron
+  env:
+    - ELASTIC_APM_ASYNC_HOOKS=0
+    - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+
 jobs:
   fast_finish: true
 
@@ -71,68 +95,56 @@ jobs:
     # Node.js 10
     - stage: dependencies
       node_js: '10'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '10'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=ioredis,pg,cassandra-driver,restify
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '10'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=mimic-response,got,bluebird
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '10'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
-      script: tav --quiet
+      <<: *_stage_dependencies
 
     # Node.js 8
     -
       node_js: '8'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '8'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=ioredis,pg,cassandra-driver,restify
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '8'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=mimic-response,got,bluebird
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '8'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
-      script: tav --quiet
+      <<: *_stage_dependencies
 
     # Node.js 6
     -
       node_js: '6'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '6'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=ioredis,pg,cassandra-driver,restify
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '6'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=mimic-response,got,bluebird
-      script: tav --quiet
+      <<: *_stage_dependencies
     -
       node_js: '6'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
-      script: tav --quiet
+      <<: *_stage_dependencies
 
     ###########################################
     #        NODE.JS PRE-RELEASE STAGE        #
@@ -142,79 +154,57 @@ jobs:
     - stage: Node.js pre-releases
       node_js: '11'
       name: "Node.js: 11-nightly"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+      <<: *_stage_nightly
     -
       node_js: '10'
       name: "Node.js: 10-nightly"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+      <<: *_stage_nightly
     -
       node_js: '8'
       name: "Node.js: 8-nightly"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+      <<: *_stage_nightly
     -
       node_js: '6'
       name: "Node.js: 6-nightly"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+      <<: *_stage_nightly
 
     # Nightlies - No async hooks
     - stage: Node.js pre-releases
       node_js: '11'
       name: "Node.js: 11-nightly (no async hooks)"
-      if: type = cron
-      env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
-        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+      <<: *_stage_nightly_no_async_hooks
     -
       node_js: '10'
       name: "Node.js: 10-nightly (no async hooks)"
-      if: type = cron
-      env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
-        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+      <<: *_stage_nightly_no_async_hooks
     -
       node_js: '8'
       name: "Node.js: 8-nightly (no async hooks)"
-      if: type = cron
-      env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
-        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+      <<: *_stage_nightly_no_async_hooks
 
     # Release Candidates
     -
       node_js: '10'
       name: "Node.js: 10-rc"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+      <<: *_stage_rc
     -
       node_js: '8'
       name: "Node.js: 8-rc"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+      <<: *_stage_rc
     -
       node_js: '6'
       name: "Node.js: 6-rc"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+      <<: *_stage_rc
 
     # Release Candidates - No async hooks
     -
       node_js: '10'
       name: "Node.js: 10-rc (no async hooks)"
-      if: type = cron
-      env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
-        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+      <<: *_stage_rc_no_async_hooks
     -
       node_js: '8'
       name: "Node.js: 8-rc (no async hooks)"
-      if: type = cron
-      env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
-        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+      <<: *_stage_rc_no_async_hooks
 
 addons:
   apt:
