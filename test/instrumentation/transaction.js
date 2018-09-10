@@ -393,9 +393,7 @@ test('#_encode() - dropped spans', function (t) {
 
   t.deepEqual(payload.span_count, {
     started: 2,
-    dropped: {
-      total: 1
-    }
+    dropped: 1
   })
 
   t.end()
