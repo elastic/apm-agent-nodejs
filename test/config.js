@@ -32,6 +32,7 @@ var optionFixtures = [
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
+  ['maxQueueSize', 'MAX_QUEUE_SIZE', 100],
   ['asyncHooks', 'ASYNC_HOOKS', true],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
   ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
@@ -113,6 +114,21 @@ truthyValues.forEach(function (val) {
     agent.start({ serviceName: 'foo', secretToken: 'baz' })
     t.equal(agent._conf.active, true)
     delete process.env.ELASTIC_APM_ACTIVE
+    t.end()
+  })
+})
+
+var MINUS_ONE_EQUAL_INFINITY = [
+  'maxQueueSize'
+]
+
+MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
+  test(key + ' should be Infinity if set to -1', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = -1
+    agent.start(opts)
+    t.equal(agent._conf[key], Infinity)
     t.end()
   })
 })
