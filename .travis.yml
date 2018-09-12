@@ -28,10 +28,6 @@ node_js:
   - '8'
   - '6'
   - '4'
-  
-cache:
-  directories:
-    - node_modules
 
 jobs:
   fast_finish: true
