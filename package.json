@@ -98,7 +98,7 @@
     "bluebird": "^3.4.6",
     "cassandra-driver": "^3.5.0",
     "connect": "^3.6.3",
-    "dependency-check": "^3.2.0",
+    "dependency-check": "^2.10.1",
     "elasticsearch": "^15.0.0",
     "express": "^4.14.0",
     "express-graphql": "^0.6.12",
