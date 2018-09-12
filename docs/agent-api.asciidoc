@@ -529,12 +529,12 @@ Setting it to `Infinity` means that all frames will be collected.
 ===== `transactionMaxSpans`
 
 * *Type:* Number
-* *Default:* `Infinity`
+* *Default:* `500`
 * *Env:* `ELASTIC_APM_TRANSACTION_MAX_SPANS`
 
 Specify the maximum number of spans to capture within a request transaction
 before dropping further spans.
-Setting to `Infinity` means that spans will never be dropped.
+Setting to `-1` means that spans will never be dropped.
 
 [[flush-interval]]
 ===== `flushInterval`
