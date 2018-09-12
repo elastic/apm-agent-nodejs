@@ -506,12 +506,18 @@ test('#captureError()', function (t) {
       })
   })
 
-  t.test('capture error before agent is started', function (t) {
+  t.test('capture error before agent is started - with callback', function (t) {
     var agent = Agent()
     agent.captureError(new Error('foo'), function (err) {
       t.equal(err.message, 'cannot capture error before agent is started')
       t.end()
     })
+  })
+
+  t.test('capture error before agent is started - without callback', function (t) {
+    var agent = Agent()
+    agent.captureError(new Error('foo'))
+    t.end()
   })
 })
 
