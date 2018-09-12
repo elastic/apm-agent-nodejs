@@ -54,7 +54,7 @@ function APMServer (agentOpts, mockOpts) {
 
     var server = self.server = http.createServer(function (req, res) {
       assert.strictEqual(req.method, 'POST', `Unexpected HTTP method: ${req.method}`)
-      assert.strictEqual(req.url, '/v2/intake', `Unexpected HTTP url: ${req.url}`)
+      assert.strictEqual(req.url, '/intake//v2/events', `Unexpected HTTP url: ${req.url}`)
 
       self.emit('request', req, res)
       var expect = requests.shift()
