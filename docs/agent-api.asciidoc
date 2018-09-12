@@ -529,12 +529,12 @@ Setting it to `Infinity` means that all frames will be collected.
 ===== `transactionMaxSpans`
 
 * *Type:* Number
-* *Default:* `Infinity`
+* *Default:* `500`
 * *Env:* `ELASTIC_APM_TRANSACTION_MAX_SPANS`
 
 Specify the maximum number of spans to capture within a request transaction
 before dropping further spans.
-Setting to `Infinity` means that spans will never be dropped.
+Setting to `-1` means that spans will never be dropped.
 
 [[flush-interval]]
 ===== `flushInterval`
@@ -624,7 +624,7 @@ use the <<apm-add-filter,`apm.addFilter()`>> function.
 [[disable-instrumentations]]
 ===== `disableInstrumentations`
 
-* *Type:* String
+* *Type:* Array of strings
 * *Env:* `ELASTIC_APM_DISABLE_INSTRUMENTATIONS`
 
 Array or comma-separated string of modules to disable instrumentation for.
