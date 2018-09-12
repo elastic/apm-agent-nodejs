@@ -16,6 +16,9 @@ services:
   - elasticsearch
   - cassandra
 
+install:
+  - for i in {1..3}; do travis_wait 5 npm install && break; rm -rf node_modules; done
+
 before_script:
   - wait-on tcp:9200
 
