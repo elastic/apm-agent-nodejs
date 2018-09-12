@@ -32,6 +32,7 @@ var optionFixtures = [
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['instrument', 'INSTRUMENT', true],
+  ['flushInterval', 'FLUSH_INTERVAL', 10],
   ['maxQueueSize', 'MAX_QUEUE_SIZE', 100],
   ['asyncHooks', 'ASYNC_HOOKS', true],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
