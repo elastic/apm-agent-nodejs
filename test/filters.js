@@ -1,8 +1,9 @@
 'use strict'
 
-var test = require('tape')
+const test = require('tape')
 
-var Filters = require('../lib/filters')
+const Filters = require('../lib/filters')
+const filterHttpHeaders = require('../lib/filters/http-headers')
 
 function makeTransactionWithHeaders (headers) {
   return {
@@ -16,26 +17,23 @@ function makeTransactionWithHeaders (headers) {
 
 function getHeaders (result) {
   try {
-    return result.transactions[0].context.request.headers
+    return result.context.request.headers
   } catch (err) {}
 }
 
 test('set-cookie', function (t) {
   const filters = new Filters()
-  filters.config({
-    filterHttpHeaders: true
-  })
 
-  const result = filters.process({
-    transactions: [
-      makeTransactionWithHeaders({
-        'set-cookie': [
-          'password=this-is-a-password',
-          'card=1234%205678%201234%205678; Secure'
-        ]
-      })
-    ]
-  })
+  filters.add(filterHttpHeaders)
+
+  const result = filters.process(
+    makeTransactionWithHeaders({
+      'set-cookie': [
+        'password=this-is-a-password',
+        'card=1234%205678%201234%205678; Secure'
+      ]
+    })
+  )
 
   t.deepEqual(getHeaders(result), {
     'set-cookie': [
