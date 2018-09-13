@@ -616,7 +616,7 @@ Currently the following HTTP headers are anonymized by default:
   See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
 
 If you wish to filter or sanitize other data,
-use the <<apm-add-filter,`apm.addFilter()`>> function.
+use one of the <<apm-add-filter,filtering>> functions.
 
 [[disable-instrumentations]]
 ===== `disableInstrumentations`
@@ -679,7 +679,8 @@ Each filter function will be called in the order they were added,
 and will receive a `payload` object as the only argument,
 containing the data about to be sent to the APM Server.
 
-For details on the format of the payload,
+The format of the payload depends on the event type being sent.
+For details about the different formats,
 see the {apm-server-ref}/intake-api.html[APM Server intake API documentation].
 
 The filter function is synchronous and should return the manipulated payload object.
@@ -691,17 +692,10 @@ Example usage:
 [source,js]
 ----
 apm.addFilter(function (payload) {
-  // the payload can either contain an array of transactions or errors
-  var items = payload.transactions || payload.errors || []
-
-  // loop over each item in the array to redact any secrets we don't
-  // want sent to the APM Server
-  items.forEach(function (item) {
-    if (item.context.request && item.context.request.headers) {
-      // redact sensitive data
-      payload.context.request.headers['x-secret'] = '[REDACTED]'
-    }
-  })
+  if (payload.context.request && payload.context.request.headers) {
+    // redact sensitive data
+    payload.context.request.headers['x-secret'] = '[REDACTED]'
+  }
 
   // remember to return the modified payload
   return payload
@@ -713,6 +707,39 @@ See <<filter-http-headers,`filterHttpHeaders`>> for details.
 
 Though you can also use filter functions to add new contextual information to the `user` and `custom` properties,
 it's recommended that you use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context,`apm.setCustomContext()`>> for that purpose.
+
+[[apm-add-error-filter]]
+==== `apm.addErrorFilter()`
+
+[source,js]
+----
+apm.addErrorFilter(callback)
+----
+
+Similar to <<apm-add-filter,`apm.addFilter()`>>,
+but the `callback` will only be called with error payloads.
+
+[[apm-add-transaction-filter]]
+==== `apm.addTransactionFilter()`
+
+[source,js]
+----
+apm.addTransactionFilter(callback)
+----
+
+Similar to <<apm-add-filter,`apm.addFilter()`>>,
+but the `callback` will only be called with transaction payloads.
+
+[[apm-add-span-filter]]
+==== `apm.addSpanFilter()`
+
+[source,js]
+----
+apm.addSpanFilter(callback)
+----
+
+Similar to <<apm-add-filter,`apm.addFilter()`>>,
+but the `callback` will only be called with span payloads.
 
 [[apm-set-user-context]]
 ==== `apm.setUserContext()`
