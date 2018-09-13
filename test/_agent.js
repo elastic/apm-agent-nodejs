@@ -21,7 +21,9 @@ function clean () {
   global[symbols.agentInitialized] = null
   process._events.uncaughtException = uncaughtExceptionListeners
   if (agent) {
-    agent._filters = new Filters()
+    agent._errorFilters = new Filters()
+    agent._transactionFilters = new Filters()
+    agent._spanFilters = new Filters()
     if (agent._instrumentation && agent._instrumentation._hook) {
       agent._instrumentation._hook.unhook()
     }
