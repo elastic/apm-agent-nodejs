@@ -814,7 +814,7 @@ assertStackTrace.asserts = 4
 function validateRequest (t) {
   return function (req) {
     t.equal(req.method, 'POST', 'should be a POST request')
-    t.equal(req.url, '/v2/intake', 'should be sent to the intake endpoint')
+    t.equal(req.url, '/intake/v2/events', 'should be sent to the intake endpoint')
   }
 }
 validateRequest.asserts = 2
