@@ -185,25 +185,314 @@ test('#addTags', function (t) {
   })
 })
 
-test('#addFilter() - invalid argument', function (t) {
-  t.plan(3 + APMServerWithDefaultAsserts.asserts)
-  APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
-    .on('listening', function () {
-      this.agent.addFilter(function (obj) {
-        t.equal(++obj.context.custom.order, 1)
-        return obj
+test('filters', function (t) {
+  t.test('#addFilter() - error', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          t.equal(++obj.context.custom.order, 1)
+          return obj
+        })
+        this.agent.addFilter('invalid')
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          t.equal(++obj.context.custom.order, 2)
+          return obj
+        })
+
+        this.agent.captureError(new Error('foo'), { custom: { order: 0 } })
       })
-      this.agent.addFilter('invalid')
-      this.agent.addFilter(function (obj) {
-        t.equal(++obj.context.custom.order, 2)
-        return obj
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.context.custom.order, 2)
+        t.end()
       })
-      this.agent.captureError(new Error('foo'), { custom: { order: 0 } })
+  })
+
+  t.test('#addFilter() - transaction', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
+      .on('listening', function () {
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          t.equal(++obj.context.custom.order, 1)
+          return obj
+        })
+        this.agent.addFilter('invalid')
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          t.equal(++obj.context.custom.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction('transaction-name')
+        this.agent.setCustomContext({ order: 0 })
+        this.agent.endTransaction()
+        this.agent.flush()
+      })
+      .on('data-transaction', function (data) {
+        t.equal(data.name, 'transaction-name')
+        t.equal(data.context.custom.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addFilter() - span', function (t) {
+    t.plan(5 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'span' })
+      .on('listening', function () {
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          obj.order = 1
+          return obj
+        })
+        this.agent.addFilter('invalid')
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          t.equal(++obj.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction()
+        const span = this.agent.startSpan('span-name')
+        span.end()
+        setTimeout(() => {
+          this.agent.flush()
+        }, 50)
+      })
+      .on('data-span', function (data) {
+        t.equal(data.name, 'span-name')
+        t.equal(data.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addErrorFilter()', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.addTransactionFilter(function () {
+          t.fail('should not call transaction filter')
+        })
+        this.agent.addSpanFilter(function () {
+          t.fail('should not call span filter')
+        })
+        this.agent.addErrorFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          t.equal(++obj.context.custom.order, 1)
+          return obj
+        })
+        this.agent.addErrorFilter('invalid')
+        this.agent.addErrorFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          t.equal(++obj.context.custom.order, 2)
+          return obj
+        })
+
+        this.agent.captureError(new Error('foo'), { custom: { order: 0 } })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.context.custom.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addTransactionFilter()', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
+      .on('listening', function () {
+        this.agent.addErrorFilter(function () {
+          t.fail('should not call error filter')
+        })
+        this.agent.addSpanFilter(function () {
+          t.fail('should not call span filter')
+        })
+        this.agent.addTransactionFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          t.equal(++obj.context.custom.order, 1)
+          return obj
+        })
+        this.agent.addTransactionFilter('invalid')
+        this.agent.addTransactionFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          t.equal(++obj.context.custom.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction('transaction-name')
+        this.agent.setCustomContext({ order: 0 })
+        this.agent.endTransaction()
+        this.agent.flush()
+      })
+      .on('data-transaction', function (data) {
+        t.equal(data.name, 'transaction-name')
+        t.equal(data.context.custom.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addSpanFilter()', function (t) {
+    t.plan(5 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'span' })
+      .on('listening', function () {
+        this.agent.addErrorFilter(function () {
+          t.fail('should not call error filter')
+        })
+        this.agent.addTransactionFilter(function () {
+          t.fail('should not call transaction filter')
+        })
+        this.agent.addSpanFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          obj.order = 1
+          return obj
+        })
+        this.agent.addSpanFilter('invalid')
+        this.agent.addSpanFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          t.equal(++obj.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction()
+        const span = this.agent.startSpan('span-name')
+        span.end()
+        setTimeout(() => {
+          this.agent.flush()
+        }, 50)
+      })
+      .on('data-span', function (data) {
+        t.equal(data.name, 'span-name')
+        t.equal(data.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addFilter() - abort', function (t) {
+    t.plan(1)
+
+    const server = http.createServer(function (req, res) {
+      t.fail('should not send any data')
     })
-    .on('data-error', function (data) {
-      t.deepEqual(data.context.custom.order, 2)
-      t.end()
+
+    server.listen(function () {
+      const agent = Agent().start({ serverUrl: 'http://localhost:' + server.address().port })
+
+      agent.addFilter(function (obj) {
+        t.equal(obj.exception.message, 'foo')
+        return false
+      })
+      agent.addFilter(function () {
+        t.fail('should not call 2nd filter')
+      })
+
+      agent.captureError(new Error('foo'))
+
+      setTimeout(function () {
+        t.end()
+        server.close()
+      }, 50)
     })
+  })
+
+  t.test('#addErrorFilter() - abort', function (t) {
+    t.plan(1)
+
+    const server = http.createServer(function (req, res) {
+      t.fail('should not send any data')
+    })
+
+    server.listen(function () {
+      const agent = Agent().start({
+        serverUrl: 'http://localhost:' + server.address().port,
+        captureExceptions: false
+      })
+
+      agent.addErrorFilter(function (obj) {
+        t.equal(obj.exception.message, 'foo')
+        return false
+      })
+      agent.addErrorFilter(function () {
+        t.fail('should not call 2nd filter')
+      })
+
+      agent.captureError(new Error('foo'))
+
+      setTimeout(function () {
+        t.end()
+        server.close()
+      }, 50)
+    })
+  })
+
+  t.test('#addTransactionFilter() - abort', function (t) {
+    t.plan(1)
+
+    const server = http.createServer(function (req, res) {
+      t.fail('should not send any data')
+    })
+
+    server.listen(function () {
+      const agent = Agent().start({
+        serverUrl: 'http://localhost:' + server.address().port,
+        captureExceptions: false
+      })
+
+      agent.addTransactionFilter(function (obj) {
+        t.equal(obj.name, 'transaction-name')
+        return false
+      })
+      agent.addTransactionFilter(function () {
+        t.fail('should not call 2nd filter')
+      })
+
+      agent.startTransaction('transaction-name')
+      agent.endTransaction()
+      agent.flush()
+
+      setTimeout(function () {
+        t.end()
+        server.close()
+      }, 50)
+    })
+  })
+
+  t.test('#addSpanFilter() - abort', function (t) {
+    t.plan(1)
+
+    const server = http.createServer(function (req, res) {
+      t.fail('should not send any data')
+    })
+
+    server.listen(function () {
+      const agent = Agent().start({
+        serverUrl: 'http://localhost:' + server.address().port,
+        captureExceptions: false
+      })
+
+      agent.addSpanFilter(function (obj) {
+        t.equal(obj.name, 'span-name')
+        return false
+      })
+      agent.addSpanFilter(function () {
+        t.fail('should not call 2nd filter')
+      })
+
+      agent.startTransaction()
+      const span = agent.startSpan('span-name')
+      span.end()
+
+      setTimeout(function () {
+        agent.flush()
+        setTimeout(function () {
+          t.end()
+          server.close()
+        }, 50)
+      }, 50)
+    })
+  })
 })
 
 test('#flush()', function (t) {
