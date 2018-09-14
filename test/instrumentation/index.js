@@ -24,7 +24,8 @@ test('basic', function (t) {
     t.equal(data.spans.length, 4)
 
     data.transactions.forEach(function (trans, index) {
-      t.ok(/[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}/.test(trans.id))
+      t.ok(/^[\da-f]{16}$/.test(trans.id))
+      t.ok(/^[\da-f]{32}$/.test(trans.trace_id))
       t.equal(trans.name, 'foo' + index)
       t.equal(trans.type, 'bar' + index)
       t.ok(trans.duration > 0, 'duration should be >0ms')
@@ -36,7 +37,7 @@ test('basic', function (t) {
         const name = 't' + index + i
         const span = findObjInArray(data.spans, 'name', name)
         t.ok(span, 'should have span named ' + name)
-        t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+        t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
         t.equal(span.type, 'type')
         t.ok(span.start > 0, 'span start should be >0ms')
         t.ok(span.start < 100, 'span start should be <100ms')
@@ -88,7 +89,7 @@ test('same tick', function (t) {
       const name = 't' + i
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -111,7 +112,7 @@ test('serial - no parents', function (t) {
       const name = 't' + i
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -138,7 +139,7 @@ test('serial - with parents', function (t) {
       const name = 't' + i
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -165,7 +166,7 @@ test('stack branching - no parents', function (t) {
       const name = 't' + i
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -191,7 +192,7 @@ test('currentTransaction missing - recoverable', function (t) {
     const name = 't0'
     const span = findObjInArray(data.spans, 'name', name)
     t.ok(span, 'should have span named ' + name)
-    t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+    t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
     t.end()
   })
   var ins = agent._instrumentation
@@ -219,7 +220,7 @@ test('currentTransaction missing - not recoverable - last span failed', function
     const name = 't0'
     const span = findObjInArray(data.spans, 'name', name)
     t.ok(span, 'should have span named ' + name)
-    t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+    t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
     t.end()
   })
   var ins = agent._instrumentation
@@ -250,7 +251,7 @@ test('currentTransaction missing - not recoverable - middle span failed', functi
     for (const name of names) {
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transactionId, trans.id, 'should belong to correct transaction')
+      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -374,7 +375,8 @@ test('unsampled transactions do not include spans', function (t) {
     t.equal(data.transactions.length, 1)
 
     data.transactions.forEach(function (trans) {
-      t.ok(/[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}/.test(trans.id))
+      t.ok(/^[\da-f]{16}$/.test(trans.id))
+      t.ok(/^[\da-f]{32}$/.test(trans.trace_id))
       t.ok(trans.duration > 0, 'duration should be >0ms')
       t.ok(trans.duration < 100, 'duration should be <100ms')
       t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
