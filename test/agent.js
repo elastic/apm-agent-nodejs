@@ -72,6 +72,39 @@ test('#currentTransaction', function (t) {
   })
 })
 
+test('#currentSpan', function (t) {
+  t.test('no active or binding span', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.notOk(agent.currentSpan)
+    t.end()
+  })
+
+  t.test('with binding span', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    var span = agent.startSpan()
+    t.equal(agent.currentSpan, span)
+    span.end()
+    trans.end()
+    t.end()
+  })
+
+  t.test('with active span', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    var span = agent.startSpan()
+    process.nextTick(() => {
+      t.equal(agent.currentSpan, span)
+      span.end()
+      trans.end()
+      t.end()
+    })
+  })
+})
+
 test('#setTransactionName', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
