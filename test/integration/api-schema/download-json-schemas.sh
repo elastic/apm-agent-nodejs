@@ -21,14 +21,19 @@ download_schema()
 schemadir="${1:-.schemacache}"
 
 FILES=( \
-  "errors/error.json" \
-  "errors/payload.json" \
+  "errors/common_error.json" \
+  "errors/v2_error.json" \
+  "metrics/metricset.json" \
+  "metrics/payload.json" \
+  "metrics/sample.json" \
   "sourcemaps/payload.json" \
+  "spans/common_span.json" \
+  "spans/v2_span.json" \
+  "transactions/common_transaction.json" \
   "transactions/mark.json" \
-  "transactions/payload.json" \
-  "transactions/span.json" \
-  "transactions/transaction.json" \
+  "transactions/v2_transaction.json" \
   "context.json" \
+  "metadata.json" \
   "process.json" \
   "request.json" \
   "service.json" \
@@ -38,9 +43,14 @@ FILES=( \
   "user.json" \
 )
 
-mkdir -p ${schemadir}/errors ${schemadir}/transactions ${schemadir}/sourcemaps
+mkdir -p \
+  ${schemadir}/errors \
+  ${schemadir}/transactions \
+  ${schemadir}/spans \
+  ${schemadir}/metrics \
+  ${schemadir}/sourcemaps
 
 for i in "${FILES[@]}"; do
-  download_schema https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec/${i} ${schemadir}/${i}
+  download_schema https://raw.githubusercontent.com/elastic/apm-server/v2/docs/spec/${i} ${schemadir}/${i}
 done
 echo "Done."
