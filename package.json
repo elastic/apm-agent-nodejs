@@ -88,8 +88,7 @@
     "set-cookie-serde": "^1.0.0",
     "sql-summary": "^1.0.1",
     "stackman": "^3.0.2",
-    "unicode-byte-truncate": "^1.0.0",
-    "uuid": "^3.2.1"
+    "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.0.0",
