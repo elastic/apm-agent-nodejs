@@ -572,6 +572,18 @@ test('#captureError()', function (t) {
       })
   })
 
+  t.test('generate error id', function (t) {
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'))
+      })
+      .on('data-error', function (data) {
+        t.ok(/^[\da-f]{32}$/.test(data.id), `should have valid id (was: ${data.id})`)
+        t.end()
+      })
+  })
+
   t.test('should send a plain text message to the server', function (t) {
     t.plan(1 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
