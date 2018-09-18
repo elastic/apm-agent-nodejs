@@ -318,7 +318,7 @@ factories.forEach(function (f) {
         t.deepEqual(names, ['bar', 'baz', 'foo'])
 
         data.transactions.forEach(function (trans) {
-          const span = findObjInArray(data.spans, 'transactionId', trans.id)
+          const span = findObjInArray(data.spans, 'transaction_id', trans.id)
           t.ok(span, 'transaction should have span')
           t.equal(span.name, 'SELECT')
           t.equal(span.type, 'db.postgresql.query')
