@@ -280,7 +280,7 @@ isSecure.forEach(secure => {
       var root = data.transactions[1]
       assertPath(t, root, secure, port, '/')
 
-      var span = findObjInArray(data.spans, 'transactionId', root.id)
+      var span = findObjInArray(data.spans, 'transaction_id', root.id)
       t.ok(span, 'root transaction should have span')
       t.equal(span.type, 'ext.http2')
       t.equal(span.name, `undefined http${secure ? 's' : ''}://localhost:${port}/sub`)
@@ -340,7 +340,7 @@ isSecure.forEach(secure => {
   })
 })
 
-var matchId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+var matchId = /^[\da-f]{16}$/
 var matchTimestamp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/
 
 function assertPath (t, trans, secure, port, path) {

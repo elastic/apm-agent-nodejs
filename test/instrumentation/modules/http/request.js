@@ -21,7 +21,7 @@ test('request', function (t) {
 
     var root = data.transactions[1]
     t.equal(root.name, 'GET /')
-    const span = findObjInArray(data.spans, 'transactionId', root.id)
+    const span = findObjInArray(data.spans, 'transaction_id', root.id)
     t.equal(span.name, 'GET localhost:' + server.address().port + '/test')
 
     server.close()
