@@ -5,60 +5,73 @@ if (require('os').platform() === 'win32') {
   process.exit()
 }
 
-const getPort = require('get-port')
+const http = require('http')
+const zlib = require('zlib')
 
-getPort().then(function (port) {
-  const agent = require('../../../').start({
+const afterAll = require('after-all-results')
+const ndjson = require('ndjson')
+const test = require('tape')
+
+const utils = require('./_utils')
+const Agent = require('../../_agent')
+
+const next = afterAll(function (err, validators) {
+  if (err) throw err
+
+  const [validateMetadata, validateError] = validators
+
+  test('span schema - sourceLinesSpanAppFrames: 5, sourceLinesSpanLibraryFrames: 5', function (t) {
+    t.plan(7)
+
+    let agent
+    const validators = [validateMetadata, validateError]
+
+    const server = http.createServer(function (req, res) {
+      t.equal(req.method, 'POST', 'server should recieve a POST request')
+      t.equal(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
+
+      req
+        .pipe(zlib.createGunzip())
+        .pipe(ndjson.parse())
+        .on('data', function (data) {
+          const type = Object.keys(data)[0]
+          const validate = validators.shift()
+          t.equal(validate(data[type]), true, type + ' should be valid')
+          t.equal(validate.errors, null, type + ' should not have any validation errors')
+        })
+        .on('end', function () {
+          res.end()
+          server.close()
+          agent.destroy()
+          t.end()
+        })
+    })
+
+    server.listen(function () {
+      agent = newAgent(server)
+      agent.startTransaction('name1', 'type1')
+      const span = agent.startSpan('name1', 'type1')
+      span.end()
+      // Collecting the span stack trace is an async process. Wait a little before flushing
+      setTimeout(function () {
+        agent.flush(function (err) {
+          t.error(err, 'flush should not result in an error')
+        })
+      }, 250)
+    })
+  })
+})
+
+utils.metadataValidator(next())
+utils.spanValidator(next())
+
+function newAgent (server) {
+  return new Agent().start({
     serviceName: 'test',
-    serverUrl: 'http://localhost:' + port,
+    serverUrl: 'http://localhost:' + server.address().port,
     captureExceptions: false,
+    disableInstrumentations: ['http'],
     sourceLinesSpanAppFrames: 5,
     sourceLinesSpanLibraryFrames: 5
   })
-
-  const http = require('http')
-  const zlib = require('zlib')
-  const test = require('tape')
-  const utils = require('./_utils')
-
-  test('POST /transactions - sourceLinesSpanAppFrames: 5, sourceLinesSpanLibraryFrames: 5', function (t) {
-    t.plan(7)
-
-    utils.transactionsValidator(function (err, validate) {
-      t.error(err)
-
-      const server = http.createServer(function (req, res) {
-        t.equal(req.method, 'POST')
-        t.equal(req.url, '/v1/transactions')
-
-        const buffers = []
-        const gunzip = zlib.createGunzip()
-        const unzipped = req.pipe(gunzip)
-
-        unzipped.on('data', buffers.push.bind(buffers))
-        unzipped.on('end', function () {
-          res.end()
-          server.close()
-          const data = JSON.parse(Buffer.concat(buffers))
-          t.equal(data.transactions.length, 1, 'expect 1 transaction to be sent')
-          const valid = validate(data)
-          t.equal(validate.errors, null, 'should not have any validation errors')
-          t.equal(valid, true, 'should be valid')
-        })
-      })
-
-      server.listen(port, function () {
-        agent.startTransaction('name1', 'type1')
-        const span = agent.startSpan('name1', 'type1')
-        span.end()
-        agent.endTransaction()
-        agent.flush(function (err) {
-          server.close()
-          t.error(err)
-        })
-      })
-    })
-  })
-}, function (err) {
-  throw err
-})
+}
