@@ -1,6 +1,7 @@
 'use strict'
 
 const exec = require('child_process').exec
+const fs = require('fs')
 const tmpdir = require('os').tmpdir
 const join = require('path').join
 
@@ -10,21 +11,33 @@ const thunky = require('thunky')
 
 const schemaDir = thunky(function (cb) {
   const dir = join(tmpdir(), '.schemacache')
-  const script = join(__dirname, 'download-json-schemas.sh')
-  const cmd = `"${script}" "${dir}"`
-  console.log('downloading schemas from GitHub to %s...', dir)
-  exec(cmd, function (err) {
-    if (err) return cb(err)
-    cb(null, dir)
+  fs.stat(dir, function (err) {
+    if (!err) return cb(null, dir)
+
+    const script = join(__dirname, 'download-json-schemas.sh')
+    const cmd = `"${script}" "${dir}"`
+    console.log('downloading schemas from GitHub to %s...', dir)
+    exec(cmd, function (err) {
+      if (err) return cb(err)
+      cb(null, dir)
+    })
   })
 })
 
-exports.transactionsValidator = thunky(function (cb) {
-  loadSchema(join('transactions', 'v1_transaction.json'), cb)
+exports.metadataValidator = thunky(function (cb) {
+  loadSchema('metadata.json', cb)
 })
 
-exports.errorsValidator = thunky(function (cb) {
-  loadSchema(join('errors', 'v1_error.json'), cb)
+exports.transactionValidator = thunky(function (cb) {
+  loadSchema(join('transactions', 'v2_transaction.json'), cb)
+})
+
+exports.spanValidator = thunky(function (cb) {
+  loadSchema(join('spans', 'v2_span.json'), cb)
+})
+
+exports.errorValidator = thunky(function (cb) {
+  loadSchema(join('errors', 'v2_error.json'), cb)
 })
 
 function loadSchema (relativePath, cb) {
