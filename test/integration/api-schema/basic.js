@@ -59,13 +59,14 @@ const next = afterAll(function (err, validators) {
   test('error schema failure', function (t) {
     t.equal(validateError({}), false)
     t.deepEqual(validateError.errors, [
-      { field: 'data', message: 'no schemas match', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] }
+      { field: 'data', message: 'no schemas match', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
+      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 1 ] }
     ])
-    t.equal(validateError({ exception: {} }), false)
+    t.equal(validateError({ id: 'foo', exception: {} }), false)
     t.deepEqual(validateError.errors, [
       { field: 'data.exception', message: 'no schemas match', value: {}, type: [ 'object', 'null' ], schemaPath: [ 'allOf', 0, 'properties', 'exception' ] }
     ])
-    t.equal(validateError({ log: {} }), false)
+    t.equal(validateError({ id: 'foo', log: {} }), false)
     t.deepEqual(validateError.errors, [
       { field: 'data.log.message', message: 'is required', value: {}, type: [ 'object', 'null' ], schemaPath: [ 'allOf', 0, 'properties', 'log' ] }
     ])
