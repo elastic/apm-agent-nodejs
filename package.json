@@ -3,6 +3,7 @@
   "version": "1.12.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "docs": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
     "lint": "standard",

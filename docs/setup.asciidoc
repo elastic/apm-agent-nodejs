@@ -105,3 +105,30 @@ import apm from 'elastic-apm-node/start'
 
 Then either configure the agent using the environment variables associated with each <<apm-start,config option>>,
 or use the optional <<agent-configuration-file,agent configuration file>>.
+
+[float]
+[[typescript]]
+=== Typescript support
+
+If you are using Typescript, type definitions are provided. Importing the `elastic-apm-node` module:
+
+[source,js]
+----
+import * as apm from 'elastic-apm-node';
+const agent: apm.Agent = apm.start({
+  // add configuration options here -- comes with type safety
+  });
+let started: boolean = agent.isStarted(); //Will return true!
+----
+
+Or if using Babel / ES Modules and the agent needs to be started before other imports use the `elastic-apm-node/start` module: 
+
+[source,js]
+----
+import * as apm from 'elastic-apm-node/start';
+let started: boolean = apm.isStarted(); //Will return true!
+----
+
+
+Then either configure the agent using the environment variables associated with each <<apm-start,config option>>,
+or use the optional <<agent-configuration-file,agent configuration file>>.
