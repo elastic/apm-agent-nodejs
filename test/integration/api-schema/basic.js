@@ -60,7 +60,7 @@ const next = afterAll(function (err, validators) {
     t.equal(validateError({}), false)
     t.deepEqual(validateError.errors, [
       { field: 'data', message: 'no schemas match', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 1 ] }
+      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 1, 'allOf', 0 ] }
     ])
     t.equal(validateError({ id: 'foo', exception: {} }), false)
     t.deepEqual(validateError.errors, [
