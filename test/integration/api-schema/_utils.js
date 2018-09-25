@@ -7,6 +7,7 @@ const join = require('path').join
 
 const validator = require('is-my-json-valid')
 const refParser = require('json-schema-ref-parser')
+const rimraf = require('rimraf')
 const thunky = require('thunky')
 
 const schemaDir = thunky(function (cb) {
@@ -18,7 +19,13 @@ const schemaDir = thunky(function (cb) {
     const cmd = `"${script}" "${dir}"`
     console.log('downloading schemas from GitHub to %s...', dir)
     exec(cmd, function (err) {
-      if (err) return cb(err)
+      if (err) {
+        console.log('download failed. cleaning up...')
+        return rimraf(dir, function (err2) {
+          cb(err2 || err)
+        })
+      }
+
       cb(null, dir)
     })
   })
