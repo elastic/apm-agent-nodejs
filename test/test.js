@@ -70,13 +70,14 @@ var directories = [
   'test/sourcemaps',
   'test/instrumentation',
   'test/instrumentation/modules',
+  'test/instrumentation/modules/bluebird',
+  'test/instrumentation/modules/cassandra-driver',
+  'test/instrumentation/modules/fastify',
   'test/instrumentation/modules/http',
-  'test/instrumentation/modules/pg',
+  'test/instrumentation/modules/koa-router',
   'test/instrumentation/modules/mysql',
   'test/instrumentation/modules/mysql2',
-  'test/instrumentation/modules/cassandra-driver',
-  'test/instrumentation/modules/bluebird',
-  'test/instrumentation/modules/koa-router'
+  'test/instrumentation/modules/pg'
 ]
 
 mapSeries(directories, readdir, function (err, directoryFiles) {

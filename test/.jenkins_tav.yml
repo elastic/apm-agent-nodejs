@@ -1,5 +1,5 @@
 TAV:
   - generic-pool+mysql+mysql2+redis+koa-router+handlebars+mongodb-core+finalhandler
-  - ioredis+pg+cassandra-driver+tedious+restify
+  - ioredis+pg+cassandra-driver+tedious+restify+fastify
   - mimic-response+got+bluebird+apollo-server-express
   - knex+ws+graphql+express-graphql+elasticsearch+hapi+express+express-queue
