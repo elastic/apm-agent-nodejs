@@ -1012,7 +1012,7 @@ NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ 
 
 [source,js]
 ----
-var transaction = apm.startTransaction([name][, type])
+var transaction = apm.startTransaction([name][, type][, traceparent])
 ----
 
 Start a new transaction.
@@ -1026,6 +1026,8 @@ Defaults to `unnamed`
 * `type` - The type of transaction (string).
 You can always set this later via <<transaction-type,`transaction.type`>>.
 Defaults to `custom`
+
+* `traceparent` - The traceparent header received from a remote service (string).
 
 Use this function to create a custom transaction.
 Note that the agent will do this for you automatically when ever your application receives an incoming HTTP request.
