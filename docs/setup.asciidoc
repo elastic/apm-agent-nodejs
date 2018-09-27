@@ -75,7 +75,7 @@ to the <<apm-start,`start`>> function, e.g:
 [source,js]
 ----
 module.exports = {
-  // Overwrite service name from package.json
+  // Override service name from package.json
   // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
 
