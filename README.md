@@ -31,6 +31,8 @@ npm install elastic-apm-node --save
 - [Get started with Express](https://www.elastic.co/guide/en/apm/agent/nodejs/current/express.html)
 - [Get started with hapi](https://www.elastic.co/guide/en/apm/agent/nodejs/current/hapi.html)
 - [Get started with Koa](https://www.elastic.co/guide/en/apm/agent/nodejs/current/koa.html)
+- [Get started with Restify](https://www.elastic.co/guide/en/apm/agent/nodejs/current/restify.html)
+- [Get started with Lambda](https://www.elastic.co/guide/en/apm/agent/nodejs/current/lambda.html)
 - [Get started with a custom Node.js stack](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-stack.html)
 - [Advanced Setup and Configuration](https://www.elastic.co/guide/en/apm/agent/nodejs/current/advanced-setup.html)
 - [API Reference](https://www.elastic.co/guide/en/apm/agent/nodejs/current/api.html)
