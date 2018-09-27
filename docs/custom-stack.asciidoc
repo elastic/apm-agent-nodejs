@@ -130,7 +130,7 @@ In that case,
 you will need to help us out a little by supplying a name for each transaction.
 You can do that by calling <<apm-set-transaction-name,`apm.setTransactionName()`>> at any time during the request with the name of the transaction as the first argument.
 
-Except of an application using the https://github.com/watson/patterns[patterns] module for route handling:
+Excerpt of an application using the https://github.com/watson/patterns[patterns] module for route handling:
 
 [source,js]
 ----
