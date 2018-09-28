@@ -23,9 +23,9 @@ schemadir="${1:-.schemacache}"
 FILES=( \
   "errors/common_error.json" \
   "errors/v2_error.json" \
-  "metrics/metricset.json" \
-  "metrics/payload.json" \
-  "metrics/sample.json" \
+  "metricsets/metricset.json" \
+  "metricsets/payload.json" \
+  "metricsets/sample.json" \
   "sourcemaps/payload.json" \
   "spans/common_span.json" \
   "spans/v2_span.json" \
@@ -47,7 +47,7 @@ mkdir -p \
   ${schemadir}/errors \
   ${schemadir}/transactions \
   ${schemadir}/spans \
-  ${schemadir}/metrics \
+  ${schemadir}/metricsets \
   ${schemadir}/sourcemaps
 
 for i in "${FILES[@]}"; do
