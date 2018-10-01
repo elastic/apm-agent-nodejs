@@ -143,4 +143,17 @@ test('child', t => {
 
     t.end()
   })
+
+  t.test('neither', t => {
+    const header = `${version}-${traceId}-${id}-00`
+    const context = TraceContext.fromString(header).child()
+
+    isValid(t, context)
+    t.equal(context.version, version, 'version matches')
+    t.equal(context.traceId, traceId, 'traceId matches')
+    t.notEqual(context.id, id, 'has new id')
+    t.equal(context.flags, '00', 'neither remains neither')
+
+    t.end()
+  })
 })
