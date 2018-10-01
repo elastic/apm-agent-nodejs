@@ -34,7 +34,7 @@ times(5, function (n, done) {
     })
 
     var server = http.createServer(function (req, res) {
-      var span = agent.buildSpan()
+      var span = agent._instrumentation.buildSpan()
       span.start(agent._instrumentation.currentTransaction.id)
       setTimeout(function () {
         span.end()
