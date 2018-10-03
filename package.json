@@ -139,7 +139,7 @@
     "thunky": "^1.0.2",
     "untildify": "^3.0.2",
     "util.promisify": "^1.0.0",
-    "wait-on": "^2.1.2",
+    "wait-on": "^3.1.0",
     "ws": "^6.0.0"
   },
   "greenkeeper": {
