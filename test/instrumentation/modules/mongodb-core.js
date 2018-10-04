@@ -28,6 +28,11 @@ test('instrument simple command', function (t) {
     t.equal(trans.type, 'bar')
     t.equal(trans.result, 'success')
 
+    // Ensure spans are sorted by start time
+    data.spans = data.spans.sort((a, b) => {
+      return a.start - b.start
+    })
+
     if (semver.lt(version, '2.0.0')) {
       // mongodb-core v1.x will sometimes perform two `ismaster` queries
       // towards the admin and/or the system database. This doesn't always
