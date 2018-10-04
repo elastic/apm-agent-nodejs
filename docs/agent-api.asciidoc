@@ -55,7 +55,7 @@ by using environment variables,
 or via the <<agent-configuration-file,agent configuration file>>.
 Their equivalent environment variable name is listed together with each option.
 
-Properties on the `options` object will always take precedence over environment variables.
+Environment variables will always take precedence over properties of the `options` object.
 
 The only required parameter is <<service-name,`serviceName`>>.
 
