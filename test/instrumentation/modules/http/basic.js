@@ -97,7 +97,7 @@ function sendRequest (server, timeout) {
       path: '/',
       method: 'GET',
       headers: {
-        'Elastic-APM-traceparent': context.toString()
+        'elastic-apm-traceparent': context.toString()
       }
     }, function (res) {
       if (timeout) throw new Error('should not get to here')

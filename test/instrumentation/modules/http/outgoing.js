@@ -127,7 +127,7 @@ function echoTest (type, handler) {
       })
 
       var expected = TraceContext.fromString(trans.context.toString())
-      var received = TraceContext.fromString(req.getHeader('Elastic-APM-traceparent'))
+      var received = TraceContext.fromString(req.getHeader('elastic-apm-traceparent'))
       t.equal(received.version, expected.version, 'traceparent header has matching version')
       t.equal(received.traceId, expected.traceId, 'traceparent header has matching traceId')
       t.ok(/^[\da-f]{16}$/.test(expected.id), 'traceparent header has valid id')
