@@ -87,7 +87,7 @@ optionFixtures.forEach(function (fixture) {
       t.end()
     })
 
-    test('should overwrite ELASTIC_APM_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
+    test('should overwrite option property ' + fixture[0] + ' by ELASTIC_APM_' + fixture[1], function (t) {
       var agent = Agent()
       var opts = {}
       var value1, value2
@@ -112,9 +112,9 @@ optionFixtures.forEach(function (fixture) {
       agent.start(opts)
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value1 ])
+        t.deepEqual(agent._conf[fixture[0]], [ value2 ])
       } else {
-        t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value1)
+        t.equal(agent._conf[fixture[0]], value2)
       }
 
       delete process.env['ELASTIC_APM_' + fixture[1]]
@@ -172,10 +172,10 @@ MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
   })
 })
 
-test('should overwrite ELASTIC_APM_ACTIVE by option property active', function (t) {
+test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
   var agent = Agent()
-  var opts = { serviceName: 'foo', secretToken: 'baz', active: false }
-  process.env.ELASTIC_APM_ACTIVE = '1'
+  var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
+  process.env.ELASTIC_APM_ACTIVE = '0'
   agent.start(opts)
   t.equal(agent._conf.active, false)
   delete process.env.ELASTIC_APM_ACTIVE
