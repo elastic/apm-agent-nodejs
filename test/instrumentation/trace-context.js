@@ -8,7 +8,7 @@ const TraceContext = require('../../lib/instrumentation/trace-context')
 const version = Buffer.alloc(1).toString('hex')
 const traceId = crypto.randomBytes(16).toString('hex')
 const id = crypto.randomBytes(8).toString('hex')
-const flags = '03'
+const flags = '01'
 
 const header = `${version}-${traceId}-${id}-${flags}`
 
@@ -54,8 +54,7 @@ test('toJSON', t => {
     traceId,
     id,
     flags,
-    requested: true,
-    reported: true,
+    recorded: true,
     sampled: true
   }, 'trace context serializes fields to hex strings, in JSON form')
 
@@ -105,7 +104,7 @@ test('startOrResume', t => {
 })
 
 test('child', t => {
-  t.test('requested', t => {
+  t.test('recorded', t => {
     const header = `${version}-${traceId}-${id}-01`
     const context = TraceContext.fromString(header).child()
 
@@ -113,38 +112,12 @@ test('child', t => {
     t.equal(context.version, version, 'version matches')
     t.equal(context.traceId, traceId, 'traceId matches')
     t.notEqual(context.id, id, 'has new id')
-    t.equal(context.flags, '03', 'requested becomes reported')
+    t.equal(context.flags, '01', 'recorded remains recorded')
 
     t.end()
   })
 
-  t.test('reported', t => {
-    const header = `${version}-${traceId}-${id}-02`
-    const context = TraceContext.fromString(header).child()
-
-    isValid(t, context)
-    t.equal(context.version, version, 'version matches')
-    t.equal(context.traceId, traceId, 'traceId matches')
-    t.notEqual(context.id, id, 'has new id')
-    t.equal(context.flags, '00', 'reported without requested gets reset')
-
-    t.end()
-  })
-
-  t.test('both', t => {
-    const header = `${version}-${traceId}-${id}-03`
-    const context = TraceContext.fromString(header).child()
-
-    isValid(t, context)
-    t.equal(context.version, version, 'version matches')
-    t.equal(context.traceId, traceId, 'traceId matches')
-    t.notEqual(context.id, id, 'has new id')
-    t.equal(context.flags, '03', 'both remains both')
-
-    t.end()
-  })
-
-  t.test('neither', t => {
+  t.test('not recorded', t => {
     const header = `${version}-${traceId}-${id}-00`
     const context = TraceContext.fromString(header).child()
 
@@ -152,7 +125,7 @@ test('child', t => {
     t.equal(context.version, version, 'version matches')
     t.equal(context.traceId, traceId, 'traceId matches')
     t.notEqual(context.id, id, 'has new id')
-    t.equal(context.flags, '00', 'neither remains neither')
+    t.equal(context.flags, '00', 'not recorded remains not recorded')
 
     t.end()
   })
