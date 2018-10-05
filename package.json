@@ -113,7 +113,7 @@
     "inquirer": "^0.12.0",
     "ioredis": "^3.0.0",
     "is-my-json-valid": "^2.17.2",
-    "json-schema-ref-parser": "^5.0.3",
+    "json-schema-ref-parser": "^6.0.0",
     "knex": "^0.15.0",
     "koa": "^2.2.0",
     "koa-router": "^7.1.1",
