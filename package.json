@@ -78,7 +78,6 @@
     "fast-safe-stringify": "^2.0.4",
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
-    "normalize-bool": "^1.0.0",
     "original-url": "^1.2.1",
     "read-pkg-up": "^3.0.0",
     "redact-secrets": "^1.0.0",
