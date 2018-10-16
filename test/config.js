@@ -172,6 +172,22 @@ MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
   })
 })
 
+var bytesValues = [
+  'apiRequestSize',
+  'errorMessageMaxLength'
+]
+
+bytesValues.forEach(function (key) {
+  test(key + ' should be converted to a number', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '1mb'
+    agent.start(opts)
+    t.equal(agent._conf[key], 1024 * 1024)
+    t.end()
+  })
+})
+
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
   var agent = Agent()
   var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
