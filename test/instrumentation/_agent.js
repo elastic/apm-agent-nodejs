@@ -16,7 +16,7 @@ module.exports = function mockAgent (expected, cb) {
       instrument: true,
       captureSpanStackTraces: true,
       errorOnAbortedRequests: false,
-      abortedErrorThreshold: 250,
+      abortedErrorThreshold: 0.25,
       sourceLinesErrorAppFrames: 5,
       sourceLinesErrorLibraryFrames: 5,
       sourceLinesSpanAppFrames: 5,

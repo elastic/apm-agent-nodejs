@@ -39,7 +39,7 @@ var optionFixtures = [
   ['captureSpanStackTraces', 'CAPTURE_SPAN_STACK_TRACES', true],
   ['captureBody', 'CAPTURE_BODY', 'off'],
   ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
-  ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25000],
+  ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
   ['instrument', 'INSTRUMENT', true],
   ['asyncHooks', 'ASYNC_HOOKS', true],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
@@ -209,6 +209,50 @@ bytesValues.forEach(function (key) {
     opts[key] = '1mb'
     agent.start(opts)
     t.equal(agent._conf[key], 1024 * 1024)
+    t.end()
+  })
+})
+
+var timeValues = [
+  'apiRequestTime',
+  'abortedErrorThreshold',
+  'serverTimeout'
+]
+
+timeValues.forEach(function (key) {
+  test(key + ' should convert minutes to seconds', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '1m'
+    agent.start(opts)
+    t.equal(agent._conf[key], 60)
+    t.end()
+  })
+
+  test(key + ' should convert milliseconds to seconds', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '2000ms'
+    agent.start(opts)
+    t.equal(agent._conf[key], 2)
+    t.end()
+  })
+
+  test(key + ' should parse seconds', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '5s'
+    agent.start(opts)
+    t.equal(agent._conf[key], 5)
+    t.end()
+  })
+
+  test(key + ' should support bare numbers', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = 10
+    agent.start(opts)
+    t.equal(agent._conf[key], 10)
     t.end()
   })
 })
