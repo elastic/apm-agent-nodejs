@@ -54,7 +54,9 @@ function done (t) {
     t.equal(trans.type, 'websocket')
     t.equal(span.name, 'Send WebSocket Message')
     t.equal(span.type, 'websocket.send')
-    t.ok(span.start + span.duration < trans.duration)
+
+    var offset = span.timestamp - trans.timestamp
+    t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()
   }

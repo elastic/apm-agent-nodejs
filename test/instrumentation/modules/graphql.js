@@ -110,7 +110,9 @@ function done (t) {
     t.equal(trans.type, 'custom')
     t.equal(span.name, 'GraphQL: hello')
     t.equal(span.type, 'db.graphql.execute')
-    t.ok(span.start + span.duration < trans.duration)
+
+    var offset = span.timestamp - trans.timestamp
+    t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()
   }

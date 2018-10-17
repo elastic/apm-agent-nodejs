@@ -120,7 +120,9 @@ function done (t) {
     groups.forEach(function (name, i) {
       t.equal(data.spans[i].name, name)
       t.equal(data.spans[i].type, 'cache.redis')
-      t.ok(data.spans[i].start + data.spans[i].duration < trans.duration)
+
+      var offset = data.spans[i].timestamp - trans.timestamp
+      t.ok(offset + data.spans[i].duration * 1000 < trans.duration * 1000)
     })
 
     t.end()
