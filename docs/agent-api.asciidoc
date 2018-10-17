@@ -269,10 +269,12 @@ An error will be generated and sent to the APM Server if this happens.
 ===== `abortedErrorThreshold`
 
 * *Type:* Number
-* *Default:* `25000`
+* *Default:* `25s`
 * *Env:* `ELASTIC_APM_ABORTED_ERROR_THRESHOLD`
 
-Specify the threshold (in milliseconds) for when an aborted TCP connection with an un-ended HTTP request is considered an error.
+Specify the threshold for when an aborted TCP connection with an un-ended HTTP request is considered an error.
+The value is expected to be in seconds,
+or should include a time suffix.
 
 If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 
@@ -544,8 +546,8 @@ Setting to `-1` means that spans will never be dropped.
 [[api-request-time]]
 ===== `apiRequestTime`
 
-* *Type:* Number
-* *Default:* `10`
+* *Type:* String
+* *Default:* `10s`
 * *Env:* `ELASTIC_APM_API_REQUEST_TIME`
 
 The agent maintains an open HTTP request to the APM Server that is used to transmit the collected transactions,
@@ -554,7 +556,8 @@ and errors to the server.
 
 To avoid issues with intermittent proxies and load balancers,
 the HTTP request is ended and a new one created at regular intervals controlled by this config option.
-The value is expected to be in seconds.
+The value is expected to be in seconds,
+or should include a time suffix.
 
 [NOTE]
 ====
@@ -591,11 +594,13 @@ The HTTP request is otherwise ended at regular intervals controlled by the <<api
 [[server-timeout]]
 ===== `serverTimeout`
 
-* *Type:* Number
-* *Default:* `30`
+* *Type:* String
+* *Default:* `30s`
 * *Env:* `ELASTIC_APM_SERVER_TIMEOUT`
 
-Specify the response timeout in seconds when reporting transactions to APM Server.
+Specify the response timeout when reporting transactions to APM Server.
+The timeout should be in seconds,
+or should include a time suffix.
 
 The timeout is applied once the agent have sent the entire request body to the APM Server.
 If the response from the server takes longer than allowed by this timeout,
