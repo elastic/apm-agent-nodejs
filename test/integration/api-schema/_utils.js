@@ -20,11 +20,11 @@ const schemaDir = thunky(function (cb) {
 })
 
 exports.transactionsValidator = thunky(function (cb) {
-  loadSchema(join('transactions', 'payload.json'), cb)
+  loadSchema(join('transactions', 'v1_transaction.json'), cb)
 })
 
 exports.errorsValidator = thunky(function (cb) {
-  loadSchema(join('errors', 'payload.json'), cb)
+  loadSchema(join('errors', 'v1_error.json'), cb)
 })
 
 function loadSchema (relativePath, cb) {
