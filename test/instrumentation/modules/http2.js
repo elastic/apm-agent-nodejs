@@ -341,7 +341,6 @@ isSecure.forEach(secure => {
 })
 
 var matchId = /^[\da-f]{16}$/
-var matchTimestamp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/
 
 function assertPath (t, trans, secure, port, path) {
   t.ok(trans)
@@ -350,7 +349,7 @@ function assertPath (t, trans, secure, port, path) {
   t.equal(trans.type, 'request')
   t.equal(trans.result, 'HTTP 2xx')
   t.ok(trans.duration > 0)
-  t.ok(matchTimestamp.test(trans.timestamp))
+  t.ok(trans.timestamp > 0)
 
   t.deepEqual(trans.context.request, {
     http_version: '2.0',

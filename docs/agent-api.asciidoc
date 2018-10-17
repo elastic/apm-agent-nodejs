@@ -52,7 +52,7 @@ by using environment variables,
 or via the <<agent-configuration-file,agent configuration file>>.
 Their equivalent environment variable name is listed together with each option.
 
-Properties on the `options` object will always take precedence over environment variables.
+Environment variables will always take precedence over properties of the `options` object.
 
 The only required parameter is <<service-name,`serviceName`>>.
 
@@ -500,11 +500,16 @@ The default value `0` means that no source code will be collected for span libra
 [[error-message-max-length]]
 ===== `errorMessageMaxLength`
 
-* *Type:* Number
-* *Default:* `2048`
+* *Type:* String
+* *Default:* `2kb`
 * *Env:* `ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH`
 
-The maximum length allowed for error messages in bytes.
+The maximum length allowed for error messages.
+It is expressed in bytes or includes a size suffix such as `2kb`.
+Size suffixes are case-insensitive and include `b`,
+`kb`,
+`mb`,
+and `gb`.
 Messages above this length will be truncated before being sent to the APM Server.
 
 Set to `-1` do disable truncation.
@@ -560,8 +565,8 @@ Use the <<api-request-size,`apiRequestSize`>> config option to control the byte 
 [[api-request-size]]
 ===== `apiRequestSize`
 
-* *Type:* Number
-* *Default:* `1048576` (1 MiB)
+* *Type:* String
+* *Default:* `1mb`
 * *Env:* `ELASTIC_APM_API_REQUEST_SIZE`
 
 The agent maintains an open HTTP request to the APM Server that is used to transmit the collected transactions,
@@ -571,7 +576,12 @@ and errors to the server.
 To avoid issues with intermittent proxies and load balancers,
 the HTTP request is ended and a new one created if its body becomes too large.
 That limit is controlled by this config option.
-The value is expected to be in bytes.
+The value is expected to be in bytes,
+or include a size suffix such as `1mb`.
+Size suffixes are case-insensitive and include `b`,
+`kb`,
+`mb`,
+and `gb`.
 
 [NOTE]
 ====

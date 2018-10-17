@@ -53,36 +53,6 @@ test('#duration() - return null if not ended', function (t) {
   t.end()
 })
 
-test('#offsetTime() - return null if span isn\'t started', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
-  t.equal(span.offsetTime(), null)
-  t.end()
-})
-
-test('#offsetTime() - not return null if span is started', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start()
-  t.ok(span.offsetTime() > 0)
-  t.ok(span.offsetTime() < 100)
-  t.end()
-})
-
-test('#offsetTime() - sub span', function (t) {
-  var trans = new Transaction(mockInstrumentation(function () {
-    t.ok(span.offsetTime() > 49, span.offsetTime() + ' should be larger than 49')
-    t.end()
-  })._agent)
-  var span
-  setTimeout(function () {
-    span = new Span(trans)
-    span.start()
-    span.end()
-    trans.end()
-  }, 50)
-})
-
 test('#_encode() - un-started', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
@@ -109,7 +79,7 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'timestamp', 'name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'stacktrace'])
     t.ok(/^[\da-f]{16}$/.test(payload.id))
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
@@ -117,11 +87,9 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
     t.equal(payload.id, span.id)
     t.equal(payload.trace_id, span.context.traceId)
     t.equal(payload.transaction_id, trans.id)
-    t.equal(payload.timestamp, trans.timestamp)
-    t.notOk(Number.isNaN(Date.parse(payload.timestamp)))
     t.equal(payload.name, 'unnamed')
     t.equal(payload.type, 'custom')
-    t.ok(payload.start > 0)
+    t.equal(payload.timestamp, span._timer.start)
     t.ok(payload.duration > 0)
     assert.stacktrace(t, 'myTest1', __filename, payload.stacktrace, agent)
     t.end()
@@ -135,7 +103,7 @@ test('#_encode() - ended named', function myTest2 (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'timestamp', 'name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'stacktrace'])
     t.ok(/^[\da-f]{16}$/.test(payload.id))
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
@@ -143,11 +111,9 @@ test('#_encode() - ended named', function myTest2 (t) {
     t.equal(payload.id, span.id)
     t.equal(payload.trace_id, span.context.traceId)
     t.equal(payload.transaction_id, trans.id)
-    t.equal(payload.timestamp, trans.timestamp)
-    t.notOk(Number.isNaN(Date.parse(payload.timestamp)))
     t.equal(payload.name, 'foo')
     t.equal(payload.type, 'bar')
-    t.ok(payload.start > 0)
+    t.equal(payload.timestamp, span._timer.start)
     t.ok(payload.duration > 0)
     assert.stacktrace(t, 'myTest2', __filename, payload.stacktrace, agent)
     t.end()
@@ -163,7 +129,7 @@ test('#_encode() - disabled stack traces', function (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'timestamp', 'name', 'type', 'start', 'duration'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration'])
     t.ok(/^[\da-f]{16}$/.test(payload.id))
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
@@ -171,11 +137,9 @@ test('#_encode() - disabled stack traces', function (t) {
     t.equal(payload.id, span.id)
     t.equal(payload.trace_id, span.context.traceId)
     t.equal(payload.transaction_id, trans.id)
-    t.equal(payload.timestamp, trans.timestamp)
-    t.notOk(Number.isNaN(Date.parse(payload.timestamp)))
     t.equal(payload.name, 'unnamed')
     t.equal(payload.type, 'custom')
-    t.ok(payload.start > 0)
+    t.equal(payload.timestamp, span._timer.start)
     t.ok(payload.duration > 0)
     t.end()
   })
