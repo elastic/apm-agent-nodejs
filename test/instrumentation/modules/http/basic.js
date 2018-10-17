@@ -8,6 +8,7 @@ var test = require('tape')
 
 var assert = require('./_assert')
 var mockClient = require('../../../_mock_http_client')
+var TraceContext = require('../../../../lib/instrumentation/trace-context')
 
 test('http.createServer', function (t) {
   t.test('direct callback', function (t) {
@@ -17,7 +18,7 @@ test('http.createServer', function (t) {
       t.end()
     })
 
-    var server = http.createServer(onRequest)
+    var server = http.createServer(onRequest(t))
     sendRequest(server)
   })
 
@@ -29,7 +30,7 @@ test('http.createServer', function (t) {
     })
 
     var server = http.createServer()
-    server.addListener('request', onRequest)
+    server.addListener('request', onRequest(t))
     sendRequest(server)
   })
 
@@ -41,7 +42,7 @@ test('http.createServer', function (t) {
     })
 
     var server = http.createServer()
-    server.on('request', onRequest)
+    server.on('request', onRequest(t))
     sendRequest(server)
   })
 })
@@ -54,7 +55,7 @@ test('new http.Server', function (t) {
       t.end()
     })
 
-    var server = new http.Server(onRequest)
+    var server = new http.Server(onRequest(t))
     sendRequest(server)
   })
 
@@ -66,7 +67,7 @@ test('new http.Server', function (t) {
     })
 
     var server = new http.Server()
-    server.addListener('request', onRequest)
+    server.addListener('request', onRequest(t))
     sendRequest(server)
   })
 
@@ -78,7 +79,7 @@ test('new http.Server', function (t) {
     })
 
     var server = new http.Server()
-    server.on('request', onRequest)
+    server.on('request', onRequest(t))
     sendRequest(server)
   })
 })
@@ -86,10 +87,23 @@ test('new http.Server', function (t) {
 function sendRequest (server, timeout) {
   server.listen(function () {
     var port = server.address().port
-    var req = http.get('http://localhost:' + port, function (res) {
+    var context = TraceContext.startOrResume(null, {
+      transactionSampleRate: 1.0
+    })
+
+    var req = http.request({
+      hostname: 'localhost',
+      port: port,
+      path: '/',
+      method: 'GET',
+      headers: {
+        'elastic-apm-traceparent': context.toString()
+      }
+    }, function (res) {
       if (timeout) throw new Error('should not get to here')
       res.resume()
     })
+    req.end()
 
     if (timeout) {
       process.nextTick(function () {
@@ -99,8 +113,16 @@ function sendRequest (server, timeout) {
   })
 }
 
-function onRequest (req, res) {
-  res.end()
+function onRequest (t) {
+  return function onRequestHandler (req, res) {
+    var traceparent = req.headers['elastic-apm-traceparent']
+    var parent = TraceContext.fromString(traceparent)
+    var context = agent.currentTransaction.context
+    t.equal(parent.traceId, context.traceId, 'context trace id matches parent trace id')
+    t.notEqual(parent.id, context.id, 'context id does not match parent id')
+    t.equal(parent.flags, context.flags, 'context flags matches parent flags')
+    res.end()
+  }
 }
 
 function resetAgent (cb) {
