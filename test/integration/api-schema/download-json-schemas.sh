@@ -23,9 +23,10 @@ schemadir="${1:-.schemacache}"
 FILES=( \
   "errors/common_error.json" \
   "errors/v2_error.json" \
-  "metricsets/metricset.json" \
+  "metricsets/common_metricset.json" \
   "metricsets/payload.json" \
   "metricsets/sample.json" \
+  "metricsets/v2_metricset.json" \
   "sourcemaps/payload.json" \
   "spans/common_span.json" \
   "spans/v2_span.json" \
@@ -40,6 +41,7 @@ FILES=( \
   "stacktrace_frame.json" \
   "system.json" \
   "tags.json" \
+  "timestamp_epoch.json" \
   "timestamp_rfc3339.json" \
   "user.json" \
 )
@@ -52,6 +54,6 @@ mkdir -p \
   ${schemadir}/sourcemaps
 
 for i in "${FILES[@]}"; do
-  download_schema https://raw.githubusercontent.com/elastic/apm-server/v2/docs/spec/${i} ${schemadir}/${i}
+  download_schema https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec/${i} ${schemadir}/${i}
 done
 echo "Done."
