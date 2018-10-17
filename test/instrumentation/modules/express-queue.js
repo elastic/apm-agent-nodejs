@@ -89,7 +89,9 @@ function done (t, query) {
       const span = findObjInArray(data.spans, 'transaction_id', trans.id)
       t.equal(span.name, 'foo', 'span name should be foo')
       t.equal(span.type, 'bar', 'span name should be bar')
-      t.ok(span.start + span.duration < trans.duration, 'span should have valid timings')
+
+      var offset = span.timestamp - trans.timestamp
+      t.ok(offset + span.duration * 1000 < trans.duration * 1000, 'span should have valid timings')
     })
 
     t.end()

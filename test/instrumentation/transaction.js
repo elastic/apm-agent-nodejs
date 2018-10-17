@@ -248,7 +248,7 @@ test('#_encode() - ended', function (t) {
   t.equal(payload.name, 'unnamed')
   t.equal(payload.type, 'custom')
   t.ok(payload.duration > 0)
-  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.timestamp, trans._timer.start)
   t.equal(payload.result, 'success')
   t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
   t.end()
@@ -273,7 +273,7 @@ test('#_encode() - with meta data', function (t) {
   t.equal(payload.name, 'foo')
   t.equal(payload.type, 'bar')
   t.ok(payload.duration > 0)
-  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.timestamp, trans._timer.start)
   t.equal(payload.result, 'baz')
   t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 } })
   t.end()
@@ -295,7 +295,7 @@ test('#_encode() - http request meta data', function (t) {
   t.equal(payload.name, 'POST unknown route')
   t.equal(payload.type, 'custom')
   t.ok(payload.duration > 0)
-  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.timestamp, trans._timer.start)
   t.equal(payload.result, 'success')
   t.deepEqual(payload.context, {
     request: {
@@ -347,7 +347,7 @@ test('#_encode() - with spans', function (t) {
   t.equal(payload.name, 'single-name')
   t.equal(payload.type, 'type')
   t.equal(payload.result, 'result')
-  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.timestamp, trans._timer.start)
   t.ok(payload.duration > 0, 'should have a duration >0ms')
   t.ok(payload.duration < 100, 'should have a duration <100ms')
   t.deepEqual(payload.context, {
@@ -387,7 +387,7 @@ test('#_encode() - dropped spans', function (t) {
   t.equal(payload.name, 'single-name')
   t.equal(payload.type, 'type')
   t.equal(payload.result, 'result')
-  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.timestamp, trans._timer.start)
   t.ok(payload.duration > 0, 'should have a duration >0ms')
   t.ok(payload.duration < 100, 'should have a duration <100ms')
   t.deepEqual(payload.context, {
@@ -423,7 +423,7 @@ test('#_encode() - not sampled', function (t) {
   t.equal(payload.name, 'single-name')
   t.equal(payload.type, 'type')
   t.equal(payload.result, 'result')
-  t.equal(payload.timestamp, new Date(trans._timer.start).toISOString())
+  t.equal(payload.timestamp, trans._timer.start)
   t.ok(payload.duration > 0, 'should have a duration >0ms')
   t.ok(payload.duration < 100, 'should have a duration <100ms')
   t.notOk(payload.context)
