@@ -69,7 +69,7 @@ It records traces for database queries,
 external HTTP requests,
 and other slow operations that happen during execution.
 
-By default the agent will trace <<compatibility,the most common modules>>.
+By default the agent will trace <<supported-technologies,the most common modules>>.
 To trace other events,
 you can use custom traces.
 For information about custom traces,

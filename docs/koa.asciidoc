@@ -114,7 +114,7 @@ It records spans for database queries,
 external HTTP requests,
 and other slow operations that happen during requests to your Koa app.
 
-By default the agent will instrument <<compatibility,the most common modules>>.
+By default the agent will instrument <<supported-technologies,the most common modules>>.
 To instrument other events,
 you can use custom spans.
 For information about custom spans,
@@ -199,7 +199,7 @@ use one of the functions below:
 [[koa-compatibility]]
 === Compatibility
 
-See the <<compatibility,Compatibility section>> for details.
+See the <<supported-technologies,Supported technologies section>> for details.
 
 [float]
 [[koa-troubleshooting]]

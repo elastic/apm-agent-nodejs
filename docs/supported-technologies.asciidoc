@@ -1,11 +1,11 @@
-[[compatibility]]
+[[supported-technologies]]
 
 ifdef::env-github[]
 NOTE: For the best reading experience,
-please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/compatibility.html[elastic.co]
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/supported-technologies.html[elastic.co]
 endif::[]
 
-== Compatibility Overview
+== Supported Technologies
 
 Support for the Elastic APM Node.js agent follows the support schedule of Node.js itself to the end-of-life period of each version after its maintenance term.
 Versions of Node.js past their end-of-life date are not supported.
@@ -31,7 +31,7 @@ that not all core Node.js API's can be instrumented without the use of Async Hoo
 This agent is compatible with {apm-server-ref}[APM Server] v6.2 and above.
 
 [float]
-[[compatibility-frameworks]]
+[[supported-technologies-frameworks]]
 === Frameworks
 
 Though you can use Elastic APM <<custom-stack,with any Node.js framework>>,
@@ -51,7 +51,7 @@ We currently support the most popular Koa router called https://github.com/alexm
 |=======================================================================
 
 [float]
-[[compatibility-custom-transactions]]
+[[supported-technologies-custom-transactions]]
 === Custom Transactions
 
 By default transactions are named based on their matched HTTP route if the framework used is listed above.
@@ -64,7 +64,7 @@ These modules override that behavior to give better insights into specialized HT
 |=======================================================================
 
 [float]
-[[compatibility-tracing-and-instrumentation]]
+[[supported-technologies-tracing-and-instrumentation]]
 === Tracing and Instrumentation
 
 The Node.js agent will automatically instrument the following modules to give you detailed performance metrics:
@@ -91,7 +91,7 @@ so those should be supported as well
 |=======================================================================
 
 [float]
-[[compatibility-better-stack-traces]]
+[[supported-technologies-better-stack-traces]]
 ==== Better Stack Traces
 
 When viewing a span in Elastic APM,
@@ -118,7 +118,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 |=================================================
 
 [float]
-[[compatibility-continuity]]
+[[supported-technologies-continuity]]
 ==== Continuity
 
 The Elastic APM agent monitors async operations in your Node.js application to maintain awareness of which request is the active request at any given time.

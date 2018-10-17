@@ -31,7 +31,7 @@ To get you off the ground, we've prepared guides for the most popular web framew
 
 Alternatively you should check out our guide for <<custom-stack,getting started with a custom Node.js stack>>.
 To get an overview over which components of your application we instrument automatically,
-use the <<compatibility,Compatibility Overview>> page.
+use the <<supported-technologies,Supported Technologies Overview>> page.
 
 Other useful documentation include:
 
