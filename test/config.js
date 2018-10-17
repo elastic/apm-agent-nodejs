@@ -53,8 +53,8 @@ var optionFixtures = [
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []]
 ]
 
-var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']
-var truthyValues = [true, 1, '1', 'true', 'yes', 'on', 'enabled']
+var falsyValues = [false, 'false']
+var truthyValues = [true, 'true']
 
 optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
@@ -157,6 +157,31 @@ truthyValues.forEach(function (val) {
   })
 })
 
+test('should log invalid booleans', function (t) {
+  var agent = Agent()
+  var logger = new CaptureLogger()
+
+  agent.start({
+    serviceName: 'foo',
+    secretToken: 'baz',
+    active: 'nope',
+    logger
+  })
+
+  t.equal(logger.calls.length, 2)
+
+  var warning = logger.calls.shift()
+  t.equal(warning.message, 'unrecognized boolean value "%s" for "%s"')
+  t.equal(warning.args[0], 'nope')
+  t.equal(warning.args[1], 'active')
+
+  var info = logger.calls.shift()
+  t.equal(info.message, 'Elastic APM agent is inactive due to configuration')
+  t.equal(info.args.length, 0)
+
+  t.end()
+})
+
 var MINUS_ONE_EQUAL_INFINITY = [
   'transactionMaxSpans'
 ]
@@ -191,7 +216,7 @@ bytesValues.forEach(function (key) {
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
   var agent = Agent()
   var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
-  process.env.ELASTIC_APM_ACTIVE = '0'
+  process.env.ELASTIC_APM_ACTIVE = 'false'
   agent.start(opts)
   t.equal(agent._conf.active, false)
   delete process.env.ELASTIC_APM_ACTIVE
@@ -466,3 +491,27 @@ test('disableInstrumentations', function (t) {
 
   t.end()
 })
+
+class CaptureLogger {
+  constructor () {
+    this.calls = []
+  }
+
+  _log (type, message, args) {
+    this.calls.push({
+      type,
+      message,
+      args
+    })
+  }
+
+  warn (message, ...args) {
+    this._log('warn', message, args)
+  }
+  info (message, ...args) {
+    this._log('info', message, args)
+  }
+  debug (message, ...args) {
+    this._log('debug', message, args)
+  }
+}
