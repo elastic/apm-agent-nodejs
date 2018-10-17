@@ -42,7 +42,6 @@ FILES=( \
   "system.json" \
   "tags.json" \
   "timestamp_epoch.json" \
-  "timestamp_rfc3339.json" \
   "user.json" \
 )
 
