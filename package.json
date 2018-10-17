@@ -101,7 +101,7 @@
     "elasticsearch": "^15.1.1",
     "express": "^4.16.4",
     "express-graphql": "^0.6.12",
-    "express-queue": "0.0.12",
+    "express-queue": "^0.0.12",
     "generic-pool": "^3.4.2",
     "get-port": "^4.0.0",
     "got": "^9.2.2",
