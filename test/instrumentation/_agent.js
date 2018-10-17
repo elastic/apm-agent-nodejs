@@ -37,6 +37,12 @@ module.exports = function mockAgent (expected, cb) {
     })
   }
 
+  Object.defineProperty(agent, 'currentTransaction', {
+    get () {
+      return agent._instrumentation.currentTransaction
+    }
+  })
+
   // We do not want to start the instrumentation multiple times during testing.
   // This would result in core functions being patched multiple times
   if (!sharedInstrumentation) {
