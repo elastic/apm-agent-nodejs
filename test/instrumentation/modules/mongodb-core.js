@@ -30,7 +30,7 @@ test('instrument simple command', function (t) {
 
     // Ensure spans are sorted by start time
     data.spans = data.spans.sort((a, b) => {
-      return a.start - b.start
+      return a.timestamp - b.timestamp
     })
 
     if (semver.lt(version, '2.0.0')) {
@@ -93,13 +93,15 @@ test('instrument simple command', function (t) {
 
     // spans are sorted by their end time - we need them sorted by their start time
     data.spans = data.spans.sort(function (a, b) {
-      return a.start - b.start
+      return a.timestamp - b.timestamp
     })
 
     groups.forEach(function (name, i) {
       t.equal(data.spans[i].name, name)
       t.equal(data.spans[i].type, 'db.mongodb.query')
-      t.ok(data.spans[i].start + data.spans[i].duration < trans.duration)
+
+      var offset = data.spans[i].timestamp - trans.timestamp
+      t.ok(offset + data.spans[i].duration * 1000 < trans.duration * 1000)
     })
 
     t.end()
