@@ -21,13 +21,14 @@ download_schema()
 schemadir="${1:-.schemacache}"
 
 FILES=( \
-  "errors/error.json" \
-  "errors/payload.json" \
+  "errors/common_error.json" \
+  "errors/v1_error.json" \
   "sourcemaps/payload.json" \
+  "spans/common_span.json" \
+  "spans/v1_span.json" \
+  "transactions/common_transaction.json" \
   "transactions/mark.json" \
-  "transactions/payload.json" \
-  "transactions/span.json" \
-  "transactions/transaction.json" \
+  "transactions/v1_transaction.json" \
   "context.json" \
   "process.json" \
   "request.json" \
@@ -35,10 +36,15 @@ FILES=( \
   "stacktrace_frame.json" \
   "system.json" \
   "tags.json" \
+  "timestamp_rfc3339.json" \
   "user.json" \
 )
 
-mkdir -p ${schemadir}/errors ${schemadir}/transactions ${schemadir}/sourcemaps
+mkdir -p \
+  ${schemadir}/errors \
+  ${schemadir}/transactions \
+  ${schemadir}/spans \
+  ${schemadir}/sourcemaps
 
 for i in "${FILES[@]}"; do
   download_schema https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec/${i} ${schemadir}/${i}
