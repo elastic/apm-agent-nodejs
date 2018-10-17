@@ -107,8 +107,8 @@ function done (t, method, path, query) {
       t.notOk(span2.context)
     }
 
-    t.ok(span1.start > span2.start, 'http span should start after elasticsearch span')
-    t.ok(span1.start + span1.duration < span2.start + span2.duration, 'http span should end before elasticsearch span')
+    t.ok(span1.timestamp > span2.timestamp, 'http span should start after elasticsearch span')
+    t.ok(span1.timestamp + span1.duration * 1000 < span2.timestamp + span2.duration * 1000, 'http span should end before elasticsearch span')
 
     t.end()
   }
