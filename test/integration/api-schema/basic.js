@@ -38,9 +38,9 @@ const next = afterAll(function (err, validators) {
     t.deepEqual(validateTransaction.errors, [
       { field: 'data.duration', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
       { field: 'data.type', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 1 ] },
-      { field: 'data.trace_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 1 ] },
-      { field: 'data.span_count', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 1 ] }
+      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
+      { field: 'data.trace_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
+      { field: 'data.span_count', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] }
     ])
     t.end()
   })
@@ -48,10 +48,14 @@ const next = afterAll(function (err, validators) {
   test('span schema failure', function (t) {
     t.equal(validateSpan({}), false)
     t.deepEqual(validateSpan.errors, [
-      { field: 'data.duration', message: 'is required', value: {}, type: 'object', schemaPath: [] },
-      { field: 'data.name', message: 'is required', value: {}, type: 'object', schemaPath: [] },
-      { field: 'data.start', message: 'is required', value: {}, type: 'object', schemaPath: [] },
-      { field: 'data.type', message: 'is required', value: {}, type: 'object', schemaPath: [] }
+      { field: 'data.duration', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
+      { field: 'data.name', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
+      { field: 'data.type', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
+      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
+      { field: 'data.transaction_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
+      { field: 'data.trace_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
+      { field: 'data.parent_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
+      { field: 'data', message: 'no schemas match', value: {}, type: undefined, schemaPath: [ 'allOf', 3 ] }
     ])
     t.end()
   })
@@ -60,7 +64,7 @@ const next = afterAll(function (err, validators) {
     t.equal(validateError({}), false)
     t.deepEqual(validateError.errors, [
       { field: 'data', message: 'no schemas match', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 1, 'allOf', 0 ] }
+      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2, 'allOf', 0 ] }
     ])
     t.equal(validateError({ id: 'foo', exception: {} }), false)
     t.deepEqual(validateError.errors, [
