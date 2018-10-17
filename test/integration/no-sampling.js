@@ -9,7 +9,7 @@ getPort().then(function (port) {
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
     disableInstrumentations: ['http'], // avoid the agent instrumenting the mock APM Server
-    apiRequestTime: 1
+    apiRequestTime: '1s'
   })
 
   var http = require('http')
