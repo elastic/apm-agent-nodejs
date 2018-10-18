@@ -569,7 +569,7 @@ Use the <<api-request-size,`apiRequestSize`>> config option to control the byte 
 ===== `apiRequestSize`
 
 * *Type:* String
-* *Default:* `1mb`
+* *Default:* `750kb`
 * *Env:* `ELASTIC_APM_API_REQUEST_SIZE`
 
 The agent maintains an open HTTP request to the APM Server that is used to transmit the collected transactions,
