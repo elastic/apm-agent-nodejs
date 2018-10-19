@@ -50,7 +50,8 @@ var optionFixtures = [
   ['transactionMaxSpans', 'TRANSACTION_MAX_SPANS', 500],
   ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []]
+  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
+  ['monitorIncomingHTTPRequests', 'MONITOR_INCOMING_HTTP_REQUESTS', true]
 ]
 
 var falsyValues = [false, 'false']
