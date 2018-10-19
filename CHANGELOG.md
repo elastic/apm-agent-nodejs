@@ -1,3 +1,9 @@
+# 1.13.0 - 2018/10/19
+  * feat(ioredis): add support for ioredis version 4.x ([#516](https://github.com/elastic/apm-agent-nodejs/pull/516))
+  * fix(ws): allow disabling WebSocket instrumentation ([#599](https://github.com/elastic/apm-agent-nodejs/pull/599))
+  * fix: allow flushInterval to be set from env ([#568](https://github.com/elastic/apm-agent-nodejs/pull/568))
+  * fix: default transactionMaxSpans to 500 ([#567](https://github.com/elastic/apm-agent-nodejs/pull/567))
+
 # 1.12.0 - 2018/8/31
   * feat(restify): add Restify instrumentation ([#517](https://github.com/elastic/apm-agent-nodejs/pull/517))
   * feat(config): default serviceName to package name ([#508](https://github.com/elastic/apm-agent-nodejs/pull/508))
