@@ -157,5 +157,5 @@ The <<transaction-max-spans,`transactionMaxSpans`>> setting limits the number of
 Spans may include many things such as a stack trace and context data.
 Limiting the number of spans that may be recorded will reduce memory usage.
 
-Reducing max spans could result in loss of useful data about what occured within a request,
+Reducing max spans could result in loss of useful data about what occurred within a request,
 if it is set too low.

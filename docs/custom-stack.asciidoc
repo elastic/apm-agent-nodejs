@@ -219,7 +219,7 @@ the agent error handler should be the first in the chain to ensure that it will 
 [source,js]
 ----
 var apm = require('elastic-apm-node').start()
-var conncet = require('connect')
+var connect = require('connect')
 
 var app = connect()
 
