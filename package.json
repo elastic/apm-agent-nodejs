@@ -135,7 +135,7 @@
     "send": "^0.16.1",
     "standard": "^12.0.1",
     "tape": "^4.8.0",
-    "tedious": "^2.6.1",
+    "tedious": "^3.0.1",
     "test-all-versions": "^3.3.3",
     "thunky": "^1.0.2",
     "untildify": "^3.0.2",
