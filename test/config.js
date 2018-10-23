@@ -51,7 +51,7 @@ var optionFixtures = [
   ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
-  ['monitorIncomingHTTPRequests', 'MONITOR_INCOMING_HTTP_REQUESTS', true]
+  ['disableTransactions', 'DISABLE_TRANSACTIONS', []]
 ]
 
 var falsyValues = [false, 'false']
@@ -78,7 +78,7 @@ optionFixtures.forEach(function (fixture) {
       agent.start()
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value ])
+        t.deepEqual(Array.from(agent._conf[fixture[0]]), [ value ])
       } else {
         t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
       }
@@ -113,7 +113,7 @@ optionFixtures.forEach(function (fixture) {
       agent.start(opts)
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value2 ])
+        t.deepEqual(Array.from(agent._conf[fixture[0]]), [ value2 ])
       } else {
         t.equal(agent._conf[fixture[0]], value2)
       }
@@ -128,7 +128,7 @@ optionFixtures.forEach(function (fixture) {
     var agent = Agent()
     agent.start()
     if (array) {
-      t.deepEqual(agent._conf[fixture[0]], fixture[2])
+      t.deepEqual(Array.from(agent._conf[fixture[0]]), fixture[2])
     } else {
       t.equal(agent._conf[fixture[0]], fixture[2])
     }
