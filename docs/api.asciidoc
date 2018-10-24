@@ -11,7 +11,7 @@ The API reference documentation is divided into three parts:
 
 * <<agent-api,The `Agent` API>> - All functions and properties on the `Agent` object.
 An instance of the `Agent` object is acquired by requiring/importing the Node.js APM Agent module.
-The `Agent` is a singleton and the instance is usually referred by the variable `apm` in this documentation
+The `Agent` is a singleton and the instance is usually referred to by the variable `apm` in this documentation
 
 * <<transaction-api,The `Transaction` API>> - All functions and properties on the `Transaction` object.
 An instance of the `Transaction` object is acquired by calling `apm.startTransaction()`

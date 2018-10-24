@@ -22,7 +22,7 @@ see the <<custom-spans,Custom Spans in Node.js>> article.
 
 A reference to the parent transaction object.
 
-All spans belongs to a transaction.
+All spans belong to a transaction.
 
 [[span-name]]
 ==== `span.name`
@@ -46,7 +46,7 @@ The type is a hierarchical string used to group similar spans together.
 For instance,
 all spans of MySQL queries are given the type `db.mysql.query`.
 
-In the above example `db` is considered the type prefix.
+In the above example, `db` is considered the type prefix.
 Though there are no naming restrictions for this prefix,
 the following are standardized across all Elastic APM agents:
 `app`, `db`, `cache`, `template`, and `ext`.

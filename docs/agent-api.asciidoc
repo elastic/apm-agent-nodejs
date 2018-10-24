@@ -165,7 +165,7 @@ Note that both `active` and `instrument` needs to be `true` for instrumentation 
 * *Env:* `ELASTIC_APM_ASYNC_HOOKS`
 
 A boolean specifying if the agent should use the experimental https://nodejs.org/api/async_hooks.html[Async Hooks] API found in Node.js version 8.2.0 and above.
-This setting have no effect when running a Node.js version older than 8.2.0.
+This setting has no effect when running a Node.js version older than 8.2.0.
 
 If you experience any issues related to using Async Hooks,
 please https://github.com/elastic/apm-agent-nodejs/issues[open an issue].
