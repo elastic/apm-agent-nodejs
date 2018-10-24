@@ -19,8 +19,8 @@ we recommend that you read these articles instead:
 * <<restify,Get started with Restify>>
 * <<lambda,Get started with Lambda>>
 
-For a custom Node.js app,
-follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
+For a custom Node.js app, follow the guide below to get started.
+For more advanced topics, check out the <<api,API Reference>>.
 
 [float]
 [[custom-stack-installation]]

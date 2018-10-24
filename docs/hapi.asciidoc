@@ -9,7 +9,8 @@ endif::[]
 
 Getting Elastic APM set up for your hapi app is easy,
 and there are various ways you can tweak it to fit your needs.
-Follow the guide below to get started, then view the <<api,API Reference>> for the more advanced stuff.
+Follow the guide below to get started, and for more advanced topics,
+check out the <<api,API Reference>>.
 
 [float]
 [[hapi-installation]]
