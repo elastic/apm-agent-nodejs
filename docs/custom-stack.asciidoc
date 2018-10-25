@@ -19,8 +19,8 @@ we recommend that you read these articles instead:
 * <<restify,Get started with Restify>>
 * <<lambda,Get started with Lambda>>
 
-For a custom Node.js app,
-follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
+For a custom Node.js app, follow the guide below to get started.
+For more advanced topics, check out the <<api,API Reference>>.
 
 [float]
 [[custom-stack-installation]]
@@ -103,7 +103,7 @@ It records spans for database queries,
 external HTTP requests,
 and other slow operations that happen during requests to your app.
 
-By default the agent will instrument <<compatibility,the most common modules>>.
+By default, the agent will instrument <<compatibility,the most common modules>>.
 To instrument other events,
 you can use custom spans.
 For information about custom spans,
@@ -120,7 +120,7 @@ See the <<custom-transactions,Custom Transactions section>> for details.
 The Node.js agent tracks incoming HTTP requests to your application in what are called "transactions".
 All transactions with the same name are grouped together automatically.
 
-In a normal web application you want to name transactions based on the route that matches the incoming HTTP request.
+In a normal web application, you want to name transactions based on the route that matches the incoming HTTP request.
 So say you have a route to display posts on a blog identified by `GET /posts/{id}`.
 You want requests `GET /posts/12`, `GET /posts/42` etc to be grouped together under a transaction named `GET /posts/{id}`.
 
@@ -219,7 +219,7 @@ the agent error handler should be the first in the chain to ensure that it will 
 [source,js]
 ----
 var apm = require('elastic-apm-node').start()
-var conncet = require('connect')
+var connect = require('connect')
 
 var app = connect()
 
@@ -241,7 +241,7 @@ app.use(function (err, req, res, next) {
 [[custom-stack-filter-sensitive-information]]
 === Filter sensitive information
 
-By default the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
+By default, the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
 
 It's possible for you to tweak these defaults or remove any information you don't want to send to Elastic APM:
 

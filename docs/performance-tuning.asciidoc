@@ -26,7 +26,7 @@ meaning _all_ requests are traced.
 The sample rate will impact all four performance categories,
 so simply turning down the sample rate is an easy way to improve performance.
 
-Example setting the sample rate to 20%:
+Here's an example of setting the sample rate to 20%:
 
 [source,js]
 ----
@@ -53,7 +53,7 @@ To prevent items from staying in the queue for a long time during low activity,
 the <<flush-interval,`flushInterval`>> setting is used to ensure the queue empties if anything in it is too old.
 
 Lowering the flush interval will ensure transactions are sent to the APM Server faster,
-but may also result in increased HTTP traffic and cpu usage.
+but may also result in increased HTTP traffic and CPU usage.
 
 [float]
 [[performance-max-queue-size]]
@@ -92,7 +92,7 @@ set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.
 
 This will mainly impact memory usage,
 but may also have a noticeable impact on speed too.
-The cpu time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
+The CPU time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
 
 [float]
 [[performance-source-lines]]
@@ -132,7 +132,7 @@ The <<stack-trace-limit,`stackTraceLimit`>> controls how many stack frames shoul
 
 This will mainly impact memory usage,
 but may also have a noticeable impact on speed too.
-The cpu time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
+The CPU time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
 
 [float]
 [[performance-error-log-stack-traces]]
@@ -157,5 +157,5 @@ The <<transaction-max-spans,`transactionMaxSpans`>> setting limits the number of
 Spans may include many things such as a stack trace and context data.
 Limiting the number of spans that may be recorded will reduce memory usage.
 
-Reducing max spans could result in loss of useful data about what occured within a request,
+Reducing max spans could result in loss of useful data about what occurred within a request,
 if it is set too low.

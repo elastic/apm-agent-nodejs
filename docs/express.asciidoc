@@ -9,8 +9,8 @@ endif::[]
 
 Getting Elastic APM set up for your Express app is easy,
 and there are various ways you can tweak it to fit your needs.
-
-Follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
+Follow the guide below to get started, and for more advanced topics,
+check out the <<api,API Reference>>.
 
 [float]
 [[express-installation]]
@@ -101,7 +101,7 @@ It records spans for database queries,
 external HTTP requests,
 and other slow operations that happen during requests to your Express app.
 
-By default the agent will instrument <<compatibility,the most common modules>>.
+By default, the agent will instrument <<compatibility,the most common modules>>.
 To instrument other events,
 you can use custom spans.
 For information about custom spans,
@@ -153,14 +153,14 @@ see <<apm-capture-error,the API documentation>>.
 [[express-filter-sensitive-information]]
 === Filter sensitive information
 
-By default the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
+By default, the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
 
 It's possible for you to tweak these defaults or remove any information you don't want to send to Elastic APM:
 
-* By default the Node.js agent will not log the body of HTTP requests.
+* By default, the Node.js agent will not log the body of HTTP requests.
 To enable this,
 use the <<capture-body,`captureBody`>> config option
-* By default the Node.js agent will filter certain HTTP headers known to contain sensitive information.
+* By default, the Node.js agent will filter certain HTTP headers known to contain sensitive information.
 To disable this,
 use the <<filter-http-headers,`filterHttpHeaders`>> config option
 * To apply custom filters,

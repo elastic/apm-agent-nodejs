@@ -165,7 +165,7 @@ Note that both `active` and `instrument` needs to be `true` for instrumentation 
 * *Env:* `ELASTIC_APM_ASYNC_HOOKS`
 
 A boolean specifying if the agent should use the experimental https://nodejs.org/api/async_hooks.html[Async Hooks] API found in Node.js version 8.2.0 and above.
-This setting have no effect when running a Node.js version older than 8.2.0.
+This setting has no effect when running a Node.js version older than 8.2.0.
 
 If you experience any issues related to using Async Hooks,
 please https://github.com/elastic/apm-agent-nodejs/issues[open an issue].
@@ -568,7 +568,7 @@ the next flush isn't scheduled until a transaction have ended.
 This is done to introduce variance and also ensures that empty queues are not scheduled for flushing.
 
 On top of that,
-the actual interval is ajusted by +/- 5% between each flush.
+the actual interval is adjusted by +/- 5% between each flush.
 
 This all helps to ensure that multiple servers started at the same time will not establish connections to the APM Server simultaneously.
 ====
@@ -618,7 +618,7 @@ Currently the following HTTP headers are anonymized by default:
 * `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
   See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
 
-If you wish to filter or santitize other data,
+If you wish to filter or sanitize other data,
 use the <<apm-add-filter,`apm.addFilter()`>> function.
 
 [[disable-instrumentations]]

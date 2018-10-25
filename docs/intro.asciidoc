@@ -12,8 +12,8 @@ Welcome to the APM Node.js Agent documentation.
 The Elastic APM Node.js Agent sends performance metrics and errors to the APM Server.
 It has built-in support for the most popular frameworks and routers,
 as well as a simple API which allows you to instrument any application.
-The agent is only one of multiple components you need to get started with APM.
-Please also have a look at the documentation for
+The agent is only one of the multiple components you need to get started with APM.
+Please also have a look at the documentation for:
 
 * {apm-server-ref}/index.html[APM Server]
 * {ref}/index.html[Elasticsearch]
@@ -29,12 +29,12 @@ To get you off the ground, we've prepared guides for the most popular web framew
 * <<koa,Get started with Koa>>
 * <<restify,Get started with Restify>>
 
-Alternatively you should check out our guide for <<custom-stack,getting started with a custom Node.js stack>>.
-To get an overview over which components of your application we instrument automatically,
+Alternatively, you should check out our guide for <<custom-stack,getting started with a custom Node.js stack>>.
+To get an overview of which components of your application we instrument automatically,
 use the <<compatibility,Compatibility Overview>> page.
 
-Other useful documentation include:
+Other useful documentation includes:
 
 - <<advanced-setup,Advanced Setup and Configuration>>
-- <<api,API reference>>
+- <<api,API Reference>>
 - <<troubleshooting,Troubleshooting>>

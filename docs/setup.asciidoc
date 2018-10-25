@@ -70,7 +70,7 @@ ELASTIC_APM_CONFIG_FILE=/path/to/elastic-apm-node.js
 ----
 
 The configuration file is expected to export an object following the same conventions as the `options` object given as the first argument
-to the <<apm-start,`start`>> function, e.g:
+to the <<apm-start,`start`>> function, e.g.:
 
 [source,js]
 ----
@@ -94,8 +94,8 @@ module.exports = {
 If you are using ES Modules,
 for instance with the help of Babel,
 all import statements are evaluated prior to calling any functions.
-In that case you can't configure the agent by passing a configuration object to the `start` function,
-as this call will happen after all the modules have been loaded.
+In this case, you can't configure the agent by passing a configuration object to the `start` function,
+as this call will happen after all of the modules have been loaded.
 Instead you need to import the `elastic-apm-node/start` module:
 
 [source,js]
@@ -103,5 +103,5 @@ Instead you need to import the `elastic-apm-node/start` module:
 import apm from 'elastic-apm-node/start'
 ----
 
-Then either configure the agent using the environment variables associated with each <<apm-start,config option>>,
+Now, you can either configure the agent using the environment variables associated with each <<apm-start,config option>>,
 or use the optional <<agent-configuration-file,agent configuration file>>.
