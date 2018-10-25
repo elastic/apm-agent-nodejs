@@ -260,10 +260,12 @@ test('#flush()', function (t) {
 
 test('#captureError()', function (t) {
   t.test('with callback', function (t) {
-    t.plan(5)
+    t.plan(7)
     APMServer()
       .on('listening', function () {
-        this.agent.captureError(new Error('with callback'), function () {
+        this.agent.captureError(new Error('with callback'), function (err, id) {
+          t.error(err)
+          t.ok(/^[a-z0-9-]*$/i.test(id), 'has valid error.id')
           t.ok(true, 'called callback')
           t.end()
         })
