@@ -42,7 +42,7 @@ var queue = sqs(queueUrl, function (msg, cb) {
       processJob(job, function (err) {
         // if the job could not be processes, set the result to
         // a 5xx error code. Here 500 indicates error, 200 is ok
-        trans.result = err ? 500 : 200
+        trans.result = err ? 'error' : 'success'
 
         // end the transaction
         trans.end()
