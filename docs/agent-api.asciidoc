@@ -845,7 +845,7 @@ For details see the <<metadata,metadata section>>.
 
 The optional `callback` will be called after the error has been sent to the APM Server.
 It will receive an `Error` instance if the agent failed to send the error,
-and the uuid of the captured error.
+and the id of the captured error.
 
 [[message-strings]]
 ===== Message strings
