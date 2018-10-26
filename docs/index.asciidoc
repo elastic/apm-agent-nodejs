@@ -34,7 +34,7 @@ include::./performance-tuning.asciidoc[]
 
 include::./source-maps.asciidoc[]
 
-include::./compatibility.asciidoc[]
+include::./supported-technologies.asciidoc[]
 
 include::./upgrading.asciidoc[]
 
