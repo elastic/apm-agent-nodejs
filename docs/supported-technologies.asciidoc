@@ -31,7 +31,7 @@ that not all core Node.js API's can be instrumented without the use of Async Hoo
 This agent is compatible with {apm-server-ref}[APM Server] v6.2 and above.
 
 [float]
-[[supported-technologies-frameworks]]
+[[compatibility-frameworks]]
 === Frameworks
 
 Though you can use Elastic APM <<custom-stack,with any Node.js framework>>,
@@ -51,7 +51,7 @@ We currently support the most popular Koa router called https://github.com/alexm
 |=======================================================================
 
 [float]
-[[supported-technologies-custom-transactions]]
+[[compatibility-custom-transactions]]
 === Custom Transactions
 
 By default transactions are named based on their matched HTTP route if the framework used is listed above.
@@ -64,7 +64,7 @@ These modules override that behavior to give better insights into specialized HT
 |=======================================================================
 
 [float]
-[[supported-technologies-tracing-and-instrumentation]]
+[[compatibility-tracing-and-instrumentation]]
 === Tracing and Instrumentation
 
 The Node.js agent will automatically instrument the following modules to give you detailed performance metrics:
@@ -91,7 +91,7 @@ so those should be supported as well
 |=======================================================================
 
 [float]
-[[supported-technologies-better-stack-traces]]
+[[compatibility-better-stack-traces]]
 ==== Better Stack Traces
 
 When viewing a span in Elastic APM,
@@ -118,7 +118,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 |=================================================
 
 [float]
-[[supported-technologies-continuity]]
+[[compatibility-continuity]]
 ==== Continuity
 
 The Elastic APM agent monitors async operations in your Node.js application to maintain awareness of which request is the active request at any given time.
