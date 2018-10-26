@@ -30,25 +30,35 @@ var sqs = require('simple-sqs')()
 var queue = sqs(queueUrl, function (msg, cb) {
   // The SQS queue will send multiple messages using an array
   // of records
-  msg.Body.Records.forEach(function (job) {
-    // start one new transaction for each job record received
-    // on the queue
-    var name = 'Job ' + job.type
-    var type = 'job'
-    var trans = apm.startTransaction(name, type)
+  var tasks = msg.Body.Records.map(function (job) {
+    return new Promise(function (resolve, reject) {
+      // start one new transaction for each job record received
+      // on the queue
+      var name = 'Job ' + job.type
+      var type = 'job'
+      var trans = apm.startTransaction(name, type)
 
-    // call the function that actually processes the job
-    processJob(job, function (err) {
-      // if the job could not be processes, set the result to
-      // a 5xx error code. Here 500 indicates error, 200 is ok
-      trans.result = err ? 500 : 200
+      // call the function that actually processes the job
+      processJob(job, function (err) {
+        // if the job could not be processes, set the result to
+        // a 5xx error code. Here 500 indicates error, 200 is ok
+        trans.result = err ? 'error' : 'success'
 
-      // end the transaction
-      trans.end()
+        // end the transaction
+        trans.end()
 
-      cb(err)
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
     })
   })
+
+  Promise.all(tasks).then(function () {
+    cb()
+  }, cb)
 })
 
 queue.on('error', function (err) {
