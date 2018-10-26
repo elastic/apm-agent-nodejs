@@ -44,6 +44,9 @@ Put the call to this function at the very top of your main app file - before req
 
 If you are using Babel calling this function will not have the desired effect.
 See the <<es-modules,Babel / ES Modules support documentation>> for details.
+
+If you are using Typescript the import statement may be removed if it is not used.
+It is recommended to use `-r elastic-apm-node/start` when starting the app to avoid this.
 ====
 
 The available configuration options are listed below.
