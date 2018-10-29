@@ -55,5 +55,5 @@ The following functions have been renamed between version 0.x and 1.x:
 
 |=======================================================================
 |Old name |New name| Note
-|`buildTrace()` |<<apm-build-span,`buildSpan()`>> |Renamed to align with new naming conventions
+|`buildTrace()` |`buildSpan()` |Renamed to align with new naming conventions
 |=======================================================================

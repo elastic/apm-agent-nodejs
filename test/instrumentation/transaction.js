@@ -344,8 +344,7 @@ test('#_encode() - with spans', function (t) {
 
   var trans = new Transaction(ins._agent, 'single-name', 'type')
   trans.result = 'result'
-  var span = trans.buildSpan()
-  span.start('span')
+  var span = trans.startSpan('span')
   span.end()
   trans.end()
 
@@ -378,11 +377,9 @@ test('#_encode() - dropped spans', function (t) {
 
   var trans = new Transaction(ins._agent, 'single-name', 'type')
   trans.result = 'result'
-  var span0 = trans.buildSpan()
-  span0.start('s0', 'type0')
-  var span1 = trans.buildSpan()
-  span1.start('s1', 'type1')
-  var span2 = trans.buildSpan()
+  var span0 = trans.startSpan('s0', 'type0')
+  trans.startSpan('s1', 'type1')
+  var span2 = trans.startSpan()
   if (span2) {
     t.fail('should have dropped the span')
   }
@@ -421,7 +418,7 @@ test('#_encode() - not sampled', function (t) {
   trans.result = 'result'
   trans.req = mockRequest()
   trans.res = mockResponse()
-  var span = trans.buildSpan()
+  var span = trans.startSpan()
   t.notOk(span)
   trans.end()
 

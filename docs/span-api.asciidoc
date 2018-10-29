@@ -8,6 +8,7 @@ endif::[]
 === `Span` API
 
 A span measures the duration of a single event.
+When a span is created it will measure the time until <<span-end,`span.end()`>> is called.
 
 To get a `Span` object,
 you need to call <<apm-start-span,`apm.startSpan()`>>.
@@ -50,30 +51,6 @@ In the above example, `db` is considered the type prefix.
 Though there are no naming restrictions for this prefix,
 the following are standardized across all Elastic APM agents:
 `app`, `db`, `cache`, `template`, and `ext`.
-
-[[span-start]]
-==== `span.start()`
-
-deprecated[1.1.0,Span started automatically by <<apm-start-span,apm.startSpan()>>]
-
-[source,js]
-----
-span.start([name][, type])
-----
-
-Start a span.
-
-Arguments:
-
-* `name` - The name of the span (string).
-You can alternatively set this via <<span-name,`span.name`>>.
-Defaults to `unnamed`
-
-* `type` - The type of span (string).
-You can alternatively set this via <<span-type,`span.type`>>.
-Defaults to `custom.code`
-
-When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
 
 [[span-end]]
 ==== `span.end()`

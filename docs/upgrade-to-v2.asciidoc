@@ -92,3 +92,8 @@ and spans respectively.
 ====
 
 The previously undocumented method `span.offsetTime()` has been removed in 2.0.0.
+
+The previously undocumented `transaction.buildSpan()` method has been replaced with <<transaction-start-span,`transaction.startSpan(name, type)`>> in 2.0.0.
+
+The `agent.buildSpan(name, type)` and `span.start(name, type)` methods have been removed in 2.0.0.
+They have been replaced by <<apm-start-span,`agent.startSpan(name, type)`>>.
