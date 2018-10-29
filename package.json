@@ -101,7 +101,7 @@
     "dependency-check": "^2.10.1",
     "elasticsearch": "^15.0.0",
     "express": "^4.14.0",
-    "express-graphql": "^0.6.12",
+    "express-graphql": "^0.7.0",
     "express-queue": "0.0.12",
     "finalhandler": "^1.1.1",
     "generic-pool": "^3.1.5",
