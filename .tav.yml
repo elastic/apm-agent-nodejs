@@ -98,22 +98,38 @@ express-graphql-0.6.11_11:
 express-graphql-0.6.12_10:
   name: express-graphql
   peerDependencies: graphql@^0.10.0
-  versions: '>=0.6.12'
+  versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.6.12_11:
   name: express-graphql
   peerDependencies: graphql@^0.11.0
-  versions: '>=0.6.12'
+  versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.6.12_12:
   name: express-graphql
   peerDependencies: graphql@^0.12.0
-  versions: '>=0.6.12'
+  versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.6.12_13:
   name: express-graphql
   peerDependencies: graphql@^0.13.0
-  versions: '>=0.6.12'
+  versions: '^0.6.12'
+  commands: node test/instrumentation/modules/express-graphql.js
+
+express-graphql-0.7,1_12:
+  name: express-graphql
+  peerDependencies: graphql@^0.12.0
+  versions: '^0.7.1'
+  commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-0.7.1_13:
+  name: express-graphql
+  peerDependencies: graphql@^0.13.0
+  versions: '^0.7.1'
+  commands: node test/instrumentation/modules/express-graphql.js
+express-graphql-0.7.1_14:
+  name: express-graphql
+  peerDependencies: graphql@^14.0.0
+  versions: '^0.7.1'
   commands: node test/instrumentation/modules/express-graphql.js
 
 express-queue:
