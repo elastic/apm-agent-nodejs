@@ -89,12 +89,12 @@ jobs:
     -
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue,apollo-server-express
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
 
     # Node.js 9
@@ -111,12 +111,12 @@ jobs:
     -
       node_js: '9'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '9'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue,apollo-server-express
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
 
     # Node.js 8
@@ -133,12 +133,12 @@ jobs:
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue,apollo-server-express
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
 
     # Node.js 6
@@ -155,12 +155,12 @@ jobs:
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue,apollo-server-express
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
 
     # Node.js 4
