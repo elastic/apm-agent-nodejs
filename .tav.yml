@@ -59,7 +59,7 @@ ws:
   versions: '>=1 <7'
   commands: node test/instrumentation/modules/ws.js
 graphql:
-  preinstall: rm -fr node_modules/express-graphql
+  preinstall: npm uninstall express-graphql
   versions: '>=0.7.0 <0.11.0 || >=0.11.1 <15.0.0 || ^14.0.0-rc'
   commands: node test/instrumentation/modules/graphql.js
 express:
@@ -68,99 +68,99 @@ express:
 
 express-graphql-1:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.8.2
   versions: '0.6.1'
   commands: node test/instrumentation/modules/express-graphql.js
 
 express-graphql-2:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.9.0
   versions: '>=0.6.2 <0.6.6'
   commands: node test/instrumentation/modules/express-graphql.js
 
 express-graphql-3:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '>=0.6.6 <0.6.8'
   commands: node test/instrumentation/modules/express-graphql.js
 
 express-graphql-0.6.11_10:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '0.6.11'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.6.11_11:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.11.0
   versions: '0.6.11'
   commands: node test/instrumentation/modules/express-graphql.js
 
 express-graphql-0.6.12_10:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.6.12_11:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.11.0
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.6.12_12:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.12.0
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.6.12_13:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.13.0
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 
 express-graphql-0.7,1_12:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.12.0
   versions: '^0.7.1'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.7.1_13:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.13.0
   versions: '^0.7.1'
   commands: node test/instrumentation/modules/express-graphql.js
 express-graphql-0.7.1_14:
   name: express-graphql
-  preinstall: rm -fr node_modules/apollo-* node_modules/graphql-* node_modules/@apollographql* # apollo-server-express peer dependencies conflict with express-graphql
+  preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^14.0.0
   versions: '^0.7.1'
   commands: node test/instrumentation/modules/express-graphql.js
 
 apollo-server-express-2_12:
   name: apollo-server-express
-  preinstall: rm -fr node_modules/express-graphql # express-graphql peer dependencies conflict with apollo-server-express
+  preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.12.0
   versions: '>=2.0.2'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.js
 apollo-server-express-2_13:
   name: apollo-server-express
-  preinstall: rm -fr node_modules/express-graphql # express-graphql peer dependencies conflict with apollo-server-express
+  preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.13.0
   versions: '>=2.0.2'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.js
 apollo-server-express-2_14:
   name: apollo-server-express
-  preinstall: rm -fr node_modules/express-graphql # express-graphql peer dependencies conflict with apollo-server-express
+  preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^14.0.0
   versions: '>=2.0.2'
   node: '>=6'
