@@ -20,7 +20,7 @@ mysql:
     - node test/instrumentation/modules/mysql/mysql.js
     - node test/instrumentation/modules/mysql/pool-release-1.js
 mysql2:
-  versions: ^1.0.0
+  versions: '>=1.0.0 <1.6.2 || ^1.6.3' # v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
   commands:
     - node test/instrumentation/modules/mysql2/mysql.js
     - node test/instrumentation/modules/mysql2/pool-release-1.js
