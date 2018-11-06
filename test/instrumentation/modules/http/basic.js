@@ -127,5 +127,5 @@ function onRequest (t) {
 
 function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
-  agent._apmServer = mockClient(1, cb)
+  agent._transport = mockClient(1, cb)
 }

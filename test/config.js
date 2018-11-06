@@ -444,23 +444,23 @@ captureBodyTests.forEach(function (captureBodyTest) {
       captureBody: captureBodyTest.value
     })
 
-    var sendError = agent._apmServer.sendError
-    var sendTransaction = agent._apmServer.sendTransaction
-    agent._apmServer.sendError = function (error, cb) {
+    var sendError = agent._transport.sendError
+    var sendTransaction = agent._transport.sendTransaction
+    agent._transport.sendError = function (error, cb) {
       var request = error.context.request
       t.ok(request)
       t.equal(request.body, captureBodyTest.errors)
       if (cb) process.nextTick(cb)
     }
-    agent._apmServer.sendTransaction = function (trans, cb) {
+    agent._transport.sendTransaction = function (trans, cb) {
       var request = trans.context.request
       t.ok(request)
       t.equal(request.body, captureBodyTest.transactions)
       if (cb) process.nextTick(cb)
     }
     t.on('end', function () {
-      agent._apmServer.sendError = sendError
-      agent._apmServer.sendTransaction = sendTransaction
+      agent._transport.sendError = sendError
+      agent._transport.sendTransaction = sendTransaction
     })
 
     var req = new IncomingMessage()

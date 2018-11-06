@@ -614,6 +614,6 @@ function assert (t, data, results) {
 
 function resetAgent (expected, cb) {
   agent._instrumentation.currentTransaction = null
-  agent._apmServer = mockClient(expected, cb)
+  agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

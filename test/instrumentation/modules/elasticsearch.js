@@ -116,6 +116,6 @@ function done (t, method, path, query) {
 
 function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
-  agent._apmServer = mockClient(3, cb)
+  agent._transport = mockClient(3, cb)
   agent.captureError = function (err) { throw err }
 }
