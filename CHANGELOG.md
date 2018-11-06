@@ -1,3 +1,10 @@
+# 1.14.0 - 2018/11/6
+  * feat(agent): return uuid in captureError callback ([#636](https://github.com/elastic/apm-agent-nodejs/pull/636))
+  * feat(apollo-server-express): set custom GraphQL transaction names ([#648](https://github.com/elastic/apm-agent-nodejs/pull/648))
+  * feat(finalhandler): improve capturing of errors in Express ([#629](https://github.com/elastic/apm-agent-nodejs/pull/629))
+  * fix(http): bind writeHead to transaction ([#637](https://github.com/elastic/apm-agent-nodejs/pull/637))
+  * fix(shimmer): safely handle property descriptors ([#634](https://github.com/elastic/apm-agent-nodejs/pull/634))
+
 # 1.13.0 - 2018/10/19
   * feat(ioredis): add support for ioredis version 4.x ([#516](https://github.com/elastic/apm-agent-nodejs/pull/516))
   * fix(ws): allow disabling WebSocket instrumentation ([#599](https://github.com/elastic/apm-agent-nodejs/pull/599))
