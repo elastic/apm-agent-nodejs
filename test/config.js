@@ -380,6 +380,7 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '6.0.0')) {
     modules.delete('express-queue')
+    modules.delete('apollo-server-core')
   }
 
   function testSlice (t, name, selector) {
