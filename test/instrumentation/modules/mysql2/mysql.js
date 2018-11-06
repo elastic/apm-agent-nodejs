@@ -6,6 +6,10 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
+var semver = require('semver')
+var pkgVersion = require('mysql2/package').version
+if (semver.lt(process.version, '6.0.0') && semver.gte(pkgVersion, '1.6.0')) process.exit()
+
 var mysql = require('mysql2')
 var mysqlPromise = require('mysql2/promise')
 var test = require('tape')
