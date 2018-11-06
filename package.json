@@ -95,6 +95,7 @@
     "@commitlint/cli": "^7.0.0",
     "@commitlint/config-conventional": "^7.0.1",
     "@commitlint/travis-cli": "^7.0.0",
+    "apollo-server-express": "^2.0.2",
     "bluebird": "^3.4.6",
     "cassandra-driver": "^3.5.0",
     "connect": "^3.6.3",

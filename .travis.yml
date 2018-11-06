@@ -89,7 +89,7 @@ jobs:
     -
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '10'
@@ -111,7 +111,7 @@ jobs:
     -
       node_js: '9'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '9'
@@ -133,7 +133,7 @@ jobs:
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '8'
@@ -155,7 +155,7 @@ jobs:
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '6'
