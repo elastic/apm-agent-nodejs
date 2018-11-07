@@ -150,7 +150,7 @@ function sortSpansBy (spans, fn) {
 function resetAgent (expected, cb) {
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock
-  if (agent._apmServer.destroy) agent._apmServer.destroy()
-  agent._apmServer = mockClient(expected, cb)
+  if (agent._transport.destroy) agent._transport.destroy()
+  agent._transport = mockClient(expected, cb)
   agent._instrumentation.currentTransaction = null
 }

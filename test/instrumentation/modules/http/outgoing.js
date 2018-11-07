@@ -140,5 +140,5 @@ function echoTest (type, handler) {
 
 function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
-  agent._apmServer = mockClient(2, cb)
+  agent._transport = mockClient(2, cb)
 }
