@@ -88,6 +88,6 @@ test(function (t) {
 
 function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
-  agent._apmServer = mockClient(7, cb)
+  agent._transport = mockClient(7, cb)
   agent.captureError = function (err) { throw err }
 }

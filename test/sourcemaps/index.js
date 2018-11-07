@@ -87,7 +87,7 @@ test('fails', function (t) {
 })
 
 function onError (t, assert) {
-  agent._apmServer = {
+  agent._transport = {
     sendError (error, cb) {
       assert(t, error)
       t.end()
