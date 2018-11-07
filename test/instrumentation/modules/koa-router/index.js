@@ -100,8 +100,8 @@ function assert (t, data, results) {
 function resetAgent (cb) {
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock
-  if (agent._apmServer.destroy) agent._apmServer.destroy()
+  if (agent._transport.destroy) agent._transport.destroy()
   agent._instrumentation.currentTransaction = null
-  agent._apmServer = mockClient(1, cb)
+  agent._transport = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }

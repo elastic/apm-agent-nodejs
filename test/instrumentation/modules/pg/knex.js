@@ -166,8 +166,8 @@ function teardown (cb) {
 function resetAgent (cb) {
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock
-  if (agent._apmServer.destroy) agent._apmServer.destroy()
-  agent._apmServer = mockClient(function (data) {
+  if (agent._transport.destroy) agent._transport.destroy()
+  agent._transport = mockClient(function (data) {
     // ensure we never leave the db open after the test, otherwise the last
     // test will leave the process hanging in some combinations of pg/knex for
     // some reason

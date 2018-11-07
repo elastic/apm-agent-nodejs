@@ -444,23 +444,23 @@ captureBodyTests.forEach(function (captureBodyTest) {
       captureBody: captureBodyTest.value
     })
 
-    var sendError = agent._apmServer.sendError
-    var sendTransaction = agent._apmServer.sendTransaction
-    agent._apmServer.sendError = function (error, cb) {
+    var sendError = agent._transport.sendError
+    var sendTransaction = agent._transport.sendTransaction
+    agent._transport.sendError = function (error, cb) {
       var request = error.context.request
       t.ok(request)
       t.equal(request.body, captureBodyTest.errors)
       if (cb) process.nextTick(cb)
     }
-    agent._apmServer.sendTransaction = function (trans, cb) {
+    agent._transport.sendTransaction = function (trans, cb) {
       var request = trans.context.request
       t.ok(request)
       t.equal(request.body, captureBodyTest.transactions)
       if (cb) process.nextTick(cb)
     }
     t.on('end', function () {
-      agent._apmServer.sendError = sendError
-      agent._apmServer.sendTransaction = sendTransaction
+      agent._transport.sendError = sendError
+      agent._transport.sendTransaction = sendTransaction
     })
 
     var req = new IncomingMessage()
@@ -535,6 +535,92 @@ test('disableInstrumentations', function (t) {
 
   t.end()
 })
+
+test('custom transport', function (t) {
+  var agent = Agent()
+  agent.start({
+    serviceName: 'fooBAR0123456789_- ',
+    transport () {
+      var transactions = []
+      var spans = []
+      var errors = []
+      function makeSenderFor (list) {
+        return (item, callback) => {
+          list.push(item)
+          if (callback) {
+            setImmediate(callback)
+          }
+        }
+      }
+      var first = true
+      return {
+        sendTransaction: makeSenderFor(transactions),
+        sendSpan: makeSenderFor(spans),
+        sendError: makeSenderFor(errors),
+        flush (cb) {
+          if (cb) setImmediate(cb)
+          if (first) {
+            first = false
+            return
+          }
+          t.equal(transactions.length, 1, 'received correct number of transactions')
+          assertEncodedTransaction(t, trans, transactions[0])
+          t.equal(spans.length, 1, 'received correct number of spans')
+          assertEncodedSpan(t, span, spans[0])
+          t.equal(errors.length, 1, 'received correct number of errors')
+          assertEncodedError(t, error, errors[0], trans, span)
+          t.end()
+        }
+      }
+    }
+  })
+
+  var error = new Error('error')
+  var trans = agent.startTransaction('transaction')
+  var span = agent.startSpan('span')
+  agent.captureError(error)
+  span.end()
+  trans.end()
+  agent.flush()
+})
+
+function assertEncodedTransaction (t, trans, result) {
+  t.comment('transaction')
+  t.equal(result.id, trans.context.id, 'id matches')
+  t.equal(result.trace_id, trans.context.traceId, 'trace id matches')
+  t.equal(result.parent_id, trans.context.parentId, 'parent id matches')
+  t.equal(result.name, trans.name, 'name matches')
+  t.equal(result.type, trans.type, 'type matches')
+  t.equal(result.duration, trans._timer.duration, 'duration matches')
+  t.equal(result.timestamp, trans.timestamp, 'timestamp matches')
+  t.equal(result.result, trans.result, 'result matches')
+  t.equal(result.sampled, trans.sampled, 'sampled matches')
+}
+
+function assertEncodedSpan (t, span, result) {
+  t.comment('span')
+  t.equal(result.id, span.context.id, 'id matches')
+  t.equal(result.transaction_id, span.transaction.id, 'transaction id matches')
+  t.equal(result.trace_id, span.context.traceId, 'trace id matches')
+  t.equal(result.parent_id, span.context.parentId, 'parent id matches')
+  t.equal(result.name, span.name, 'name matches')
+  t.equal(result.type, span.type, 'type matches')
+  t.equal(result.duration, span._timer.duration, 'duration matches')
+  t.equal(result.timestamp, span.timestamp, 'timestamp matches')
+}
+
+function assertEncodedError (t, error, result, trans, parent) {
+  t.comment('error')
+  t.ok(result.id, 'has a valid id')
+  t.equal(result.trace_id, trans.traceId, 'trace id matches')
+  t.equal(result.transaction_id, trans.id, 'transaction id matches')
+  t.equal(result.parent_id, parent.id, 'parent id matches')
+  t.ok(result.exception, 'has an exception object')
+  t.equal(result.exception.message, error.message, 'exception message matches')
+  t.equal(result.exception.type, error.constructor.name, 'exception type matches')
+  t.ok(result.culprit, 'has a valid culprit')
+  t.ok(result.timestamp, 'has a valid timestamp')
+}
 
 class CaptureLogger {
   constructor () {

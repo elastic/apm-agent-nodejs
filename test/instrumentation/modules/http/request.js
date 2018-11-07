@@ -44,7 +44,7 @@ test('request', function (t) {
 
 function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
-  agent._apmServer = mockClient(3, cb)
+  agent._transport = mockClient(3, cb)
 }
 
 function sendRequest (server, timeout) {
