@@ -31,7 +31,7 @@ module.exports = function mockAgent (expected, cb) {
     _errorFilters: new Filters(),
     _transactionFilters: new Filters(),
     _spanFilters: new Filters(),
-    _apmServer: mockClient(expected, cb || noop),
+    _transport: mockClient(expected, cb || noop),
     logger: consoleLogLevel({
       level: 'fatal'
     })

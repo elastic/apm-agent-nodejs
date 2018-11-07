@@ -410,7 +410,7 @@ function connect (secure, port) {
 function resetAgent (expected, cb) {
   if (typeof expected === 'function') return resetAgent(1, expected)
   agent._instrumentation.currentTransaction = null
-  agent._apmServer = mockClient(expected, cb)
+  agent._transport = mockClient(expected, cb)
 }
 
 function addShouldCall (t) {
