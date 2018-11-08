@@ -151,7 +151,7 @@ but the `callback` will only be called with span payloads.
 apm.setUserContext(context)
 ----
 
-Call this to enrich collecte d performance data and errors with information about the user/client.
+Call this to enrich collected performance data and errors with information about the user/client.
 This function can be called at any point during the request/response life cycle (i.e. while a transaction is active).
 
 The given `context` argument must be an object and can contain the following properties (all optional):
