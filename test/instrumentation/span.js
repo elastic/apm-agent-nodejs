@@ -14,8 +14,7 @@ var agent = mockAgent()
 
 test('properties', function (t) {
   var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start('sig', 'type')
+  var span = new Span(trans, 'sig', 'type')
   t.ok(/^[\da-f]{16}$/.test(span.id))
   t.equal(span.transaction, trans)
   t.equal(span.name, 'sig')
@@ -26,8 +25,7 @@ test('properties', function (t) {
 
 test('#end()', function (t) {
   var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start('sig', 'type')
+  var span = new Span(trans, 'sig', 'type')
   t.equal(span.ended, false)
   span.end()
   t.equal(span.ended, true)
@@ -37,7 +35,6 @@ test('#end()', function (t) {
 test('#duration()', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  span.start()
   setTimeout(function () {
     span.end()
     t.ok(span.duration() > 49, span.duration() + ' should be larger than 49')
@@ -48,24 +45,13 @@ test('#duration()', function (t) {
 test('#duration() - return null if not ended', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  span.start()
   t.equal(span.duration(), null)
   t.end()
-})
-
-test('#_encode() - un-started', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span._encode(function (err, payload) {
-    t.equal(err.message, 'cannot encode un-started span')
-    t.end()
-  })
 })
 
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  span.start()
   span._encode(function (err, payload) {
     t.equal(err.message, 'cannot encode un-ended span')
     t.end()
@@ -75,7 +61,6 @@ test('#_encode() - un-ended', function (t) {
 test('#_encode() - ended unnamed', function myTest1 (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  span.start()
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
@@ -98,8 +83,7 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
 
 test('#_encode() - ended named', function myTest2 (t) {
   var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start('foo', 'bar')
+  var span = new Span(trans, 'foo', 'bar')
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
@@ -125,7 +109,6 @@ test('#_encode() - disabled stack traces', function (t) {
   ins._agent._conf.captureSpanStackTraces = false
   var trans = new Transaction(ins._agent)
   var span = new Span(trans)
-  span.start()
   span.end()
   span._encode(function (err, payload) {
     t.error(err)

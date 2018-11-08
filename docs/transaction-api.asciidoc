@@ -49,6 +49,30 @@ The transaction result.
 
 Think of the transaction result as equivalent to the status code of an HTTP response.
 
+[[transaction-start-span]]
+==== `transaction.startSpan([name][, type])`
+
+[source,js]
+----
+var span = transaction.startSpan('My custom span')
+----
+
+Start and return a new custom span associated with this transaction.
+
+Arguments:
+
+* `name` - The name of the span (string).
+You can alternatively set this via <<span-name,`span.name`>>.
+Defaults to `unnamed`
+
+* `type` - The type of span (string).
+You can alternatively set this via <<span-type,`span.type`>>.
+Defaults to `custom`
+
+When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
+
+See <<span-api,Span API>> docs for details on how to use custom spans.
+
 [[transaction-ensure-parent-id]]
 ==== `transaction.ensureParentId()`
 
