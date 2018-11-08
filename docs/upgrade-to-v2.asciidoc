@@ -30,16 +30,16 @@ The Node.js agent can be configured using a combination of inline config options
 environment variables,
 and a config file.
 Many config options also have default values.
-The order in which all these are applied have changed in 2.0.0.
+The order in which these are applied has changed in 2.0.0.
 
-In 1.x the order in which config options overruled each other was (higher overwrite lower):
+In 1.x the order in which config options overruled each other was (higher overwrites lower):
 
 - Inline options given to <<apm-start,`.start()`>>
 - <<agent-configuration-file,Agent config file>>
 - Environment variables
 - Default values
 
-The new order in 2.0.0 is as follows (higher overwrite lower):
+The new order in 2.0.0 is (higher overwrites lower):
 
 - Environment variables
 - Inline options given to <<apm-start,`.start()`>>
@@ -59,7 +59,7 @@ e.g: `1500ms`.
 In 1.x,
 all boolean config options could be configured using the strings `on`,
 `yes`,
-`1` etc to mean `true` with similar values representing `false`.
+`1`, etc., to mean `true` with similar values representing `false`.
 In 2.0.0 this has been restricted,
 and only the strings `true` and `false` will be interpreted as the boolean equivalent.
 
