@@ -130,3 +130,23 @@ test('child', t => {
     t.end()
   })
 })
+
+test('ensureParentId', t => {
+  const context = TraceContext.fromString(header)
+
+  isValid(t, context)
+  t.equal(context.version, version, 'version matches')
+  t.equal(context.traceId, traceId, 'traceId matches')
+  t.equal(context.id, id, 'id matches')
+  t.equal(context.flags, flags, 'flags matches')
+  t.notOk(context.parentId, 'no parent id before')
+
+  const first = context.ensureParentId()
+  t.ok(first, 'returns parent id')
+  t.equal(context.parentId, first, 'context parent id matches returned parent id')
+
+  const second = context.ensureParentId()
+  t.equal(first, second, 'future calls return the first parent id')
+
+  t.end()
+})

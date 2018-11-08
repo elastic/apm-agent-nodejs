@@ -73,6 +73,35 @@ When a span is started it will measure the time until <<span-end,`span.end()`>> 
 
 See <<span-api,Span API>> docs for details on how to use custom spans.
 
+[[transaction-ensure-parent-id]]
+==== `transaction.ensureParentId()`
+
+* *Type:* String
+
+If the transaction does not already have a parent id,
+calling this method generates a new parent id,
+sets it as the parent id of this transaction,
+and returns it as a `String`.
+
+This enables the correlation of the spans the JavaScript Real User Monitoring (RUM) agent creates for the initial page load with the transaction of the backend service.
+If your backend service generates the HTML page dynamically,
+initializing the JavaScript RUM agent with the value of this method allows analyzing the time spent in the browser vs in the backend services.
+
+To enable the JavaScript RUM agent,
+add a snippet similar to this to the body of your HTML page,
+preferably before other JavaScript libraries:
+
+[source,js]
+----
+var apm = initApm({
+  pageLoadTraceId: "${transaction.traceId}",
+  pageLoadSpanId: "${transaction.ensureParentId()}",
+  pageLoadSampled: ${transaction.sampled}
+})
+----
+
+See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
+
 [[transaction-end]]
 ==== `transaction.end([result])`
 
