@@ -128,7 +128,7 @@ Note that both `active` and `instrument` needs to be `true` for instrumentation 
 * *Env:* `ELASTIC_APM_ASYNC_HOOKS`
 
 A boolean specifying if the agent should use the experimental https://nodejs.org/api/async_hooks.html[Async Hooks] API found in Node.js version 8.2.0 and above.
-This setting have no effect when running a Node.js version older than 8.2.0.
+This setting has no effect when running a Node.js version older than 8.2.0.
 
 If you experience any issues related to using Async Hooks,
 please https://github.com/elastic/apm-agent-nodejs/issues[open an issue].
@@ -141,7 +141,7 @@ Note that not all core Node.js API's can be instrumented without the use of Asyn
 * *Type:* Array
 * *Default:* `undefined`
 
-Used to restrict requests to certain URL's from being instrumented.
+Used to restrict requests to certain URLs from being instrumented.
 
 This property should be set to an array containing one or more strings or `RegExp` objects.
 When an incoming HTTP request is detected,
@@ -269,7 +269,7 @@ use this option.
 * *Type:* String
 * *Env:* `ELASTIC_APM_FRAMEWORK_NAME`
 
-Set the name of the web framework used by the instrumented service / application.
+Set the name of the web framework used by the instrumented service/application.
 The name will be available as metadata for all errors and transactions sent to the APM Server.
 This can be useful for debugging and filtering.
 
@@ -282,7 +282,7 @@ the agent will set the value of this config option if the framework can be detec
 * *Type:* String
 * *Env:* `ELASTIC_APM_FRAMEWORK_VERSION`
 
-Set the version of the web framework used by the instrumented service / application.
+Set the version of the web framework used by the instrumented service/application.
 The version will be available as metadata for all errors and transactions sent to the APM Server.
 This can be useful for debugging and filtering.
 
@@ -394,10 +394,10 @@ Set this option to `false` to disable capture of stack traces for measured spans
 When an error is captured by the agent,
 its stack trace is stored in Elasticsearch.
 
-By default the agent will also collect a few lines of source code around the lines for each frame in the stack trace.
+By default, the agent will also collect a few lines of source code around the lines for each frame in the stack trace.
 This can make it easier to determine the cause of an error as the source code related to the error is visible directly in Kibana.
 
-The agent differentiates between so called in-app frames and library frames.
+The agent differentiates between so-called in-app frames and library frames.
 Library frames are frames belonging to Node core and code inside the applications `node_modules` folder.
 In-app frames are everything else.
 
@@ -411,7 +411,7 @@ Use the following two config options to change how many lines of source code to 
 * *Env:* `ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES`
 
 The default value `5` means that 5 lines of source code will be collected for in-app error frames.
-2 lines above the stack frame line + 2 below + the stack frame line it self.
+2 lines above the stack frame line + 2 below + the stack frame line itself.
 
 Setting this config option to `0` means that no source code will be collected for in-app error frames.
 
@@ -423,7 +423,7 @@ Setting this config option to `0` means that no source code will be collected fo
 * *Env:* `ELASTIC_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES`
 
 The default value `5` means that 5 lines of source code will be collected for error library frames.
-2 lines above the stack frame line + 2 below + the stack frame line it self.
+2 lines above the stack frame line + 2 below + the stack frame line itself.
 
 Setting this config option to `0` means that no source code will be collected for error library frames.
 
@@ -435,10 +435,10 @@ a stack trace is recorded together with the span,
 pointing to the location where the span was initiated.
 This stack trace is stored in Elasticsearch along with the other span data.
 
-By default the agent will also collect a few lines of source code around the lines for each frame in the stack trace.
+By default, the agent will also collect a few lines of source code around the lines for each frame in the stack trace.
 This can make it easier to determine why and how the span was initiated as the source code related to the span is visible directly in Kibana.
 
-The agent differentiates between so called in-app frames and library frames.
+The agent differentiates between so-called in-app frames and library frames.
 Library frames are frames belonging to Node core and code inside the applications `node_modules` folder.
 In-app frames are everything else.
 
@@ -565,7 +565,7 @@ Specify the response timeout when reporting transactions to APM Server.
 The timeout should be in seconds,
 or should include a time suffix.
 
-The timeout is applied once the agent have sent the entire request body to the APM Server.
+The timeout is applied once the agent has sent the entire request body to the APM Server.
 If the response from the server takes longer than allowed by this timeout,
 the HTTP request is terminated and the TCP socket closed.
 
@@ -578,19 +578,19 @@ the HTTP request is terminated and the TCP socket closed.
 
 When tracing an incoming HTTP request,
 the agent will add metadata about the requests to the recorded transaction.
-The same applies for errors that occurs and are captured as a result of the request.
+The same applies for errors that occur and are captured as a result of the request.
 
 This boolean specifies if the agent should anonymize certain sensitive HTTP headers by default before they are sent to the APM Server.
 When anonymized,
 the header value will be set to `[REDACTED]`
 
-Currently the following HTTP headers are anonymized by default:
+Currently, the following HTTP headers are anonymized by default:
 
 * `Authorization` - The full value of this header is redacted
 * `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
   See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
 
-If you wish to filter or santitize other data,
+If you wish to filter or sanitize other data,
 use one of the <<apm-add-filter,filtering>> functions.
 
 [[disable-instrumentations]]
