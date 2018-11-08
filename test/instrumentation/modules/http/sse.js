@@ -15,8 +15,7 @@ test('normal response', function (t) {
   })
 
   var server = http.createServer(function (req, res) {
-    var span = agent.buildSpan()
-    if (span) span.start('foo', 'bar')
+    var span = agent.startSpan('foo', 'bar')
     setTimeout(function () {
       if (span) span.end()
       res.end()
@@ -34,8 +33,7 @@ test('SSE response with explicit headers', function (t) {
 
   var server = http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/event-stream' })
-    var span = agent.buildSpan()
-    if (span) span.start('foo', 'bar')
+    var span = agent.startSpan('foo', 'bar')
     setTimeout(function () {
       if (span) span.end()
       res.end()
@@ -54,8 +52,7 @@ test('SSE response with implicit headers', function (t) {
   var server = http.createServer(function (req, res) {
     res.setHeader('Content-type', 'text/event-stream; foo')
     res.write('data: hello world\n\n')
-    var span = agent.buildSpan()
-    if (span) span.start('foo', 'bar')
+    var span = agent.startSpan('foo', 'bar')
     setTimeout(function () {
       if (span) span.end()
       res.end()
