@@ -54,25 +54,25 @@ the TCP socket is reused between each HTTP request.
 [[performance-api-request-time]]
 ==== Max HTTP request duration
 
-By default an HTTP request to the APM Server is ended after a maximum of 10 seconds.
+By default, an HTTP request to the APM Server is ended after a maximum of 10 seconds.
 Using the <<api-request-time,`apiRequestTime`>> config option,
 this time limit can be modified.
 
-Lowering the time limit might be necessary if dealing with very agressive proxies,
+Lowering the time limit might be necessary if dealing with very aggressive proxies,
 but increasing the time limit means that the combined overhead of these HTTP requests is reduced,
-as headers and metadata doesn't need to be re-sent that often.
+as headers and metadata don't need to be re-sent that often.
 
 [float]
 [[performance-api-request-size]]
 ==== Max HTTP request size
 
-By default an HTTP request to the APM Server is ended after approximately 1 MiB of gzip compressed data have been written to the body.
+By default, an HTTP request to the APM Server is ended after approximately 1 MiB of gzip compressed data have been written to the body.
 Using the <<api-request-size,`apiRequestSize`>> config option,
 this time limit can be modified.
 
-Lowering the size limit might be necessary if dealing with very agressive proxies,
+Lowering the size limit might be necessary if dealing with very aggressive proxies,
 but increasing the size limit means that the combined overhead of these HTTP requests is reduced,
-as headers and metadata doesn't need to be re-sent that often.
+as headers and metadata don't need to be re-sent that often.
 
 [float]
 [[performance-server-timeout]]
