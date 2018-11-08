@@ -1,3 +1,6 @@
+# 1.14.1 - 2018/11/8
+  * fix: promise.then() resolve point ([#663](https://github.com/elastic/apm-agent-nodejs/pull/663))
+
 # 1.14.0 - 2018/11/6
   * feat(agent): return uuid in captureError callback ([#636](https://github.com/elastic/apm-agent-nodejs/pull/636))
   * feat(apollo-server-express): set custom GraphQL transaction names ([#648](https://github.com/elastic/apm-agent-nodejs/pull/648))
