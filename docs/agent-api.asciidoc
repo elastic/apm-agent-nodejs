@@ -156,9 +156,9 @@ This function can be called at any point during the request/response life cycle 
 
 The given `context` argument must be an object and can contain the following properties (all optional):
 
-* `id` - The users ID
-* `username` - The users username
-* `email` - The users e-mail
+* `id` - The user's ID
+* `username` - The user's username
+* `email` - The user's e-mail
 
 The given `context` will be added to the active transaction.
 If no active transaction can be found,
@@ -356,7 +356,7 @@ This will log the URL that was requested,
 the HTTP headers,
 cookies and other useful details to help you debug the error.
 
-In most cases this isn't needed though,
+In most cases, this isn't needed,
 as the agent is pretty smart at figuring out if your Node.js app is an HTTP server and if an error occurred during an incoming request.
 In which case it will automate this processes for you.
 
@@ -376,7 +376,7 @@ apm.captureError(err, {
 This will log the response status code,
 headers and other useful details to help you debug the error.
 
-In most cases this isn't needed though,
+In most cases, this isn't needed,
 as the agent is pretty smart at figuring out if your Node.js app is an HTTP server and if an error occurred during an incoming request.
 In which case it will automate this processes for you.
 
@@ -437,7 +437,7 @@ Defaults to `custom`
 * `traceparent` - The traceparent header received from a remote service (string).
 
 Use this function to create a custom transaction.
-Note that the agent will do this for you automatically when ever your application receives an incoming HTTP request.
+Note that the agent will do this for you automatically whenever your application receives an incoming HTTP request.
 You only need to use this function to create custom transactions.
 
 There's a special `type` called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
@@ -547,7 +547,7 @@ NOTE: If there's no active transaction available,
 apm.handleUncaughtExceptions([callback])
 ----
 
-By default the agent will terminate the Node.js process when an uncaught exception is detected.
+By default, the agent will terminate the Node.js process when an uncaught exception is detected.
 Use this function if you need to run any custom code before the process is terminated.
 
 [source,js]
@@ -585,7 +585,7 @@ Manually end the active outgoing HTTP request to the APM Server.
 The HTTP request is otherwise ended automatically at regular intervals,
 controlled by the <<api-request-time,`apiRequestTime`>> and <<api-request-size,`apiRequestSize`>> config options.
 
-The callback is called *after* the active HTTP request have ended.
+The callback is called *after* the active HTTP request has ended.
 The callback is called even if no HTTP request is currently active.
 
 [[apm-lambda]]
