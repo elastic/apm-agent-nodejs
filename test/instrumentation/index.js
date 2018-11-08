@@ -66,11 +66,11 @@ test('basic', function (t) {
   function generateTransaction (id, cb) {
     var trans = ins.startTransaction('foo' + id, 'bar' + id)
     trans.result = 'baz' + id
-    var span = startSpan(ins, 't' + id + '0', 'type')
+    var span = ins.startSpan('t' + id + '0', 'type')
 
     process.nextTick(function () {
       span.end()
-      span = startSpan(ins, 't' + id + '1', 'type')
+      span = ins.startSpan('t' + id + '1', 'type')
       process.nextTick(function () {
         span.end()
         trans.end()
@@ -96,8 +96,8 @@ test('same tick', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction('foo')
-  var t0 = startSpan(ins, 't0')
-  var t1 = startSpan(ins, 't1')
+  var t0 = ins.startSpan('t0')
+  var t1 = ins.startSpan('t1')
   t1.end()
   t0.end()
   trans.end()
@@ -119,10 +119,10 @@ test('serial - no parents', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction('foo')
-  var t0 = startSpan(ins, 't0')
+  var t0 = ins.startSpan('t0')
   process.nextTick(function () {
     t0.end()
-    var t1 = startSpan(ins, 't1')
+    var t1 = ins.startSpan('t1')
     process.nextTick(function () {
       t1.end()
       trans.end()
@@ -146,9 +146,9 @@ test('serial - with parents', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction('foo')
-  var t0 = startSpan(ins, 't0')
+  var t0 = ins.startSpan('t0')
   process.nextTick(function () {
-    var t1 = startSpan(ins, 't1')
+    var t1 = ins.startSpan('t1')
     process.nextTick(function () {
       t1.end()
       t0.end()
@@ -173,8 +173,8 @@ test('stack branching - no parents', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction('foo')
-  var t0 = startSpan(ins, 't0') // 1
-  var t1 = startSpan(ins, 't1') // 2
+  var t0 = ins.startSpan('t0') // 1
+  var t1 = ins.startSpan('t1') // 2
   setTimeout(function () {
     t0.end() // 3
   }, 25)
@@ -200,7 +200,7 @@ test('currentTransaction missing - recoverable', function (t) {
 
   var trans = ins.startTransaction('foo')
   setImmediate(function () {
-    t0 = startSpan(ins, 't0')
+    t0 = ins.startSpan('t0')
     ins.currentTransaction = undefined
     setImmediate(function () {
       t0.end()
@@ -228,11 +228,11 @@ test('currentTransaction missing - not recoverable - last span failed', function
 
   var trans = ins.startTransaction('foo')
   setImmediate(function () {
-    t0 = startSpan(ins, 't0')
+    t0 = ins.startSpan('t0')
     setImmediate(function () {
       t0.end()
       ins.currentTransaction = undefined
-      t1 = startSpan(ins, 't1')
+      t1 = ins.startSpan('t1')
       t.equal(t1, null)
       setImmediate(function () {
         ins.currentTransaction = trans
@@ -260,14 +260,14 @@ test('currentTransaction missing - not recoverable - middle span failed', functi
 
   var trans = ins.startTransaction('foo')
   setImmediate(function () {
-    t0 = startSpan(ins, 't0')
+    t0 = ins.startSpan('t0')
     setImmediate(function () {
       ins.currentTransaction = undefined
-      t1 = startSpan(ins, 't1')
+      t1 = ins.startSpan('t1')
       t.equal(t1, null)
       setImmediate(function () {
         t0.end()
-        t2 = startSpan(ins, 't2')
+        t2 = ins.startSpan('t2')
         setImmediate(function () {
           t2.end()
           setImmediate(function () {
@@ -390,10 +390,10 @@ test('unsampled transactions do not include spans', function (t) {
   var ins = agent._instrumentation
 
   var trans = ins.startTransaction()
-  var span = startSpan(ins, 'span 0', 'type')
+  var span = ins.startSpan('span 0', 'type')
   process.nextTick(function () {
     if (span) span.end()
-    span = startSpan(ins, 'span 1', 'type')
+    span = ins.startSpan('span 1', 'type')
     process.nextTick(function () {
       if (span) span.end()
       trans.end()
@@ -444,7 +444,7 @@ test('bind', function (t) {
     var trans = ins.startTransaction('foo')
 
     function fn () {
-      var t0 = startSpan(ins, 't0')
+      var t0 = ins.startSpan('t0')
       if (t0) t0.end()
       trans.end()
     }
@@ -465,7 +465,7 @@ test('bind', function (t) {
     var trans = ins.startTransaction('foo')
 
     var fn = ins.bindFunction(function () {
-      var t0 = startSpan(ins, 't0')
+      var t0 = ins.startSpan('t0')
       if (t0) t0.end()
       trans.end()
     })
@@ -497,7 +497,7 @@ test('bind', function (t) {
       var emitter = new EventEmitter()
 
       emitter[method]('foo', function () {
-        var t0 = startSpan(ins, 't0')
+        var t0 = ins.startSpan('t0')
         if (t0) t0.end()
         trans.end()
       })
@@ -523,7 +523,7 @@ test('bind', function (t) {
       ins.bindEmitter(emitter)
 
       emitter[method]('foo', function () {
-        var t0 = startSpan(ins, 't0')
+        var t0 = ins.startSpan('t0')
         if (t0) t0.end()
         trans.end()
       })
@@ -582,10 +582,10 @@ test('nested spans', function (t) {
     }
   }
 
-  var s0 = startSpan(ins, 's0')
+  var s0 = ins.startSpan('s0')
   process.nextTick(function () {
     process.nextTick(function () {
-      var s01 = startSpan(ins, 's01')
+      var s01 = ins.startSpan('s01')
       process.nextTick(function () {
         s01.end()
         done()
@@ -594,9 +594,9 @@ test('nested spans', function (t) {
     s0.end()
   })
 
-  var s1 = startSpan(ins, 's1')
+  var s1 = ins.startSpan('s1')
   process.nextTick(function () {
-    var s11 = startSpan(ins, 's11')
+    var s11 = ins.startSpan('s11')
     process.nextTick(function () {
       s11.end()
       done()
@@ -606,7 +606,7 @@ test('nested spans', function (t) {
   // Will adopt the t1 span as its parent,
   // because no new span has been created.
   process.nextTick(function () {
-    var s12 = startSpan(ins, 's12')
+    var s12 = ins.startSpan('s12')
     process.nextTick(function () {
       s12.end()
       done()
@@ -644,20 +644,14 @@ test('nested transactions', function (t) {
   var ins = agent._instrumentation
 
   var t0 = ins.startTransaction('t0')
-  var s0 = startSpan(ins, 's0')
+  var s0 = ins.startSpan('s0')
   var t1 = ins.startTransaction('t1', null, t0.context.toString())
-  var s1 = startSpan(ins, 's1')
+  var s1 = ins.startSpan('s1')
   s1.end()
   t1.end()
   s0.end()
   t0.end()
 })
-
-function startSpan (ins, name, type) {
-  var span = ins.buildSpan()
-  if (span) span.start(name, type)
-  return span
-}
 
 function resetAgent (expected, cb) {
   agent._instrumentation.currentTransaction = null

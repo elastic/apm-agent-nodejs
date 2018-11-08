@@ -504,6 +504,9 @@ var span = apm.startSpan('My custom span')
 ----
 
 Start and return a new custom span associated with the current active transaction.
+This is the same as getting the current transaction with `apm.currentTransaction` and,
+if a transaction was found,
+calling `transaction.startSpan(name, type)` on it.
 
 Arguments:
 
@@ -516,23 +519,6 @@ You can alternatively set this via <<span-type,`span.type`>>.
 Defaults to `custom.code`
 
 When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
-
-See <<span-api,Span API>> docs for details on how to use custom spans.
-
-NOTE: If there's no active transaction available,
-`null` will be returned.
-
-[[apm-build-span]]
-==== `apm.buildSpan()`
-
-deprecated[1.1.0,Replaced by <<apm-start-span,apm.startSpan()>>]
-
-[source,js]
-----
-var span = apm.buildSpan()
-----
-
-Prepare and return a new custom span associated with the current active transaction.
 
 See <<span-api,Span API>> docs for details on how to use custom spans.
 
