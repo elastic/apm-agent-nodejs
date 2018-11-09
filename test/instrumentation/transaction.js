@@ -64,22 +64,43 @@ test('#setCustomContext', function (t) {
 })
 
 test('#setTag', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.equal(added.ended, true)
-    t.equal(added, trans)
+  t.test('valid', function (t) {
+    var ins = mockInstrumentation(function (added) {
+      t.equal(added.ended, true)
+      t.equal(added, trans)
+      t.end()
+    })
+    var trans = new Transaction(ins._agent)
+    t.equal(trans._tags, null)
+    t.equal(trans.setTag(), false)
+    t.equal(trans._tags, null)
+    trans.setTag('foo', 1)
+    t.deepEqual(trans._tags, { foo: '1' })
+    trans.setTag('bar', { baz: 2 })
+    t.deepEqual(trans._tags, { foo: '1', bar: '[object Object]' })
+    trans.setTag('foo', 3)
+    t.deepEqual(trans._tags, { foo: '3', bar: '[object Object]' })
     t.end()
   })
-  var trans = new Transaction(ins._agent)
-  t.equal(trans._tags, null)
-  t.equal(trans.setTag(), false)
-  t.equal(trans._tags, null)
-  trans.setTag('foo', 1)
-  t.deepEqual(trans._tags, { foo: '1' })
-  trans.setTag('bar', { baz: 2 })
-  t.deepEqual(trans._tags, { foo: '1', bar: '[object Object]' })
-  trans.setTag('foo', 3)
-  t.deepEqual(trans._tags, { foo: '3', bar: '[object Object]' })
-  t.end()
+
+  t.test('invalid', function (t) {
+    var ins = mockInstrumentation(function (added) {
+      t.equal(added.ended, true)
+      t.equal(added, trans)
+      t.end()
+    })
+    var trans = new Transaction(ins._agent)
+    t.equal(trans._tags, null)
+    t.equal(trans.setTag(), false)
+    t.equal(trans._tags, null)
+    trans.setTag('invalid*', 1)
+    t.deepEqual(trans._tags, { invalid_: '1' })
+    trans.setTag('invalid.', 2)
+    t.deepEqual(trans._tags, { invalid_: '2' })
+    trans.setTag('invalid"', 3)
+    t.deepEqual(trans._tags, { invalid_: '3' })
+    t.end()
+  })
 })
 
 test('#addTags', function (t) {
