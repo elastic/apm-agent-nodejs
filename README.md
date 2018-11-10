@@ -19,7 +19,9 @@ npm install elastic-apm-node --save
 
 1. To run Elastic APM for your own applications,
    make sure you have the prerequisites in place first.
-   This agent is compatible with [APM Server](https://github.com/elastic/apm-server) v6.2 and above.
+   This agent is compatible with [APM Server](https://github.com/elastic/apm-server) v6.5 and above.
+   For support for previous releases of the APM Server,
+   use version [1.x](https://www.elastic.co/guide/en/apm/agent/nodejs/1.x/index.html) of the agent.
    For details see [Getting Started with Elastic APM](https://www.elastic.co/guide/en/apm/get-started)
 
 1. Now follow the documentation links below relevant to your framework or stack to get set up
