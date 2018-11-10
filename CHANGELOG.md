@@ -1,3 +1,6 @@
+# 1.14.2 - 2018/11/10
+  * fix: prevent memory leak due to potential reference cycle ([#667](https://github.com/elastic/apm-agent-nodejs/pull/667))
+
 # 1.14.1 - 2018/11/8
   * fix: promise.then() resolve point ([#663](https://github.com/elastic/apm-agent-nodejs/pull/663))
 
