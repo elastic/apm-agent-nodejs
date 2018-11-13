@@ -61,6 +61,11 @@ jobs:
       node_js: '8'
       env: ELASTIC_APM_ASYNC_HOOKS=false
 
+    # Windows
+    -
+      node_js: 'lts/*'
+      os: windows
+
     # Commit Messages
     -
       node_js: 'lts/*'
