@@ -861,8 +861,6 @@ test('#captureError()', function (t) {
     let span = null
     const expect = [
       'metadata',
-      'transaction',
-      'span',
       'error'
     ]
 
@@ -873,8 +871,6 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('with callback'), function () {
           t.pass('called callback')
         })
-        span.end()
-        trans.end()
       })
       .on('data-error', function (data) {
         t.equal(data.exception.message, 'with callback')
