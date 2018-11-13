@@ -1,3 +1,6 @@
+# 1.14.3 - 2018/11/13
+  * fix(async\_hooks): more reliable cleanup ([#674](https://github.com/elastic/apm-agent-nodejs/pull/674))
+
 # 1.14.2 - 2018/11/10
   * fix: prevent memory leak due to potential reference cycle ([#667](https://github.com/elastic/apm-agent-nodejs/pull/667))
 
