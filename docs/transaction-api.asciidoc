@@ -93,10 +93,11 @@ preferably before other JavaScript libraries:
 
 [source,js]
 ----
-var apm = initApm({
-  pageLoadTraceId: "${transaction.traceId}",
-  pageLoadSpanId: "${transaction.ensureParentId()}",
-  pageLoadSampled: ${transaction.sampled}
+elasticApm.init({
+  serviceName: <service-name>,
+  pageLoadTraceId: <trace-id>, // String
+  pageLoadSpanId: <span-id>, // String
+  pageLoadSampled: <is-sampled> // Boolean
 })
 ----
 
