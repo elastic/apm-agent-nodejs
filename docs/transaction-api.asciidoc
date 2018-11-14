@@ -94,10 +94,11 @@ preferably before other JavaScript libraries:
 [source,js]
 ----
 elasticApm.init({
-  serviceName: <service-name>,
-  pageLoadTraceId: <trace-id>, // String
-  pageLoadSpanId: <span-id>, // String
-  pageLoadSampled: <is-sampled> // Boolean
+  serviceName: 'my-frontend-app', // Name of your frontend app
+  serverUrl: 'https://example.com:8200', // APM Server host
+  pageLoadTraceId: '${transaction.traceId}',
+  pageLoadSpanId: '${transaction.ensureParentId()}',
+  pageLoadSampled: ${transaction.sampled}
 })
 ----
 
