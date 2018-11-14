@@ -93,9 +93,11 @@ preferably before other JavaScript libraries:
 
 [source,js]
 ----
-var apm = initApm({
-  pageLoadTraceId: "${transaction.traceId}",
-  pageLoadSpanId: "${transaction.ensureParentId()}",
+elasticApm.init({
+  serviceName: 'my-frontend-app', // Name of your frontend app
+  serverUrl: 'https://example.com:8200', // APM Server host
+  pageLoadTraceId: '${transaction.traceId}',
+  pageLoadSpanId: '${transaction.ensureParentId()}',
   pageLoadSampled: ${transaction.sampled}
 })
 ----
