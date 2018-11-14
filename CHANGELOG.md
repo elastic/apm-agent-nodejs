@@ -1,3 +1,19 @@
+# 2.0.0 - 2018/11/14
+  * Breaking changes:
+    * chore: remove support for Node.js 4 and 9
+    * chore: remove deprecated buildSpan function ([#642](https://github.com/elastic/apm-agent-nodejs/pull/642))
+    * feat: support APM Server intake API version 2 ([#465](https://github.com/elastic/apm-agent-nodejs/pull/465))
+    * feat: improved filtering function API ([#579](https://github.com/elastic/apm-agent-nodejs/pull/579))
+    * feat: replace double-quotes with underscores in tag names ([#666](https://github.com/elastic/apm-agent-nodejs/pull/666))
+    * feat(config): change config order ([#604](https://github.com/elastic/apm-agent-nodejs/pull/604))
+    * feat(config): support time suffixes ([#602](https://github.com/elastic/apm-agent-nodejs/pull/602))
+    * feat(config): stricter boolean parsing ([#613](https://github.com/elastic/apm-agent-nodejs/pull/613))
+  * feat: add support for Distributed Tracing ([#538](https://github.com/elastic/apm-agent-nodejs/pull/538))
+  * feat(transaction): add transaction.ensureParentId function ([#661](https://github.com/elastic/apm-agent-nodejs/pull/661))
+  * feat(config): support byte suffixes ([#601](https://github.com/elastic/apm-agent-nodejs/pull/601))
+  * feat(transaction): restructure span\_count and include total ([#553](https://github.com/elastic/apm-agent-nodejs/pull/553))
+  * perf: improve Async Hooks implementation ([#679](https://github.com/elastic/apm-agent-nodejs/pull/679))
+
 # 1.14.3 - 2018/11/13
   * fix(async\_hooks): more reliable cleanup ([#674](https://github.com/elastic/apm-agent-nodejs/pull/674))
 
