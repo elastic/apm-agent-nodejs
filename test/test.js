@@ -75,7 +75,8 @@ var directories = [
   'test/instrumentation/modules/mysql2',
   'test/instrumentation/modules/cassandra',
   'test/instrumentation/modules/bluebird',
-  'test/instrumentation/modules/koa-router'
+  'test/instrumentation/modules/koa-router',
+  'opentracing/test'
 ]
 
 mapSeries(directories, readdir, function (err, directoryFiles) {
