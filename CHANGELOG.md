@@ -1,3 +1,6 @@
+# 2.0.1 - 2018/11/26
+  * fix: log APM Server API errors correctly ([#692](https://github.com/elastic/apm-agent-nodejs/pull/692))
+
 # 2.0.0 - 2018/11/14
   * Breaking changes:
     * chore: remove support for Node.js 4 and 9
