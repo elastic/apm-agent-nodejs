@@ -93,6 +93,6 @@ Please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 To enable agent debugging and capture enough information,
 perform these steps:
 
-1. Start your app with the environment variable `ELASTIC_APM_LOG_LEVEL=debug` or add `logLevel: 'debug'` to the config file or `start(options)` call
+1. Start your app with the environment variable `ELASTIC_APM_LOG_LEVEL=debug` or add `logLevel: 'debug'` to the config file or `start(options)` call (see <<log-level,`logLevel`>> for details)
 2. Send a few HTTP requests to some of the app endpoints
-3. Wait at least one minute to allow the agent to try and connect to the APM Server
+3. Wait at least 10 seconds to allow the agent to try and connect to the APM Server (controlled by <<api-request-time,`apiRequestTime`>>)
