@@ -686,7 +686,7 @@ and will receive a `payload` object as the only argument,
 containing the data about to be sent to the APM Server.
 
 For details on the format of the payload,
-see the {apm-server-ref}/intake-api.html[APM Server intake API documentation].
+see the {apm-server-ref-64}/intake-api.html[APM Server intake API documentation].
 
 The filter function is synchronous and should return the manipulated payload object.
 If a filter function doesn't return any value or returns a falsy value,

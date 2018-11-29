@@ -28,7 +28,9 @@ that not all core Node.js API's can be instrumented without the use of Async Hoo
 [[elastic-stack-compatibility]]
 === Elastic Stack Compatibility
 
-This agent is compatible with {apm-server-ref}[APM Server] v6.2 and above.
+Version 1.x of the agent is compatible with {apm-server-ref-64}[APM Server] v6.2 to v6.4.
+For support for APM Server v6.5 and above,
+use {apm-node-ref-index}[version 2.0.0 or higher] of the Node.js agent.
 
 [float]
 [[compatibility-frameworks]]
