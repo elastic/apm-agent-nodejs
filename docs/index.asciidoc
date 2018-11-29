@@ -39,3 +39,5 @@ include::./supported-technologies.asciidoc[]
 include::./upgrading.asciidoc[]
 
 include::./troubleshooting.asciidoc[]
+
+include::./redirects.asciidoc[]
