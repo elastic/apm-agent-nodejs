@@ -223,6 +223,7 @@ fastify:
   versions: '>=0.27.0 <0.29.0 || >0.29.0'
   commands:
     - node test/instrumentation/modules/fastify.js
+    - node test/instrumentation/modules/async-await.js
 
 finalhandler:
   versions: '*'
