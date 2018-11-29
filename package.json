@@ -115,7 +115,7 @@
     "ioredis": "^3.0.0",
     "is-my-json-valid": "^2.19.0",
     "json-schema-ref-parser": "^6.0.1",
-    "knex": "^0.16.0",
+    "knex": "0.16.0-next5",
     "koa": "^2.5.3",
     "koa-router": "^7.4.0",
     "mimic-response": "^1.0.1",
