@@ -29,6 +29,7 @@ test('transaction name', function (t) {
 
   fastify.listen(0, function (err, address) {
     t.error(err)
+    address = address || 'http://localhost:' + fastify.server.address().port
     http.get(`${address}/hello/world`, function (res) {
       const chunks = []
       res.on('data', chunks.push.bind(chunks))
