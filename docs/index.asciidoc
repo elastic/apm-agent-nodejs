@@ -1,4 +1,4 @@
-:node-branch: 2.x
+:node-branch: master
 :server-branch: 6.5
 include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
