@@ -15,7 +15,7 @@ as well as a simple API which allows you to instrument any application.
 The agent is only one of the multiple components you need to get started with APM.
 Please also have a look at the documentation for:
 
-* {apm-server-ref-64}/index.html[APM Server]
+* {apm-server-ref-v}/index.html[APM Server]
 * {ref}/index.html[Elasticsearch]
 
 [float]
