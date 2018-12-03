@@ -18,7 +18,8 @@ as well as a simple API which allows you to instrument any application.
 === Additional Components
 
 APM Agents work in conjunction with the {apm-server-ref-v}/index.html[APM Server],
-{ref}/index.html[Elasticsearch], and {kibana-ref}/index.html[Kibana].
+{ref}/index.html[Elasticsearch],
+and {kibana-ref}/index.html[Kibana].
 Please view the {apm-overview-ref-v}/index.html[APM Overview] for details on how these components work together. 
 
 [float]
