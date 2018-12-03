@@ -686,7 +686,7 @@ and will receive a `payload` object as the only argument,
 containing the data about to be sent to the APM Server.
 
 For details on the format of the payload,
-see the {apm-server-ref-64}/intake-api.html[APM Server intake API documentation].
+see the {apm-server-ref-v}/intake-api.html[APM Server intake API documentation].
 
 The filter function is synchronous and should return the manipulated payload object.
 If a filter function doesn't return any value or returns a falsy value,
@@ -887,7 +887,7 @@ To ease debugging it's possible to send some extra data with each error you send
 The APM Server intake API supports a lot of different metadata fields,
 most of which are automatically managed by the Elastic APM Node.js Agent.
 But if you wish you can supply some extra details using `user` or `custom`.
-For more details on the properties accepted by the error intake API see the {apm-server-ref}/error-api.html[intake error API docs].
+For more details on the properties accepted by the error intake API see the {apm-server-ref-v}/error-api.html[intake error API docs].
 
 To supply any of these extra fields,
 use the optional options argument when calling `apm.captureError()`.
