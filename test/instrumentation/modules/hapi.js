@@ -378,6 +378,7 @@ test('request error logging with Error does not affect event tags', function (t)
 
   var emitter = server.events || server
   emitter.on('request', function (req, event, tags) {
+    if (event.channel === 'internal') return
     t.deepEqual(event.tags, ['elastic-apm', 'error'])
   })
 
@@ -385,6 +386,7 @@ test('request error logging with Error does not affect event tags', function (t)
     t.error(err, 'start error')
 
     emitter.on('request', function (req, event, tags) {
+      if (event.channel === 'internal') return
       t.deepEqual(event.tags, ['elastic-apm', 'error'])
     })
 
@@ -491,7 +493,7 @@ test('request error logging with Object', function (t) {
 })
 
 test('error handling', function (t) {
-  t.plan(semver.satisfies(pkg.version, '>=17') ? 12 : 10)
+  t.plan(10)
 
   resetAgent(1, function (data) {
     assert(t, data, { status: 'HTTP 5xx', name: 'GET /error' })
