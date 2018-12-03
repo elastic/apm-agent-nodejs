@@ -1,4 +1,5 @@
-:branch: current
+:node-branch: master
+:server-branch: 6.5
 include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 ifdef::env-github[]
