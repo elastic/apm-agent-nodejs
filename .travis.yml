@@ -24,6 +24,7 @@ before_script:
   - wait-on tcp:9200
 
 node_js:
+  - '11'
   - '10'
   - '8'
   - '6'
@@ -38,6 +39,9 @@ jobs:
     ###########################################
 
     # Disable Async Hooks
+    -
+      node_js: '11'
+      env: ELASTIC_APM_ASYNC_HOOKS=false
     -
       node_js: '10'
       env: ELASTIC_APM_ASYNC_HOOKS=false
@@ -70,6 +74,28 @@ jobs:
     ###########################################
     #            DEPENDENCY STAGE             #
     ###########################################
+
+    # Node.js 11
+    - stage: dependencies
+      node_js: '11'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core,finalhandler
+      script: tav --quiet
+    -
+      node_js: '11'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=ioredis,pg,cassandra-driver,restify
+      script: tav --quiet
+    -
+      node_js: '11'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
+      script: tav --quiet
+    -
+      node_js: '11'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      script: tav --quiet
 
     # Node.js 10
     - stage: dependencies
@@ -188,6 +214,11 @@ jobs:
 
     # Release Candidates
     -
+      node_js: '11'
+      name: "Node.js: 11-rc"
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+    -
       node_js: '10'
       name: "Node.js: 10-rc"
       if: type = cron
@@ -204,6 +235,13 @@ jobs:
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
 
     # Release Candidates - No async hooks
+    -
+      node_js: '11'
+      name: "Node.js: 11-rc (no async hooks)"
+      if: type = cron
+      env:
+        - ELASTIC_APM_ASYNC_HOOKS=false
+        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
       node_js: '10'
       name: "Node.js: 10-rc (no async hooks)"
