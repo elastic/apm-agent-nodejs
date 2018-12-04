@@ -211,7 +211,8 @@ cassandra-driver:
     - node test/instrumentation/modules/cassandra/cassandra.js
 
 restify:
-  versions: '>=5.2.0'
+  # 6.0.1 is broken
+  versions: '>=5.2.0 <6.0.1 || >6.0.1'
   commands:
     - node test/instrumentation/modules/restify.js
 
