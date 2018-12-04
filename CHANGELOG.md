@@ -1,3 +1,7 @@
+# 2.0.2 - 2018/12/4
+  * fix: use randomFillSync polyfill on Node.js <6.13.0 ([#702](https://github.com/elastic/apm-agent-nodejs/pull/702))
+  * fix(hapi): ignore internal events channel ([#700](https://github.com/elastic/apm-agent-nodejs/pull/700))
+
 # 2.0.1 - 2018/11/26
   * fix: log APM Server API errors correctly ([#692](https://github.com/elastic/apm-agent-nodejs/pull/692))
 
