@@ -63,7 +63,15 @@ bluebird:
 knex:
   versions: ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
   commands: node test/instrumentation/modules/pg/knex.js
-ws:
+ws-old:
+  # v6.1.1 doesn't work on older Node.js versions
+  name: ws
+  node: '<6'
+  versions: '>=1 <6.1.1 || >6.1.1 <7'
+  commands: node test/instrumentation/modules/ws.js
+ws-new:
+  name: ws
+  node: '>=6'
   versions: '>=1 <7'
   commands: node test/instrumentation/modules/ws.js
 graphql:
