@@ -138,7 +138,7 @@
     "standard": "^12.0.1",
     "tape": "^4.9.1",
     "tedious": "^2.6.1",
-    "test-all-versions": "^3.3.3",
+    "test-all-versions": "^4.0.0",
     "thunky": "^1.0.3",
     "untildify": "^3.0.3",
     "util.promisify": "^1.0.0",
