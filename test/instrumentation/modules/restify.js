@@ -39,7 +39,7 @@ test('transaction name', function (t) {
 
   // NOTE: Hostname must be supplied to force IPv4 mode,
   // otherwise this will use IPv6, which fails on Travis CI.
-  server.listen(null, '0.0.0.0', function () {
+  server.listen(0, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
       t.equal(res.statusCode, 200, 'server should respond with status code 200')
       const chunks = []
@@ -96,7 +96,7 @@ test('error reporting', function (t) {
 
   // NOTE: Hostname must be supplied to force IPv4 mode,
   // otherwise this will use IPv6, which fails on Travis CI.
-  server.listen(null, '0.0.0.0', function () {
+  server.listen(0, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
       t.equal(res.statusCode, 500, 'server should respond with status code 500')
       res.resume()
@@ -149,7 +149,7 @@ test('error reporting from chained handler', function (t) {
 
   // NOTE: Hostname must be supplied to force IPv4 mode,
   // otherwise this will use IPv6, which fails on Travis CI.
-  server.listen(null, '0.0.0.0', function () {
+  server.listen(0, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
       t.equal(res.statusCode, 500, 'server should respond with status code 500')
       res.resume()
@@ -211,7 +211,7 @@ test('error reporting from chained handler given as array', function (t) {
 
   // NOTE: Hostname must be supplied to force IPv4 mode,
   // otherwise this will use IPv6, which fails on Travis CI.
-  server.listen(null, '0.0.0.0', function () {
+  server.listen(0, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
       t.equal(res.statusCode, 500, 'server should respond with status code 500')
       res.resume()
