@@ -1,3 +1,7 @@
+# 2.0.4 - 2018/12/7
+  * chore: update engines field in package.json ([#727](https://github.com/elastic/apm-agent-nodejs/pull/727))
+  * chore(package): bump random-poly-fill to ^1.0.1 ([#726](https://github.com/elastic/apm-agent-nodejs/pull/726))
+
 # 2.0.3 - 2018/12/7
   * fix(restify): support an array of handlers ([#709](https://github.com/elastic/apm-agent-nodejs/pull/709))
   * fix: don't throw on older versions of Node.js 6 ([#711](https://github.com/elastic/apm-agent-nodejs/pull/711))
