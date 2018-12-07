@@ -39,6 +39,7 @@ test('transaction name', function (t) {
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(null, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
+      t.equal(res.statusCode, 200, 'server should respond with status code 200')
       const chunks = []
       res.on('data', chunks.push.bind(chunks))
       res.on('end', () => {
@@ -95,6 +96,7 @@ test('error reporting', function (t) {
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(null, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
+      t.equal(res.statusCode, 500, 'server should respond with status code 500')
       res.resume()
       res.on('end', () => {
         agent.flush()
@@ -147,6 +149,69 @@ test('error reporting from chained handler', function (t) {
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(null, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
+      t.equal(res.statusCode, 500, 'server should respond with status code 500')
+      res.resume()
+      res.on('end', () => {
+        agent.flush()
+        done()
+      })
+    })
+    req.end()
+  })
+})
+
+test('error reporting from chained handler given as array', function (t) {
+  resetAgent((endpoint, headers, data, cb) => {
+    t.ok(errored, 'reported an error')
+    t.equal(data.transactions.length, 1, 'has a transaction')
+
+    const trans = data.transactions[0]
+    t.equal(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
+    t.equal(trans.type, 'request', 'transaction type is request')
+    t.end()
+  })
+
+  let request
+  let errored = false
+  const error = new Error('wat')
+  const captureError = agent.captureError
+  agent.captureError = function (err, data) {
+    t.equal(err, error, 'has the expected error')
+    t.ok(data, 'captured data with error')
+    t.equal(data.request, request, 'captured data has the request object')
+    errored = true
+  }
+  t.on('end', function () {
+    agent.captureError = captureError
+  })
+
+  const server = restify.createServer()
+  const done = once(() => {
+    server.close()
+  })
+  t.on('end', done)
+
+  server.use([
+    function (req, res, next) {
+      next()
+    },
+    function (req, res, next) {
+      request = req
+      next(error)
+    }
+  ])
+
+  // It's important to have the route registered. Otherwise the request will
+  // not reach the middleware above and will just be ended with a 404
+  server.get('/hello/:name', (req, res, next) => {
+    t.fail('should never call route handler')
+  })
+
+  // NOTE: Hostname must be supplied to force IPv4 mode,
+  // otherwise this will use IPv6, which fails on Travis CI.
+  server.listen(null, '0.0.0.0', function () {
+    const req = http.get(`${server.url}/hello/world`, res => {
+      t.equal(res.statusCode, 500, 'server should respond with status code 500')
       res.resume()
       res.on('end', () => {
         agent.flush()
