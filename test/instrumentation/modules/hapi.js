@@ -489,7 +489,7 @@ test('request error logging with Object', function (t) {
 })
 
 test('error handling', function (t) {
-  t.plan(10)
+  t.plan(11)
 
   resetAgent(function (endpoint, headers, data, cb) {
     assert(t, data, { status: 'HTTP 5xx', name: 'GET /error' })
