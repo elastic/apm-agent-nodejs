@@ -30,7 +30,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "4 || 6 || 8 || 9 || 10"
+    "node": "6 || 8 || 9 || 10 || 11"
   },
   "keywords": [
     "opbeat",
