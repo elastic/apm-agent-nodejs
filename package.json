@@ -79,7 +79,7 @@
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
     "original-url": "^1.2.2",
-    "random-poly-fill": "^1.0.0",
+    "random-poly-fill": "^1.0.1",
     "read-pkg-up": "^4.0.0",
     "redact-secrets": "^1.0.0",
     "relative-microtime": "^2.0.0",
