@@ -1,5 +1,6 @@
 # Files to ignore
 .appveyor.yml
+.backportrc.json
 .codecov.yml
 .tav.yml
 .travis.yml
