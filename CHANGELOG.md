@@ -1,3 +1,7 @@
+# 2.0.3 - 2018/12/7
+  * fix(restify): support an array of handlers ([#709](https://github.com/elastic/apm-agent-nodejs/pull/709))
+  * fix: don't throw on older versions of Node.js 6 ([#711](https://github.com/elastic/apm-agent-nodejs/pull/711))
+
 # 2.0.2 - 2018/12/4
   * fix: use randomFillSync polyfill on Node.js <6.13.0 ([#702](https://github.com/elastic/apm-agent-nodejs/pull/702))
   * fix(hapi): ignore internal events channel ([#700](https://github.com/elastic/apm-agent-nodejs/pull/700))
