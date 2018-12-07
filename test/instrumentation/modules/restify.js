@@ -161,7 +161,7 @@ test('error reporting from chained handler', function (t) {
 })
 
 test('error reporting from chained handler given as array', function (t) {
-  resetAgent((data) => {
+  resetAgent((endpoint, headers, data, cb) => {
     t.ok(errored, 'reported an error')
     t.equal(data.transactions.length, 1, 'has a transaction')
 
