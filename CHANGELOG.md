@@ -1,3 +1,7 @@
+# 1.14.4 - 2018/12/7
+  * fix(restify): support an array of handlers (#709) ([#721](https://github.com/elastic/apm-agent-nodejs/pull/721))
+  * fix(hapi): ignore internal events channel (#700) ([#720](https://github.com/elastic/apm-agent-nodejs/pull/720))
+
 # 1.14.3 - 2018/11/13
   * fix(async\_hooks): more reliable cleanup ([#674](https://github.com/elastic/apm-agent-nodejs/pull/674))
 
