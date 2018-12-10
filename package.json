@@ -54,11 +54,11 @@
     "apm",
     "ops",
     "devops",
-    "deployment",
-    "deploying",
-    "deploy",
-    "release",
-    "stacktrace"
+    "stacktrace",
+    "trace",
+    "tracing",
+    "distributedtracing",
+    "distributed-tracing"
   ],
   "author": "Thomas Watson Steen <w@tson.dk> (https://twitter.com/wa7son)",
   "license": "BSD-2-Clause",
