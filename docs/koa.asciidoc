@@ -44,7 +44,7 @@ Here's a simple Koa example with the Elastic APM agent installed:
 [source,js]
 ----
 // Add this to the VERY top of the first file loaded in your app
-var apm = require('elastic-apm-node').start({
+const apm = require('elastic-apm-node').start({
   // Override service name from package.json
   // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
@@ -56,8 +56,8 @@ var apm = require('elastic-apm-node').start({
   serverUrl: '',
 })
 
-var app = require('koa')()
-var router = require('koa-router')()
+const app = require('koa')()
+const router = require('koa-router')()
 
 router.get('/', function *(next) {
   this.body = 'Hello World'
@@ -93,7 +93,7 @@ And then just start the agent like so:
 [source,js]
 ----
 // Start the agent before any thing else in your app
-var apm = require('elastic-apm-node').start()
+const apm = require('elastic-apm-node').start()
 ----
 
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.

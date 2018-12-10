@@ -21,7 +21,7 @@ which allows you to require and start the agent on the same line:
 
 [source,js]
 ----
-var apm = require('elastic-apm-node').start(...)
+const apm = require('elastic-apm-node').start(...)
 ----
 
 If you need to access the `Agent` in any part of your codebase,
@@ -392,10 +392,10 @@ Returns a middleware function used to collect and send errors to the APM Server.
 
 [source,js]
 ----
-var apm = require('elastic-apm-node').start()
-var connect = require('connect')
+const apm = require('elastic-apm-node').start()
+const connect = require('connect')
 
-var app = connect()
+const app = connect()
 
 // your regular middleware:
 app.use(...)

@@ -36,7 +36,7 @@ Here's a simple Restify example with the Elastic APM agent installed:
 [source,js]
 ----
 // Add this to the VERY top of the first file loaded in your app
-var apm = require('elastic-apm-node').start({
+const apm = require('elastic-apm-node').start({
   // Override service name from package.json
   // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
@@ -48,9 +48,9 @@ var apm = require('elastic-apm-node').start({
   serverUrl: '',
 })
 
-var restify = require('restify')
+const restify = require('restify')
 
-var app = restify.createServer()
+const app = restify.createServer()
 
 app.get('/hello/:name', function (req, res, next) {
   res.send('hello ' + req.params.name)
@@ -83,7 +83,7 @@ And then just start the agent like so:
 [source,js]
 ----
 // Start the agent before any thing else in your app
-var apm = require('elastic-apm-node').start()
+const apm = require('elastic-apm-node').start()
 ----
 
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
