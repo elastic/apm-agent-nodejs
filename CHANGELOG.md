@@ -1,3 +1,6 @@
+# 2.0.5 - 2018/12/12
+  * fix: don't create spans for APM Server requests ([#735](https://github.com/elastic/apm-agent-nodejs/pull/735))
+
 # 2.0.4 - 2018/12/7
   * chore: update engines field in package.json ([#727](https://github.com/elastic/apm-agent-nodejs/pull/727))
   * chore(package): bump random-poly-fill to ^1.0.1 ([#726](https://github.com/elastic/apm-agent-nodejs/pull/726))
