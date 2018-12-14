@@ -31,6 +31,26 @@ test('graphql.graphql', function (t) {
   })
 })
 
+test('graphql.graphql - invalid query', function (t) {
+  resetAgent(done(t, 'Unkown Query'))
+
+  var schema = graphql.buildSchema('type Query { hello: String }')
+  var root = { hello () {
+    return 'Hello world!'
+  } }
+  var query = '{ hello'
+
+  agent.startTransaction('foo')
+
+  graphql.graphql(schema, query, root).then(function (response) {
+    agent.endTransaction()
+    t.deepEqual(response, { errors: [
+      { message: 'Syntax Error: Expected Name, found <EOF>', locations: [ { line: 1, column: 8 } ] }
+    ] })
+    agent.flush()
+  })
+})
+
 test('graphql.execute', function (t) {
   resetAgent(done(t))
 
@@ -98,7 +118,9 @@ if (semver.satisfies(pkg.version, '>=0.12')) {
   })
 }
 
-function done (t) {
+function done (t, spanNameSuffix) {
+  spanNameSuffix = spanNameSuffix || 'hello'
+
   return function (data, cb) {
     t.equal(data.transactions.length, 1)
     t.equal(data.spans.length, 1)
@@ -108,7 +130,7 @@ function done (t) {
 
     t.equal(trans.name, 'foo')
     t.equal(trans.type, 'custom')
-    t.equal(span.name, 'GraphQL: hello')
+    t.equal(span.name, 'GraphQL: ' + spanNameSuffix)
     t.equal(span.type, 'db.graphql.execute')
 
     var offset = span.timestamp - trans.timestamp
