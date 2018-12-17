@@ -2,7 +2,8 @@
 
 require('../../../..').start({
   serviceName: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  metricsInterval: 0
 })
 
 var http = require('http')

@@ -71,6 +71,7 @@ function newAgent (server) {
     serverUrl: 'http://localhost:' + server.address().port,
     captureExceptions: false,
     disableInstrumentations: ['http'],
-    captureSpanStackTraces: false
+    captureSpanStackTraces: false,
+    metricsInterval: 0
   })
 }

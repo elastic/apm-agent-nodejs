@@ -1,6 +1,7 @@
 'use strict'
 
 var Filters = require('../../lib/filters')
+var Metrics = require('../../lib/metrics')
 var Instrumentation = require('../../lib/instrumentation')
 var mockClient = require('../_mock_http_client')
 var consoleLogLevel = require('console-log-level')
@@ -37,6 +38,9 @@ module.exports = function mockAgent (expected, cb) {
       level: 'fatal'
     })
   }
+
+  agent._metrics = new Metrics(agent)
+  agent._metrics.start()
 
   Object.defineProperty(agent, 'currentTransaction', {
     get () {
