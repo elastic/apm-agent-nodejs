@@ -6,7 +6,7 @@ var agent = require('../../../..').start({
   captureExceptions: false
 })
 
-var version = require('koa-router/package').version
+var routerVersion = require('koa-router/package').version
 var koaVersion = require('koa/package').version
 var semver = require('semver')
 
@@ -56,6 +56,42 @@ test('route naming with params', function (t) {
   })
 })
 
+test('nested routes', function (t) {
+  t.plan(8)
+
+  resetAgent(function (data) {
+    assert(t, data, { name: 'GET /prefix1/prefix2/hello' })
+    server.close()
+  })
+
+  var server = startServer(function (port) {
+    http.get('http://localhost:' + port + '/prefix1/prefix2/hello', function (res) {
+      t.equal(res.statusCode, 200)
+      res.on('data', function (chunk) {
+        t.equal(chunk.toString(), 'hello world')
+      })
+    })
+  })
+})
+
+test('nested routes with params', function (t) {
+  t.plan(8)
+
+  resetAgent(function (data) {
+    assert(t, data, { name: 'GET /prefix1/prefix2/hello/:name' })
+    server.close()
+  })
+
+  var server = startServer(function (port) {
+    http.get('http://localhost:' + port + '/prefix1/prefix2/hello/thomas', function (res) {
+      t.equal(res.statusCode, 200)
+      res.on('data', function (chunk) {
+        t.equal(chunk.toString(), 'hello thomas')
+      })
+    })
+  })
+})
+
 function startServer (cb) {
   var server = buildServer()
   server.listen(function () {
@@ -67,15 +103,33 @@ function startServer (cb) {
 function buildServer () {
   var app = new Koa()
   var router = new Router()
+  var parentRouter = new Router()
+  var childRouter = new Router({
+    prefix: '/prefix2'
+  })
 
-  if (semver.lt(version, '6.0.0')) {
+  if (semver.gte(routerVersion, '6.0.0')) {
+    if (semver.gte(process.version, '7.10.1')) {
+      require('./_async-await')(router)
+      require('./_async-await')(childRouter)
+    } else {
+      require('./_non-generators')(router)
+      require('./_non-generators')(childRouter)
+    }
+
+    // Mount childRouter with a dummy pass-through middleware function. This is
+    // just to make the final router layer stack more complicated.
+    parentRouter.use('/prefix1', (ctx, next) => next(), childRouter.routes())
+  } else {
     require('./_generators')(router)
-  } else if (semver.gte(version, '6.0.0')) {
-    require('./_non-generators')(router)
+    require('./_generators')(childRouter)
+
+    parentRouter.use('/prefix1', childRouter.routes())
   }
 
   app
     .use(router.routes())
+    .use(parentRouter.routes())
     .use(router.allowedMethods())
 
   return http.createServer(app.callback())
