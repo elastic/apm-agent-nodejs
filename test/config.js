@@ -590,9 +590,9 @@ test('custom transport', function (t) {
 
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
-  t.equal(result.id, trans.context.id, 'id matches')
-  t.equal(result.trace_id, trans.context.traceId, 'trace id matches')
-  t.equal(result.parent_id, trans.context.parentId, 'parent id matches')
+  t.equal(result.id, trans.id, 'id matches')
+  t.equal(result.trace_id, trans.traceId, 'trace id matches')
+  t.equal(result.parent_id, trans.parentId, 'parent id matches')
   t.equal(result.name, trans.name, 'name matches')
   t.equal(result.type, trans.type, 'type matches')
   t.equal(result.duration, trans._timer.duration, 'duration matches')
@@ -603,10 +603,10 @@ function assertEncodedTransaction (t, trans, result) {
 
 function assertEncodedSpan (t, span, result) {
   t.comment('span')
-  t.equal(result.id, span.context.id, 'id matches')
+  t.equal(result.id, span.id, 'id matches')
   t.equal(result.transaction_id, span.transaction.id, 'transaction id matches')
-  t.equal(result.trace_id, span.context.traceId, 'trace id matches')
-  t.equal(result.parent_id, span.context.parentId, 'parent id matches')
+  t.equal(result.trace_id, span.traceId, 'trace id matches')
+  t.equal(result.parent_id, span.parentId, 'parent id matches')
   t.equal(result.name, span.name, 'name matches')
   t.equal(result.type, span.type, 'type matches')
   t.equal(result.duration, span._timer.duration, 'duration matches')

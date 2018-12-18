@@ -73,6 +73,55 @@ When a span is started it will measure the time until <<span-end,`span.end()`>> 
 
 See <<span-api,Span API>> docs for details on how to use custom spans.
 
+[[transaction-set-tag]]
+==== `transaction.setTag()`
+
+[source,js]
+----
+transaction.setTag(name, value)
+----
+
+Set a tag on the transaction.
+You can set multiple tags on the same transaction.
+If an error happens during the transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+
+Arguments:
+
+* `name` - Any string.
+Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaed by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+* `value` - Any string.
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
+[[transaction-add-tags]]
+==== `transaction.addTags()`
+
+[source,js]
+----
+apm.addTags({ [name]: value })
+----
+
+Add several tags on the transaction.
+You can add tags multiple times.
+If an error happens during the transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+
+Arguments:
+
+* `tags` - An object containing key/value pairs each representing tag `name` and tag `value`:
+** `name` - Any string.
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaed by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+** `value` - Any string.
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
 [[transaction-ensure-parent-id]]
 ==== `transaction.ensureParentId()`
 
