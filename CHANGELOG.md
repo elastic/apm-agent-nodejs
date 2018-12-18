@@ -1,3 +1,7 @@
+# 2.0.6 - 2018/12/18
+  * fix(graphql): don't throw on invalid query ([#747](https://github.com/elastic/apm-agent-nodejs/pull/747))
+  * fix(koa-router): support more complex routes ([#749](https://github.com/elastic/apm-agent-nodejs/pull/749))
+
 # 2.0.5 - 2018/12/12
   * fix: don't create spans for APM Server requests ([#735](https://github.com/elastic/apm-agent-nodejs/pull/735))
 
