@@ -44,9 +44,9 @@ test('graphql.graphql - invalid query', function (t) {
 
   graphql.graphql(schema, query, root).then(function (response) {
     agent.endTransaction()
-    t.deepEqual(response, { errors: [
-      { message: 'Syntax Error: Expected Name, found <EOF>', locations: [ { line: 1, column: 8 } ] }
-    ] })
+    t.deepEqual(Object.keys(response), ['errors'])
+    t.equal(response.errors.length, 1, 'should have one error')
+    t.ok(response.errors[0].message.indexOf('Syntax Error') !== -1, 'should return a sytax error')
     agent.flush()
   })
 })
