@@ -126,7 +126,7 @@ function echoTest (type, handler) {
         res.resume()
       })
 
-      var expected = TraceContext.fromString(trans.context.toString())
+      var expected = TraceContext.fromString(trans._context.toString())
       var received = TraceContext.fromString(req.getHeader('elastic-apm-traceparent'))
       t.equal(received.version, expected.version, 'traceparent header has matching version')
       t.equal(received.traceId, expected.traceId, 'traceparent header has matching traceId')

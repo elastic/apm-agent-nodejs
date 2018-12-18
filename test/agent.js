@@ -876,7 +876,7 @@ test('#captureError()', function (t) {
         t.equal(data.exception.message, 'with callback')
         t.equal(data.id.length, 32, 'id is 32 characters')
         t.equal(data.parent_id, span.id, 'parent_id matches span id')
-        t.equal(data.trace_id, trans.context.traceId, 'trace_id matches transaction trace id')
+        t.equal(data.trace_id, trans.traceId, 'trace_id matches transaction trace id')
         t.equal(data.transaction_id, trans.id, 'tranaction_id matches transaction id')
         t.end()
       })

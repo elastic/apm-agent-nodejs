@@ -214,12 +214,13 @@ You can set multiple tags on the same transaction.
 If an error happens during the current transaction,
 it will also get tagged with the same tags.
 
-Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via `setCustomContext()`).
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 
 Arguments:
 
 * `name` - Any string.
-Must not contain periods (`.`) as those have special meaning in Elasticsearch
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
 * `value` - Any string.
 If a non-string data type is given,
 it's converted to a string before being sent to the APM Server
@@ -237,13 +238,15 @@ You can add tags multiple times.
 If an error happens during the current transaction,
 it will also get tagged with the same tags.
 
-Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via `setCustomContext()`).
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 
 Arguments:
 
-* `name` - Any string.
-Must not contain periods (`.`) as those have special meaning in Elasticsearch
-* `value` - Any string.
+* `tags` - An object containing key/value pairs each representing tag `name` and tag `value`:
+** `name` - Any string.
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+** `value` - Any string.
 If a non-string data type is given,
 it's converted to a string before being sent to the APM Server
 
@@ -475,6 +478,20 @@ Get the currently active transaction,
 if used within the context of a transaction.
 
 NOTE: If there's no active transaction available,
+`null` will be returned.
+
+[[apm-current-span]]
+==== `apm.currentSpan`
+
+[source,js]
+----
+var span = apm.currentSpan
+----
+
+Get the currently active span,
+if used within the context of a span.
+
+NOTE: If there's no active span available,
 `null` will be returned.
 
 [[apm-set-transaction-name]]

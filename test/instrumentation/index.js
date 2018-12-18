@@ -645,7 +645,7 @@ test('nested transactions', function (t) {
 
   var t0 = ins.startTransaction('t0')
   var s0 = ins.startSpan('s0')
-  var t1 = ins.startTransaction('t1', null, t0.context.toString())
+  var t1 = ins.startTransaction('t1', null, t0._context.toString())
   var s1 = ins.startSpan('s1')
   s1.end()
   t1.end()

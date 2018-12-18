@@ -117,7 +117,7 @@ function onRequest (t) {
   return function onRequestHandler (req, res) {
     var traceparent = req.headers['elastic-apm-traceparent']
     var parent = TraceContext.fromString(traceparent)
-    var context = agent.currentTransaction.context
+    var context = agent.currentTransaction._context
     t.equal(parent.traceId, context.traceId, 'context trace id matches parent trace id')
     t.notEqual(parent.id, context.id, 'context id does not match parent id')
     t.equal(parent.flags, context.flags, 'context flags matches parent flags')
