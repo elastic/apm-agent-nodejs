@@ -32,7 +32,7 @@ test('graphql.graphql', function (t) {
 })
 
 test('graphql.graphql - invalid query', function (t) {
-  resetAgent(done(t, 'Unkown Query'))
+  resetAgent(done(t, 'Unknown Query'))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
   var root = { hello () {
