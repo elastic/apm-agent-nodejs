@@ -66,7 +66,7 @@ You can set multiple tags on the same span.
 Arguments:
 
 * `name` - Any string.
-Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaed by underscores (`_`),
+Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 * `value` - Any string.
 If a non-string data type is given,
@@ -87,7 +87,7 @@ Arguments:
 
 * `tags` - An object containing key/value pairs each representing tag `name` and tag `value`:
 ** `name` - Any string.
-Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaed by underscores (`_`),
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 ** `value` - Any string.
 If a non-string data type is given,
