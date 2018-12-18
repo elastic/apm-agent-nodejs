@@ -4,14 +4,14 @@ process.env.ELASTIC_APM_TEST = true
 
 var test = require('tape')
 
+var mockAgent = require('./_agent')
 var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
 
+var agent = mockAgent()
+
 test('init', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.ok(false)
-  })
-  var trans = new Transaction(ins._agent, 'name', 'type')
+  var trans = new Transaction(agent, 'name', 'type')
   t.ok(/^[\da-f]{16}$/.test(trans.id))
   t.ok(/^[\da-f]{32}$/.test(trans.traceId))
   t.equal(trans.name, 'name')
@@ -22,12 +22,7 @@ test('init', function (t) {
 })
 
 test('#setUserContext', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.equal(added.ended, true)
-    t.equal(added, trans)
-    t.end()
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   t.equal(trans._user, null)
   trans.setUserContext()
   t.equal(trans._user, null)
@@ -43,12 +38,7 @@ test('#setUserContext', function (t) {
 })
 
 test('#setCustomContext', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.equal(added.ended, true)
-    t.equal(added, trans)
-    t.end()
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   t.equal(trans._custom, null)
   trans.setCustomContext()
   t.equal(trans._custom, null)
@@ -65,12 +55,7 @@ test('#setCustomContext', function (t) {
 
 test('#setTag', function (t) {
   t.test('valid', function (t) {
-    var ins = mockInstrumentation(function (added) {
-      t.equal(added.ended, true)
-      t.equal(added, trans)
-      t.end()
-    })
-    var trans = new Transaction(ins._agent)
+    var trans = new Transaction(agent)
     t.equal(trans._tags, null)
     t.equal(trans.setTag(), false)
     t.equal(trans._tags, null)
@@ -84,12 +69,7 @@ test('#setTag', function (t) {
   })
 
   t.test('invalid', function (t) {
-    var ins = mockInstrumentation(function (added) {
-      t.equal(added.ended, true)
-      t.equal(added, trans)
-      t.end()
-    })
-    var trans = new Transaction(ins._agent)
+    var trans = new Transaction(agent)
     t.equal(trans._tags, null)
     t.equal(trans.setTag(), false)
     t.equal(trans._tags, null)
@@ -104,12 +84,7 @@ test('#setTag', function (t) {
 })
 
 test('#addTags', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.equal(added.ended, true)
-    t.equal(added, trans)
-    t.end()
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   t.equal(trans._tags, null)
 
   t.equal(trans.setTag(), false)
@@ -165,19 +140,13 @@ test('#duration()', function (t) {
 })
 
 test('#duration() - un-ended transaction', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.ok(false)
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   t.equal(trans.duration(), null)
   t.end()
 })
 
 test('#setDefaultName() - with initial value', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.ok(false)
-  })
-  var trans = new Transaction(ins._agent, 'default-1')
+  var trans = new Transaction(agent, 'default-1')
   t.equal(trans.name, 'default-1')
   trans.setDefaultName('default-2')
   t.equal(trans.name, 'default-2')
@@ -185,10 +154,7 @@ test('#setDefaultName() - with initial value', function (t) {
 })
 
 test('#setDefaultName() - no initial value', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.ok(false)
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   t.equal(trans.name, 'unnamed')
   trans.setDefaultName('default')
   t.equal(trans.name, 'default')
@@ -196,10 +162,7 @@ test('#setDefaultName() - no initial value', function (t) {
 })
 
 test('name - custom first, then default', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.ok(false)
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   trans.name = 'custom'
   trans.setDefaultName('default')
   t.equal(trans.name, 'custom')
@@ -207,10 +170,7 @@ test('name - custom first, then default', function (t) {
 })
 
 test('name - default first, then custom', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.ok(false)
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   trans.setDefaultName('default')
   trans.name = 'custom'
   t.equal(trans.name, 'custom')
@@ -246,10 +206,7 @@ test('parallel transactions', function (t) {
 })
 
 test('#_encode() - un-ended', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.fail('should not end the transaction')
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   t.equal(trans._encode(), null, 'cannot encode un-ended transaction')
   t.end()
 })

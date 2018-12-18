@@ -199,7 +199,7 @@ test('#_encode() - with meta data', function myTest2 (t) {
 })
 
 test('#_encode() - disabled stack traces', function (t) {
-  var ins = mockInstrumentation(function () {})
+  var ins = mockInstrumentation()
   ins._agent._conf.captureSpanStackTraces = false
   var trans = new Transaction(ins._agent)
   var span = new Span(trans)
