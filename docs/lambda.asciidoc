@@ -34,7 +34,7 @@ Here's a simple lambda example with the Elastic APM agent installed:
 [source,js]
 ----
 // Add this to the VERY top of the first file loaded in your app
-var apm = require('elastic-apm-node').start({
+const apm = require('elastic-apm-node').start({
   // Override service name from package.json
   // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
