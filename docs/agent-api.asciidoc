@@ -483,7 +483,7 @@ NOTE: If there's no active transaction available,
 [[apm-current-span]]
 ==== `apm.currentSpan`
 
-[[source,js]]
+[source,js]
 ----
 var span = apm.currentSpan
 ----
