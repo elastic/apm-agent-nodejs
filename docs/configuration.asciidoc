@@ -661,3 +661,17 @@ Specify the kubernetes pod name to associate with all reported events.
 Specify the kubernetes pod uid to associate with all reported events.
 If absent,
 it will be parsed out of the `/proc/self/cgroup` file.
+
+[[metrics-interval]]
+==== `metricsInterval`
+
+* *Type:* String
+* *Default:* `30s`
+* *Env:* `ELASTIC_APM_METRICS_INTERVAL`
+
+Specify the interval for reporting metrics to APM Server.
+The interval should be in seconds,
+or should include a time suffix.
+
+To disable metrics reporting,
+set the interval to `0`.
