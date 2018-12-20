@@ -9,7 +9,7 @@ endif::[]
 
 The Node.js agent tracks various system and application metrics.
 These metrics will be sent regularly to the APM Server and from there to Elasticsearch.
-You can adjust the interval by setting <<metrics-interval, `metricsInterval`>>.
+You can adjust the interval by setting <<metrics-interval,`metricsInterval`>>.
 
 The metrics will be stored in the `apm-*` index and have the `processor.event` property set to `metric`.
 
