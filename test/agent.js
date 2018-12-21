@@ -854,8 +854,8 @@ test('#captureError()', function (t) {
     t.end()
   })
 
-  t.test('include valid context ids', function (t) {
-    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+  t.test('include valid context ids and sampled flag', function (t) {
+    t.plan(7 + APMServerWithDefaultAsserts.asserts)
 
     let trans = null
     let span = null
@@ -878,6 +878,7 @@ test('#captureError()', function (t) {
         t.equal(data.parent_id, span.id, 'parent_id matches span id')
         t.equal(data.trace_id, trans.traceId, 'trace_id matches transaction trace id')
         t.equal(data.transaction_id, trans.id, 'tranaction_id matches transaction id')
+        t.equal(data.sampled, true, 'is sampled')
         t.end()
       })
   })
