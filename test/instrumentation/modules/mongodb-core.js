@@ -98,7 +98,9 @@ test('instrument simple command', function (t) {
 
     groups.forEach(function (name, i) {
       t.equal(data.spans[i].name, name)
-      t.equal(data.spans[i].type, 'db.mongodb.query')
+      t.equal(data.spans[i].type, 'db')
+      t.equal(data.spans[i].subtype, 'mongodb')
+      t.equal(data.spans[i].action, 'query')
 
       var offset = data.spans[i].timestamp - trans.timestamp
       t.ok(offset + data.spans[i].duration * 1000 < trans.duration * 1000)

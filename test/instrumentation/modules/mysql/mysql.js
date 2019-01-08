@@ -226,9 +226,7 @@ factories.forEach(function (f) {
           t.equal(trans.name, 'foo')
 
           data.spans.forEach(function (span) {
-            t.equal(span.name, 'SELECT')
-            t.equal(span.type, 'db.mysql.query')
-            t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+            assertQuerySpan(t, sql, span)
           })
 
           t.end()
@@ -272,9 +270,7 @@ factories.forEach(function (f) {
           t.equal(trans.name, 'foo')
 
           data.spans.forEach(function (span) {
-            t.equal(span.name, 'SELECT')
-            t.equal(span.type, 'db.mysql.query')
-            t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+            assertQuerySpan(t, sql, span)
           })
 
           t.end()
@@ -330,9 +326,7 @@ factories.forEach(function (f) {
         data.transactions.forEach(function (trans) {
           const span = findObjInArray(data.spans, 'transaction_id', trans.id)
           t.ok(span, 'transaction should have span')
-          t.equal(span.name, 'SELECT')
-          t.equal(span.type, 'db.mysql.query')
-          t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+          assertQuerySpan(t, sql, span)
         })
 
         t.end()
@@ -429,8 +423,14 @@ function assertBasicQuery (t, sql, data) {
   var span = data.spans[0]
 
   t.equal(trans.name, 'foo')
+  assertQuerySpan(t, sql, span)
+}
+
+function assertQuerySpan (t, sql, span) {
   t.equal(span.name, 'SELECT')
-  t.equal(span.type, 'db.mysql.query')
+  t.equal(span.type, 'db')
+  t.equal(span.subtype, 'mysql')
+  t.equal(span.action, 'query')
   t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
 }
 

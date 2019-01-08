@@ -43,14 +43,40 @@ This can also be set via <<apm-start-span,`apm.startSpan()`>>.
 The type of span.
 This can also be set via <<apm-start-span,`apm.startSpan()`>>.
 
-The type is a hierarchical string used to group similar spans together.
-For instance,
-all spans of MySQL queries are given the type `db.mysql.query`.
+The type can be given as a hierarchical string which will be split on periods into `type`,
+`subType` and `action`.
 
-In the above example, `db` is considered the type prefix.
-Though there are no naming restrictions for this prefix,
+The type is used to group similar spans together.
+For instance,
+all spans of database queries are given the type `db`.
+
+Though there are no naming restrictions for the type,
 the following are standardized across all Elastic APM agents:
 `app`, `db`, `cache`, `template`, and `ext`.
+
+[[span-subtype]]
+==== `span.subType`
+
+* *Type:* String
+
+The sub-type of span.
+This can also be set via <<apm-start-span,`apm.startSpan()`>>.
+
+The sub-type is used to group similar spans together.
+For instance,
+all spans of MySQL queries are given the sub-type `mysql`.
+
+[[span-action]]
+==== `span.action`
+
+* *Type:* String
+
+The action of span.
+This can also be set via <<apm-start-span,`apm.startSpan()`>>.
+
+The action is used to group similar spans together.
+For instance,
+all spans of queries are given the action `query`.
 
 [[span-set-tag]]
 ==== `span.setTag()`

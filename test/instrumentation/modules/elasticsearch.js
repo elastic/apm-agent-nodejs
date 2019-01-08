@@ -83,16 +83,17 @@ function done (t, method, path, query) {
     t.ok(/^foo\d$/.test(trans.name))
     t.equal(trans.type, 'custom')
 
-    let span1, span2
-    {
-      const type = 'ext.http.http'
-      span1 = findObjInArray(data.spans, 'type', type)
-      t.ok(span1, 'should have span with type ' + type)
-    } {
-      const type = 'db.elasticsearch.request'
-      span2 = findObjInArray(data.spans, 'type', type)
-      t.ok(span2, 'should have span with type ' + type)
-    }
+    let span1 = findObjInArray(data.spans, 'subtype', 'http')
+    t.equal(span1.type, 'ext', 'type should be ext')
+    t.equal(span1.subtype, 'http', 'subtype should be http')
+    t.equal(span1.action, 'http', 'action should be http')
+    t.ok(span1, 'should have span with type ext.http.http')
+
+    let span2 = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+    t.equal(span2.type, 'db', 'type should be db')
+    t.equal(span2.subtype, 'elasticsearch', 'subtype should be elasticsearch')
+    t.equal(span2.action, 'request', 'action should be request')
+    t.ok(span2, 'should have span with type db.elasticsearch.request')
 
     t.equal(span1.name, method + ' ' + host + path)
     t.equal(span2.name, 'Elasticsearch: ' + method + ' ' + path)

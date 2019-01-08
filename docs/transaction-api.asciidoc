@@ -50,7 +50,7 @@ The transaction result.
 Think of the transaction result as equivalent to the status code of an HTTP response.
 
 [[transaction-start-span]]
-==== `transaction.startSpan([name][, type])`
+==== `transaction.startSpan([name][, type][, subType][, action])`
 
 [source,js]
 ----
@@ -68,6 +68,12 @@ Defaults to `unnamed`
 * `type` - The type of span (string).
 You can alternatively set this via <<span-type,`span.type`>>.
 Defaults to `custom`
+
+* `subType` - The sub-type of span (string).
+You can alternatively set this via <<span-subtype,`span.subType`>>.
+
+* `action` - The action of span (string).
+You can alternatively set this via <<span-action,`span.action`>>.
 
 When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
 

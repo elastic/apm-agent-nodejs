@@ -32,9 +32,11 @@ test(function (t) {
     t.equal(trans.type, 'bar')
     t.equal(trans.result, 'success')
 
-    groups.forEach(function (name) {
+    groups.forEach(function (name, i) {
       var span = findObjInArray(data.spans, 'name', name)
-      t.equal(span.type, 'cache.redis')
+      t.equal(data.spans[i].type, 'cache')
+      t.equal(data.spans[i].subtype, 'redis')
+      t.notOk(data.spans[i].action)
 
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000)

@@ -217,12 +217,16 @@ function assertBasicQuery (t, sql, summary, data) {
 
 function assertConnectSpan (t, span) {
   t.equal(span.name, 'Cassandra: Connect', 'span name')
-  t.equal(span.type, 'db.cassandra.connect', 'span type')
+  t.equal(span.type, 'db', 'span type')
+  t.equal(span.subtype, 'cassandra', 'span subtype')
+  t.equal(span.action, 'connect', 'span action')
 }
 
 function assertSpan (t, sql, summary, span) {
   t.equal(span.name, summary, 'span name')
-  t.equal(span.type, 'db.cassandra.query', 'span type')
+  t.equal(span.type, 'db', 'span type')
+  t.equal(span.subtype, 'cassandra', 'span subtype')
+  t.equal(span.action, 'query', 'span action')
   t.deepEqual(span.context.db, {
     statement: sql,
     type: 'cassandra'

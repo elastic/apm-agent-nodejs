@@ -24,11 +24,13 @@ test('handlebars compile and render', function userLandCode (t) {
     t.ok(/^foo\d$/.test(trans.name))
     t.equal(trans.type, 'custom')
 
-    const types = ['template.handlebars.compile', 'template.handlebars.render']
-    for (const type of types) {
-      const span = findObjInArray(data.spans, 'type', type)
-      t.ok(span, 'should have span of type ' + type)
+    const actions = ['compile', 'render']
+    for (const action of actions) {
+      const span = findObjInArray(data.spans, 'action', action)
+      t.ok(span, 'should have span of type template.handlebars.' + action)
       t.equal(span.name, 'handlebars')
+      t.equal(span.type, 'template')
+      t.equal(span.subtype, 'handlebars')
       t.ok(span.stacktrace.some(function (frame) {
         return frame.function === 'userLandCode'
       }), 'include user-land code frame')

@@ -121,7 +121,9 @@ function assertTransaction (t, sql, data, spanCount) {
 
 function assertQuery (t, sql, span, name) {
   t.equal(span.name, name, 'span name')
-  t.equal(span.type, 'db.mssql.query', 'span type')
+  t.equal(span.type, 'db', 'span type')
+  t.equal(span.subtype, 'mssql', 'span subtype')
+  t.equal(span.action, 'query', 'span action')
   t.deepEqual(span.context.db, {
     statement: sql,
     type: 'sql'

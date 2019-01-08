@@ -513,7 +513,7 @@ the transaction name will default to `METHOD unknown route` (e.g. `POST unknown 
 Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
 
 [[apm-start-span]]
-==== `apm.startSpan([name][, type])`
+==== `apm.startSpan([name][, type][, subType][, action])`
 
 [source,js]
 ----
@@ -533,7 +533,29 @@ Defaults to `unnamed`
 
 * `type` - The type of span (string).
 You can alternatively set this via <<span-type,`span.type`>>.
-Defaults to `custom.code`
+Defaults to `custom`
+
+The type is used to group similar spans together.
+For instance,
+all spans of database queries are given the type `db`.
+
+Though there are no naming restrictions for the type,
+the following are standardized across all Elastic APM agents:
+`app`, `db`, `cache`, `template`, and `ext`.
+
+* `subType` - The sub-type of span (string).
+You can alternatively set this via <<span-subtype,`span.subType`>>.
+
+The sub-type is used to group similar spans together.
+For instance,
+all spans of MySQL queries are given the sub-type `mysql`.
+
+* `action` - The action of span (string).
+You can alternatively set this via <<span-action,`span.action`>>.
+
+The action is used to group similar spans together.
+For instance,
+all spans of queries are given the action `query`.
 
 When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
 
