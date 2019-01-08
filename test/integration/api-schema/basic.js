@@ -14,6 +14,7 @@ const test = require('tape')
 
 const utils = require('./_utils')
 const Agent = require('../../_agent')
+const findObjInArray = require('../../_utils').findObjInArray
 
 const next = afterAll(function (err, validators) {
   if (err) throw err
@@ -22,57 +23,57 @@ const next = afterAll(function (err, validators) {
 
   test('metadata schema failure', function (t) {
     t.equal(validateMetadata({}), false)
-    t.deepEqual(validateMetadata.errors, [
-      { field: 'data.service', message: 'is required', value: {}, type: [ 'object' ], schemaPath: [] }
+    validateFieldMessages(t, validateMetadata.errors, [
+      { field: 'data.service', message: 'is required' }
     ])
     t.equal(validateMetadata({ service: {} }), false)
-    t.deepEqual(validateMetadata.errors, [
-      { field: 'data.service.agent', message: 'is required', value: {}, type: 'object', schemaPath: [ 'properties', 'service' ] },
-      { field: 'data.service.name', message: 'is required', value: {}, type: 'object', schemaPath: [ 'properties', 'service' ] }
+    validateFieldMessages(t, validateMetadata.errors, [
+      { field: 'data.service.agent', message: 'is required' },
+      { field: 'data.service.name', message: 'is required' }
     ])
     t.end()
   })
 
   test('transaction schema failure', function (t) {
     t.equal(validateTransaction({}), false)
-    t.deepEqual(validateTransaction.errors, [
-      { field: 'data.duration', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.type', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
-      { field: 'data.trace_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
-      { field: 'data.span_count', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] }
+    validateFieldMessages(t, validateTransaction.errors, [
+      { field: 'data.duration', message: 'is required' },
+      { field: 'data.type', message: 'is required' },
+      { field: 'data.id', message: 'is required' },
+      { field: 'data.trace_id', message: 'is required' },
+      { field: 'data.span_count', message: 'is required' }
     ])
     t.end()
   })
 
   test('span schema failure', function (t) {
     t.equal(validateSpan({}), false)
-    t.deepEqual(validateSpan.errors, [
-      { field: 'data.duration', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.name', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.type', message: 'is required', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
-      { field: 'data.transaction_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
-      { field: 'data.trace_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
-      { field: 'data.parent_id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2 ] },
-      { field: 'data', message: 'no schemas match', value: {}, type: undefined, schemaPath: [ 'allOf', 3 ] }
+    validateFieldMessages(t, validateSpan.errors, [
+      { field: 'data.duration', message: 'is required' },
+      { field: 'data.name', message: 'is required' },
+      { field: 'data.type', message: 'is required' },
+      { field: 'data.id', message: 'is required' },
+      { field: 'data.transaction_id', message: 'is required' },
+      { field: 'data.trace_id', message: 'is required' },
+      { field: 'data.parent_id', message: 'is required' },
+      { field: 'data', message: 'no schemas match' }
     ])
     t.end()
   })
 
   test('error schema failure', function (t) {
     t.equal(validateError({}), false)
-    t.deepEqual(validateError.errors, [
-      { field: 'data', message: 'no schemas match', value: {}, type: 'object', schemaPath: [ 'allOf', 0 ] },
-      { field: 'data.id', message: 'is required', value: {}, type: undefined, schemaPath: [ 'allOf', 2, 'allOf', 0 ] }
+    validateFieldMessages(t, validateError.errors, [
+      { field: 'data', message: 'no schemas match' },
+      { field: 'data.id', message: 'is required' }
     ])
     t.equal(validateError({ id: 'foo', exception: {} }), false)
-    t.deepEqual(validateError.errors, [
-      { field: 'data.exception', message: 'no schemas match', value: {}, type: [ 'object', 'null' ], schemaPath: [ 'allOf', 0, 'properties', 'exception' ] }
+    validateFieldMessages(t, validateError.errors, [
+      { field: 'data.exception', message: 'no schemas match' }
     ])
     t.equal(validateError({ id: 'foo', log: {} }), false)
-    t.deepEqual(validateError.errors, [
-      { field: 'data.log.message', message: 'is required', value: {}, type: [ 'object', 'null' ], schemaPath: [ 'allOf', 0, 'properties', 'log' ] }
+    validateFieldMessages(t, validateError.errors, [
+      { field: 'data.log.message', message: 'is required' }
     ])
     t.end()
   })
@@ -203,6 +204,14 @@ utils.metadataValidator(next())
 utils.transactionValidator(next())
 utils.spanValidator(next())
 utils.errorValidator(next())
+
+function validateFieldMessages (t, errors, expectations) {
+  t.equal(errors.length, expectations.length)
+  expectations.forEach(expected => {
+    const field = findObjInArray(errors, 'field', expected.field)
+    t.equal(field.message, expected.message)
+  })
+}
 
 function newAgent (server) {
   return new Agent().start({
