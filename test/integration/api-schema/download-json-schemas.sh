@@ -21,18 +21,13 @@ download_schema()
 schemadir="${1:-.schemacache}"
 
 FILES=( \
-  "errors/common_error.json" \
-  "errors/v2_error.json" \
-  "metricsets/common_metricset.json" \
-  "metricsets/payload.json" \
+  "errors/error.json" \
   "metricsets/sample.json" \
-  "metricsets/v2_metricset.json" \
+  "metricsets/metricset.json" \
   "sourcemaps/payload.json" \
-  "spans/common_span.json" \
-  "spans/v2_span.json" \
-  "transactions/common_transaction.json" \
+  "spans/span.json" \
   "transactions/mark.json" \
-  "transactions/v2_transaction.json" \
+  "transactions/transaction.json" \
   "context.json" \
   "metadata.json" \
   "process.json" \

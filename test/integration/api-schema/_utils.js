@@ -36,15 +36,15 @@ exports.metadataValidator = thunky(function (cb) {
 })
 
 exports.transactionValidator = thunky(function (cb) {
-  loadSchema(join('transactions', 'v2_transaction.json'), cb)
+  loadSchema(join('transactions', 'transaction.json'), cb)
 })
 
 exports.spanValidator = thunky(function (cb) {
-  loadSchema(join('spans', 'v2_span.json'), cb)
+  loadSchema(join('spans', 'span.json'), cb)
 })
 
 exports.errorValidator = thunky(function (cb) {
-  loadSchema(join('errors', 'v2_error.json'), cb)
+  loadSchema(join('errors', 'error.json'), cb)
 })
 
 function loadSchema (relativePath, cb) {
