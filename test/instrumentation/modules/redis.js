@@ -9,6 +9,8 @@ var agent = require('../../..').start({
 var redis = require('redis')
 var test = require('tape')
 
+var findObjInArray = require('../../_utils').findObjInArray
+
 test(function (t) {
   resetAgent(function (endpoint, headers, data, cb) {
     var groups = [
@@ -30,10 +32,12 @@ test(function (t) {
 
     t.equal(trans.spans.length, groups.length)
 
-    groups.forEach(function (name, i) {
-      t.equal(trans.spans[i].name, name)
-      t.equal(trans.spans[i].type, 'cache.redis')
-      t.ok(trans.spans[i].start + trans.spans[i].duration < trans.duration)
+    groups.forEach(function (name) {
+      var span = findObjInArray(data.spans, 'name', name)
+      t.equal(span.type, 'cache.redis')
+
+      var offset = span.timestamp - trans.timestamp
+      t.ok(offset + span.duration * 1000 < trans.duration * 1000)
     })
 
     t.end()
