@@ -10,6 +10,7 @@ var redis = require('redis')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
 
 test(function (t) {
   resetAgent(function (data) {
@@ -31,12 +32,12 @@ test(function (t) {
     t.equal(trans.type, 'bar')
     t.equal(trans.result, 'success')
 
-    groups.forEach(function (name, i) {
-      t.equal(data.spans[i].name, name)
-      t.equal(data.spans[i].type, 'cache.redis')
+    groups.forEach(function (name) {
+      var span = findObjInArray(data.spans, 'name', name)
+      t.equal(span.type, 'cache.redis')
 
-      var offset = data.spans[i].timestamp - trans.timestamp
-      t.ok(offset + data.spans[i].duration * 1000 < trans.duration * 1000)
+      var offset = span.timestamp - trans.timestamp
+      t.ok(offset + span.duration * 1000 < trans.duration * 1000)
     })
 
     t.end()
