@@ -5,46 +5,18 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html[elastic.co]
 endif::[]
 
-=== Configuration
+=== Configuration options
 
-The available configuration options are listed below.
+The available configuration options and equivalent environment variable names are listed below.
 Most configuration options can be set in one of three ways:
 
-1. In the optional `options` object
-2. By using environment variables
+1. By using environment variables
+
+2. In the optional <<agent-configuration-object,`options`>> object
+
 3. Via the <<agent-configuration-file,agent configuration file>>.
 
-Environment variables will always take precedence over properties of the `options` object.
-On this page, the equivalent environment variable name is listed together with each option.
-
-To use the optional `options` argument, simply pass it into the `apm.start()` method:
-
-[source,js]
-----
-apm.start([options])
-----
-
-Here's an example usage configuring the agent to only be active in production:
-
-[source,js]
-----
-// Add this to the VERY top of the first file loaded in your app
-require('elastic-apm-node').start({
-
-  // Override service name from package.json
-  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
-  serviceName: '',
-
-  // Use if APM Server requires a token
-  secretToken: '',
-
-  // Set custom APM Server URL (default: http://localhost:8200)
-  serverUrl: '',
-
-  // Only activate the agent if it's running in production
-  active: process.env.NODE_ENV === 'production'
-})
-----
+For more information on setting configuration options, see <<configuring-the-agent, configuring the agent>>.
 
 TIP: The only required parameter is <<service-name,`serviceName`>>.
 However,
