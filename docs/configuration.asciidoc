@@ -8,23 +8,29 @@ endif::[]
 === Configuration
 
 The available configuration options are listed below.
-Most configuration options can be set either in the optional `options` object,
-by using environment variables,
-or via the <<agent-configuration-file,agent configuration file>>.
-Their equivalent environment variable name is listed together with each option.
+Most configuration options can be set in one of three ways:
+
+1. In the optional `options` object
+2. By using environment variables
+3. Via the <<agent-configuration-file,agent configuration file>>.
 
 Environment variables will always take precedence over properties of the `options` object.
+On this page, the equivalent environment variable name is listed together with each option.
 
-The only required parameter is <<service-name,`serviceName`>>.
-However,
-the agent will use the `name` from `package.json` by default if available.
+To use the optional `options` argument, simply pass it into the `apm.start()` method:
 
-Example usage configuring the agent to only be active in production:
+[source,js]
+----
+apm.start([options])
+----
+
+Here's an example usage configuring the agent to only be active in production:
 
 [source,js]
 ----
 // Add this to the VERY top of the first file loaded in your app
 require('elastic-apm-node').start({
+
   // Override service name from package.json
   // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
@@ -39,6 +45,10 @@ require('elastic-apm-node').start({
   active: process.env.NODE_ENV === 'production'
 })
 ----
+
+TIP: The only required parameter is <<service-name,`serviceName`>>.
+However,
+the agent will use the `name` from `package.json` by default if available.
 
 [[service-name]]
 ==== `serviceName`

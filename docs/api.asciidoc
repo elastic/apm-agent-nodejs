@@ -9,12 +9,12 @@ endif::[]
 
 The API reference documentation is divided into four parts:
 
+* <<configuration,Configuration>> - Configuration options can be provided via the `apm.start()` method,
+via a config file or via environment variables.
+
 * <<agent-api,The `Agent` API>> - All functions and properties on the `Agent` object.
 An instance of the `Agent` object is acquired by requiring/importing the Node.js APM Agent module.
 The `Agent` is a singleton and the instance is usually referred to by the variable `apm` in this documentation
-
-* <<configuration,Configuration>> - Configuration options can be provided via the `apm.start()` method,
-via a config file or via environment variables.
 
 * <<transaction-api,The `Transaction` API>> - All functions and properties on the `Transaction` object.
 An instance of the `Transaction` object is acquired by calling `apm.startTransaction()`
@@ -22,9 +22,9 @@ An instance of the `Transaction` object is acquired by calling `apm.startTransac
 * <<span-api,The `Span` API>> - All functions and properties on the `Span` object.
 An instance of the `Span` object is acquired by calling `apm.startSpan()`
 
-include::./agent-api.asciidoc[Agent API documentation]
-
 include::./configuration.asciidoc[Agent configuration documentation]
+
+include::./agent-api.asciidoc[Agent API documentation]
 
 include::./transaction-api.asciidoc[Transaction API documentation]
 
