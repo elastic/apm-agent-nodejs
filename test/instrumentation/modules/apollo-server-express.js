@@ -37,7 +37,7 @@ test('POST /graphql', function (t) {
   var query = '{"query":"{ hello }"}'
 
   var app = express()
-  var apollo = new ApolloServer({ typeDefs, resolvers })
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.applyMiddleware({ app })
   var server = app.listen(function () {
     var port = server.address().port
@@ -80,7 +80,7 @@ test('GET /graphql', function (t) {
   var query = querystring.stringify({ query: '{ hello }' })
 
   var app = express()
-  var apollo = new ApolloServer({ typeDefs, resolvers })
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.applyMiddleware({ app })
   var server = app.listen(function () {
     var port = server.address().port
@@ -122,7 +122,7 @@ test('POST /graphql - named query', function (t) {
   var query = '{"query":"query HelloQuery { hello }"}'
 
   var app = express()
-  var apollo = new ApolloServer({ typeDefs, resolvers })
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.applyMiddleware({ app })
   var server = app.listen(function () {
     var port = server.address().port
@@ -170,7 +170,7 @@ test('POST /graphql - sort multiple queries', function (t) {
   var query = '{"query":"{ life, hello }"}'
 
   var app = express()
-  var apollo = new ApolloServer({ typeDefs, resolvers })
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.applyMiddleware({ app })
   var server = app.listen(function () {
     var port = server.address().port
