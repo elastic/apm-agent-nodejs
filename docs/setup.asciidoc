@@ -49,7 +49,7 @@ NOTE: If you are using Babel, you need to use the `elastic-apm-node/start` appro
 [[configuring-the-agent]]
 === Configuring the agent
 
-There are three ways to configure the Node.js agent. In order of precedence, they are:
+There are three ways to configure the Node.js agent. In order of precedence (higher overwrites lower):
 
 1. Environment variables.
 
