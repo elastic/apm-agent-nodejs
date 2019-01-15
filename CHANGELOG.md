@@ -1,3 +1,9 @@
+# 2.1.0 - 2019/1/15
+  * feat(error): include sampled flag on errors ([#767](https://github.com/elastic/apm-agent-nodejs/pull/767))
+  * feat(span): add tags to spans ([#757](https://github.com/elastic/apm-agent-nodejs/pull/757))
+  * fix(tedious): don't fail on newest tedious v4.1.3 ([#775](https://github.com/elastic/apm-agent-nodejs/pull/775))
+  * fix(graphql): fix span name for unknown queries ([#756](https://github.com/elastic/apm-agent-nodejs/pull/756))
+
 # 2.0.6 - 2018/12/18
   * fix(graphql): don't throw on invalid query ([#747](https://github.com/elastic/apm-agent-nodejs/pull/747))
   * fix(koa-router): support more complex routes ([#749](https://github.com/elastic/apm-agent-nodejs/pull/749))
