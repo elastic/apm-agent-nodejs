@@ -29,15 +29,16 @@ FILES=( \
   "transactions/common_transaction.json" \
   "transactions/mark.json" \
   "transactions/v1_transaction.json" \
+  "common_system.json" \
   "context.json" \
   "process.json" \
   "request.json" \
   "service.json" \
   "stacktrace_frame.json" \
-  "system.json" \
   "tags.json" \
   "timestamp_rfc3339.json" \
   "user.json" \
+  "v1_system.json" \
 )
 
 mkdir -p \
@@ -47,6 +48,6 @@ mkdir -p \
   ${schemadir}/sourcemaps
 
 for i in "${FILES[@]}"; do
-  download_schema https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec/${i} ${schemadir}/${i}
+  download_schema https://raw.githubusercontent.com/elastic/apm-server/6.x/docs/spec/${i} ${schemadir}/${i}
 done
 echo "Done."
