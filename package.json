@@ -108,7 +108,7 @@
     "generic-pool": "^3.4.2",
     "get-port": "^4.0.0",
     "got": "^9.2.2",
-    "graphql": "^0.13.2",
+    "graphql": "^14.1.0",
     "handlebars": "^4.0.12",
     "hapi": "^17.6.0",
     "https-pem": "^2.0.0",
