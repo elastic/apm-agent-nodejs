@@ -51,7 +51,7 @@ test('#getContextFromResponse()', function (t) {
 
       res.sendDate = false
 
-      var context = parsers.getContextFromResponse(res, true)
+      var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
       t.deepEqual(context, {
         status_code: 200,
         headers: {},
@@ -72,7 +72,7 @@ test('#getContextFromResponse()', function (t) {
       res.sendDate = false
       res.write('foo')
 
-      var context = parsers.getContextFromResponse(res, true)
+      var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
       t.deepEqual(context, {
         status_code: 200,
         headers: { connection: 'close', 'transfer-encoding': 'chunked' },
@@ -87,7 +87,7 @@ test('#getContextFromResponse()', function (t) {
   t.test('for error (request finished)', function (t) {
     onRequest(function (req, res) {
       req.on('end', function () {
-        var context = parsers.getContextFromResponse(res, true)
+        var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
         t.deepEqual(context, {
           status_code: 200,
           headers: { connection: 'close', 'content-length': '0' },
@@ -106,7 +106,7 @@ test('#getContextFromResponse()', function (t) {
   t.test('for transaction', function (t) {
     onRequest(function (req, res) {
       req.on('end', function () {
-        var context = parsers.getContextFromResponse(res, false)
+        var context = parsers.getContextFromResponse(res, { captureHeaders: true }, false)
         t.deepEqual(context, {
           status_code: 200,
           headers: { connection: 'close', 'content-length': '0' }
@@ -121,7 +121,8 @@ test('#getContextFromResponse()', function (t) {
 
 test('#getContextFromRequest()', function (t) {
   t.test('should parse a request object', function (t) {
-    var parsed = parsers.getContextFromRequest(getMockReq())
+    var conf = { captureHeaders: true, captureBody: 'off' }
+    var parsed = parsers.getContextFromRequest(getMockReq(), conf)
     t.deepEqual(parsed, {
       http_version: '1.1',
       method: 'GET',
@@ -148,7 +149,7 @@ test('#getContextFromRequest()', function (t) {
   t.test('full URI', function (t) {
     var req = getMockReq()
     req.url = 'https://www.example.com:8080/some/path?key=value'
-    var parsed = parsers.getContextFromRequest(req)
+    var parsed = parsers.getContextFromRequest(req, {})
     t.deepEqual(parsed.url, {
       pathname: '/some/path',
       search: '?key=value',
@@ -164,7 +165,7 @@ test('#getContextFromRequest()', function (t) {
   t.test('port in host header', function (t) {
     var req = getMockReq()
     req.headers.host = 'example.com:8080'
-    var parsed = parsers.getContextFromRequest(req)
+    var parsed = parsers.getContextFromRequest(req, {})
     t.deepEqual(parsed.url, {
       hostname: 'example.com',
       port: 8080,
@@ -180,7 +181,7 @@ test('#getContextFromRequest()', function (t) {
   t.test('empty query string', function (t) {
     var req = getMockReq()
     req.url = '/some/path?'
-    var parsed = parsers.getContextFromRequest(req)
+    var parsed = parsers.getContextFromRequest(req, {})
     t.deepEqual(parsed.url, {
       hostname: 'example.com',
       pathname: '/some/path',
@@ -193,43 +194,47 @@ test('#getContextFromRequest()', function (t) {
   })
 
   t.test('should slice too large body\'s', function (t) {
+    var conf = { captureBody: 'all' }
     var req = getMockReq()
     req.body = ''
     for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
       req.body += 'x'
     }
     req.headers['content-length'] = String(req.body.length)
-    var parsed = parsers.getContextFromRequest(req, true)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.equal(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
     t.end()
   })
 
   t.test('should not log body if opts.body is false', function (t) {
+    var conf = { captureBody: 'off' }
     var req = getMockReq()
     req.body = 'secret stuff'
     req.headers['content-length'] = String(req.body.length)
-    var parsed = parsers.getContextFromRequest(req, false)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.equal(parsed.body, '[REDACTED]')
     t.end()
   })
 
   t.test('body is object', function (t) {
+    var conf = { captureBody: 'all' }
     var req = getMockReq()
     req.body = { foo: 42 }
     req.headers['content-length'] = JSON.stringify(req.body).length
-    var parsed = parsers.getContextFromRequest(req, true)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.deepEqual(parsed.body, { foo: 42 })
     t.end()
   })
 
   t.test('body is object, but too large', function (t) {
+    var conf = { captureBody: 'all' }
     var req = getMockReq()
     req.body = { foo: '' }
     for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
       req.body.foo += 'x'
     }
     req.headers['content-length'] = JSON.stringify(req.body).length
-    var parsed = parsers.getContextFromRequest(req, true)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.equal(typeof parsed.body, 'string')
     t.equal(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
     t.equal(parsed.body.slice(0, 10), '{"foo":"xx')
@@ -237,11 +242,12 @@ test('#getContextFromRequest()', function (t) {
   })
 
   t.test('body is object, but not safe to stringify', function (t) {
+    var conf = { captureBody: 'all' }
     var req = getMockReq()
     req.body = { foo: 42 }
     req.body.bar = req.body
     req.headers['transfer-encoding'] = 'chunked'
-    var parsed = parsers.getContextFromRequest(req, true)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.deepEqual(parsed.body, req.body)
     t.end()
   })

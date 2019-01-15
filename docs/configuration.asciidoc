@@ -218,6 +218,16 @@ the body needs to be available as a property on the incoming HTTP https://nodejs
 The agent will look for the body on the following properties:
 `req.json || req.body || req.payload`
 
+[[capture-headers]]
+==== `captureHeaders`
+
+* *Type:* Boolean
+* *Default:* true
+* *Env:* `ELASTIC_APM_CAPTURE_HEADERS`
+
+The HTTP headers of incoming HTTP requests are recorded and sent to the APM Server by default.
+This can be disabled by setting this option to `false`.
+
 [[error-on-aborted-requests]]
 ==== `errorOnAbortedRequests`
 
