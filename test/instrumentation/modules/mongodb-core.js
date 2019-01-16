@@ -117,9 +117,9 @@ test('instrument simple command', function (t) {
       t.error(err)
       t.equal(results.result.ismaster, true)
 
-      _server.insert('elasticapm.test', [{ a: 1 }, { a: 2 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
+      _server.insert('elasticapm.test', [{ a: 1 }, { a: 2 }, { a: 3 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
         t.error(err)
-        t.equal(results.result.n, 2)
+        t.equal(results.result.n, 3)
 
         _server.update('elasticapm.test', [{ q: { a: 1 }, u: { '$set': { b: 1 } } }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
           t.error(err)
@@ -129,16 +129,26 @@ test('instrument simple command', function (t) {
             t.error(err)
             t.equal(results.result.n, 1)
 
-            var cursor = _server.cursor('elasticapm.test', { find: 'elasticapm.test', query: { a: 2 } })
+            var cursor = _server.cursor('elasticapm.test', { find: 'elasticapm.test', query: {} })
 
             cursor.next(function (err, doc) {
               t.error(err)
               t.equal(doc.a, 2)
 
-              _server.command('system.$cmd', { ismaster: true }, function (err, result) {
+              cursor.next(function (err, doc) {
                 t.error(err)
-                agent.endTransaction()
-                _server.destroy()
+                t.equal(doc.a, 3)
+
+                _server.command('system.$cmd', { ismaster: true }, function (err, result) {
+                  t.error(err)
+                  agent.endTransaction()
+
+                  // Cleanup
+                  _server.remove('elasticapm.test', [{ q: {}, limit: 0 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
+                    t.error(err)
+                    _server.destroy()
+                  })
+                })
               })
             })
           })
