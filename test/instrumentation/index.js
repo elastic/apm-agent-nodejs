@@ -653,6 +653,39 @@ test('nested transactions', function (t) {
   t0.end()
 })
 
+test('does not record requests from internals', function (t) {
+  resetAgent(function (data) {
+    t.equal(data.transactions.length, 1, 'has one transaction')
+    t.equal(data.spans.length, 2, 'has two spans')
+
+    const trans = findObjInArray(data.transactions, 'name', 't0')
+    t.ok(trans, 'should have transaction')
+
+    const span0 = findObjInArray(data.spans, 'name', 's0')
+    t.ok(span0, 'should have span #0')
+
+    const span1 = findObjInArray(data.spans, 'name', 's1')
+    t.ok(span1, 'should have span #1')
+
+    const span = findObjInArray(data.spans, 'type', 'ext.http.http')
+    t.notOk(span, 'should not have an http span from the internal http client')
+
+    t.end()
+  })
+
+  var ins = agent._instrumentation
+
+  var trans = ins.startTransaction('t0')
+  var span = ins.startSpan('s0', 'type')
+  span.end()
+
+  agent.flush(function () {
+    var span = ins.startSpan('s1', 'type')
+    span.end()
+    trans.end()
+  })
+})
+
 function resetAgent (expected, cb) {
   agent._instrumentation.currentTransaction = null
   agent._transport = mockClient(expected, cb)
