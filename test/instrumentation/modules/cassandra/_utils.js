@@ -1,7 +1,8 @@
 const cassandra = require('cassandra-driver')
 
 const defaultOptions = {
-  contactPoints: [process.env.CASSANDRA_HOST || 'localhost']
+  contactPoints: [process.env.CASSANDRA_HOST || 'localhost'],
+  localDataCenter: 'datacenter1'
 }
 
 function maybeInitialize (options) {
