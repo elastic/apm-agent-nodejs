@@ -651,3 +651,64 @@ Optionally, a type may also be provided to group lambdas together. By default,
 "lambda" will be used as the type name.
 
 Read more lambda support in the <<lambda,Lambda>> article.
+
+[[apm-add-patch]]
+==== `apm.addPatch(name, handler])`
+
+[source,js]
+----
+apm.addPatch('timers', (exports, agent, version, enabled) => {
+  const setTimeout = exports.setTimeout
+  exports.setTimeout = (fn, ms) => {
+    const span = agent.createSpan('set-timeout')
+    return setTimeout(() => {
+      span.end()
+      fn()
+    }, ms)
+  }
+
+  return exports
+})
+
+// or ...
+
+apm.addPatch('timers', './timer-patch')
+----
+
+Register a module patch to apply on intercepted `require` calls.
+The handler must be a patch function or a path to a module exporting a patch function.
+The patch function receives the original exported object,
+the agent instance,
+the module version string,
+and a flag to indicated if it is enabled.
+Any module patch can be disabled with <<disable-instrumentations,`disableInstrumentations`>>.
+
+A module can have any number of patches and will be applied in the order they are added.
+
+[[apm-remove-patch]]
+==== `apm.removePatch(name, handler)`
+
+[source,js]
+----
+apm.removePatch('timers', './timers-patch')
+
+// or ...
+
+apm.removePatch('timers', timerPatchFunction)
+----
+
+Removes a module patch.
+This will generally only needed when replacing an existing patch.
+To _disable_ instrumentation from while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
+
+[[apm-clear-patches]]
+==== `apm.clearPatches(name)`
+
+[source,js]
+----
+apm.clearPatches('timers')
+----
+
+Clear all patches for the given module.
+This will generally only needed when replacing an existing patch.
+To _disable_ instrumentation from while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
