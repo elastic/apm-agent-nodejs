@@ -53,7 +53,7 @@ pg:
     - node test/instrumentation/modules/pg/pg.js
     - node test/instrumentation/modules/pg/knex.js
 mongodb-core:
-  versions: '>=1.2.19 <4'
+  versions: '>=1.2.19 <3.1.10'
   commands: node test/instrumentation/modules/mongodb-core.js
 bluebird:
   versions: '>=2 <4'
@@ -206,7 +206,7 @@ tedious:
 
 cassandra-driver:
   # 3.1.0 is broken
-  versions: '>=3 <3.1.0 || >3.1.0 <4'
+  versions: '>=3 <3.1.0 || >3.1.0 <5'
   commands: node test/instrumentation/modules/cassandra/cassandra.js
 
 restify:
