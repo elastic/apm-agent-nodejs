@@ -1,3 +1,11 @@
+# 2.2.0 - 2019/1/21
+  * feat(koa): record framework name and version ([#810](https://github.com/elastic/apm-agent-nodejs/pull/810))
+  * feat(cassandra): support 4.x ([#784](https://github.com/elastic/apm-agent-nodejs/pull/784))
+  * feat(config): validate serverUrl port ([#795](https://github.com/elastic/apm-agent-nodejs/pull/795))
+  * feat: add transaction.type to errors ([#805](https://github.com/elastic/apm-agent-nodejs/pull/805))
+  * fix: filter outgoing http headers with any case ([#799](https://github.com/elastic/apm-agent-nodejs/pull/799))
+  * fix: we don't support mongodb-core v3.1.10+ ([#792](https://github.com/elastic/apm-agent-nodejs/pull/792))
+
 # 2.1.0 - 2019/1/15
   * feat(error): include sampled flag on errors ([#767](https://github.com/elastic/apm-agent-nodejs/pull/767))
   * feat(span): add tags to spans ([#757](https://github.com/elastic/apm-agent-nodejs/pull/757))
