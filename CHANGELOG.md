@@ -1,3 +1,7 @@
+# 1.14.5 - 2019/1/21
+  * fix(graphql): don't throw on invalid query (#747) ([#761](https://github.com/elastic/apm-agent-nodejs/pull/761))
+  * fix: we don't support mongodb-core v3.1.10+ (#792) ([#800](https://github.com/elastic/apm-agent-nodejs/pull/800))
+
 # 1.14.4 - 2018/12/7
   * fix(restify): support an array of handlers (#709) ([#721](https://github.com/elastic/apm-agent-nodejs/pull/721))
   * fix(hapi): ignore internal events channel (#700) ([#720](https://github.com/elastic/apm-agent-nodejs/pull/720))
