@@ -1,3 +1,6 @@
+# 2.2.1 - 2019/1/21
+  * fix: ensure request.url.port is a string on transactions ([#814](https://github.com/elastic/apm-agent-nodejs/pull/814))
+
 # 2.2.0 - 2019/1/21
   * feat(koa): record framework name and version ([#810](https://github.com/elastic/apm-agent-nodejs/pull/810))
   * feat(cassandra): support 4.x ([#784](https://github.com/elastic/apm-agent-nodejs/pull/784))
