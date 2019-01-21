@@ -50,7 +50,12 @@ var optionFixtures = [
   ['transactionMaxSpans', 'TRANSACTION_MAX_SPANS', 500],
   ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []]
+  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
+  ['containerId', 'CONTAINER_ID'],
+  ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
+  ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
+  ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
+  ['kubernetesPodUID', 'KUBERNETES_POD_UID']
 ]
 
 var falsyValues = [false, 'false']
@@ -63,7 +68,7 @@ optionFixtures.forEach(function (fixture) {
     var number = typeof fixture[2] === 'number'
     var array = Array.isArray(fixture[2])
 
-    test('should be configurable by envrionment variable ELASTIC_APM_' + fixture[1], function (t) {
+    test('should be configurable by environment variable ELASTIC_APM_' + fixture[1], function (t) {
       var agent = Agent()
       var value
 
@@ -136,7 +141,7 @@ optionFixtures.forEach(function (fixture) {
 })
 
 falsyValues.forEach(function (val) {
-  test('should be disabled by envrionment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
+  test('should be disabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
     agent.start({ serviceName: 'foo', secretToken: 'baz' })
@@ -147,7 +152,7 @@ falsyValues.forEach(function (val) {
 })
 
 truthyValues.forEach(function (val) {
-  test('should be enabled by envrionment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
+  test('should be enabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
     agent.start({ serviceName: 'foo', secretToken: 'baz' })
