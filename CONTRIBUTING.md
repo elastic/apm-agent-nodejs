@@ -89,7 +89,7 @@ The following is an overview of what's required in order to add support to the a
    create a sub-directory with the name of the package and place all test files inside that
    1. If you created a sub-directory under `test/instrumentation/modules`,
       add it to the `directories` array in [`test/test.js`](test/test.js)
-1. List the supported versions of the package in [`docs/compatibility.asciidoc`](docs/compatibility.asciidoc)
+1. List the supported versions of the package in [`docs/supported-technologies.asciidoc`](docs/supported-technologies.asciidoc)
 1. We use the [test-all-versions](https://github.com/watson/test-all-versions) module to test the agent against all supported versions of each package we instrument.
    Add the supported versions and required test commands to the [`.tav.yml`](.tav.yml) file
 1. Add the name of the module to one of the TAV groups in both [`.travis.yml`](.travis.yml) and [`test/.jenkins_tav.yml`](test/.jenkins_tav.yml) for all Node.js versions.
