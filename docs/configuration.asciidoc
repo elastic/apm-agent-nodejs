@@ -623,3 +623,47 @@ For an always up-to-date list of modules for which instrumentation can be disabl
 see the https://github.com/elastic/apm-agent-nodejs/tree/master/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
 Note that not all modules represented in this directory will generate spans,
 and adding those to this array has no effect.
+
+[[container-id]]
+==== `containerId`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_CONTAINER_ID`
+
+Specify the docker container id to associate with all reported events.
+If absent,
+it will be parsed out of the `/proc/self/cgroup` file.
+
+[[kubernetes-node-name]]
+==== `kubernetesNodeName`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_KUBERNETES_NODE_NAME`
+
+Specify the kubernetes node name to associate with all reported events.
+
+[[kubernetes-namespace]]
+==== `kubernetesNamespace`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_KUBERNETES_NAMESPACE`
+
+Specify the kubernetes namespace to associate with all reported events.
+
+[[kubernetes-pod-name]]
+==== `kubernetesPodName`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_KUBERNETES_POD_NAME`
+
+Specify the kubernetes pod name to associate with all reported events.
+
+[[kubernetes-pod-uid]]
+==== `kubernetesPodUID`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_KUBERNETES_POD_UID`
+
+Specify the kubernetes pod uid to associate with all reported events.
+If absent,
+it will be parsed out of the `/proc/self/cgroup` file.
