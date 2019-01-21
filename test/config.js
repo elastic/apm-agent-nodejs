@@ -50,7 +50,12 @@ var optionFixtures = [
   ['transactionMaxSpans', 'TRANSACTION_MAX_SPANS', 500],
   ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []]
+  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
+  ['containerId', 'CONTAINER_ID'],
+  ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
+  ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
+  ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
+  ['kubernetesPodUID', 'KUBERNETES_POD_UID']
 ]
 
 var falsyValues = [false, 'false']
