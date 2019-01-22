@@ -42,12 +42,12 @@ There's a special type called `request` which is used by the agent for the trans
 [[transaction-result]]
 ==== `transaction.result`
 
-* *Type:* Number
-* *Default:* `200`
+* *Type:* String
+* *Default:* `success`
 
-The transaction result.
-
-Think of the transaction result as equivalent to the status code of an HTTP response.
+A string describing the result of the transaction.
+This is typically the HTTP status code,
+or e.g. "success" or "failure" for a background task.
 
 [[transaction-start-span]]
 ==== `transaction.startSpan([name][, type][, options])`
