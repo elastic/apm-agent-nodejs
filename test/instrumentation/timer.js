@@ -40,3 +40,22 @@ test('elapsed', function (t) {
     t.end()
   })
 })
+
+test('custom start time', function (t) {
+  var startTime = Date.now() - 1000
+  var timer = new Timer(null, startTime)
+  t.equal(timer.start, startTime * 1000)
+  timer.end()
+  t.ok(timer.duration >= 1000, `duration should be equal or more than 1s (was: ${timer.duration})`)
+  t.ok(timer.duration < 1100, `duration should be more than 1.1s (was: ${timer.duration})`)
+  t.end()
+})
+
+test('custom end time', function (t) {
+  var startTime = Date.now() - 1000
+  var endTime = startTime + 2000.123
+  var timer = new Timer(null, startTime)
+  timer.end(endTime)
+  t.equal(timer.duration, 2000.123)
+  t.end()
+})
