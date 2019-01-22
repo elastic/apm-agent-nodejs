@@ -31,8 +31,8 @@ test('#startTransaction()', function (t) {
     var trans = agent.startTransaction('foo', 'bar', { startTime })
     trans.end()
     var duration = trans.duration()
-    t.ok(duration > 1000, `duration should be more than 1s (was: ${duration})`)
-    t.ok(duration < 1500, `duration should be more than 1.5s (was: ${duration})`)
+    t.ok(duration >= 1000, `duration should be equal or more than 1s (was: ${duration})`)
+    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
 
@@ -204,7 +204,7 @@ test('#startSpan()', function (t) {
     span.end()
     var duration = span.duration()
     t.ok(duration >= 1000, `duration should be equal or more than 1s (was: ${duration})`)
-    t.ok(duration < 1100, `duration should be more than 1.1s (was: ${duration})`)
+    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
 

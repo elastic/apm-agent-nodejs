@@ -47,7 +47,7 @@ test('custom start time', function (t) {
   t.equal(timer.start, startTime * 1000)
   timer.end()
   t.ok(timer.duration >= 1000, `duration should be equal or more than 1s (was: ${timer.duration})`)
-  t.ok(timer.duration < 1100, `duration should be more than 1.1s (was: ${timer.duration})`)
+  t.ok(timer.duration < 1100, `duration should be less than 1.1s (was: ${timer.duration})`)
   t.end()
 })
 
