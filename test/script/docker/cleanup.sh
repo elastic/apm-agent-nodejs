@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
+DOCKER_CONTAINERS=$(docker ps -a -q)
 
-docker stop $(docker ps -a -q) 
-docker rm -v $(docker ps -a -q) 
-docker volume prune -f
+if [ -n "${DOCKER_CONTAINERS}" ]; then
+  docker stop ${DOCKER_CONTAINERS}
+  docker rm -v ${DOCKER_CONTAINERS} 
+  docker volume prune -f
+fi
 
 exit 0

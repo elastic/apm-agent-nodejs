@@ -41,8 +41,13 @@ run_test_suite () {
   standard
   npm run test-deps
   npm run lint-commit
-
-  if [ -z "$COVERAGE" ]
+  
+  if [ -n "${JUNIT}" ]
+  then
+    npm i tap-junit
+    nyc node test/test.js | tee test-output.tap
+    cat test-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-node-report.xml
+  elif [ -z "$COVERAGE" ]
   then
     node test/test.js
   else
