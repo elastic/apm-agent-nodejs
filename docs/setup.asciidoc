@@ -11,8 +11,8 @@ The following pages will help you set up and configure your APM Agent.
 
 * <<starting-the-agent>>
 * <<configuring-the-agent>>
-* <<agent-configuration-object>>
-* <<agent-configuration-file>>
+** <<agent-configuration-object>>
+** <<agent-configuration-file>>
 * <<es-modules>>
 * <<configuration>>
 
