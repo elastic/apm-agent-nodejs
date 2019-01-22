@@ -155,7 +155,7 @@ test('#getContextFromRequest()', function (t) {
       search: '?key=value',
       protocol: 'https:',
       hostname: 'www.example.com',
-      port: 8080,
+      port: '8080',
       full: 'https://www.example.com:8080/some/path?key=value',
       raw: 'https://www.example.com:8080/some/path?key=value'
     })
@@ -168,7 +168,7 @@ test('#getContextFromRequest()', function (t) {
     var parsed = parsers.getContextFromRequest(req, {})
     t.deepEqual(parsed.url, {
       hostname: 'example.com',
-      port: 8080,
+      port: '8080',
       pathname: '/some/path',
       search: '?key=value',
       protocol: 'http:',
