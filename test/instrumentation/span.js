@@ -31,6 +31,7 @@ test('init', function (t) {
     t.equal(span._context.version, '00')
     t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
     t.equal(span._context.flags, '01')
     t.end()
   })
