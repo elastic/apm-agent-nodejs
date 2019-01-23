@@ -54,8 +54,7 @@ test('toJSON', t => {
     traceId,
     id,
     flags,
-    recorded: true,
-    sampled: true
+    recorded: true
   }, 'trace context serializes fields to hex strings, in JSON form')
 
   t.end()
@@ -83,7 +82,7 @@ test('startOrResume', t => {
     t.equal(context.version, version, 'version matches')
     t.notEqual(context.traceId, traceId, 'has new traceId')
     t.notEqual(context.id, id, 'has new id')
-    t.equal(context.sampled, true, 'is sampled')
+    t.equal(context.recorded, true, 'is sampled')
 
     t.end()
   })
@@ -97,7 +96,7 @@ test('startOrResume', t => {
     t.equal(context.version, version, 'version matches')
     t.notEqual(context.traceId, traceId, 'has new traceId')
     t.notEqual(context.id, id, 'has new id')
-    t.equal(context.sampled, false, 'is sampled')
+    t.equal(context.recorded, false, 'is sampled')
 
     t.end()
   })
