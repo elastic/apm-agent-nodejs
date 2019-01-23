@@ -748,6 +748,32 @@ test('#captureError()', function (t) {
       })
   })
 
+  t.test('should allow custom log message together with exception', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'), { message: 'bar' })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.log.message, 'bar')
+        t.end()
+      })
+  })
+
+  t.test('should not use custom log message together with exception if equal', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'), { message: 'foo' })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.log, undefined)
+        t.end()
+      })
+  })
+
   t.test('should adhere to default stackTraceLimit', function (t) {
     t.plan(2 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })

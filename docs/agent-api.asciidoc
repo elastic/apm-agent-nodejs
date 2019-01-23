@@ -279,6 +279,9 @@ Sub-millisecond precision can be achieved using decimals.
 If not provided,
 the current time will be used
 
+** `message` - If the `error` argument is an error object,
+is's possible to use this option to supply an additional message string that will be stored along with the error message under `log.message`
+
 ** `user` - See <<metadata,metadata section>> for details about this option
 
 ** `custom` - See <<metadata,metadata section>> for details about this option
