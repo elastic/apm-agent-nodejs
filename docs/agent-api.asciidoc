@@ -422,7 +422,7 @@ NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ 
 
 [source,js]
 ----
-var transaction = apm.startTransaction([name][, type][, traceparent])
+var transaction = apm.startTransaction([name][, type][, options])
 ----
 
 Start a new transaction.
@@ -437,7 +437,15 @@ Defaults to `unnamed`
 You can always set this later via <<transaction-type,`transaction.type`>>.
 Defaults to `custom`
 
-* `traceparent` - The traceparent header received from a remote service (string).
+* `options` - The following options are supported:
+
+** `startTime` - The time when the transaction started.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used
+
+** `traceparent` - The traceparent header received from a remote service (string)
 
 Use this function to create a custom transaction.
 Note that the agent will do this for you automatically whenever your application receives an incoming HTTP request.
@@ -448,11 +456,11 @@ There's a special `type` called `request` which is used by the agent for the tra
 See the <<transaction-api,Transaction API>> docs for details on how to use custom transactions.
 
 [[apm-end-transaction]]
-==== `apm.endTransaction([result])`
+==== `apm.endTransaction([result][, endTime])`
 
 [source,js]
 ----
-apm.endTransaction([result])
+apm.endTransaction([result][, endTime])
 ----
 
 Ends the active transaction.
@@ -464,7 +472,17 @@ You only need to use this function to end custom transactions created by <<apm-s
 
 Alternatively you can call <<transaction-end,`end()`>> directly on an active transaction object.
 
-A value may be provided to set as a result.
+Arguments:
+
+* `result` - A string describing the result of the transaction.
+This is typically the HTTP status code,
+or e.g. "success" or "failure" for a background task
+
+* `endTime` - The time when the transaction ended.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used
 
 [[apm-current-transaction]]
 ==== `apm.currentTransaction`
@@ -513,7 +531,7 @@ the transaction name will default to `METHOD unknown route` (e.g. `POST unknown 
 Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
 
 [[apm-start-span]]
-==== `apm.startSpan([name][, type])`
+==== `apm.startSpan([name][, type][, options])`
 
 [source,js]
 ----
@@ -523,7 +541,7 @@ var span = apm.startSpan('My custom span')
 Start and return a new custom span associated with the current active transaction.
 This is the same as getting the current transaction with `apm.currentTransaction` and,
 if a transaction was found,
-calling `transaction.startSpan(name, type)` on it.
+calling `transaction.startSpan(name, type, options)` on it.
 
 Arguments:
 
@@ -534,6 +552,14 @@ Defaults to `unnamed`
 * `type` - The type of span (string).
 You can alternatively set this via <<span-type,`span.type`>>.
 Defaults to `custom.code`
+
+* `options` - The following options are supported:
+
+** `startTime` - The time when the span started.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used
 
 When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
 

@@ -11,14 +11,27 @@ var Transaction = require('../../lib/instrumentation/transaction')
 var agent = mockAgent()
 
 test('init', function (t) {
-  var trans = new Transaction(agent, 'name', 'type')
-  t.ok(/^[\da-f]{16}$/.test(trans.id))
-  t.ok(/^[\da-f]{32}$/.test(trans.traceId))
-  t.equal(trans.name, 'name')
-  t.equal(trans.type, 'type')
-  t.equal(trans.result, 'success')
-  t.equal(trans.ended, false)
-  t.end()
+  t.test('name and type', function (t) {
+    var trans = new Transaction(agent, 'name', 'type')
+    t.ok(/^[\da-f]{16}$/.test(trans.id))
+    t.ok(/^[\da-f]{32}$/.test(trans.traceId))
+    t.equal(trans.name, 'name')
+    t.equal(trans.type, 'type')
+    t.equal(trans.result, 'success')
+    t.equal(trans.ended, false)
+    t.end()
+  })
+
+  t.test('options.traceparent', function (t) {
+    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = new Transaction(agent, 'name', 'type', { traceparent })
+    t.equal(trans._context.version, '00')
+    t.equal(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(trans._context.id, '00f067aa0ba902b7')
+    t.equal(trans._context.parentId, '00f067aa0ba902b7')
+    t.equal(trans._context.flags, '01')
+    t.end()
+  })
 })
 
 test('#setUserContext', function (t) {
@@ -116,6 +129,52 @@ test('#addTags', function (t) {
   t.end()
 })
 
+test('#startSpan()', function (t) {
+  t.test('basic', function (t) {
+    var trans = new Transaction(agent)
+    var span = trans.startSpan('span-name', 'span-type')
+    t.ok(span, 'should return a span')
+    t.equal(span.name, 'span-name')
+    t.equal(span.type, 'span-type')
+    t.end()
+  })
+
+  t.test('options.startTime', function (t) {
+    var trans = new Transaction(agent)
+    var startTime = Date.now() - 1000
+    var span = trans.startSpan(null, null, { startTime })
+    span.end()
+    var duration = span.duration()
+    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
+    t.end()
+  })
+
+  t.test('options.traceparent', function (t) {
+    var trans = new Transaction(agent)
+    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var span = trans.startSpan(null, null, { traceparent })
+    t.equal(span._context.version, '00')
+    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
+    t.equal(span._context.flags, '01')
+    t.end()
+  })
+
+  t.test('traceparent (legacy)', function (t) {
+    var trans = new Transaction(agent)
+    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var span = trans.startSpan(null, null, traceparent)
+    t.equal(span._context.version, '00')
+    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
+    t.equal(span._context.flags, '01')
+    t.end()
+  })
+})
+
 test('#end() - with result', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.equal(added.ended, true)
@@ -143,6 +202,29 @@ test('#duration() - un-ended transaction', function (t) {
   var trans = new Transaction(agent)
   t.equal(trans.duration(), null)
   t.end()
+})
+
+test('custom start time', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    var duration = trans.duration()
+    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
+    t.end()
+  })
+  var startTime = Date.now() - 1000
+  var trans = new Transaction(ins._agent, null, null, { startTime })
+  trans.end()
+})
+
+test('#end(time)', function (t) {
+  var ins = mockInstrumentation(function (added) {
+    t.equal(trans.duration(), 2000.123)
+    t.end()
+  })
+  var startTime = Date.now() - 1000
+  var endTime = startTime + 2000.123
+  var trans = new Transaction(ins._agent, null, null, { startTime })
+  trans.end(null, endTime)
 })
 
 test('#setDefaultName() - with initial value', function (t) {
