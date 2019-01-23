@@ -265,16 +265,27 @@ Send an error to the APM Server:
 apm.captureError(new Error('boom!'))
 ----
 
-The `error` argument can be either an `Error` object,
+Arguments:
+
+* `error` - Can be either an `Error` object,
 a <<message-strings,message string>>,
-or a <<parameterized-message-object,special parameterized message object>>.
+or a <<parameterized-message-object,special parameterized message object>>
 
-The optional `options` object can be used to log additional metadata with the error.
-For details see the <<metadata,metadata section>>.
+* `options` - The following options are supported:
 
-The optional `callback` will be called after the error has been sent to the APM Server.
+** `timestamp` - The time when the error happended.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used
+
+** `user` - See <<metadata,metadata section>> for details about this option
+
+** `custom` - See <<metadata,metadata section>> for details about this option
+
+* `callback` - Will be called after the error has been sent to the APM Server.
 It will receive an `Error` instance if the agent failed to send the error,
-and the id of the captured error.
+and the id of the captured error
 
 [[message-strings]]
 ===== Message strings

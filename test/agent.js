@@ -975,6 +975,25 @@ test('#captureError()', function (t) {
         t.end()
       })
   })
+
+  t.test('custom timestamp', function (t) {
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+
+    const timestamp = Date.now() - 1000
+    const expect = [
+      'metadata',
+      'error'
+    ]
+
+    APMServerWithDefaultAsserts(t, {}, { expect })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with callback'), { timestamp })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.timestamp, timestamp * 1000)
+        t.end()
+      })
+  })
 })
 
 test('#handleUncaughtExceptions()', function (t) {
