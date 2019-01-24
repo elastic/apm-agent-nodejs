@@ -459,7 +459,7 @@ Sub-millisecond precision can be achieved using decimals.
 If not provided,
 the current time will be used
 
-** `traceparent` - The traceparent header received from a remote service (string)
+** `childOf` - The traceparent header received from a remote service (string)
 
 Use this function to create a custom transaction.
 Note that the agent will do this for you automatically whenever your application receives an incoming HTTP request.

@@ -22,9 +22,9 @@ test('init', function (t) {
     t.end()
   })
 
-  t.test('options.traceparent', function (t) {
-    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
-    var trans = new Transaction(agent, 'name', 'type', { traceparent })
+  t.test('options.childOf', function (t) {
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = new Transaction(agent, 'name', 'type', { childOf })
     t.equal(trans._context.version, '00')
     t.equal(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(trans._context.id, '00f067aa0ba902b7')
@@ -150,10 +150,10 @@ test('#startSpan()', function (t) {
     t.end()
   })
 
-  t.test('options.traceparent', function (t) {
+  t.test('options.childOf', function (t) {
     var trans = new Transaction(agent)
-    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
-    var span = trans.startSpan(null, null, { traceparent })
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var span = trans.startSpan(null, null, { childOf })
     t.equal(span._context.version, '00')
     t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(span._context.id, '00f067aa0ba902b7')

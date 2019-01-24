@@ -24,10 +24,10 @@ test('init', function (t) {
     t.end()
   })
 
-  t.test('options.traceparent', function (t) {
-    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+  t.test('options.childOf', function (t) {
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     var trans = new Transaction(agent)
-    var span = new Span(trans, 'sig', 'type', { traceparent })
+    var span = new Span(trans, 'sig', 'type', { childOf })
     t.equal(span._context.version, '00')
     t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(span._context.id, '00f067aa0ba902b7')
@@ -65,9 +65,8 @@ test('#duration() - return null if not ended', function (t) {
 
 test('custom start time', function (t) {
   var trans = new Transaction(agent)
-  var traceparent = trans._context.toString()
   var startTime = Date.now() - 1000
-  var span = new Span(trans, 'sig', 'type', { traceparent, startTime })
+  var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
   span.end()
   var duration = span.duration()
   t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
@@ -77,10 +76,9 @@ test('custom start time', function (t) {
 
 test('#end(time)', function (t) {
   var trans = new Transaction(agent)
-  var traceparent = trans._context.toString()
   var startTime = Date.now() - 1000
   var endTime = startTime + 2000.123
-  var span = new Span(trans, 'sig', 'type', { traceparent, startTime })
+  var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
   span.end(endTime)
   t.equal(span.duration(), 2000.123)
   t.end()
