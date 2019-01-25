@@ -97,7 +97,7 @@ When instantiating the Tracer object,
 an instance of the Elastic APM Node.js Agent must be provided as its only argument.
 
 For details about the `tracer` API,
-see the https://opentracing-javascript.surge.sh/[`opentracing-javescript` API docs].
+see the https://opentracing-javascript.surge.sh/[`opentracing-javascript` API docs].
 
 [float]
 [[ot-elastic-apm-tags]]
