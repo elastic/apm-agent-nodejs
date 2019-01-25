@@ -36,8 +36,9 @@ npm install elastic-apm-node elastic-apm-node-opentracing --save
 Elastic APM differentiates between {apm-overview-ref-v}/transactions.html[transactions] and {apm-overview-ref-v}/transaction-spans.html[spans].
 In the context of OpenTracing, a transaction can be thought of as a special kind of span.
 
-While OpenTracing natively only has the concept of spans,
-the Elastic APM OpenTracing bridge will automatically create either Elastic transactions or Elastic spans behind the scenes depending on a set of rules:
+Because OpenTracing natively only has the concept of spans,
+the Elastic APM OpenTracing bridge will automatically create either Elastic transactions or Elastic spans behind the scenes.
+There are a set of rules that determine which is created:
 
 1. If `agent.currentTransaction` is `null`,
    a new Elastic transaction will be created when calling `tracer.startSpan()`.
