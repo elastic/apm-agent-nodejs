@@ -7,12 +7,12 @@ endif::[]
 
 == OpenTracing support
 
-The Elastic APM OpenTracing bridge allows to create Elastic APM transactions and spans,
+The Elastic APM OpenTracing bridge allows creating Elastic APM transactions and spans,
 using the https://opentracing-javascript.surge.sh/[OpenTracing API].
 In other words,
 it translates the calls to the OpenTracing API to Elastic APM and thus allows for reusing existing instrumentation.
 
-For more information about OpenTracing see the https://opentracing.io/[OpenTracing website].
+For more information about OpenTracing, see the https://opentracing.io/[OpenTracing website].
 
 [float]
 [[ot-prerequisites]]
@@ -21,7 +21,7 @@ For more information about OpenTracing see the https://opentracing.io/[OpenTraci
 OpenTracing support for the Elastic APM Node.js Agent is provided via a separate module called https://www.npmjs.com/package/elastic-apm-node-opentracing[`elastic-apm-node-opentracing`].
 
 This module requires that the Elastic APM Node.js Agent is installed separately.
-To ensure that both dependencies added to the application,
+To ensure that both dependencies are added to the application,
 install them like so:
 
 [source,bash]
@@ -34,18 +34,18 @@ npm install elastic-apm-node elastic-apm-node-opentracing --save
 === OpenTracing vs Elastic APM terminologies
 
 Elastic APM differentiates between {apm-overview-ref-v}/transactions.html[transactions] and {apm-overview-ref-v}/transaction-spans.html[spans].
-A transaction can in the context of OpenTracing be thought of as a special kind of span.
+In the context of OpenTracing, a transaction can be thought of as a special kind of span.
 
 While OpenTracing natively only have the concept of spans,
 the Elastic APM OpenTracing bridge will automatically create either Elastic transactions or Elastic spans behind the scenes depending on a set of rules:
 
 1. If `agent.currentTransaction` is `null`,
-   a new Elastic transaction will be created when calling `tracer.startSpan()`
+   a new Elastic transaction will be created when calling `tracer.startSpan()`.
 2. If `agent.currentTransaction` holds an existing transaction,
    but that transaction is ended,
-   a new Elastic transaction will be created when calling `tracer.startSpan()`
+   a new Elastic transaction will be created when calling `tracer.startSpan()`.
 3. In all other cases,
-   a new Elastic span will be created when calling `tracer.startSpan()`
+   a new Elastic span will be created when calling `tracer.startSpan()`.
 
 [float]
 [[ot-initialization]]
@@ -55,7 +55,7 @@ It's important that the agent is started before you require *any* other modules 
 
 This means that you should probably require and start the agent in your application's main file (usually `index.js`, `server.js` or `app.js`).
 
-Here's a simple example where we first start the agent it self and the initialize the OpenTracing bridge:
+Here's a simple example where we first start the agent and then initialize the OpenTracing bridge:
 
 [source,js]
 ----
@@ -104,7 +104,7 @@ see the https://opentracing-javascript.surge.sh/[`opentracing-javascript` API do
 === Elastic APM specific tags
 
 Elastic APM defines some tags which are have special meaning and which will not be stored as regular tags.
-Instead they will be used to set certain metadata on the transaction or span.
+Instead, they will be used to set certain metadata on the transaction or span.
 
 The following tags have special meaning for both transactions and spans:
 
@@ -144,7 +144,7 @@ This bridge only supports the formats `opentracing.FORMAT_TEXT_MAP` and `opentra
 
 Currently, this bridge only supports `opentracing.REFERENCE_CHILD_OF` references.
 Other references,
-like `opentracing.REFERENCE_FOLLOWS_FROM` are not supported yet.
+like `opentracing.REFERENCE_FOLLOWS_FROM`, are not supported yet.
 
 [float]
 [[ot-baggage]]
