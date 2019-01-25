@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## process-top
 
-- **path:** [lib/metrics/process-top.js](lib/metrics/process-top.js)
+- **path:** [lib/metrics/platforms/generic/process-top.js](lib/metrics/platforms/generic/process-top.js)
 - **author:** Mathias Buus
 - **project url:** https://github.com/mafintosh/process-top
 - **original file:** https://github.com/mafintosh/process-top/blob/master/index.js

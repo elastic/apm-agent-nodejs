@@ -27,5 +27,6 @@ function clean () {
     if (agent._instrumentation && agent._instrumentation._hook) {
       agent._instrumentation._hook.unhook()
     }
+    agent._metrics.stop()
   }
 }
