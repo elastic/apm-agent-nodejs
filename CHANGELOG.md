@@ -1,3 +1,7 @@
+
+# 2.5.0 - 2019/1/29
+  * feat(metrics): added basic metrics gathering ([#731](https://github.com/elastic/apm-agent-nodejs/pull/731)) 
+
 # 2.4.0 - 2019/1/24
   * feat: add ability to set custom log message for errors ([#824](https://github.com/elastic/apm-agent-nodejs/pull/824))
   * feat: add ability to set custom timestamp for errors ([#823](https://github.com/elastic/apm-agent-nodejs/pull/823))
