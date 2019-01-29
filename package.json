@@ -78,6 +78,7 @@
     "fast-safe-stringify": "^2.0.6",
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
+    "measured-reporting": "^1.39.1",
     "original-url": "^1.2.2",
     "random-poly-fill": "^1.0.1",
     "read-pkg-up": "^4.0.0",

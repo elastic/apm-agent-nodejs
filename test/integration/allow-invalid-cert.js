@@ -7,7 +7,8 @@ getPort().then(function (port) {
     serviceName: 'test',
     serverUrl: 'https://localhost:' + port,
     disableInstrumentations: ['https'], // avoid the agent instrumenting the mock APM Server
-    verifyServerCert: false
+    verifyServerCert: false,
+    metricsInterval: 0
   })
 
   var https = require('https')

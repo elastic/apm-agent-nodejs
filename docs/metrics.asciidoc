@@ -1,0 +1,57 @@
+[[metrics]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/metrics.html[elastic.co]
+endif::[]
+
+== Metrics
+
+The Node.js agent tracks various system and application metrics.
+These metrics will be sent regularly to the APM Server and from there to Elasticsearch.
+You can adjust the interval by setting <<metrics-interval,`metricsInterval`>>.
+
+The metrics will be stored in the `apm-*` index and have the `processor.event` property set to `metric`.
+
+[[metric-system.cpu.total.norm.pct]]
+=== `system.cpu.total.norm.pct`
+
+* *Type:* Float
+* *Format:* Percent
+
+The percentage of CPU time in states other than Idle and IOWait,
+normalised by the number of cores.
+
+[[metric-system.memory.total]]
+=== `system.memory.total`
+
+* *Type:* Long
+* *Format:* Bytes
+
+The total memory of the system in bytes.
+
+[[metric-system.memory.actual.free]]
+=== `system.memory.actual.free`
+
+* *Type:* Long
+* *Format:* Bytes
+
+Free memory of the system in bytes.
+
+[[metric-system.process.cpu.total.norm.pct]]
+=== `system.process.cpu.total.norm.pct`
+
+* *Type:* Float
+* *Format:* Percent
+
+The percentage of CPU time spent by the process since the last event.
+This value is normalized by the number of CPU cores and it ranges from 0 to 100%.
+
+[[metric-system.process.memory.rss.bytes]]
+=== `system.process.memory.rss.bytes`
+
+* *Type:* Long
+* *Format:* Bytes
+
+The Resident Set Size,
+the amount of memory the process occupies in main memory (RAM).

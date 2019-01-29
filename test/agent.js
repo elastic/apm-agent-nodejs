@@ -14,6 +14,8 @@ var config = require('../lib/config')
 
 var agentVersion = require('../package.json').version
 
+process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+
 test('#startTransaction()', function (t) {
   t.test('name and type', function (t) {
     var agent = Agent()
@@ -1102,15 +1104,15 @@ test('#lambda()', function (t) {
   function assertContext (t, name, data) {
     t.ok(data)
     const lambda = data.lambda
-    t.ok(lambda)
-    t.equal(lambda.functionName, name)
+    t.ok(lambda, 'context data has lambda object')
+    t.equal(lambda.functionName, name, 'function name matches')
     var keys = Object.keys(baseContext)
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i]
-      t.equal(lambda[key], baseContext[key])
+      t.equal(lambda[key], baseContext[key], `${key} matches`)
     }
-    t.equal(lambda.executionEnv, process.env.AWS_EXECUTION_ENV)
-    t.equal(lambda.region, process.env.AWS_REGION)
+    t.equal(lambda.executionEnv, process.env.AWS_EXECUTION_ENV, 'execution env matches')
+    t.equal(lambda.region, process.env.AWS_REGION, 'region matches')
   }
 
   t.test('success - basic callback', function (t) {
