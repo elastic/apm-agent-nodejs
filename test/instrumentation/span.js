@@ -12,15 +12,29 @@ var Span = require('../../lib/instrumentation/span')
 
 var agent = mockAgent()
 
-test('properties', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans, 'sig', 'type')
-  t.ok(/^[\da-f]{16}$/.test(span.id))
-  t.equal(span.transaction, trans)
-  t.equal(span.name, 'sig')
-  t.equal(span.type, 'type')
-  t.equal(span.ended, false)
-  t.end()
+test('init', function (t) {
+  t.test('properties', function (t) {
+    var trans = new Transaction(agent)
+    var span = new Span(trans, 'sig', 'type')
+    t.ok(/^[\da-f]{16}$/.test(span.id))
+    t.equal(span.transaction, trans)
+    t.equal(span.name, 'sig')
+    t.equal(span.type, 'type')
+    t.equal(span.ended, false)
+    t.end()
+  })
+
+  t.test('options.childOf', function (t) {
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = new Transaction(agent)
+    var span = new Span(trans, 'sig', 'type', { childOf })
+    t.equal(span._context.version, '00')
+    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
+    t.equal(span._context.flags, '01')
+    t.end()
+  })
 })
 
 test('#end()', function (t) {
@@ -46,6 +60,27 @@ test('#duration() - return null if not ended', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
   t.equal(span.duration(), null)
+  t.end()
+})
+
+test('custom start time', function (t) {
+  var trans = new Transaction(agent)
+  var startTime = Date.now() - 1000
+  var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
+  span.end()
+  var duration = span.duration()
+  t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+  t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
+  t.end()
+})
+
+test('#end(time)', function (t) {
+  var trans = new Transaction(agent)
+  var startTime = Date.now() - 1000
+  var endTime = startTime + 2000.123
+  var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
+  span.end(endTime)
+  t.equal(span.duration(), 2000.123)
   t.end()
 })
 

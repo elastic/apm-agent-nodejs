@@ -37,6 +37,8 @@ include::./performance-tuning.asciidoc[]
 
 include::./source-maps.asciidoc[]
 
+include::./opentracing.asciidoc[]
+
 include::./supported-technologies.asciidoc[]
 
 include::./upgrading.asciidoc[]

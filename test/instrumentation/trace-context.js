@@ -3,6 +3,7 @@
 const crypto = require('crypto')
 const test = require('tape')
 
+const agent = require('./_agent')()
 const TraceContext = require('../../lib/instrumentation/trace-context')
 
 const version = Buffer.alloc(1).toString('hex')
@@ -54,8 +55,7 @@ test('toJSON', t => {
     traceId,
     id,
     flags,
-    recorded: true,
-    sampled: true
+    recorded: true
   }, 'trace context serializes fields to hex strings, in JSON form')
 
   t.end()
@@ -64,6 +64,47 @@ test('toJSON', t => {
 test('startOrResume', t => {
   t.test('resume from header', t => {
     const context = TraceContext.startOrResume(header)
+
+    isValid(t, context)
+    t.equal(context.version, version, 'version matches')
+    t.equal(context.traceId, traceId, 'traceId matches')
+    t.notEqual(context.id, id, 'has new id')
+    t.equal(context.flags, flags, 'flags matches')
+
+    t.end()
+  })
+
+  t.test('resume from TraceContext', t => {
+    const context = TraceContext.startOrResume(
+      TraceContext.fromString(header)
+    )
+
+    isValid(t, context)
+    t.equal(context.version, version, 'version matches')
+    t.equal(context.traceId, traceId, 'traceId matches')
+    t.notEqual(context.id, id, 'has new id')
+    t.equal(context.flags, flags, 'flags matches')
+
+    t.end()
+  })
+
+  t.test('resume from Transaction', t => {
+    const trans = agent.startTransaction(null, null, { childOf: header })
+    const context = TraceContext.startOrResume(trans)
+
+    isValid(t, context)
+    t.equal(context.version, version, 'version matches')
+    t.equal(context.traceId, traceId, 'traceId matches')
+    t.notEqual(context.id, id, 'has new id')
+    t.equal(context.flags, flags, 'flags matches')
+
+    t.end()
+  })
+
+  t.test('resume from Span', t => {
+    const trans = agent.startTransaction(null, null, { childOf: header })
+    const span = trans.startSpan()
+    const context = TraceContext.startOrResume(span)
 
     isValid(t, context)
     t.equal(context.version, version, 'version matches')
@@ -83,7 +124,7 @@ test('startOrResume', t => {
     t.equal(context.version, version, 'version matches')
     t.notEqual(context.traceId, traceId, 'has new traceId')
     t.notEqual(context.id, id, 'has new id')
-    t.equal(context.sampled, true, 'is sampled')
+    t.equal(context.recorded, true, 'is sampled')
 
     t.end()
   })
@@ -97,7 +138,7 @@ test('startOrResume', t => {
     t.equal(context.version, version, 'version matches')
     t.notEqual(context.traceId, traceId, 'has new traceId')
     t.notEqual(context.id, id, 'has new id')
-    t.equal(context.sampled, false, 'is sampled')
+    t.equal(context.recorded, false, 'is sampled')
 
     t.end()
   })

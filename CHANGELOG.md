@@ -1,3 +1,8 @@
+# 2.4.0 - 2019/1/24
+  * feat: add ability to set custom log message for errors ([#824](https://github.com/elastic/apm-agent-nodejs/pull/824))
+  * feat: add ability to set custom timestamp for errors ([#823](https://github.com/elastic/apm-agent-nodejs/pull/823))
+  * feat: add support for custom start/end times ([#818](https://github.com/elastic/apm-agent-nodejs/pull/818))
+
 # 2.3.0 - 2019/1/22
   * fix(parsers): move port fix into parser ([#820](https://github.com/elastic/apm-agent-nodejs/pull/820))
   * fix(mongo): support 3.1.10+ ([#793](https://github.com/elastic/apm-agent-nodejs/pull/793)) 
