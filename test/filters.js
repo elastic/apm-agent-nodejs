@@ -2,7 +2,7 @@
 
 const test = require('tape')
 
-const Filters = require('../lib/filters')
+const Filters = require('object-filter-sequence')
 const filterHttpHeaders = require('../lib/filters/http-headers')
 
 function makeTransactionWithHeaders (headers) {
@@ -24,7 +24,7 @@ function getHeaders (result) {
 test('set-cookie', function (t) {
   const filters = new Filters()
 
-  filters.add(filterHttpHeaders)
+  filters.push(filterHttpHeaders)
 
   const result = filters.process(
     makeTransactionWithHeaders({
