@@ -8,7 +8,7 @@ var test = require('tape')
 
 var assert = require('./_assert')
 var mockClient = require('../../../_mock_http_client')
-var TraceContext = require('../../../../lib/instrumentation/trace-context')
+var TraceParent = require('traceparent')
 
 test('http.createServer', function (t) {
   t.test('direct callback', function (t) {
@@ -87,7 +87,7 @@ test('new http.Server', function (t) {
 function sendRequest (server, timeout) {
   server.listen(function () {
     var port = server.address().port
-    var context = TraceContext.startOrResume(null, {
+    var context = TraceParent.startOrResume(null, {
       transactionSampleRate: 1.0
     })
 
@@ -116,7 +116,7 @@ function sendRequest (server, timeout) {
 function onRequest (t) {
   return function onRequestHandler (req, res) {
     var traceparent = req.headers['elastic-apm-traceparent']
-    var parent = TraceContext.fromString(traceparent)
+    var parent = TraceParent.fromString(traceparent)
     var context = agent.currentTransaction._context
     t.equal(parent.traceId, context.traceId, 'context trace id matches parent trace id')
     t.notEqual(parent.id, context.id, 'context id does not match parent id')

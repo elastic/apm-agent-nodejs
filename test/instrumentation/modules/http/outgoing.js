@@ -11,7 +11,7 @@ var test = require('tape')
 
 var echoServer = require('./_echo_server_util').echoServer
 var mockClient = require('../../../_mock_http_client')
-var TraceContext = require('.././../../../lib/instrumentation/trace-context')
+var TraceParent = require('traceparent')
 
 //
 // http
@@ -126,8 +126,8 @@ function echoTest (type, handler) {
         res.resume()
       })
 
-      var expected = TraceContext.fromString(trans._context.toString())
-      var received = TraceContext.fromString(req.getHeader('elastic-apm-traceparent'))
+      var expected = TraceParent.fromString(trans._context.toString())
+      var received = TraceParent.fromString(req.getHeader('elastic-apm-traceparent'))
       t.equal(received.version, expected.version, 'traceparent header has matching version')
       t.equal(received.traceId, expected.traceId, 'traceparent header has matching traceId')
       t.ok(/^[\da-f]{16}$/.test(expected.id), 'traceparent header has valid id')
