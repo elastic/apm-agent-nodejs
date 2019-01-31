@@ -14,13 +14,55 @@ var config = require('../lib/config')
 
 var agentVersion = require('../package.json').version
 
+process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+
 test('#startTransaction()', function (t) {
-  var agent = Agent()
-  agent.start()
-  var trans = agent.startTransaction('foo', 'bar')
-  t.equal(trans.name, 'foo')
-  t.equal(trans.type, 'bar')
-  t.end()
+  t.test('name and type', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction('foo', 'bar')
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'bar')
+    t.end()
+  })
+
+  t.test('options.startTime', function (t) {
+    var agent = Agent()
+    agent.start()
+    var startTime = Date.now() - 1000
+    var trans = agent.startTransaction('foo', 'bar', { startTime })
+    trans.end()
+    var duration = trans.duration()
+    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
+    t.end()
+  })
+
+  t.test('options.childOf', function (t) {
+    var agent = Agent()
+    agent.start()
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = agent.startTransaction('foo', 'bar', { childOf })
+    t.equal(trans._context.version, '00')
+    t.equal(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(trans._context.id, '00f067aa0ba902b7')
+    t.equal(trans._context.parentId, '00f067aa0ba902b7')
+    t.equal(trans._context.flags, '01')
+    t.end()
+  })
+
+  t.test('traceparent (legacy)', function (t) {
+    var agent = Agent()
+    agent.start()
+    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = agent.startTransaction('foo', 'bar', traceparent)
+    t.equal(trans._context.version, '00')
+    t.equal(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(trans._context.id, '00f067aa0ba902b7')
+    t.equal(trans._context.parentId, '00f067aa0ba902b7')
+    t.equal(trans._context.flags, '01')
+    t.end()
+  })
 })
 
 test('#endTransaction()', function (t) {
@@ -50,6 +92,17 @@ test('#endTransaction()', function (t) {
     agent.endTransaction('done')
     t.equal(trans.ended, true)
     t.equal(trans.result, 'done')
+    t.end()
+  })
+
+  t.test('with custom endTime', function (t) {
+    var agent = Agent()
+    agent.start()
+    var startTime = Date.now() - 1000
+    var endTime = startTime + 2000.123
+    var trans = agent.startTransaction('foo', 'bar', { startTime })
+    agent.endTransaction('done', endTime)
+    t.equal(trans.duration(), 2000.123)
     t.end()
   })
 })
@@ -141,6 +194,47 @@ test('#startSpan()', function (t) {
     t.ok(span, 'should return a span')
     t.equal(span.name, 'span-name')
     t.equal(span.type, 'span-type')
+    t.end()
+  })
+
+  t.test('options.startTime', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var startTime = Date.now() - 1000
+    var span = agent.startSpan(null, null, { startTime })
+    span.end()
+    var duration = span.duration()
+    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
+    t.end()
+  })
+
+  t.test('options.childOf', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var span = agent.startSpan(null, null, { childOf })
+    t.equal(span._context.version, '00')
+    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
+    t.equal(span._context.flags, '01')
+    t.end()
+  })
+
+  t.test('traceparent (legacy)', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var span = agent.startSpan(null, null, traceparent)
+    t.equal(span._context.version, '00')
+    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
+    t.equal(span._context.flags, '01')
     t.end()
   })
 })
@@ -656,6 +750,32 @@ test('#captureError()', function (t) {
       })
   })
 
+  t.test('should allow custom log message together with exception', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'), { message: 'bar' })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.log.message, 'bar')
+        t.end()
+      })
+  })
+
+  t.test('should not use custom log message together with exception if equal', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'), { message: 'foo' })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.log, undefined)
+        t.end()
+      })
+  })
+
   t.test('should adhere to default stackTraceLimit', function (t) {
     t.plan(2 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
@@ -883,6 +1003,25 @@ test('#captureError()', function (t) {
         t.end()
       })
   })
+
+  t.test('custom timestamp', function (t) {
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+
+    const timestamp = Date.now() - 1000
+    const expect = [
+      'metadata',
+      'error'
+    ]
+
+    APMServerWithDefaultAsserts(t, {}, { expect })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with callback'), { timestamp })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.timestamp, timestamp * 1000)
+        t.end()
+      })
+  })
 })
 
 test('#handleUncaughtExceptions()', function (t) {
@@ -965,15 +1104,15 @@ test('#lambda()', function (t) {
   function assertContext (t, name, data) {
     t.ok(data)
     const lambda = data.lambda
-    t.ok(lambda)
-    t.equal(lambda.functionName, name)
+    t.ok(lambda, 'context data has lambda object')
+    t.equal(lambda.functionName, name, 'function name matches')
     var keys = Object.keys(baseContext)
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i]
-      t.equal(lambda[key], baseContext[key])
+      t.equal(lambda[key], baseContext[key], `${key} matches`)
     }
-    t.equal(lambda.executionEnv, process.env.AWS_EXECUTION_ENV)
-    t.equal(lambda.region, process.env.AWS_REGION)
+    t.equal(lambda.executionEnv, process.env.AWS_EXECUTION_ENV, 'execution env matches')
+    t.equal(lambda.region, process.env.AWS_REGION, 'region matches')
   }
 
   t.test('success - basic callback', function (t) {

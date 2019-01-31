@@ -5,9 +5,17 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/advanced-setup.html[elastic.co]
 endif::[]
 
-== Advanced Setup and Configuration
+== Setup and Configuration
 
-[float]
+The following pages will help you set up and configure your APM Agent.
+
+* <<starting-the-agent>>
+* <<configuring-the-agent>>
+** <<agent-configuration-object>>
+** <<agent-configuration-file>>
+* <<es-modules>>
+* <<configuration>>
+
 [[starting-the-agent]]
 === Starting the agent
 
@@ -38,24 +46,54 @@ but instead have to rely on <<configuring-the-agent,one of the other methods of 
 NOTE: If you are using Babel, you need to use the `elastic-apm-node/start` approach.
 <<es-modules,Read more>>.
 
-[float]
 [[configuring-the-agent]]
 === Configuring the agent
 
-There are three ways to configure the Node.js agent:
+There are three ways to configure the Node.js agent. In order of precedence (higher overwrites lower):
 
-1. If calling the <<apm-start,`start`>> function,
-you can supply a configurations object as the first argument.
-The option parameters given here will take precedence over config options provided by other means
+1. Environment variables.
 
-2. If a given config option is not provided in the call to the <<apm-start,`start`>> function (or if requiring the `elastic-apm-node/start` script),
-the agent will look for the config option in the optional <<agent-configuration-file,agent configuration file>>
+2. If calling the `apm.start()` function,
+you can supply a <<agent-configuration-object,configurations object>> as the first argument.
 
-3. If a config option is not provided in any of the above means,
-the agent will look for its associated environment variable.
-You can see the expected names of these environment variables in the documentation for the <<apm-start,`start`>> options below
+3. Via the <<agent-configuration-file,agent configuration file>>.
 
-For information on the available configuration properties, see the <<apm-start,API reference>>.
+For information on the available configuration properties, and the expected names of environment variables, see the <<configuration,Configuration options>> documentation.
+
+[float]
+[[agent-configuration-object]]
+==== Agent configuration object
+
+To use the optional `options` argument, simply pass it into the `apm.start()` method:
+
+[source,js]
+----
+var apm = require('elastic-apm-node').start({
+  // add configuration options here
+})
+----
+
+Here's an example usage configuring the agent to only be active in production:
+
+[source,js]
+----
+// Add this to the VERY top of the first file loaded in your app
+require('elastic-apm-node').start({
+
+  // Override service name from package.json
+  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
+  serviceName: '',
+
+  // Use if APM Server requires a token
+  secretToken: '',
+
+  // Set custom APM Server URL (default: http://localhost:8200)
+  serverUrl: '',
+
+  // Only activate the agent if it's running in production
+  active: process.env.NODE_ENV === 'production'
+})
+----
 
 [float]
 [[agent-configuration-file]]
@@ -87,7 +125,6 @@ module.exports = {
 }
 ----
 
-[float]
 [[es-modules]]
 === Babel / ES Modules support
 
@@ -103,5 +140,7 @@ Instead you need to import the `elastic-apm-node/start` module:
 import apm from 'elastic-apm-node/start'
 ----
 
-Now, you can either configure the agent using the environment variables associated with each <<apm-start,config option>>,
+Now, you can either configure the agent using the environment variables associated with each <<configuration,configuration option>>,
 or use the optional <<agent-configuration-file,agent configuration file>>.
+
+include::./configuration.asciidoc[]

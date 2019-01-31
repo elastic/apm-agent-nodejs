@@ -98,9 +98,17 @@ it's converted to a string before being sent to the APM Server
 
 [source,js]
 ----
-span.end()
+span.end([endTime])
 ----
 
 End the span.
 If the span has already ended,
 nothing happens.
+
+Arguments:
+
+* `endTime` - The time when the span ended.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used

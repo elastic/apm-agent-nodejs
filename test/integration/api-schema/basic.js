@@ -16,6 +16,8 @@ const utils = require('./_utils')
 const Agent = require('../../_agent')
 const findObjInArray = require('../../_utils').findObjInArray
 
+process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+
 const next = afterAll(function (err, validators) {
   if (err) throw err
 

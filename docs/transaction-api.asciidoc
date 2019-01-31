@@ -42,15 +42,15 @@ There's a special type called `request` which is used by the agent for the trans
 [[transaction-result]]
 ==== `transaction.result`
 
-* *Type:* Number
-* *Default:* `200`
+* *Type:* String
+* *Default:* `success`
 
-The transaction result.
-
-Think of the transaction result as equivalent to the status code of an HTTP response.
+A string describing the result of the transaction.
+This is typically the HTTP status code,
+or e.g. "success" or "failure" for a background task.
 
 [[transaction-start-span]]
-==== `transaction.startSpan([name][, type])`
+==== `transaction.startSpan([name][, type][, options])`
 
 [source,js]
 ----
@@ -68,6 +68,14 @@ Defaults to `unnamed`
 * `type` - The type of span (string).
 You can alternatively set this via <<span-type,`span.type`>>.
 Defaults to `custom`
+
+* `options` - The following options are supported:
+
+** `startTime` - The time when the span started.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used
 
 When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
 
@@ -154,11 +162,11 @@ elasticApm.init({
 See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
 
 [[transaction-end]]
-==== `transaction.end([result])`
+==== `transaction.end([result][, endTime])`
 
 [source,js]
 ----
-transaction.end([result])
+transaction.end([result][, endTime])
 ----
 
 Ends the transaction.
@@ -167,4 +175,14 @@ nothing happens.
 
 Alternatively you can call <<apm-end-transaction,`apm.endTransaction()`>> to end the active transaction.
 
-A value may be provided to set as a result.
+Arguments:
+
+* `result` - A string describing the result of the transaction.
+This is typically the HTTP status code,
+or e.g. "success" or "failure" for a background task
+
+* `endTime` - The time when the transaction ended.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used

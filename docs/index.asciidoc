@@ -31,9 +31,13 @@ include::./custom-transactions.asciidoc[]
 
 include::./custom-spans.asciidoc[]
 
+include::./metrics.asciidoc[]
+
 include::./performance-tuning.asciidoc[]
 
 include::./source-maps.asciidoc[]
+
+include::./opentracing.asciidoc[]
 
 include::./supported-technologies.asciidoc[]
 
