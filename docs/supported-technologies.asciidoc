@@ -10,7 +10,7 @@ endif::[]
 Support for the Elastic APM Node.js agent follows the support schedule of Node.js itself to the end-of-life period of each version after its maintenance term.
 Versions of Node.js past their end-of-life date are not supported.
 
-image::https://raw.githubusercontent.com/nodejs/Release/master/schedule.png[]
+image::./images/node_release_schedule.png[Node.js release schedule]
 
 Some versions of Node.js contain bugs or issues that limit our ability to instrument them correctly.
 The following versions of Node.js are known to not be fully instrumented:
