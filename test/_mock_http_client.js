@@ -36,6 +36,9 @@ module.exports = function (expected, done) {
     sendError (error, cb) {
       this._write({ error }, cb)
     },
+    sendMetricSet (error, cb) {
+      this._write({ error }, cb)
+    },
     flush (cb) {
       if (cb) process.nextTick(cb)
     }
