@@ -1,3 +1,5 @@
+# 2.5.1 - 2019/2/4
+  * fix(metrics): ensure NaN becomes 0, not null ([#837](https://github.com/elastic/apm-agent-nodejs/pull/837)) 
 
 # 2.5.0 - 2019/1/29
   * feat(metrics): added basic metrics gathering ([#731](https://github.com/elastic/apm-agent-nodejs/pull/731)) 

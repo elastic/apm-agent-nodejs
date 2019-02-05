@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "scripts": {
