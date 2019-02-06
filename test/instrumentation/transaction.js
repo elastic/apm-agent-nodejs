@@ -189,7 +189,7 @@ test('#end() - with result', function (t) {
 test('#duration()', function (t) {
   var ins = mockInstrumentation(function (added) {
     t.ok(added.duration() > 40)
-    t.ok(added.duration() < 60)
+    t.ok(added.duration() < 100)
     t.end()
   })
   var trans = new Transaction(ins._agent)
