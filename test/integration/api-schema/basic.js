@@ -28,11 +28,6 @@ const next = afterAll(function (err, validators) {
     validateFieldMessages(t, validateMetadata.errors, [
       { field: 'data.service', message: 'is required' }
     ])
-    t.equal(validateMetadata({ service: {} }), false)
-    validateFieldMessages(t, validateMetadata.errors, [
-      { field: 'data.service.agent', message: 'is required' },
-      { field: 'data.service.name', message: 'is required' }
-    ])
     t.end()
   })
 
