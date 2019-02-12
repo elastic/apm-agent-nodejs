@@ -28,7 +28,7 @@ var optionFixtures = [
   ['active', 'ACTIVE', true],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME'],
-  ['apiRequestSize', 'API_REQUEST_SIZE', 750 * 1024],
+  ['apiRequestSize', 'API_REQUEST_SIZE', 768 * 1024],
   ['apiRequestTime', 'API_REQUEST_TIME', 10],
   ['frameworkName', 'FRAMEWORK_NAME'],
   ['frameworkVersion', 'FRAMEWORK_VERSION'],
