@@ -16,15 +16,22 @@ services:
   - elasticsearch
   - cassandra
 
+install:
+  - for i in {1..3}; do travis_wait 5 npm install && break; rm -rf node_modules; done
+
 before_script:
+  - npm install -g npm@latest
   - wait-on tcp:9200
 
 node_js:
+  - '11'
+  - '11.0'
   - '10'
-  - '9'
+  - '10.0'
   - '8'
+  - '8.1'
   - '6'
-  - '4'
+  - '6.0'
 
 jobs:
   fast_finish: true
@@ -37,14 +44,14 @@ jobs:
 
     # Disable Async Hooks
     -
-      node_js: '10'
-      env: ELASTIC_APM_ASYNC_HOOKS=0
+      node_js: '11'
+      env: ELASTIC_APM_ASYNC_HOOKS=false
     -
-      node_js: '9'
-      env: ELASTIC_APM_ASYNC_HOOKS=0
+      node_js: '10'
+      env: ELASTIC_APM_ASYNC_HOOKS=false
     -
       node_js: '8'
-      env: ELASTIC_APM_ASYNC_HOOKS=0
+      env: ELASTIC_APM_ASYNC_HOOKS=false
 
     # Docs
     -
@@ -72,46 +79,46 @@ jobs:
     #            DEPENDENCY STAGE             #
     ###########################################
 
-    # Node.js 10
+    # Node.js 11
     - stage: dependencies
-      node_js: '10'
+      node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core,finalhandler
       script: tav --quiet
     -
-      node_js: '10'
+      node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver
+      env: TAV=ioredis,pg,cassandra-driver,restify
       script: tav --quiet
     -
-      node_js: '10'
+      node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
-      node_js: '10'
+      node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
 
-    # Node.js 9
+    # Node.js 10
     - stage: dependencies
-      node_js: '9'
+      node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core,finalhandler
       script: tav --quiet
     -
-      node_js: '9'
+      node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver
+      env: TAV=ioredis,pg,cassandra-driver,restify
       script: tav --quiet
     -
-      node_js: '9'
+      node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
-      node_js: '9'
+      node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
@@ -120,17 +127,17 @@ jobs:
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core,finalhandler
       script: tav --quiet
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver
+      env: TAV=ioredis,pg,cassandra-driver,restify
       script: tav --quiet
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '8'
@@ -142,42 +149,20 @@ jobs:
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
+      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core,finalhandler
       script: tav --quiet
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver
+      env: TAV=ioredis,pg,cassandra-driver,restify
       script: tav --quiet
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
+      env: TAV=mimic-response,got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '6'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
-      script: tav --quiet
-
-    # Node.js 4
-    -
-      node_js: '4'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,mongodb-core
-      script: tav --quiet
-    -
-      node_js: '4'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver
-      script: tav --quiet
-    -
-      node_js: '4'
-      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird
-      script: tav --quiet
-    -
-      node_js: '4'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
       env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
       script: tav --quiet
@@ -214,24 +199,29 @@ jobs:
       name: "Node.js: 11-nightly (no async hooks)"
       if: type = cron
       env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
+        - ELASTIC_APM_ASYNC_HOOKS=false
         - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
       node_js: '10'
       name: "Node.js: 10-nightly (no async hooks)"
       if: type = cron
       env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
+        - ELASTIC_APM_ASYNC_HOOKS=false
         - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
       node_js: '8'
       name: "Node.js: 8-nightly (no async hooks)"
       if: type = cron
       env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
+        - ELASTIC_APM_ASYNC_HOOKS=false
         - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
 
     # Release Candidates
+    -
+      node_js: '11'
+      name: "Node.js: 11-rc"
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
       node_js: '10'
       name: "Node.js: 10-rc"
@@ -250,18 +240,25 @@ jobs:
 
     # Release Candidates - No async hooks
     -
+      node_js: '11'
+      name: "Node.js: 11-rc (no async hooks)"
+      if: type = cron
+      env:
+        - ELASTIC_APM_ASYNC_HOOKS=false
+        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+    -
       node_js: '10'
       name: "Node.js: 10-rc (no async hooks)"
       if: type = cron
       env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
+        - ELASTIC_APM_ASYNC_HOOKS=false
         - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
       node_js: '8'
       name: "Node.js: 8-rc (no async hooks)"
       if: type = cron
       env:
-        - ELASTIC_APM_ASYNC_HOOKS=0
+        - ELASTIC_APM_ASYNC_HOOKS=false
         - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
 
 addons:

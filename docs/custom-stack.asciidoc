@@ -10,16 +10,17 @@ endif::[]
 Getting Elastic APM set up for your Node.js app is easy,
 and there are various ways you can tweak it to fit your needs.
 
-If you are using either Express, hapi, Koa, or AWS Lambda
+If you are using either Express, hapi, Koa, Restify, or AWS Lambda
 we recommend that you read these articles instead:
 
 * <<express,Get started with Express>>
 * <<hapi,Get started with hapi>>
 * <<koa,Get started with Koa>>
+* <<restify,Get started with Restify>>
 * <<lambda,Get started with Lambda>>
 
-For a custom Node.js app,
-follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
+For a custom Node.js app, follow the guide below to get started.
+For more advanced topics, check out the <<api,API Reference>>.
 
 [float]
 [[custom-stack-installation]]
@@ -46,7 +47,8 @@ Here's a simple example of how Elastic APM is normally required and started:
 ----
 // Add this to the VERY top of the first file loaded in your app
 var apm = require('elastic-apm-node').start({
-  // Set required service name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+  // Override service name from package.json
+  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
 
   // Use if APM Server requires a token
@@ -101,7 +103,7 @@ It records spans for database queries,
 external HTTP requests,
 and other slow operations that happen during requests to your app.
 
-By default the agent will instrument <<compatibility,the most common modules>>.
+By default, the agent will instrument <<supported-technologies,the most common modules>>.
 To instrument other events,
 you can use custom spans.
 For information about custom spans,
@@ -118,17 +120,17 @@ See the <<custom-transactions,Custom Transactions section>> for details.
 The Node.js agent tracks incoming HTTP requests to your application in what are called "transactions".
 All transactions with the same name are grouped together automatically.
 
-In a normal web application you want to name transactions based on the route that matches the incoming HTTP request.
+In a normal web application, you want to name transactions based on the route that matches the incoming HTTP request.
 So say you have a route to display posts on a blog identified by `GET /posts/{id}`.
 You want requests `GET /posts/12`, `GET /posts/42` etc to be grouped together under a transaction named `GET /posts/{id}`.
 
-If you are using Express, hapi or koa-router this naming happens automatically based on the names of your routes.
+If you are using Express, hapi, koa-router or Restify this naming happens automatically based on the names of your routes.
 If you use another framework or a custom router you will see that the transactions are simply grouped together in a few big chunks named "unknown route".
 In that case,
 you will need to help us out a little by supplying a name for each transaction.
 You can do that by calling <<apm-set-transaction-name,`apm.setTransactionName()`>> at any time during the request with the name of the transaction as the first argument.
 
-Except of an application using the https://github.com/watson/patterns[patterns] module for route handling:
+Excerpt of an application using the https://github.com/watson/patterns[patterns] module for route handling:
 
 [source,js]
 ----
@@ -217,7 +219,7 @@ the agent error handler should be the first in the chain to ensure that it will 
 [source,js]
 ----
 var apm = require('elastic-apm-node').start()
-var conncet = require('connect')
+var connect = require('connect')
 
 var app = connect()
 
@@ -239,7 +241,7 @@ app.use(function (err, req, res, next) {
 [[custom-stack-filter-sensitive-information]]
 === Filter sensitive information
 
-By default the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
+By default, the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
 
 It's possible for you to tweak these defaults or remove any information you don't want to send to Elastic APM:
 
@@ -250,7 +252,7 @@ use the <<capture-body,`captureBody`>> config option
 To disable this,
 use the <<filter-http-headers,`filterHttpHeaders`>> config option
 * To apply custom filters,
-use the <<apm-add-filter,`apm.addFilter()`>> function
+use one of the <<apm-add-filter,filtering>> functions
 
 [float]
 [[custom-stack-add-your-own-data]]
@@ -272,7 +274,7 @@ use one of the functions below:
 [[custom-stack-compatibility]]
 === Compatibility
 
-See the <<compatibility,Compatibility section>> for details.
+See the <<supported-technologies,Supported technologies section>> for details.
 
 [float]
 [[custom-stack-troubleshooting]]

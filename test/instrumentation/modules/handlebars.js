@@ -11,28 +11,28 @@ var agent = require('../../..').start({
 var handlebars = require('handlebars')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
+
 test('handlebars compile and render', function userLandCode (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (data) {
     t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, 2)
 
     var trans = data.transactions[0]
 
     t.ok(/^foo\d$/.test(trans.name))
     t.equal(trans.type, 'custom')
 
-    t.equal(trans.spans.length, 2)
-
-    t.equal(trans.spans[0].name, 'handlebars')
-    t.equal(trans.spans[0].type, 'template.handlebars.compile')
-    t.ok(trans.spans[0].stacktrace.some(function (frame) {
-      return frame.function === 'userLandCode'
-    }), 'include user-land code frame')
-
-    t.equal(trans.spans[1].name, 'handlebars')
-    t.equal(trans.spans[1].type, 'template.handlebars.render')
-    t.ok(trans.spans[1].stacktrace.some(function (frame) {
-      return frame.function === 'userLandCode'
-    }), 'include user-land code frame')
+    const types = ['template.handlebars.compile', 'template.handlebars.render']
+    for (const type of types) {
+      const span = findObjInArray(data.spans, 'type', type)
+      t.ok(span, 'should have span of type ' + type)
+      t.equal(span.name, 'handlebars')
+      t.ok(span.stacktrace.some(function (frame) {
+        return frame.function === 'userLandCode'
+      }), 'include user-land code frame')
+    }
 
     t.end()
   })
@@ -47,8 +47,7 @@ test('handlebars compile and render', function userLandCode (t) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._transport = mockClient(3, cb)
   agent.captureError = function (err) { throw err }
 }

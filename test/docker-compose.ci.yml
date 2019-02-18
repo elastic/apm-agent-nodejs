@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   node_tests:
-    image: apm-agent-nodejs:node-${NODE_VERSION}
+    image: node:${NODE_VERSION}
     environment: 
       MONGODB_HOST: 'mongodb'
       REDIS_HOST: 'redis'

@@ -5,61 +5,73 @@ if (require('os').platform() === 'win32') {
   process.exit()
 }
 
-const getPort = require('get-port')
+const http = require('http')
+const zlib = require('zlib')
 
-getPort().then(function (port) {
-  const agent = require('../../../').start({
-    serviceName: 'test',
-    serverUrl: 'http://localhost:' + port,
-    captureExceptions: false,
-    captureErrorLogStackTraces: true
-  })
+const afterAll = require('after-all-results')
+const ndjson = require('ndjson')
+const test = require('tape')
 
-  const http = require('http')
-  const zlib = require('zlib')
-  const test = require('tape')
-  const utils = require('./_utils')
+const utils = require('./_utils')
+const Agent = require('../../_agent')
+
+const next = afterAll(function (err, validators) {
+  if (err) throw err
+
+  const [validateMetadata, validateError] = validators
 
   const errors = [
     new Error('foo'),
     'just a string'
   ]
   errors.forEach(function (error, index) {
-    test('POST /errors - captureErrorLogStackTraces: true - ' + index, function (t) {
+    test('error schema - captureErrorLogStackTraces: true - ' + index, function (t) {
       t.plan(7)
 
-      utils.errorsValidator(function (err, validate) {
-        t.error(err)
+      let agent
+      const validators = [validateMetadata, validateError]
 
-        const server = http.createServer(function (req, res) {
-          t.equal(req.method, 'POST')
-          t.equal(req.url, '/v1/errors')
+      const server = http.createServer(function (req, res) {
+        t.equal(req.method, 'POST', 'server should recieve a POST request')
+        t.equal(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
 
-          const buffers = []
-          const gunzip = zlib.createGunzip()
-          const unzipped = req.pipe(gunzip)
-
-          unzipped.on('data', buffers.push.bind(buffers))
-          unzipped.on('end', function () {
+        req
+          .pipe(zlib.createGunzip())
+          .pipe(ndjson.parse())
+          .on('data', function (data) {
+            const type = Object.keys(data)[0]
+            const validate = validators.shift()
+            t.equal(validate(data[type]), true, type + ' should be valid')
+            t.equal(validate.errors, null, type + ' should not have any validation errors')
+          })
+          .on('end', function () {
             res.end()
             server.close()
-            const data = JSON.parse(Buffer.concat(buffers))
-            t.equal(data.errors.length, 1, 'expect 1 error to be sent')
-            const valid = validate(data)
-            t.equal(validate.errors, null, 'should not have any validation errors')
-            t.equal(valid, true, 'should be valid')
+            agent.destroy()
+            t.end()
           })
-        })
+      })
 
-        server.listen(port, function () {
-          agent.captureError(error, function (err) {
-            server.close()
-            t.error(err)
-          })
+      server.listen(function () {
+        agent = newAgent(server)
+        agent.captureError(error, function (err) {
+          t.error(err, 'captureError should not result in an error')
         })
       })
     })
   })
-}, function (err) {
-  throw err
 })
+
+utils.metadataValidator(next())
+utils.errorValidator(next())
+
+function newAgent (server) {
+  return new Agent().start({
+    serviceName: 'test',
+    serverUrl: 'http://localhost:' + server.address().port,
+    captureExceptions: false,
+    disableInstrumentations: ['http'],
+    captureErrorLogStackTraces: true,
+    metricsInterval: 0
+  })
+}

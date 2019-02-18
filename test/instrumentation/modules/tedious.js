@@ -12,6 +12,8 @@ const agent = require('../../../').start({
 const tedious = require('tedious')
 const test = require('tape')
 
+const mockClient = require('../../_mock_http_client')
+
 const connection = process.env.APPVEYOR
   ? {
     userName: 'sa',
@@ -49,7 +51,7 @@ function withConnection (t) {
 test('execSql', (t) => {
   const sql = 'select 1'
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(2, function (data) {
     assertBasicQuery(t, sql, data)
     t.end()
   })
@@ -61,7 +63,6 @@ test('execSql', (t) => {
       t.error(err, 'no error')
       t.equal(rowCount, 1, 'row count')
       agent.endTransaction()
-      agent.flush()
     })
 
     request.on('row', (columns) => {
@@ -78,7 +79,7 @@ test('execSql', (t) => {
 test('prepare / execute', (t) => {
   const sql = 'select @value'
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     assertPreparedQuery(t, sql, data)
     t.end()
   })
@@ -90,7 +91,6 @@ test('prepare / execute', (t) => {
       t.error(err, 'no error')
       t.equal(rowCount, 1, 'row count')
       agent.endTransaction()
-      agent.flush()
     })
     request.addParameter('value', tedious.TYPES.Int)
 
@@ -112,11 +112,11 @@ test('prepare / execute', (t) => {
 })
 
 function assertTransaction (t, sql, data, spanCount) {
-  t.equal(data.transactions.length, 1)
+  t.equal(data.transactions.length, 1, 'transaction count')
+  t.equal(data.spans.length, spanCount, 'span count')
 
   var trans = data.transactions[0]
   t.equal(trans.name, 'foo', 'transaction name')
-  t.equal(trans.spans.length, spanCount, 'span count')
 }
 
 function assertQuery (t, sql, span, name) {
@@ -130,16 +130,13 @@ function assertQuery (t, sql, span, name) {
 
 function assertBasicQuery (t, sql, data) {
   assertTransaction(t, sql, data, 1)
-
-  var trans = data.transactions[0]
-  assertQuery(t, sql, trans.spans[0], 'SELECT')
+  assertQuery(t, sql, data.spans[0], 'SELECT')
 }
 
 function assertPreparedQuery (t, sql, data) {
   assertTransaction(t, sql, data, 2)
 
-  var trans = data.transactions[0]
-  var spans = sortSpansBy(trans.spans, span => span.name)
+  var spans = sortSpansBy(data.spans, span => span.name)
   assertQuery(t, sql, spans[0], 'SELECT')
   assertQuery(t, sql, spans[1], 'SELECT (prepare)')
 }
@@ -150,8 +147,10 @@ function sortSpansBy (spans, fn) {
   })
 }
 
-function resetAgent (request) {
-  agent._httpClient = { request }
-  agent._instrumentation._queue._clear()
+function resetAgent (expected, cb) {
+  // first time this function is called, the real client will be present - so
+  // let's just destroy it before creating the mock
+  if (agent._transport.destroy) agent._transport.destroy()
+  agent._transport = mockClient(expected, cb)
   agent._instrumentation.currentTransaction = null
 }

@@ -14,7 +14,7 @@ var test = require('tape')
 var ins = agent._instrumentation
 
 if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
-  Promise.config({cancellation: true})
+  Promise.config({ cancellation: true })
 
   var CANCEL_NAMES = ['cancel', 'break']
   CANCEL_NAMES.forEach(function (fnName) {

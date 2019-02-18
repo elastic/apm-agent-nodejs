@@ -42,25 +42,147 @@ There's a special type called `request` which is used by the agent for the trans
 [[transaction-result]]
 ==== `transaction.result`
 
-* *Type:* Number
-* *Default:* `200`
+* *Type:* String
+* *Default:* `success`
 
-The transaction result.
+A string describing the result of the transaction.
+This is typically the HTTP status code,
+or e.g. "success" or "failure" for a background task.
 
-Think of the transaction result as equivalent to the status code of an HTTP response.
-
-[[transaction-end]]
-==== `transaction.end([result])`
+[[transaction-start-span]]
+==== `transaction.startSpan([name][, type][, options])`
 
 [source,js]
 ----
-transaction.end([result])
+var span = transaction.startSpan('My custom span')
 ----
 
-Ends the transaction and <<span-truncate,truncates>> all un-ended child spans.
+Start and return a new custom span associated with this transaction.
+
+Arguments:
+
+* `name` - The name of the span (string).
+You can alternatively set this via <<span-name,`span.name`>>.
+Defaults to `unnamed`
+
+* `type` - The type of span (string).
+You can alternatively set this via <<span-type,`span.type`>>.
+Defaults to `custom`
+
+* `options` - The following options are supported:
+
+** `startTime` - The time when the span started.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used
+
+When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
+
+See <<span-api,Span API>> docs for details on how to use custom spans.
+
+[[transaction-set-tag]]
+==== `transaction.setTag()`
+
+[source,js]
+----
+transaction.setTag(name, value)
+----
+
+Set a tag on the transaction.
+You can set multiple tags on the same transaction.
+If an error happens during the transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+
+Arguments:
+
+* `name` - Any string.
+Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+* `value` - Any string.
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
+[[transaction-add-tags]]
+==== `transaction.addTags()`
+
+[source,js]
+----
+apm.addTags({ [name]: value })
+----
+
+Add several tags on the transaction.
+You can add tags multiple times.
+If an error happens during the transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+
+Arguments:
+
+* `tags` - An object containing key/value pairs each representing tag `name` and tag `value`:
+** `name` - Any string.
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+** `value` - Any string.
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
+[[transaction-ensure-parent-id]]
+==== `transaction.ensureParentId()`
+
+* *Type:* String
+
+If the transaction does not already have a parent id,
+calling this method generates a new parent id,
+sets it as the parent id of this transaction,
+and returns it as a `String`.
+
+This enables the correlation of the spans the JavaScript Real User Monitoring (RUM) agent creates for the initial page load with the transaction of the backend service.
+If your backend service generates the HTML page dynamically,
+initializing the JavaScript RUM agent with the value of this method allows analyzing the time spent in the browser vs in the backend services.
+
+To enable the JavaScript RUM agent,
+add a snippet similar to this to the body of your HTML page,
+preferably before other JavaScript libraries:
+
+[source,js]
+----
+elasticApm.init({
+  serviceName: 'my-frontend-app', // Name of your frontend app
+  serverUrl: 'https://example.com:8200', // APM Server host
+  pageLoadTraceId: '${transaction.traceId}',
+  pageLoadSpanId: '${transaction.ensureParentId()}',
+  pageLoadSampled: ${transaction.sampled}
+})
+----
+
+See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
+
+[[transaction-end]]
+==== `transaction.end([result][, endTime])`
+
+[source,js]
+----
+transaction.end([result][, endTime])
+----
+
+Ends the transaction.
 If the transaction has already ended,
 nothing happens.
 
 Alternatively you can call <<apm-end-transaction,`apm.endTransaction()`>> to end the active transaction.
 
-A value may be provided to set as a result.
+Arguments:
+
+* `result` - A string describing the result of the transaction.
+This is typically the HTTP status code,
+or e.g. "success" or "failure" for a background task
+
+* `endTime` - The time when the transaction ended.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used

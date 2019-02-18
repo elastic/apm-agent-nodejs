@@ -1,4 +1,5 @@
 :branch: current
+:server-branch: 6.5
 include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 ifdef::env-github[]
@@ -16,6 +17,8 @@ include::./hapi.asciidoc[]
 
 include::./koa.asciidoc[]
 
+include::./restify.asciidoc[]
+
 include::./lambda.asciidoc[]
 
 include::./custom-stack.asciidoc[]
@@ -28,12 +31,18 @@ include::./custom-transactions.asciidoc[]
 
 include::./custom-spans.asciidoc[]
 
+include::./metrics.asciidoc[]
+
 include::./performance-tuning.asciidoc[]
 
 include::./source-maps.asciidoc[]
 
-include::./compatibility.asciidoc[]
+include::./opentracing.asciidoc[]
+
+include::./supported-technologies.asciidoc[]
 
 include::./upgrading.asciidoc[]
 
 include::./troubleshooting.asciidoc[]
+
+include::./redirects.asciidoc[]

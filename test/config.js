@@ -1,29 +1,45 @@
 'use strict'
 
+var cp = require('child_process')
+var fs = require('fs')
 var IncomingMessage = require('http').IncomingMessage
 var os = require('os')
+var path = require('path')
 var util = require('util')
 
+var isRegExp = require('core-util-is').isRegExp
+var mkdirp = require('mkdirp')
+var pFinally = require('p-finally')
+var rimraf = require('rimraf')
 var semver = require('semver')
 var test = require('tape')
-var isRegExp = require('core-util-is').isRegExp
+var promisify = require('util.promisify')
 
 var Agent = require('./_agent')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
-var request = require('../lib/request')
 
 var optionFixtures = [
-  ['serviceName', 'SERVICE_NAME'],
+  ['serviceName', 'SERVICE_NAME', 'elastic-apm-node'],
   ['secretToken', 'SECRET_TOKEN'],
+  ['serverUrl', 'SERVER_URL'],
+  ['verifyServerCert', 'VERIFY_SERVER_CERT', true],
   ['serviceVersion', 'SERVICE_VERSION'],
+  ['active', 'ACTIVE', true],
   ['logLevel', 'LOG_LEVEL', 'info'],
-  ['hostname', 'HOSTNAME', os.hostname()],
+  ['hostname', 'HOSTNAME'],
+  ['apiRequestSize', 'API_REQUEST_SIZE', 768 * 1024],
+  ['apiRequestTime', 'API_REQUEST_TIME', 10],
   ['frameworkName', 'FRAMEWORK_NAME'],
   ['frameworkVersion', 'FRAMEWORK_VERSION'],
-  ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
+  ['filterHttpHeaders', 'FILTER_HTTP_HEADERS', true],
+  ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
+  ['captureSpanStackTraces', 'CAPTURE_SPAN_STACK_TRACES', true],
+  ['captureBody', 'CAPTURE_BODY', 'off'],
+  ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
+  ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
   ['instrument', 'INSTRUMENT', true],
   ['asyncHooks', 'ASYNC_HOOKS', true],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
@@ -31,47 +47,83 @@ var optionFixtures = [
   ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 0],
   ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0],
   ['errorMessageMaxLength', 'ERROR_MESSAGE_MAX_LENGTH', 2048],
+  ['transactionMaxSpans', 'TRANSACTION_MAX_SPANS', 500],
+  ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []]
+  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
+  ['containerId', 'CONTAINER_ID'],
+  ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
+  ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
+  ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
+  ['kubernetesPodUID', 'KUBERNETES_POD_UID']
 ]
 
-var falsyValues = [false, 0, '', '0', 'false', 'no', 'off', 'disabled']
-var truthyValues = [true, 1, '1', 'true', 'yes', 'on', 'enabled']
+var falsyValues = [false, 'false']
+var truthyValues = [true, 'true']
 
 optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
     var bool = typeof fixture[2] === 'boolean'
+    var url = fixture[0] === 'serverUrl' // special case for url's so they can be parsed using url.parse()
     var number = typeof fixture[2] === 'number'
     var array = Array.isArray(fixture[2])
 
-    test('should be configurable by envrionment variable ELASTIC_APM_' + fixture[1], function (t) {
+    test('should be configurable by environment variable ELASTIC_APM_' + fixture[1], function (t) {
       var agent = Agent()
-      var value = bool ? (fixture[2] ? '0' : '1') : number ? 1 : 'custom-value'
-      process.env['ELASTIC_APM_' + fixture[1]] = value
+      var value
+
+      if (bool) value = !fixture[2]
+      else if (number) value = 1
+      else if (url) value = 'http://custom-value'
+      else value = 'custom-value'
+
+      process.env['ELASTIC_APM_' + fixture[1]] = value.toString()
+
       agent.start()
+
       if (array) {
         t.deepEqual(agent._conf[fixture[0]], [ value ])
       } else {
         t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
       }
+
       delete process.env['ELASTIC_APM_' + fixture[1]]
+
       t.end()
     })
 
-    test('should overwrite ELASTIC_APM_' + fixture[1] + ' by option property ' + fixture[0], function (t) {
+    test('should overwrite option property ' + fixture[0] + ' by ELASTIC_APM_' + fixture[1], function (t) {
       var agent = Agent()
       var opts = {}
-      var value1 = bool ? (fixture[2] ? '0' : '1') : number ? 2 : 'overwriting-value'
-      var value2 = bool ? (fixture[2] ? '1' : '0') : number ? 1 : 'custom-value'
-      opts[fixture[0]] = value1
-      process.env['ELASTIC_APM_' + fixture[1]] = value2
-      agent.start(opts)
-      if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value1 ])
+      var value1, value2
+
+      if (bool) {
+        value1 = !fixture[2]
+        value2 = fixture[2]
+      } else if (number) {
+        value1 = 2
+        value2 = 1
+      } else if (url) {
+        value1 = 'http://overwriting-value'
+        value2 = 'http://custom-value'
       } else {
-        t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value1)
+        value1 = 'overwriting-value'
+        value2 = 'custom-value'
       }
+
+      opts[fixture[0]] = value1
+      process.env['ELASTIC_APM_' + fixture[1]] = value2.toString()
+
+      agent.start(opts)
+
+      if (array) {
+        t.deepEqual(agent._conf[fixture[0]], [ value2 ])
+      } else {
+        t.equal(agent._conf[fixture[0]], value2)
+      }
+
       delete process.env['ELASTIC_APM_' + fixture[1]]
+
       t.end()
     })
   }
@@ -89,7 +141,7 @@ optionFixtures.forEach(function (fixture) {
 })
 
 falsyValues.forEach(function (val) {
-  test('should be disabled by envrionment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
+  test('should be disabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
     agent.start({ serviceName: 'foo', secretToken: 'baz' })
@@ -100,7 +152,7 @@ falsyValues.forEach(function (val) {
 })
 
 truthyValues.forEach(function (val) {
-  test('should be enabled by envrionment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
+  test('should be enabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
     agent.start({ serviceName: 'foo', secretToken: 'baz' })
@@ -110,34 +162,120 @@ truthyValues.forEach(function (val) {
   })
 })
 
-test('should overwrite ELASTIC_APM_ACTIVE by option property active', function (t) {
+test('should log invalid booleans', function (t) {
   var agent = Agent()
-  var opts = { serviceName: 'foo', secretToken: 'baz', active: false }
-  process.env.ELASTIC_APM_ACTIVE = '1'
+  var logger = new CaptureLogger()
+
+  agent.start({
+    serviceName: 'foo',
+    secretToken: 'baz',
+    active: 'nope',
+    logger
+  })
+
+  t.equal(logger.calls.length, 2)
+
+  var warning = logger.calls.shift()
+  t.equal(warning.message, 'unrecognized boolean value "%s" for "%s"')
+  t.equal(warning.args[0], 'nope')
+  t.equal(warning.args[1], 'active')
+
+  var info = logger.calls.shift()
+  t.equal(info.message, 'Elastic APM agent is inactive due to configuration')
+  t.equal(info.args.length, 0)
+
+  t.end()
+})
+
+var MINUS_ONE_EQUAL_INFINITY = [
+  'transactionMaxSpans'
+]
+
+MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
+  test(key + ' should be Infinity if set to -1', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = -1
+    agent.start(opts)
+    t.equal(agent._conf[key], Infinity)
+    t.end()
+  })
+})
+
+var bytesValues = [
+  'apiRequestSize',
+  'errorMessageMaxLength'
+]
+
+bytesValues.forEach(function (key) {
+  test(key + ' should be converted to a number', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '1mb'
+    agent.start(opts)
+    t.equal(agent._conf[key], 1024 * 1024)
+    t.end()
+  })
+})
+
+var timeValues = [
+  'apiRequestTime',
+  'abortedErrorThreshold',
+  'serverTimeout'
+]
+
+timeValues.forEach(function (key) {
+  test(key + ' should convert minutes to seconds', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '1m'
+    agent.start(opts)
+    t.equal(agent._conf[key], 60)
+    t.end()
+  })
+
+  test(key + ' should convert milliseconds to seconds', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '2000ms'
+    agent.start(opts)
+    t.equal(agent._conf[key], 2)
+    t.end()
+  })
+
+  test(key + ' should parse seconds', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '5s'
+    agent.start(opts)
+    t.equal(agent._conf[key], 5)
+    t.end()
+  })
+
+  test(key + ' should support bare numbers', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = 10
+    agent.start(opts)
+    t.equal(agent._conf[key], 10)
+    t.end()
+  })
+})
+
+test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
+  var agent = Agent()
+  var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
+  process.env.ELASTIC_APM_ACTIVE = 'false'
   agent.start(opts)
   t.equal(agent._conf.active, false)
   delete process.env.ELASTIC_APM_ACTIVE
   t.end()
 })
 
-test('should default active to true if required options have been specified', function (t) {
-  var agent = Agent()
-  agent.start({ serviceName: 'foo', secretToken: 'baz' })
-  t.equal(agent._conf.active, true)
-  t.end()
-})
-
-test('should default active to false if required options have not been specified', function (t) {
+test('should default serviceName to package name', function (t) {
   var agent = Agent()
   agent.start()
-  t.equal(agent._conf.active, false)
-  t.end()
-})
-
-test('should force active to false if required options have not been specified', function (t) {
-  var agent = Agent()
-  agent.start({ active: true })
-  t.equal(agent._conf.active, false)
+  t.equal(agent._conf.serviceName, 'elastic-apm-node')
   t.end()
 })
 
@@ -172,25 +310,125 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.end()
 })
 
-test('missing serviceName => inactive', function (t) {
-  var agent = Agent()
-  agent.start()
-  t.equal(agent._conf.active, false)
-  t.end()
-})
-
 test('invalid serviceName => inactive', function (t) {
   var agent = Agent()
-  agent.start({serviceName: 'foo&bar'})
+  agent.start({ serviceName: 'foo&bar' })
   t.equal(agent._conf.active, false)
   t.end()
 })
 
 test('valid serviceName => active', function (t) {
   var agent = Agent()
-  agent.start({serviceName: 'fooBAR0123456789_- '})
+  agent.start({ serviceName: 'fooBAR0123456789_- ' })
   t.equal(agent._conf.active, true)
   t.end()
+})
+
+test('serviceName defaults to package name', function (t) {
+  var mkdirpPromise = promisify(mkdirp)
+  var rimrafPromise = promisify(rimraf)
+  var writeFile = promisify(fs.writeFile)
+  var symlink = promisify(fs.symlink)
+  var exec = promisify(cp.exec)
+
+  function testServiceConfig (pkg, handle) {
+    var tmp = path.join(os.tmpdir(), 'elastic-apm-node-test')
+    var files = [
+      {
+        action: 'mkdirp',
+        dir: tmp
+      },
+      {
+        action: 'create',
+        path: path.join(tmp, 'package.json'),
+        contents: JSON.stringify(pkg)
+      },
+      {
+        action: 'create',
+        path: path.join(tmp, 'index.js'),
+        contents: `
+          var apm = require('elastic-apm-node').start()
+          console.log(JSON.stringify(apm._conf))
+        `
+      },
+      {
+        action: 'mkdirp',
+        dir: path.join(tmp, 'node_modules')
+      },
+      {
+        action: 'symlink',
+        from: path.resolve(__dirname, '..'),
+        to: path.join(tmp, 'node_modules/elastic-apm-node')
+      }
+    ]
+
+    // NOTE: Reduce the sequence to a promise chain rather
+    // than using Promise.all(), as the tasks are dependent.
+    let promise = files.reduce((p, file) => {
+      return p.then(() => {
+        switch (file.action) {
+          case 'create': {
+            return writeFile(file.path, file.contents)
+          }
+          case 'mkdirp': {
+            return mkdirpPromise(file.dir)
+          }
+          case 'symlink': {
+            return symlink(file.from, file.to)
+          }
+        }
+      })
+    }, Promise.resolve())
+
+    promise = promise
+      .then(() => {
+        return exec('node index.js', {
+          cwd: tmp
+        })
+      })
+      .then(result => {
+        // NOTE: Real util.promisify returns an object,
+        // the polyfill just returns stdout as a string.
+        return JSON.parse(result.stdout || result)
+      })
+
+    return pFinally(promise, () => {
+      return rimrafPromise(tmp)
+    })
+  }
+
+  t.test('should be active when valid', function (t) {
+    var pkg = {
+      name: 'valid'
+    }
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, true)
+      t.equal(conf.serviceName, pkg.name)
+      t.end()
+    })
+  })
+
+  t.test('should be inactive when blank', function (t) {
+    var pkg = {
+      name: ''
+    }
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, false)
+      t.equal(conf.serviceName, pkg.name)
+      t.end()
+    })
+  })
+
+  t.test('should be inactive when missing', function (t) {
+    var pkg = {}
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.active, false)
+      t.end()
+    })
+  })
 })
 
 var captureBodyTests = [
@@ -202,15 +440,33 @@ var captureBodyTests = [
 
 captureBodyTests.forEach(function (captureBodyTest) {
   test('captureBody => ' + captureBodyTest.value, function (t) {
-    t.plan(5)
+    t.plan(4)
 
-    var errors = request.errors
-    request.errors = function (agent, list, cb) {
-      request.errors = errors
-      return cb(list, agent)
-    }
     var agent = Agent()
-    agent.start({ captureBody: captureBodyTest.value })
+    agent.start({
+      serviceName: 'test',
+      captureExceptions: false,
+      captureBody: captureBodyTest.value
+    })
+
+    var sendError = agent._transport.sendError
+    var sendTransaction = agent._transport.sendTransaction
+    agent._transport.sendError = function (error, cb) {
+      var request = error.context.request
+      t.ok(request)
+      t.equal(request.body, captureBodyTest.errors)
+      if (cb) process.nextTick(cb)
+    }
+    agent._transport.sendTransaction = function (trans, cb) {
+      var request = trans.context.request
+      t.ok(request)
+      t.equal(request.body, captureBodyTest.transactions)
+      if (cb) process.nextTick(cb)
+    }
+    t.on('end', function () {
+      agent._transport.sendError = sendError
+      agent._transport.sendTransaction = sendTransaction
+    })
 
     var req = new IncomingMessage()
     req.socket = { remoteAddress: '127.0.0.1' }
@@ -218,28 +474,17 @@ captureBodyTests.forEach(function (captureBodyTest) {
     req.headers['content-length'] = 4
     req.body = 'test'
 
-    agent.captureError(new Error('wat'), {
-      request: req
-    }, function (list) {
-      var request = list[0].context.request
-      t.ok(request)
-      t.equal(request.body, captureBodyTest.errors)
-    })
+    agent.captureError(new Error('wat'), { request: req })
 
     var trans = agent.startTransaction()
     trans.req = req
     trans.end()
-    trans._encode(function (err, trans) {
-      t.error(err)
-      var request = trans.context.request
-      t.ok(request)
-      t.equal(request.body, captureBodyTest.transactions)
-    })
   })
 })
 
 test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
+  var mysql2Version = require('mysql2/package.json').version
 
   var modules = new Set(Instrumentation.modules)
   if (semver.lt(process.version, '8.3.0')) {
@@ -248,8 +493,12 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
     modules.delete('hapi')
   }
+  if (semver.lt(process.version, '6.0.0') && semver.gte(mysql2Version, '1.6.0')) {
+    modules.delete('mysql2')
+  }
   if (semver.lt(process.version, '6.0.0')) {
     modules.delete('express-queue')
+    modules.delete('apollo-server-core')
   }
 
   function testSlice (t, name, selector) {
@@ -260,7 +509,8 @@ test('disableInstrumentations', function (t) {
       var agent = Agent()
       agent.start({
         serviceName: 'service',
-        disableInstrumentations: selection
+        disableInstrumentations: selection,
+        captureExceptions: false
       })
 
       var found = new Set()
@@ -294,3 +544,113 @@ test('disableInstrumentations', function (t) {
 
   t.end()
 })
+
+test('custom transport', function (t) {
+  var agent = Agent()
+  agent.start({
+    serviceName: 'fooBAR0123456789_- ',
+    transport () {
+      var transactions = []
+      var spans = []
+      var errors = []
+      function makeSenderFor (list) {
+        return (item, callback) => {
+          list.push(item)
+          if (callback) {
+            setImmediate(callback)
+          }
+        }
+      }
+      var first = true
+      return {
+        sendTransaction: makeSenderFor(transactions),
+        sendSpan: makeSenderFor(spans),
+        sendError: makeSenderFor(errors),
+        flush (cb) {
+          if (cb) setImmediate(cb)
+          if (first) {
+            first = false
+            return
+          }
+          t.equal(transactions.length, 1, 'received correct number of transactions')
+          assertEncodedTransaction(t, trans, transactions[0])
+          t.equal(spans.length, 1, 'received correct number of spans')
+          assertEncodedSpan(t, span, spans[0])
+          t.equal(errors.length, 1, 'received correct number of errors')
+          assertEncodedError(t, error, errors[0], trans, span)
+          t.end()
+        }
+      }
+    }
+  })
+
+  var error = new Error('error')
+  var trans = agent.startTransaction('transaction')
+  var span = agent.startSpan('span')
+  agent.captureError(error)
+  span.end()
+  trans.end()
+  agent.flush()
+})
+
+function assertEncodedTransaction (t, trans, result) {
+  t.comment('transaction')
+  t.equal(result.id, trans.id, 'id matches')
+  t.equal(result.trace_id, trans.traceId, 'trace id matches')
+  t.equal(result.parent_id, trans.parentId, 'parent id matches')
+  t.equal(result.name, trans.name, 'name matches')
+  t.equal(result.type, trans.type, 'type matches')
+  t.equal(result.duration, trans._timer.duration, 'duration matches')
+  t.equal(result.timestamp, trans.timestamp, 'timestamp matches')
+  t.equal(result.result, trans.result, 'result matches')
+  t.equal(result.sampled, trans.sampled, 'sampled matches')
+}
+
+function assertEncodedSpan (t, span, result) {
+  t.comment('span')
+  t.equal(result.id, span.id, 'id matches')
+  t.equal(result.transaction_id, span.transaction.id, 'transaction id matches')
+  t.equal(result.trace_id, span.traceId, 'trace id matches')
+  t.equal(result.parent_id, span.parentId, 'parent id matches')
+  t.equal(result.name, span.name, 'name matches')
+  t.equal(result.type, span.type, 'type matches')
+  t.equal(result.duration, span._timer.duration, 'duration matches')
+  t.equal(result.timestamp, span.timestamp, 'timestamp matches')
+}
+
+function assertEncodedError (t, error, result, trans, parent) {
+  t.comment('error')
+  t.ok(result.id, 'has a valid id')
+  t.equal(result.trace_id, trans.traceId, 'trace id matches')
+  t.equal(result.transaction_id, trans.id, 'transaction id matches')
+  t.equal(result.parent_id, parent.id, 'parent id matches')
+  t.ok(result.exception, 'has an exception object')
+  t.equal(result.exception.message, error.message, 'exception message matches')
+  t.equal(result.exception.type, error.constructor.name, 'exception type matches')
+  t.ok(result.culprit, 'has a valid culprit')
+  t.ok(result.timestamp, 'has a valid timestamp')
+}
+
+class CaptureLogger {
+  constructor () {
+    this.calls = []
+  }
+
+  _log (type, message, args) {
+    this.calls.push({
+      type,
+      message,
+      args
+    })
+  }
+
+  warn (message, ...args) {
+    this._log('warn', message, args)
+  }
+  info (message, ...args) {
+    this._log('info', message, args)
+  }
+  debug (message, ...args) {
+    this._log('debug', message, args)
+  }
+}

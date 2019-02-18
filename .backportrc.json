@@ -1,0 +1,5 @@
+{
+  "upstream": "elastic/apm-agent-nodejs",
+  "branches": [{ "name": "1.x", "checked": true }],
+  "labels": ["backport"]
+}

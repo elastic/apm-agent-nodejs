@@ -9,6 +9,8 @@ var agent = require('../../..').start({
 var Redis = require('ioredis')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+
 test('not nested', function (t) {
   resetAgent(done(t))
 
@@ -94,7 +96,7 @@ test('nested', function (t) {
 })
 
 function done (t) {
-  return function (endpoint, headers, data, cb) {
+  return function (data, cb) {
     var groups = [
       'FLUSHALL',
       'SET',
@@ -107,6 +109,7 @@ function done (t) {
     ]
 
     t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, groups.length)
 
     var trans = data.transactions[0]
 
@@ -114,12 +117,12 @@ function done (t) {
     t.equal(trans.type, 'bar')
     t.equal(trans.result, 'success')
 
-    t.equal(trans.spans.length, groups.length)
-
     groups.forEach(function (name, i) {
-      t.equal(trans.spans[i].name, name)
-      t.equal(trans.spans[i].type, 'cache.redis')
-      t.ok(trans.spans[i].start + trans.spans[i].duration < trans.duration)
+      t.equal(data.spans[i].name, name)
+      t.equal(data.spans[i].type, 'cache.redis')
+
+      var offset = data.spans[i].timestamp - trans.timestamp
+      t.ok(offset + data.spans[i].duration * 1000 < trans.duration * 1000)
     })
 
     t.end()
@@ -127,8 +130,7 @@ function done (t) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._transport = mockClient(9, cb)
   agent.captureError = function (err) { throw err }
 }

@@ -12,33 +12,43 @@ var Span = require('../../lib/instrumentation/span')
 
 var agent = mockAgent()
 
-test('properties', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start('sig', 'type')
-  t.equal(span.transaction, trans)
-  t.equal(span.name, 'sig')
-  t.equal(span.type, 'type')
-  t.equal(span.ended, false)
-  t.end()
+test('init', function (t) {
+  t.test('properties', function (t) {
+    var trans = new Transaction(agent)
+    var span = new Span(trans, 'sig', 'type')
+    t.ok(/^[\da-f]{16}$/.test(span.id))
+    t.equal(span.transaction, trans)
+    t.equal(span.name, 'sig')
+    t.equal(span.type, 'type')
+    t.equal(span.ended, false)
+    t.end()
+  })
+
+  t.test('options.childOf', function (t) {
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = new Transaction(agent)
+    var span = new Span(trans, 'sig', 'type', { childOf })
+    t.equal(span._context.version, '00')
+    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
+    t.equal(span._context.flags, '01')
+    t.end()
+  })
 })
 
 test('#end()', function (t) {
   var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start('sig', 'type')
+  var span = new Span(trans, 'sig', 'type')
   t.equal(span.ended, false)
-  t.equal(trans.spans.indexOf(span), -1)
   span.end()
   t.equal(span.ended, true)
-  t.equal(trans.spans.indexOf(span), 0)
   t.end()
 })
 
 test('#duration()', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  span.start()
   setTimeout(function () {
     span.end()
     t.ok(span.duration() > 49, span.duration() + ' should be larger than 49')
@@ -49,54 +59,100 @@ test('#duration()', function (t) {
 test('#duration() - return null if not ended', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  span.start()
   t.equal(span.duration(), null)
   t.end()
 })
 
-test('#offsetTime() - return null if span isn\'t started', function (t) {
+test('custom start time', function (t) {
   var trans = new Transaction(agent)
-  var span = new Span(trans)
-  t.equal(span.offsetTime(), null)
+  var startTime = Date.now() - 1000
+  var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
+  span.end()
+  var duration = span.duration()
+  t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+  t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
   t.end()
 })
 
-test('#offsetTime() - not return null if span is started', function (t) {
+test('#end(time)', function (t) {
   var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start()
-  t.ok(span.offsetTime() > 0)
-  t.ok(span.offsetTime() < 100)
+  var startTime = Date.now() - 1000
+  var endTime = startTime + 2000.123
+  var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
+  span.end(endTime)
+  t.equal(span.duration(), 2000.123)
   t.end()
 })
 
-test('#offsetTime() - sub span', function (t) {
-  var trans = new Transaction(mockInstrumentation(function () {
-    t.ok(span.offsetTime() > 49, span.offsetTime() + ' should be larger than 49')
-    t.end()
-  })._agent)
-  var span
-  setTimeout(function () {
-    span = new Span(trans)
-    span.start()
-    span.end()
-    trans.end()
-  }, 50)
-})
-
-test('#_encode() - un-started', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span._encode(function (err, payload) {
-    t.equal(err.message, 'cannot encode un-started span')
+test('#setTag', function (t) {
+  t.test('valid', function (t) {
+    var trans = new Transaction(agent)
+    var span = new Span(trans)
+    t.equal(span._tags, null)
+    t.equal(span.setTag(), false)
+    t.equal(span._tags, null)
+    span.setTag('foo', 1)
+    t.deepEqual(span._tags, { foo: '1' })
+    span.setTag('bar', { baz: 2 })
+    t.deepEqual(span._tags, { foo: '1', bar: '[object Object]' })
+    span.setTag('foo', 3)
+    t.deepEqual(span._tags, { foo: '3', bar: '[object Object]' })
     t.end()
   })
+
+  t.test('invalid', function (t) {
+    var trans = new Transaction(agent)
+    var span = new Span(trans)
+    t.equal(span._tags, null)
+    t.equal(span.setTag(), false)
+    t.equal(span._tags, null)
+    span.setTag('invalid*', 1)
+    t.deepEqual(span._tags, { invalid_: '1' })
+    span.setTag('invalid.', 2)
+    t.deepEqual(span._tags, { invalid_: '2' })
+    span.setTag('invalid"', 3)
+    t.deepEqual(span._tags, { invalid_: '3' })
+    t.end()
+  })
+})
+
+test('#addTags', function (t) {
+  var trans = new Transaction(agent)
+  var span = new Span(trans)
+  t.equal(span._tags, null)
+
+  t.equal(span.setTag(), false)
+  t.equal(span._tags, null)
+
+  span.addTags({ foo: 1 })
+  t.deepEqual(span._tags, { foo: '1' })
+
+  span.addTags({ bar: { baz: 2 } })
+  t.deepEqual(span._tags, {
+    foo: '1',
+    bar: '[object Object]'
+  })
+
+  span.addTags({ foo: 3 })
+  t.deepEqual(span._tags, {
+    foo: '3',
+    bar: '[object Object]'
+  })
+
+  span.addTags({ bux: 'bax', bix: 'bex' })
+  t.deepEqual(span._tags, {
+    foo: '3',
+    bar: '[object Object]',
+    bux: 'bax',
+    bix: 'bex'
+  })
+
+  t.end()
 })
 
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  span.start()
   span._encode(function (err, payload) {
     t.equal(err.message, 'cannot encode un-ended span')
     t.end()
@@ -106,15 +162,22 @@ test('#_encode() - un-ended', function (t) {
 test('#_encode() - ended unnamed', function myTest1 (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  span.start()
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace'])
+    t.ok(/^[\da-f]{16}$/.test(payload.id))
+    t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
+    t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
+    t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
+    t.equal(payload.id, span.id)
+    t.equal(payload.trace_id, span.traceId)
+    t.equal(payload.transaction_id, trans.id)
     t.equal(payload.name, 'unnamed')
     t.equal(payload.type, 'custom')
-    t.ok(payload.start > 0)
+    t.equal(payload.timestamp, span._timer.start)
     t.ok(payload.duration > 0)
+    t.equal(payload.context, undefined)
     assert.stacktrace(t, 'myTest1', __filename, payload.stacktrace, agent)
     t.end()
   })
@@ -122,34 +185,76 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
 
 test('#_encode() - ended named', function myTest2 (t) {
   var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start('foo', 'bar')
+  var span = new Span(trans, 'foo', 'bar')
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace'])
+    t.ok(/^[\da-f]{16}$/.test(payload.id))
+    t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
+    t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
+    t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
+    t.equal(payload.id, span.id)
+    t.equal(payload.trace_id, span.traceId)
+    t.equal(payload.transaction_id, trans.id)
     t.equal(payload.name, 'foo')
     t.equal(payload.type, 'bar')
-    t.ok(payload.start > 0)
+    t.equal(payload.timestamp, span._timer.start)
     t.ok(payload.duration > 0)
+    t.equal(payload.context, undefined)
     assert.stacktrace(t, 'myTest2', __filename, payload.stacktrace, agent)
     t.end()
   })
 })
 
-test('#_encode() - truncated', function myTest3 (t) {
+test('#_encode() - with meta data', function myTest2 (t) {
   var trans = new Transaction(agent)
-  var span = new Span(trans)
-  span.start('foo', 'bar')
-  span.truncate()
+  var span = new Span(trans, 'foo', 'bar')
+  span.end()
+  span.setDbContext({ statement: 'foo', type: 'bar' })
+  span.setTag('baz', 1)
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['name', 'type', 'start', 'duration', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace'])
+    t.ok(/^[\da-f]{16}$/.test(payload.id))
+    t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
+    t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
+    t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
+    t.equal(payload.id, span.id)
+    t.equal(payload.trace_id, span.traceId)
+    t.equal(payload.transaction_id, trans.id)
     t.equal(payload.name, 'foo')
-    t.equal(payload.type, 'bar.truncated')
-    t.ok(payload.start > 0)
+    t.equal(payload.type, 'bar')
+    t.equal(payload.timestamp, span._timer.start)
     t.ok(payload.duration > 0)
-    assert.stacktrace(t, 'myTest3', __filename, payload.stacktrace, agent)
+    t.deepEqual(payload.context, { db: { statement: 'foo', type: 'bar' }, tags: { baz: '1' } })
+    assert.stacktrace(t, 'myTest2', __filename, payload.stacktrace, agent)
+    t.end()
+  })
+})
+
+test('#_encode() - disabled stack traces', function (t) {
+  var ins = mockInstrumentation()
+  ins._agent._conf.captureSpanStackTraces = false
+  var trans = new Transaction(ins._agent)
+  var span = new Span(trans)
+  span.end()
+  span._encode(function (err, payload) {
+    t.error(err)
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace'])
+    t.ok(/^[\da-f]{16}$/.test(payload.id))
+    t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
+    t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
+    t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
+    t.equal(payload.id, span.id)
+    t.equal(payload.trace_id, span.traceId)
+    t.equal(payload.transaction_id, trans.id)
+    t.equal(payload.name, 'unnamed')
+    t.equal(payload.type, 'custom')
+    t.equal(payload.timestamp, span._timer.start)
+    t.ok(payload.duration > 0)
+    t.equal(payload.context, undefined)
+    t.equal(payload.stacktrace, undefined)
     t.end()
   })
 })

@@ -11,17 +11,18 @@ const test = require('tape')
 const version = require('cassandra-driver/package.json').version
 
 const makeClient = require('./_utils')
+const mockClient = require('../../../_mock_http_client')
 
 const hasPromises = semver.satisfies(version, '>=3.2')
 
 test('connect', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(2, function (data) {
     t.equal(data.transactions.length, 1, 'transaction count')
+    t.equal(data.spans.length, 1, 'span count')
 
     const trans = data.transactions[0]
     t.equal(trans.name, 'foo', 'transaction name')
-    t.equal(trans.spans.length, 1, 'span count')
-    assertConnectSpan(t, trans.spans[0])
+    assertConnectSpan(t, data.spans[0])
 
     t.end()
   })
@@ -38,7 +39,7 @@ if (hasPromises) {
     const sql = 'SELECT key FROM system.local'
     const summary = 'SELECT FROM system.local'
 
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(3, function (data) {
       assertBasicQuery(t, sql, summary, data)
       t.end()
     })
@@ -58,7 +59,7 @@ test('execute - callback', function (t) {
   const sql = 'SELECT key FROM system.local'
   const summary = 'SELECT FROM system.local'
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     assertBasicQuery(t, sql, summary, data)
     t.end()
   })
@@ -78,15 +79,15 @@ if (hasPromises) {
     const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
     const summary = 'Cassandra: Batch query'
 
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(3, function (data) {
       t.equal(data.transactions.length, 1, 'transaction count')
+      t.equal(data.spans.length, 2, 'span count')
 
       const trans = data.transactions[0]
       t.equal(trans.name, 'foo', 'transaction name')
-      t.equal(trans.spans.length, 2, 'span count')
-      assertConnectSpan(t, trans.spans[0])
+      assertConnectSpan(t, data.spans[0])
       const joined = `${sql};\n${sql}`
-      assertSpan(t, joined, summary, trans.spans[1])
+      assertSpan(t, joined, summary, data.spans[1])
 
       t.end()
     })
@@ -108,15 +109,15 @@ test('batch - callback', function (t) {
   const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
   const summary = 'Cassandra: Batch query'
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     t.equal(data.transactions.length, 1, 'transaction count')
+    t.equal(data.spans.length, 2, 'span count')
 
     const trans = data.transactions[0]
     t.equal(trans.name, 'foo', 'transaction name')
-    t.equal(trans.spans.length, 2, 'span count')
-    assertConnectSpan(t, trans.spans[0])
+    assertConnectSpan(t, data.spans[0])
     const joined = `${sql};\n${sql}`
-    assertSpan(t, joined, summary, trans.spans[1])
+    assertSpan(t, joined, summary, data.spans[1])
 
     t.end()
   })
@@ -139,7 +140,7 @@ test('eachRow', function (t) {
   const sql = 'SELECT key FROM system.local'
   const summary = 'SELECT FROM system.local'
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     assertBasicQuery(t, sql, summary, data)
     t.end()
   })
@@ -152,7 +153,6 @@ test('eachRow', function (t) {
     }, (err) => {
       t.error(err, 'no error')
       agent.endTransaction()
-      agent.flush()
     })
   })
 })
@@ -161,7 +161,7 @@ test('stream', function (t) {
   const sql = 'SELECT key FROM system.local'
   const summary = 'SELECT FROM system.local'
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(3, function (data) {
     assertBasicQuery(t, sql, summary, data)
     t.end()
   })
@@ -187,7 +187,6 @@ test('stream', function (t) {
     stream.on('end', function () {
       t.equal(rows, 1, 'number of rows')
       agent.endTransaction()
-      agent.flush()
     })
   })
 })
@@ -197,7 +196,6 @@ function assertCallback (t, handle) {
     t.error(err, 'no error')
     if (handle) handle(result.rows)
     agent.endTransaction()
-    agent.flush()
   }
 }
 
@@ -208,13 +206,13 @@ function assertPromise (t, promise, handle) {
 
 function assertBasicQuery (t, sql, summary, data) {
   t.equal(data.transactions.length, 1, 'transaction count')
+  t.equal(data.spans.length, 2, 'span count')
 
   const trans = data.transactions[0]
   t.equal(trans.name, 'foo', 'transaction name')
-  t.equal(trans.spans.length, 2, 'span count')
 
-  assertConnectSpan(t, trans.spans[0])
-  assertSpan(t, sql, summary, trans.spans[1])
+  assertConnectSpan(t, data.spans[0])
+  assertSpan(t, sql, summary, data.spans[1])
 }
 
 function assertConnectSpan (t, span) {
@@ -231,10 +229,10 @@ function assertSpan (t, sql, summary, span) {
   }, 'database context')
 }
 
-function resetAgent (cb) {
-  agent._httpClient = {
-    request: cb
-  }
-  agent._instrumentation._queue._clear()
+function resetAgent (expected, cb) {
+  // first time this function is called, the real client will be present - so
+  // let's just destroy it before creating the mock
+  if (agent._transport.destroy) agent._transport.destroy()
+  agent._transport = mockClient(expected, cb)
   agent._instrumentation.currentTransaction = null
 }

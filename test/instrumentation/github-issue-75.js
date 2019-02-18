@@ -11,14 +11,22 @@ var http = require('http')
 var send = require('send')
 var test = require('tape')
 
+var mockClient = require('../_mock_http_client')
+
 // run it 5 times in case of false positives due to race conditions
 times(5, function (n, done) {
   test('https://github.com/elastic/apm-agent-nodejs/issues/75 ' + n, function (t) {
-    resetAgent(function (endpoint, headers, data, cb) {
+    resetAgent(4, function (data) {
       t.equal(data.transactions.length, 2, 'should create transactions')
-      data.transactions.forEach(function (trans) {
-        t.equal(trans.spans.length, 1, 'transaction should have one span')
-        t.equal(trans.spans[0].name, trans.id, 'span should belong to transaction')
+      t.equal(data.spans.length, 2, 'should create spans')
+      data.spans.forEach(function (span) {
+        let trans
+        data.transactions = data.transactions.filter(function (_trans) {
+          const match = span.name === _trans.id
+          if (match) trans = _trans
+          return !match
+        })
+        t.ok(trans, 'span should belong to transaction')
       })
       server.close()
       t.end()
@@ -26,8 +34,7 @@ times(5, function (n, done) {
     })
 
     var server = http.createServer(function (req, res) {
-      var span = agent.buildSpan()
-      span.start(agent._instrumentation.currentTransaction.id)
+      var span = agent.startSpan(agent._instrumentation.currentTransaction.id)
       setTimeout(function () {
         span.end()
         send(req, __filename).pipe(res)
@@ -64,9 +71,8 @@ function times (max, fn) {
   }
 }
 
-function resetAgent (cb) {
+function resetAgent (expected, cb) {
   agent._instrumentation.currentTransaction = null
-  agent._instrumentation._queue._clear()
-  agent._httpClient = { request: cb || function () {} }
+  agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

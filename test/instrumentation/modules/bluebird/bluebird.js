@@ -231,9 +231,9 @@ CATCH_NAMES.forEach(function (fnName) {
         rejected(err)
           .then(function () {
             t.fail('should not resolve')
-          })[fnName]({code: 41}, function () {
+          })[fnName]({ code: 41 }, function () {
             t.fail('should not reject if predicate doesn\'t match')
-          })[fnName]({code: 42}, function (err) {
+          })[fnName]({ code: 42 }, function (err) {
             t.ok(err instanceof URIError)
             t.equal(err.message, 'foo')
             t.equal(ins.currentTransaction.id, trans.id)
@@ -611,7 +611,7 @@ test('Promise.props', function (t) {
     }
 
     Promise.props(props).then(function (result) {
-      t.deepEqual(result, {p1: 'p1', p2: 'p2', p3: 'p3'})
+      t.deepEqual(result, { p1: 'p1', p2: 'p2', p3: 'p3' })
       t.equal(ins.currentTransaction.id, trans.id)
     })
   })
@@ -629,7 +629,7 @@ test('new Promise -> props', function (t) {
     }
 
     resolved(props).props().then(function (result) {
-      t.deepEqual(result, {p1: 'p1', p2: 'p2', p3: 'p3'})
+      t.deepEqual(result, { p1: 'p1', p2: 'p2', p3: 'p3' })
       t.equal(ins.currentTransaction.id, trans.id)
     })
   })
@@ -1216,7 +1216,7 @@ test('new Promise -> get', function (t) {
   t.plan(4)
   twice(function () {
     var trans = ins.startTransaction()
-    resolved({foo: 42})
+    resolved({ foo: 42 })
       .get('foo')
       .then(function (value) {
         t.deepEqual(value, 42)

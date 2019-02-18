@@ -24,17 +24,16 @@ else
   CMD='npm test'
 fi
 
-docker build --pull --force-rm \
-  --build-arg NODE_VERSION=$1 \
-  -t apm-agent-nodejs:node-${1} \
-  ./test
-
 NODE_VERSION=${1} docker-compose -f ./test/docker-compose.yml -f ./test/docker-compose.ci.yml run \
-  -e NODE_VERSION=${NODE_VERSION} -e TAV=${TAV_VERSIONS} -e CI=true \
+  -e NODE_VERSION=${NODE_VERSION} \
+  -e TAV=${TAV_VERSIONS} \
+  -e JUNIT=${JUNIT} \
+  -e CI=true \
   -v ${npm_cache}:${docker_npm_cache} \
   -v ${nyc_output}:${docker_nyc_output} \
   -v ${nyc_report_output}:${docker_nyc_report_output} \
   -v "$(pwd)":/app \
+  -w /app \
   --rm node_tests \
   /bin/bash \
   -c "npm config set cache ${docker_npm_cache} --global

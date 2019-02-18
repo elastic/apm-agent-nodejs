@@ -12,6 +12,8 @@ var semver = require('semver')
 
 // hapi 17+ requires Node.js 8.9.0 or higher
 if (semver.lt(process.version, '8.9.0') && semver.gte(pkg.version, '17.0.0')) process.exit()
+// hapi 16.7.0+ requires Node.js 6.0.0 or higher
+if (semver.lt(process.version, '6.0.0') && semver.gte(pkg.version, '16.7.0')) process.exit()
 
 // hapi does not work on early versions of Node.js 10 because of https://github.com/nodejs/node/issues/20516
 // NOTE: Do not use semver.satisfies, as it does not match prereleases
@@ -23,12 +25,16 @@ var http = require('http')
 var Hapi = require('hapi')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+
 var originalCaptureError = agent.captureError
 
 function noop () {}
 
 test('extract URL from request', function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions.length, 1)
+    t.equal(data.errors.length, 1)
     var request = data.errors[0].context.request
     t.equal(request.method, 'GET')
     t.equal(request.url.pathname, '/captureError')
@@ -50,9 +56,9 @@ test('extract URL from request', function (t) {
 })
 
 test('route naming', function (t) {
-  t.plan(9)
+  t.plan(8)
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     assert(t, data)
     server.stop(noop)
   })
@@ -294,11 +300,11 @@ test('server error logging with Object', function (t) {
 })
 
 test('request error logging with Error', function (t) {
-  t.plan(14)
+  t.plan(13)
 
   var customError = new Error('custom error')
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
 
     server.stop(noop)
@@ -339,11 +345,11 @@ test('request error logging with Error', function (t) {
 })
 
 test('request error logging with Error does not affect event tags', function (t) {
-  t.plan(16)
+  t.plan(15)
 
   var customError = new Error('custom error')
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
 
     server.stop(noop)
@@ -372,6 +378,7 @@ test('request error logging with Error does not affect event tags', function (t)
 
   var emitter = server.events || server
   emitter.on('request', function (req, event, tags) {
+    if (event.channel === 'internal') return
     t.deepEqual(event.tags, ['elastic-apm', 'error'])
   })
 
@@ -379,6 +386,7 @@ test('request error logging with Error does not affect event tags', function (t)
     t.error(err, 'start error')
 
     emitter.on('request', function (req, event, tags) {
+      if (event.channel === 'internal') return
       t.deepEqual(event.tags, ['elastic-apm', 'error'])
     })
 
@@ -393,11 +401,11 @@ test('request error logging with Error does not affect event tags', function (t)
 })
 
 test('request error logging with String', function (t) {
-  t.plan(14)
+  t.plan(13)
 
   var customError = 'custom error'
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
 
     server.stop(noop)
@@ -438,13 +446,13 @@ test('request error logging with String', function (t) {
 })
 
 test('request error logging with Object', function (t) {
-  t.plan(14)
+  t.plan(13)
 
   var customError = {
     error: 'I forgot to turn this into an actual Error'
   }
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
 
     server.stop(noop)
@@ -485,9 +493,9 @@ test('request error logging with Object', function (t) {
 })
 
 test('error handling', function (t) {
-  t.plan(semver.satisfies(pkg.version, '>=17') ? 13 : 11)
+  t.plan(10)
 
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(1, function (data) {
     assert(t, data, { status: 'HTTP 5xx', name: 'GET /error' })
     server.stop(noop)
   })
@@ -605,13 +613,11 @@ function assert (t, data, results) {
   t.equal(trans.name, results.name)
   t.equal(trans.type, 'request')
   t.equal(trans.result, results.status)
-  t.equal(trans.spans.length, 0)
   t.equal(trans.context.request.method, 'GET')
 }
 
-function resetAgent (cb) {
+function resetAgent (expected, cb) {
   agent._instrumentation.currentTransaction = null
-  agent._instrumentation._queue._clear()
-  agent._httpClient = { request: cb || function () {} }
+  agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

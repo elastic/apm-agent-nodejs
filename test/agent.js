@@ -14,13 +14,55 @@ var config = require('../lib/config')
 
 var agentVersion = require('../package.json').version
 
+process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+
 test('#startTransaction()', function (t) {
-  var agent = Agent()
-  agent.start()
-  var trans = agent.startTransaction('foo', 'bar')
-  t.equal(trans.name, 'foo')
-  t.equal(trans.type, 'bar')
-  t.end()
+  t.test('name and type', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction('foo', 'bar')
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'bar')
+    t.end()
+  })
+
+  t.test('options.startTime', function (t) {
+    var agent = Agent()
+    agent.start()
+    var startTime = Date.now() - 1000
+    var trans = agent.startTransaction('foo', 'bar', { startTime })
+    trans.end()
+    var duration = trans.duration()
+    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
+    t.end()
+  })
+
+  t.test('options.childOf', function (t) {
+    var agent = Agent()
+    agent.start()
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = agent.startTransaction('foo', 'bar', { childOf })
+    t.equal(trans._context.version, '00')
+    t.equal(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(trans._context.id, '00f067aa0ba902b7')
+    t.equal(trans._context.parentId, '00f067aa0ba902b7')
+    t.equal(trans._context.flags, '01')
+    t.end()
+  })
+
+  t.test('traceparent (legacy)', function (t) {
+    var agent = Agent()
+    agent.start()
+    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = agent.startTransaction('foo', 'bar', traceparent)
+    t.equal(trans._context.version, '00')
+    t.equal(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(trans._context.id, '00f067aa0ba902b7')
+    t.equal(trans._context.parentId, '00f067aa0ba902b7')
+    t.equal(trans._context.flags, '01')
+    t.end()
+  })
 })
 
 test('#endTransaction()', function (t) {
@@ -52,6 +94,17 @@ test('#endTransaction()', function (t) {
     t.equal(trans.result, 'done')
     t.end()
   })
+
+  t.test('with custom endTime', function (t) {
+    var agent = Agent()
+    agent.start()
+    var startTime = Date.now() - 1000
+    var endTime = startTime + 2000.123
+    var trans = agent.startTransaction('foo', 'bar', { startTime })
+    agent.endTransaction('done', endTime)
+    t.equal(trans.duration(), 2000.123)
+    t.end()
+  })
 })
 
 test('#currentTransaction', function (t) {
@@ -69,6 +122,39 @@ test('#currentTransaction', function (t) {
     t.equal(agent.currentTransaction, trans)
     agent.endTransaction()
     t.end()
+  })
+})
+
+test('#currentSpan', function (t) {
+  t.test('no active or binding span', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.notOk(agent.currentSpan)
+    t.end()
+  })
+
+  t.test('with binding span', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    var span = agent.startSpan()
+    t.equal(agent.currentSpan, span)
+    span.end()
+    trans.end()
+    t.end()
+  })
+
+  t.test('with active span', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    var span = agent.startSpan()
+    process.nextTick(() => {
+      t.equal(agent.currentSpan, span)
+      span.end()
+      trans.end()
+      t.end()
+    })
   })
 })
 
@@ -110,13 +196,54 @@ test('#startSpan()', function (t) {
     t.equal(span.type, 'span-type')
     t.end()
   })
+
+  t.test('options.startTime', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var startTime = Date.now() - 1000
+    var span = agent.startSpan(null, null, { startTime })
+    span.end()
+    var duration = span.duration()
+    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
+    t.end()
+  })
+
+  t.test('options.childOf', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var span = agent.startSpan(null, null, { childOf })
+    t.equal(span._context.version, '00')
+    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
+    t.equal(span._context.flags, '01')
+    t.end()
+  })
+
+  t.test('traceparent (legacy)', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var traceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var span = agent.startSpan(null, null, traceparent)
+    t.equal(span._context.version, '00')
+    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.id, '00f067aa0ba902b7')
+    t.equal(span._context.parentId, '00f067aa0ba902b7')
+    t.equal(span._context.flags, '01')
+    t.end()
+  })
 })
 
 test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.setUserContext({foo: 1}), false)
+    t.equal(agent.setUserContext({ foo: 1 }), false)
     t.end()
   })
 
@@ -124,8 +251,8 @@ test('#setUserContext()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.setUserContext({foo: 1}), true)
-    t.deepEqual(trans._user, {foo: 1})
+    t.equal(agent.setUserContext({ foo: 1 }), true)
+    t.deepEqual(trans._user, { foo: 1 })
     t.end()
   })
 })
@@ -134,7 +261,7 @@ test('#setCustomContext()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.setCustomContext({foo: 1}), false)
+    t.equal(agent.setCustomContext({ foo: 1 }), false)
     t.end()
   })
 
@@ -142,8 +269,8 @@ test('#setCustomContext()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.setCustomContext({foo: 1}), true)
-    t.deepEqual(trans._custom, {foo: 1})
+    t.equal(agent.setCustomContext({ foo: 1 }), true)
+    t.deepEqual(trans._custom, { foo: 1 })
     t.end()
   })
 })
@@ -161,7 +288,7 @@ test('#setTag()', function (t) {
     agent.start()
     var trans = agent.startTransaction()
     t.equal(agent.setTag('foo', 1), true)
-    t.deepEqual(trans._tags, {foo: '1'})
+    t.deepEqual(trans._tags, { foo: '1' })
     t.end()
   })
 })
@@ -170,7 +297,7 @@ test('#addTags', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.addTags({foo: 1}), false)
+    t.equal(agent.addTags({ foo: 1 }), false)
     t.end()
   })
 
@@ -178,153 +305,513 @@ test('#addTags', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.addTags({foo: 1, bar: 2}), true)
-    t.equal(agent.addTags({foo: 3}), true)
-    t.deepEqual(trans._tags, {foo: '3', bar: '2'})
+    t.equal(agent.addTags({ foo: 1, bar: 2 }), true)
+    t.equal(agent.addTags({ foo: 3 }), true)
+    t.deepEqual(trans._tags, { foo: '3', bar: '2' })
     t.end()
   })
 })
 
-test('#addFilter() - invalid argument', function (t) {
-  t.plan(5)
-  APMServer()
-    .on('listening', function () {
-      this.agent.addFilter(function (data) {
-        var error = data.errors[0]
-        t.equal(++error.context.custom.order, 1)
-        return data
+test('filters', function (t) {
+  t.test('#addFilter() - error', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          t.equal(++obj.context.custom.order, 1)
+          return obj
+        })
+        this.agent.addFilter('invalid')
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          t.equal(++obj.context.custom.order, 2)
+          return obj
+        })
+
+        this.agent.captureError(new Error('foo'), { custom: { order: 0 } })
       })
-      this.agent.addFilter('invalid')
-      this.agent.addFilter(function (data) {
-        var error = data.errors[0]
-        t.equal(++error.context.custom.order, 2)
-        return data
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.context.custom.order, 2)
+        t.end()
       })
-      this.agent.captureError(new Error('foo'), {custom: {order: 0}})
+  })
+
+  t.test('#addFilter() - transaction', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
+      .on('listening', function () {
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          t.equal(++obj.context.custom.order, 1)
+          return obj
+        })
+        this.agent.addFilter('invalid')
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          t.equal(++obj.context.custom.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction('transaction-name')
+        this.agent.setCustomContext({ order: 0 })
+        this.agent.endTransaction()
+        this.agent.flush()
+      })
+      .on('data-transaction', function (data) {
+        t.equal(data.name, 'transaction-name')
+        t.equal(data.context.custom.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addFilter() - span', function (t) {
+    t.plan(5 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'span' })
+      .on('listening', function () {
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          obj.order = 1
+          return obj
+        })
+        this.agent.addFilter('invalid')
+        this.agent.addFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          t.equal(++obj.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction()
+        const span = this.agent.startSpan('span-name')
+        span.end()
+        setTimeout(() => {
+          this.agent.flush()
+        }, 50)
+      })
+      .on('data-span', function (data) {
+        t.equal(data.name, 'span-name')
+        t.equal(data.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addErrorFilter()', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.addTransactionFilter(function () {
+          t.fail('should not call transaction filter')
+        })
+        this.agent.addSpanFilter(function () {
+          t.fail('should not call span filter')
+        })
+        this.agent.addErrorFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          t.equal(++obj.context.custom.order, 1)
+          return obj
+        })
+        this.agent.addErrorFilter('invalid')
+        this.agent.addErrorFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          t.equal(++obj.context.custom.order, 2)
+          return obj
+        })
+
+        this.agent.captureError(new Error('foo'), { custom: { order: 0 } })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.context.custom.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addTransactionFilter()', function (t) {
+    t.plan(6 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
+      .on('listening', function () {
+        this.agent.addErrorFilter(function () {
+          t.fail('should not call error filter')
+        })
+        this.agent.addSpanFilter(function () {
+          t.fail('should not call span filter')
+        })
+        this.agent.addTransactionFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          t.equal(++obj.context.custom.order, 1)
+          return obj
+        })
+        this.agent.addTransactionFilter('invalid')
+        this.agent.addTransactionFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          t.equal(++obj.context.custom.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction('transaction-name')
+        this.agent.setCustomContext({ order: 0 })
+        this.agent.endTransaction()
+        this.agent.flush()
+      })
+      .on('data-transaction', function (data) {
+        t.equal(data.name, 'transaction-name')
+        t.equal(data.context.custom.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addSpanFilter()', function (t) {
+    t.plan(5 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'span' })
+      .on('listening', function () {
+        this.agent.addErrorFilter(function () {
+          t.fail('should not call error filter')
+        })
+        this.agent.addTransactionFilter(function () {
+          t.fail('should not call transaction filter')
+        })
+        this.agent.addSpanFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          obj.order = 1
+          return obj
+        })
+        this.agent.addSpanFilter('invalid')
+        this.agent.addSpanFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          t.equal(++obj.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction()
+        const span = this.agent.startSpan('span-name')
+        span.end()
+        setTimeout(() => {
+          this.agent.flush()
+        }, 50)
+      })
+      .on('data-span', function (data) {
+        t.equal(data.name, 'span-name')
+        t.equal(data.order, 2)
+        t.end()
+      })
+  })
+
+  t.test('#addFilter() - abort', function (t) {
+    t.plan(1)
+
+    const server = http.createServer(function (req, res) {
+      t.fail('should not send any data')
     })
-    .on('request', validateErrorRequest(t))
-    .on('body', function (body) {
-      t.deepEqual(body.errors[0].context.custom.order, 2)
-      t.end()
+
+    server.listen(function () {
+      const agent = Agent().start({ serverUrl: 'http://localhost:' + server.address().port })
+
+      agent.addFilter(function (obj) {
+        t.equal(obj.exception.message, 'foo')
+        return false
+      })
+      agent.addFilter(function () {
+        t.fail('should not call 2nd filter')
+      })
+
+      agent.captureError(new Error('foo'))
+
+      setTimeout(function () {
+        t.end()
+        server.close()
+      }, 50)
     })
+  })
+
+  t.test('#addErrorFilter() - abort', function (t) {
+    t.plan(1)
+
+    const server = http.createServer(function (req, res) {
+      t.fail('should not send any data')
+    })
+
+    server.listen(function () {
+      const agent = Agent().start({
+        serverUrl: 'http://localhost:' + server.address().port,
+        captureExceptions: false
+      })
+
+      agent.addErrorFilter(function (obj) {
+        t.equal(obj.exception.message, 'foo')
+        return false
+      })
+      agent.addErrorFilter(function () {
+        t.fail('should not call 2nd filter')
+      })
+
+      agent.captureError(new Error('foo'))
+
+      setTimeout(function () {
+        t.end()
+        server.close()
+      }, 50)
+    })
+  })
+
+  t.test('#addTransactionFilter() - abort', function (t) {
+    t.plan(1)
+
+    const server = http.createServer(function (req, res) {
+      t.fail('should not send any data')
+    })
+
+    server.listen(function () {
+      const agent = Agent().start({
+        serverUrl: 'http://localhost:' + server.address().port,
+        captureExceptions: false
+      })
+
+      agent.addTransactionFilter(function (obj) {
+        t.equal(obj.name, 'transaction-name')
+        return false
+      })
+      agent.addTransactionFilter(function () {
+        t.fail('should not call 2nd filter')
+      })
+
+      agent.startTransaction('transaction-name')
+      agent.endTransaction()
+      agent.flush()
+
+      setTimeout(function () {
+        t.end()
+        server.close()
+      }, 50)
+    })
+  })
+
+  t.test('#addSpanFilter() - abort', function (t) {
+    t.plan(1)
+
+    const server = http.createServer(function (req, res) {
+      t.fail('should not send any data')
+    })
+
+    server.listen(function () {
+      const agent = Agent().start({
+        serverUrl: 'http://localhost:' + server.address().port,
+        captureExceptions: false
+      })
+
+      agent.addSpanFilter(function (obj) {
+        t.equal(obj.name, 'span-name')
+        return false
+      })
+      agent.addSpanFilter(function () {
+        t.fail('should not call 2nd filter')
+      })
+
+      agent.startTransaction()
+      const span = agent.startSpan('span-name')
+      span.end()
+
+      setTimeout(function () {
+        agent.flush()
+        setTimeout(function () {
+          t.end()
+          server.close()
+        }, 50)
+      }, 50)
+    })
+  })
+})
+
+test('#flush()', function (t) {
+  t.test('start not called', function (t) {
+    t.plan(2)
+    var agent = Agent()
+    agent.flush(function (err) {
+      t.error(err)
+      t.pass('should call flush callback even if agent.start() wasn\'t called')
+    })
+  })
+
+  t.test('start called, but agent inactive', function (t) {
+    t.plan(2)
+    var agent = Agent()
+    agent.start({ active: false })
+    agent.flush(function (err) {
+      t.error(err)
+      t.pass('should call flush callback even if agent is inactive')
+    })
+  })
+
+  t.test('agent started, but no data in the queue', function (t) {
+    t.plan(2)
+    var agent = Agent()
+    agent.start()
+    agent.flush(function (err) {
+      t.error(err)
+      t.pass('should call flush callback even if there\'s nothing to flush')
+    })
+  })
+
+  t.test('agent started, but no data in the queue', function (t) {
+    t.plan(3 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
+      .on('listening', function () {
+        this.agent.startTransaction('foo')
+        this.agent.endTransaction()
+        this.agent.flush(function (err) {
+          t.error(err)
+          t.pass('should call flush callback after flushing the queue')
+        })
+      })
+      .on('data-transaction', function (data) {
+        t.equal(data.name, 'foo')
+        t.end()
+      })
+  })
 })
 
 test('#captureError()', function (t) {
   t.test('with callback', function (t) {
-    t.plan(5)
-    APMServer()
+    t.plan(4 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
-        this.agent.captureError(new Error('with callback'), function () {
-          t.ok(true, 'called callback')
-          t.end()
+        this.agent.captureError(new Error('with callback'), function (err, id) {
+          t.error(err)
+          t.ok(/^[a-z0-9]{32}$/i.test(id), 'has valid error.id')
+          t.pass('called callback')
         })
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'with callback')
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'with callback')
+        t.end()
       })
   })
 
   t.test('without callback', function (t) {
-    t.plan(4)
-    APMServer()
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError(new Error('without callback'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'without callback')
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'without callback')
+        t.end()
+      })
+  })
+
+  t.test('generate error id', function (t) {
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'))
+      })
+      .on('data-error', function (data) {
+        t.ok(/^[\da-f]{32}$/.test(data.id), `should have valid id (was: ${data.id})`)
         t.end()
       })
   })
 
   t.test('should send a plain text message to the server', function (t) {
-    t.plan(4)
-    APMServer()
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError('Hey!')
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hey!')
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hey!')
         t.end()
       })
   })
 
   t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
-    t.plan(5)
-    APMServer()
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
-        this.agent.captureError({message: 'Hello %s', params: ['World']})
+        this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hello World')
-        t.equal(body.errors[0].log.param_message, 'Hello %s')
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hello World')
+        t.equal(data.log.param_message, 'Hello %s')
         t.end()
       })
   })
 
   t.test('should not fail on a non string err.message', function (t) {
-    t.plan(4)
-    APMServer()
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         var err = new Error()
-        err.message = {foo: 'bar'}
+        err.message = { foo: 'bar' }
         this.agent.captureError(err)
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, '[object Object]')
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, '[object Object]')
+        t.end()
+      })
+  })
+
+  t.test('should allow custom log message together with exception', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'), { message: 'bar' })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.log.message, 'bar')
+        t.end()
+      })
+  })
+
+  t.test('should not use custom log message together with exception if equal', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('foo'), { message: 'foo' })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.equal(data.log, undefined)
         t.end()
       })
   })
 
   t.test('should adhere to default stackTraceLimit', function (t) {
-    t.plan(5)
-    APMServer()
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError(deep(256))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.stacktrace.length, 50)
-        t.equal(body.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
+      .on('data-error', function (data) {
+        t.equal(data.exception.stacktrace.length, 50)
+        t.equal(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
         t.end()
       })
   })
 
   t.test('should adhere to custom stackTraceLimit', function (t) {
-    t.plan(5)
-    APMServer({stackTraceLimit: 5})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, { stackTraceLimit: 5 }, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError(deep(42))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.stacktrace.length, 5)
-        t.equal(body.errors[0].exception.stacktrace[0].context_line.trim(), 'return new Error()')
+      .on('data-error', function (data) {
+        t.equal(data.exception.stacktrace.length, 5)
+        t.equal(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
         t.end()
       })
   })
 
   t.test('should merge context', function (t) {
-    t.plan(7)
-    APMServer()
+    t.plan(4 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         var agent = this.agent
         var server = http.createServer(function (req, res) {
           agent.startTransaction()
-          t.equal(agent.setUserContext({a: 1, merge: {a: 2}}), true)
-          t.equal(agent.setCustomContext({a: 3, merge: {a: 4}}), true)
-          agent.captureError(new Error('foo'), {user: {b: 1, merge: {shallow: true}}, custom: {b: 2, merge: {shallow: true}}})
+          t.equal(agent.setUserContext({ a: 1, merge: { a: 2 } }), true)
+          t.equal(agent.setCustomContext({ a: 3, merge: { a: 4 } }), true)
+          agent.captureError(new Error('foo'), { user: { b: 1, merge: { shallow: true } }, custom: { b: 2, merge: { shallow: true } } })
           res.end()
         })
 
@@ -339,157 +826,199 @@ test('#captureError()', function (t) {
           }).end()
         })
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        var context = body.errors[0].context
-        t.deepEqual(context.user, {a: 1, b: 1, merge: {shallow: true}})
-        t.deepEqual(context.custom, {a: 3, b: 2, merge: {shallow: true}})
+      .on('data-error', function (data) {
+        t.deepEqual(data.context.user, { a: 1, b: 1, merge: { shallow: true } })
+        t.deepEqual(data.context.custom, { a: 3, b: 2, merge: { shallow: true } })
         t.end()
       })
   })
 
   t.test('capture location stack trace - off (error)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'foo')
-        t.notOk('log' in body.errors[0], 'should not have a log')
-        assertStackTrace(t, body.errors[0].exception.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.notOk('log' in data, 'should not have a log')
+        assertStackTrace(t, data.exception.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - off (string)', function (t) {
-    t.plan(6)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    t.plan(3 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError('foo')
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'foo')
-        t.notOk('stacktrace' in body.errors[0].log, 'should not have a log.stacktrace')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'foo')
+        t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace')
+        t.notOk('exception' in data, 'should not have an exception')
         t.end()
       })
   })
 
   t.test('capture location stack trace - off (param msg)', function (t) {
-    t.plan(6)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER})
+    t.plan(3 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }, { expect: 'error' })
       .on('listening', function () {
-        this.agent.captureError({message: 'Hello %s', params: ['World']})
+        this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hello World')
-        t.notOk('stacktrace' in body.errors[0].log, 'should not have a log.stacktrace')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hello World')
+        t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace')
+        t.notOk('exception' in data, 'should not have an exception')
         t.end()
       })
   })
 
   t.test('capture location stack trace - non-errors (error)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'foo')
-        t.notOk('log' in body.errors[0], 'should not have a log')
-        assertStackTrace(t, body.errors[0].exception.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'foo')
+        t.notOk('log' in data, 'should not have a log')
+        assertStackTrace(t, data.exception.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - non-errors (string)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError('foo')
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'foo')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'foo')
+        t.notOk('exception' in data, 'should not have an exception')
+        assertStackTrace(t, data.log.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - non-errors (param msg)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }, { expect: 'error' })
       .on('listening', function () {
-        this.agent.captureError({message: 'Hello %s', params: ['World']})
+        this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hello World')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hello World')
+        t.notOk('exception' in data, 'should not have an exception')
+        assertStackTrace(t, data.log.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - all (error)', function (t) {
-    t.plan(13)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts * 2)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError(new Error('foo'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'foo')
-        t.equal(body.errors[0].exception.message, 'foo')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
-        assertStackTrace(t, body.errors[0].exception.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'foo')
+        t.equal(data.exception.message, 'foo')
+        assertStackTrace(t, data.log.stacktrace)
+        assertStackTrace(t, data.exception.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - all (string)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError('foo')
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'foo')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'foo')
+        t.notOk('exception' in data, 'should not have an exception')
+        assertStackTrace(t, data.log.stacktrace)
         t.end()
       })
   })
 
   t.test('capture location stack trace - all (param msg)', function (t) {
-    t.plan(9)
-    APMServer({captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS})
+    t.plan(2 + APMServerWithDefaultAsserts.asserts + assertStackTrace.asserts)
+    APMServerWithDefaultAsserts(t, { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }, { expect: 'error' })
       .on('listening', function () {
-        this.agent.captureError({message: 'Hello %s', params: ['World']})
+        this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].log.message, 'Hello World')
-        t.notOk('exception' in body.errors[0], 'should not have an exception')
-        assertStackTrace(t, body.errors[0].log.stacktrace)
+      .on('data-error', function (data) {
+        t.equal(data.log.message, 'Hello World')
+        t.notOk('exception' in data, 'should not have an exception')
+        assertStackTrace(t, data.log.stacktrace)
+        t.end()
+      })
+  })
+
+  t.test('capture error before agent is started - with callback', function (t) {
+    var agent = Agent()
+    agent.captureError(new Error('foo'), function (err) {
+      t.equal(err.message, 'cannot capture error before agent is started')
+      t.end()
+    })
+  })
+
+  t.test('capture error before agent is started - without callback', function (t) {
+    var agent = Agent()
+    agent.captureError(new Error('foo'))
+    t.end()
+  })
+
+  t.test('include valid context ids and sampled flag', function (t) {
+    t.plan(8 + APMServerWithDefaultAsserts.asserts)
+
+    let trans = null
+    let span = null
+    const expect = [
+      'metadata',
+      'error'
+    ]
+
+    APMServerWithDefaultAsserts(t, {}, { expect })
+      .on('listening', function () {
+        trans = this.agent.startTransaction('foo')
+        span = this.agent.startSpan('bar')
+        this.agent.captureError(new Error('with callback'), function () {
+          t.pass('called callback')
+        })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'with callback')
+        t.equal(data.id.length, 32, 'id is 32 characters')
+        t.equal(data.parent_id, span.id, 'parent_id matches span id')
+        t.equal(data.trace_id, trans.traceId, 'trace_id matches transaction trace id')
+        t.equal(data.transaction_id, trans.id, 'transaction_id matches transaction id')
+        t.equal(data.transaction.type, trans.type, 'transaction.type matches transaction type')
+        t.equal(data.transaction.sampled, true, 'is sampled')
+        t.end()
+      })
+  })
+
+  t.test('custom timestamp', function (t) {
+    t.plan(1 + APMServerWithDefaultAsserts.asserts)
+
+    const timestamp = Date.now() - 1000
+    const expect = [
+      'metadata',
+      'error'
+    ]
+
+    APMServerWithDefaultAsserts(t, {}, { expect })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with callback'), { timestamp })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.timestamp, timestamp * 1000)
         t.end()
       })
   })
@@ -524,19 +1053,17 @@ test('#handleUncaughtExceptions()', function (t) {
   })
 
   t.test('should send an uncaughtException to server', function (t) {
-    t.plan(5)
-    APMServer()
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         this.agent.handleUncaughtExceptions(function (err) {
           t.ok(isError(err))
-          t.end()
         })
         process.emit('uncaughtException', new Error('uncaught'))
       })
-      .on('request', validateErrorRequest(t))
-      .on('body', function (body) {
-        t.equal(body.errors.length, 1)
-        t.equal(body.errors[0].exception.message, 'uncaught')
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'uncaught')
+        t.end()
       })
   })
 })
@@ -577,23 +1104,25 @@ test('#lambda()', function (t) {
   function assertContext (t, name, data) {
     t.ok(data)
     const lambda = data.lambda
-    t.ok(lambda)
-    t.equal(lambda.functionName, name)
+    t.ok(lambda, 'context data has lambda object')
+    t.equal(lambda.functionName, name, 'function name matches')
     var keys = Object.keys(baseContext)
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i]
-      t.equal(lambda[key], baseContext[key])
+      t.equal(lambda[key], baseContext[key], `${key} matches`)
     }
-    t.equal(lambda.executionEnv, process.env.AWS_EXECUTION_ENV)
-    t.equal(lambda.region, process.env.AWS_REGION)
+    t.equal(lambda.executionEnv, process.env.AWS_EXECUTION_ENV, 'execution env matches')
+    t.equal(lambda.region, process.env.AWS_REGION, 'region matches')
   }
 
   t.test('success - basic callback', function (t) {
+    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
+
     var name = 'greet.hello'
     var input = { name: 'world' }
     var output = 'Hello, world!'
 
-    APMServer()
+    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           callback(null, `Hello, ${payload.name}!`)
@@ -603,24 +1132,22 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          this.server.close()
-          t.end()
         })
       })
-      .on('request', validateTransactionsRequest(t))
-      .on('body', function (body) {
-        assertRoot(t, body)
-        assertTransactions(t, body, name, input, output)
-        assertContext(t, name, body.transactions[0].context.custom)
+      .on('data-transaction', function (data) {
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
       })
   })
 
   t.test('success - context.succeed', function (t) {
+    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
+
     var name = 'greet.hello'
     var input = { name: 'world' }
     var output = 'Hello, world!'
 
-    APMServer()
+    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           context.succeed(`Hello, ${payload.name}!`)
@@ -630,24 +1157,22 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          this.server.close()
-          t.end()
         })
       })
-      .on('request', validateTransactionsRequest(t))
-      .on('body', function (body) {
-        assertRoot(t, body)
-        assertTransactions(t, body, name, input, output)
-        assertContext(t, name, body.transactions[0].context.custom)
+      .on('data-transaction', function (data) {
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
       })
   })
 
   t.test('success - context.done', function (t) {
+    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
+
     var name = 'greet.hello'
     var input = { name: 'world' }
     var output = 'Hello, world!'
 
-    APMServer()
+    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           context.done(null, `Hello, ${payload.name}!`)
@@ -657,15 +1182,11 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.error(err)
           t.equal(result, output)
-          this.server.close()
-          t.end()
         })
       })
-      .on('request', validateTransactionsRequest(t))
-      .on('body', function (body) {
-        assertRoot(t, body)
-        assertTransactions(t, body, name, input, output)
-        assertContext(t, name, body.transactions[0].context.custom)
+      .on('data-transaction', function (data) {
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
       })
   })
 
@@ -674,15 +1195,9 @@ test('#lambda()', function (t) {
     var input = {}
     var output
     var error = new Error('fail')
+    var dataEvents = 0
 
-    var requests = 0
-    var bodies = 0
-
-    APMServer({
-      sourceContextErrorLibraryFrames: 0
-    }, {
-      skipClose: true
-    })
+    APMServerWithDefaultAsserts(t, { sourceContextErrorLibraryFrames: 0 }, { expect: [['metadata', 'error'], ['metadata', 'transaction']] })
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           callback(error)
@@ -692,26 +1207,22 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.ok(err)
           t.notOk(result)
-          t.equal(requests, 2, 'should have gotten two requests')
-          t.equal(bodies, 2, 'should have gotten two bodies')
-          this.server.close()
-          t.end()
         })
       })
-      .on('request', function (req) {
-        var fn = ++requests === 1
-          ? validateErrorRequest(t)
-          : validateTransactionsRequest(t)
-        fn(req)
+      .on('data', function () {
+        dataEvents++
       })
-      .on('body', function (body) {
-        assertRoot(t, body)
-        if (++bodies === 1) {
-          assertErrors(t, body, name, input, error)
-        } else {
-          assertTransactions(t, body, name, input, output)
-          assertContext(t, name, body.transactions[0].context.custom)
-        }
+      .on('data-error', function (data, index) {
+        t.equal(index, 1)
+        t.equal(dataEvents, 2)
+        assertError(t, data, name, input, error)
+      })
+      .on('data-transaction', function (data, index) {
+        t.equal(index, 1)
+        t.equal(dataEvents, 4)
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
+        t.end()
       })
   })
 
@@ -720,15 +1231,9 @@ test('#lambda()', function (t) {
     var input = {}
     var output
     var error = new Error('fail')
+    var dataEvents = 0
 
-    var requests = 0
-    var bodies = 0
-
-    APMServer({
-      sourceContextErrorLibraryFrames: 0
-    }, {
-      skipClose: true
-    })
+    APMServerWithDefaultAsserts(t, { sourceContextErrorLibraryFrames: 0 }, { expect: [['metadata', 'error'], ['metadata', 'transaction']] })
       .on('listening', function () {
         var fn = this.agent.lambda((payload, context, callback) => {
           context.fail(error)
@@ -738,34 +1243,30 @@ test('#lambda()', function (t) {
         lambda.invoke(name, input, (err, result) => {
           t.ok(err)
           t.notOk(result)
-          t.equal(requests, 2, 'should have gotten two requests')
-          t.equal(bodies, 2, 'should have gotten two bodies')
-          this.server.close()
-          t.end()
         })
       })
-      .on('request', function (req) {
-        var fn = ++requests === 1
-          ? validateErrorRequest(t)
-          : validateTransactionsRequest(t)
-        fn(req)
+      .on('data', function () {
+        dataEvents++
       })
-      .on('body', function (body) {
-        assertRoot(t, body)
-        if (++bodies === 1) {
-          assertErrors(t, body, name, input, error, this.agent)
-        } else {
-          assertTransactions(t, body, name, input, output)
-          assertContext(t, name, body.transactions[0].context.custom)
-        }
+      .on('data-error', function (data, index) {
+        t.equal(index, 1)
+        t.equal(dataEvents, 2)
+        assertError(t, data, name, input, error, this.agent)
+      })
+      .on('data-transaction', function (data, index) {
+        t.equal(index, 1)
+        t.equal(dataEvents, 4)
+        assertTransaction(t, data, name, input, output)
+        assertContext(t, name, data.context.custom)
+        t.end()
       })
   })
 })
 
-function assertRoot (t, payload) {
+function assertMetadata (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
-  t.deepEqual(payload.service.runtime, {name: 'node', version: process.version})
-  t.deepEqual(payload.service.agent, {name: 'nodejs', version: agentVersion})
+  t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
+  t.deepEqual(payload.service.agent, { name: 'nodejs', version: agentVersion })
   t.deepEqual(payload.system, {
     hostname: os.hostname(),
     architecture: process.arch,
@@ -783,10 +1284,9 @@ function assertRoot (t, payload) {
   t.deepEqual(payload.process.argv, process.argv)
   t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
 }
+assertMetadata.asserts = 11
 
-function assertTransactions (t, payload, name, input, output) {
-  t.equal(payload.transactions.length, 1)
-  var trans = payload.transactions[0]
+function assertTransaction (t, trans, name, input, output) {
   t.equal(trans.name, name)
   t.equal(trans.type, 'lambda')
   t.equal(trans.result, 'success')
@@ -798,10 +1298,10 @@ function assertTransactions (t, payload, name, input, output) {
   t.deepEqual(lambda.input, input)
   t.equal(lambda.output, output)
 }
+assertTransaction.asserts = 8
 
-function assertErrors (t, payload, name, input, expectedError, agent) {
-  t.equal(payload.errors.length, 1)
-  var exception = payload.errors[0].exception
+function assertError (t, payload, name, input, expectedError, agent) {
+  var exception = payload.exception
   t.ok(exception)
   t.equal(exception.message, expectedError.message)
   t.equal(exception.type, 'Error')
@@ -814,20 +1314,34 @@ function assertStackTrace (t, stacktrace) {
   t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
   t.equal(stacktrace[0].filename, path.join('test', 'agent.js'))
 }
+assertStackTrace.asserts = 4
 
-function validateErrorRequest (t) {
+function validateRequest (t) {
   return function (req) {
     t.equal(req.method, 'POST', 'should be a POST request')
-    t.equal(req.url, '/v1/errors', 'should be sent to the errors endpoint')
+    t.equal(req.url, '/intake/v2/events', 'should be sent to the intake endpoint')
   }
 }
+validateRequest.asserts = 2
 
-function validateTransactionsRequest (t) {
-  return function (req) {
-    t.equal(req.method, 'POST', 'should be a POST request')
-    t.equal(req.url, '/v1/transactions', 'should be sent to the transactions endpoint')
+function validateMetadata (t) {
+  return function (data, index) {
+    t.equal(index, 0, 'metadata should always be sent first')
+    assertMetadata(t, data)
   }
 }
+validateMetadata.asserts = 1 + assertMetadata.asserts
+
+function APMServerWithDefaultAsserts (t, opts, mockOpts) {
+  var server = APMServer(opts, mockOpts)
+    .on('request', validateRequest(t))
+    .on('data-metadata', validateMetadata(t))
+  t.on('end', function () {
+    server.destroy()
+  })
+  return server
+}
+APMServerWithDefaultAsserts.asserts = validateRequest.asserts + validateMetadata.asserts
 
 function deep (depth, n) {
   if (!n) n = 0

@@ -1,13 +1,15 @@
 'use strict'
 
 var Filters = require('../../lib/filters')
+var Metrics = require('../../lib/metrics')
 var Instrumentation = require('../../lib/instrumentation')
+var mockClient = require('../_mock_http_client')
 var consoleLogLevel = require('console-log-level')
 
 var noop = function () {}
 var sharedInstrumentation
 
-module.exports = function mockAgent (cb) {
+module.exports = function mockAgent (expected, cb) {
   var agent = {
     _conf: {
       serviceName: 'service-name',
@@ -15,8 +17,7 @@ module.exports = function mockAgent (cb) {
       instrument: true,
       captureSpanStackTraces: true,
       errorOnAbortedRequests: false,
-      abortedErrorThreshold: 250,
-      flushInterval: 10,
+      abortedErrorThreshold: 0.25,
       sourceLinesErrorAppFrames: 5,
       sourceLinesErrorLibraryFrames: 5,
       sourceLinesSpanAppFrames: 5,
@@ -26,19 +27,27 @@ module.exports = function mockAgent (cb) {
       ignoreUserAgentStr: [],
       ignoreUserAgentRegExp: [],
       transactionSampleRate: 1.0,
-      disableInstrumentations: []
+      disableInstrumentations: [],
+      captureHeaders: true,
+      metricsInterval: 0
     },
-    _filters: new Filters(),
-    _httpClient: {
-      request: cb || noop
-    },
-    flush () {
-      this._instrumentation.flush()
-    },
+    _errorFilters: new Filters(),
+    _transactionFilters: new Filters(),
+    _spanFilters: new Filters(),
+    _transport: mockClient(expected, cb || noop),
     logger: consoleLogLevel({
       level: 'fatal'
     })
   }
+
+  agent._metrics = new Metrics(agent)
+  agent._metrics.start()
+
+  Object.defineProperty(agent, 'currentTransaction', {
+    get () {
+      return agent._instrumentation.currentTransaction
+    }
+  })
 
   // We do not want to start the instrumentation multiple times during testing.
   // This would result in core functions being patched multiple times
@@ -48,17 +57,16 @@ module.exports = function mockAgent (cb) {
     agent.startTransaction = sharedInstrumentation.startTransaction.bind(sharedInstrumentation)
     agent.endTransaction = sharedInstrumentation.endTransaction.bind(sharedInstrumentation)
     agent.setTransactionName = sharedInstrumentation.setTransactionName.bind(sharedInstrumentation)
-    agent.buildSpan = sharedInstrumentation.buildSpan.bind(sharedInstrumentation)
+    agent.startSpan = sharedInstrumentation.startSpan.bind(sharedInstrumentation)
     agent._instrumentation.start()
   } else {
     sharedInstrumentation._agent = agent
     agent._instrumentation = sharedInstrumentation
     agent._instrumentation.currentTransaction = null
-    agent._instrumentation._queue._clear()
     agent.startTransaction = sharedInstrumentation.startTransaction.bind(sharedInstrumentation)
     agent.endTransaction = sharedInstrumentation.endTransaction.bind(sharedInstrumentation)
     agent.setTransactionName = sharedInstrumentation.setTransactionName.bind(sharedInstrumentation)
-    agent.buildSpan = sharedInstrumentation.buildSpan.bind(sharedInstrumentation)
+    agent.startSpan = sharedInstrumentation.startSpan.bind(sharedInstrumentation)
   }
 
   return agent

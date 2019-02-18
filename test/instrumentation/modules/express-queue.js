@@ -17,6 +17,9 @@ var express = require('express')
 var queue = require('express-queue')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
+
 test('express-queue', function (t) {
   resetAgent(done(t, 'done'))
 
@@ -75,18 +78,20 @@ function request (port, path) {
 }
 
 function done (t, query) {
-  return function (endpoint, headers, data, cb) {
+  return function (data, cb) {
     t.equal(data.transactions.length, 5)
 
     data.transactions.forEach(function (trans, i) {
       t.comment('request ' + (i + 1))
       t.equal(trans.name, 'GET /', 'name should be GET /')
       t.equal(trans.type, 'request', 'type should be request')
-      t.equal(trans.spans.length, 1, 'spans length should be 1')
-      var span = trans.spans[0]
+      t.equal(data.spans.filter(span => span.transaction_id === trans.id).length, 1, 'transaction should have 1 span')
+      const span = findObjInArray(data.spans, 'transaction_id', trans.id)
       t.equal(span.name, 'foo', 'span name should be foo')
       t.equal(span.type, 'bar', 'span name should be bar')
-      t.ok(span.start + span.duration < trans.duration, 'span should have valid timings')
+
+      var offset = span.timestamp - trans.timestamp
+      t.ok(offset + span.duration * 1000 < trans.duration * 1000, 'span should have valid timings')
     })
 
     t.end()
@@ -94,8 +99,7 @@ function done (t, query) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () { } }
+  agent._transport = mockClient(10, cb)
   agent.captureError = function (err) { throw err }
 }

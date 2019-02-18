@@ -14,25 +14,27 @@ var querystring = require('querystring')
 var graphqlHTTP = require('express-graphql')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+
 test('POST /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
-  }}
+  } }
   var query = '{"query":"{ hello }"}'
 
   var app = express()
-  app.use('/graphql', graphqlHTTP({schema: schema, rootValue: root}))
+  app.use('/graphql', graphqlHTTP({ schema: schema, rootValue: root }))
   var server = app.listen(function () {
     var port = server.address().port
     var opts = {
       method: 'POST',
       port: port,
       path: '/graphql',
-      headers: {'Content-Type': 'application/json'}
+      headers: { 'Content-Type': 'application/json' }
     }
     var req = http.request(opts, function (res) {
       var chunks = []
@@ -52,14 +54,14 @@ test('GET /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
-  }}
-  var query = querystring.stringify({query: '{ hello }'})
+  } }
+  var query = querystring.stringify({ query: '{ hello }' })
 
   var app = express()
-  app.use('/graphql', graphqlHTTP({schema: schema, rootValue: root}))
+  app.use('/graphql', graphqlHTTP({ schema: schema, rootValue: root }))
   var server = app.listen(function () {
     var port = server.address().port
     var opts = {
@@ -85,21 +87,21 @@ test('POST /graphql - named query', function (t) {
   resetAgent(done(t, 'HelloQuery hello'))
 
   var schema = buildSchema('type Query { hello: String }')
-  var root = {hello () {
+  var root = { hello () {
     t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
     return 'Hello world!'
-  }}
+  } }
   var query = '{"query":"query HelloQuery { hello }"}'
 
   var app = express()
-  app.use('/graphql', graphqlHTTP({schema: schema, rootValue: root}))
+  app.use('/graphql', graphqlHTTP({ schema: schema, rootValue: root }))
   var server = app.listen(function () {
     var port = server.address().port
     var opts = {
       method: 'POST',
       port: port,
       path: '/graphql',
-      headers: {'Content-Type': 'application/json'}
+      headers: { 'Content-Type': 'application/json' }
     }
     var req = http.request(opts, function (res) {
       var chunks = []
@@ -132,14 +134,14 @@ test('POST /graphql - sort multiple queries', function (t) {
   var query = '{"query":"{ life, hello }"}'
 
   var app = express()
-  app.use('/graphql', graphqlHTTP({schema: schema, rootValue: root}))
+  app.use('/graphql', graphqlHTTP({ schema: schema, rootValue: root }))
   var server = app.listen(function () {
     var port = server.address().port
     var opts = {
       method: 'POST',
       port: port,
       path: '/graphql',
-      headers: {'Content-Type': 'application/json'}
+      headers: { 'Content-Type': 'application/json' }
     }
     var req = http.request(opts, function (res) {
       var chunks = []
@@ -156,25 +158,27 @@ test('POST /graphql - sort multiple queries', function (t) {
 })
 
 function done (t, query) {
-  return function (endpoint, headers, data, cb) {
+  return function (data, cb) {
     t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, 1)
 
     var trans = data.transactions[0]
+    var span = data.spans[0]
 
     t.equal(trans.name, query + ' (/graphql)')
     t.equal(trans.type, 'request')
-    t.equal(trans.spans.length, 1)
-    t.equal(trans.spans[0].name, 'GraphQL: ' + query)
-    t.equal(trans.spans[0].type, 'db.graphql.execute')
-    t.ok(trans.spans[0].start + trans.spans[0].duration < trans.duration)
+    t.equal(span.name, 'GraphQL: ' + query)
+    t.equal(span.type, 'db.graphql.execute')
+
+    var offset = span.timestamp - trans.timestamp
+    t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()
   }
 }
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._transport = mockClient(2, cb)
   agent.captureError = function (err) { throw err }
 }

@@ -9,8 +9,11 @@ var agent = require('../../..').start({
 var redis = require('redis')
 var test = require('tape')
 
+var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
+
 test(function (t) {
-  resetAgent(function (endpoint, headers, data, cb) {
+  resetAgent(function (data) {
     var groups = [
       'FLUSHALL',
       'SET',
@@ -21,6 +24,7 @@ test(function (t) {
     ]
 
     t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, groups.length)
 
     var trans = data.transactions[0]
 
@@ -28,12 +32,12 @@ test(function (t) {
     t.equal(trans.type, 'bar')
     t.equal(trans.result, 'success')
 
-    t.equal(trans.spans.length, groups.length)
+    groups.forEach(function (name) {
+      var span = findObjInArray(data.spans, 'name', name)
+      t.equal(span.type, 'cache.redis')
 
-    groups.forEach(function (name, i) {
-      t.equal(trans.spans[i].name, name)
-      t.equal(trans.spans[i].type, 'cache.redis')
-      t.ok(trans.spans[i].start + trans.spans[i].duration < trans.duration)
+      var offset = span.timestamp - trans.timestamp
+      t.ok(offset + span.duration * 1000 < trans.duration * 1000)
     })
 
     t.end()
@@ -84,8 +88,7 @@ test(function (t) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation._queue._clear()
   agent._instrumentation.currentTransaction = null
-  agent._httpClient = { request: cb || function () {} }
+  agent._transport = mockClient(7, cb)
   agent.captureError = function (err) { throw err }
 }

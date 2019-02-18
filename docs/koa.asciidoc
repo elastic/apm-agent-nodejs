@@ -9,16 +9,16 @@ endif::[]
 
 Getting Elastic APM set up for your Koa app is easy,
 and there are various ways you can tweak it to fit your needs.
+Follow the guide below to get started, and for more advanced topics,
+check out the <<api,API Reference>>.
 
-Follow the guide below and refer to the <<api,API documentation>> for all the advanced stuff.
-
-Koa doesn't have a built in router,
+Koa doesn't have a built-in router,
 so we can't support Koa directly since we rely on router information for full support.
 We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router].
 
 If you use another router with your Koa application,
 please https://github.com/elastic/apm-agent-nodejs/issues[open an issue] so we can make sure to support your stack.
-In the mean time you can <<custom-stack,configure Elastic APM to work with any stack>>.
+In the meantime, you can <<custom-stack,configure Elastic APM to work with any stack>>.
 
 [float]
 [[koa-installation]]
@@ -44,8 +44,9 @@ Here's a simple Koa example with the Elastic APM agent installed:
 [source,js]
 ----
 // Add this to the VERY top of the first file loaded in your app
-var apm = require('elastic-apm-node').start({
-  // Set required service name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+const apm = require('elastic-apm-node').start({
+  // Override service name from package.json
+  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
 
   // Use if APM Server requires a token
@@ -55,8 +56,8 @@ var apm = require('elastic-apm-node').start({
   serverUrl: '',
 })
 
-var app = require('koa')()
-var router = require('koa-router')()
+const app = require('koa')()
+const router = require('koa-router')()
 
 router.get('/', function *(next) {
   this.body = 'Hello World'
@@ -92,7 +93,7 @@ And then just start the agent like so:
 [source,js]
 ----
 // Start the agent before any thing else in your app
-var apm = require('elastic-apm-node').start()
+const apm = require('elastic-apm-node').start()
 ----
 
 See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
@@ -113,7 +114,7 @@ It records spans for database queries,
 external HTTP requests,
 and other slow operations that happen during requests to your Koa app.
 
-By default the agent will instrument <<compatibility,the most common modules>>.
+By default, the agent will instrument <<supported-technologies,the most common modules>>.
 To instrument other events,
 you can use custom spans.
 For information about custom spans,
@@ -142,8 +143,8 @@ please follow the <<troubleshooting,Troubleshooting Guide>>.
 [[koa-error-logging]]
 === Error logging
 
-By default the Node.js agent will watch for uncaught exceptions and send them to Elastic APM automatically.
-But in most cases errors are not thrown but returned via a callback,
+By default, the Node.js agent will watch for uncaught exceptions and send them to Elastic APM automatically.
+But in most cases, errors are not thrown but returned via a callback,
 caught by a promise,
 or simply manually created.
 Those errors will not automatically be sent to Elastic APM.
@@ -165,18 +166,18 @@ see <<apm-capture-error,the API documentation>>.
 [[koa-filter-sensitive-information]]
 === Filter sensitive information
 
-By default the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
+By default, the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
 
 It's possible for you to tweak these defaults or remove any information you don't want to send to Elastic APM:
 
-* By default the Node.js agent will not log the body of HTTP requests.
+* By default, the Node.js agent will not log the body of HTTP requests.
 To enable this,
 use the <<capture-body,`captureBody`>> config option
-* By default the Node.js agent will filter certain HTTP headers known to contain sensitive information.
+* By default, the Node.js agent will filter certain HTTP headers known to contain sensitive information.
 To disable this,
 use the <<filter-http-headers,`filterHttpHeaders`>> config option
 * To apply custom filters,
-use the <<apm-add-filter,`apm.addFilter()`>> function
+use one of the <<apm-add-filter,filtering>> functions
 
 [float]
 [[koa-add-your-own-data]]
@@ -198,7 +199,7 @@ use one of the functions below:
 [[koa-compatibility]]
 === Compatibility
 
-See the <<compatibility,Compatibility section>> for details.
+See the <<supported-technologies,Supported technologies section>> for details.
 
 [float]
 [[koa-troubleshooting]]
