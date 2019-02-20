@@ -47,6 +47,7 @@ pipeline {
         HOME = "${env.WORKSPACE}"
         JUNIT = "true"
       }
+      failFast true
       steps {
         deleteDir()
         unstash 'source'
@@ -117,11 +118,7 @@ def generateStep(version, tav = ''){
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
-            sh """#!/usr/bin/env bash
-            set -e
-            ./test/script/docker/cleanup.sh
-            ./test/script/docker/run_tests.sh ${version} ${tav}
-            """
+            sh "./test/script/run_tests.sh all ${version} ${tav}"
           }
         }
       } catch(e){
