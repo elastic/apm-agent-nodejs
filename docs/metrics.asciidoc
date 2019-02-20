@@ -13,6 +13,7 @@ You can adjust the interval by setting <<metrics-interval,`metricsInterval`>>.
 
 The metrics will be stored in the `apm-*` index and have the `processor.event` property set to `metric`.
 
+[float]
 [[metric-system.cpu.total.norm.pct]]
 === `system.cpu.total.norm.pct`
 
@@ -20,8 +21,9 @@ The metrics will be stored in the `apm-*` index and have the `processor.event` p
 * *Format:* Percent
 
 The percentage of CPU time in states other than Idle and IOWait,
-normalised by the number of cores.
+normalized by the number of cores.
 
+[float]
 [[metric-system.memory.total]]
 === `system.memory.total`
 
@@ -30,6 +32,7 @@ normalised by the number of cores.
 
 The total memory of the system in bytes.
 
+[float]
 [[metric-system.memory.actual.free]]
 === `system.memory.actual.free`
 
@@ -38,6 +41,7 @@ The total memory of the system in bytes.
 
 Free memory of the system in bytes.
 
+[float]
 [[metric-system.process.cpu.total.norm.pct]]
 === `system.process.cpu.total.norm.pct`
 
@@ -47,6 +51,7 @@ Free memory of the system in bytes.
 The percentage of CPU time spent by the process since the last event.
 This value is normalized by the number of CPU cores and it ranges from 0 to 100%.
 
+[float]
 [[metric-system.process.memory.rss.bytes]]
 === `system.process.memory.rss.bytes`
 
