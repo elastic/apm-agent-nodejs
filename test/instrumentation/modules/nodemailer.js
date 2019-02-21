@@ -30,11 +30,12 @@ test('transport.sendMail', function (t) {
 
   const transport = nodemailer.createTransport(mockTransport)
 
-  agent.startTransaction('foo', 'nodemailer')
+  const transaction = agent.startTransaction('foo', 'nodemailer')
   transport.sendMail(mockMailOptions, function (err, result) {
     if (err) {
       agent.captureError(err)
     }
+    transaction.end()
     agent.flush()
   })
 })
@@ -49,7 +50,7 @@ function done (t) {
     t.equal(transaction.name, 'foo')
     t.equal(transaction.type, 'nodemailer')
     t.equal(span.name, 'Send Email')
-    t.equal(span.type, 'nodemailer')
+    t.equal(span.type, 'nodemailer.sendMail')
 
     t.end()
   }
