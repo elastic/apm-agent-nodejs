@@ -125,7 +125,7 @@ def generateStep(version, tav = ''){
           }
         }
       } catch(e){
-        error(e)
+        error(e.toString())
       } finally {
         junit(allowEmptyResults: true,
           keepLongStdio: true,
