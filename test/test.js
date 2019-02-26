@@ -64,6 +64,7 @@ function mapSeries (tasks, handler, cb) {
 
 var directories = [
   'test',
+  'test/lambda',
   'test/integration',
   'test/integration/api-schema',
   'test/sourcemaps',
