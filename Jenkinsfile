@@ -23,13 +23,14 @@ pipeline {
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
     booleanParam(name: 'doc_ci', defaultValue: true, description: 'Enable build docs.')
+    booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
   }
   stages {
     /**
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'linux && immutable' }
+      agent { label 'flyweight' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
@@ -38,14 +39,18 @@ pipeline {
       }
     }
     /**
-    Build the project from code..
+      Run tests.
     */
     stage('Test') {
-      agent { label 'linux && immutable' }
+      agent { label 'flyweight' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
         JUNIT = "true"
+      }
+      when {
+        beforeAgent true
+        expression { return !params.tav_ci }
       }
       steps {
         deleteDir()
@@ -63,10 +68,42 @@ pipeline {
       }
     }
     /**
+      Run TAV tests.
+    */
+    stage('TAV Test') {
+      agent { label 'flyweight' }
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+        JUNIT = "true"
+      }
+      when {
+        beforeAgent true
+        expression { return params.tav_ci }
+      }
+      steps {
+        deleteDir()
+        unstash 'source'
+        dir("${BASE_DIR}"){
+          script {
+            def node = readYaml(file: 'test/.jenkins_tav_nodejs.yml')
+            def tav = readYaml(file: 'test/.jenkins_tav.yml')
+            def parallelTasks = [:]
+            node['NODEJS_VERSION'].each{ version ->
+              tav['TAV'].each{ tav_item ->
+                parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version, tav_item)
+              }
+            }
+            parallel(parallelTasks)
+          }
+        }
+      }
+    }
+    /**
     Build the documentation.
     */
     stage('Documentation') {
-      agent { label 'linux && immutable' }
+      agent { label 'flyweight' }
       options { skipDefaultCheckout() }
       when {
         beforeAgent true
