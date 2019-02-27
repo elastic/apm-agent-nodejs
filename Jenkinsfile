@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('apm@v1.0.6') _
+@Library('apm@v1.0.7') _
 
 pipeline {
   agent any
@@ -29,7 +29,7 @@ pipeline {
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'linux && immutable' }
+      agent { label 'flyweight' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
@@ -41,7 +41,7 @@ pipeline {
     Build the project from code..
     */
     stage('Test') {
-      agent { label 'linux && immutable' }
+      agent { label 'flyweight' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
