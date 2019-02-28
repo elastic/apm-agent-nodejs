@@ -1,9 +1,10 @@
 module.exports = class TransactionMock {
-  constructor (name, type) {
+  constructor (name, type, opts) {
     this.name = name
     this.type = type
     this.ended = false
     this.customContext = {}
+    this.opts = opts
   }
 
   setCustomContext (custom) {

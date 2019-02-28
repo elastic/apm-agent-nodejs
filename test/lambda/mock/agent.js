@@ -7,8 +7,8 @@ module.exports = class AgentMock {
     this.errors = []
   }
 
-  startTransaction (name, type) {
-    const trans = new TransactionMock(name, type)
+  startTransaction (name, type, opts) {
+    const trans = new TransactionMock(name, type, opts)
     this.transactions.push(trans)
     return trans
   }
