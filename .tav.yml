@@ -196,7 +196,7 @@ hapi-no-async-await:
 hapi-async-await:
   name: hapi
   node: '>=8.2'
-  versions: '^17.0.0'
+  versions: '>=17.0.0'
   commands: node test/instrumentation/modules/hapi.js
 
 tedious:
