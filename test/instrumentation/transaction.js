@@ -145,7 +145,7 @@ test('#startSpan()', function (t) {
     var span = trans.startSpan(null, null, { startTime })
     span.end()
     var duration = span.duration()
-    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
@@ -208,7 +208,7 @@ test('#duration() - un-ended transaction', function (t) {
 test('custom start time', function (t) {
   var ins = mockInstrumentation(function (added) {
     var duration = trans.duration()
-    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
