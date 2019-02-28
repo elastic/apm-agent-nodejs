@@ -134,7 +134,7 @@
     "pg": "^7.5.0",
     "redis": "^2.8.0",
     "request": "^2.88.0",
-    "restify": "^7.2.1",
+    "restify": "^8.0.0",
     "restify-clients": "^2.6.2",
     "rimraf": "^2.6.2",
     "send": "^0.16.2",
