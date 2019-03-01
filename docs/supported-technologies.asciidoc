@@ -45,7 +45,7 @@ These are the frameworks that we officially support:
 |=======================================================================
 |Framework |Version |Note
 |<<express,Express>> |^4.0.0 |
-|<<hapi,hapi>> |>=9.0.0 <18.0.0 |
+|<<hapi,hapi>> |>=9.0.0 <19.0.0 |
 |<<koa,Koa>> via koa-router |>=5.2.0 <8.0.0 |Koa doesn't have a built in router,
 so we can't support Koa directly since we rely on router information for full support.
 We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router]
