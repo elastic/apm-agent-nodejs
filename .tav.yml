@@ -209,8 +209,14 @@ cassandra-driver:
   versions: '>=3 <3.1.0 || >3.1.0 <5'
   commands: node test/instrumentation/modules/cassandra/cassandra.js
 
-restify:
-  versions: '>=5.2.0'
+restify-old:
+  name: restify
+  versions: '>=5.2.0 <8.0.0'
+  commands: node test/instrumentation/modules/restify.js
+restifyi-new:
+  name: restify
+  node: '>=8'
+  versions: '>=8.0.0'
   commands: node test/instrumentation/modules/restify.js
 
 finalhandler:
