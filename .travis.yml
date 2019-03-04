@@ -23,7 +23,7 @@ install:
   - for i in {1..3}; do travis_wait 5 npm install && break; rm -rf node_modules; done
 
 before_script:
-  - npm install -g npm@latest
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then npm install -g npm@latest; fi
   - wait-on tcp:9200
 
 node_js:
