@@ -74,7 +74,7 @@ var directories = [
   'test/instrumentation/modules/pg',
   'test/instrumentation/modules/mysql',
   'test/instrumentation/modules/mysql2',
-  'test/instrumentation/modules/cassandra',
+  'test/instrumentation/modules/cassandra-driver',
   'test/instrumentation/modules/bluebird',
   'test/instrumentation/modules/koa-router'
 ]

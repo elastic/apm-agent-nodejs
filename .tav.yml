@@ -207,7 +207,7 @@ tedious:
 cassandra-driver:
   # 3.1.0 is broken
   versions: '>=3 <3.1.0 || >3.1.0 <5'
-  commands: node test/instrumentation/modules/cassandra/cassandra.js
+  commands: node test/instrumentation/modules/cassandra-driver/index.js
 
 restify-old:
   name: restify
