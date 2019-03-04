@@ -88,7 +88,7 @@ jobs:
     -
       node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify
+      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
       script: tav --quiet
     -
       node_js: '11'
@@ -110,7 +110,7 @@ jobs:
     -
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify
+      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
       script: tav --quiet
     -
       node_js: '10'
@@ -132,7 +132,7 @@ jobs:
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify
+      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
       script: tav --quiet
     -
       node_js: '8'
@@ -154,7 +154,7 @@ jobs:
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify
+      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
       script: tav --quiet
     -
       node_js: '6'

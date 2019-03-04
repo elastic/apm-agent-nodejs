@@ -19,6 +19,8 @@ include::./koa.asciidoc[]
 
 include::./restify.asciidoc[]
 
+include::./fastify.asciidoc[]
+
 include::./lambda.asciidoc[]
 
 include::./custom-stack.asciidoc[]

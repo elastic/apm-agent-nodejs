@@ -219,6 +219,12 @@ restifyi-new:
   versions: '>=8.0.0'
   commands: node test/instrumentation/modules/restify.js
 
+fastify:
+  versions: '>=0.27.0 <0.29.0 || >0.29.0'
+  commands:
+    - node test/instrumentation/modules/fastify/fastify.js
+    - node test/instrumentation/modules/fastify/async-await.js
+
 finalhandler:
   versions: '*'
   commands: node test/instrumentation/modules/finalhandler.js

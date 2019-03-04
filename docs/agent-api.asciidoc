@@ -9,7 +9,12 @@ endif::[]
 
 NOTE: This is the API documentation for the Elastic APM Node.js Agent.
 For getting started,
-we recommend that you take a look at our framework specific documentation for either <<express,Express>>, <<hapi,hapi>>, <<koa,Koa>>, <<restify,Restify>>, or <<custom-stack,custom frameworks>>.
+we recommend that you take a look at our framework specific documentation for either <<express,Express>>,
+<<hapi,hapi>>,
+<<koa,Koa>>,
+<<restify,Restify>>,
+<<fastify,Fastify>>,
+or <<custom-stack,custom frameworks>>.
 
 The Elastic APM agent for Node.js is a singleton.
 You get the agent instance by either requiring `elastic-apm-node` or `elastic-apm-node/start`.
@@ -539,7 +544,7 @@ The `name` argument must be a string.
 
 If you use a supported router/framework the agent will automatically set the transaction name for you.
 
-If you do not use Express, hapi, koa-router, or restify or if the agent for some reason cannot detect the name of the HTTP route,
+If you do not use Express, hapi, koa-router, Restify, or Fastify or if the agent for some reason cannot detect the name of the HTTP route,
 the transaction name will default to `METHOD unknown route` (e.g. `POST unknown route`).
 
 Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
