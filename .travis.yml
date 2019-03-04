@@ -24,7 +24,7 @@ install:
 
 before_script:
   - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then npm install -g npm@latest; fi
-  - wait-on tcp:9200
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then wait-on tcp:9200; fi
 
 node_js:
   - '12'
