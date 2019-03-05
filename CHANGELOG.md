@@ -1,3 +1,12 @@
+# 2.6.0 - 2019/3/5
+  * feat: add support for Fastify framework ([#594](https://github.com/elastic/apm-agent-nodejs/pull/594))
+  * feat(lambda): accept parent span in lambda wrapper ([#881](https://github.com/elastic/apm-agent-nodejs/pull/881))
+  * feat(lambda): support promise form ([#871](https://github.com/elastic/apm-agent-nodejs/pull/871))
+  * fix: ensure http headers are always recorded as strings ([#895](https://github.com/elastic/apm-agent-nodejs/pull/895))
+  * fix(metrics): prevent 0ms timers from being created ([#872](https://github.com/elastic/apm-agent-nodejs/pull/872))
+  * fix(config): apiRequestSize should be 768kb ([#848](https://github.com/elastic/apm-agent-nodejs/pull/848))
+  * fix(express): ensure correct transaction names ([#842](https://github.com/elastic/apm-agent-nodejs/pull/842))
+
 # 2.5.1 - 2019/2/4
   * fix(metrics): ensure NaN becomes 0, not null ([#837](https://github.com/elastic/apm-agent-nodejs/pull/837)) 
 
