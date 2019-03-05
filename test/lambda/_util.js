@@ -1,3 +1,5 @@
+'use strict'
+
 function assertContext (t, name, received, expected, input, output) {
   t.ok(received)
   const lambda = received.lambda
