@@ -345,7 +345,7 @@ var matchId = /^[\da-f]{16}$/
 function assertPath (t, trans, secure, port, path) {
   t.ok(trans)
   t.ok(matchId.test(trans.id))
-  t.equal(trans.name, 'GET unknown route')
+  t.equal(trans.name, `GET ${path}`)
   t.equal(trans.type, 'request')
   t.equal(trans.result, 'HTTP 2xx')
   t.ok(trans.duration > 0)

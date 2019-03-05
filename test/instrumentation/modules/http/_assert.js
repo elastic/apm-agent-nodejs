@@ -8,7 +8,7 @@ function assert (t, data) {
 
   var trans = data.transactions[0]
 
-  t.equal(trans.name, 'GET unknown route')
+  t.equal(trans.name, 'GET /')
   t.equal(trans.type, 'request')
   t.equal(trans.result, 'HTTP 2xx')
   t.equal(trans.context.request.method, 'GET')

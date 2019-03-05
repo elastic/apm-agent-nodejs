@@ -359,7 +359,7 @@ test('#_encode() - http request meta data', function (t) {
   t.equal(payload.id, trans.id)
   t.equal(payload.trace_id, trans.traceId)
   t.equal(payload.parent_id, undefined)
-  t.equal(payload.name, 'POST unknown route')
+  t.equal(payload.name, 'POST /foo')
   t.equal(payload.type, 'custom')
   t.ok(payload.duration > 0)
   t.equal(payload.timestamp, trans._timer.start)

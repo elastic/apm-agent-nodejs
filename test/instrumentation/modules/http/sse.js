@@ -69,7 +69,7 @@ function assertNonSSEResponse (t, data) {
   var trans = data.transactions[0]
   var span = data.spans[0]
 
-  t.equal(trans.name, 'GET unknown route')
+  t.equal(trans.name, 'GET /')
   t.equal(trans.context.request.method, 'GET')
   t.equal(span.name, 'foo')
   t.equal(span.type, 'bar')
@@ -81,7 +81,7 @@ function assertSSEResponse (t, data) {
 
   var trans = data.transactions[0]
 
-  t.equal(trans.name, 'GET unknown route')
+  t.equal(trans.name, 'GET /')
   t.equal(trans.context.request.method, 'GET')
 }
 

@@ -66,7 +66,7 @@ test('ignore 404 errors', function (t) {
     t.equal(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
-    t.equal(trans.name, 'GET unknown route', 'transaction name is GET unknown route')
+    t.equal(trans.name, 'GET /', 'transaction name is GET /')
     t.equal(trans.type, 'request', 'transaction type is request')
   })
 

@@ -81,6 +81,7 @@
     "measured-reporting": "^1.39.1",
     "object-filter-sequence": "^1.0.0",
     "original-url": "^1.2.2",
+    "parseurl": "^1.3.2",
     "read-pkg-up": "^4.0.0",
     "redact-secrets": "^1.0.0",
     "relative-microtime": "^2.0.0",
