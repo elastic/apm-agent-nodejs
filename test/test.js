@@ -1,3 +1,5 @@
+'use strict'
+
 var path = require('path')
 var readdir = require('fs').readdir
 var spawn = require('child_process').spawn

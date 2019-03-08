@@ -1,3 +1,5 @@
+'use strict'
+
 const TransactionMock = require('./transaction')
 
 module.exports = class AgentMock {
