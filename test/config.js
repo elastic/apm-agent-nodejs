@@ -569,16 +569,24 @@ test('custom transport', function (t) {
         flush (cb) {
           if (cb) setImmediate(cb)
           if (first) {
+            // first flush is from calling `agent.flush()` below, second flush
+            // is done by the internals of `captureError()`. This logic will
+            // change once the following issue is implemented:
+            // https://github.com/elastic/apm-agent-nodejs/issues/686
             first = false
             return
           }
-          t.equal(transactions.length, 1, 'received correct number of transactions')
-          assertEncodedTransaction(t, trans, transactions[0])
-          t.equal(spans.length, 1, 'received correct number of spans')
-          assertEncodedSpan(t, span, spans[0])
-          t.equal(errors.length, 1, 'received correct number of errors')
-          assertEncodedError(t, error, errors[0], trans, span)
-          t.end()
+
+          // add slight delay to give the span time to be fully encoded and sent
+          setTimeout(function () {
+            t.equal(transactions.length, 1, 'received correct number of transactions')
+            assertEncodedTransaction(t, trans, transactions[0])
+            t.equal(spans.length, 1, 'received correct number of spans')
+            assertEncodedSpan(t, span, spans[0])
+            t.equal(errors.length, 1, 'received correct number of errors')
+            assertEncodedError(t, error, errors[0], trans, span)
+            t.end()
+          }, 200)
         }
       }
     }
