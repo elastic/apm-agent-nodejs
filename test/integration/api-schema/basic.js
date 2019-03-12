@@ -50,7 +50,6 @@ const next = afterAll(function (err, validators) {
       { field: 'data.name', message: 'is required' },
       { field: 'data.type', message: 'is required' },
       { field: 'data.id', message: 'is required' },
-      { field: 'data.transaction_id', message: 'is required' },
       { field: 'data.trace_id', message: 'is required' },
       { field: 'data.parent_id', message: 'is required' },
       { field: 'data', message: 'no schemas match' }
