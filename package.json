@@ -100,6 +100,7 @@
     "apollo-server-express": "^2.1.0",
     "bluebird": "^3.5.2",
     "cassandra-driver": "^4.0.0",
+    "commitlint-config-squash-pr": "^1.0.0",
     "connect": "^3.6.6",
     "dependency-check": "^3.2.1",
     "elasticsearch": "^15.1.1",
@@ -161,6 +162,7 @@
   },
   "commitlint": {
     "extends": [
+      "squash-pr",
       "@commitlint/config-conventional"
     ]
   },
