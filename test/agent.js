@@ -1086,7 +1086,7 @@ test('patches', function (t) {
       foo: 'bar'
     }
 
-    function patch (exports, agent, version, enabled) {
+    function patch (exports, agent, { version, enabled }) {
       t.ok(exports)
       t.ok(agent)
       t.ok(version)
@@ -1122,7 +1122,7 @@ test('patches', function (t) {
       foo: 'bar'
     }
 
-    agent.addPatch('express', (exports, agent, version, enabled) => {
+    agent.addPatch('express', (exports, agent, { version, enabled }) => {
       t.ok(exports)
       t.ok(agent)
       t.ok(version)
