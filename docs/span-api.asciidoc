@@ -54,7 +54,7 @@ the following are standardized across all Elastic APM agents:
 [[span-start]]
 ==== `span.start()`
 
-deprecated[1.1.0,Span started automatically by <<apm-start-span,apm.startSpan()>>]
+deprecated[1.1.0,Span started automatically by <<apm-start-span>>]
 
 [source,js]
 ----
