@@ -141,7 +141,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 |=======================================================================
 |Module |Version |Note
 |https://www.npmjs.com/package/bluebird[bluebird] |>=2.0.0 <4.0.0 |
-|https://www.npmjs.com/package/generic-pool[generic-pool] |\^2.0.0 \|\| ^3.1.0 |Used
+|https://www.npmjs.com/package/generic-pool[generic-pool] | \^2.0.0 \|\| ^3.1.0 |Used
 by a lot of database modules like for instance "pg"
 |https://www.npmjs.com/package/express-queue[express-queue] |>=0.0.11 <1.0.0 |
 |=======================================================================
