@@ -75,27 +75,9 @@ interface AgentConfigOptions {
   ignoreUserAgents?: Array<string | RegExp>;
 }
 
-declare enum LogLevel {
-  Trace = 'trace',
-  Debug = 'debug',
-  Info = 'info',
-  Warn = 'warn',
-  Error = 'error',
-  Fatal = 'fatal',
-}
-
-declare enum CaptureErrorLogStackTraces {
-  Never = 'never',
-  Messages = 'messages',
-  Always = 'always',
-}
-
-declare enum CaptureBody {
-  Off = 'off',
-  Errors = 'errors',
-  Transactions = 'transactions',
-  All = 'all',
-}
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
+type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
 
 interface CaptureErrorOptions {
   request?: IncomingMessage; // TODO: Currently not documented - should we expose this?
