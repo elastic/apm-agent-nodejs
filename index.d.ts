@@ -25,9 +25,9 @@ declare class Agent {
   addErrorFilter (fn: FilterFn): void;
   addTransactionFilter (fn: FilterFn): void;
   addSpanFilter (fn: FilterFn): void;
-  captureError (err: Error | string, options?: CaptureErrorOptions, callback?: CaptureErrorCallback): void;
+  captureError (err: Error | string | ParameterizedMessageObject, options?: CaptureErrorOptions, callback?: CaptureErrorCallback): void;
   handleUncaughtExceptions (fn: UncaughtExceptionFn): void;
-  flush (callback: function): void;
+  flush (callback: Function): void;
 }
 
 interface AgentConfigOptions {
@@ -75,7 +75,7 @@ interface AgentConfigOptions {
   ignoreUserAgents?: Array<string | RegExp>;
 }
 
-enum LogLevel {
+declare enum LogLevel {
   Trace = 'trace',
   Debug = 'debug',
   Info = 'info',
@@ -84,13 +84,13 @@ enum LogLevel {
   Fatal = 'fatal',
 }
 
-enum CaptureErrorLogStackTraces {
+declare enum CaptureErrorLogStackTraces {
   Never = 'never',
   Messages = 'messages',
   Always = 'always',
 }
 
-enum CaptureBody {
+declare enum CaptureBody {
   Off = 'off',
   Errors = 'errors',
   Transactions = 'transactions',
@@ -116,6 +116,11 @@ interface UserObject {
   id?: any; // TODO: Only string?
   username?: string;
   email?: string;
+}
+
+interface ParameterizedMessageObject {
+  message: string;
+  params: Array<any>; // TODO: Can we narrow it down a bit more any
 }
 
 interface Logger { // TODO: Function args?
@@ -159,22 +164,24 @@ interface SpanOptions {
   childOf?: Transaction | Span | string // TODO: This technically accepts other values, but we might not want to document these?
 }
 
-declare function SetTagFn (name: string, value: any): boolean;
-declare function AddTagsFn (tags: Tags): boolean;
-declare function StartSpanFn (name?: string, type?: string, options?: SpanOptions): Span | null;
-declare function EndTransactionFn (result?: string | null, endTime?: number): void; // TODO: Should we allow number as well for result?
+type SetTagFn = (name: string, value: any) => boolean;
+type AddTagsFn = (tags: Tags) => boolean;
+type StartSpanFn = (name?: string, type?: string, options?: SpanOptions) => Span | null;
+type EndTransactionFn = (result?: string | null, endTime?: number) => void; // TODO: Should we allow number as well for result?
 
-declare function UncaughtExceptionFn (err: Error): void;
+type UncaughtExceptionFn = (err: Error) => void;
 
-declare function CaptureErrorCallback (err: Error | null, id: string): void;
+type CaptureErrorCallback = (err: Error | null, id: string) => void;
 
-declare function FilterFn (payload: object): object | Falsy;
+type FilterFn = (payload: object) => object | Falsy;
 
-declare function LambdaFn (type?: string, handler: LambdaHandlerFn): LambdaHandlerFn;
-declare function LambdaHandlerFn (event: object, context: object, callback: LambdaHandlerCallbackFn): any;
-declare function LambdaHandlerCallbackFn (err?: Error | null | undefined, result?: any): void;
+type LambdaFn =
+  | ((handler: LambdaHandlerFn) => LambdaHandlerFn)
+  | ((type: string, handler: LambdaHandlerFn) => LambdaHandlerFn);
+type LambdaHandlerFn = (event: object, context: object, callback: LambdaHandlerCallbackFn) => any;
+type LambdaHandlerCallbackFn = (err?: Error | null | undefined, result?: any) => void;
 
-declare function ConnectMiddlewareFn (err: Error, req: IncomingMessage, res: ServerResponse, next: ConnectMiddlewareNextFn): void;
-declare function ConnectMiddlewareNextFn (err?: Error);
+type ConnectMiddlewareFn = (err: Error, req: IncomingMessage, res: ServerResponse, next: ConnectMiddlewareNextFn) => void;
+type ConnectMiddlewareNextFn = (err?: Error) => void;
 
 type Falsy = false | 0 | "" | null | undefined // Not possible to define NaN
