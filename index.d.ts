@@ -8,76 +8,106 @@ declare class Agent {
   middleware: { connect: ConnectMiddlewareFn };
   lambda: LambdaFn;
   // logger: Logger // TODO: Is this an official API?
-  currentTransaction: Transaction | null;
+
   currentSpan: Span | null;
-  destroy (): void;
-  startTransaction (name?: string, type?: string, options?: TransactionOptions): Transaction | null;
-  endTransaction: EndTransactionFn;
-  setTransactionName (name: string): void;
-  startSpan: StartSpanFn;
-  isStarted (): boolean;
+  currentTransaction: Transaction | null;
+
   start (options: AgentConfigOptions): Agent;
-  setUserContext (user: UserObject): void;
-  setCustomContext (custom: object): void;
-  setTag: SetTagFn; // TODO: Is this how to add a declared function to a class?
-  addTags: AddTagsFn;
+  isStarted (): boolean;
+
   addFilter (fn: FilterFn): void;
   addErrorFilter (fn: FilterFn): void;
-  addTransactionFilter (fn: FilterFn): void;
   addSpanFilter (fn: FilterFn): void;
-  captureError (err: Error | string | ParameterizedMessageObject, options?: CaptureErrorOptions, callback?: CaptureErrorCallback): void;
+  addTransactionFilter (fn: FilterFn): void;
   handleUncaughtExceptions (fn: UncaughtExceptionFn): void;
+
+  captureError (err: Error | string | ParameterizedMessageObject, options?: CaptureErrorOptions, callback?: CaptureErrorCallback): void;
+
+  startTransaction (name?: string, type?: string, options?: TransactionOptions): Transaction | null;
+  setTransactionName (name: string): void;
+  endTransaction: EndTransactionFn;
+  
+  startSpan: StartSpanFn;
+
+  setTag: SetTagFn; // TODO: Is this how to add a declared function to a class?
+  addTags: AddTagsFn;
+  setUserContext (user: UserObject): void;
+  setCustomContext (custom: object): void;
+
   flush (callback: Function): void;
+  destroy (): void;
+}
+
+declare class GenericSpan {
+  // TODO: The following should not be documented right? constructor(), timestamp, ended, id, traceId, parentId, sampled, duration(), 
+  type: string | null; // TODO: Should we allow null?
+
+  setTag: SetTagFn;
+  addTags: AddTagsFn;
+}
+
+declare class Transaction extends GenericSpan {
+  // TODO: The following should not be documented right? constructor(), setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
+  name: string | null; // TODO: Should we allow null?
+  result: string; // TODO: Should we also document number?
+
+  startSpan: StartSpanFn;
+  ensureParentId (): string;
+  end: EndTransactionFn;
+}
+
+declare class Span extends GenericSpan {
+  // TODO: The following should not be documented right? constructor(), customStackTrace(), setDbContext()
+  transaction: Transaction;
+  name: string | null; // TODO: Should we allow null?
+
+  end (endTime?: number): void;
 }
 
 interface AgentConfigOptions {
-  serviceName?: string;
-  secretToken?: string;
-  serverUrl?: string;
-  verifyServerCert?: boolean;
-  serviceVersion?: string;
+  abortedErrorThreshold?: string | number; // TODO: Do we officially want to support numbers?
   active?: boolean;
-  logLevel?: LogLevel;
-  hostname?: string;
   apiRequestSize?: string | number; // TODO: Do we officially want to support numbers?
   apiRequestTime?: string | number; // TODO: Do we officially want to support numbers?
+  asyncHooks?: boolean;
+  captureBody?: CaptureBody;
+  captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
+  captureExceptions?: boolean;
+  captureHeaders?: boolean;
+  captureSpanStackTraces?: boolean;
+  containerId?: string;
+  disableInstrumentations?: string | string[]; // TODO: Do we officially want to support strings?
+  errorMessageMaxLength?: string | number; // TODO: Do we officially want to support numbers?
+  errorOnAbortedRequests?: boolean;
+  filterHttpHeaders?: boolean;
   frameworkName?: string;
   frameworkVersion?: string;
-  stackTraceLimit?: number;
-  captureExceptions?: boolean;
-  filterHttpHeaders?: boolean;
-  captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
-  captureSpanStackTraces?: boolean;
-  captureBody?: CaptureBody;
-  errorOnAbortedRequests?: boolean;
-  abortedErrorThreshold?: string | number; // TODO: Do we officially want to support numbers?
+  hostname?: string;
+  ignoreUrls?: Array<string | RegExp>;
+  ignoreUserAgents?: Array<string | RegExp>;
   instrument?: boolean;
-  asyncHooks?: boolean;
+  kubernetesNamespace?: string;
+  kubernetesNodeName?: string;
+  kubernetesPodName?: string;
+  kubernetesPodUID?: string;
+  logLevel?: LogLevel;
+  logger?: Logger;
+  metricsInterval?: string | number; // TODO: Do we officially want to support numbers?
+  payloadLogFile?: string; // TODO: Do we want to advertise this?
+  secretToken?: string;
+  serverTimeout?: string | number; // TODO: Do we officially want to support numbers?
+  serverUrl?: string;
+  serviceName?: string;
+  serviceVersion?: string;
   sourceLinesErrorAppFrames?: number;
   sourceLinesErrorLibraryFrames?: number;
   sourceLinesSpanAppFrames?: number;
   sourceLinesSpanLibraryFrames?: number;
-  errorMessageMaxLength?: string | number; // TODO: Do we officially want to support numbers?
+  stackTraceLimit?: number;
   transactionMaxSpans?: number;
   transactionSampleRate?: number;
-  serverTimeout?: string | number; // TODO: Do we officially want to support numbers?
-  disableInstrumentations?: string | string[]; // TODO: Do we officially want to support strings?
-  payloadLogFile?: string; // TODO: Do we want to advertise this?
-  containerId?: string;
-  kubernetesNodeName?: string;
-  kubernetesNamespace?: string;
-  kubernetesPodName?: string;
-  kubernetesPodUID?: string;
-  captureHeaders?: boolean;
-  metricsInterval?: string | number; // TODO: Do we officially want to support numbers?
-  logger?: Logger;
-  ignoreUrls?: Array<string | RegExp>;
-  ignoreUserAgents?: Array<string | RegExp>;
+  verifyServerCert?: boolean;
 }
-
-type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
-type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
 
 interface CaptureErrorOptions {
   request?: IncomingMessage; // TODO: Currently not documented - should we expose this?
@@ -106,46 +136,23 @@ interface ParameterizedMessageObject {
 }
 
 interface Logger {
-  fatal(msg: string, ...args: any[]): void;
-  fatal(obj: {}, msg?: string, ...args: any[]): void;
-  error(msg: string, ...args: any[]): void;
-  error(obj: {}, msg?: string, ...args: any[]): void;
-  warn(msg: string, ...args: any[]): void;
-  warn(obj: {}, msg?: string, ...args: any[]): void;
-  info(msg: string, ...args: any[]): void;
-  info(obj: {}, msg?: string, ...args: any[]): void;
-  debug(msg: string, ...args: any[]): void;
-  debug(obj: {}, msg?: string, ...args: any[]): void;
-  trace(msg: string, ...args: any[]): void;
-  trace(obj: {}, msg?: string, ...args: any[]): void;
-}
-
-declare class GenericSpan {
-  // TODO: The following should not be documented right? constructor(), timestamp, ended, id, traceId, parentId, sampled, duration(), 
-  type: string | null; // TODO: Should we allow null?
-  setTag: SetTagFn;
-  addTags: AddTagsFn;
-}
-
-declare class Transaction extends GenericSpan {
-  // TODO: The following should not be documented right? constructor(), setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
-  name: string | null; // TODO: Should we allow null?
-  result: string; // TODO: Should we also document number?
-  startSpan: StartSpanFn;
-  ensureParentId (): string;
-  end: EndTransactionFn;
+  fatal (msg: string, ...args: any[]): void;
+  fatal (obj: {}, msg?: string, ...args: any[]): void;
+  error (msg: string, ...args: any[]): void;
+  error (obj: {}, msg?: string, ...args: any[]): void;
+  warn (msg: string, ...args: any[]): void;
+  warn (obj: {}, msg?: string, ...args: any[]): void;
+  info (msg: string, ...args: any[]): void;
+  info (obj: {}, msg?: string, ...args: any[]): void;
+  debug (msg: string, ...args: any[]): void;
+  debug (obj: {}, msg?: string, ...args: any[]): void;
+  trace (msg: string, ...args: any[]): void;
+  trace (obj: {}, msg?: string, ...args: any[]): void;
 }
 
 interface TransactionOptions {
   startTime?: number;
   childOf?: Transaction | Span | string // TODO: This technically accepts other values, but we might not want to document these?
-}
-
-declare class Span extends GenericSpan {
-  // TODO: The following should not be documented right? constructor(), customStackTrace(), setDbContext()
-  transaction: Transaction;
-  name: string | null; // TODO: Should we allow null?
-  end (endTime?: number): void;
 }
 
 interface SpanOptions {
@@ -171,5 +178,9 @@ type LambdaHandlerCallbackFn = (err?: Error | null | undefined, result?: any) =>
 
 type ConnectMiddlewareFn = (err: Error, req: IncomingMessage, res: ServerResponse, next: ConnectMiddlewareNextFn) => void;
 type ConnectMiddlewareNextFn = (err?: Error) => void;
+
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
+type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
 
 type Falsy = false | 0 | "" | null | undefined // Not possible to define NaN
