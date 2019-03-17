@@ -7,37 +7,52 @@ export default agent;
 declare const agent: Agent;
 
 declare class Agent {
-  middleware: { connect(): ConnectMiddlewareFn };
-  lambda: LambdaFn;
-  logger: Logger; // TODO: Is this an official API?
-
-  currentSpan: Span | null;
-  currentTransaction: Transaction | null;
-
+  // Configuration
   start (options: AgentConfigOptions): Agent;
   isStarted (): boolean;
 
-  addFilter (fn: FilterFn): void;
-  addErrorFilter (fn: FilterFn): void;
-  addSpanFilter (fn: FilterFn): void;
-  addTransactionFilter (fn: FilterFn): void;
+  // Data collection hooks
+  middleware: { connect(): ConnectMiddlewareFn };
+  lambda: LambdaFn;
   handleUncaughtExceptions (fn: UncaughtExceptionFn): void;
 
-  captureError (err: Error | string | ParameterizedMessageObject, options?: CaptureErrorOptions, callback?: CaptureErrorCallback): void;
+  // Errors
+  captureError (
+    err: Error | string | ParameterizedMessageObject,
+    callback?: CaptureErrorCallback
+  ): void;
+  captureError (
+    err: Error | string | ParameterizedMessageObject,
+    options?: CaptureErrorOptions,
+    callback?: CaptureErrorCallback
+  ): void;
 
+  // Transactions
   startTransaction (name?: string, type?: string, options?: TransactionOptions): Transaction | null;
   setTransactionName (name: string): void;
   endTransaction: EndTransactionFn;
-  
-  startSpan: StartSpanFn;
+  currentTransaction: Transaction | null;
 
+  // Spans
+  startSpan: StartSpanFn;
+  currentSpan: Span | null;
+
+  // Context
   setTag: SetTagFn; // TODO: Is this how to add a declared function to a class?
   addTags: AddTagsFn;
   setUserContext (user: UserObject): void;
   setCustomContext (custom: object): void;
 
+  // Transport
+  addFilter (fn: FilterFn): void;
+  addErrorFilter (fn: FilterFn): void;
+  addSpanFilter (fn: FilterFn): void;
+  addTransactionFilter (fn: FilterFn): void;
   flush (callback: Function): void;
   destroy (): void;
+
+  // Utils
+  logger: Logger; // TODO: Should we advertise this API?
 }
 
 declare class GenericSpan {
@@ -95,7 +110,7 @@ interface AgentConfigOptions {
   logLevel?: LogLevel;
   logger?: Logger;
   metricsInterval?: string | number; // TODO: Do we officially want to support numbers?
-  payloadLogFile?: string; // TODO: Do we want to advertise this?
+  payloadLogFile?: string; // TODO: Should we advertise this API?
   secretToken?: string;
   serverTimeout?: string | number; // TODO: Do we officially want to support numbers?
   serverUrl?: string;
@@ -117,7 +132,7 @@ interface CaptureErrorOptions {
   timestamp?: number;
   handled?: boolean; // TODO: Currently not documented - should we expose this?
   user?: UserObject;  
-  tags?: Tags; // TODO: currently not documented
+  tags?: Tags; // TODO: Currently not documented
   custom?: object;
   message?: string;
 }
