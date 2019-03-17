@@ -7,7 +7,7 @@ export default agent;
 declare const agent: Agent;
 
 declare class Agent {
-  middleware: { connect: ConnectMiddlewareFn };
+  middleware: { connect(): ConnectMiddlewareFn };
   lambda: LambdaFn;
   // logger: Logger // TODO: Is this an official API?
 
