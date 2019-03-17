@@ -134,7 +134,7 @@ interface UserObject {
 
 interface ParameterizedMessageObject {
   message: string;
-  params: Array<any>; // TODO: Can we narrow it down a bit more any
+  params: Array<any>; // TODO: Can we narrow it down a bit more than `any`
 }
 
 interface Logger {
