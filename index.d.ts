@@ -9,7 +9,7 @@ declare const agent: Agent;
 declare class Agent {
   middleware: { connect(): ConnectMiddlewareFn };
   lambda: LambdaFn;
-  // logger: Logger // TODO: Is this an official API?
+  logger: Logger; // TODO: Is this an official API?
 
   currentSpan: Span | null;
   currentTransaction: Transaction | null;
@@ -123,18 +123,18 @@ interface CaptureErrorOptions {
 }
 
 interface Tags {
-  [key: string]: any; // TODO: Can't we specify it a bit more than any?
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 interface UserObject {
-  id?: any; // TODO: Only string?
-  username?: string;
-  email?: string;
+  id?: string | number | null | undefined;
+  username?: string | null | undefined;
+  email?: string | null | undefined;
 }
 
 interface ParameterizedMessageObject {
   message: string;
-  params: Array<any>; // TODO: Can we narrow it down a bit more than `any`
+  params: Array<any>;
 }
 
 interface Logger {
@@ -175,8 +175,8 @@ type FilterFn = (payload: object) => object | Falsy | void;
 type LambdaFn =
   | ((handler: LambdaHandlerFn) => LambdaHandlerFn)
   | ((type: string, handler: LambdaHandlerFn) => LambdaHandlerFn);
-type LambdaHandlerFn = (event: object, context: object, callback: LambdaHandlerCallbackFn) => any;
-type LambdaHandlerCallbackFn = (err?: Error | null | undefined, result?: any) => void;
+type LambdaHandlerFn = (event: object, context: object, callback: LambdaHandlerCallbackFn) => any; // TODO: Is the `any` return type correct?
+type LambdaHandlerCallbackFn = (err?: Error | null | undefined, result?: any) => void; // TODO: Can `result` really be `any`?
 
 type ConnectMiddlewareFn = (err: Error, req: IncomingMessage, res: ServerResponse, next: ConnectMiddlewareNextFn) => void;
 type ConnectMiddlewareNextFn = (err?: Error) => void;
