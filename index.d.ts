@@ -123,7 +123,7 @@ interface CaptureErrorOptions {
 }
 
 interface Tags {
-  [key: string]: string | number | boolean | null | undefined;
+  [key: string]: TagValue;
 }
 
 interface UserObject {
@@ -161,7 +161,7 @@ interface SpanOptions {
   childOf?: Transaction | Span | string // TODO: This technically accepts other values, but we might not want to document these?
 }
 
-type SetTagFn = (name: string, value: any) => boolean;
+type SetTagFn = (name: string, value: TagValue) => boolean;
 type AddTagsFn = (tags: Tags) => boolean;
 type StartSpanFn = (name?: string, type?: string, options?: SpanOptions) => Span | null;
 type EndTransactionFn = (result?: string | null, endTime?: number) => void; // TODO: Should we allow number as well for result?
@@ -185,4 +185,5 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
 type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
 
-type Falsy = false | 0 | "" | null | undefined // Not possible to define NaN
+type TagValue = string | number | boolean | null | undefined;
+type Falsy = false | 0 | "" | null | undefined; // Not possible to define NaN
