@@ -170,7 +170,7 @@ type UncaughtExceptionFn = (err: Error) => void;
 
 type CaptureErrorCallback = (err: Error | null, id: string) => void;
 
-type FilterFn = (payload: object) => object | Falsy;
+type FilterFn = (payload: object) => object | Falsy | void;
 
 type LambdaFn =
   | ((handler: LambdaHandlerFn) => LambdaHandlerFn)
