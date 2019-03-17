@@ -2,7 +2,9 @@
 
 import { IncomingMessage, ServerResponse } from 'http';
 
-export declare const agent: Agent;
+export default agent;
+
+declare const agent: Agent;
 
 declare class Agent {
   middleware: { connect: ConnectMiddlewareFn };
