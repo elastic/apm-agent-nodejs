@@ -1,2 +1,2 @@
-import * as agent from './';
-export = agent;
+import agent from './';
+export default agent;
