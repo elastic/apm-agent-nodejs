@@ -19,7 +19,6 @@ declare class Agent implements Taggable, StartSpanFn {
   middleware: { connect (): ErrorHandleFunction };
   lambda (handler: Handler): Handler;
   lambda (type: string, handler: Handler): Handler;
-
   handleUncaughtExceptions (
     fn: (err: Error) => void
   ): void;
@@ -122,7 +121,7 @@ interface AgentConfigOptions {
   logLevel?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
   logger?: Logger;
   metricsInterval?: string | number; // TODO: Do we officially want to support numbers?
-  payloadLogFile?: string; // TODO: Should we advertise this API?
+  payloadLogFile?: string;
   secretToken?: string;
   serverTimeout?: string | number; // TODO: Do we officially want to support numbers?
   serverUrl?: string;
