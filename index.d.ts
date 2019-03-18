@@ -1,20 +1,28 @@
 /// <reference types="node" />
+/// <reference types="aws-lambda" />
+/// <reference types="connect" />
 
 import { IncomingMessage, ServerResponse } from 'http';
+import { Handler } from 'aws-lambda';
+import { ErrorHandleFunction } from 'connect';
 
 export default agent;
 
 declare const agent: Agent;
 
-declare class Agent {
+declare class Agent implements Taggable, StartSpanFn {
   // Configuration
-  start (options: AgentConfigOptions): Agent;
+  start (options?: AgentConfigOptions): Agent;
   isStarted (): boolean;
 
   // Data collection hooks
-  middleware: { connect(): ConnectMiddlewareFn };
-  lambda: LambdaFn;
-  handleUncaughtExceptions (fn: UncaughtExceptionFn): void;
+  middleware: { connect (): ErrorHandleFunction };
+  lambda (handler: Handler): Handler;
+  lambda (type: string, handler: Handler): Handler;
+
+  handleUncaughtExceptions (
+    fn: (err: Error) => void
+  ): void;
 
   // Errors
   captureError (
@@ -28,18 +36,22 @@ declare class Agent {
   ): void;
 
   // Transactions
-  startTransaction (name?: string, type?: string, options?: TransactionOptions): Transaction | null;
+  startTransaction (
+    name?: string,
+    type?: string,
+    options?: TransactionOptions
+  ): Transaction | null;
   setTransactionName (name: string): void;
-  endTransaction: EndTransactionFn;
+  endTransaction (result?: string, endTime?: number): void; // TODO: Should we allow number as well for result?
   currentTransaction: Transaction | null;
 
   // Spans
-  startSpan: StartSpanFn;
+  startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
   currentSpan: Span | null;
 
   // Context
-  setTag: SetTagFn; // TODO: Is this how to add a declared function to a class?
-  addTags: AddTagsFn;
+  setTag(name: string, value: TagValue): boolean;
+  addTags(tags: Tags): boolean;
   setUserContext (user: UserObject): void;
   setCustomContext (custom: object): void;
 
@@ -52,25 +64,25 @@ declare class Agent {
   destroy (): void;
 
   // Utils
-  logger: Logger; // TODO: Should we advertise this API?
+  logger: Logger;
 }
 
-declare class GenericSpan {
+declare class GenericSpan implements Taggable {
   // TODO: The following should not be documented right? constructor(), timestamp, ended, id, traceId, parentId, sampled, duration(), 
   type: string | null; // TODO: Should we allow null?
 
-  setTag: SetTagFn;
-  addTags: AddTagsFn;
+  setTag(name: string, value: TagValue): boolean;
+  addTags(tags: Tags): boolean;
 }
 
-declare class Transaction extends GenericSpan {
+declare class Transaction extends GenericSpan implements StartSpanFn {
   // TODO: The following should not be documented right? constructor(), setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
   name: string | null; // TODO: Should we allow null?
   result: string; // TODO: Should we also document number?
 
-  startSpan: StartSpanFn;
+  startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
   ensureParentId (): string;
-  end: EndTransactionFn;
+  end (result?: string, endTime?: number): void; // TODO: Should we allow number as well for result?
 }
 
 declare class Span extends GenericSpan {
@@ -87,8 +99,8 @@ interface AgentConfigOptions {
   apiRequestSize?: string | number; // TODO: Do we officially want to support numbers?
   apiRequestTime?: string | number; // TODO: Do we officially want to support numbers?
   asyncHooks?: boolean;
-  captureBody?: CaptureBody;
-  captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
+  captureBody?: 'off' | 'errors' | 'transactions' | 'all';
+  captureErrorLogStackTraces?: 'never' | 'messages' | 'always';
   captureExceptions?: boolean;
   captureHeaders?: boolean;
   captureSpanStackTraces?: boolean;
@@ -107,7 +119,7 @@ interface AgentConfigOptions {
   kubernetesNodeName?: string;
   kubernetesPodName?: string;
   kubernetesPodUID?: string;
-  logLevel?: LogLevel;
+  logLevel?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
   logger?: Logger;
   metricsInterval?: string | number; // TODO: Do we officially want to support numbers?
   payloadLogFile?: string; // TODO: Should we advertise this API?
@@ -142,9 +154,9 @@ interface Tags {
 }
 
 interface UserObject {
-  id?: string | number | null | undefined;
-  username?: string | null | undefined;
-  email?: string | null | undefined;
+  id?: string | number;
+  username?: string;
+  email?: string;
 }
 
 interface ParameterizedMessageObject {
@@ -165,40 +177,30 @@ interface Logger {
   debug (obj: {}, msg?: string, ...args: any[]): void;
   trace (msg: string, ...args: any[]): void;
   trace (obj: {}, msg?: string, ...args: any[]): void;
+  [propName: string]: any;
 }
 
 interface TransactionOptions {
   startTime?: number;
-  childOf?: Transaction | Span | string // TODO: This technically accepts other values, but we might not want to document these?
+  childOf?: Transaction | Span | string; // TODO: This technically accepts other values, but we might not want to document these?
 }
 
 interface SpanOptions {
   childOf?: Transaction | Span | string // TODO: This technically accepts other values, but we might not want to document these?
 }
 
-type SetTagFn = (name: string, value: TagValue) => boolean;
-type AddTagsFn = (tags: Tags) => boolean;
-type StartSpanFn = (name?: string, type?: string, options?: SpanOptions) => Span | null;
-type EndTransactionFn = (result?: string | null, endTime?: number) => void; // TODO: Should we allow number as well for result?
+interface Taggable {
+  setTag (name: string, value: TagValue): boolean;
+  addTags (tags: Tags): boolean;
+}
 
-type UncaughtExceptionFn = (err: Error) => void;
+interface StartSpanFn {
+  startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
+}
 
 type CaptureErrorCallback = (err: Error | null, id: string) => void;
 
 type FilterFn = (payload: object) => object | Falsy | void;
-
-type LambdaFn =
-  | ((handler: LambdaHandlerFn) => LambdaHandlerFn)
-  | ((type: string, handler: LambdaHandlerFn) => LambdaHandlerFn);
-type LambdaHandlerFn = (event: object, context: object, callback: LambdaHandlerCallbackFn) => any; // TODO: Is the `any` return type correct?
-type LambdaHandlerCallbackFn = (err?: Error | null | undefined, result?: any) => void; // TODO: Can `result` really be `any`?
-
-type ConnectMiddlewareFn = (err: Error, req: IncomingMessage, res: ServerResponse, next: ConnectMiddlewareNextFn) => void;
-type ConnectMiddlewareNextFn = (err?: Error) => void;
-
-type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
-type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
 
 type TagValue = string | number | boolean | null | undefined;
 type Falsy = false | 0 | "" | null | undefined; // Not possible to define NaN
