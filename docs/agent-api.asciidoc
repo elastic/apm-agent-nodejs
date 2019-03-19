@@ -685,7 +685,7 @@ Name of module to apply the patch to, when required.
 Must be a patch function or a path to a module exporting a patch function
 ** `exports` - The original export object of the module
 ** `agent` - The agent instance to use in the patch function
-** `options` - The following options are supported:\
+** `options` - The following options are supported:
 *** `version` - The module version, if applicable.
 *** `enabled` - A flag indicating if the instrumentation is enabled.
 Any module patch can be disabled, by module name, with <<disable-instrumentations,`disableInstrumentations`>>.
@@ -705,8 +705,8 @@ apm.removePatch('timers', timerPatchFunction)
 ----
 
 Removes a module patch.
-This will generally only needed when replacing an existing patch.
-To _disable_ instrumentation from while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
+This will generally only be needed when replacing an existing patch.
+To _disable_ instrumentation while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
 
 [[apm-clear-patches]]
 ==== `apm.clearPatches(name)`
@@ -717,5 +717,5 @@ apm.clearPatches('timers')
 ----
 
 Clear all patches for the given module.
-This will generally only needed when replacing an existing patch.
-To _disable_ instrumentation from while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
+This will generally only be needed when replacing an existing patch.
+To _disable_ instrumentation while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
