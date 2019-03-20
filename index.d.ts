@@ -49,8 +49,8 @@ declare class Agent implements Taggable, StartSpanFn {
   currentSpan: Span | null;
 
   // Context
-  setTag(name: string, value: TagValue): boolean;
-  addTags(tags: Tags): boolean;
+  setTag (name: string, value: TagValue): boolean;
+  addTags (tags: Tags): boolean;
   setUserContext (user: UserObject): void;
   setCustomContext (custom: object): void;
 
@@ -70,8 +70,8 @@ declare class GenericSpan implements Taggable {
   // TODO: The following should not be documented right? constructor(), timestamp, ended, id, traceId, parentId, sampled, duration(), 
   type: string | null; // TODO: Should we allow null?
 
-  setTag(name: string, value: TagValue): boolean;
-  addTags(tags: Tags): boolean;
+  setTag (name: string, value: TagValue): boolean;
+  addTags (tags: Tags): boolean;
 }
 
 declare class Transaction extends GenericSpan implements StartSpanFn {
