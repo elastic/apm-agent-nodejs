@@ -53,6 +53,8 @@ run_test_suite () {
   else
     nyc node test/test.js
   fi
+
+  npm run test-types
 }
 
 if [[ "$CI" || "$1" == "none" ]]
