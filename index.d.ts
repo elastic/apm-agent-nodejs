@@ -164,12 +164,18 @@ export interface ParameterizedMessageObject {
 }
 
 export interface Logger {
-  fatal: LogFn;
-  error: LogFn;
-  warn: LogFn;
-  info: LogFn;
-  debug: LogFn;
-  trace: LogFn;
+  fatal (msg: string, ...args: any[]): void;
+  fatal (obj: {}, msg?: string, ...args: any[]): void;
+  error (msg: string, ...args: any[]): void;
+  error (obj: {}, msg?: string, ...args: any[]): void;
+  warn (msg: string, ...args: any[]): void;
+  warn (obj: {}, msg?: string, ...args: any[]): void;
+  info (msg: string, ...args: any[]): void;
+  info (obj: {}, msg?: string, ...args: any[]): void;
+  debug (msg: string, ...args: any[]): void;
+  debug (obj: {}, msg?: string, ...args: any[]): void;
+  trace (msg: string, ...args: any[]): void;
+  trace (obj: {}, msg?: string, ...args: any[]): void;
   [propName: string]: any;
 }
 
@@ -189,11 +195,6 @@ export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 export type CaptureErrorCallback = (err: Error | null, id: string) => void;
 export type FilterFn = (payload: object) => object | Falsy | void;
 export type TagValue = string | number | boolean | null | undefined;
-
-interface LogFn {
-  (msg: string, ...args: any[]): void;
-  (obj: object, msg?: string, ...args: any[]): void;
-}
 
 interface Taggable {
   setTag (name: string, value: TagValue): boolean;
