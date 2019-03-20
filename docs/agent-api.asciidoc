@@ -655,6 +655,23 @@ Read more lambda support in the <<lambda,Lambda>> article.
 [[apm-add-patch]]
 ==== `apm.addPatch(name, handler)`
 
+Register a module patch to apply on intercepted `require` calls.
+
+Arguments:
+
+* `name` - string
+Name of module to apply the patch to, when required.
+* `handler` - function or string
+Must be a patch function or a path to a module exporting a patch function
+** `exports` - The original export object of the module
+** `agent` - The agent instance to use in the patch function
+** `options` - The following options are supported:
+*** `version` - The module version, if applicable.
+*** `enabled` - A flag indicating if the instrumentation is enabled.
+Any module patch can be disabled, by module name, with <<disable-instrumentations,`disableInstrumentations`>>.
+
+A module can have any number of patches and will be applied in the order they are added.
+
 [source,js]
 ----
 apm.addPatch('timers', (exports, agent, { version, enabled }) => {
@@ -675,25 +692,12 @@ apm.addPatch('timers', (exports, agent, { version, enabled }) => {
 apm.addPatch('timers', './timer-patch')
 ----
 
-Register a module patch to apply on intercepted `require` calls.
-
-Arguments:
-
-* `name` - string
-Name of module to apply the patch to, when required.
-* `handler` - function or string
-Must be a patch function or a path to a module exporting a patch function
-** `exports` - The original export object of the module
-** `agent` - The agent instance to use in the patch function
-** `options` - The following options are supported:
-*** `version` - The module version, if applicable.
-*** `enabled` - A flag indicating if the instrumentation is enabled.
-Any module patch can be disabled, by module name, with <<disable-instrumentations,`disableInstrumentations`>>.
-
-A module can have any number of patches and will be applied in the order they are added.
-
 [[apm-remove-patch]]
 ==== `apm.removePatch(name, handler)`
+
+Removes a module patch.
+This will generally only be needed when replacing an existing patch.
+To _disable_ instrumentation while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
 
 [source,js]
 ----
@@ -704,18 +708,14 @@ apm.removePatch('timers', './timers-patch')
 apm.removePatch('timers', timerPatchFunction)
 ----
 
-Removes a module patch.
-This will generally only be needed when replacing an existing patch.
-To _disable_ instrumentation while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
-
 [[apm-clear-patches]]
 ==== `apm.clearPatches(name)`
+
+Clear all patches for the given module.
+This will generally only be needed when replacing an existing patch.
+To _disable_ instrumentation while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
 
 [source,js]
 ----
 apm.clearPatches('timers')
 ----
-
-Clear all patches for the given module.
-This will generally only be needed when replacing an existing patch.
-To _disable_ instrumentation while keeping context propagation support, see <<disable-instrumentations,`disableInstrumentations`>>.
