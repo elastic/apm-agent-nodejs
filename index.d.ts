@@ -93,10 +93,10 @@ declare class Span extends GenericSpan {
 }
 
 export interface AgentConfigOptions {
-  abortedErrorThreshold?: string | number; // TODO: Do we officially want to support numbers?
+  abortedErrorThreshold?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   active?: boolean;
-  apiRequestSize?: string | number; // TODO: Do we officially want to support numbers?
-  apiRequestTime?: string | number; // TODO: Do we officially want to support numbers?
+  apiRequestSize?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
+  apiRequestTime?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   asyncHooks?: boolean;
   captureBody?: CaptureBody;
   captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
@@ -104,8 +104,8 @@ export interface AgentConfigOptions {
   captureHeaders?: boolean;
   captureSpanStackTraces?: boolean;
   containerId?: string;
-  disableInstrumentations?: string | string[]; // TODO: Do we officially want to support strings?
-  errorMessageMaxLength?: string | number; // TODO: Do we officially want to support numbers?
+  disableInstrumentations?: string | string[];
+  errorMessageMaxLength?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   errorOnAbortedRequests?: boolean;
   filterHttpHeaders?: boolean;
   frameworkName?: string;
@@ -120,10 +120,10 @@ export interface AgentConfigOptions {
   kubernetesPodUID?: string;
   logLevel?: LogLevel;
   logger?: Logger;
-  metricsInterval?: string | number; // TODO: Do we officially want to support numbers?
+  metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   payloadLogFile?: string;
   secretToken?: string;
-  serverTimeout?: string | number; // TODO: Do we officially want to support numbers?
+  serverTimeout?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   serverUrl?: string;
   serviceName?: string;
   serviceVersion?: string;
@@ -138,12 +138,12 @@ export interface AgentConfigOptions {
 }
 
 export interface CaptureErrorOptions {
-  request?: IncomingMessage; // TODO: Currently not documented - should we expose this?
-  response?: ServerResponse; // TODO: Currently not documented - should we expose this?
+  request?: IncomingMessage;
+  response?: ServerResponse;
   timestamp?: number;
-  handled?: boolean; // TODO: Currently not documented - should we expose this?
+  handled?: boolean;
   user?: UserObject;  
-  tags?: Tags; // TODO: Currently not documented
+  tags?: Tags;
   custom?: object;
   message?: string;
 }
