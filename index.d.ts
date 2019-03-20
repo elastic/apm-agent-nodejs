@@ -92,14 +92,14 @@ declare class Span extends GenericSpan {
   end (endTime?: number): void;
 }
 
-interface AgentConfigOptions {
+export interface AgentConfigOptions {
   abortedErrorThreshold?: string | number; // TODO: Do we officially want to support numbers?
   active?: boolean;
   apiRequestSize?: string | number; // TODO: Do we officially want to support numbers?
   apiRequestTime?: string | number; // TODO: Do we officially want to support numbers?
   asyncHooks?: boolean;
-  captureBody?: 'off' | 'errors' | 'transactions' | 'all';
-  captureErrorLogStackTraces?: 'never' | 'messages' | 'always';
+  captureBody?: CaptureBody;
+  captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
   captureExceptions?: boolean;
   captureHeaders?: boolean;
   captureSpanStackTraces?: boolean;
@@ -118,7 +118,7 @@ interface AgentConfigOptions {
   kubernetesNodeName?: string;
   kubernetesPodName?: string;
   kubernetesPodUID?: string;
-  logLevel?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+  logLevel?: LogLevel;
   logger?: Logger;
   metricsInterval?: string | number; // TODO: Do we officially want to support numbers?
   payloadLogFile?: string;
@@ -137,7 +137,7 @@ interface AgentConfigOptions {
   verifyServerCert?: boolean;
 }
 
-interface CaptureErrorOptions {
+export interface CaptureErrorOptions {
   request?: IncomingMessage; // TODO: Currently not documented - should we expose this?
   response?: ServerResponse; // TODO: Currently not documented - should we expose this?
   timestamp?: number;
@@ -148,22 +148,22 @@ interface CaptureErrorOptions {
   message?: string;
 }
 
-interface Tags {
+export interface Tags {
   [key: string]: TagValue;
 }
 
-interface UserObject {
+export interface UserObject {
   id?: string | number;
   username?: string;
   email?: string;
 }
 
-interface ParameterizedMessageObject {
+export interface ParameterizedMessageObject {
   message: string;
   params: Array<any>;
 }
 
-interface Logger {
+export interface Logger {
   fatal (msg: string, ...args: any[]): void;
   fatal (obj: {}, msg?: string, ...args: any[]): void;
   error (msg: string, ...args: any[]): void;
@@ -179,14 +179,22 @@ interface Logger {
   [propName: string]: any;
 }
 
-interface TransactionOptions {
+export interface TransactionOptions {
   startTime?: number;
   childOf?: Transaction | Span | string; // TODO: This technically accepts other values, but we might not want to document these?
 }
 
-interface SpanOptions {
+export interface SpanOptions {
   childOf?: Transaction | Span | string // TODO: This technically accepts other values, but we might not want to document these?
 }
+
+export type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
+export type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
+export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+
+export type CaptureErrorCallback = (err: Error | null, id: string) => void;
+export type FilterFn = (payload: object) => object | Falsy | void;
+export type TagValue = string | number | boolean | null | undefined;
 
 interface Taggable {
   setTag (name: string, value: TagValue): boolean;
@@ -197,9 +205,4 @@ interface StartSpanFn {
   startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
 }
 
-type CaptureErrorCallback = (err: Error | null, id: string) => void;
-
-type FilterFn = (payload: object) => object | Falsy | void;
-
-type TagValue = string | number | boolean | null | undefined;
 type Falsy = false | 0 | "" | null | undefined; // Not possible to define NaN
