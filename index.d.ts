@@ -67,7 +67,7 @@ declare class Agent implements Taggable, StartSpanFn {
 }
 
 declare class GenericSpan implements Taggable {
-  // TODO: The following should not be documented right? constructor(), timestamp, ended, id, traceId, parentId, sampled, duration(), 
+  // TODO: The following should not be documented right? constructor(), timestamp, ended, id, traceId, parentId, sampled, duration()
   type: string | null; // TODO: Should we allow null?
 
   setTag (name: string, value: TagValue): boolean;
@@ -142,7 +142,7 @@ export interface CaptureErrorOptions {
   response?: ServerResponse;
   timestamp?: number;
   handled?: boolean;
-  user?: UserObject;  
+  user?: UserObject;
   tags?: Tags;
   custom?: object;
   message?: string;
