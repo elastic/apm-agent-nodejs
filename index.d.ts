@@ -67,7 +67,9 @@ declare class Agent implements Taggable, StartSpanFn {
 }
 
 declare class GenericSpan implements Taggable {
-  // TODO: The following should not be documented right? constructor(), timestamp, ended, id, traceId, parentId, sampled, duration()
+  // The following properties and methods are currently not documented as their API isn't considered official:
+  // timestamp, ended, id, traceId, parentId, sampled, duration()
+
   type: string | null; // TODO: Should we allow null?
 
   setTag (name: string, value: TagValue): boolean;
@@ -75,7 +77,9 @@ declare class GenericSpan implements Taggable {
 }
 
 declare class Transaction extends GenericSpan implements StartSpanFn {
-  // TODO: The following should not be documented right? constructor(), setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
+  // The following properties and methods are currently not documented as their API isn't considered official:
+  // setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
+
   name: string | null; // TODO: Should we allow null?
   result: string | number;
 
@@ -85,7 +89,9 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
 }
 
 declare class Span extends GenericSpan {
-  // TODO: The following should not be documented right? constructor(), customStackTrace(), setDbContext()
+  // The following properties and methods are currently not documented as their API isn't considered official:
+  // customStackTrace(), setDbContext()
+
   transaction: Transaction;
   name: string | null; // TODO: Should we allow null?
 
@@ -181,11 +187,11 @@ export interface Logger {
 
 export interface TransactionOptions {
   startTime?: number;
-  childOf?: Transaction | Span | string; // TODO: This technically accepts other values, but we might not want to document these?
+  childOf?: Transaction | Span | string;
 }
 
 export interface SpanOptions {
-  childOf?: Transaction | Span | string // TODO: This technically accepts other values, but we might not want to document these?
+  childOf?: Transaction | Span | string;
 }
 
 export type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
