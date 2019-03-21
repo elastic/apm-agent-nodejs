@@ -214,6 +214,45 @@ test('sub-routers include base path', function (t) {
   })
 })
 
+test('sub-routers throw exception', function (t) {
+  t.plan(6)
+
+  resetAgent(function (data) {
+    t.equal(data.transactions.length, 1, 'has a transaction')
+
+    var trans = data.transactions[0]
+    t.equal(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name')
+    t.equal(trans.type, 'request', 'transaction type is request')
+  })
+
+  var error = new Error('hello')
+  var captureError = agent.captureError
+  agent.captureError = function (err, data) {
+    t.equal(err, error, 'has the expected error')
+    t.ok(data, 'captured data with error')
+  }
+  t.on('end', function () {
+    agent.captureError = captureError
+  })
+
+  var router = express.Router()
+  router.get('/:name', (req, res) => {
+    throw error
+  })
+
+  var app = express()
+  app.set('env', 'production')
+  app.use('/api', router)
+
+  var server = app.listen(function () {
+    get(server, '/api/data', (err, body) => {
+      t.error(err)
+      server.close()
+      agent.flush()
+    })
+  })
+})
+
 function get (server, path, cb) {
   var port = server.address().port
   var opts = {
