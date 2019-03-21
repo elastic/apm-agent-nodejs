@@ -19,6 +19,8 @@ var Agent = require('./_agent')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 
+process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+
 var optionFixtures = [
   ['serviceName', 'SERVICE_NAME', 'elastic-apm-node'],
   ['secretToken', 'SECRET_TOKEN'],
