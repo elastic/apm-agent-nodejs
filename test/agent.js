@@ -1077,38 +1077,18 @@ test('patches', function (t) {
     t.end()
   })
 
-  t.test('#addPatch(name)', function (t) {
+  t.test('#addPatch(name, moduleName)', function (t) {
     var agent = Agent()
     agent.clearPatches('express')
     agent.start()
 
-    var replacement = {
-      foo: 'bar'
-    }
+    agent.addPatch('express', './test/_patch.js')
 
-    function patch (exports, agent, { version, enabled }) {
-      t.ok(exports)
-      t.ok(agent)
-      t.ok(version)
-      t.ok(enabled)
-      return replacement
-    }
-
-    const proto = module.constructor.prototype
-    const oldRequire = proto.require
-    proto.require = function require (name) {
-      return name !== '/foo.js'
-        ? oldRequire.call(this, name)
-        : patch
-    }
-    t.on('end', () => {
-      proto.require = oldRequire
-    })
-
-    agent.addPatch('express', '/foo.js')
+    const before = require('express')
+    const patch = require('./_patch')
 
     delete require.cache[require.resolve('express')]
-    t.deepEqual(require('express'), replacement)
+    t.deepEqual(require('express'), patch(before))
 
     t.end()
   })
