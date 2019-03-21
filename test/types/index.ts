@@ -1,4 +1,4 @@
-import agent from '../../'
+import * as agent from '../../'
 
 agent.start({
   captureExceptions: false,

@@ -6,7 +6,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { Handler } from 'aws-lambda';
 import { ErrorHandleFunction } from 'connect';
 
-export default agent;
+export = agent;
 
 declare const agent: Agent;
 
@@ -98,7 +98,7 @@ declare class Span extends GenericSpan {
   end (endTime?: number): void;
 }
 
-export interface AgentConfigOptions {
+interface AgentConfigOptions {
   abortedErrorThreshold?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   active?: boolean;
   apiRequestSize?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
@@ -143,7 +143,7 @@ export interface AgentConfigOptions {
   verifyServerCert?: boolean;
 }
 
-export interface CaptureErrorOptions {
+interface CaptureErrorOptions {
   request?: IncomingMessage;
   response?: ServerResponse;
   timestamp?: number;
@@ -154,22 +154,22 @@ export interface CaptureErrorOptions {
   message?: string;
 }
 
-export interface Tags {
+interface Tags {
   [key: string]: TagValue;
 }
 
-export interface UserObject {
+interface UserObject {
   id?: string | number;
   username?: string;
   email?: string;
 }
 
-export interface ParameterizedMessageObject {
+interface ParameterizedMessageObject {
   message: string;
   params: Array<any>;
 }
 
-export interface Logger {
+interface Logger {
   fatal (msg: string, ...args: any[]): void;
   fatal (obj: {}, msg?: string, ...args: any[]): void;
   error (msg: string, ...args: any[]): void;
@@ -185,24 +185,24 @@ export interface Logger {
   [propName: string]: any;
 }
 
-export interface TransactionOptions {
+interface TransactionOptions {
   startTime?: number;
   childOf?: Transaction | Span | string;
 }
 
-export interface SpanOptions {
+interface SpanOptions {
   childOf?: Transaction | Span | string;
 }
 
-export type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
-export type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
-export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
+type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
-export type CaptureErrorCallback = (err: Error | null, id: string) => void;
-export type FilterFn = (payload: Payload) => Payload | boolean | void;
-export type TagValue = string | number | boolean | null | undefined;
+type CaptureErrorCallback = (err: Error | null, id: string) => void;
+type FilterFn = (payload: Payload) => Payload | boolean | void;
+type TagValue = string | number | boolean | null | undefined;
 
-export type Payload = { [propName: string]: any }
+type Payload = { [propName: string]: any }
 
 interface Taggable {
   setTag (name: string, value: TagValue): boolean;
