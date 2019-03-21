@@ -1,6 +1,6 @@
 'use strict'
 
-const agent = require('./')
+const agent = require('../../')
 
 agent.start({
   logLevel: 'debug'
