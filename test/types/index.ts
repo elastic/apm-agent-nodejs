@@ -57,13 +57,14 @@ agent.setUserContext({
 
 agent.setCustomContext({ foo: { bar: { baz: true }}})
 
-function filter1 (payload: object) {
+function filter1 (payload: any) {
+  payload.foo = 'bar'
   return payload
 }
-function filter2 (payload: object) {
+function filter2 (payload: any) {
   return false
 }
-function filter3 (payload: object) {}
+function filter3 (payload: any) {}
 agent.addFilter(filter1)
 agent.addFilter(filter2)
 agent.addFilter(filter3)

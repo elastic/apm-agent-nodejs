@@ -199,8 +199,10 @@ export type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
 export type CaptureErrorCallback = (err: Error | null, id: string) => void;
-export type FilterFn = (payload: object) => object | Falsy | void;
+export type FilterFn = (payload: Payload) => Payload | boolean | void;
 export type TagValue = string | number | boolean | null | undefined;
+
+export type Payload = { [propName: string]: any }
 
 interface Taggable {
   setTag (name: string, value: TagValue): boolean;
@@ -210,5 +212,3 @@ interface Taggable {
 interface StartSpanFn {
   startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
 }
-
-type Falsy = false | 0 | "" | null | undefined; // Not possible to define NaN
