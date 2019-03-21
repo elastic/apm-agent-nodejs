@@ -70,7 +70,7 @@ declare class GenericSpan implements Taggable {
   // The following properties and methods are currently not documented as their API isn't considered official:
   // timestamp, ended, id, traceId, parentId, sampled, duration()
 
-  type: string | null; // TODO: Should we allow null?
+  type: string;
 
   setTag (name: string, value: TagValue): boolean;
   addTags (tags: Tags): boolean;
@@ -80,7 +80,7 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
   // The following properties and methods are currently not documented as their API isn't considered official:
   // setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
 
-  name: string | null; // TODO: Should we allow null?
+  name: string;
   result: string | number;
 
   startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
@@ -93,7 +93,7 @@ declare class Span extends GenericSpan {
   // customStackTrace(), setDbContext()
 
   transaction: Transaction;
-  name: string | null; // TODO: Should we allow null?
+  name: string;
 
   end (endTime?: number): void;
 }
