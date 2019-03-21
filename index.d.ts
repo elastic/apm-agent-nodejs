@@ -41,7 +41,7 @@ declare class Agent implements Taggable, StartSpanFn {
     options?: TransactionOptions
   ): Transaction | null;
   setTransactionName (name: string): void;
-  endTransaction (result?: string, endTime?: number): void; // TODO: Should we allow number as well for result?
+  endTransaction (result?: string | number, endTime?: number): void;
   currentTransaction: Transaction | null;
 
   // Spans
@@ -77,11 +77,11 @@ declare class GenericSpan implements Taggable {
 declare class Transaction extends GenericSpan implements StartSpanFn {
   // TODO: The following should not be documented right? constructor(), setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
   name: string | null; // TODO: Should we allow null?
-  result: string; // TODO: Should we also document number?
+  result: string | number;
 
   startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
   ensureParentId (): string;
-  end (result?: string, endTime?: number): void; // TODO: Should we allow number as well for result?
+  end (result?: string | number, endTime?: number): void;
 }
 
 declare class Span extends GenericSpan {
