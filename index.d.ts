@@ -85,7 +85,7 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
 
   startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
   ensureParentId (): string;
-  end (result?: string | number, endTime?: number): void;
+  end (result?: string | number | null, endTime?: number): void;
 }
 
 declare class Span extends GenericSpan {
