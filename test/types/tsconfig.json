@@ -3,10 +3,13 @@
     "target": "es6",
     "module": "commonjs",
     "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
     "strict": true
   },
   "files": [
     "./index.ts",
-    "./start.ts"
+    "./start.ts",
+    "./commonjs.js"
   ]
 }
