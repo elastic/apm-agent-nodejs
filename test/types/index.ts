@@ -45,7 +45,7 @@ agent.startSpan('foo', 'bar', { childOf: 'baz' })
 
 agent.setTag('foo', 'bar')
 agent.setTag('foo', 1)
-agent.setTag('foo', false)
+agent.setTag('foo', false)
 
 agent.addTags({ s: 'bar', n: 42, b: false })
 
@@ -55,7 +55,7 @@ agent.setUserContext({
   email: 'baz'
 })
 
-agent.setCustomContext({ foo: { bar: { baz: true }}})
+agent.setCustomContext({ foo: { bar: { baz: true } } })
 
 function filter1 (payload: any) {
   payload.foo = 'bar'
@@ -88,7 +88,7 @@ agent.logger.debug('')
 agent.logger.info('')
 agent.logger.warn('')
 agent.logger.error('')
-agent.logger.fa('')
+agent.logger.fatal('')
 
 {
   const trans = agent.startTransaction()
