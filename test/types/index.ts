@@ -2,7 +2,7 @@ import * as agent from '../../'
 
 agent.start({
   captureExceptions: false,
-  logLevel: 'fatal'
+  metricsInterval: '0'
 })
 
 function started (bool: boolean) {}

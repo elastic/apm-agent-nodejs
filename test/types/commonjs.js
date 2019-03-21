@@ -3,5 +3,6 @@
 const agent = require('../../')
 
 agent.start({
-  logLevel: 'debug'
+  captureExceptions: false,
+  metricsInterval: '0'
 })
