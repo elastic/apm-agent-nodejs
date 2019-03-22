@@ -1,4 +1,4 @@
-import * as agent from '../../start'
+import agent from '../../start'
 import { IncomingMessage, ServerResponse } from 'http';
 import { Socket } from 'net';
 

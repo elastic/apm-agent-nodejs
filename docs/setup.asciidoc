@@ -126,10 +126,12 @@ module.exports = {
 ----
 
 [[es-modules]]
-=== Babel / ES Modules support
+=== ES Modules support
 
 If you are using ES Modules,
 for instance with the help of Babel,
+TypeScript,
+or the `--experimental-modules` flag for Node.js,
 all import statements are evaluated prior to calling any functions.
 In this case, you can't configure the agent by passing a configuration object to the `start` function,
 as this call will happen after all of the modules have been loaded.
@@ -142,5 +144,18 @@ import apm from 'elastic-apm-node/start'
 
 Now, you can either configure the agent using the environment variables associated with each <<configuration,configuration option>>,
 or use the optional <<agent-configuration-file,agent configuration file>>.
+
+If you're using TypeScript,
+the default import will not work unless you use the `esModuleInterop` https://www.typescriptlang.org/docs/handbook/compiler-options.html[compiler option].
+If you don't want to switch on `esModuleInterop`,
+you instead have to import the agent like so:
+
+[source,js]
+----
+import * as apm from 'elastic-apm-node/start'
+----
+
+[float]
+==== TypeScript
 
 include::./configuration.asciidoc[]

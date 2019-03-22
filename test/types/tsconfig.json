@@ -5,11 +5,11 @@
     "noEmit": true,
     "allowJs": true,
     "checkJs": true,
-    "strict": true
+    "strict": true,
+    "esModuleInterop": true
   },
-  "files": [
-    "./index.ts",
-    "./start.ts",
-    "./commonjs.js"
+  "include": [
+    "*.ts",
+    "*.js"
   ]
 }
