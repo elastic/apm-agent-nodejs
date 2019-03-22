@@ -145,6 +145,9 @@ import apm from 'elastic-apm-node/start'
 Now, you can either configure the agent using the environment variables associated with each <<configuration,configuration option>>,
 or use the optional <<agent-configuration-file,agent configuration file>>.
 
+[float]
+==== TypeScript
+
 If you're using TypeScript,
 the default import will not work unless you use the `esModuleInterop` https://www.typescriptlang.org/docs/handbook/compiler-options.html[compiler option].
 If you don't want to switch on `esModuleInterop`,
@@ -154,8 +157,5 @@ you instead have to import the agent like so:
 ----
 import * as apm from 'elastic-apm-node/start'
 ----
-
-[float]
-==== TypeScript
 
 include::./configuration.asciidoc[]
