@@ -215,7 +215,7 @@ test('sub-routers include base path', function (t) {
 })
 
 test('sub-routers throw exception', function (t) {
-  t.plan(6)
+  t.plan(4)
 
   resetAgent(function (data) {
     t.equal(data.transactions.length, 1, 'has a transaction')
@@ -227,10 +227,7 @@ test('sub-routers throw exception', function (t) {
 
   var error = new Error('hello')
   var captureError = agent.captureError
-  agent.captureError = function (err, data) {
-    t.equal(err, error, 'has the expected error')
-    t.ok(data, 'captured data with error')
-  }
+  agent.captureError = function () {}
   t.on('end', function () {
     agent.captureError = captureError
   })
