@@ -56,12 +56,13 @@ run_test_suite () {
 
   npm run test-types
   npm run test-babel
-  if [[ $major_node_version -gt 6 ]]; then
+  if [[ $major_node_version -ge 8 ]] && [[ $minor_node_version -ge 5 ]]; then
     npm run test-esm
   fi
 }
 
 major_node_version=`node --version | cut -d . -f1 | cut -c2`
+minor_node_version=`node --version | cut -d . -f2`
 
 if [[ "$CI" || "$1" == "none" ]]
 then
