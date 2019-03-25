@@ -1,7 +1,7 @@
 {
   "name": "elastic-apm-node",
   "version": "2.6.0",
-  "description": "The official Elastic APM agent for Node.js",
+  "description": "The official Elastic APM agent for Node.js foo",
   "main": "index.js",
   "scripts": {
     "docs": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
