@@ -146,6 +146,7 @@ Now, you can either configure the agent using the environment variables associat
 or use the optional <<agent-configuration-file,agent configuration file>>.
 
 [float]
+[[esm-typescript]]
 ==== TypeScript
 
 If you're using TypeScript,
