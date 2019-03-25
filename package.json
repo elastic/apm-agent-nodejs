@@ -18,6 +18,8 @@
     "test-tav": "tav --quiet",
     "test-docs": "./test/script/docker/run_docs.sh",
     "test-types": "tsc --project test/types/tsconfig.json && tsc --project test/types/transpile/tsconfig.json && node test/types/transpile/index.js",
+    "test-babel": "babel test/babel/src.js --out-file test/babel/out.js && node test/babel/out.js",
+    "test-esm": "node --experimental-modules test/esm",
     "local-start": "./test/script/local-deps-start.sh",
     "local-stop": "./test/script/local-deps-stop.sh",
     "docker-start": "docker-compose -f ./test/docker-compose.yml up -d",
@@ -96,6 +98,9 @@
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
     "@commitlint/cli": "^7.2.1",
     "@commitlint/config-conventional": "^7.1.2",
     "@commitlint/travis-cli": "^7.2.1",

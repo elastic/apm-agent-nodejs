@@ -55,7 +55,13 @@ run_test_suite () {
   fi
 
   npm run test-types
+  npm run test-babel
+  if [[ $major_node_version -gt 6 ]]; then
+    npm run test-esm
+  fi
 }
+
+major_node_version=`node --version | cut -d . -f1 | cut -c2`
 
 if [[ "$CI" || "$1" == "none" ]]
 then
@@ -72,7 +78,7 @@ then
   # Docker as well
   if [ -z "$2" ]
   then
-    node_version=`node --version | cut -d . -f 1 | cut -c 2-`
+    node_version=$major_node_version
   else
     node_version=$2
   fi
