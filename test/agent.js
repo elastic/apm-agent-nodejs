@@ -1067,6 +1067,76 @@ test('#handleUncaughtExceptions()', function (t) {
   })
 })
 
+test('patches', function (t) {
+  t.test('#clearPatches(name)', function (t) {
+    var agent = Agent()
+    t.ok(agent._instrumentation._patches.has('express'))
+    t.doesNotThrow(() => agent.clearPatches('express'))
+    t.notOk(agent._instrumentation._patches.has('express'))
+    t.doesNotThrow(() => agent.clearPatches('does-not-exists'))
+    t.end()
+  })
+
+  t.test('#addPatch(name, moduleName)', function (t) {
+    var agent = Agent()
+    agent.clearPatches('express')
+    agent.start()
+
+    agent.addPatch('express', './test/_patch.js')
+
+    const before = require('express')
+    const patch = require('./_patch')
+
+    delete require.cache[require.resolve('express')]
+    t.deepEqual(require('express'), patch(before))
+
+    t.end()
+  })
+
+  t.test('#addPatch(name, function) - does not exist', function (t) {
+    var agent = Agent()
+    agent.clearPatches('express')
+    agent.start()
+
+    var replacement = {
+      foo: 'bar'
+    }
+
+    agent.addPatch('express', (exports, agent, { version, enabled }) => {
+      t.ok(exports)
+      t.ok(agent)
+      t.ok(version)
+      t.ok(enabled)
+      return replacement
+    })
+
+    delete require.cache[require.resolve('express')]
+    t.deepEqual(require('express'), replacement)
+
+    t.end()
+  })
+
+  t.test('#removePatch(name, handler)', function (t) {
+    var agent = Agent()
+    agent.start()
+
+    t.notOk(agent._instrumentation._patches.has('does-not-exist'))
+
+    agent.addPatch('does-not-exist', '/foo.js')
+    t.ok(agent._instrumentation._patches.has('does-not-exist'))
+    agent.removePatch('does-not-exist', '/foo.js')
+    t.notOk(agent._instrumentation._patches.has('does-not-exist'))
+
+    const handler = exports => exports
+    agent.addPatch('does-not-exist', handler)
+    t.ok(agent._instrumentation._patches.has('does-not-exist'))
+    agent.removePatch('does-not-exist', handler)
+    t.notOk(agent._instrumentation._patches.has('does-not-exist'))
+
+    t.end()
+  })
+})
+
 function assertMetadata (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
   t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
