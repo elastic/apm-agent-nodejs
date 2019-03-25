@@ -603,6 +603,22 @@ test('custom transport', function (t) {
   agent.flush()
 })
 
+test('addPatch', function (t) {
+  const before = require('express')
+  const patch = require('./_patch')
+
+  delete require.cache[require.resolve('express')]
+
+  const agent = Agent()
+  agent.start({
+    addPatch: 'express=./test/_patch.js'
+  })
+
+  t.deepEqual(require('express'), patch(before))
+
+  t.end()
+})
+
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
   t.equal(result.id, trans.id, 'id matches')
