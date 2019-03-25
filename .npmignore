@@ -1,9 +1,11 @@
 # Files to ignore
+.DS_Store
 .appveyor.yml
 .backportrc.json
 .codecov.yml
 .tav.yml
 .travis.yml
+.vscode
 CONTRIBUTING.md
 CODE_OF_CONDUCT.md
 TESTING.md
