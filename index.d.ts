@@ -10,6 +10,9 @@ declare class Agent implements Taggable, StartSpanFn {
   // Configuration
   start (options?: AgentConfigOptions): Agent;
   isStarted (): boolean;
+  addPatch (name: string, handler: string | PatchHandler): void;
+  removePatch (name: string, handler: string | PatchHandler): void;
+  clearPatches (name: string): void;
 
   // Data collection hooks
   middleware: { connect (): Connect.ErrorHandleFunction };
@@ -199,6 +202,13 @@ type FilterFn = (payload: Payload) => Payload | boolean | void;
 type TagValue = string | number | boolean | null | undefined;
 
 type Payload = { [propName: string]: any }
+
+type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
+
+interface PatchOptions {
+  version: string | undefined,
+  enabled: boolean
+}
 
 interface Taggable {
   setTag (name: string, value: TagValue): boolean;
