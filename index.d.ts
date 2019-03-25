@@ -1,10 +1,6 @@
 /// <reference types="node" />
-/// <reference types="aws-lambda" />
-/// <reference types="connect" />
 
 import { IncomingMessage, ServerResponse } from 'http';
-import { Handler } from 'aws-lambda';
-import { ErrorHandleFunction } from 'connect';
 
 export = agent;
 
@@ -212,3 +208,73 @@ interface Taggable {
 interface StartSpanFn {
   startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
 }
+
+// Inlined from @types/aws-lambda - start
+
+interface CognitoIdentity {
+  cognitoIdentityId: string;
+  cognitoIdentityPoolId: string;
+}
+
+interface ClientContext {
+  client: ClientContextClient;
+  custom?: any;
+  env: ClientContextEnv;
+}
+
+interface ClientContextClient {
+  installationId: string;
+  appTitle: string;
+  appVersionName: string;
+  appVersionCode: string;
+  appPackageName: string;
+}
+
+interface ClientContextEnv {
+  platformVersion: string;
+  platform: string;
+  make: string;
+  model: string;
+  locale: string;
+}
+
+type Callback<TResult = any> = (error?: Error | null | string, result?: TResult) => void;
+
+interface Context {
+  // Properties
+  callbackWaitsForEmptyEventLoop: boolean;
+  functionName: string;
+  functionVersion: string;
+  invokedFunctionArn: string;
+  memoryLimitInMB: number;
+  awsRequestId: string;
+  logGroupName: string;
+  logStreamName: string;
+  identity?: CognitoIdentity;
+  clientContext?: ClientContext;
+
+  // Functions
+  getRemainingTimeInMillis(): number;
+
+  // Functions for compatibility with earlier Node.js Runtime v0.10.42
+  // For more details see http://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-using-old-runtime.html#nodejs-prog-model-oldruntime-context-methods
+  done(error?: Error, result?: any): void;
+  fail(error: Error | string): void;
+  succeed(messageOrObject: any): void;
+  succeed(message: string, object: any): void;
+}
+
+type Handler<TEvent = any, TResult = any> = (
+  event: TEvent,
+  context: Context,
+  callback: Callback<TResult>,
+) => void | Promise<TResult>;
+
+// Inlined from @types/aws-lambda - end
+
+// Inlined from @types/connect - start
+
+type NextFunction = (err?: any) => void;
+type ErrorHandleFunction = (err: any, req: IncomingMessage, res: ServerResponse, next: NextFunction) => void;
+
+// Inlined from @types/connect - end
