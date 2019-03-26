@@ -1,3 +1,16 @@
+# 2.7.0 - 2019/3/26
+  * feat: add patch registry ([#803](https://github.com/elastic/apm-agent-nodejs/pull/803))
+  * feat: allow sub-modules to be patched ([#920](https://github.com/elastic/apm-agent-nodejs/pull/920))
+  * feat: add TypeScript typings ([#926](https://github.com/elastic/apm-agent-nodejs/pull/926))
+  * fix: update measured-reporting to fix Windows installation issue ([#933](https://github.com/elastic/apm-agent-nodejs/pull/933))
+  * fix(lambda): do not wrap context ([#931](https://github.com/elastic/apm-agent-nodejs/pull/931))
+  * fix(lambda): fix cloning issues of context ([#947](https://github.com/elastic/apm-agent-nodejs/pull/947))
+  * fix(metrics): use noop logger in metrics reporter ([#912](https://github.com/elastic/apm-agent-nodejs/pull/912))
+  * fix(transaction): don't set transaction result if it's null ([#936](https://github.com/elastic/apm-agent-nodejs/pull/936))
+  * fix(agent): allow flush callback to be undefined ([#934](https://github.com/elastic/apm-agent-nodejs/pull/934))
+  * fix: handle promise rejection in case Elasticsearch client throws ([#870](https://github.com/elastic/apm-agent-nodejs/pull/870))
+  * chore: change 'npm run' command namespaces ([#944](https://github.com/elastic/apm-agent-nodejs/pull/944))
+
 # 2.6.0 - 2019/3/5
   * feat: add support for Fastify framework ([#594](https://github.com/elastic/apm-agent-nodejs/pull/594))
   * feat(lambda): accept parent span in lambda wrapper ([#881](https://github.com/elastic/apm-agent-nodejs/pull/881))
