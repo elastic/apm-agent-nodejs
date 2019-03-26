@@ -39,8 +39,8 @@ setup_env () {
 
 run_test_suite () {
   standard
-  npm run test-deps
-  npm run lint-commit
+  npm run test:deps
+  npm run lint:commit
   
   if [ -n "${JUNIT}" ]
   then
@@ -54,10 +54,10 @@ run_test_suite () {
     nyc node test/test.js
   fi
 
-  npm run test-types
-  npm run test-babel
+  npm run test:types
+  npm run test:babel
   if [[ $major_node_version -ge 8 ]] && [[ $minor_node_version -ge 5 ]]; then
-    npm run test-esm
+    npm run test:esm
   fi
 }
 
