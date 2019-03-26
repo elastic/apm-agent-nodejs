@@ -56,13 +56,13 @@ There's two ways to do this:
 Start all databases:
 
 ```
-npm run docker-start
+npm run docker:start
 ```
 
 Start a subset of databases:
 
 ```
-npm run docker-start mssql cassandra
+npm run docker:start mssql cassandra
 ```
 
 ### Run databases locally
@@ -89,14 +89,14 @@ npm test mssql cassandra
 The agent test suite supports starting all databases locally (expect SQL Server) if they have been installed using [Homebrew](https://brew.sh/):
 
 ```
-npm run local-start
+npm run local:start
 ```
 
 To later stop the local databases,
 run:
 
 ```
-npm run local-stop
+npm run local:stop
 ```
 
 ## Other notable test commands
@@ -104,23 +104,23 @@ npm run local-stop
 Run the documentation tests inside of Docker:
 
 ```
-npm run test-docs
+npm run test:docs
 ```
 
 Run all the tav tests:
 
 ```
-npm run test-tav
+npm run test:tav
 ```
 
 Run only the tav tests for PostgreSQL and Redis:
 
 ```
-TAV=pg,redis npm run test-tav
+TAV=pg,redis npm run test:tav
 ```
 
 Clean up Docker containers and volumes:
 
 ```
-npm run docker-clean
+npm run docker:clean
 ```
