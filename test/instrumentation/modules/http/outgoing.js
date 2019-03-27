@@ -13,6 +13,8 @@ var echoServer = require('./_echo_server_util').echoServer
 var mockClient = require('../../../_mock_http_client')
 var TraceParent = require('traceparent')
 
+var methods = ['request', 'get']
+
 //
 // http
 //
@@ -28,33 +30,35 @@ test('http.request(options, callback)', echoTest('http', (port, cb) => {
   return http.request(options, cb)
 }))
 
-test('http.request(urlString)', echoTest('http', (port, cb) => {
-  var urlString = `http://localhost:${port}`
-  var req = http.request(urlString)
-  req.on('response', cb)
-  return req
-}))
-
-test('http.request(urlString, callback)', echoTest('http', (port, cb) => {
-  var urlString = `http://localhost:${port}`
-  return http.request(urlString, cb)
-}))
-
-if (url.URL) {
-  test('http.request(urlObject)', echoTest('http', (port, cb) => {
+methods.forEach(function (name) {
+  test(`http.${name}(urlString)`, echoTest('http', (port, cb) => {
     var urlString = `http://localhost:${port}`
-    var urlObject = new url.URL(urlString)
-    var req = http.request(urlObject)
+    var req = http[name](urlString)
     req.on('response', cb)
     return req
   }))
 
-  test('http.request(urlObject, callback)', echoTest('http', (port, cb) => {
+  test(`http.${name}(urlString, callback)`, echoTest('http', (port, cb) => {
     var urlString = `http://localhost:${port}`
-    var urlObject = new url.URL(urlString)
-    return http.request(urlObject, cb)
+    return http[name](urlString, cb)
   }))
-}
+
+  if (url.URL) {
+    test(`http.${name}(urlObject)`, echoTest('http', (port, cb) => {
+      var urlString = `http://localhost:${port}`
+      var urlObject = new url.URL(urlString)
+      var req = http[name](urlObject)
+      req.on('response', cb)
+      return req
+    }))
+
+    test(`http.${name}(urlObject, callback)`, echoTest('http', (port, cb) => {
+      var urlString = `http://localhost:${port}`
+      var urlObject = new url.URL(urlString)
+      return http[name](urlObject, cb)
+    }))
+  }
+})
 
 //
 // https
@@ -71,41 +75,41 @@ test('https.request(options, callback)', echoTest('https', (port, cb) => {
   return https.request(options, cb)
 }))
 
-test('https.request(urlString, options)', echoTest('https', (port, cb) => {
-  var urlString = `https://localhost:${port}`
-  var options = { rejectUnauthorized: false }
-  var req = https.request(urlString, options)
-  req.on('response', cb)
-  return req
-}))
-
-if (semver.satisfies(process.version, '>=10.9')) {
-  test('https.request(urlString, options, callback)', echoTest('https', (port, cb) => {
+methods.forEach(function (name) {
+  test(`https.${name}(urlString, options)`, echoTest('https', (port, cb) => {
     var urlString = `https://localhost:${port}`
     var options = { rejectUnauthorized: false }
-    var req = https.request(urlString, options, cb)
-    return req
-  }))
-}
-
-if (url.URL && semver.satisfies(process.version, '>=10.9')) {
-  test('https.request(urlObject, options)', echoTest('https', (port, cb) => {
-    var urlString = `https://localhost:${port}`
-    var urlObject = new url.URL(urlString)
-    var options = { rejectUnauthorized: false }
-    var req = https.request(urlObject, options)
+    var req = https[name](urlString, options)
     req.on('response', cb)
     return req
   }))
 
-  test('https.request(urlObject, options, callback)', echoTest('https', (port, cb) => {
-    var urlString = `https://localhost:${port}`
-    var urlObject = new url.URL(urlString)
-    var options = { rejectUnauthorized: false }
-    var req = https.request(urlObject, options, cb)
-    return req
-  }))
-}
+  if (semver.satisfies(process.version, '>=10.9')) {
+    test(`https.${name}(urlString, options, callback)`, echoTest('https', (port, cb) => {
+      var urlString = `https://localhost:${port}`
+      var options = { rejectUnauthorized: false }
+      return https[name](urlString, options, cb)
+    }))
+  }
+
+  if (url.URL && semver.satisfies(process.version, '>=10.9')) {
+    test(`https.${name}(urlObject, options)`, echoTest('https', (port, cb) => {
+      var urlString = `https://localhost:${port}`
+      var urlObject = new url.URL(urlString)
+      var options = { rejectUnauthorized: false }
+      var req = https[name](urlObject, options)
+      req.on('response', cb)
+      return req
+    }))
+
+    test(`https.${name}(urlObject, options, callback)`, echoTest('https', (port, cb) => {
+      var urlString = `https://localhost:${port}`
+      var urlObject = new url.URL(urlString)
+      var options = { rejectUnauthorized: false }
+      return https[name](urlObject, options, cb)
+    }))
+  }
+})
 
 function echoTest (type, handler) {
   return function (t) {
@@ -126,14 +130,20 @@ function echoTest (type, handler) {
         res.resume()
       })
 
+      var traceparent = req.getHeader('elastic-apm-traceparent')
+      t.ok(traceparent, 'should have elastic-apm-traceparent header')
+
       var expected = TraceParent.fromString(trans._context.toString())
-      var received = TraceParent.fromString(req.getHeader('elastic-apm-traceparent'))
+      var received = TraceParent.fromString(traceparent)
       t.equal(received.version, expected.version, 'traceparent header has matching version')
       t.equal(received.traceId, expected.traceId, 'traceparent header has matching traceId')
       t.ok(/^[\da-f]{16}$/.test(expected.id), 'traceparent header has valid id')
       t.equal(received.flags, expected.flags, 'traceparent header has matching flags')
 
-      req.end()
+      // Detect if the test called `http.get` (in which case outputSize should
+      // be greater than zero) or `http.request` (in which case it should equal
+      // zero)
+      if (req.outputSize === 0) req.end()
     })
   }
 }
