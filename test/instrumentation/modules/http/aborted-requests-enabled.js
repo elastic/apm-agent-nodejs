@@ -45,7 +45,7 @@ test('client-side abort below error threshold - call end', function (t) {
 
   server.listen(function () {
     var port = server.address().port
-    clientReq = http.get('http://localhost:' + port, function (res) {
+    clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -88,7 +88,7 @@ test('client-side abort above error threshold - call end', function (t) {
 
   server.listen(function () {
     var port = server.address().port
-    clientReq = http.get('http://localhost:' + port, function (res) {
+    clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -127,7 +127,7 @@ test('client-side abort below error threshold - don\'t call end', function (t) {
 
   server.listen(function () {
     var port = server.address().port
-    clientReq = http.get('http://localhost:' + port, function (res) {
+    clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -165,7 +165,7 @@ test('client-side abort above error threshold - don\'t call end', function (t) {
 
   server.listen(function () {
     var port = server.address().port
-    clientReq = http.get('http://localhost:' + port, function (res) {
+    clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -206,7 +206,7 @@ test('server-side abort below error threshold and socket closed - call end', fun
 
   server.listen(function () {
     var port = server.address().port
-    var clientReq = http.get('http://localhost:' + port, function (res) {
+    var clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -249,7 +249,7 @@ test('server-side abort above error threshold and socket closed - call end', fun
 
   server.listen(function () {
     var port = server.address().port
-    var clientReq = http.get('http://localhost:' + port, function (res) {
+    var clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -289,7 +289,7 @@ test('server-side abort below error threshold and socket closed - don\'t call en
 
   server.listen(function () {
     var port = server.address().port
-    var clientReq = http.get('http://localhost:' + port, function (res) {
+    var clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -330,7 +330,7 @@ test('server-side abort above error threshold and socket closed - don\'t call en
 
   server.listen(function () {
     var port = server.address().port
-    var clientReq = http.get('http://localhost:' + port, function (res) {
+    var clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -369,7 +369,7 @@ test('server-side abort below error threshold but socket not closed - call end',
 
   server.listen(function () {
     var port = server.address().port
-    http.get('http://localhost:' + port, function (res) {
+    get('http://localhost:' + port, function (res) {
       res.on('end', function () {
         t.equal(agent._transport._writes.length, 1, 'should send transactions')
       })
@@ -407,7 +407,7 @@ test('server-side abort above error threshold but socket not closed - call end',
 
   server.listen(function () {
     var port = server.address().port
-    http.get('http://localhost:' + port, function (res) {
+    get('http://localhost:' + port, function (res) {
       res.on('end', function () {
         t.equal(agent._transport._writes.length, 1, 'should send transactions')
       })
@@ -419,4 +419,9 @@ test('server-side abort above error threshold but socket not closed - call end',
 function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
   agent._transport = mockClient(1, cb)
+}
+
+function get () {
+  agent._instrumentation.currentTransaction = null
+  return http.get.apply(http, arguments)
 }
