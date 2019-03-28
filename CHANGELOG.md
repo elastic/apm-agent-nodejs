@@ -1,3 +1,7 @@
+# 2.7.1 - 2019/3/28
+  * fix: instrument http/https.get requests ([#954](https://github.com/elastic/apm-agent-nodejs/pull/954))
+  * fix: don't add traceparent header to S3 requests ([#952](https://github.com/elastic/apm-agent-nodejs/pull/952))
+
 # 2.7.0 - 2019/3/26
   * feat: add patch registry ([#803](https://github.com/elastic/apm-agent-nodejs/pull/803))
   * feat: allow sub-modules to be patched ([#920](https://github.com/elastic/apm-agent-nodejs/pull/920))
