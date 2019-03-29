@@ -47,4 +47,6 @@ include::./upgrading.asciidoc[]
 
 include::./troubleshooting.asciidoc[]
 
+include::./release-notes.asciidoc[]
+
 include::./redirects.asciidoc[]
