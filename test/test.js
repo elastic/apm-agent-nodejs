@@ -74,12 +74,16 @@ var directories = [
   'test/instrumentation/modules',
   'test/instrumentation/modules/bluebird',
   'test/instrumentation/modules/cassandra-driver',
+  'test/instrumentation/modules/express',
   'test/instrumentation/modules/fastify',
+  'test/instrumentation/modules/hapi',
   'test/instrumentation/modules/http',
+  'test/instrumentation/modules/koa',
   'test/instrumentation/modules/koa-router',
   'test/instrumentation/modules/mysql',
   'test/instrumentation/modules/mysql2',
-  'test/instrumentation/modules/pg'
+  'test/instrumentation/modules/pg',
+  'test/instrumentation/modules/restify'
 ]
 
 mapSeries(directories, readdir, function (err, directoryFiles) {

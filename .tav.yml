@@ -72,7 +72,7 @@ graphql:
   commands: node test/instrumentation/modules/graphql.js
 express:
   versions: '>=4'
-  commands: node test/instrumentation/modules/express.js
+  commands: node test/instrumentation/modules/express/basic.js
 
 express-graphql-1:
   name: express-graphql
@@ -192,12 +192,12 @@ handlebars:
 hapi-no-async-await:
   name: hapi
   versions: '>=9.0.1 <17.0.0'
-  commands: node test/instrumentation/modules/hapi.js
+  commands: node test/instrumentation/modules/hapi/basic.js
 hapi-async-await:
   name: hapi
   node: '>=8.2'
   versions: '>=17.0.0'
-  commands: node test/instrumentation/modules/hapi.js
+  commands: node test/instrumentation/modules/hapi/basic.js
 
 tedious:
   name: tedious
@@ -212,12 +212,12 @@ cassandra-driver:
 restify-old:
   name: restify
   versions: '>=5.2.0 <8.0.0'
-  commands: node test/instrumentation/modules/restify.js
-restifyi-new:
+  commands: node test/instrumentation/modules/restify/basic.js
+restify-new:
   name: restify
   node: '>=8'
   versions: '>=8.0.0'
-  commands: node test/instrumentation/modules/restify.js
+  commands: node test/instrumentation/modules/restify/basic.js
 
 fastify:
   versions: '>=0.27.0 <0.29.0 || >0.29.0'

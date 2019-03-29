@@ -8,6 +8,12 @@ agent.start({
 function started (bool: boolean) {}
 started(agent.isStarted())
 
+agent.setFramework({})
+agent.setFramework({ name: 'foo' })
+agent.setFramework({ name: 'foo', version: 'bar' })
+agent.setFramework({ version: 'bar' })
+agent.setFramework({ name: 'foo', version: 'bar', overwrite: false })
+
 agent.addPatch('foo', 'bar')
 agent.addPatch('foo', function (exports, agent, options) {
   agent.isStarted()

@@ -550,6 +550,8 @@ test('disableInstrumentations', function (t) {
 test('custom transport', function (t) {
   var agent = Agent()
   agent.start({
+    captureExceptions: false,
+    metricsInterval: 0,
     serviceName: 'fooBAR0123456789_- ',
     transport () {
       var transactions = []
@@ -568,6 +570,7 @@ test('custom transport', function (t) {
         sendTransaction: makeSenderFor(transactions),
         sendSpan: makeSenderFor(spans),
         sendError: makeSenderFor(errors),
+        config: () => {},
         flush (cb) {
           if (cb) setImmediate(cb)
           if (first) {
@@ -611,7 +614,9 @@ test('addPatch', function (t) {
 
   const agent = Agent()
   agent.start({
-    addPatch: 'express=./test/_patch.js'
+    addPatch: 'express=./test/_patch.js',
+    captureExceptions: false,
+    metricsInterval: 0
   })
 
   t.deepEqual(require('express'), patch(before))

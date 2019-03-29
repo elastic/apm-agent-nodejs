@@ -38,7 +38,8 @@ module.exports = function mockAgent (expected, cb) {
     _transport: mockClient(expected, cb || noop),
     logger: consoleLogLevel({
       level: 'fatal'
-    })
+    }),
+    setFramework: function () {}
   }
 
   agent._metrics = new Metrics(agent)

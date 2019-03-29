@@ -10,6 +10,11 @@ declare class Agent implements Taggable, StartSpanFn {
   // Configuration
   start (options?: AgentConfigOptions): Agent;
   isStarted (): boolean;
+  setFramework (options: {
+    name?: string;
+    version?: string;
+    overwrite?: boolean;
+  }): void;
   addPatch (name: string, handler: string | PatchHandler): void;
   removePatch (name: string, handler: string | PatchHandler): void;
   clearPatches (name: string): void;

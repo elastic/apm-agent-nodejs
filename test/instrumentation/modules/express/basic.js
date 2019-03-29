@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: true
@@ -11,7 +11,7 @@ var http = require('http')
 var express = require('express')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 test('error intercept', function (t) {
   t.plan(8)

@@ -1,6 +1,6 @@
 'use strict'
 
-const agent = require('../../..').start({
+const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false
@@ -12,7 +12,7 @@ const once = require('once')
 const restify = require('restify')
 const test = require('tape')
 
-const mockClient = require('../../_mock_http_client')
+const mockClient = require('../../../_mock_http_client')
 
 test('transaction name', function (t) {
   resetAgent((data) => {
