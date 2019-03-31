@@ -73,10 +73,10 @@ otherwise returns `false`.
 
 [small]#Added in: v2.8.0#
 
-* `options` {uri-object}[`<Object>`]
-** `name` {uri-string}[`<string>`] Framework name.
-** `version` {uri-string}[`<string>`] Framework version.
-** `overwrite` {uri-boolean}[`<boolean>`] If set to `false`,
+* `options` +{type-object}+
+** `name` +{type-string}+ Framework name.
+** `version` +{type-string}+ Framework version.
+** `overwrite` +{type-boolean}+ If set to `false`,
   the <<framework-name,`frameworkName`>> and <<framework-version,`frameworkVersion`>> provided as <<configuration,config options>> will not be overwritten.
   **Default:** `true`.
 

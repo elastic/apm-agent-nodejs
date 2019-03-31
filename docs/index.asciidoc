@@ -2,9 +2,9 @@
 :server-branch: 6.5
 include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
-:uri-string: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type
-:uri-boolean: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type
-:uri-object: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object
+:type-string: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[`<string>`]
+:type-boolean: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[`<boolean>`]
+:type-object: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[`<Object>`]
 
 ifdef::env-github[]
 NOTE: For the best reading experience,
