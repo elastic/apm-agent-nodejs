@@ -57,7 +57,8 @@ var optionFixtures = [
   ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
   ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
   ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
-  ['kubernetesPodUID', 'KUBERNETES_POD_UID']
+  ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
+  ['usePathAsTransactionName', 'USE_PATH_AS_TRANSACTION_NAME', false]
 ]
 
 var falsyValues = [false, 'false']
@@ -477,6 +478,43 @@ captureBodyTests.forEach(function (captureBodyTest) {
     req.body = 'test'
 
     agent.captureError(new Error('wat'), { request: req })
+
+    var trans = agent.startTransaction()
+    trans.req = req
+    trans.end()
+  })
+})
+
+var usePathAsTransactionNameTests = [
+  { value: true, url: '/foo/bar?baz=2', transactionName: 'GET /foo/bar' },
+  { value: false, url: '/foo/bar?baz=2', transactionName: 'GET unknown route' }
+]
+
+usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
+  test('usePathAsTransactionName => ' + usePathAsTransactionNameTest.value, function (t) {
+    t.plan(2)
+
+    var agent = Agent()
+    agent.start({
+      serviceName: 'test',
+      captureExceptions: false,
+      usePathAsTransactionName: usePathAsTransactionNameTest.value
+    })
+
+    var sendTransaction = agent._transport.sendTransaction
+    agent._transport.sendTransaction = function (trans, cb) {
+      t.ok(trans)
+      t.equal(trans.name, usePathAsTransactionNameTest.transactionName)
+      if (cb) process.nextTick(cb)
+    }
+    t.on('end', function () {
+      agent._transport.sendTransaction = sendTransaction
+    })
+
+    var req = new IncomingMessage()
+    req.socket = { remoteAddress: '127.0.0.1' }
+    req.url = usePathAsTransactionNameTest.url
+    req.method = 'GET'
 
     var trans = agent.startTransaction()
     trans.req = req

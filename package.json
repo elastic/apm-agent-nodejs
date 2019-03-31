@@ -14,7 +14,7 @@
     "coverage:report": "nyc report --reporter=lcov",
     "test": "./test/script/run_tests.sh",
     "test:cli": "node test/script/cli.js",
-    "test:deps": "dependency-check . -i async_hooks && dependency-check . --unused --no-dev --entry lib/instrumentation/modules/*",
+    "test:deps": "dependency-check . -i async_hooks -i parseurl && dependency-check . --unused --no-dev --entry lib/instrumentation/modules/*",
     "test:tav": "tav --quiet",
     "test:docs": "./test/script/docker/run_docs.sh",
     "test:types": "tsc --project test/types/tsconfig.json && tsc --project test/types/transpile/tsconfig.json && node test/types/transpile/index.js",
