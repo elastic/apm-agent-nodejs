@@ -15,6 +15,41 @@ var agentVersion = require('../package.json').version
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 
+test('#setFramework()', function (t) {
+  var agent = Agent()
+  agent.start()
+  t.equal(agent._conf.frameworkName, undefined)
+  t.equal(agent._conf.frameworkVersion, undefined)
+  t.equal(agent._transport._conf.frameworkName, undefined)
+  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  agent.setFramework({})
+  t.equal(agent._conf.frameworkName, undefined)
+  t.equal(agent._conf.frameworkVersion, undefined)
+  t.equal(agent._transport._conf.frameworkName, undefined)
+  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  agent.setFramework({ name: 'foo' })
+  t.equal(agent._conf.frameworkName, 'foo')
+  t.equal(agent._conf.frameworkVersion, undefined)
+  t.equal(agent._transport._conf.frameworkName, 'foo')
+  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  agent.setFramework({ version: 'bar' })
+  t.equal(agent._conf.frameworkName, 'foo')
+  t.equal(agent._conf.frameworkVersion, 'bar')
+  t.equal(agent._transport._conf.frameworkName, 'foo')
+  t.equal(agent._transport._conf.frameworkVersion, 'bar')
+  agent.setFramework({ name: 'a', version: 'b' })
+  t.equal(agent._conf.frameworkName, 'a')
+  t.equal(agent._conf.frameworkVersion, 'b')
+  t.equal(agent._transport._conf.frameworkName, 'a')
+  t.equal(agent._transport._conf.frameworkVersion, 'b')
+  agent.setFramework({ name: 'foo', version: 'bar', overwrite: false })
+  t.equal(agent._conf.frameworkName, 'a')
+  t.equal(agent._conf.frameworkVersion, 'b')
+  t.equal(agent._transport._conf.frameworkName, 'a')
+  t.equal(agent._transport._conf.frameworkVersion, 'b')
+  t.end()
+})
+
 test('#startTransaction()', function (t) {
   t.test('name and type', function (t) {
     var agent = Agent()

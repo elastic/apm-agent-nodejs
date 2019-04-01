@@ -68,6 +68,21 @@ Use `isStarted()` to check if the agent has already started.
 Returns `true` if the agent has started, 
 otherwise returns `false`.
 
+[[apm-set-framework]]
+==== `apm.setFramework(options)`
+
+[small]#Added in: v2.8.0#
+
+* `options` +{type-object}+
+** `name` +{type-string}+ Framework name.
+** `version` +{type-string}+ Framework version.
+** `overwrite` +{type-boolean}+ If set to `false`,
+  the <<framework-name,`frameworkName`>> and <<framework-version,`frameworkVersion`>> provided as <<configuration,config options>> will not be overwritten.
+  **Default:** `true`.
+
+Set or change the <<framework-name,`frameworkName`>> or <<framework-version,`frameworkVersion`>> after the agent has started.
+These config options can also be provided as part of the <<configuration,regular agent configuration>>.
+
 [[apm-add-filter]]
 ==== `apm.addFilter()`
 
