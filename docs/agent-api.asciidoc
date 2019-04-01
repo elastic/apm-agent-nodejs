@@ -546,6 +546,19 @@ if used within the context of a span.
 NOTE: If there's no active span available,
 `null` will be returned.
 
+[[apm-current-traceparent]]
+==== `apm.currentTraceparent`
+
+[source,js]
+----
+var traceparent = apm.currentTraceparent
+----
+
+Get the serialized traceparent string of the current transaction or span.
+
+NOTE: If there's no active transaction or span available,
+`null` will be returned.
+
 [[apm-set-transaction-name]]
 ==== `apm.setTransactionName()`
 

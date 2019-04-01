@@ -15,6 +15,7 @@ test('init', function (t) {
     var trans = new Transaction(agent, 'name', 'type')
     t.ok(/^[\da-f]{16}$/.test(trans.id))
     t.ok(/^[\da-f]{32}$/.test(trans.traceId))
+    t.ok(/^[\da-f]{2}-[\da-f]{32}-[\da-f]{16}-[\da-f]{2}$/.test(trans.traceparent))
     t.equal(trans.name, 'name')
     t.equal(trans.type, 'type')
     t.equal(trans.result, 'success')

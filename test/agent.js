@@ -192,6 +192,35 @@ test('#currentSpan', function (t) {
   })
 })
 
+test('#currentTraceparent', function (t) {
+  t.test('no active transaction or span', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.notOk(agent.currentTraceparent)
+    t.end()
+  })
+
+  t.test('with active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(agent.currentTraceparent, trans.traceparent)
+    agent.endTransaction()
+    t.end()
+  })
+
+  t.test('with active span', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var span = agent.startSpan()
+    t.equal(agent.currentTraceparent, span.traceparent)
+    span.end()
+    agent.endTransaction()
+    t.end()
+  })
+})
+
 test('#setTransactionName', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
