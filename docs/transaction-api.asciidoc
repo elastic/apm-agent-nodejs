@@ -18,8 +18,7 @@ see the <<custom-transactions,Custom Transactions in Node.js>> article.
 [[transaction-name]]
 ==== `transaction.name`
 
-* *Type:* String
-* *Default:* `unnamed`
+* +{type-string}+ *Default:* `unnamed`
 
 The name of the transaction.
 
@@ -32,8 +31,7 @@ Transactions with the same name and <<transaction-type,type>> are grouped togeth
 [[transaction-type]]
 ==== `transaction.type`
 
-* *Type:* String
-* *Default:* `custom`
+* +{type-string}+ *Default:* `custom`
 
 The type of the transaction.
 
@@ -42,8 +40,7 @@ There's a special type called `request` which is used by the agent for the trans
 [[transaction-result]]
 ==== `transaction.result`
 
-* *Type:* String
-* *Default:* `success`
+* +{type-string}+ *Default:* `success`
 
 A string describing the result of the transaction.
 This is typically the HTTP status code,
@@ -52,42 +49,40 @@ or e.g. "success" or "failure" for a background task.
 [[transaction-start-span]]
 ==== `transaction.startSpan([name][, type][, options])`
 
-[source,js]
-----
-var span = transaction.startSpan('My custom span')
-----
+// [small]#Added in: #
 
-Start and return a new custom span associated with this transaction.
-
-Arguments:
-
-* `name` - The name of the span (string).
+* `name` +{type-string}+ The name of the span.
 You can alternatively set this via <<span-name,`span.name`>>.
 Defaults to `unnamed`
 
-* `type` - The type of span (string).
+* `type` +{type-string}+ The type of span.
 You can alternatively set this via <<span-type,`span.type`>>.
 Defaults to `custom`
 
 * `options` - The following options are supported:
 
-** `startTime` - The time when the span started.
+** `startTime` +{type-number}+ The time when the span started.
 Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
 Sub-millisecond precision can be achieved using decimals.
 If not provided,
 the current time will be used
 
+Start and return a new custom span associated with this transaction.
 When a span is started it will measure the time until <<span-end,`span.end()`>> is called.
 
 See <<span-api,Span API>> docs for details on how to use custom spans.
 
 [[transaction-set-tag]]
-==== `transaction.setTag()`
+==== `transaction.setTag(name, value)`
 
-[source,js]
-----
-transaction.setTag(name, value)
-----
+// [small]#Added in: #
+
+* `name` +{type-string}+
+Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+* `value` +{type-string}+
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
 
 Set a tag on the transaction.
 You can set multiple tags on the same transaction.
@@ -96,22 +91,18 @@ it will also get tagged with the same tags.
 
 Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 
-Arguments:
+[[transaction-add-tags]]
+==== `transaction.addTags({ [name]: value })`
 
-* `name` - Any string.
-Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaced by underscores (`_`),
+// [small]#Added in: #
+
+* `tags` +{type-object}+ Contains key/value pairs 
+** `name` +{type-string}+
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
-* `value` - Any string.
+** `value` +{type-string}+
 If a non-string data type is given,
 it's converted to a string before being sent to the APM Server
-
-[[transaction-add-tags]]
-==== `transaction.addTags()`
-
-[source,js]
-----
-apm.addTags({ [name]: value })
-----
 
 Add several tags on the transaction.
 You can add tags multiple times.
@@ -120,18 +111,10 @@ it will also get tagged with the same tags.
 
 Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 
-Arguments:
-
-* `tags` - An object containing key/value pairs each representing tag `name` and tag `value`:
-** `name` - Any string.
-Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
-as those characters have special meaning in Elasticsearch
-** `value` - Any string.
-If a non-string data type is given,
-it's converted to a string before being sent to the APM Server
-
 [[transaction-ensure-parent-id]]
 ==== `transaction.ensureParentId()`
+
+[small]#Added in: 2.0.0#
 
 * *Type:* String
 
@@ -164,25 +147,20 @@ See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
 [[transaction-end]]
 ==== `transaction.end([result][, endTime])`
 
-[source,js]
-----
-transaction.end([result][, endTime])
-----
+// [small]#Added in: #
+
+* `result` +{type-string}+ Describes the result of the transaction.
+This is typically the HTTP status code,
+or e.g. "success" or "failure" for a background task
+
+* `endTime` +{type-number}+ The time when the transaction ended.
+Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+Sub-millisecond precision can be achieved using decimals.
+If not provided,
+the current time will be used
 
 Ends the transaction.
 If the transaction has already ended,
 nothing happens.
 
 Alternatively you can call <<apm-end-transaction,`apm.endTransaction()`>> to end the active transaction.
-
-Arguments:
-
-* `result` - A string describing the result of the transaction.
-This is typically the HTTP status code,
-or e.g. "success" or "failure" for a background task
-
-* `endTime` - The time when the transaction ended.
-Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
-Sub-millisecond precision can be achieved using decimals.
-If not provided,
-the current time will be used
