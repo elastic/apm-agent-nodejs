@@ -1,3 +1,9 @@
+# 2.8.0 - 2019/4/2
+  * feat: add agent.setFramework() method ([#966](https://github.com/elastic/apm-agent-nodejs/pull/966))
+  * feat(config): add usePathAsTransactionName config option ([#907](https://github.com/elastic/apm-agent-nodejs/pull/907))
+  * feat(debug): output configuration if logLevel is trace ([#972](https://github.com/elastic/apm-agent-nodejs/pull/972))
+  * fix(express): transaction default name is incorrect ([#938](https://github.com/elastic/apm-agent-nodejs/pull/938))
+
 # 2.7.1 - 2019/3/28
   * fix: instrument http/https.get requests ([#954](https://github.com/elastic/apm-agent-nodejs/pull/954))
   * fix: don't add traceparent header to S3 requests ([#952](https://github.com/elastic/apm-agent-nodejs/pull/952))
