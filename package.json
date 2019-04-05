@@ -118,7 +118,7 @@
     "fastify": "^2.0.1",
     "finalhandler": "^1.1.1",
     "generic-pool": "^3.4.2",
-    "get-port": "^4.0.0",
+    "get-port": "^5.0.0",
     "got": "^9.2.2",
     "graphql": "^14.1.1",
     "handlebars": "^4.0.12",
