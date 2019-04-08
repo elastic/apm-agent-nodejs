@@ -53,11 +53,11 @@ or e.g. "success" or "failure" for a background task.
 
 * `name` +{type-string}+ The name of the span.
 You can alternatively set this via <<span-name,`span.name`>>.
-Defaults to `unnamed`
+*Default:* `unnamed`
 
 * `type` +{type-string}+ The type of span.
 You can alternatively set this via <<span-type,`span.type`>>.
-Defaults to `custom`
+*Default:* `custom`
 
 * `options` - The following options are supported:
 
@@ -96,7 +96,7 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 
 // [small]#Added in: #
 
-* `tags` +{type-object}+ Contains key/value pairs 
+* `tags` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
@@ -116,12 +116,12 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 
 [small]#Added in: 2.0.0#
 
-* *Type:* String
+* +{type-string}+
 
 If the transaction does not already have a parent id,
 calling this method generates a new parent id,
 sets it as the parent id of this transaction,
-and returns it as a `String`.
+and returns it as a +{type-string}+.
 
 This enables the correlation of the spans the JavaScript Real User Monitoring (RUM) agent creates for the initial page load with the transaction of the backend service.
 If your backend service generates the HTML page dynamically,

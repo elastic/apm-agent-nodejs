@@ -70,7 +70,7 @@ You can set multiple tags on the same span.
 
 // [small]#Added in: #
 
-* `tags` +{type-object}+
+* `tags` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch

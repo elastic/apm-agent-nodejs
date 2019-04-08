@@ -65,12 +65,12 @@ otherwise returns `false`.
 
 [small]#Added in: v2.8.0#
 
-* `options` +{type-object}+
+* `options` +{type-object}+ The following options are supported:
 ** `name` +{type-string}+ Framework name.
 ** `version` +{type-string}+ Framework version.
 ** `overwrite` +{type-boolean}+ If set to `false`,
   the <<framework-name,`frameworkName`>> and <<framework-version,`frameworkVersion`>> provided as <<configuration,config options>> will not be overwritten.
-  **Default:** `true`.
+  *Default:* `true`.
 
 Set or change the <<framework-name,`frameworkName`>> or <<framework-version,`frameworkVersion`>> after the agent has started.
 These config options can also be provided as part of the <<configuration,regular agent configuration>>.
@@ -220,7 +220,7 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 
 [small]#Added in: v1.5.0#
 
-* `tags` +{type-object}+
+* `tags` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
@@ -239,7 +239,6 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 ==== `apm.captureError(error[, options][, callback])`
 
 // [small]#Added in: #
-// this section needs work
 
 * `error` - Can be either an `Error` object,
 a <<message-strings,message string>>,
@@ -416,11 +415,11 @@ NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ 
 
 * `name` +{type-string}+ The name of the transaction.
 You can always set this later via <<transaction-name,`transaction.name`>> or <<apm-set-transaction-name,`apm.setTransactionName()`>>.
-Defaults to `unnamed`
+*Default:* `unnamed`
 
 * `type` +{type-string}+ The type of transaction.
 You can always set this later via <<transaction-type,`transaction.type`>>.
-Defaults to `custom`
+*Default:* `custom`
 
 * `options` +{type-object}+ The following options are supported:
 
@@ -509,11 +508,11 @@ Read more about naming routes manually in the <<custom-stack-route-naming,Get st
 
 * `name` +{type-string}+ The name of the span.
 You can alternatively set this via <<span-name,`span.name`>>.
-Defaults to `unnamed`
+*Default:* `unnamed`
 
 * `type` +{type-string}+ The type of span.
 You can alternatively set this via <<span-type,`span.type`>>.
-Defaults to `custom.code`
+*Default:* `custom.code`
 
 * `options` +{type-object}+ The following options are supported:
 
