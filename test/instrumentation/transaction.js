@@ -288,6 +288,15 @@ test('parallel transactions', function (t) {
   }, 25)
 })
 
+test('sync/async tracking', function (t) {
+  var trans = new Transaction(agent)
+  t.equal(trans.sync, true)
+  setImmediate(() => {
+    t.equal(trans.sync, false)
+    t.end()
+  })
+})
+
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent)
   t.equal(trans._encode(), null, 'cannot encode un-ended transaction')
@@ -302,7 +311,7 @@ test('#_encode() - ended', function (t) {
   var trans = new Transaction(ins._agent)
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)
@@ -329,7 +338,7 @@ test('#_encode() - with meta data', function (t) {
   trans.setCustomContext({ baz: 1 })
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)
@@ -353,7 +362,7 @@ test('#_encode() - http request meta data', function (t) {
   trans.req = mockRequest()
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)
