@@ -535,7 +535,7 @@ NOTE: If there's no active transaction available,
 `null` will be returned.
 
 [[apm-handle-uncaught-exceptions]]
-==== `apm.handleUncaughtExceptions(callback)`
+==== `apm.handleUncaughtExceptions([callback])`
 
 // [small]#Added in: #
 
