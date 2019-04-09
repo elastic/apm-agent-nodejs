@@ -147,9 +147,8 @@ but the `callback` will only be called with span payloads.
 ==== `apm.setUserContext(context)`
 
 [small]#Added in: 0.1.0#
-// note that id, username, email properties are all optional
 
-* `context` +{type-object}+
+* `context` +{type-object}+ Accepts the following optional properties:
 ** `id` +{type-string}+ | +{type-number}+ The user's ID.
 ** `username` +{type-string}+ The user's username.
 ** `email` +{type-string}+ The user's e-mail.
@@ -240,11 +239,11 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 
 // [small]#Added in: #
 
-* `error` - Can be either an `Error` object,
+* `error` - Can be either an +{type-error}+ object,
 a <<message-strings,message string>>,
 or a <<parameterized-message-object,special parameterized message object>>
 
-* `options` - The following options are supported:
+* `options` +{type-object}+ The following options are supported:
 
 ** `timestamp` +{type-number}+ The time when the error happened.
 Must be a Unix Time Stamp representing the number of milliseconds since January 1, 1970, 00:00:00 UTC.
@@ -252,7 +251,7 @@ Sub-millisecond precision can be achieved using decimals.
 If not provided,
 the current time will be used
 
-** `message` - If the `error` argument is an error object,
+** `message` - If the `error` argument is an +{type-error}+ object,
 it's possible to use this option to supply an additional message string that will be stored along with the error message under `log.message`
 
 ** `user` - See <<metadata,metadata section>> for details about this option
