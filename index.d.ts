@@ -24,7 +24,7 @@ declare class Agent implements Taggable, StartSpanFn {
   lambda (handler: AwsLambda.Handler): AwsLambda.Handler;
   lambda (type: string, handler: AwsLambda.Handler): AwsLambda.Handler;
   handleUncaughtExceptions (
-    fn: (err: Error) => void
+    fn?: (err: Error) => void
   ): void;
 
   // Errors
