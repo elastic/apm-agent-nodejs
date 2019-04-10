@@ -1,3 +1,13 @@
+# 2.9.0 - 2019/4/10
+  * feat: add traceparent getter to agent, span and transaction ([#969](https://github.com/elastic/apm-agent-nodejs/pull/969))
+  * feat(template): add support for jade and pug ([#914](https://github.com/elastic/apm-agent-nodejs/pull/914))
+  * feat(elasticsearch): capture more types of queries ([#967](https://github.com/elastic/apm-agent-nodejs/pull/967))
+  * feat: sync flag on spans and transactions ([#980](https://github.com/elastic/apm-agent-nodejs/pull/980))
+  * fix(agent): init config/logger before usage ([#956](https://github.com/elastic/apm-agent-nodejs/pull/956))
+  * fix: don't add response listener to outgoing requests ([#974](https://github.com/elastic/apm-agent-nodejs/pull/974))
+  * fix(agent): fix basedir in debug mode when starting agent with -r ([#981](https://github.com/elastic/apm-agent-nodejs/pull/981))
+  * fix: ensure Kubernetes/Docker container info is captured ([#995](https://github.com/elastic/apm-agent-nodejs/pull/995))
+
 # 2.8.0 - 2019/4/2
   * feat: add agent.setFramework() method ([#966](https://github.com/elastic/apm-agent-nodejs/pull/966))
   * feat(config): add usePathAsTransactionName config option ([#907](https://github.com/elastic/apm-agent-nodejs/pull/907))
