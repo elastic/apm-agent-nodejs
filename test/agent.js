@@ -4,14 +4,16 @@ var http = require('http')
 var path = require('path')
 var os = require('os')
 
-var test = require('tape')
+var { sync: containerInfo } = require('container-info')
 var isError = require('core-util-is').isError
+var test = require('tape')
 
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
 var config = require('../lib/config')
 
 var agentVersion = require('../package.json').version
+var inContainer = 'containerId' in (containerInfo() || {})
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 
@@ -1176,11 +1178,25 @@ function assertMetadata (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
   t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
   t.deepEqual(payload.service.agent, { name: 'nodejs', version: agentVersion })
-  t.deepEqual(payload.system, {
-    hostname: os.hostname(),
-    architecture: process.arch,
-    platform: process.platform
-  })
+
+  const expectedSystemKeys = ['hostname', 'architecture', 'platform']
+  if (inContainer) expectedSystemKeys.push('container')
+
+  t.deepEqual(Object.keys(payload.system), expectedSystemKeys)
+  t.equal(payload.system.hostname, os.hostname())
+  t.equal(payload.system.architecture, process.arch)
+  t.equal(payload.system.platform, process.platform)
+
+  if (inContainer) {
+    t.deepEqual(Object.keys(payload.system.container), ['id'])
+    t.equal(typeof payload.system.container.id, 'string')
+    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id))
+  } else {
+    // dummy asserts to ensure that the t.plan is as expected
+    t.ok(true)
+    t.ok(true)
+    t.ok(true)
+  }
 
   t.ok(payload.process)
   t.equal(payload.process.pid, process.pid)
@@ -1193,7 +1209,7 @@ function assertMetadata (t, payload) {
   t.deepEqual(payload.process.argv, process.argv)
   t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
 }
-assertMetadata.asserts = 11
+assertMetadata.asserts = 17
 
 function assertTransaction (t, trans, name, input, output) {
   t.equal(trans.name, name)
