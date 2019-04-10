@@ -10,6 +10,8 @@ var agent = require('../../..').start({
 })
 
 var elasticsearch = require('elasticsearch')
+var pkg = require('elasticsearch/package.json')
+var semver = require('semver')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
@@ -18,7 +20,7 @@ var findObjInArray = require('../../_utils').findObjInArray
 test('client.ping with callback', function userLandCode (t) {
   resetAgent(done(t, 'HEAD', '/'))
 
-  agent.startTransaction('foo1')
+  agent.startTransaction('foo')
 
   var client = new elasticsearch.Client({ host: host })
 
@@ -32,7 +34,7 @@ test('client.ping with callback', function userLandCode (t) {
 test('client.ping with promise', function userLandCode (t) {
   resetAgent(done(t, 'HEAD', '/'))
 
-  agent.startTransaction('foo2')
+  agent.startTransaction('foo')
 
   var client = new elasticsearch.Client({ host: host })
 
@@ -47,7 +49,7 @@ test('client.ping with promise', function userLandCode (t) {
 test('client.search with callback', function userLandCode (t) {
   resetAgent(done(t, 'POST', '/_search', '{"q":"pants"}'))
 
-  agent.startTransaction('foo3')
+  agent.startTransaction('foo')
 
   var client = new elasticsearch.Client({ host: host })
   var query = { q: 'pants' }
@@ -59,10 +61,100 @@ test('client.search with callback', function userLandCode (t) {
   })
 })
 
+if (semver.satisfies(pkg.version, '>= 10')) {
+  test('client.searchTemplate with callback', function userLandCode (t) {
+    var body = {
+      source: {
+        query: {
+          query_string: {
+            query: '{{q}}'
+          }
+        }
+      },
+      params: {
+        q: 'pants'
+      }
+    }
+
+    resetAgent(done(t, 'POST', '/_search/template', JSON.stringify(body)))
+
+    agent.startTransaction('foo')
+
+    var client = new elasticsearch.Client({ host: host })
+
+    client.searchTemplate({ body }, function (err) {
+      t.error(err)
+      agent.endTransaction()
+      agent.flush()
+    })
+  })
+}
+
+if (semver.satisfies(pkg.version, '>= 13')) {
+  test('client.msearch with callback', function userLandCode (t) {
+    var body = [
+      {},
+      {
+        query: {
+          query_string: {
+            query: 'pants'
+          }
+        }
+      }
+    ]
+
+    var statement = body.map(JSON.stringify).join('\n')
+
+    resetAgent(done(t, 'POST', '/_msearch', statement))
+
+    agent.startTransaction('foo')
+
+    var client = new elasticsearch.Client({ host: host })
+
+    client.msearch({ body }, function (err) {
+      t.error(err)
+      agent.endTransaction()
+      agent.flush()
+    })
+  })
+
+  test('client.msearchTempate with callback', function userLandCode (t) {
+    var body = [
+      {},
+      {
+        source: {
+          query: {
+            query_string: {
+              query: '{{q}}'
+            }
+          }
+        },
+        params: {
+          q: 'pants'
+        }
+      }
+    ]
+
+    var statement = body.map(JSON.stringify).join('\n')
+
+    resetAgent(done(t, 'POST', '/_msearch/template', statement))
+
+    agent.startTransaction('foo')
+
+    var client = new elasticsearch.Client({ host: host })
+
+    client.msearchTemplate({ body }, function (err) {
+      t.error(err)
+      agent.endTransaction()
+      agent.flush()
+    })
+  })
+}
+
 test('client.count with callback', function userLandCode (t) {
   resetAgent(done(t, 'POST', '/_count'))
 
-  agent.startTransaction('foo3')
+  agent.startTransaction('foo')
 
   var client = new elasticsearch.Client({ host: host })
   client.count(function (err) {
@@ -72,7 +164,7 @@ test('client.count with callback', function userLandCode (t) {
   })
 })
 
-var searchRegexp = /_search$/
+var queryRegexp = /_((search|msearch)(\/template)?|count)$/
 function done (t, method, path, query) {
   return function (data, cb) {
     t.equal(data.transactions.length, 1)
@@ -80,7 +172,7 @@ function done (t, method, path, query) {
 
     var trans = data.transactions[0]
 
-    t.ok(/^foo\d$/.test(trans.name))
+    t.equal(trans.name, 'foo')
     t.equal(trans.type, 'custom')
 
     let span1, span2
@@ -101,7 +193,7 @@ function done (t, method, path, query) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
 
-    if (searchRegexp.test(path)) {
+    if (queryRegexp.test(path)) {
       t.deepEqual(span2.context.db, { statement: query || '{}', type: 'elasticsearch' })
     } else {
       t.notOk(span2.context)
