@@ -1220,11 +1220,6 @@ function assertMetadata (t, payload) {
     t.deepEqual(Object.keys(payload.system.container), ['id'])
     t.equal(typeof payload.system.container.id, 'string')
     t.ok(/^[\da-f]{64}$/.test(payload.system.container.id))
-  } else {
-    // dummy asserts to ensure that the t.plan is as expected
-    t.ok(true)
-    t.ok(true)
-    t.ok(true)
   }
 
   t.ok(payload.process)
@@ -1238,7 +1233,7 @@ function assertMetadata (t, payload) {
   t.deepEqual(payload.process.argv, process.argv)
   t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
 }
-assertMetadata.asserts = 17
+assertMetadata.asserts = inContainer ? 17 : 14
 
 function assertTransaction (t, trans, name, input, output) {
   t.equal(trans.name, name)
