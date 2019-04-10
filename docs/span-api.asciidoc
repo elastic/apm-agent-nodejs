@@ -50,6 +50,16 @@ Though there are no naming restrictions for this prefix,
 the following are standardized across all Elastic APM agents:
 `app`, `db`, `cache`, `template`, and `ext`.
 
+[[span-traceparent]]
+==== `span.traceparent`
+
+[source,js]
+----
+var traceparent = span.traceparent
+----
+
+Get the serialized traceparent string of the span.
+
 [[span-set-tag]]
 ==== `span.setTag(name, value)`
 

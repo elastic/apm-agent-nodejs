@@ -37,6 +37,16 @@ The type of the transaction.
 
 There's a special type called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
 
+[[transaction-traceparent]]
+==== `transaction.traceparent`
+
+[source,js]
+----
+var traceparent = transaction.traceparent
+----
+
+Get the serialized traceparent string of the transaction.
+
 [[transaction-result]]
 ==== `transaction.result`
 
