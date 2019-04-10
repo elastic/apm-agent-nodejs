@@ -8,6 +8,7 @@ pipeline {
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
+    CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-nodejs-codecov'
   }
   options {
     timeout(time: 1, unit: 'HOURS')
@@ -74,9 +75,6 @@ pipeline {
         beforeAgent true
         allOf {
           anyOf {
-            not {
-              changeRequest()
-            }
             branch 'master'
             branch "\\d+\\.\\d+"
             branch "v\\d?"
@@ -132,7 +130,7 @@ def generateStep(version, tav = ''){
         junit(allowEmptyResults: true,
           keepLongStdio: true,
           testResults: "**/junit-node-report.xml")
-        codecov(repo: 'apm-agent-nodejs', basedir: "${BASE_DIR}")
+        codecov(repo: 'apm-agent-nodejs', basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
       }
     }
   }
