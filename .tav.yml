@@ -189,6 +189,12 @@ elasticsearch:
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.js
+jade:
+  versions: '>0.5.5'
+  commands: node test/instrumentation/modules/jade.js
+pug:
+  versions: '0.1.0 || >2.0.0'
+  commands: node test/instrumentation/modules/pug.js
 hapi-no-async-await:
   name: hapi
   versions: '>=9.0.1 <17.0.0'
