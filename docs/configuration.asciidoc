@@ -382,6 +382,15 @@ A capture location stack trace is never generated for uncaught exceptions.
 
 Set this option to `false` to disable capture of stack traces for measured spans during instrumentation.
 
+[[use-path-as-transaction-name]]
+==== `usePathAsTransactionName`
+
+* *Type:* Boolean
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_USE_PATH_AS_TRANSACTION_NAME`
+
+Set this option to `true` to use the URL path as the transaction name if no other route could be determined. If the agent do not support your router, you can set this option to `true` to use specific URL path as the transaction name instead of `GET unknown route`.
+
 [[source-context-error]]
 ==== `sourceLinesErrorAppFrames` + `sourceLinesErrorLibraryFrames`
 

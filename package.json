@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -14,7 +14,7 @@
     "coverage:report": "nyc report --reporter=lcov",
     "test": "./test/script/run_tests.sh",
     "test:cli": "node test/script/cli.js",
-    "test:deps": "dependency-check . -i async_hooks && dependency-check . --unused --no-dev --entry lib/instrumentation/modules/*",
+    "test:deps": "dependency-check . -i async_hooks -i parseurl && dependency-check . --unused --no-dev --entry lib/instrumentation/modules/*",
     "test:tav": "tav --quiet",
     "test:docs": "./test/script/docker/run_docs.sh",
     "test:types": "tsc --project test/types/tsconfig.json && tsc --project test/types/transpile/tsconfig.json && node test/types/transpile/index.js",
@@ -77,7 +77,7 @@
     "console-log-level": "^1.4.0",
     "cookie": "^0.3.1",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "^7.2.0",
+    "elastic-apm-http-client": "^7.2.1",
     "end-of-stream": "^1.4.1",
     "fast-safe-stringify": "^2.0.6",
     "http-headers": "^3.0.2",
@@ -110,6 +110,7 @@
     "cassandra-driver": "^4.0.0",
     "commitlint-config-squash-pr": "^1.0.0",
     "connect": "^3.6.6",
+    "container-info": "^1.0.1",
     "dependency-check": "^3.2.1",
     "elasticsearch": "^15.1.1",
     "express": "^4.16.4",
@@ -178,7 +179,7 @@
     ]
   },
   "coordinates": [
-    55.778267,
-    12.593161
+    55.6773705,
+    12.5614183
   ]
 }

@@ -25,6 +25,7 @@ agent.clearPatches('foo')
 agent.lambda(() => {})
 agent.lambda('foo', () => {})
 
+agent.handleUncaughtExceptions()
 agent.handleUncaughtExceptions((err: Error) => {
   console.error(err.stack)
   process.exit(1)
