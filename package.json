@@ -147,7 +147,7 @@
     "pug": "^2.0.3",
     "redis": "^2.8.0",
     "request": "^2.88.0",
-    "restify": "^7.7.0",
+    "restify": "^8.3.0",
     "restify-clients": "^2.6.2",
     "rimraf": "^2.6.2",
     "send": "^0.16.2",
