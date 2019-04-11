@@ -38,6 +38,9 @@ declare class Agent implements Taggable, StartSpanFn {
     callback?: CaptureErrorCallback
   ): void;
 
+  // Distributed Tracing
+  currentTraceparent: string | null;
+
   // Transactions
   startTransaction (
     name?: string,
@@ -75,6 +78,7 @@ declare class GenericSpan implements Taggable {
   // timestamp, ended, id, traceId, parentId, sampled, duration()
 
   type: string;
+  traceparent: string;
 
   setTag (name: string, value: TagValue): boolean;
   addTags (tags: Tags): boolean;

@@ -8,6 +8,13 @@ agent.start({
 function started (bool: boolean) {}
 started(agent.isStarted())
 
+const trans = agent.currentTransaction
+if (trans) trans.end()
+const span = agent.currentSpan
+if (span) span.end()
+const traceparent = agent.currentTraceparent
+if (traceparent) traceparent.split('-')
+
 agent.setFramework({})
 agent.setFramework({ name: 'foo' })
 agent.setFramework({ name: 'foo', version: 'bar' })
@@ -108,6 +115,8 @@ agent.logger.fatal('')
 {
   const trans = agent.startTransaction()
   if (trans) {
+    trans.traceparent.split('-')
+
     trans.setTag('foo', 'bar')
     trans.setTag('foo', 42)
     trans.setTag('foo', false)
@@ -135,6 +144,8 @@ agent.logger.fatal('')
   if (trans) {
     const span = trans.startSpan()
     if (span) {
+      span.traceparent.split('-')
+
       span.setTag('foo', 'bar')
       span.setTag('foo', 42)
       span.setTag('foo', false)
