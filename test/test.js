@@ -1,3 +1,5 @@
+'use strict'
+
 var path = require('path')
 var readdir = require('fs').readdir
 var spawn = require('child_process').spawn
@@ -64,18 +66,24 @@ function mapSeries (tasks, handler, cb) {
 
 var directories = [
   'test',
+  'test/lambda',
   'test/integration',
   'test/integration/api-schema',
   'test/sourcemaps',
   'test/instrumentation',
   'test/instrumentation/modules',
+  'test/instrumentation/modules/bluebird',
+  'test/instrumentation/modules/cassandra-driver',
+  'test/instrumentation/modules/express',
+  'test/instrumentation/modules/fastify',
+  'test/instrumentation/modules/hapi',
   'test/instrumentation/modules/http',
-  'test/instrumentation/modules/pg',
+  'test/instrumentation/modules/koa',
+  'test/instrumentation/modules/koa-router',
   'test/instrumentation/modules/mysql',
   'test/instrumentation/modules/mysql2',
-  'test/instrumentation/modules/cassandra',
-  'test/instrumentation/modules/bluebird',
-  'test/instrumentation/modules/koa-router'
+  'test/instrumentation/modules/pg',
+  'test/instrumentation/modules/restify'
 ]
 
 mapSeries(directories, readdir, function (err, directoryFiles) {

@@ -1,11 +1,14 @@
 # Files to ignore
+.DS_Store
 .appveyor.yml
 .backportrc.json
 .codecov.yml
 .tav.yml
 .travis.yml
-CONTRIBUTING.md
+.vscode
 CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Jenkinsfile
 TESTING.md
 
 # Folders to ignore

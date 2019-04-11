@@ -1,10 +1,11 @@
 'use strict'
 
-var Filters = require('../../lib/filters')
 var Metrics = require('../../lib/metrics')
 var Instrumentation = require('../../lib/instrumentation')
 var mockClient = require('../_mock_http_client')
+
 var consoleLogLevel = require('console-log-level')
+var Filters = require('object-filter-sequence')
 
 var noop = function () {}
 var sharedInstrumentation
@@ -37,7 +38,8 @@ module.exports = function mockAgent (expected, cb) {
     _transport: mockClient(expected, cb || noop),
     logger: consoleLogLevel({
       level: 'fatal'
-    })
+    }),
+    setFramework: function () {}
   }
 
   agent._metrics = new Metrics(agent)

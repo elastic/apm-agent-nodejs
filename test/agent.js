@@ -4,17 +4,53 @@ var http = require('http')
 var path = require('path')
 var os = require('os')
 
-var test = require('tape')
+var { sync: containerInfo } = require('container-info')
 var isError = require('core-util-is').isError
+var test = require('tape')
 
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
-var assert = require('./_assert')
 var config = require('../lib/config')
 
 var agentVersion = require('../package.json').version
+var inContainer = 'containerId' in (containerInfo() || {})
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+
+test('#setFramework()', function (t) {
+  var agent = Agent()
+  agent.start()
+  t.equal(agent._conf.frameworkName, undefined)
+  t.equal(agent._conf.frameworkVersion, undefined)
+  t.equal(agent._transport._conf.frameworkName, undefined)
+  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  agent.setFramework({})
+  t.equal(agent._conf.frameworkName, undefined)
+  t.equal(agent._conf.frameworkVersion, undefined)
+  t.equal(agent._transport._conf.frameworkName, undefined)
+  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  agent.setFramework({ name: 'foo' })
+  t.equal(agent._conf.frameworkName, 'foo')
+  t.equal(agent._conf.frameworkVersion, undefined)
+  t.equal(agent._transport._conf.frameworkName, 'foo')
+  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  agent.setFramework({ version: 'bar' })
+  t.equal(agent._conf.frameworkName, 'foo')
+  t.equal(agent._conf.frameworkVersion, 'bar')
+  t.equal(agent._transport._conf.frameworkName, 'foo')
+  t.equal(agent._transport._conf.frameworkVersion, 'bar')
+  agent.setFramework({ name: 'a', version: 'b' })
+  t.equal(agent._conf.frameworkName, 'a')
+  t.equal(agent._conf.frameworkVersion, 'b')
+  t.equal(agent._transport._conf.frameworkName, 'a')
+  t.equal(agent._transport._conf.frameworkVersion, 'b')
+  agent.setFramework({ name: 'foo', version: 'bar', overwrite: false })
+  t.equal(agent._conf.frameworkName, 'a')
+  t.equal(agent._conf.frameworkVersion, 'b')
+  t.equal(agent._transport._conf.frameworkName, 'a')
+  t.equal(agent._transport._conf.frameworkVersion, 'b')
+  t.end()
+})
 
 test('#startTransaction()', function (t) {
   t.test('name and type', function (t) {
@@ -33,7 +69,7 @@ test('#startTransaction()', function (t) {
     var trans = agent.startTransaction('foo', 'bar', { startTime })
     trans.end()
     var duration = trans.duration()
-    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
@@ -158,6 +194,35 @@ test('#currentSpan', function (t) {
   })
 })
 
+test('#currentTraceparent', function (t) {
+  t.test('no active transaction or span', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.notOk(agent.currentTraceparent)
+    t.end()
+  })
+
+  t.test('with active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.equal(agent.currentTraceparent, trans.traceparent)
+    agent.endTransaction()
+    t.end()
+  })
+
+  t.test('with active span', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var span = agent.startSpan()
+    t.equal(agent.currentTraceparent, span.traceparent)
+    span.end()
+    agent.endTransaction()
+    t.end()
+  })
+})
+
 test('#setTransactionName', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
@@ -205,7 +270,7 @@ test('#startSpan()', function (t) {
     var span = agent.startSpan(null, null, { startTime })
     span.end()
     var duration = span.duration()
-    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
@@ -1068,198 +1133,73 @@ test('#handleUncaughtExceptions()', function (t) {
   })
 })
 
-test('#lambda()', function (t) {
-  process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs8.10'
-  process.env.AWS_REGION = 'us-east-1'
-  var baseContext = {
-    functionVersion: '1.2.3',
-    invokedFunctionArn: 'invokedFunctionArn',
-    memoryLimitInMB: 'memoryLimitInMB',
-    awsRequestId: 'awsRequestId',
-    logGroupName: 'logGroupName',
-    logStreamName: 'logStreamName'
-  }
-  class Lambda {
-    constructor () {
-      this.methods = {}
-    }
-
-    register (name, fn) {
-      this.methods[name] = fn
-    }
-
-    invoke (method, payload, callback) {
-      var fn = this.methods[method]
-      if (!fn) throw new Error(`no lambda function "${method}"`)
-      var context = {
-        functionName: method,
-        done: callback,
-        succeed (result) { callback(null, result) },
-        fail (error) { callback(error) }
-      }
-      fn(payload, Object.assign(context, baseContext), callback)
-    }
-  }
-
-  function assertContext (t, name, data) {
-    t.ok(data)
-    const lambda = data.lambda
-    t.ok(lambda, 'context data has lambda object')
-    t.equal(lambda.functionName, name, 'function name matches')
-    var keys = Object.keys(baseContext)
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i]
-      t.equal(lambda[key], baseContext[key], `${key} matches`)
-    }
-    t.equal(lambda.executionEnv, process.env.AWS_EXECUTION_ENV, 'execution env matches')
-    t.equal(lambda.region, process.env.AWS_REGION, 'region matches')
-  }
-
-  t.test('success - basic callback', function (t) {
-    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
-
-    var name = 'greet.hello'
-    var input = { name: 'world' }
-    var output = 'Hello, world!'
-
-    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
-      .on('listening', function () {
-        var fn = this.agent.lambda((payload, context, callback) => {
-          callback(null, `Hello, ${payload.name}!`)
-        })
-        var lambda = new Lambda()
-        lambda.register(name, fn)
-        lambda.invoke(name, input, (err, result) => {
-          t.error(err)
-          t.equal(result, output)
-        })
-      })
-      .on('data-transaction', function (data) {
-        assertTransaction(t, data, name, input, output)
-        assertContext(t, name, data.context.custom)
-      })
+test('patches', function (t) {
+  t.test('#clearPatches(name)', function (t) {
+    var agent = Agent()
+    t.ok(agent._instrumentation._patches.has('express'))
+    t.doesNotThrow(() => agent.clearPatches('express'))
+    t.notOk(agent._instrumentation._patches.has('express'))
+    t.doesNotThrow(() => agent.clearPatches('does-not-exists'))
+    t.end()
   })
 
-  t.test('success - context.succeed', function (t) {
-    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
+  t.test('#addPatch(name, moduleName)', function (t) {
+    var agent = Agent()
+    agent.clearPatches('express')
+    agent.start()
 
-    var name = 'greet.hello'
-    var input = { name: 'world' }
-    var output = 'Hello, world!'
+    agent.addPatch('express', './test/_patch.js')
 
-    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
-      .on('listening', function () {
-        var fn = this.agent.lambda((payload, context, callback) => {
-          context.succeed(`Hello, ${payload.name}!`)
-        })
-        var lambda = new Lambda()
-        lambda.register(name, fn)
-        lambda.invoke(name, input, (err, result) => {
-          t.error(err)
-          t.equal(result, output)
-        })
-      })
-      .on('data-transaction', function (data) {
-        assertTransaction(t, data, name, input, output)
-        assertContext(t, name, data.context.custom)
-      })
+    const before = require('express')
+    const patch = require('./_patch')
+
+    delete require.cache[require.resolve('express')]
+    t.deepEqual(require('express'), patch(before))
+
+    t.end()
   })
 
-  t.test('success - context.done', function (t) {
-    t.plan(2 + assertTransaction.asserts + assertContext.asserts)
+  t.test('#addPatch(name, function) - does not exist', function (t) {
+    var agent = Agent()
+    agent.clearPatches('express')
+    agent.start()
 
-    var name = 'greet.hello'
-    var input = { name: 'world' }
-    var output = 'Hello, world!'
+    var replacement = {
+      foo: 'bar'
+    }
 
-    APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
-      .on('listening', function () {
-        var fn = this.agent.lambda((payload, context, callback) => {
-          context.done(null, `Hello, ${payload.name}!`)
-        })
-        var lambda = new Lambda()
-        lambda.register(name, fn)
-        lambda.invoke(name, input, (err, result) => {
-          t.error(err)
-          t.equal(result, output)
-        })
-      })
-      .on('data-transaction', function (data) {
-        assertTransaction(t, data, name, input, output)
-        assertContext(t, name, data.context.custom)
-      })
+    agent.addPatch('express', (exports, agent, { version, enabled }) => {
+      t.ok(exports)
+      t.ok(agent)
+      t.ok(version)
+      t.ok(enabled)
+      return replacement
+    })
+
+    delete require.cache[require.resolve('express')]
+    t.deepEqual(require('express'), replacement)
+
+    t.end()
   })
 
-  t.test('fail - basic callback', function (t) {
-    var name = 'fn.fail'
-    var input = {}
-    var output
-    var error = new Error('fail')
-    var dataEvents = 0
+  t.test('#removePatch(name, handler)', function (t) {
+    var agent = Agent()
+    agent.start()
 
-    APMServerWithDefaultAsserts(t, { sourceContextErrorLibraryFrames: 0 }, { expect: [['metadata', 'error'], ['metadata', 'transaction']] })
-      .on('listening', function () {
-        var fn = this.agent.lambda((payload, context, callback) => {
-          callback(error)
-        })
-        var lambda = new Lambda()
-        lambda.register(name, fn)
-        lambda.invoke(name, input, (err, result) => {
-          t.ok(err)
-          t.notOk(result)
-        })
-      })
-      .on('data', function () {
-        dataEvents++
-      })
-      .on('data-error', function (data, index) {
-        t.equal(index, 1)
-        t.equal(dataEvents, 2)
-        assertError(t, data, name, input, error)
-      })
-      .on('data-transaction', function (data, index) {
-        t.equal(index, 1)
-        t.equal(dataEvents, 4)
-        assertTransaction(t, data, name, input, output)
-        assertContext(t, name, data.context.custom)
-        t.end()
-      })
-  })
+    t.notOk(agent._instrumentation._patches.has('does-not-exist'))
 
-  t.test('fail - context.fail', function (t) {
-    var name = 'fn.fail'
-    var input = {}
-    var output
-    var error = new Error('fail')
-    var dataEvents = 0
+    agent.addPatch('does-not-exist', '/foo.js')
+    t.ok(agent._instrumentation._patches.has('does-not-exist'))
+    agent.removePatch('does-not-exist', '/foo.js')
+    t.notOk(agent._instrumentation._patches.has('does-not-exist'))
 
-    APMServerWithDefaultAsserts(t, { sourceContextErrorLibraryFrames: 0 }, { expect: [['metadata', 'error'], ['metadata', 'transaction']] })
-      .on('listening', function () {
-        var fn = this.agent.lambda((payload, context, callback) => {
-          context.fail(error)
-        })
-        var lambda = new Lambda()
-        lambda.register(name, fn)
-        lambda.invoke(name, input, (err, result) => {
-          t.ok(err)
-          t.notOk(result)
-        })
-      })
-      .on('data', function () {
-        dataEvents++
-      })
-      .on('data-error', function (data, index) {
-        t.equal(index, 1)
-        t.equal(dataEvents, 2)
-        assertError(t, data, name, input, error, this.agent)
-      })
-      .on('data-transaction', function (data, index) {
-        t.equal(index, 1)
-        t.equal(dataEvents, 4)
-        assertTransaction(t, data, name, input, output)
-        assertContext(t, name, data.context.custom)
-        t.end()
-      })
+    const handler = exports => exports
+    agent.addPatch('does-not-exist', handler)
+    t.ok(agent._instrumentation._patches.has('does-not-exist'))
+    agent.removePatch('does-not-exist', handler)
+    t.notOk(agent._instrumentation._patches.has('does-not-exist'))
+
+    t.end()
   })
 })
 
@@ -1267,11 +1207,20 @@ function assertMetadata (t, payload) {
   t.equal(payload.service.name, 'some-service-name')
   t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
   t.deepEqual(payload.service.agent, { name: 'nodejs', version: agentVersion })
-  t.deepEqual(payload.system, {
-    hostname: os.hostname(),
-    architecture: process.arch,
-    platform: process.platform
-  })
+
+  const expectedSystemKeys = ['hostname', 'architecture', 'platform']
+  if (inContainer) expectedSystemKeys.push('container')
+
+  t.deepEqual(Object.keys(payload.system), expectedSystemKeys)
+  t.equal(payload.system.hostname, os.hostname())
+  t.equal(payload.system.architecture, process.arch)
+  t.equal(payload.system.platform, process.platform)
+
+  if (inContainer) {
+    t.deepEqual(Object.keys(payload.system.container), ['id'])
+    t.equal(typeof payload.system.container.id, 'string')
+    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id))
+  }
 
   t.ok(payload.process)
   t.equal(payload.process.pid, process.pid)
@@ -1284,7 +1233,7 @@ function assertMetadata (t, payload) {
   t.deepEqual(payload.process.argv, process.argv)
   t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
 }
-assertMetadata.asserts = 11
+assertMetadata.asserts = inContainer ? 17 : 14
 
 function assertTransaction (t, trans, name, input, output) {
   t.equal(trans.name, name)
@@ -1299,14 +1248,6 @@ function assertTransaction (t, trans, name, input, output) {
   t.equal(lambda.output, output)
 }
 assertTransaction.asserts = 8
-
-function assertError (t, payload, name, input, expectedError, agent) {
-  var exception = payload.exception
-  t.ok(exception)
-  t.equal(exception.message, expectedError.message)
-  t.equal(exception.type, 'Error')
-  assert.stacktrace(t, 'Test.<anonymous>', __filename, exception.stacktrace, agent, true)
-}
 
 function assertStackTrace (t, stacktrace) {
   t.ok(stacktrace !== undefined, 'should have a stack trace')

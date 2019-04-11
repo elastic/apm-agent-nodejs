@@ -9,29 +9,64 @@ const agent = require('../../../').start({
   captureExceptions: false
 })
 
+const semver = require('semver')
 const tedious = require('tedious')
 const test = require('tape')
 
 const mockClient = require('../../_mock_http_client')
+const version = require('tedious/package').version
 
-const connection = process.env.APPVEYOR
-  ? {
-    userName: 'sa',
-    password: 'Password12!',
-    server: 'localhost',
-    options: {
-      database: 'master',
-      encrypt: false,
-      cryptoCredentialsDetails: {
-        ciphers: 'RC4-MD5'
+let connection
+
+if (semver.gte(version, '4.0.0')) {
+  connection = process.env.APPVEYOR
+    ? {
+      server: 'localhost',
+      authentication: {
+        type: 'default',
+        options: {
+          userName: 'sa',
+          password: 'Password12!'
+        }
+      },
+      options: {
+        database: 'master',
+        encrypt: false,
+        cryptoCredentialsDetails: {
+          ciphers: 'RC4-MD5'
+        }
       }
     }
-  }
-  : {
-    userName: 'SA',
-    password: process.env.SA_PASSWORD || 'Very(!)Secure',
-    server: process.env.MSSQL_HOST || '127.0.0.1'
-  }
+    : {
+      server: process.env.MSSQL_HOST || '127.0.0.1',
+      authentication: {
+        type: 'default',
+        options: {
+          userName: 'SA',
+          password: process.env.SA_PASSWORD || 'Very(!)Secure'
+        }
+      }
+    }
+} else {
+  connection = process.env.APPVEYOR
+    ? {
+      server: 'localhost',
+      userName: 'sa',
+      password: 'Password12!',
+      options: {
+        database: 'master',
+        encrypt: false,
+        cryptoCredentialsDetails: {
+          ciphers: 'RC4-MD5'
+        }
+      }
+    }
+    : {
+      server: process.env.MSSQL_HOST || '127.0.0.1',
+      userName: 'SA',
+      password: process.env.SA_PASSWORD || 'Very(!)Secure'
+    }
+}
 
 function withConnection (t) {
   return new Promise((resolve, reject) => {

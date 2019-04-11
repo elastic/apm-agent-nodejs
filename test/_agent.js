@@ -1,8 +1,9 @@
 'use strict'
 
 var Agent = require('../lib/agent')
-var Filters = require('../lib/filters')
 var symbols = require('../lib/symbols')
+
+var Filters = require('object-filter-sequence')
 
 var uncaughtExceptionListeners = process._events.uncaughtException
 var agent

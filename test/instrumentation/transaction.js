@@ -15,6 +15,7 @@ test('init', function (t) {
     var trans = new Transaction(agent, 'name', 'type')
     t.ok(/^[\da-f]{16}$/.test(trans.id))
     t.ok(/^[\da-f]{32}$/.test(trans.traceId))
+    t.ok(/^[\da-f]{2}-[\da-f]{32}-[\da-f]{16}-[\da-f]{2}$/.test(trans.traceparent))
     t.equal(trans.name, 'name')
     t.equal(trans.type, 'type')
     t.equal(trans.result, 'success')
@@ -145,7 +146,7 @@ test('#startSpan()', function (t) {
     var span = trans.startSpan(null, null, { startTime })
     span.end()
     var duration = span.duration()
-    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
@@ -208,7 +209,7 @@ test('#duration() - un-ended transaction', function (t) {
 test('custom start time', function (t) {
   var ins = mockInstrumentation(function (added) {
     var duration = trans.duration()
-    t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
@@ -288,6 +289,15 @@ test('parallel transactions', function (t) {
   }, 25)
 })
 
+test('sync/async tracking', function (t) {
+  var trans = new Transaction(agent)
+  t.equal(trans.sync, true)
+  setImmediate(() => {
+    t.equal(trans.sync, false)
+    t.end()
+  })
+})
+
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent)
   t.equal(trans._encode(), null, 'cannot encode un-ended transaction')
@@ -302,7 +312,7 @@ test('#_encode() - ended', function (t) {
   var trans = new Transaction(ins._agent)
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)
@@ -329,7 +339,7 @@ test('#_encode() - with meta data', function (t) {
   trans.setCustomContext({ baz: 1 })
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)
@@ -353,7 +363,7 @@ test('#_encode() - http request meta data', function (t) {
   trans.req = mockRequest()
   trans.end()
   const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.equal(payload.id, trans.id)

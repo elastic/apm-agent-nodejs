@@ -39,8 +39,8 @@ setup_env () {
 
 run_test_suite () {
   standard
-  npm run test-deps
-  npm run lint-commit
+  npm run test:deps
+  npm run lint:commit
   
   if [ -n "${JUNIT}" ]
   then
@@ -53,7 +53,16 @@ run_test_suite () {
   else
     nyc node test/test.js
   fi
+
+  npm run test:types
+  npm run test:babel
+  if [[ $major_node_version -ge 8 ]] && [[ $minor_node_version -ge 5 ]]; then
+    npm run test:esm
+  fi
 }
+
+major_node_version=`node --version | cut -d . -f1 | cut -c2`
+minor_node_version=`node --version | cut -d . -f2`
 
 if [[ "$CI" || "$1" == "none" ]]
 then
@@ -70,7 +79,7 @@ then
   # Docker as well
   if [ -z "$2" ]
   then
-    node_version=`node --version | cut -d . -f 1 | cut -c 2-`
+    node_version=$major_node_version
   else
     node_version=$2
   fi

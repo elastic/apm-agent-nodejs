@@ -32,6 +32,7 @@ To get you off the ground, we've prepared guides for the most popular web framew
 * <<hapi,Get started with hapi>>
 * <<koa,Get started with Koa>>
 * <<restify,Get started with Restify>>
+* <<fastify,Get started with Fastify>>
 
 Alternatively, you should check out our guide for <<custom-stack,getting started with a custom Node.js stack>>.
 To get an overview of which components of your application we instrument automatically,

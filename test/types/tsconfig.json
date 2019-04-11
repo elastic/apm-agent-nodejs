@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "*.ts",
+    "*.js"
+  ]
+}

@@ -72,7 +72,7 @@ graphql:
   commands: node test/instrumentation/modules/graphql.js
 express:
   versions: '>=4'
-  commands: node test/instrumentation/modules/express.js
+  commands: node test/instrumentation/modules/express/basic.js
 
 express-graphql-1:
   name: express-graphql
@@ -156,21 +156,21 @@ apollo-server-express-2_12:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.12.0
-  versions: '>=2.0.2 <2.2 || >= 2.3.2'
+  versions: '>=2.0.4 <2.2 || >= 2.3.2'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.js
 apollo-server-express-2_13:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.13.0
-  versions: '>=2.0.2 <2.2 || >= 2.3.2'
+  versions: '>=2.0.4 <2.2 || >= 2.3.2'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.js
 apollo-server-express-2_14:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^14.0.0
-  versions: '>=2.0.2 <2.2 || >= 2.3.2'
+  versions: '>=2.0.4 <2.2 || >= 2.3.2'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.js
 
@@ -189,15 +189,21 @@ elasticsearch:
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.js
+jade:
+  versions: '>0.5.5'
+  commands: node test/instrumentation/modules/jade.js
+pug:
+  versions: '0.1.0 || >2.0.0'
+  commands: node test/instrumentation/modules/pug.js
 hapi-no-async-await:
   name: hapi
   versions: '>=9.0.1 <17.0.0'
-  commands: node test/instrumentation/modules/hapi.js
+  commands: node test/instrumentation/modules/hapi/basic.js
 hapi-async-await:
   name: hapi
   node: '>=8.2'
-  versions: '^17.0.0'
-  commands: node test/instrumentation/modules/hapi.js
+  versions: '>=17.0.0'
+  commands: node test/instrumentation/modules/hapi/basic.js
 
 tedious:
   name: tedious
@@ -207,11 +213,23 @@ tedious:
 cassandra-driver:
   # 3.1.0 is broken
   versions: '>=3 <3.1.0 || >3.1.0 <5'
-  commands: node test/instrumentation/modules/cassandra/cassandra.js
+  commands: node test/instrumentation/modules/cassandra-driver/index.js
 
-restify:
-  versions: '>=5.2.0'
-  commands: node test/instrumentation/modules/restify.js
+restify-old:
+  name: restify
+  versions: '>=5.2.0 <8.0.0'
+  commands: node test/instrumentation/modules/restify/basic.js
+restify-new:
+  name: restify
+  node: '>=8'
+  versions: '>=8.0.0'
+  commands: node test/instrumentation/modules/restify/basic.js
+
+fastify:
+  versions: '>=0.27.0 <0.29.0 || >0.29.0'
+  commands:
+    - node test/instrumentation/modules/fastify/fastify.js
+    - node test/instrumentation/modules/fastify/async-await.js
 
 finalhandler:
   versions: '*'

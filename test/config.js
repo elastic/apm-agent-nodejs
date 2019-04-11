@@ -19,6 +19,8 @@ var Agent = require('./_agent')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 
+process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+
 var optionFixtures = [
   ['serviceName', 'SERVICE_NAME', 'elastic-apm-node'],
   ['secretToken', 'SECRET_TOKEN'],
@@ -55,7 +57,8 @@ var optionFixtures = [
   ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
   ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
   ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
-  ['kubernetesPodUID', 'KUBERNETES_POD_UID']
+  ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
+  ['usePathAsTransactionName', 'USE_PATH_AS_TRANSACTION_NAME', false]
 ]
 
 var falsyValues = [false, 'false']
@@ -482,6 +485,43 @@ captureBodyTests.forEach(function (captureBodyTest) {
   })
 })
 
+var usePathAsTransactionNameTests = [
+  { value: true, url: '/foo/bar?baz=2', transactionName: 'GET /foo/bar' },
+  { value: false, url: '/foo/bar?baz=2', transactionName: 'GET unknown route' }
+]
+
+usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
+  test('usePathAsTransactionName => ' + usePathAsTransactionNameTest.value, function (t) {
+    t.plan(2)
+
+    var agent = Agent()
+    agent.start({
+      serviceName: 'test',
+      captureExceptions: false,
+      usePathAsTransactionName: usePathAsTransactionNameTest.value
+    })
+
+    var sendTransaction = agent._transport.sendTransaction
+    agent._transport.sendTransaction = function (trans, cb) {
+      t.ok(trans)
+      t.equal(trans.name, usePathAsTransactionNameTest.transactionName)
+      if (cb) process.nextTick(cb)
+    }
+    t.on('end', function () {
+      agent._transport.sendTransaction = sendTransaction
+    })
+
+    var req = new IncomingMessage()
+    req.socket = { remoteAddress: '127.0.0.1' }
+    req.url = usePathAsTransactionNameTest.url
+    req.method = 'GET'
+
+    var trans = agent.startTransaction()
+    trans.req = req
+    trans.end()
+  })
+})
+
 test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
   var mysql2Version = require('mysql2/package.json').version
@@ -548,6 +588,8 @@ test('disableInstrumentations', function (t) {
 test('custom transport', function (t) {
   var agent = Agent()
   agent.start({
+    captureExceptions: false,
+    metricsInterval: 0,
     serviceName: 'fooBAR0123456789_- ',
     transport () {
       var transactions = []
@@ -566,19 +608,28 @@ test('custom transport', function (t) {
         sendTransaction: makeSenderFor(transactions),
         sendSpan: makeSenderFor(spans),
         sendError: makeSenderFor(errors),
+        config: () => {},
         flush (cb) {
           if (cb) setImmediate(cb)
           if (first) {
+            // first flush is from calling `agent.flush()` below, second flush
+            // is done by the internals of `captureError()`. This logic will
+            // change once the following issue is implemented:
+            // https://github.com/elastic/apm-agent-nodejs/issues/686
             first = false
             return
           }
-          t.equal(transactions.length, 1, 'received correct number of transactions')
-          assertEncodedTransaction(t, trans, transactions[0])
-          t.equal(spans.length, 1, 'received correct number of spans')
-          assertEncodedSpan(t, span, spans[0])
-          t.equal(errors.length, 1, 'received correct number of errors')
-          assertEncodedError(t, error, errors[0], trans, span)
-          t.end()
+
+          // add slight delay to give the span time to be fully encoded and sent
+          setTimeout(function () {
+            t.equal(transactions.length, 1, 'received correct number of transactions')
+            assertEncodedTransaction(t, trans, transactions[0])
+            t.equal(spans.length, 1, 'received correct number of spans')
+            assertEncodedSpan(t, span, spans[0])
+            t.equal(errors.length, 1, 'received correct number of errors')
+            assertEncodedError(t, error, errors[0], trans, span)
+            t.end()
+          }, 200)
         }
       }
     }
@@ -591,6 +642,24 @@ test('custom transport', function (t) {
   span.end()
   trans.end()
   agent.flush()
+})
+
+test('addPatch', function (t) {
+  const before = require('express')
+  const patch = require('./_patch')
+
+  delete require.cache[require.resolve('express')]
+
+  const agent = Agent()
+  agent.start({
+    addPatch: 'express=./test/_patch.js',
+    captureExceptions: false,
+    metricsInterval: 0
+  })
+
+  t.deepEqual(require('express'), patch(before))
+
+  t.end()
 })
 
 function assertEncodedTransaction (t, trans, result) {

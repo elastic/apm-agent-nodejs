@@ -1,3 +1,5 @@
+'use strict'
+
 const cassandra = require('cassandra-driver')
 
 const defaultOptions = {

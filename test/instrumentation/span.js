@@ -17,6 +17,9 @@ test('init', function (t) {
     var trans = new Transaction(agent)
     var span = new Span(trans, 'sig', 'type')
     t.ok(/^[\da-f]{16}$/.test(span.id))
+    t.ok(/^[\da-f]{32}$/.test(span.traceId))
+    t.ok(/^[\da-f]{16}$/.test(span.parentId))
+    t.ok(/^[\da-f]{2}-[\da-f]{32}-[\da-f]{16}-[\da-f]{2}$/.test(span.traceparent))
     t.equal(span.transaction, trans)
     t.equal(span.name, 'sig')
     t.equal(span.type, 'type')
@@ -69,7 +72,7 @@ test('custom start time', function (t) {
   var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
   span.end()
   var duration = span.duration()
-  t.ok(duration > 999, `duration should be circa more than 1s (was: ${duration})`) // we've seen 999.9 in the wild
+  t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
   t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
   t.end()
 })
@@ -150,6 +153,16 @@ test('#addTags', function (t) {
   t.end()
 })
 
+test('sync/async tracking', function (t) {
+  var trans = new Transaction(agent)
+  var span = new Span(trans)
+  t.equal(span.sync, true)
+  setImmediate(() => {
+    t.equal(span.sync, false)
+    t.end()
+  })
+})
+
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
@@ -165,7 +178,7 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace', 'sync'])
     t.ok(/^[\da-f]{16}$/.test(payload.id))
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
@@ -189,7 +202,7 @@ test('#_encode() - ended named', function myTest2 (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace', 'sync'])
     t.ok(/^[\da-f]{16}$/.test(payload.id))
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
@@ -215,7 +228,7 @@ test('#_encode() - with meta data', function myTest2 (t) {
   span.setTag('baz', 1)
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace', 'sync'])
     t.ok(/^[\da-f]{16}$/.test(payload.id))
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id))
@@ -241,7 +254,7 @@ test('#_encode() - disabled stack traces', function (t) {
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace'])
+    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace', 'sync'])
     t.ok(/^[\da-f]{16}$/.test(payload.id))
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id))
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id))

@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -25,7 +25,7 @@ var http = require('http')
 var Hapi = require('hapi')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 var originalCaptureError = agent.captureError
 

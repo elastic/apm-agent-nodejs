@@ -45,11 +45,12 @@ These are the frameworks that we officially support:
 |=======================================================================
 |Framework |Version |Note
 |<<express,Express>> |^4.0.0 |
-|<<hapi,hapi>> |>=9.0.0 <18.0.0 |
+|<<hapi,hapi>> |>=9.0.0 <19.0.0 |
 |<<koa,Koa>> via koa-router |>=5.2.0 <8.0.0 |Koa doesn't have a built in router,
 so we can't support Koa directly since we rely on router information for full support.
 We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router]
 |<<restify,Restify>> |>=5.2.0 |
+|<<fastify,Fastify>> |>=0.27.0 |
 |=======================================================================
 
 [float]
@@ -63,7 +64,7 @@ These modules override that behavior to give better insights into specialized HT
 |=======================================================================
 |Module |Version |Note
 |https://www.npmjs.com/package/express-graphql[express-graphql] |^0.6.1 |Will name all transactions by the GraphQL query name
-|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |^2.0.2 |Will name all transactions by the GraphQL query name
+|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |^2.0.4 |Will name all transactions by the GraphQL query name
 |=======================================================================
 
 [float]
@@ -79,6 +80,8 @@ The Node.js agent will automatically instrument the following modules to give yo
 |https://www.npmjs.com/package/elasticsearch-js[elasticsearch-js] |>=8.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 <15.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/handlebars[handlebars] |* |Will instrument compile and render calls
+|https://www.npmjs.com/package/jade[jade] |>=0.5.6 |Will instrument compile and render calls
+|https://www.npmjs.com/package/pug[pug] |'>=0.1.0' |Will instrument compile and render calls
 |https://www.npmjs.com/package/ioredis[ioredis] |>=2.0.0 <5.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/mongodb-core[mongodb-core] |>=1.2.19 <4 |Will instrument all queries.
 A lot of higher level MongoDB modules use mongodb-core,
@@ -140,7 +143,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 |=======================================================================
 |Module |Version |Note
 |https://www.npmjs.com/package/bluebird[bluebird] |>=2.0.0 <4.0.0 |
-|https://www.npmjs.com/package/generic-pool[generic-pool] |\^2.0.0 \|\| ^3.1.0 |Used
+|https://www.npmjs.com/package/generic-pool[generic-pool] | ^2.0.0 \|\| ^3.1.0 |Used
 by a lot of database modules like for instance "pg"
 |https://www.npmjs.com/package/express-queue[express-queue] |>=0.0.11 <1.0.0 |
 |=======================================================================

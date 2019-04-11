@@ -1,3 +1,45 @@
+# 2.9.0 - 2019/4/10
+  * feat: add traceparent getter to agent, span and transaction ([#969](https://github.com/elastic/apm-agent-nodejs/pull/969))
+  * feat(template): add support for jade and pug ([#914](https://github.com/elastic/apm-agent-nodejs/pull/914))
+  * feat(elasticsearch): capture more types of queries ([#967](https://github.com/elastic/apm-agent-nodejs/pull/967))
+  * feat: sync flag on spans and transactions ([#980](https://github.com/elastic/apm-agent-nodejs/pull/980))
+  * fix(agent): init config/logger before usage ([#956](https://github.com/elastic/apm-agent-nodejs/pull/956))
+  * fix: don't add response listener to outgoing requests ([#974](https://github.com/elastic/apm-agent-nodejs/pull/974))
+  * fix(agent): fix basedir in debug mode when starting agent with -r ([#981](https://github.com/elastic/apm-agent-nodejs/pull/981))
+  * fix: ensure Kubernetes/Docker container info is captured ([#995](https://github.com/elastic/apm-agent-nodejs/pull/995))
+
+# 2.8.0 - 2019/4/2
+  * feat: add agent.setFramework() method ([#966](https://github.com/elastic/apm-agent-nodejs/pull/966))
+  * feat(config): add usePathAsTransactionName config option ([#907](https://github.com/elastic/apm-agent-nodejs/pull/907))
+  * feat(debug): output configuration if logLevel is trace ([#972](https://github.com/elastic/apm-agent-nodejs/pull/972))
+  * fix(express): transaction default name is incorrect ([#938](https://github.com/elastic/apm-agent-nodejs/pull/938))
+
+# 2.7.1 - 2019/3/28
+  * fix: instrument http/https.get requests ([#954](https://github.com/elastic/apm-agent-nodejs/pull/954))
+  * fix: don't add traceparent header to S3 requests ([#952](https://github.com/elastic/apm-agent-nodejs/pull/952))
+
+# 2.7.0 - 2019/3/26
+  * feat: add patch registry ([#803](https://github.com/elastic/apm-agent-nodejs/pull/803))
+  * feat: allow sub-modules to be patched ([#920](https://github.com/elastic/apm-agent-nodejs/pull/920))
+  * feat: add TypeScript typings ([#926](https://github.com/elastic/apm-agent-nodejs/pull/926))
+  * fix: update measured-reporting to fix Windows installation issue ([#933](https://github.com/elastic/apm-agent-nodejs/pull/933))
+  * fix(lambda): do not wrap context ([#931](https://github.com/elastic/apm-agent-nodejs/pull/931))
+  * fix(lambda): fix cloning issues of context ([#947](https://github.com/elastic/apm-agent-nodejs/pull/947))
+  * fix(metrics): use noop logger in metrics reporter ([#912](https://github.com/elastic/apm-agent-nodejs/pull/912))
+  * fix(transaction): don't set transaction result if it's null ([#936](https://github.com/elastic/apm-agent-nodejs/pull/936))
+  * fix(agent): allow flush callback to be undefined ([#934](https://github.com/elastic/apm-agent-nodejs/pull/934))
+  * fix: handle promise rejection in case Elasticsearch client throws ([#870](https://github.com/elastic/apm-agent-nodejs/pull/870))
+  * chore: change 'npm run' command namespaces ([#944](https://github.com/elastic/apm-agent-nodejs/pull/944))
+
+# 2.6.0 - 2019/3/5
+  * feat: add support for Fastify framework ([#594](https://github.com/elastic/apm-agent-nodejs/pull/594))
+  * feat(lambda): accept parent span in lambda wrapper ([#881](https://github.com/elastic/apm-agent-nodejs/pull/881))
+  * feat(lambda): support promise form ([#871](https://github.com/elastic/apm-agent-nodejs/pull/871))
+  * fix: ensure http headers are always recorded as strings ([#895](https://github.com/elastic/apm-agent-nodejs/pull/895))
+  * fix(metrics): prevent 0ms timers from being created ([#872](https://github.com/elastic/apm-agent-nodejs/pull/872))
+  * fix(config): apiRequestSize should be 768kb ([#848](https://github.com/elastic/apm-agent-nodejs/pull/848))
+  * fix(express): ensure correct transaction names ([#842](https://github.com/elastic/apm-agent-nodejs/pull/842))
+
 # 2.5.1 - 2019/2/4
   * fix(metrics): ensure NaN becomes 0, not null ([#837](https://github.com/elastic/apm-agent-nodejs/pull/837)) 
 

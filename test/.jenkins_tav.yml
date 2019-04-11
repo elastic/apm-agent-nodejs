@@ -5,6 +5,8 @@ TAV:
   - redis
   - koa-router
   - handlebars
+  - jade
+  - pug
   - mongodb-core
   - finalhandler
   - ioredis
@@ -12,6 +14,7 @@ TAV:
   - cassandra-driver
   - tedious
   - restify
+  - fastify
   - mimic-response
   - got
   - bluebird

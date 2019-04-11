@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('apm@v1.0.6') _
+@Library('apm@current') _
 
 pipeline {
   agent any
@@ -8,6 +8,8 @@ pipeline {
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
+    CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-nodejs-codecov'
+    JUNIT = "true"
   }
   options {
     timeout(time: 1, unit: 'HOURS')
@@ -16,8 +18,11 @@ pipeline {
     ansiColor('xterm')
     disableResume()
     durabilityHint('PERFORMANCE_OPTIMIZED')
+    rateLimitBuilds(throttle: [count: 60, durationName: 'hour', userBoost: true])
+    quietPeriod(10)
   }
   triggers {
+    cron 'H H(3-5) * * 1-5'
     issueCommentTrigger('.*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
   }
   parameters {
@@ -30,7 +35,7 @@ pipeline {
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'flyweight' }
+      agent { label 'master || immutable' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
@@ -42,15 +47,10 @@ pipeline {
       Run tests.
     */
     stage('Test') {
-      agent { label 'flyweight' }
+      agent { label 'docker && immutable' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
-        JUNIT = "true"
-      }
-      when {
-        beforeAgent true
-        expression { return !params.tav_ci }
       }
       steps {
         deleteDir()
@@ -71,15 +71,24 @@ pipeline {
       Run TAV tests.
     */
     stage('TAV Test') {
-      agent { label 'flyweight' }
+      agent { label 'docker && immutable' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
-        JUNIT = "true"
       }
       when {
         beforeAgent true
-        expression { return params.tav_ci }
+        allOf {
+          not {
+            branch '^greenkeeper/.*'
+          }
+          anyOf {
+            expression { return params.Run_As_Master_Branch }
+            expression { return isTimerTrigger() }
+            changeRequest()
+          }
+          expression { return params.tav_ci }
+        }
       }
       steps {
         deleteDir()
@@ -103,15 +112,12 @@ pipeline {
     Build the documentation.
     */
     stage('Documentation') {
-      agent { label 'flyweight' }
+      agent { label 'docker && immutable' }
       options { skipDefaultCheckout() }
       when {
         beforeAgent true
         allOf {
           anyOf {
-            not {
-              changeRequest()
-            }
             branch 'master'
             branch "\\d+\\.\\d+"
             branch "v\\d?"
@@ -149,6 +155,7 @@ def generateStep(version, tav = ''){
   return {
     node('docker && linux && immutable'){
       try {
+        env.HOME = "${env.WORKSPACE}"
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
@@ -167,7 +174,7 @@ def generateStep(version, tav = ''){
         junit(allowEmptyResults: true,
           keepLongStdio: true,
           testResults: "**/junit-node-report.xml")
-        codecov(repo: 'apm-agent-nodejs', basedir: "${BASE_DIR}")
+        codecov(repo: 'apm-agent-nodejs', basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
       }
     }
   }
