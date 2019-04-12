@@ -171,10 +171,16 @@ def generateStep(version, tav = ''){
       } catch(e){
         error(e.toString())
       } finally {
-        junit(allowEmptyResults: true,
-          keepLongStdio: true,
-          testResults: "**/junit-node-report.xml")
-        codecov(repo: 'apm-agent-nodejs', basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
+        dir("${BASE_DIR}"){
+          sh(label: "Convert Test results to JUnit format", script: """
+          [ -f test-suite-output.tap ] && cat test-suite-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-test-suite-report.xml
+          [ -f tav-output.tap ] && cat tav-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-tav-report.xml
+          """)
+          junit(allowEmptyResults: true,
+            keepLongStdio: true,
+            testResults: "**/junit-*.xml")
+          codecov(repo: 'apm-agent-nodejs', basedir: ".", secret: "${CODECOV_SECRET}")
+        }
       }
     }
   }

@@ -17,7 +17,7 @@ docker_nyc_report_output="/app/.nyc_output"
 NODE_VERSION=$1
 if [[ ! -z $2  ]]; then
   TAV_VERSIONS=`echo "$2" | sed -e 's/\+/,/g'`
-  CMD='npm run test:tav'
+  CMD='npm run test:tav|tee tav-output.tap'
 elif [[ -n $COVERAGE ]]; then
   CMD='npm run coverage:report'
 else
@@ -40,6 +40,7 @@ NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-co
       npm install
       node --version
       npm --version
+      set -o pipefail
       ${CMD}"
 
 NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-compose.yml -f ./test/docker-compose.ci.yml down -v

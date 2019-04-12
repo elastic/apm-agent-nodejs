@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e # abort if any of the commands exit badly
+set -eo pipefile # abort if any of the commands exit badly
 
 number_of_started_containers () {
   echo "$(docker ps --format '{{.ID}}' | wc -l | awk '{$1=$1};1')"
@@ -45,8 +45,7 @@ run_test_suite () {
   if [ -n "${JUNIT}" ]
   then
     npm i tap-junit
-    nyc node test/test.js | tee test-output.tap
-    cat test-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-node-report.xml
+    nyc node test/test.js | tee test-suite-output.tap
   elif [ -z "$COVERAGE" ]
   then
     node test/test.js
