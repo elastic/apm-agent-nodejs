@@ -171,6 +171,7 @@ def generateStep(version, tav = ''){
       } catch(e){
         error(e.toString())
       } finally {
+        sh('rm -fr .npm')
         dir("${BASE_DIR}"){
           docker.image('node:11').inside("-w ${WORKSPACE}/${BASE_DIR}"){
             sh(label: "Convert Test results to JUnit format", script: """
