@@ -221,7 +221,7 @@ restify-old:
   commands: node test/instrumentation/modules/restify/basic.js
 restify-new:
   name: restify
-  node: '>=8'
+  node: '>=8.6.0'
   versions: '>=8.0.0'
   commands: node test/instrumentation/modules/restify/basic.js
 
