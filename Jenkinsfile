@@ -84,7 +84,7 @@ pipeline {
           }
           anyOf {
             expression { return params.Run_As_Master_Branch }
-            expression { return isTimerTrigger() }
+            triggeredBy 'TimerTrigger'
             changeRequest()
           }
           expression { return params.tav_ci }
