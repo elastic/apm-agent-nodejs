@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eo pipefile # abort if any of the commands exit badly
+set -eo pipefail # abort if any of the commands exit badly
 
 number_of_started_containers () {
   echo "$(docker ps --format '{{.ID}}' | wc -l | awk '{$1=$1};1')"
