@@ -18,6 +18,8 @@ see the <<custom-transactions,Custom Transactions in Node.js>> article.
 [[transaction-name]]
 ==== `transaction.name`
 
+[small]#Added in: v0.1.0#
+
 * +{type-string}+ *Default:* `unnamed`
 
 The name of the transaction.
@@ -31,6 +33,8 @@ Transactions with the same name and <<transaction-type,type>> are grouped togeth
 [[transaction-type]]
 ==== `transaction.type`
 
+[small]#Added in: v0.1.0#
+
 * +{type-string}+ *Default:* `custom`
 
 The type of the transaction.
@@ -40,15 +44,14 @@ There's a special type called `request` which is used by the agent for the trans
 [[transaction-traceparent]]
 ==== `transaction.traceparent`
 
-[source,js]
-----
-var traceparent = transaction.traceparent
-----
+[small]#Added in: v2.9.0#
 
 Get the serialized traceparent string of the transaction.
 
 [[transaction-result]]
 ==== `transaction.result`
+
+[small]#Added in: v0.1.0#
 
 * +{type-string}+ *Default:* `success`
 
@@ -59,7 +62,7 @@ or e.g. "success" or "failure" for a background task.
 [[transaction-start-span]]
 ==== `transaction.startSpan([name][, type][, options])`
 
-// [small]#Added in: #
+[small]#Added in: v2.0.0#
 
 * `name` +{type-string}+ The name of the span.
 You can alternatively set this via <<span-name,`span.name`>>.
@@ -85,7 +88,7 @@ See <<span-api,Span API>> docs for details on how to use custom spans.
 [[transaction-set-tag]]
 ==== `transaction.setTag(name, value)`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 * `name` +{type-string}+
 Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaced by underscores (`_`),
@@ -104,7 +107,7 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 [[transaction-add-tags]]
 ==== `transaction.addTags({ [name]: value })`
 
-// [small]#Added in: #
+[small]#Added in: v1.5.0#
 
 * `tags` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+
@@ -124,7 +127,7 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 [[transaction-ensure-parent-id]]
 ==== `transaction.ensureParentId()`
 
-[small]#Added in: 2.0.0#
+[small]#Added in: v2.0.0#
 
 * +{type-string}+
 
@@ -157,7 +160,7 @@ See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
 [[transaction-end]]
 ==== `transaction.end([result][, endTime])`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 * `result` +{type-string}+ Describes the result of the transaction.
 This is typically the HTTP status code,
