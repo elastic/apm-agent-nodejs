@@ -122,7 +122,7 @@ it's recommended that you use <<apm-set-user-context,`apm.setUserContext()`>> an
 [[apm-add-error-filter]]
 ==== `apm.addErrorFilter(callback)`
 
-// [small]#Added in: #
+[small]#Added in: v2.0.0#
 
 Similar to <<apm-add-filter,`apm.addFilter()`>>,
 but the `callback` will only be called with error payloads.
@@ -130,7 +130,7 @@ but the `callback` will only be called with error payloads.
 [[apm-add-transaction-filter]]
 ==== `apm.addTransactionFilter(callback)`
 
-// [small]#Added in: #
+[small]#Added in: v2.0.0#
 
 Similar to <<apm-add-filter,`apm.addFilter()`>>,
 but the `callback` will only be called with transaction payloads.
@@ -138,7 +138,7 @@ but the `callback` will only be called with transaction payloads.
 [[apm-add-span-filter]]
 ==== `apm.addSpanFilter(callback)`
 
-// [small]#Added in: #
+[small]#Added in: v2.0.0#
 
 Similar to <<apm-add-filter,`apm.addFilter()`>>,
 but the `callback` will only be called with span payloads.
@@ -146,7 +146,7 @@ but the `callback` will only be called with span payloads.
 [[apm-set-user-context]]
 ==== `apm.setUserContext(context)`
 
-[small]#Added in: 0.1.0#
+[small]#Added in: v0.1.0#
 
 * `context` +{type-object}+ Accepts the following optional properties:
 ** `id` +{type-string}+ | +{type-number}+ The user's ID.
@@ -173,7 +173,7 @@ The provided user context is stored under `context.user` in Elasticsearch on bot
 [[apm-set-custom-context]]
 ==== `apm.setCustomContext(context)`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 * `context` +{type-object}+ Can contain any property that can be JSON encoded.
 
@@ -197,7 +197,7 @@ and any custom context given as the 2nd argument to <<apm-capture-error,`apm.cap
 [[apm-set-tag]]
 ==== `apm.setTag(name, value)`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 * `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
@@ -237,7 +237,7 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 [[apm-capture-error]]
 ==== `apm.captureError(error[, options][, callback])`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 * `error` - Can be either an +{type-error}+ object,
 a <<message-strings,message string>>,
@@ -379,7 +379,7 @@ In which case it will automate this processes for you.
 [[apm-middleware-connect]]
 ==== `apm.middleware.connect()`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 Returns a middleware function used to collect and send errors to the APM Server.
 
@@ -410,7 +410,7 @@ NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ 
 [[apm-start-transaction]]
 ==== `apm.startTransaction([name][, type][, options])`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 * `name` +{type-string}+ The name of the transaction.
 You can always set this later via <<transaction-name,`transaction.name`>> or <<apm-set-transaction-name,`apm.setTransactionName()`>>.
@@ -443,7 +443,7 @@ See the <<transaction-api,Transaction API>> docs for details on how to use custo
 [[apm-end-transaction]]
 ==== `apm.endTransaction([result][, endTime])`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 * `result` +{type-string}+ Describes the result of the transaction.
 This is typically the HTTP status code,
@@ -467,7 +467,7 @@ Alternatively you can call <<transaction-end,`end()`>> directly on an active tra
 [[apm-current-transaction]]
 ==== `apm.currentTransaction`
 
-// [small]#Added in: #
+[small]#Added in: v1.9.0#
 
 Get the currently active transaction,
 if used within the context of a transaction.
@@ -478,7 +478,7 @@ NOTE: If there's no active transaction available,
 [[apm-current-span]]
 ==== `apm.currentSpan`
 
-// [small]#Added in: #
+[small]#Added in: v2.0.0#
 
 Get the currently active span,
 if used within the context of a span.
@@ -489,10 +489,7 @@ NOTE: If there's no active span available,
 [[apm-current-traceparent]]
 ==== `apm.currentTraceparent`
 
-[source,js]
-----
-var traceparent = apm.currentTraceparent
-----
+[small]#Added in: v2.9.0#
 
 Get the serialized traceparent string of the current transaction or span.
 
@@ -502,7 +499,7 @@ NOTE: If there's no active transaction or span available,
 [[apm-set-transaction-name]]
 ==== `apm.setTransactionName(name)`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 * `name` +{type-string}+ Set or overwrite the name of the current transaction.
 
@@ -549,7 +546,7 @@ NOTE: If there's no active transaction available,
 [[apm-handle-uncaught-exceptions]]
 ==== `apm.handleUncaughtExceptions([callback])`
 
-// [small]#Added in: #
+[small]#Added in: v0.1.0#
 
 By default, the agent will terminate the Node.js process when an uncaught exception is detected.
 Use this function if you need to run any custom code before the process is terminated.
@@ -597,7 +594,7 @@ The callback is called even if no HTTP request is currently active.
 [[apm-lambda]]
 ==== `apm.lambda([type, ] handler)`
 
-// [small]#Added in: #
+[small]#Added in: v1.4.0#
 
 [source,js]
 ----
@@ -615,7 +612,7 @@ Read more lambda support in the <<lambda,Lambda>> article.
 [[apm-add-patch]]
 ==== `apm.addPatch(name, handler)`
 
-[small]#Added in: 2.7.0#
+[small]#Added in: v2.7.0#
 
 * `name` +{type-string}+
 Name of module to apply the patch to, when required.
@@ -655,7 +652,7 @@ apm.addPatch('timers', './timer-patch')
 [[apm-remove-patch]]
 ==== `apm.removePatch(name, handler)`
 
-[small]#Added in: 2.7.0#
+[small]#Added in: v2.7.0#
 
 Removes a module patch.
 This will generally only be needed when replacing an existing patch.
@@ -673,7 +670,7 @@ apm.removePatch('timers', timerPatchFunction)
 [[apm-clear-patches]]
 ==== `apm.clearPatches(name)`
 
-[small]#Added in: 2.7.0#
+[small]#Added in: v2.7.0#
 
 Clear all patches for the given module.
 This will generally only be needed when replacing an existing patch.

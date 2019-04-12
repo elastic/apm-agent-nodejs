@@ -19,6 +19,8 @@ see the <<custom-spans,Custom Spans in Node.js>> article.
 [[span-transaction]]
 ==== `span.transaction`
 
+[small]#Added in: v0.1.0#
+
 * *Type:* Transaction
 
 A reference to the parent transaction object.
@@ -28,6 +30,8 @@ All spans belong to a transaction.
 [[span-name]]
 ==== `span.name`
 
+[small]#Added in: v0.1.0#
+
 * +{type-string}+ *Default:* `unnamed`
 
 The name of the span.
@@ -35,6 +39,8 @@ This can also be set via <<apm-start-span,`apm.startSpan()`>>.
 
 [[span-type]]
 ==== `span.type`
+
+[small]#Added in: v0.1.0#
 
 * +{type-string}+ *Default:* `custom`
 
@@ -53,17 +59,14 @@ the following are standardized across all Elastic APM agents:
 [[span-traceparent]]
 ==== `span.traceparent`
 
-[source,js]
-----
-var traceparent = span.traceparent
-----
+[small]#Added in: v2.9.0#
 
 Get the serialized traceparent string of the span.
 
 [[span-set-tag]]
 ==== `span.setTag(name, value)`
 
-// [small]#Added in: #
+[small]#Added in: v2.1.0#
 
 * `name` +{type-string}+
 Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaced by underscores (`_`),
@@ -78,7 +81,7 @@ You can set multiple tags on the same span.
 [[span-add-tags]]
 ==== `span.addTags({ [name]: value })`
 
-// [small]#Added in: #
+[small]#Added in: v2.1.0#
 
 * `tags` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+
