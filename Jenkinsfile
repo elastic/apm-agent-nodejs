@@ -172,7 +172,7 @@ def generateStep(version, tav = ''){
         error(e.toString())
       } finally {
         dir("${BASE_DIR}"){
-          docker.image('node:11').inside(){
+          docker.image('node:11').inside("-w ${WORKSPACE}/${BASE_DIR}"){
             sh(label: "Convert Test results to JUnit format", script: """
             npm i tap-junit
             [ -f test-suite-output.tap ] && cat test-suite-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-test-suite-report.xml
