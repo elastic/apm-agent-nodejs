@@ -172,10 +172,13 @@ def generateStep(version, tav = ''){
         error(e.toString())
       } finally {
         dir("${BASE_DIR}"){
-          sh(label: "Convert Test results to JUnit format", script: """
-          [ -f test-suite-output.tap ] && cat test-suite-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-test-suite-report.xml
-          [ -f tav-output.tap ] && cat tav-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-tav-report.xml
-          """)
+          docker.image('node:11').inside(){
+            sh(label: "Convert Test results to JUnit format", script: """
+            npm i tap-junit
+            [ -f test-suite-output.tap ] && cat test-suite-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-test-suite-report.xml
+            [ -f tav-output.tap ] && cat tav-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-tav-report.xml
+            """)
+          }
           junit(allowEmptyResults: true,
             keepLongStdio: true,
             testResults: "**/junit-*.xml")

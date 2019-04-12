@@ -44,7 +44,6 @@ run_test_suite () {
   
   if [ -n "${JUNIT}" ]
   then
-    npm i tap-junit
     nyc node test/test.js | tee test-suite-output.tap
   elif [ -z "$COVERAGE" ]
   then
