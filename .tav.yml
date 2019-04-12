@@ -48,7 +48,7 @@ pg:
   versions: '>=4 <8'
   peerDependencies:
     - bluebird@^3.0.0
-    - knex@^0.16.1
+    - knex@^0.16.5
   commands:
     - node test/instrumentation/modules/pg/pg.js
     - node test/instrumentation/modules/pg/knex.js
@@ -61,7 +61,8 @@ bluebird:
     - node test/instrumentation/modules/bluebird/bluebird.js
     - node test/instrumentation/modules/bluebird/cancel.js
 knex:
-  versions: ^0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
+  # v0.16.4 accidentally dropped support for Node.js 6
+  versions: ^0.16.5 || <0.16.4 >=0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
   commands: node test/instrumentation/modules/pg/knex.js
 ws:
   versions: '>=1 <7'
