@@ -29,6 +29,7 @@ NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-co
   -e TAV=${TAV_VERSIONS} \
   -e JUNIT=${JUNIT} \
   -e CI=true \
+  -e HOME=/app \
   -v ${npm_cache}:${docker_npm_cache} \
   -v ${nyc_output}:${docker_nyc_output} \
   -v ${nyc_report_output}:${docker_nyc_report_output} \
