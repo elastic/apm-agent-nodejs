@@ -1,3 +1,8 @@
+# 2.10.0 - 2019/4/15
+  * feat(express-graphql): add support for version ^0.8.0 ([#1010](https://github.com/elastic/apm-agent-nodejs/pull/1010))
+  * fix(package): bump elastic-apm-http-client to ^7.2.2 so Kubernetes metadata gets corrected recorded ([#1011](https://github.com/elastic/apm-agent-nodejs/pull/1011))
+  * fix(ts): add TypeScript typings for new traceparent API ([#1001](https://github.com/elastic/apm-agent-nodejs/pull/1001))
+
 # 2.9.0 - 2019/4/10
   * feat: add traceparent getter to agent, span and transaction ([#969](https://github.com/elastic/apm-agent-nodejs/pull/969))
   * feat(template): add support for jade and pug ([#914](https://github.com/elastic/apm-agent-nodejs/pull/914))
