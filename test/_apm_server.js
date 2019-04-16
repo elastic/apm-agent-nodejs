@@ -57,16 +57,16 @@ function APMServer (agentOpts, mockOpts) {
       assert.strictEqual(req.method, 'POST', `Unexpected HTTP method: ${req.method}`)
       assert.strictEqual(req.url, '/intake/v2/events', `Unexpected HTTP url: ${req.url}`)
 
+      self.on('close', () => {
+        res.end()
+      })
+
       self.emit('request', req, res)
       var expect = requests.shift()
       var index = 0
 
       req.pipe(zlib.createGunzip()).pipe(ndjson.parse()).on('data', function (data) {
         assert.strictEqual(Object.keys(data).length, 1, `Expected number of root properties: ${Object.keys(data)}`)
-
-        self.on('close', () => {
-          res.end()
-        })
 
         var type = Object.keys(data)[0]
 

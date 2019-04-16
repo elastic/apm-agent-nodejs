@@ -687,3 +687,11 @@ or should include a time suffix.
 
 To disable metrics reporting,
 set the interval to `0`.
+
+[[global-labels]]
+==== `globalLabels`
+
+* *Type:* Object
+* *Env:* `ELASTIC_APM_GLOBAL_LABELS`
+
+Supply a key/value pair object of labels to apply to any data recorded by the agent.
