@@ -56,8 +56,10 @@ declare class Agent implements Taggable, StartSpanFn {
   currentSpan: Span | null;
 
   // Context
-  setTag (name: string, value: TagValue): boolean;
-  addTags (tags: Tags): boolean;
+  setLabel (name: string, value: LabelValue): boolean;
+  setTag (name: string, value: LabelValue): boolean; // Deprecated
+  addLabels (labels: Labels): boolean;
+  addTags (labels: Labels): boolean; // Deprecated
   setUserContext (user: UserObject): void;
   setCustomContext (custom: object): void;
 
@@ -80,8 +82,10 @@ declare class GenericSpan implements Taggable {
   type: string;
   traceparent: string;
 
-  setTag (name: string, value: TagValue): boolean;
-  addTags (tags: Tags): boolean;
+  setLabel (name: string, value: LabelValue): boolean;
+  setTag (name: string, value: LabelValue): boolean; // Deprecated
+  addLabels (labels: Labels): boolean;
+  addTags (labels: Labels): boolean; // Deprecated
 }
 
 declare class Transaction extends GenericSpan implements StartSpanFn {
@@ -157,13 +161,14 @@ interface CaptureErrorOptions {
   timestamp?: number;
   handled?: boolean;
   user?: UserObject;
-  tags?: Tags;
+  labels?: Labels;
+  tags?: Labels;
   custom?: object;
   message?: string;
 }
 
-interface Tags {
-  [key: string]: TagValue;
+interface Labels {
+  [key: string]: LabelValue;
 }
 
 interface UserObject {
@@ -208,7 +213,7 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
 type CaptureErrorCallback = (err: Error | null, id: string) => void;
 type FilterFn = (payload: Payload) => Payload | boolean | void;
-type TagValue = string | number | boolean | null | undefined;
+type LabelValue = string | number | boolean | null | undefined;
 
 type Payload = { [propName: string]: any }
 
@@ -220,8 +225,10 @@ interface PatchOptions {
 }
 
 interface Taggable {
-  setTag (name: string, value: TagValue): boolean;
-  addTags (tags: Tags): boolean;
+  setLabel (name: string, value: LabelValue): boolean;
+  setTag (name: string, value: LabelValue): boolean; // Deprecated
+  addLabels (labels: Labels): boolean;
+  addTags (labels: Labels): boolean; // Deprecated
 }
 
 interface StartSpanFn {

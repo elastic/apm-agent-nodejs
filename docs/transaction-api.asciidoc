@@ -86,7 +86,7 @@ When a span is started it will measure the time until <<span-end,`span.end()`>> 
 See <<span-api,Span API>> docs for details on how to use custom spans.
 
 [[transaction-set-tag]]
-==== `transaction.setTag(name, value)`
+==== `transaction.setLabel(name, value)`
 
 [small]#Added in: v0.1.0#
 
@@ -105,7 +105,7 @@ it will also get tagged with the same tags.
 Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 
 [[transaction-add-tags]]
-==== `transaction.addTags({ [name]: value })`
+==== `transaction.addLabels({ [name]: value })`
 
 [small]#Added in: v1.5.0#
 

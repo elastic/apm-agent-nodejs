@@ -64,7 +64,7 @@ the following are standardized across all Elastic APM agents:
 Get the serialized traceparent string of the span.
 
 [[span-set-tag]]
-==== `span.setTag(name, value)`
+==== `span.setLabel(name, value)`
 
 [small]#Added in: v2.1.0#
 
@@ -79,7 +79,7 @@ Set a tag on the span.
 You can set multiple tags on the same span.
 
 [[span-add-tags]]
-==== `span.addTags({ [name]: value })`
+==== `span.addLabels({ [name]: value })`
 
 [small]#Added in: v2.1.0#
 

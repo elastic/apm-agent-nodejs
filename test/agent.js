@@ -340,40 +340,52 @@ test('#setCustomContext()', function (t) {
   })
 })
 
-test('#setTag()', function (t) {
-  t.test('no active transaction', function (t) {
-    var agent = Agent()
-    agent.start()
-    t.equal(agent.setTag('foo', 1), false)
-    t.end()
-  })
+var singleLabelTests = [
+  { name: '#setLabel()', method: 'setLabel' },
+  { name: '#setTag() - deprecated', method: 'setTag' }
+]
+singleLabelTests.forEach((labelTest) => {
+  test(labelTest.name, function (t) {
+    t.test('no active transaction', function (t) {
+      var agent = Agent()
+      agent.start()
+      t.equal(agent[labelTest.method]('foo', 1), false)
+      t.end()
+    })
 
-  t.test('active transaction', function (t) {
-    var agent = Agent()
-    agent.start()
-    var trans = agent.startTransaction()
-    t.equal(agent.setTag('foo', 1), true)
-    t.deepEqual(trans._tags, { foo: '1' })
-    t.end()
+    t.test('active transaction', function (t) {
+      var agent = Agent()
+      agent.start()
+      var trans = agent.startTransaction()
+      t.equal(agent[labelTest.method]('foo', 1), true)
+      t.deepEqual(trans._labels, { foo: '1' })
+      t.end()
+    })
   })
 })
 
-test('#addTags', function (t) {
-  t.test('no active transaction', function (t) {
-    var agent = Agent()
-    agent.start()
-    t.equal(agent.addTags({ foo: 1 }), false)
-    t.end()
-  })
+var multipleLabelTests = [
+  { name: '#addLabels()', method: 'addLabels' },
+  { name: '#addTags() - deprecated', method: 'addTags' }
+]
+multipleLabelTests.forEach((multipleTest) => {
+  test(multipleTest.name, function (t) {
+    t.test('no active transaction', function (t) {
+      var agent = Agent()
+      agent.start()
+      t.equal(agent[multipleTest.method]({ foo: 1 }), false)
+      t.end()
+    })
 
-  t.test('active transaction', function (t) {
-    var agent = Agent()
-    agent.start()
-    var trans = agent.startTransaction()
-    t.equal(agent.addTags({ foo: 1, bar: 2 }), true)
-    t.equal(agent.addTags({ foo: 3 }), true)
-    t.deepEqual(trans._tags, { foo: '3', bar: '2' })
-    t.end()
+    t.test('active transaction', function (t) {
+      var agent = Agent()
+      agent.start()
+      var trans = agent.startTransaction()
+      t.equal(agent[multipleTest.method]({ foo: 1, bar: 2 }), true)
+      t.equal(agent[multipleTest.method]({ foo: 3 }), true)
+      t.deepEqual(trans._labels, { foo: '3', bar: '2' })
+      t.end()
+    })
   })
 })
 

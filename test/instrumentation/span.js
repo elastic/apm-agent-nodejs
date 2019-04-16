@@ -87,63 +87,63 @@ test('#end(time)', function (t) {
   t.end()
 })
 
-test('#setTag', function (t) {
+test('#setLabel', function (t) {
   t.test('valid', function (t) {
     var trans = new Transaction(agent)
     var span = new Span(trans)
-    t.equal(span._tags, null)
-    t.equal(span.setTag(), false)
-    t.equal(span._tags, null)
-    span.setTag('foo', 1)
-    t.deepEqual(span._tags, { foo: '1' })
-    span.setTag('bar', { baz: 2 })
-    t.deepEqual(span._tags, { foo: '1', bar: '[object Object]' })
-    span.setTag('foo', 3)
-    t.deepEqual(span._tags, { foo: '3', bar: '[object Object]' })
+    t.equal(span._labels, null)
+    t.equal(span.setLabel(), false)
+    t.equal(span._labels, null)
+    span.setLabel('foo', 1)
+    t.deepEqual(span._labels, { foo: '1' })
+    span.setLabel('bar', { baz: 2 })
+    t.deepEqual(span._labels, { foo: '1', bar: '[object Object]' })
+    span.setLabel('foo', 3)
+    t.deepEqual(span._labels, { foo: '3', bar: '[object Object]' })
     t.end()
   })
 
   t.test('invalid', function (t) {
     var trans = new Transaction(agent)
     var span = new Span(trans)
-    t.equal(span._tags, null)
-    t.equal(span.setTag(), false)
-    t.equal(span._tags, null)
-    span.setTag('invalid*', 1)
-    t.deepEqual(span._tags, { invalid_: '1' })
-    span.setTag('invalid.', 2)
-    t.deepEqual(span._tags, { invalid_: '2' })
-    span.setTag('invalid"', 3)
-    t.deepEqual(span._tags, { invalid_: '3' })
+    t.equal(span._labels, null)
+    t.equal(span.setLabel(), false)
+    t.equal(span._labels, null)
+    span.setLabel('invalid*', 1)
+    t.deepEqual(span._labels, { invalid_: '1' })
+    span.setLabel('invalid.', 2)
+    t.deepEqual(span._labels, { invalid_: '2' })
+    span.setLabel('invalid"', 3)
+    t.deepEqual(span._labels, { invalid_: '3' })
     t.end()
   })
 })
 
-test('#addTags', function (t) {
+test('#addLabels', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  t.equal(span._tags, null)
+  t.equal(span._labels, null)
 
-  t.equal(span.setTag(), false)
-  t.equal(span._tags, null)
+  t.equal(span.setLabel(), false)
+  t.equal(span._labels, null)
 
-  span.addTags({ foo: 1 })
-  t.deepEqual(span._tags, { foo: '1' })
+  span.addLabels({ foo: 1 })
+  t.deepEqual(span._labels, { foo: '1' })
 
-  span.addTags({ bar: { baz: 2 } })
-  t.deepEqual(span._tags, {
+  span.addLabels({ bar: { baz: 2 } })
+  t.deepEqual(span._labels, {
     foo: '1',
     bar: '[object Object]'
   })
 
-  span.addTags({ foo: 3 })
-  t.deepEqual(span._tags, {
+  span.addLabels({ foo: 3 })
+  t.deepEqual(span._labels, {
     foo: '3',
     bar: '[object Object]'
   })
 
-  span.addTags({ bux: 'bax', bix: 'bex' })
-  t.deepEqual(span._tags, {
+  span.addLabels({ bux: 'bax', bix: 'bex' })
+  t.deepEqual(span._labels, {
     foo: '3',
     bar: '[object Object]',
     bux: 'bax',
@@ -225,7 +225,7 @@ test('#_encode() - with meta data', function myTest2 (t) {
   var span = new Span(trans, 'foo', 'bar')
   span.end()
   span.setDbContext({ statement: 'foo', type: 'bar' })
-  span.setTag('baz', 1)
+  span.setLabel('baz', 1)
   span._encode(function (err, payload) {
     t.error(err)
     t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'timestamp', 'duration', 'context', 'stacktrace', 'sync'])
