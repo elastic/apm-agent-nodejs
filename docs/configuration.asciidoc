@@ -660,6 +660,9 @@ Specify the kubernetes namespace to associate with all reported events.
 * *Env:* `ELASTIC_APM_KUBERNETES_POD_NAME`
 
 Specify the kubernetes pod name to associate with all reported events.
+If absent,
+and if `kubernetesPodUID` is parsed out of the `/proc/self/cgroup` file,
+this will default to the local hostname.
 
 [[kubernetes-pod-uid]]
 ==== `kubernetesPodUID`
