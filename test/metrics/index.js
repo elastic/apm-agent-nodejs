@@ -54,29 +54,52 @@ test('reports expected metrics', function (t) {
 
     const metrics = {
       'system.cpu.total.norm.pct': (value) => {
-        t.ok(isRoughly(value, 0.1, 10), 'should be a floating point number from 0 to 1')
+        t.ok(value >= 0 && value <= 1, 'is betewen 0.0 and 1.0')
       },
       'system.memory.total': (value) => {
         t.equal(value, os.totalmem(), 'should match total memory')
       },
       'system.memory.actual.free': (value) => {
-        t.ok(isRoughly(value, os.freemem(), 0.1), 'should be close to current free memory')
+        t.ok(isRoughly(value, os.freemem(), 0.1), 'is close to current free memory')
       },
       'system.process.memory.rss.bytes': (value) => {
-        t.ok(isRoughly(value, process.memoryUsage().rss, 0.1), 'should be close to current rss')
+        t.ok(isRoughly(value, process.memoryUsage().rss, 0.1), 'is close to current rss')
+      },
+      'nodejs.active_handles': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.active_requests': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.cpu.system': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.cpu.user': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.event_loop.mean_delay': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.heap.allocated': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.heap.used': (value) => {
+        t.ok(value >= 0, 'is positive')
       }
     }
 
     if (semver.satisfies(process.versions.node, '^6.1')) {
       metrics['system.process.cpu.total.norm.pct'] = (value) => {
-        t.ok(isRoughly(value, 0.1, 1000), 'should be a floating point number from 0 to 1')
+        t.ok(isRoughly(value, 0.1, 1000), 'is a floating point number from 0 to 1')
       }
     }
 
     for (const name of Object.keys(metrics)) {
       const metric = metricset.samples[name]
       t.comment(name)
-      t.ok(metric, `should be present`)
+      t.ok(metric, `is present`)
+      t.equal(typeof metric.value, 'number', 'is a number')
+      t.ok(Number.isFinite(metric.value), 'is finite')
       metrics[name](metric.value)
     }
 
