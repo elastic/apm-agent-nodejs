@@ -7,3 +7,33 @@ The following pages have moved or been deleted.
 === Compatibility
 
 This page has moved. Please see <<supported-technologies>>.
+
+[role="exclude",id="apm-set-tag"]
+=== `apm.setTag(name, value)`
+
+This endpoint has moved. Please see <<apm-set-label>>.
+
+[role="exclude",id="apm-add-tags"]
+=== `apm.addTags({ [name]: value })`
+
+This endpoint has moved. Please see <<apm-add-labels>>.
+
+[role="exclude",id="span-set-tag"]
+=== `span.setTag(name, value)`
+
+This endpoint has moved. Please see <<span-set-label>>.
+
+[role="exclude",id="span-add-tags"]
+=== `span.addTags({ [name]: value })`
+
+This endpoint has moved. Please see <<span-add-labels>>.
+
+[role="exclude",id="transaction-set-tag"]
+=== `transaction.setTag(name, value)`
+
+This endpoint has moved. Please see <<transaction-set-label>>.
+
+[role="exclude",id="transaction-add-tags"]
+=== `transaction.addTags({ [name]: value })`
+
+This endpoint has moved. Please see <<transaction-add-labels>>.
