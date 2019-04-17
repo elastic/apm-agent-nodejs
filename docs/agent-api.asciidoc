@@ -198,6 +198,7 @@ and any custom context given as the 2nd argument to <<apm-capture-error,`apm.cap
 ==== `apm.setLabel(name, value)`
 
 [small]#Added in: v0.1.0#
+[small]#Renamed from `apm.setTag()` to `apm.setLabel()`: v2.10.0#
 
 * `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
@@ -218,6 +219,7 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 ==== `apm.addLabels({ [name]: value })`
 
 [small]#Added in: v1.5.0#
+[small]#Renamed from `apm.addTags()` to `apm.addLabels()`: v2.10.0#
 
 * `tags` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+
