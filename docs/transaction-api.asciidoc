@@ -85,10 +85,33 @@ When a span is started it will measure the time until <<span-end,`span.end()`>> 
 
 See <<span-api,Span API>> docs for details on how to use custom spans.
 
+[[transaction-set-tag]]
+==== `transaction.setTag(name, value)`
+
+deprecated[2.10.0,Replaced by <<transaction-set-label>>]
+
+[small]#Added in: v0.1.0#
+
+* `name` +{type-string}+
+Periods (`.`), asterisks (`*`), and double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+* `value` +{type-string}+
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
+Set a tag on the transaction.
+You can set multiple tags on the same transaction.
+If an error happens during the transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+
+
 [[transaction-set-label]]
 ==== `transaction.setLabel(name, value)`
 
 [small]#Added in: v0.1.0#
+
 [small]#Renamed from `transaction.setTag()` to `transaction.setLabel()`: v2.10.0#
 
 * `name` +{type-string}+
@@ -105,10 +128,34 @@ it will also get tagged with the same labels.
 
 Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 
+[[transaction-add-tags]]
+==== `transaction.addTags({ [name]: value })`
+
+deprecated[2.10.0,Replaced by <<transaction-add-labels>>]
+
+[small]#Added in: v1.5.0#
+
+* `tags` +{type-object}+ Contains key/value pairs:
+** `name` +{type-string}+
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+** `value` +{type-string}+
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
+Add several tags on the transaction.
+You can add tags multiple times.
+If an error happens during the transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+
+
 [[transaction-add-labels]]
 ==== `transaction.addLabels({ [name]: value })`
 
 [small]#Added in: v1.5.0#
+
 [small]#Renamed from `transaction.addTags()` to `transaction.addLabels()`: v2.10.0#
 
 * `labels` +{type-object}+ Contains key/value pairs:

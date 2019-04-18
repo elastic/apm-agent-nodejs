@@ -194,10 +194,33 @@ If an error is captured,
 the context from the active transaction is used as context for the captured error,
 and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
 
+[[apm-set-tag]]
+==== `apm.setTag(name, value)`
+
+deprecated[2.10.0,Replaced by <<apm-set-label>>]
+
+[small]#Added in: v0.1.0#
+
+* `name` +{type-string}+
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+* `value` +{type-string}+
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
+Set a tag on the current transaction.
+You can set multiple tags on the same transaction.
+If an error happens during the current transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+
+
 [[apm-set-label]]
 ==== `apm.setLabel(name, value)`
 
 [small]#Added in: v0.1.0#
+
 [small]#Renamed from `apm.setTag()` to `apm.setLabel()`: v2.10.0#
 
 * `name` +{type-string}+
@@ -214,11 +237,34 @@ it will also get tagged with the same label.
 
 Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 
+[[apm-add-tags]]
+==== `apm.addTags({ [name]: value })`
+
+deprecated[2.10.0,Replaced by <<apm-add-labels>>]
+
+[small]#Added in: v1.5.0#
+
+* `tags` +{type-object}+ Contains key/value pairs:
+** `name` +{type-string}+
+Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
+as those characters have special meaning in Elasticsearch
+** `value` +{type-string}+
+If a non-string data type is given,
+it's converted to a string before being sent to the APM Server
+
+Add several tags on the current transaction.
+You can add tags multiple times.
+If an error happens during the current transaction,
+it will also get tagged with the same tags.
+
+Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+
 
 [[apm-add-labels]]
 ==== `apm.addLabels({ [name]: value })`
 
 [small]#Added in: v1.5.0#
+
 [small]#Renamed from `apm.addTags()` to `apm.addLabels()`: v2.10.0#
 
 * `labels` +{type-object}+ Contains key/value pairs:
