@@ -264,6 +264,51 @@ timeValues.forEach(function (key) {
     t.end()
   })
 })
+var keyValuePairValues = [
+  'addPatch'
+]
+
+keyValuePairValues.forEach(function (key) {
+  var string = 'foo=bar,baz=buz'
+  var object = { foo: 'bar', baz: 'buz' }
+  var pairs = [
+    [
+      'foo',
+      'bar'
+    ],
+    [
+      'baz',
+      'buz'
+    ]
+  ]
+
+  test(key + ' should support string form', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = string
+    agent._config(opts)
+    t.deepEqual(agent._conf[key], pairs)
+    t.end()
+  })
+
+  test(key + ' should support object form', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = object
+    agent._config(opts)
+    t.deepEqual(agent._conf[key], pairs)
+    t.end()
+  })
+
+  test(key + ' should support pair form', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = pairs
+    agent._config(opts)
+    t.deepEqual(agent._conf[key], pairs)
+    t.end()
+  })
+})
 
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
   var agent = Agent()
