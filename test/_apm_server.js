@@ -38,6 +38,7 @@ function APMServer (agentOpts, mockOpts) {
   this.agent = Agent()
 
   this.destroy = function () {
+    this.emit('close')
     this.server.close()
     this.agent.destroy()
   }
@@ -62,6 +63,10 @@ function APMServer (agentOpts, mockOpts) {
 
       req.pipe(zlib.createGunzip()).pipe(ndjson.parse()).on('data', function (data) {
         assert.strictEqual(Object.keys(data).length, 1, `Expected number of root properties: ${Object.keys(data)}`)
+
+        self.on('close', () => {
+          res.end()
+        })
 
         var type = Object.keys(data)[0]
 
