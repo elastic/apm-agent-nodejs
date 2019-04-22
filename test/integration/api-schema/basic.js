@@ -143,7 +143,7 @@ const next = afterAll(function (err, validators) {
       agent.startTransaction()
       const span = agent.startSpan('name1', 'type1')
       span.setDbContext({ statement: 'foo', type: 'bar' })
-      span.setTag('baz', 1)
+      span.setLabel('baz', 1)
       span.end()
       // Collecting the span stack trace is an async process. Wait a little before flushing
       setTimeout(function () {

@@ -65,11 +65,11 @@ agent.startSpan('foo')
 agent.startSpan('foo', 'bar')
 agent.startSpan('foo', 'bar', { childOf: 'baz' })
 
-agent.setTag('foo', 'bar')
-agent.setTag('foo', 1)
-agent.setTag('foo', false)
+agent.setLabel('foo', 'bar')
+agent.setLabel('foo', 1)
+agent.setLabel('foo', false)
 
-agent.addTags({ s: 'bar', n: 42, b: false })
+agent.addLabels({ s: 'bar', n: 42, b: false })
 
 agent.setUserContext({
   id: 'foo',
@@ -117,11 +117,11 @@ agent.logger.fatal('')
   if (trans) {
     trans.traceparent.split('-')
 
-    trans.setTag('foo', 'bar')
-    trans.setTag('foo', 42)
-    trans.setTag('foo', false)
+    trans.setLabel('foo', 'bar')
+    trans.setLabel('foo', 42)
+    trans.setLabel('foo', false)
 
-    trans.addTags({ s: 'bar', n: 42, b: false })
+    trans.addLabels({ s: 'bar', n: 42, b: false })
 
     trans.startSpan()
     trans.startSpan('foo')
@@ -146,11 +146,11 @@ agent.logger.fatal('')
     if (span) {
       span.traceparent.split('-')
 
-      span.setTag('foo', 'bar')
-      span.setTag('foo', 42)
-      span.setTag('foo', false)
+      span.setLabel('foo', 'bar')
+      span.setLabel('foo', 42)
+      span.setLabel('foo', false)
 
-      span.addTags({ s: 'bar', n: 42, b: false })
+      span.addLabels({ s: 'bar', n: 42, b: false })
 
       span.end()
       span.end(42)

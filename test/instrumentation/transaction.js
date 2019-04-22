@@ -67,60 +67,60 @@ test('#setCustomContext', function (t) {
   t.end()
 })
 
-test('#setTag', function (t) {
+test('#setLabel', function (t) {
   t.test('valid', function (t) {
     var trans = new Transaction(agent)
-    t.equal(trans._tags, null)
-    t.equal(trans.setTag(), false)
-    t.equal(trans._tags, null)
-    trans.setTag('foo', 1)
-    t.deepEqual(trans._tags, { foo: '1' })
-    trans.setTag('bar', { baz: 2 })
-    t.deepEqual(trans._tags, { foo: '1', bar: '[object Object]' })
-    trans.setTag('foo', 3)
-    t.deepEqual(trans._tags, { foo: '3', bar: '[object Object]' })
+    t.equal(trans._labels, null)
+    t.equal(trans.setLabel(), false)
+    t.equal(trans._labels, null)
+    trans.setLabel('foo', 1)
+    t.deepEqual(trans._labels, { foo: '1' })
+    trans.setLabel('bar', { baz: 2 })
+    t.deepEqual(trans._labels, { foo: '1', bar: '[object Object]' })
+    trans.setLabel('foo', 3)
+    t.deepEqual(trans._labels, { foo: '3', bar: '[object Object]' })
     t.end()
   })
 
   t.test('invalid', function (t) {
     var trans = new Transaction(agent)
-    t.equal(trans._tags, null)
-    t.equal(trans.setTag(), false)
-    t.equal(trans._tags, null)
-    trans.setTag('invalid*', 1)
-    t.deepEqual(trans._tags, { invalid_: '1' })
-    trans.setTag('invalid.', 2)
-    t.deepEqual(trans._tags, { invalid_: '2' })
-    trans.setTag('invalid"', 3)
-    t.deepEqual(trans._tags, { invalid_: '3' })
+    t.equal(trans._labels, null)
+    t.equal(trans.setLabel(), false)
+    t.equal(trans._labels, null)
+    trans.setLabel('invalid*', 1)
+    t.deepEqual(trans._labels, { invalid_: '1' })
+    trans.setLabel('invalid.', 2)
+    t.deepEqual(trans._labels, { invalid_: '2' })
+    trans.setLabel('invalid"', 3)
+    t.deepEqual(trans._labels, { invalid_: '3' })
     t.end()
   })
 })
 
-test('#addTags', function (t) {
+test('#addLabels', function (t) {
   var trans = new Transaction(agent)
-  t.equal(trans._tags, null)
+  t.equal(trans._labels, null)
 
-  t.equal(trans.setTag(), false)
-  t.equal(trans._tags, null)
+  t.equal(trans.setLabel(), false)
+  t.equal(trans._labels, null)
 
-  trans.addTags({ foo: 1 })
-  t.deepEqual(trans._tags, { foo: '1' })
+  trans.addLabels({ foo: 1 })
+  t.deepEqual(trans._labels, { foo: '1' })
 
-  trans.addTags({ bar: { baz: 2 } })
-  t.deepEqual(trans._tags, {
+  trans.addLabels({ bar: { baz: 2 } })
+  t.deepEqual(trans._labels, {
     foo: '1',
     bar: '[object Object]'
   })
 
-  trans.addTags({ foo: 3 })
-  t.deepEqual(trans._tags, {
+  trans.addLabels({ foo: 3 })
+  t.deepEqual(trans._labels, {
     foo: '3',
     bar: '[object Object]'
   })
 
-  trans.addTags({ bux: 'bax', bix: 'bex' })
-  t.deepEqual(trans._tags, {
+  trans.addLabels({ bux: 'bax', bix: 'bex' })
+  t.deepEqual(trans._labels, {
     foo: '3',
     bar: '[object Object]',
     bux: 'bax',
@@ -335,7 +335,7 @@ test('#_encode() - with meta data', function (t) {
   var trans = new Transaction(ins._agent, 'foo', 'bar')
   trans.result = 'baz'
   trans.setUserContext({ foo: 1 })
-  trans.setTag('bar', 1)
+  trans.setLabel('bar', 1)
   trans.setCustomContext({ baz: 1 })
   trans.end()
   const payload = trans._encode()
