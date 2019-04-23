@@ -16,6 +16,7 @@ var test = require('tape')
 var promisify = require('util.promisify')
 
 var Agent = require('./_agent')
+var APMServer = require('./_apm_server')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 
@@ -264,8 +265,10 @@ timeValues.forEach(function (key) {
     t.end()
   })
 })
+
 var keyValuePairValues = [
-  'addPatch'
+  'addPatch',
+  'globalLabels'
 ]
 
 keyValuePairValues.forEach(function (key) {
@@ -705,6 +708,29 @@ test('addPatch', function (t) {
   t.deepEqual(require('express'), patch(before))
 
   t.end()
+})
+
+test('globalLabels should be received by transport', function (t) {
+  var globalLabels = {
+    foo: 'bar'
+  }
+  var opts = {
+    metricsInterval: 0,
+    globalLabels
+  }
+
+  var server = APMServer(opts, { expect: 'error' })
+    .on('listening', function () {
+      this.agent.captureError(new Error('trigger metadata'))
+    })
+    .on('data-metadata', (data) => {
+      t.deepEqual(data.labels, globalLabels)
+      t.end()
+    })
+
+  t.on('end', function () {
+    server.destroy()
+  })
 })
 
 function assertEncodedTransaction (t, trans, result) {
