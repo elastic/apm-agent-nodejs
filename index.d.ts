@@ -58,6 +58,7 @@ declare class Agent implements Taggable, StartSpanFn {
   // Context
   setLabel (name: string, value: LabelValue): boolean;
   setTag (name: string, value: LabelValue): boolean; // Deprecated
+  setDefaultTags(labels: Labels): void;
   addLabels (labels: Labels): boolean;
   addTags (labels: Labels): boolean; // Deprecated
   setUserContext (user: UserObject): void;
