@@ -6,6 +6,11 @@ const agent = require('../../../..').start({
   captureExceptions: false
 })
 
+const pkg = require('restify/package.json')
+const semver = require('semver')
+
+if (semver.lt(process.version, '8.6.0') && semver.gte(pkg.version, '8.0.0')) process.exit()
+
 const http = require('http')
 
 const once = require('once')
