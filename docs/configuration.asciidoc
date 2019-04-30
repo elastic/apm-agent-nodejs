@@ -695,3 +695,9 @@ set the interval to `0`.
 * *Env:* `ELASTIC_APM_GLOBAL_LABELS`
 
 Supply a key/value pair object of labels to apply to any data recorded by the agent.
+
+Example:
+[source,bash]
+----
+ELASTIC_APM_GLOBAL_LABELS="subspace=sap-hana,rack=number6"
+----
