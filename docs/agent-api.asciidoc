@@ -180,7 +180,8 @@ The provided user context is stored under `context.user` in Elasticsearch on bot
 Call this to enrich collected errors and transactions with any information that you think will help you debug performance issues or errors.
 This function can be called at any point while a transaction is active (e.g. during the request/response life cycle of an incoming HTTP request).
 
-The provided custom context is stored under `context.custom` in Elasticsearch on both errors and transactions.
+The provided custom context is stored under `context.custom` in APM Server pre-7.0,
+or `transaction.custom` and `error.custom` in APM Server 7.0+.
 
 The given `context` will be added to the active transaction.
 If no active transaction can be found,
