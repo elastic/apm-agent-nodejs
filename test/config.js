@@ -313,6 +313,25 @@ keyValuePairValues.forEach(function (key) {
   })
 })
 
+var noPrefixValues = [
+  ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
+  ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
+  ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
+  ['kubernetesPodUID', 'KUBERNETES_POD_UID']
+]
+
+noPrefixValues.forEach(function (pair) {
+  const [ key, envVar ] = pair
+  test(`maps ${envVar} to ${key}`, (t) => {
+    var agent = Agent()
+    process.env[envVar] = 'test'
+    agent.start()
+    delete process.env[envVar]
+    t.equal(agent._conf[key], 'test')
+    t.end()
+  })
+})
+
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
   var agent = Agent()
   var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
