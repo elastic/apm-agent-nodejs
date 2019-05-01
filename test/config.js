@@ -575,6 +575,9 @@ test('disableInstrumentations', function (t) {
   var mysql2Version = require('mysql2/package.json').version
 
   var modules = new Set(Instrumentation.modules)
+  if (semver.lt(process.version, '8.6.0')) {
+    modules.delete('restify')
+  }
   if (semver.lt(process.version, '8.3.0')) {
     modules.delete('http2')
   }

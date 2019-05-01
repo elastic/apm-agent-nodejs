@@ -5,6 +5,11 @@ const agent = require('../../../..').start({
   metricsInterval: 0
 })
 
+const pkg = require('restify/package.json')
+const semver = require('semver')
+
+if (semver.lt(process.version, '8.6.0') && semver.gte(pkg.version, '8.0.0')) process.exit()
+
 let asserts = 0
 
 agent.setFramework = function ({ name, version, overwrite }) {
