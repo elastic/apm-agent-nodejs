@@ -641,7 +641,7 @@ it will be parsed out of the `/proc/self/cgroup` file.
 ==== `kubernetesNodeName`
 
 * *Type:* String
-* *Env:* `ELASTIC_APM_KUBERNETES_NODE_NAME`
+* *Env:* `KUBERNETES_NODE_NAME`
 
 Specify the kubernetes node name to associate with all reported events.
 
@@ -649,7 +649,7 @@ Specify the kubernetes node name to associate with all reported events.
 ==== `kubernetesNamespace`
 
 * *Type:* String
-* *Env:* `ELASTIC_APM_KUBERNETES_NAMESPACE`
+* *Env:* `KUBERNETES_NAMESPACE`
 
 Specify the kubernetes namespace to associate with all reported events.
 
@@ -657,7 +657,7 @@ Specify the kubernetes namespace to associate with all reported events.
 ==== `kubernetesPodName`
 
 * *Type:* String
-* *Env:* `ELASTIC_APM_KUBERNETES_POD_NAME`
+* *Env:* `KUBERNETES_POD_NAME`
 
 Specify the kubernetes pod name to associate with all reported events.
 If absent,
@@ -668,7 +668,7 @@ this will default to the local hostname.
 ==== `kubernetesPodUID`
 
 * *Type:* String
-* *Env:* `ELASTIC_APM_KUBERNETES_POD_UID`
+* *Env:* `KUBERNETES_POD_UID`
 
 Specify the kubernetes pod uid to associate with all reported events.
 If absent,
