@@ -1,3 +1,9 @@
+# 2.11.0 - 2019/5/3
+  * chore: rename tags to labels ([#1019](https://github.com/elastic/apm-agent-nodejs/pull/1019))
+  * feat(config): support global labels ([#1020](https://github.com/elastic/apm-agent-nodejs/pull/1020))
+  * fix(config): do not use ELASTIC_APM_ prefix for k8s ([#1041](https://github.com/elastic/apm-agent-nodejs/pull/1041))
+  * fix(instrumentation): prevent handler leak in bindEmitter ([#1044](https://github.com/elastic/apm-agent-nodejs/pull/1044))
+
 # 2.10.0 - 2019/4/15
   * feat(express-graphql): add support for version ^0.8.0 ([#1010](https://github.com/elastic/apm-agent-nodejs/pull/1010))
   * fix(package): bump elastic-apm-http-client to ^7.2.2 so Kubernetes metadata gets corrected recorded ([#1011](https://github.com/elastic/apm-agent-nodejs/pull/1011))

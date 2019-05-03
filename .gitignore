@@ -1,6 +1,7 @@
 # Files to ignore
 .DS_Store
 .vscode
+.schemacache
 package-lock.json
 test/babel/out.js
 test/types/transpile/index.js
