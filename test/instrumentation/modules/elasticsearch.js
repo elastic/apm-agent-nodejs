@@ -6,7 +6,8 @@ var host = (process.env.ES_HOST || 'localhost') + ':9200'
 var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  metricsInterval: 0
 })
 
 var elasticsearch = require('elasticsearch')

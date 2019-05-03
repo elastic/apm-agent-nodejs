@@ -3,7 +3,8 @@
 var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  metricsInterval: 0
 })
 
 var graphql = require('graphql')

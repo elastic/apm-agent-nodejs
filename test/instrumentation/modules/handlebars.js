@@ -5,7 +5,8 @@ process.env.ELASTIC_APM_TEST = true
 var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  metricsInterval: 0
 })
 
 var handlebars = require('handlebars')

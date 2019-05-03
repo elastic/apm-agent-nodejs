@@ -6,7 +6,8 @@ if (process.env.TRAVIS) process.exit()
 const agent = require('../../../').start({
   serviceName: 'test',
   secretToken: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  metricsInterval: 0
 })
 
 const semver = require('semver')
