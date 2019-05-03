@@ -474,6 +474,32 @@ test('bind', function (t) {
     fn()
   })
 
+  t.test('removes listeners properly', function (t) {
+    resetAgent(1, function (data) {
+      t.equal(data.transactions.length, 1)
+      t.end()
+    })
+    var ins = agent._instrumentation
+    var trans = ins.startTransaction('foo')
+    var listeners
+
+    var emitter = new EventEmitter()
+    ins.bindEmitter(emitter)
+
+    function handler () { }
+
+    emitter.addListener('foo', handler)
+    listeners = emitter.listeners('foo')
+    t.equal(listeners.length, 1)
+    t.notEqual(listeners[0], handler)
+
+    emitter.removeListener('foo', handler)
+    listeners = emitter.listeners('foo')
+    t.equal(listeners.length, 0)
+
+    trans.end()
+  })
+
   var methods = [
     'on',
     'once',
