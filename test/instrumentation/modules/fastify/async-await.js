@@ -1,7 +1,8 @@
 'use strict'
 
 require('../../../..').start({
-  captureExceptions: false
+  captureExceptions: false,
+  metricsInterval: 0
 })
 
 // Only Node.js v7.6.0+ supports async/await without a flag

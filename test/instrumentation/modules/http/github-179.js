@@ -2,7 +2,8 @@
 
 var agent = require('../../../..').start({
   serviceName: 'test',
-  captureExceptions: false
+  captureExceptions: false,
+  metricsInterval: 0
 })
 
 var zlib = require('zlib')
