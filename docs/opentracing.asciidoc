@@ -168,7 +168,7 @@ Example:
 const err = new Error('boom!')
 
 span.log({
-  event: 'error'
+  event: 'error',
   'error.object': err
 })
 ----
