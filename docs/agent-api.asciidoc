@@ -324,6 +324,14 @@ it's possible to use this option to supply an additional message string that wil
 
 ** `custom` - See <<metadata,metadata section>> for details about this option
 
+** `request` You can associate an error with an instance of `http.IncomingMessage` to gain additional context such as the request url, headers and cookies. However in most cases the agent will detect if an error was in response to a  http request and automatically add the request details for you. See <<http-requests, http requests section>> for more details.
+
+** `response` You can associate an error with an instance of `http.ServerResponse` to get additional details such as status code and headers. However in most cases the agent will detect if an error occured during a http request and automatically response details for you. See <<http-responses, http responses section>> for more details.
+
+** `handled` +{type-boolean}+ true by default. Adds additional context to the exception to show whether the error is handled or uncaught.
+
+** `tags` +{type-object}+ Add aditional context with tags, these tags will be merged with the tags inside the current transaction.
+
 * `callback` - Will be called after the error has been sent to the APM Server.
 It will receive an `Error` instance if the agent failed to send the error,
 and the id of the captured error
