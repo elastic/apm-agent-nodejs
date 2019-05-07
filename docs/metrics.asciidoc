@@ -104,9 +104,10 @@ The number of CPU cycles spent executing kernel code as a result of application 
 === `nodejs.loop.delay`
 
 * *Type:* Float
-* *Format:* Milliseconds
+* *Format:* Nanoseconds
 
-The number of milliseconds of event loop delay.
+The number of nanoseconds of event loop delay.
+Event loop delay is sampled every 20 milliseconds so smaller delays may not appear if they do not impact overall timer execution.
 
 [float]
 [[metric-nodejs.loop.times]]
