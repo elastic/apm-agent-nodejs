@@ -113,7 +113,7 @@
     "connect": "^3.6.6",
     "container-info": "^1.0.1",
     "dependency-check": "^3.2.1",
-    "elasticsearch": "^15.1.1",
+    "elasticsearch": "^16.0.0",
     "express": "^4.16.4",
     "express-graphql": "^0.8.0",
     "express-queue": "^0.0.12",
