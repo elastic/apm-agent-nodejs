@@ -71,19 +71,19 @@ test('reports expected metrics', function (t) {
       'nodejs.active_requests': (value) => {
         t.ok(value >= 0, 'is positive')
       },
-      'nodejs.cpu.system': (value) => {
+      'system.process.cpu.system.ticks': (value) => {
         t.ok(value >= 0, 'is positive')
       },
-      'nodejs.cpu.user': (value) => {
+      'system.process.cpu.user.ticks': (value) => {
         t.ok(value >= 0, 'is positive')
       },
-      'nodejs.event_loop.mean_delay': (value) => {
+      'nodejs.eventloop.delay': (value) => {
         t.ok(value >= 0, 'is positive')
       },
-      'nodejs.heap.allocated': (value) => {
+      'nodejs.memory.heap.allocated.bytes': (value) => {
         t.ok(value >= 0, 'is positive')
       },
-      'nodejs.heap.used': (value) => {
+      'nodejs.memory.heap.used.bytes': (value) => {
         t.ok(value >= 0, 'is positive')
       }
     }

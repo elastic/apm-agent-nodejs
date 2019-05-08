@@ -82,8 +82,8 @@ The number of active libuv requests,
 likely waiting for a response to an I/O operation.
 
 [float]
-[[metric-nodejs.cpu.user]]
-=== `nodejs.cpu.user`
+[[metric-system.process.cpu.user.ticks]]
+=== `system.process.cpu.user.ticks`
 
 * *Type:* Long
 * *Format:* Counter
@@ -91,8 +91,8 @@ likely waiting for a response to an I/O operation.
 The number of CPU cycles spent executing application code.
 
 [float]
-[[metric-nodejs.cpu.system]]
-=== `nodejs.cpu.system`
+[[metric-system.process.cpu.system.ticks]]
+=== `system.process.cpu.system.ticks`
 
 * *Type:* Long
 * *Format:* Counter
@@ -100,27 +100,18 @@ The number of CPU cycles spent executing application code.
 The number of CPU cycles spent executing kernel code as a result of application activity.
 
 [float]
-[[metric-nodejs.loop.delay]]
-=== `nodejs.loop.delay`
+[[metric-nodejs.eventloop.delay]]
+=== `nodejs.eventloop.delay`
 
 * *Type:* Float
 * *Format:* Nanoseconds
 
 The number of nanoseconds of event loop delay.
-Event loop delay is sampled every 20 milliseconds so smaller delays may not appear if they do not impact overall timer execution.
+Event loop delay is sampled every 10 milliseconds so smaller delays may not appear if they do not impact overall timer execution.
 
 [float]
-[[metric-nodejs.loop.times]]
-=== `nodejs.loop.times`
-
-* *Type:* Long
-* *Format:* Counter
-
-The number of times event loop delay was detected.
-
-[float]
-[[metric-nodejs.heap.allocated]]
-=== `nodejs.heap.allocated`
+[[metric-nodejs.memory.heap.allocated.bytes]]
+=== `nodejs.memory.heap.allocated.bytes`
 
 * *Type:* Long
 * *Format:* Bytes
@@ -128,8 +119,8 @@ The number of times event loop delay was detected.
 The current allocated heap size in bytes.
 
 [float]
-[[metric-nodejs.heap.used]]
-=== `nodejs.heap.used`
+[[metric-nodejs.memory.heap.used.bytes]]
+=== `nodejs.memory.heap.used.bytes`
 
 * *Type:* Long
 * *Format:* Bytes
