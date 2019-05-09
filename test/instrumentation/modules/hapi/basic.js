@@ -4,7 +4,8 @@ var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
-  logLevel: 'fatal'
+  logLevel: 'fatal',
+  metricsInterval: 0
 })
 
 var pkg = require('hapi/package.json')

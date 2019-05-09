@@ -34,7 +34,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "6 || 8 || 9 || 10 || 11"
+    "node": "6 || 8 || 9 || 10 || 11 || 12"
   },
   "keywords": [
     "opbeat",
@@ -105,7 +105,7 @@
     "@commitlint/cli": "^7.2.1",
     "@commitlint/config-conventional": "^7.1.2",
     "@commitlint/travis-cli": "^7.2.1",
-    "@types/node": "^11.11.3",
+    "@types/node": "^12.0.0",
     "apollo-server-express": "^2.1.0",
     "bluebird": "^3.5.2",
     "cassandra-driver": "^4.0.0",
@@ -113,7 +113,7 @@
     "connect": "^3.6.6",
     "container-info": "^1.0.1",
     "dependency-check": "^3.2.1",
-    "elasticsearch": "^15.1.1",
+    "elasticsearch": "^16.0.0",
     "express": "^4.16.4",
     "express-graphql": "^0.8.0",
     "express-queue": "^0.0.12",
@@ -151,7 +151,7 @@
     "restify": "^8.3.1",
     "restify-clients": "^2.6.2",
     "rimraf": "^2.6.2",
-    "send": "^0.16.2",
+    "send": "^0.17.0",
     "standard": "^12.0.1",
     "tape": "4.9.x",
     "tedious": "^6.1.1",
