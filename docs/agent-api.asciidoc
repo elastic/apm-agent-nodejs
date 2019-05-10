@@ -324,13 +324,13 @@ it's possible to use this option to supply an additional message string that wil
 
 ** `custom` - See <<metadata,metadata section>> for details about this option
 
-** `request` +{type-incomingmessage}+ You can associate an error with information about the incoming request to gain additional context such as the request url, headers and cookies. 
-However in most cases the agent will detect if an error was in response to a http request and automatically add the request details for you. 
-See <<http-requests, http requests section>> for more details.
+** `request` +{type-incomingmessage}+ You can associate an error with information about the incoming request to gain additional context such as the request url, headers, and cookies.
+However, in most cases, the agent will detect if an error was in response to an http request and automatically add the request details for you.
+See <<http-requests,http requests section>> for more details.
 
-** `response` +{type-serverresponse}+ You can associate an error with information about the http response to get additional details such as status code and headers. 
-However in most cases the agent will detect if an error occured during a http request and automatically response details for you. 
-See <<http-responses, http responses section>> for more details.
+** `response` +{type-serverresponse}+ You can associate an error with information about the http response to get additional details such as status code and headers.
+However, in most cases, the agent will detect if an error occured during an http request and automatically add response details for you.
+See <<http-responses,http responses section>> for more details.
 
 ** `handled` +{type-boolean}+ Adds additional context to the exception to show whether the error is handled or uncaught.
 *Default:* `true`.
