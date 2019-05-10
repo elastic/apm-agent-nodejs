@@ -1,7 +1,11 @@
+# 2.11.1 - 2019/5/10
+  * fix(instrumentation): explicitly use `require` ([#1059](https://github.com/elastic/apm-agent-nodejs/pull/1059))
+  * chore: add Node.js 12 to package.json engines field ([#1057](https://github.com/elastic/apm-agent-nodejs/pull/1057))
+
 # 2.11.0 - 2019/5/3
   * chore: rename tags to labels ([#1019](https://github.com/elastic/apm-agent-nodejs/pull/1019))
   * feat(config): support global labels ([#1020](https://github.com/elastic/apm-agent-nodejs/pull/1020))
-  * fix(config): do not use ELASTIC_APM_ prefix for k8s ([#1041](https://github.com/elastic/apm-agent-nodejs/pull/1041))
+  * fix(config): do not use ELASTIC\_APM\_ prefix for k8s ([#1041](https://github.com/elastic/apm-agent-nodejs/pull/1041))
   * fix(instrumentation): prevent handler leak in bindEmitter ([#1044](https://github.com/elastic/apm-agent-nodejs/pull/1044))
 
 # 2.10.0 - 2019/4/15
