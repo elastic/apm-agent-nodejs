@@ -202,6 +202,11 @@ jobs:
 
     # Nightlies
     - stage: Node.js pre-releases
+      node_js: '12'
+      name: "Node.js: 12-nightly"
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+    -
       node_js: '11'
       name: "Node.js: 11-nightly"
       if: type = cron
@@ -223,7 +228,14 @@ jobs:
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
 
     # Nightlies - No async hooks
-    - stage: Node.js pre-releases
+    -
+      node_js: '12'
+      name: "Node.js: 12-nightly (no async hooks)"
+      if: type = cron
+      env:
+        - ELASTIC_APM_ASYNC_HOOKS=false
+        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
+    -
       node_js: '11'
       name: "Node.js: 11-nightly (no async hooks)"
       if: type = cron
@@ -246,6 +258,11 @@ jobs:
         - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
 
     # Release Candidates
+    -
+      node_js: '12'
+      name: "Node.js: 12-rc"
+      if: type = cron
+      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
       node_js: '11'
       name: "Node.js: 11-rc"
