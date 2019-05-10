@@ -7,6 +7,11 @@ var agent = require('../../..').start({
   metricsInterval: 0
 })
 
+var version = require('restify/package.json').version
+var semver = require('semver')
+
+if (semver.lt(process.version, '8.6.0') && semver.gte(version, '7.0.0')) process.exit()
+
 var test = require('tape')
 var WebSocket = require('ws')
 
