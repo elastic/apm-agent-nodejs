@@ -84,6 +84,7 @@
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
     "measured-reporting": "^1.41.0",
+    "monitor-event-loop-delay": "^1.0.0",
     "object-filter-sequence": "^1.0.0",
     "object.entries": "^1.1.0",
     "original-url": "^1.2.2",
