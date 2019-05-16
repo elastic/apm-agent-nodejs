@@ -100,13 +100,13 @@ The number of CPU cycles spent executing application code.
 The number of CPU cycles spent executing kernel code as a result of application activity.
 
 [float]
-[[metric-nodejs.eventloop.delay]]
-=== `nodejs.eventloop.delay`
+[[metric-nodejs.eventloop.delay.avg.ms]]
+=== `nodejs.eventloop.delay.avg.ms`
 
 * *Type:* Float
-* *Format:* Nanoseconds
+* *Format:* Milliseconds
 
-The number of nanoseconds of event loop delay.
+The number of milliseconds of event loop delay.
 Event loop delay is sampled every 10 milliseconds so smaller delays may not appear if they do not impact overall timer execution.
 
 [float]

@@ -77,7 +77,7 @@ test('reports expected metrics', function (t) {
       'system.process.cpu.user.ticks': (value) => {
         t.ok(value >= 0, 'is positive')
       },
-      'nodejs.eventloop.delay': (value) => {
+      'nodejs.eventloop.delay.avg.ms': (value) => {
         t.ok(value >= 0, 'is positive')
       },
       'nodejs.memory.heap.allocated.bytes': (value) => {
