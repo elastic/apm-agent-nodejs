@@ -1,3 +1,7 @@
+# 2.11.2 - 2019/5/21
+  * fix: url.parse expects req.url not req ([#1074](https://github.com/elastic/apm-agent-nodejs/pull/1074))
+  * fix(express-slash): expose express handle properties ([#1070](https://github.com/elastic/apm-agent-nodejs/pull/1070))
+
 # 2.11.1 - 2019/5/10
   * fix(instrumentation): explicitly use `require` ([#1059](https://github.com/elastic/apm-agent-nodejs/pull/1059))
   * chore: add Node.js 12 to package.json engines field ([#1057](https://github.com/elastic/apm-agent-nodejs/pull/1057))
