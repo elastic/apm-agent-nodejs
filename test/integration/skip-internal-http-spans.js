@@ -1,23 +1,23 @@
 'use strict'
 
-const http = require('http')
-const zlib = require('zlib')
-
 const getPort = require('get-port')
-const ndjson = require('ndjson')
-const test = require('tape')
 
 const agent = require('../../')
 
-test('should not throw on socket close', t => {
-  getPort().then(port => {
-    agent.start({
-      serviceName: 'test',
-      serverUrl: 'http://localhost:' + port,
-      captureExceptions: false,
-      metricsInterval: 0
-    })
+getPort().then(port => {
+  agent.start({
+    serviceName: 'test',
+    serverUrl: 'http://localhost:' + port,
+    captureExceptions: false,
+    metricsInterval: 0
+  })
 
+  const http = require('http')
+  const zlib = require('zlib')
+  const ndjson = require('ndjson')
+  const test = require('tape')
+
+  test('should not throw on socket close', t => {
     const seen = {
       metadata: 0,
       transaction: 0,
