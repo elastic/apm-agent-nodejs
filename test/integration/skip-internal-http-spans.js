@@ -52,8 +52,16 @@ getPort().then(port => {
             t.equal(seen[key], expected[key], `has expected value for ${key}`)
           }
 
-          server.close()
-          t.end()
+          agent.flush(() => {
+            setTimeout(() => {
+              for (let key of Object.keys(expected)) {
+                t.equal(seen[key], expected[key], `has expected value for ${key}`)
+              }
+
+              server.close()
+              t.end()
+            }, 100)
+          })
         }, 100)
       })
     })
