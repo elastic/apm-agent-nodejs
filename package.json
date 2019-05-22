@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "2.11.0",
+  "version": "2.11.3",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -34,7 +34,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "6 || 8 || 9 || 10 || 11"
+    "node": "6 || 8 || 9 || 10 || 11 || 12"
   },
   "keywords": [
     "opbeat",
@@ -75,7 +75,7 @@
     "async-value-promise": "^1.1.1",
     "basic-auth": "^2.0.1",
     "console-log-level": "^1.4.0",
-    "cookie": "^0.3.1",
+    "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",
     "elastic-apm-http-client": "^7.3.0",
     "end-of-stream": "^1.4.1",
@@ -161,7 +161,7 @@
     "untildify": "^4.0.0",
     "util.promisify": "^1.0.0",
     "wait-on": "^3.1.0",
-    "ws": "^6.1.0"
+    "ws": "^7.0.0"
   },
   "greenkeeper": {
     "ignore": [
@@ -180,7 +180,7 @@
     ]
   },
   "coordinates": [
-    55.778273,
-    12.593108
+    55.6836817,
+    12.5697576
   ]
 }

@@ -251,6 +251,47 @@ test('sub-routers throw exception', function (t) {
   })
 })
 
+// The `express-slash` module expects that it can access the `stack` property
+// on app.use sub-route handles.
+test('expose app.use handle properties', function (t) {
+  t.plan(7)
+
+  resetAgent(function (data) {
+    t.equal(data.transactions.length, 1, 'has a transaction')
+  })
+
+  const handle = function (req, res) {
+    const stack = req.app._router.stack
+    const handle = stack[stack.length - 1].handle
+
+    t.ok(Array.isArray(handle.stack), 'expose stack array on handle')
+    t.equal(handle.stack.length, 1, 'stack should contain one layer')
+
+    const layer = handle.stack[0]
+    t.equal(layer.handle.foo, 1, 'expose foo property on sub-handle')
+    t.equal(layer.handle.bar, 2, 'expose bar property on sub-handle')
+
+    res.send('hello world')
+  }
+  handle.foo = 1
+  handle.bar = 2
+
+  const app = express()
+  const sub = new express.Router()
+
+  sub.use(handle)
+  app.use(sub)
+
+  const server = app.listen(function () {
+    get(server, '/', (err, body) => {
+      t.error(err)
+      t.equal(body, 'hello world')
+      server.close()
+      agent.flush()
+    })
+  })
+})
+
 function get (server, path, cb) {
   var port = server.address().port
   var opts = {
