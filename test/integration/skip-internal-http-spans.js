@@ -12,6 +12,13 @@ getPort().then(port => {
     metricsInterval: 0
   })
 
+  // hack to ensure that all incoming http requests picked up on the mock APM
+  // Server doesn't generate any transactions that again will be sent to the
+  // same APM Server
+  agent.addTransactionFilter(payload => {
+    return false
+  })
+
   const http = require('http')
   const zlib = require('zlib')
   const ndjson = require('ndjson')
@@ -27,8 +34,8 @@ getPort().then(port => {
 
     const expected = {
       metadata: 1,
-      transaction: 1,
-      span: 0,
+      transaction: 0,
+      span: 1,
       error: 0
     }
 
@@ -44,26 +51,34 @@ getPort().then(port => {
     })
 
     server.listen(port, () => {
-      const trans = agent.startTransaction('transaction')
-      trans.end()
-      agent.flush(() => {
-        setTimeout(() => {
-          for (let key of Object.keys(expected)) {
-            t.equal(seen[key], expected[key], `has expected value for ${key}`)
-          }
+      agent.startTransaction('transaction')
+      agent.startSpan('span').end()
 
-          agent.flush(() => {
-            setTimeout(() => {
-              for (let key of Object.keys(expected)) {
-                t.equal(seen[key], expected[key], `has expected value for ${key}`)
-              }
+      // wait for span to be processed
+      setTimeout(() => {
+        // flush agent to generate outgoing http request to the APM Server
+        agent.flush(() => {
+          // wait for potential span related to the outgoing http request to be processed
+          setTimeout(() => {
+            for (let key of Object.keys(expected)) {
+              t.equal(seen[key], expected[key], `has expected value for ${key}`)
+            }
 
-              server.close()
-              t.end()
-            }, 100)
-          })
-        }, 100)
-      })
+            // flush agent again to see if it created a span for the first flush
+            agent.flush(() => {
+              // give the APM Server time to receive an process the 2nd flush
+              setTimeout(() => {
+                for (let key of Object.keys(expected)) {
+                  t.equal(seen[key], expected[key], `has expected value for ${key}`)
+                }
+
+                server.close()
+                t.end()
+              }, 100)
+            })
+          }, 100)
+        })
+      }, 100)
     })
   })
 })
