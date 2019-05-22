@@ -1,3 +1,6 @@
+# 2.11.3 - 2019/5/22
+  * fix(span): use correct logger location ([#1081](https://github.com/elastic/apm-agent-nodejs/pull/1081))
+
 # 2.11.2 - 2019/5/21
   * fix: url.parse expects req.url not req ([#1074](https://github.com/elastic/apm-agent-nodejs/pull/1074))
   * fix(express-slash): expose express handle properties ([#1070](https://github.com/elastic/apm-agent-nodejs/pull/1070))
