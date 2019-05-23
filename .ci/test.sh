@@ -26,11 +26,18 @@ NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-co
   --rm node_tests \
   /bin/bash \
   -c "set -xueo pipefail
-      export PATH=${PATH}:/app/node_modules:/app/node_modules/.bin
-      npm config list
-      npm install
+      export HOME=/app
+      export PATH=/app/node_modules/.bin:./node_modules/.bin:/app/node_modules:\${PATH}
+      id
       node --version
       npm --version
+      npm install npm
+      alias npm='/app/node_modules/.bin/npm'
+      npm --version
+      which npm
+      /app/node_modules/.bin/npm --version
+      npm config list
+      npm install
       ${CMD}"
 
 NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-compose.yml -f ./test/docker-compose.ci.yml down -v

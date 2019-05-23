@@ -21,6 +21,7 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
+    cron 'H H(3-5) * * 1-5'
     issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
   }
   parameters {

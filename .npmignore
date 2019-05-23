@@ -2,7 +2,6 @@
 .DS_Store
 .appveyor.yml
 .backportrc.json
-.ci
 .codecov.yml
 .tav.yml
 .travis.yml
@@ -13,6 +12,7 @@ Jenkinsfile
 TESTING.md
 
 # Folders to ignore
+.ci
 .github
 docs
 test

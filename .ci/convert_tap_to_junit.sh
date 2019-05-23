@@ -1,5 +1,6 @@
 ##!/usr/bin/env bash
 HOME=/app
+PATH=${PATH}:$(pwd)/node_modules/.bin
 rm -fr node_modules
 npm i tap-junit
 
@@ -7,7 +8,7 @@ for tf in $(ls *-output.tap)
 do
   filename=$(basename ${tf} output.tap) 
   if [ -s ${tf} ]; then
-    cat ${tf}|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-${filename}-report.xml || true
+    cat ${tf}|tap-junit --package="Agent Node.js" > junit-${filename}-report.xml || true
   fi
 done
 
