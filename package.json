@@ -5,7 +5,8 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "docs": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
+    "docs:open": "PREVIEW=1 npm run docs:build",
+    "docs:build": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
     "lint": "standard",
     "lint:fix": "standard --fix",
     "lint:commit": "test/lint-commits.sh",
