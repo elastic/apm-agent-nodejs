@@ -60,12 +60,6 @@ jobs:
       node_js: '8'
       env: ELASTIC_APM_ASYNC_HOOKS=false
 
-    # Docs
-    -
-      script: npm run docs
-      name: "Build Docs"
-      perl: '5.26'
-
     # Commit Messages
     -
       node_js: 'lts/*'
@@ -90,110 +84,135 @@ jobs:
     - stage: dependencies
       node_js: '12'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
       script: tav --quiet
     -
       node_js: '12'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
+      env: TAV=pg,cassandra-driver,restify
       script: tav --quiet
     -
       node_js: '12'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird,apollo-server-express
+      env: TAV=got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '12'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      env: TAV=ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      script: tav --quiet
+    -
+      node_js: '12'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=fastify,mysql,mysql2,knex,mimic-response,ioredis,generic-pool
       script: tav --quiet
 
     # Node.js 11
     - stage: dependencies
       node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
       script: tav --quiet
     -
       node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
+      env: TAV=pg,cassandra-driver,restify
       script: tav --quiet
     -
       node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird,apollo-server-express
+      env: TAV=got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      env: TAV=ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      script: tav --quiet
+    -
+      node_js: '11'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=fastify,mysql,mysql2,knex,mimic-response,ioredis,generic-pool
       script: tav --quiet
 
     # Node.js 10
     - stage: dependencies
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
       script: tav --quiet
     -
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
+      env: TAV=pg,cassandra-driver,restify
       script: tav --quiet
     -
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird,apollo-server-express
+      env: TAV=got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      env: TAV=ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      script: tav --quiet
+    -
+      node_js: '10'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=fastify,mysql,mysql2,knex,mimic-response,ioredis,generic-pool
       script: tav --quiet
 
     # Node.js 8
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
       script: tav --quiet
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
+      env: TAV=pg,cassandra-driver,restify
       script: tav --quiet
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird,apollo-server-express
+      env: TAV=got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      env: TAV=ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      script: tav --quiet
+    -
+      node_js: '8'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=fastify,mysql,mysql2,knex,mimic-response,ioredis,generic-pool
       script: tav --quiet
 
     # Node.js 6
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=generic-pool,mysql,mysql2,redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
       script: tav --quiet
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ioredis,pg,cassandra-driver,restify,fastify
+      env: TAV=pg,cassandra-driver,restify
       script: tav --quiet
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=mimic-response,got,bluebird,apollo-server-express
+      env: TAV=got,bluebird,apollo-server-express
       script: tav --quiet
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=knex,ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      env: TAV=ws,graphql,express-graphql,elasticsearch,hapi,express,express-queue
+      script: tav --quiet
+    -
+      node_js: '6'
+      if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
+      env: TAV=fastify,mysql,mysql2,knex,mimic-response,ioredis,generic-pool
       script: tav --quiet
 
     ###########################################
