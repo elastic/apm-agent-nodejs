@@ -637,7 +637,13 @@ test('disableInstrumentations', function (t) {
       }
 
       for (const mod of modules) {
-        require(mod)
+        if (Array.isArray(mod)) {
+          for (const subMod of mod) {
+            require(subMod)
+          }
+        } else {
+          require(mod)
+        }
       }
 
       t.deepEqual(selectionSet, found, 'disabled all selected modules')
