@@ -77,7 +77,6 @@ var directories = [
   'test/instrumentation/modules/express',
   'test/instrumentation/modules/fastify',
   'test/instrumentation/modules/hapi',
-  'test/instrumentation/modules/@hapi/hapi',
   'test/instrumentation/modules/http',
   'test/instrumentation/modules/koa',
   'test/instrumentation/modules/koa-router',

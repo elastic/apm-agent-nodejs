@@ -1,6 +1,6 @@
 'use strict'
 
-const agent = require('../../../../..').start({
+const agent = require('../../../..').start({
   captureExceptions: true,
   metricsInterval: 0
 })
