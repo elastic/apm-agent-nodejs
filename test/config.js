@@ -59,7 +59,8 @@ var optionFixtures = [
   ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
   ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
   ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
-  ['usePathAsTransactionName', 'USE_PATH_AS_TRANSACTION_NAME', false]
+  ['usePathAsTransactionName', 'USE_PATH_AS_TRANSACTION_NAME', false],
+  ['environment', 'ENVIRONMENT', 'development']
 ]
 
 var falsyValues = [false, 'false']
