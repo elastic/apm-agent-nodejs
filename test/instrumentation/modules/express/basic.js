@@ -3,7 +3,8 @@
 var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
-  captureExceptions: true
+  captureExceptions: true,
+  metricsInterval: 0
 })
 
 var http = require('http')
@@ -12,6 +13,78 @@ var express = require('express')
 var test = require('tape')
 
 var mockClient = require('../../../_mock_http_client')
+
+var nestedRouteTestCases = [
+  [], // no nesting
+  ['/', ''],
+  ['/sub', '/sub'],
+  ['/sub/:id', '/sub/42']
+]
+
+var routeTestCases = [
+  ['use', '/', 'GET', '/'],
+  ['use', '/', 'POST', '/'],
+  ['get', '/', 'GET', '/'],
+  ['post', '/', 'POST', '/'],
+  ['head', '/', 'HEAD', '/'],
+  ['use', '/foo/:id', 'GET', '/foo/42'],
+  ['use', '/foo/:id', 'POST', '/foo/42'],
+  ['get', '/foo/:id', 'GET', '/foo/42'],
+  ['post', '/foo/:id', 'POST', '/foo/42'],
+  ['head', '/foo/:id', 'HEAD', '/foo/42']
+]
+
+function normalizePathElements (...elements) {
+  return '/' + elements.join('/').split('/').filter(Boolean).join('/')
+}
+
+nestedRouteTestCases.forEach(function ([parentRoute = '', pathPrefix = ''] = []) {
+  routeTestCases.forEach(function ([expressFn, route, method, path]) {
+    path = normalizePathElements(pathPrefix, path)
+
+    const testName = parentRoute
+      ? `app.use('${parentRoute}') => app.${expressFn}('${route}') - ${method} ${path}`
+      : `app.${expressFn}('${route}') - ${method} ${path}`
+
+    test(testName, function (t) {
+      t.plan(5)
+
+      resetAgent(function (data) {
+        t.equal(data.transactions.length, 1, 'has a transaction')
+        const trans = data.transactions[0]
+        const transName = (expressFn === 'use' && path === '/')
+          ? `${method} unknown route`
+          : `${method} ${normalizePathElements(parentRoute, route)}`
+        t.equal(trans.name, transName, 'transaction name is ' + transName)
+        t.equal(trans.type, 'request', 'transaction type is request')
+      })
+
+      const app = express()
+      app.set('env', 'production')
+
+      let router
+      if (parentRoute) {
+        router = new express.Router()
+        app.use(parentRoute, router)
+      } else {
+        router = app
+      }
+
+      router[expressFn](route, function (req, res) {
+        res.send('foo')
+      })
+
+      const server = app.listen(function () {
+        get(server, { method, path }, (err, body) => {
+          t.error(err)
+          t.equal(body, method === 'HEAD' ? '' : 'foo', 'should have expected response body')
+          server.close()
+          agent.flush()
+        })
+      })
+    })
+  })
+})
 
 test('error intercept', function (t) {
   t.plan(8)
@@ -49,7 +122,7 @@ test('error intercept', function (t) {
   })
 
   var server = app.listen(function () {
-    get(server, '/', (err, body) => {
+    get(server, { path: '/' }, (err, body) => {
       t.error(err)
       const expected = JSON.stringify({ error: error.message })
       t.equal(body, expected, 'got correct body from error handler middleware')
@@ -86,7 +159,7 @@ test('ignore 404 errors', function (t) {
   })
 
   var server = app.listen(function () {
-    get(server, '/', (err, body) => {
+    get(server, { path: '/' }, (err, body) => {
       t.error(err)
       t.equal(body, 'not found', 'got correct body from error handler middleware')
       server.close()
@@ -126,7 +199,7 @@ test('ignore invalid errors', function (t) {
   })
 
   var server = app.listen(function () {
-    get(server, '/', (err, body) => {
+    get(server, { path: '/' }, (err, body) => {
       t.error(err)
       t.equal(body, 'done', 'got correct body from error handler middleware')
       server.close()
@@ -167,7 +240,7 @@ test('do not inherit past route names', function (t) {
   })
 
   var server = app.listen(function () {
-    get(server, '/', (err, body) => {
+    get(server, { path: '/' }, (err, body) => {
       t.error(err)
       t.equal(body, 'done', 'got correct body from error handler middleware')
       server.close()
@@ -205,7 +278,7 @@ test('sub-routers include base path', function (t) {
   app.use('/hello', router)
 
   var server = app.listen(function () {
-    get(server, '/hello/world', (err, body) => {
+    get(server, { path: '/hello/world' }, (err, body) => {
       t.error(err)
       t.equal(body, 'hello, world', 'got correct body')
       server.close()
@@ -242,7 +315,7 @@ test('sub-routers throw exception', function (t) {
   app.use('/api', router)
 
   var server = app.listen(function () {
-    get(server, '/api/data', (err, body) => {
+    get(server, { path: '/api/data' }, (err, body) => {
       t.error(err)
       server.close()
       agent.flush()
@@ -250,13 +323,51 @@ test('sub-routers throw exception', function (t) {
   })
 })
 
-function get (server, path, cb) {
-  var port = server.address().port
-  var opts = {
-    method: 'GET',
-    port: port,
-    path
+// The `express-slash` module expects that it can access the `stack` property
+// on app.use sub-route handles.
+test('expose app.use handle properties', function (t) {
+  t.plan(7)
+
+  resetAgent(function (data) {
+    t.equal(data.transactions.length, 1, 'has a transaction')
+  })
+
+  const handle = function (req, res) {
+    const stack = req.app._router.stack
+    const handle = stack[stack.length - 1].handle
+
+    t.ok(Array.isArray(handle.stack), 'expose stack array on handle')
+    t.equal(handle.stack.length, 1, 'stack should contain one layer')
+
+    const layer = handle.stack[0]
+    t.equal(layer.handle.foo, 1, 'expose foo property on sub-handle')
+    t.equal(layer.handle.bar, 2, 'expose bar property on sub-handle')
+
+    res.send('hello world')
   }
+  handle.foo = 1
+  handle.bar = 2
+
+  const app = express()
+  const sub = new express.Router()
+
+  sub.use(handle)
+  app.use(sub)
+
+  const server = app.listen(function () {
+    get(server, { path: '/' }, (err, body) => {
+      t.error(err)
+      t.equal(body, 'hello world')
+      server.close()
+      agent.flush()
+    })
+  })
+})
+
+function get (server, opts, cb) {
+  Object.assign(opts, {
+    port: server.address().port
+  })
   var req = http.request(opts, function (res) {
     var chunks = []
     res.setEncoding('utf8')

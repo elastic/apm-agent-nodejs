@@ -3,7 +3,8 @@
 var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
-  captureExceptions: true
+  captureExceptions: true,
+  metricsInterval: 0
 })
 
 var http = require('http')

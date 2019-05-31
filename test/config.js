@@ -592,6 +592,7 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
   var mysql2Version = require('mysql2/package.json').version
+  var wsVersion = require('ws/package.json').version
 
   var modules = new Set(Instrumentation.modules)
   if (semver.lt(process.version, '8.6.0')) {
@@ -605,6 +606,9 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '6.0.0') && semver.gte(mysql2Version, '1.6.0')) {
     modules.delete('mysql2')
+  }
+  if (semver.lt(process.version, '8.6.0') && semver.gte(wsVersion, '7.0.0')) {
+    modules.delete('ws')
   }
   if (semver.lt(process.version, '6.0.0')) {
     modules.delete('express-queue')
@@ -620,7 +624,8 @@ test('disableInstrumentations', function (t) {
       agent.start({
         serviceName: 'service',
         disableInstrumentations: selection,
-        captureExceptions: false
+        captureExceptions: false,
+        metricsInterval: 0
       })
 
       var found = new Set()

@@ -1,3 +1,27 @@
+# 2.11.5 - 2019/5/27
+  * fix(metrics): report correct CPU usage on Linux ([#1092](https://github.com/elastic/apm-agent-nodejs/pull/1092))
+  * fix(express): improve names for routes added via app.use() ([#1013](https://github.com/elastic/apm-agent-nodejs/pull/1013))
+
+# 2.11.4 - 2019/5/27
+  * fix: don't add traceparent header to signed AWS requests ([#1089](https://github.com/elastic/apm-agent-nodejs/pull/1089))
+
+# 2.11.3 - 2019/5/22
+  * fix(span): use correct logger location ([#1081](https://github.com/elastic/apm-agent-nodejs/pull/1081))
+
+# 2.11.2 - 2019/5/21
+  * fix: url.parse expects req.url not req ([#1074](https://github.com/elastic/apm-agent-nodejs/pull/1074))
+  * fix(express-slash): expose express handle properties ([#1070](https://github.com/elastic/apm-agent-nodejs/pull/1070))
+
+# 2.11.1 - 2019/5/10
+  * fix(instrumentation): explicitly use `require` ([#1059](https://github.com/elastic/apm-agent-nodejs/pull/1059))
+  * chore: add Node.js 12 to package.json engines field ([#1057](https://github.com/elastic/apm-agent-nodejs/pull/1057))
+
+# 2.11.0 - 2019/5/3
+  * chore: rename tags to labels ([#1019](https://github.com/elastic/apm-agent-nodejs/pull/1019))
+  * feat(config): support global labels ([#1020](https://github.com/elastic/apm-agent-nodejs/pull/1020))
+  * fix(config): do not use ELASTIC\_APM\_ prefix for k8s ([#1041](https://github.com/elastic/apm-agent-nodejs/pull/1041))
+  * fix(instrumentation): prevent handler leak in bindEmitter ([#1044](https://github.com/elastic/apm-agent-nodejs/pull/1044))
+
 # 2.10.0 - 2019/4/15
   * feat(express-graphql): add support for version ^0.8.0 ([#1010](https://github.com/elastic/apm-agent-nodejs/pull/1010))
   * fix(package): bump elastic-apm-http-client to ^7.2.2 so Kubernetes metadata gets corrected recorded ([#1011](https://github.com/elastic/apm-agent-nodejs/pull/1011))

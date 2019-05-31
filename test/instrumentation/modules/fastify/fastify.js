@@ -1,7 +1,8 @@
 'use strict'
 
 const agent = require('../../../..').start({
-  captureExceptions: false
+  captureExceptions: false,
+  metricsInterval: 0
 })
 
 {
