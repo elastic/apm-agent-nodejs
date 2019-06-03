@@ -107,7 +107,9 @@ The number of CPU cycles spent executing kernel code as a result of application 
 * *Format:* Milliseconds
 
 The number of milliseconds of event loop delay.
-Event loop delay is sampled every 10 milliseconds so smaller delays may not appear if they do not impact overall timer execution.
+Event loop delay is sampled every 10 milliseconds.
+Delays shorter than 10ms may not be observed,
+for example if a blocking operation starts and ends within the same sampling period.
 
 [float]
 [[metric-nodejs.memory.heap.allocated.bytes]]
