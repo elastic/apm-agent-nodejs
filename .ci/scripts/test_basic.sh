@@ -12,7 +12,7 @@ npm --version
 
 standard
 npm run test:deps
-.ci/lint-commits.sh
+.ci/scripts/lint-commits.sh
 npm run test:types
 npm run test:babel
 

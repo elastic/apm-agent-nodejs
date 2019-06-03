@@ -52,6 +52,32 @@ test('graphql.graphql - invalid query', function (t) {
   })
 })
 
+test('graphql.graphql - transaction ended', function (t) {
+  t.plan(5)
+
+  resetAgent(1, function (data) {
+    t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, 0)
+
+    var trans = data.transactions[0]
+
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'custom')
+  })
+
+  var schema = graphql.buildSchema('type Query { hello: String }')
+  var root = { hello () {
+    return 'Hello world!'
+  } }
+  var query = '{ hello }'
+
+  agent.startTransaction('foo').end()
+
+  graphql.graphql(schema, query, root).then(function (response) {
+    t.deepEqual(response, { data: { hello: 'Hello world!' } })
+  })
+})
+
 test('graphql.execute', function (t) {
   resetAgent(done(t))
 
@@ -69,6 +95,34 @@ test('graphql.execute', function (t) {
     agent.endTransaction()
     t.deepEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
+  })
+})
+
+test('graphql.execute - transaction ended', function (t) {
+  t.plan(5)
+
+  resetAgent(1, function (data) {
+    t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, 0)
+
+    var trans = data.transactions[0]
+
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'custom')
+  })
+
+  var schema = graphql.buildSchema('type Query { hello: String }')
+  var root = { hello () {
+    return Promise.resolve('Hello world!')
+  } }
+  var query = '{ hello }'
+  var source = new graphql.Source(query)
+  var documentAST = graphql.parse(source)
+
+  agent.startTransaction('foo').end()
+
+  graphql.execute(schema, documentAST, root).then(function (response) {
+    t.deepEqual(response, { data: { hello: 'Hello world!' } })
   })
 })
 
@@ -141,8 +195,9 @@ function done (t, spanNameSuffix) {
   }
 }
 
-function resetAgent (cb) {
+function resetAgent (expected, cb) {
+  if (typeof executed === 'function') return resetAgent(2, expected)
   agent._instrumentation.currentTransaction = null
-  agent._transport = mockClient(2, cb)
+  agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

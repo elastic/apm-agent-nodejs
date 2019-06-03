@@ -2,11 +2,11 @@
 HOME=/app
 PATH=${PATH}:$(pwd)/node_modules/.bin
 rm -fr node_modules
-npm i tap-junit
+npm install -g tap-junit
 
 for tf in $(ls *-output.tap)
 do
-  filename=$(basename ${tf} output.tap) 
+  filename=$(basename ${tf} output.tap)
   if [ -s ${tf} ]; then
     cat ${tf}|tap-junit --package="Agent Node.js" > junit-${filename}-report.xml || true
   fi

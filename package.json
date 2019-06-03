@@ -1,11 +1,12 @@
 {
   "name": "elastic-apm-node",
-  "version": "2.11.3",
+  "version": "2.11.5",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "docs": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
+    "docs:open": "PREVIEW=1 npm run docs:build",
+    "docs:build": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
     "lint": "standard",
     "lint:fix": "standard --fix",
     "lint:commit": "test/lint-commits.sh",
@@ -102,11 +103,12 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
-    "@commitlint/cli": "^7.2.1",
-    "@commitlint/config-conventional": "^7.1.2",
-    "@commitlint/travis-cli": "^7.2.1",
+    "@commitlint/cli": "^8.0.0",
+    "@commitlint/config-conventional": "^8.0.0",
+    "@commitlint/travis-cli": "^8.0.0",
     "@types/node": "^12.0.0",
     "apollo-server-express": "^2.1.0",
+    "aws-sdk": "^2.463.0",
     "bluebird": "^3.5.2",
     "cassandra-driver": "^4.0.0",
     "commitlint-config-squash-pr": "^1.0.0",
@@ -153,7 +155,7 @@
     "rimraf": "^2.6.2",
     "send": "^0.17.0",
     "standard": "^12.0.1",
-    "tape": "4.9.x",
+    "tape": "^4.10.2",
     "tedious": "^6.1.1",
     "test-all-versions": "^4.0.0",
     "thunky": "^1.0.3",
@@ -180,7 +182,7 @@
     ]
   },
   "coordinates": [
-    55.6836817,
-    12.5697576
+    55.778264,
+    12.593130
   ]
 }

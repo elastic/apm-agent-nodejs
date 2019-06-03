@@ -1,3 +1,10 @@
+# 2.11.5 - 2019/5/27
+  * fix(metrics): report correct CPU usage on Linux ([#1092](https://github.com/elastic/apm-agent-nodejs/pull/1092))
+  * fix(express): improve names for routes added via app.use() ([#1013](https://github.com/elastic/apm-agent-nodejs/pull/1013))
+
+# 2.11.4 - 2019/5/27
+  * fix: don't add traceparent header to signed AWS requests ([#1089](https://github.com/elastic/apm-agent-nodejs/pull/1089))
+
 # 2.11.3 - 2019/5/22
   * fix(span): use correct logger location ([#1081](https://github.com/elastic/apm-agent-nodejs/pull/1081))
 
