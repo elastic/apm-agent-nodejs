@@ -44,9 +44,9 @@ run_test_suite () {
   
   if [ -n "${JUNIT}" ]
   then
-    npm i tap-junit
+    npm install -g tap-junit
     nyc node test/test.js | tee test-output.tap
-    cat test-output.tap|./node_modules/.bin/tap-junit --package="Agent Node.js" > junit-node-report.xml
+    cat test-output.tap | tap-junit --package="Agent Node.js" > junit-node-report.xml
   elif [ -z "$COVERAGE" ]
   then
     node test/test.js
