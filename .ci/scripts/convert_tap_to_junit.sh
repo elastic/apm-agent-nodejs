@@ -1,7 +1,9 @@
-##!/usr/bin/env bash
-HOME=/app
-PATH=${PATH}:$(pwd)/node_modules/.bin
-rm -fr node_modules
+#!/usr/bin/env bash
+set -xueo pipefail
+
+HOME=/tmp
+PATH=${PATH}:$(pwd)/node_modules/.bin:${HOME}/.npm-global/bin
+export NPM_CONFIG_PREFIX=~/.npm-global
 npm install -g tap-junit
 
 for tf in $(ls *-output.tap)

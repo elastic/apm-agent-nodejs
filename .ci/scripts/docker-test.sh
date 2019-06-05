@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 set -xueo pipefail
+
 export
 id
 node --version
 npm --version
-npm config list
+#npm config list
 npm install
+npm list
+#yarn install --no-node-version-check --ignore-engines
+#yarn list
 
 if [[ ! -z ${TAV}  ]]; then
   npm run test:tav|tee tav-output.tap
