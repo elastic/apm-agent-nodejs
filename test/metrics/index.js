@@ -71,12 +71,6 @@ test('reports expected metrics', function (t) {
       'nodejs.active_requests': (value) => {
         t.ok(value >= 0, 'is positive')
       },
-      'system.process.cpu.system.ticks': (value) => {
-        t.ok(value >= 0, 'is positive')
-      },
-      'system.process.cpu.user.ticks': (value) => {
-        t.ok(value >= 0, 'is positive')
-      },
       'nodejs.eventloop.delay.avg.ms': (value) => {
         t.ok(value >= 0, 'is positive')
       },
@@ -88,9 +82,15 @@ test('reports expected metrics', function (t) {
       }
     }
 
-    if (semver.satisfies(process.versions.node, '^6.1')) {
+    if (semver.satisfies(process.versions.node, '>=6.1')) {
       metrics['system.process.cpu.total.norm.pct'] = (value) => {
-        t.ok(isRoughly(value, 0.1, 1000), 'is a floating point number from 0 to 1')
+        t.ok(value >= 0 && value <= 1, 'is betewen 0.0 and 1.0')
+      }
+      metrics['system.process.cpu.system.norm.pct'] = (value) => {
+        t.ok(value >= 0 && value <= 1, 'is betewen 0.0 and 1.0')
+      }
+      metrics['system.process.cpu.user.norm.pct'] = (value) => {
+        t.ok(value >= 0 && value <= 1, 'is betewen 0.0 and 1.0')
       }
     }
 
