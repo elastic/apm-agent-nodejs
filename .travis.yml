@@ -305,6 +305,13 @@ jobs:
 
     # Release Candidates - No async hooks
     -
+      node_js: '12'
+      name: "Node.js: 12-rc (no async hooks)"
+      if: type = cron
+      env:
+        - ELASTIC_APM_ASYNC_HOOKS=false
+        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
+    -
       node_js: '11'
       name: "Node.js: 11-rc (no async hooks)"
       if: type = cron
