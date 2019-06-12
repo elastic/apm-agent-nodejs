@@ -4,6 +4,7 @@
 # different machines:
 # - With `sudo: false`: https://travis-ci.org/opbeat/opbeat-node/builds/252301998
 # - With `sudo: required`: https://travis-ci.org/opbeat/opbeat-node/builds/252302576
+sudo: required
 dist: trusty
 
 language: node_js
