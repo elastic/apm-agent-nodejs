@@ -1,0 +1,18 @@
+version: '2.1'
+
+services:
+  mysql:
+    extends:
+      file: docker-compose.yml
+      service: mysql
+  node_tests:
+    extends:
+      file: docker-compose-node-test.yml
+      service: node_tests
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  nodemysqldata:
+    driver: local

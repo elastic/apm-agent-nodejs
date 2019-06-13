@@ -1,0 +1,117 @@
+version: '2.1'
+
+services:
+  postgres:
+    user: postgres
+    image: postgres:9.6
+    ports:
+      - "5432:5432"
+    volumes:
+      - nodepgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_DB: 'test_elastic_apm'
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - nodemongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
+  mssql:
+    image: microsoft/mssql-server-linux
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Very(!)Secure
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - nodemssqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "mssql", "-U", "sa", "-P", "Very(!)Secure", "-Q", "select 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - "3306:3306"
+    volumes:
+      - nodemysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysql" ,"-h", "mysql", "-P", "3306", "-u", "root", "-e", "SELECT 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 10s
+      retries: 30
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "network.host="
+      - "transport.host=127.0.0.1"
+      - "http.host=0.0.0.0"
+      - "xpack.security.enabled=false"
+    ports:
+      - "9200:9200"
+    volumes:
+      - nodeesdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  cassandra:
+    image: cassandra:3
+    environment:
+      MAX_HEAP_SIZE: "1G"
+      HEAP_NEWSIZE: 400m
+    ports:
+      - "9042:9042"
+    volumes:
+      - nodecassandradata:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  nodepgdata:
+    driver: local
+  nodemongodata:
+    driver: local
+  nodemssqldata:
+    driver: local
+  nodemysqldata:
+    driver: local
+  nodeesdata:
+    driver: local
+  nodecassandradata:
+    driver: local
