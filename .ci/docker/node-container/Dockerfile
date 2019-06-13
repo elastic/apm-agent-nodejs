@@ -1,13 +1,19 @@
 ARG NODE_VERSION=8
 FROM node:${NODE_VERSION}
 
-#RUN id && npm install -g yarn && yarn global upgrade npm@latest
 WORKDIR /tmp
-RUN mkdir -p /tmp/node_modules \
+RUN ( [ "${NODE_VERSION%%.*}" -le 8  ] \
+  && echo "Node.js ${NODE_VERSION} - Manual install npm" \
+  && mkdir -p /tmp/node_modules \
   && npm install npm \
   && rm /usr/local/bin/npm \
-  && ln -s /tmp/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
+  && ln -s /tmp/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm ) || exit 0
 
+RUN ( [ "${NODE_VERSION%%.*}" -gt 8  ] \
+  && echo "Node.js ${NODE_VERSION} - upgrade npm" \
+  && npm install -g npm@latest) || exit 0
+
+# test npm works properly
 RUN node --version && npm --version
 
 WORKDIR /app
