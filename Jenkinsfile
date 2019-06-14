@@ -52,21 +52,23 @@ pipeline {
         HOME = "${env.WORKSPACE}"
       }
       steps {
-        deleteDir()
-        unstash 'source'
-        script {
-          docker.image('node:11').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-            sh(label: "Basic tests", script: 'cd /app && .ci/scripts/test_basic.sh')
-          }
-        }
-        dir("${BASE_DIR}"){
+        withGithubNotify(context: 'Test', tab: 'tests') {
+          deleteDir()
+          unstash 'source'
           script {
-            def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
-            def parallelTasks = [:]
-            node['NODEJS_VERSION'].each{ version ->
-              parallelTasks["Node.js-${version}"] = generateStep(version)
+            docker.image('node:11').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+              sh(label: "Basic tests", script: 'cd /app && .ci/scripts/test_basic.sh')
             }
-            parallel(parallelTasks)
+          }
+          dir("${BASE_DIR}"){
+            script {
+              def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
+              def parallelTasks = [:]
+              node['NODEJS_VERSION'].each{ version ->
+                parallelTasks["Node.js-${version}"] = generateStep(version)
+              }
+              parallel(parallelTasks)
+            }
           }
         }
       }
@@ -95,19 +97,21 @@ pipeline {
         }
       }
       steps {
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          script {
-            def node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
-            def tav = readYaml(file: '.ci/.jenkins_tav.yml')
-            def parallelTasks = [:]
-            node['NODEJS_VERSION'].each{ version ->
-              tav['TAV'].each{ tav_item ->
-                parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version, tav_item)
+        withGithubNotify(context: 'TAV Test', tab: 'tests') {
+          deleteDir()
+          unstash 'source'
+          dir("${BASE_DIR}"){
+            script {
+              def node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
+              def tav = readYaml(file: '.ci/.jenkins_tav.yml')
+              def parallelTasks = [:]
+              node['NODEJS_VERSION'].each{ version ->
+                tav['TAV'].each{ tav_item ->
+                  parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version, tav_item)
+                }
               }
+              parallel(parallelTasks)
             }
-            parallel(parallelTasks)
           }
         }
       }
