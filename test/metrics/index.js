@@ -60,10 +60,12 @@ test('reports expected metrics', function (t) {
         t.equal(value, os.totalmem(), 'should match total memory')
       },
       'system.memory.actual.free': (value) => {
-        t.ok(isRoughly(value, os.freemem(), 0.1), 'is close to current free memory')
+        const free = os.freemem()
+        t.ok(isRoughly(value, free, 0.1), `is close to current free memory (value: ${value}, free: ${free})`)
       },
       'system.process.memory.rss.bytes': (value) => {
-        t.ok(isRoughly(value, process.memoryUsage().rss, 0.1), 'is close to current rss')
+        const rss = process.memoryUsage().rss
+        t.ok(isRoughly(value, rss, 0.1), `is close to current rss (value: ${value}), rss: ${rss}`)
       },
       'nodejs.handles.active': (value) => {
         t.ok(value >= 0, 'is positive')
