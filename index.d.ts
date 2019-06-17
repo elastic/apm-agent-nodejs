@@ -113,6 +113,7 @@ declare class Span extends GenericSpan {
 interface AgentConfigOptions {
   abortedErrorThreshold?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   active?: boolean;
+  addPatch?: KeyValueConfig;
   apiRequestSize?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   apiRequestTime?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   asyncHooks?: boolean;
@@ -129,6 +130,7 @@ interface AgentConfigOptions {
   filterHttpHeaders?: boolean;
   frameworkName?: string;
   frameworkVersion?: string;
+  globalLabels?: KeyValueConfig;
   hostname?: string;
   ignoreUrls?: Array<string | RegExp>;
   ignoreUserAgents?: Array<string | RegExp>;
@@ -153,6 +155,7 @@ interface AgentConfigOptions {
   stackTraceLimit?: number;
   transactionMaxSpans?: number;
   transactionSampleRate?: number;
+  usePathAsTransactionName?: boolean;
   verifyServerCert?: boolean;
 }
 
@@ -215,6 +218,7 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 type CaptureErrorCallback = (err: Error | null, id: string) => void;
 type FilterFn = (payload: Payload) => Payload | boolean | void;
 type LabelValue = string | number | boolean | null | undefined;
+type KeyValueConfig = string | Labels | Array<Array<LabelValue>>
 
 type Payload = { [propName: string]: any }
 

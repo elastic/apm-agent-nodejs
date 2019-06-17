@@ -1,0 +1,5 @@
+---
+- job:
+    name: apm-agent-nodejs/apm-agent-nodejs-mbp
+    display-name: APM Agent Node.js
+    description: APM Agent Node.js
