@@ -99,7 +99,7 @@ test('reports expected metrics', function (t) {
       t.comment(name)
       t.ok(metric, `is present`)
       t.equal(typeof metric.value, 'number', 'is a number')
-      t.ok(Number.isFinite(metric.value), 'is finite')
+      t.ok(Number.isFinite(metric.value), `is finite (was: ${metric.value})`)
       metrics[name](metric.value)
     }
 
