@@ -65,7 +65,7 @@ test('reports expected metrics', function (t) {
       },
       'system.process.memory.rss.bytes': (value) => {
         const rss = process.memoryUsage().rss
-        t.ok(isRoughly(value, rss, 0.1), `is close to current rss (value: ${value}), rss: ${rss}`)
+        t.ok(isRoughly(value, rss, 0.1), `is close to current rss (value: ${value}, rss: ${rss})`)
       },
       'nodejs.handles.active': (value) => {
         t.ok(value >= 0, 'is positive')
