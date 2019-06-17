@@ -61,7 +61,13 @@ test('reports expected metrics', function (t) {
       },
       'system.memory.actual.free': (value) => {
         const free = os.freemem()
-        t.ok(isRoughly(value, free, 0.1), `is close to current free memory (value: ${value}, free: ${free})`)
+        if (os.type() === 'Linux') {
+          // On Linux we use MemAvailable from /proc/meminfo as the value for this metric
+          // The Node.js API os.freemem() is reporting MemFree from the same file
+          t.ok(value > free, `is larger than os.freemem() (value: ${value}, free: ${free})`)
+        } else {
+          t.ok(isRoughly(value, free, 0.1), `is close to current free memory (value: ${value}, free: ${free})`)
+        }
       },
       'system.process.memory.rss.bytes': (value) => {
         const rss = process.memoryUsage().rss
