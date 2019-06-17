@@ -1,0 +1,18 @@
+version: '2.1'
+
+services:
+  mssql:
+    extends:
+      file: docker-compose.yml
+      service: mssql
+  node_tests:
+    extends:
+      file: docker-compose-node-test.yml
+      service: node_tests
+    depends_on:
+      mssql:
+        condition: service_healthy
+
+volumes:
+  nodemssqldata:
+    driver: local

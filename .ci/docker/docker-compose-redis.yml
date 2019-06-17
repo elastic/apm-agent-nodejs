@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+  node_tests:
+    extends:
+      file: docker-compose-node-test.yml
+      service: node_tests
+    depends_on:
+      redis:
+        condition: service_healthy

@@ -12,6 +12,7 @@ Jenkinsfile
 TESTING.md
 
 # Folders to ignore
+.ci
 .github
 docs
 test

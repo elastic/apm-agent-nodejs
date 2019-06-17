@@ -48,7 +48,7 @@ pg:
   versions: '>=4 <8'
   peerDependencies:
     - bluebird@^3.0.0
-    - knex@^0.16.5
+    - knex@^0.17.3
   commands:
     - node test/instrumentation/modules/pg/pg.js
     - node test/instrumentation/modules/pg/knex.js
@@ -62,7 +62,7 @@ bluebird:
     - node test/instrumentation/modules/bluebird/cancel.js
 knex:
   # v0.16.4 accidentally dropped support for Node.js 6
-  versions: ^0.16.5 || <0.16.4 >=0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
+  versions: ^0.17.0 || ^0.16.5 || <0.16.4 >=0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
   commands: node test/instrumentation/modules/pg/knex.js
 ws-old:
   name: ws
@@ -79,7 +79,11 @@ graphql:
   commands: node test/instrumentation/modules/graphql.js
 express:
   versions: '>=4'
-  commands: node test/instrumentation/modules/express/basic.js
+  commands:
+    - node test/instrumentation/modules/express/basic.js
+    - node test/instrumentation/modules/express/capture-exceptions-off.js
+    - node test/instrumentation/modules/express/capture-exceptions-on.js
+    - node test/instrumentation/modules/express/set-framework.js
 
 express-graphql-1:
   name: express-graphql
@@ -205,12 +209,16 @@ pug:
 hapi-no-async-await:
   name: hapi
   versions: '>=9.0.1 <17.0.0'
-  commands: node test/instrumentation/modules/hapi/basic.js
+  commands:
+    - node test/instrumentation/modules/hapi/basic.js
+    - node test/instrumentation/modules/hapi/set-framework.js
 hapi-async-await:
   name: hapi
   node: '>=8.2'
   versions: '>=17.0.0'
-  commands: node test/instrumentation/modules/hapi/basic.js
+  commands:
+    - node test/instrumentation/modules/hapi/basic.js
+    - node test/instrumentation/modules/hapi/set-framework.js
 
 tedious:
   name: tedious
@@ -225,18 +233,23 @@ cassandra-driver:
 restify-old:
   name: restify
   versions: '>=5.2.0 <8.0.0'
-  commands: node test/instrumentation/modules/restify/basic.js
+  commands:
+    - node test/instrumentation/modules/restify/basic.js
+    - node test/instrumentation/modules/restify/set-framework.js
 restify-new:
   name: restify
   node: '>=8.6.0'
   versions: '>=8.0.0'
-  commands: node test/instrumentation/modules/restify/basic.js
+  commands:
+    - node test/instrumentation/modules/restify/basic.js
+    - node test/instrumentation/modules/restify/set-framework.js
 
 fastify:
   versions: '>=0.27.0 <0.29.0 || >0.29.0 <2.4.0 || >2.4.0'
   commands:
     - node test/instrumentation/modules/fastify/fastify.js
     - node test/instrumentation/modules/fastify/async-await.js
+    - node test/instrumentation/modules/fastify/set-framework.js
 
 finalhandler:
   versions: '*'

@@ -1,3 +1,6 @@
+# 2.11.6 - 2019/6/11
+  * fix(express): don't swallow error handling middleware ([#1111](https://github.com/elastic/apm-agent-nodejs/pull/1111))
+
 # 2.11.5 - 2019/5/27
   * fix(metrics): report correct CPU usage on Linux ([#1092](https://github.com/elastic/apm-agent-nodejs/pull/1092))
   * fix(express): improve names for routes added via app.use() ([#1013](https://github.com/elastic/apm-agent-nodejs/pull/1013))
