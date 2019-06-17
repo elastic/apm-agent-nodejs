@@ -65,10 +65,10 @@ test('reports expected metrics', function (t) {
       'system.process.memory.rss.bytes': (value) => {
         t.ok(isRoughly(value, process.memoryUsage().rss, 0.1), 'is close to current rss')
       },
-      'nodejs.active_handles': (value) => {
+      'nodejs.handles.active': (value) => {
         t.ok(value >= 0, 'is positive')
       },
-      'nodejs.active_requests': (value) => {
+      'nodejs.requests.active': (value) => {
         t.ok(value >= 0, 'is positive')
       },
       'nodejs.eventloop.delay.avg.ms': (value) => {

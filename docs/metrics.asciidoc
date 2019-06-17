@@ -62,8 +62,8 @@ The Resident Set Size,
 the amount of memory the process occupies in main memory (RAM).
 
 [float]
-[[metric-nodejs.active_handles]]
-=== `nodejs.active_handles`
+[[metric-nodejs.handles.active]]
+=== `nodejs.handles.active`
 
 * *Type:* Long
 * *Format:* Counter
@@ -72,8 +72,8 @@ The number of active libuv handles,
 likely held open by currently running I/O operations.
 
 [float]
-[[metric-nodejs.active_requests]]
-=== `nodejs.active_requests`
+[[metric-nodejs.requests.active]]
+=== `nodejs.requests.active`
 
 * *Type:* Long
 * *Format:* Counter
