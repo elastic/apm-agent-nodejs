@@ -82,8 +82,8 @@ The number of active libuv requests,
 likely waiting for a response to an I/O operation.
 
 [float]
-[[metric-system.process.cpu.user.ticks]]
-=== `system.process.cpu.user.ticks`
+[[metric-system.process.cpu.user.norm.pct]]
+=== `system.process.cpu.user.norm.pct`
 
 * *Type:* Long
 * *Format:* Counter
@@ -91,8 +91,8 @@ likely waiting for a response to an I/O operation.
 The number of CPU cycles spent executing application code.
 
 [float]
-[[metric-system.process.cpu.system.ticks]]
-=== `system.process.cpu.system.ticks`
+[[metric-system.process.cpu.system.norm.pct]]
+=== `system.process.cpu.system.norm.pct`
 
 * *Type:* Long
 * *Format:* Counter
