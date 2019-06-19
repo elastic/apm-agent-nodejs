@@ -102,6 +102,17 @@ services:
       timeout: 10s
       retries: 5
 
+  memcached:
+    image: memcached:alpine
+    user: 11211
+    ports:
+      - "11211:11211"
+    healthcheck:
+      test: ["CMD", "nc", "127.0.0.1:11211", "-z"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 volumes:
   nodepgdata:
     driver: local

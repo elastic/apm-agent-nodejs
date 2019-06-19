@@ -29,6 +29,10 @@ services:
     extends:
       file: docker-compose.yml
       service: redis
+  memcached:
+    extends:
+      file: docker-compose.yml
+      service: memcached
   node_tests:
     extends:
       file: docker-compose-node-test.yml
@@ -47,6 +51,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      memcached:
         condition: service_healthy
 
 volumes:

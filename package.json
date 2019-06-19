@@ -139,6 +139,7 @@
     "koa": "^2.5.3",
     "koa-router": "^7.4.0",
     "lambda-local": "^1.5.2",
+    "memcached": "^2.2.2",
     "mimic-response": "^1.0.1",
     "mkdirp": "^0.5.1",
     "mongodb-core": "^3.2.7",

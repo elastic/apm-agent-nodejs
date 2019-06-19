@@ -30,6 +30,9 @@ case ${TAV_VERSIONS} in
   mysql|mysql2)
     DOCKER_COMPOSE_FILE=docker-compose-mysql.yml
     ;;
+  memcached)
+    DOCKER_COMPOSE_FILE=docker-compose-memcached.yml
+    ;;
   *)
     DOCKER_COMPOSE_FILE=docker-compose-all.yml
     ;;

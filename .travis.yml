@@ -15,6 +15,7 @@ services:
   - redis-server
   - postgresql
   - cassandra
+  - memcached
 
 before_install:
   - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.6.0.deb && sudo dpkg -i --force-confnew elasticsearch-6.6.0.deb && sudo service elasticsearch restart
@@ -85,7 +86,7 @@ jobs:
     - stage: dependencies
       node_js: '12'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '12'
@@ -112,7 +113,7 @@ jobs:
     - stage: dependencies
       node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '11'
@@ -139,7 +140,7 @@ jobs:
     - stage: dependencies
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '10'
@@ -166,7 +167,7 @@ jobs:
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '8'
@@ -193,7 +194,7 @@ jobs:
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '6'
