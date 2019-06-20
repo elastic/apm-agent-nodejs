@@ -28,6 +28,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
+    booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
     booleanParam(name: 'test_edge_ci', defaultValue: true, description: 'Enable tests for edge versions of nodejs.')
@@ -269,6 +270,53 @@ pipeline {
                            string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
                            string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
         githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
+      }
+    }
+    /**
+      Run the benchmarks and store the results on ES.
+      The result JSON files are also archive into Jenkins.
+    */
+    stage('Benchmarks') {
+      agent { label 'metal' }
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+      }
+      when {
+        beforeAgent true
+        allOf {
+          anyOf {
+            branch 'master'
+            branch "\\d+\\.\\d+"
+            branch "v\\d?"
+            tag "v\\d+\\.\\d+\\.\\d+*"
+            expression { return params.Run_As_Master_Branch }
+          }
+          expression { return params.bench_ci }
+        }
+      }
+      steps {
+        withGithubNotify(context: 'Benchmarks', tab: 'artifacts') {
+          deleteDir()
+          unstash 'source'
+          dir("${BASE_DIR}"){
+            script {
+              env.COMMIT_ISO_8601 = sh(script: 'git log -1 -s --format=%cI', returnStdout: true).trim()
+              env.NOW_ISO_8601 = sh(script: 'date -u "+%Y-%m-%dT%H%M%SZ"', returnStdout: true).trim()
+              env.RESULT_FILE = "apm-agent-benchmark-results-${env.COMMIT_ISO_8601}.json"
+              env.BULK_UPLOAD_FILE = "apm-agent-bulk-${env.NOW_ISO_8601}.json"
+            }
+            sh '.ci/scripts/run-benchmarks.sh'
+          }
+        }
+      }
+      post {
+        always {
+          archiveArtifacts(allowEmptyArchive: true,
+            artifacts: "${BASE_DIR}/${RESULT_FILE}",
+            onlyIfSuccessful: false)
+          // TODO: sendBenchmarks will be enabled once the PR is ready
+        }
       }
     }
   }
