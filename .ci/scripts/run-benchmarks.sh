@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xueo pipefail
+set -ueo pipefail
 
 # This particular configuration is required to be installed in the baremetal
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
@@ -10,10 +10,11 @@ command -v nvm
 nvm install node
 nvm use node
 
+set +x
 npm config list
 npm install
 
 node --version
 npm --version
 
-npm run test:cibenchmark | tee tav-output.tap
+npm run test:cibenchmark

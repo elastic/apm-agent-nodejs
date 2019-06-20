@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -xe
 
 NOW_ISO_8601=$(date -u "+%Y-%m-%dT%H%M%SZ")
 
