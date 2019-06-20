@@ -277,7 +277,7 @@ pipeline {
       The result JSON files are also archive into Jenkins.
     */
     stage('Benchmarks') {
-      agent { label 'docker && linux && immutable' }
+      agent { label 'metal' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
