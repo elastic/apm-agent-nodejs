@@ -8,7 +8,6 @@ export NVM_DIR="$HOME/.nvm"
 command -v nvm
 
 nvm install node
-nvm ls-remote
 nvm use node
 
 npm config list
