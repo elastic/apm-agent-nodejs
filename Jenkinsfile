@@ -277,7 +277,7 @@ pipeline {
       The result JSON files are also archive into Jenkins.
     */
     stage('Benchmarks') {
-      agent { label 'docker && linux && immutable' }
+      agent { label 'docker && immutable' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
@@ -301,12 +301,14 @@ pipeline {
           unstash 'source'
           dir("${BASE_DIR}"){
             script {
-              env.COMMIT_ISO_8601 = sh(script: 'git log -1 -s --format=%cI', returnStdout: true).trim()
-              env.NOW_ISO_8601 = sh(script: 'date -u "+%Y-%m-%dT%H%M%SZ"', returnStdout: true).trim()
-              env.RESULT_FILE = "apm-agent-benchmark-results-${env.COMMIT_ISO_8601}.json"
-              env.BULK_UPLOAD_FILE = "apm-agent-bulk-${env.NOW_ISO_8601}.json"
+              docker.image('node:11').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+                env.COMMIT_ISO_8601 = sh(script: 'git log -1 -s --format=%cI', returnStdout: true).trim()
+                env.NOW_ISO_8601 = sh(script: 'date -u "+%Y-%m-%dT%H%M%SZ"', returnStdout: true).trim()
+                env.RESULT_FILE = "apm-agent-benchmark-results-${env.COMMIT_ISO_8601}.json"
+                env.BULK_UPLOAD_FILE = "apm-agent-bulk-${env.NOW_ISO_8601}.json"
+                sh 'cd /app && .ci/scripts/run-benchmarks.sh'
+              }
             }
-            sh '.ci/scripts/run-benchmarks.sh'
           }
         }
       }
