@@ -38,7 +38,9 @@ test('reports expected metrics', function (t) {
   }, 2000)
 
   agent = mockAgent({
-    metricsInterval: 0.1
+    metricsInterval: 0.1,
+    hostname: 'foo',
+    environment: 'bar'
   }, (metricset = {}) => {
     t.comment(`event #${++count}`)
 
@@ -48,8 +50,8 @@ test('reports expected metrics', function (t) {
     }
 
     t.deepEqual(metricset.tags, {
-      hostname: os.hostname(),
-      env: process.env.NODE_ENV || 'development'
+      hostname: 'foo',
+      env: 'bar'
     }, 'has expected tags')
 
     const metrics = {
