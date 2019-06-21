@@ -55,9 +55,9 @@ pipeline {
         withGithubNotify(context: 'Test', tab: 'tests') {
           deleteDir()
           unstash 'source'
-          script {
-            docker.image('node:11').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-              sh(label: "Basic tests", script: 'cd /app && .ci/scripts/test_basic.sh')
+          runNodejs(){
+            dir("${BASE_DIR}"){
+              sh(label: "Basic tests", script: '.ci/scripts/test_basic.sh')
             }
           }
           dir("${BASE_DIR}"){
@@ -165,12 +165,20 @@ def generateStep(version, tav = ''){
       } catch(e){
         error(e.toString())
       } finally {
-        docker.image('node:11').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-          sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
+        runNodejs(){
+          dir("${BASE_DIR}"){
+            sh(label: "Convert Test results to JUnit format", script: '.ci/scripts/convert_tap_to_junit.sh')
+          }
         }
         junit(allowEmptyResults: true, keepLongStdio: true, testResults: "${BASE_DIR}/**/junit-*.xml")
         codecov(repo: 'apm-agent-nodejs', basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
       }
     }
+  }
+}
+
+def runNodejs(Closure body){
+  docker.image('node:11').inside(){
+    body()
   }
 }
