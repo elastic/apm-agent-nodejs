@@ -132,7 +132,7 @@
     "ioredis": "^4.10.0",
     "is-my-json-valid": "^2.19.0",
     "jade": "^1.11.0",
-    "json-schema-ref-parser": "^6.0.1",
+    "json-schema-ref-parser": "^7.1.0",
     "knex": "^0.17.6",
     "koa": "^2.5.3",
     "koa-router": "^7.4.0",
