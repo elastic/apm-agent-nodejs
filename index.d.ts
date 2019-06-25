@@ -124,6 +124,7 @@ interface AgentConfigOptions {
   captureSpanStackTraces?: boolean;
   containerId?: string;
   disableInstrumentations?: string | string[];
+  environment?: string;
   errorMessageMaxLength?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   errorOnAbortedRequests?: boolean;
   filterHttpHeaders?: boolean;
