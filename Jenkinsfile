@@ -4,11 +4,14 @@
 pipeline {
   agent any
   environment {
-    BASE_DIR="src/github.com/elastic/apm-agent-nodejs"
+    REPO = 'apm-agent-nodejs'
+    BASE_DIR = "src/github.com/elastic/${env.REPO}"
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-nodejs-codecov'
+    GITHUB_CHECK_ITS_NAME = 'Integration Tests'
+    ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
   }
   options {
     timeout(time: 3, unit: 'HOURS')
@@ -141,6 +144,28 @@ pipeline {
         buildDocs(docsDir: "${BASE_DIR}/docs", archive: true)
       }
     }
+    stage('Integration Tests') {
+      agent none
+      when {
+        beforeAgent true
+        allOf {
+          anyOf {
+            environment name: 'GIT_BUILD_CAUSE', value: 'pr'
+            expression { return !params.Run_As_Master_Branch }
+          }
+        }
+      }
+      steps {
+        log(level: 'INFO', text: 'Launching Async ITs')
+        build(job: env.ITS_PIPELINE, propagate: false, wait: false,
+              parameters: [string(name: 'AGENT_INTEGRATION_TEST', value: 'Node.js'),
+                           string(name: 'BUILD_OPTS', value: "--nodejs-agent-package ${env.CHANGE_FORK}/${env.REPO}#${env.GIT_BASE_COMMIT}"),
+                           string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
+                           string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
+                           string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
+        githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
+      }
+    }
   }
   post {
     always {
@@ -169,7 +194,7 @@ def generateStep(version, tav = ''){
           sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
         }
         junit(allowEmptyResults: true, keepLongStdio: true, testResults: "${BASE_DIR}/**/junit-*.xml")
-        codecov(repo: 'apm-agent-nodejs', basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
+        codecov(repo: env.REPO, basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
       }
     }
   }
