@@ -13,6 +13,7 @@ it is need as field to store the results of the tests.
 pipeline {
   agent any
   environment {
+    REPO = 'apm-agent-nodejs'
     BASE_DIR="src/github.com/elastic/apm-agent-nodejs"
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
@@ -30,9 +31,9 @@ pipeline {
     quietPeriod(10)
   }
   parameters {
-    string(name: 'NODE_VERSION', defaultValue: "11", description: "Node.js version to test")
+    string(name: 'NODE_VERSION', defaultValue: "12", description: "Node.js version to test")
     string(name: 'BRANCH_SPECIFIER', defaultValue: "master", description: "Git branch/tag to use")
-    string(name: 'CHANGE_TARGET', defaultValue: "master", description: "Git branch/tag to merge before building")
+    string(name: 'MERGE_TARGET', defaultValue: "master", description: "Git branch/tag to merge before building")
   }
   stages {
     /**
@@ -47,7 +48,7 @@ pipeline {
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}",
-          mergeTarget: "${params.CHANGE_TARGET}"
+          mergeTarget: "${params.MERGE_TARGET}",
           reference: '/var/lib/jenkins/apm-agent-nodejs.git')
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
@@ -82,7 +83,7 @@ pipeline {
     }
   }
   post {
-    always{
+    cleanup{
       script{
         if(nodeTasksGen?.results){
           writeJSON(file: 'results.json', json: toJSON(nodeTasksGen.results), pretty: 2)
@@ -90,21 +91,14 @@ pipeline {
           def processor = new ResultsProcessor()
           processor.processResults(mapResults)
           archiveArtifacts allowEmptyArchive: true, artifacts: 'results.json,results.html', defaultExcludes: false
+          catchError(buildResult: 'SUCCESS') {
+            def datafile = readFile(file: "results.json")
+            def json = getVaultSecret(secret: 'secret/apm-team/ci/jenkins-stats-cloud')
+            sendDataToElasticsearch(es: json.data.url, data: datafile, restCall: '/jenkins-builds-nodejs-test-results/_doc/')
+          }
         }
       }
-    }
-    success {
-      echoColor(text: '[SUCCESS]', colorfg: 'green', colorbg: 'default')
-    }
-    aborted {
-      echoColor(text: '[ABORTED]', colorfg: 'magenta', colorbg: 'default')
-    }
-    failure {
-      echoColor(text: '[FAILURE]', colorfg: 'red', colorbg: 'default')
-      step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: "${NOTIFY_TO}", sendToIndividuals: false])
-    }
-    unstable {
-      echoColor(text: '[UNSTABLE]', colorfg: 'yellow', colorbg: 'default')
+      notifyBuildResult()
     }
   }
 }
@@ -132,7 +126,7 @@ class NodeParallelTaskGenerator extends DefaultParallelTaskGenerator {
           saveResult(x, y, 0)
           error("${label} tests failed : ${e.toString()}\n")
         } finally {
-          wrappingUp()
+          steps.wrappingUp()
         }
       }
     }
@@ -158,9 +152,9 @@ def runScript(Map params = [:]){
   Collect test results and report to Codecov
 */
 def wrappingUp(){
-  docker.image('node:11').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-    steps.sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/convert_tap_to_junit.sh')
+  docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+    sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
   }
   junit(allowEmptyResults: true, keepLongStdio: true, testResults: "${BASE_DIR}/**/junit-*.xml")
-  codecov(repo: 'apm-agent-nodejs', basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
+  codecov(repo: env.REPO, basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
 }
