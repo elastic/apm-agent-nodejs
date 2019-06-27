@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
+set -xeo pipefail
 
-set -xe
+export PATH=${PATH}:/$(pwd)/node_modules:/$(pwd)/node_modules/.bin
+export HOME=$(pwd)
+
+npm install
 
 if [[ -z "${CHANGE_ID}" ]]; then
   # If on master, just test the latest commit

@@ -46,6 +46,27 @@ pipeline {
       }
     }
     /**
+      Lint commit messages
+    */
+    stage('Lint commit messages') {
+      agent { label 'docker && immutable' }
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+      }
+      steps {
+        withGithubNotify(context: 'Lint Commit Messages') {
+          deleteDir()
+          unstash 'source'
+          script {
+            docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+              sh(label: "Basic tests", script: 'cd /app && .ci/scripts/lint-commits.sh')
+            }
+          }
+        }
+      }
+    }
+    /**
       Run tests.
     */
     stage('Test') {
@@ -59,7 +80,7 @@ pipeline {
           deleteDir()
           unstash 'source'
           script {
-            docker.image('node:11').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+            docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
               sh(label: "Basic tests", script: 'cd /app && .ci/scripts/test_basic.sh')
             }
           }
@@ -190,7 +211,7 @@ def generateStep(version, tav = ''){
       } catch(e){
         error(e.toString())
       } finally {
-        docker.image('node:11').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+        docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
           sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
         }
         junit(allowEmptyResults: true, keepLongStdio: true, testResults: "${BASE_DIR}/**/junit-*.xml")
