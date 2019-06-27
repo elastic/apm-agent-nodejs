@@ -137,7 +137,7 @@ import apm from 'elastic-apm-node/start'
 Now, you can either configure the agent using the environment variables associated with each <<configuration,configuration option>>,
 or use the optional <<agent-configuration-file,agent configuration file>>.
 
-To explicitly start the agent you need to import `elastic-apm-node` and pass it into the `apm.start()` method with the <<agent-configuration-object, agent configuration object>>.
+To explicitly start the agent you need to import `elastic-apm-node` and call `apm.start()` method with the <<agent-configuration-object, agent configuration object>>.
 
 [float]
 [[esm-typescript]]
