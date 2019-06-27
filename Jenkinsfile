@@ -149,6 +149,8 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          /** FIXME temporarily disable */
+          expression { return false }
           anyOf {
             environment name: 'GIT_BUILD_CAUSE', value: 'pr'
             expression { return !params.Run_As_Master_Branch }
