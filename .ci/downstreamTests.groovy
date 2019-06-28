@@ -14,7 +14,7 @@ pipeline {
   agent any
   environment {
     REPO = 'apm-agent-nodejs'
-    BASE_DIR="src/github.com/elastic/apm-agent-nodejs"
+    BASE_DIR="src/github.com/elastic/${REPO}"
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
