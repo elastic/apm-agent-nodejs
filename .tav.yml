@@ -210,16 +210,19 @@ hapi-no-async-await:
   name: hapi
   versions: '>=9.0.1 <17.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
 hapi-async-await:
   name: hapi
   node: '>=8.2'
   versions: '>=17.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
-
+'@hapi/hapi':
+  node: '>=8.2'
+  versions: '>=17.0.0'
+  commands: node test/instrumentation/modules/hapi/basic.js
 tedious:
   name: tedious
   versions: '>=1.9 <2.7 || 3.x || >4.0.0'
