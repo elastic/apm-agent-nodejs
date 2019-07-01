@@ -63,7 +63,11 @@ test('reports expected metrics', function (t) {
 
     const metrics = {
       'system.cpu.total.norm.pct': (value) => {
-        t.ok(value >= 0 && value <= 1, 'is betewen 0.0 and 1.0')
+        if (count === 1) {
+          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+        } else {
+          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
+        }
       },
       'system.memory.total': (value) => {
         t.equal(value, os.totalmem(), 'should match total memory')
@@ -101,13 +105,21 @@ test('reports expected metrics', function (t) {
 
     if (semver.satisfies(process.versions.node, '>=6.1')) {
       metrics['system.process.cpu.total.norm.pct'] = (value) => {
-        t.ok(value >= 0 && value <= 1, 'is betewen 0.0 and 1.0')
+        if (count === 1) {
+          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+        } else {
+          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
+        }
       }
       metrics['system.process.cpu.system.norm.pct'] = (value) => {
-        t.ok(value >= 0 && value <= 1, 'is betewen 0.0 and 1.0')
+        t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
       }
       metrics['system.process.cpu.user.norm.pct'] = (value) => {
-        t.ok(value >= 0 && value <= 1, 'is betewen 0.0 and 1.0')
+        if (count === 1) {
+          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+        } else {
+          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
+        }
       }
     }
 
@@ -125,9 +137,15 @@ test('reports expected metrics', function (t) {
       t.end()
     } else {
       last = metricset.timestamp
+      spinCPUFor(delayMs / 2) // make some CPU load to get some interesting numbers
     }
   })
 
   metrics = new Metrics(agent)
   metrics.start()
 })
+
+function spinCPUFor (durationMs) {
+  const start = Date.now()
+  while (Date.now() - start < durationMs) {}
+}
