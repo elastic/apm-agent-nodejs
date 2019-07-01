@@ -2,12 +2,12 @@
 
 module.exports = (moduleName) => {
   var agent = require('../../../..').start({
-      serviceName: 'test',
-      secretToken: 'test',
-      captureExceptions: false,
-      logLevel: 'fatal',
-      metricsInterval: 0
-    })
+    serviceName: 'test',
+    secretToken: 'test',
+    captureExceptions: false,
+    logLevel: 'fatal',
+    metricsInterval: 0
+  })
   var pkg = require(`${moduleName}/package.json`)
   var semver = require('semver')
 
