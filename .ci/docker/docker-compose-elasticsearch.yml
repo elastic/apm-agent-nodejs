@@ -1,0 +1,18 @@
+version: '2.1'
+
+services:
+  elasticsearch:
+    extends:
+      file: docker-compose.yml
+      service: elasticsearch
+  node_tests:
+    extends:
+      file: docker-compose-node-test.yml
+      service: node_tests
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+volumes:
+  nodeesdata:
+    driver: local

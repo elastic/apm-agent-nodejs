@@ -91,6 +91,24 @@ var options = {
 }
 ----
 
+[[environment]]
+===== `environment`
+
+* *Type:* String
+* *Default:* `process.env.NODE_ENV || 'development'`
+* *Env:* `ELASTIC_APM_ENVIRONMENT`
+
+The environment name is automatically logged along with all errors and transactions.
+If you want to overwrite this,
+use this option.
+
+Environments allow you to easily filter data on a global level in the APM UI.
+It's important to be consistent when naming environments across agents.
+See {kibana-ref}/filters.html#environment-selector[environment selector] in the Kibana UI for more information.
+
+NOTE: This feature is fully supported in the APM UI in Kibana versions >= 7.2.
+You must use the query bar to filter for a specific environment in versions prior to 7.2.
+
 [[instrument]]
 ==== `instrument`
 
