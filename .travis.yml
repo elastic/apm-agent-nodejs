@@ -61,6 +61,12 @@ jobs:
       node_js: '8'
       env: ELASTIC_APM_ASYNC_HOOKS=false
 
+    # Docs
+    -
+      script: npm run docs:build
+      name: "Build Docs"
+      perl: '5.26'
+
     # Commit Messages
     -
       node_js: 'lts/*'
