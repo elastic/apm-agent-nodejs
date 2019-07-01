@@ -65,7 +65,6 @@ jobs:
     -
       script: npm run docs:build
       name: "Build Docs"
-      perl: '5.26'
 
     # Commit Messages
     -
