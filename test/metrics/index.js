@@ -7,6 +7,9 @@ const test = require('tape')
 
 const Metrics = require('../../lib/metrics')
 
+const delayMs = 100
+const delayDeviationMs = delayMs / 100 * 10
+
 let agent
 let metrics
 
@@ -38,15 +41,19 @@ test('reports expected metrics', function (t) {
   }, 2000)
 
   agent = mockAgent({
-    metricsInterval: 0.1,
+    metricsInterval: delayMs / 1000,
     hostname: 'foo',
     environment: 'bar'
   }, (metricset = {}) => {
     t.comment(`event #${++count}`)
 
-    t.ok(isRoughlyAbsolute(metricset.timestamp, Date.now() * 1000, 10000), 'has timestamp')
+    const now = Date.now()
+    t.ok(isRoughlyAbsolute(metricset.timestamp, now * 1000, delayDeviationMs * 1000),
+      `has timestamp within ${delayDeviationMs}ms of now (delta: ${(now * 1000 - metricset.timestamp) / 1000}ms, timestamp: ${new Date(metricset.timestamp / 1000).toISOString()})`)
     if (count === 2) {
-      t.ok(isRoughlyAbsolute(metricset.timestamp, last + 100000, 10000), 'is about a second later')
+      const delay = delayMs * 1000
+      t.ok(isRoughlyAbsolute(metricset.timestamp, last + delay, delayDeviationMs * 1000),
+        `is about ${delayMs}ms later (delta: ${(last + delay - metricset.timestamp) / 1000}ms, timestamp: ${new Date(metricset.timestamp / 1000).toISOString()})`)
     }
 
     t.deepEqual(metricset.tags, {
