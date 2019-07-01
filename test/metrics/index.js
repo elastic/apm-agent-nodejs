@@ -7,7 +7,7 @@ const test = require('tape')
 
 const Metrics = require('../../lib/metrics')
 
-const delayMs = 100
+const delayMs = 500
 const delayDeviationMs = delayMs / 100 * 10
 
 let agent
