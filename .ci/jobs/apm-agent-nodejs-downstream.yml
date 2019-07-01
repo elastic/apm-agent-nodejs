@@ -26,6 +26,7 @@
         shallow-clone: true
         depth: 3
         do-not-fetch-tags: true
+        periodic-folder-trigger: 1d
         submodule:
           disable: false
           recursive: true
