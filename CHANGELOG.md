@@ -1,3 +1,7 @@
+# 2.12.0 - 2019/8/2
+  * feat(metrics): add runtime metrics ([#1021](https://github.com/elastic/apm-agent-nodejs/pull/1021))
+  * feat(config): add environment option ([#1106](https://github.com/elastic/apm-agent-nodejs/pull/1106))
+
 # 2.11.6 - 2019/6/11
   * fix(express): don't swallow error handling middleware ([#1111](https://github.com/elastic/apm-agent-nodejs/pull/1111))
 
