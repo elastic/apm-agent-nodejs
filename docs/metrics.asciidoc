@@ -60,3 +60,71 @@ This value is normalized by the number of CPU cores and it ranges from 0 to 100%
 
 The Resident Set Size,
 the amount of memory the process occupies in main memory (RAM).
+
+[float]
+[[metric-nodejs.handles.active]]
+=== `nodejs.handles.active`
+
+* *Type:* Long
+* *Format:* Counter
+
+The number of active libuv handles,
+likely held open by currently running I/O operations.
+
+[float]
+[[metric-nodejs.requests.active]]
+=== `nodejs.requests.active`
+
+* *Type:* Long
+* *Format:* Counter
+
+The number of active libuv requests,
+likely waiting for a response to an I/O operation.
+
+[float]
+[[metric-system.process.cpu.user.norm.pct]]
+=== `system.process.cpu.user.norm.pct`
+
+* *Type:* Long
+* *Format:* Counter
+
+The number of CPU cycles spent executing application code.
+
+[float]
+[[metric-system.process.cpu.system.norm.pct]]
+=== `system.process.cpu.system.norm.pct`
+
+* *Type:* Long
+* *Format:* Counter
+
+The number of CPU cycles spent executing kernel code as a result of application activity.
+
+[float]
+[[metric-nodejs.eventloop.delay.avg.ms]]
+=== `nodejs.eventloop.delay.avg.ms`
+
+* *Type:* Float
+* *Format:* Milliseconds
+
+The number of milliseconds of event loop delay.
+Event loop delay is sampled every 10 milliseconds.
+Delays shorter than 10ms may not be observed,
+for example if a blocking operation starts and ends within the same sampling period.
+
+[float]
+[[metric-nodejs.memory.heap.allocated.bytes]]
+=== `nodejs.memory.heap.allocated.bytes`
+
+* *Type:* Long
+* *Format:* Bytes
+
+The current allocated heap size in bytes.
+
+[float]
+[[metric-nodejs.memory.heap.used.bytes]]
+=== `nodejs.memory.heap.used.bytes`
+
+* *Type:* Long
+* *Format:* Bytes
+
+The currently used heap size in bytes.

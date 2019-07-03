@@ -7,6 +7,9 @@ const test = require('tape')
 
 const Metrics = require('../../lib/metrics')
 
+const delayMs = 500
+const delayDeviationMs = delayMs / 100 * 10
+
 let agent
 let metrics
 
@@ -38,45 +41,94 @@ test('reports expected metrics', function (t) {
   }, 2000)
 
   agent = mockAgent({
-    metricsInterval: 0.1
+    metricsInterval: delayMs / 1000,
+    hostname: 'foo',
+    environment: 'bar'
   }, (metricset = {}) => {
     t.comment(`event #${++count}`)
 
-    t.ok(isRoughlyAbsolute(metricset.timestamp, Date.now() * 1000, 10000), 'has timestamp')
+    const now = Date.now()
+    t.ok(isRoughlyAbsolute(metricset.timestamp, now * 1000, delayDeviationMs * 1000),
+      `has timestamp within ${delayDeviationMs}ms of now (delta: ${(now * 1000 - metricset.timestamp) / 1000}ms, timestamp: ${new Date(metricset.timestamp / 1000).toISOString()})`)
     if (count === 2) {
-      t.ok(isRoughlyAbsolute(metricset.timestamp, last + 100000, 10000), 'is about a second later')
+      const delay = delayMs * 1000
+      t.ok(isRoughlyAbsolute(metricset.timestamp, last + delay, delayDeviationMs * 1000),
+        `is about ${delayMs}ms later (delta: ${(last + delay - metricset.timestamp) / 1000}ms, timestamp: ${new Date(metricset.timestamp / 1000).toISOString()})`)
     }
 
     t.deepEqual(metricset.tags, {
-      hostname: os.hostname(),
-      env: process.env.NODE_ENV || 'development'
+      hostname: 'foo',
+      env: 'bar'
     }, 'has expected tags')
 
     const metrics = {
       'system.cpu.total.norm.pct': (value) => {
-        t.ok(isRoughly(value, 0.1, 10), 'should be a floating point number from 0 to 1')
+        if (count === 1) {
+          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+        } else {
+          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
+        }
       },
       'system.memory.total': (value) => {
         t.equal(value, os.totalmem(), 'should match total memory')
       },
       'system.memory.actual.free': (value) => {
-        t.ok(isRoughly(value, os.freemem(), 0.1), 'should be close to current free memory')
+        const free = os.freemem()
+        if (os.type() === 'Linux') {
+          // On Linux we use MemAvailable from /proc/meminfo as the value for this metric
+          // The Node.js API os.freemem() is reporting MemFree from the same file
+          t.ok(value > free, `is larger than os.freemem() (value: ${value}, free: ${free})`)
+        } else {
+          t.ok(isRoughly(value, free, 0.1), `is close to current free memory (value: ${value}, free: ${free})`)
+        }
       },
       'system.process.memory.rss.bytes': (value) => {
-        t.ok(isRoughly(value, process.memoryUsage().rss, 0.1), 'should be close to current rss')
+        const rss = process.memoryUsage().rss
+        t.ok(isRoughly(value, rss, 0.1), `is close to current rss (value: ${value}, rss: ${rss})`)
+      },
+      'nodejs.handles.active': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.requests.active': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.eventloop.delay.avg.ms': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.memory.heap.allocated.bytes': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.memory.heap.used.bytes': (value) => {
+        t.ok(value >= 0, 'is positive')
       }
     }
 
-    if (semver.satisfies(process.versions.node, '^6.1')) {
+    if (semver.satisfies(process.versions.node, '>=6.1')) {
       metrics['system.process.cpu.total.norm.pct'] = (value) => {
-        t.ok(isRoughly(value, 0.1, 1000), 'should be a floating point number from 0 to 1')
+        if (count === 1) {
+          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+        } else {
+          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
+        }
+      }
+      metrics['system.process.cpu.system.norm.pct'] = (value) => {
+        t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+      }
+      metrics['system.process.cpu.user.norm.pct'] = (value) => {
+        if (count === 1) {
+          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+        } else {
+          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
+        }
       }
     }
 
     for (const name of Object.keys(metrics)) {
       const metric = metricset.samples[name]
       t.comment(name)
-      t.ok(metric, `should be present`)
+      t.ok(metric, `is present`)
+      t.equal(typeof metric.value, 'number', 'is a number')
+      t.ok(Number.isFinite(metric.value), `is finite (was: ${metric.value})`)
       metrics[name](metric.value)
     }
 
@@ -85,9 +137,15 @@ test('reports expected metrics', function (t) {
       t.end()
     } else {
       last = metricset.timestamp
+      spinCPUFor(delayMs / 2) // make some CPU load to get some interesting numbers
     }
   })
 
   metrics = new Metrics(agent)
   metrics.start()
 })
+
+function spinCPUFor (durationMs) {
+  const start = Date.now()
+  while (Date.now() - start < durationMs) {}
+}
