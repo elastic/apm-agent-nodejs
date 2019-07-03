@@ -125,8 +125,8 @@ Clean up Docker containers and volumes:
 npm run docker:clean
 ```
 
-Run the benchmark tests:
+Run the benchmarks:
 
 ```
-npm run test:devbenchmark
+npm run bench
 ```

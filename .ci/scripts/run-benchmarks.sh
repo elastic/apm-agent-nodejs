@@ -17,4 +17,4 @@ npm install
 node --version
 npm --version
 
-npm run test:cibenchmark
+npm run bench:ci
