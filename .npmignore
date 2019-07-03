@@ -14,6 +14,7 @@ TESTING.md
 # Folders to ignore
 .ci
 .github
+dev-utils
 docs
 test
 

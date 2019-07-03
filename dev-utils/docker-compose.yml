@@ -1,0 +1,7 @@
+version: "3.7"
+services:
+  nodejs-agent:
+    image: node:12
+    entrypoint: /bin/bash
+    volumes:
+      - ..:/agent
