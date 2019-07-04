@@ -26,6 +26,9 @@
         - regular-branches: true
         - change-request:
             ignore-target-only-changes: false
+        - named-branches:
+            - wildcards-name:
+                excludes: 'greenkeeper*'
         clean:
           after: true
           before: true
