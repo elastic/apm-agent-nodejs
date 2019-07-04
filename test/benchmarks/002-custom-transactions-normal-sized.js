@@ -36,7 +36,7 @@ addTransaction('warmup', function runAgain () {
 
   setTimeout(end, runtime * 1000)
 
-  process.kill(pid, 'SIGUSR2')
+  if (pid) process.kill(pid, 'SIGUSR2')
   metrics.transactions = 0
   start = process.hrtime()
 
@@ -73,20 +73,25 @@ function addSpan (prefix, amount, cb) {
 }
 
 function end () {
-  const hrtime = process.hrtime(start)
+  const duration = process.hrtime(start)
   stop = true
   if (agent) {
     console.error('Flushing...')
     agent.flush(function () {
-      setTimeout(shutdown.bind(null, hrtime), 100)
+      setTimeout(shutdown.bind(null, duration), 100)
     })
   } else {
-    shutdown(hrtime)
+    shutdown(duration)
   }
 }
 
-function shutdown (hrtime) {
-  process.kill(pid, 'SIGUSR2')
-  process.stdout.write(JSON.stringify({hrtime, metrics}))
+function shutdown (duration) {
+  if (pid) process.kill(pid, 'SIGUSR2')
+  process.stdout.write(JSON.stringify({
+    name: 'custom-transactions-normal-sized',
+    warmup: { count: warmup, unit: 'transactions' },
+    duration,
+    metrics
+  }))
   process.exit()
 }

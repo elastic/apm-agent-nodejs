@@ -21,6 +21,8 @@ if (process.env.AGENT) {
 }
 
 let start
+let stop = false
+const pid = process.argv[2]
 const warmup = 1e4
 const runtime = 10
 const metrics = {
@@ -36,6 +38,7 @@ addTransaction('warmup', function runAgain () {
 
   setTimeout(end, runtime * 1000)
 
+  if (pid) process.kill(pid, 'SIGUSR2')
   metrics.transactions = 0
   start = process.hrtime()
 
@@ -46,6 +49,7 @@ addTransaction('warmup', function runAgain () {
 })
 
 function addTransaction (name, cb) {
+  if (stop) return
   if (agent) agent.startTransaction(name)
   addSpan(name, () => {
     if (agent) agent.endTransaction()
@@ -67,8 +71,26 @@ function addSpan (prefix, amount, cb) {
 }
 
 function end () {
-  const hrtime = process.hrtime(start)
-  process.stdout.write(JSON.stringify({hrtime, metrics}))
+  const duration = process.hrtime(start)
+  stop = true
+  if (agent) {
+    console.error('Flushing...')
+    agent.flush(function () {
+      setTimeout(shutdown.bind(null, duration), 100)
+    })
+  } else {
+    shutdown(duration)
+  }
+}
+
+function shutdown (duration) {
+  if (pid) process.kill(pid, 'SIGUSR2')
+  process.stdout.write(JSON.stringify({
+    name: 'span-creation-overhead',
+    warmup: { count: warmup, unit: 'transactions' },
+    duration,
+    metrics
+  }))
   process.exit()
 }
 

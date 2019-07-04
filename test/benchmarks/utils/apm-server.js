@@ -68,6 +68,6 @@ function startBenchmark () {
 }
 
 function endBenchmark () {
-  const hrtime = process.hrtime(start)
-  process.stdout.write(JSON.stringify({hrtime, metrics}))
+  const duration = process.hrtime(start)
+  process.stdout.write(JSON.stringify({ duration, metrics }))
 }

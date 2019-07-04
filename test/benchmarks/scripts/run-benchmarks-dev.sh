@@ -5,10 +5,23 @@ set -e
 function teardown() {
   if [ ! -z "$pid" ]
   then
-    echo "Shutting down mock APM Server (pid: $pid)..."
-    kill $pid
-    unset pid
+    shutdownAPMServer
   fi
+}
+
+function startAPMServer() {
+  echo "Starting mock APM Server..."
+  node $utils/apm-server.js > $serverout &
+  pid=$!
+  echo "Mock APM Server running as pid $pid"
+
+  sleep 1
+}
+
+function shutdownAPMServer() {
+  echo "Shutting down mock APM Server (pid: $pid)..."
+  kill $pid
+  unset pid
 }
 
 function runBenchmark () {
@@ -16,20 +29,18 @@ function runBenchmark () {
 
   sleep 1
 
-  echo "Starting mock APM Server..."
-  node $utils/apm-server.js > $serverout &
-  pid=$!
-  echo "Mock APM Server running as pid $pid"
+  echo "Running benchmark $benchmark without agent..."
+  node $benchmark > $appout_no_agent
 
-  sleep 1
+  startAPMServer
 
-  echo "Running benchmark $benchmark..."
-  node $benchmark $pid > $appout
+  echo "Running benchmark $benchmark with agent..."
+  AGENT=1 node $benchmark $pid > $appout_agent
+
+  shutdownAPMServer
 
   echo "Analyzing results..."
-  node $utils/analyzer.js $appout $serverout
-
-  teardown
+  node $utils/analyzer.js $appout_agent $appout_no_agent $serverout
 }
 
 trap teardown EXIT
@@ -38,10 +49,10 @@ basedir=$(dirname $0)/..
 utils=$basedir/utils
 outputdir=$basedir/.tmp
 serverout=$outputdir/server.json
-appout=$outputdir/app.json
+appout_no_agent=$outputdir/app-no-agent.json
+appout_agent=$outputdir/app-agent.json
 
-rm -f $serverout
-rm -f $appout
+rm -fr $outputdir
 mkdir -p $outputdir
 
 if [ ! -z "$1" ]

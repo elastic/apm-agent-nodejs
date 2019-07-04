@@ -8,47 +8,41 @@ const columnify = require('columnify')
 const git = require('git-rev')
 const afterAll = require('after-all-results')
 
-const args = process.argv.slice(2)
-const appfile = args[0]
-const serverfile = args[1]
+const [bench, control, serverMetrics] = process.argv.slice(2)
+  .map(file => fs.readFileSync(file))
+  .map(buf => JSON.parse(buf))
+  .map(processRawResults)
 
-const applog = JSON.parse(fs.readFileSync(appfile))
-const serverlog = fs.existsSync(serverfile) && fs.statSync(serverfile).size > 0
-  ? JSON.parse(fs.readFileSync(serverfile))
-  : null
-
-const agentActive = !!process.env.AGENT
-
-const data = serverlog
-  ? [].concat(
-      output(applog),
-      output(serverlog)
-    )
-  : output(applog)
+calculateSingle(bench)
+calculateSingle(control)
+calculateSingle(serverMetrics)
+calculateDelta(bench, control)
 
 displayResult()
 storeResult()
 
 function displayResult () {
   console.log()
-  console.log('Benchmark running time: %d seconds', applog.seconds)
-  if (agentActive && serverlog) console.log('Server running time: %d seconds', serverlog.seconds)
-  if (agentActive && serverlog) console.log('Avg bytes per event:', format(serverlog.metrics.bytes / serverlog.metrics.events))
+  console.log('Benchmark running time: %d seconds', duration(bench))
+  console.log('Server running time: %d seconds', duration(serverMetrics))
+  console.log('Avg bytes per event:', format(serverMetrics.metrics.bytes.count / serverMetrics.metrics.events.count))
 
   const opts = {
     config: {
       rate: { align: 'right' },
-      total: { align: 'right' }
+      total: { align: 'right' },
+      single: { align: 'right' },
+      overhead: { align: 'right' }
     }
   }
-  console.log(`\n${columnify(data, opts)}\n`)
+  console.log(`\n${columnify(output(bench, serverMetrics), opts)}\n`)
 }
 
 function storeResult () {
   const next = afterAll(function ([rev, branch]) {
     const file = joinPath(__dirname, '..', '.tmp', 'result.json')
 
-    const json = JSON.stringify({
+    const result = fs.existsSync(file) ? require(file) : {
       os: {
         arch: os.arch(),
         cpus: os.cpus(),
@@ -75,8 +69,13 @@ function storeResult () {
         rev,
         branch
       },
-      results: data
-    })
+      results: []
+    }
+
+    result.results.push(bench)
+    result.results.push(serverMetrics)
+
+    const json = JSON.stringify(result)
 
     fs.writeFile(file, json, function (err) {
       if (err) throw err
@@ -89,17 +88,54 @@ function storeResult () {
   git.branch(next())
 }
 
-function output (log) {
-  if (!log) return
-  const hrtime = log.hrtime
-  log.seconds = (hrtime[0] * 1e9 + hrtime[1]) / 1e9
-  return Object.entries(log.metrics).map(([metric, count]) => {
-    return {
-      metric,
-      rate: `${format(count / log.seconds)}/s`,
-      total: format(count, false)
-    }
+function calculateSingle (bench) {
+  const time = bench.duration.count
+  Object.entries(bench.metrics).forEach(([metric, count]) => {
+    const single = time / count
+    bench.metrics[metric] = { count, single }
   })
+}
+
+function calculateDelta (bench, control) {
+  Object.keys(bench.metrics).forEach(metric => {
+    bench.metrics[metric].overhead = bench.metrics[metric].single - control.metrics[metric].single
+    bench.metrics[metric].singleControl = control.metrics[metric].single
+  })
+}
+
+function processRawResults (log) {
+  const hrtime = log.duration
+
+  log.duration = {
+    count: (hrtime[0] * 1e9 + hrtime[1]) / 1e3,
+    unit: 'μs'
+  }
+
+  return log
+}
+
+function output (...logs) {
+  return logs.map(log => {
+    const seconds = duration(log)
+    const unit = log.duration.unit
+
+    return Object.entries(log.metrics).map(([name, metric]) => {
+      const cols = {
+        metric: name,
+        rate: `${format(metric.count / seconds)}/s`,
+        total: format(metric.count, false),
+        single: `${format(metric.single)} ${unit}`
+      }
+      if (metric.overhead) {
+        cols.overhead = `${format(metric.overhead)} ${unit}`
+      }
+      return cols
+    })
+  }).flat()
+}
+
+function duration (metrics) {
+  return metrics.duration.count / 1e6
 }
 
 function format (n, decimals) {
