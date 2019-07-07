@@ -143,6 +143,7 @@ interface AgentConfigOptions {
   logger?: Logger;
   metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   payloadLogFile?: string;
+  remoteConfig?: boolean;
   secretToken?: string;
   serverTimeout?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   serverUrl?: string;
