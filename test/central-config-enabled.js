@@ -30,7 +30,7 @@ test('remote config enabled', function (t) {
       serviceName: 'test',
       captureExceptions: false,
       metricsInterval: 0,
-      remoteConfig: true
+      centralConfig: true
     })
 
     Object.defineProperty(agent._conf, 'transactionSampleRate', {

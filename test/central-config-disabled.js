@@ -4,7 +4,7 @@ const http = require('http')
 
 const test = require('tape')
 
-test('remote config disabled', function (t) {
+test('central config disabled', function (t) {
   const server = http.createServer((req, res) => {
     t.notOk(req.url.startsWith('/config/v1/agents'), `should not poll APM Server for config (url: ${req.url})`)
   })
@@ -15,7 +15,7 @@ test('remote config disabled', function (t) {
       serviceName: 'test',
       captureExceptions: false,
       metricsInterval: 0,
-      remoteConfig: false
+      centralConfig: false
     })
 
     setTimeout(function () {

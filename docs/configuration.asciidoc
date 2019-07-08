@@ -121,8 +121,8 @@ A boolean specifying if the agent should collect performance metrics for the app
 
 Note that both `active` and `instrument` needs to be `true` for instrumentation to be running.
 
-[[remote-config]]
-==== `remoteConfig`
+[[central-config]]
+==== `centralConfig`
 
 * *Type:* Boolean
 * *Default:* `false`
