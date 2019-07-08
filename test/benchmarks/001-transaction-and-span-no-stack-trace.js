@@ -9,7 +9,8 @@ if (process.env.AGENT) {
   agent = require('../../').start({
     serviceName: benchName,
     captureExceptions: false,
-    captureSpanStackTraces: false
+    captureSpanStackTraces: false,
+    metricsInterval: 0
   })
 }
 

@@ -8,7 +8,8 @@ let agent
 if (process.env.AGENT) {
   agent = require('../../').start({
     serviceName: benchName,
-    captureExceptions: false
+    captureExceptions: false,
+    metricsInterval: 0
   })
   // v1 no-ops
   if (agent._instrumentation._queue) {
