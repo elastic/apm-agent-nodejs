@@ -68,7 +68,7 @@ function benchmark() {
     BULK_UPLOAD_FILE=apm-agent-bulk-${NOW_ISO_8601}.json
 
     sudo cset proc --exec /benchmark -- \
-        AGENT=1 node ../001-custom-transactions.js
+        AGENT=1 node ../001-transaction-and-span-no-stack-trace.js
         # $JAVA_HOME/bin/java -jar apm-agent-benchmarks/target/benchmarks.jar ".*ContinuousBenchmark" \
         # -prof gc \
         # -prof co.elastic.apm.benchmark.profiler.ReporterProfiler \

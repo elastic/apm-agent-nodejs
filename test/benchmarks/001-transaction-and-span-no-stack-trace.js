@@ -2,22 +2,15 @@
 
 process.on('SIGUSR2', end)
 
+const benchName = 'transaction-and-span-no-stack-trace'
+
 let agent
 if (process.env.AGENT) {
   agent = require('../../').start({
-    serviceName: '003-span-creation-overhead',
-    captureExceptions: false
+    serviceName: benchName,
+    captureExceptions: false,
+    captureSpanStackTraces: false
   })
-  // v1 no-ops
-  if (agent._instrumentation._queue) {
-    agent._instrumentation._queue.add = noop
-  }
-  // v2 no-ops
-  if (agent._apmServer) {
-    agent._apmServer.sendTransaction = noop
-    agent._apmServer.sendSpan = noop
-    agent._apmServer.sendError = noop
-  }
 }
 
 let start
@@ -86,12 +79,10 @@ function end () {
 function shutdown (duration) {
   if (pid) process.kill(pid, 'SIGUSR2')
   process.stdout.write(JSON.stringify({
-    name: 'span-creation-overhead',
+    name: benchName,
     warmup: { count: warmup, unit: 'transactions' },
     duration,
     metrics
   }))
   process.exit()
 }
-
-function noop () {}
