@@ -46,7 +46,7 @@ var optionFixtures = [
   ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
   ['instrument', 'INSTRUMENT', true],
-  ['centralConfig', 'CENTRAL_CONFIG', false],
+  ['centralConfig', 'CENTRAL_CONFIG', true],
   ['asyncHooks', 'ASYNC_HOOKS', true],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
   ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],

@@ -125,7 +125,7 @@ Note that both `active` and `instrument` needs to be `true` for instrumentation 
 ==== `centralConfig`
 
 * *Type:* Boolean
-* *Default:* `false`
+* *Default:* `true`
 * *Env:* `ELASTIC_APM_REMOTE_CONFIG`
 
 Activate APM Agent Configuration via Kibana.
