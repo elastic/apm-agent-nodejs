@@ -1,12 +1,12 @@
 ---
 - job:
-    name: apm-agent-nodejs/apm-agent-nodejs-mbp
-    display-name: APM Agent Node.js
-    description: APM Agent Node.js
-    script-path: Jenkinsfile
+    name: apm-agent-nodejs/apm-agent-nodejs-downstream
+    display-name: APM Agent Node.js Downstream
+    description: APM Agent Node.js Downstream
+    script-path: .ci/downstreamTests.groovy
     scm:
     - github:
-        branch-discovery: all
+        branch-discovery: no-pr
         discover-pr-forks-strategy: merge-current
         discover-pr-forks-trust: permission
         discover-pr-origin: merge-current
@@ -19,16 +19,6 @@
         credentials-id: 2a9602aa-ab9f-4e52-baf3-b71ca88469c7-UserAndToken
         ssh-checkout:
           credentials: f6c7695a-671e-4f4f-a331-acdce44ff9ba
-        build-strategies:
-        - tags:
-            ignore-tags-older-than: -1
-            ignore-tags-newer-than: -1
-        - regular-branches: true
-        - change-request:
-            ignore-target-only-changes: false
-        - named-branches:
-            - wildcards-name:
-                excludes: 'greenkeeper*'
         clean:
           after: true
           before: true

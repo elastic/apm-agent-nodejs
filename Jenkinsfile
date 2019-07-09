@@ -24,7 +24,6 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    cron 'H H(3-5) * * 1-5'
     issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
   }
   parameters {
@@ -41,7 +40,7 @@ pipeline {
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}")
+        gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true)
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
@@ -159,7 +158,7 @@ pipeline {
         log(level: 'INFO', text: 'Launching Async ITs')
         build(job: env.ITS_PIPELINE, propagate: false, wait: false,
               parameters: [string(name: 'AGENT_INTEGRATION_TEST', value: 'Node.js'),
-                           string(name: 'BUILD_OPTS', value: "--nodejs-agent-package ${env.CHANGE_FORK}/${env.REPO}#${env.GIT_BASE_COMMIT}"),
+                           string(name: 'BUILD_OPTS', value: "--nodejs-agent-package ${env.CHANGE_FORK?.trim() ?: 'elastic' }/${env.REPO}#${env.GIT_BASE_COMMIT}"),
                            string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
                            string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
                            string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
@@ -168,7 +167,7 @@ pipeline {
     }
   }
   post {
-    always {
+    cleanup {
       notifyBuildResult()
     }
   }

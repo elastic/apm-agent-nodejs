@@ -70,6 +70,7 @@ var directories = [
   'test/integration',
   'test/integration/api-schema',
   'test/sourcemaps',
+  'test/metrics',
   'test/instrumentation',
   'test/instrumentation/modules',
   'test/instrumentation/modules/bluebird',
