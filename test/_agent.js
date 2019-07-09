@@ -29,5 +29,9 @@ function clean () {
       agent._instrumentation._hook.unhook()
     }
     agent._metrics.stop()
+    if (agent._transport && agent._transport.destroy) {
+      agent._transport.destroy()
+    }
+    agent._transport = null
   }
 }

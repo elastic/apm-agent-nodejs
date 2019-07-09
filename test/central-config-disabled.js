@@ -1,5 +1,8 @@
 'use strict'
 
+const existingValue = process.env.ELASTIC_APM_CENTRAL_CONFIG
+delete process.env.ELASTIC_APM_CENTRAL_CONFIG
+
 const http = require('http')
 
 const test = require('tape')
@@ -24,5 +27,9 @@ test('central config disabled', function (t) {
       agent.destroy()
       server.close()
     }, 1000)
+  })
+
+  t.on('end', function () {
+    if (existingValue) process.env.ELASTIC_APM_CENTRAL_CONFIG = existingValue
   })
 })

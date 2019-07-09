@@ -1,5 +1,8 @@
 'use strict'
 
+const existingValue = process.env.ELASTIC_APM_CENTRAL_CONFIG
+delete process.env.ELASTIC_APM_CENTRAL_CONFIG
+
 const parseUrl = require('url').parse
 const http = require('http')
 
@@ -46,5 +49,9 @@ test('remote config enabled', function (t) {
     timer = setTimeout(function () {
       t.fail('should poll APM Server for config')
     }, 1000)
+  })
+
+  t.on('end', function () {
+    if (existingValue) process.env.ELASTIC_APM_CENTRAL_CONFIG = existingValue
   })
 })
