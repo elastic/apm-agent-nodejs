@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 
-export PATH=${PATH}:/$(pwd)/node_modules:/$(pwd)/node_modules/.bin
+export PATH=$(npm bin):${PATH}
 export HOME=$(pwd)
 
 npm install
