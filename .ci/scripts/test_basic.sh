@@ -12,7 +12,6 @@ npm --version
 
 standard
 npm run test:deps
-.ci/scripts/lint-commits.sh
 npm run test:types
 npm run test:babel
 
