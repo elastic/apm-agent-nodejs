@@ -14,13 +14,13 @@
       script-path: .ci/schedule-weekly.groovy
       scm:
       - git:
-          url: git@github.com:elastic/apm-pipeline-library.git
+          url: git@github.com:elastic/apm-agent-nodejs.git
           refspec: +refs/heads/*:refs/remotes/origin/* +refs/pull/*/head:refs/remotes/origin/pr/*
           wipe-workspace: 'True'
           name: origin
           shallow-clone: true
           credentials-id: f6c7695a-671e-4f4f-a331-acdce44ff9ba
-          reference-repo: /var/lib/jenkins/.git-references/apm-pipeline-library.git
+          reference-repo: /var/lib/jenkins/.git-references/apm-agent-nodejs.git
           branches:
           - $branch_specifier
     triggers:
