@@ -92,6 +92,8 @@ pipeline {
                 parallelTasks["Node.js-${version}"] = generateStep(version)
                 parallelTasksWithoutAsyncHooks["Node.js-${version}-async-hooks-false"] = generateStep(version)
               }
+
+              env.ELASTIC_APM_ASYNC_HOOKS = "true"
               parallel(parallelTasks)
 
               env.ELASTIC_APM_ASYNC_HOOKS = "false"
