@@ -137,7 +137,7 @@ pipeline {
             script {
               def node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
               def tav
-              if (changeRequest() && env.TAV_UPDATED != "false") {
+              if (!params.Run_As_Master_Branch && changeRequest() && env.TAV_UPDATED != "false") {
                 sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
                 tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
               } else {
