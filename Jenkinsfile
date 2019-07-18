@@ -87,10 +87,15 @@ pipeline {
             script {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
+              def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version)
+                parallelTasksWithoutAsyncHooks["Node.js-${version}-async-hooks-false"] = generateStep(version)
               }
               parallel(parallelTasks)
+
+              env.ELASTIC_APM_ASYNC_HOOKS = "false"
+              parallel(parallelTasksWithoutAsyncHooks)
             }
           }
         }
