@@ -42,6 +42,15 @@ pipeline {
         deleteDir()
         gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true)
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+        script {
+          dir("${BASE_DIR}"){
+            def regexps =[
+              "^lib/instrumentation/modules/",
+              "^test/instrumentation/modules/"
+            ]
+            env.TAV_UPDATED = isGitRegionMatch(regexps: regexps)
+          }
+        }
       }
     }
     /**
@@ -115,6 +124,7 @@ pipeline {
             expression { return params.Run_As_Master_Branch }
             triggeredBy 'TimerTrigger'
             changeRequest()
+            expression { return env.TAV_UPDATED != "false" }
           }
           expression { return params.tav_ci }
         }
