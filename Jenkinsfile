@@ -89,7 +89,7 @@ pipeline {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
               node['NODEJS_VERSION'].each{ version ->
-                parallelTasks["Node.js-${version}"] = generateStep(version)
+                parallelTasks["Node.js-${version}"] = generateStep(version: version)
               }
               parallel(parallelTasks)
             }
@@ -131,7 +131,7 @@ pipeline {
               def parallelTasks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 tav['TAV'].each{ tav_item ->
-                  parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version, tav_item)
+                  parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version: version, tav: tav_item)
                 }
               }
               parallel(parallelTasks)
@@ -174,7 +174,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each{ version ->
-                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version)
+                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -196,7 +196,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each{ version ->
-                    parallelTasks["Node.js-${version}-rc"] = generateStep(version)
+                    parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -219,7 +219,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
-                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version)
+                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -284,7 +284,10 @@ pipeline {
   }
 }
 
-def generateStep(version, tav = ''){
+def generateStep(Map params = [:]){
+  def version = params?.version
+  def tav = params.containsKey('tav') ? params.tav : ''
+  def edge = params.containsKey('edge') ? params.edge : false
   return {
     node('docker && linux && immutable'){
       try {
@@ -294,7 +297,7 @@ def generateStep(version, tav = ''){
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
-            sh(label: "Run Tests", script: ".ci/scripts/test.sh ${version} ${tav}")
+            sh(label: "Run Tests", script: ".ci/scripts/test.sh ${version} ${tav} ${edge}")
           }
         }
       } catch(e){
