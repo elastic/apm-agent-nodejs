@@ -35,7 +35,7 @@ case ${TAV_VERSIONS} in
     ;;
 esac
 
-NODE_VERSION=${NODE_VERSION} TAV_VERSIONS=${TAV_VERSIONS} USER_ID="$(id -u):$(id -g)" docker-compose \
+ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} NODE_VERSION=${NODE_VERSION} TAV_VERSIONS=${TAV_VERSIONS} USER_ID="$(id -u):$(id -g)" docker-compose \
   --no-ansi \
   --log-level ERROR \
   -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
