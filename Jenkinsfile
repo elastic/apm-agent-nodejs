@@ -171,7 +171,7 @@ pipeline {
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each{ version ->
                     parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
@@ -193,7 +193,7 @@ pipeline {
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each{ version ->
                     parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
@@ -216,7 +216,7 @@ pipeline {
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
                     parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true)
@@ -297,7 +297,7 @@ def generateStep(Map params = [:]){
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
-            sh(label: "Run Tests", script: ".ci/scripts/test.sh ${version} ${tav} ${edge}")
+            sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
           }
         }
       } catch(e){
