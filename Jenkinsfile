@@ -137,7 +137,17 @@ pipeline {
             script {
               def node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
               def tav
-              if (!params.Run_As_Master_Branch && changeRequest() && env.TAV_UPDATED != "false") {
+
+              if (env.GITHUB_COMMENT) {
+                def modules = getModulesFromCommentTrigger()
+                if (!modules.isEmpty()) {
+                  if (modules.find{ it == 'ALL' }) {
+                    tav = readYaml(file: '.ci/.jenkins_tav.yml')
+                  } else {
+                    tav = readYaml(text: """TAV:${modules.collect{ "\n\t- ${it}"}.join("") }""")
+                  }
+                }
+              } else if (!params.Run_As_Master_Branch && changeRequest() && env.TAV_UPDATED != "false") {
                 sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
                 tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
               } else {
