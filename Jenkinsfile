@@ -147,11 +147,14 @@ pipeline {
                     tav = readYaml(text: """TAV:${modules.collect{ "\n\t- ${it}"}.join("") }""")
                   }
                 }
-              } else if (!params.Run_As_Master_Branch && changeRequest() && env.TAV_UPDATED != "false") {
+              } else if (params.Run_As_Master_Branch) {
+                tav = readYaml(file: '.ci/.jenkins_tav.yml')
+              } else if (changeRequest() && env.TAV_UPDATED != "false") {
                 sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
                 tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
               } else {
-                tav = readYaml(file: '.ci/.jenkins_tav.yml')
+                tav = readYaml(text: 'TAV:')
+                node = readYaml(text: 'NODEJS_VERSION:')
               }
               def parallelTasks = [:]
               node['NODEJS_VERSION'].each{ version ->
