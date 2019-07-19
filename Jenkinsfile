@@ -149,7 +149,7 @@ pipeline {
                   if (modules.find{ it == 'ALL' }) {
                     tav = readYaml(file: '.ci/.jenkins_tav.yml')
                   } else {
-                    tav = readYaml(text: """TAV:${modules.collect{ "\n\t- ${it}"}.join("") }""")
+                    tav = readYaml(text: """TAV:${modules.collect{ "\n  - ${it}"}.join("") }""")
                   }
                 }
               } else if (params.Run_As_Master_Branch) {
