@@ -20,11 +20,12 @@ var APMServer = require('./_apm_server')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
+var apmName = require('../package').name
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 
 var optionFixtures = [
-  ['serviceName', 'SERVICE_NAME', 'elastic-apm-node'],
+  ['serviceName', 'SERVICE_NAME', apmName],
   ['secretToken', 'SECRET_TOKEN'],
   ['serverUrl', 'SERVER_URL'],
   ['verifyServerCert', 'VERIFY_SERVER_CERT', true],
