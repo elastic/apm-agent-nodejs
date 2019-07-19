@@ -2,7 +2,7 @@
 ## Given the git SHA it will parse the git log and search for any changes in any
 ## files under lib/instrumentation/modules/* or test/instrumentation/modules/*
 ## and will create a YAML file with the list of TAVs.
-set -xueo pipefail
+set -xuo pipefail
 
 OUTPUT=$1
 
@@ -21,7 +21,7 @@ if [[ -n "${CHANGE_TARGET}" ]] && [[ -n "${GIT_SHA}" ]] ; then
   grep 'lib/instrumentation/modules' ${GIT_DIFF}| sed 's#lib/instrumentation/modules/##g' > ${CHANGES}
   grep 'test/instrumentation/modules' ${GIT_DIFF} | sed 's#test/instrumentation/modules/##g' >> ${CHANGES}
 
-  if [ "$(wc -l < ${CHANGES})" -ne "0" ] ; then
+  if [[ $(wc -l <${CHANGES}) -gt 0 ]]; then
     sed -iback 's#/*##g; s#^/##g; s#\..*##g' ${CHANGES}
 
     ## Generate the file with the content
