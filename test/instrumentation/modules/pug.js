@@ -26,7 +26,6 @@ test('pug compile and render', function userLandCode (t) {
     t.equal(trans.type, 'custom')
 
     const types = ['template.pug.compile', 'template.pug.render']
-
     for (const type of types) {
       const span = findObjInArray(data.spans, 'type', type)
       t.ok(span, 'should have span of type ' + type)

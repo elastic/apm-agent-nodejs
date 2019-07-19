@@ -18,7 +18,6 @@ test('graphql.graphql', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-
   var root = { hello () {
     return 'Hello world!'
   } }
