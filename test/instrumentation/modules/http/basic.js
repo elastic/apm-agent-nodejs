@@ -87,6 +87,7 @@ test('new http.Server', function (t) {
 function sendRequest (server, timeout) {
   server.listen(function () {
     var port = server.address().port
+
     var context = TraceParent.startOrResume(null, {
       transactionSampleRate: 1.0
     })
