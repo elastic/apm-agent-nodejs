@@ -62,7 +62,7 @@ test('graphql.graphql - transaction ended', function (t) {
     var trans = data.transactions[0]
 
     t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
+    t.equal(trans.type, 'graphql')
   })
 
   var schema = graphql.buildSchema('type Query { hello: String }')
@@ -108,7 +108,7 @@ test('graphql.execute - transaction ended', function (t) {
     var trans = data.transactions[0]
 
     t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
+    t.equal(trans.type, 'graphql')
   })
 
   var schema = graphql.buildSchema('type Query { hello: String }')
@@ -184,7 +184,7 @@ function done (t, spanNameSuffix) {
     var span = data.spans[0]
 
     t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
+    t.equal(trans.type, 'graphql')
     t.equal(span.name, 'GraphQL: ' + spanNameSuffix)
     t.equal(span.type, 'db.graphql.execute')
 
