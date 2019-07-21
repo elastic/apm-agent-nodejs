@@ -19,15 +19,17 @@ var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
+var apmVersion = require('../package').version
+var apmName = require('../package').name
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 
 var optionFixtures = [
-  ['serviceName', 'SERVICE_NAME', 'elastic-apm-node'],
+  ['serviceName', 'SERVICE_NAME', apmName],
   ['secretToken', 'SECRET_TOKEN'],
   ['serverUrl', 'SERVER_URL'],
   ['verifyServerCert', 'VERIFY_SERVER_CERT', true],
-  ['serviceVersion', 'SERVICE_VERSION'],
+  ['serviceVersion', 'SERVICE_VERSION', apmVersion],
   ['active', 'ACTIVE', true],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['hostname', 'HOSTNAME'],
@@ -497,6 +499,17 @@ test('serviceName defaults to package name', function (t) {
 
     return testServiceConfig(pkg).then(conf => {
       t.equal(conf.active, false)
+      t.end()
+    })
+  })
+
+  t.test('serviceVersion should default to package version', function (t) {
+    var pkg = {
+      version: '1.2.3'
+    }
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.serviceVersion, pkg.version)
       t.end()
     })
   })

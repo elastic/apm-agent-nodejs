@@ -63,6 +63,7 @@ Disabling validation is normally required if using self-signed certificates.
 ==== `serviceVersion`
 
 * *Type:* String
+* *Default:* `version` field of `package.json`
 * *Env:* `ELASTIC_APM_SERVICE_VERSION`
 
 The version of the app currently running.
