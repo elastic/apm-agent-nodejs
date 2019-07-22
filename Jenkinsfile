@@ -30,7 +30,7 @@ pipeline {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
     booleanParam(name: 'doc_ci', defaultValue: true, description: 'Enable build docs.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
-    booleanParam(name: 'tests_ci', defaultValue: false, description: 'Enable tests.')
+    booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
   }
   stages {
     /**
