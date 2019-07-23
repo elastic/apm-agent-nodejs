@@ -135,32 +135,36 @@ pipeline {
         }
       }
       steps {
-        withGithubNotify(context: 'TAV Test', tab: 'tests') {
-          deleteDir()
-          unstash 'source'
-          dir("${BASE_DIR}"){
-            script {
-              def node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
-              def tav
+        deleteDir()
+        unstash 'source'
+        dir("${BASE_DIR}"){
+          script {
+            def ghContextName = 'TAV Test'
+            def ghDescription = ghContextName
+            def node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
+            def tav
 
-              if (env.GITHUB_COMMENT) {
-                def modules = getModulesFromCommentTrigger()
-                if (!modules.isEmpty()) {
-                  if (modules.find{ it == 'ALL' }) {
-                    tav = readYaml(file: '.ci/.jenkins_tav.yml')
-                  } else {
-                    tav = readYaml(text: """TAV:${modules.collect{ "\n  - ${it}"}.join("") }""")
-                  }
+            if (env.GITHUB_COMMENT) {
+              def modules = getModulesFromCommentTrigger()
+              if (!modules.isEmpty()) {
+                if (modules.find{ it == 'ALL' }) {
+                  tav = readYaml(file: '.ci/.jenkins_tav.yml')
+                } else {
+                  ghContextName = 'TAV Test Subset'
+                  ghDescription = 'TAV Test comment-triggered'
+                  tav = readYaml(text: """TAV:${modules.collect{ "\n  - ${it}"}.join("") }""")
                 }
-              } else if (params.Run_As_Master_Branch) {
-                tav = readYaml(file: '.ci/.jenkins_tav.yml')
-              } else if (changeRequest() && env.TAV_UPDATED != "false") {
-                sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
-                tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
-              } else {
-                tav = readYaml(text: 'TAV:')
-                node = readYaml(text: 'NODEJS_VERSION:')
               }
+            } else if (params.Run_As_Master_Branch) {
+              tav = readYaml(file: '.ci/.jenkins_tav.yml')
+            } else if (changeRequest() && env.TAV_UPDATED != "false") {
+              sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
+              tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
+            } else {
+              tav = readYaml(text: 'TAV:')
+              node = readYaml(text: 'NODEJS_VERSION:')
+            }
+            withGithubNotify(context: ghContextName, description: ghDescription, tab: 'tests') {
               def parallelTasks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 tav['TAV'].each{ tav_item ->
