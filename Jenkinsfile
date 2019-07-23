@@ -24,7 +24,7 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
+    issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?(?:module\\W+)?tests(?:\\W+please)?.*')
   }
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
@@ -145,7 +145,7 @@ pipeline {
             def tav
 
             if (env.GITHUB_COMMENT) {
-              def modules = getModulesFromCommentTrigger()
+              def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
               if (!modules.isEmpty()) {
                 if (modules.find{ it == 'ALL' }) {
                   tav = readYaml(file: '.ci/.jenkins_tav.yml')
