@@ -139,35 +139,11 @@ pipeline {
         unstash 'source'
         dir("${BASE_DIR}"){
           script {
-            def ghContextName = 'TAV Test'
-            def ghDescription = ghContextName
-            def node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
-            def tav
-
-            if (env.GITHUB_COMMENT) {
-              def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
-              if (!modules.isEmpty()) {
-                if (modules.find{ it == 'ALL' }) {
-                  tav = readYaml(file: '.ci/.jenkins_tav.yml')
-                } else {
-                  ghContextName = 'TAV Test Subset'
-                  ghDescription = 'TAV Test comment-triggered'
-                  tav = readYaml(text: """TAV:${modules.collect{ "\n  - ${it}"}.join("") }""")
-                }
-              }
-            } else if (params.Run_As_Master_Branch) {
-              tav = readYaml(file: '.ci/.jenkins_tav.yml')
-            } else if (changeRequest() && env.TAV_UPDATED != "false") {
-              sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
-              tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
-            } else {
-              tav = readYaml(text: 'TAV:')
-              node = readYaml(text: 'NODEJS_VERSION:')
-            }
-            withGithubNotify(context: ghContextName, description: ghDescription, tab: 'tests') {
+            def tavContext = getSmartTAVContext()
+            withGithubNotify(context: tavContext.ghContextName, description: tavContext.ghDescription, tab: 'tests') {
               def parallelTasks = [:]
-              node['NODEJS_VERSION'].each{ version ->
-                tav['TAV'].each{ tav_item ->
+              tavContext.node['NODEJS_VERSION'].each{ version ->
+                tavContext.tav['TAV'].each{ tav_item ->
                   parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version, tav_item)
                 }
               }
@@ -257,3 +233,40 @@ def generateStep(version, tav = ''){
     }
   }
 }
+
+/**
+* Gather the TAV context for the current execution. Then the TAV stage will execute
+* the TAV using a smarter approach.
+*/
+def getSmartTAVContext() {
+   context = [:]
+   context.ghContextName = 'TAV Test'
+   context.ghDescription = context.ghContextName
+   context.node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
+
+   if (env.GITHUB_COMMENT) {
+     def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
+     if (!modules.isEmpty()) {
+       if (modules.find{ it == 'ALL' }) {
+         context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
+       } else {
+         context.ghContextName = 'TAV Test Subset'
+         context.ghDescription = 'TAV Test comment-triggered'
+         context.tav = readYaml(text: """TAV:${modules.collect{ "\n  - ${it}"}.join("") }""")
+       }
+     }
+   } else if (params.Run_As_Master_Branch) {
+     context.ghDescription = 'TAV Test param-triggered'
+     context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
+   } else if (changeRequest() && env.TAV_UPDATED != "false") {
+     context.ghContextName = 'TAV Test Subset'
+     context.ghDescription = 'TAV Test changes-triggered'
+     sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
+     context.tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
+   } else {
+     context.ghDescription = 'TAV Test disabled'
+     context.tav = readYaml(text: 'TAV:')
+     context.node = readYaml(text: 'NODEJS_VERSION:')
+   }
+   return context
+ }
