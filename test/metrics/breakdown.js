@@ -35,9 +35,13 @@ if (process.platform === 'linux') {
 }
 
 test('includes breakdown when sampling', t => {
-  resetAgent(7, (data) => {
+  const conf = {
+    metricsInterval: 1
+  }
+
+  resetAgent(7, conf, (data) => {
     t.equal(data.transactions.length, 1, 'has one transaction')
-    assertTransaction(t, data.transactions[0])
+    assertTransaction(t, data.transactions[0], true)
 
     t.equal(data.spans.length, 1, 'has one span')
     assertSpan(t, data.spans[0])
@@ -100,11 +104,56 @@ test('includes breakdown when sampling', t => {
   })
 })
 
-function assertTransaction (t, trans) {
+test('does not include breakdown when not sampling', t => {
+  const conf = {
+    metricsInterval: 1,
+    transactionSampleRate: 0
+  }
+
+  resetAgent(4, conf, (data) => {
+    t.equal(data.transactions.length, 1, 'has one transaction')
+    assertTransaction(t, data.transactions[0], false)
+
+    t.equal(data.spans.length, 0, 'has no spans')
+
+    t.equal(data.metricsets.length, 3, 'has three metricsets')
+    assertMetricSet(t, 'initial basic', data.metricsets[0], basicMetrics)
+    assertMetricSet(t, 'second tick basic', data.metricsets[1], basicMetrics)
+    assertMetricSet(t, 'transaction', data.metricsets[2], [
+      'transaction.duration.count',
+      'transaction.duration.sum.us',
+      'transaction.breakdown.count'
+    ], {
+      transaction: {
+        name: 'GET unknown route',
+        type: 'request'
+      }
+    })
+
+    agent._metrics.stop()
+    server.close()
+    t.end()
+  })
+
+  var server = http.createServer(function (req, res) {
+    var span = agent.startSpan('test')
+    setTimeout(function () {
+      if (span) span.end()
+      res.end()
+    }, 50)
+  })
+
+  server.listen(function () {
+    var port = server.address().port
+    request(`http://localhost:${port}`)
+  })
+})
+
+function assertTransaction (t, trans, sampled) {
   t.comment('transaction')
   t.equal(trans.type, 'request', 'is a request')
   t.equal(trans.result, 'HTTP 2xx', 'result is 2xx')
-  t.equal(trans.sampled, true, 'is sampled')
+  t.equal(trans.sampled, sampled, 'is sampled')
 }
 
 function assertSpan (t, span) {
@@ -132,8 +181,8 @@ function request (url) {
   })
 }
 
-function resetAgent (expected, cb) {
-  agent._conf.metricsInterval = 5
+function resetAgent (expected, conf, cb) {
+  Object.assign(agent._conf, conf)
   agent._instrumentation.currentTransaction = null
   agent._transport = mockClient(expected, cb)
   agent._metrics = new Metrics(agent)
