@@ -42,7 +42,8 @@ pipeline {
           parameters: [
             booleanParam(name: 'Run_As_Master_Branch', value: false),
             booleanParam(name: 'doc_ci', value: true),
-            booleanParam(name: 'tav_ci', value: true)
+            booleanParam(name: 'tav_ci', value: true),
+            booleanParam(name: 'test_edge_ci', value: true)
           ],
           quietPeriod: 10,
           wait: false
