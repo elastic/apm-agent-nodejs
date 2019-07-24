@@ -8,7 +8,6 @@ const agent = require('../..').start({
   metricsInterval: 0
 })
 
-const http = require('http')
 const test = require('tape')
 
 const Metrics = require('../../lib/metrics')
@@ -34,74 +33,93 @@ if (process.platform === 'linux') {
   basicMetrics.push('system.process.memory.size')
 }
 
+const spanMetrics = [
+  'span.self_time.count',
+  'span.self_time.sum.us'
+]
+
+const metrics = {
+  transaction: [
+    'transaction.duration.count',
+    'transaction.duration.sum.us',
+    'transaction.breakdown.count'
+  ],
+  'transaction span': spanMetrics,
+  span: spanMetrics
+}
+
+const finders = {
+  transaction (metricsets) {
+    return metricsets.find(metricset => metricset.transaction && !metricset.span)
+  },
+  'transaction span' (metricsets) {
+    return metricsets.find(metricset => metricset.span && metricset.span.type === 'app')
+  },
+  span (metricsets, span) {
+    const [ type, subtype ] = span.type.split('.')
+    return metricsets.find(v => v.span && v.span.type === type && v.span.subtype === subtype)
+  }
+}
+
+const expectations = {
+  transaction (transaction) {
+    return {
+      transaction: {
+        name: transaction.name,
+        type: transaction.type
+      }
+    }
+  },
+  'transaction span' (transaction) {
+    return Object.assign(this.transaction(transaction), {
+      span: {
+        type: 'app'
+      }
+    })
+  },
+  span (transaction, span) {
+    return Object.assign(this.transaction(transaction), {
+      span: {
+        type: span.type
+      }
+    })
+  }
+}
+
 test('includes breakdown when sampling', t => {
   const conf = {
     metricsInterval: 1
   }
 
-  resetAgent(7, conf, (data) => {
+  resetAgent(6, conf, (data) => {
     t.equal(data.transactions.length, 1, 'has one transaction')
-    assertTransaction(t, data.transactions[0], true)
+    assertTransaction(t, transaction, data.transactions[0])
 
     t.equal(data.spans.length, 1, 'has one span')
-    assertSpan(t, data.spans[0])
+    assertSpan(t, span, data.spans[0])
 
-    t.equal(data.metricsets.length, 5, 'has five metricsets')
+    const { metricsets } = data
 
-    assertMetricSet(t, 'initial basic', data.metricsets[0], basicMetrics)
-    assertMetricSet(t, 'second tick basic', data.metricsets[1], basicMetrics)
-    assertMetricSet(t, 'transaction', data.metricsets[2], [
-      'transaction.duration.count',
-      'transaction.duration.sum.us',
-      'transaction.breakdown.count'
-    ], {
-      transaction: {
-        name: 'GET unknown route',
-        type: 'request'
-      }
+    assertMetricSet(t, 'transaction', metricsets, {
+      transaction
     })
-    assertMetricSet(t, 'transaction span', data.metricsets[3], [
-      'span.self_time.count',
-      'span.self_time.sum.us'
-    ], {
-      transaction: {
-        name: 'GET unknown route (unnamed)',
-        type: 'request'
-      },
-      span: {
-        type: 'custom'
-      }
+    assertMetricSet(t, 'span', metricsets, {
+      transaction,
+      span
     })
-    assertMetricSet(t, 'span', data.metricsets[4], [
-      'span.self_time.count',
-      'span.self_time.sum.us'
-    ], {
-      transaction: {
-        name: 'GET unknown route',
-        type: 'request'
-      },
-      span: {
-        type: 'app'
-      }
+    assertMetricSet(t, 'transaction span', metricsets, {
+      transaction,
+      span
     })
 
     agent._metrics.stop()
-    server.close()
     t.end()
   })
 
-  var server = http.createServer(function (req, res) {
-    var span = agent.startSpan('test')
-    setTimeout(function () {
-      span.end()
-      res.end()
-    }, 50)
-  })
-
-  server.listen(function () {
-    var port = server.address().port
-    request(`http://localhost:${port}`)
-  })
+  var transaction = agent.startTransaction('foo', 'bar')
+  var span = agent.startSpan('s0 name', 's0 type')
+  if (span) span.end()
+  transaction.end()
 })
 
 test('does not include breakdown when not sampling', t => {
@@ -110,82 +128,469 @@ test('does not include breakdown when not sampling', t => {
     transactionSampleRate: 0
   }
 
-  resetAgent(4, conf, (data) => {
+  resetAgent(3, conf, (data) => {
     t.equal(data.transactions.length, 1, 'has one transaction')
-    assertTransaction(t, data.transactions[0], false)
+    assertTransaction(t, transaction, data.transactions[0])
 
     t.equal(data.spans.length, 0, 'has no spans')
 
-    t.equal(data.metricsets.length, 3, 'has three metricsets')
-    assertMetricSet(t, 'initial basic', data.metricsets[0], basicMetrics)
-    assertMetricSet(t, 'second tick basic', data.metricsets[1], basicMetrics)
-    assertMetricSet(t, 'transaction', data.metricsets[2], [
-      'transaction.duration.count',
-      'transaction.duration.sum.us',
-      'transaction.breakdown.count'
-    ], {
-      transaction: {
-        name: 'GET unknown route',
-        type: 'request'
-      }
+    const { metricsets } = data
+
+    assertMetricSet(t, 'transaction', metricsets, {
+      transaction
     })
 
+    t.comment('metricSet - span')
+    t.notOk(metricsets.find(metricset => !!metricset.span), 'should not have any span metricsets')
+
     agent._metrics.stop()
-    server.close()
     t.end()
   })
 
-  var server = http.createServer(function (req, res) {
-    var span = agent.startSpan('test')
-    setTimeout(function () {
-      if (span) span.end()
-      res.end()
-    }, 50)
-  })
-
-  server.listen(function () {
-    var port = server.address().port
-    request(`http://localhost:${port}`)
-  })
+  var transaction = agent.startTransaction('foo', 'bar')
+  var span = agent.startSpan('s0 name', 's0 type')
+  if (span) span.end()
+  transaction.end()
 })
 
-function assertTransaction (t, trans, sampled) {
-  t.comment('transaction')
-  t.equal(trans.type, 'request', 'is a request')
-  t.equal(trans.result, 'HTTP 2xx', 'result is 2xx')
-  t.equal(trans.sampled, sampled, 'is sampled')
-}
+test('acceptance', t => {
+  const conf = {
+    metricsInterval: 1
+  }
 
-function assertSpan (t, span) {
-  t.comment('span')
-  t.equal(span.type, 'custom', 'is custom type')
-  t.equal(span.name, 'test', 'is named test')
-}
+  t.test('only transaction', t => {
+    resetAgent(4, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets)
+      }
 
-function assertMetricSet (t, name, metricSet, keys, { transaction, span } = {}) {
-  t.comment(`metricSet - ${name} metrics`)
-  t.deepEqual(Object.keys(metricSet.samples).sort(), keys.sort(), 'has expected sample keys')
-  t.deepEqual(metricSet.transaction, transaction, 'has expected transaction data')
-  t.deepEqual(metricSet.span, span, 'has expected span data')
-}
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 30 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
 
-function request (url) {
-  return new Promise((resolve, reject) => {
-    const req = http.get(url, function (res) {
-      const chunks = []
-      res.on('error', reject)
-      res.on('data', chunks.push.bind(chunks))
-      res.on('end', () => resolve(Buffer.concat(chunks)))
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 30 }
+      }, 'sample values match')
+
+      agent._metrics.stop()
+      t.end()
     })
-    req.on('error', reject)
+
+    var transaction = agent.startTransaction('foo', 'bar', {
+      startTime: 0
+    })
+    transaction.end(null, 30)
   })
+
+  t.test('with single sub-span', t => {
+    resetAgent(6, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets, span),
+        transaction_span: finders['transaction span'](metricsets, span),
+        span: finders.span(metricsets, span)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 30 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 20 }
+      }, 'sample values match')
+
+      t.ok(found.span, 'found db.mysql span metricset')
+      t.deepEqual(found.span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 10 }
+      }, 'sample values match')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
+    if (span) span.end(20)
+    transaction.end(null, 30)
+  })
+
+  t.test('with single app sub-span', t => {
+    resetAgent(5, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets, span),
+        transaction_span: finders['transaction span'](metricsets, span),
+        span: finders.span(metricsets, span)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 30 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 2 },
+        'span.self_time.sum.us': { value: 30 }
+      }, 'sample values match')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span = agent.startSpan('foo', 'app', { startTime: 10 })
+    if (span) span.end(20)
+    transaction.end(null, 30)
+  })
+
+  t.test('with parallel sub-spans', t => {
+    resetAgent(7, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span0)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 30 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 20 }
+      }, 'sample values match')
+
+      t.ok(found.span, 'found db.mysql span metricset')
+      t.deepEqual(found.span.samples, {
+        'span.self_time.count': { value: 2 },
+        'span.self_time.sum.us': { value: 20 }
+      }, 'sample values match')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 10 })
+    if (span0) span0.end(20)
+    if (span1) span1.end(20)
+    transaction.end(null, 30)
+  })
+
+  t.test('with overlapping sub-spans', t => {
+    resetAgent(7, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span0)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 30 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 15 }
+      }, 'sample values match')
+
+      t.ok(found.span, 'found db.mysql span metricset')
+      t.deepEqual(found.span.samples, {
+        'span.self_time.count': { value: 2 },
+        'span.self_time.sum.us': { value: 20 }
+      }, 'sample values match')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
+    if (span0) span0.end(20)
+    if (span1) span1.end(25)
+    transaction.end(null, 30)
+  })
+
+  t.test('with sequential sub-spans', t => {
+    resetAgent(7, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span0)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 30 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 10 }
+      }, 'sample values match')
+
+      t.ok(found.span, 'found db.mysql span metricset')
+      t.deepEqual(found.span.samples, {
+        'span.self_time.count': { value: 2 },
+        'span.self_time.sum.us': { value: 20 }
+      }, 'sample values match')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 5 })
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
+    if (span0) span0.end(15)
+    if (span1) span1.end(25)
+    transaction.end(null, 30)
+  })
+
+  t.test('with sub-spans returning to app time', t => {
+    resetAgent(7, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span0)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 30 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 20 }
+      }, 'sample values match')
+
+      t.ok(found.span, 'found db.mysql span metricset')
+      t.deepEqual(found.span.samples, {
+        'span.self_time.count': { value: 2 },
+        'span.self_time.sum.us': { value: 10 }
+      }, 'sample values match')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+    if (span0) span0.end(15)
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 20 })
+    if (span1) span1.end(25)
+    transaction.end(null, 30)
+  })
+
+  t.test('with overlapping nested async sub-spans', t => {
+    resetAgent(7, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span1)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 30 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 2 },
+        'span.self_time.sum.us': { value: 25 }
+      }, 'sample values match')
+
+      t.ok(found.span, 'found db.mysql span metricset')
+      t.deepEqual(found.span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 10 }
+      }, 'sample values match')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
+
+    // Hack to make it look like an async tick has already happened
+    agent._instrumentation.activeSpan = span0
+
+    var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 15, childOf: span0 })
+    if (span0) span0.end(20)
+    if (span1) span1.end(25)
+    transaction.end(null, 30)
+  })
+
+  t.test('with app sub-span extending beyond end', t => {
+    resetAgent(5, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 20 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 10 }
+      }, 'sample values match')
+
+      t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
+
+    // Hack to make it look like an async tick has already happened
+    agent._instrumentation.activeSpan = span0
+
+    transaction.end(null, 20)
+    var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: span0 })
+    if (span0) span0.end(30)
+    if (span1) span1.end(30)
+  })
+
+  t.test('with other sub-span extending beyond end', t => {
+    resetAgent(5, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 20 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 10 }
+      }, 'sample values match')
+
+      t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
+    transaction.end(null, 20)
+    if (span) span.end(30)
+  })
+
+  t.test('with other sub-span starting after end', t => {
+    resetAgent(4, conf, ({ metricsets }) => {
+      const found = {
+        transaction: finders.transaction(metricsets),
+        transaction_span: finders['transaction span'](metricsets)
+      }
+
+      t.ok(found.transaction, 'found transaction metricset')
+      t.deepEqual(found.transaction.samples, {
+        'transaction.duration.count': { value: 1 },
+        'transaction.duration.sum.us': { value: 10 },
+        'transaction.breakdown.count': { value: 1 }
+      }, 'sample values match')
+
+      t.ok(found.transaction_span, 'found app span metricset')
+      t.deepEqual(found.transaction_span.samples, {
+        'span.self_time.count': { value: 1 },
+        'span.self_time.sum.us': { value: 10 }
+      }, 'sample values match')
+
+      t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
+
+      agent._metrics.stop()
+      t.end()
+    })
+
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    transaction.end(null, 10)
+    var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20 })
+    if (span) span.end(30)
+  })
+
+  t.end()
+})
+
+function assertTransaction (t, expected, received) {
+  t.comment('transaction')
+  t.equal(received.name, expected.name, 'type matches')
+  t.equal(received.type, expected.type, 'type matches')
+  t.equal(received.result, expected.result, 'result matches')
+  t.equal(received.sampled, expected.sampled, 'sampled state matches')
+}
+
+function assertSpan (t, expected, received) {
+  t.comment('span')
+  t.equal(received.name, expected.name, 'name matches')
+  t.equal(received.type, expected.type, 'type matches')
+}
+
+function assertMetricSet (t, name, metricsets, { transaction, span } = {}) {
+  const metricSet = finders[name](metricsets, span)
+  const keys = metrics[name]
+  const expected = expectations[name](transaction, span)
+
+  t.comment(`metricSet - ${name} metrics`)
+  t.ok(metricSet, 'found metricset')
+  t.deepEqual(Object.keys(metricSet.samples).sort(), keys.sort(), 'has expected sample keys')
+  t.deepEqual(metricSet.transaction, expected.transaction, 'has expected transaction data')
+  t.deepEqual(metricSet.span, expected.span, 'has expected span data')
 }
 
 function resetAgent (expected, conf, cb) {
-  Object.assign(agent._conf, conf)
+  agent._config(conf)
   agent._instrumentation.currentTransaction = null
   agent._transport = mockClient(expected, cb)
   agent._metrics = new Metrics(agent)
-  agent._metrics.start()
+  agent._metrics.start(true)
   agent.captureError = function (err) { throw err }
 }
