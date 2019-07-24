@@ -304,7 +304,13 @@ def generateStep(Map params = [:]){
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
-            sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+            if (version?.startsWith('6')) {
+              catchError {
+                sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+              }
+            } else {
+              sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+            }
           }
         }
       } catch(e){
