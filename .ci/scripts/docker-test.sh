@@ -7,7 +7,7 @@ node --version
 npm --version
 npm install
 
-if [[ ! -z ${TAV}  ]]; then
+if [[ -n ${TAV} ]]; then
   npm run test:tav|tee tav-output.tap
 else
   nyc node test/test.js | tee test-suite-output.tap

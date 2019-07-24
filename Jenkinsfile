@@ -31,6 +31,7 @@ pipeline {
     booleanParam(name: 'doc_ci', defaultValue: true, description: 'Enable build docs.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
+    booleanParam(name: 'test_edge_ci', defaultValue: true, description: 'Enable tests for edge versions of nodejs.')
   }
   stages {
     /**
@@ -102,7 +103,7 @@ pipeline {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
               node['NODEJS_VERSION'].each{ version ->
-                parallelTasks["Node.js-${version}"] = generateStep(version)
+                parallelTasks["Node.js-${version}"] = generateStep(version: version)
               }
               parallel(parallelTasks)
             }
@@ -144,10 +145,99 @@ pipeline {
               def parallelTasks = [:]
               tavContext.node['NODEJS_VERSION'].each{ version ->
                 tavContext.tav['TAV'].each{ tav_item ->
-                  parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version, tav_item)
+                  parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version: version, tav: tav_item)
                 }
               }
               parallel(parallelTasks)
+            }
+          }
+        }
+      }
+    }
+    /**
+      Run Edge tests.
+    */
+    stage('Edge Test') {
+      agent none
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+      }
+      when {
+        beforeAgent true
+        allOf {
+          anyOf {
+            expression { return params.Run_As_Master_Branch }
+            triggeredBy 'TimerTrigger'
+          }
+          expression { return params.test_edge_ci }
+        }
+      }
+      stages {
+        stage('Nightly Test') {
+          agent { label 'docker && immutable' }
+          environment {
+            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
+          }
+          steps {
+            withGithubNotify(context: 'Nightly Test', tab: 'tests') {
+              deleteDir()
+              unstash 'source'
+              dir("${BASE_DIR}"){
+                script {
+                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def parallelTasks = [:]
+                  node['NODEJS_VERSION'].each{ version ->
+                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
+                  }
+                  parallel(parallelTasks)
+                }
+              }
+            }
+          }
+        }
+        stage('RC Test') {
+          agent { label 'docker && immutable' }
+          environment {
+            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
+          }
+          steps {
+            withGithubNotify(context: 'RC Test', tab: 'tests') {
+              deleteDir()
+              unstash 'source'
+              dir("${BASE_DIR}"){
+                script {
+                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def parallelTasks = [:]
+                  node['NODEJS_VERSION'].each{ version ->
+                    parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
+                  }
+                  parallel(parallelTasks)
+                }
+              }
+            }
+          }
+        }
+        stage('RC Test - No async hooks') {
+          agent { label 'docker && immutable' }
+          environment {
+            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
+            ELASTIC_APM_ASYNC_HOOKS = "false"
+          }
+          steps {
+            withGithubNotify(context: 'RC No Asyn Hooks Test', tab: 'tests') {
+              deleteDir()
+              unstash 'source'
+              dir("${BASE_DIR}"){
+                script {
+                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def parallelTasks = [:]
+                  node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
+                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true)
+                  }
+                  parallel(parallelTasks)
+                }
+              }
             }
           }
         }
@@ -208,7 +298,10 @@ pipeline {
   }
 }
 
-def generateStep(version, tav = ''){
+def generateStep(Map params = [:]){
+  def version = params?.version
+  def tav = params.containsKey('tav') ? params.tav : ''
+  def edge = params.containsKey('edge') ? params.edge : false
   return {
     node('docker && linux && immutable'){
       try {
@@ -218,7 +311,7 @@ def generateStep(version, tav = ''){
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
-            sh(label: "Run Tests", script: ".ci/scripts/test.sh ${version} ${tav}")
+            sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
           }
         }
       } catch(e){
