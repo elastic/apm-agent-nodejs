@@ -72,6 +72,7 @@ function newAgent (server) {
     captureExceptions: false,
     disableInstrumentations: ['http'],
     captureErrorLogStackTraces: true,
-    metricsInterval: 0
+    metricsInterval: 0,
+    centralConfig: false
   })
 }

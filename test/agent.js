@@ -16,6 +16,7 @@ var agentVersion = require('../package.json').version
 var inContainer = 'containerId' in (containerInfo() || {})
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
 
 test('#setFramework()', function (t) {
   var agent = Agent()

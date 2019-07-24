@@ -9,7 +9,8 @@ getPort().then(port => {
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
-    metricsInterval: 0
+    metricsInterval: 0,
+    centralConfig: false
   })
 
   // hack to ensure that all incoming http requests picked up on the mock APM

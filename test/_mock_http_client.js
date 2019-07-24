@@ -13,7 +13,7 @@ module.exports = function (expected, done) {
   let timer
 
   const client = {
-    _writes: { length: 0, spans: [], transactions: [], errors: [] },
+    _writes: { length: 0, spans: [], transactions: [], errors: [], metricsets: [] },
     _write (obj, cb) {
       cb = cb || noop
 
@@ -36,8 +36,8 @@ module.exports = function (expected, done) {
     sendError (error, cb) {
       this._write({ error }, cb)
     },
-    sendMetricSet (error, cb) {
-      this._write({ error }, cb)
+    sendMetricSet (metricset, cb) {
+      this._write({ metricset }, cb)
     },
     flush (cb) {
       if (cb) process.nextTick(cb)

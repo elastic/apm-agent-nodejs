@@ -7,7 +7,8 @@ const agent = require('../../../').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
-  metricsInterval: 0
+  metricsInterval: 0,
+  centralConfig: false
 })
 
 const semver = require('semver')
