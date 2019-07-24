@@ -28,7 +28,6 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
-    booleanParam(name: 'doc_ci', defaultValue: true, description: 'Enable build docs.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'test_edge_ci', defaultValue: true, description: 'Enable tests for edge versions of nodejs.')
   }
@@ -227,31 +226,6 @@ pipeline {
             }
           }
         }
-      }
-    }
-    /**
-    Build the documentation.
-    */
-    stage('Documentation') {
-      agent { label 'docker && immutable' }
-      options { skipDefaultCheckout() }
-      when {
-        beforeAgent true
-        allOf {
-          anyOf {
-            branch 'master'
-            branch "\\d+\\.\\d+"
-            branch "v\\d?"
-            tag "v\\d+\\.\\d+\\.\\d+*"
-            expression { return params.Run_As_Master_Branch }
-          }
-          expression { return params.doc_ci }
-        }
-      }
-      steps {
-        deleteDir()
-        unstash 'source'
-        buildDocs(docsDir: "${BASE_DIR}/docs", archive: true)
       }
     }
     stage('Integration Tests') {
