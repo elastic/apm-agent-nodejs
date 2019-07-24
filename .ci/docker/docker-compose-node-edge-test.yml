@@ -1,0 +1,31 @@
+version: '2.1'
+
+services:
+  node_tests:
+    build:
+      context: node-edge-container
+      dockerfile: Dockerfile
+      args:
+        - NODE_VERSION=${NODE_VERSION}
+        - NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR}
+        - ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS}
+    working_dir: /app
+    command: >
+      /bin/bash -c ".ci/scripts/docker-test.sh"
+    environment:
+      MONGODB_HOST: 'mongodb'
+      REDIS_HOST: 'redis'
+      ES_HOST: 'elasticsearch'
+      MSSQL_HOST: 'mssql'
+      MYSQL_HOST: 'mysql'
+      CASSANDRA_HOST: 'cassandra'
+      PGHOST: 'postgres'
+      PGUSER: 'postgres'
+      NODE_VERSION: ${NODE_VERSION}
+      NVM_NODEJS_ORG_MIRROR: ${NVM_NODEJS_ORG_MIRROR}
+      ELASTIC_APM_ASYNC_HOOKS: ${ELASTIC_APM_ASYNC_HOOKS}
+      TAV: ${TAV_VERSIONS}
+      HOME: /tmp
+    volumes:
+      - ${PWD}:/app
+    user: ${USER_ID}
