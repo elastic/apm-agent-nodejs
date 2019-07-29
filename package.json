@@ -117,7 +117,7 @@
     "commitlint-config-squash-pr": "^1.0.0",
     "connect": "^3.7.0",
     "container-info": "^1.0.1",
-    "dependency-check": "^3.2.1",
+    "dependency-check": "^4.1.0",
     "elasticsearch": "^16.1.1",
     "express": "^4.16.4",
     "express-graphql": "^0.8.0",
