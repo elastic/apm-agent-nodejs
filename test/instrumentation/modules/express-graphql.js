@@ -182,7 +182,7 @@ function done (t, query, path) {
     var span = data.spans[0]
 
     t.equal(trans.name, `${query} (${path})`)
-    t.equal(trans.type, 'request')
+    t.equal(trans.type, 'graphql')
     t.equal(span.name, 'GraphQL: ' + query)
     t.equal(span.type, 'db.graphql.execute')
 
