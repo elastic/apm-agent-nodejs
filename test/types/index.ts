@@ -2,7 +2,8 @@ import agent from '../../'
 
 agent.start({
   captureExceptions: false,
-  metricsInterval: '0'
+  metricsInterval: '0',
+  centralConfig: false
 })
 
 function started (bool: boolean) {}
