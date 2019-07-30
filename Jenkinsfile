@@ -330,7 +330,7 @@ def getSmartTAVContext() {
        context.ghDescription = 'TAV Test disabled'
        context.tav = readYaml(text: 'TAV:')
        context.node = readYaml(text: 'NODEJS_VERSION:')
-     else {
+     } else {
        if (modules.find{ it == 'ALL' }) {
          context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
        } else {
