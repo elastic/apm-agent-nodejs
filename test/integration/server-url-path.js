@@ -7,6 +7,8 @@ getPort().then(function (port) {
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port + '/sub',
     captureExceptions: false,
+    metricsInterval: 0,
+    centralConfig: false,
     disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
   })
 

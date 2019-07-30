@@ -51,12 +51,14 @@ NOTE: If you are using Babel, you need to use the `elastic-apm-node/start` appro
 
 There are three ways to configure the Node.js agent. In order of precedence (higher overwrites lower):
 
-1. Environment variables.
+1. APM Agent Configuration via Kibana. Enabled with <<central-config>>.
 
-2. If calling the `apm.start()` function,
+2. Environment variables.
+
+3. If calling the `apm.start()` function,
 you can supply a <<agent-configuration-object,configurations object>> as the first argument.
 
-3. Via the <<agent-configuration-file,agent configuration file>>.
+4. Via the <<agent-configuration-file,agent configuration file>>.
 
 For information on the available configuration properties, and the expected names of environment variables, see the <<configuration,Configuration options>> documentation.
 
