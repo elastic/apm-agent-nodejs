@@ -313,7 +313,11 @@ def getSmartTAVContext() {
 
    if (env.GITHUB_COMMENT) {
      def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
-     if (!modules.isEmpty()) {
+     if (modules.isEmpty()) {
+       context.ghDescription = 'TAV Test disabled'
+       context.tav = readYaml(text: 'TAV:')
+       context.node = readYaml(text: 'NODEJS_VERSION:')
+     else {
        if (modules.find{ it == 'ALL' }) {
          context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
        } else {
