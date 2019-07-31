@@ -1,3 +1,9 @@
+# 2.13.0 - 2019/7/30
+  * fix: standardize user-agent header ([#1238](https://elastic/apm-agent-nodejs/pull/1238))
+  * feat: add support for APM Agent Configuration via Kibana ([#1197](https://elastic/apm-agent-nodejs/pull/1197))
+  * feat(metrics): breakdown graphs ([#1219](https://elastic/apm-agent-nodejs/pull/1219))
+  * feat(config): default serviceVersion to package version ([#1237](https://elastic/apm-agent-nodejs/pull/1237))
+
 # 2.12.1 - 2019/7/7
   * fix(knex): abort early on unsupported version of knex ([#1189](https://github.com/elastic/apm-agent-nodejs/pull/1189))
 
