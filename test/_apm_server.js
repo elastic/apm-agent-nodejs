@@ -14,6 +14,7 @@ var Agent = require('./_agent')
 var defaultAgentOpts = {
   serviceName: 'some-service-name',
   captureExceptions: false,
+  centralConfig: false,
   logLevel: 'error'
 }
 
