@@ -101,10 +101,17 @@ pipeline {
             script {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
+              def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
+                parallelTasksWithoutAsyncHooks["Node.js-${version}-async-hooks-false"] = generateStep(version: version)
               }
+
+              env.ELASTIC_APM_ASYNC_HOOKS = "true"
               parallel(parallelTasks)
+
+              env.ELASTIC_APM_ASYNC_HOOKS = "false"
+              parallel(parallelTasksWithoutAsyncHooks)
             }
           }
         }
@@ -285,7 +292,13 @@ def generateStep(Map params = [:]){
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
-            sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+            if (version?.startsWith('6')) {
+              catchError {
+                sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+              }
+            } else {
+              sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+            }
           }
         }
       } catch(e){
