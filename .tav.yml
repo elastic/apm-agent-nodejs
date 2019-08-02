@@ -163,6 +163,13 @@ express-graphql-0.7.1_14:
   versions: '>=0.7.1 <0.9.0'
   commands: node test/instrumentation/modules/express-graphql.js
 
+express-graphql-0.9.0_14:
+  name: express-graphql
+  preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^14.4.1
+  versions: '>=0.9.0 <0.10.0'
+  commands: node test/instrumentation/modules/express-graphql.js
+
 apollo-server-express-2_12:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
