@@ -17,6 +17,7 @@ services:
   - cassandra
   
 cache:
+  npm: false
   directories:
     - deb-cache
   
