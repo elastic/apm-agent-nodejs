@@ -8,6 +8,10 @@ var agent = require('../../..').start({
   centralConfig: false
 })
 
+var version = require('express-graphql/package').version
+var semver = require('semver')
+if (semver.lt(process.version, '8.0.0') && semver.gte(version, '0.9.0')) process.exit()
+
 var http = require('http')
 
 var buildSchema = require('graphql').buildSchema
