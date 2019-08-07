@@ -130,6 +130,7 @@
     "graphql": "^14.3.1",
     "handlebars": "^4.0.12",
     "hapi": "^18.1.0",
+    "@hapi/hapi": "^18.2.0",
     "https-pem": "^2.0.0",
     "inquirer": "^0.12.0",
     "ioredis": "^4.10.0",

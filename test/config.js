@@ -630,7 +630,8 @@ test('disableInstrumentations', function (t) {
   var mysql2Version = require('mysql2/package.json').version
   var wsVersion = require('ws/package.json').version
 
-  var modules = new Set(Instrumentation.modules)
+  var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
+  var modules = new Set(flattenedModules)
   if (semver.lt(process.version, '8.6.0')) {
     modules.delete('restify')
   }
@@ -639,6 +640,9 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
     modules.delete('hapi')
+  }
+  if (semver.lt(process.version, '8.9.0')) {
+    modules.delete('@hapi/hapi')
   }
   if (semver.lt(process.version, '6.0.0') && semver.gte(mysql2Version, '1.6.0')) {
     modules.delete('mysql2')
