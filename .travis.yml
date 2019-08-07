@@ -15,9 +15,7 @@ services:
   - redis-server
   - postgresql
   - cassandra
-<<<<<<< HEAD
   - memcached
-=======
   
 cache:
   npm: false
@@ -28,7 +26,6 @@ env:
   global:
     - ELASTICSEARCH_DEB_VERSION=6.6.0
     - ELASTICSEARCH_DEB_PACKAGE=elasticsearch-${ELASTICSEARCH_DEB_VERSION}.deb
->>>>>>> 2175914091996dd4201426ae207a86b74c7756a1
 
 before_install:
   - |
