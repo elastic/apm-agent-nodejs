@@ -1,5 +1,8 @@
 'use strict'
 
+// Memcached isn't supported on Windows
+if (process.platform === 'win32') process.exit()
+
 var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
