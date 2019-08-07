@@ -8,7 +8,7 @@ install:
   - ps: .\test\script\appveyor\install-redis.ps1
   - ps: .\test\script\appveyor\install-elasticsearch.ps1
   - ps: .\test\script\appveyor\install-cassandra.ps1
-  - ps: Install-Product node 8 # Latest LTS
+  - ps: Install-Product node 10 # Latest LTS
   - npm install
 
 # Services are started after all install scripts have run
