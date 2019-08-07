@@ -58,6 +58,7 @@ test(function (t) {
                 t.equal(data, undefined)
                 agent.endTransaction()
                 agent.flush()
+                cache.end()
               })
             })
           })
