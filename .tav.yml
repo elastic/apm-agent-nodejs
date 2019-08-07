@@ -222,7 +222,7 @@ hapi-async-await:
 '@hapi/hapi':
   node: '>=8.2'
   versions: '>=17.0.0'
-  commands: 
+  commands:
     - node test/instrumentation/modules/hapi/basic.js
     - node test/instrumentation/modules/hapi/set-framework-2.js
 tedious:
