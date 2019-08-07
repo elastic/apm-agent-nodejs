@@ -73,7 +73,7 @@ test(function (t) {
   })
 })
 
-function resetAgent(cb) {
+function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
   agent._transport = mockClient(8, cb)
   agent.captureError = function (err) { throw err }
