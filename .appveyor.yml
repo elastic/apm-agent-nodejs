@@ -5,7 +5,6 @@ environment:
 
 # Install scripts runs after repo cloning
 install:
-  - ps: .\test\script\appveyor\install-memcached.ps1
   - ps: .\test\script\appveyor\install-redis.ps1
   - ps: .\test\script\appveyor\install-elasticsearch.ps1
   - ps: .\test\script\appveyor\install-cassandra.ps1
