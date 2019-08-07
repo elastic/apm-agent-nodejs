@@ -22,6 +22,7 @@ services:
       MEMCACHED_HOST: 'memcached'
       NODE_VERSION: ${NODE_VERSION}
       TAV: ${TAV_VERSIONS}
+      ELASTIC_APM_ASYNC_HOOKS: ${ELASTIC_APM_ASYNC_HOOKS}
       HOME: /tmp
       PATH: /app/node_modules/.bin:./node_modules/.bin:/app/node_modules:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
     volumes:

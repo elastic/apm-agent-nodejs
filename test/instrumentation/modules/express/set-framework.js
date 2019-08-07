@@ -2,7 +2,8 @@
 
 const agent = require('../../../..').start({
   captureExceptions: true,
-  metricsInterval: 0
+  metricsInterval: 0,
+  centralConfig: false
 })
 
 let asserts = 0

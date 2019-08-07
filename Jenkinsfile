@@ -24,11 +24,12 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
+    issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?(?:module\\W+)?tests(?:\\W+please)?.*')
   }
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
+    booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
     booleanParam(name: 'test_edge_ci', defaultValue: true, description: 'Enable tests for edge versions of nodejs.')
   }
   stages {
@@ -42,6 +43,15 @@ pipeline {
         deleteDir()
         gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true)
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+        script {
+          dir("${BASE_DIR}"){
+            def regexps =[
+              "^lib/instrumentation/modules/",
+              "^test/instrumentation/modules/"
+            ]
+            env.TAV_UPDATED = isGitRegionMatch(regexps: regexps)
+          }
+        }
       }
     }
     /**
@@ -74,6 +84,10 @@ pipeline {
       environment {
         HOME = "${env.WORKSPACE}"
       }
+      when {
+        beforeAgent true
+        expression { return params.tests_ci }
+      }
       steps {
         withGithubNotify(context: 'Test', tab: 'tests') {
           deleteDir()
@@ -87,10 +101,17 @@ pipeline {
             script {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
+              def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
+                parallelTasksWithoutAsyncHooks["Node.js-${version}-async-hooks-false"] = generateStep(version: version)
               }
+
+              env.ELASTIC_APM_ASYNC_HOOKS = "true"
               parallel(parallelTasks)
+
+              env.ELASTIC_APM_ASYNC_HOOKS = "false"
+              parallel(parallelTasksWithoutAsyncHooks)
             }
           }
         }
@@ -115,21 +136,21 @@ pipeline {
             expression { return params.Run_As_Master_Branch }
             triggeredBy 'TimerTrigger'
             changeRequest()
+            expression { return env.TAV_UPDATED != "false" }
           }
           expression { return params.tav_ci }
         }
       }
       steps {
-        withGithubNotify(context: 'TAV Test', tab: 'tests') {
-          deleteDir()
-          unstash 'source'
-          dir("${BASE_DIR}"){
-            script {
-              def node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
-              def tav = readYaml(file: '.ci/.jenkins_tav.yml')
+        deleteDir()
+        unstash 'source'
+        dir("${BASE_DIR}"){
+          script {
+            def tavContext = getSmartTAVContext()
+            withGithubNotify(context: tavContext.ghContextName, description: tavContext.ghDescription, tab: 'tests') {
               def parallelTasks = [:]
-              node['NODEJS_VERSION'].each{ version ->
-                tav['TAV'].each{ tav_item ->
+              tavContext.node['NODEJS_VERSION'].each{ version ->
+                tavContext.tav['TAV'].each{ tav_item ->
                   parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version: version, tav: tav_item)
                 }
               }
@@ -271,7 +292,13 @@ def generateStep(Map params = [:]){
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
-            sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+            if (version?.startsWith('6')) {
+              catchError {
+                sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+              }
+            } else {
+              sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+            }
           }
         }
       } catch(e){
@@ -286,3 +313,44 @@ def generateStep(Map params = [:]){
     }
   }
 }
+
+/**
+* Gather the TAV context for the current execution. Then the TAV stage will execute
+* the TAV using a smarter approach.
+*/
+def getSmartTAVContext() {
+   context = [:]
+   context.ghContextName = 'TAV Test'
+   context.ghDescription = context.ghContextName
+   context.node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
+
+   if (env.GITHUB_COMMENT) {
+     def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
+     if (modules.isEmpty()) {
+       context.ghDescription = 'TAV Test disabled'
+       context.tav = readYaml(text: 'TAV:')
+       context.node = readYaml(text: 'NODEJS_VERSION:')
+     } else {
+       if (modules.find{ it == 'ALL' }) {
+         context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
+       } else {
+         context.ghContextName = 'TAV Test Subset'
+         context.ghDescription = 'TAV Test comment-triggered'
+         context.tav = readYaml(text: """TAV:${modules.collect{ "\n  - ${it}"}.join("") }""")
+       }
+     }
+   } else if (params.Run_As_Master_Branch) {
+     context.ghDescription = 'TAV Test param-triggered'
+     context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
+   } else if (changeRequest() && env.TAV_UPDATED != "false") {
+     context.ghContextName = 'TAV Test Subset'
+     context.ghDescription = 'TAV Test changes-triggered'
+     sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
+     context.tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
+   } else {
+     context.ghDescription = 'TAV Test disabled'
+     context.tav = readYaml(text: 'TAV:')
+     context.node = readYaml(text: 'NODEJS_VERSION:')
+   }
+   return context
+ }

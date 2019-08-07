@@ -2,7 +2,8 @@
 
 const agent = require('../../../..').start({
   captureExceptions: true,
-  metricsInterval: 0
+  metricsInterval: 0,
+  centralConfig: false
 })
 
 const { exec } = require('child_process')
