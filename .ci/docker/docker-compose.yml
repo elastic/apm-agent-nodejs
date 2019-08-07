@@ -104,7 +104,7 @@ services:
   
   memcached:
     image: memcached:alpine
-    user: 11211
+    user: "11211"
     ports:
       - "11211:11211"
     healthcheck:
