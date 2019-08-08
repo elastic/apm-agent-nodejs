@@ -306,6 +306,12 @@ def getSmartTAVContext() {
    context.ghDescription = context.ghContextName
    context.node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
 
+   // Hard to debug what's going on as there are a few nested conditions. Let's then add more verbose output
+   echo """env.GITHUB_COMMENT=${env.GITHUB_COMMENT}
+   params.Run_As_Master_Branch=${params.Run_As_Master_Branch}
+   changeRequest()=${changeRequest()}
+   env.TAV_UPDATED=${env.TAV_UPDATED}""".stripIndent()
+
    if (env.GITHUB_COMMENT) {
      def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
      if (modules.isEmpty()) {
