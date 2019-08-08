@@ -633,6 +633,7 @@ test('disableInstrumentations', function (t) {
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
   if (semver.lt(process.version, '8.6.0')) {
+    modules.delete('@elastic/elasticsearch')
     modules.delete('restify')
   }
   if (semver.lt(process.version, '8.3.0')) {
