@@ -196,7 +196,7 @@ function done (t, method, path, query) {
     }), 'include user-land code frame')
 
     if (queryRegexp.test(path)) {
-      t.deepEqual(span2.context.db, { statement: query || '{}', type: 'elasticsearch' })
+      t.deepEqual(span2.context.db, { type: 'elasticsearch', statement: query || '{}' })
     } else {
       t.notOk(span2.context)
     }
