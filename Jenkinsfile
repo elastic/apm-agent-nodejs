@@ -306,6 +306,13 @@ def getSmartTAVContext() {
    context.ghDescription = context.ghContextName
    context.node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
 
+   // Hard to debug what's going on as there are a few nested conditions. Let's then add more verbose output
+   echo """\
+   env.GITHUB_COMMENT=${env.GITHUB_COMMENT}
+   params.Run_As_Master_Branch=${params.Run_As_Master_Branch}
+   env.CHANGE_ID=${env.CHANGE_ID}
+   env.TAV_UPDATED=${env.TAV_UPDATED}""".stripIndent()
+
    if (env.GITHUB_COMMENT) {
      def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
      if (modules.isEmpty()) {
@@ -324,7 +331,7 @@ def getSmartTAVContext() {
    } else if (params.Run_As_Master_Branch) {
      context.ghDescription = 'TAV Test param-triggered'
      context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
-   } else if (changeRequest() && env.TAV_UPDATED != "false") {
+   } else if (env.CHANGE_ID && env.TAV_UPDATED != "false") {
      context.ghContextName = 'TAV Test Subset'
      context.ghDescription = 'TAV Test changes-triggered'
      sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
