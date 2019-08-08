@@ -223,7 +223,7 @@ jobs:
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=ws,graphql,express-graphql,elasticsearch,@elastic/elasticsearch,hapi,@hapi/hapi,express,express-queue
+      env: TAV=ws,graphql,express-graphql,elasticsearch,hapi,@hapi/hapi,express,express-queue
       script: tav --quiet
     -
       node_js: '6'
