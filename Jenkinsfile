@@ -307,7 +307,6 @@ def getSmartTAVContext() {
    context.node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
 
    // Hard to debug what's going on as there are a few nested conditions. Let's then add more verbose output
-   def isChangeRequest = changeRequest()
    echo """\
    env.GITHUB_COMMENT=${env.GITHUB_COMMENT}
    params.Run_As_Master_Branch=${params.Run_As_Master_Branch}
