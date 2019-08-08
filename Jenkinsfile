@@ -55,27 +55,6 @@ pipeline {
       }
     }
     /**
-      Lint commit messages
-    */
-    stage('Lint commit messages') {
-      agent { label 'docker && immutable' }
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-      }
-      steps {
-        withGithubNotify(context: 'Lint Commit Messages') {
-          deleteDir()
-          unstash 'source'
-          script {
-            docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-              sh(label: "Basic tests", script: 'cd /app && .ci/scripts/lint-commits.sh')
-            }
-          }
-        }
-      }
-    }
-    /**
       Run tests.
     */
     stage('Test') {
@@ -106,6 +85,9 @@ pipeline {
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
                 parallelTasksWithoutAsyncHooks["Node.js-${version}-async-hooks-false"] = generateStep(version: version)
               }
+
+              // Linting the commit message in parallel with the test stage
+              parallelTasks['Commit lint'] = lintCommits()
 
               env.ELASTIC_APM_ASYNC_HOOKS = "true"
               parallel(parallelTasks)
@@ -354,3 +336,21 @@ def getSmartTAVContext() {
    }
    return context
  }
+
+ def lintCommits(){
+   return {
+    node('docker && linux && immutable') {
+      catchError(stageResult: 'UNSTABLE', message: 'Lint Commit Messages failures') {
+        withGithubNotify(context: 'Lint Commit Messages') {
+          deleteDir()
+          unstash 'source'
+          script {
+            docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+              sh(label: 'Lint commits', script: 'cd /app && .ci/scripts/lint-commits.sh')
+            }
+          }
+        }
+      }
+    }
+  }
+}
