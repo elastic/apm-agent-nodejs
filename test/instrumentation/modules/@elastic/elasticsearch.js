@@ -19,7 +19,7 @@ const { Client } = require('@elastic/elasticsearch')
 const mockClient = require('../../../_mock_http_client')
 const findObjInArray = require('../../../_utils').findObjInArray
 
-test('promise API', function userLandCode (t) {
+test('client.ping with promise', function userLandCode (t) {
   resetAgent(done(t, 'HEAD', '/'))
 
   agent.startTransaction('foo')
@@ -30,6 +30,121 @@ test('promise API', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   }).catch(t.error)
+})
+
+test('client.ping with callback', function userLandCode (t) {
+  resetAgent(done(t, 'HEAD', '/'))
+
+  agent.startTransaction('foo')
+
+  const client = new Client({ node })
+
+  client.ping(function (err, result) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client.search with callback', function userLandCode (t) {
+  resetAgent(done(t, 'GET', '/_search', 'q=pants'))
+
+  agent.startTransaction('foo')
+
+  const client = new Client({ node })
+  const query = { q: 'pants' }
+
+  client.search(query, function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client.searchTemplate with callback', function userLandCode (t) {
+  const body = {
+    source: {
+      query: {
+        query_string: {
+          query: '{{q}}'
+        }
+      }
+    },
+    params: {
+      q: 'pants'
+    }
+  }
+
+  resetAgent(done(t, 'POST', '/_search/template', JSON.stringify(body)))
+
+  agent.startTransaction('foo')
+
+  const client = new Client({ node })
+
+  client.searchTemplate({ body }, function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client.msearch with callback', function userLandCode (t) {
+  const body = [
+    {},
+    {
+      query: {
+        query_string: {
+          query: 'pants'
+        }
+      }
+    }
+  ]
+
+  const statement = body.map(JSON.stringify).join('\n')
+
+  resetAgent(done(t, 'POST', '/_msearch', statement))
+
+  agent.startTransaction('foo')
+
+  const client = new Client({ node })
+
+  client.msearch({ body }, function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client.msearchTempate with callback', function userLandCode (t) {
+  const body = [
+    {},
+    {
+      source: {
+        query: {
+          query_string: {
+            query: '{{q}}'
+          }
+        }
+      },
+      params: {
+        q: 'pants'
+      }
+    }
+  ]
+
+  const statement = body.map(JSON.stringify).join('\n')
+
+  resetAgent(done(t, 'POST', '/_msearch/template', statement))
+
+  agent.startTransaction('foo')
+
+  const client = new Client({ node })
+
+  client.msearchTemplate({ body }, function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
 })
 
 const queryRegexp = /_((search|msearch)(\/template)?|count)$/
