@@ -23,12 +23,15 @@ agent.setFramework({ version: 'bar' })
 agent.setFramework({ name: 'foo', version: 'bar', overwrite: false })
 
 agent.addPatch('foo', 'bar')
+agent.addPatch(['foo'], 'bar')
 agent.addPatch('foo', function (exports, agent, options) {
   agent.isStarted()
   if (options.enabled) {}
 })
 agent.removePatch('foo', 'bar')
+agent.removePatch(['foo'], 'bar')
 agent.clearPatches('foo')
+agent.clearPatches(['foo'])
 
 agent.lambda(() => {})
 agent.lambda('foo', () => {})

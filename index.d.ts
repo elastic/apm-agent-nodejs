@@ -15,9 +15,9 @@ declare class Agent implements Taggable, StartSpanFn {
     version?: string;
     overwrite?: boolean;
   }): void;
-  addPatch (name: string, handler: string | PatchHandler): void;
-  removePatch (name: string, handler: string | PatchHandler): void;
-  clearPatches (name: string): void;
+  addPatch (modules: string | Array<string>, handler: string | PatchHandler): void;
+  removePatch (modules: string | Array<string>, handler: string | PatchHandler): void;
+  clearPatches (modules: string | Array<string>): void;
 
   // Data collection hooks
   middleware: { connect (): Connect.ErrorHandleFunction };
