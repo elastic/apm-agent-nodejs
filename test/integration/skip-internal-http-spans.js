@@ -61,7 +61,7 @@ getPort().then(port => {
         agent.flush(() => {
           // wait for potential span related to the outgoing http request to be processed
           setTimeout(() => {
-            for (let key of Object.keys(expected)) {
+            for (const key of Object.keys(expected)) {
               t.equal(seen[key], expected[key], `has expected value for ${key}`)
             }
 
@@ -69,7 +69,7 @@ getPort().then(port => {
             agent.flush(() => {
               // give the APM Server time to receive an process the 2nd flush
               setTimeout(() => {
-                for (let key of Object.keys(expected)) {
+                for (const key of Object.keys(expected)) {
                   t.equal(seen[key], expected[key], `has expected value for ${key}`)
                 }
 
