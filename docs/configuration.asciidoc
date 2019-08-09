@@ -719,6 +719,17 @@ or should include a time suffix.
 To disable metrics reporting,
 set the interval to `0`.
 
+[[metrics-limit]]
+==== `metricsLimit`
+
+* *Type:* Number
+* *Default:* `1000`
+* *Env:* `ELASTIC_APM_METRICS_LIMIT`
+
+Specify the maximum number of metrics to track at any given time.
+When a new metric is inserted which would exceed the limit,
+the oldest metric will be dropped to give it space.
+
 [[global-labels]]
 ==== `globalLabels`
 
