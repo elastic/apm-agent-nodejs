@@ -173,7 +173,29 @@ pipeline {
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
+                  def parallelTasks = [:]
+                  node['NODEJS_VERSION'].each{ version ->
+                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
+                  }
+                  parallel(parallelTasks)
+                }
+              }
+            }
+          }
+        }
+        stage('Nightly Test - No async hooks') {
+          agent { label 'docker && immutable' }
+          environment {
+            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
+          }
+          steps {
+            withGithubNotify(context: 'Nightly No Async Hooks Test', tab: 'tests') {
+              deleteDir()
+              unstash 'source'
+              dir("${BASE_DIR}"){
+                script {
+                  def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each{ version ->
                     parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
@@ -195,7 +217,7 @@ pipeline {
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each{ version ->
                     parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
@@ -213,12 +235,12 @@ pipeline {
             ELASTIC_APM_ASYNC_HOOKS = "false"
           }
           steps {
-            withGithubNotify(context: 'RC No Asyn Hooks Test', tab: 'tests') {
+            withGithubNotify(context: 'RC No Async Hooks Test', tab: 'tests') {
               deleteDir()
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
                     parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true)
