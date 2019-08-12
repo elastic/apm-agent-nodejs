@@ -1,8 +1,14 @@
+# 2.14.0 - 2019/8/12
+  * feat(hapi): support new @hapi/hapi module ([#1246](https://github.com/elastic/apm-agent-nodejs/pull/1246))
+  * feat: allow agent.clearPatches to be called with array of names ([#1262](https://github.com/elastic/apm-agent-nodejs/pull/1262))
+  * fix: be less chatty if span stack traces cannot be parsed ([#1274](https://github.com/elastic/apm-agent-nodejs/pull/1274))
+  * perf: use for-of instead of forEach ([#1275](https://github.com/elastic/apm-agent-nodejs/pull/1275))
+
 # 2.13.0 - 2019/7/30
-  * fix: standardize user-agent header ([#1238](https://elastic/apm-agent-nodejs/pull/1238))
-  * feat: add support for APM Agent Configuration via Kibana ([#1197](https://elastic/apm-agent-nodejs/pull/1197))
-  * feat(metrics): breakdown graphs ([#1219](https://elastic/apm-agent-nodejs/pull/1219))
-  * feat(config): default serviceVersion to package version ([#1237](https://elastic/apm-agent-nodejs/pull/1237))
+  * fix: standardize user-agent header ([#1238](https://github.com/elastic/apm-agent-nodejs/pull/1238))
+  * feat: add support for APM Agent Configuration via Kibana ([#1197](https://github.com/elastic/apm-agent-nodejs/pull/1197))
+  * feat(metrics): breakdown graphs ([#1219](https://github.com/elastic/apm-agent-nodejs/pull/1219))
+  * feat(config): default serviceVersion to package version ([#1237](https://github.com/elastic/apm-agent-nodejs/pull/1237))
 
 # 2.12.1 - 2019/7/7
   * fix(knex): abort early on unsupported version of knex ([#1189](https://github.com/elastic/apm-agent-nodejs/pull/1189))
