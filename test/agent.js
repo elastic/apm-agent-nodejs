@@ -1146,6 +1146,16 @@ test('#handleUncaughtExceptions()', function (t) {
   })
 })
 
+test('#active: false', function (t) {
+  t.test('should not error when started in an inactive state', function (t) {
+    var agent = Agent()
+    var client = agent.start({ active: false })
+    t.ok(client.startTransaction())
+    t.doesNotThrow(() => client.endTransaction())
+    t.end()
+  })
+})
+
 test('patches', function (t) {
   t.test('#clearPatches(name)', function (t) {
     var agent = Agent()
