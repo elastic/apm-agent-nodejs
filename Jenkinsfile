@@ -83,7 +83,9 @@ pipeline {
               def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, async: false)
+                if (version != '6') {
+                  parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, async: false)
+                }
               }
 
               // Linting the commit message in parallel with the test stage
@@ -215,7 +217,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
+                  node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
                     parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true, async: false)
                   }
                   parallel(parallelTasks)
@@ -274,10 +276,8 @@ def generateStep(Map params = [:]){
           retry(2){
             sleep randomNumber(min:10, max: 30)
             if (version?.startsWith('6')) {
-              if (async) {
-                catchError {
-                  sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
-                }
+              catchError {
+                sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
               }
             } else {
               sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
