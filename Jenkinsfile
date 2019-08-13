@@ -188,6 +188,7 @@ pipeline {
           agent { label 'docker && immutable' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
+            ELASTIC_APM_ASYNC_HOOKS = "false"
           }
           steps {
             withGithubNotify(context: 'Nightly No Async Hooks Test', tab: 'tests') {
