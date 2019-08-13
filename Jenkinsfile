@@ -83,17 +83,15 @@ pipeline {
               def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                parallelTasksWithoutAsyncHooks["Node.js-${version}-async-hooks-false"] = generateStep(version: version)
+                if (!version.startsWith('6')) {
+                  parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
+                }
               }
 
               // Linting the commit message in parallel with the test stage
               parallelTasks['Commit lint'] = lintCommits()
 
-              env.ELASTIC_APM_ASYNC_HOOKS = "true"
               parallel(parallelTasks)
-
-              env.ELASTIC_APM_ASYNC_HOOKS = "false"
-              parallel(parallelTasksWithoutAsyncHooks)
             }
           }
         }
@@ -220,7 +218,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each{ version ->
+                  node['NODEJS_VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
                   }
                   parallel(parallelTasks)
@@ -233,7 +231,6 @@ pipeline {
           agent { label 'docker && immutable' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
-            ELASTIC_APM_ASYNC_HOOKS = "false"
           }
           steps {
             withGithubNotify(context: 'RC No Async Hooks Test', tab: 'tests') {
@@ -244,7 +241,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
-                    parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, edge: true)
+                    parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -288,10 +285,14 @@ def generateStep(Map params = [:]){
   def version = params?.version
   def tav = params.containsKey('tav') ? params.tav : ''
   def edge = params.containsKey('edge') ? params.edge : false
+  def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
     node('docker && linux && immutable'){
       try {
         env.HOME = "${WORKSPACE}"
+        if (disableAsyncHooks) {
+          env.ELASTIC_APM_ASYNC_HOOKS = 'false'
+        }
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
