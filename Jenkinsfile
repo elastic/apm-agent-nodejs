@@ -84,7 +84,7 @@ pipeline {
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
                 if (version != '6') {
-                  parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, async: false)
+                  parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsync: true)
                 }
               }
 
@@ -218,7 +218,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
-                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true, async: false)
+                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true, disableAsync: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -262,12 +262,12 @@ def generateStep(Map params = [:]){
   def version = params?.version
   def tav = params.containsKey('tav') ? params.tav : ''
   def edge = params.containsKey('edge') ? params.edge : false
-  def async = params.get('async', true)
+  def disableAsync = params.get('disableAsync', false)
   return {
     node('docker && linux && immutable'){
       try {
         env.HOME = "${WORKSPACE}"
-        if (!async) {
+        if (disableAsync) {
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
         }
         deleteDir()
