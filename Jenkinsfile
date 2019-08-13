@@ -83,17 +83,13 @@ pipeline {
               def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                parallelTasksWithoutAsyncHooks["Node.js-${version}-async-hooks-false"] = generateStep(version: version)
+                parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, async: false)
               }
 
               // Linting the commit message in parallel with the test stage
               parallelTasks['Commit lint'] = lintCommits()
 
-              env.ELASTIC_APM_ASYNC_HOOKS = "true"
               parallel(parallelTasks)
-
-              env.ELASTIC_APM_ASYNC_HOOKS = "false"
-              parallel(parallelTasksWithoutAsyncHooks)
             }
           }
         }
@@ -197,7 +193,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each{ version ->
+                  node['NODEJS_VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
                   }
                   parallel(parallelTasks)
@@ -210,7 +206,6 @@ pipeline {
           agent { label 'docker && immutable' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
-            ELASTIC_APM_ASYNC_HOOKS = "false"
           }
           steps {
             withGithubNotify(context: 'RC No Asyn Hooks Test', tab: 'tests') {
@@ -220,8 +215,8 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
-                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true)
+                  node['NODEJS_VERSION'].each { version ->
+                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true, async: false)
                   }
                   parallel(parallelTasks)
                 }
@@ -265,18 +260,24 @@ def generateStep(Map params = [:]){
   def version = params?.version
   def tav = params.containsKey('tav') ? params.tav : ''
   def edge = params.containsKey('edge') ? params.edge : false
+  def async = params.get('async', true)
   return {
     node('docker && linux && immutable'){
       try {
         env.HOME = "${WORKSPACE}"
+        if (!async) {
+          env.ELASTIC_APM_ASYNC_HOOKS = 'false'
+        }
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
             if (version?.startsWith('6')) {
-              catchError {
-                sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+              if (async) {
+                catchError {
+                  sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+                }
               }
             } else {
               sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
