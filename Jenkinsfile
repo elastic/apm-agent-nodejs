@@ -83,7 +83,7 @@ pipeline {
               def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                if (version != '6') {
+                if (!version.startsWith('6')) {
                   parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsync: true)
                 }
               }
