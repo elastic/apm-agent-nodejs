@@ -244,7 +244,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
-                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true)
+                    parallelTasks["Node.js-${version}-rc-no_async_hooks"] = generateStep(version: version, edge: true)
                   }
                   parallel(parallelTasks)
                 }
