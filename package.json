@@ -94,7 +94,7 @@
     "redact-secrets": "^1.0.0",
     "relative-microtime": "^2.0.0",
     "require-ancestors": "^1.0.0",
-    "require-in-the-middle": "^4.0.0",
+    "require-in-the-middle": "^5.0.0",
     "semver": "^6.1.1",
     "set-cookie-serde": "^1.0.0",
     "sql-summary": "^1.0.1",
