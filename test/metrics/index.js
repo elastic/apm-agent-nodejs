@@ -145,6 +145,26 @@ test('reports expected metrics', function (t) {
   metrics.start()
 })
 
+test('applies metrics limit', function (t) {
+  agent = mockAgent({
+    metricsInterval: 10,
+    metricsLimit: 2,
+    hostname: 'foo',
+    environment: 'bar'
+  }, (metricset = {}) => {
+    t.equal(Object.keys(metricset.samples).length, 2, 'has expected number of metrics')
+    t.end()
+  })
+
+  metrics = new Metrics(agent)
+  metrics.start()
+
+  // Ensure there are at least two counters
+  metrics.getOrCreateCounter('first').inc()
+  metrics.getOrCreateCounter('second').inc()
+  metrics.getOrCreateCounter('third').inc()
+})
+
 function spinCPUFor (durationMs) {
   const start = Date.now()
   while (Date.now() - start < durationMs) {}

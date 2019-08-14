@@ -52,6 +52,7 @@ var optionFixtures = [
   ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['metricsInterval', 'METRICS_INTERVAL', 30],
+  ['metricsLimit', 'METRICS_LIMIT', 1000],
   ['secretToken', 'SECRET_TOKEN'],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
   ['serverUrl', 'SERVER_URL'],
