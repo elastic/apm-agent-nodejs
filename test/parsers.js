@@ -382,7 +382,7 @@ test('#parseError()', function (t) {
     }
     try {
       var o = {}
-      o['...']['Derp']()
+      o['...'].Derp()
     } catch (e) {
       parsers.parseError(e, fakeAgent, function (err, parsed) {
         t.error(err)

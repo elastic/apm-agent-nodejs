@@ -95,7 +95,7 @@ optionFixtures.forEach(function (fixture) {
       agent.start()
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value ])
+        t.deepEqual(agent._conf[fixture[0]], [value])
       } else {
         t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
       }
@@ -134,7 +134,7 @@ optionFixtures.forEach(function (fixture) {
       agent.start(opts)
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value2 ])
+        t.deepEqual(agent._conf[fixture[0]], [value2])
       } else {
         t.equal(agent._conf[fixture[0]], value2)
       }
@@ -347,7 +347,7 @@ var noPrefixValues = [
 ]
 
 noPrefixValues.forEach(function (pair) {
-  const [ key, envVar ] = pair
+  const [key, envVar] = pair
   test(`maps ${envVar} to ${key}`, (t) => {
     var agent = Agent()
     process.env[envVar] = 'test'
@@ -853,9 +853,11 @@ class CaptureLogger {
   warn (message, ...args) {
     this._log('warn', message, args)
   }
+
   info (message, ...args) {
     this._log('info', message, args)
   }
+
   debug (message, ...args) {
     this._log('debug', message, args)
   }

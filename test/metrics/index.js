@@ -126,7 +126,7 @@ test('reports expected metrics', function (t) {
     for (const name of Object.keys(metrics)) {
       const metric = metricset.samples[name]
       t.comment(name)
-      t.ok(metric, `is present`)
+      t.ok(metric, 'is present')
       t.equal(typeof metric.value, 'number', 'is a number')
       t.ok(Number.isFinite(metric.value), `is finite (was: ${metric.value})`)
       metrics[name](metric.value)

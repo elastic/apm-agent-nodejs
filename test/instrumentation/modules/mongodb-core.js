@@ -123,7 +123,7 @@ test('instrument simple command', function (t) {
         t.error(err)
         t.equal(results.result.n, 3)
 
-        _server.update('elasticapm.test', [{ q: { a: 1 }, u: { '$set': { b: 1 } } }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
+        _server.update('elasticapm.test', [{ q: { a: 1 }, u: { $set: { b: 1 } } }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
           t.error(err)
           t.equal(results.result.n, 1)
 
