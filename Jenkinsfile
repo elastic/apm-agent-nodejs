@@ -159,7 +159,7 @@ pipeline {
           expression { return params.test_edge_ci }
         }
       }
-      stages {
+      parallel {
         stage('Nightly Test') {
           agent { label 'docker && immutable' }
           environment {
