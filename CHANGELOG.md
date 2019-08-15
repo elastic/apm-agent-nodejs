@@ -1,3 +1,7 @@
+# 2.15.0 - 2019/8/15
+  * feat(express-graphql): add support for v0.9 ([#1255](https://github.com/elastic/apm-agent-nodejs/pull/1255))
+  * feat(metrics): add metricsLimit option ([#1273](https://github.com/elastic/apm-agent-nodejs/pull/1273))
+
 # 2.14.0 - 2019/8/12
   * feat(hapi): support new @hapi/hapi module ([#1246](https://github.com/elastic/apm-agent-nodejs/pull/1246))
   * feat: allow agent.clearPatches to be called with array of names ([#1262](https://github.com/elastic/apm-agent-nodejs/pull/1262))
