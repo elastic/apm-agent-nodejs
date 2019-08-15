@@ -179,7 +179,7 @@ function done (t, method, path, query) {
 
     let span1, span2
     {
-      const type = 'ext.http.http'
+      const type = 'external.http.http'
       span1 = findObjInArray(data.spans, 'type', type)
       t.ok(span1, 'should have span with type ' + type)
     } {
