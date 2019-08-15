@@ -326,9 +326,9 @@ var saveConf = function (conf, cb) {
 loadConf(function (err, conf) {
   if (err) throw err
   var questions = [
-    { name: 'serviceName', message: 'Service name', 'default': conf.serviceName },
-    { name: 'secretToken', message: 'Secret token', 'default': conf.secretToken },
-    { name: 'serverUrl', message: 'APM Server URL', 'default': conf.serverUrl },
+    { name: 'serviceName', message: 'Service name', default: conf.serviceName },
+    { name: 'secretToken', message: 'Secret token', default: conf.secretToken },
+    { name: 'serverUrl', message: 'APM Server URL', default: conf.serverUrl },
     { name: 'suite', message: 'Test suite', type: 'list', choices: ['standard', 'http', 'restify', 'connect', 'express', 'transaction'] },
     { name: 'save', message: 'Save answers?', type: 'confirm' }
   ]

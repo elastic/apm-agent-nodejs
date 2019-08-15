@@ -52,6 +52,7 @@ var optionFixtures = [
   ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['metricsInterval', 'METRICS_INTERVAL', 30],
+  ['metricsLimit', 'METRICS_LIMIT', 1000],
   ['secretToken', 'SECRET_TOKEN'],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
   ['serverUrl', 'SERVER_URL'],
@@ -94,7 +95,7 @@ optionFixtures.forEach(function (fixture) {
       agent.start()
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value ])
+        t.deepEqual(agent._conf[fixture[0]], [value])
       } else {
         t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
       }
@@ -133,7 +134,7 @@ optionFixtures.forEach(function (fixture) {
       agent.start(opts)
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value2 ])
+        t.deepEqual(agent._conf[fixture[0]], [value2])
       } else {
         t.equal(agent._conf[fixture[0]], value2)
       }
@@ -346,7 +347,7 @@ var noPrefixValues = [
 ]
 
 noPrefixValues.forEach(function (pair) {
-  const [ key, envVar ] = pair
+  const [key, envVar] = pair
   test(`maps ${envVar} to ${key}`, (t) => {
     var agent = Agent()
     process.env[envVar] = 'test'
@@ -629,6 +630,7 @@ test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
   var mysql2Version = require('mysql2/package.json').version
   var wsVersion = require('ws/package.json').version
+  var expressGraphqlVersion = require('express-graphql/package.json').version
 
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
@@ -649,6 +651,9 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '8.6.0') && semver.gte(wsVersion, '7.0.0')) {
     modules.delete('ws')
+  }
+  if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
+    modules.delete('express-graphql')
   }
   if (semver.lt(process.version, '6.0.0')) {
     modules.delete('express-queue')
@@ -848,9 +853,11 @@ class CaptureLogger {
   warn (message, ...args) {
     this._log('warn', message, args)
   }
+
   info (message, ...args) {
     this._log('info', message, args)
   }
+
   debug (message, ...args) {
     this._log('debug', message, args)
   }
