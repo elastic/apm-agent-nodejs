@@ -144,7 +144,6 @@ pipeline {
       Run Edge tests.
     */
     stage('Edge Test') {
-      agent none
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
@@ -159,7 +158,7 @@ pipeline {
           expression { return params.test_edge_ci }
         }
       }
-      stages {
+      parallel {
         stage('Nightly Test') {
           agent { label 'docker && immutable' }
           environment {
