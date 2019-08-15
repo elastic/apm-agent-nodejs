@@ -144,7 +144,6 @@ pipeline {
       Run Edge tests.
     */
     stage('Edge Test') {
-      agent none
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
