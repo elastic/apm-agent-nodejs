@@ -187,7 +187,9 @@ function done (t, spanNameSuffix) {
     t.equal(trans.name, 'foo')
     t.equal(trans.type, 'custom')
     t.equal(span.name, 'GraphQL: ' + spanNameSuffix)
-    t.equal(span.type, 'db.graphql.execute')
+    t.equal(span.type, 'db')
+    t.equal(span.subtype, 'graphql')
+    t.equal(span.action, 'execute')
 
     var offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)

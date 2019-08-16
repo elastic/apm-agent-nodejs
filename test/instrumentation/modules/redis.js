@@ -36,7 +36,8 @@ test(function (t) {
 
     groups.forEach(function (name) {
       var span = findObjInArray(data.spans, 'name', name)
-      t.equal(span.type, 'cache.redis')
+      t.equal(span.type, 'cache')
+      t.equal(span.subtype, 'redis')
 
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000)

@@ -179,13 +179,23 @@ function done (t, method, path, query) {
 
     let span1, span2
     {
-      const type = 'ext.http.http'
+      const type = 'ext'
+      const subtype = 'http'
+      const action = 'http'
       span1 = findObjInArray(data.spans, 'type', type)
       t.ok(span1, 'should have span with type ' + type)
+      t.equal(span1.type, type)
+      t.equal(span1.subtype, subtype)
+      t.equal(span1.action, action)
     } {
-      const type = 'db.elasticsearch.request'
-      span2 = findObjInArray(data.spans, 'type', type)
-      t.ok(span2, 'should have span with type ' + type)
+      const type = 'db'
+      const subtype = 'elasticsearch'
+      const action = 'request'
+      span2 = findObjInArray(data.spans, 'subtype', subtype)
+      t.ok(span2, 'should have span with subtype ' + subtype)
+      t.equal(span2.type, type)
+      t.equal(span2.subtype, subtype)
+      t.equal(span2.action, action)
     }
 
     t.equal(span1.name, method + ' ' + host + path)

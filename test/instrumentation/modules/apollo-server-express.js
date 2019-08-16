@@ -209,7 +209,9 @@ function done (t, query) {
     t.equal(trans.name, query + ' (/graphql)')
     t.equal(trans.type, 'request')
     t.equal(span.name, 'GraphQL: ' + query)
-    t.equal(span.type, 'db.graphql.execute')
+    t.equal(span.type, 'db')
+    t.equal(span.subtype, 'graphql')
+    t.equal(span.action, 'execute')
 
     var offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)

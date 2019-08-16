@@ -45,6 +45,8 @@ declare class Agent implements Taggable, StartSpanFn {
   startTransaction (
     name?: string,
     type?: string,
+    subtype?: string,
+    action?: string,
     options?: TransactionOptions
   ): Transaction | null;
   setTransactionName (name: string): void;
@@ -52,7 +54,13 @@ declare class Agent implements Taggable, StartSpanFn {
   currentTransaction: Transaction | null;
 
   // Spans
-  startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
+  startSpan (
+    name?: string,
+    type?: string,
+    subtype?: string,
+    action?: string,
+    options?: SpanOptions
+  ): Span | null;
   currentSpan: Span | null;
 
   // Context
@@ -95,7 +103,13 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
   name: string;
   result: string | number;
 
-  startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
+  startSpan(
+    name?: string,
+    type?: string,
+    subtype?: string,
+    action?: string,
+    options?: SpanOptions
+  ): Span | null;
   ensureParentId (): string;
   end (result?: string | number | null, endTime?: number): void;
 }
