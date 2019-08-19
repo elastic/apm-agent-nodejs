@@ -158,7 +158,7 @@
     "restify-clients": "^2.6.6",
     "rimraf": "^2.6.2",
     "send": "^0.17.0",
-    "standard": "^12.0.1",
+    "standard": "^14.0.0",
     "tape": "^4.10.2",
     "tedious": "^6.2.0",
     "test-all-versions": "^4.1.1",
