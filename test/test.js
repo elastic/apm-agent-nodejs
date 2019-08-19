@@ -18,7 +18,7 @@ function run (test, cb) {
 
   console.log('running: ' + fullPath)
 
-  var ps = spawn('node', [ test.file ], {
+  var ps = spawn('node', [test.file], {
     stdio: 'inherit',
     cwd: test.cwd,
     env: test.env

@@ -22,7 +22,10 @@ if [[ -n "${CHANGE_TARGET}" ]] && [[ -n "${GIT_SHA}" ]] ; then
   grep 'test/instrumentation/modules' ${GIT_DIFF} | sed 's#test/instrumentation/modules/##g' >> ${CHANGES}
 
   if [[ $(wc -l <${CHANGES}) -gt 0 ]]; then
-    sed -iback 's#/.*##g; s#^/##g; s#\..*##g' ${CHANGES}
+    sed -iback '/^@/! s#/.*##g; s#^/##g; s#\..*##g' ${CHANGES}
+
+    ## Let's sort the unique matches
+    sort -u -o ${CHANGES} ${CHANGES}
 
     ## Generate the file with the content
     echo 'TAV:' > "${OUTPUT}"

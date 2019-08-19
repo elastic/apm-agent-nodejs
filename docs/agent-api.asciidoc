@@ -767,7 +767,7 @@ apm.removePatch('timers', timerPatchFunction)
 ----
 
 [[apm-clear-patches]]
-==== `apm.clearPatches(name)`
+==== `apm.clearPatches(modules)`
 
 [small]#Added in: v2.7.0#
 
@@ -778,4 +778,8 @@ To _disable_ instrumentation while keeping context propagation support, see <<di
 [source,js]
 ----
 apm.clearPatches('timers')
+
+// or ...
+
+apm.clearPatches(['timers'])
 ----

@@ -55,27 +55,6 @@ pipeline {
       }
     }
     /**
-      Lint commit messages
-    */
-    stage('Lint commit messages') {
-      agent { label 'docker && immutable' }
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-      }
-      steps {
-        withGithubNotify(context: 'Lint Commit Messages') {
-          deleteDir()
-          unstash 'source'
-          script {
-            docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-              sh(label: "Basic tests", script: 'cd /app && .ci/scripts/lint-commits.sh')
-            }
-          }
-        }
-      }
-    }
-    /**
       Run tests.
     */
     stage('Test') {
@@ -104,14 +83,15 @@ pipeline {
               def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                parallelTasksWithoutAsyncHooks["Node.js-${version}-async-hooks-false"] = generateStep(version: version)
+                if (!version.startsWith('6')) {
+                  parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
+                }
               }
 
-              env.ELASTIC_APM_ASYNC_HOOKS = "true"
-              parallel(parallelTasks)
+              // Linting the commit message in parallel with the test stage
+              parallelTasks['Commit lint'] = lintCommits()
 
-              env.ELASTIC_APM_ASYNC_HOOKS = "false"
-              parallel(parallelTasksWithoutAsyncHooks)
+              parallel(parallelTasks)
             }
           }
         }
@@ -164,7 +144,6 @@ pipeline {
       Run Edge tests.
     */
     stage('Edge Test') {
-      agent none
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
@@ -179,7 +158,7 @@ pipeline {
           expression { return params.test_edge_ci }
         }
       }
-      stages {
+      parallel {
         stage('Nightly Test') {
           agent { label 'docker && immutable' }
           environment {
@@ -191,10 +170,32 @@ pipeline {
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each{ version ->
                     parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
+                  }
+                  parallel(parallelTasks)
+                }
+              }
+            }
+          }
+        }
+        stage('Nightly Test - No async hooks') {
+          agent { label 'docker && immutable' }
+          environment {
+            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
+          }
+          steps {
+            withGithubNotify(context: 'Nightly No Async Hooks Test', tab: 'tests') {
+              deleteDir()
+              unstash 'source'
+              dir("${BASE_DIR}"){
+                script {
+                  def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
+                  def parallelTasks = [:]
+                  node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
+                    parallelTasks["Node.js-${version}-nightly-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -213,9 +214,9 @@ pipeline {
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each{ version ->
+                  node['NODEJS_VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
                   }
                   parallel(parallelTasks)
@@ -228,18 +229,17 @@ pipeline {
           agent { label 'docker && immutable' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
-            ELASTIC_APM_ASYNC_HOOKS = "false"
           }
           steps {
-            withGithubNotify(context: 'RC No Asyn Hooks Test', tab: 'tests') {
+            withGithubNotify(context: 'RC No Async Hooks Test', tab: 'tests') {
               deleteDir()
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def node = readYaml(file: '.ci/.jenkins_edge_nodejs.yml')
+                  def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
-                    parallelTasks["Node.js-${version}-nightly-no_async_hooks"] = generateStep(version: version, edge: true)
+                    parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -283,10 +283,14 @@ def generateStep(Map params = [:]){
   def version = params?.version
   def tav = params.containsKey('tav') ? params.tav : ''
   def edge = params.containsKey('edge') ? params.edge : false
+  def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
     node('docker && linux && immutable'){
       try {
         env.HOME = "${WORKSPACE}"
+        if (disableAsyncHooks) {
+          env.ELASTIC_APM_ASYNC_HOOKS = 'false'
+        }
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
@@ -324,6 +328,13 @@ def getSmartTAVContext() {
    context.ghDescription = context.ghContextName
    context.node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
 
+   // Hard to debug what's going on as there are a few nested conditions. Let's then add more verbose output
+   echo """\
+   env.GITHUB_COMMENT=${env.GITHUB_COMMENT}
+   params.Run_As_Master_Branch=${params.Run_As_Master_Branch}
+   env.CHANGE_ID=${env.CHANGE_ID}
+   env.TAV_UPDATED=${env.TAV_UPDATED}""".stripIndent()
+
    if (env.GITHUB_COMMENT) {
      def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
      if (modules.isEmpty()) {
@@ -342,7 +353,7 @@ def getSmartTAVContext() {
    } else if (params.Run_As_Master_Branch) {
      context.ghDescription = 'TAV Test param-triggered'
      context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
-   } else if (changeRequest() && env.TAV_UPDATED != "false") {
+   } else if (env.CHANGE_ID && env.TAV_UPDATED != "false") {
      context.ghContextName = 'TAV Test Subset'
      context.ghDescription = 'TAV Test changes-triggered'
      sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
@@ -354,3 +365,21 @@ def getSmartTAVContext() {
    }
    return context
  }
+
+ def lintCommits(){
+   return {
+    node('docker && linux && immutable') {
+      catchError(stageResult: 'UNSTABLE', message: 'Lint Commit Messages failures') {
+        withGithubNotify(context: 'Lint Commit Messages') {
+          deleteDir()
+          unstash 'source'
+          script {
+            docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+              sh(label: 'Lint commits', script: 'cd /app && .ci/scripts/lint-commits.sh')
+            }
+          }
+        }
+      }
+    }
+  }
+}
