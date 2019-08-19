@@ -47,14 +47,43 @@ This can also be set via <<apm-start-span,`apm.startSpan()`>>.
 The type of span.
 This can also be set via <<apm-start-span,`apm.startSpan()`>>.
 
-The type is a hierarchical string used to group similar spans together.
+The type is used to group similar spans together.
 For instance,
-all spans of MySQL queries are given the type `db.mysql.query`.
+all spans of MySQL queries are given the type `db`,
+with a subtype of `mysql` and an action of `query`.
 
-In the above example, `db` is considered the type prefix.
-Though there are no naming restrictions for this prefix,
+In the above example, `db` is considered the type.
+Though there are no naming restrictions for the type,
 the following are standardized across all Elastic APM agents:
 `app`, `db`, `cache`, `template`, and `ext`.
+
+[[span-subtype]]
+==== `span.subtype`
+
+[small]#Added in: v0.1.0#
+
+* +{type-string}+ *Default:* `custom`
+
+The subtype of the span.
+This can also be set via <<apm-start-span,`apm.startSpan()`>>.
+
+The subtype is typically the name of a module or library.
+For example,
+MySQL queries have a subtype of `mysql`.
+
+[[span-action]]
+==== `span.action`
+
+[small]#Added in: v0.1.0#
+
+* +{type-string}+ *Default:* `custom`
+
+The action of the span.
+This can also be set via <<apm-start-span,`apm.startSpan()`>>.
+
+The action is typically a specific function name or a general description of specific functionality.
+For example,
+a database query would generally have an action of `query`.
 
 [[span-traceparent]]
 ==== `span.traceparent`

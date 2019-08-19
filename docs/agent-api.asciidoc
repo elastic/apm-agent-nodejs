@@ -488,7 +488,7 @@ app.listen(3000)
 NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ any other error handling middleware functions or there's a chance that the error will never get to the agent.
 
 [[apm-start-transaction]]
-==== `apm.startTransaction([name][, type][, options])`
+==== `apm.startTransaction([name][, type][, subtype][, action][, options])`
 
 [small]#Added in: v0.1.0#
 
@@ -496,9 +496,14 @@ NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ 
 You can always set this later via <<transaction-name,`transaction.name`>> or <<apm-set-transaction-name,`apm.setTransactionName()`>>.
 *Default:* `unnamed`
 
-* `type` +{type-string}+ The type of transaction.
+* `type` +{type-string}+ The type of the transaction.
 You can always set this later via <<transaction-type,`transaction.type`>>.
-*Default:* `custom`
+
+* `subtype` +{type-string}+ The subtype of the transaction.
+You can alternatively set this via <<transaction-subtype,`transaction.subtype`>>.
+
+* `action` +{type-string}+ The action of the transaction.
+You can alternatively set this via <<transaction-action,`transaction.action`>>.
 
 * `options` +{type-object}+ The following options are supported:
 
@@ -591,7 +596,7 @@ the transaction name will default to `METHOD unknown route` (e.g. `POST unknown 
 Read more about naming routes manually in the <<custom-stack-route-naming,Get started with a custom Node.js stack>> article.
 
 [[apm-start-span]]
-==== `apm.startSpan([name][, type][, options])`
+==== `apm.startSpan([name][, type][, subtype][, action][, options])`
 
 [small]#Added in: v1.1.0#
 
@@ -599,9 +604,14 @@ Read more about naming routes manually in the <<custom-stack-route-naming,Get st
 You can alternatively set this via <<span-name,`span.name`>>.
 *Default:* `unnamed`
 
-* `type` +{type-string}+ The type of span.
+* `type` +{type-string}+ The type of the span.
 You can alternatively set this via <<span-type,`span.type`>>.
-*Default:* `custom.code`
+
+* `subtype` +{type-string}+ The subtype of the span.
+You can alternatively set this via <<span-subtype,`span.subtype`>>.
+
+* `action` +{type-string}+ The action of the span.
+You can alternatively set this via <<span-action,`span.action`>>.
 
 * `options` +{type-object}+ The following options are supported:
 

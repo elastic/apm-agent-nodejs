@@ -252,7 +252,13 @@ interface Taggable {
 }
 
 interface StartSpanFn {
-  startSpan (name?: string, type?: string, options?: SpanOptions): Span | null;
+  startSpan (
+    name?: string,
+    type?: string,
+    subtype?: string,
+    action?: string,
+    options?: SpanOptions
+  ): Span | null;
 }
 
 // Inlined from @types/aws-lambda - start
