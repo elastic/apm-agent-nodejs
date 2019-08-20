@@ -175,18 +175,18 @@ test('increments counter when active', function (t) {
   metrics = new Metrics(agent)
   metrics.start()
 
-  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 0, 'should start at zero');
+  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 0, 'should start at zero')
 
-  metrics.incrementCounter('test-counter');
-  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 1, 'should have incremented by 1 by default');
+  metrics.incrementCounter('test-counter')
+  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 1, 'should have incremented by 1 by default')
 
-  metrics.incrementCounter('test-counter', null, 2);
-  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 3, 'should have incremented by an amount');
+  metrics.incrementCounter('test-counter', null, 2)
+  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 3, 'should have incremented by an amount')
 
-  metrics.incrementCounter('test-counter', null);
-  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 4, 'should have incremented');
+  metrics.incrementCounter('test-counter', null)
+  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 4, 'should have incremented')
 
-  t.end();
+  t.end()
 })
 
 test('noop counter when not active', function (t) {
@@ -198,8 +198,8 @@ test('noop counter when not active', function (t) {
 
   metrics = new Metrics(agent)
 
-  t.doesNotThrow(() => metrics.incrementCounter('test-counter'));
-  t.end();
+  t.doesNotThrow(() => metrics.incrementCounter('test-counter'))
+  t.end()
 })
 
 function spinCPUFor (durationMs) {
