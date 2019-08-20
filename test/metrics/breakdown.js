@@ -56,7 +56,7 @@ const finders = {
     return metricsets.find(metricset => metricset.span && metricset.span.type === 'app')
   },
   span (metricsets, span) {
-    const [ type, subtype ] = span.type.split('.')
+    const [type, subtype] = span.type.split('.')
     return metricsets.find(v => v.span && v.span.type === type && v.span.subtype === subtype)
   }
 }

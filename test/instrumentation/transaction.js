@@ -510,10 +510,10 @@ function mockRequest () {
     method: 'POST',
     url: '/foo?bar=baz',
     headers: {
-      'host': 'example.com',
+      host: 'example.com',
       'user-agent': 'user-agent-header',
       'content-length': 42,
-      'cookie': 'cookie1=foo;cookie2=bar',
+      cookie: 'cookie1=foo;cookie2=bar',
       'x-foo': 'bar',
       'x-bar': 'baz'
     },

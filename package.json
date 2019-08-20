@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -84,7 +84,7 @@
     "fast-safe-stringify": "^2.0.6",
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
-    "measured-reporting": "^1.49.0",
+    "measured-reporting": "^1.50.0",
     "monitor-event-loop-delay": "^1.0.0",
     "object-filter-sequence": "^1.0.0",
     "object-identity-map": "^1.0.1",
@@ -94,7 +94,7 @@
     "redact-secrets": "^1.0.0",
     "relative-microtime": "^2.0.0",
     "require-ancestors": "^1.0.0",
-    "require-in-the-middle": "^4.0.0",
+    "require-in-the-middle": "^5.0.0",
     "semver": "^6.1.1",
     "set-cookie-serde": "^1.0.0",
     "sql-summary": "^1.0.1",
@@ -120,14 +120,14 @@
     "dependency-check": "^3.2.1",
     "elasticsearch": "^16.1.1",
     "express": "^4.16.4",
-    "express-graphql": "^0.8.0",
+    "express-graphql": "^0.9.0",
     "express-queue": "^0.0.12",
     "fastify": "^2.5.0",
     "finalhandler": "^1.1.2",
     "generic-pool": "^3.4.2",
     "get-port": "^4.0.0",
     "got": "^9.2.2",
-    "graphql": "^14.3.1",
+    "graphql": "^14.4.2",
     "handlebars": "^4.0.12",
     "hapi": "^18.1.0",
     "@hapi/hapi": "^18.2.0",
@@ -186,7 +186,7 @@
     ]
   },
   "coordinates": [
-    55.778269,
-    12.593153
+    55.778255,
+    12.593137
   ]
 }

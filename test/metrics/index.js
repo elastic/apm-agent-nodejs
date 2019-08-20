@@ -126,7 +126,7 @@ test('reports expected metrics', function (t) {
     for (const name of Object.keys(metrics)) {
       const metric = metricset.samples[name]
       t.comment(name)
-      t.ok(metric, `is present`)
+      t.ok(metric, 'is present')
       t.equal(typeof metric.value, 'number', 'is a number')
       t.ok(Number.isFinite(metric.value), `is finite (was: ${metric.value})`)
       metrics[name](metric.value)
@@ -143,6 +143,26 @@ test('reports expected metrics', function (t) {
 
   metrics = new Metrics(agent)
   metrics.start()
+})
+
+test('applies metrics limit', function (t) {
+  agent = mockAgent({
+    metricsInterval: 10,
+    metricsLimit: 2,
+    hostname: 'foo',
+    environment: 'bar'
+  }, (metricset = {}) => {
+    t.equal(Object.keys(metricset.samples).length, 2, 'has expected number of metrics')
+    t.end()
+  })
+
+  metrics = new Metrics(agent)
+  metrics.start()
+
+  // Ensure there are at least two counters
+  metrics.getOrCreateCounter('first').inc()
+  metrics.getOrCreateCounter('second').inc()
+  metrics.getOrCreateCounter('third').inc()
 })
 
 test('increments counter when active', function (t) {
