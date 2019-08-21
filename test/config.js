@@ -210,9 +210,9 @@ test('should log invalid booleans', function (t) {
   t.equal(warning.args[0], 'nope')
   t.equal(warning.args[1], 'active')
 
-  var info = logger.calls.shift()
-  t.equal(info.message, 'Elastic APM agent is inactive due to configuration')
-  t.equal(info.args.length, 0)
+  var debug = logger.calls.shift()
+  t.equal(debug.message, 'Elastic APM agent disabled (`active` is false)')
+  t.equal(debug.args.length, 0)
 
   t.end()
 })
