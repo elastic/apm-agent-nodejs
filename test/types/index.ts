@@ -58,7 +58,7 @@ agent.captureError({ message: 'hello %s', params: ['world'] }, () => {})
 agent.startTransaction()
 agent.startTransaction('foo')
 agent.startTransaction('foo', 'bar')
-agent.startTransaction('foo', 'bar', { startTime: 1 })
+agent.startTransaction('foo', 'bar', undefined, undefined, { startTime: 1 })
 
 agent.setTransactionName('foo')
 
@@ -67,7 +67,7 @@ agent.endTransaction()
 agent.startSpan()
 agent.startSpan('foo')
 agent.startSpan('foo', 'bar')
-agent.startSpan('foo', 'bar', { childOf: 'baz' })
+agent.startSpan('foo', 'bar', undefined, undefined, { childOf: 'baz' })
 
 agent.setLabel('foo', 'bar')
 agent.setLabel('foo', 1)
@@ -130,7 +130,7 @@ agent.logger.fatal('')
     trans.startSpan()
     trans.startSpan('foo')
     trans.startSpan('foo', 'bar')
-    trans.startSpan('foo', 'bar', { childOf: 'baz' })
+    trans.startSpan('foo', 'bar', undefined, undefined, { childOf: 'baz' })
 
     function ensureParentId (id: string) {}
     ensureParentId(trans.ensureParentId())

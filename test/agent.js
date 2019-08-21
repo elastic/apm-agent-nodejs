@@ -54,17 +54,6 @@ test('#setFramework()', function (t) {
 })
 
 test('#startTransaction()', function (t) {
-  t.test('name and type', function (t) {
-    var agent = Agent()
-    agent.start()
-    var trans = agent.startTransaction('foo', 'type.subtype.action')
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'type')
-    t.equal(trans.subtype, 'subtype')
-    t.equal(trans.action, 'action')
-    t.end()
-  })
-
   t.test('name, type, subtype and action', function (t) {
     var agent = Agent()
     agent.start()
@@ -253,19 +242,6 @@ test('#startSpan()', function (t) {
   })
 
   t.test('active transaction', function (t) {
-    var agent = Agent()
-    agent.start()
-    agent.startTransaction()
-    var span = agent.startSpan('span-name', 'type.subtype.action')
-    t.ok(span, 'should return a span')
-    t.equal(span.name, 'span-name')
-    t.equal(span.type, 'type')
-    t.equal(span.subtype, 'subtype')
-    t.equal(span.action, 'action')
-    t.end()
-  })
-
-  t.test('active transaction with split types', function (t) {
     var agent = Agent()
     agent.start()
     agent.startTransaction()
