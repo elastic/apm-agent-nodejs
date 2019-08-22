@@ -11,7 +11,7 @@ it is need as field to store the results of the tests.
 @Field def nodeTasksGen
 
 pipeline {
-  agent any
+  agent { label 'immutable' }
   environment {
     REPO = 'apm-agent-nodejs'
     BASE_DIR="src/github.com/elastic/${REPO}"
