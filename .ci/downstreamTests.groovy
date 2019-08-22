@@ -99,8 +99,8 @@ pipeline {
             }
           }
         }
-        notifyBuildResult()
       }
+      notifyBuildResult()
     }
   }
 }
