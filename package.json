@@ -98,7 +98,7 @@
     "semver": "^6.1.1",
     "set-cookie-serde": "^1.0.0",
     "sql-summary": "^1.0.1",
-    "stackman": "^3.0.2",
+    "stackman": "^4.0.0",
     "traceparent": "^1.0.0",
     "unicode-byte-truncate": "^1.0.0"
   },
