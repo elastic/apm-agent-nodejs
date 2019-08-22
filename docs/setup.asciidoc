@@ -81,7 +81,6 @@ Here's an example usage configuring the agent to only be active in production:
 ----
 // Add this to the VERY top of the first file loaded in your app
 require('elastic-apm-node').start({
-
   // Override service name from package.json
   // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
