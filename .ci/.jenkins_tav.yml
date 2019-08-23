@@ -27,3 +27,4 @@ TAV:
   - hapi
   - express
   - express-queue
+  - memcached

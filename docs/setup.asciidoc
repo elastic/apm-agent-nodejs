@@ -81,7 +81,6 @@ Here's an example usage configuring the agent to only be active in production:
 ----
 // Add this to the VERY top of the first file loaded in your app
 require('elastic-apm-node').start({
-
   // Override service name from package.json
   // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
@@ -101,31 +100,8 @@ require('elastic-apm-node').start({
 [[agent-configuration-file]]
 ==== Agent configuration file
 
-The Node.js agent will look for a file named `elastic-apm-node.js` in the current working directory. You can specify a custom path for this file using
-the `ELASTIC_APM_CONFIG_FILE` environment variable (this path must include the filename), e.g:
-
-[source,bash]
-----
-ELASTIC_APM_CONFIG_FILE=/path/to/elastic-apm-node.js
-----
-
-The configuration file is expected to export an object following the same conventions as the `options` object given as the first argument
-to the <<apm-start,`start`>> function, e.g.:
-
-[source,js]
-----
-module.exports = {
-  // Override service name from package.json
-  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
-  serviceName: '',
-
-  // Use if APM Server requires a token
-  secretToken: '',
-
-  // Set custom APM Server URL (default: http://localhost:8200)
-  serverUrl: ''
-}
-----
+The Node.js agent will look for a file named `elastic-apm-node.js` in the current working directory.
+You can specify a custom path for this file using the <<config-file,`configFile`>> config option.
 
 [[es-modules]]
 === ES Modules support

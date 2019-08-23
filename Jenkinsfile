@@ -181,7 +181,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each{ version ->
+                  node['NODEJS_VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
                   }
                   parallel(parallelTasks)
@@ -203,7 +203,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
+                  node['NODEJS_VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-nightly-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
@@ -247,7 +247,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].findAll{ it != '6' }.each{ version ->
+                  node['NODEJS_VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)

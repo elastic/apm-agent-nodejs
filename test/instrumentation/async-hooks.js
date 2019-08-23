@@ -121,6 +121,20 @@ test('post-defined, post-resolved promise', function (t) {
   })
 })
 
+test('sync/async tracking', function (t) {
+  var trans = agent.startTransaction()
+  t.equal(trans.sync, true)
+
+  var span = agent.startSpan()
+  t.equal(span.sync, true)
+
+  setImmediate(() => {
+    t.equal(trans.sync, false)
+    t.equal(span.sync, false)
+    t.end()
+  })
+})
+
 function twice (fn) {
   setImmediate(fn)
   setImmediate(fn)

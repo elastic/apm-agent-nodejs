@@ -15,6 +15,7 @@ services:
   - redis-server
   - postgresql
   - cassandra
+  - memcached
   
 cache:
   npm: false
@@ -100,7 +101,7 @@ jobs:
     - stage: dependencies
       node_js: '12'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '12'
@@ -127,7 +128,7 @@ jobs:
     - stage: dependencies
       node_js: '11'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '11'
@@ -154,7 +155,7 @@ jobs:
     - stage: dependencies
       node_js: '10'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '10'
@@ -181,7 +182,7 @@ jobs:
     -
       node_js: '8'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '8'
@@ -208,7 +209,7 @@ jobs:
     -
       node_js: '6'
       if: type IN (cron, pull_request) AND NOT branch =~ ^greenkeeper/.*
-      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler
+      env: TAV=redis,koa-router,handlebars,jade,pug,mongodb-core,finalhandler,memcached
       script: tav --quiet
     -
       node_js: '6'
@@ -237,13 +238,13 @@ jobs:
 
     # Nightlies
     - stage: Node.js pre-releases
-      node_js: '12'
-      name: "Node.js: 12-nightly"
+      node_js: '13'
+      name: "Node.js: 13-nightly"
       if: type = cron
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
-      node_js: '11'
-      name: "Node.js: 11-nightly"
+      node_js: '12'
+      name: "Node.js: 12-nightly"
       if: type = cron
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
@@ -256,23 +257,18 @@ jobs:
       name: "Node.js: 8-nightly"
       if: type = cron
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
-    -
-      node_js: '6'
-      name: "Node.js: 6-nightly"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
 
     # Nightlies - No async hooks
     -
-      node_js: '12'
-      name: "Node.js: 12-nightly (no async hooks)"
+      node_js: '13'
+      name: "Node.js: 13-nightly (no async hooks)"
       if: type = cron
       env:
         - ELASTIC_APM_ASYNC_HOOKS=false
         - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/
     -
-      node_js: '11'
-      name: "Node.js: 11-nightly (no async hooks)"
+      node_js: '12'
+      name: "Node.js: 12-nightly (no async hooks)"
       if: type = cron
       env:
         - ELASTIC_APM_ASYNC_HOOKS=false
@@ -299,11 +295,6 @@ jobs:
       if: type = cron
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
     -
-      node_js: '11'
-      name: "Node.js: 11-rc"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
-    -
       node_js: '10'
       name: "Node.js: 10-rc"
       if: type = cron
@@ -313,23 +304,11 @@ jobs:
       name: "Node.js: 8-rc"
       if: type = cron
       env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
-    -
-      node_js: '6'
-      name: "Node.js: 6-rc"
-      if: type = cron
-      env: NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
 
     # Release Candidates - No async hooks
     -
       node_js: '12'
       name: "Node.js: 12-rc (no async hooks)"
-      if: type = cron
-      env:
-        - ELASTIC_APM_ASYNC_HOOKS=false
-        - NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc/
-    -
-      node_js: '11'
-      name: "Node.js: 11-rc (no async hooks)"
       if: type = cron
       env:
         - ELASTIC_APM_ASYNC_HOOKS=false

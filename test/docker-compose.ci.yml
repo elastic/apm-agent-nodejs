@@ -10,6 +10,7 @@ services:
       MSSQL_HOST: 'mssql'
       MYSQL_HOST: 'mysql'
       CASSANDRA_HOST: 'cassandra'
+      MEMCACHED_HOST: 'memcached'
       PGHOST: 'postgres'
       PGUSER: 'postgres'
     depends_on:
@@ -26,4 +27,6 @@ services:
       elasticsearch:
         condition: service_started
       cassandra:
+        condition: service_started
+      memcached:
         condition: service_started
