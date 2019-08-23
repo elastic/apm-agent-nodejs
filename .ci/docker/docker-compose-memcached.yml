@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  memcached:
+    extends:
+      file: docker-compose.yml
+      service: memcached
+  node_tests:
+    extends:
+      file: docker-compose-node-test.yml
+      service: node_tests
+    depends_on:
+      memcached:
+        condition: service_healthy
