@@ -15,8 +15,6 @@ module.exports = function mockAgent (expected, cb) {
   var agent = {
     _conf: config({
       abortedErrorThreshold: '250ms',
-      asyncHooks: false,
-      breakdownMetrics: false,
       centralConfig: false,
       errorOnAbortedRequests: false,
       metricsInterval: 0
