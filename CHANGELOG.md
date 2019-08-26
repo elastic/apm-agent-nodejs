@@ -1,3 +1,10 @@
+# 2.16.0 - 2019/8/26
+  * feat(memcached): instrument memcached v2.2.0 and above ([#1144](https://github.com/elastic/apm-agent-nodejs/pull/1144))
+  * feat(config): add configFile config option ([#1303](https://github.com/elastic/apm-agent-nodejs/pull/1303))
+  * fix: bug where spans sometimes wouldn't have stack traces ([#1299](https://github.com/elastic/apm-agent-nodejs/pull/1299))
+  * fix(async\_hooks): properly update sync flag ([#1306](https://github.com/elastic/apm-agent-nodejs/pull/1306))
+  * fix: change agent active status log message to debug level ([#1300](https://github.com/elastic/apm-agent-nodejs/pull/1300))
+
 # 2.15.0 - 2019/8/15
   * feat(express-graphql): add support for v0.9 ([#1255](https://github.com/elastic/apm-agent-nodejs/pull/1255))
   * feat(metrics): add metricsLimit option ([#1273](https://github.com/elastic/apm-agent-nodejs/pull/1273))
