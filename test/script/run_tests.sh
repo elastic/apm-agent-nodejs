@@ -106,7 +106,6 @@ containers=$(number_of_started_containers)
 if [[ $healthy -lt $expected_healthy && $containers -eq $expected_containers ]]
 then
   wait_for_healthy
-  setup_env
 elif [[ $healthy -lt $expected_healthy || $containers -lt $expected_containers ]]
 then
   finish () {
@@ -116,7 +115,7 @@ then
 
   docker-compose -f ./test/docker-compose.yml up -d $services
   wait_for_healthy
-  setup_env
 fi
 
+setup_env
 run_test_suite
