@@ -5,7 +5,7 @@ import groovy.transform.Field
 
 /**
 This is the git commit sha which it's required to be used in different stages.
-It does store the env GIT_SHA
+It does store the env GIT_BASE_COMMIT
 */
 @Field def gitCommit
 
@@ -52,7 +52,7 @@ pipeline {
         gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true)
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
         script {
-          gitCommit = env.GIT_SHA
+          gitCommit = env.GIT_BASE_COMMIT
           dir("${BASE_DIR}"){
             def regexps =[
               "^lib/instrumentation/modules/",
