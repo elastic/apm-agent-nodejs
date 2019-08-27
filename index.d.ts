@@ -42,11 +42,26 @@ declare class Agent implements Taggable, StartSpanFn {
   currentTraceparent: string | null;
 
   // Transactions
-  startTransaction (
-    name?: string,
-    type?: string,
-    subtype?: string,
-    action?: string,
+  startTransaction(
+    name?: string | null,
+    options?: TransactionOptions
+  ): Transaction | null;
+  startTransaction(
+    name: string | null,
+    type: string | null,
+    options?: TransactionOptions
+  ): Transaction | null;
+  startTransaction(
+    name: string | null,
+    type: string | null,
+    subtype: string | null,
+    options?: TransactionOptions
+  ): Transaction | null;
+  startTransaction(
+    name: string | null,
+    type: string | null,
+    subtype: string | null,
+    action: string | null,
     options?: TransactionOptions
   ): Transaction | null;
   setTransactionName (name: string): void;
@@ -54,11 +69,26 @@ declare class Agent implements Taggable, StartSpanFn {
   currentTransaction: Transaction | null;
 
   // Spans
-  startSpan (
-    name?: string,
-    type?: string,
-    subtype?: string,
-    action?: string,
+  startSpan(
+    name?: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    subtype: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    subtype: string | null,
+    action: string | null,
     options?: SpanOptions
   ): Span | null;
   currentSpan: Span | null;
@@ -87,9 +117,12 @@ declare class GenericSpan implements Taggable {
   // The following properties and methods are currently not documented as their API isn't considered official:
   // timestamp, ended, id, traceId, parentId, sampled, duration()
 
-  type: string;
+  type: string | null;
+  subtype: string | null;
+  action: string | null;
   traceparent: string;
 
+  setType (type?: string | null, subtype?: string | null, action?: string | null): void;
   setLabel (name: string, value: LabelValue): boolean;
   setTag (name: string, value: LabelValue): boolean; // Deprecated
   addLabels (labels: Labels): boolean;
@@ -104,10 +137,25 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
   result: string | number;
 
   startSpan(
-    name?: string,
-    type?: string,
-    subtype?: string,
-    action?: string,
+    name?: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    subtype: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    subtype: string | null,
+    action: string | null,
     options?: SpanOptions
   ): Span | null;
   ensureParentId (): string;
@@ -252,11 +300,26 @@ interface Taggable {
 }
 
 interface StartSpanFn {
-  startSpan (
-    name?: string,
-    type?: string,
-    subtype?: string,
-    action?: string,
+  startSpan(
+    name?: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    subtype: string | null,
+    options?: SpanOptions
+  ): Span | null;
+  startSpan(
+    name: string | null,
+    type: string | null,
+    subtype: string | null,
+    action: string | null,
     options?: SpanOptions
   ): Span | null;
 }
