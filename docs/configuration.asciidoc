@@ -31,6 +31,8 @@ the agent will use the `name` from `package.json` by default if available.
 
 Your Elastic APM service name.
 
+Allowed characters: `a-z`, `A-Z`, `0-9`, `-`, `_`, and space.
+
 [[secret-token]]
 ==== `secretToken`
 
