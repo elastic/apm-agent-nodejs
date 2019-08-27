@@ -42,6 +42,8 @@ This can also be set via <<apm-start-span,`apm.startSpan()`>>.
 
 [small]#Added in: v0.1.0#
 
+[small]#Split components into `type`, `subtype` and `action` in: v3.0.0# 
+
 * +{type-string}+ *Default:* `custom`
 
 The type of span.
