@@ -165,6 +165,43 @@ test('applies metrics limit', function (t) {
   metrics.getOrCreateCounter('third').inc()
 })
 
+test('increments counter when active', function (t) {
+  agent = mockAgent({
+    metricsInterval: delayMs / 1000,
+    hostname: 'foo',
+    environment: 'bar'
+  }, () => {})
+
+  metrics = new Metrics(agent)
+  metrics.start()
+
+  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 0, 'should start at zero')
+
+  metrics.incrementCounter('test-counter')
+  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 1, 'should have incremented by 1 by default')
+
+  metrics.incrementCounter('test-counter', null, 2)
+  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 3, 'should have incremented by an amount')
+
+  metrics.incrementCounter('test-counter', null)
+  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 4, 'should have incremented')
+
+  t.end()
+})
+
+test('noop counter when not active', function (t) {
+  agent = mockAgent({
+    metricsInterval: delayMs / 1000,
+    hostname: 'foo',
+    environment: 'bar'
+  }, () => {})
+
+  metrics = new Metrics(agent)
+
+  t.doesNotThrow(() => metrics.incrementCounter('test-counter'))
+  t.end()
+})
+
 function spinCPUFor (durationMs) {
   const start = Date.now()
   while (Date.now() - start < durationMs) {}
