@@ -1,3 +1,6 @@
+# 2.16.1 - 2019/8/28
+  * fix: avoid throwing when agent is in active: false mode ([#1278](https://github.com/elastic/apm-agent-nodejs/pull/1278))
+
 # 2.16.0 - 2019/8/26
   * feat(memcached): instrument memcached v2.2.0 and above ([#1144](https://github.com/elastic/apm-agent-nodejs/pull/1144))
   * feat(config): add configFile config option ([#1303](https://github.com/elastic/apm-agent-nodejs/pull/1303))
