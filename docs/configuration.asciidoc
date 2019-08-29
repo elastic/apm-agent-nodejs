@@ -123,6 +123,18 @@ A boolean specifying if the agent should collect performance metrics for the app
 
 Note that both `active` and `instrument` needs to be `true` for instrumentation to be running.
 
+[[instrument-incoming-http-requests]]
+==== `instrumentIncomingHTTPRequests?:`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_INSTRUMENT_INCOMING_HTTP_REQUESTS`
+
+A boolean specifying if the agent should instrument incoming HTTP requests.
+
+To configure if outgoing http requests should be instrumented,
+see <<disable-instrumentations, `disableInstrumentations`>>.
+
 [[central-config]]
 ==== `centralConfig`
 
@@ -659,6 +671,9 @@ For an always up-to-date list of modules for which instrumentation can be disabl
 see the https://github.com/elastic/apm-agent-nodejs/tree/master/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
 Note that not all modules represented in this directory will generate spans,
 and adding those to this array has no effect.
+
+To configure if incoming http requests should be instrumented,
+see <<instrument-incoming-http-requests, `instrumentIncomingHTTPRequests`>>.
 
 [[container-id]]
 ==== `containerId`
