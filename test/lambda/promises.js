@@ -53,7 +53,7 @@ test('resolve with parent id header present', function (t) {
   const input = {
     name: 'world',
     headers: {
-      'elastic-apm-traceparent': 'test'
+      'Elastic-Apm-Traceparent': 'test'
     }
   }
   const output = 'Hello, world!'
@@ -84,7 +84,7 @@ test('resolve with parent id header present', function (t) {
       t.equal(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], name, context, input, output)
 
-      t.equal(input.headers['elastic-apm-traceparent'], agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
+      t.equal(input.headers['Elastic-Apm-Traceparent'], agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
 
       t.end()
     }
