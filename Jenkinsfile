@@ -72,8 +72,11 @@ pipeline {
           deleteDir()
           unstash 'source'
           script {
-            docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-              sh(label: "Basic tests", script: 'cd /app && .ci/scripts/test_basic.sh')
+            // PRs don't require to run here as it's now managed within the linting pipeline
+            if (!env.CHANGE_ID) {
+              docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+                sh(label: "Basic tests", script: 'cd /app && .ci/scripts/test_basic.sh')
+              }
             }
           }
           dir("${BASE_DIR}"){
@@ -88,8 +91,11 @@ pipeline {
                 }
               }
 
-              // Linting the commit message in parallel with the test stage
-              parallelTasks['Commit lint'] = lintCommits()
+              // PRs don't require to run here as it's now managed within the linting pipeline
+              if (!env.CHANGE_ID) {
+                // Linting the commit message in parallel with the test stage
+                parallelTasks['Commit lint'] = lintCommits()
+              }
 
               parallel(parallelTasks)
             }
