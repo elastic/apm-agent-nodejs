@@ -6,7 +6,6 @@ export HOME=$(pwd)
 
 npm install
 
-
 if [[ -z "${CHANGE_ID}" ]]; then
   # If on master, just test the latest commit
   commitlint --from=${GIT_SHA}~1
