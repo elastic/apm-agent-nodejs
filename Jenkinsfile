@@ -86,7 +86,7 @@ pipeline {
               // PRs don't require to run here as it's now managed within the linting pipeline
               if (!env.CHANGE_ID) {
                 // Linting in parallel with the test stage
-                parallelTasks['Commit lint'] = linting()
+                parallelTasks['linting'] = linting()
               }
 
               parallel(parallelTasks)
