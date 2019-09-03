@@ -23,11 +23,29 @@ pipeline {
       steps {
         script {
           verifyChangesAreApproved()
-          docker.image('node:12').inside("-v ${WORKSPACE}:/app"){
-            sh(label: 'Basic tests', script: 'cd /app && .ci/scripts/test_basic.sh')
-            sh(label: 'Lint commits', script: 'cd /app && .ci/scripts/lint-commits.sh')
+          def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
+          def parallelTasks = [:]
+          node['NODEJS_VERSION'].each { version ->
+            parallelTasks["Linting-${version}"] = generateStep(version: version)
           }
+          parallel(parallelTasks)
         }
+      }
+    }
+  }
+}
+
+def generateStep(Map params = [:]){
+  def version = params?.version
+  return {
+    node('docker && linux && immutable'){
+      env.HOME = "${WORKSPACE}"
+      docker.image("node:${version}").inside("-v ${WORKSPACE}:/app"){
+        if (version?.equals('12')) {
+          sh(label: 'Basic tests I', script: 'cd /app && .ci/scripts/test_basic.sh')
+        }
+        sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
+        sh(label: 'Lint commits', script: 'cd /app && .ci/scripts/lint-commits.sh')
       }
     }
   }
