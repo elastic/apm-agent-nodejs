@@ -22,6 +22,7 @@ pipeline {
     stage('Basic Test') {
       steps {
         script {
+          verifyChangesAreApproved()
           docker.image('node:12').inside("-v ${WORKSPACE}:/app"){
             sh(label: 'Basic tests', script: 'cd /app && .ci/scripts/test_basic.sh')
             sh(label: 'Lint commits', script: 'cd /app && .ci/scripts/lint-commits.sh')
@@ -29,5 +30,23 @@ pipeline {
         }
       }
     }
+  }
+}
+
+def verifyChangesAreApproved() {
+  def ret = 0
+  catchError(buildResult: 'SUCCESS', message: 'Trap any errors') {
+    if (githubPrCheckApproved()) {
+       ret = sh(label: 'Validate changes',
+                script: '''
+                  files=".ci/scripts/test_basic.sh .ci/scripts/lint-commits.sh"
+                  for file in $files; do
+                    git diff --name-only ${GIT_PREVIOUS_COMMIT}...${GIT_COMMIT} | grep ${files} && exit 1 || true
+                  done''',
+                returnStatus: true)
+    }
+  }
+  if(ret != 0){
+    error('The PR is not approved yet')
   }
 }
