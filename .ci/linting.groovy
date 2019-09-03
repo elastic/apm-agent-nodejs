@@ -38,7 +38,7 @@ def verifyChangesAreApproved() {
   catchError(buildResult: 'SUCCESS', message: 'Trap any errors') {
     // This is required to populate the env variables
     githubEnv()
-    if (githubPrCheckApproved()) {
+    if (!githubPrCheckApproved()) {
        ret = sh(label: 'Validate changes',
                 script: '''
                   files=".ci/scripts/test_basic.sh .ci/scripts/lint-commits.sh"
