@@ -21,6 +21,7 @@ pipeline {
   stages {
     stage('Linting Test') {
       steps {
+        stash allowEmpty: true, name: 'source', useDefaultExcludes: false
         script {
           verifyChangesAreApproved()
           def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
@@ -39,6 +40,7 @@ def generateStep(Map params = [:]){
   def version = params?.version
   return {
     node('docker && linux && immutable'){
+      unstash 'source'
       env.HOME = "${WORKSPACE}"
       docker.image("node:${version}").inside("-v ${WORKSPACE}:/app"){
         if (version?.equals('12')) {
