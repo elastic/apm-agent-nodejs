@@ -1,3 +1,6 @@
+# 2.16.2 - 2019/9/3
+  * fix(lambda): handle traceparent case-insensitively ([#1319](https://github.com/elastic/apm-agent-nodejs/pull/1319))
+
 # 2.16.1 - 2019/8/28
   * fix: avoid throwing when agent is in active: false mode ([#1278](https://github.com/elastic/apm-agent-nodejs/pull/1278))
 
