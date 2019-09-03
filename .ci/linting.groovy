@@ -36,6 +36,8 @@ pipeline {
 def verifyChangesAreApproved() {
   def ret = 0
   catchError(buildResult: 'SUCCESS', message: 'Trap any errors') {
+    // This is required to populate the env variables
+    githubEnv()
     if (githubPrCheckApproved()) {
        ret = sh(label: 'Validate changes',
                 script: '''
