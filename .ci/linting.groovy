@@ -21,7 +21,7 @@ pipeline {
   stages {
     stage('Linting Test') {
       steps {
-        stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+        stash name: 'source', useDefaultExcludes: false
         script {
           verifyChangesAreApproved()
           def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
