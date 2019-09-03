@@ -41,13 +41,14 @@ def generateStep(Map params = [:]){
   return {
     node('docker && linux && immutable'){
       unstash 'source'
-      env.HOME = "${WORKSPACE}"
       docker.image("node:${version}").inside("-v ${WORKSPACE}:/app"){
-        if (version?.equals('12')) {
-          sh(label: 'Basic tests I', script: 'cd /app && .ci/scripts/test_basic.sh')
+        withEnv(["HOME=/app"]) {
+          if (version?.equals('12')) {
+            sh(label: 'Basic tests I', script: 'cd /app && .ci/scripts/test_basic.sh')
+          }
+          sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
+          sh(label: 'Lint commits', script: 'cd /app && .ci/scripts/lint-commits.sh')
         }
-        sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
-        sh(label: 'Lint commits', script: 'cd /app && .ci/scripts/lint-commits.sh')
       }
     }
   }
