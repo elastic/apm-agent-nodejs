@@ -19,7 +19,7 @@ pipeline {
     issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?lint(?:\\W+please)?.*')
   }
   stages {
-    stage('Basic Test') {
+    stage('Linting Test') {
       steps {
         script {
           verifyChangesAreApproved()
