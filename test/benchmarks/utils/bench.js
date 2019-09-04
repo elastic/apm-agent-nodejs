@@ -10,7 +10,6 @@ module.exports = function (name, { agentConf, ...benchConf }) {
       serviceName: 'test',
       centralConfig: false,
       captureExceptions: false,
-      captureSpanStackTraces: false,
       metricsInterval: 0
     }, agentConf))
   }
