@@ -4,7 +4,6 @@ const bench = require('./utils/bench')
 
 bench('transaction-reading-file', {
   setup () {
-    // Setup variables 
     var agent = this.benchmark.agent
     var fs = this.benchmark.fs
     var filename = this.benchmark.testFile
