@@ -8,6 +8,7 @@ module.exports = function (name, { agentConf, ...benchConf }) {
   if (withAgent) {
     agent = require('../../..').start(Object.assign({
       serviceName: 'test',
+      centralConfig: false,
       captureExceptions: false,
       captureSpanStackTraces: false,
       metricsInterval: 0
