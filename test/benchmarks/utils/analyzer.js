@@ -2,23 +2,26 @@
 
 const fs = require('fs')
 const os = require('os')
-const path = require('path')
-const git = require('git-rev')
+const { exec } = require('child_process')
+const { resolve } = require('path')
 const afterAll = require('after-all-results')
 
-const outputFile = path.resolve(process.argv[2])
-const [bench, control] = process.argv.slice(3)
+const input = process.argv.slice(2)
+const outputFile = input.length > 2 ? resolve(input.pop()) : null
+const [bench, control] = input
   .map(file => fs.readFileSync(file))
   .map(buf => JSON.parse(buf))
 
-bench.controlStats = control.stats
-
 calculateDelta(bench, control)
 
-storeResult()
+console.error(`${bench.name}: ${bench.overhead * 1e6} μs overhead`)
+
+if (outputFile) storeResult()
 
 function storeResult () {
-  const next = afterAll(function (err, [rev, branch]) {
+  bench.controlStats = control.stats
+
+  const next = afterAll(function (err, [rev, branch, message]) {
     if (err) throw err
 
     const result = fs.existsSync(outputFile) ? require(outputFile) : {
@@ -44,9 +47,10 @@ function storeResult () {
         version: process.version,
         versions: process.versions
       },
-      repo: {
+      git: {
         rev,
-        branch
+        branch,
+        message
       },
       results: []
     }
@@ -60,8 +64,9 @@ function storeResult () {
     })
   })
 
-  git.short(next().bind(null, null))
-  git.branch(next().bind(null, null))
+  exec('git rev-parse --short HEAD | tr -d \'\\n\'', next())
+  exec('git rev-parse --abbrev-ref HEAD | tr -d \'\\n\'', next())
+  exec('git show -s --format=%B HEAD | tr -d \'\\n\'', next())
 }
 
 function calculateDelta (bench, control) {

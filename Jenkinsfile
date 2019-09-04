@@ -304,7 +304,6 @@ pipeline {
               env.COMMIT_ISO_8601 = sh(script: 'git log -1 -s --format=%cI', returnStdout: true).trim()
               env.NOW_ISO_8601 = sh(script: 'date -u "+%Y-%m-%dT%H%M%SZ"', returnStdout: true).trim()
               env.RESULT_FILE = "apm-agent-benchmark-results-${env.COMMIT_ISO_8601}.json"
-              env.BULK_UPLOAD_FILE = "apm-agent-bulk-${env.NOW_ISO_8601}.json"
             }
             sh '.ci/scripts/run-benchmarks.sh'
           }
@@ -315,7 +314,8 @@ pipeline {
           archiveArtifacts(allowEmptyArchive: true,
             artifacts: "${BASE_DIR}/${RESULT_FILE}",
             onlyIfSuccessful: false)
-          // TODO: sendBenchmarks will be enabled once the PR is ready
+          sendBenchmarks(file: "${BASE_DIR}/${RESULT_FILE}",
+            index: "benchmark-nodejs", archive: true)
         }
       }
     }

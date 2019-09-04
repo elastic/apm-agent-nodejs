@@ -25,10 +25,10 @@ module.exports = function (name, { agentConf, ...benchConf }) {
       // either the `setup` function or the `fn` function (as the regular
       // Node.js globals like `require` and `__filename` are not available to
       // those functions).
-      this.agent = agent
-      this.callstack = require('./callstack')
       this.fs = require('fs')
+      this.callstack = require('./callstack')
       this.testFile = __filename
+      this.agent = agent
     },
     onComplete (result) {
       console.error(this.toString())

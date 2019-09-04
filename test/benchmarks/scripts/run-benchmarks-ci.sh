@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-set -xe
+set -exuo pipefail
 
-NOW_ISO_8601=$(date -u "+%Y-%m-%dT%H%M%SZ")
+NOW_ISO_8601=${NOW_ISO_8601:-$(date -u "+%Y-%m-%dT%H%M%SZ")}
 
 echo $(pwd)
 
@@ -34,27 +34,18 @@ function setUp() {
     # set all CPUs to the base frequency
     for (( cpu=0; cpu<=${CORE_INDEX}; cpu++ ))
     do
-        sudo cpufreq-set -c ${cpu} --min ${BASE_FREQ} --max ${BASE_FREQ}
+        sudo -n cpufreq-set -c ${cpu} --min ${BASE_FREQ} --max ${BASE_FREQ}
     done
 
     # Build cgroups to isolate microbenchmarks and JVM threads
     echo "Creating groups for OS and microbenchmarks"
     # Isolate the OS to the first core
-    sudo cset set --set=/os --cpu=0-1
-    sudo cset proc --move --fromset=/ --toset=/os
+    sudo -n cset set --set=/os --cpu=0-1
+    sudo -n cset proc --move --fromset=/ --toset=/os
 
     # Isolate the microbenchmarks to all cores except the first two (first physical core)
     # On a 4 core CPU with hyper threading, this would be 6 cores (3 physical cores)
-    sudo cset set --set=/benchmark --cpu=2-${CORE_INDEX}
-}
-
-function setCloudCredentials() {
-    export VAULT_ADDR=https://secrets.elastic.co:8200
-    export VAULT_TOKEN=$( curl -s -X POST -H "Content-Type: application/json" -L -d "{\"role_id\":\"35ad5918-eab7-c814-f8be-a305c811732e\",\"secret_id\":\"$SECRET_ID\"}" $VAULT_ADDR/v1/auth/approle/login | jq '.auth.client_token'  | tr -d '"' )
-    export CLOUDDATA=$( curl -s -L -H "X-Vault-Token:$VAULT_TOKEN" $VAULT_ADDR/v1/secret/apm-team/ci/java-agent-benchmark-cloud )
-    export CLOUD_USERNAME=$( echo $CLOUDDATA | jq '.data.user' | tr -d '"' )
-    export CLOUD_PASSWORD=$( echo $CLOUDDATA | jq '.data.password' | tr -d '"' )
-    unset VAULT_TOKEN
+    sudo -n cset set --set=/benchmark --cpu=2-${CORE_INDEX}
 }
 
 function benchmark() {
@@ -62,45 +53,22 @@ function benchmark() {
     COMMIT_UNIX=$(git log -1 -s --format=%ct)
 
     # TODO:
-    # ./mvnw clean package -DskipTests=true
+    # [ -z "${NO_BUILD}" ] && ./mvnw clean package -DskipTests=true
 
     RESULT_FILE=apm-agent-benchmark-results-${COMMIT_ISO_8601}.json
-    BULK_UPLOAD_FILE=apm-agent-bulk-${NOW_ISO_8601}.json
 
-    sudo cset proc --exec /benchmark -- \
-        AGENT=1 node ../001-transaction-and-span-no-stack-trace.js
-        # $JAVA_HOME/bin/java -jar apm-agent-benchmarks/target/benchmarks.jar ".*ContinuousBenchmark" \
-        # -prof gc \
-        # -prof co.elastic.apm.benchmark.profiler.ReporterProfiler \
-        # -rf json \
-        # -rff ${RESULT_FILE}
-
-    # TODO:
-    # remove strange non unicode chars inserted by JMH; see org.openjdk.jmh.results.Defaults.PREFIX
-    # tr -cd '\11\12\40-\176' < ${RESULT_FILE} > "${RESULT_FILE}.clean"
-    # rm -f ${RESULT_FILE}
-    # mv "${RESULT_FILE}.clean" ${RESULT_FILE}
-
-    # TODO:
-    # $JAVA_HOME/bin/java -cp apm-agent-benchmarks/target/benchmarks.jar co.elastic.apm.benchmark.PostProcessBenchmarkResults ${RESULT_FILE} ${BULK_UPLOAD_FILE} ${COMMIT_UNIX}
-    setCloudCredentials
-    echo 'curling...'
-    # TODO:
-    # curl --user ${CLOUD_USERNAME}:${CLOUD_PASSWORD} -XPOST 'https://1ec92c339f616ca43771bff669cc419c.europe-west3.gcp.cloud.es.io:9243/_bulk' -H 'Content-Type: application/json'  --data-binary @${BULK_UPLOAD_FILE}
-    unset CLOUD_USERNAME
-    unset CLOUD_PASSWORD
-    rm ${BULK_UPLOAD_FILE}
+    sudo cset proc --exec /benchmark -- ./run-benchmarks.sh all ${RESULT_FILE}
 }
 
 function tearDown() {
     echo "Destroying cgroups"
-    sudo cset set --destroy /os
-    sudo cset set --destroy /benchmark
+    sudo -n cset set --destroy /os
+    sudo -n cset set --destroy /benchmark
 
     echo "Setting normal frequency range"
     for (( cpu=0; cpu<=${CORE_INDEX}; cpu++ ))
     do
-        sudo cpufreq-set -c ${cpu} --min ${MIN_FREQ} --max ${MAX_FREQ}
+        sudo -n cpufreq-set -c ${cpu} --min ${MIN_FREQ} --max ${MAX_FREQ}
     done
 }
 

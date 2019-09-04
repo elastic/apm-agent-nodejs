@@ -2,6 +2,24 @@
 
 set -e
 
+if [ "$1" == "--help" ]
+then
+  echo "Usage:"
+  echo "  run-benchmarks.sh [benchmark-file|all] [output-file]"
+  echo
+  echo "If no benchmark file is provided, the default is to run all the benchmarks"
+  echo "(can also be specified using the \"all\" keyword)"
+  echo
+  echo "Examples:"
+  echo "  run-benchmarks.sh                  - Run all benchmarks"
+  echo "  run-benchmarks.sh all              - Run all benchmarks"
+  echo "  run-benchmarks.sh all out.json     - Run all benchmarks + store result in out.json"
+  echo "  run-benchmarks.sh foo.js           - Run foo.js benchmark"
+  echo "  run-benchmarks.sh foo.js out.json  - Run foo.js benchmark + store result in out.json"
+  echo
+  exit
+fi
+
 function log() {
   msg=$1
   if [ ! -z "$DEBUG" ]
@@ -48,7 +66,7 @@ function runBenchmark () {
   shutdownAPMServer
 
   log "Analyzing results..."
-  node $utils/analyzer.js $result_file $appout_agent $appout_no_agent
+  node $utils/analyzer.js $appout_agent $appout_no_agent $result_file
 }
 
 trap teardown EXIT
@@ -58,12 +76,15 @@ utils=$basedir/utils
 outputdir=$basedir/.tmp
 appout_no_agent=$outputdir/app-no-agent.json
 appout_agent=$outputdir/app-agent.json
-result_file=$outputdir/result.json
+result_file=$2
 
 rm -fr $outputdir
 mkdir -p $outputdir
 
-if [ ! -z "$1" ]
+if [ "$1" == "all" ]
+then
+  benchmarks=($basedir/0*.js)
+elif [ ! -z "$1" ]
 then
   benchmarks=($1)
 else
@@ -73,5 +94,3 @@ fi
 for benchmark in "${benchmarks[@]}"; do
   runBenchmark "$benchmark"
 done
-
-echo "Stored Elasticsearch result document at: ${result_file}"
