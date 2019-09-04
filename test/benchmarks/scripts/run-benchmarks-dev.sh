@@ -2,6 +2,14 @@
 
 set -e
 
+function log() {
+  msg=$1
+  if [ ! -z "$DEBUG" ]
+  then
+    echo $msg
+  fi
+}
+
 function teardown() {
   if [ ! -z "$pid" ]
   then
@@ -10,16 +18,16 @@ function teardown() {
 }
 
 function startAPMServer() {
-  # echo "Starting mock APM Server..."
+  log "Starting mock APM Server..."
   node $utils/apm-server.js &
   pid=$!
-  # echo "Mock APM Server running as pid $pid"
+  log "Mock APM Server running as pid $pid"
 
   sleep 1
 }
 
 function shutdownAPMServer() {
-  # echo "Shutting down mock APM Server (pid: $pid)..."
+  log "Shutting down mock APM Server (pid: $pid)..."
   kill -SIGUSR2 $pid
   unset pid
 }
@@ -29,17 +37,17 @@ function runBenchmark () {
 
   sleep 1
 
-  # echo "Running benchmark $benchmark without agent..."
+  log "Running benchmark $benchmark without agent..."
   node $benchmark > $appout_no_agent
 
   startAPMServer
 
-  # echo "Running benchmark $benchmark with agent..."
+  log "Running benchmark $benchmark with agent..."
   AGENT=1 node $benchmark > $appout_agent
 
   shutdownAPMServer
 
-  # echo "Analyzing results..."
+  log "Analyzing results..."
   node $utils/analyzer.js $result_file $appout_agent $appout_no_agent
 }
 
