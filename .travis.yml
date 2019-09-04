@@ -93,7 +93,3 @@ addons:
     packages:
      - xsltproc
      - libxml2-utils
-
-notifications:
-  email:
-    - watson@elastic.co
