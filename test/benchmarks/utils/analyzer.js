@@ -18,7 +18,9 @@ calculateDelta(bench, control)
 storeResult()
 
 function storeResult () {
-  const next = afterAll(function ([rev, branch]) {
+  const next = afterAll(function (err, [rev, branch]) {
+    if (err) throw err
+
     const result = fs.existsSync(outputFile) ? require(outputFile) : {
       os: {
         arch: os.arch(),
@@ -58,8 +60,8 @@ function storeResult () {
     })
   })
 
-  git.short(next())
-  git.branch(next())
+  git.short(next().bind(null, null))
+  git.branch(next().bind(null, null))
 }
 
 function calculateDelta (bench, control) {
