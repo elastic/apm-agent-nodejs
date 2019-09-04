@@ -2,47 +2,24 @@
 
 const fs = require('fs')
 const os = require('os')
-const joinPath = require('path').join
-const numeral = require('numeral')
-const columnify = require('columnify')
+const path = require('path')
 const git = require('git-rev')
 const afterAll = require('after-all-results')
 
-const [bench, control, serverMetrics] = process.argv.slice(2)
+const outputFile = path.resolve(process.argv[2])
+const [bench, control] = process.argv.slice(3)
   .map(file => fs.readFileSync(file))
   .map(buf => JSON.parse(buf))
-  .map(processRawResults)
 
-calculateSingle(bench)
-calculateSingle(control)
-calculateSingle(serverMetrics)
+bench.controlStats = control.stats
+
 calculateDelta(bench, control)
 
-displayResult()
 storeResult()
-
-function displayResult () {
-  console.log()
-  console.log('Benchmark running time: %d seconds', duration(bench))
-  console.log('Server running time: %d seconds', duration(serverMetrics))
-  console.log('Avg bytes per event:', format(serverMetrics.metrics.bytes.count / serverMetrics.metrics.events.count))
-
-  const opts = {
-    config: {
-      rate: { align: 'right' },
-      total: { align: 'right' },
-      single: { align: 'right' },
-      overhead: { align: 'right' }
-    }
-  }
-  console.log(`\n${columnify(output(bench, serverMetrics), opts)}\n`)
-}
 
 function storeResult () {
   const next = afterAll(function ([rev, branch]) {
-    const file = joinPath(__dirname, '..', '.tmp', 'result.json')
-
-    const result = fs.existsSync(file) ? require(file) : {
+    const result = fs.existsSync(outputFile) ? require(outputFile) : {
       os: {
         arch: os.arch(),
         cpus: os.cpus(),
@@ -73,14 +50,11 @@ function storeResult () {
     }
 
     result.results.push(bench)
-    result.results.push(serverMetrics)
 
     const json = JSON.stringify(result)
 
-    fs.writeFile(file, json, function (err) {
+    fs.writeFile(outputFile, json, function (err) {
       if (err) throw err
-      console.log()
-      console.log('Stored Elasticsearch result document at:', file)
     })
   })
 
@@ -88,57 +62,12 @@ function storeResult () {
   git.branch(next())
 }
 
-function calculateSingle (bench) {
-  const time = bench.duration.count
-  Object.entries(bench.metrics).forEach(([metric, count]) => {
-    const single = time / count
-    bench.metrics[metric] = { count, single }
-  })
-}
-
 function calculateDelta (bench, control) {
-  Object.keys(bench.metrics).forEach(metric => {
-    bench.metrics[metric].overhead = bench.metrics[metric].single - control.metrics[metric].single
-    bench.metrics[metric].singleControl = control.metrics[metric].single
-  })
-}
-
-function processRawResults (log) {
-  const hrtime = log.duration
-
-  log.duration = {
-    count: (hrtime[0] * 1e9 + hrtime[1]) / 1e3,
-    unit: 'μs'
-  }
-
-  return log
-}
-
-function output (...logs) {
-  return logs.map(log => {
-    const seconds = duration(log)
-    const unit = log.duration.unit
-
-    return Object.entries(log.metrics).map(([name, metric]) => {
-      const cols = {
-        metric: name,
-        rate: `${format(metric.count / seconds)}/s`,
-        total: format(metric.count, false),
-        single: `${format(metric.single)} ${unit}`
-      }
-      if (metric.overhead) {
-        cols.overhead = `${format(metric.overhead)} ${unit}`
-      }
-      return cols
-    })
-  }).flat()
-}
-
-function duration (metrics) {
-  return metrics.duration.count / 1e6
-}
-
-function format (n, decimals) {
-  if (decimals === undefined) decimals = true
-  return numeral(n).format(decimals ? '0,0.00' : '0,0')
+  // moe: The margin of error
+  // rme: The relative margin of error (expressed as a percentage of the mean)
+  // sem: The standard error of the mean
+  // deviation: The sample standard deviation
+  // mean: The sample arithmetic mean (secs)
+  // variance: The sample variance
+  bench.overhead = bench.stats.mean - control.stats.mean
 }
