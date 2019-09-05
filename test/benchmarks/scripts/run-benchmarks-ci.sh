@@ -60,7 +60,7 @@ function setUp() {
 }
 
 function benchmark() {
-    sudo cset proc --exec /benchmark -- ./run-benchmarks.sh all ${RESULT_FILE}
+    sudo -n cset proc --exec /benchmark -- ./run-benchmarks.sh all ${RESULT_FILE}
 }
 
 function tearDown() {
