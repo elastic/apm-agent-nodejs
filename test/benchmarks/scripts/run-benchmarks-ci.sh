@@ -2,7 +2,7 @@
 
 set -exuo pipefail
 
-SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+SCRIPTPATH=$(dirname "$0")
 RESULT_FILE=${1}
 
 if [ -z "$1" ]
@@ -11,7 +11,7 @@ then
   echo "  run-benchmarks-ci.sh <output-file>"
   echo
   echo "Examples:"
-  echo "  run-benchmarks-ci.sh out.json  - Run benchmark + store result in out.json"
+  echo "  run-benchmarks-ci.sh out.ndjson  - Run benchmark + store result in out.ndjson"
   echo
   exit
 fi

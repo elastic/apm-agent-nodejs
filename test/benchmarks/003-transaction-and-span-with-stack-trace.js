@@ -1,5 +1,7 @@
 'use strict'
 
+/* eslint-disable no-unused-vars, no-undef */
+
 const bench = require('./utils/bench')
 
 bench('transaction-and-span-with-stack-trace', {
