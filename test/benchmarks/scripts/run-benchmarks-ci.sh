@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 
+# Run the benchmark in the CI.
+#
+# Usage:
+#   run-benchmarks-ci.sh [output-file]
+#
+#   If no output file is provided, the default is to generate one on the fly.
+#   Examples:"
+#     run-benchmarks-ci.sh                   - Run benchmarks
+#     run-benchmarks-ci.sh all output.file.  - Run benchmarks and provide output to the file
+#
+
 set -exuo pipefail
+
+RESULT_FILE=${1:-apm-agent-benchmark-results-$(git log -1 -s --format=%cI).json}
 
 echo $(pwd)
 
@@ -47,10 +60,6 @@ function setUp() {
 }
 
 function benchmark() {
-
-    COMMIT_ISO_8601=${COMMIT_ISO_8601:-$(git log -1 -s --format=%cI)}
-    RESULT_FILE=${RESULT_FILE:-apm-agent-benchmark-results-${COMMIT_ISO_8601}.json}
-
     sudo cset proc --exec /benchmark -- ./run-benchmarks.sh all ${RESULT_FILE}
 }
 

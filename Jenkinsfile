@@ -302,7 +302,7 @@ pipeline {
               env.COMMIT_ISO_8601 = sh(script: 'git log -1 -s --format=%cI', returnStdout: true).trim()
               env.RESULT_FILE = "apm-agent-benchmark-results-${env.COMMIT_ISO_8601}.json"
             }
-            sh '.ci/scripts/run-benchmarks.sh'
+            sh '.ci/scripts/run-benchmarks.sh ${RESULT_FILE}'
           }
         }
       }
