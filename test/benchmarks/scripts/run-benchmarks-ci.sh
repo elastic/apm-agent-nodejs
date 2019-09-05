@@ -10,7 +10,7 @@ then
   echo "  run-benchmarks-ci.sh <output-file>"
   echo
   echo "Examples:"
-  echo "  run-benchmarks-ci.sh out.json  - Run benchmark + store result in out.json"
+  echo "  run-benchmarks-ci.sh out.ndjson  - Run benchmark + store result in out.ndjson"
   echo
   exit
 fi

@@ -1,6 +1,6 @@
 'use strict'
 
-const fs = require('fs')
+const { appendFile, readFileSync } = require('fs')
 const os = require('os')
 const { exec } = require('child_process')
 const { resolve } = require('path')
@@ -9,7 +9,7 @@ const afterAll = require('after-all-results')
 const input = process.argv.slice(2)
 const outputFile = input.length > 2 ? resolve(input.pop()) : null
 const [bench, control] = input
-  .map(file => fs.readFileSync(file))
+  .map(file => readFileSync(file))
   .map(buf => JSON.parse(buf))
 
 calculateDelta(bench, control)
@@ -24,7 +24,7 @@ function storeResult () {
   const next = afterAll(function (err, [rev, branch, message]) {
     if (err) throw err
 
-    const result = fs.existsSync(outputFile) ? require(outputFile) : {
+    const result = {
       os: {
         arch: os.arch(),
         cpus: os.cpus(),
@@ -52,14 +52,10 @@ function storeResult () {
         branch,
         message
       },
-      results: []
+      bench
     }
 
-    result.results.push(bench)
-
-    const json = JSON.stringify(result)
-
-    fs.writeFile(outputFile, json, function (err) {
+    appendFile(outputFile, `${JSON.stringify(result)}\n`, function (err) {
       if (err) throw err
     })
   })
