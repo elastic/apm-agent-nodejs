@@ -11,11 +11,11 @@ then
   echo "(can also be specified using the \"all\" keyword)"
   echo
   echo "Examples:"
-  echo "  run-benchmarks.sh                  - Run all benchmarks"
-  echo "  run-benchmarks.sh all              - Run all benchmarks"
-  echo "  run-benchmarks.sh all out.json     - Run all benchmarks + store result in out.json"
-  echo "  run-benchmarks.sh foo.js           - Run foo.js benchmark"
-  echo "  run-benchmarks.sh foo.js out.json  - Run foo.js benchmark + store result in out.json"
+  echo "  run-benchmarks.sh                    - Run all benchmarks"
+  echo "  run-benchmarks.sh all                - Run all benchmarks"
+  echo "  run-benchmarks.sh all out.ndjson     - Run all benchmarks + store result in out.ndjson"
+  echo "  run-benchmarks.sh foo.js             - Run foo.js benchmark"
+  echo "  run-benchmarks.sh foo.js out.ndjson  - Run foo.js benchmark + store result in out.ndjson"
   echo
   exit
 fi
