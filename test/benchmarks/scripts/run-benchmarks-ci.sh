@@ -2,8 +2,6 @@
 
 set -exuo pipefail
 
-NOW_ISO_8601=${NOW_ISO_8601:-$(date -u "+%Y-%m-%dT%H%M%SZ")}
-
 echo $(pwd)
 
 function setUp() {
@@ -49,13 +47,9 @@ function setUp() {
 }
 
 function benchmark() {
-    COMMIT_ISO_8601=$(git log -1 -s --format=%cI)
-    COMMIT_UNIX=$(git log -1 -s --format=%ct)
 
-    # TODO:
-    # [ -z "${NO_BUILD}" ] && ./mvnw clean package -DskipTests=true
-
-    RESULT_FILE=apm-agent-benchmark-results-${COMMIT_ISO_8601}.json
+    COMMIT_ISO_8601=${COMMIT_ISO_8601:-$(git log -1 -s --format=%cI)}
+    RESULT_FILE=${RESULT_FILE:-apm-agent-benchmark-results-${COMMIT_ISO_8601}.json}
 
     sudo cset proc --exec /benchmark -- ./run-benchmarks.sh all ${RESULT_FILE}
 }

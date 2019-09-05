@@ -287,9 +287,7 @@ pipeline {
         allOf {
           anyOf {
             branch 'master'
-            branch "\\d+\\.\\d+"
-            branch "v\\d?"
-            tag "v\\d+\\.\\d+\\.\\d+*"
+            tag pattern: 'v\\d+\\.\\d+\\.\\d+.*', comparator: 'REGEXP'
             expression { return params.Run_As_Master_Branch }
           }
           expression { return params.bench_ci }
@@ -302,7 +300,6 @@ pipeline {
           dir("${BASE_DIR}"){
             script {
               env.COMMIT_ISO_8601 = sh(script: 'git log -1 -s --format=%cI', returnStdout: true).trim()
-              env.NOW_ISO_8601 = sh(script: 'date -u "+%Y-%m-%dT%H%M%SZ"', returnStdout: true).trim()
               env.RESULT_FILE = "apm-agent-benchmark-results-${env.COMMIT_ISO_8601}.json"
             }
             sh '.ci/scripts/run-benchmarks.sh'
@@ -311,9 +308,6 @@ pipeline {
       }
       post {
         always {
-          archiveArtifacts(allowEmptyArchive: true,
-            artifacts: "${BASE_DIR}/${RESULT_FILE}",
-            onlyIfSuccessful: false)
           sendBenchmarks(file: "${BASE_DIR}/${RESULT_FILE}",
             index: "benchmark-nodejs", archive: true)
         }
