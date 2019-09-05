@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
-# Run the benchmark in the CI.
-#
-# Usage:
-#   run-benchmarks-ci.sh [output-file]
-#
-#   If no output file is provided, the default is to generate one on the fly.
-#   Examples:"
-#     run-benchmarks-ci.sh                   - Run benchmarks
-#     run-benchmarks-ci.sh all output.file.  - Run benchmarks and provide output to the file
-#
-
 set -exuo pipefail
 
-RESULT_FILE=${1:-apm-agent-benchmark-results-$(git log -1 -s --format=%cI).json}
+RESULT_FILE=${1}
+
+if [ -z "$1" ]
+then
+  echo "Usage:"
+  echo "  run-benchmarks-ci.sh <output-file>"
+  echo
+  echo "Examples:"
+  echo "  run-benchmarks-ci.sh out.json  - Run benchmark + store result in out.json"
+  echo
+  exit
+fi
 
 echo $(pwd)
 

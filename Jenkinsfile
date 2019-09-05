@@ -281,6 +281,7 @@ pipeline {
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
+        RESULT_FILE = 'apm-agent-benchmark-results.json'
       }
       when {
         beforeAgent true
@@ -297,12 +298,8 @@ pipeline {
         withGithubNotify(context: 'Benchmarks', tab: 'artifacts') {
           deleteDir()
           unstash 'source'
-          dir("${BASE_DIR}"){
-            script {
-              env.COMMIT_ISO_8601 = sh(script: 'git log -1 -s --format=%cI', returnStdout: true).trim()
-              env.RESULT_FILE = "apm-agent-benchmark-results-${env.COMMIT_ISO_8601}.json"
-            }
-            sh '.ci/scripts/run-benchmarks.sh ${RESULT_FILE}'
+          dir(BASE_DIR){
+            sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}"'
           }
         }
       }

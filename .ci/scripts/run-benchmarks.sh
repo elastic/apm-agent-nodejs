@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 
+RESULT_FILE=${1:-apm-agent-benchmark-results.json}
+
 # This particular configuration is required to be installed in the baremetal
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
@@ -17,4 +19,4 @@ npm install
 node --version
 npm --version
 
-npm run bench:ci
+npm run bench:ci ${RESULT_FILE}
