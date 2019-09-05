@@ -63,7 +63,7 @@ def verifyChangesAreApproved() {
     if (!githubPrCheckApproved()) {
        ret = sh(label: 'Validate changes',
                 script: '''
-                  files=".ci/scripts/test_basic.sh .ci/scripts/lint-commits.sh"
+                  files=".ci/scripts/test_basic.sh .ci/scripts/test_types_babel_esm.sh"
                   for file in $files; do
                     git diff --name-only ${GIT_PREVIOUS_COMMIT}...${GIT_COMMIT} | grep ${files} && exit 1 || true
                   done''',
