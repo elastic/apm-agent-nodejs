@@ -2,6 +2,7 @@
 
 set -exuo pipefail
 
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 RESULT_FILE=${1}
 
 if [ -z "$1" ]
@@ -60,7 +61,7 @@ function setUp() {
 }
 
 function benchmark() {
-    sudo -n cset proc --exec /benchmark -- ./run-benchmarks.sh all ${RESULT_FILE}
+    sudo -n cset proc --exec /benchmark -- ./${SCRIPTPATH}/run-benchmarks.sh all ${RESULT_FILE}
 }
 
 function tearDown() {
