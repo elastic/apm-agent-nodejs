@@ -61,7 +61,7 @@ function setUp() {
 }
 
 function benchmark() {
-    sudo -n cset proc --exec /benchmark -- ./${SCRIPTPATH}/run-benchmarks.sh all ${RESULT_FILE}
+    sudo -E -n cset proc --exec /benchmark -- ./${SCRIPTPATH}/run-benchmarks.sh all ${RESULT_FILE}
 }
 
 function tearDown() {
