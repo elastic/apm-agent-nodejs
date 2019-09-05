@@ -296,7 +296,7 @@ pipeline {
       }
       steps {
         withGithubNotify(context: 'Benchmarks', tab: 'artifacts') {
-          sh 'sudo rm -rf ${WORKSPACE}'
+          deleteDir()
           unstash 'source'
           dir(BASE_DIR){
             sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}"'
@@ -307,7 +307,6 @@ pipeline {
         always {
           sendBenchmarks(file: "${BASE_DIR}/${RESULT_FILE}",
             index: "benchmark-nodejs", archive: true)
-          sh 'sudo rm -rf ${WORKSPACE}'
         }
       }
     }
