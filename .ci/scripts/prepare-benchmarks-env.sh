@@ -19,3 +19,6 @@ npm install
 
 node --version
 npm --version
+
+## For debugging purposes
+env | sort

@@ -312,7 +312,9 @@ pipeline {
             sendBenchmarks(file: "${BUILD_NUMBER}/${BASE_DIR}/${RESULT_FILE}",
                            index: 'benchmark-nodejs', archive: true)
           }
-          deleteDir()
+          catchError(message: 'deleteDir failed', buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+            deleteDir()
+          }
         }
       }
     }
