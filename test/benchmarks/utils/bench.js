@@ -18,6 +18,8 @@ module.exports = function (name, { agentConf, ...benchConf }) {
 
   new Benchmark(Object.assign({
     name: `${name} (${withAgent ? 'With Agent' : 'Without Agent'})`,
+    initCount: 10000,
+    maxTime: 60,
     defer: true,
     onStart () {
       // Prepare properties that need to be accessible inside the benchmark
