@@ -296,7 +296,7 @@ pipeline {
       }
       steps {
         withGithubNotify(context: 'Benchmarks', tab: 'artifacts') {
-          dir('bench') {
+          dir(env.BUILD_NUMBER) {
             deleteDir()
             unstash 'source'
             dir(BASE_DIR){
