@@ -96,10 +96,6 @@ if [ -n "${SUDO_COMMAND}" ] ; then
   source ./${basedir}/../../.ci/scripts/prepare-benchmarks-env.sh
 fi
 
-## For debugging purposes
-set -x
-env | sort
-
 if [ "$1" == "all" ]
 then
   benchmarks=($basedir/0*.js)
