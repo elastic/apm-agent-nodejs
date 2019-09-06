@@ -33,7 +33,6 @@ module.exports = function (name, { agentConf, ...benchConf }) {
       this.agent = agent
     },
     onComplete (result) {
-      console.error(this.toString())
       process.stdout.write(JSON.stringify({
         name: name,
         count: result.target.count,

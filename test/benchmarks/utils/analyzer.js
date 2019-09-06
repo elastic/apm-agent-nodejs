@@ -7,6 +7,8 @@ const { resolve } = require('path')
 
 const afterAll = require('after-all-results')
 
+const logResult = require('./result-logger')
+
 const input = process.argv.slice(2)
 const outputFile = input.length > 2 ? resolve(input.pop()) : null
 const [bench, control] = input
@@ -14,8 +16,7 @@ const [bench, control] = input
   .map(buf => JSON.parse(buf))
 
 calculateDelta(bench, control)
-
-console.error(`${bench.name}: ${bench.overhead * 1e6} μs overhead`)
+logResult(bench, control)
 
 if (outputFile) storeResult()
 
