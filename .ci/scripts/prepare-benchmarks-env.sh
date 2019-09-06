@@ -7,8 +7,11 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 command -v nvm
 
-nvm install node
-nvm use node
+## If NODE_VERSION env variable exists then use it otherwise use node as default
+if [ -z "${NODE_VERSION}" ] ; then
+  NODE_VERSION="node"
+fi
+nvm install ${NODE_VERSION}
 
 set +x
 npm config list
