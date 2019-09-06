@@ -33,6 +33,12 @@ function teardown() {
   then
     shutdownAPMServer
   fi
+  # If running as sudo then allow all the privileges in the generated files
+  if [ "${SUDO_USER}" == "root" ] ; then
+    if [ -n "${outputdir}" ] ; then
+      chmod -R 777 "${outputdir}"
+    fi
+  fi
 }
 
 function startAPMServer() {
@@ -80,6 +86,12 @@ result_file=$2
 
 rm -fr $outputdir
 mkdir -p $outputdir
+
+# If running as sudo then prepare the environment
+if [ "${SUDO_USER}" == "root" ] ; then
+  log "Running benchmark as sudo, let's reload the node environment..."
+  source ./${basedir}/../../.ci/scripts/prepare-benchmarks-env.sh
+fi
 
 if [ "$1" == "all" ]
 then

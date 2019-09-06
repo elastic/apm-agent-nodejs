@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -exuo pipefail
+set -exo pipefail
 
 SCRIPTPATH=$(dirname "$0")
 RESULT_FILE=${1}
@@ -35,6 +35,10 @@ function setUp() {
     then
         CORE_INDEX=7
         BASE_FREQ="3.6GHz"
+    elif [ "${CPU_MODEL}" == "Intel(R) Core(TM) i9-8950HK CPU @ 2.90GHz " ]
+    then
+        CORE_INDEX=9
+        BASE_FREQ="2.90GHz"
     else
         >&2 echo "Cannot determine base frequency for CPU model [${CPU_MODEL}]. Please adjust the build script."
         exit 1
@@ -61,7 +65,7 @@ function setUp() {
 }
 
 function benchmark() {
-    sudo -E -n cset proc --exec /benchmark -- ./${SCRIPTPATH}/run-benchmarks.sh all ${RESULT_FILE}
+    sudo -n cset proc --exec /benchmark -- ./${SCRIPTPATH}/run-benchmarks.sh all ${RESULT_FILE}
 }
 
 function tearDown() {

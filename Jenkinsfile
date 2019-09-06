@@ -304,13 +304,13 @@ pipeline {
             }
           }
           sh 'find . -type f -ls'
-          deleteDir()
         }
       }
       post {
         always {
           sendBenchmarks(file: "${BASE_DIR}/${RESULT_FILE}",
             index: "benchmark-nodejs", archive: true)
+          deleteDir()
         }
       }
     }
