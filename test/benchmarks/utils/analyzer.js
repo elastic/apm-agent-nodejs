@@ -57,7 +57,9 @@ function storeResult () {
       bench
     }
 
-    appendFile(outputFile, `${JSON.stringify(result)}\n`, function (err) {
+    const data = `{"index":{"_index":"benchmark-nodejs","_type":"_doc"}}\n${JSON.stringify(result)}\n`
+
+    appendFile(outputFile, data, function (err) {
       if (err) throw err
     })
   })
