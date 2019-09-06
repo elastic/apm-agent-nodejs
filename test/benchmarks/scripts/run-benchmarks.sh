@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 
 if [ "$1" == "--help" ]
 then
@@ -33,11 +33,11 @@ function teardown() {
   then
     shutdownAPMServer
   fi
-  # If running as sudo then allow all the privileges in the generated files
-  if [ -n "${SUDO_COMMAND}" ] ; then
-    if [ -n "${outputdir}" ] ; then
-      chmod -R 777 "${outputdir}"
-    fi
+  if [ -n "${outputdir}" ] ; then
+    chmod -R 777 "${outputdir}"
+  fi
+  if [ -n "${result_file}" ] ; then
+    chmod 777 "${result_file}"
   fi
 }
 
@@ -92,6 +92,10 @@ if [ -n "${SUDO_COMMAND}" ] ; then
   log "Running benchmark as sudo, let's reload the node environment..."
   source ./${basedir}/../../.ci/scripts/prepare-benchmarks-env.sh
 fi
+
+## For debugging purposes
+set -x
+env | sort
 
 if [ "$1" == "all" ]
 then

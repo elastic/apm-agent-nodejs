@@ -307,7 +307,7 @@ pipeline {
       }
       post {
         always {
-          sendBenchmarks(file: "${BASE_DIR}/${RESULT_FILE}",
+          sendBenchmarks(file: "${BUILD_NUMBER}/${BASE_DIR}/${RESULT_FILE}",
             index: "benchmark-nodejs", archive: true)
           //deleteDir()
         }
