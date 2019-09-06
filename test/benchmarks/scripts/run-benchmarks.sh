@@ -5,10 +5,12 @@ set -e
 if [ "$1" == "--help" ]
 then
   echo "Usage:"
-  echo "  run-benchmarks.sh [benchmark-file|all] [output-file]"
+  echo "  run-benchmarks.sh [benchmark-file|all] [output-file] [node_version]"
   echo
   echo "If no benchmark file is provided, the default is to run all the benchmarks"
   echo "(can also be specified using the \"all\" keyword)"
+  echo
+  echo "node_version is required when running within the CI context for sudo purposes"
   echo
   echo "Examples:"
   echo "  run-benchmarks.sh                    - Run all benchmarks"
@@ -90,6 +92,7 @@ mkdir -p $outputdir
 # If running as sudo then prepare the environment
 if [ -n "${SUDO_COMMAND}" ] ; then
   log "Running benchmark as sudo, let's reload the node environment..."
+  export NODE_VERSION=$3
   source ./${basedir}/../../.ci/scripts/prepare-benchmarks-env.sh
 fi
 
