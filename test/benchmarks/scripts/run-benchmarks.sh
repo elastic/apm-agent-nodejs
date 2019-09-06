@@ -41,6 +41,15 @@ function teardown() {
   if [ -n "${result_file}" ] ; then
     chmod 777 "${result_file}"
   fi
+  if [ -n "${SUDO_COMMAND}" ] ; then
+    HOME_CONFIG="${HOME}/.config"
+    if [ -d "${HOME_CONFIG}" ] ; then
+      chmod -R 777 "${HOME_CONFIG}"
+    fi
+    if [ -d "${NVM_DIR}" ] ; then
+      chmod -R 777 "${NVM_DIR}"
+    fi
+  fi
 }
 
 function startAPMServer() {
