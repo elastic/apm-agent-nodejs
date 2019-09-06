@@ -282,7 +282,7 @@ pipeline {
       environment {
         HOME = "${env.WORKSPACE}"
         RESULT_FILE = 'apm-agent-benchmark-results.json'
-        NODE_VERSION = 'v12.10.0'
+        NODE_VERSION = '12'
       }
       when {
         beforeAgent true
