@@ -58,7 +58,7 @@ function shutdownAPMServer() {
   unset pid
 }
 
-function runBenchmark () {
+function runBenchmark() {
   benchmark=$1
 
   sleep 1
@@ -77,6 +77,11 @@ function runBenchmark () {
   node $utils/analyzer.js $appout_agent $appout_no_agent $result_file
 }
 
+function seedResultFile() {
+  log "Seeding result file..."
+  echo '{"index":{"_index":"benchmark-nodejs","_type":"_doc"}}' > $result_file
+}
+
 trap teardown EXIT
 
 basedir=$(dirname $0)/..
@@ -88,6 +93,11 @@ result_file=$2
 
 rm -fr $outputdir
 mkdir -p $outputdir
+
+if [ ! -z "$result_file" ]
+then
+  seedResultFile
+fi
 
 # If running as sudo then prepare the environment
 if [ -n "${SUDO_COMMAND}" ] ; then
