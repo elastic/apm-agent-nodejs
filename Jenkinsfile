@@ -301,7 +301,6 @@ pipeline {
             deleteDir()
             unstash 'source'
             dir(BASE_DIR){
-              sh '[ -e "${HOME}/.nvm" ] && rm -rf ${HOME}/.nvm || true' // to remove a broken env
               sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}"'
             }
           }
@@ -309,11 +308,11 @@ pipeline {
       }
       post {
         always {
-          sendBenchmarks(file: "${BUILD_NUMBER}/${BASE_DIR}/${RESULT_FILE}",
-            index: "benchmark-nodejs", archive: true)
-          dir(env.BUILD_NUMBER) {
-            deleteDir()
+          catchError(message: 'sendBenchmarks failed', buildResult: 'FAILURE') {
+            sendBenchmarks(file: "${BUILD_NUMBER}/${BASE_DIR}/${RESULT_FILE}",
+                           index: 'benchmark-nodejs', archive: true)
           }
+          deleteDir()
         }
       }
     }
