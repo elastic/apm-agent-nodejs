@@ -1,9 +1,10 @@
 'use strict'
 
+const { exec } = require('child_process')
 const { appendFile, readFileSync } = require('fs')
 const os = require('os')
-const { exec } = require('child_process')
 const { resolve } = require('path')
+
 const afterAll = require('after-all-results')
 
 const input = process.argv.slice(2)
