@@ -296,14 +296,12 @@ pipeline {
       }
       steps {
         withGithubNotify(context: 'Benchmarks', tab: 'artifacts') {
-          dir(env.BUILD_NUMBER) {
-            deleteDir()
-            unstash 'source'
-            dir(BASE_DIR){
-              sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}"'
-            }
+          sh 'sudo chmod -R 777 || true'
+          deleteDir()
+          unstash 'source'
+          dir(BASE_DIR){
+            sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}"'
           }
-          sh 'find . -type f -ls'
         }
       }
       post {

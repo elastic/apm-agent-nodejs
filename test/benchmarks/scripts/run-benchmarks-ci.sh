@@ -78,6 +78,13 @@ function tearDown() {
     do
         sudo -n cpufreq-set -c ${cpu} --min ${MIN_FREQ} --max ${MAX_FREQ}
     done
+
+    # If running as sudo then allow all the privileges in the generated files
+    if [ -n "${SUDO_COMMAND}" ] ; then
+      if [ -n "${RESULT_FILE}" ] ; then
+        chmod 777 "${RESULT_FILE}"
+      fi
+    fi
 }
 
 trap "tearDown" EXIT
