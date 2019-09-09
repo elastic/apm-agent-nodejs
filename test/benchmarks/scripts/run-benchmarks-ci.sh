@@ -65,7 +65,14 @@ function setUp() {
 }
 
 function benchmark() {
-    sudo -n cset proc --exec /benchmark -- ./${SCRIPTPATH}/run-benchmarks.sh all ${RESULT_FILE}
+    sudo -n cset proc --exec /benchmark -- \
+      BRANCH_NAME="${BRANCH_NAME}" \
+      CHANGE_TITLE="${CHANGE_TITLE}" \
+      CHANGE_TARGET="${CHANGE_TARGET}" \
+      GIT_BASE_COMMIT="${GIT_BASE_COMMIT}" \
+      GIT_COMMIT="${GIT_COMMIT}" \
+      GIT_BUILD_CAUSE="${GIT_BUILD_CAUSE}" \
+      ./"${SCRIPTPATH}"/run-benchmarks.sh all "${RESULT_FILE}"
 }
 
 function tearDown() {
