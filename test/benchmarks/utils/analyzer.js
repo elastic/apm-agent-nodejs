@@ -27,6 +27,7 @@ function storeResult () {
     if (err) throw err
 
     const result = {
+      '@timestamp': new Date(bench.times.timeStamp).toISOString(),
       os: {
         arch: os.arch(),
         cpus: os.cpus(),
