@@ -1,6 +1,5 @@
 'use strict'
 
-const { exec } = require('child_process')
 const { appendFile, readFileSync } = require('fs')
 const os = require('os')
 const { resolve } = require('path')
@@ -23,51 +22,51 @@ if (outputFile) storeResult()
 function storeResult () {
   bench.controlStats = control.stats
 
-  const next = afterAll(function (err, [rev, branch, message]) {
+  const result = {
+    '@timestamp': bench.times.timeStamp,
+    ci: {
+      build_cause: process.env.GIT_BUILD_CAUSE
+    },
+    git: {
+      branch: process.env.BRANCH_NAME,
+      commit: process.env.GIT_BASE_COMMIT || process.env.GIT_COMMIT
+    },
+    pr: {
+      id: process.env.CHANGE_ID,
+      title: process.env.CHANGE_TITLE,
+      target: process.env.CHANGE_TARGET,
+      url: process.env.CHANGE_URL
+    },
+    os: {
+      arch: os.arch(),
+      cpus: os.cpus(),
+      freemem: os.freemem(),
+      homedir: os.homedir(),
+      hostname: os.hostname(),
+      loadavg: os.loadavg(),
+      platform: os.platform(),
+      release: os.release(),
+      totalmem: os.totalmem(),
+      type: os.type(),
+      uptime: os.uptime()
+    },
+    process: {
+      arch: process.arch,
+      config: process.config,
+      env: process.env,
+      platform: process.platform,
+      release: process.release,
+      version: process.version,
+      versions: process.versions
+    },
+    bench
+  }
+
+  const data = `{"index":{"_index":"benchmark-nodejs","_type":"_doc"}}\n${JSON.stringify(result)}\n`
+
+  appendFile(outputFile, data, function (err) {
     if (err) throw err
-
-    const result = {
-      '@timestamp': new Date(bench.times.timeStamp).toISOString(),
-      os: {
-        arch: os.arch(),
-        cpus: os.cpus(),
-        freemem: os.freemem(),
-        homedir: os.homedir(),
-        hostname: os.hostname(),
-        loadavg: os.loadavg(),
-        platform: os.platform(),
-        release: os.release(),
-        totalmem: os.totalmem(),
-        type: os.type(),
-        uptime: os.uptime()
-      },
-      process: {
-        arch: process.arch,
-        config: process.config,
-        env: process.env,
-        platform: process.platform,
-        release: process.release,
-        version: process.version,
-        versions: process.versions
-      },
-      git: {
-        rev,
-        branch,
-        message
-      },
-      bench
-    }
-
-    const data = `{"index":{"_index":"benchmark-nodejs","_type":"_doc"}}\n${JSON.stringify(result)}\n`
-
-    appendFile(outputFile, data, function (err) {
-      if (err) throw err
-    })
   })
-
-  exec('git rev-parse --short HEAD | tr -d \'\\n\'', next())
-  exec('git rev-parse --abbrev-ref HEAD | tr -d \'\\n\'', next())
-  exec('git show -s --format=%B HEAD | tr -d \'\\n\'', next())
 }
 
 function calculateDelta (bench, control) {

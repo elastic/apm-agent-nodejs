@@ -66,12 +66,14 @@ function setUp() {
 
 function benchmark() {
     sudo -n cset proc --exec /benchmark -- \
-      BRANCH_NAME="${BRANCH_NAME}" \
-      CHANGE_TITLE="${CHANGE_TITLE}" \
-      CHANGE_TARGET="${CHANGE_TARGET}" \
+      GIT_BUILD_CAUSE="${GIT_BUILD_CAUSE}" \
       GIT_BASE_COMMIT="${GIT_BASE_COMMIT}" \
       GIT_COMMIT="${GIT_COMMIT}" \
-      GIT_BUILD_CAUSE="${GIT_BUILD_CAUSE}" \
+      BRANCH_NAME="${BRANCH_NAME}" \
+      CHANGE_ID="${CHANGE_ID}" \
+      CHANGE_TITLE="${CHANGE_TITLE}" \
+      CHANGE_TARGET="${CHANGE_TARGET}" \
+      CHANGE_URL="${CHANGE_URL}" \
       ./"${SCRIPTPATH}"/run-benchmarks.sh all "${RESULT_FILE}"
 }
 
