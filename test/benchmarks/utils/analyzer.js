@@ -4,8 +4,6 @@ const { appendFile, readFileSync } = require('fs')
 const os = require('os')
 const { resolve } = require('path')
 
-const afterAll = require('after-all-results')
-
 const logResult = require('./result-logger')
 
 const input = process.argv.slice(2)
