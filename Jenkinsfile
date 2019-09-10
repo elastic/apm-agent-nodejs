@@ -72,11 +72,6 @@ pipeline {
         withGithubNotify(context: 'Test', tab: 'tests') {
           deleteDir()
           unstash 'source'
-          script {
-            docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-              sh(label: "Basic tests", script: 'cd /app && .ci/scripts/test_basic.sh')
-            }
-          }
           dir("${BASE_DIR}"){
             script {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
@@ -89,8 +84,11 @@ pipeline {
                 }
               }
 
-              // Linting the commit message in parallel with the test stage
-              parallelTasks['Commit lint'] = lintCommits()
+              // PRs don't require to run here as it's now managed within the linting pipeline
+              if (!env.CHANGE_ID) {
+                // Linting in parallel with the test stage
+                parallelTasks['linting'] = linting()
+              }
 
               parallel(parallelTasks)
             }
@@ -413,16 +411,17 @@ def getSmartTAVContext() {
    return context
  }
 
- def lintCommits(){
+ def linting(){
    return {
     node('docker && linux && immutable') {
-      catchError(stageResult: 'UNSTABLE', message: 'Lint Commit Messages failures') {
-        withGithubNotify(context: 'Lint Commit Messages') {
+      catchError(stageResult: 'UNSTABLE', message: 'Linting failures') {
+        withGithubNotify(context: 'Linting') {
           deleteDir()
           unstash 'source'
           script {
             docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-              sh(label: 'Lint commits', script: 'cd /app && .ci/scripts/lint-commits.sh')
+              sh(label: 'Basic tests I', script: 'cd /app && .ci/scripts/test_basic.sh')
+              sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
             }
           }
         }
