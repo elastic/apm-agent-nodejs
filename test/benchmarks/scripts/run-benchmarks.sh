@@ -50,6 +50,8 @@ function teardown() {
     if [ -d "${NVM_DIR}" ] ; then
       chmod -R 777 "${NVM_DIR}"
     fi
+    # A bit dramatic but as it runs under the sudo folder let's get it fix once
+    chmod -R 777 "${HOME}"
   fi
 }
 
