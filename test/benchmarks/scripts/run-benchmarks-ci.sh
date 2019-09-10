@@ -65,7 +65,7 @@ function setUp() {
 }
 
 function escape_quotes() {
-    echo $1 | sed -e 's/"/\\\\"/g'
+    echo $1 | sed -e 's/"/\\"/g'
 }
 
 # Escapes double quites in environment variables so that they are exported correctly
