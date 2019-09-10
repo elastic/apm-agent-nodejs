@@ -32,7 +32,7 @@ function storeResult () {
       commit: process.env.GIT_BASE_COMMIT || process.env.GIT_COMMIT
     },
     pr: {
-      id: process.env.CHANGE_ID,
+      id: Number(process.env.CHANGE_ID) || null,
       title: process.env.CHANGE_TITLE,
       target: process.env.CHANGE_TARGET,
       url: process.env.CHANGE_URL
