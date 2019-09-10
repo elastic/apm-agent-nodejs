@@ -100,8 +100,7 @@ function tearDown() {
     rm env_vars.sh || true
 }
 
-trap "tearDown" INT TERM
+trap "tearDown" TERM EXIT
 
 setUp
 benchmark
-tearDown

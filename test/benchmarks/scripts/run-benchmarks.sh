@@ -87,7 +87,7 @@ function runBenchmark() {
   node $utils/analyzer.js $appout_agent $appout_no_agent $result_file
 }
 
-trap teardown INT TERM
+trap teardown TERM EXIT
 
 basedir=$(dirname $0)/..
 utils=$basedir/utils
@@ -121,5 +121,3 @@ fi
 for benchmark in "${benchmarks[@]}"; do
   runBenchmark "$benchmark"
 done
-
-teardown
