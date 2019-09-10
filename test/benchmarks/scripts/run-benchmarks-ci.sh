@@ -65,14 +65,14 @@ function setUp() {
 }
 
 function benchmark() {
-    echo "export GIT_BUILD_CAUSE=${GIT_BUILD_CAUSE}" > env_vars.sh
-    echo "export GIT_BASE_COMMIT=${GIT_BASE_COMMIT}" >> env_vars.sh
-    echo "export GIT_COMMIT=${GIT_COMMIT}" >> env_vars.sh
-    echo "export BRANCH_NAME=${BRANCH_NAME}" >> env_vars.sh
-    echo "export CHANGE_ID=${CHANGE_ID}" >> env_vars.sh
-    echo "export CHANGE_TITLE=${CHANGE_TITLE}" >> env_vars.sh
-    echo "export CHANGE_TARGET=${CHANGE_TARGET}" >> env_vars.sh
-    echo "export CHANGE_URL=${CHANGE_URL}" >> env_vars.sh
+    echo "export GIT_BUILD_CAUSE='${GIT_BUILD_CAUSE}'" > env_vars.sh
+    echo "export GIT_BASE_COMMIT='${GIT_BASE_COMMIT}'" >> env_vars.sh
+    echo "export GIT_COMMIT='${GIT_COMMIT}'" >> env_vars.sh
+    echo "export BRANCH_NAME='${BRANCH_NAME}'" >> env_vars.sh
+    echo "export CHANGE_ID='${CHANGE_ID}'" >> env_vars.sh
+    echo "export CHANGE_TITLE='${CHANGE_TITLE}'" >> env_vars.sh
+    echo "export CHANGE_TARGET='${CHANGE_TARGET}'" >> env_vars.sh
+    echo "export CHANGE_URL='${CHANGE_URL}'" >> env_vars.sh
     sudo -n cset proc --exec /benchmark -- ./"${SCRIPTPATH}"/run-benchmarks.sh all "${RESULT_FILE}"
 }
 
