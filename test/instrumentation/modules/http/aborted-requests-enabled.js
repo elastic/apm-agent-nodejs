@@ -14,7 +14,7 @@ agent._conf.errorOnAbortedRequests = true
 
 test('client-side abort below error threshold - call end', function (t) {
   var clientReq
-  t.plan(8)
+  t.plan(9)
 
   resetAgent(function (data) {
     assert(t, data)
@@ -49,7 +49,7 @@ test('client-side abort below error threshold - call end', function (t) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
-      if (err.code !== 'ECONNRESET') throw err
+      t.equal(err.code, 'ECONNRESET', 'client request should emit ECONNRESET error')
     })
   })
 })
