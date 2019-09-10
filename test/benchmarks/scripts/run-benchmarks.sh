@@ -103,6 +103,7 @@ if [ -n "${SUDO_COMMAND}" ] ; then
   log "Running benchmark as sudo, let's reload the node environment..."
   export NODE_VERSION=$3
   source ./${basedir}/../../.ci/scripts/prepare-benchmarks-env.sh
+  [ -e env_vars.sh ] && source env_vars.sh || echo "env_vars.sh not found"
 fi
 
 if [ "$1" == "all" ]
