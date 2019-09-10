@@ -31,17 +31,18 @@ function log() {
 }
 
 function teardown() {
-  if [ ! -z "$pid" ]
-  then
+  log "teardown..."
+  if [ -n "$pid" ] ; then
     shutdownAPMServer
   fi
-  if [ -n "${outputdir}" ] ; then
-    chmod -R 777 "${outputdir}"
-  fi
-  if [ -n "${result_file}" ] ; then
-    chmod 777 "${result_file}"
-  fi
   if [ -n "${SUDO_COMMAND}" ] ; then
+    if [ -d "${outputdir}" ] ; then
+      chmod -R 777 "${outputdir}"
+      ls -l "${outputdir}"
+    fi
+    if [ -f "${result_file}" ] ; then
+      chmod 777 "${result_file}"
+    fi
     HOME_CONFIG="${HOME}/.config"
     if [ -d "${HOME_CONFIG}" ] ; then
       chmod -R 777 "${HOME_CONFIG}"
