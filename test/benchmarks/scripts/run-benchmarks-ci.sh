@@ -64,13 +64,22 @@ function setUp() {
     sudo -n cset set --set=/benchmark --cpu=2-${CORE_INDEX}
 }
 
+function escape_quotes() {
+    echo $1 | sed -e 's/"/\\\\"/g'
+}
+
+# Escapes double quites in environment variables so that they are exported correctly
+function safe_env_export() {
+    echo "export $1=\"$(escape_quotes "${2}")\""
+}
+
 function benchmark() {
     echo "export GIT_BUILD_CAUSE='${GIT_BUILD_CAUSE}'" > env_vars.sh
     echo "export GIT_BASE_COMMIT='${GIT_BASE_COMMIT}'" >> env_vars.sh
     echo "export GIT_COMMIT='${GIT_COMMIT}'" >> env_vars.sh
     echo "export BRANCH_NAME='${BRANCH_NAME}'" >> env_vars.sh
     echo "export CHANGE_ID='${CHANGE_ID}'" >> env_vars.sh
-    echo "export CHANGE_TITLE='${CHANGE_TITLE}'" >> env_vars.sh
+    safe_env_export "CHANGE_TITLE" "${CHANGE_TITLE}" >> env_vars.sh
     echo "export CHANGE_TARGET='${CHANGE_TARGET}'" >> env_vars.sh
     echo "export CHANGE_URL='${CHANGE_URL}'" >> env_vars.sh
     sudo -n cset proc --exec /benchmark -- ./"${SCRIPTPATH}"/run-benchmarks.sh all "${RESULT_FILE}"
