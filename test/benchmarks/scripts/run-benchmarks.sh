@@ -95,6 +95,7 @@ appout_no_agent=$outputdir/app-no-agent.json
 appout_agent=$outputdir/app-agent.json
 result_file=$2
 
+rm -f $result_file # in case it's left over from an old run somehow
 rm -fr $outputdir
 mkdir -p $outputdir
 
