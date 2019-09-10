@@ -104,4 +104,4 @@ trap "tearDown" INT TERM
 
 setUp
 benchmark
-teardown
+tearDown
