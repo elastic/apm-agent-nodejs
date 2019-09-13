@@ -28,6 +28,7 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
+    booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
     booleanParam(name: 'test_edge_ci', defaultValue: true, description: 'Enable tests for edge versions of nodejs.')
@@ -267,6 +268,52 @@ pipeline {
                            string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
                            string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
         githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
+      }
+    }
+    /**
+      Run the benchmarks and store the results on ES.
+      The result JSON files are also archive into Jenkins.
+    */
+    stage('Benchmarks') {
+      agent { label 'metal' }
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+        RESULT_FILE = 'apm-agent-benchmark-results.json'
+        NODE_VERSION = '12'
+      }
+      when {
+        beforeAgent true
+        allOf {
+          anyOf {
+            branch 'master'
+            tag pattern: 'v\\d+\\.\\d+\\.\\d+.*', comparator: 'REGEXP'
+            expression { return params.Run_As_Master_Branch }
+          }
+          expression { return params.bench_ci }
+        }
+      }
+      steps {
+        withGithubNotify(context: 'Benchmarks', tab: 'artifacts') {
+          dir(env.BUILD_NUMBER) {
+            deleteDir()
+            unstash 'source'
+            dir(BASE_DIR){
+              sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}"'
+            }
+          }
+        }
+      }
+      post {
+        always {
+          catchError(message: 'sendBenchmarks failed', buildResult: 'FAILURE') {
+            sendBenchmarks(file: "${BUILD_NUMBER}/${BASE_DIR}/${RESULT_FILE}",
+                           index: 'benchmark-nodejs', archive: true)
+          }
+          catchError(message: 'deleteDir failed', buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+            deleteDir()
+          }
+        }
       }
     }
   }
