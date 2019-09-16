@@ -392,7 +392,7 @@ def getSmartTAVContext() {
        } else {
          context.ghContextName = 'TAV Test Subset'
          context.ghDescription = 'TAV Test comment-triggered'
-         context.tav = readYaml(text: """TAV:${modules.collect{ "\n  - ${it}"}.join("") }""")
+         context.tav = readYaml(text: """TAV:${modules.collect{ it.replaceAll('"', '').replaceAll("'", '') }.collect{ "\n  - '${it}'"}.join("") }""")
        }
      }
    } else if (params.Run_As_Master_Branch) {
