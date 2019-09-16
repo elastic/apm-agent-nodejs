@@ -10,3 +10,4 @@ test/types/transpile/index.js
 build
 coverage
 node_modules
+test/benchmarks/.tmp
