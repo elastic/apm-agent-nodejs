@@ -1,4 +1,5 @@
 TAV:
+  - '@hapi/hapi'
   - '@koa/router'
   - apollo-server-express
   - bluebird
