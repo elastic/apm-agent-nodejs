@@ -17,7 +17,7 @@ var mockClient = require('../../_mock_http_client')
 
 test('instrument simple command', function (t) {
   const expected = semver.lt(version, '2.0.0')
-    ? (semver.lt(process.version, '7.0.0') ? 10 : 11)
+    ? (process.platform === 'darwin' && semver.gte(process.version, '8.0.0') ? 11 : 10)
     : 7
 
   resetAgent(expected, function (data) {
@@ -36,49 +36,27 @@ test('instrument simple command', function (t) {
     })
 
     if (semver.lt(version, '2.0.0')) {
-      // mongodb-core v1.x will sometimes perform two `ismaster` queries
-      // towards the admin and/or the system database. This doesn't always
-      // happen, but if it does, we'll accept it.
-      if (data.spans[0].name === 'admin.$cmd.ismaster') {
-        groups = [
-          'admin.$cmd.ismaster',
-          'system.$cmd.ismaster',
-          'elasticapm.test.insert',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.update',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.remove',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.find',
-          'system.$cmd.ismaster'
-        ]
-      } else if (data.spans[1].name === 'system.$cmd.ismaster') {
-        groups = [
-          'system.$cmd.ismaster',
-          'system.$cmd.ismaster',
-          'elasticapm.test.insert',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.update',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.remove',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.find',
-          'system.$cmd.ismaster'
-        ]
-      } else if (semver.lt(process.version, '7.0.0')) {
-        groups = [
-          'system.$cmd.ismaster',
-          'elasticapm.test.insert',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.update',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.remove',
-          'elasticapm.$cmd.command',
-          'elasticapm.test.find',
-          'system.$cmd.ismaster'
-        ]
-      } else {
-        t.fail('unexpected group scenario')
+      groups = [
+        'system.$cmd.ismaster',
+        'elasticapm.test.insert',
+        'elasticapm.$cmd.command',
+        'elasticapm.test.update',
+        'elasticapm.$cmd.command',
+        'elasticapm.test.remove',
+        'elasticapm.$cmd.command',
+        'elasticapm.test.find',
+        'system.$cmd.ismaster'
+      ]
+
+      if (process.platform === 'darwin' && semver.gte(process.version, '8.0.0')) {
+        // mongodb-core v1.x will sometimes perform two `ismaster` queries
+        // towards the admin and/or the system database. This doesn't always
+        // happen, but if it does, we'll accept it.
+        if (data.spans[0].name === 'admin.$cmd.ismaster') {
+          groups.unshift('admin.$cmd.ismaster')
+        } else if (data.spans[1].name === 'system.$cmd.ismaster') {
+          groups.unshift('system.$cmd.ismaster')
+        }
       }
     } else {
       groups = [
