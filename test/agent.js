@@ -1100,6 +1100,77 @@ test('#captureError()', function (t) {
         t.end()
       })
   })
+
+  t.test('options.request', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+
+    const req = new http.IncomingMessage()
+    req.httpVersion = '1.1'
+    req.method = 'POST'
+    req.url = '/foo?bar=baz#hash'
+    req.socket = { remoteAddress: '127.0.0.1' }
+    req.headers['content-length'] = 4
+    req.headers['string'] = 'foo'
+    req.headers['number'] = 42 // in case someone messes with the headers
+    req.headers['array'] = ['foo', 42]
+    req.body = 'test'
+
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with request'), { request: req })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'with request')
+        t.deepEqual(data.context.request, {
+          http_version: '1.1',
+          method: 'POST',
+          url: { raw: '/foo?bar=baz#hash', protocol: 'http:', pathname: '/foo', search: '?bar=baz' },
+          socket: { remote_address: '127.0.0.1', encrypted: false },
+          headers: {
+            'content-length': '4',
+            'string': 'foo',
+            'number': '42',
+            'array': ['foo', '42']
+          },
+          body: '[REDACTED]'
+        })
+        t.end()
+      })
+  })
+
+  t.test('options.response', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+
+    const req = new http.IncomingMessage()
+    const res = new http.ServerResponse(req)
+    res.statusCode = 204
+    res.headers = {
+      'content-length': 4,
+      string: 'foo',
+      number: 42, // in case someone messes with the headers
+      array: ['foo', 42]
+    }
+
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with response'), { response: res })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'with response')
+        t.deepEqual(data.context.response, {
+          status_code: 204,
+          headers: {
+            'content-length': '4',
+            'string': 'foo',
+            'number': '42',
+            'array': ['foo', '42']
+          },
+          headers_sent: false,
+          finished: false
+        })
+        t.end()
+      })
+  })
 })
 
 test('#handleUncaughtExceptions()', function (t) {
