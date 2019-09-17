@@ -224,6 +224,44 @@ test('#currentTraceparent', function (t) {
   })
 })
 
+test('#currentTraceIds', function (t) {
+  t.test('no active transaction or span', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.deepEqual(agent.currentTraceIds, {})
+    t.equal(agent.currentTraceIds.toString(), '')
+    t.end()
+  })
+
+  t.test('with active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.deepEqual(agent.currentTraceIds, {
+      'trace.id': trans.traceId,
+      'transaction.id': trans.id
+    })
+    t.equal(agent.currentTraceIds.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`)
+    agent.endTransaction()
+    t.end()
+  })
+
+  t.test('with active span', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var span = agent.startSpan()
+    t.deepEqual(agent.currentTraceIds, {
+      'trace.id': span.traceId,
+      'span.id': span.id
+    })
+    t.equal(agent.currentTraceIds.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
+    span.end()
+    agent.endTransaction()
+    t.end()
+  })
+})
+
 test('#setTransactionName', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()

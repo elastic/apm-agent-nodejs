@@ -133,13 +133,34 @@ it's converted to a string before being sent to the APM Server
 Add several labels on the span.
 You can add labels multiple times.
 
+[[span-ids]]
+==== `span.ids`
+
+[small]#Added in: #2.17.0
+
+Produces an object containing `span.id` and `trace.id`.
+This enables log correlation to APM traces with structured loggers.
+
+[source,js]
+----
+{
+  "trace.id": "abc123",
+  "span.id": "abc123"
+}
+----
+
 [[span-to-string]]
 ==== `span.toString()`
 
 [small]#Added in: #2.17.0
 
 Produces a string representation of the span to inject in log messages.
-This enables log correlation to APM traces.
+This enables log correlation to APM traces with text-only loggers.
+
+[source,js]
+----
+"trace.id=abc123 span.id=abc123"
+----
 
 [[span-end]]
 ==== `span.end([endTime])`
