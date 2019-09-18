@@ -672,7 +672,7 @@ The callback is called *after* the active HTTP request has ended.
 The callback is called even if no HTTP request is currently active.
 
 [[apm-lambda]]
-==== `apm.lambda([type, ] handler)`
+==== `apm.lambda([type, ]handler)`
 
 [small]#Added in: v1.4.0#
 
@@ -683,7 +683,7 @@ exports.hello = apm.lambda(function (payload, context, callback) {
 })
 ----
 
-Manually instrument a lambda function to form a transaction around each execution.
+Manually instrument an AWS Lambda function to form a transaction around each execution.
 Optionally, a type may also be provided to group lambdas together. By default,
 "lambda" will be used as the type name.
 
