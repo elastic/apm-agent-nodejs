@@ -173,7 +173,7 @@
     "typescript": "^3.6.3",
     "untildify": "^4.0.0",
     "util.promisify": "^1.0.0",
-    "wait-on": "3.3.0",
+    "wait-on": "3.2.0",
     "ws": "^7.1.2"
   },
   "greenkeeper": {
