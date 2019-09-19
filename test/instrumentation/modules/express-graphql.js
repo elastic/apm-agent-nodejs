@@ -29,10 +29,12 @@ paths.forEach(function (path) {
     resetAgent(done(t, 'hello', path))
 
     var schema = buildSchema('type Query { hello: String }')
-    var root = { hello () {
-      t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
-      return 'Hello world!'
-    } }
+    var root = {
+      hello () {
+        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        return 'Hello world!'
+      }
+    }
     var query = '{"query":"{ hello }"}'
 
     var app = express()
@@ -63,10 +65,12 @@ paths.forEach(function (path) {
     resetAgent(done(t, 'hello', path))
 
     var schema = buildSchema('type Query { hello: String }')
-    var root = { hello () {
-      t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
-      return 'Hello world!'
-    } }
+    var root = {
+      hello () {
+        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        return 'Hello world!'
+      }
+    }
     var query = querystring.stringify({ query: '{ hello }' })
 
     var app = express()
@@ -96,10 +100,12 @@ paths.forEach(function (path) {
     resetAgent(done(t, 'HelloQuery hello', path))
 
     var schema = buildSchema('type Query { hello: String }')
-    var root = { hello () {
-      t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
-      return 'Hello world!'
-    } }
+    var root = {
+      hello () {
+        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        return 'Hello world!'
+      }
+    }
     var query = '{"query":"query HelloQuery { hello }"}'
 
     var app = express()
