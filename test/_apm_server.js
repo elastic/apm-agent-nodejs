@@ -85,5 +85,8 @@ function APMServer (agentOpts, mockOpts = { expect: [] }) {
     server.listen(port, function () {
       self.emit('listening', port)
     })
+  }).catch(err => {
+    console.error(err.stack)
+    process.exit(1)
   })
 }
