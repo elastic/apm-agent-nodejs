@@ -2,6 +2,8 @@
 ## Given the git SHA it will parse the git log and search for any changes in any
 ## files under lib/instrumentation/modules/* or test/instrumentation/modules/*
 ## and will create a YAML file with the list of TAVs.
+## If no matches then it will create the file with an empty list.
+##
 set -xuo pipefail
 
 OUTPUT=$1
@@ -52,6 +54,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
+## Generate the file with the content
+echo 'TAV:' > "${OUTPUT}"
+
 if [[ -n "${CHANGE_TARGET}" ]] && [[ -n "${GIT_SHA}" ]] ; then
 
   git diff --name-only origin/"${CHANGE_TARGET}"..."${GIT_SHA}" > ${GIT_DIFF}
@@ -78,8 +83,7 @@ if [[ -n "${CHANGE_TARGET}" ]] && [[ -n "${GIT_SHA}" ]] ; then
       exit
     fi
 
-    ## Generate the file with the content
-    echo 'TAV:' > "${OUTPUT}"
+    ## Add the list of TAV
     for tav in "${CHANGES_ARR[@]}"; do
       echo "  - '$tav'" >> "${OUTPUT}"
     done
