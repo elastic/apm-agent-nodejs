@@ -197,6 +197,7 @@ interface AgentConfigOptions {
   ignoreUrls?: Array<string | RegExp>;
   ignoreUserAgents?: Array<string | RegExp>;
   instrument?: boolean;
+  instrumentIncomingHTTPRequests?: boolean;
   kubernetesNamespace?: string;
   kubernetesNodeName?: string;
   kubernetesPodName?: string;

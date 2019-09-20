@@ -2,6 +2,7 @@
 
 var agent = require('../..').start({
   serviceName: 'test',
+  breakdownMetrics: false,
   captureExceptions: false,
   metricsInterval: 0
 })
