@@ -40,7 +40,7 @@ pipeline {
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'master || immutable' }
+      agent { label 'immutable' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()

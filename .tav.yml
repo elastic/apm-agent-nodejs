@@ -144,7 +144,7 @@ express-graphql-0.6.12_13:
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.js
 
-express-graphql-0.7,1_12:
+express-graphql-0.7.1_12:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.12.0
@@ -161,6 +161,14 @@ express-graphql-0.7.1_14:
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^14.0.0
   versions: '>=0.7.1 <0.9.0'
+  commands: node test/instrumentation/modules/express-graphql.js
+
+express-graphql-0.9.0:
+  name: express-graphql
+  preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^14.4.1
+  versions: '>=0.9.0 <0.10.0'
+  node: '>=7.6.0'
   commands: node test/instrumentation/modules/express-graphql.js
 
 apollo-server-express-2_12:
@@ -193,7 +201,13 @@ koa-router:
   node: '>=6.0.0'
   peerDependencies: koa@2
   versions: '>=5.2.0 <8'
-  commands: node test/instrumentation/modules/koa-router/index.js
+  commands: node test/instrumentation/modules/koa-router/old-name.js
+'@koa/router':
+  node: '>=8.0.0'
+  peerDependencies: koa@2
+  versions: '>=8 <9'
+  commands: node test/instrumentation/modules/koa-router/new-name.js
+
 elasticsearch:
   versions: '>=8.0.0'
   commands: node test/instrumentation/modules/elasticsearch.js
@@ -210,16 +224,21 @@ hapi-no-async-await:
   name: hapi
   versions: '>=9.0.1 <17.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
 hapi-async-await:
   name: hapi
   node: '>=8.2'
   versions: '>=17.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
-
+'@hapi/hapi':
+  node: '>=8.2'
+  versions: '>=17.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic.js
+    - node test/instrumentation/modules/hapi/set-framework-2.js
 tedious:
   name: tedious
   versions: '>=1.9 <2.7 || 3.x || >4.0.0'
@@ -254,3 +273,7 @@ fastify:
 finalhandler:
   versions: '*'
   commands: node test/instrumentation/modules/finalhandler.js
+
+memcached:
+  versions: '>=2.2.0'
+  commands: node test/instrumentation/modules/memcached.js

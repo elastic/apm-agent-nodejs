@@ -504,16 +504,31 @@ test('#_encode() - not sampled', function (t) {
   t.end()
 })
 
+test('#ids', function (t) {
+  var trans = new Transaction(agent)
+  t.deepEqual(trans.ids, {
+    'trace.id': trans.traceId,
+    'transaction.id': trans.id
+  })
+  t.end()
+})
+
+test('#toString()', function (t) {
+  var trans = new Transaction(agent)
+  t.equal(trans.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`)
+  t.end()
+})
+
 function mockRequest () {
   return {
     httpVersion: '1.1',
     method: 'POST',
     url: '/foo?bar=baz',
     headers: {
-      'host': 'example.com',
+      host: 'example.com',
       'user-agent': 'user-agent-header',
       'content-length': 42,
-      'cookie': 'cookie1=foo;cookie2=bar',
+      cookie: 'cookie1=foo;cookie2=bar',
       'x-foo': 'bar',
       'x-bar': 'baz'
     },

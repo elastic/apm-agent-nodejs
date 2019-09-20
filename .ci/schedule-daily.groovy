@@ -40,9 +40,11 @@ pipeline {
         build(
           job: 'apm-agent-nodejs/apm-agent-nodejs-mbp/master',
           parameters: [
-            booleanParam(name: 'Run_As_Master_Branch', value: false),
+            booleanParam(name: 'Run_As_Master_Branch', value: true),
+            booleanParam(name: 'bench_ci', value: false),
             booleanParam(name: 'doc_ci', value: true),
-            booleanParam(name: 'tav_ci', value: true)
+            booleanParam(name: 'tav_ci', value: true),
+            booleanParam(name: 'test_edge_ci', value: true)
           ],
           quietPeriod: 10,
           wait: false

@@ -88,6 +88,10 @@ test('fails', function (t) {
 
 function onError (t, assert) {
   agent._transport = {
+    flush () {},
+    sendTransaction () {},
+    sendSpan () {},
+    sendMetricSet () {},
     sendError (error, cb) {
       assert(t, error)
       t.end()

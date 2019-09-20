@@ -1,10 +1,15 @@
 'use strict'
 
+// The unhandledRejection will be fired by our bluebird tests, which is to be
+// expected.
+require('../../../_promise_rejection').remove()
+
 var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
-  metricsInterval: 0
+  metricsInterval: 0,
+  centralConfig: false
 })
 
 var BLUEBIRD_VERSION = require('bluebird/package').version

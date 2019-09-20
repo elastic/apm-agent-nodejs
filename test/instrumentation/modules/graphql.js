@@ -4,7 +4,8 @@ var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
-  metricsInterval: 0
+  metricsInterval: 0,
+  centralConfig: false
 })
 
 var graphql = require('graphql')
@@ -18,9 +19,11 @@ test('graphql.graphql', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = { hello () {
-    return 'Hello world!'
-  } }
+  var root = {
+    hello () {
+      return 'Hello world!'
+    }
+  }
   var query = '{ hello }'
 
   agent.startTransaction('foo')
@@ -36,9 +39,11 @@ test('graphql.graphql - invalid query', function (t) {
   resetAgent(done(t, 'Unknown Query'))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = { hello () {
-    return 'Hello world!'
-  } }
+  var root = {
+    hello () {
+      return 'Hello world!'
+    }
+  }
   var query = '{ hello'
 
   agent.startTransaction('foo')
@@ -66,9 +71,11 @@ test('graphql.graphql - transaction ended', function (t) {
   })
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = { hello () {
-    return 'Hello world!'
-  } }
+  var root = {
+    hello () {
+      return 'Hello world!'
+    }
+  }
   var query = '{ hello }'
 
   agent.startTransaction('foo').end()
@@ -82,9 +89,11 @@ test('graphql.execute', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = { hello () {
-    return Promise.resolve('Hello world!')
-  } }
+  var root = {
+    hello () {
+      return Promise.resolve('Hello world!')
+    }
+  }
   var query = '{ hello }'
   var source = new graphql.Source(query)
   var documentAST = graphql.parse(source)
@@ -112,9 +121,11 @@ test('graphql.execute - transaction ended', function (t) {
   })
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = { hello () {
-    return Promise.resolve('Hello world!')
-  } }
+  var root = {
+    hello () {
+      return Promise.resolve('Hello world!')
+    }
+  }
   var query = '{ hello }'
   var source = new graphql.Source(query)
   var documentAST = graphql.parse(source)
@@ -130,9 +141,11 @@ test('graphql.execute args object', function (t) {
   resetAgent(done(t))
 
   var schema = graphql.buildSchema('type Query { hello: String }')
-  var root = { hello () {
-    return Promise.resolve('Hello world!')
-  } }
+  var root = {
+    hello () {
+      return Promise.resolve('Hello world!')
+    }
+  }
   var query = '{ hello }'
   var source = new graphql.Source(query)
   var documentAST = graphql.parse(source)
@@ -156,9 +169,11 @@ if (semver.satisfies(pkg.version, '>=0.12')) {
     resetAgent(done(t))
 
     var schema = graphql.buildSchema('type Query { hello: String }')
-    var root = { hello () {
-      return 'Hello world!'
-    } }
+    var root = {
+      hello () {
+        return 'Hello world!'
+      }
+    }
     var query = '{ hello }'
     var source = new graphql.Source(query)
     var documentAST = graphql.parse(source)

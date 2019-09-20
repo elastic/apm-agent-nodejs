@@ -11,13 +11,12 @@
     view: APM-CI
     project-type: multibranch
     logrotate:
-      daysToKeep: 30
       numToKeep: 100
     number-to-keep: '5'
     days-to-keep: '1'
     concurrent: true
     node: linux
-    periodic-folder-trigger: 7d
+    periodic-folder-trigger: 1d
     prune-dead-branches: true
     publishers:
     - email:

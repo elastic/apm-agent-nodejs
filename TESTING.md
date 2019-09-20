@@ -124,3 +124,9 @@ Clean up Docker containers and volumes:
 ```
 npm run docker:clean
 ```
+
+Run the benchmarks:
+
+```
+npm run bench
+```

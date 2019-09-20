@@ -16,6 +16,7 @@ var agentVersion = require('../package.json').version
 var inContainer = 'containerId' in (containerInfo() || {})
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
 
 test('#setFramework()', function (t) {
   var agent = Agent()
@@ -217,6 +218,44 @@ test('#currentTraceparent', function (t) {
     agent.startTransaction()
     var span = agent.startSpan()
     t.equal(agent.currentTraceparent, span.traceparent)
+    span.end()
+    agent.endTransaction()
+    t.end()
+  })
+})
+
+test('#currentTraceIds', function (t) {
+  t.test('no active transaction or span', function (t) {
+    var agent = Agent()
+    agent.start()
+    t.deepEqual(agent.currentTraceIds, {})
+    t.equal(agent.currentTraceIds.toString(), '')
+    t.end()
+  })
+
+  t.test('with active transaction', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.deepEqual(agent.currentTraceIds, {
+      'trace.id': trans.traceId,
+      'transaction.id': trans.id
+    })
+    t.equal(agent.currentTraceIds.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`)
+    agent.endTransaction()
+    t.end()
+  })
+
+  t.test('with active span', function (t) {
+    var agent = Agent()
+    agent.start()
+    agent.startTransaction()
+    var span = agent.startSpan()
+    t.deepEqual(agent.currentTraceIds, {
+      'trace.id': span.traceId,
+      'span.id': span.id
+    })
+    t.equal(agent.currentTraceIds.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
     span.end()
     agent.endTransaction()
     t.end()
@@ -1099,6 +1138,77 @@ test('#captureError()', function (t) {
         t.end()
       })
   })
+
+  t.test('options.request', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+
+    const req = new http.IncomingMessage()
+    req.httpVersion = '1.1'
+    req.method = 'POST'
+    req.url = '/foo?bar=baz#hash'
+    req.socket = { remoteAddress: '127.0.0.1' }
+    req.headers['content-length'] = 4
+    req.headers.string = 'foo'
+    req.headers.number = 42 // in case someone messes with the headers
+    req.headers.array = ['foo', 42]
+    req.body = 'test'
+
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with request'), { request: req })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'with request')
+        t.deepEqual(data.context.request, {
+          http_version: '1.1',
+          method: 'POST',
+          url: { raw: '/foo?bar=baz#hash', protocol: 'http:', pathname: '/foo', search: '?bar=baz' },
+          socket: { remote_address: '127.0.0.1', encrypted: false },
+          headers: {
+            'content-length': '4',
+            string: 'foo',
+            number: '42',
+            array: ['foo', '42']
+          },
+          body: '[REDACTED]'
+        })
+        t.end()
+      })
+  })
+
+  t.test('options.response', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+
+    const req = new http.IncomingMessage()
+    const res = new http.ServerResponse(req)
+    res.statusCode = 204
+    res.headers = {
+      'content-length': 4,
+      string: 'foo',
+      number: 42, // in case someone messes with the headers
+      array: ['foo', 42]
+    }
+
+    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with response'), { response: res })
+      })
+      .on('data-error', function (data) {
+        t.equal(data.exception.message, 'with response')
+        t.deepEqual(data.context.response, {
+          status_code: 204,
+          headers: {
+            'content-length': '4',
+            string: 'foo',
+            number: '42',
+            array: ['foo', '42']
+          },
+          headers_sent: false,
+          finished: false
+        })
+        t.end()
+      })
+  })
 })
 
 test('#handleUncaughtExceptions()', function (t) {
@@ -1142,6 +1252,16 @@ test('#handleUncaughtExceptions()', function (t) {
         t.equal(data.exception.message, 'uncaught')
         t.end()
       })
+  })
+})
+
+test('#active: false', function (t) {
+  t.test('should not error when started in an inactive state', function (t) {
+    var agent = Agent()
+    var client = agent.start({ active: false })
+    t.ok(client.startTransaction())
+    t.doesNotThrow(() => client.endTransaction())
+    t.end()
   })
 })
 

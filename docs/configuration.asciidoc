@@ -31,6 +31,8 @@ the agent will use the `name` from `package.json` by default if available.
 
 Your Elastic APM service name.
 
+Allowed characters: `a-z`, `A-Z`, `0-9`, `-`, `_`, and space.
+
 [[secret-token]]
 ==== `secretToken`
 
@@ -63,6 +65,7 @@ Disabling validation is normally required if using self-signed certificates.
 ==== `serviceVersion`
 
 * *Type:* String
+* *Default:* `version` field of `package.json`
 * *Env:* `ELASTIC_APM_SERVICE_VERSION`
 
 The version of the app currently running.
@@ -119,6 +122,18 @@ You must use the query bar to filter for a specific environment in versions prio
 A boolean specifying if the agent should collect performance metrics for the app.
 
 Note that both `active` and `instrument` needs to be `true` for instrumentation to be running.
+
+[[central-config]]
+==== `centralConfig`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_CENTRAL_CONFIG`
+
+Activate APM Agent Configuration via Kibana.
+If set to `true`, the client will poll the APM Server regularly for new agent configuration.
+
+NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
 
 [[async-hooks]]
 ==== `asyncHooks`
@@ -706,6 +721,17 @@ or should include a time suffix.
 To disable metrics reporting,
 set the interval to `0`.
 
+[[metrics-limit]]
+==== `metricsLimit`
+
+* *Type:* Number
+* *Default:* `1000`
+* *Env:* `ELASTIC_APM_METRICS_LIMIT`
+
+Specify the maximum number of metrics to track at any given time.
+When a new metric is inserted which would exceed the limit,
+the oldest metric will be dropped to give it space.
+
 [[global-labels]]
 ==== `globalLabels`
 
@@ -718,4 +744,42 @@ Example:
 [source,bash]
 ----
 ELASTIC_APM_GLOBAL_LABELS="subspace=sap-hana,rack=number6"
+----
+
+[[config-file]]
+==== `configFile`
+
+* *Type:* String
+* *Default:* `elastic-apm-node.js`
+* *Env:* `ELASTIC_APM_CONFIG_FILE`
+
+The Node.js agent will look for a file named `elastic-apm-node.js` in the current working directory.
+You can specify a custom path using this config option (this path must include the filename), e.g:
+
+[source,bash]
+----
+ELASTIC_APM_CONFIG_FILE=/path/to/my-elastic-apm-node.js
+----
+
+NOTE: The inline version of this config option,
+that is passed to the <<apm-start,`start`>> function,
+will be ignored if a config file was already loaded when this module was required (based on either the default value or because of the `ELASTIC_APM_CONFIG_FILE` environment variable).
+
+The configuration file is expected to export an object,
+following the same conventions as the `options` object,
+given as the first argument to the <<apm-start,`start`>> function, e.g.:
+
+[source,js]
+----
+module.exports = {
+  // Override service name from package.json
+  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
+  serviceName: '',
+
+  // Use if APM Server requires a token
+  secretToken: '',
+
+  // Set custom APM Server URL (default: http://localhost:8200)
+  serverUrl: ''
+}
 ----

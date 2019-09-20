@@ -51,12 +51,14 @@ NOTE: If you are using Babel, you need to use the `elastic-apm-node/start` appro
 
 There are three ways to configure the Node.js agent. In order of precedence (higher overwrites lower):
 
-1. Environment variables.
+1. APM Agent Configuration via Kibana. Enabled with <<central-config>>.
 
-2. If calling the `apm.start()` function,
+2. Environment variables.
+
+3. If calling the `apm.start()` function,
 you can supply a <<agent-configuration-object,configurations object>> as the first argument.
 
-3. Via the <<agent-configuration-file,agent configuration file>>.
+4. Via the <<agent-configuration-file,agent configuration file>>.
 
 For information on the available configuration properties, and the expected names of environment variables, see the <<configuration,Configuration options>> documentation.
 
@@ -79,7 +81,6 @@ Here's an example usage configuring the agent to only be active in production:
 ----
 // Add this to the VERY top of the first file loaded in your app
 require('elastic-apm-node').start({
-
   // Override service name from package.json
   // Allowed characters: a-z, A-Z, 0-9, -, _, and space
   serviceName: '',
@@ -99,31 +100,8 @@ require('elastic-apm-node').start({
 [[agent-configuration-file]]
 ==== Agent configuration file
 
-The Node.js agent will look for a file named `elastic-apm-node.js` in the current working directory. You can specify a custom path for this file using
-the `ELASTIC_APM_CONFIG_FILE` environment variable (this path must include the filename), e.g:
-
-[source,bash]
-----
-ELASTIC_APM_CONFIG_FILE=/path/to/elastic-apm-node.js
-----
-
-The configuration file is expected to export an object following the same conventions as the `options` object given as the first argument
-to the <<apm-start,`start`>> function, e.g.:
-
-[source,js]
-----
-module.exports = {
-  // Override service name from package.json
-  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
-  serviceName: '',
-
-  // Use if APM Server requires a token
-  secretToken: '',
-
-  // Set custom APM Server URL (default: http://localhost:8200)
-  serverUrl: ''
-}
-----
+The Node.js agent will look for a file named `elastic-apm-node.js` in the current working directory.
+You can specify a custom path for this file using the <<config-file,`configFile`>> config option.
 
 [[es-modules]]
 === ES Modules support
@@ -133,8 +111,8 @@ for instance with the help of Babel,
 TypeScript,
 or the `--experimental-modules` flag for Node.js,
 all import statements are evaluated prior to calling any functions.
-In this case, you can't configure the agent by passing a configuration object to the `start` function,
-as this call will happen after all of the modules have been loaded.
+**In this case, you can't configure the agent by passing a configuration object to the `start` function,
+as this call will happen after all of the modules have been loaded.**
 Instead you need to import the `elastic-apm-node/start` module:
 
 [source,js]
@@ -144,6 +122,9 @@ import apm from 'elastic-apm-node/start'
 
 Now, you can either configure the agent using the environment variables associated with each <<configuration,configuration option>>,
 or use the optional <<agent-configuration-file,agent configuration file>>.
+
+To explicitly start the agent you need to import `elastic-apm-node` and call the `apm.start()` method with the
+<<agent-configuration-object, agent configuration object>>.
 
 [float]
 [[esm-typescript]]

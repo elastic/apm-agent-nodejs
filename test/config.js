@@ -19,48 +19,54 @@ var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
+var apmVersion = require('../package').version
+var apmName = require('../package').name
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
 
 var optionFixtures = [
-  ['serviceName', 'SERVICE_NAME', 'elastic-apm-node'],
-  ['secretToken', 'SECRET_TOKEN'],
-  ['serverUrl', 'SERVER_URL'],
-  ['verifyServerCert', 'VERIFY_SERVER_CERT', true],
-  ['serviceVersion', 'SERVICE_VERSION'],
+  ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
   ['active', 'ACTIVE', true],
-  ['logLevel', 'LOG_LEVEL', 'info'],
-  ['hostname', 'HOSTNAME'],
   ['apiRequestSize', 'API_REQUEST_SIZE', 768 * 1024],
   ['apiRequestTime', 'API_REQUEST_TIME', 10],
+  ['asyncHooks', 'ASYNC_HOOKS', true],
+  ['captureBody', 'CAPTURE_BODY', 'off'],
+  ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
+  ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
+  ['captureSpanStackTraces', 'CAPTURE_SPAN_STACK_TRACES', true],
+  ['centralConfig', 'CENTRAL_CONFIG', true],
+  ['containerId', 'CONTAINER_ID'],
+  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
+  ['environment', 'ENVIRONMENT', 'development'],
+  ['errorMessageMaxLength', 'ERROR_MESSAGE_MAX_LENGTH', 2048],
+  ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
+  ['filterHttpHeaders', 'FILTER_HTTP_HEADERS', true],
   ['frameworkName', 'FRAMEWORK_NAME'],
   ['frameworkVersion', 'FRAMEWORK_VERSION'],
-  ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
-  ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
-  ['filterHttpHeaders', 'FILTER_HTTP_HEADERS', true],
-  ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
-  ['captureSpanStackTraces', 'CAPTURE_SPAN_STACK_TRACES', true],
-  ['captureBody', 'CAPTURE_BODY', 'off'],
-  ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
-  ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
+  ['hostname', 'HOSTNAME'],
   ['instrument', 'INSTRUMENT', true],
-  ['asyncHooks', 'ASYNC_HOOKS', true],
+  ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
+  ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
+  ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
+  ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
+  ['logLevel', 'LOG_LEVEL', 'info'],
+  ['metricsInterval', 'METRICS_INTERVAL', 30],
+  ['metricsLimit', 'METRICS_LIMIT', 1000],
+  ['secretToken', 'SECRET_TOKEN'],
+  ['serverTimeout', 'SERVER_TIMEOUT', 30],
+  ['serverUrl', 'SERVER_URL'],
+  ['serviceName', 'SERVICE_NAME', apmName],
+  ['serviceVersion', 'SERVICE_VERSION', apmVersion],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
   ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
   ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 0],
   ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0],
-  ['errorMessageMaxLength', 'ERROR_MESSAGE_MAX_LENGTH', 2048],
+  ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
   ['transactionMaxSpans', 'TRANSACTION_MAX_SPANS', 500],
   ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
-  ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
-  ['containerId', 'CONTAINER_ID'],
-  ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
-  ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
-  ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
-  ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
   ['usePathAsTransactionName', 'USE_PATH_AS_TRANSACTION_NAME', false],
-  ['environment', 'ENVIRONMENT', 'development']
+  ['verifyServerCert', 'VERIFY_SERVER_CERT', true]
 ]
 
 var falsyValues = [false, 'false']
@@ -72,8 +78,10 @@ optionFixtures.forEach(function (fixture) {
     var url = fixture[0] === 'serverUrl' // special case for url's so they can be parsed using url.parse()
     var number = typeof fixture[2] === 'number'
     var array = Array.isArray(fixture[2])
+    var envName = 'ELASTIC_APM_' + fixture[1]
+    var existingValue = process.env[envName]
 
-    test('should be configurable by environment variable ELASTIC_APM_' + fixture[1], function (t) {
+    test(`should be configurable by environment variable ${envName}`, function (t) {
       var agent = Agent()
       var value
 
@@ -82,22 +90,26 @@ optionFixtures.forEach(function (fixture) {
       else if (url) value = 'http://custom-value'
       else value = 'custom-value'
 
-      process.env['ELASTIC_APM_' + fixture[1]] = value.toString()
+      process.env[envName] = value.toString()
 
       agent.start()
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value ])
+        t.deepEqual(agent._conf[fixture[0]], [value])
       } else {
         t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
       }
 
-      delete process.env['ELASTIC_APM_' + fixture[1]]
+      if (existingValue) {
+        process.env[envName] = existingValue
+      } else {
+        delete process.env[envName]
+      }
 
       t.end()
     })
 
-    test('should overwrite option property ' + fixture[0] + ' by ELASTIC_APM_' + fixture[1], function (t) {
+    test(`should overwrite option property ${fixture[0]} by ${envName}`, function (t) {
       var agent = Agent()
       var opts = {}
       var value1, value2
@@ -117,23 +129,31 @@ optionFixtures.forEach(function (fixture) {
       }
 
       opts[fixture[0]] = value1
-      process.env['ELASTIC_APM_' + fixture[1]] = value2.toString()
+      process.env[envName] = value2.toString()
 
       agent.start(opts)
 
       if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [ value2 ])
+        t.deepEqual(agent._conf[fixture[0]], [value2])
       } else {
         t.equal(agent._conf[fixture[0]], value2)
       }
 
-      delete process.env['ELASTIC_APM_' + fixture[1]]
+      if (existingValue) {
+        process.env[envName] = existingValue
+      } else {
+        delete process.env[envName]
+      }
 
       t.end()
     })
   }
 
   test('should default ' + fixture[0] + ' to ' + fixture[2], function (t) {
+    if (existingValue) {
+      delete process.env[envName]
+    }
+
     var agent = Agent()
     agent.start()
     if (array) {
@@ -141,6 +161,11 @@ optionFixtures.forEach(function (fixture) {
     } else {
       t.equal(agent._conf[fixture[0]], fixture[2])
     }
+
+    if (existingValue) {
+      process.env[envName] = existingValue
+    }
+
     t.end()
   })
 })
@@ -185,9 +210,9 @@ test('should log invalid booleans', function (t) {
   t.equal(warning.args[0], 'nope')
   t.equal(warning.args[1], 'active')
 
-  var info = logger.calls.shift()
-  t.equal(info.message, 'Elastic APM agent is inactive due to configuration')
-  t.equal(info.args.length, 0)
+  var debug = logger.calls.shift()
+  t.equal(debug.message, 'Elastic APM agent disabled (`active` is false)')
+  t.equal(debug.args.length, 0)
 
   t.end()
 })
@@ -322,7 +347,7 @@ var noPrefixValues = [
 ]
 
 noPrefixValues.forEach(function (pair) {
-  const [ key, envVar ] = pair
+  const [key, envVar] = pair
   test(`maps ${envVar} to ${key}`, (t) => {
     var agent = Agent()
     process.env[envVar] = 'test'
@@ -500,6 +525,17 @@ test('serviceName defaults to package name', function (t) {
       t.end()
     })
   })
+
+  t.test('serviceVersion should default to package version', function (t) {
+    var pkg = {
+      version: '1.2.3'
+    }
+
+    return testServiceConfig(pkg).then(conf => {
+      t.equal(conf.serviceVersion, pkg.version)
+      t.end()
+    })
+  })
 })
 
 var captureBodyTests = [
@@ -594,8 +630,10 @@ test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
   var mysql2Version = require('mysql2/package.json').version
   var wsVersion = require('ws/package.json').version
+  var expressGraphqlVersion = require('express-graphql/package.json').version
 
-  var modules = new Set(Instrumentation.modules)
+  var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
+  var modules = new Set(flattenedModules)
   if (semver.lt(process.version, '8.6.0')) {
     modules.delete('restify')
   }
@@ -605,11 +643,17 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
     modules.delete('hapi')
   }
+  if (semver.lt(process.version, '8.9.0')) {
+    modules.delete('@hapi/hapi')
+  }
   if (semver.lt(process.version, '6.0.0') && semver.gte(mysql2Version, '1.6.0')) {
     modules.delete('mysql2')
   }
   if (semver.lt(process.version, '8.6.0') && semver.gte(wsVersion, '7.0.0')) {
     modules.delete('ws')
+  }
+  if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
+    modules.delete('express-graphql')
   }
   if (semver.lt(process.version, '6.0.0')) {
     modules.delete('express-queue')
@@ -625,8 +669,7 @@ test('disableInstrumentations', function (t) {
       agent.start({
         serviceName: 'service',
         disableInstrumentations: selection,
-        captureExceptions: false,
-        metricsInterval: 0
+        captureExceptions: false
       })
 
       var found = new Set()
@@ -665,7 +708,6 @@ test('custom transport', function (t) {
   var agent = Agent()
   agent.start({
     captureExceptions: false,
-    metricsInterval: 0,
     serviceName: 'fooBAR0123456789_- ',
     transport () {
       var transactions = []
@@ -729,8 +771,7 @@ test('addPatch', function (t) {
   const agent = Agent()
   agent.start({
     addPatch: 'express=./test/_patch.js',
-    captureExceptions: false,
-    metricsInterval: 0
+    captureExceptions: false
   })
 
   t.deepEqual(require('express'), patch(before))
@@ -742,10 +783,7 @@ test('globalLabels should be received by transport', function (t) {
   var globalLabels = {
     foo: 'bar'
   }
-  var opts = {
-    metricsInterval: 0,
-    globalLabels
-  }
+  var opts = { globalLabels }
 
   var server = APMServer(opts, { expect: 'error' })
     .on('listening', function () {
@@ -815,9 +853,11 @@ class CaptureLogger {
   warn (message, ...args) {
     this._log('warn', message, args)
   }
+
   info (message, ...args) {
     this._log('info', message, args)
   }
+
   debug (message, ...args) {
     this._log('debug', message, args)
   }

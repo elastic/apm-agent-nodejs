@@ -672,7 +672,7 @@ The callback is called *after* the active HTTP request has ended.
 The callback is called even if no HTTP request is currently active.
 
 [[apm-lambda]]
-==== `apm.lambda([type, ] handler)`
+==== `apm.lambda([type, ]handler)`
 
 [small]#Added in: v1.4.0#
 
@@ -683,19 +683,19 @@ exports.hello = apm.lambda(function (payload, context, callback) {
 })
 ----
 
-Manually instrument a lambda function to form a transaction around each execution.
+Manually instrument an AWS Lambda function to form a transaction around each execution.
 Optionally, a type may also be provided to group lambdas together. By default,
 "lambda" will be used as the type name.
 
 Read more lambda support in the <<lambda,Lambda>> article.
 
 [[apm-add-patch]]
-==== `apm.addPatch(name, handler)`
+==== `apm.addPatch(modules, handler)`
 
 [small]#Added in: v2.7.0#
 
-* `name` +{type-string}+
-Name of module to apply the patch to, when required.
+* `modules` +{type-string}+ | +{type-string-array}+
+Name of module(s) to apply the patch to, when required.
 * `handler` +{type-function}+ | +{type-string}+
 Must be a patch function or a path to a module exporting a patch function
 ** `exports` +{type-object}+ The original export object of the module
@@ -726,11 +726,26 @@ apm.addPatch('timers', (exports, agent, { version, enabled }) => {
 
 // or ...
 
+apm.addPatch(['hapi', '@hapi/hapi'], (exports, agent, { version, enabled }) => {
+  const setTimeout = exports.setTimeout
+  exports.setTimeout = (fn, ms) => {
+    const span = agent.createSpan('set-timeout')
+    return setTimeout(() => {
+      span.end()
+      fn()
+    }, ms)
+  }
+
+  return exports
+})
+
+// or ...
+
 apm.addPatch('timers', './timer-patch')
 ----
 
 [[apm-remove-patch]]
-==== `apm.removePatch(name, handler)`
+==== `apm.removePatch(modules, handler)`
 
 [small]#Added in: v2.7.0#
 
@@ -744,11 +759,15 @@ apm.removePatch('timers', './timers-patch')
 
 // or ...
 
+apm.removePatch(['timers'], './timers-patch')
+
+// or ...
+
 apm.removePatch('timers', timerPatchFunction)
 ----
 
 [[apm-clear-patches]]
-==== `apm.clearPatches(name)`
+==== `apm.clearPatches(modules)`
 
 [small]#Added in: v2.7.0#
 
@@ -759,4 +778,42 @@ To _disable_ instrumentation while keeping context propagation support, see <<di
 [source,js]
 ----
 apm.clearPatches('timers')
+
+// or ...
+
+apm.clearPatches(['timers'])
+----
+
+[[apm-current-trace-ids]]
+==== `apm.currentTraceIds`
+
+[small]#Added in: #2.17.0
+
+Produces an object containing `trace.id` and either `transaction.id` or `span.id` when a current transaction or span is available.
+When no transaction or span is available it will return an empty object.
+This enables log correlation to APM traces with structured loggers.
+
+[source,js]
+----
+{
+  "trace.id": "abc123",
+  "transaction.id": "abc123"
+}
+// or ...
+{
+  "trace.id": "abc123",
+  "span.id": "abc123"
+}
+----
+
+All current trace id objects,
+including the empty form,
+include a `toString()` implementation.
+This enables log correlation to APM traces with text-only loggers.
+
+[source,js]
+----
+"trace.id=abc123 transaction.id=abc123"
+// or ...
+"trace.id=abc123 span.id=abc123"
 ----
