@@ -35,7 +35,9 @@ if (cluster.isMaster) {
 
     function assertSpan (t, span) {
       t.ok(/GET localhost:\d+\//.test(span.name), 'span name')
-      t.equal(span.type, 'external.http.http', 'span type')
+      t.equal(span.type, 'external', 'span type')
+      t.equal(span.subtype, 'http', 'span subtype')
+      t.equal(span.action, 'http', 'span action')
     }
 
     t.test('incoming enabled + outgoing enabled', makeTest({
