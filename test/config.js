@@ -46,6 +46,7 @@ var optionFixtures = [
   ['frameworkVersion', 'FRAMEWORK_VERSION'],
   ['hostname', 'HOSTNAME'],
   ['instrument', 'INSTRUMENT', true],
+  ['instrumentIncomingHTTPRequests', 'INSTRUMENT_INCOMING_HTTP_REQUESTS', true],
   ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
   ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
   ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
