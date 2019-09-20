@@ -4,6 +4,8 @@ var path = require('path')
 var readdir = require('fs').readdir
 var spawn = require('child_process').spawn
 
+var semver = require('semver')
+
 var extname = path.extname
 var join = path.join
 
@@ -11,14 +13,19 @@ var bin = join(process.cwd(), 'node_modules/.bin')
 var PATH = process.env.PATH + ':' + bin
 
 function run (test, cb) {
-  var fullPath = test.cwd ? join(test.cwd, test.file) : test.file
-
   test.env = Object.assign({}, process.env, test.env || {})
   test.env.PATH = PATH
 
-  console.log('running: ' + fullPath)
+  var args = [test.file]
+  if (semver.gte(process.version, '12.0.0')) {
+    args.unshift('--unhandled-rejections=strict')
+  } else {
+    args.unshift('--require', path.join(__dirname, '_promise_rejection.js'))
+  }
 
-  var ps = spawn('node', [test.file], {
+  console.log('running (cwd: ./%s): node %s', test.cwd || '', args.join(' '))
+
+  var ps = spawn('node', args, {
     stdio: 'inherit',
     cwd: test.cwd,
     env: test.env

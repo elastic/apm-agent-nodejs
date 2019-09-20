@@ -22,11 +22,9 @@ module.exports = APMServer
 
 util.inherits(APMServer, EventEmitter)
 
-function APMServer (agentOpts, mockOpts) {
+function APMServer (agentOpts, mockOpts = { expect: [] }) {
   if (!(this instanceof APMServer)) return new APMServer(agentOpts, mockOpts)
   var self = this
-
-  mockOpts = mockOpts || {}
 
   var requests = typeof mockOpts.expect === 'string'
     ? ['metadata', mockOpts.expect]
@@ -87,5 +85,8 @@ function APMServer (agentOpts, mockOpts) {
     server.listen(port, function () {
       self.emit('listening', port)
     })
+  }).catch(err => {
+    console.error(err.stack)
+    process.exit(1)
   })
 }

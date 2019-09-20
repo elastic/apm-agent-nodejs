@@ -1,3 +1,9 @@
+# 2.17.0 - 2019/9/19
+  * feat: add support for @koa/router ([#1346](https://github.com/elastic/apm-agent-nodejs/pull/1346))
+  * feat: add methods for logging trace information ([#1335](https://github.com/elastic/apm-agent-nodejs/pull/1335))
+  * fix: improve debug output when detecting incoming http request ([#1357](https://github.com/elastic/apm-agent-nodejs/pull/1357))
+  * fix(http): response context propagation on Node.js 12.0 - 12.2 ([#1339](https://github.com/elastic/apm-agent-nodejs/pull/1339))
+
 # 2.16.2 - 2019/9/3
   * fix(lambda): handle traceparent case-insensitively ([#1319](https://github.com/elastic/apm-agent-nodejs/pull/1319))
 

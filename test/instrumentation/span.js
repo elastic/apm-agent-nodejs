@@ -271,3 +271,20 @@ test('#_encode() - disabled stack traces', function (t) {
     t.end()
   })
 })
+
+test('#ids', function (t) {
+  var trans = new Transaction(agent)
+  var span = new Span(trans)
+  t.deepEqual(span.ids, {
+    'trace.id': span.traceId,
+    'span.id': span.id
+  })
+  t.end()
+})
+
+test('#toString()', function (t) {
+  var trans = new Transaction(agent)
+  var span = new Span(trans)
+  t.equal(span.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
+  t.end()
+})

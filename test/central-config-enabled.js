@@ -3,7 +3,7 @@
 const existingValue = process.env.ELASTIC_APM_CENTRAL_CONFIG
 delete process.env.ELASTIC_APM_CENTRAL_CONFIG
 
-const parseUrl = require('url').parse
+const { URL, parse: parseUrl } = require('url') // eslint-disable-line node/no-deprecated-api
 const http = require('http')
 
 const test = require('tape')
@@ -13,7 +13,7 @@ test('remote config enabled', function (t) {
 
   let agent, timer
   const server = http.createServer((req, res) => {
-    const url = parseUrl(req.url, { parseQueryString: true })
+    const url = URL ? new URL(req.url, 'relative:///') : parseUrl(req.url)
     t.equal(url.pathname, '/config/v1/agents')
     res.writeHead(200, {
       Etag: 1,

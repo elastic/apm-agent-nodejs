@@ -179,7 +179,7 @@ function done (t, method, path, query) {
 
     let span1, span2
     {
-      const type = 'ext'
+      const type = 'external'
       const subtype = 'http'
       const action = 'http'
       span1 = findObjInArray(data.spans, 'type', type)
