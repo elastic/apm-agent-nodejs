@@ -25,8 +25,11 @@ function clean () {
     agent._errorFilters = new Filters()
     agent._transactionFilters = new Filters()
     agent._spanFilters = new Filters()
-    if (agent._instrumentation && agent._instrumentation._hook) {
-      agent._instrumentation._hook.unhook()
+    if (agent._instrumentation) {
+      agent._instrumentation._started = false
+      if (agent._instrumentation._hook) {
+        agent._instrumentation._hook.unhook()
+      }
     }
     agent._metrics.stop()
     if (agent._transport && agent._transport.destroy) {
