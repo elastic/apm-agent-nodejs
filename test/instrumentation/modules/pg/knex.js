@@ -128,7 +128,9 @@ function assertBasicQuery (t, data) {
   })
 
   t.equal(data.spans.length, 1)
-  t.equal(data.spans[0].type, 'db.postgresql.query')
+  t.equal(data.spans[0].type, 'db')
+  t.equal(data.spans[0].subtype, 'postgresql')
+  t.equal(data.spans[0].action, 'query')
   t.ok(data.spans[0].stacktrace.some(function (frame) {
     return frame.function === 'userLandCode'
   }), 'include user-land code frame')

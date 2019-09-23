@@ -35,11 +35,31 @@ Transactions with the same name and <<transaction-type,type>> are grouped togeth
 
 [small]#Added in: v0.1.0#
 
+[small]#Split components into `type`, `subtype` and `action` in: v3.0.0# 
+
 * +{type-string}+ *Default:* `custom`
 
 The type of the transaction.
 
 There's a special type called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
+
+[[transaction-subtype]]
+==== `transaction.subtype`
+
+[small]#Added in: v3.0.0#
+
+* +{type-string}+ *Default:* `custom`
+
+The subtype of the transaction.
+
+[[transaction-action]]
+==== `transaction.action`
+
+[small]#Added in: v3.0.0#
+
+* +{type-string}+ *Default:* `custom`
+
+The action of the transaction.
 
 [[transaction-traceparent]]
 ==== `transaction.traceparent`
@@ -60,17 +80,24 @@ This is typically the HTTP status code,
 or e.g. "success" or "failure" for a background task.
 
 [[transaction-start-span]]
-==== `transaction.startSpan([name][, type][, options])`
+==== `transaction.startSpan([name][, type][, subtype][, action][, options])`
 
 [small]#Added in: v2.0.0#
+
+[small]#Split `type` into `type`, `subtype` and `action` in: v3.0.0# 
 
 * `name` +{type-string}+ The name of the span.
 You can alternatively set this via <<span-name,`span.name`>>.
 *Default:* `unnamed`
 
-* `type` +{type-string}+ The type of span.
+* `type` +{type-string}+ The type of the span.
 You can alternatively set this via <<span-type,`span.type`>>.
-*Default:* `custom`
+
+* `subtype` +{type-string}+ The subtype of the span.
+You can alternatively set this via <<span-subtype,`span.subtype`>>.
+
+* `action` +{type-string}+ The action of the span.
+You can alternatively set this via <<span-action,`span.action`>>.
 
 * `options` - The following options are supported:
 

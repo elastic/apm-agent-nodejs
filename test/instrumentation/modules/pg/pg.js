@@ -273,9 +273,7 @@ factories.forEach(function (f) {
 
           t.equal(trans.name, 'foo')
           data.spans.forEach(function (span) {
-            t.equal(span.name, 'SELECT')
-            t.equal(span.type, 'db.postgresql.query')
-            t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+            assertSpan(t, span, sql)
           })
 
           t.end()
@@ -322,9 +320,7 @@ factories.forEach(function (f) {
         data.transactions.forEach(function (trans) {
           const span = findObjInArray(data.spans, 'transaction_id', trans.id)
           t.ok(span, 'transaction should have span')
-          t.equal(span.name, 'SELECT')
-          t.equal(span.type, 'db.postgresql.query')
-          t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+          assertSpan(t, span, sql)
         })
 
         t.end()
@@ -376,9 +372,7 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
 
       t.equal(trans.name, 'foo')
       data.spans.forEach(function (span) {
-        t.equal(span.name, 'SELECT')
-        t.equal(span.type, 'db.postgresql.query')
-        t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+        assertSpan(t, span, sql)
       })
 
       t.end()
@@ -489,11 +483,17 @@ function assertBasicQuery (t, sql, data) {
   t.equal(data.spans.length, 1)
 
   var trans = data.transactions[0]
-  var span = data.spans[0]
-
   t.equal(trans.name, 'foo')
+
+  var span = data.spans[0]
+  assertSpan(t, span, sql)
+}
+
+function assertSpan (t, span, sql) {
   t.equal(span.name, 'SELECT')
-  t.equal(span.type, 'db.postgresql.query')
+  t.equal(span.type, 'db')
+  t.equal(span.subtype, 'postgresql')
+  t.equal(span.action, 'query')
   t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
 }
 

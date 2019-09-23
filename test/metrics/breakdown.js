@@ -48,6 +48,10 @@ const metrics = {
   span: spanMetrics
 }
 
+function nullableEqual (a, b) {
+  return (!a && !b) || a === b
+}
+
 const finders = {
   transaction (metricsets) {
     return metricsets.find(metricset => metricset.transaction && !metricset.span)
@@ -56,8 +60,13 @@ const finders = {
     return metricsets.find(metricset => metricset.span && metricset.span.type === 'app')
   },
   span (metricsets, span) {
-    const [type, subtype] = span.type.split('.')
-    return metricsets.find(v => v.span && v.span.type === type && v.span.subtype === subtype)
+    return metricsets.find(metricset => {
+      if (!metricset.span) return false
+      const { type, subtype } = metricset.span
+      if (!nullableEqual(type, span.type)) return false
+      if (!nullableEqual(subtype, span.subtype)) return false
+      return true
+    })
   }
 }
 

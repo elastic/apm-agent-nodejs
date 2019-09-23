@@ -284,7 +284,8 @@ isSecure.forEach(secure => {
 
       var span = findObjInArray(data.spans, 'transaction_id', root.id)
       t.ok(span, 'root transaction should have span')
-      t.equal(span.type, 'external.http2')
+      t.equal(span.type, 'external')
+      t.equal(span.subtype, 'http2')
       t.equal(span.name, `undefined http${secure ? 's' : ''}://localhost:${port}/sub`)
 
       server.close()
