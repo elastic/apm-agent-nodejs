@@ -815,6 +815,7 @@ test('instrument: false allows manual instrumentation', function (t) {
     .on('listening', function () {
       trans = this.agent.startTransaction('trans')
       trans.end()
+      this.agent.flush()
     })
     .on('data-transaction', (data) => {
       assertEncodedTransaction(t, trans, data)
