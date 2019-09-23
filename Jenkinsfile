@@ -342,7 +342,7 @@ def generateStep(Map params = [:]){
           retry(2){
             sleep randomNumber(min:10, max: 30)
             if (version?.startsWith('6')) {
-              catchError {
+              catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
                 sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
               }
             } else {
