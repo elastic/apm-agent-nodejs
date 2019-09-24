@@ -5,6 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
+    "backport": "backport",
     "docs:open": "PREVIEW=1 npm run docs:build",
     "docs:build": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
     "lint": "standard",
@@ -116,6 +117,7 @@
     "@types/node": "^12.7.5",
     "apollo-server-express": "^2.9.3",
     "aws-sdk": "^2.529.0",
+    "backport": "^4.7.1",
     "benchmark": "^2.1.4",
     "bluebird": "^3.5.5",
     "cassandra-driver": "^4.1.0",

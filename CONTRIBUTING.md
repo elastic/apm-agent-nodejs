@@ -67,6 +67,18 @@ Once your changes are ready to submit for review:
 For information about how to run the test suite,
 see [TESTING.md](TESTING.md).
 
+### Backporting
+
+If a PR is marked with a `backport:*` label,
+it should be backported to the branch specified by the label after it has been merged.
+
+To backport a commit,
+run the following command and follow the instructions in the terminal:
+
+```
+npm run backport
+```
+
 ### Workflow
 
 All feature development and most bug fixes hit the master branch first.
