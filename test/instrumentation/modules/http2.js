@@ -8,16 +8,12 @@ var agent = require('../../..').start({
 })
 var ins = agent._instrumentation
 
-var semver = require('semver')
-
-// The http2 module wasn't included before Node.js v8.4.0
-if (semver.lt(process.version, '8.4.0')) process.exit()
-
 var fs = require('fs')
 var http2 = require('http2')
 
-var test = require('tape')
+var semver = require('semver')
 var pem = require('https-pem')
+var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
 var findObjInArray = require('../../_utils').findObjInArray

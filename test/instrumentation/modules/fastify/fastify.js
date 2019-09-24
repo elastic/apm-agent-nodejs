@@ -6,12 +6,6 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
-{
-  const semver = require('semver')
-  const version = require('fastify/package').version
-  if (semver.lt(process.version, '6.0.0') && semver.gte(version, '1.0.0')) process.exit()
-}
-
 const http = require('http')
 
 const Fastify = require('fastify')

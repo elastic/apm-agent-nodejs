@@ -11,13 +11,7 @@ var agent = require('../../../..').start({
 })
 
 var knexVersion = require('knex/package').version
-var pgVersion = require('pg/package').version
 var semver = require('semver')
-
-// pg@7+ doesn't support Node.js pre 4.5.0
-if (semver.lt(process.version, '4.5.0') && semver.gte(pgVersion, '7.0.0')) process.exit()
-// knex@0.15+ doesn't support Node.js pre 6.0.0
-if (semver.lt(process.version, '6.0.0') && semver.gte(knexVersion, '0.15.0')) process.exit()
 
 var Knex = require('knex')
 var test = require('tape')

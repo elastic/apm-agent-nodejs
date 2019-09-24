@@ -10,17 +10,14 @@ module.exports = (moduleName) => {
   })
 
   var routerVersion = require(`${moduleName}/package`).version
-  var koaVersion = require('koa/package').version
-  var semver = require('semver')
-
-  if (semver.gte(koaVersion, '2.0.0') && semver.lt(process.version, '6.0.0')) process.exit()
-  if (semver.gte(routerVersion, '8.0.0') && semver.lt(process.version, '8.0.0')) process.exit()
 
   var http = require('http')
 
   var Koa = require('koa')
-  var Router = require(moduleName)
+  var semver = require('semver')
   var test = require('tape')
+
+  var Router = require(moduleName)
 
   var mockClient = require('../../../_mock_http_client')
 
@@ -113,13 +110,8 @@ module.exports = (moduleName) => {
     })
 
     if (semver.gte(routerVersion, '6.0.0')) {
-      if (semver.gte(process.version, '7.10.1')) {
-        require('./_async-await')(router)
-        require('./_async-await')(childRouter)
-      } else {
-        require('./_non-generators')(router)
-        require('./_non-generators')(childRouter)
-      }
+      require('./_async-await')(router)
+      require('./_async-await')(childRouter)
 
       // Mount childRouter with a dummy pass-through middleware function. This is
       // just to make the final router layer stack more complicated.
