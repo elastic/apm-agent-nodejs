@@ -222,7 +222,7 @@ test('#getContextFromRequest()', function (t) {
     req.body = { foo: 42 }
     req.headers['content-length'] = JSON.stringify(req.body).length
     var parsed = parsers.getContextFromRequest(req, conf)
-    t.deepEqual(parsed.body, { foo: 42 })
+    t.deepEqual(parsed.body, JSON.stringify({ foo: 42 }))
     t.end()
   })
 
@@ -248,7 +248,17 @@ test('#getContextFromRequest()', function (t) {
     req.body.bar = req.body
     req.headers['transfer-encoding'] = 'chunked'
     var parsed = parsers.getContextFromRequest(req, conf)
-    t.deepEqual(parsed.body, req.body)
+    t.deepEqual(parsed.body, JSON.stringify({ foo: 42, bar: '[Circular]' }))
+    t.end()
+  })
+
+  t.test('body is an array', function (t) {
+    var conf = { captureBody: 'all' }
+    var req = getMockReq()
+    req.body = [{ foo: 42 }]
+    req.headers['content-length'] = JSON.stringify(req.body).length
+    var parsed = parsers.getContextFromRequest(req, conf)
+    t.deepEqual(parsed.body, JSON.stringify([{ foo: 42 }]))
     t.end()
   })
 
