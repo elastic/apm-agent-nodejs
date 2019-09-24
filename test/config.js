@@ -804,6 +804,29 @@ test('globalLabels should be received by transport', function (t) {
   })
 })
 
+test('instrument: false allows manual instrumentation', function (t) {
+  var trans
+  var opts = {
+    metricsInterval: 0,
+    instrument: false
+  }
+
+  var server = APMServer(opts, { expect: 'transaction' })
+    .on('listening', function () {
+      trans = this.agent.startTransaction('trans')
+      trans.end()
+      this.agent.flush()
+    })
+    .on('data-transaction', (data) => {
+      assertEncodedTransaction(t, trans, data)
+      t.end()
+    })
+
+  t.on('end', function () {
+    server.destroy()
+  })
+})
+
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
   t.equal(result.id, trans.id, 'id matches')

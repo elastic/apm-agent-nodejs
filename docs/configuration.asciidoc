@@ -119,7 +119,7 @@ You must use the query bar to filter for a specific environment in versions prio
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_INSTRUMENT`
 
-A boolean specifying if the agent should collect performance metrics for the app.
+A boolean specifying if the agent should automatically apply instrumentation to supported modules when they are loaded.
 
 Note that both `active` and `instrument` needs to be `true` for instrumentation to be running.
 

@@ -50,7 +50,7 @@ module.exports = function (expected, done) {
     if (timer) clearTimeout(timer)
     timer = setTimeout(function () {
       done(client._writes)
-    }, 100)
+    }, 200)
   }
 }
 
