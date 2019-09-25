@@ -590,127 +590,131 @@ test('filters', function (t) {
       })
   })
 
-  t.test('#addFilter() - abort', function (t) {
-    t.plan(1)
+  const falsyValues = [undefined, null, false, 0, '', NaN]
 
-    const server = http.createServer(function (req, res) {
-      t.fail('should not send any data')
-    })
+  falsyValues.forEach(falsy => {
+    t.test(`#addFilter() - abort with '${String(falsy)}'`, function (t) {
+      t.plan(1)
 
-    server.listen(function () {
-      const agent = Agent().start({ serverUrl: 'http://localhost:' + server.address().port })
-
-      agent.addFilter(function (obj) {
-        t.equal(obj.exception.message, 'foo')
-        return false
-      })
-      agent.addFilter(function () {
-        t.fail('should not call 2nd filter')
+      const server = http.createServer(function (req, res) {
+        t.fail('should not send any data')
       })
 
-      agent.captureError(new Error('foo'))
+      server.listen(function () {
+        const agent = Agent().start({ serverUrl: 'http://localhost:' + server.address().port })
 
-      setTimeout(function () {
-        t.end()
-        server.close()
-      }, 50)
-    })
-  })
+        agent.addFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          return falsy
+        })
+        agent.addFilter(function () {
+          t.fail('should not call 2nd filter')
+        })
 
-  t.test('#addErrorFilter() - abort', function (t) {
-    t.plan(1)
+        agent.captureError(new Error('foo'))
 
-    const server = http.createServer(function (req, res) {
-      t.fail('should not send any data')
-    })
-
-    server.listen(function () {
-      const agent = Agent().start({
-        serverUrl: 'http://localhost:' + server.address().port,
-        captureExceptions: false
-      })
-
-      agent.addErrorFilter(function (obj) {
-        t.equal(obj.exception.message, 'foo')
-        return false
-      })
-      agent.addErrorFilter(function () {
-        t.fail('should not call 2nd filter')
-      })
-
-      agent.captureError(new Error('foo'))
-
-      setTimeout(function () {
-        t.end()
-        server.close()
-      }, 50)
-    })
-  })
-
-  t.test('#addTransactionFilter() - abort', function (t) {
-    t.plan(1)
-
-    const server = http.createServer(function (req, res) {
-      t.fail('should not send any data')
-    })
-
-    server.listen(function () {
-      const agent = Agent().start({
-        serverUrl: 'http://localhost:' + server.address().port,
-        captureExceptions: false
-      })
-
-      agent.addTransactionFilter(function (obj) {
-        t.equal(obj.name, 'transaction-name')
-        return false
-      })
-      agent.addTransactionFilter(function () {
-        t.fail('should not call 2nd filter')
-      })
-
-      agent.startTransaction('transaction-name')
-      agent.endTransaction()
-      agent.flush()
-
-      setTimeout(function () {
-        t.end()
-        server.close()
-      }, 50)
-    })
-  })
-
-  t.test('#addSpanFilter() - abort', function (t) {
-    t.plan(1)
-
-    const server = http.createServer(function (req, res) {
-      t.fail('should not send any data')
-    })
-
-    server.listen(function () {
-      const agent = Agent().start({
-        serverUrl: 'http://localhost:' + server.address().port,
-        captureExceptions: false
-      })
-
-      agent.addSpanFilter(function (obj) {
-        t.equal(obj.name, 'span-name')
-        return false
-      })
-      agent.addSpanFilter(function () {
-        t.fail('should not call 2nd filter')
-      })
-
-      agent.startTransaction()
-      const span = agent.startSpan('span-name')
-      span.end()
-
-      setTimeout(function () {
-        agent.flush()
         setTimeout(function () {
           t.end()
           server.close()
         }, 50)
-      }, 50)
+      })
+    })
+
+    t.test(`#addErrorFilter() - abort with '${String(falsy)}'`, function (t) {
+      t.plan(1)
+
+      const server = http.createServer(function (req, res) {
+        t.fail('should not send any data')
+      })
+
+      server.listen(function () {
+        const agent = Agent().start({
+          serverUrl: 'http://localhost:' + server.address().port,
+          captureExceptions: false
+        })
+
+        agent.addErrorFilter(function (obj) {
+          t.equal(obj.exception.message, 'foo')
+          return falsy
+        })
+        agent.addErrorFilter(function () {
+          t.fail('should not call 2nd filter')
+        })
+
+        agent.captureError(new Error('foo'))
+
+        setTimeout(function () {
+          t.end()
+          server.close()
+        }, 50)
+      })
+    })
+
+    t.test(`#addTransactionFilter() - abort with '${String(falsy)}'`, function (t) {
+      t.plan(1)
+
+      const server = http.createServer(function (req, res) {
+        t.fail('should not send any data')
+      })
+
+      server.listen(function () {
+        const agent = Agent().start({
+          serverUrl: 'http://localhost:' + server.address().port,
+          captureExceptions: false
+        })
+
+        agent.addTransactionFilter(function (obj) {
+          t.equal(obj.name, 'transaction-name')
+          return falsy
+        })
+        agent.addTransactionFilter(function () {
+          t.fail('should not call 2nd filter')
+        })
+
+        agent.startTransaction('transaction-name')
+        agent.endTransaction()
+        agent.flush()
+
+        setTimeout(function () {
+          t.end()
+          server.close()
+        }, 50)
+      })
+    })
+
+    t.test(`#addSpanFilter() - abort with '${String(falsy)}'`, function (t) {
+      t.plan(1)
+
+      const server = http.createServer(function (req, res) {
+        t.fail('should not send any data')
+      })
+
+      server.listen(function () {
+        const agent = Agent().start({
+          serverUrl: 'http://localhost:' + server.address().port,
+          captureExceptions: false
+        })
+
+        agent.addSpanFilter(function (obj) {
+          t.equal(obj.name, 'span-name')
+          return falsy
+        })
+        agent.addSpanFilter(function () {
+          t.fail('should not call 2nd filter')
+        })
+
+        agent.startTransaction()
+        const span = agent.startSpan('span-name')
+        span.end()
+
+        setTimeout(function () {
+          agent.flush()
+          setTimeout(function () {
+            t.end()
+            server.close()
+          }, 50)
+        }, 50)
+      })
     })
   })
 })
