@@ -17,7 +17,7 @@ var mockClient = require('../../_mock_http_client')
 
 test('instrument simple command', function (t) {
   const expected = semver.lt(version, '2.0.0')
-    ? (process.platform === 'darwin' && semver.gte(process.version, '8.0.0') ? 11 : 10)
+    ? (process.platform === 'darwin' ? 11 : 10)
     : 7
 
   resetAgent(expected, function (data) {
@@ -48,7 +48,7 @@ test('instrument simple command', function (t) {
         'system.$cmd.ismaster'
       ]
 
-      if (process.platform === 'darwin' && semver.gte(process.version, '8.0.0')) {
+      if (process.platform === 'darwin') {
         // mongodb-core v1.x will sometimes perform two `ismaster` queries
         // towards the admin and/or the system database. This doesn't always
         // happen, but if it does, we'll accept it.

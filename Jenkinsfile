@@ -79,9 +79,7 @@ pipeline {
               def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                if (!version.startsWith('6')) {
-                  parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
-                }
+                parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
               }
 
               // PRs don't require to run here as it's now managed within the linting pipeline
@@ -341,13 +339,7 @@ def generateStep(Map params = [:]){
         dir("${BASE_DIR}"){
           retry(2){
             sleep randomNumber(min:10, max: 30)
-            if (version?.startsWith('6')) {
-              catchError {
-                sh(label: 'Run Tests', script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
-              }
-            } else {
-              sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
-            }
+            sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
           }
         }
       } catch(e){

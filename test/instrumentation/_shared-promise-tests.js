@@ -1,7 +1,5 @@
 'use strict'
 
-var semver = require('semver')
-
 module.exports = function (test, Promise, ins) {
   test('new Promise -> resolve -> then', function (t) {
     t.plan(4)
@@ -195,38 +193,6 @@ module.exports = function (test, Promise, ins) {
       })
     })
   })
-
-  // non-standard v8/bluebird
-  if (semver.lt(process.version, '7.0.0')) {
-    test('Promise.defer -> resolve', function (t) {
-      t.plan(4)
-      twice(function () {
-        var trans = ins.startTransaction()
-        var deferred = Promise.defer()
-        setTimeout(deferred.resolve.bind(deferred), 10, 'foo')
-        deferred.promise.then(function (data) {
-          t.equal(data, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
-        })
-      })
-    })
-
-    // non-standard v8/bluebird
-    test('Promise.defer -> reject', function (t) {
-      t.plan(4)
-      twice(function () {
-        var trans = ins.startTransaction()
-        var deferred = Promise.defer()
-        setTimeout(deferred.reject.bind(deferred), 10, 'foo')
-        deferred.promise.then(function () {
-          t.fail('should not resolve')
-        }, function (reason) {
-          t.equal(reason, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
-        })
-      })
-    })
-  }
 }
 
 function twice (fn) {

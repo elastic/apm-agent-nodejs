@@ -56,13 +56,15 @@ run_test_suite () {
 
   npm run test:types
   npm run test:babel
-  if [[ $major_node_version -eq 8 && $minor_node_version -ge 5 ]] || [[ $major_node_version -gt 8 ]]; then
-    npm run test:esm
-  fi
+  npm run test:esm
 }
 
 major_node_version=`node --version | cut -d . -f1 | cut -d v -f2`
 minor_node_version=`node --version | cut -d . -f2`
+
+if [[ $major_node_version -eq 8 ]] && [[ $minor_node_version -lt 8 ]]; then
+  export NODE_OPTIONS="$NODE_OPTIONS --expose-http2"
+fi
 
 if [[ "$CI" || "$1" == "none" ]]
 then
