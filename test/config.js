@@ -24,6 +24,7 @@ var apmName = require('../package').name
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
+process.env._ELASTIC_APM_ASYNC_HOOKS_RESETTABLE = 'true'
 
 var optionFixtures = [
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
@@ -428,7 +429,7 @@ test('serviceName defaults to package name', function (t) {
   var exec = promisify(cp.exec)
 
   function testServiceConfig (pkg, handle) {
-    var tmp = path.join(os.tmpdir(), 'elastic-apm-node-test')
+    var tmp = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
     var files = [
       {
         action: 'mkdirp',
@@ -486,6 +487,9 @@ test('serviceName defaults to package name', function (t) {
         // NOTE: Real util.promisify returns an object,
         // the polyfill just returns stdout as a string.
         return JSON.parse(result.stdout || result)
+      })
+      .catch(err => {
+        t.error(err)
       })
 
     return pFinally(promise, () => {
