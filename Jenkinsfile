@@ -90,6 +90,9 @@ pipeline {
                 parallelTasks['linting'] = linting()
               }
 
+              // Windows
+              parallelTasks['Windows-Node.js-10'] = generateStepForWindows(version: '10')
+
               parallel(parallelTasks)
             }
           }
@@ -425,6 +428,36 @@ def getSmartTAVContext() {
             }
           }
         }
+      }
+    }
+  }
+}
+
+def generateStepForWindows(Map params = [:]){
+  def version = params?.version
+  def edge = params.containsKey('edge') ? params.edge : false
+  def disableAsyncHooks = params.get('disableAsyncHooks', false)
+  return {
+    node('windows-2019-immutable'){
+      try {
+        env.HOME = "${WORKSPACE}"
+        if (disableAsyncHooks) {
+          env.ELASTIC_APM_ASYNC_HOOKS = 'false'
+        }
+        deleteDir()
+        unstash 'source'
+        dir(BASE_DIR){
+          powershell label: 'Install tools', script: """
+            .\\test\\script\\appveyor\\install-redis.ps1
+            .\\test\\script\\appveyor\\install-elasticsearch.ps1
+            .\\test\\script\\appveyor\\install-cassandra.ps1
+            Install-Product node ${version}
+          """
+          bat 'npm install'
+          bat 'node test/test.js'
+        }
+      } catch(e){
+        error(e.toString())
       }
     }
   }
