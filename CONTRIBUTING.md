@@ -113,12 +113,26 @@ The following is an overview of what's required in order to add support to the a
 
 If you have access to make releases, the process is as follows:
 
-1. Update the version in `package.json` according to the scale of the change. (major, minor or patch) 
-1. Add commit messages to the changelog (You may skip non-user-visible changes)
+#### Current major
+
+1. Be sure you have checked out the `master` branch and have pulled latest chnages
+1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
+1. Add commit messages to `CHANGELOG.md` (You may skip non-user-visible changes)
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
 1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
-1. Reset the current major branch (`1.x`, `2.x` etc) to point to the current master, e.g. `git branch -f 1.x master`
+1. Reset the latest major branch (`1.x`, `2.x` etc) to point to the current master, e.g. `git branch -f 3.x master`
 1. Run tests with `npm test`
 1. Push commits and tags upstream with `git push upstream master && git push upstream --tags` (and optionally to your own fork as well)
-1. Update 1.x branch on upstream with `git push upstream 1.x`
+1. Update the latest major branch on upstream with `git push upstream <major_branch>`
+1. Publish to npm with `npm publish`
+
+#### Past major
+
+1. Be sure you have checked out the branch associated with the major you wish to release and have pulled latest chnages, e.g. `2.x`
+1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
+1. Add commit messages to `CHANGELOG.md` (You may skip non-user-visible changes)
+1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
+1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
+1. Run tests with `npm test`
+1. Push commits and tags upstream with `git push upstream <major_branch> && git push upstream --tags` (and optionally to your own fork as well)
 1. Publish to npm with `npm publish`
