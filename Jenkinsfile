@@ -448,7 +448,6 @@ def generateStepForWindows(Map params = [:]){
         unstash 'source'
         dir(BASE_DIR){
           powershell label: 'Install tools', script: """
-            .\\test\\script\\appveyor\\install-java.ps1
             .\\test\\script\\appveyor\\install-redis.ps1
             .\\test\\script\\appveyor\\install-elasticsearch.ps1
             .\\test\\script\\appveyor\\install-cassandra.ps1

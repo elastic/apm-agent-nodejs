@@ -7,6 +7,7 @@ $downloadUrl = "https://artifacts.elastic.co/downloads/elasticsearch/elasticsear
 $zipPath = "$($env:USERPROFILE)\elasticsearch-$esVersion.zip"
 $extractRoot = "$env:SYSTEMDRIVE\Elasticsearch"
 $esRoot = "$extractRoot\elasticsearch-$esVersion"
+[Environment]::SetEnvironmentVariable("JAVA_HOME",$null,"User")
 
 Write-Host "Downloading Elasticsearch..."
 (New-Object Net.WebClient).DownloadFile($downloadUrl, $zipPath)
