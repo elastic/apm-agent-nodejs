@@ -28,10 +28,10 @@ pipeline {
   }
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
-    booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
-    booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
+    booleanParam(name: 'bench_ci', defaultValue: false, description: 'Enable benchmarks.')
+    booleanParam(name: 'tav_ci', defaultValue: false, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
-    booleanParam(name: 'test_edge_ci', defaultValue: true, description: 'Enable tests for edge versions of nodejs.')
+    booleanParam(name: 'test_edge_ci', defaultValue: false, description: 'Enable tests for edge versions of nodejs.')
   }
   stages {
     /**
@@ -76,7 +76,7 @@ pipeline {
             script {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
-              def parallelTasksWithoutAsyncHooks = [:]
+              /*def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
                 if (!version.startsWith('6')) {
@@ -89,7 +89,7 @@ pipeline {
                 // Linting in parallel with the test stage
                 parallelTasks['linting'] = linting()
               }
-
+              */
               // Windows
               parallelTasks['Windows-Node.js-10'] = generateStepForWindows(version: '10')
 
