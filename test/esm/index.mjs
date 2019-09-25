@@ -1,6 +1,7 @@
 'use strict'
 
-import agent from '../../'
+// Node.js 12+ requires a fully qualified filename
+import agent from '../../index.js'
 
 agent.start({
   captureExceptions: false,
