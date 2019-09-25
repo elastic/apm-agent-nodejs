@@ -115,7 +115,7 @@ If you have access to make releases, the process is as follows:
 
 #### Current major
 
-1. Be sure you have checked out the `master` branch and have pulled latest chnages
+1. Be sure you have checked out the `master` branch and have pulled latest changes
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
 1. Add commit messages to `CHANGELOG.md` (You may skip non-user-visible changes)
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
@@ -128,7 +128,7 @@ If you have access to make releases, the process is as follows:
 
 #### Past major
 
-1. Be sure you have checked out the branch associated with the major you wish to release and have pulled latest chnages, e.g. `2.x`
+1. Be sure you have checked out the branch associated with the major you wish to release and have pulled latest changes, e.g. `2.x`
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
 1. Add commit messages to `CHANGELOG.md` (You may skip non-user-visible changes)
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
