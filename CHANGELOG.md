@@ -1,3 +1,7 @@
+# 2.17.1 - 2019/9/26
+  * fix: support all falsy return values from error filters ([#1389](https://github.com/elastic/apm-agent-nodejs/pull/1389)) ([#1394](https://github.com/elastic/apm-agent-nodejs/pull/1394))
+  * fix: capture all non-string http bodies ([#1376](https://github.com/elastic/apm-agent-nodejs/pull/1376)) ([#1381](https://github.com/elastic/apm-agent-nodejs/pull/1381))
+
 # 2.17.0 - 2019/9/19
   * feat: add support for @koa/router ([#1346](https://github.com/elastic/apm-agent-nodejs/pull/1346))
   * feat: add methods for logging trace information ([#1335](https://github.com/elastic/apm-agent-nodejs/pull/1335))
