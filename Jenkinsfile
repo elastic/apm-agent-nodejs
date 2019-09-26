@@ -438,23 +438,19 @@ def generateStepForWindows(Map params = [:]){
   def edge = params.containsKey('edge') ? params.edge : false
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
-    node('windows-2019-immutable'){
+    node('windows-2019-docker-immutable'){
       try {
         env.HOME = "${WORKSPACE}"
         // When installing with choco the PATH might not be updated within the already connected worker.
         env.PATH = "${PATH};C:\\Program Files\\nodejs"
+        env.VERSION = "${version}"
         if (disableAsyncHooks) {
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
         }
         deleteDir()
         unstash 'source'
         dir(BASE_DIR){
-          powershell label: 'Install tools', script: """
-            .\\test\\script\\appveyor\\install-redis.ps1
-            .\\test\\script\\appveyor\\install-elasticsearch.ps1
-            .\\test\\script\\appveyor\\install-cassandra.ps1
-            & choco install nodejs --no-progress -y --version ${version}
-          """
+          powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
           bat 'npm install'
           bat 'node test/test.js'
         }
