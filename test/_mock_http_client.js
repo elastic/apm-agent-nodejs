@@ -18,6 +18,7 @@ module.exports = function (expected, done) {
       cb = cb || noop
 
       const type = Object.keys(obj)[0]
+      console.log('-- received %s event', type, new Error().stack)
       this._writes.length++
       this._writes[type + 's'].push(obj[type])
 

@@ -1,6 +1,11 @@
 'use strict'
 
 var agent = require('../../_agent')()
+agent.logger.trace = agent.logger.fatal
+agent.logger.debug = agent.logger.fatal
+agent.logger.info = agent.logger.fatal
+agent.logger.warn = agent.logger.fatal
+agent.logger.error = agent.logger.fatal
 
 var http = require('http')
 
@@ -17,6 +22,7 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
   t.plan(9)
 
   resetAgent(function (data) {
+    t.comment('transport received one event...')
     assert(t, data)
     server.close()
   })
@@ -27,16 +33,20 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
     t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
+    t.comment('attempt to send transaction...')
     addEndedTransaction.apply(this, arguments)
     t.equal(agent._transport._writes.length, 1, 'should send transaction')
   }
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
+      t.comment('aborting client request...')
       clientReq.abort()
       setTimeout(function () {
+        t.comment('writing to response stream...')
         res.write('Hello') // server emits clientError if written in same tick as abort
         setTimeout(function () {
+          t.comment('writing to and attempting to end response stream...')
           res.end(' World')
         }, 10)
       }, 10)
