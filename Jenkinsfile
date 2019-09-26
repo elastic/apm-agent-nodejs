@@ -91,7 +91,7 @@ pipeline {
               }
               */
               // Windows
-              parallelTasks['Windows-Node.js-10'] = generateStepForWindows(version: '10')
+              parallelTasks['Windows-Node.js-10'] = generateStepForWindows(version: '10.16.3')
 
               parallel(parallelTasks)
             }
@@ -441,6 +441,8 @@ def generateStepForWindows(Map params = [:]){
     node('windows-2019-immutable'){
       try {
         env.HOME = "${WORKSPACE}"
+        // When installing with choco the PATH might not be updated within the already connected worker.
+        env.PATH = "${PATH};C:\\Program Files\\nodejs"
         if (disableAsyncHooks) {
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
         }
@@ -451,7 +453,7 @@ def generateStepForWindows(Map params = [:]){
             .\\test\\script\\appveyor\\install-redis.ps1
             .\\test\\script\\appveyor\\install-elasticsearch.ps1
             .\\test\\script\\appveyor\\install-cassandra.ps1
-            Install-Product node ${version}
+            & choco install nodejs --no-progress -y --version ${version}
           """
           bat 'npm install'
           bat 'node test/test.js'
