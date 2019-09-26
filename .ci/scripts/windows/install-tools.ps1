@@ -2,7 +2,7 @@
 $ErrorActionPreference = "Stop"
 
 Write-Host "Installing Nodejs..."
-& choco install nodejs --no-progress -y --version %VERSION%
+& choco install nodejs --no-progress -y --version "$env:VERSION"
 
 Write-Host "Installing Docker..."
 & choco install docker-desktop --no-progress -y
