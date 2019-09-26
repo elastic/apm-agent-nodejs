@@ -783,3 +783,12 @@ module.exports = {
   serverUrl: ''
 }
 ----
+
+[[breakdown-metrics]]
+==== `breakdownMetrics`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_BREAKDOWN_METRICS`
+
+Used to disable reporting of breakdown metrics which records self time spent in each unique type of span.
