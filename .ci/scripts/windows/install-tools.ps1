@@ -1,12 +1,13 @@
 # Abort with non zero exit code on errors
 $ErrorActionPreference = "Stop"
 
+Get-ChildItem Env: | Sort Name | Format-Table -Wrap -AutoSize
+
 Write-Host "Installing Nodejs..."
 & choco install nodejs --no-progress -y --version "$env:VERSION"
 
-Write-Host "Installing Docker..."
-& choco install docker-desktop --no-progress -y
+Write-Host "Installing docker-compose..."
+choco install docker-compose --no-progress -y
 
-Get-ChildItem Env: | Sort Name | Format-Table -Wrap -AutoSize
 & refreshenv
 Get-ChildItem Env: | Sort Name | Format-Table -Wrap -AutoSize
