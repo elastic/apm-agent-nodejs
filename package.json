@@ -92,7 +92,7 @@
     "object-filter-sequence": "^1.0.0",
     "object-identity-map": "^1.0.2",
     "original-url": "^1.2.3",
-    "read-pkg-up": "^6.0.0",
+    "read-pkg-up": "^7.0.0",
     "redact-secrets": "^1.0.0",
     "relative-microtime": "^2.0.0",
     "require-ancestors": "^1.0.0",
