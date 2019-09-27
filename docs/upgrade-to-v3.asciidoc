@@ -29,7 +29,7 @@ This means that calls to for instance <<apm-start-transaction,`apm.startTransact
 ==== API changes
 
 The `type` associated with transactions and spans is no longer dot-separated.
-Instead the `type` property have been split into three distinct properties: `type`, `subtype`, and `action`.
+Instead the `type` property has been split into three distinct properties: `type`, `subtype`, and `action`.
 This has resulted in changes to the following API's:
 
 - <<apm-start-transaction,`apm.startTransaction()`>>: Function arguments changed
@@ -44,4 +44,4 @@ This has resulted in changes to the following API's:
 When instrumenting a GraphQL server that is run by either https://www.npmjs.com/package/apollo-server-express[`apollo-server-express`] or https://www.npmjs.com/package/express-graphql[`express-graphql`],
 the Transaction type is now `graphql` instead of `request`.
 
-All Spans whos type was previously `ext` is now `external`.
+All Spans whose type was previously `ext` is now `external`.
