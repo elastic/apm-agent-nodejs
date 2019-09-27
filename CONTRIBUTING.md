@@ -135,5 +135,5 @@ If you have access to make releases, the process is as follows:
 1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
 1. Run tests with `npm test`
 1. Push commits and tags upstream with `git push upstream <major_branch> && git push upstream --tags` (and optionally to your own fork as well)
-1. Publish to npm with `npm publish`
+1. Publish to npm with `npm publish --tag v2` (where `v2` is the tag for the past major version being published)
 1. Make a PR against `master` containing the updates to `CHANGELOG.md` so that `master` always contain information about all releases
