@@ -10,6 +10,7 @@ agent.logger.error = agent.logger.fatal
 var http = require('http')
 
 var test = require('tape')
+var eventDebug = require('event-debug')
 
 var assert = require('./_assert')
 var mockClient = require('../../../_mock_http_client')
@@ -21,10 +22,13 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
   var clientReq
   t.plan(9)
 
+  t.on('end', function () {
+    server.close()
+  })
+
   resetAgent(function (data) {
     t.comment('transport received one event...')
     assert(t, data)
-    server.close()
   })
 
   t.equal(agent._transport._writes.length, 0, 'should not have any samples to begin with')
@@ -39,6 +43,8 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
   }
 
   var server = http.createServer(function (req, res) {
+    eventDebug(req, 'server req')
+    eventDebug(res, 'server res')
     setTimeout(function () {
       t.comment('aborting client request...')
       clientReq.abort()
@@ -56,8 +62,10 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
   server.listen(function () {
     var port = server.address().port
     clientReq = get('http://localhost:' + port, function (res) {
+      eventDebug(res, 'client res')
       t.fail('should not call http.get callback')
     })
+    eventDebug(clientReq, 'client req')
     clientReq.on('error', function (err) {
       t.equal(err.code, 'ECONNRESET', 'client request should emit ECONNRESET error')
     })
