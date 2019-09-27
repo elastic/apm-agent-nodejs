@@ -16,9 +16,12 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
   var clientReq
   t.plan(9)
 
+  t.on('end', function () {
+    server.close()
+  })
+
   resetAgent(function (data) {
     assert(t, data)
-    server.close()
   })
 
   t.equal(agent._transport._writes.length, 0, 'should not have any samples to begin with')
