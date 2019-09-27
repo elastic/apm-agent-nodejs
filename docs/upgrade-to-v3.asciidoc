@@ -1,0 +1,47 @@
+[[upgrade-to-v3]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrade-to-v3.html[elastic.co]
+endif::[]
+
+=== Upgrade to v3.x
+
+The following is a guide on upgrading your Node.js agent from version 2.x to version 3.x.
+
+[[v3-overview]]
+==== Overview
+
+Version 3.0.0 of the Node.js agent supports Node.js v8 (from v8.6.0 and onwards), v10, and v12.
+
+[[v3-config-options]]
+==== Config options
+
+The <<disable-instrumentations,`disableInstrumentations`>> config option now behaves differently if given the values `http` and/or `https`.
+Previously this would disable tracing of incoming and outgoing requests.
+Now this config option only deals with outgoing requests.
+To disable tracing of incoming http(s) requests, use the new <<instrument-incoming-http-requests,`instrumentIncomingHTTPRequests`>> config option.
+
+It's now possible to make use of manual instrumention while the <<instrument,`instrument`>> config option is set to `false`.
+This means that calls to for instance <<apm-start-transaction,`apm.startTransaction()`>> or <<apm-start-span,`apm.startSpan()`>> will produce transactions and spans even if `instrument` is set to `false`.
+
+[[v3-api-changes]]
+==== API changes
+
+The `type` associated with transactions and spans is no longer dot-separated.
+Instead the `type` property have been split into three distinct properties: `type`, `subtype`, and `action`.
+This has resulted in changes to the following API's:
+
+- <<apm-start-transaction,`apm.startTransaction()`>>: Function arguments changed
+- <<apm-start-span,`apm.startSpan()`>>: Function arguments changed
+- <<transaction-start-span,`transaction.startSpan()`>>: Function arguments changed
+- <<transaction-type,`transaction.type`>>: String format changed
+- <<span-type,`span.type`>>: String format changed
+
+[[v3-changes-in-collected-data]]
+==== Changes in collected data
+
+When instrumenting a GraphQL server that is run by either https://www.npmjs.com/package/apollo-server-express[`apollo-server-express`] or https://www.npmjs.com/package/express-graphql[`express-graphql`],
+the Transaction type is now `graphql` instead of `request`.
+
+All Spans whos type was previously `ext` is now `external`.
