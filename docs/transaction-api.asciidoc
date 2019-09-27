@@ -209,7 +209,7 @@ See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
 [[transaction-ids]]
 ==== `transaction.ids`
 
-[small]#Added in: #2.17.0
+[small]#Added in: v2.17.0#
 
 Produces an object containing `transaction.id` and `trace.id`.
 This enables log correlation to APM traces with structured loggers.
@@ -225,7 +225,7 @@ This enables log correlation to APM traces with structured loggers.
 [[transaction-to-string]]
 ==== `transaction.toString()`
 
-[small]#Added in: #2.17.0
+[small]#Added in: v2.17.0#
 
 Produces a string representation of the transaction to inject in log messages.
 This enables log correlation to APM traces with text-only loggers.
