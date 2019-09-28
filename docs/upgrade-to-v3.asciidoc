@@ -38,6 +38,15 @@ This has resulted in changes to the following API's:
 - <<transaction-type,`transaction.type`>>: String format changed
 - <<span-type,`span.type`>>: String format changed
 
+The following deprecated API's has been removed:
+
+- `apm.setTag()`: Replaced by <<apm-set-label,`apm.setLabel()`>>
+- `apm.addTags()`: Replaced by <<apm-add-labels,`apm.addLabels()`>>
+- `transaction.setTag()`: Replaced by <<transaction-set-label,`transaction.setLabel()`>>
+- `transaction.addTags()`: Replaced by <<transaction-add-labels,`transaction.addLabels()`>>
+- `span.setTag()`: Replaced by <<span-set-label,`span.setLabel()`>>
+- `span.addTags()`: Replaced by <<span-add-labels,`span.addLabels()`>>
+
 [[v3-changes-in-collected-data]]
 ==== Changes in collected data
 

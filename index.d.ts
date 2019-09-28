@@ -95,9 +95,7 @@ declare class Agent implements Taggable, StartSpanFn {
 
   // Context
   setLabel (name: string, value: LabelValue): boolean;
-  setTag (name: string, value: LabelValue): boolean; // Deprecated
   addLabels (labels: Labels): boolean;
-  addTags (labels: Labels): boolean; // Deprecated
   setUserContext (user: UserObject): void;
   setCustomContext (custom: object): void;
 
@@ -124,9 +122,7 @@ declare class GenericSpan implements Taggable {
 
   setType (type?: string | null, subtype?: string | null, action?: string | null): void;
   setLabel (name: string, value: LabelValue): boolean;
-  setTag (name: string, value: LabelValue): boolean; // Deprecated
   addLabels (labels: Labels): boolean;
-  addTags (labels: Labels): boolean; // Deprecated
 }
 
 declare class Transaction extends GenericSpan implements StartSpanFn {
@@ -295,9 +291,7 @@ interface PatchOptions {
 
 interface Taggable {
   setLabel (name: string, value: LabelValue): boolean;
-  setTag (name: string, value: LabelValue): boolean; // Deprecated
   addLabels (labels: Labels): boolean;
-  addTags (labels: Labels): boolean; // Deprecated
 }
 
 interface StartSpanFn {
