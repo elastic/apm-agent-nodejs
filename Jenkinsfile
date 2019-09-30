@@ -445,6 +445,10 @@ def generateStepForWindows(Map params = [:]){
         unstash 'source'
         dir(BASE_DIR) {
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
+          bat label: 'Tool versions', script: '''
+            npm --version
+            node --version
+          '''
           bat 'npm install'
           bat 'node test/test.js'
         }
