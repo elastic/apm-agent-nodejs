@@ -8,11 +8,6 @@ var agent = require('../../..').start({
   centralConfig: false
 })
 
-var semver = require('semver')
-
-// The mini-queue module beneath express-queue doesn't work before 6.x
-if (semver.lt(process.version, '6.0.0')) process.exit()
-
 var http = require('http')
 
 var express = require('express')

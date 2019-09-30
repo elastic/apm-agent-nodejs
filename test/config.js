@@ -633,36 +633,18 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 
 test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
-  var mysql2Version = require('mysql2/package.json').version
-  var wsVersion = require('ws/package.json').version
   var expressGraphqlVersion = require('express-graphql/package.json').version
 
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
-  if (semver.lt(process.version, '8.6.0')) {
-    modules.delete('restify')
-  }
-  if (semver.lt(process.version, '8.3.0')) {
-    modules.delete('http2')
-  }
   if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
     modules.delete('hapi')
   }
   if (semver.lt(process.version, '8.9.0')) {
     modules.delete('@hapi/hapi')
   }
-  if (semver.lt(process.version, '6.0.0') && semver.gte(mysql2Version, '1.6.0')) {
-    modules.delete('mysql2')
-  }
-  if (semver.lt(process.version, '8.6.0') && semver.gte(wsVersion, '7.0.0')) {
-    modules.delete('ws')
-  }
   if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
     modules.delete('express-graphql')
-  }
-  if (semver.lt(process.version, '6.0.0')) {
-    modules.delete('express-queue')
-    modules.delete('apollo-server-core')
   }
 
   function testSlice (t, name, selector) {

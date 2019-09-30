@@ -8,9 +8,6 @@ var agent = require('../../..').start({
   centralConfig: false
 })
 
-var semver = require('semver')
-if (semver.lt(process.version, '6.0.0')) process.exit()
-
 var test = require('tape')
 
 var http = require('http')

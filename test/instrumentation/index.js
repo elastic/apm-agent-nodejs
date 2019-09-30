@@ -10,7 +10,6 @@ var agent = require('../..').start({
 var EventEmitter = require('events')
 var http = require('http')
 
-var semver = require('semver')
 var test = require('tape')
 
 var mockAgent = require('./_agent')
@@ -505,12 +504,10 @@ test('bind', function (t) {
   var methods = [
     'on',
     'once',
-    'addListener'
+    'addListener',
+    'prependListener',
+    'prependOnceListener'
   ]
-
-  if (semver.satisfies(process.versions.node, '>=6')) {
-    methods.push('prependListener', 'prependOnceListener')
-  }
 
   methods.forEach(function (method) {
     t.test('does not create spans in unbound emitter with ' + method, function (t) {

@@ -37,17 +37,6 @@ RUN echo "source $NVM_DIR/nvm.sh && \
 RUN ln -fs $NVM_DIR/$(cat /tmp/version) $NVM_DIR/v$NODE_VERSION && \
     ln -fs $NVM_DIR/versions/node/$(cat /tmp/version) $NVM_DIR/versions/node/v$NODE_VERSION
 
-RUN ( [ "${NODE_VERSION%%.*}" -le 8  ] \
-  && echo "Node.js ${NODE_VERSION} - Manual install npm" \
-  && mkdir -p /npm/node_modules \
-  && npm install npm@6.9.0 \
-  && rm /usr/local/bin/npm \
-  && ln -s /npm/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm ) || exit 0
-
-RUN ( [ "${NODE_VERSION%%.*}" -gt 8  ] \
-  && echo "Node.js ${NODE_VERSION} - upgrade npm" \
-  && npm install -g npm@latest) || exit 0
-
 # test npm works properly
 RUN node --version && npm --version
 
