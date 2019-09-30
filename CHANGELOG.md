@@ -1,3 +1,13 @@
+# 3.0.0 - 2019/9/30
+  * Breaking changes:
+    * feat: allow manual instrumentation with `instrument: false` ([#1114](https://github.com/elastic/apm-agent-nodejs/pull/1114))
+    * feat: allow setting span/transaction `type`, `subtype`, and `action` separately (the behavior of the old `type` has changed) ([#1292](https://github.com/elastic/apm-agent-nodejs/pull/1292))
+    * feat: use `external` as span type instead of `ext` ([#1291](https://github.com/elastic/apm-agent-nodejs/pull/1291))
+    * refactor(graphql): use custom transaction type `graphql` for graphql requests instead of `request` ([#1245](https://github.com/elastic/apm-agent-nodejs/pull/1245))
+    * feat(http): add `instrumentIncomingHTTPRequests` config (`disableInstrumentations` now behaves differently) ([#1298](https://github.com/elastic/apm-agent-nodejs/pull/1298))
+    * chore: remove deprecated APIs ([#1413](https://github.com/elastic/apm-agent-nodejs/pull/1413))
+    * chore: drop support for older Node.js versions ([#1383](https://github.com/elastic/apm-agent-nodejs/pull/1383))
+
 # 2.17.1 - 2019/9/26
   * fix: support all falsy return values from error filters ([#1389](https://github.com/elastic/apm-agent-nodejs/pull/1389)) ([#1394](https://github.com/elastic/apm-agent-nodejs/pull/1394))
   * fix: capture all non-string http bodies ([#1376](https://github.com/elastic/apm-agent-nodejs/pull/1376)) ([#1381](https://github.com/elastic/apm-agent-nodejs/pull/1381))
