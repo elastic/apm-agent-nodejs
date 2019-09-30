@@ -442,15 +442,12 @@ def generateStepForWindows(Map params = [:]){
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {
-          powershell label: 'Install cassandra', script: ".\\.ci\\scripts\\windows\\install-cassandra.ps1"
-          powershell label: 'Install redis', script: ".\\.ci\\scripts\\windows\\install-redis.ps1"
-          powershell label: 'Install elasticsearch', script: ".\\.ci\\scripts\\windows\\install-elasticsearch.ps1"
+          //powershell label: 'Install cassandra', script: ".\\.ci\\scripts\\windows\\install-cassandra.ps1"
+          //powershell label: 'Install redis', script: ".\\.ci\\scripts\\windows\\install-redis.ps1"
+          //powershell label: 'Install elasticsearch', script: ".\\.ci\\scripts\\windows\\install-elasticsearch.ps1"
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          bat label: 'Run tests', script: '''
-            set
-            npm install
-            node test/test.js
-          '''
+          bat 'npm install'
+          bat 'node test/test.js'
         }
       } catch(e){
         error(e.toString())
