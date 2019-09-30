@@ -89,7 +89,9 @@ pipeline {
               }
               */
               // Windows
-              parallelTasks['Windows-Node.js-10'] = generateStepForWindows(version: '10.16.3')
+              node['NODEJS_VERSION'].each{ version ->
+                parallelTasks["Windows-Node.js-${version}"] = generateStepForWindows(version: version)
+              }
 
               parallel(parallelTasks)
             }
