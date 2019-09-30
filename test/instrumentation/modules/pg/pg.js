@@ -12,9 +12,6 @@ var semver = require('semver')
 var once = require('once')
 var pgVersion = require('pg/package.json').version
 
-// pg@7+ doesn't support Node.js pre 4.5.0
-if (semver.lt(process.version, '4.5.0') && semver.gte(pgVersion, '7.0.0')) process.exit()
-
 var test = require('tape')
 var pg = require('pg')
 var utils = require('./_utils')

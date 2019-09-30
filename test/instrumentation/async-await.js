@@ -5,13 +5,9 @@ var agent = require('../..').start({
   captureExceptions: false
 })
 
-var semver = require('semver')
 var test = require('tape')
 
 var ins = agent._instrumentation
-
-// async/await isn't supported in old versions of Node.js
-if (semver.lt(process.version, '7.0.0')) process.exit()
 
 var _async = require('./_async-await')
 

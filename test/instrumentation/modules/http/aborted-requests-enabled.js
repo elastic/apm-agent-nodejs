@@ -12,13 +12,16 @@ var mockClient = require('../../../_mock_http_client')
 var addEndedTransaction = agent._instrumentation.addEndedTransaction
 agent._conf.errorOnAbortedRequests = true
 
-test('client-side abort below error threshold - call end', function (t) {
+test('client-side abort below error threshold - call end', { timeout: 10000 }, function (t) {
   var clientReq
   t.plan(9)
 
+  t.on('end', function () {
+    server.close()
+  })
+
   resetAgent(function (data) {
     assert(t, data)
-    server.close()
   })
 
   t.equal(agent._transport._writes.length, 0, 'should not have any samples to begin with')

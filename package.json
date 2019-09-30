@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "2.17.0",
+  "version": "3.0.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -39,7 +39,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "6 || 8 || 9 || 10 || 11 || 12"
+    "node": "^8.6.0 || 10 || 12"
   },
   "keywords": [
     "opbeat",
@@ -91,9 +91,8 @@
     "monitor-event-loop-delay": "^1.0.0",
     "object-filter-sequence": "^1.0.0",
     "object-identity-map": "^1.0.2",
-    "object.entries": "^1.1.0",
     "original-url": "^1.2.3",
-    "read-pkg-up": "^4.0.0",
+    "read-pkg-up": "^7.0.0",
     "redact-secrets": "^1.0.0",
     "relative-microtime": "^2.0.0",
     "require-ancestors": "^1.0.0",
@@ -133,7 +132,7 @@
     "fastify": "^2.8.0",
     "finalhandler": "^1.1.2",
     "generic-pool": "^3.7.1",
-    "get-port": "^4.2.0",
+    "get-port": "^5.0.0",
     "got": "^9.6.0",
     "graphql": "^14.5.6",
     "handlebars": "^4.2.0",
@@ -143,13 +142,13 @@
     "ioredis": "^4.14.1",
     "is-my-json-valid": "^2.20.0",
     "jade": "^1.11.0",
-    "json-schema-ref-parser": "^6.1.0",
+    "json-schema-ref-parser": "^7.1.1",
     "knex": "^0.17.6",
     "koa": "^2.8.1",
     "koa-router": "^7.4.0",
     "lambda-local": "^1.6.3",
     "memcached": "^2.2.2",
-    "mimic-response": "^1.0.1",
+    "mimic-response": "^2.0.0",
     "mkdirp": "^0.5.1",
     "mongodb-core": "^3.2.7",
     "mysql": "^2.17.1",
@@ -158,7 +157,7 @@
     "numeral": "^2.0.6",
     "nyc": "^14.1.1",
     "once": "^1.4.0",
-    "p-finally": "^1.0.0",
+    "p-finally": "^2.0.1",
     "pg": "^7.12.1",
     "pug": "^2.0.4",
     "redis": "^2.8.0",
@@ -175,7 +174,7 @@
     "typescript": "^3.6.3",
     "untildify": "^4.0.0",
     "util.promisify": "^1.0.0",
-    "wait-on": "3.2.0",
+    "wait-on": "^3.3.0",
     "ws": "^7.1.2"
   },
   "greenkeeper": {
@@ -195,7 +194,7 @@
     ]
   },
   "coordinates": [
-    55.778281,
-    12.593056
+    55.6810469,
+    12.5644189
   ]
 }

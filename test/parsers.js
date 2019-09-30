@@ -3,7 +3,6 @@
 var http = require('http')
 var path = require('path')
 
-var semver = require('semver')
 var test = require('tape')
 
 var parsers = require('../lib/parsers')
@@ -396,13 +395,10 @@ test('#parseError()', function (t) {
     } catch (e) {
       parsers.parseError(e, fakeAgent, function (err, parsed) {
         t.error(err)
-        var msg = semver.lt(process.version, '0.11.0')
-          ? 'Cannot call method \'Derp\' of undefined'
-          : 'Cannot read property \'Derp\' of undefined'
         t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
         t.notOk('log' in parsed)
         t.ok('exception' in parsed)
-        t.equal(parsed.exception.message, msg)
+        t.equal(parsed.exception.message, 'Cannot read property \'Derp\' of undefined')
         t.equal(parsed.exception.type, 'TypeError')
         t.notOk('code' in parsed.exception)
         t.notOk('handled' in parsed.exception)

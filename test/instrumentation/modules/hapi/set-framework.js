@@ -11,8 +11,6 @@ const semver = require('semver')
 
 // hapi 17+ requires Node.js 8.9.0 or higher
 if (semver.lt(process.version, '8.9.0') && semver.gte(pkg.version, '17.0.0')) process.exit()
-// hapi 16.7.0+ requires Node.js 6.0.0 or higher
-if (semver.lt(process.version, '6.0.0') && semver.gte(pkg.version, '16.7.0')) process.exit()
 
 let asserts = 0
 

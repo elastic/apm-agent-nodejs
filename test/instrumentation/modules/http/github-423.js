@@ -10,12 +10,9 @@ require('../../../..').start({
 var http = require('http')
 var zlib = require('zlib')
 var fs = require('fs')
-var semver = require('semver')
-var test = require('tape')
 
-var version = require('got/package').version
-if (semver.gte(version, '9.0.0') && semver.lt(process.version, '8.3.0')) process.exit() // got@9.0.0 requires Node.js 8.3 or higher
 var got = require('got')
+var test = require('tape')
 
 var fileSize = fs.readFileSync(__filename, 'utf8').length
 

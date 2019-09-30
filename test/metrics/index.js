@@ -2,7 +2,6 @@
 
 const os = require('os')
 
-const semver = require('semver')
 const test = require('tape')
 
 const Metrics = require('../../lib/metrics')
@@ -86,6 +85,23 @@ test('reports expected metrics', function (t) {
         const rss = process.memoryUsage().rss
         t.ok(isRoughly(value, rss, 0.1), `is close to current rss (value: ${value}, rss: ${rss})`)
       },
+      'system.process.cpu.total.norm.pct': (value) => {
+        if (count === 1) {
+          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+        } else {
+          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
+        }
+      },
+      'system.process.cpu.system.norm.pct': (value) => {
+        t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+      },
+      'system.process.cpu.user.norm.pct': (value) => {
+        if (count === 1) {
+          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
+        } else {
+          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
+        }
+      },
       'nodejs.handles.active': (value) => {
         t.ok(value >= 0, 'is positive')
       },
@@ -100,26 +116,6 @@ test('reports expected metrics', function (t) {
       },
       'nodejs.memory.heap.used.bytes': (value) => {
         t.ok(value >= 0, 'is positive')
-      }
-    }
-
-    if (semver.satisfies(process.versions.node, '>=6.1')) {
-      metrics['system.process.cpu.total.norm.pct'] = (value) => {
-        if (count === 1) {
-          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
-        } else {
-          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
-        }
-      }
-      metrics['system.process.cpu.system.norm.pct'] = (value) => {
-        t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
-      }
-      metrics['system.process.cpu.user.norm.pct'] = (value) => {
-        if (count === 1) {
-          t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
-        } else {
-          t.ok(value > 0 && value <= 1, 'is >0 and <=1')
-        }
       }
     }
 
