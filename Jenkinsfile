@@ -450,19 +450,10 @@ def generateStepForWindows(Map params = [:]){
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {
-          bat 'docker --version'
-          bat 'docker run --rm -t hello-world'
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          bat '''
-            set
-            refreshenv
+          bat label: 'Run tests', script: '''
             set
             npm install
-          '''
-          bat '''
-            set
-            refreshenv
-            set
             node test/test.js
           '''
         }
