@@ -8,4 +8,5 @@ node --version
 npm --version
 
 npm run lint
+npm run lint:commit
 npm run test:deps
