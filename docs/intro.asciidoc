@@ -7,8 +7,6 @@ endif::[]
 
 == Introduction
 
-Welcome to the APM Node.js Agent documentation.
-
 The Elastic APM Node.js Agent sends performance metrics and errors to the APM Server.
 It has built-in support for the most popular frameworks and routers,
 as well as a simple API which allows you to instrument any application.
@@ -21,25 +19,3 @@ APM Agents work in conjunction with the {apm-server-ref-v}/index.html[APM Server
 {ref}/index.html[Elasticsearch],
 and {kibana-ref}/index.html[Kibana].
 Please view the {apm-overview-ref-v}/index.html[APM Overview] for details on how these components work together. 
-
-[float]
-[[get-started]]
-=== Get started
-
-To get you off the ground, we've prepared guides for the most popular web frameworks:
-
-* <<express,Get started with Express>>
-* <<hapi,Get started with hapi>>
-* <<koa,Get started with Koa>>
-* <<restify,Get started with Restify>>
-* <<fastify,Get started with Fastify>>
-
-Alternatively, you should check out our guide for <<custom-stack,getting started with a custom Node.js stack>>.
-To get an overview of which components of your application we instrument automatically,
-use the <<supported-technologies,Supported Technologies Overview>> page.
-
-Other useful documentation includes:
-
-- <<advanced-setup,Advanced Setup and Configuration>>
-- <<api,API Reference>>
-- <<troubleshooting,Troubleshooting>>

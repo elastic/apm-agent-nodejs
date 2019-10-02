@@ -5,46 +5,15 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/advanced-setup.html[elastic.co]
 endif::[]
 
-== Setup and Configuration
+== Configuration
 
-The following pages will help you set up and configure your APM Agent.
+The following pages will help you configure your APM Agent.
 
-* <<starting-the-agent>>
 * <<configuring-the-agent>>
 ** <<agent-configuration-object>>
 ** <<agent-configuration-file>>
 * <<es-modules>>
 * <<configuration>>
-
-[[starting-the-agent]]
-=== Starting the agent
-
-IMPORTANT: The Elastic APM agent for Node.js needs to be started as the first thing in your application - *before any other module is required/imported*.
-This means that you should probably require and start it in your applications main file (usually `index.js`, `server.js`, or `app.js`).
-
-There are two ways to start the Elastic APM agent for Node.js:
-
-* Require the `elastic-apm-node` module and call the <<apm-start,`start`>> function on the returned agent:
-+
-[source,js]
-----
-var apm = require('elastic-apm-node').start({
-  // add configuration options here
-})
-----
-* Require the `elastic-apm-node/start` script:
-+
-[source,js]
-----
-var apm = require('elastic-apm-node/start')
-----
-+
-If using this approach,
-you can't configure the agent by passing in an options object,
-but instead have to rely on <<configuring-the-agent,one of the other methods of configuration>>.
-
-NOTE: If you are using Babel, you need to use the `elastic-apm-node/start` approach.
-<<es-modules,Read more>>.
 
 [[configuring-the-agent]]
 === Configuring the agent
@@ -141,3 +110,7 @@ import * as apm from 'elastic-apm-node/start'
 ----
 
 include::./configuration.asciidoc[]
+
+include::./custom-transactions.asciidoc[]
+
+include::./custom-spans.asciidoc[]

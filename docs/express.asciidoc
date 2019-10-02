@@ -5,16 +5,16 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/express.html[elastic.co]
 endif::[]
 
-== Get started with Express
+=== APM with Express
 
 Getting Elastic APM set up for your Express app is easy,
 and there are various ways you can tweak it to fit your needs.
 Follow the guide below to get started, and for more advanced topics,
-check out the <<api,API Reference>>.
+check out the <<api>>.
 
 [float]
 [[express-installation]]
-=== Installation
+==== Installation
 
 Add the `elastic-apm-node` module as a dependency to your application:
 
@@ -25,7 +25,7 @@ npm install elastic-apm-node --save
 
 [float]
 [[express-initialization]]
-=== Initialization
+==== Initialization
 
 It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `express`, `http`, etc.
 
@@ -61,7 +61,7 @@ The agent will now monitor the performance of your Express application and recor
 
 [float]
 [[express-advanced-configuration]]
-==== Advanced configuration
+===== Advanced configuration
 
 In the above example we initialize the agent by calling the <<apm-start,`start()`>> function.
 This function takes an optional options object used to configure the agent.
@@ -87,14 +87,14 @@ See all possible ways to configure the agent <<configuring-the-agent,in the API 
 
 [float]
 [[express-full-documentation]]
-==== Full documentation
+===== Full documentation
 
 * <<advanced-setup,Setup and Configuration>>
 * <<api,API Reference>>
 
 [float]
 [[express-performance-monitoring]]
-=== Performance monitoring
+==== Performance monitoring
 
 Elastic APM automatically measures the performance of your Express application.
 It records spans for database queries,
@@ -113,7 +113,7 @@ See the <<custom-transactions,Custom Transactions section>> for details.
 
 [float]
 [[express-unknown-routes]]
-==== Unknown routes
+===== Unknown routes
 
 When viewing the performance metrics of your application in Elastic APM,
 you might see some transactions named "unknown route".
@@ -128,7 +128,7 @@ please follow the <<troubleshooting,Troubleshooting Guide>>.
 
 [float]
 [[express-error-logging]]
-=== Error logging
+==== Error logging
 
 By default the Node.js agent will watch for uncaught exceptions and send them to Elastic APM automatically.
 But in most cases errors are not thrown but returned via a callback,
@@ -151,7 +151,7 @@ see <<apm-capture-error,the API documentation>>.
 
 [float]
 [[express-filter-sensitive-information]]
-=== Filter sensitive information
+==== Filter sensitive information
 
 By default, the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
 
@@ -168,7 +168,7 @@ use one of the <<apm-add-filter,filtering>> functions
 
 [float]
 [[express-add-your-own-data]]
-=== Add your own data
+==== Add your own data
 
 The Node.js agent will keep track of the active HTTP request and will link it to errors and recorded transaction metrics when they are sent to the Elastic APM server.
 This allows you to see details about which request resulted in a particular error or which requests cause a certain HTTP endpoint to be slow.
@@ -184,13 +184,13 @@ use one of the functions below:
 
 [float]
 [[express-compatibility]]
-=== Compatibility
+==== Compatibility
 
 See the <<supported-technologies,Supported technologies section>> for details.
 
 [float]
 [[express-troubleshooting]]
-=== Troubleshooting
+==== Troubleshooting
 
 If you can't get the Node.js agent to work as expected,
 please follow the <<troubleshooting,Troubleshooting Guide>>.

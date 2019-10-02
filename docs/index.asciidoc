@@ -1,5 +1,4 @@
-:branch: current
-:server-branch: 6.5
+include::{asciidoc-dir}/../../shared/versions/stack/current.asciidoc[]
 include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 :type-string: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]
@@ -22,41 +21,27 @@ endif::[]
 
 include::./intro.asciidoc[]
 
-include::./express.asciidoc[]
+include::./set-up.asciidoc[]
 
-include::./hapi.asciidoc[]
-
-include::./koa.asciidoc[]
-
-include::./restify.asciidoc[]
-
-include::./fastify.asciidoc[]
-
-include::./lambda.asciidoc[]
-
-include::./custom-stack.asciidoc[]
+include::./supported-technologies.asciidoc[]
 
 include::./setup.asciidoc[]
 
 include::./api.asciidoc[]
 
-include::./custom-transactions.asciidoc[]
-
-include::./custom-spans.asciidoc[]
-
 include::./metrics.asciidoc[]
-
-include::./performance-tuning.asciidoc[]
-
-include::./source-maps.asciidoc[]
 
 include::./opentracing.asciidoc[]
 
-include::./supported-technologies.asciidoc[]
+// Log correlation include will go here
 
-include::./upgrading.asciidoc[]
+include::./source-maps.asciidoc[]
+
+include::./performance-tuning.asciidoc[]
 
 include::./troubleshooting.asciidoc[]
+
+include::./upgrading.asciidoc[]
 
 include::./release-notes.asciidoc[]
 
