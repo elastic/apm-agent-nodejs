@@ -16,7 +16,7 @@ as well as a simple API which allows you to instrument any application.
 === How does the Agent work?
 
 The agent auto-instruments <<compatibility-frameworks,supported frameworks>> and records interesting events,
-like HTTP requests and database queries. To do this, it ??
+like HTTP requests and database queries. To do this, it patches modules as they are loaded to capture when module functions and callbacks are called. Additionally, there are some cases where a module will be patched to allow tracing context to be propagated through the asynchronous continuation.
 This means that for the supported technologies, there are no code changes required.
 
 The Agent automatically links module function calls to callback calls to measure their duration and metadata (like the DB statement),
