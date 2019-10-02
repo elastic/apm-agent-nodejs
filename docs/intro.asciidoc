@@ -12,6 +12,21 @@ It has built-in support for the most popular frameworks and routers,
 as well as a simple API which allows you to instrument any application.
 
 [float]
+[[how-it-works]]
+=== How does the Agent work?
+
+The agent auto-instruments <<compatibility-frameworks,supported frameworks>> and records interesting events,
+like HTTP requests and database queries. To do this, it ??
+This means that for the supported technologies, there are no code changes required.
+
+The Agent automatically ... to measure their duration and metadata (like the DB statement),
+as well as HTTP related information (like the URL, parameters, and headers).
+
+These events, called Transactions and Spans, are sent to the APM Server.
+The APM Server converts them to a format suitable for Elasticsearch, and sends them to an Elasticsearch cluster.
+You can then use the APM app in Kibana to gain insight into latency issues and error culprits within your application.
+
+[float]
 [[additional-components]]
 === Additional Components
 
