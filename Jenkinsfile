@@ -2,7 +2,7 @@
 @Library('apm@current') _
 
 pipeline {
-  agent any
+  agent { label 'immutable' }
   environment {
     REPO = 'apm-agent-nodejs'
     BASE_DIR = "src/github.com/elastic/${env.REPO}"
@@ -38,7 +38,6 @@ pipeline {
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'immutable' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
@@ -59,7 +58,6 @@ pipeline {
       Run tests.
     */
     stage('Test') {
-      agent { label 'docker && immutable' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
