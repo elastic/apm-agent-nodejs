@@ -19,7 +19,7 @@ The agent auto-instruments <<compatibility-frameworks,supported frameworks>> and
 like HTTP requests and database queries. To do this, it ??
 This means that for the supported technologies, there are no code changes required.
 
-The Agent automatically ... to measure their duration and metadata (like the DB statement),
+The Agent automatically links module function calls to callback calls to measure their duration and metadata (like the DB statement),
 as well as HTTP related information (like the URL, parameters, and headers).
 
 These events, called Transactions and Spans, are sent to the APM Server.
