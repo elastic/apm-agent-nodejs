@@ -33,7 +33,7 @@ include::./metrics.asciidoc[]
 
 include::./opentracing.asciidoc[]
 
-// Log correlation include will go here
+include::./log-correlation.asciidoc[]
 
 include::./source-maps.asciidoc[]
 
