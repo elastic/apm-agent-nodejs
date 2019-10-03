@@ -1,3 +1,6 @@
+# 2.17.2 - 2019/10/2
+  * chore(http): workaround(s) to suppress DEP0066 warnings ([#1417](https://github.com/elastic/apm-agent-nodejs/pull/1417)) ([#1424](https://github.com/elastic/apm-agent-nodejs/pull/1424))
+
 # 2.17.1 - 2019/9/26
   * fix: support all falsy return values from error filters ([#1389](https://github.com/elastic/apm-agent-nodejs/pull/1389)) ([#1394](https://github.com/elastic/apm-agent-nodejs/pull/1394))
   * fix: capture all non-string http bodies ([#1376](https://github.com/elastic/apm-agent-nodejs/pull/1376)) ([#1381](https://github.com/elastic/apm-agent-nodejs/pull/1381))
