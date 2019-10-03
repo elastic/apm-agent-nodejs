@@ -96,7 +96,6 @@ pipeline {
       Run TAV tests.
     */
     stage('TAV Test') {
-      agent { label 'linux && immutable' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
