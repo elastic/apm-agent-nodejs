@@ -5,7 +5,7 @@ module.exports = (moduleName) => {
     serviceName: 'test',
     secretToken: 'test',
     captureExceptions: false,
-    logLevel: 'fatal',
+    logLevel: 'silent',
     metricsInterval: 0,
     centralConfig: false
   })

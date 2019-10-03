@@ -78,7 +78,8 @@ var truthyValues = [true, 'true']
 optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
     var bool = typeof fixture[2] === 'boolean'
-    var url = fixture[0] === 'serverUrl' // special case for url's so they can be parsed using url.parse()
+    var url = fixture[0] === 'serverUrl' // special case for url's so they can be parsed using new url.URL()
+    var logLevel = fixture[0] === 'logLevel' // special case for logLevel so the value is valid for pino
     var number = typeof fixture[2] === 'number'
     var array = Array.isArray(fixture[2])
     var envName = 'ELASTIC_APM_' + fixture[1]
@@ -91,6 +92,7 @@ optionFixtures.forEach(function (fixture) {
       if (bool) value = !fixture[2]
       else if (number) value = 1
       else if (url) value = 'http://custom-value'
+      else if (logLevel) value = 'silent'
       else value = 'custom-value'
 
       process.env[envName] = value.toString()
@@ -126,6 +128,9 @@ optionFixtures.forEach(function (fixture) {
       } else if (url) {
         value1 = 'http://overwriting-value'
         value2 = 'http://custom-value'
+      } else if (logLevel) {
+        value1 = 'fatal'
+        value2 = 'error'
       } else {
         value1 = 'overwriting-value'
         value2 = 'custom-value'
@@ -446,7 +451,7 @@ test('serviceName defaults to package name', function (t) {
         action: 'create',
         path: path.join(tmp, 'index.js'),
         contents: `
-          var apm = require('elastic-apm-node').start()
+          var apm = require('elastic-apm-node').start({ logLevel: 'silent' })
           console.log(JSON.stringify(apm._conf))
         `
       },

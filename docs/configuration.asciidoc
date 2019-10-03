@@ -353,7 +353,7 @@ Note that this does not have any influence on the types of errors that are sent 
 This only controls how chatty the agent is in your logs.
 This only applies when not using a custom logger.
 
-Possible levels are: `trace`, `debug`, `info`, `warn`, `error`, and `fatal`.
+Possible levels are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, and `silent`.
 
 [[logger]]
 ==== `logger`

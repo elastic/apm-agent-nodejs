@@ -5,8 +5,8 @@ var Metrics = require('../../lib/metrics')
 var Instrumentation = require('../../lib/instrumentation')
 var mockClient = require('../_mock_http_client')
 
-var consoleLogLevel = require('console-log-level')
 var Filters = require('object-filter-sequence')
+var pino = require('pino')
 
 var noop = function () {}
 var sharedInstrumentation
@@ -23,8 +23,8 @@ module.exports = function mockAgent (expected, cb) {
     _transactionFilters: new Filters(),
     _spanFilters: new Filters(),
     _transport: mockClient(expected, cb || noop),
-    logger: consoleLogLevel({
-      level: 'fatal'
+    logger: pino({
+      level: 'silent'
     }),
     setFramework: function () {}
   }

@@ -8,7 +8,7 @@ var agent = require('../../').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
-  logLevel: 'fatal'
+  logLevel: 'silent'
 })
 
 test('source map inlined', function (t) {

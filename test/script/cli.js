@@ -276,7 +276,7 @@ var transactionTest = function () {
 }
 
 var test = function (suite, opts) {
-  opts.logLevel = 'fatal'
+  opts.logLevel = 'silent'
   opts.captureExceptions = false
   agent.start(opts)
 
