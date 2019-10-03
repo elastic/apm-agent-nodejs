@@ -1,3 +1,5 @@
+:framework: custom Node.js
+
 [[custom-stack]]
 
 ifdef::env-github[]
@@ -7,17 +9,12 @@ endif::[]
 
 === APM with a custom Node.js stack
 
-Getting Elastic APM set up for your Node.js app is easy,
-and there are various ways you can tweak it to fit your needs.
+include::./shared-set-up.asciidoc[tag=introduction]
 
-If you are using either Express, hapi, Koa, Restify, Fastify, or AWS Lambda
+If you are using Express, hapi, Koa, Restify, Fastify, or AWS Lambda,
 we recommend that you read these articles instead:
 
-// This pulls in the "web-frameworks-list" from set-up.asciidoc
 include::set-up.asciidoc[tag=web-frameworks-list]
-
-For a custom Node.js app, follow the guide below to get started.
-For more advanced topics, check out the <<api,API Reference>>.
 
 [float]
 [[custom-stack-installation]]
@@ -62,27 +59,7 @@ The agent will now monitor the performance of your application and record any un
 [[custom-stack-advanced-configuration]]
 ===== Advanced configuration
 
-In the above example we initialize the agent by calling the <<apm-start,`start()`>> function.
-This function takes an optional options object used to configure the agent.
-Any option not supplied via the options object can instead be configured using environment variables.
-So if you prefer, you can set the same configuration options using environment variables:
-
-[source,bash]
-----
-ELASTIC_APM_SERVICE_NAME=<service name>
-ELASTIC_APM_SECRET_TOKEN=<token>
-ELASTIC_APM_SERVER_URL=<server url>
-----
-
-And then just start the agent like so:
-
-[source,js]
-----
-// Start the agent before any thing else in your app
-var apm = require('elastic-apm-node').start()
-----
-
-See all possible ways to configure the agent <<configuring-the-agent,in the API documentation>>.
+include::./shared-set-up.asciidoc[tag=advanced-configuration]
 
 [float]
 [[custom-stack-full-documentation]]
@@ -95,20 +72,7 @@ See all possible ways to configure the agent <<configuring-the-agent,in the API 
 [[custom-stack-performance-monitoring]]
 ==== Performance monitoring
 
-Elastic APM automatically measures the performance of your application.
-It records spans for database queries,
-external HTTP requests,
-and other slow operations that happen during requests to your app.
-
-By default, the agent will instrument <<supported-technologies,the most common modules>>.
-To instrument other events,
-you can use custom spans.
-For information about custom spans,
-see the <<custom-spans,Custom Spans section>>.
-
-Spans are grouped in transactions - by default one for each incoming HTTP request.
-But it's possible to create custom transactions not associated with an HTTP request.
-See the <<custom-transactions,Custom Transactions section>> for details.
+include::./shared-set-up.asciidoc[tag=performance-monitoring]
 
 [float]
 [[custom-stack-route-naming]]
@@ -167,40 +131,13 @@ http.createServer(function (req, res) {
 [[custom-stack-unknown-routes]]
 ===== Unknown routes
 
-When viewing the performance metrics of your application in Elastic APM,
-you might see some transactions named "unknown route".
-This indicates that the Elastic APM Node.js agent detected an incoming HTTP request to your application,
-but didn't know what to name it.
-
-This might simply be 404 requests,
-which by definition don't match any route,
-or it might be a symptom that the agent wasn't installed correctly.
-Make sure we either support your router or that you <<custom-stack-route-naming,manually name your routes>>.
-If you still can't get any meaningful metrics to show up,
-please follow the <<troubleshooting,Troubleshooting Guide>>.
+include::./shared-set-up.asciidoc[tag=unknown-roots]
 
 [float]
 [[custom-stack-error-logging]]
 ==== Error logging
 
-By default the Node.js agent will watch for uncaught exceptions and send them to Elastic APM automatically.
-But in most cases errors are not thrown but returned via a callback,
-caught by a promise,
-or simply manually created.
-Those errors will not automatically be sent to Elastic APM.
-To manually send an error to Elastic APM,
-simply call `apm.captureError()` with the error:
-
-[source,js]
-----
-var err = new Error('Ups, something broke!')
-
-apm.captureError(err)
-----
-
-For advanced logging of errors,
-including adding extra metadata to the error,
-see <<apm-capture-error,the API documentation>>.
+include::./shared-set-up.asciidoc[tag=error-logging]
 
 [float]
 [[custom-stack-middleware-error-handler]]
@@ -238,44 +175,22 @@ app.use(function (err, req, res, next) {
 [[custom-stack-filter-sensitive-information]]
 ==== Filter sensitive information
 
-By default, the Node.js agent will filter common sensitive information before sending errors and metrics to the Elastic APM server.
-
-It's possible for you to tweak these defaults or remove any information you don't want to send to Elastic APM:
-
-* By default the Node.js agent will not log the body of HTTP requests.
-To enable this,
-use the <<capture-body,`captureBody`>> config option
-* By default the Node.js agent will filter certain HTTP headers known to contain sensitive information.
-To disable this,
-use the <<filter-http-headers,`filterHttpHeaders`>> config option
-* To apply custom filters,
-use one of the <<apm-add-filter,filtering>> functions
+include::./shared-set-up.asciidoc[tag=filter-sensitive-info]
 
 [float]
 [[custom-stack-add-your-own-data]]
 ==== Add your own data
 
-The Node.js agent will keep track of the active HTTP request and will link it to errors and recorded transaction metrics when they are sent to the Elastic APM server.
-This allows you to see details about which request resulted in a particular error or which requests cause a certain HTTP endpoint to be slow.
-
-But in many cases,
-information about the HTTP request itself isn't enough.
-To add even more metadata to errors and transactions,
-use one of the functions below:
-
-* <<apm-set-user-context,`apm.setUserContext()`>> - Call this to enrich collected performance data and errors with information about the user/client
-* <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors (this data is only stored, but not indexed in Elasticsearch)
-* <<apm-set-label,`apm.setLabel()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (labels are indexed in Elasticsearch)
+include::./shared-set-up.asciidoc[tag=add-your-own-data]
 
 [float]
 [[custom-stack-compatibility]]
 ==== Compatibility
 
-See the <<supported-technologies,Supported technologies section>> for details.
+include::./shared-set-up.asciidoc[tag=compatibility-link]
 
 [float]
 [[custom-stack-troubleshooting]]
 ==== Troubleshooting
 
-If you can't get the Node.js agent to work as expected,
-please follow the <<troubleshooting,Troubleshooting Guide>>.
+include::./shared-set-up.asciidoc[tag=troubleshooting-link]

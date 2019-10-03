@@ -3,6 +3,15 @@
 // You can search for the tag name to determine where the content is used.
 // -----------------------------------------------------------------
 
+// tag::introduction[]
+Getting Elastic APM set up for your {framework} app is easy,
+and there are various ways you can tweak it to fit your needs.
+Follow the guide below to get started, and for more advanced topics,
+check out the <<api,API Reference>>.
+// end::introduction[]
+
+// -----------------------------------------------------------------
+
 // Advanced configuration
 // tag::advanced-configuration[]
 In the above example we initialize the agent by calling the <<apm-start,`start()`>> function.

@@ -9,10 +9,7 @@ endif::[]
 
 === APM with Koa
 
-Getting Elastic APM set up for your Koa app is easy,
-and there are various ways you can tweak it to fit your needs.
-Follow the guide below to get started, and for more advanced topics,
-check out the <<api,API Reference>>.
+include::./shared-set-up.asciidoc[tag=introduction]
 
 Koa doesn't have a built-in router,
 so we can't support Koa directly since we rely on router information for full support.
