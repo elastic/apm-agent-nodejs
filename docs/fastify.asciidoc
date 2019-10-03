@@ -7,7 +7,7 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/fastify.html[elastic.co]
 endif::[]
 
-=== APM with Fastify
+=== Get started with Fastify
 
 Getting Elastic APM set up for your Fastify app is easy,
 and there are various ways you can tweak it to fit your needs.
