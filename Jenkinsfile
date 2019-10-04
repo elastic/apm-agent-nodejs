@@ -431,8 +431,10 @@ def generateStepForWindows(Map params = [:]){
     node('windows-2019-docker-immutable'){
       try {
         env.HOME = "${WORKSPACE}"
+        // Ensure the JDK is the one installed
+        env.JAVA_HOME = 'C:\\jdk8'
         // When installing with choco the PATH might not be updated within the already connected worker.
-        env.PATH = "${PATH};C:\\Program Files\\nodejs"
+        env.PATH = "${env.JAVA_HOME}\\bin;${PATH};C:\\Program Files\\nodejs"
         env.VERSION = "${version}"
         if (disableAsyncHooks) {
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
@@ -440,10 +442,10 @@ def generateStepForWindows(Map params = [:]){
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {
+          powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
           //powershell label: 'Install cassandra', script: ".\\.ci\\scripts\\windows\\install-cassandra.ps1"
           //powershell label: 'Install redis', script: ".\\.ci\\scripts\\windows\\install-redis.ps1"
           //powershell label: 'Install elasticsearch', script: ".\\.ci\\scripts\\windows\\install-elasticsearch.ps1"
-          powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
           bat label: 'Tool versions', script: '''
             npm --version
             node --version
