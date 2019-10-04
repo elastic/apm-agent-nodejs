@@ -4,6 +4,8 @@ $ErrorActionPreference = "Stop"
 Write-Host "Installing Elasticsearch..."
 & choco install elasticsearch --no-progress -y --version=6.7.0
 
+refreshenv
+
 Write-Host "Starting Elasticsearch service..."
 & elasticsearch-service.bat start
 
