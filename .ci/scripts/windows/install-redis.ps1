@@ -3,11 +3,13 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "Preparing to download and install Redis..." -ForegroundColor Cyan
 $redisVersion = "2.8.19"
-$redisRoot = "$env:SYSTEMDRIVE\Redis"
+$redisRoot = "$env:SYSTEMDRIVE"
 $zipPath = "$($env:USERPROFILE)\redis-$redisVersion.zip"
 $downloadUrl = "https://github.com/MSOpenTech/redis/releases/download/win-$redisVersion/redis-$redisVersion.zip"
 
 Write-Host "Downloading Redis..." -ForegroundColor Cyan
+# Fixes: The request was aborted: Could not create SSL/TLS secure
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 (New-Object Net.WebClient).DownloadFile($downloadUrl, $zipPath)
 7z x $zipPath -y -o"$redisRoot" | Out-Null
 del $zipPath
