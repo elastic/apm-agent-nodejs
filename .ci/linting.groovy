@@ -2,7 +2,7 @@
 @Library('apm@current') _
 
 pipeline {
-  agent { label 'docker && immutable' }
+  agent { label 'linux && immutable' }
   environment {
     HOME = "${env.WORKSPACE}"
   }
