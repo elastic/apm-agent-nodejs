@@ -7,5 +7,8 @@ $Version = $(choco list nodejs --by-id-only --all) | Select-String -Pattern "nod
 Write-Host "Installing Nodejs..."
 & choco install nodejs --no-progress -y --version "$Version"
 
+Write-Host "Uninstalling JDK8..."
+& choco uninstall jdk8 --no-progress -y --force --ignore-detected-reboot
+
 Write-Host "Installing JDK8..."
 & choco install jdk8 --no-progress -y --force --ignore-detected-reboot -params 'installdir=c:\\java'
