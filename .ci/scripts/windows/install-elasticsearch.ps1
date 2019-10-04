@@ -12,6 +12,8 @@ Write-Host "Environment..." -ForegroundColor Cyan
 Get-ChildItem Env: | Sort Name | Format-Table -Wrap -AutoSize
 
 Write-Host "Downloading Elasticsearch..."
+# Fixes: The request was aborted: Could not create SSL/TLS secure
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 (New-Object Net.WebClient).DownloadFile($downloadUrl, $zipPath)
 7z x $zipPath -y -o"$extractRoot" | Out-Null
 del $zipPath
