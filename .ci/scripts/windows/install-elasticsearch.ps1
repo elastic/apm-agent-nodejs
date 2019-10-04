@@ -5,7 +5,7 @@ Write-Host "Preparing to download and install Elasticsearch..." -ForegroundColor
 $esVersion = "7.3.2"
 $downloadUrl = "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$($esVersion)-windows-x86_64.zip"
 $zipPath = "$($env:USERPROFILE)\elasticsearch-$esVersion.zip"
-$extractRoot = "$env:SYSTEMDRIVE\Elasticsearch"
+$extractRoot = "$env:SYSTEMDRIVE"
 $esRoot = "$extractRoot\elasticsearch-$esVersion"
 [Environment]::SetEnvironmentVariable("JAVA_HOME",$null,"User")
 Write-Host "Environment..." -ForegroundColor Cyan
