@@ -443,7 +443,7 @@ def generateStepForWindows(Map params = [:]){
         unstash 'source'
         dir(BASE_DIR) {
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          //powershell label: 'Install cassandra', script: ".\\.ci\\scripts\\windows\\install-cassandra.ps1"
+          powershell label: 'Install cassandra', script: ".\\.ci\\scripts\\windows\\install-cassandra.ps1"
           //powershell label: 'Install redis', script: ".\\.ci\\scripts\\windows\\install-redis.ps1"
           //powershell label: 'Install elasticsearch', script: ".\\.ci\\scripts\\windows\\install-elasticsearch.ps1"
           bat label: 'Tool versions', script: '''
