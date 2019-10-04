@@ -385,6 +385,16 @@ Note that if a custom logger is provided, the `logLevel` option will be ignored.
 
 Whether or not the agent should monitor for uncaught exceptions and send them to the APM Server automatically.
 
+[[log-uncaught-exceptions]]
+==== `logUncaughtExceptions`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS`
+
+By default the stack trace of uncaught exceptions is written to STDERR.
+Set this config option to `false` to turn this behaviour off.
+
 [[capture-error-log-stack-traces]]
 ==== `captureErrorLogStackTraces`
 

@@ -1,6 +1,6 @@
 'use strict'
 
-const agent = require('..').start({
+const agent = require('../..').start({
   metricsInterval: 0,
   centralConfig: false
 })
@@ -11,7 +11,7 @@ const origConsoleError = console.error
 const origCaptureErorr = agent.captureError
 const origSendError = agent._transport.sendError
 
-test('should capture uncaught exceptions', function (t) {
+test('should capture and log uncaught exceptions by default', function (t) {
   t.plan(8)
 
   t.on('end', function () {
