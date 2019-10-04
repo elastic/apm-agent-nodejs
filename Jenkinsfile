@@ -84,7 +84,7 @@ def generateStepForWindows(Map params = [:]){
       try {
         env.HOME = "${WORKSPACE}"
         // Ensure the JDK is the one installed
-        env.JAVA_HOME = 'C:\\jdk8'
+        env.JAVA_HOME = 'C:\\java'
         // When installing with choco the PATH might not be updated within the already connected worker.
         env.PATH = "${env.JAVA_HOME}\\bin;${PATH};C:\\Program Files\\nodejs"
         env.VERSION = "${version}"
