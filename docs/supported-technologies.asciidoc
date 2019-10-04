@@ -10,7 +10,7 @@ endif::[]
 Support for the Elastic APM Node.js agent follows the support schedule of Node.js itself to the end-of-life period of each version after its maintenance term.
 Versions of Node.js past their end-of-life date are not supported.
 
-image::./images/node_release_schedule.png[Node.js release schedule]
+image::./images/node_release_schedule.svg[Node.js release schedule]
 
 NOTE: The agent makes use of the experimental Node.js core API https://nodejs.org/api/async_hooks.html[Async Hooks].
 If you experience any issues related to using Async Hooks,

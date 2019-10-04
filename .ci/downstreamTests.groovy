@@ -11,7 +11,7 @@ it is need as field to store the results of the tests.
 @Field def nodeTasksGen
 
 pipeline {
-  agent any
+  agent { label 'linux && immutable' }
   environment {
     REPO = 'apm-agent-nodejs'
     BASE_DIR="src/github.com/elastic/${REPO}"
@@ -40,7 +40,6 @@ pipeline {
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'immutable' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
@@ -57,7 +56,6 @@ pipeline {
       Run TAV tests.
     */
     stage('TAV Test') {
-      agent { label 'docker && immutable' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"

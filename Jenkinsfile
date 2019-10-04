@@ -2,7 +2,7 @@
 @Library('apm@current') _
 
 pipeline {
-  agent any
+  agent { label 'linux && immutable' }
   environment {
     REPO = 'apm-agent-nodejs'
     BASE_DIR = "src/github.com/elastic/${env.REPO}"
@@ -38,7 +38,6 @@ pipeline {
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'immutable' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
@@ -59,7 +58,6 @@ pipeline {
       Run tests.
     */
     stage('Test') {
-      agent { label 'docker && immutable' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
@@ -99,7 +97,6 @@ pipeline {
       Run TAV tests.
     */
     stage('TAV Test') {
-      agent { label 'docker && immutable' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
@@ -158,7 +155,7 @@ pipeline {
       }
       parallel {
         stage('Nightly Test') {
-          agent { label 'docker && immutable' }
+          agent { label 'linux && immutable' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
           }
@@ -180,7 +177,7 @@ pipeline {
           }
         }
         stage('Nightly Test - No async hooks') {
-          agent { label 'docker && immutable' }
+          agent { label 'linux && immutable' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
           }
@@ -202,7 +199,7 @@ pipeline {
           }
         }
         stage('RC Test') {
-          agent { label 'docker && immutable' }
+          agent { label 'linux && immutablee' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
           }
@@ -224,7 +221,7 @@ pipeline {
           }
         }
         stage('RC Test - No async hooks') {
-          agent { label 'docker && immutable' }
+          agent { label 'linux && immutable' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
           }
@@ -329,7 +326,7 @@ def generateStep(Map params = [:]){
   def edge = params.containsKey('edge') ? params.edge : false
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
-    node('docker && linux && immutable'){
+    node('linux && immutable'){
       try {
         env.HOME = "${WORKSPACE}"
         if (disableAsyncHooks) {
@@ -406,7 +403,7 @@ def getSmartTAVContext() {
 
  def linting(){
    return {
-    node('docker && linux && immutable') {
+    node('linux && immutable') {
       catchError(stageResult: 'UNSTABLE', message: 'Linting failures') {
         withGithubNotify(context: 'Linting') {
           deleteDir()
