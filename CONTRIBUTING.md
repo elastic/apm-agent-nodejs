@@ -117,7 +117,7 @@ If you have access to make releases, the process is as follows:
 
 1. Be sure you have checked out the `master` branch and have pulled latest changes
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
-1. Add commit messages to `CHANGELOG.md` (You may skip non-user-visible changes)
+1. Add commit messages to `CHANGELOG.asciidoc` (You may skip non-user-visible changes)
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
 1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
 1. Reset the latest major branch (`1.x`, `2.x` etc) to point to the current master, e.g. `git branch -f 3.x master`
@@ -130,10 +130,10 @@ If you have access to make releases, the process is as follows:
 
 1. Be sure you have checked out the branch associated with the major you wish to release and have pulled latest changes, e.g. `2.x`
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
-1. Add commit messages to `CHANGELOG.md` (You may skip non-user-visible changes)
+1. Add commit messages to `CHANGELOG.asciidoc` (You may skip non-user-visible changes)
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
 1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
 1. Run tests with `npm test`
 1. Push commits and tags upstream with `git push upstream <major_branch> && git push upstream --tags` (and optionally to your own fork as well)
 1. Publish to npm with `npm publish --tag v2` (where `v2` is the tag for the past major version being published)
-1. Make a PR against `master` containing the updates to `CHANGELOG.md` so that `master` always contain information about all releases
+1. Make a PR against `master` containing the updates to `CHANGELOG.asciidoc` so that `master` always contain information about all releases
