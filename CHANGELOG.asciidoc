@@ -8,14 +8,14 @@ endif::[]
 === x.x.x - YYYY/MM/DD
 
 [float]
+==== Breaking changes
+
+[float]
 ==== Features
 * Cool new feature: {pull}2526[#2526]
 
 [float]
 ==== Bug fixes
-
-[float]
-==== Breaking changes
 ////
 
 [[release-notes-3.0.0]]
@@ -54,10 +54,16 @@ endif::[]
 
 [[release-notes-2.16.2]]
 === 2.16.2 - 2019/9/3
+
+[float]
+==== Bug fixes
 * fix(lambda): handle traceparent case-insensitively {pull}1319[#1319]
 
 [[release-notes-2.16.1]]
 === 2.16.1 - 2019/8/28
+
+[float]
+==== Bug fixes
 * fix: avoid throwing when agent is in active: false mode {pull}1278[#1278]
 
 [[release-notes-2.16.0]]
@@ -170,6 +176,9 @@ endif::[]
 
 [[release-notes-2.11.0]]
 === 2.11.0 - 2019/5/3
+
+[float]
+==== Bug fixes
 * chore: rename tags to labels {pull}1019[#1019]
 
 [float]
