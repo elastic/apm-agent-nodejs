@@ -53,7 +53,7 @@ var optionFixtures = [
   ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
   ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
   ['logLevel', 'LOG_LEVEL', 'info'],
-  ['logUncaughtExceptions', 'LOG_UNCAUGHT_EXCEPTIONS', true],
+  ['logUncaughtExceptions', 'LOG_UNCAUGHT_EXCEPTIONS', false],
   ['metricsInterval', 'METRICS_INTERVAL', 30],
   ['metricsLimit', 'METRICS_LIMIT', 1000],
   ['secretToken', 'SECRET_TOKEN'],

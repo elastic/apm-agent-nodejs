@@ -389,11 +389,11 @@ Whether or not the agent should monitor for uncaught exceptions and send them to
 ==== `logUncaughtExceptions`
 
 * *Type:* Boolean
-* *Default:* `true`
+* *Default:* `false`
 * *Env:* `ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS`
 
-By default the stack trace of uncaught exceptions is written to STDERR.
-Set this config option to `false` to turn this behaviour off.
+By default the stack trace of a uncaught exception is not written to STDERR when the agent is active.
+Set this config option to `true` to have the agent write stack traces of uncaught exceptions to STDERR.
 
 [[capture-error-log-stack-traces]]
 ==== `captureErrorLogStackTraces`
