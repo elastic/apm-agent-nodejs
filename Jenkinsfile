@@ -88,7 +88,11 @@ def generateStepForWindows(Map params = [:]){
         unstash 'source'
         dir(BASE_DIR) {
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          powershell label: 'Install cassandra', script: ".\\.ci\\scripts\\windows\\install-cassandra.ps1"
+          bat label: 'Run cassandra', script: '''
+            cd .ci/scripts/windows/docker/cassandra
+            docker build --tag=cassandra .
+            docker run -d -p 7000:7000 -p 9042:9042 --name cassandra cassandra
+          '''
           bat label: 'Run redis', script: '''
             cd .ci/scripts/windows/docker/redis
             docker build --tag=redis .
@@ -109,10 +113,9 @@ def generateStepForWindows(Map params = [:]){
       } catch(e){
         error(e.toString())
       } finally {
-        bat label: 'Gather docker logs', returnStatus: true, script: '''
-          docker logs redis
-          docker logs elasticsearch
-        '''
+        bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
+        bat label: 'Gather elasticsearch logs', returnStatus: true, script: 'docker logs elasticsearch'
+        bat label: 'Gather redis logs', returnStatus: true, script: 'docker logs redis'
       }
     }
   }
