@@ -73,11 +73,6 @@ function mapSeries (tasks, handler, cb) {
 
 var directories = [
   'test',
-  'test/lambda',
-  'test/integration',
-  'test/integration/api-schema',
-  'test/sourcemaps',
-  'test/metrics',
   'test/instrumentation',
   'test/instrumentation/modules',
   'test/instrumentation/modules/bluebird',
@@ -91,7 +86,13 @@ var directories = [
   'test/instrumentation/modules/mysql',
   'test/instrumentation/modules/mysql2',
   'test/instrumentation/modules/pg',
-  'test/instrumentation/modules/restify'
+  'test/instrumentation/modules/restify',
+  'test/integration',
+  'test/integration/api-schema',
+  'test/lambda',
+  'test/metrics',
+  'test/sourcemaps',
+  'test/uncaught-exceptions'
 ]
 
 mapSeries(directories, readdir, function (err, directoryFiles) {
