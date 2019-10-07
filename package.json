@@ -143,7 +143,7 @@
     "is-my-json-valid": "^2.20.0",
     "jade": "^1.11.0",
     "json-schema-ref-parser": "^7.1.1",
-    "knex": "^0.17.6",
+    "knex": "^0.19.5",
     "koa": "^2.8.1",
     "koa-router": "^7.4.0",
     "lambda-local": "^1.6.3",
