@@ -6,6 +6,3 @@ $Version = $(choco list nodejs --by-id-only --all) | Select-String -Pattern "nod
 
 Write-Host "Installing Nodejs..."
 & choco install nodejs --no-progress -y --version "$Version"
-
-Write-Host "Installing JDK8..."
-& choco install adoptopenjdk8jre --no-progress -y --force -params 'installdir=c:\\java'
