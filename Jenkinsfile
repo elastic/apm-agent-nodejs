@@ -112,6 +112,12 @@ def generateStepForWindows(Map params = [:]){
             docker run -d -p 27017:27017 --name mongodb mongodb
             docker ps
           '''
+          bat label: 'Run postgres', script: '''
+            cd .ci/scripts/windows/docker/postgres
+            docker build --tag=postgres .
+            docker run -d -p 5432:5432 --name postgres postgres
+            docker ps
+          '''
           bat label: 'Tool versions', script: '''
             npm --version
             node --version
@@ -126,6 +132,7 @@ def generateStepForWindows(Map params = [:]){
         bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
         bat label: 'Gather elasticsearch logs', returnStatus: true, script: 'docker logs elasticsearch'
         bat label: 'Gather mongodb logs', returnStatus: true, script: 'docker logs mongodb'
+        bat label: 'Gather postgres logs', returnStatus: true, script: 'docker logs postgres'
         bat label: 'Gather redis logs', returnStatus: true, script: 'docker logs redis'
       }
     }
