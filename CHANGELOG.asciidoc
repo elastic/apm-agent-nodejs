@@ -22,7 +22,7 @@ endif::[]
 === 3.0.0 - 2019/9/30
 
 [float]
-==== Bug fixes
+==== Breaking changes
 * feat: allow manual instrumentation with `instrument: false` {pull}1114[#1114]
 * feat: allow setting span/transaction `type`, `subtype`, and `action` separately (the behavior of the old `type` has changed) {pull}1292[#1292]
 * feat: use `external` as span type instead of `ext` {pull}1291[#1291]
