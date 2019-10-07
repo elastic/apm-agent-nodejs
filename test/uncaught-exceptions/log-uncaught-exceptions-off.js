@@ -2,8 +2,7 @@
 
 const agent = require('../..').start({
   metricsInterval: 0,
-  centralConfig: false,
-  logUncaughtExceptions: false
+  centralConfig: false
 })
 
 const test = require('tape')
