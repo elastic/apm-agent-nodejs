@@ -18,6 +18,11 @@ endif::[]
 ==== Bug fixes
 ////
 
+[[release-notes-3.x]]
+== Node.js Agent version 3.x
+
+* <<release-notes-3.0.0>>
+
 [[release-notes-3.0.0]]
 === 3.0.0 - 2019/9/30
 
@@ -30,6 +35,47 @@ endif::[]
 * feat(http): add `instrumentIncomingHTTPRequests` config (`disableInstrumentations` now behaves differently) {pull}1298[#1298]
 * chore: remove deprecated APIs {pull}1413[#1413]
 * chore: drop support for older Node.js versions {pull}1383[#1383]
+
+[[release-notes-2.x]]
+== Node.js Agent version 2.x
+
+* <<release-notes-2.17.1>>
+* <<release-notes-2.17.0>>
+* <<release-notes-2.16.2>>
+* <<release-notes-2.16.1>>
+* <<release-notes-2.16.0>>
+* <<release-notes-2.15.0>>
+* <<release-notes-2.14.0>>
+* <<release-notes-2.13.0>>
+* <<release-notes-2.12.1>>
+* <<release-notes-2.12.0>>
+* <<release-notes-2.11.6>>
+* <<release-notes-2.11.5>>
+* <<release-notes-2.11.4>>
+* <<release-notes-2.11.3>>
+* <<release-notes-2.11.2>>
+* <<release-notes-2.11.1>>
+* <<release-notes-2.11.0>>
+* <<release-notes-2.10.0>>
+* <<release-notes-2.9.0>>
+* <<release-notes-2.8.0>>
+* <<release-notes-2.7.1>>
+* <<release-notes-2.7.0>>
+* <<release-notes-2.6.0>>
+* <<release-notes-2.5.1>>
+* <<release-notes-2.5.0>>
+* <<release-notes-2.4.0>>
+* <<release-notes-2.3.0>>
+* <<release-notes-2.2.1>>
+* <<release-notes-2.2.0>>
+* <<release-notes-2.1.0>>
+* <<release-notes-2.0.6>>
+* <<release-notes-2.0.5>>
+* <<release-notes-2.0.4>>
+* <<release-notes-2.0.3>>
+* <<release-notes-2.0.2>>
+* <<release-notes-2.0.1>>
+* <<release-notes-2.0.0>>
 
 [[release-notes-2.17.1]]
 === 2.17.1 - 2019/9/26
@@ -412,6 +458,43 @@ endif::[]
   * feat(transaction): restructure span\_count and include total {pull}553[#553]
   * perf: improve Async Hooks implementation {pull}679[#679]
 
+[[release-notes-1.x]]
+== Node.js Agent version 1.x
+
+* <<release-notes-1.14.3>>
+* <<release-notes-1.14.2>>
+* <<release-notes-1.14.1>>
+* <<release-notes-1.14.0>>
+* <<release-notes-1.13.0>>
+* <<release-notes-1.12.0>>
+* <<release-notes-1.11.0>>
+* <<release-notes-1.10.2>>
+* <<release-notes-1.10.1>>
+* <<release-notes-1.10.0>>
+* <<release-notes-1.9.0>>
+* <<release-notes-1.8.3>>
+* <<release-notes-1.8.2>>
+* <<release-notes-1.8.1>>
+* <<release-notes-1.8.0>>
+* <<release-notes-1.7.1>>
+* <<release-notes-1.7.0>>
+* <<release-notes-1.6.0>>
+* <<release-notes-1.5.4>>
+* <<release-notes-1.5.3>>
+* <<release-notes-1.5.2>>
+* <<release-notes-1.5.1>>
+* <<release-notes-1.5.0>>
+* <<release-notes-1.4.0>>
+* <<release-notes-1.3.0>>
+* <<release-notes-1.2.1>>
+* <<release-notes-1.2.0>>
+* <<release-notes-1.1.1>>
+* <<release-notes-1.1.0>>
+* <<release-notes-1.0.3>>
+* <<release-notes-1.0.2>>
+* <<release-notes-1.0.1>>
+* <<release-notes-1.0.0>>
+
 [[release-notes-1.14.3]]
 === 1.14.3 - 2018/11/13
   * fix(async\_hooks): more reliable cleanup {pull}674[#674]
@@ -586,6 +669,25 @@ endif::[]
   * refactor(protocol): rename `in_app` to `library_frame` in intake API payload {pull}96[#96]
   * refactor: rename app to service {pull}93[#93]
   * refactor: rename trace to span {pull}92[#92]
+
+[[release-notes-0.x]]
+== Node.js Agent version 0.x
+
+* <<release-notes-0.12.0>>
+* <<release-notes-0.11.0>>
+* <<release-notes-0.10.0>>
+* <<release-notes-0.9.0>>
+* <<release-notes-0.8.1>>
+* <<release-notes-0.8.0>>
+* <<release-notes-0.7.0>>
+* <<release-notes-0.6.0>>
+* <<release-notes-0.5.0>>
+* <<release-notes-0.4.0>>
+* <<release-notes-0.3.1>>
+* <<release-notes-0.3.0>>
+* <<release-notes-0.2.0>>
+* <<release-notes-0.1.1>>
+* <<release-notes-0.1.0>>
 
 [[release-notes-0.12.0]]
 === 0.12.0 - 2018/1/24
