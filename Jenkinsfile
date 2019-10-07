@@ -91,7 +91,6 @@ def generateStepForWindows(Map params = [:]){
         dir(BASE_DIR) {
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
           powershell label: 'Install cassandra', script: ".\\.ci\\scripts\\windows\\install-cassandra.ps1"
-          bat label: 'Run redis', script: 'docker run -d -p 6379:6379 redis'
           bat label: 'Run elasticsearch', script: 'docker run -d -p 9200:9200 -p 9300:9300 sixeyed/elasticsearch:nanoserver'
           bat label: 'Tool versions', script: '''
             npm --version
