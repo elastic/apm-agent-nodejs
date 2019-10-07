@@ -103,6 +103,11 @@ def generateStepForWindows(Map params = [:]){
             docker build --tag=elasticsearch .
             docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch elasticsearch
           '''
+          bat label: 'Run mongodb', script: '''
+            cd .ci/scripts/windows/docker/mongodb
+            docker build --tag=mongodb .
+            docker run -d -p 27017:27017 --name mongodb mongodb
+          '''
           bat label: 'Tool versions', script: '''
             npm --version
             node --version
@@ -115,6 +120,7 @@ def generateStepForWindows(Map params = [:]){
       } finally {
         bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
         bat label: 'Gather elasticsearch logs', returnStatus: true, script: 'docker logs elasticsearch'
+        bat label: 'Gather mongodb logs', returnStatus: true, script: 'docker logs mongodb'
         bat label: 'Gather redis logs', returnStatus: true, script: 'docker logs redis'
       }
     }
