@@ -2,7 +2,7 @@
 :pull: https://github.com/elastic/apm-server/pull/
 
 [[release-notes]]
-= Release notes
+== Release notes
 
 * <<release-notes-3.x>>
 * <<release-notes-2.x>>
