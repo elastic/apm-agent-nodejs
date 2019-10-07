@@ -92,21 +92,25 @@ def generateStepForWindows(Map params = [:]){
             cd .ci/scripts/windows/docker/cassandra
             docker build --tag=cassandra .
             docker run -d -p 7000:7000 -p 9042:9042 --name cassandra cassandra
+            docker ps
           '''
           bat label: 'Run redis', script: '''
             cd .ci/scripts/windows/docker/redis
             docker build --tag=redis .
             docker run -d -p 6379:6379 --name redis redis
+            docker ps
           '''
           bat label: 'Run elasticsearch', script: '''
             cd .ci/scripts/windows/docker/elasticsearch
             docker build --tag=elasticsearch .
             docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch elasticsearch
+            docker ps
           '''
           bat label: 'Run mongodb', script: '''
             cd .ci/scripts/windows/docker/mongodb
             docker build --tag=mongodb .
             docker run -d -p 27017:27017 --name mongodb mongodb
+            docker ps
           '''
           bat label: 'Tool versions', script: '''
             npm --version
@@ -118,6 +122,7 @@ def generateStepForWindows(Map params = [:]){
       } catch(e){
         error(e.toString())
       } finally {
+        bat label: 'Docker ps', returnStatus: true, script: 'docker ps -a'
         bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
         bat label: 'Gather elasticsearch logs', returnStatus: true, script: 'docker logs elasticsearch'
         bat label: 'Gather mongodb logs', returnStatus: true, script: 'docker logs mongodb'
