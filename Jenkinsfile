@@ -105,7 +105,7 @@ def generateStepForWindows(Map params = [:]){
         dir(BASE_DIR) {
           powershell label: 'Ping', script: "Test-Connection ${host}"
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          /**bat label: 'Run cassandra', script: '''
+          bat label: 'Run cassandra', script: '''
             cd .ci/scripts/windows/docker/cassandra
             docker build --tag=cassandra .
             docker run -d -p 7000:7000 -p 9042:9042 --name cassandra cassandra
@@ -138,7 +138,7 @@ def generateStepForWindows(Map params = [:]){
           bat label: 'Run mssql', script: '''
             docker run -d -p 1433:1433 -e sa_password=Very(!)Secure -e ACCEPT_EULA=Y --name mssql microsoft/mssql-server-windows-developer
             docker ps
-          ''', returnStatus: true */
+          ''', returnStatus: true
           bat label: 'Tool versions', script: '''
             npm --version
             node --version
@@ -150,13 +150,12 @@ def generateStepForWindows(Map params = [:]){
         error(e.toString())
       } finally {
         bat label: 'Docker ps', returnStatus: true, script: 'docker ps -a'
-        /**bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
+        bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
         bat label: 'Gather elasticsearch logs', returnStatus: true, script: 'docker logs elasticsearch'
         bat label: 'Gather mssql logs', returnStatus: true, script: 'docker logs mssql'
         bat label: 'Gather mongodb logs', returnStatus: true, script: 'docker logs mongodb'
         bat label: 'Gather postgres logs', returnStatus: true, script: 'docker logs postgres'
         bat label: 'Gather redis logs', returnStatus: true, script: 'docker logs redis'
-        */
       }
     }
   }
