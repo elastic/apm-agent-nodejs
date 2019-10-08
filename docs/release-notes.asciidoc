@@ -9,4 +9,4 @@
 * <<release-notes-1.x>>
 * <<release-notes-0.x>>
 
-include::{root-dir}/CHANGELOG.asciidoc[]
+include::{root-dir}CHANGELOG.asciidoc[]
