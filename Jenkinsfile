@@ -121,6 +121,12 @@ def generateStepForWindows(Map params = [:]){
             docker build --tag=mssql .
             docker run -d -p 1433:1433 -e sa_password='Very(!)Secure' -e ACCEPT_EULA=Y --name mssql mssql
             docker ps
+          '''
+          bat label: 'Run mysql', script: '''
+            cd .ci/scripts/windows/docker/mysql
+            docker build --tag=mysql .
+            docker run -d -p 3306:3306 --name mysql mysql
+            docker ps
           ''', returnStatus: true // TODO: for the time being
           bat label: 'Tool versions', script: '''
             npm --version
@@ -138,8 +144,9 @@ def generateStepForWindows(Map params = [:]){
         bat label: 'Docker ps', returnStatus: true, script: 'docker ps -a'
         bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
         bat label: 'Gather elasticsearch logs', returnStatus: true, script: 'docker logs elasticsearch'
-        bat label: 'Gather mssql logs', returnStatus: true, script: 'docker logs mssql'
         bat label: 'Gather mongodb logs', returnStatus: true, script: 'docker logs mongodb'
+        bat label: 'Gather mssql logs', returnStatus: true, script: 'docker logs mssql'
+        bat label: 'Gather mysql logs', returnStatus: true, script: 'docker logs mysql'
         bat label: 'Gather postgres logs', returnStatus: true, script: 'docker logs postgres'
         bat label: 'Gather redis logs', returnStatus: true, script: 'docker logs redis'
       }
