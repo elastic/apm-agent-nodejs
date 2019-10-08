@@ -1,0 +1,70 @@
+[[set-up]]
+== Set up the Agent
+
+To get you off the ground, we've prepared guides for setting up the Agent with a few different popular web frameworks:
+
+// This tagged region is used throughout the documentation to link to the framework guides
+// Updates made here will be applied elsewhere as well.
+// tag::web-frameworks-list[]
+* <<express>>
+* <<hapi>>
+* <<koa>>
+* <<restify>>
+* <<fastify>>
+* <<lambda>>
+// end::web-frameworks-list[]
+
+Alternatively, you can <<custom-stack>>.
+To see an overview of which components of your application we instrument automatically,
+use the <<supported-technologies>> page.
+
+Other useful documentation includes:
+
+* <<starting-the-agent>>
+* <<advanced-setup>>
+* <<api>>
+* <<troubleshooting>>
+
+include::./express.asciidoc[]
+
+include::./hapi.asciidoc[]
+
+include::./koa.asciidoc[]
+
+include::./restify.asciidoc[]
+
+include::./fastify.asciidoc[]
+
+include::./lambda.asciidoc[]
+
+include::./custom-stack.asciidoc[]
+
+[[starting-the-agent]]
+=== Starting the agent
+
+IMPORTANT: The Elastic APM agent for Node.js needs to be started as the first thing in your application - *before any other module is required/imported*.
+This means that you should probably require and start it in your applications main file (usually `index.js`, `server.js`, or `app.js`).
+
+There are two ways to start the Elastic APM agent for Node.js:
+
+* Require the `elastic-apm-node` module and call the <<apm-start,`start`>> function on the returned agent:
++
+[source,js]
+----
+var apm = require('elastic-apm-node').start({
+  // add configuration options here
+})
+----
+* Require the `elastic-apm-node/start` script:
++
+[source,js]
+----
+var apm = require('elastic-apm-node/start')
+----
++
+If using this approach,
+you can't configure the agent by passing in an options object,
+but instead have to rely on <<configuring-the-agent,one of the other methods of configuration>>.
+
+NOTE: If you are using Babel, you need to use the `elastic-apm-node/start` approach.
+<<es-modules,Read more>>.
