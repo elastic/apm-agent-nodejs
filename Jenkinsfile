@@ -117,15 +117,20 @@ def generateStepForWindows(Map params = [:]){
             docker ps
           '''
           bat label: 'Run mssql', script: '''
-            docker run -d -p 1433:1433 -e sa_password=Very(!)Secure -e ACCEPT_EULA=Y --name mssql microsoft/mssql-server-windows-developer
+            cd .ci/scripts/windows/docker/mssql
+            docker build --tag=mssql .
+            docker run -d -p 1433:1433 -e sa_password='Very(!)Secure' -e ACCEPT_EULA=Y --name mssql mssql
             docker ps
-          ''', returnStatus: true
+          ''', returnStatus: true // TODO: for the time being
           bat label: 'Tool versions', script: '''
             npm --version
             node --version
           '''
           bat 'npm install'
-          bat 'node test/test.js'
+          bat '''
+            docker ps
+            node test/test.js
+          '''
         }
       } catch(e){
         error(e.toString())
