@@ -57,22 +57,12 @@ pipeline {
           unstash 'source'
           dir("${BASE_DIR}"){
             script {
-              // Prepare context for running all the services in the linux agent
-              sh label: 'Run required services', script: '.ci/scripts/run-services.sh'
-              def hostService = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)
-              echo "Running services in the host: ${hostService}"
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
-              parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12', host: hostService)
+              parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12')
               parallel(parallelTasks)
             }
           }
-        }
-      }
-      post {
-        always {
-          sh label: 'Docker ps', script: 'docker ps -a || true'
-          sh label: 'Stop docker', script: "${BASE_DIR}/.ci/scripts/stop-services.sh || true"
         }
       }
     }
@@ -81,7 +71,6 @@ pipeline {
 
 def generateStepForWindows(Map params = [:]){
   def version = params?.version
-  def host = params?.host
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
     node('windows-2019-docker-immutable'){
@@ -93,17 +82,9 @@ def generateStepForWindows(Map params = [:]){
         if (disableAsyncHooks) {
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
         }
-        env.CASSANDRA_HOST = host
-        env.ES_HOST = host
-        env.MONGODB_HOST = host
-        env.MSSQL_HOST = host
-        env.MYSQL_HOST = host
-        env.PGHOST = host
-        env.REDIS_HOST = host
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {
-          powershell label: 'Ping', script: "Test-Connection ${host}"
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
           bat label: 'Run cassandra', script: '''
             cd .ci/scripts/windows/docker/cassandra
