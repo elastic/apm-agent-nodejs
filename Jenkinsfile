@@ -57,12 +57,21 @@ pipeline {
           unstash 'source'
           dir("${BASE_DIR}"){
             script {
+              // Prepare context for running all the services in the linux agent
+              sh label: 'Run required services', script: '.ci/scripts/run-services.sh'
+              def hostService = sh(label: 'Get IP', script: 'hostname -I | awk "{print $1}"', returnStdout: true)
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
-              parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12')
-
+              parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12', host: hostService)
               parallel(parallelTasks)
             }
+          }
+        }
+      }
+      post {
+        always {
+          dir("${BASE_DIR}"){
+            sh label: 'Stop docker', returnStatus: true, script: '.ci/scripts/stop-services.sh'
           }
         }
       }
@@ -72,7 +81,7 @@ pipeline {
 
 def generateStepForWindows(Map params = [:]){
   def version = params?.version
-  def edge = params.containsKey('edge') ? params.edge : false
+  def host = params?.host
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
     node('windows-2019-docker-immutable'){
@@ -84,11 +93,19 @@ def generateStepForWindows(Map params = [:]){
         if (disableAsyncHooks) {
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
         }
+        env.CASSANDRA_HOST = host
+        env.ES_HOST = host
+        env.MONGODB_HOST = host
+        env.MSSQL_HOST = host
+        env.MYSQL_HOST = host
+        env.PGHOST = host
+        env.REDIS_HOST = host
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {
+          powershell label: 'Ping', script: "Test-Connection $env:host -IPv4 -TimeoutSeconds 30"
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          bat label: 'Run cassandra', script: '''
+          /**bat label: 'Run cassandra', script: '''
             cd .ci/scripts/windows/docker/cassandra
             docker build --tag=cassandra .
             docker run -d -p 7000:7000 -p 9042:9042 --name cassandra cassandra
@@ -121,7 +138,7 @@ def generateStepForWindows(Map params = [:]){
           bat label: 'Run mssql', script: '''
             docker run -d -p 1433:1433 -e sa_password=Very(!)Secure -e ACCEPT_EULA=Y --name mssql microsoft/mssql-server-windows-developer
             docker ps
-          ''', returnStatus: true
+          ''', returnStatus: true */
           bat label: 'Tool versions', script: '''
             npm --version
             node --version
@@ -133,12 +150,13 @@ def generateStepForWindows(Map params = [:]){
         error(e.toString())
       } finally {
         bat label: 'Docker ps', returnStatus: true, script: 'docker ps -a'
-        bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
+        /**bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
         bat label: 'Gather elasticsearch logs', returnStatus: true, script: 'docker logs elasticsearch'
         bat label: 'Gather mssql logs', returnStatus: true, script: 'docker logs mssql'
         bat label: 'Gather mongodb logs', returnStatus: true, script: 'docker logs mongodb'
         bat label: 'Gather postgres logs', returnStatus: true, script: 'docker logs postgres'
         bat label: 'Gather redis logs', returnStatus: true, script: 'docker logs redis'
+        */
       }
     }
   }
