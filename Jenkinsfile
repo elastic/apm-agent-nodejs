@@ -60,6 +60,7 @@ pipeline {
               // Prepare context for running all the services in the linux agent
               sh label: 'Run required services', script: '.ci/scripts/run-services.sh'
               def hostService = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)
+              echo "Running services in the host: ${hostService}"
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
               parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12', host: hostService)
@@ -102,7 +103,7 @@ def generateStepForWindows(Map params = [:]){
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {
-          powershell label: 'Ping', script: 'Test-Connection $env:host'
+          powershell label: 'Ping', script: "Test-Connection ${host}"
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
           /**bat label: 'Run cassandra', script: '''
             cd .ci/scripts/windows/docker/cassandra
