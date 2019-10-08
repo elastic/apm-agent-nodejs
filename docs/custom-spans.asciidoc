@@ -5,7 +5,7 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-spans.html[elastic.co]
 endif::[]
 
-== Custom Spans
+=== Custom spans
 
 This is an example of how to use custom spans.
 For general information about the Elastic APM Node.js Span API,
