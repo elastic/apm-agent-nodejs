@@ -1,0 +1,68 @@
+version: '2.1'
+
+services:
+  cassandra:
+    extends:
+      file: docker-compose.yml
+      service: cassandra
+  elasticsearch:
+    extends:
+      file: docker-compose.yml
+      service: elasticsearch
+  memcached:
+    extends:
+      file: docker-compose.yml
+      service: memcached
+  mongodb:
+    extends:
+      file: docker-compose.yml
+      service: mongodb
+  mssql:
+    extends:
+      file: docker-compose.yml
+      service: mssql
+  mysql:
+    extends:
+      file: docker-compose.yml
+      service: mysql
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+  wait:
+    image: busybox
+    depends_on:
+      cassandra:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      memcached:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      mssql:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  nodepgdata:
+    driver: local
+  nodemongodata:
+    driver: local
+  nodemssqldata:
+    driver: local
+  nodemysqldata:
+    driver: local
+  nodeesdata:
+    driver: local
+  nodecassandradata:
+    driver: local

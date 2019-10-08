@@ -5,7 +5,7 @@ USER_ID="$(id -u):$(id -g)" \
 docker-compose \
   --no-ansi \
   --log-level ERROR \
-  --file .ci/docker/docker-compose.yml \
+  --file .ci/docker/docker-compose-wait.yml \
   up \
   --build \
   --remove-orphans \

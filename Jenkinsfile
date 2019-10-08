@@ -70,9 +70,8 @@ pipeline {
       }
       post {
         always {
-          dir("${BASE_DIR}"){
-            sh label: 'Stop docker', returnStatus: true, script: '.ci/scripts/stop-services.sh'
-          }
+          sh label: 'Docker ps', script: 'docker ps -a || true'
+          sh label: 'Stop docker', script: "${BASE_DIR}/.ci/scripts/stop-services.sh || true"
         }
       }
     }
@@ -103,7 +102,7 @@ def generateStepForWindows(Map params = [:]){
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {
-          powershell label: 'Ping', script: "Test-Connection $env:host -IPv4 -TimeoutSeconds 30"
+          powershell label: 'Ping', script: 'Test-Connection $env:host'
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
           /**bat label: 'Run cassandra', script: '''
             cd .ci/scripts/windows/docker/cassandra

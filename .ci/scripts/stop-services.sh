@@ -4,7 +4,7 @@ set -exo pipefail
 docker-compose \
   --no-ansi \
   --log-level ERROR \
-  --file .ci/docker/docker-compose.yml \
+  --file .ci/docker/docker-compose-wait.yml \
   logs \
   --timestamps \
   --tail=100
@@ -12,7 +12,7 @@ docker-compose \
 docker-compose \
   --no-ansi \
   --log-level ERROR \
-  --file .ci/docker/docker-compose.yml \
+  --file .ci/docker/docker-compose-wait.yml \
   down \
   --volumes \
   --remove-orphans
