@@ -59,7 +59,7 @@ pipeline {
             script {
               // Prepare context for running all the services in the linux agent
               sh label: 'Run required services', script: '.ci/scripts/run-services.sh'
-              def hostService = sh(label: 'Get IP', script: 'hostname -I | awk "{print $1}"', returnStdout: true)
+              def hostService = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
               parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12', host: hostService)
