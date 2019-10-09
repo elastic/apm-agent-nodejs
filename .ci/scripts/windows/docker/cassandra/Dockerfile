@@ -21,6 +21,7 @@ RUN Write-Host "Downloading: ${env:ROOT_URL}/${env:VERSION}/apache-cassandra-${e
 FROM openjdk:8-windowsservercore-1809
 ENV CASSANDRA_HOME="C:\cassandra"
 ENV VERSION="3.11.3"
+ENV JAVA_OPTS="-Xms256m -Xmx1024m"
 WORKDIR $CASSANDRA_HOME
 COPY --from=installer ${CASSANDRA_HOME}\apache-cassandra-${VERSION}\ .
 COPY cassandra.yaml .\conf\cassandra.yaml

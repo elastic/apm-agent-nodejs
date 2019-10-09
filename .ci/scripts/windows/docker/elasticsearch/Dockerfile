@@ -21,7 +21,7 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop';"]
 ARG ES_VERSION="6.7.2"
 ENV ES_VERSION=${ES_VERSION} `
     ES_HOME="C:\elasticsearch" `
-    ES_JAVA_OPTS="-Xms1024m -Xmx1024m"
+    ES_JAVA_OPTS="-Xms512m -Xmx512m"
 
 VOLUME C:\data
 EXPOSE 9200 9300

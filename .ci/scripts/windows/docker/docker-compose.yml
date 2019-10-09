@@ -5,9 +5,6 @@ services:
     build:
       context: cassandra
       dockerfile: Dockerfile
-    environment:
-      MAX_HEAP_SIZE: "1G"
-      HEAP_NEWSIZE: 400m
     ports:
       - "9042:9042"
       - "7000:7000"
