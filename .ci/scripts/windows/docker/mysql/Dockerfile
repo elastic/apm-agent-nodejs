@@ -14,5 +14,7 @@ COPY my.ini .
 
 HEALTHCHECK CMD [ "mysql", "-h", "127.0.0.1", "-P", "3306", "-u", "root", "-e", "SELECT 1"]
 
+# Warm up might take a bit of time... so let's touch the log file
+RUN type nul >> mysql.log
 # Keep running the container with the event logs in the stdout.
 CMD ["powershell", "Get-Content", "mysql.log", "-Wait"]
