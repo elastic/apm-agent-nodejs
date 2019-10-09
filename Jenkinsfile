@@ -86,48 +86,10 @@ def generateStepForWindows(Map params = [:]){
         unstash 'source'
         dir(BASE_DIR) {
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          bat label: 'Run cassandra', script: '''
-            cd .ci/scripts/windows/docker/cassandra
-            docker build --tag=cassandra .
-            docker run -d -p 7000:7000 -p 9042:9042 --name cassandra cassandra
-            docker ps
+          bat label: 'Run docker-compose', script: '''
+            cd .ci/scripts/windows/docker
+            docker-compose --no-ansi up --build --detach
           '''
-          bat label: 'Run redis', script: '''
-            cd .ci/scripts/windows/docker/redis
-            docker build --tag=redis .
-            docker run -d -p 6379:6379 --name redis redis
-            docker ps
-          '''
-          bat label: 'Run elasticsearch', script: '''
-            cd .ci/scripts/windows/docker/elasticsearch
-            docker build --tag=elasticsearch .
-            docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch elasticsearch
-            docker ps
-          '''
-          bat label: 'Run mongodb', script: '''
-            cd .ci/scripts/windows/docker/mongodb
-            docker build --tag=mongodb .
-            docker run -d -p 27017:27017 --name mongodb mongodb
-            docker ps
-          '''
-          bat label: 'Run postgres', script: '''
-            cd .ci/scripts/windows/docker/postgres
-            docker build --tag=postgres .
-            docker run -d -p 5432:5432 --name postgres postgres
-            docker ps
-          '''
-          bat label: 'Run mssql', script: '''
-            cd .ci/scripts/windows/docker/mssql
-            docker build --tag=mssql .
-            docker run -d -p 1433:1433 -e sa_password='Very(!)Secure' -e ACCEPT_EULA=Y --name mssql mssql
-            docker ps
-          '''
-          bat label: 'Run mysql', script: '''
-            cd .ci/scripts/windows/docker/mysql
-            docker build --tag=mysql .
-            docker run -d -p 3306:3306 --name mysql mysql
-            docker ps
-          ''', returnStatus: true // TODO: for the time being
           bat label: 'Tool versions', script: '''
             npm --version
             node --version
@@ -141,14 +103,13 @@ def generateStepForWindows(Map params = [:]){
       } catch(e){
         error(e.toString())
       } finally {
-        bat label: 'Docker ps', returnStatus: true, script: 'docker ps -a'
-        bat label: 'Gather cassandra logs', returnStatus: true, script: 'docker logs cassandra'
-        bat label: 'Gather elasticsearch logs', returnStatus: true, script: 'docker logs elasticsearch'
-        bat label: 'Gather mongodb logs', returnStatus: true, script: 'docker logs mongodb'
-        bat label: 'Gather mssql logs', returnStatus: true, script: 'docker logs mssql'
-        bat label: 'Gather mysql logs', returnStatus: true, script: 'docker logs mysql'
-        bat label: 'Gather postgres logs', returnStatus: true, script: 'docker logs postgres'
-        bat label: 'Gather redis logs', returnStatus: true, script: 'docker logs redis'
+        dir(BASE_DIR) {
+          bat label: 'Gather docker-compose logs', returnStatus: true, script: '''
+            docker ps -a
+            cd .ci/scripts/windows/docker
+            docker-compose logs --no-color --timestamps
+          '''
+        }
       }
     }
   }
