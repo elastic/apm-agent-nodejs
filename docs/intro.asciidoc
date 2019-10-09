@@ -7,11 +7,24 @@ endif::[]
 
 == Introduction
 
-Welcome to the APM Node.js Agent documentation.
-
 The Elastic APM Node.js Agent sends performance metrics and errors to the APM Server.
 It has built-in support for the most popular frameworks and routers,
 as well as a simple API which allows you to instrument any application.
+
+[float]
+[[how-it-works]]
+=== How does the Agent work?
+
+The agent auto-instruments <<compatibility-frameworks,supported frameworks>> and records interesting events,
+like HTTP requests and database queries. To do this, it patches modules as they are loaded to capture when module functions and callbacks are called. Additionally, there are some cases where a module will be patched to allow tracing context to be propagated through the asynchronous continuation.
+This means that for the supported technologies, there are no code changes required.
+
+The Agent automatically links module function calls to callback calls to measure their duration and metadata (like the DB statement),
+as well as HTTP related information (like the URL, parameters, and headers).
+
+These events, called Transactions and Spans, are sent to the APM Server.
+The APM Server converts them to a format suitable for Elasticsearch, and sends them to an Elasticsearch cluster.
+You can then use the APM app in Kibana to gain insight into latency issues and error culprits within your application.
 
 [float]
 [[additional-components]]
@@ -21,25 +34,3 @@ APM Agents work in conjunction with the {apm-server-ref-v}/index.html[APM Server
 {ref}/index.html[Elasticsearch],
 and {kibana-ref}/index.html[Kibana].
 Please view the {apm-overview-ref-v}/index.html[APM Overview] for details on how these components work together. 
-
-[float]
-[[get-started]]
-=== Get started
-
-To get you off the ground, we've prepared guides for the most popular web frameworks:
-
-* <<express,Get started with Express>>
-* <<hapi,Get started with hapi>>
-* <<koa,Get started with Koa>>
-* <<restify,Get started with Restify>>
-* <<fastify,Get started with Fastify>>
-
-Alternatively, you should check out our guide for <<custom-stack,getting started with a custom Node.js stack>>.
-To get an overview of which components of your application we instrument automatically,
-use the <<supported-technologies,Supported Technologies Overview>> page.
-
-Other useful documentation includes:
-
-- <<advanced-setup,Advanced Setup and Configuration>>
-- <<api,API Reference>>
-- <<troubleshooting,Troubleshooting>>
