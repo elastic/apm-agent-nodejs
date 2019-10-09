@@ -44,7 +44,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - ACCEPT_EULA=Y
-      - sa_password=Very(!)Secure
+      - sa_password=${SA_PASSWORD}
     ports:
       - "1433:1433"
 

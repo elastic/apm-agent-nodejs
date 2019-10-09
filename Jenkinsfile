@@ -82,6 +82,7 @@ def generateStepForWindows(Map params = [:]){
         if (disableAsyncHooks) {
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
         }
+        env.SA_PASSWORD = 'password123_'
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {

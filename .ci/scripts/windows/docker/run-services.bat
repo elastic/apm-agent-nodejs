@@ -5,7 +5,7 @@ docker run -d -p 9200:9200 -p 9300:9300 --name elasticsearch elasticsearch
 docker build --tag=mongodb mongodb/
 docker run -d -p 27017:27017 --name mongodb mongodb
 docker build --tag=mssql mssql/
-docker run -d -p 1433:1433 -e sa_password='Very(!)Secure' -e ACCEPT_EULA=Y --name mssql mssql
+docker run -d -p 1433:1433 -e sa_password=%SA_PASSWORD% -e ACCEPT_EULA=Y --name mssql mssql
 docker build --tag=mysql mysql/
 docker run -d -p 3306:3306 --name mysql mysql
 docker build --tag=postgres postgres/
