@@ -86,10 +86,9 @@ def generateStepForWindows(Map params = [:]){
         unstash 'source'
         dir(BASE_DIR) {
           powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          bat label: 'Run docker-compose', script: '''
-            cd .ci/scripts/windows/docker
-            docker-compose --no-ansi up --build --detach
-          '''
+          dir('.ci/scripts/windows/docker') {
+            bat label: 'Prepare services', script: 'run-services.bat'
+          }
           bat label: 'Tool versions', script: '''
             npm --version
             node --version
@@ -103,12 +102,8 @@ def generateStepForWindows(Map params = [:]){
       } catch(e){
         error(e.toString())
       } finally {
-        dir(BASE_DIR) {
-          bat label: 'Gather docker-compose logs', returnStatus: true, script: '''
-            docker ps -a
-            cd .ci/scripts/windows/docker
-            docker-compose logs --no-color --timestamps
-          '''
+        dir("${BASE_DIR}/.ci/scripts/windows/docker") {
+          bat label: 'Gather logs', returnStatus: true, script: 'log-services.bat'
         }
       }
     }
