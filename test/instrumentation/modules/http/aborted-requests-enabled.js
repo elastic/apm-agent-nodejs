@@ -37,12 +37,13 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
       clientReq.abort()
-      setTimeout(function () {
-        res.write('Hello') // server emits clientError if written in same tick as abort
+      res.write('sync write')
+      process.nextTick(function () {
+        res.write('nextTick write')
         setTimeout(function () {
-          res.end(' World')
+          res.end('setTimeout write')
         }, 10)
-      }, 10)
+      })
     }, (agent._conf.abortedErrorThreshold * 1000) / 2)
   })
 
