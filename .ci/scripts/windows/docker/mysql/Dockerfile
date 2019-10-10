@@ -14,5 +14,5 @@ COPY my.ini .
 
 HEALTHCHECK CMD [ "mysql", "-h", "127.0.0.1", "-P", "3306", "-u", "root", "-e", "SELECT 1"]
 
-# Keep running the container with the event logs in the stdout.
-CMD ["powershell", "Get-Content", "C:\\mysql.log", "-Wait"]
+COPY entrypoint.ps1 .
+CMD .\entrypoint
