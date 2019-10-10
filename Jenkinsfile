@@ -83,6 +83,8 @@ def generateStepForWindows(Map params = [:]){
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
         }
         env.SA_PASSWORD = 'password123_'
+        env.MYSQL_USER = 'elastic'
+        env.MYSQL_PASSWORD = 'password123_'
         deleteDir()
         unstash 'source'
         dir(BASE_DIR) {
