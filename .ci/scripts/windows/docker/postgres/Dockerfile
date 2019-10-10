@@ -12,6 +12,7 @@ RUN choco install postgresql10 --version=${env:VERSION} --params '/Password:Pass
 EXPOSE 5432
 
 COPY postgresql.conf .
+COPY pg_hba.conf .
+COPY entrypoint.ps1 .
 
-# Keep running the container with the event logs in the stdout.
-CMD ["powershell", "Get-Content", "log/postgresql.log", "-Wait"]
+CMD .\entrypoint
