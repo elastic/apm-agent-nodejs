@@ -97,7 +97,7 @@ pipeline {
       steps {
         withGithubNotify(context: 'Test-Windows', tab: 'tests') {
           script {
-            parallel(["Windows-Nodejs-12": generateStepForWindows(version: '12')])
+            generateStepForWindows(version: '12')
           }
         }
       }
