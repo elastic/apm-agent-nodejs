@@ -331,23 +331,23 @@ def generateStep(Map params = [:]){
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
     node('linux && immutable'){
-      try {
-        env.HOME = "${WORKSPACE}"
-        if (disableAsyncHooks) {
-          env.ELASTIC_APM_ASYNC_HOOKS = 'false'
-        }
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          retry(2){
-            sleep randomNumber(min:10, max: 30)
-            sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+      withEnv(["PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"]) {
+        try {
+          env.HOME = "${WORKSPACE}"
+          if (disableAsyncHooks) {
+            env.ELASTIC_APM_ASYNC_HOOKS = 'false'
           }
-        }
-      } catch(e){
-        error(e.toString())
-      } finally {
-        withEnv(["PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"]) {
+          deleteDir()
+          unstash 'source'
+          dir("${BASE_DIR}"){
+            retry(2){
+              sleep randomNumber(min:10, max: 30)
+              sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+            }
+          }
+        } catch(e){
+          error(e.toString())
+        } finally {
           docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
             sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
           }
