@@ -347,6 +347,9 @@ def generateStep(Map params = [:]){
       } catch(e){
         error(e.toString())
       } finally {
+        sh label: 'Environment', script: 'env | sort'
+        sh label: 'Gather node:12', script: 'docker pull node:12'
+        sh label: 'Run node:12', script: 'docker run --rm -t node:12 echo hi'
         docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
           sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
         }
