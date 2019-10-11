@@ -1,0 +1,688 @@
+ifdef::env-github[]
+NOTE: Release notes are best read in our documentation at
+https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes.html[elastic.co]
+endif::[]
+
+////
+[[release-notes-x.x.x]]
+==== x.x.x - YYYY/MM/DD
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+* Cool new feature: {pull}2526[#2526]
+
+[float]
+===== Bug fixes
+////
+
+[[release-notes-3.x]]
+=== Node.js Agent version 3.x
+
+[[release-notes-3.0.0]]
+==== 3.0.0 - 2019/9/30
+
+[float]
+===== Breaking changes
+* feat: allow manual instrumentation with `instrument: false` {pull}1114[#1114]
+* feat: allow setting span/transaction `type`, `subtype`, and `action` separately (the behavior of the old `type` has changed) {pull}1292[#1292]
+* feat: use `external` as span type instead of `ext` {pull}1291[#1291]
+* refactor(graphql): use custom transaction type `graphql` for graphql requests instead of `request` {pull}1245[#1245]
+* feat(http): add `instrumentIncomingHTTPRequests` config (`disableInstrumentations` now behaves differently) {pull}1298[#1298]
+* chore: remove deprecated APIs {pull}1413[#1413]
+* chore: drop support for older Node.js versions {pull}1383[#1383]
+
+[[release-notes-2.x]]
+=== Node.js Agent version 2.x
+
+[[release-notes-2.17.1]]
+==== 2.17.1 - 2019/9/26
+
+[float]
+===== Bug fixes
+* fix: support all falsy return values from error filters {pull}1389[#1389]
+* fix: capture all non-string http bodies {pull}1376[#1376]
+
+[[release-notes-2.17.0]]
+==== 2.17.0 - 2019/9/19
+
+[float]
+===== Features
+* feat: add support for @koa/router {pull}1346[#1346]
+* feat: add methods for logging trace information {pull}1335[#1335]
+
+[float]
+===== Bug fixes
+* fix: improve debug output when detecting incoming http request {pull}1357[#1357]
+* fix(http): response context propagation on Node.js 12.0 - 12.2 {pull}1339[#1339]
+
+[[release-notes-2.16.2]]
+==== 2.16.2 - 2019/9/3
+
+[float]
+===== Bug fixes
+* fix(lambda): handle traceparent case-insensitively {pull}1319[#1319]
+
+[[release-notes-2.16.1]]
+==== 2.16.1 - 2019/8/28
+
+[float]
+===== Bug fixes
+* fix: avoid throwing when agent is in active: false mode {pull}1278[#1278]
+
+[[release-notes-2.16.0]]
+==== 2.16.0 - 2019/8/26
+
+[float]
+===== Features
+* feat(memcached): instrument memcached v2.2.0 and above {pull}1144[#1144]
+* feat(config): add configFile config option {pull}1303[#1303]
+
+[float]
+===== Bug fixes
+* fix: bug where spans sometimes wouldn't have stack traces {pull}1299[#1299]
+* fix(async\_hooks): properly update sync flag {pull}1306[#1306]
+* fix: change agent active status log message to debug level {pull}1300[#1300]
+
+[[release-notes-2.15.0]]
+==== 2.15.0 - 2019/8/15
+
+[float]
+===== Features
+* feat(express-graphql): add support for v0.9 {pull}1255[#1255]
+* feat(metrics): add metricsLimit option {pull}1273[#1273]
+
+[[release-notes-2.14.0]]
+==== 2.14.0 - 2019/8/12
+
+[float]
+===== Features
+* feat(hapi): support new @hapi/hapi module {pull}1246[#1246]
+* feat: allow agent.clearPatches to be called with array of names {pull}1262[#1262]
+
+[float]
+===== Bug fixes
+* fix: be less chatty if span stack traces cannot be parsed {pull}1274[#1274]
+* perf: use for-of instead of forEach {pull}1275[#1275]
+
+[[release-notes-2.13.0]]
+==== 2.13.0 - 2019/7/30
+
+[float]
+===== Bug fixes
+* fix: standardize user-agent header {pull}1238[#1238]
+
+[float]
+===== Features
+* feat: add support for APM Agent Configuration via Kibana {pull}1197[#1197]
+* feat(metrics): breakdown graphs {pull}1219[#1219]
+* feat(config): default serviceVersion to package version {pull}1237[#1237]
+
+[[release-notes-2.12.1]]
+==== 2.12.1 - 2019/7/7
+
+[float]
+===== Bug fixes
+* fix(knex): abort early on unsupported version of knex {pull}1189[#1189]
+
+[[release-notes-2.12.0]]
+==== 2.12.0 - 2019/7/2
+
+[float]
+===== Features
+* feat(metrics): add runtime metrics {pull}1021[#1021]
+* feat(config): add environment option {pull}1106[#1106]
+
+[[release-notes-2.11.6]]
+==== 2.11.6 - 2019/6/11
+
+[float]
+===== Bug fixes
+* fix(express): don't swallow error handling middleware {pull}1111[#1111]
+
+[[release-notes-2.11.5]]
+==== 2.11.5 - 2019/5/27
+
+[float]
+===== Bug fixes
+* fix(metrics): report correct CPU usage on Linux {pull}1092[#1092]
+* fix(express): improve names for routes added via app.use() {pull}1013[#1013]
+
+[[release-notes-2.11.4]]
+==== 2.11.4 - 2019/5/27
+
+[float]
+===== Bug fixes
+* fix: don't add traceparent header to signed AWS requests {pull}1089[#1089]
+
+[[release-notes-2.11.3]]
+==== 2.11.3 - 2019/5/22
+
+[float]
+===== Bug fixes
+* fix(span): use correct logger location {pull}1081[#1081]
+
+[[release-notes-2.11.2]]
+==== 2.11.2 - 2019/5/21
+
+[float]
+===== Bug fixes
+* fix: url.parse expects req.url not req {pull}1074[#1074]
+* fix(express-slash): expose express handle properties {pull}1070[#1070]
+
+[[release-notes-2.11.1]]
+==== 2.11.1 - 2019/5/10
+
+[float]
+===== Bug fixes
+* fix(instrumentation): explicitly use `require` {pull}1059[#1059]
+* chore: add Node.js 12 to package.json engines field {pull}1057[#1057]
+
+[[release-notes-2.11.0]]
+==== 2.11.0 - 2019/5/3
+
+[float]
+===== Bug fixes
+* chore: rename tags to labels {pull}1019[#1019]
+
+[float]
+===== Features
+* feat(config): support global labels {pull}1020[#1020]
+
+[float]
+===== Bug fixes
+* fix(config): do not use ELASTIC\_APM\_ prefix for k8s {pull}1041[#1041]
+* fix(instrumentation): prevent handler leak in bindEmitter {pull}1044[#1044]
+
+[[release-notes-2.10.0]]
+==== 2.10.0 - 2019/4/15
+
+[float]
+===== Features
+* feat(express-graphql): add support for version ^0.8.0 {pull}1010[#1010]
+
+[float]
+===== Bug fixes
+* fix(package): bump elastic-apm-http-client to ^7.2.2 so Kubernetes metadata gets corrected recorded {pull}1011[#1011]
+* fix(ts): add TypeScript typings for new traceparent API {pull}1001[#1001]
+
+[[release-notes-2.9.0]]
+==== 2.9.0 - 2019/4/10
+
+[float]
+===== Features
+* feat: add traceparent getter to agent, span and transaction {pull}969[#969]
+* feat(template): add support for jade and pug {pull}914[#914]
+* feat(elasticsearch): capture more types of queries {pull}967[#967]
+* feat: sync flag on spans and transactions {pull}980[#980]
+
+[float]
+===== Bug fixes
+* fix(agent): init config/logger before usage {pull}956[#956]
+* fix: don't add response listener to outgoing requests {pull}974[#974]
+* fix(agent): fix basedir in debug mode when starting agent with -r {pull}981[#981]
+* fix: ensure Kubernetes/Docker container info is captured {pull}995[#995]
+
+[[release-notes-2.8.0]]
+==== 2.8.0 - 2019/4/2
+
+[float]
+===== Features
+* feat: add agent.setFramework() method {pull}966[#966]
+* feat(config): add usePathAsTransactionName config option {pull}907[#907]
+* feat(debug): output configuration if logLevel is trace {pull}972[#972]
+
+[float]
+===== Bug fixes
+* fix(express): transaction default name is incorrect {pull}938[#938]
+
+[[release-notes-2.7.1]]
+==== 2.7.1 - 2019/3/28
+
+[float]
+===== Bug fixes
+* fix: instrument http/https.get requests {pull}954[#954]
+* fix: don't add traceparent header to S3 requests {pull}952[#952]
+
+[[release-notes-2.7.0]]
+==== 2.7.0 - 2019/3/26
+
+[float]
+===== Features
+* feat: add patch registry {pull}803[#803]
+* feat: allow sub-modules to be patched {pull}920[#920]
+* feat: add TypeScript typings {pull}926[#926]
+
+[float]
+===== Bug fixes
+* fix: update measured-reporting to fix Windows installation issue {pull}933[#933]
+* fix(lambda): do not wrap context {pull}931[#931]
+* fix(lambda): fix cloning issues of context {pull}947[#947]
+* fix(metrics): use noop logger in metrics reporter {pull}912[#912]
+* fix(transaction): don't set transaction result if it's null {pull}936[#936]
+* fix(agent): allow flush callback to be undefined {pull}934[#934]
+* fix: handle promise rejection in case Elasticsearch client throws {pull}870[#870]
+* chore: change 'npm run' command namespaces {pull}944[#944]
+
+[[release-notes-2.6.0]]
+==== 2.6.0 - 2019/3/5
+
+[float]
+===== Features
+* feat: add support for Fastify framework {pull}594[#594]
+* feat(lambda): accept parent span in lambda wrapper {pull}881[#881]
+* feat(lambda): support promise form {pull}871[#871]
+
+[float]
+===== Bug fixes
+* fix: ensure http headers are always recorded as strings {pull}895[#895]
+* fix(metrics): prevent 0ms timers from being created {pull}872[#872]
+* fix(config): apiRequestSize should be 768kb {pull}848[#848]
+* fix(express): ensure correct transaction names {pull}842[#842]
+
+[[release-notes-2.5.1]]
+==== 2.5.1 - 2019/2/4
+
+[float]
+===== Bug fixes
+* fix(metrics): ensure NaN becomes 0, not null {pull}837[#837] 
+
+[[release-notes-2.5.0]]
+==== 2.5.0 - 2019/1/29
+
+[float]
+===== Features
+* feat(metrics): added basic metrics gathering {pull}731[#731] 
+
+[[release-notes-2.4.0]]
+==== 2.4.0 - 2019/1/24
+
+[float]
+===== Features
+* feat: add ability to set custom log message for errors {pull}824[#824]
+* feat: add ability to set custom timestamp for errors {pull}823[#823]
+* feat: add support for custom start/end times {pull}818[#818]
+
+[[release-notes-2.3.0]]
+==== 2.3.0 - 2019/1/22
+
+[float]
+===== Bug fixes
+* fix(parsers): move port fix into parser {pull}820[#820]
+* fix(mongo): support 3.1.10+ {pull}793[#793]
+
+[float]
+===== Features
+* feat(config): add captureHeaders config {pull}788[#788]
+* feat(config): add container info options {pull}766[#766]
+
+[[release-notes-2.2.1]]
+==== 2.2.1 - 2019/1/21
+
+[float]
+===== Bug fixes
+* fix: ensure request.url.port is a string on transactions {pull}814[#814]
+
+[[release-notes-2.2.0]]
+==== 2.2.0 - 2019/1/21
+
+[float]
+===== Features
+* feat(koa): record framework name and version {pull}810[#810]
+* feat(cassandra): support 4.x {pull}784[#784]
+* feat(config): validate serverUrl port {pull}795[#795]
+* feat: add transaction.type to errors {pull}805[#805]
+
+[float]
+===== Bug fixes
+* fix: filter outgoing http headers with any case {pull}799[#799]
+* fix: we don't support mongodb-core v3.1.10+ {pull}792[#792]
+
+[[release-notes-2.1.0]]
+==== 2.1.0 - 2019/1/15
+
+[float]
+===== Features
+* feat(error): include sampled flag on errors {pull}767[#767]
+* feat(span): add tags to spans {pull}757[#757]
+
+[float]
+===== Bug fixes
+* fix(tedious): don't fail on newest tedious v4.1.3 {pull}775[#775]
+* fix(graphql): fix span name for unknown queries {pull}756[#756]
+
+[[release-notes-2.0.6]]
+==== 2.0.6 - 2018/12/18
+
+[float]
+===== Bug fixes
+* fix(graphql): don't throw on invalid query {pull}747[#747]
+* fix(koa-router): support more complex routes {pull}749[#749]
+
+[[release-notes-2.0.5]]
+==== 2.0.5 - 2018/12/12
+
+[float]
+===== Bug fixes
+* fix: don't create spans for APM Server requests {pull}735[#735]
+
+[[release-notes-2.0.4]]
+==== 2.0.4 - 2018/12/7
+* chore: update engines field in package.json {pull}727[#727]
+* chore(package): bump random-poly-fill to ^1.0.1 {pull}726[#726]
+
+[[release-notes-2.0.3]]
+==== 2.0.3 - 2018/12/7
+
+[float]
+===== Bug fixes
+* fix(restify): support an array of handlers {pull}709[#709]
+* fix: don't throw on older versions of Node.js 6 {pull}711[#711]
+
+[[release-notes-2.0.2]]
+==== 2.0.2 - 2018/12/4
+
+[float]
+===== Bug fixes
+* fix: use randomFillSync polyfill on Node.js <6.13.0 {pull}702[#702]
+* fix(hapi): ignore internal events channel {pull}700[#700]
+
+[[release-notes-2.0.1]]
+==== 2.0.1 - 2018/11/26
+
+[float]
+===== Bug fixes
+* fix: log APM Server API errors correctly {pull}692[#692]
+
+[[release-notes-2.0.0]]
+==== 2.0.0 - 2018/11/14
+
+[float]
+===== Breaking changes
+* chore: remove support for Node.js 4 and 9
+* chore: remove deprecated buildSpan function {pull}642[#642]
+* feat: support APM Server intake API version 2 {pull}465[#465]
+* feat: improved filtering function API {pull}579[#579]
+* feat: replace double-quotes with underscores in tag names {pull}666[#666]
+* feat(config): change config order {pull}604[#604]
+* feat(config): support time suffixes {pull}602[#602]
+* feat(config): stricter boolean parsing {pull}613[#613]
+
+[float]
+===== Features
+  * feat: add support for Distributed Tracing {pull}538[#538]
+  * feat(transaction): add transaction.ensureParentId function {pull}661[#661]
+  * feat(config): support byte suffixes {pull}601[#601]
+  * feat(transaction): restructure span\_count and include total {pull}553[#553]
+  * perf: improve Async Hooks implementation {pull}679[#679]
+
+[[release-notes-1.x]]
+=== Node.js Agent version 1.x
+
+[[release-notes-1.14.3]]
+==== 1.14.3 - 2018/11/13
+  * fix(async\_hooks): more reliable cleanup {pull}674[#674]
+
+[[release-notes-1.14.2]]
+==== 1.14.2 - 2018/11/10
+  * fix: prevent memory leak due to potential reference cycle {pull}667[#667]
+
+[[release-notes-1.14.1]]
+==== 1.14.1 - 2018/11/8
+  * fix: promise.then() resolve point {pull}663[#663]
+
+[[release-notes-1.14.0]]
+==== 1.14.0 - 2018/11/6
+  * feat(agent): return uuid in captureError callback {pull}636[#636]
+  * feat(apollo-server-express): set custom GraphQL transaction names {pull}648[#648]
+  * feat(finalhandler): improve capturing of errors in Express {pull}629[#629]
+  * fix(http): bind writeHead to transaction {pull}637[#637]
+  * fix(shimmer): safely handle property descriptors {pull}634[#634]
+
+[[release-notes-1.13.0]]
+==== 1.13.0 - 2018/10/19
+  * feat(ioredis): add support for ioredis version 4.x {pull}516[#516]
+  * fix(ws): allow disabling WebSocket instrumentation {pull}599[#599]
+  * fix: allow flushInterval to be set from env {pull}568[#568]
+  * fix: default transactionMaxSpans to 500 {pull}567[#567]
+
+[[release-notes-1.12.0]]
+==== 1.12.0 - 2018/8/31
+  * feat(restify): add Restify instrumentation {pull}517[#517]
+  * feat(config): default serviceName to package name {pull}508[#508]
+  * fix: always call agent.flush() callback {pull}537[#537]
+
+[[release-notes-1.11.0]]
+==== 1.11.0 - 2018/8/15
+  * feat(filters): filter set-cookie headers {pull}485[#485]
+  * fix(express): cannot create property symbol {pull}510[#510]
+
+[[release-notes-1.10.2]]
+==== 1.10.2 - 2018/8/8
+  * fix: ensure logger config can update {pull}503[#503]
+  * perf: improve request body parsing speed {pull}492[#492]
+
+[[release-notes-1.10.1]]
+==== 1.10.1 - 2018/7/31
+  * fix(graphql): handle execute args object {pull}484[#484]
+
+[[release-notes-1.10.0]]
+==== 1.10.0 - 2018/7/30
+  * feat(cassandra): instrument Cassandra queries {pull}437[#437]
+  * feat(mssql): instrument SQL Server queries {pull}444[#444]
+
+[[release-notes-1.9.0]]
+==== 1.9.0 - 2018/7/25
+  * fix(parsers): use basic-auth rather than req.auth {pull}475[#475]
+  * feat(agent): add currentTransaction getter {pull}462[#462]
+  * feat: add support for ws 6.x {pull}464[#464]
+
+[[release-notes-1.8.3]]
+==== 1.8.3 - 2018/7/11
+  * perf: don't patch newer versions of mimic-response {pull}442[#442]
+
+[[release-notes-1.8.2]]
+==== 1.8.2 - 2018/7/4
+  * fix: ensure correct streaming when using mimic-response {pull}429[#429]
+
+[[release-notes-1.8.1]]
+==== 1.8.1 - 2018/6/27
+  * fix: improve ability to run in an environment with muliple APM vendors {pull}417[#417]
+
+[[release-notes-1.8.0]]
+==== 1.8.0 - 2018/6/23
+  * feat: truncate very long error messages {pull}413[#413]
+  * fix: be unicode aware when truncating body {pull}412[#412]
+
+[[release-notes-1.7.1]]
+==== 1.7.1 - 2018/6/20
+  * fix(express-queue): retain continuity through express-queue {pull}396[#396]
+
+[[release-notes-1.7.0]]
+==== 1.7.0 - 2018/6/18
+  * feat(mysql): support mysql2 module {pull}298[#298]
+  * feat(graphql): add support for the upcoming GraphQL v14.x {pull}399[#399]
+  * feat(config): add option to disable certain instrumentations {pull}353[#353]
+  * feat(http2): instrument client requests {pull}326[#326]
+  * fix: get remoteAddress before HTTP request close event {pull}384[#384]
+  * fix: improve capture of spans when EventEmitter is in use {pull}371[#371]
+
+[[release-notes-1.6.0]]
+==== 1.6.0 - 2018/5/28
+  * feat(http2): instrument incoming http2 requests {pull}205[#205]
+  * fix(agent): allow agent.endTransaction() to set result {pull}350[#350]
+
+[[release-notes-1.5.4]]
+==== 1.5.4 - 2018/5/15
+  * chore: allow Node.js 10 in package.json engines field {pull}345[#345]
+
+[[release-notes-1.5.3]]
+==== 1.5.3 - 2018/5/14
+  * fix: guard against non string err.message
+
+[[release-notes-1.5.2]]
+==== 1.5.2 - 2018/5/11
+  * fix(express): string errors should not be reported
+
+[[release-notes-1.5.1]]
+==== 1.5.1 - 2018/5/10
+  * fix: don't throw if span callsites can't be collected
+
+[[release-notes-1.5.0]]
+==== 1.5.0 - 2018/5/9
+  * feat: add agent.addTags() method {pull}313[#313]
+  * feat: add agent.isStarted() method {pull}311[#311]
+  * feat: allow calling transaction.end() with transaction result {pull}328[#328]
+  * fix: encode spans even if their stack trace can't be captured {pull}321[#321]
+  * fix(config): restore custom logger feature {pull}299[#299]
+  * fix(doc): lambda getting started had old argument {pull}296[#296]
+
+[[release-notes-1.4.0]]
+==== 1.4.0 - 2018/4/9
+  * feat(lambda): implement manual lambda instrumentation {pull}234[#234]
+
+[[release-notes-1.3.0]]
+==== 1.3.0 - 2018/3/22
+  * feat(request): include ppid {pull}286[#286]
+
+[[release-notes-1.2.1]]
+==== 1.2.1 - 2018/3/15
+  * fix(span): Do not pass stack frames into promises (memory leak fix) {pull}269[#269]
+
+[[release-notes-1.2.0]]
+==== 1.2.0 - 2018/3/13
+  * feat(config): add serverTimeout {pull}238[#238]
+  * fix(config): set default maxQueueSize to 100 {pull}270[#270]
+  * feat(ws): add support for ws v5 {pull}267[#267]
+
+[[release-notes-1.1.1]]
+==== 1.1.1 - 2018/3/4
+  * fix(mongodb): don't throw if span cannot be built {pull}265[#265]
+
+[[release-notes-1.1.0]]
+==== 1.1.0 - 2018/2/28
+  * feat: add agent.startSpan() function {pull}262[#262]
+  * feat(debug): output more debug info on start {pull}254[#254]
+
+[[release-notes-1.0.3]]
+==== 1.0.3 - 2018/2/14
+  * fix: ensure context.url.full property is truncated if too long {pull}242[#242]
+
+[[release-notes-1.0.2]]
+==== 1.0.2 - 2018/2/13
+  * fix(express): prevent invalid errors from crashing {pull}240[#240]
+
+[[release-notes-1.0.1]]
+==== 1.0.1 - 2018/2/9
+  * fix: don't add req/res to unsampled transactions {pull}236[#236]
+
+[[release-notes-1.0.0]]
+==== 1.0.0 - 2018/2/6
+  * feat(instrumentation): support sampling {pull}154[#154]
+  * feat(transaction): add `transactionMaxSpans` config option {pull}170[#170]
+  * feat(errors): add captureError call location stack trace {pull}181[#181]
+  * feat: allow setting of framework name and version {pull}228[#228]
+  * feat(protcol): add `url.full` to intake API payload {pull}166[#166]
+  * refactor(config): replace `logBody` with `captureBody` {pull}214[#214]
+  * refactor(config): unify config options with python {pull}213[#213]
+  * fix: don't collect source code for in-app span frames by default {pull}229[#229]
+  * fix(protocol): report dropped span counts in intake API payload {pull}172[#172]
+  * refactor(protocol): always include handled flag in intake API payload {pull}191[#191]
+  * refactor(protocol): move process fields to own namespace in intake API payload {pull}155[#155]
+  * refactor(protocol): rename `uncaught` to `handled` in intake API payload {pull}140[#140]
+  * refactor(protocol): rename `in_app` to `library_frame` in intake API payload {pull}96[#96]
+  * refactor: rename app to service {pull}93[#93]
+  * refactor: rename trace to span {pull}92[#92]
+
+[[release-notes-0.x]]
+=== Node.js Agent version 0.x
+
+[[release-notes-0.12.0]]
+==== 0.12.0 - 2018/1/24
+  * feat(\*): control amount of source context lines collected using new config options {pull}196[#196]
+  * feat(agent): add public flush function to force flush of transaction queue: agent.flush([callback]) {pull}187[#187]
+  * feat(mongodb): add support for mongodb-core 3.x {pull}190[#190]
+  * refactor(config): update default flushInterval to 10 seconds (lower memory usage) {pull}186[#186]
+  * chore(\*): drop support for Node.js 5 and 7 {pull}169[#169]
+  * refactor(instrumentation): encode transactions as they are added to the queue (lower memory usage) {pull}184[#184]
+
+[[release-notes-0.11.0]]
+==== 0.11.0 - 2018/1/11
+  * feat(\*): Set default stack trace limit to 50 frames {pull}171[#171]
+  * feat(ws): add support for ws@4.x {pull}164[#164]
+  * feat(errors): associate errors with active transaction
+
+[[release-notes-0.10.0]]
+==== 0.10.0 - 2018/1/3
+  * feat(express): auto-track errors (BREAKING CHANGE: removed express middleware) {pull}127[#127]
+  * feat(hapi): add hapi 17 support {pull}146[#146]
+  * fix(\*): fix Node.js 8 support using async\_hooks {pull}77[#77]
+  * fix(graphql): support sync execute {pull}139[#139]
+  * refactor(agent): make all config properties private (BREAKING CHANGE) {pull}107[#107]
+
+[[release-notes-0.9.0]]
+==== 0.9.0 - 2017/12/15
+  * feat(conf): allow serverUrl to contain a sub-path {pull}116[#116]
+  * refactor(\*): better format of error messages from the APM Server {pull}108[#108]
+
+[[release-notes-0.8.1]]
+==== 0.8.1 - 2017/12/13
+  * docs(\*): we're now in beta! {pull}103[#103]
+
+[[release-notes-0.8.0]]
+==== 0.8.0 - 2017/12/13
+  * feat(handlebars): instrument handlebars {pull}98[#98]
+
+[[release-notes-0.7.0]]
+==== 0.7.0 - 2017/12/6
+  * feat(parser): add sourceContext config option to control if code snippets are sent to the APM Server {pull}87[#87]
+  * fix(\*): move https-pem to list of devDependencies
+
+[[release-notes-0.6.0]]
+==== 0.6.0 - 2017/11/17
+  * feat(queue): add maxQueueSize config option {pull}56[#56]
+
+[[release-notes-0.5.0]]
+==== 0.5.0 - 2017/11/17
+  * refactor(\*): drop support for Node.js <4 {pull}65[#65]
+  * refactor(\*): rename module to elastic-apm-node {pull}71[#71]
+  * feat(queue): add fuzziness to flushInterval {pull}63[#63]
+
+[[release-notes-0.4.0]]
+==== 0.4.0 - 2017/11/15
+  * fix(https): instrument https.request in Node.js v9
+  * refactor(http): log HTTP results in groups of 100 {pull}68[#68]
+  * fix(api): add language to APM Server requests {pull}64[#64]
+  * refactor(trans): set default transaction.result to success {pull}67[#67]
+  * refactor(config): rename timeout config options {pull}59[#59]
+
+[[release-notes-0.3.1]]
+==== 0.3.1 - 2017/10/3
+  * fix(parsers): don't log context.request.url.search as null {pull}48[#48]
+  * fix(parsers): separate hostname and port when parsing Host header {pull}47[#47]
+
+[[release-notes-0.3.0]]
+==== 0.3.0 - 2017/9/20
+  * fix(instrumentation): don't sample transactions {pull}40[#40]
+  * feat(graphql): include GraphQL operation name in trace and transaction names {pull}27[#27]
+  * feat(tls): add validateServerCert config option {pull}32[#32]
+  * feat(parser): support http requests with full URI's {pull}26[#26]
+  * refactor(\*): remove appGitRef config option
+  * fix(instrumentation): fix setting of custom flushInterval
+  * feat(elasticsearch): add simple Elasticsearch instrumentation
+  * fix(\*): don't start agent if appName is invalid
+
+[[release-notes-0.2.0]]
+==== 0.2.0 - 2017/8/28
+  * refactor(\*): support new default port 8200 in APM Server
+  * refactor(\*): support new context.response status code format
+
+[[release-notes-0.1.1]]
+==== 0.1.1 - 2017/8/17
+  * fix(instrumentation): don't fail when sending transactions to APM Server
+
+[[release-notes-0.1.0]]
+==== 0.1.0 - 2017/8/17
+  * Initial release

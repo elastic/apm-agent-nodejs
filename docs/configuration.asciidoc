@@ -105,11 +105,11 @@ The environment name is automatically logged along with all errors and transacti
 If you want to overwrite this,
 use this option.
 
-Environments allow you to easily filter data on a global level in the APM UI.
+Environments allow you to easily filter data on a global level in the APM app.
 It's important to be consistent when naming environments across agents.
-See {kibana-ref}/filters.html#environment-selector[environment selector] in the Kibana UI for more information.
+See {kibana-ref}/filters.html#environment-selector[environment selector] in the APM app for more information.
 
-NOTE: This feature is fully supported in the APM UI in Kibana versions >= 7.2.
+NOTE: This feature is fully supported in the APM app in Kibana versions >= 7.2.
 You must use the query bar to filter for a specific environment in versions prior to 7.2.
 
 [[instrument]]
@@ -146,6 +146,7 @@ Activate APM Agent Configuration via Kibana.
 If set to `true`, the client will poll the APM Server regularly for new agent configuration.
 
 NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
+More information is available in {kibana-ref}/agent-configuration.html[APM Agent configuration].
 
 [[async-hooks]]
 ==== `asyncHooks`
@@ -384,6 +385,16 @@ Note that if a custom logger is provided, the `logLevel` option will be ignored.
 * *Env:* `ELASTIC_APM_CAPTURE_EXCEPTIONS`
 
 Whether or not the agent should monitor for uncaught exceptions and send them to the APM Server automatically.
+
+[[log-uncaught-exceptions]]
+==== `logUncaughtExceptions`
+
+* *Type:* Boolean
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS`
+
+By default the stack trace of a uncaught exception is not written to STDERR when the agent is active.
+Set this config option to `true` to have the agent write stack traces of uncaught exceptions to STDERR.
 
 [[capture-error-log-stack-traces]]
 ==== `captureErrorLogStackTraces`

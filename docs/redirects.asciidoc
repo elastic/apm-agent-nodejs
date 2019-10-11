@@ -1,5 +1,5 @@
 ["appendix",role="exclude",id="redirects"]
-= Deleted pages
+== Deleted pages
 
 The following pages have moved or been deleted.
 
@@ -37,3 +37,8 @@ This endpoint has moved. Please see <<transaction-set-label>>.
 === `transaction.addTags({ [name]: value })`
 
 This endpoint has moved. Please see <<transaction-add-labels>>.
+
+[role="exclude",id="get-started"]
+=== Get started
+
+This page has moved. Please see <<set-up>>.

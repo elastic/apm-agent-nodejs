@@ -55,6 +55,9 @@ pg:
 mongodb-core:
   versions: '>=1.2.19 <4'
   commands: node test/instrumentation/modules/mongodb-core.js
+mongodb:
+  versions: '>=3.3'
+  commands: node test/instrumentation/modules/mongodb.js
 bluebird:
   versions: '>=2 <4'
   commands:
