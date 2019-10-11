@@ -6,6 +6,8 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Ne
 
 ARG VERSION="8.0.17"
 ENV MYSQL_HOME="C:\tools\mysql\current"
+ENV MYSQL_USER="elastic"
+ENV MYSQL_PASSWORD="password123_"
 RUN choco install mysql --version=${env:VERSION} --no-progress -y
 
 EXPOSE 3306

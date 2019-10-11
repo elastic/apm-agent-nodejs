@@ -7,7 +7,7 @@ docker run -d -p 27017:27017 --name mongodb mongodb
 docker build --tag=mssql mssql/
 docker run -d -p 1433:1433 -e sa_password=%SA_PASSWORD% -e ACCEPT_EULA=Y --name mssql mssql
 docker build --tag=mysql mysql/
-docker run -d -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=1 --name mysql mysql
+docker run -d -p 3306:3306 -e MYSQL_USER=%MYSQL_USER% -e MYSQL_PASSWORD=%MYSQL_PASSWORD% --name mysql mysql
 docker build --tag=postgres postgres/
 docker run -d -p 5432:5432 --name postgres postgres
 docker build --tag=redis redis/
