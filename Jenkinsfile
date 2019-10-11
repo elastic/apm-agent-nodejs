@@ -66,27 +66,41 @@ pipeline {
         beforeAgent true
         expression { return params.tests_ci }
       }
-      steps {
-        withGithubNotify(context: 'Test', tab: 'tests') {
-          deleteDir()
-          unstash 'source'
-          dir("${BASE_DIR}"){
-            script {
-              def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
-              def parallelTasks = [:]
-              def parallelTasksWithoutAsyncHooks = [:]
-              node['NODEJS_VERSION'].each{ version ->
-                parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
-              }
+      parallel {
+        stage('Linux') {
+          steps {
+            withGithubNotify(context: 'Test', tab: 'tests') {
+              dir("${BASE_DIR}"){
+                script {
+                  def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
+                  def parallelTasks = [:]
+                  node['NODEJS_VERSION'].each{ version ->
+                    parallelTasks["Node.js-${version}"] = generateStep(version: version)
+                    parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
+                  }
 
-              // PRs don't require to run here as it's now managed within the linting pipeline
-              if (!env.CHANGE_ID) {
-                // Linting in parallel with the test stage
-                parallelTasks['linting'] = linting()
-              }
+                  // PRs don't require to run here as it's now managed within the linting pipeline
+                  if (!env.CHANGE_ID) {
+                    // Linting in parallel with the test stage
+                    parallelTasks['linting'] = linting()
+                  }
 
-              parallel(parallelTasks)
+                  parallel(parallelTasks)
+                }
+              }
+            }
+          }
+        }
+        stage('Windows') {
+          steps {
+            withGithubNotify(context: 'Test-Windows', tab: 'tests') {
+              dir(BASE_DIR){
+                script {
+                  def parallelTasks = [:]
+                  parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12')
+                  parallel(parallelTasks)
+                }
+              }
             }
           }
         }
@@ -413,6 +427,50 @@ def getSmartTAVContext() {
               sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
             }
           }
+        }
+      }
+    }
+  }
+}
+
+def generateStepForWindows(Map params = [:]){
+  def version = params?.version
+  def disableAsyncHooks = params.get('disableAsyncHooks', false)
+  return {
+    node('windows-2019-docker-immutable'){
+      try {
+        env.HOME = "${WORKSPACE}"
+        // When installing with choco the PATH might not be updated within the already connected worker.
+        env.PATH = "${PATH};C:\\Program Files\\nodejs"
+        env.VERSION = "${version}"
+        if (disableAsyncHooks) {
+          env.ELASTIC_APM_ASYNC_HOOKS = 'false'
+        }
+        env.SA_PASSWORD = 'password123_'
+        env.MYSQL_USER = 'elastic'
+        env.MYSQL_PASSWORD = 'password123_'
+        deleteDir()
+        unstash 'source'
+        dir(BASE_DIR) {
+          powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
+          dir('.ci/scripts/windows/docker') {
+            bat label: 'Prepare services', script: 'run-services.bat'
+          }
+          bat label: 'Tool versions', script: '''
+            npm --version
+            node --version
+          '''
+          bat 'npm install'
+          bat '''
+            docker ps
+            node test/test.js
+          '''
+        }
+      } catch(e){
+        error(e.toString())
+      } finally {
+        dir("${BASE_DIR}/.ci/scripts/windows/docker") {
+          bat label: 'Gather logs', returnStatus: true, script: 'log-services.bat'
         }
       }
     }
