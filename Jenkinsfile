@@ -66,42 +66,38 @@ pipeline {
         beforeAgent true
         expression { return params.tests_ci }
       }
-      parallel {
-        stage('Linux') {
-          steps {
-            withGithubNotify(context: 'Test', tab: 'tests') {
-              dir("${BASE_DIR}"){
-                script {
-                  def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
-                  def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each{ version ->
-                    parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                    parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
-                  }
-
-                  // PRs don't require to run here as it's now managed within the linting pipeline
-                  if (!env.CHANGE_ID) {
-                    // Linting in parallel with the test stage
-                    parallelTasks['linting'] = linting()
-                  }
-
-                  parallel(parallelTasks)
-                }
+      steps {
+        withGithubNotify(context: 'Test', tab: 'tests') {
+          dir("${BASE_DIR}"){
+            script {
+              def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
+              def parallelTasks = [:]
+              node['NODEJS_VERSION'].each{ version ->
+                parallelTasks["Node.js-${version}"] = generateStep(version: version)
+                parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
               }
+
+              // PRs don't require to run here as it's now managed within the linting pipeline
+              if (!env.CHANGE_ID) {
+                // Linting in parallel with the test stage
+                parallelTasks['linting'] = linting()
+              }
+
+              parallel(parallelTasks)
             }
           }
         }
-        stage('Windows') {
-          steps {
-            withGithubNotify(context: 'Test-Windows', tab: 'tests') {
-              dir(BASE_DIR){
-                script {
-                  def parallelTasks = [:]
-                  parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12')
-                  parallel(parallelTasks)
-                }
-              }
-            }
+      }
+    }
+    stage('Windows') {
+      agent none
+      when {
+        expression { return params.tests_ci }
+      }
+      steps {
+        withGithubNotify(context: 'Test-Windows', tab: 'tests') {
+          script {
+            parallel(["Windows-Nodejs-12": generateStepForWindows(version: '12')])
           }
         }
       }
