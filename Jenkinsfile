@@ -344,7 +344,6 @@ def generateStep(Map params = [:]){
             sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
           }
         }
-        sh label: 'Environment', script: 'env | sort'
       } catch(e){
         error(e.toString())
       } finally {
