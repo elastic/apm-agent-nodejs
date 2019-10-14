@@ -332,7 +332,6 @@ def generateStep(Map params = [:]){
   return {
     node('linux && immutable'){
       try {
-        sh label: 'Pre-Environment', script: 'env | sort'
         env.HOME = "${WORKSPACE}"
         if (disableAsyncHooks) {
           env.ELASTIC_APM_ASYNC_HOOKS = 'false'
@@ -345,12 +344,12 @@ def generateStep(Map params = [:]){
             sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
           }
         }
-        sh label: 'Post-Environment', script: 'env | sort'
+        sh label: 'Environment', script: 'env | sort'
       } catch(e){
         error(e.toString())
       } finally {
         if (isUnix()) {
-          sh label: 'Finally-Environment', script: 'env | sort'
+          sh label: 'Environment', script: 'env | sort'
           sh label: 'Gather node:12', script: 'docker pull node:12'
           sh label: 'Run node:12', script: 'docker run --rm -t node:12 echo hi'
         } else {
