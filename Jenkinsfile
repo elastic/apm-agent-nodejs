@@ -331,27 +331,25 @@ def generateStep(Map params = [:]){
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
     node('linux && immutable'){
-      try {
-        env.HOME = "${WORKSPACE}"
-        if (disableAsyncHooks) {
-          env.ELASTIC_APM_ASYNC_HOOKS = 'false'
-        }
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          retry(2){
-            sleep randomNumber(min:10, max: 30)
-            sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+      withEnv(["VERSION=${version}", "ELASTIC_APM_ASYNC_HOOKS=${disableAsyncHooks}"]) {
+        try {
+          deleteDir()
+          unstash 'source'
+          dir("${BASE_DIR}"){
+            retry(2){
+              sleep randomNumber(min:5, max: 10)
+              sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+            }
           }
+        } catch(e){
+          error(e.toString())
+        } finally {
+          docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+            sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
+          }
+          junit(allowEmptyResults: true, keepLongStdio: true, testResults: "${BASE_DIR}/**/junit-*.xml")
+          codecov(repo: env.REPO, basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
         }
-      } catch(e){
-        error(e.toString())
-      } finally {
-        docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-          sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
-        }
-        junit(allowEmptyResults: true, keepLongStdio: true, testResults: "${BASE_DIR}/**/junit-*.xml")
-        codecov(repo: env.REPO, basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
       }
     }
   }
@@ -429,39 +427,35 @@ def generateStepForWindows(Map params = [:]){
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
     node('windows-2019-docker-immutable'){
-      try {
-        env.HOME = "${WORKSPACE}"
-        // When installing with choco the PATH might not be updated within the already connected worker.
-        env.PATH = "${PATH};C:\\Program Files\\nodejs"
-        env.VERSION = "${version}"
-        if (disableAsyncHooks) {
-          env.ELASTIC_APM_ASYNC_HOOKS = 'false'
-        }
-        env.SA_PASSWORD = 'password123_'
-        env.MYSQL_USER = 'elastic'
-        env.MYSQL_PASSWORD = 'password123_'
-        deleteDir()
-        unstash 'source'
-        dir(BASE_DIR) {
-          powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
-          dir('.ci/scripts/windows/docker') {
-            bat label: 'Prepare services', script: 'run-services.bat'
+      // When installing with choco the PATH might not be updated within the already connected worker.
+      withEnv(["PATH=${PATH};C:\\Program Files\\nodejs", "VERSION=${version}", "ELASTIC_APM_ASYNC_HOOKS=${disableAsyncHooks}"]) {
+        try {
+          env.SA_PASSWORD = 'password123_'
+          env.MYSQL_USER = 'elastic'
+          env.MYSQL_PASSWORD = 'password123_'
+          deleteDir()
+          unstash 'source'
+          dir(BASE_DIR) {
+            powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
+            dir('.ci/scripts/windows/docker') {
+              bat label: 'Prepare services', script: 'run-services.bat'
+            }
+            bat label: 'Tool versions', script: '''
+              npm --version
+              node --version
+            '''
+            bat 'npm install'
+            bat '''
+              docker ps
+              node test/test.js
+            '''
           }
-          bat label: 'Tool versions', script: '''
-            npm --version
-            node --version
-          '''
-          bat 'npm install'
-          bat '''
-            docker ps
-            node test/test.js
-          '''
-        }
-      } catch(e){
-        error(e.toString())
-      } finally {
-        dir("${BASE_DIR}/.ci/scripts/windows/docker") {
-          bat label: 'Gather logs', returnStatus: true, script: 'log-services.bat'
+        } catch(e){
+          error(e.toString())
+        } finally {
+          dir("${BASE_DIR}/.ci/scripts/windows/docker") {
+            bat label: 'Gather logs', returnStatus: true, script: 'log-services.bat'
+          }
         }
       }
     }
