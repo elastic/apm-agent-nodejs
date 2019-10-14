@@ -74,7 +74,6 @@ pipeline {
             script {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
-              def parallelTasksWithoutAsyncHooks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
                 parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
@@ -203,7 +202,7 @@ pipeline {
           }
         }
         stage('RC Test') {
-          agent { label 'linux && immutablee' }
+          agent { label 'linux && immutable' }
           environment {
             NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
           }
