@@ -21,6 +21,21 @@ endif::[]
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.1.0]]
+==== 3.1.0 - 2019/10/16
+
+[float]
+===== Features
+* feat(mongodb): instrumentation {pull}1423[#1423]
+* fix(package): update elastic-apm-http-client to version 9.0.0 {pull}1419[#1419]
+* perf: cache 'ids' value of transactions and spans {pull}1434[#1434]
+
+[float]
+===== Bug fixes
+* fix: always end transaction when socket is closed prematurely {pull}1439[#1439]
+* fix: change logUncaughtExceptions default to false {pull}1432[#1432]
+* fix: write stack trace of uncaught exceptions to STDERR {pull}1429[#1429]
+
 [[release-notes-3.0.0]]
 ==== 3.0.0 - 2019/9/30
 
