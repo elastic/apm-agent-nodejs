@@ -282,7 +282,12 @@ isSecure.forEach(secure => {
       t.ok(span, 'root transaction should have span')
       t.equal(span.type, 'external')
       t.equal(span.subtype, 'http2')
-      t.equal(span.name, `undefined http${secure ? 's' : ''}://localhost:${port}/sub`)
+      t.equal(span.name, `GET http${secure ? 's' : ''}://localhost:${port}/sub`)
+      t.deepEqual(span.context.http, {
+        method: 'GET',
+        status_code: 200,
+        url: `http${secure ? 's' : ''}://localhost:${port}/sub`
+      })
 
       server.close()
       t.end()
