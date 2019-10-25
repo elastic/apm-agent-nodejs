@@ -3,7 +3,7 @@
     name: apm-agent-nodejs/apm-agent-nodejs-mbp
     display-name: APM Agent Node.js
     description: APM Agent Node.js
-    script-path: Jenkinsfile
+    script-path: .ci/Jenkinsfile
     scm:
     - github:
         branch-discovery: no-pr
