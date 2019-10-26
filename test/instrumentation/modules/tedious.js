@@ -33,10 +33,7 @@ if (semver.gte(version, '4.0.0')) {
       },
       options: {
         database: 'master',
-        encrypt: false,
-        cryptoCredentialsDetails: {
-          ciphers: 'RC4-MD5'
-        }
+        encrypt: false
       }
     }
     : {
@@ -57,10 +54,7 @@ if (semver.gte(version, '4.0.0')) {
       password: 'Password12!',
       options: {
         database: 'master',
-        encrypt: false,
-        cryptoCredentialsDetails: {
-          ciphers: 'RC4-MD5'
-        }
+        encrypt: false
       }
     }
     : {
