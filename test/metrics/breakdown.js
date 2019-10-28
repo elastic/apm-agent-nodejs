@@ -153,6 +153,45 @@ test('does not include breakdown when not sampling', t => {
   transaction.end()
 })
 
+test('does not include transaction breakdown when disabled', t => {
+  const conf = {
+    metricsInterval: 1,
+    transactionSampleRate: 0,
+    breakdownMetrics: false
+  }
+
+  resetAgent(3, conf, (data) => {
+    t.equal(data.transactions.length, 1, 'has one transaction')
+    assertTransaction(t, transaction, data.transactions[0])
+
+    t.equal(data.spans.length, 0, 'has no spans')
+
+    const { metricsets } = data
+
+    t.comment('metricSet - transaction metrics')
+
+    const metricSet = finders.transaction(metricsets, span)
+    t.ok(metricSet, 'found metricset')
+
+    assertMetricSetKeys(t, metricSet, [
+      'transaction.duration.count',
+      'transaction.duration.sum.us'
+    ])
+    assertMetricSetData(t, metricSet, expectations.transaction(transaction, span))
+
+    t.comment('metricSet - span')
+    t.notOk(metricsets.find(metricset => !!metricset.span), 'should not have any span metricsets')
+
+    agent._metrics.stop()
+    t.end()
+  })
+
+  var transaction = agent.startTransaction('foo', 'bar')
+  var span = agent.startSpan('s0 name', 's0 type')
+  if (span) span.end()
+  transaction.end()
+})
+
 test('acceptance', t => {
   const conf = {
     metricsInterval: 1
@@ -581,7 +620,15 @@ function assertMetricSet (t, name, metricsets, { transaction, span } = {}) {
 
   t.comment(`metricSet - ${name} metrics`)
   t.ok(metricSet, 'found metricset')
+  assertMetricSetKeys(t, metricSet, keys)
+  assertMetricSetData(t, metricSet, expected)
+}
+
+function assertMetricSetKeys (t, metricSet, keys) {
   t.deepEqual(Object.keys(metricSet.samples).sort(), keys.sort(), 'has expected sample keys')
+}
+
+function assertMetricSetData (t, metricSet, expected) {
   t.deepEqual(metricSet.transaction, expected.transaction, 'has expected transaction data')
   t.deepEqual(metricSet.span, expected.span, 'has expected span data')
 }
