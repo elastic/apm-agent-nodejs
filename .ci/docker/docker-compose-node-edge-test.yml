@@ -21,6 +21,7 @@ services:
       CASSANDRA_HOST: 'cassandra'
       PGHOST: 'postgres'
       PGUSER: 'postgres'
+      MEMCACHED_HOST: 'memcached'
       NODE_VERSION: ${NODE_VERSION}
       NVM_NODEJS_ORG_MIRROR: ${NVM_NODEJS_ORG_MIRROR}
       ELASTIC_APM_ASYNC_HOOKS: ${ELASTIC_APM_ASYNC_HOOKS}
