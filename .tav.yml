@@ -27,7 +27,7 @@ mysql2-old:
     - node test/instrumentation/modules/mysql2/pool-release-1.js
 mysql2-new:
   name: mysql2
-  versions: '1.6.0 || 1.6.1 || ^1.6.3' # v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
+  versions: '1.6.0 || 1.6.1 || >=1.6.3 <3' # v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
   node: '>=6.0.0'
   commands:
     - node test/instrumentation/modules/mysql2/mysql.js
