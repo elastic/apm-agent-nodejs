@@ -8,7 +8,6 @@
 .vscode
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
-Jenkinsfile
 TESTING.md
 
 # Folders to ignore
