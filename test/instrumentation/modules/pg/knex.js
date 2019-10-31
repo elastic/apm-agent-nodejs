@@ -125,14 +125,9 @@ function assertBasicQuery (t, data) {
   t.equal(data.spans[0].type, 'db')
   t.equal(data.spans[0].subtype, 'postgresql')
   t.equal(data.spans[0].action, 'query')
-
-  // From 0.18 on, knex uses a bluebird queue internally,
-  // which terminates the stacktrace before user code.
-  if (semver.lt(knexVersion, '0.18.0')) {
-    t.ok(data.spans[0].stacktrace.some(function (frame) {
-      return frame.function === 'userLandCode'
-    }), 'include user-land code frame')
-  }
+  t.ok(data.spans[0].stacktrace.some(function (frame) {
+    return frame.function === 'userLandCode'
+  }), 'include user-land code frame')
 }
 
 function createClient (t, cb) {
