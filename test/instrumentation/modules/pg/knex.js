@@ -43,7 +43,7 @@ selectTests.forEach(function (source) {
       assertBasicQuery(t, data)
       t.end()
     })
-    createClient(function userLandCode () {
+    createClient(t, function userLandCode () {
       agent.startTransaction('foo' + ++transNo)
 
       var query = eval(source) // eslint-disable-line no-eval
@@ -68,7 +68,7 @@ insertTests.forEach(function (source) {
       assertBasicQuery(t, data)
       t.end()
     })
-    createClient(function userLandCode () {
+    createClient(t, function userLandCode () {
       agent.startTransaction('foo' + ++transNo)
 
       var query = eval(source) // eslint-disable-line no-eval
@@ -89,7 +89,7 @@ test('knex.raw', function (t) {
     assertBasicQuery(t, data)
     t.end()
   })
-  createClient(function userLandCode () {
+  createClient(t, function userLandCode () {
     agent.startTransaction('foo' + ++transNo)
 
     var query = knex.raw('SELECT * FROM "test"')
@@ -125,53 +125,42 @@ function assertBasicQuery (t, data) {
   t.equal(data.spans[0].type, 'db')
   t.equal(data.spans[0].subtype, 'postgresql')
   t.equal(data.spans[0].action, 'query')
-  t.ok(data.spans[0].stacktrace.some(function (frame) {
-    return frame.function === 'userLandCode'
-  }), 'include user-land code frame')
+
+  // From 0.18 on, knex uses a bluebird queue internally,
+  // which terminates the stacktrace before user code.
+  if (semver.lt(knexVersion, '0.18.0')) {
+    t.ok(data.spans[0].stacktrace.some(function (frame) {
+      return frame.function === 'userLandCode'
+    }), 'include user-land code frame')
+  }
 }
 
-function createClient (cb) {
+function createClient (t, cb) {
   setup(function () {
     knex = Knex({
       client: 'pg',
       connection: 'postgres:///test_elastic_apm'
+    })
+    t.on('end', () => {
+      knex.destroy(function (err) {
+        if (err) throw err
+      })
+      knex = undefined
     })
     cb()
   })
 }
 
 function setup (cb) {
-  // just in case it didn't happen at the end of the previous test
-  teardown(function () {
-    utils.reset(function () {
-      utils.loadData(cb)
-    })
+  utils.reset(function () {
+    utils.loadData(cb)
   })
-}
-
-function teardown (cb) {
-  if (knex) {
-    knex.destroy(function (err) {
-      if (err) throw err
-      knex = undefined
-      if (cb) cb()
-    })
-  } else if (cb) {
-    process.nextTick(cb)
-  }
 }
 
 function resetAgent (cb) {
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock
   if (agent._transport.destroy) agent._transport.destroy()
-  agent._transport = mockClient(function (data) {
-    // ensure we never leave the db open after the test, otherwise the last
-    // test will leave the process hanging in some combinations of pg/knex for
-    // some reason
-    teardown(function () {
-      cb(data)
-    })
-  })
+  agent._transport = mockClient(cb)
   agent._instrumentation.currentTransaction = null
 }
