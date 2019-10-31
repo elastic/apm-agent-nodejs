@@ -118,6 +118,11 @@ function echoTest (type, handler) {
         t.equal(data.transactions.length, 1, 'has one transaction')
         t.equal(data.spans.length, 1, 'has one span')
         t.equal(data.spans[0].name, 'GET localhost:' + port + '/', 'has expected span name')
+        t.deepEqual(data.spans[0].context.http, {
+          method: 'GET',
+          status_code: 200,
+          url: `${type}://127.0.0.1:${port}/`
+        })
         t.end()
         cp.kill()
       })
