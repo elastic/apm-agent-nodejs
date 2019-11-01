@@ -79,6 +79,7 @@
     "after-all-results": "^2.0.0",
     "async-value-promise": "^1.1.1",
     "basic-auth": "^2.0.1",
+    "causes": "^1.0.0",
     "console-log-level": "^1.4.1",
     "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",

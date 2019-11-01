@@ -591,6 +591,33 @@ test('#parseError()', function (t) {
       t.end()
     })
   })
+
+  t.test('should get error causes', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
+      },
+      logger: logger
+    }
+
+    const grandparent = new Error('grandparent')
+    const parent = new Error('parent')
+    const child = new Error('child')
+    child.cause = () => parent
+    parent.cause = grandparent
+
+    parsers.parseError(child, fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.ok('exception' in parsed)
+      t.ok('cause' in parsed.exception)
+      t.deepEqual(parsed.exception.cause, [
+        { message: parent.message, type: 'Error' },
+        { message: grandparent.message, type: 'Error' }
+      ])
+      t.end()
+    })
+  })
 })
 
 test('#parseCallsite()', function (t) {
