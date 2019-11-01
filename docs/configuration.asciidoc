@@ -33,6 +33,20 @@ Your Elastic APM service name.
 
 Allowed characters: `a-z`, `A-Z`, `0-9`, `-`, `_`, and space.
 
+[float]
+[[service-node-name]]
+==== `serviceNodeName`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_SERVICE_NODE_NAME`
+
+A unique name for the service node.
+This is optional, and if omitted,
+the APM Server will fall back on `system.container.id` if available,
+and finally `host.name` if necessary.
+
+This option allows you to set the node name manually to ensure uniqueness and meaningfulness.
+
 [[secret-token]]
 ==== `secretToken`
 

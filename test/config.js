@@ -60,6 +60,7 @@ var optionFixtures = [
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
   ['serverUrl', 'SERVER_URL'],
   ['serviceName', 'SERVICE_NAME', apmName],
+  ['serviceNodeName', 'SERVICE_NODE_NAME'],
   ['serviceVersion', 'SERVICE_VERSION', apmVersion],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
   ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
