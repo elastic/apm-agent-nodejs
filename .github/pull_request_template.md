@@ -14,4 +14,5 @@ https://help.github.com/articles/closing-issues-using-keywords/
 
 - [x] Implement code
 - [ ] Add tests
+- [ ] Update TypeScript typings
 - [ ] Update documentation
