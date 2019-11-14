@@ -49,7 +49,7 @@ pipeline {
               "^lib/instrumentation/modules/",
               "^test/instrumentation/modules/"
             ]
-            env.TAV_UPDATED = isGitRegionMatch(regexps: regexps)
+            env.TAV_UPDATED = isGitRegionMatch(patterns: regexps)
           }
         }
       }
