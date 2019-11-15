@@ -97,6 +97,37 @@ test('nested', function (t) {
   })
 })
 
+test('rejections_handled', function (t) {
+  // Make sure there are no unhandled promise rejections
+  // introduced by our promise handling. See #1518.
+  let unhandledRejection = false
+  function onUnhandledRejection (e) {
+    unhandledRejection = true
+  }
+  process.once('unhandledRejection', onUnhandledRejection)
+  t.on('end', () => {
+    process.removeListener('unhandledRejection', onUnhandledRejection)
+  })
+  agent._instrumentation.currentTransaction = null
+  agent._transport = mockClient(3, function () {
+    setTimeout(function () {
+      t.notOk(unhandledRejection)
+      t.end()
+    }, 0)
+  })
+  agent.captureError = function (err) { throw err }
+
+  var redis = new Redis(process.env.REDIS_HOST)
+  const trans = agent.startTransaction('foo', 'bar')
+  redis.hset('a', 'b', 'c')
+  redis.get('a', function (err, result) {
+    t.ok(err)
+    trans.end()
+    redis.quit()
+    agent.flush()
+  }) // wrong type, should reject
+})
+
 function done (t) {
   return function (data, cb) {
     var groups = [
