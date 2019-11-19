@@ -21,6 +21,13 @@ endif::[]
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.2.0]]
+==== 3.2.0 - 2019/11/19
+
+* fix(metrics): only register collectors if enabled {pull}1520[#1520]
+* fix(ioredis): prevent unhandled promise rejection {pull}1523[#1523]
+* chore: add Node 13 to supported engines {pull}1524[#1524]
+
 [[release-notes-3.1.0]]
 ==== 3.1.0 - 2019/10/16
 
