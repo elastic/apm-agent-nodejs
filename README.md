@@ -6,7 +6,8 @@ If you have any feedback or questions,
 please post them on the [Discuss forum](https://discuss.elastic.co/c/apm).
 
 [![npm](https://img.shields.io/npm/v/elastic-apm-node.svg)](https://www.npmjs.com/package/elastic-apm-node)
-[![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=2.x)](https://travis-ci.org/elastic/apm-agent-nodejs)
+[![Build Status](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-nodejs%2Fapm-agent-nodejs-mbp%2Fmaster)](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/master/)
+[![Build status](https://travis-ci.org/elastic/apm-agent-nodejs.svg?branch=master)](https://travis-ci.org/elastic/apm-agent-nodejs)
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/standard/standard)
 
 ## Installation
