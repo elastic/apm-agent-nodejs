@@ -9,7 +9,17 @@ const http = require('http')
 const test = require('tape')
 
 test('remote config enabled', function (t) {
-  t.plan(2)
+  const updates = {
+    transaction_sample_rate: '0.42',
+    transaction_max_spans: '99',
+    capture_body: 'all'
+  }
+  const expect = {
+    transactionSampleRate: 0.42,
+    transactionMaxSpans: 99,
+    captureBody: 'all'
+  }
+  t.plan(Object.keys(expect).length + 1)
 
   let agent, timer
   const server = http.createServer((req, res) => {
@@ -19,9 +29,7 @@ test('remote config enabled', function (t) {
       Etag: 1,
       'Cache-Control': 'max-age=30, must-revalidate'
     })
-    res.end(JSON.stringify({
-      transaction_sample_rate: 0.42
-    }))
+    res.end(JSON.stringify(updates))
     clearTimeout(timer)
     agent.destroy()
     server.close()
@@ -36,15 +44,28 @@ test('remote config enabled', function (t) {
       centralConfig: true
     })
 
-    Object.defineProperty(agent._conf, 'transactionSampleRate', {
-      set (value) {
-        t.equal(value, 0.42)
+    for (const key in expect) {
+      if (!Object.prototype.hasOwnProperty.call(agent._conf, key)) {
+        t.fail('unknown config key: ' + key)
         t.end()
-      },
-      get () {},
-      enumerable: true,
-      configurable: true
-    })
+      } else {
+        Object.defineProperty(agent._conf, key, {
+          set (value) {
+            const expectValue = expect[key]
+            if (expectValue !== undefined) {
+              t.equal(value, expectValue)
+              delete expect[key]
+              if (Object.keys(expect).length === 0) {
+                t.end()
+              }
+            }
+          },
+          get () {},
+          enumerable: true,
+          configurable: true
+        })
+      }
+    }
 
     timer = setTimeout(function () {
       t.fail('should poll APM Server for config')
