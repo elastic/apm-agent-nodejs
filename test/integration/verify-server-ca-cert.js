@@ -3,6 +3,9 @@
 var getPort = require('get-port')
 
 getPort().then(function (port) {
+  var fs = require('fs')
+  var path = require('path')
+
   var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'https://localhost:' + port,
@@ -10,17 +13,19 @@ getPort().then(function (port) {
     metricsInterval: 0,
     centralConfig: false,
     disableInstrumentations: ['https'], // avoid the agent instrumenting the mock APM Server
-    verifyServerCert: false
+    serverCaCertFile: path.join(__dirname, 'cert.pem') // self-signed certificate
   })
 
   var https = require('https')
-  var pem = require('https-pem')
   var test = require('tape')
 
   test('should allow self signed certificate', function (t) {
     t.plan(3)
 
-    var server = https.createServer(pem, function (req, res) {
+    var cert = fs.readFileSync(path.join(__dirname, 'cert.pem'))
+    var key = fs.readFileSync(path.join(__dirname, 'key.pem'))
+
+    var server = https.createServer({ cert, key }, function (req, res) {
       t.pass('server received client request')
       res.end()
     })
