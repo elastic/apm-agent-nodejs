@@ -73,7 +73,21 @@ The URL to where the APM Server is deployed.
 
 By default the agent will validate the TLS/SSL certificate of the APM Server if using HTTPS.
 You can switch this behavior off by setting this option to `false`.
-Disabling validation is normally required if using self-signed certificates.
+
+[[server-ca-cert-file]]
+==== `serverCaCertFile`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_SERVER_CA_CERT_FILE`
+
+By default the agent will validate the TLS/SSL certificate of the APM Server using the
+well-known CAs curated by Mozilla, as described in the Node.js docs for
+https://nodejs.org/api/tls.html#tls_tls_createsecurecontext_options[`tls.createSecureContext()`].
+You can set this option to the path of a file containing a CA certificate that will be
+used instead.
+
+Specifying this option is required when using self-signed certificates, unless server
+certificate validation is disabled.
 
 [[service-version]]
 ==== `serviceVersion`

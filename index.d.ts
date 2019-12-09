@@ -204,6 +204,7 @@ interface AgentConfigOptions {
   payloadLogFile?: string;
   centralConfig?: boolean;
   secretToken?: string;
+  serverCaCertFile?: string;
   serverTimeout?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   serverUrl?: string;
   serviceName?: string;
