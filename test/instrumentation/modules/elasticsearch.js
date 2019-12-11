@@ -48,6 +48,32 @@ test('client.ping with promise', function userLandCode (t) {
   })
 })
 
+test('client.ping with unhandled promise', function userLandCode (t) {
+  resetAgent(2, doneNoHTTP(t, 'HEAD', '/'))
+
+  agent.startTransaction('foo')
+
+  const client = new elasticsearch.Client({
+    host: 'thiswillneverwork',
+    log: {
+      type: 'file',
+      level: 'error',
+      path: '/dev/null'
+    }
+  })
+
+  const unhandledPromise = client.ping()
+
+  process.once('unhandledRejection', agent._instrumentation.bindFunction(unhandledRejection))
+
+  function unhandledRejection (reason, promise) {
+    t.equal(promise, unhandledPromise)
+    agent.endTransaction()
+    agent.flush()
+    client.close()
+  }
+})
+
 test('client.search with callback', function userLandCode (t) {
   resetAgent(done(t, 'POST', '/_search', '{"q":"pants"}'))
 
@@ -226,8 +252,38 @@ function done (t, method, path, query) {
   }
 }
 
-function resetAgent (cb) {
+function doneNoHTTP (t, method, path, query) {
+  return function (data, cb) {
+    t.equal(data.transactions.length, 1)
+    t.equal(data.spans.length, 1)
+
+    var trans = data.transactions[0]
+    var span = data.spans[0]
+
+    t.equal(trans.name, 'foo')
+    t.equal(trans.type, 'custom')
+
+    t.equal(span.type, 'db')
+    t.equal(span.subtype, 'elasticsearch')
+    t.equal(span.action, 'request')
+    t.equal(span.name, 'Elasticsearch: ' + method + ' ' + path)
+
+    t.ok(span.stacktrace.some(function (frame) {
+      return frame.function === 'userLandCode'
+    }), 'include user-land code frame')
+
+    t.notOk(span.context)
+
+    t.end()
+  }
+}
+
+function resetAgent (expected, cb) {
+  if (typeof expected === 'function') {
+    cb = expected
+    expected = 3
+  }
   agent._instrumentation.currentTransaction = null
-  agent._transport = mockClient(3, cb)
+  agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }
