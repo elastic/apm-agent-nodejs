@@ -21,6 +21,12 @@ endif::[]
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.3.0]]
+==== 3.3.0 - 2019/12/13
+
+* feat(config): add serverCaCertFile config {pull}1560[#1560]
+* feat(config): add central config support for transactionMaxSpans and captureBody {pull}1555[#1555]
+
 [[release-notes-3.2.0]]
 ==== 3.2.0 - 2019/11/19
 
