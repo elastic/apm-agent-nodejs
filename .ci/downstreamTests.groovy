@@ -116,7 +116,7 @@ class NodeParallelTaskGenerator extends DefaultParallelTaskGenerator {
   */
   public Closure generateStep(x, y){
     return {
-      steps.node('docker && linux && immutable'){
+      steps.node('linux && immutable'){
         try {
           steps.runScript(node: x, tav: y)
           saveResult(x, y, 1)
