@@ -1,14 +1,10 @@
 # Abort with non zero exit code on errors
 $ErrorActionPreference = "Stop"
 
-Write-Host "Preparing to download and install Redis..." -ForegroundColor Cyan
-$redisVersion = "2.8.19"
-$redisRoot = "$env:SYSTEMDRIVE\Redis"
-$zipPath = "$($env:USERPROFILE)\redis-$redisVersion.zip"
-$downloadUrl = "https://github.com/MSOpenTech/redis/releases/download/win-$redisVersion/redis-$redisVersion.zip"
-
 Write-Host "Downloading Redis..." -ForegroundColor Cyan
-(New-Object Net.WebClient).DownloadFile($downloadUrl, $zipPath)
+$redisRoot = "$env:SYSTEMDRIVE\Redis"
+$zipPath = "$($env:USERPROFILE)\redis-2.8.19.zip"
+(New-Object Net.WebClient).DownloadFile('https://github.com/MSOpenTech/redis/releases/download/win-2.8.19/redis-2.8.19.zip', $zipPath)
 7z x $zipPath -y -o"$redisRoot" | Out-Null
 del $zipPath
 
