@@ -39,7 +39,7 @@ pipeline {
 def generateStep(Map params = [:]){
   def version = params?.version
   return {
-    node('docker && linux && immutable'){
+    node('linux && immutable'){
       dir(version) {
         unstash 'source'
         docker.image("node:${version}").inside("-v ${WORKSPACE}/${version}:/app"){
