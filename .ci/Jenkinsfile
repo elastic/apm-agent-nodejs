@@ -492,6 +492,8 @@ def generateStepForWindows(Map params = [:]){
         }
       }
     }
-    sh label: 'Stop services', script: '.ci/scripts/windows/stop-test.sh'
+
+    // If the above execution failed, then it will not reach this section. TBD
+    sh label: 'Stop services', script: ".ci/scripts/windows/stop-test.sh ${version}"
   }
 }
