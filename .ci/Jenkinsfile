@@ -455,7 +455,7 @@ def generateStepForWindows(Map params = [:]){
   def version = params?.version
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
-    sh label: 'Prepare services', script: '.ci/scripts/windows/prepare-test.sh'
+    sh label: 'Prepare services', script: ".ci/scripts/windows/prepare-test.sh ${version}"
     def linuxIp = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)?.trim()
     node('windows-2019-docker-immutable'){
       // When installing with choco the PATH might not be updated within the already connected worker.
