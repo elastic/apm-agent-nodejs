@@ -14,4 +14,6 @@ https://help.github.com/articles/closing-issues-using-keywords/
 
 - [x] Implement code
 - [ ] Add tests
+- [ ] Update TypeScript typings
 - [ ] Update documentation
+- [ ] Commit message follows [commit guidelines](https://github.com/elastic/apm-agent-nodejs/blob/master/CONTRIBUTING.md#commit-message-guidelines)

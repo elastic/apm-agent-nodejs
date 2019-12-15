@@ -88,7 +88,7 @@ so those should be supported as well
 |https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 <2.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 <5.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/mysql2[mysql2] |^1.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <3.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/pg[pg] |>=4.0.0 <8.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/redis[redis] |^2.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/tedious[tedious] |>=1.9 |Will instrument all queries
@@ -119,7 +119,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 [options="header"]
 |=================================================
 |Module |Version
-|https://www.npmjs.com/package/knex[knex] |>=0.9.0 <0.18.0
+|https://www.npmjs.com/package/knex[knex] |>=0.9.0 <0.21.0
 |=================================================
 
 [float]

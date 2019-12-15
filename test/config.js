@@ -57,9 +57,11 @@ var optionFixtures = [
   ['metricsInterval', 'METRICS_INTERVAL', 30],
   ['metricsLimit', 'METRICS_LIMIT', 1000],
   ['secretToken', 'SECRET_TOKEN'],
+  ['serverCaCertFile', 'SERVER_CA_CERT_FILE'],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
   ['serverUrl', 'SERVER_URL'],
   ['serviceName', 'SERVICE_NAME', apmName],
+  ['serviceNodeName', 'SERVICE_NODE_NAME'],
   ['serviceVersion', 'SERVICE_VERSION', apmVersion],
   ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
   ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
@@ -79,6 +81,7 @@ optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
     var bool = typeof fixture[2] === 'boolean'
     var url = fixture[0] === 'serverUrl' // special case for url's so they can be parsed using url.parse()
+    var file = fixture[0] === 'serverCaCertFile' // special case for files, so a temp file can be written
     var number = typeof fixture[2] === 'number'
     var array = Array.isArray(fixture[2])
     var envName = 'ELASTIC_APM_' + fixture[1]
@@ -91,7 +94,14 @@ optionFixtures.forEach(function (fixture) {
       if (bool) value = !fixture[2]
       else if (number) value = 1
       else if (url) value = 'http://custom-value'
-      else value = 'custom-value'
+      else if (file) {
+        var tmpdir = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
+        var tmpfile = path.join(tmpdir, 'custom-file')
+        t.on('end', function () { rimraf.sync(tmpdir) })
+        mkdirp.sync(tmpdir)
+        fs.writeFileSync(tmpfile, tmpfile)
+        value = tmpfile
+      } else value = 'custom-value'
 
       process.env[envName] = value.toString()
 
@@ -126,6 +136,14 @@ optionFixtures.forEach(function (fixture) {
       } else if (url) {
         value1 = 'http://overwriting-value'
         value2 = 'http://custom-value'
+      } else if (file) {
+        var tmpdir = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
+        var tmpfile = path.join(tmpdir, 'custom-file')
+        t.on('end', function () { rimraf.sync(tmpdir) })
+        mkdirp.sync(tmpdir)
+        fs.writeFileSync(tmpfile, tmpfile)
+        value1 = path.join(tmpdir, 'does-not-exist')
+        value2 = tmpfile
       } else {
         value1 = 'overwriting-value'
         value2 = 'custom-value'

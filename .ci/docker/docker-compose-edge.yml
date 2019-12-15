@@ -9,6 +9,10 @@ services:
     extends:
       file: docker-compose.yml
       service: elasticsearch
+  memcached:
+    extends:
+      file: docker-compose.yml
+      service: memcached
   mongodb:
     extends:
       file: docker-compose.yml
@@ -37,6 +41,8 @@ services:
       cassandra:
         condition: service_healthy
       elasticsearch:
+        condition: service_healthy
+      memcached:
         condition: service_healthy
       mongodb:
         condition: service_healthy

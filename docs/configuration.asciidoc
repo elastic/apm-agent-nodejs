@@ -33,6 +33,20 @@ Your Elastic APM service name.
 
 Allowed characters: `a-z`, `A-Z`, `0-9`, `-`, `_`, and space.
 
+[float]
+[[service-node-name]]
+==== `serviceNodeName`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_SERVICE_NODE_NAME`
+
+A unique name for the service node.
+This is optional, and if omitted,
+the APM Server will fall back on `system.container.id` if available,
+and finally `host.name` if necessary.
+
+This option allows you to set the node name manually to ensure uniqueness and meaningfulness.
+
 [[secret-token]]
 ==== `secretToken`
 
@@ -59,7 +73,21 @@ The URL to where the APM Server is deployed.
 
 By default the agent will validate the TLS/SSL certificate of the APM Server if using HTTPS.
 You can switch this behavior off by setting this option to `false`.
-Disabling validation is normally required if using self-signed certificates.
+
+[[server-ca-cert-file]]
+==== `serverCaCertFile`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_SERVER_CA_CERT_FILE`
+
+By default the agent will validate the TLS/SSL certificate of the APM Server using the
+well-known CAs curated by Mozilla, as described in the Node.js docs for
+https://nodejs.org/api/tls.html#tls_tls_createsecurecontext_options[`tls.createSecureContext()`].
+You can set this option to the path of a file containing a CA certificate that will be
+used instead.
+
+Specifying this option is required when using self-signed certificates, unless server
+certificate validation is disabled.
 
 [[service-version]]
 ==== `serviceVersion`

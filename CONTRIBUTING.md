@@ -62,6 +62,51 @@ Once your changes are ready to submit for review:
     but we'll do our best to dedicate it the attention it deserves.
     Your effort is much appreciated!
 
+### Commit message guidelines
+
+This repo uses the [Conventional
+Commits](https://www.conventionalcommits.org/) standard for comment
+messages (see linked spec for a complete list of commit message
+formatting rules).
+
+A good commit message should describe what changed and why.
+
+1. The first line should:
+   * contain a short description of the change (preferably 50 characters
+     or less, and no more than 72 characters)
+   * be entirely in lowercase with the exception of proper nouns,
+     acronyms, and the words that refer to code, like function/variable
+     names
+   * be prefixed with the type of change, optionally the name of the
+     changed subsystem, and start with an imperative verb. Check the
+     output of `git log --oneline files/you/changed` to find out what
+     subsystems your changes touch.
+
+   Examples:
+   * `fix(ioredis): prevent unhandled promise rejection`
+   * `docs: fix typos in README.md`
+
+2. Keep the second line blank.
+
+3. Wrap all other lines at 72 columns (except for long URLs).
+
+4. If your patch fixes an open issue, you can add a reference to it at the end
+   of the log. Use the `Fixes:` or `Closes:` prefix and the issue number.
+
+   Examples:
+   * `Fixes: #42`
+
+5. If your commit introduces a breaking change (`semver-major`), it should
+  contain an explanation about the reason of the breaking change, which
+  situation would trigger the breaking change and what is the exact
+  change. The explanation should be prefixed with `BREAKING CHANGE:`.
+
+To validate the commit message locally, run:
+
+```
+npm run lint:commit
+```
+
 ### Testing
 
 For information about how to run the test suite,
