@@ -12,4 +12,5 @@ docker-compose \
   up \
   --build \
   --remove-orphans \
-  --abort-on-container-exit
+  --quiet-pull \
+  --detach
