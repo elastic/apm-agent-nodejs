@@ -11,3 +11,5 @@ build
 coverage
 node_modules
 test/benchmarks/.tmp
+coverage.lcov
+test-suite-output.tap
