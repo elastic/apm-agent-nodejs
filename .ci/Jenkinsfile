@@ -487,10 +487,7 @@ def generateStepForWindows(Map params = [:]){
         } catch(e){
           error(e.toString())
         } finally {
-          docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-            sh(label: 'Convert Test results to JUnit format', script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
-          }
-          junit(allowEmptyResults: true, keepLongStdio: true, testResults: "${BASE_DIR}/**/junit-*.xml")
+          echo 'JUnit archiving no yet in place'
         }
       }
     }
