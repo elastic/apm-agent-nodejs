@@ -679,7 +679,7 @@ A module can have any number of patches and will be applied in the order they ar
 apm.addPatch('timers', (exports, agent, { version, enabled }) => {
   const setTimeout = exports.setTimeout
   exports.setTimeout = (fn, ms) => {
-    const span = agent.createSpan('set-timeout')
+    const span = agent.startSpan('set-timeout')
     return setTimeout(() => {
       span.end()
       fn()
@@ -694,7 +694,7 @@ apm.addPatch('timers', (exports, agent, { version, enabled }) => {
 apm.addPatch(['hapi', '@hapi/hapi'], (exports, agent, { version, enabled }) => {
   const setTimeout = exports.setTimeout
   exports.setTimeout = (fn, ms) => {
-    const span = agent.createSpan('set-timeout')
+    const span = agent.startSpan('set-timeout')
     return setTimeout(() => {
       span.end()
       fn()
