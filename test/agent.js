@@ -1302,6 +1302,52 @@ test('patches', function (t) {
 
     t.end()
   })
+
+  t.test('#registerMetric(name, labels, callback)', function (t) {
+    var agent = Agent()
+    agent.start()
+
+    const mockMetrics = {
+      calledCount: 0,
+      callback: null,
+      cbValue: 0,
+      labels: null,
+      name: null,
+      getOrCreateGauge: function (...args) {
+        this.calledCount++
+        this.name = args[0]
+        this.callback = args[1]
+        this.labels = args[2]
+        this.cbValue = this.callback()
+      }
+    }
+
+    agent._metrics = mockMetrics
+
+    const cb = () => { return 12345 }
+    const labels = { abc: 123 }
+
+    // with labels
+    agent.registerMetric('custom-metrics', labels, cb)
+
+    t.equal(mockMetrics.calledCount, 1)
+    t.equal(mockMetrics.name, 'custom-metrics')
+    t.equal(mockMetrics.callback, cb)
+    t.equal(mockMetrics.labels, labels)
+    t.equal(mockMetrics.cbValue, 12345)
+
+    // without labels
+    const cb2 = () => { return 6789 }
+    agent.registerMetric('custom-metrics2', cb2)
+
+    t.equal(mockMetrics.calledCount, 2)
+    t.equal(mockMetrics.name, 'custom-metrics2')
+    t.equal(mockMetrics.callback, cb2)
+    t.equal(mockMetrics.labels, undefined)
+    t.equal(mockMetrics.cbValue, 6789)
+
+    t.end()
+  })
 })
 
 function assertMetadata (t, payload) {

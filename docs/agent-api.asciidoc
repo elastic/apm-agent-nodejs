@@ -787,3 +787,33 @@ This enables log correlation to APM traces with text-only loggers.
 "trace.id=abc123 span.id=abc123"
 ----
 // end::currentTraceIds[]
+
+[[apm-register-custom-metrics]]
+==== `apm.registerMetric(name[, labels], callback)`
+
+experimental::[]
+
+* `name` +{type-string}+
+Name of the metrics.
+* `labels` +{type-object}+ Contains key/value pairs.
+Optional labels. Omittable.
+* `callback` +{type-function}+
+Must be a function that returns the current metric value.
+
+Register a metric callback.
+
+Take care not to use the names of <<metrics, built-in metrics>>.
+
+[source,js]
+----
+apm.registerMetric( 'ws.connections' , () => {
+  return wss.clients.size;
+})
+
+// or, to additionally label the metric with "module: 'ws'":
+
+apm.registerMetric( 'ws.connections' , {module : 'ws'}, () => {
+  return wss.clients.size;
+})
+
+----
