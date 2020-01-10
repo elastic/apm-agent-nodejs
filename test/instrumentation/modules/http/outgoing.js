@@ -135,8 +135,12 @@ function echoTest (type, handler) {
         res.resume()
       })
 
-      var traceparent = req.getHeader('elastic-apm-traceparent')
-      t.ok(traceparent, 'should have elastic-apm-traceparent header')
+      var traceparent = req.getHeader('traceparent')
+      t.ok(traceparent, 'should have traceparent header')
+      if (agent._conf.useElasticTraceparentHeader) {
+        traceparent = req.getHeader('elastic-apm-traceparent')
+        t.ok(traceparent, 'should have elastic-apm-traceparent header')
+      }
 
       var expected = TraceParent.fromString(trans._context.toString())
       var received = TraceParent.fromString(traceparent)
