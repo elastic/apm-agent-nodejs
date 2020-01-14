@@ -83,7 +83,7 @@ test('new http.Server', function (t) {
     sendRequest(server)
   })
 
-  t.test('support elastic header', function (t) {
+  t.test('support elastic-apm-traceparent header', function (t) {
     resetAgent(function (data) {
       assert(t, data)
       server.close()
