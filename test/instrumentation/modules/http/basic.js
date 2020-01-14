@@ -82,23 +82,41 @@ test('new http.Server', function (t) {
     server.on('request', onRequest(t))
     sendRequest(server)
   })
+
+  t.test('support elastic-apm-traceparent header', function (t) {
+    resetAgent(function (data) {
+      assert(t, data)
+      server.close()
+      t.end()
+    })
+
+    var server = new http.Server()
+    server.on('request', onRequest(t, true))
+    sendRequest(server, undefined, true)
+  })
 })
 
-function sendRequest (server, timeout) {
+function sendRequest (server, timeout, useElasticHeader) {
   server.listen(function () {
     var port = server.address().port
     var context = TraceParent.startOrResume(null, {
       transactionSampleRate: 1.0
     })
 
+    const headers = {}
+    const contextValue = context.toString()
+    if (useElasticHeader) {
+      headers['elastic-apm-traceparent'] = contextValue
+    } else {
+      headers.traceparent = contextValue
+    }
+
     var req = http.request({
       hostname: 'localhost',
       port: port,
       path: '/',
       method: 'GET',
-      headers: {
-        'elastic-apm-traceparent': context.toString()
-      }
+      headers: headers
     }, function (res) {
       if (timeout) throw new Error('should not get to here')
       res.resume()
@@ -113,9 +131,9 @@ function sendRequest (server, timeout) {
   })
 }
 
-function onRequest (t) {
+function onRequest (t, useElasticHeader) {
   return function onRequestHandler (req, res) {
-    var traceparent = req.headers['elastic-apm-traceparent']
+    var traceparent = useElasticHeader ? req.headers['elastic-apm-traceparent'] : req.headers.traceparent
     var parent = TraceParent.fromString(traceparent)
     var context = agent.currentTransaction._context
     t.equal(parent.traceId, context.traceId, 'context trace id matches parent trace id')

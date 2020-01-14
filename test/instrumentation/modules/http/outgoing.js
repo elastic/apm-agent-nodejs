@@ -30,6 +30,11 @@ test('http.request(options, callback)', echoTest('http', (port, cb) => {
   return http.request(options, cb)
 }))
 
+test('http: consider useElasticTraceparentHeader config option', echoTest('http', { useElasticTraceparentHeader: false }, (port, cb) => {
+  var options = { port }
+  return http.request(options, cb)
+}))
+
 methods.forEach(function (name) {
   test(`http.${name}(urlString)`, echoTest('http', (port, cb) => {
     var urlString = `http://localhost:${port}`
@@ -75,6 +80,11 @@ test('https.request(options, callback)', echoTest('https', (port, cb) => {
   return https.request(options, cb)
 }))
 
+test('https: consider useElasticTraceparentHeader config option', echoTest('https', { useElasticTraceparentHeader: false }, (port, cb) => {
+  var options = { port, rejectUnauthorized: false }
+  return https.request(options, cb)
+}))
+
 methods.forEach(function (name) {
   test(`https.${name}(urlString, options)`, echoTest('https', (port, cb) => {
     var urlString = `https://localhost:${port}`
@@ -111,10 +121,15 @@ methods.forEach(function (name) {
   }
 })
 
-function echoTest (type, handler) {
+function echoTest (type, opts, handler) {
+  if (arguments.length === 2) {
+    handler = opts
+    opts = undefined
+  }
+
   return function (t) {
     echoServer(type, (cp, port) => {
-      resetAgent(data => {
+      resetAgent(opts, data => {
         t.equal(data.transactions.length, 1, 'has one transaction')
         t.equal(data.spans.length, 1, 'has one span')
         t.equal(data.spans[0].name, 'GET localhost:' + port + '/', 'has expected span name')
@@ -135,8 +150,13 @@ function echoTest (type, handler) {
         res.resume()
       })
 
-      var traceparent = req.getHeader('elastic-apm-traceparent')
-      t.ok(traceparent, 'should have elastic-apm-traceparent header')
+      var traceparent = req.getHeader('traceparent')
+      t.ok(traceparent, 'should have traceparent header')
+      if (opts && opts.useElasticTraceparentHeader === false) {
+        t.equal(req.getHeader('elastic-apm-traceparent'), undefined)
+      } else {
+        t.ok(req.getHeader('elastic-apm-traceparent'), 'should have elastic-apm-traceparent header')
+      }
 
       var expected = TraceParent.fromString(trans._context.toString())
       var received = TraceParent.fromString(traceparent)
@@ -153,7 +173,8 @@ function echoTest (type, handler) {
   }
 }
 
-function resetAgent (cb) {
+function resetAgent (opts, cb) {
   agent._instrumentation.currentTransaction = null
+  agent._config(opts)
   agent._transport = mockClient(2, cb)
 }
