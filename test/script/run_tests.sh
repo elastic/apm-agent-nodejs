@@ -55,7 +55,9 @@ run_test_suite () {
   fi
 
   npm run test:types
-  npm run test:babel
+  if [[ $major_node_version -ne 13 ]] || [[ $minor_node_version -gt 1 ]]; then
+    npm run test:babel
+  fi
   npm run test:esm
 }
 
