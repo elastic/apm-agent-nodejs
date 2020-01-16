@@ -171,7 +171,7 @@
     "send": "^0.17.1",
     "standard": "^14.3.1",
     "tape": "^4.11.0",
-    "tedious": "^6.6.2",
+    "tedious": "^8.0.1",
     "test-all-versions": "^4.1.1",
     "thunky": "^1.1.0",
     "typescript": "^3.7.2",
