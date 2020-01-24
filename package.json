@@ -151,7 +151,7 @@
     "lambda-local": "^1.6.3",
     "memcached": "^2.2.2",
     "mimic-response": "^2.0.0",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.0",
     "mongodb": "^3.3.4",
     "mongodb-core": "^3.2.7",
     "mysql": "^2.17.1",
