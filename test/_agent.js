@@ -25,6 +25,7 @@ function clean () {
     agent._errorFilters = new Filters()
     agent._transactionFilters = new Filters()
     agent._spanFilters = new Filters()
+    agent._metricsetFilters = new Filters()
     if (agent._instrumentation) {
       agent._instrumentation._started = false
       if (agent._instrumentation._hook) {

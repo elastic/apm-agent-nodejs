@@ -26,6 +26,7 @@ module.exports = function mockAgent (expected, cb) {
     _errorFilters: new Filters(),
     _transactionFilters: new Filters(),
     _spanFilters: new Filters(),
+    _metricsetFilters: new Filters(),
     _transport: mockClient(expected, cb || noop),
     logger: consoleLogLevel({
       level: 'fatal'
