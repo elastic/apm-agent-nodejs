@@ -436,7 +436,7 @@ test('#parseError()', function (t) {
     })
   })
 
-  t.test('should gracefully handle .stack being overwritten', function (t) {
+  t.test('should parse errors whose .stack is overwritten', function (t) {
     var fakeAgent = {
       _conf: {
         sourceLinesErrorAppFrames: 5,
@@ -448,7 +448,7 @@ test('#parseError()', function (t) {
     err.stack = 'foo'
     parsers.parseError(err, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.notOk('culprit' in parsed)
+      t.ok('culprit' in parsed)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.equal(parsed.exception.message, 'foo')
@@ -457,7 +457,37 @@ test('#parseError()', function (t) {
       t.notOk('handled' in parsed.exception)
       t.notOk('attributes' in parsed.exception)
       t.ok('stacktrace' in parsed.exception)
-      t.equal(parsed.exception.stacktrace.length, 0)
+      t.ok(parsed.exception.stacktrace.length > 0)
+      t.end()
+    })
+  })
+
+  t.test('should gracefully handle errors with .originalError property', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
+      },
+      logger: logger
+    }
+    var err = new Error('error with originalError')
+    err.stack = ''
+    err.originalError = {
+      message: 'foo',
+      stack: 'original stack'
+    }
+    parsers.parseError(err, fakeAgent, function (err, parsed) {
+      t.error(err)
+      t.equal(parsed.culprit, 'original stack')
+      t.notOk('log' in parsed)
+      t.ok('exception' in parsed)
+      t.equal(parsed.exception.message, 'error with originalError')
+      t.equal(parsed.exception.type, 'Error')
+      t.notOk('code' in parsed.exception)
+      t.notOk('handled' in parsed.exception)
+      t.notOk('attributes' in parsed.exception)
+      t.ok('stacktrace' in parsed.exception)
+      t.ok(parsed.exception.stacktrace.length > 0)
       t.end()
     })
   })
