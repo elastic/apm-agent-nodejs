@@ -44,6 +44,26 @@ if [ "${IS_EDGE}" = "true" ]; then
   DOCKER_COMPOSE_FILE=docker-compose-edge.yml
 fi
 
+set +e
+NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
+ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
+NODE_VERSION=${NODE_VERSION} \
+TAV_VERSIONS=${TAV_VERSIONS} \
+USER_ID="$(id -u):$(id -g)" \
+docker-compose \
+  --no-ansi \
+  --log-level ERROR \
+  -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
+  build >docker-compose.log 2>docker-compose.err
+
+if [ $? -gt 0 ] ; then
+  echo "Docker compose failed, see the below log output"
+  cat docker-compose.log && rm docker-compose.log
+  cat docker-compose.err && rm docker-compose.err
+  exit 1
+fi
+
+set -e
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
 NODE_VERSION=${NODE_VERSION} \
@@ -55,10 +75,10 @@ docker-compose \
   -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
   up \
   --exit-code-from node_tests \
-  --build \
   --remove-orphans \
   --abort-on-container-exit \
   node_tests
+
 NODE_VERSION=${NODE_VERSION} docker-compose \
   --no-ansi \
   --log-level ERROR \
