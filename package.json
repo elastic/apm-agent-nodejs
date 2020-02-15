@@ -147,7 +147,7 @@
     "json-schema-ref-parser": "^7.1.2",
     "knex": "^0.20.2",
     "koa": "^2.11.0",
-    "koa-router": "^7.4.0",
+    "koa-router": "^8.0.8",
     "lambda-local": "^1.6.3",
     "memcached": "^2.2.2",
     "mimic-response": "^2.0.0",
