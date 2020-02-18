@@ -11,6 +11,7 @@ services:
     environment:
       POSTGRES_USER: 'postgres'
       POSTGRES_DB: 'test_elastic_apm'
+      POSTGRES_HOST_AUTH_METHOD: 'trust'
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 1s
@@ -101,7 +102,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-  
+
   memcached:
     image: memcached:alpine
     user: "11211"
