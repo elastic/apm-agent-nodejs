@@ -7,11 +7,32 @@ endif::[]
 
 == Upgrading
 
+Upgrades between minor versions of the agent, like from 1.1 to 1.2 are always backwards compatible.
+Upgrades that involve a major version bump often come with some backwards incompatible changes.
+
 The following upgrade guides are available:
 
 * <<upgrade-to-v1,Upgrade to v1.x>> - Follow this guide to upgrade from version 0.x to version 1.x of the Elastic APM Node.js agent
 * <<upgrade-to-v2,Upgrade to v2.x>> - Follow this guide to upgrade from version 1.x to version 2.x of the Elastic APM Node.js agent
 * <<upgrade-to-v3,Upgrade to v3.x>> - Follow this guide to upgrade from version 2.x to version 3.x of the Elastic APM Node.js agent
+
+[float]
+[[end-of-life-dates]]
+=== End of life dates
+
+We love all our products, but sometimes we must say goodbye to a release so that we can continue moving
+forward on future development and innovation.
+Our https://www.elastic.co/support/eol[End of life policy] defines how long a given release is considered supported,
+as well as how long a release is considered still in active development or maintenance.
+The table below is a simplified description of this policy.
+
+[options="header"]
+|====
+|Agent version |EOL Date |Maintained until
+|1.x |2019-08-06 |2.0
+|2.x |2020-05-14 |3.0
+|3.x |2021-03-30 |4.0
+|====
 
 include::./upgrade-to-v1.asciidoc[Upgrade to v1.x]
 
