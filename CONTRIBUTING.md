@@ -163,7 +163,7 @@ If you have access to make releases, the process is as follows:
 1. Be sure you have checked out the `master` branch and have pulled latest changes
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
 1. Add commit messages to `CHANGELOG.asciidoc` (You may skip non-user-visible changes)
-1. If a major release, update the EOL table in `docs/upgrading.asciidoc`.
+1. If a major or minor release, update the EOL table in `docs/upgrading.asciidoc`. EOL is 18 months after release date.
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
 1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
 1. Reset the latest major branch (`1.x`, `2.x` etc) to point to the current master, e.g. `git branch -f 3.x master`
