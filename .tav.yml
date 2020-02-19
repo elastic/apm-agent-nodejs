@@ -238,9 +238,17 @@ hapi-async-await:
   commands:
     - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
-'@hapi/hapi':
+'@hapi/hapi-old':
+  name: '@hapi/hapi'
   node: '>=8.2'
-  versions: '>=17.0.0'
+  versions: '>=17.0.0 <19.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic.js
+    - node test/instrumentation/modules/hapi/set-framework-2.js
+'@hapi/hapi-new':
+  name: '@hapi/hapi'
+  node: '>=12'
+  versions: '>=19.0.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.js
     - node test/instrumentation/modules/hapi/set-framework-2.js
