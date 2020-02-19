@@ -7,8 +7,10 @@ endif::[]
 
 == Upgrading
 
-Upgrades between minor versions of the agent, like from 1.1 to 1.2 are always backwards compatible.
-Upgrades that involve a major version bump often come with some backwards incompatible changes.
+The Elastic APM Node.js Agent uses https://semver.org/[semantic versioning], and therefore:
+
+* Upgrades between minor versions of the agent, like from 1.1 to 1.2 are always backwards compatible.
+* Upgrades that involve a major version bump often come with some backwards incompatible changes.
 
 The following upgrade guides are available:
 
