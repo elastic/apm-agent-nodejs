@@ -443,7 +443,14 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
         connector(function (err, client, release) {
           t.error(err)
           client.query(sql, basicQueryCallback(t))
-          release()
+
+          if (semver.gte(pgVersion, '7.5.0')) {
+            release()
+          } else {
+            // Race-condition: Wait a bit so the query callback isn't called
+            // with a "Connection terminated by user" error
+            setTimeout(release, 100)
+          }
         })
       })
     })
