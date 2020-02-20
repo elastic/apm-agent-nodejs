@@ -29,6 +29,7 @@ FILES=( \
   "transactions/mark.json" \
   "transactions/transaction.json" \
   "context.json" \
+  "http_response.json" \
   "message.json" \
   "metadata.json" \
   "process.json" \
