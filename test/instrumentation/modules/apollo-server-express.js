@@ -195,6 +195,69 @@ test('POST /graphql - sort multiple queries', function (t) {
   })
 })
 
+test('POST /graphql - sub-query', function (t) {
+  resetAgent(done(t, 'books'))
+
+  var books = [
+    {
+      title: 'Harry Potter and the Chamber of Secrets',
+      author: 'J.K. Rowling',
+      publisher: { name: 'ACME' }
+    },
+    {
+      title: 'Jurassic Park',
+      author: 'Michael Crichton',
+      publisher: { name: 'ACME' }
+    }
+  ]
+  var typeDefs = gql`
+    type Publisher {
+      name: String
+    }
+    type Book {
+      title: String
+      author: String
+      publisher: Publisher
+    }
+    type Query {
+      books: [Book]
+    }
+  `
+  var resolvers = {
+    Query: {
+      books () {
+        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        return books
+      }
+    }
+  }
+  var query = '{"query":"{ books { title author, publisher { name } } }"}'
+
+  var app = express()
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
+  apollo.applyMiddleware({ app })
+  var server = app.listen(function () {
+    var port = server.address().port
+    var opts = {
+      method: 'POST',
+      port: port,
+      path: '/graphql',
+      headers: { 'Content-Type': 'application/json' }
+    }
+    var req = http.request(opts, function (res) {
+      var chunks = []
+      res.on('data', chunks.push.bind(chunks))
+      res.on('end', function () {
+        server.close()
+        var result = Buffer.concat(chunks).toString()
+        t.equal(result, JSON.stringify({ data: { books } }) + '\n')
+        agent.flush()
+      })
+    })
+    req.end(query)
+  })
+})
+
 function done (t, query) {
   return function (data, cb) {
     t.equal(data.transactions.length, 1)
