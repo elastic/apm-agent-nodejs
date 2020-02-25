@@ -21,6 +21,15 @@ endif::[]
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.4.0]]
+==== 3.4.0 - 2020/2/21
+
+* feat: support W3C TraceContext traceparent header {pull}1587[#1587])
+* feat: add custom metrics API (experimental) {pull}1571[#1571])
+* feat(koa-router): add support for v8.x {pull}1642[#1642])
+* fix(cassandra): improve support for cassandra-driver v4.4.0+ {pull}1636[#1636])
+* fix: support promisifying setTimeout and friends {pull}1636[#1636])
+
 [[release-notes-3.3.0]]
 ==== 3.3.0 - 2019/12/13
 
