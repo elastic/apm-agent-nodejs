@@ -249,18 +249,15 @@ pipeline {
       agent none
       when {
         beforeAgent true
-        allOf {
-          anyOf {
-            environment name: 'GIT_BUILD_CAUSE', value: 'pr'
-            expression { return !params.Run_As_Master_Branch }
-          }
+        anyOf {
+          changeRequest()
+          expression { return !params.Run_As_Master_Branch }
         }
       }
       steps {
-        log(level: 'INFO', text: 'Launching Async ITs')
         build(job: env.ITS_PIPELINE, propagate: false, wait: false,
               parameters: [string(name: 'AGENT_INTEGRATION_TEST', value: 'Node.js'),
-                           string(name: 'BUILD_OPTS', value: "--nodejs-agent-package ${env.CHANGE_FORK?.trim() ?: 'elastic' }/${env.REPO}#${env.GIT_BASE_COMMIT}"),
+                           string(name: 'BUILD_OPTS', value: "--nodejs-agent-package ${env.CHANGE_FORK?.trim() ?: 'elastic' }/${env.REPO}#${env.GIT_BASE_COMMIT} --opbeans-node-agent-branch ${env.GIT_BASE_COMMIT}"),
                            string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
                            string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
                            string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
@@ -436,7 +433,7 @@ def getSmartTAVContext() {
         withGithubNotify(context: 'Linting') {
           deleteDir()
           unstash 'source'
-          docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
+          docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app -v /var/lib/jenkins/.git-references/:/var/lib/jenkins/.git-references"){
             withEnv(["HOME=/app"]) {
               sh(label: 'Basic tests I', script: 'cd /app && .ci/scripts/test_basic.sh')
               sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
