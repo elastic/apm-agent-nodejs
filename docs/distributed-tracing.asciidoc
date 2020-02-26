@@ -39,7 +39,8 @@ In a distributed trace, multiple transactions are linked together with a `tracep
 To create your own distributed trace, you must pass the current `traceparent` from an outgoing service,
 to a receiving service, and create a new transaction as a child of that `traceparent`:
 
-1. In one service, start a transaction with <<apm-start-transaction>>, or a span with <<apm-start-span>>.
+1. In one service, start a transaction with <<apm-start-transaction,`apm.startTransaction()`>>,
+or a span with <<apm-start-span,`apm.startSpan()`>>.
 
 2. Get the serialized `traceparent` string of the started transaction/span with <<apm-current-traceparent>>.
 
@@ -47,7 +48,8 @@ to a receiving service, and create a new transaction as a child of that `tracepa
 
 4. Decode and store the `traceparent` in the receiving service.
 
-5. Manually start a new transaction as a child of the received `traceparent`, with <<apm-start-transaction>>.
+5. Manually start a new transaction as a child of the received `traceparent`,
+with <<apm-start-transaction,`apm.startTransaction()`>>.
 Pass in the `traceparent` as the `childOf` option.
 
 [float]
