@@ -21,7 +21,7 @@ endif::[]
 [[release-notes-2.x]]
 === Node.js Agent version 2.x
 
-[[release-notes-2.17.1]]
+[[release-notes-2.17.2]]
 ==== 2.17.2 - 2019/10/02
 
 [float]
