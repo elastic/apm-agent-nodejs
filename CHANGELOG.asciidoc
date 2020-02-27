@@ -21,6 +21,20 @@ endif::[]
 [[release-notes-2.x]]
 === Node.js Agent version 2.x
 
+[[release-notes-2.17.3]]
+==== 2.17.3 - 2020/02/27
+
+[float]
+===== Bug fixes
+* fix: support promisifying setTimeout and friends {pull}1649[#1649]
+* fix(cassandra): improve support for cassandra-driver v4.4.0+ {pull}1649[#1649]
+* fix(knex): make stack traces work in 0.18+ {pull}1500[#1500]
+* fix(tedious): ensure shimmed module exposes same API {pull}1496[#1496]
+* fix(metrics): do not send transaction breakdowns when disabled {pull}1489[#1489]
+* fix(tedious): support 6.5+ {pull}1488[#1488]
+* fix: always end transaction when socket is closed prematurely {pull}1445[#1445]
+* perf: cache 'ids' value of transactions and spans {pull}1438[#1438]
+
 [[release-notes-2.17.2]]
 ==== 2.17.2 - 2019/10/02
 
