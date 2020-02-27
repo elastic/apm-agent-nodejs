@@ -114,7 +114,7 @@
     "@commitlint/travis-cli": "^8.2.0",
     "@hapi/hapi": "^18.4.0",
     "@koa/router": "^8.0.1",
-    "@types/node": "^12.7.5",
+    "@types/node": "6.0.x",
     "apollo-server-express": "^2.9.3",
     "aws-sdk": "^2.529.0",
     "benchmark": "^2.1.4",
