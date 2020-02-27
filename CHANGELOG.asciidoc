@@ -40,15 +40,15 @@ endif::[]
 
 [float]
 ===== Bug fixes
-* chore(http): workaround(s) to suppress DEP0066 warnings {pull}1417[#1417], {pull}1424[#1424]
+* chore(http): workaround(s) to suppress DEP0066 warnings {pull}1424[#1424]
 
 [[release-notes-2.17.1]]
 ==== 2.17.1 - 2019/9/26
 
 [float]
 ===== Bug fixes
-* fix: support all falsy return values from error filters {pull}1389[#1389]
-* fix: capture all non-string http bodies {pull}1376[#1376]
+* fix: support all falsy return values from error filters {pull}1394[#1394]
+* fix: capture all non-string http bodies {pull}1381[#1381]
 
 [[release-notes-2.17.0]]
 ==== 2.17.0 - 2019/9/19
