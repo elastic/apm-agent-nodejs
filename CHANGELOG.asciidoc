@@ -21,6 +21,13 @@ endif::[]
 [[release-notes-2.x]]
 === Node.js Agent version 2.x
 
+[[release-notes-2.17.2]]
+==== 2.17.2 - 2019/10/02
+
+[float]
+===== Bug fixes
+* chore(http): workaround(s) to suppress DEP0066 warnings {pull}1417[#1417], {pull}1424[#1424]
+
 [[release-notes-2.17.1]]
 ==== 2.17.1 - 2019/9/26
 
