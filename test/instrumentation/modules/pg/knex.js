@@ -134,7 +134,10 @@ function createClient (t, cb) {
   setup(function () {
     knex = Knex({
       client: 'pg',
-      connection: 'postgres:///test_elastic_apm'
+      connection: {
+        database: 'test_elastic_apm',
+        user: process.env.PGUSER || 'postgres'
+      }
     })
     t.on('end', () => {
       knex.destroy(function (err) {

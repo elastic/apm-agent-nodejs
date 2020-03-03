@@ -470,13 +470,22 @@ test('serviceName defaults to package name', function (t) {
       {
         action: 'mkdirp',
         dir: path.join(tmp, 'node_modules')
-      },
-      {
+      }
+    ]
+
+    if (process.platform === 'win32') {
+      files.push({
+        action: 'npm link',
+        from: path.resolve(__dirname, '..'),
+        to: tmp
+      })
+    } else {
+      files.push({
         action: 'symlink',
         from: path.resolve(__dirname, '..'),
         to: path.join(tmp, 'node_modules/elastic-apm-node')
-      }
-    ]
+      })
+    }
 
     // NOTE: Reduce the sequence to a promise chain rather
     // than using Promise.all(), as the tasks are dependent.
@@ -491,6 +500,15 @@ test('serviceName defaults to package name', function (t) {
           }
           case 'symlink': {
             return symlink(file.from, file.to)
+          }
+          case 'npm link': {
+            return exec('npm link', {
+              cwd: file.from
+            }).then(() => {
+              return exec('npm link elastic-apm-node', {
+                cwd: file.to
+              })
+            })
           }
         }
       })

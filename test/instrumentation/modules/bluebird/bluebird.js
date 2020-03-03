@@ -927,7 +927,7 @@ test('Promise.promisify', function (t) {
 
     readFile(__filename, 'utf8').then(function (contents) {
       var firstLine = contents.split('\n')[0]
-      t.equal(firstLine, '\'use strict\'')
+      t.ok(/use strict/.test(firstLine))
       t.equal(ins.currentTransaction.id, trans.id)
     })
   })
