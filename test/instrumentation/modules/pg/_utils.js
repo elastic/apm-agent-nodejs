@@ -6,7 +6,10 @@ exports.reset = reset
 exports.loadData = loadData
 
 function reset (cb) {
-  var client = new Client({ database: 'postgres' })
+  var client = new Client({
+    database: 'postgres',
+    user: process.env.PGUSER || 'postgres'
+  })
 
   client.connect(function (err) {
     if (err) throw err
@@ -22,7 +25,10 @@ function reset (cb) {
 }
 
 function loadData (cb) {
-  var client = new Client({ database: 'test_elastic_apm' })
+  var client = new Client({
+    database: 'test_elastic_apm',
+    user: process.env.PGUSER || 'postgres'
+  })
 
   client.connect(function (err) {
     if (err) throw err

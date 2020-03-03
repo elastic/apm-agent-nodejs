@@ -1362,10 +1362,7 @@ function assertMetadata (t, payload) {
   t.equal(payload.process.pid, process.pid)
   t.ok(payload.process.pid > 0, 'should have a pid greater than 0')
   t.ok(payload.process.title, 'should have a process title')
-  t.ok(
-    /(npm|node)/.test(payload.process.title),
-    `process.title should contain expected value (was: "${payload.process.title}")`
-  )
+  t.equal(payload.process.title, process.title)
   t.deepEqual(payload.process.argv, process.argv)
   t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
 }
