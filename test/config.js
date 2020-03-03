@@ -13,7 +13,6 @@ var pFinally = require('p-finally')
 var rimraf = require('rimraf')
 var semver = require('semver')
 var test = require('tape')
-var promisify = require('util.promisify')
 
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
@@ -442,11 +441,11 @@ test('valid serviceName => active', function (t) {
 })
 
 test('serviceName defaults to package name', function (t) {
-  var mkdirpPromise = promisify(mkdirp)
-  var rimrafPromise = promisify(rimraf)
-  var writeFile = promisify(fs.writeFile)
-  var symlink = promisify(fs.symlink)
-  var exec = promisify(cp.exec)
+  var mkdirpPromise = util.promisify(mkdirp)
+  var rimrafPromise = util.promisify(rimraf)
+  var writeFile = util.promisify(fs.writeFile)
+  var symlink = util.promisify(fs.symlink)
+  var exec = util.promisify(cp.exec)
 
   function testServiceConfig (pkg, handle) {
     var tmp = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
@@ -522,9 +521,7 @@ test('serviceName defaults to package name', function (t) {
         })
       })
       .then(result => {
-        // NOTE: Real util.promisify returns an object,
-        // the polyfill just returns stdout as a string.
-        return JSON.parse(result.stdout || result)
+        return JSON.parse(result.stdout)
       })
       .catch(err => {
         t.error(err)

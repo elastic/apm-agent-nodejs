@@ -21,6 +21,15 @@ endif::[]
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.4.0]]
+==== 3.4.0 - 2020/2/21
+
+* feat: support W3C TraceContext traceparent header {pull}1587[#1587])
+* feat: add custom metrics API (experimental) {pull}1571[#1571])
+* feat(koa-router): add support for v8.x {pull}1642[#1642])
+* fix(cassandra): improve support for cassandra-driver v4.4.0+ {pull}1636[#1636])
+* fix: support promisifying setTimeout and friends {pull}1636[#1636])
+
 [[release-notes-3.3.0]]
 ==== 3.3.0 - 2019/12/13
 
@@ -65,13 +74,34 @@ endif::[]
 [[release-notes-2.x]]
 === Node.js Agent version 2.x
 
+[[release-notes-2.17.3]]
+==== 2.17.3 - 2020/2/27
+
+[float]
+===== Bug fixes
+* fix: support promisifying setTimeout and friends {pull}1649[#1649]
+* fix(cassandra): improve support for cassandra-driver v4.4.0+ {pull}1649[#1649]
+* fix(knex): make stack traces work in 0.18+ {pull}1500[#1500]
+* fix(tedious): ensure shimmed module exposes same API {pull}1496[#1496]
+* fix(metrics): do not send transaction breakdowns when disabled {pull}1489[#1489]
+* fix(tedious): support 6.5+ {pull}1488[#1488]
+* fix: always end transaction when socket is closed prematurely {pull}1445[#1445]
+* perf: cache 'ids' value of transactions and spans {pull}1438[#1438]
+
+[[release-notes-2.17.2]]
+==== 2.17.2 - 2019/10/2
+
+[float]
+===== Bug fixes
+* chore(http): workaround(s) to suppress DEP0066 warnings {pull}1424[#1424]
+
 [[release-notes-2.17.1]]
 ==== 2.17.1 - 2019/9/26
 
 [float]
 ===== Bug fixes
-* fix: support all falsy return values from error filters {pull}1389[#1389]
-* fix: capture all non-string http bodies {pull}1376[#1376]
+* fix: support all falsy return values from error filters {pull}1394[#1394]
+* fix: capture all non-string http bodies {pull}1381[#1381]
 
 [[release-notes-2.17.0]]
 ==== 2.17.0 - 2019/9/19

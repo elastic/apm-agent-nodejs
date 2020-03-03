@@ -13,12 +13,16 @@ var sharedInstrumentation
 
 module.exports = function mockAgent (expected, cb) {
   var agent = {
-    _conf: config({
-      abortedErrorThreshold: '250ms',
-      centralConfig: false,
-      errorOnAbortedRequests: false,
-      metricsInterval: 0
-    }),
+    _config: function (opts) {
+      this._conf = config(
+        Object.assign({
+          abortedErrorThreshold: '250ms',
+          centralConfig: false,
+          errorOnAbortedRequests: false,
+          metricsInterval: 0
+        }, opts)
+      )
+    },
     _errorFilters: new Filters(),
     _transactionFilters: new Filters(),
     _spanFilters: new Filters(),
@@ -28,6 +32,7 @@ module.exports = function mockAgent (expected, cb) {
     }),
     setFramework: function () {}
   }
+  agent._config()
 
   agent._metrics = new Metrics(agent)
   agent._metrics.start()

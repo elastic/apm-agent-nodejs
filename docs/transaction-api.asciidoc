@@ -171,6 +171,9 @@ This enables the correlation of the spans the JavaScript Real User Monitoring (R
 If your backend service generates the HTML page dynamically,
 initializing the JavaScript RUM agent with the value of this method allows analyzing the time spent in the browser vs in the backend services.
 
+// WARNING: The below content is reused in distributed-tracing.asciidoc
+// Ensure any changes made here are safe to include on that page as well.
+// tag::ensure-parent-id-snippet[]
 To enable the JavaScript RUM agent,
 add a snippet similar to this to the body of your HTML page,
 preferably before other JavaScript libraries:
@@ -185,6 +188,7 @@ elasticApm.init({
   pageLoadSampled: ${transaction.sampled}
 })
 ----
+// end::ensure-parent-id-snippet[]
 
 See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
 

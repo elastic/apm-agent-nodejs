@@ -37,6 +37,8 @@ include::./log-correlation.asciidoc[]
 
 include::./source-maps.asciidoc[]
 
+include::./distributed-tracing.asciidoc[]
+
 include::./performance-tuning.asciidoc[]
 
 include::./troubleshooting.asciidoc[]
