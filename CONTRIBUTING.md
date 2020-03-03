@@ -158,7 +158,7 @@ The following is an overview of what's required in order to add support to the a
 
 If you have access to make releases, the process is as follows:
 
-#### Current major
+#### Current major (Manually)
 
 1. Be sure you have checked out the `master` branch and have pulled latest changes
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
@@ -183,3 +183,15 @@ If you have access to make releases, the process is as follows:
 1. Push commits and tags upstream with `git push upstream <major_branch> && git push upstream --tags` (and optionally to your own fork as well)
 1. Publish to npm with `npm publish --tag=2x` (where `2x` is the tag for the past major version being published)
 1. Make a PR against `master` containing the updates to `CHANGELOG.asciidoc` so that `master` always contain information about all releases
+
+#### CI based
+
+The release process is also automated in the way any specific commit from the master branch can be potentially released, for such it's required the below steps:
+
+1. Login to apm-ci.elastic.co
+1. Go to the [master](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/master/) pipeline.
+1. Click on `Build with parameters` and choose the `release` checkbox.
+1. Wait for an email to confirm the release is ready to be approved, it might take roughly 30 minutes.
+1. Confirm if the list of changes are the ones that are expected.
+1. Approve or abort.
+1. Then you can go to the https://registry.npmjs.org and GitHub repo to validate that the bundles and release notes have been published.
