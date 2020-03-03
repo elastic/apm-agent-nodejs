@@ -478,13 +478,21 @@ def generateStepForWindows(Map params = [:]){
             '''
             bat 'npm install'
             bat 'node test/test.js'
+            stash includes: '**/*-output.tap', name: 'windows-tap', useDefaultExcludes: true
           }
         } catch(e){
           error(e.toString())
-        } finally {
-          echo 'JUnit archiving no yet in place'
         }
       }
+    }
+
+    // Let's now prepare the test output
+    dir('windows') {
+      unstash 'windows-tap'
+      docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}/windows:/app"){
+        sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
+      }
+      junit(allowEmptyResults: true, keepLongStdio: true, testResults: '**/junit-*.xml')
     }
 
     // If the above execution failed, then it will not reach this section. TBD
