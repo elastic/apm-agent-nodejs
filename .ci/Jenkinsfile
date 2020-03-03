@@ -471,15 +471,13 @@ def generateStepForWindows(Map params = [:]){
           deleteDir()
           unstash 'source'
           dir(BASE_DIR) {
-            powershell label: 'Install tools', script: ".\\.ci\\scripts\\windows\\install-tools.ps1"
+            installTools([ [tool: 'nodejs', version: "${version}" ] ])
             bat label: 'Tool versions', script: '''
               npm --version
               node --version
             '''
             bat 'npm install'
-            bat '''
-              node test/test.js
-            '''
+            bat 'node test/test.js'
           }
         } catch(e){
           error(e.toString())
