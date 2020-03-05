@@ -33,16 +33,16 @@ Arguments:
   If used,
   `node_version` must be specified (default: none)
 
-Example running test suite on Node.js 8:
+Example running test suite on Node.js 12:
 
 ```
-npm test all 8
+npm test all 12
 ```
 
-Example running PostgreSQL and Redis tav tests on Node.js 8:
+Example running PostgreSQL and Redis tav tests on Node.js 12:
 
 ```
-npm test all 8 pg,redis
+npm test all 12 pg,redis
 ```
 
 ## Run tests outside Docker
