@@ -458,6 +458,13 @@ test('#parseError()', function (t) {
       t.notOk('attributes' in parsed.exception)
       t.ok('stacktrace' in parsed.exception)
       t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(frame => {
+        t.ok('abs_path' in frame)
+        t.ok('filename' in frame)
+        t.ok('function' in frame)
+        t.ok('lineno' in frame)
+        t.ok('library_frame' in frame)
+      });
       t.end()
     })
   })
@@ -488,6 +495,13 @@ test('#parseError()', function (t) {
       t.notOk('attributes' in parsed.exception)
       t.ok('stacktrace' in parsed.exception)
       t.ok(parsed.exception.stacktrace.length > 0)
+      parsed.exception.stacktrace.forEach(frame => {
+        t.ok('abs_path' in frame)
+        t.ok('filename' in frame)
+        t.ok('function' in frame)
+        t.ok('lineno' in frame)
+        t.ok('library_frame' in frame)
+      });
       t.end()
     })
   })
