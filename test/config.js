@@ -269,13 +269,21 @@ bytesValues.forEach(function (key) {
 })
 
 var timeValues = [
-  'apiRequestTime',
   'abortedErrorThreshold',
+  'apiRequestTime',
+  'metricsInterval',
   'serverTimeout'
 ]
 
 timeValues.forEach(function (key) {
   test(key + ' should convert minutes to seconds', function (t) {
+    if (key === 'metricsInterval') {
+      delete process.env.ELASTIC_APM_METRICS_INTERVAL
+      t.on('end', function () {
+        process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+      })
+    }
+
     var agent = Agent()
     var opts = {}
     opts[key] = '1m'
@@ -285,6 +293,13 @@ timeValues.forEach(function (key) {
   })
 
   test(key + ' should convert milliseconds to seconds', function (t) {
+    if (key === 'metricsInterval') {
+      delete process.env.ELASTIC_APM_METRICS_INTERVAL
+      t.on('end', function () {
+        process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+      })
+    }
+
     var agent = Agent()
     var opts = {}
     opts[key] = '2000ms'
@@ -294,6 +309,13 @@ timeValues.forEach(function (key) {
   })
 
   test(key + ' should parse seconds', function (t) {
+    if (key === 'metricsInterval') {
+      delete process.env.ELASTIC_APM_METRICS_INTERVAL
+      t.on('end', function () {
+        process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+      })
+    }
+
     var agent = Agent()
     var opts = {}
     opts[key] = '5s'
@@ -303,6 +325,13 @@ timeValues.forEach(function (key) {
   })
 
   test(key + ' should support bare numbers', function (t) {
+    if (key === 'metricsInterval') {
+      delete process.env.ELASTIC_APM_METRICS_INTERVAL
+      t.on('end', function () {
+        process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
+      })
+    }
+
     var agent = Agent()
     var opts = {}
     opts[key] = 10
