@@ -464,7 +464,7 @@ test('#parseError()', function (t) {
         t.ok('function' in frame)
         t.ok('lineno' in frame)
         t.ok('library_frame' in frame)
-      });
+      })
       t.end()
     })
   })
@@ -501,7 +501,7 @@ test('#parseError()', function (t) {
         t.ok('function' in frame)
         t.ok('lineno' in frame)
         t.ok('library_frame' in frame)
-      });
+      })
       t.end()
     })
   })
