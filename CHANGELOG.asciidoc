@@ -24,8 +24,8 @@ endif::[]
 [[release-notes-3.5.0]]
 ==== 3.5.0 - 2020/3/9
 
-* feat(error): get stack trace from Error-like objects {pull}1613)[#1613)]
-* fix: add logUncaughtExceptions conf option to TypeScript typings {pull}1668)[#1668)]
+* feat(error): get stack trace from Error-like objects {pull}1613[#1613]
+* fix: add logUncaughtExceptions conf option to TypeScript typings {pull}1668[#1668]
 
 [[release-notes-3.4.0]]
 ==== 3.4.0 - 2020/2/21
