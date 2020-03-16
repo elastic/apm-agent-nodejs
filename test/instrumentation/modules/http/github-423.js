@@ -1,5 +1,7 @@
 'use strict'
 
+setTimeout(require('why-is-node-running'), 60 * 1000)
+
 require('../../../..').start({
   serviceName: 'test',
   captureExceptions: false,

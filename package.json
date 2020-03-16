@@ -178,6 +178,7 @@
     "typescript": "^3.7.5",
     "untildify": "^4.0.0",
     "wait-on": "^3.3.0",
+    "why-is-node-running": "^2.1.2",
     "ws": "^7.2.1"
   },
   "greenkeeper": {
