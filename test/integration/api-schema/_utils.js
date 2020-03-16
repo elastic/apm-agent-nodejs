@@ -6,7 +6,7 @@ const tmpdir = require('os').tmpdir
 const join = require('path').join
 
 const validator = require('is-my-json-valid')
-const refParser = require('json-schema-ref-parser')
+const refParser = require('@apidevtools/json-schema-ref-parser')
 const rimraf = require('rimraf')
 const thunky = require('thunky')
 
