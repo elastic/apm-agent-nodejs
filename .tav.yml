@@ -18,7 +18,9 @@ got-new:
   name: got
   versions: '>=10.0.0 <10.5.1 || >10.5.1' # v10.5.1 is broken
   node: '>=10'
-  commands: node test/instrumentation/modules/http/github-423.js
+  commands:
+    - node test/instrumentation/modules/http/github-423.js
+    - echo hello
 mysql:
   versions: ^2.0.0
   commands:
