@@ -130,3 +130,29 @@ Run the benchmarks:
 ```
 npm run bench
 ```
+
+## Jenkins
+
+Below are some useful GitHub PR comments that will trigger Jenkins
+builds for the current PR (you need to be a project member for these to
+have any effect).
+
+Run the regular test suite:
+
+```
+jenkins run the tests please
+```
+
+Run the lint tests only:
+
+```
+jenkins run lint please
+```
+
+Run TAV tests for one or more modules, where `<modules>` can be either a
+comma separated list of modules (e.g.  `memcached,redis`) or the
+string literal `ALL` to test _all_ modules:
+
+```
+jenkins run the module tests for <modules>
+```
