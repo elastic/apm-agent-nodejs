@@ -38,6 +38,7 @@ test(function (t) {
       var span = findObjInArray(data.spans, 'name', name)
       t.equal(span.type, 'cache')
       t.equal(span.subtype, 'redis')
+      t.deepEqual(span.context.destination, { service: { name: 'redis', resource: 'redis', type: 'cache' } })
 
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000)

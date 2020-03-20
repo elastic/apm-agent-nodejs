@@ -42,6 +42,9 @@ test(function (t) {
     t.equal(spans[6].name, 'memcached.get')
     t.equal(spans[6].type, 'db.memcached.get')
     t.equal(spans[6].context.db.statement, 'get foo')
+    spans.forEach(span => {
+      t.deepEqual(span.context.destination, { service: { name: 'memcached', resource: 'memcached', type: 'db' } })
+    })
     t.end()
   })
   var Memcached = require('memcached')

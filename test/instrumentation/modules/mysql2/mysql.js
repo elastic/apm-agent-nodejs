@@ -386,6 +386,7 @@ function assertSpan (t, span, sql) {
   t.equal(span.subtype, 'mysql')
   t.equal(span.action, 'query')
   t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+  t.deepEqual(span.context.destination, { service: { name: 'mysql', resource: 'mysql', type: 'db' }, port: 3306 })
 }
 
 function createConnection (cb) {
