@@ -207,6 +207,14 @@ function done (t, method, path, query) {
 
     if (queryRegexp.test(path)) {
       t.deepEqual(span2.context.db, { statement: query || '{}', type: 'elasticsearch' })
+      const [address, port] = host.split(':')
+      t.deepEqual(span2.context.destination, {
+        service: {
+          name: 'elasticsearch', resource: 'elasticsearch', type: 'db'
+        },
+        port: Number(port),
+        address
+      })
     } else {
       t.notOk(span2.context)
     }
