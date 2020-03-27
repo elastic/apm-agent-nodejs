@@ -53,6 +53,9 @@ pipeline {
               "^test/instrumentation/modules/"
             ]
             env.TAV_UPDATED = isGitRegionMatch(patterns: regexps)
+
+            // Skip all the stages except docs for PR's with asciidoc or md changes only
+            env.ONLY_DOCS = isGitRegionMatch(patterns: [ '.*\\.(asciidoc|md)' ], shouldMatchAll: true)
           }
         }
       }
@@ -67,7 +70,10 @@ pipeline {
       }
       when {
         beforeAgent true
-        expression { return params.tests_ci }
+        allOf {
+          expression { return env.ONLY_DOCS == "false" }
+          expression { return params.tests_ci }
+        }
       }
       steps {
         withGithubNotify(context: 'Test', tab: 'tests') {
@@ -120,6 +126,7 @@ pipeline {
             expression { return env.TAV_UPDATED != "false" }
           }
           expression { return params.tav_ci }
+          expression { return env.ONLY_DOCS == "false" }
         }
       }
       steps {
@@ -157,6 +164,7 @@ pipeline {
             triggeredBy 'TimerTrigger'
           }
           expression { return params.test_edge_ci }
+          expression { return env.ONLY_DOCS == "false" }
         }
       }
       parallel {
@@ -254,9 +262,12 @@ pipeline {
       agent none
       when {
         beforeAgent true
-        anyOf {
-          changeRequest()
-          expression { return !params.Run_As_Master_Branch }
+        allOf {
+          expression { return env.ONLY_DOCS == "false" }
+          anyOf {
+            changeRequest()
+            expression { return !params.Run_As_Master_Branch }
+          }
         }
       }
       steps {
