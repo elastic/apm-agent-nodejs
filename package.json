@@ -120,7 +120,7 @@
     "@types/node": "^13.7.4",
     "apollo-server-express": "^2.10.1",
     "aws-sdk": "^2.622.0",
-    "backport": "^4.9.0",
+    "backport": "^5.1.0",
     "benchmark": "^2.1.4",
     "bluebird": "^3.7.2",
     "cassandra-driver": "^4.4.0",
