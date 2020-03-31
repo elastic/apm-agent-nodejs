@@ -471,7 +471,7 @@ def generateStepForWindows(Map params = [:]){
           deleteDir()
           unstash 'source'
           dir(BASE_DIR) {
-            installTools([ [tool: 'nodejs', version: "${version}" ] ])
+            installTools([ [tool: 'nodejs-lts', version: "${version}" ] ])
             bat label: 'Tool versions', script: '''
               npm --version
               node --version
