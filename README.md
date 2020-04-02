@@ -56,7 +56,7 @@ Contributions are welcome,
 but we recommend that you take a moment and read our [contribution guide](CONTRIBUTING.md) first.
 
 To see what data is being sent to the APM Server,
-use the environment variable `ELASTIC_APM_PAYLOAD_LOG_FILE` (or the config option `payloadLogFile`) to speicfy a log file,
+use the environment variable `ELASTIC_APM_PAYLOAD_LOG_FILE` (or the config option `payloadLogFile`) to specify a log file,
 e.g:
 
 ```
