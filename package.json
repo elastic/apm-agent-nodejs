@@ -116,7 +116,7 @@
     "@commitlint/config-conventional": "^8.3.4",
     "@commitlint/travis-cli": "^8.3.5",
     "@hapi/hapi": "^18.4.1",
-    "@koa/router": "^8.0.8",
+    "@koa/router": "^9.0.0",
     "@types/node": "^13.7.4",
     "apollo-server-express": "^2.10.1",
     "aws-sdk": "^2.622.0",
