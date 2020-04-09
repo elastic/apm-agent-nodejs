@@ -177,7 +177,7 @@
     "thunky": "^1.1.0",
     "typescript": "^3.7.5",
     "untildify": "^4.0.0",
-    "wait-on": "^3.3.0",
+    "wait-on": "^4.0.2",
     "ws": "^7.2.1"
   },
   "greenkeeper": {
