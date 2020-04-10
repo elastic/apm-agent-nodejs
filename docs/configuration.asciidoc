@@ -8,15 +8,9 @@ endif::[]
 === Configuration options
 
 The available configuration options and equivalent environment variable names are listed below.
-Most configuration options can be set in one of three ways:
 
-1. By using environment variables
-
-2. In the optional <<agent-configuration-object,`options`>> object
-
-3. Via the <<agent-configuration-file,agent configuration file>>.
-
-For more information on setting configuration options, see <<configuring-the-agent, configuring the agent>>.
+For more information on setting configuration options, including configuration precedence,
+see <<configuring-the-agent, configuring the agent>>.
 
 TIP: The only required parameter is <<service-name,`serviceName`>>.
 However,
