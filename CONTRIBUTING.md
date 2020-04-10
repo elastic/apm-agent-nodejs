@@ -158,7 +158,12 @@ The following is an overview of what's required in order to add support to the a
 
 If you have access to make releases, the process is as follows:
 
-#### Current major
+#### Current major (automated process)
+
+1. Navigate to the CI and start a job with the `release` flag set and the `release_ver` parameter set to the version of the agent you wish to release.
+1. Watch the console of the running job to confirm changes.
+
+#### Current major (manual process)
 
 1. Be sure you have checked out the `master` branch and have pulled latest changes
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
@@ -172,7 +177,7 @@ If you have access to make releases, the process is as follows:
 1. Update the latest major branch on upstream with `git push upstream <major_branch>`
 1. Publish to npm with `npm publish`
 
-#### Past major
+#### Past major (manual process)
 
 1. Be sure you have checked out the branch associated with the major you wish to release and have pulled latest changes, e.g. `2.x`
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)

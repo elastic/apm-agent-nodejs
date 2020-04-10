@@ -13,6 +13,8 @@ pipeline {
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
     OPBEANS_REPO = 'opbeans-node'
+    NPMRC_SECRET = 'secret/jenkins-ci/npmjs/elasticmachine'
+    TOTP_SECRET = 'totp/code/npmjs-elasticmachine'
   }
   options {
     timeout(time: 3, unit: 'HOURS')
@@ -33,6 +35,8 @@ pipeline {
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
     booleanParam(name: 'test_edge_ci', defaultValue: true, description: 'Enable tests for edge versions of nodejs.')
+    booleanParam(name: 'release', defaultValue: false, description: 'Release.')
+    string(name: 'release_ver', defaultValue: '0.0.0', description: 'Version number to release. e.g. 4.0.0')
   }
   stages {
     /**
@@ -258,6 +262,9 @@ pipeline {
         }
       }
     }
+    /**
+      Run Integration tests.
+    */
     stage('Integration Tests') {
       agent none
       when {
@@ -282,28 +289,86 @@ pipeline {
     }
     stage('Release') {
       options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+      }
       when {
         beforeAgent true
-        tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
+        allOf {
+          branch 'master'
+          expression { return params.release }
+        }
       }
       stages {
-        stage('Opbeans') {
-          environment {
-            REPO_NAME = "${OPBEANS_REPO}"
+        stage('Release CI') {
+          options {
+            skipDefaultCheckout()
           }
-          steps {
+          steps{
             deleteDir()
-            dir("${OPBEANS_REPO}"){
-              git credentialsId: 'f6c7695a-671e-4f4f-a331-acdce44ff9ba',
-                  url: "git@github.com:elastic/${OPBEANS_REPO}.git"
-              // It's required to transform the tag value to the artifact version
-              sh script: ".ci/bump-version.sh ${env.BRANCH_NAME.replaceAll('^v', '')}", label: 'Bump version'
-              // The opbeans pipeline will trigger a release for the master branch
-              gitPush()
-              // The opbeans pipeline will trigger a release for the release tag
-              gitCreateTag(tag: "${env.BRANCH_NAME}")
+            unstash 'source'
+            dir("${BASE_DIR}") {
+              // Bail out if we don't have the right parameters
+              isValidReleaseVer("${params.release_ver}")
+              sh(label: 'Prepare release toolchain', script: '.ci/scripts/prepare-release-containers.sh')
+              // Generate a preview of the CHANGELOG file for visual inspection
+              script{
+                withCredentials([string(credentialsId: '2a9602aa-ab9f-4e52-baf3-b71ca88469c7', variable: 'GITHUB_TOKEN')]) {
+                  def preview = sh(script: "./.ci/scripts/generate_changelog.sh --token ${GITHUB_TOKEN} --version ${params.release_ver} --preview true", returnStdout: true)
+                  input(message: 'Do you accept these proposed entries for the CHANGELOG.asciidoc file?', ok: 'Yes, proceed with writing them.',
+                        parameters: [text(description: 'IMPORTANT: Proposed changes CANNOT be edited here. Abort the build if not acceptable.',
+                        defaultValue: "${preview}", name: 'preview')])
+                  // Re-run without preview flag and rewrite the file
+                  sh(script: "./.ci/scripts/generate_changelog.sh --token ${GITHUB_TOKEN} --version ${params.release_ver} --preview false > ./CHANGELOG.asciidoc", returnStdout: true)
+                }
+              }
+              // Update the EOL table in the upgrading.asciidoc file
+              sh(label: 'Update EOL table', script: ".ci/scripts/generate_eol.sh --version ${params.release_ver} > ./docs/upgrading.asciidoc")
+              sh(label: 'Update package.json', script: ".ci/scripts/update_package_version.sh ${params.release_ver}")
+              withCredentials([usernamePassword(credentialsId: '2a9602aa-ab9f-4e52-baf3-b71ca88469c7-UserAndToken',
+                                          passwordVariable: 'GITHUB_TOKEN', usernameVariable: 'GITHUB_USER')]) {
+                withGitRelease(credentialsId: '2a9602aa-ab9f-4e52-baf3-b71ca88469c7-UserAndToken') {
+                  sh(label: 'Tag and push', script: ".ci/scripts/tag_release.sh --version ${params.release_ver}")
+                }
+              }
+              prepareRelease() {
+                sh 'npm publish'
+              }
+              // Publish GitHub release
+              gitHubReleaseCreate("v${params.release_ver}")
             }
           }
+          post {
+            always {
+              script {
+                currentBuild.description = "${currentBuild.description?.trim() ? currentBuild.description : ''} released"
+              }
+            }
+          }
+        }
+      }
+    }
+
+    stage('Opbeans') {
+      options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        tag pattern: '@elastic/apm-rum@\\d+\\.\\d+\\.\\d+$', comparator: 'REGEXP'
+      }
+      environment {
+        REPO_NAME = "${OPBEANS_REPO}"
+      }
+      steps {
+        deleteDir()
+        dir("${OPBEANS_REPO}"){
+          git credentialsId: 'f6c7695a-671e-4f4f-a331-acdce44ff9ba',
+              url: "git@github.com:elastic/${OPBEANS_REPO}.git"
+          // It's required to transform the tag value to the artifact version
+          sh script: ".ci/bump-version.sh ${env.BRANCH_NAME.replaceAll('^v', '')}", label: 'Bump version'
+          // The opbeans pipeline will trigger a release for the master branch
+          gitPush()
+          // The opbeans pipeline will trigger a release for the release tag
+          gitCreateTag(tag: "${env.BRANCH_NAME}")
         }
       }
     }
@@ -390,6 +455,18 @@ def generateStep(Map params = [:]){
         }
       }
     }
+  }
+}
+
+def prepareRelease(String nodeVersion='node:lts', Closure body){
+  withNpmrc(secret: "${env.NPMRC_SECRET}", path: "${env.WORKSPACE}/${env.BASE_DIR}") {
+      docker.image(nodeVersion).inside(){
+        withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR}"]) {
+          withTotpVault(secret: "${env.TOTP_SECRET}", code_var_name: 'TOTP_CODE'){
+            body()
+          }
+        }
+      }
   }
 }
 
@@ -516,4 +593,13 @@ def grabWorkerIP(){
     }
   }
   return linuxIp
+}
+
+def isValidReleaseVer(String ver){
+    if (!ver?.trim() || ver == "0.0.0" ) {
+        error("Must supply version number to release")
+    }
+    if (!(ver ==~ /(\d+)\.(\d+).(\d+)/)) {
+        error("Invalid version number.")
+    }
 }

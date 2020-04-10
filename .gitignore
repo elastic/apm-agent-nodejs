@@ -4,6 +4,8 @@
 package-lock.json
 test/babel/out.js
 test/types/transpile/index.js
+*.pyc
+.python-version
 
 # Folders to ignore
 .nyc_output
@@ -13,3 +15,5 @@ node_modules
 test/benchmarks/.tmp
 coverage.lcov
 test-suite-output.tap
+.pytest_cache/
+**/__pycache__/
