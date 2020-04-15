@@ -18,8 +18,23 @@ test('#getHTTPDestination', function (t) {
     t.end()
   })
 
+  t.test('https with custom port', () => {
+    const url = 'https://example.com:2222'
+    t.deepEqual(getHTTPDestination(url, 'external'), {
+      service:
+      {
+        name: 'https://example.com:2222',
+        resource: 'example.com:2222',
+        type: 'external'
+      },
+      address: 'example.com',
+      port: 2222
+    })
+    t.end()
+  })
+
   t.test('https default port', (t) => {
-    const url = 'https://www.elastic.co:443/products/apm'
+    const url = 'https://www.elastic.co/products/apm'
     t.deepEqual(getHTTPDestination(url, 'external'), {
       service: {
         name: 'https://www.elastic.co',
@@ -28,6 +43,20 @@ test('#getHTTPDestination', function (t) {
       },
       address: 'www.elastic.co',
       port: 443
+    })
+    t.end()
+  })
+
+  t.test('http default port', (t) => {
+    const url = 'http://www.elastic.co/products/apm'
+    t.deepEqual(getHTTPDestination(url, 'external'), {
+      service: {
+        name: 'http://www.elastic.co',
+        resource: 'www.elastic.co:80',
+        type: 'external'
+      },
+      address: 'www.elastic.co',
+      port: 80
     })
     t.end()
   })
@@ -46,7 +75,7 @@ test('#getHTTPDestination', function (t) {
     t.end()
   })
 
-  t.test('ipv6 default scheme and port', (t) => {
+  t.test('ipv6 https custom port', (t) => {
     const url = 'https://[::1]:80/'
     t.deepEqual(getHTTPDestination(url, 'external'), {
       service: {

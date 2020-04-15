@@ -3,8 +3,6 @@
 process.env.ELASTIC_APM_TEST = true
 var host = (process.env.ES_HOST || 'localhost') + ':9200'
 
-console.log('Host', host, process.env.ES_HOST)
-
 var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
