@@ -81,10 +81,6 @@ test('reports expected metrics', function (t) {
           t.ok(isRoughly(value, free, 0.1), `is close to current free memory (value: ${value}, free: ${free})`)
         }
       },
-      'system.process.memory.rss.bytes': (value) => {
-        const rss = process.memoryUsage().rss
-        t.ok(isRoughly(value, rss, 0.1), `is close to current rss (value: ${value}, rss: ${rss})`)
-      },
       'system.process.cpu.total.norm.pct': (value) => {
         if (count === 1) {
           t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
@@ -116,6 +112,10 @@ test('reports expected metrics', function (t) {
       },
       'nodejs.memory.heap.used.bytes': (value) => {
         t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.memory.rss.bytes': (value) => {
+        const rss = process.memoryUsage().rss
+        t.ok(isRoughly(value, rss, 0.1), `is close to current rss (value: ${value}, rss: ${rss})`)
       },
       'nodejs.memory.external.bytes': (value) => {
         t.ok(value >= 0, 'is positive')
