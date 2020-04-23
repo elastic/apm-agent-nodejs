@@ -175,3 +175,14 @@ Limiting the number of spans that may be recorded will reduce memory usage.
 
 Reducing max spans could result in loss of useful data about what occurred within a request,
 if it is set too low.
+
+Instead of limiting the number of spans, it can be better to drop spans with a very short duration. This will record the spans but discard them if they are very short.
+This can be implemented by providing a span-filter:
+
+```js
+const agent = require('elastic-apm-node').start({ /* configuration options */ })
+
+agent.addSpanFilter(payload => {
+  return payload.duration < 10 ? null : payload
+})
+```
