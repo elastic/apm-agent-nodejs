@@ -176,13 +176,16 @@ Limiting the number of spans that may be recorded will reduce memory usage.
 Reducing max spans could result in loss of useful data about what occurred within a request,
 if it is set too low.
 
-Instead of limiting the number of spans, it can be better to drop spans with a very short duration. This will record the spans but discard them if they are very short.
+An alternative to limiting the maximum number of spans can be to drop spans with a very short duration, as those might not be that relevant.
+
+NOTE: Using a span filter does not reduce the load of recording the spans in your application, but merely filters them out before sending them to the APM Server.
+This, however, both reduces the amount of storage needed to store the spans in Elasticsearch, and the bandwidth needed to transport the data to the APM Server from the instrumented application.
+
 This can be implemented by providing a span-filter:
 
-```js
-const agent = require('elastic-apm-node').start({ /* configuration options */ })
-
+[source,js]
+----
 agent.addSpanFilter(payload => {
   return payload.duration < 10 ? null : payload
 })
-```
+----
