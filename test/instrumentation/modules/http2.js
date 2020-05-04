@@ -288,6 +288,15 @@ isSecure.forEach(secure => {
         status_code: 200,
         url: `http${secure ? 's' : ''}://localhost:${port}/sub`
       })
+      t.deepEqual(span.context.destination, {
+        service: {
+          name: `http${secure ? 's' : ''}://localhost:${port}`,
+          resource: `localhost:${port}`,
+          type: span.type
+        },
+        address: 'localhost',
+        port
+      })
 
       server.close()
       t.end()

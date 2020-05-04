@@ -138,6 +138,15 @@ function echoTest (type, opts, handler) {
           status_code: 200,
           url: `${type}://127.0.0.1:${port}/`
         })
+        t.deepEqual(data.spans[0].context.destination, {
+          service: {
+            name: `${type}://127.0.0.1:${port}`,
+            resource: `127.0.0.1:${port}`,
+            type: data.spans[0].type
+          },
+          address: '127.0.0.1',
+          port: Number(port)
+        })
         t.end()
         cp.kill()
       })
