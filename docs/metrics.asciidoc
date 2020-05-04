@@ -52,16 +52,6 @@ The percentage of CPU time spent by the process since the last event.
 This value is normalized by the number of CPU cores and it ranges from 0 to 100%.
 
 [float]
-[[metric-system.process.memory.rss.bytes]]
-=== `system.process.memory.rss.bytes`
-
-* *Type:* Long
-* *Format:* Bytes
-
-The Resident Set Size,
-the amount of memory the process occupies in main memory (RAM).
-
-[float]
 [[metric-nodejs.handles.active]]
 === `nodejs.handles.active`
 
@@ -112,6 +102,16 @@ Delays shorter than 10ms may not be observed,
 for example if a blocking operation starts and ends within the same sampling period.
 
 [float]
+[[metric-nodejs.memory.rss.bytes]]
+=== `nodejs.memory.rss.bytes`
+
+* *Type:* Long
+* *Format:* Bytes
+
+The Resident Set Size,
+the amount of memory the process occupies in main memory (RAM).
+
+[float]
 [[metric-nodejs.memory.heap.allocated.bytes]]
 === `nodejs.memory.heap.allocated.bytes`
 
@@ -128,6 +128,25 @@ The current allocated heap size in bytes.
 * *Format:* Bytes
 
 The currently used heap size in bytes.
+
+[float]
+[[metric-nodejs.memory.external.bytes]]
+=== `nodejs.memory.external.bytes`
+
+* *Type:* Long
+* *Format:* Bytes
+
+Memory usage of C++ objects bound to JavaScript objects managed by V8.
+
+[float]
+[[metric-nodejs.memory.arrayBuffers.bytes]]
+=== `nodejs.memory.arrayBuffers.bytes`
+
+* *Type:* Long
+* *Format:* Bytes
+
+Memory allocated for ArrayBuffers and SharedArrayBuffers, including all Node.js Buffers.
+This is also included in the `nodejs.memory.external.bytes` value.
 
 [float]
 [[metrics-transaction.duration.sum]]
