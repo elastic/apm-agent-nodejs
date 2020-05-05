@@ -117,6 +117,12 @@ test('reports expected metrics', function (t) {
       'nodejs.memory.heap.used.bytes': (value) => {
         t.ok(value >= 0, 'is positive')
       },
+      'nodejs.memory.external.bytes': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
+      'nodejs.memory.arrayBuffers.bytes': (value) => {
+        t.ok(value >= 0, 'is positive')
+      },
       'ws.connections': (value) => {
         t.equal(value, 23)
       }
