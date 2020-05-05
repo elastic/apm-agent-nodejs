@@ -18,6 +18,7 @@ var mockClient = require('../../../_mock_http_client')
 var findObjInArray = require('../../../_utils').findObjInArray
 
 var queryable
+var connectionOptions = utils.credentials()
 var factories = [
   [createConnection, 'connection'],
   [createPool, 'pool'],
@@ -436,7 +437,7 @@ function assertSpan (t, span, sql) {
   t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
   t.deepEqual(span.context.destination, {
     service: { name: 'mysql', resource: 'mysql', type: 'db' },
-    address: 'localhost',
+    address: connectionOptions.host,
     port: 3306
   })
 }
@@ -450,7 +451,7 @@ function createConnection (cb) {
       }
     }
 
-    queryable = mysql.createConnection(utils.credentials())
+    queryable = mysql.createConnection(connectionOptions)
     queryable.connect()
 
     cb()
@@ -466,7 +467,7 @@ function createPool (cb) {
       }
     }
 
-    var pool = mysql.createPool(utils.credentials())
+    var pool = mysql.createPool(connectionOptions)
     queryable = pool
 
     cb()
@@ -482,7 +483,7 @@ function createPoolAndGetConnection (cb) {
       }
     }
 
-    var pool = mysql.createPool(utils.credentials())
+    var pool = mysql.createPool(connectionOptions)
     pool.getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn
@@ -501,7 +502,7 @@ function createPoolClusterAndGetConnection (cb) {
     }
 
     var cluster = mysql.createPoolCluster()
-    cluster.add(utils.credentials())
+    cluster.add(connectionOptions)
     cluster.getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn
@@ -517,7 +518,7 @@ function createPoolClusterAndGetConnectionViaOf (cb) {
     }
 
     var cluster = mysql.createPoolCluster()
-    cluster.add(utils.credentials())
+    cluster.add(connectionOptions)
     cluster.of('*').getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn
