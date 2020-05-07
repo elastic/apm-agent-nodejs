@@ -130,6 +130,25 @@ The current allocated heap size in bytes.
 The currently used heap size in bytes.
 
 [float]
+[[metric-nodejs.memory.external.bytes]]
+=== `nodejs.memory.external.bytes`
+
+* *Type:* Long
+* *Format:* Bytes
+
+Memory usage of C++ objects bound to JavaScript objects managed by V8.
+
+[float]
+[[metric-nodejs.memory.arrayBuffers.bytes]]
+=== `nodejs.memory.arrayBuffers.bytes`
+
+* *Type:* Long
+* *Format:* Bytes
+
+Memory allocated for ArrayBuffers and SharedArrayBuffers, including all Node.js Buffers.
+This is also included in the `nodejs.memory.external.bytes` value.
+
+[float]
 [[metrics-transaction.duration.sum]]
 === `transaction.duration.sum`
 
