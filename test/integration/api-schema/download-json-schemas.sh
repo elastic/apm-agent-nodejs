@@ -28,6 +28,7 @@ FILES=( \
   "spans/span.json" \
   "transactions/mark.json" \
   "transactions/transaction.json" \
+  "cloud.json" \
   "context.json" \
   "http_response.json" \
   "message.json" \
