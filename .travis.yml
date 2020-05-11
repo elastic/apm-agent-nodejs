@@ -42,6 +42,8 @@ before_script:
   - wait-on tcp:9200
 
 node_js:
+  - '14'
+  - '14.0'
   - '13'
   - '13.0'
   - '12'
@@ -56,6 +58,9 @@ jobs:
 
   include:
     # Disable Async Hooks
+    -
+      node_js: '14'
+      env: ELASTIC_APM_ASYNC_HOOKS=false
     -
       node_js: '13'
       env: ELASTIC_APM_ASYNC_HOOKS=false
