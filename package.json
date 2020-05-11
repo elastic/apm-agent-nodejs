@@ -101,7 +101,7 @@
     "set-cookie-serde": "^1.0.0",
     "shallow-clone-shim": "^1.0.0",
     "sql-summary": "^1.0.1",
-    "stackman": "^4.0.0",
+    "stackman": "^4.0.1",
     "traceparent": "^1.0.0",
     "unicode-byte-truncate": "^1.0.0"
   },
