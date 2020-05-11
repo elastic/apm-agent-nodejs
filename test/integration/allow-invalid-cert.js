@@ -28,15 +28,8 @@ getPort().then(function (port) {
     server.listen(port, function () {
       agent.captureError(new Error('boom!'), function () {
         t.pass('agent.captureError callback called')
-
-        // The async execution order is different in Node.js 8 and below, so in
-        // other to ensure that server request event fires in older versions of
-        // Node before we end the test, we wrap this in a setImmediate
-        setImmediate(function () {
-          t.end()
-          server.close()
-          agent.destroy()
-        })
+        server.close()
+        agent.destroy()
       })
     })
   })
