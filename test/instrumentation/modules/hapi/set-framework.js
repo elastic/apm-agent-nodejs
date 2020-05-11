@@ -6,12 +6,6 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
-const pkg = require('hapi/package')
-const semver = require('semver')
-
-// hapi 17+ requires Node.js 8.9.0 or higher
-if (semver.lt(process.version, '8.9.0') && semver.gte(pkg.version, '17.0.0')) process.exit()
-
 let asserts = 0
 
 agent.setFramework = function ({ name, version, overwrite }) {

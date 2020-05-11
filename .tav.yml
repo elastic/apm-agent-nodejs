@@ -4,50 +4,24 @@ generic-pool:
 mimic-response:
   versions: ^1.0.0
   commands: node test/instrumentation/modules/mimic-response.js
-got-very-old:
-  name: got
-  versions: '>=4.0.0 <9.0.0'
-  node: '>=5'
-  commands: node test/instrumentation/modules/http/github-423.js
-got-old:
-  name: got
-  versions: ^9.0.0
-  node: '>=8.3'
-  commands: node test/instrumentation/modules/http/github-423.js
-got-new:
-  name: got
-  versions: '>=10.0.0 <10.5.1 || >10.5.1' # v10.5.1 is broken
-  node: '>=10'
+got:
+  versions: '>=4.0.0 <10.5.1 || >10.5.1' # v10.5.1 is broken
   commands: node test/instrumentation/modules/http/github-423.js
 mysql:
   versions: ^2.0.0
   commands:
     - node test/instrumentation/modules/mysql/mysql.js
     - node test/instrumentation/modules/mysql/pool-release-1.js
-mysql2-old:
-  name: mysql2
-  versions: '>=1.0.0 <1.6.0'
-  commands:
-    - node test/instrumentation/modules/mysql2/mysql.js
-    - node test/instrumentation/modules/mysql2/pool-release-1.js
-mysql2-new:
-  name: mysql2
-  versions: '1.6.0 || 1.6.1 || >=1.6.3 <3' # v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
-  node: '>=6.0.0'
+mysql2:
+  versions: '>=1.0.0 <1.6.2 || >1.6.2 <3' # v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
   commands:
     - node test/instrumentation/modules/mysql2/mysql.js
     - node test/instrumentation/modules/mysql2/pool-release-1.js
 redis:
   versions: ^2.0.0
   commands: node test/instrumentation/modules/redis.js
-ioredis-old:
-  name: ioredis
-  versions: '>=2 <3.1.3 || >3.1.3 <4' # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
-  commands: node test/instrumentation/modules/ioredis.js
-ioredis-new:
-  name: ioredis
-  versions: '^4.0.0'
-  node: '>=6'
+ioredis:
+  versions: '>=2 <5'
   commands: node test/instrumentation/modules/ioredis.js
 pg:
   versions: '>=4 <8'
@@ -68,24 +42,11 @@ bluebird:
   commands:
     - node test/instrumentation/modules/bluebird/bluebird.js
     - node test/instrumentation/modules/bluebird/cancel.js
-knex-old:
-  name: knex
-  # v0.16.4 accidentally dropped support for Node.js 6
-  versions: ^0.16.5 || <0.16.4 >=0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
+knex:
+  versions: '>=0.12.5 <0.21 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0'
   commands: node test/instrumentation/modules/pg/knex.js
-knex-new:
-  name: knex
-  node: '>=8.6.0'
-  versions: '>=0.17 <0.21'
-  commands: node test/instrumentation/modules/pg/knex.js
-ws-old:
-  name: ws
-  versions: '>=1 <7'
-  commands: node test/instrumentation/modules/ws.js
-ws-new:
-  name: ws
-  node: '>=8.6.0'
-  versions: '>=7 <8'
+ws:
+  versions: '>=1 <8'
   commands: node test/instrumentation/modules/ws.js
 graphql:
   preinstall: npm uninstall express-graphql
@@ -182,7 +143,6 @@ express-graphql-0.9.0:
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^14.4.1
   versions: '>=0.9.0 <0.10.0'
-  node: '>=7.6.0'
   commands: node test/instrumentation/modules/express-graphql.js
 
 apollo-server-express-2_12:
@@ -190,21 +150,18 @@ apollo-server-express-2_12:
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.12.0
   versions: '>=2.0.4 <2.2 || >= 2.3.2'
-  node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.js
 apollo-server-express-2_13:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.13.0
   versions: '>=2.0.4 <2.2 || >= 2.3.2'
-  node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.js
 apollo-server-express-2_14:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^14.0.0
   versions: '>=2.0.4 <2.2 || >= 2.3.2'
-  node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.js
 
 express-queue:
@@ -212,12 +169,10 @@ express-queue:
   commands: node test/instrumentation/modules/express-queue.js
 
 koa-router:
-  node: '>=6.0.0'
   peerDependencies: koa@2
   versions: '>=5.2.0 <9'
   commands: node test/instrumentation/modules/koa-router/old-name.js
 '@koa/router':
-  node: '>=8.0.0'
   peerDependencies: koa@2
   versions: '>=8 <9'
   commands: node test/instrumentation/modules/koa-router/new-name.js
@@ -234,22 +189,14 @@ jade:
 pug:
   versions: '0.1.0 || >2.0.0'
   commands: node test/instrumentation/modules/pug.js
-hapi-no-async-await:
-  name: hapi
-  versions: '>=9.0.1 <17.0.0'
+hapi:
+  versions: '>=9.0.1'
   commands:
     - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
-hapi-async-await:
-  name: hapi
-  node: '>=8.2'
-  versions: '>=17.0.0'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.js
-    - node test/instrumentation/modules/hapi/set-framework.js
+
 '@hapi/hapi-old':
   name: '@hapi/hapi'
-  node: '>=8.2'
   versions: '>=17.0.0 <19.0.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.js
@@ -261,26 +208,18 @@ hapi-async-await:
   commands:
     - node test/instrumentation/modules/hapi/basic.js
     - node test/instrumentation/modules/hapi/set-framework-2.js
+
 tedious:
   name: tedious
   versions: '>=1.9 <2.7 || 3.x || >4.0.0'
   commands: node test/instrumentation/modules/tedious.js
 
 cassandra-driver:
-  # 3.1.0 is broken
-  versions: '>=3 <3.1.0 || >3.1.0 <5'
+  versions: '>=3 <3.1.0 || >3.1.0 <5' # 3.1.0 is broken
   commands: node test/instrumentation/modules/cassandra-driver/index.js
 
-restify-old:
-  name: restify
-  versions: '>=5.2.0 <8.0.0'
-  commands:
-    - node test/instrumentation/modules/restify/basic.js
-    - node test/instrumentation/modules/restify/set-framework.js
-restify-new:
-  name: restify
-  node: '>=8.6.0'
-  versions: '>=8.0.0'
+restify:
+  versions: '>=5.2.0'
   commands:
     - node test/instrumentation/modules/restify/basic.js
     - node test/instrumentation/modules/restify/set-framework.js
