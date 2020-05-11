@@ -50,7 +50,7 @@ ioredis-new:
   node: '>=6'
   commands: node test/instrumentation/modules/ioredis.js
 pg:
-  versions: '>=4 <8'
+  versions: '>=4 <9'
   peerDependencies:
     - bluebird@^3.0.0
     - knex@^0.17.3
