@@ -19,11 +19,12 @@ const mockClient = require('../../_mock_http_client')
 const version = require('tedious/package').version
 
 let connection
+const hostname = process.env.APPVEYOR ? 'localhost' : (process.env.MSSQL_HOST || '127.0.0.1')
 
 if (semver.gte(version, '4.0.0')) {
   connection = process.env.APPVEYOR
     ? {
-      server: 'localhost',
+      server: hostname,
       authentication: {
         type: 'default',
         options: {
@@ -37,7 +38,7 @@ if (semver.gte(version, '4.0.0')) {
       }
     }
     : {
-      server: process.env.MSSQL_HOST || '127.0.0.1',
+      server: hostname,
       authentication: {
         type: 'default',
         options: {
@@ -49,7 +50,7 @@ if (semver.gte(version, '4.0.0')) {
 } else {
   connection = process.env.APPVEYOR
     ? {
-      server: 'localhost',
+      server: hostname,
       userName: 'sa',
       password: 'Password12!',
       options: {
@@ -58,7 +59,7 @@ if (semver.gte(version, '4.0.0')) {
       }
     }
     : {
-      server: process.env.MSSQL_HOST || '127.0.0.1',
+      server: hostname,
       userName: 'SA',
       password: process.env.SA_PASSWORD || 'Very(!)Secure'
     }
@@ -164,7 +165,9 @@ function assertQuery (t, sql, span, name) {
       name: 'mssql',
       resource: 'mssql',
       type: 'db'
-    }
+    },
+    address: hostname,
+    port: 1433
   }, 'span destination context')
 }
 
