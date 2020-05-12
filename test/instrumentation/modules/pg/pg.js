@@ -499,18 +499,15 @@ function assertSpan (t, span, sql) {
   t.equal(span.subtype, 'postgresql')
   t.equal(span.action, 'query')
   t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
-  const destination = {
-    port: 5432,
+  t.deepEqual(span.context.destination, {
     service: {
       name: 'postgresql',
       resource: 'postgresql',
       type: 'db'
-    }
-  }
-  if (process.env.PGHOST) {
-    destination.address = process.env.PGHOST
-  }
-  t.deepEqual(span.context.destination, destination)
+    },
+    address: process.env.PGHOST || 'localhost',
+    port: 5432
+  })
 }
 
 function createClient (cb) {
