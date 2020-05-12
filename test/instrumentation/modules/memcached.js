@@ -12,6 +12,7 @@ var agent = require('../../..').start({
 
 var test = require('tape')
 var mockClient = require('../../_mock_http_client')
+var host = process.env.MEMCACHED_HOST || '127.0.0.1'
 test(function (t) {
   resetAgent(function (data) {
     t.equal(data.transactions.length, 1)
@@ -43,12 +44,16 @@ test(function (t) {
     t.equal(spans[6].type, 'db.memcached.get')
     t.equal(spans[6].context.db.statement, 'get foo')
     spans.forEach(span => {
-      t.deepEqual(span.context.destination, { service: { name: 'memcached', resource: 'memcached', type: 'db' } })
+      t.deepEqual(span.context.destination, {
+        service: { name: 'memcached', resource: 'memcached', type: 'db' },
+        address: host,
+        port: 11211
+      })
     })
     t.end()
   })
   var Memcached = require('memcached')
-  var cache = new Memcached(`${process.env.MEMCACHED_HOST || '127.0.0.1'}:11211`, { timeout: 500 })
+  var cache = new Memcached(`${host}:11211`, { timeout: 500 })
   agent.startTransaction('foo', 'bar')
   cache.set('foo', 'bar', 300, (err) => {
     t.error(err)
