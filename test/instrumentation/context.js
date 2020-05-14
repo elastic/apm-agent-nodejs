@@ -1,7 +1,7 @@
 'use strict'
 
 var test = require('tape')
-var { getHTTPDestination } = require('../../lib/instrumentation/context')
+var { getHTTPDestination, getDBDestination } = require('../../lib/instrumentation/context')
 
 test('#getHTTPDestination', function (t) {
   t.test('username and pass', (t) => {
@@ -85,6 +85,50 @@ test('#getHTTPDestination', function (t) {
       },
       address: '::1',
       port: 80
+    })
+    t.end()
+  })
+})
+
+test('#getDBDestination', function (t) {
+  t.test('service fields', (t) => {
+    const span = { type: 'db', subtype: 'memcached' }
+    t.deepEqual(getDBDestination(span), {
+      service: {
+        name: span.subtype,
+        resource: span.subtype,
+        type: span.type
+      }
+    })
+    t.end()
+  })
+
+  t.test('add host when present', (t) => {
+    const span = { type: 'db', subtype: 'memcached' }
+    const host = 'localhost'
+    t.deepEqual(getDBDestination(span, host), {
+      service: {
+        name: span.subtype,
+        resource: span.subtype,
+        type: span.type
+      },
+      address: host
+    })
+    t.end()
+  })
+
+  t.test('add port when present', (t) => {
+    const span = { type: 'db', subtype: 'memcached' }
+    const host = 'localhost'
+    const port = '8080'
+    t.deepEqual(getDBDestination(span, host, port), {
+      service: {
+        name: span.subtype,
+        resource: span.subtype,
+        type: span.type
+      },
+      address: host,
+      port: 8080
     })
     t.end()
   })
