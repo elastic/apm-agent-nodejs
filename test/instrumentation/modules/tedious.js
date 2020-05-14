@@ -19,50 +19,25 @@ const mockClient = require('../../_mock_http_client')
 const version = require('tedious/package').version
 
 let connection
-const hostname = process.env.APPVEYOR ? 'localhost' : (process.env.MSSQL_HOST || '127.0.0.1')
+const hostname = process.env.MSSQL_HOST || '127.0.0.1'
 
 if (semver.gte(version, '4.0.0')) {
-  connection = process.env.APPVEYOR
-    ? {
-      server: hostname,
-      authentication: {
-        type: 'default',
-        options: {
-          userName: 'sa',
-          password: 'Password12!'
-        }
-      },
+  connection = {
+    server: hostname,
+    authentication: {
+      type: 'default',
       options: {
-        database: 'master',
-        encrypt: false
+        userName: 'SA',
+        password: process.env.SA_PASSWORD || 'Very(!)Secure'
       }
     }
-    : {
-      server: hostname,
-      authentication: {
-        type: 'default',
-        options: {
-          userName: 'SA',
-          password: process.env.SA_PASSWORD || 'Very(!)Secure'
-        }
-      }
-    }
+  }
 } else {
-  connection = process.env.APPVEYOR
-    ? {
-      server: hostname,
-      userName: 'sa',
-      password: 'Password12!',
-      options: {
-        database: 'master',
-        encrypt: false
-      }
-    }
-    : {
-      server: hostname,
-      userName: 'SA',
-      password: process.env.SA_PASSWORD || 'Very(!)Secure'
-    }
+  connection = {
+    server: hostname,
+    userName: 'SA',
+    password: process.env.SA_PASSWORD || 'Very(!)Secure'
+  }
 }
 
 function withConnection (t) {
