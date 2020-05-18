@@ -49,10 +49,10 @@ selectTests.forEach(function (source) {
       var query = eval(source) // eslint-disable-line no-eval
 
       query.then(function (rows) {
-        t.equal(rows.length, 5)
+        t.strictEqual(rows.length, 5)
         rows.forEach(function (row, i) {
-          t.equal(row.c1, 'foo' + (i + 1))
-          t.equal(row.c2, 'bar' + (i + 1))
+          t.strictEqual(row.c1, 'foo' + (i + 1))
+          t.strictEqual(row.c2, 'bar' + (i + 1))
         })
         agent.endTransaction()
       }).catch(function (err) {
@@ -74,8 +74,8 @@ insertTests.forEach(function (source) {
       var query = eval(source) // eslint-disable-line no-eval
 
       query.then(function (result) {
-        t.equal(result.command, 'INSERT')
-        t.equal(result.rowCount, 1)
+        t.strictEqual(result.command, 'INSERT')
+        t.strictEqual(result.rowCount, 1)
         agent.endTransaction()
       }).catch(function (err) {
         t.error(err)
@@ -96,10 +96,10 @@ test('knex.raw', function (t) {
 
     query.then(function (result) {
       var rows = result.rows
-      t.equal(rows.length, 5)
+      t.strictEqual(rows.length, 5)
       rows.forEach(function (row, i) {
-        t.equal(row.c1, 'foo' + (i + 1))
-        t.equal(row.c2, 'bar' + (i + 1))
+        t.strictEqual(row.c1, 'foo' + (i + 1))
+        t.strictEqual(row.c2, 'bar' + (i + 1))
       })
       agent.endTransaction()
     }).catch(function (err) {
@@ -109,11 +109,11 @@ test('knex.raw', function (t) {
 })
 
 function assertBasicQuery (t, data) {
-  t.equal(data.transactions.length, 1)
+  t.strictEqual(data.transactions.length, 1)
 
   var trans = data.transactions[0]
 
-  t.equal(trans.name, 'foo' + transNo)
+  t.strictEqual(trans.name, 'foo' + transNo)
 
   // remove the 'select versions();' query that knex injects - just makes
   // testing too hard
@@ -121,10 +121,10 @@ function assertBasicQuery (t, data) {
     return span.context.db.statement !== 'select version();'
   })
 
-  t.equal(data.spans.length, 1)
-  t.equal(data.spans[0].type, 'db')
-  t.equal(data.spans[0].subtype, 'postgresql')
-  t.equal(data.spans[0].action, 'query')
+  t.strictEqual(data.spans.length, 1)
+  t.strictEqual(data.spans[0].type, 'db')
+  t.strictEqual(data.spans[0].subtype, 'postgresql')
+  t.strictEqual(data.spans[0].action, 'query')
   t.ok(data.spans[0].stacktrace.some(function (frame) {
     return frame.function === 'userLandCode'
   }), 'include user-land code frame')

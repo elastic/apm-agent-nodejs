@@ -24,11 +24,11 @@ test('instrument simple command', function (t) {
     var trans = data.transactions[0]
     var groups
 
-    t.equal(data.transactions.length, 1)
+    t.strictEqual(data.transactions.length, 1)
 
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'bar')
-    t.equal(trans.result, 'success')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'bar')
+    t.strictEqual(trans.result, 'success')
 
     // Ensure spans are sorted by start time
     data.spans = data.spans.sort((a, b) => {
@@ -69,7 +69,7 @@ test('instrument simple command', function (t) {
       ]
     }
 
-    t.equal(data.spans.length, groups.length)
+    t.strictEqual(data.spans.length, groups.length)
 
     // spans are sorted by their end time - we need them sorted by their start time
     data.spans = data.spans.sort(function (a, b) {
@@ -78,10 +78,10 @@ test('instrument simple command', function (t) {
 
     groups.forEach(function (name, i) {
       const span = data.spans[i]
-      t.equal(span.name, name)
-      t.equal(span.type, 'db')
-      t.equal(span.subtype, 'mongodb')
-      t.equal(span.action, 'query')
+      t.strictEqual(span.name, name)
+      t.strictEqual(span.type, 'db')
+      t.strictEqual(span.subtype, 'mongodb')
+      t.strictEqual(span.action, 'query')
 
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000)
@@ -98,29 +98,29 @@ test('instrument simple command', function (t) {
   server.on('connect', function (_server) {
     _server.command('system.$cmd', { ismaster: true }, function (err, results) {
       t.error(err)
-      t.equal(results.result.ismaster, true)
+      t.strictEqual(results.result.ismaster, true)
 
       _server.insert('elasticapm.test', [{ a: 1 }, { a: 2 }, { a: 3 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
         t.error(err)
-        t.equal(results.result.n, 3)
+        t.strictEqual(results.result.n, 3)
 
         _server.update('elasticapm.test', [{ q: { a: 1 }, u: { $set: { b: 1 } } }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
           t.error(err)
-          t.equal(results.result.n, 1)
+          t.strictEqual(results.result.n, 1)
 
           _server.remove('elasticapm.test', [{ q: { a: 1 }, limit: 1 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
             t.error(err)
-            t.equal(results.result.n, 1)
+            t.strictEqual(results.result.n, 1)
 
             var cursor = _server.cursor('elasticapm.test', { find: 'elasticapm.test', query: {} })
 
             cursor.next(function (err, doc) {
               t.error(err)
-              t.equal(doc.a, 2)
+              t.strictEqual(doc.a, 2)
 
               cursor.next(function (err, doc) {
                 t.error(err)
-                t.equal(doc.a, 3)
+                t.strictEqual(doc.a, 3)
 
                 _server.command('system.$cmd', { ismaster: true }, function (err, result) {
                   t.error(err)

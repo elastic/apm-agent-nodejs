@@ -32,7 +32,7 @@ isSecure.forEach(secure => {
     function onRequest (req, res) {
       var trans = ins.currentTransaction
       t.ok(trans, 'have current transaction')
-      t.equal(trans.type, 'request')
+      t.strictEqual(trans.type, 'request')
 
       res.writeHead(200, {
         'content-type': 'text/plain'
@@ -82,7 +82,7 @@ isSecure.forEach(secure => {
     server.on('stream', function (stream, headers) {
       var trans = ins.currentTransaction
       t.ok(trans, 'have current transaction')
-      t.equal(trans.type, 'request')
+      t.strictEqual(trans.type, 'request')
 
       stream.respond({
         'content-type': 'text/plain',
@@ -124,7 +124,7 @@ isSecure.forEach(secure => {
     server.on('stream', function (stream, headers) {
       var trans = ins.currentTransaction
       t.ok(trans, 'have current transaction')
-      t.equal(trans.type, 'request')
+      t.strictEqual(trans.type, 'request')
 
       fs.open(__filename, 'r', function (err, fd) {
         t.error(err)
@@ -173,7 +173,7 @@ isSecure.forEach(secure => {
     server.on('stream', function (stream, headers) {
       var trans = ins.currentTransaction
       t.ok(trans, 'have current transaction')
-      t.equal(trans.type, 'request')
+      t.strictEqual(trans.type, 'request')
 
       stream.respondWithFile(__filename, {
         ':status': 200,
@@ -222,7 +222,7 @@ isSecure.forEach(secure => {
     server.on('stream', function (stream, headers) {
       var trans = ins.currentTransaction
       t.ok(trans, 'have current transaction')
-      t.equal(trans.type, 'request')
+      t.strictEqual(trans.type, 'request')
 
       function onPushStream (stream, headers) {
         stream.respond({
@@ -257,7 +257,7 @@ isSecure.forEach(secure => {
 
       // Receive push stream
       client.on('stream', t.shouldCall((stream, headers, flags) => {
-        t.equal(headers[':path'], '/pushed')
+        t.strictEqual(headers[':path'], '/pushed')
         assertResponse(t, stream, 'some pushed data', done)
       }))
 
@@ -269,8 +269,8 @@ isSecure.forEach(secure => {
 
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
     resetAgent(3, (data) => {
-      t.equal(data.transactions.length, 2)
-      t.equal(data.spans.length, 1)
+      t.strictEqual(data.transactions.length, 2)
+      t.strictEqual(data.spans.length, 1)
 
       var sub = data.transactions[0]
       assertPath(t, sub, secure, port, '/sub')
@@ -280,9 +280,9 @@ isSecure.forEach(secure => {
 
       var span = findObjInArray(data.spans, 'transaction_id', root.id)
       t.ok(span, 'root transaction should have span')
-      t.equal(span.type, 'external')
-      t.equal(span.subtype, 'http2')
-      t.equal(span.name, `GET http${secure ? 's' : ''}://localhost:${port}/sub`)
+      t.strictEqual(span.type, 'external')
+      t.strictEqual(span.subtype, 'http2')
+      t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}/sub`)
       t.deepEqual(span.context.http, {
         method: 'GET',
         status_code: 200,
@@ -314,7 +314,7 @@ isSecure.forEach(secure => {
     server.on('stream', function (stream, headers) {
       var trans = ins.currentTransaction
       t.ok(trans, 'have current transaction')
-      t.equal(trans.type, 'request')
+      t.strictEqual(trans.type, 'request')
 
       if (headers[':path'] === '/') {
         var client = connect(secure, port)
@@ -358,9 +358,9 @@ var matchId = /^[\da-f]{16}$/
 function assertPath (t, trans, secure, port, path) {
   t.ok(trans)
   t.ok(matchId.test(trans.id))
-  t.equal(trans.name, 'GET unknown route')
-  t.equal(trans.type, 'request')
-  t.equal(trans.result, 'HTTP 2xx')
+  t.strictEqual(trans.name, 'GET unknown route')
+  t.strictEqual(trans.type, 'request')
+  t.strictEqual(trans.result, 'HTTP 2xx')
   t.ok(trans.duration > 0)
   t.ok(trans.timestamp > 0)
 
@@ -394,8 +394,8 @@ function assertPath (t, trans, secure, port, path) {
 }
 
 function assert (t, data, secure, port) {
-  t.equal(data.transactions.length, 1)
-  t.equal(data.spans.length, 0)
+  t.strictEqual(data.transactions.length, 1)
+  t.strictEqual(data.spans.length, 0)
 
   // Top-level props of the transaction need to be checked individually
   // because there are a few dynamic properties
@@ -409,7 +409,7 @@ function assertResponse (t, stream, expected, done) {
     chunks.push(chunk)
   })
   stream.on('end', function () {
-    t.equal(Buffer.concat(chunks).toString(), expected, 'should have expected body')
+    t.strictEqual(Buffer.concat(chunks).toString(), expected, 'should have expected body')
     if (done) done()
   })
 }
@@ -432,7 +432,7 @@ function addShouldCall (t) {
 
   t.end = function end () {
     for (var i = 0; i < calls.length; i++) {
-      t.equal(calls[i].called, true, 'should have called function')
+      t.strictEqual(calls[i].called, true, 'should have called function')
     }
     return realEnd.apply(this, arguments)
   }

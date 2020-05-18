@@ -13,16 +13,16 @@ var findObjInArray = require('../../../_utils').findObjInArray
 
 test('request', function (t) {
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 2)
-    t.equal(data.spans.length, 1)
+    t.strictEqual(data.transactions.length, 2)
+    t.strictEqual(data.spans.length, 1)
 
     var sub = data.transactions[0]
-    t.equal(sub.name, 'GET /test')
+    t.strictEqual(sub.name, 'GET /test')
 
     var root = data.transactions[1]
-    t.equal(root.name, 'GET /')
+    t.strictEqual(root.name, 'GET /')
     const span = findObjInArray(data.spans, 'transaction_id', root.id)
-    t.equal(span.name, 'GET localhost:' + server.address().port + '/test')
+    t.strictEqual(span.name, 'GET localhost:' + server.address().port + '/test')
 
     server.close()
     t.end()

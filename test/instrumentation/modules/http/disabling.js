@@ -22,30 +22,30 @@ if (cluster.isMaster) {
     function assertTopTransaction (t, transactions) {
       const trans = findObjInArray(transactions, 'type', 'custom')
       t.ok(trans, 'found top transaction')
-      t.equal(trans.name, 'top', 'transaction name')
+      t.strictEqual(trans.name, 'top', 'transaction name')
     }
 
     function assertRequestTransaction (t, transactions) {
       const trans = findObjInArray(transactions, 'type', 'request')
       t.ok(trans, 'found request transaction')
-      t.equal(trans.name, 'GET /', 'transaction name')
-      t.equal(trans.result, 'HTTP 2xx', 'transaction result')
-      t.equal(trans.context.request.method, 'GET', 'transaction method')
+      t.strictEqual(trans.name, 'GET /', 'transaction name')
+      t.strictEqual(trans.result, 'HTTP 2xx', 'transaction result')
+      t.strictEqual(trans.context.request.method, 'GET', 'transaction method')
     }
 
     function assertSpan (t, span) {
       t.ok(/GET localhost:\d+\//.test(span.name), 'span name')
-      t.equal(span.type, 'external', 'span type')
-      t.equal(span.subtype, 'http', 'span subtype')
-      t.equal(span.action, 'http', 'span action')
+      t.strictEqual(span.type, 'external', 'span type')
+      t.strictEqual(span.subtype, 'http', 'span subtype')
+      t.strictEqual(span.action, 'http', 'span action')
     }
 
     t.test('incoming enabled + outgoing enabled', makeTest({
       disableInstrumentations: '',
       instrumentIncomingHTTPRequests: true
     }, (t, data) => {
-      t.equal(data.transactions.length, 2, 'transaction count')
-      t.equal(data.spans.length, 1, 'span count')
+      t.strictEqual(data.transactions.length, 2, 'transaction count')
+      t.strictEqual(data.spans.length, 1, 'span count')
 
       assertRequestTransaction(t, data.transactions)
       assertTopTransaction(t, data.transactions)
@@ -58,8 +58,8 @@ if (cluster.isMaster) {
       disableInstrumentations: 'http',
       instrumentIncomingHTTPRequests: true
     }, (t, data) => {
-      t.equal(data.transactions.length, 2, 'transaction count')
-      t.equal(data.spans.length, 0, 'span count')
+      t.strictEqual(data.transactions.length, 2, 'transaction count')
+      t.strictEqual(data.spans.length, 0, 'span count')
 
       assertRequestTransaction(t, data.transactions)
       assertTopTransaction(t, data.transactions)
@@ -71,8 +71,8 @@ if (cluster.isMaster) {
       disableInstrumentations: '',
       instrumentIncomingHTTPRequests: false
     }, (t, data) => {
-      t.equal(data.transactions.length, 1, 'transaction count')
-      t.equal(data.spans.length, 1, 'span count')
+      t.strictEqual(data.transactions.length, 1, 'transaction count')
+      t.strictEqual(data.spans.length, 1, 'span count')
 
       assertTopTransaction(t, data.transactions)
       assertSpan(t, data.spans[0])
@@ -84,8 +84,8 @@ if (cluster.isMaster) {
       disableInstrumentations: 'http',
       instrumentIncomingHTTPRequests: false
     }, (t, data) => {
-      t.equal(data.transactions.length, 1, 'transaction count')
-      t.equal(data.spans.length, 0, 'span count')
+      t.strictEqual(data.transactions.length, 1, 'transaction count')
+      t.strictEqual(data.spans.length, 0, 'span count')
 
       assertTopTransaction(t, data.transactions)
 

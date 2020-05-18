@@ -22,19 +22,19 @@ test('should capture and log uncaught exceptions by default', function (t) {
   })
 
   console.error = function (loggedError) {
-    t.equal(loggedError, thrownError, 'should log the error to STDERR')
+    t.strictEqual(loggedError, thrownError, 'should log the error to STDERR')
     return origConsoleError.apply(this, arguments)
   }
 
   agent.captureError = function (caughtError) {
-    t.equal(caughtError, thrownError, 'should capture the error')
+    t.strictEqual(caughtError, thrownError, 'should capture the error')
     return origCaptureErorr.apply(this, arguments)
   }
 
   agent._transport.sendError = function (sentError) {
-    t.equal(sentError.exception.message, thrownError.message)
-    t.equal(sentError.exception.type, 'Error')
-    t.equal(sentError.exception.handled, false)
+    t.strictEqual(sentError.exception.message, thrownError.message)
+    t.strictEqual(sentError.exception.type, 'Error')
+    t.strictEqual(sentError.exception.handled, false)
     t.ok(Array.isArray(sentError.exception.stacktrace), 'should have a stack trace')
     t.ok(sentError.exception.stacktrace.length > 0, 'stack trace should contain frames')
     t.ok(__filename.includes(sentError.exception.stacktrace[0].filename), 'top frame should be this file')

@@ -8,8 +8,8 @@ module.exports = function (test, Promise, ins) {
       new Promise(function (resolve) {
         resolve('foo')
       }).then(function (data) {
-        t.equal(data, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(data, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -27,8 +27,8 @@ module.exports = function (test, Promise, ins) {
         }).then(function () {
           t.fail('should not resolve')
         })[fnName](function (reason) {
-          t.equal(reason.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(reason.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
       })
     })
@@ -40,12 +40,12 @@ module.exports = function (test, Promise, ins) {
         new Promise(function (resolve, reject) {
           reject(new Error('foo'))
         })[fnName](function (err) {
-          t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
           return Promise.resolve('bar')
         }).then(function (result) {
-          t.equal(result, 'bar')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(result, 'bar')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
       })
     })
@@ -60,8 +60,8 @@ module.exports = function (test, Promise, ins) {
       }).then(function () {
         t.fail('should not resolve')
       }, function (reason) {
-        t.equal(reason.message, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(reason.message, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -72,8 +72,8 @@ module.exports = function (test, Promise, ins) {
       var trans = ins.startTransaction()
       Promise.resolve('foo')
         .then(function (data) {
-          t.equal(data, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(data, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
         .catch(function () {
           t.fail('should not reject')
@@ -90,8 +90,8 @@ module.exports = function (test, Promise, ins) {
           t.fail('should not resolve')
         })
         .catch(function (reason) {
-          t.equal(reason.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(reason.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -108,7 +108,7 @@ module.exports = function (test, Promise, ins) {
 
       Promise.all([p1, p2, p3]).then(function (values) {
         t.deepEqual(values, [3, 1337, 'foo'])
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -125,8 +125,8 @@ module.exports = function (test, Promise, ins) {
       })
 
       Promise.race([p1, p2]).then(function (data) {
-        t.equal(data, 'two')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(data, 'two')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -143,8 +143,8 @@ module.exports = function (test, Promise, ins) {
       })
 
       Promise.race([p1, p2]).then(function (data) {
-        t.equal(data, 'one')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(data, 'one')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       }, function () {
         t.fail('should not reject')
       })
@@ -165,8 +165,8 @@ module.exports = function (test, Promise, ins) {
       Promise.race([p1, p2]).then(function () {
         t.fail('should not resolve')
       }, function (reason) {
-        t.equal(reason, 'two')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(reason, 'two')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -178,18 +178,18 @@ module.exports = function (test, Promise, ins) {
       new Promise(function (resolve) {
         resolve('foo')
       }).then(function (data) {
-        t.equal(data, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(data, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
         return new Promise(function (resolve) {
           resolve('bar')
         })
       }).then(function (data) {
-        t.equal(data, 'bar')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(data, 'bar')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
         return Promise.resolve('baz')
       }).then(function (data) {
-        t.equal(data, 'baz')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(data, 'baz')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })

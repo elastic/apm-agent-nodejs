@@ -34,13 +34,13 @@ test('resolve', function (t) {
     verboseLevel: 0,
     callback: function (err, result) {
       t.error(err)
-      t.equal(result, output)
+      t.strictEqual(result, output)
 
       t.ok(agent.flushed)
 
-      t.equal(agent.errors.length, 0)
+      t.strictEqual(agent.errors.length, 0)
 
-      t.equal(agent.transactions.length, 1)
+      t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], name, context, input, output)
 
       t.end()
@@ -75,16 +75,16 @@ test('resolve with parent id header present', function (t) {
     verboseLevel: 0,
     callback: function (err, result) {
       t.error(err)
-      t.equal(result, output)
+      t.strictEqual(result, output)
 
       t.ok(agent.flushed)
 
-      t.equal(agent.errors.length, 0)
+      t.strictEqual(agent.errors.length, 0)
 
-      t.equal(agent.transactions.length, 1)
+      t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], name, context, input, output)
 
-      t.equal(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
+      t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
 
       t.end()
     }
@@ -117,10 +117,10 @@ test('reject', function (t) {
 
       t.ok(agent.flushed)
 
-      t.equal(agent.errors.length, 1)
+      t.strictEqual(agent.errors.length, 1)
       assertError(t, agent.errors[0], error)
 
-      t.equal(agent.transactions.length, 1)
+      t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], name, context, input)
 
       t.end()

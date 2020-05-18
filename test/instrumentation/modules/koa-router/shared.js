@@ -31,9 +31,9 @@ module.exports = (moduleName) => {
 
     var server = startServer(function (port) {
       http.get('http://localhost:' + port + '/hello', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
         res.on('data', function (chunk) {
-          t.equal(chunk.toString(), 'hello world')
+          t.strictEqual(chunk.toString(), 'hello world')
         })
       })
     })
@@ -49,9 +49,9 @@ module.exports = (moduleName) => {
 
     var server = startServer(function (port) {
       http.get('http://localhost:' + port + '/hello/thomas', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
         res.on('data', function (chunk) {
-          t.equal(chunk.toString(), 'hello thomas')
+          t.strictEqual(chunk.toString(), 'hello thomas')
         })
       })
     })
@@ -67,9 +67,9 @@ module.exports = (moduleName) => {
 
     var server = startServer(function (port) {
       http.get('http://localhost:' + port + '/prefix1/prefix2/hello', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
         res.on('data', function (chunk) {
-          t.equal(chunk.toString(), 'hello world')
+          t.strictEqual(chunk.toString(), 'hello world')
         })
       })
     })
@@ -85,9 +85,9 @@ module.exports = (moduleName) => {
 
     var server = startServer(function (port) {
       http.get('http://localhost:' + port + '/prefix1/prefix2/hello/thomas', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
         res.on('data', function (chunk) {
-          t.equal(chunk.toString(), 'hello thomas')
+          t.strictEqual(chunk.toString(), 'hello thomas')
         })
       })
     })
@@ -136,15 +136,15 @@ module.exports = (moduleName) => {
     results.status = results.status || 'HTTP 2xx'
     results.name = results.name || 'GET /hello'
 
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 0)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 0)
 
     var trans = data.transactions[0]
 
-    t.equal(trans.name, results.name)
-    t.equal(trans.type, 'request')
-    t.equal(trans.result, results.status)
-    t.equal(trans.context.request.method, 'GET')
+    t.strictEqual(trans.name, results.name)
+    t.strictEqual(trans.type, 'request')
+    t.strictEqual(trans.result, results.status)
+    t.strictEqual(trans.context.request.method, 'GET')
   }
 
   function resetAgent (cb) {

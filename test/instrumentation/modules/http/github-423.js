@@ -30,8 +30,8 @@ test('https://github.com/elastic/apm-agent-nodejs/issues/423', function (t) {
     // Start simple server that performs got-request on every request
     var server = http.createServer(function (req, res) {
       got(url).then(function (response) {
-        t.equal(response.body.length, fileSize, 'body should be expected size')
-        t.equal(response.body.slice(0, 12), '\'use strict\'', 'body should be uncompressed')
+        t.strictEqual(response.body.length, fileSize, 'body should be expected size')
+        t.strictEqual(response.body.slice(0, 12), '\'use strict\'', 'body should be uncompressed')
         res.end()
       })
     })

@@ -221,12 +221,12 @@ factories.forEach(function (f) {
     t.test('simultaneous queries', function (t) {
       t.test('on same connection', function (t) {
         resetAgent(4, function (data) {
-          t.equal(data.transactions.length, 1)
-          t.equal(data.spans.length, 3)
+          t.strictEqual(data.transactions.length, 1)
+          t.strictEqual(data.spans.length, 3)
 
           var trans = data.transactions[0]
 
-          t.equal(trans.name, 'foo')
+          t.strictEqual(trans.name, 'foo')
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql)
@@ -243,17 +243,17 @@ factories.forEach(function (f) {
 
           queryable.query(sql, [1], function (err, rows, fields) {
             t.error(err)
-            t.equal(rows[0].solution, 2)
+            t.strictEqual(rows[0].solution, 2)
             if (++n === 3) done()
           })
           queryable.query(sql, [2], function (err, rows, fields) {
             t.error(err)
-            t.equal(rows[0].solution, 3)
+            t.strictEqual(rows[0].solution, 3)
             if (++n === 3) done()
           })
           queryable.query(sql, [3], function (err, rows, fields) {
             t.error(err)
-            t.equal(rows[0].solution, 4)
+            t.strictEqual(rows[0].solution, 4)
             if (++n === 3) done()
           })
 
@@ -265,12 +265,12 @@ factories.forEach(function (f) {
 
       t.test('on different connections', function (t) {
         resetAgent(4, function (data) {
-          t.equal(data.transactions.length, 1)
-          t.equal(data.spans.length, 3)
+          t.strictEqual(data.transactions.length, 1)
+          t.strictEqual(data.spans.length, 3)
 
           var trans = data.transactions[0]
 
-          t.equal(trans.name, 'foo')
+          t.strictEqual(trans.name, 'foo')
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql)
@@ -289,7 +289,7 @@ factories.forEach(function (f) {
             t.error(err)
             conn.query(sql, [1], function (err, rows, fields) {
               t.error(err)
-              t.equal(rows[0].solution, 2)
+              t.strictEqual(rows[0].solution, 2)
               if (++n === 3) done()
             })
           })
@@ -297,7 +297,7 @@ factories.forEach(function (f) {
             t.error(err)
             conn.query(sql, [2], function (err, rows, fields) {
               t.error(err)
-              t.equal(rows[0].solution, 3)
+              t.strictEqual(rows[0].solution, 3)
               if (++n === 3) done()
             })
           })
@@ -305,7 +305,7 @@ factories.forEach(function (f) {
             t.error(err)
             conn.query(sql, [3], function (err, rows, fields) {
               t.error(err)
-              t.equal(rows[0].solution, 4)
+              t.strictEqual(rows[0].solution, 4)
               if (++n === 3) done()
             })
           })
@@ -319,8 +319,8 @@ factories.forEach(function (f) {
 
     t.test('simultaneous transactions', function (t) {
       resetAgent(6, function (data) {
-        t.equal(data.transactions.length, 3)
-        t.equal(data.spans.length, 3)
+        t.strictEqual(data.transactions.length, 3)
+        t.strictEqual(data.spans.length, 3)
         var names = data.transactions.map(function (trans) {
           return trans.name
         }).sort()
@@ -342,7 +342,7 @@ factories.forEach(function (f) {
           var trans = agent.startTransaction('foo')
           queryable.query(sql, [1], function (err, rows, fields) {
             t.error(err)
-            t.equal(rows[0].solution, 2)
+            t.strictEqual(rows[0].solution, 2)
             trans.end()
           })
         })
@@ -351,7 +351,7 @@ factories.forEach(function (f) {
           var trans = agent.startTransaction('bar')
           queryable.query(sql, [2], function (err, rows, fields) {
             t.error(err)
-            t.equal(rows[0].solution, 3)
+            t.strictEqual(rows[0].solution, 3)
             trans.end()
           })
         })
@@ -360,7 +360,7 @@ factories.forEach(function (f) {
           var trans = agent.startTransaction('baz')
           queryable.query(sql, [3], function (err, rows, fields) {
             t.error(err)
-            t.equal(rows[0].solution, 4)
+            t.strictEqual(rows[0].solution, 4)
             trans.end()
           })
         })
@@ -398,7 +398,7 @@ factories.forEach(function (f) {
 function basicQueryCallback (t) {
   return function (err, rows, fields) {
     t.error(err)
-    t.equal(rows[0].solution, 2)
+    t.strictEqual(rows[0].solution, 2)
     agent.endTransaction()
   }
 }
@@ -410,30 +410,30 @@ function basicQueryStream (stream, t) {
   })
   stream.on('result', function (row) {
     results++
-    t.equal(row.solution, 2)
+    t.strictEqual(row.solution, 2)
   })
   stream.on('end', function () {
-    t.equal(results, 1)
+    t.strictEqual(results, 1)
     agent.endTransaction()
   })
 }
 
 function assertBasicQuery (t, sql, data) {
-  t.equal(data.transactions.length, 1)
-  t.equal(data.spans.length, 1)
+  t.strictEqual(data.transactions.length, 1)
+  t.strictEqual(data.spans.length, 1)
 
   var trans = data.transactions[0]
   var span = data.spans[0]
 
-  t.equal(trans.name, 'foo')
+  t.strictEqual(trans.name, 'foo')
   assertSpan(t, span, sql)
 }
 
 function assertSpan (t, span, sql) {
-  t.equal(span.name, 'SELECT')
-  t.equal(span.type, 'db')
-  t.equal(span.subtype, 'mysql')
-  t.equal(span.action, 'query')
+  t.strictEqual(span.name, 'SELECT')
+  t.strictEqual(span.type, 'db')
+  t.strictEqual(span.subtype, 'mysql')
+  t.strictEqual(span.action, 'query')
   t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
   t.deepEqual(span.context.destination, {
     service: { name: 'mysql', resource: 'mysql', type: 'db' },

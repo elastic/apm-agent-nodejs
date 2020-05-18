@@ -101,10 +101,10 @@ test('includes breakdown when sampling', t => {
   }
 
   resetAgent(6, conf, (data) => {
-    t.equal(data.transactions.length, 1, 'has one transaction')
+    t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
 
-    t.equal(data.spans.length, 1, 'has one span')
+    t.strictEqual(data.spans.length, 1, 'has one span')
     assertSpan(t, span, data.spans[0])
 
     const { metricsets } = data
@@ -138,10 +138,10 @@ test('does not include breakdown when not sampling', t => {
   }
 
   resetAgent(3, conf, (data) => {
-    t.equal(data.transactions.length, 1, 'has one transaction')
+    t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
 
-    t.equal(data.spans.length, 0, 'has no spans')
+    t.strictEqual(data.spans.length, 0, 'has no spans')
 
     const { metricsets } = data
 
@@ -170,10 +170,10 @@ test('does not include transaction breakdown when disabled', t => {
   }
 
   resetAgent(3, conf, (data) => {
-    t.equal(data.transactions.length, 1, 'has one transaction')
+    t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
 
-    t.equal(data.spans.length, 0, 'has no spans')
+    t.strictEqual(data.spans.length, 0, 'has no spans')
 
     const { metricsets } = data
 
@@ -610,16 +610,16 @@ test('acceptance', t => {
 
 function assertTransaction (t, expected, received) {
   t.comment('transaction')
-  t.equal(received.name, expected.name, 'type matches')
-  t.equal(received.type, expected.type, 'type matches')
-  t.equal(received.result, expected.result, 'result matches')
-  t.equal(received.sampled, expected.sampled, 'sampled state matches')
+  t.strictEqual(received.name, expected.name, 'type matches')
+  t.strictEqual(received.type, expected.type, 'type matches')
+  t.strictEqual(received.result, expected.result, 'result matches')
+  t.strictEqual(received.sampled, expected.sampled, 'sampled state matches')
 }
 
 function assertSpan (t, expected, received) {
   t.comment('span')
-  t.equal(received.name, expected.name, 'name matches')
-  t.equal(received.type, expected.type, 'type matches')
+  t.strictEqual(received.name, expected.name, 'name matches')
+  t.strictEqual(received.type, expected.type, 'type matches')
 }
 
 function assertMetricSet (t, name, metricsets, { transaction, span } = {}) {

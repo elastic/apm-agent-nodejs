@@ -33,16 +33,16 @@ module.exports = (moduleName) => {
 
   test('extract URL from request', function (t) {
     resetAgent(2, function (data) {
-      t.equal(data.transactions.length, 1)
-      t.equal(data.errors.length, 1)
+      t.strictEqual(data.transactions.length, 1)
+      t.strictEqual(data.errors.length, 1)
       var request = data.errors[0].context.request
-      t.equal(request.method, 'GET')
-      t.equal(request.url.pathname, '/captureError')
-      t.equal(request.url.search, '?foo=bar')
-      t.equal(request.url.raw, '/captureError?foo=bar')
-      t.equal(request.url.hostname, 'localhost')
-      t.equal(request.url.port, String(server.info.port))
-      t.equal(request.socket.encrypted, false)
+      t.strictEqual(request.method, 'GET')
+      t.strictEqual(request.url.pathname, '/captureError')
+      t.strictEqual(request.url.search, '?foo=bar')
+      t.strictEqual(request.url.raw, '/captureError?foo=bar')
+      t.strictEqual(request.url.hostname, 'localhost')
+      t.strictEqual(request.url.port, String(server.info.port))
+      t.strictEqual(request.socket.encrypted, false)
       server.stop(noop)
       t.end()
     })
@@ -66,9 +66,9 @@ module.exports = (moduleName) => {
     var server = startServer(function (err, port) {
       t.error(err)
       http.get('http://localhost:' + port + '/hello', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
         res.on('data', function (chunk) {
-          t.equal(chunk.toString(), 'hello world')
+          t.strictEqual(chunk.toString(), 'hello world')
         })
         res.on('end', function () {
           agent.flush()
@@ -111,7 +111,7 @@ module.exports = (moduleName) => {
     agent.captureError = function (err, opts) {
       server.stop(noop)
 
-      t.equal(err, customError)
+      t.strictEqual(err, customError)
       t.ok(opts.custom)
       t.deepEqual(opts.custom.tags, ['error'])
       t.false(opts.custom.internals)
@@ -142,7 +142,7 @@ module.exports = (moduleName) => {
     agent.captureError = function (err, opts) {
       server.stop(noop)
 
-      t.equal(err, customError)
+      t.strictEqual(err, customError)
       t.ok(opts.custom)
       t.deepEqual(opts.custom.tags, ['error'])
       t.false(opts.custom.internals)
@@ -175,7 +175,7 @@ module.exports = (moduleName) => {
     agent.captureError = function (err, opts) {
       server.stop(noop)
 
-      t.equal(err, 'hapi server emitted a log event tagged error')
+      t.strictEqual(err, 'hapi server emitted a log event tagged error')
       t.ok(opts.custom)
       t.deepEqual(opts.custom.tags, ['error'])
       t.false(opts.custom.internals)
@@ -200,7 +200,7 @@ module.exports = (moduleName) => {
     agent.captureError = function (err, opts) {
       server.stop(noop)
 
-      t.equal(err, customError)
+      t.strictEqual(err, customError)
       t.ok(opts.custom)
       t.deepEqual(opts.custom.tags, ['error'])
       t.false(opts.custom.internals)
@@ -224,7 +224,7 @@ module.exports = (moduleName) => {
     agent.captureError = function (err, opts) {
       server.stop(noop)
 
-      t.equal(err, customError)
+      t.strictEqual(err, customError)
       t.ok(opts.custom)
       t.deepEqual(opts.custom.tags, ['error'])
       t.false(opts.custom.internals)
@@ -259,7 +259,7 @@ module.exports = (moduleName) => {
     agent.captureError = function (err, opts) {
       server.stop(noop)
 
-      t.equal(err, customError)
+      t.strictEqual(err, customError)
       t.ok(opts.custom)
       t.deepEqual(opts.custom.tags, ['error'])
       t.false(opts.custom.internals)
@@ -285,7 +285,7 @@ module.exports = (moduleName) => {
     agent.captureError = function (err, opts) {
       server.stop(noop)
 
-      t.equal(err, 'hapi server emitted a log event tagged error')
+      t.strictEqual(err, 'hapi server emitted a log event tagged error')
       t.ok(opts.custom)
       t.deepEqual(opts.custom.tags, ['error'])
       t.false(opts.custom.internals)
@@ -311,7 +311,7 @@ module.exports = (moduleName) => {
     })
 
     agent.captureError = function (err, opts) {
-      t.equal(err, customError)
+      t.strictEqual(err, customError)
       t.ok(opts.custom)
       t.ok(opts.request)
       t.deepEqual(opts.custom.tags, ['error'])
@@ -335,7 +335,7 @@ module.exports = (moduleName) => {
       t.error(err, 'start error')
 
       http.get('http://localhost:' + server.info.port + '/error', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
 
         res.resume().on('end', function () {
           agent.flush()
@@ -356,7 +356,7 @@ module.exports = (moduleName) => {
     })
 
     agent.captureError = function (err, opts) {
-      t.equal(err, customError)
+      t.strictEqual(err, customError)
       t.ok(opts.custom)
       t.ok(opts.request)
       t.deepEqual(opts.custom.tags, ['elastic-apm', 'error'])
@@ -391,7 +391,7 @@ module.exports = (moduleName) => {
       })
 
       http.get('http://localhost:' + server.info.port + '/error', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
 
         res.resume().on('end', function () {
           agent.flush()
@@ -412,7 +412,7 @@ module.exports = (moduleName) => {
     })
 
     agent.captureError = function (err, opts) {
-      t.equal(err, customError)
+      t.strictEqual(err, customError)
       t.ok(opts.custom)
       t.ok(opts.request)
       t.deepEqual(opts.custom.tags, ['error'])
@@ -436,7 +436,7 @@ module.exports = (moduleName) => {
       t.error(err, 'start error')
 
       http.get('http://localhost:' + server.info.port + '/error', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
 
         res.resume().on('end', function () {
           agent.flush()
@@ -459,7 +459,7 @@ module.exports = (moduleName) => {
     })
 
     agent.captureError = function (err, opts) {
-      t.equal(err, 'hapi server emitted a request event tagged error')
+      t.strictEqual(err, 'hapi server emitted a request event tagged error')
       t.ok(opts.custom)
       t.ok(opts.request)
       t.deepEqual(opts.custom.tags, ['error'])
@@ -483,7 +483,7 @@ module.exports = (moduleName) => {
       t.error(err, 'start error')
 
       http.get('http://localhost:' + server.info.port + '/error', function (res) {
-        t.equal(res.statusCode, 200)
+        t.strictEqual(res.statusCode, 200)
 
         res.resume().on('end', function () {
           agent.flush()
@@ -501,14 +501,14 @@ module.exports = (moduleName) => {
     })
 
     agent.captureError = function (err, opts) {
-      t.equal(err.message, 'foo')
+      t.strictEqual(err.message, 'foo')
       t.ok(opts.request instanceof http.IncomingMessage)
     }
 
     var server = startServer(function (err, port) {
       t.error(err)
       http.get('http://localhost:' + port + '/error', function (res) {
-        t.equal(res.statusCode, 500)
+        t.strictEqual(res.statusCode, 500)
         res.on('data', function (chunk) {
           var data = JSON.parse(chunk.toString())
           t.deepEqual(data, {
@@ -606,14 +606,14 @@ module.exports = (moduleName) => {
     results.status = results.status || 'HTTP 2xx'
     results.name = results.name || 'GET /hello'
 
-    t.equal(data.transactions.length, 1)
+    t.strictEqual(data.transactions.length, 1)
 
     var trans = data.transactions[0]
 
-    t.equal(trans.name, results.name)
-    t.equal(trans.type, 'request')
-    t.equal(trans.result, results.status)
-    t.equal(trans.context.request.method, 'GET')
+    t.strictEqual(trans.name, results.name)
+    t.strictEqual(trans.type, 'request')
+    t.strictEqual(trans.result, results.status)
+    t.strictEqual(trans.context.request.method, 'GET')
   }
 
   function resetAgent (expected, cb) {

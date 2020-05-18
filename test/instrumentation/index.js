@@ -21,25 +21,25 @@ var origCaptureError = agent.captureError
 
 test('basic', function (t) {
   resetAgent(6, function (data) {
-    t.equal(data.transactions.length, 2)
-    t.equal(data.spans.length, 4)
+    t.strictEqual(data.transactions.length, 2)
+    t.strictEqual(data.spans.length, 4)
 
     data.transactions.forEach(function (trans, index) {
       t.ok(/^[\da-f]{16}$/.test(trans.id))
       t.ok(/^[\da-f]{32}$/.test(trans.trace_id))
-      t.equal(trans.name, 'foo' + index)
-      t.equal(trans.type, 'bar' + index)
+      t.strictEqual(trans.name, 'foo' + index)
+      t.strictEqual(trans.type, 'bar' + index)
       t.ok(trans.duration > 0, 'duration should be >0ms')
       t.ok(trans.duration < 100, 'duration should be <100ms')
       t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
-      t.equal(trans.result, 'baz' + index)
+      t.strictEqual(trans.result, 'baz' + index)
 
       for (let i = 0; i < 2; i++) {
         const name = 't' + index + i
         const span = findObjInArray(data.spans, 'name', name)
         t.ok(span, 'should have span named ' + name)
-        t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
-        t.equal(span.type, 'type')
+        t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
+        t.strictEqual(span.type, 'type')
         t.ok(span.timestamp > trans.timestamp, 'assert span timestamp > transaction timestamp')
         t.ok(span.timestamp < trans.timestamp + 100000, 'assert span timestamp < transaction timestamp + 100000')
         t.ok(span.duration > 0, 'span duration should be >0ms')
@@ -47,11 +47,11 @@ test('basic', function (t) {
         t.ok(span.stacktrace.length > 0, 'should have stack trace')
 
         span.stacktrace.forEach(function (frame) {
-          t.equal(typeof frame.filename, 'string')
+          t.strictEqual(typeof frame.filename, 'string')
           t.ok(Number.isFinite(frame.lineno))
-          t.equal(typeof frame.function, 'string')
-          t.equal(typeof frame.library_frame, 'boolean')
-          t.equal(typeof frame.abs_path, 'string')
+          t.strictEqual(typeof frame.function, 'string')
+          t.strictEqual(typeof frame.library_frame, 'boolean')
+          t.strictEqual(typeof frame.abs_path, 'string')
         })
       }
     })
@@ -83,14 +83,14 @@ test('basic', function (t) {
 
 test('same tick', function (t) {
   resetAgent(3, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 2)
     const trans = data.transactions[0]
     for (let i = 0; i < 2; i++) {
       const name = 't' + i
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
+      t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -106,14 +106,14 @@ test('same tick', function (t) {
 
 test('serial - no parents', function (t) {
   resetAgent(3, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 2)
     const trans = data.transactions[0]
     for (let i = 0; i < 2; i++) {
       const name = 't' + i
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
+      t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -133,14 +133,14 @@ test('serial - no parents', function (t) {
 
 test('serial - with parents', function (t) {
   resetAgent(3, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 2)
     const trans = data.transactions[0]
     for (let i = 0; i < 2; i++) {
       const name = 't' + i
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
+      t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -160,14 +160,14 @@ test('serial - with parents', function (t) {
 
 test('stack branching - no parents', function (t) {
   resetAgent(3, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 2)
     const trans = data.transactions[0]
     for (let i = 0; i < 2; i++) {
       const name = 't' + i
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
+      t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -187,13 +187,13 @@ test('stack branching - no parents', function (t) {
 
 test('currentTransaction missing - recoverable', function (t) {
   resetAgent(2, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 1)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 1)
     const trans = data.transactions[0]
     const name = 't0'
     const span = findObjInArray(data.spans, 'name', name)
     t.ok(span, 'should have span named ' + name)
-    t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
+    t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
     t.end()
   })
   var ins = agent._instrumentation
@@ -215,13 +215,13 @@ test('currentTransaction missing - recoverable', function (t) {
 
 test('currentTransaction missing - not recoverable - last span failed', function (t) {
   resetAgent(2, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 1)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 1)
     const trans = data.transactions[0]
     const name = 't0'
     const span = findObjInArray(data.spans, 'name', name)
     t.ok(span, 'should have span named ' + name)
-    t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
+    t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
     t.end()
   })
   var ins = agent._instrumentation
@@ -234,7 +234,7 @@ test('currentTransaction missing - not recoverable - last span failed', function
       t0.end()
       ins.currentTransaction = undefined
       t1 = ins.startSpan('t1')
-      t.equal(t1, null)
+      t.strictEqual(t1, null)
       setImmediate(function () {
         ins.currentTransaction = trans
         trans.end()
@@ -245,14 +245,14 @@ test('currentTransaction missing - not recoverable - last span failed', function
 
 test('currentTransaction missing - not recoverable - middle span failed', function (t) {
   resetAgent(3, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 2)
     const trans = data.transactions[0]
     const names = ['t0', 't2']
     for (const name of names) {
       const span = findObjInArray(data.spans, 'name', name)
       t.ok(span, 'should have span named ' + name)
-      t.equal(span.transaction_id, trans.id, 'should belong to correct transaction')
+      t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
     }
     t.end()
   })
@@ -265,7 +265,7 @@ test('currentTransaction missing - not recoverable - middle span failed', functi
     setImmediate(function () {
       ins.currentTransaction = undefined
       t1 = ins.startSpan('t1')
-      t.equal(t1, null)
+      t.strictEqual(t1, null)
       setImmediate(function () {
         t0.end()
         t2 = ins.startSpan('t2')
@@ -282,8 +282,8 @@ test('currentTransaction missing - not recoverable - middle span failed', functi
 
 test('errors should not have a transaction id if no transaction is present', function (t) {
   resetAgent(1, function (data) {
-    t.equal(data.errors.length, 1)
-    t.equal(data.errors[0].transaction, undefined)
+    t.strictEqual(data.errors.length, 1)
+    t.strictEqual(data.errors[0].transaction, undefined)
     t.end()
   })
   agent.captureError = origCaptureError
@@ -292,9 +292,9 @@ test('errors should not have a transaction id if no transaction is present', fun
 
 test('errors should have a transaction id - non-ended transaction', function (t) {
   resetAgent(1, function (data) {
-    t.equal(data.errors.length, 1)
-    t.equal(data.errors[0].transaction_id, trans.id)
-    t.equal(typeof data.errors[0].transaction_id, 'string')
+    t.strictEqual(data.errors.length, 1)
+    t.strictEqual(data.errors[0].transaction_id, trans.id)
+    t.strictEqual(typeof data.errors[0].transaction_id, 'string')
     t.end()
   })
   agent.captureError = origCaptureError
@@ -304,11 +304,11 @@ test('errors should have a transaction id - non-ended transaction', function (t)
 
 test('errors should have a transaction id - ended transaction', function (t) {
   resetAgent(2, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.errors.length, 1)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.errors.length, 1)
     const trans = data.transactions[0]
-    t.equal(data.errors[0].transaction_id, trans.id)
-    t.equal(typeof data.errors[0].transaction_id, 'string')
+    t.strictEqual(data.errors[0].transaction_id, trans.id)
+    t.strictEqual(typeof data.errors[0].transaction_id, 'string')
     t.end()
   })
   agent.captureError = origCaptureError
@@ -373,7 +373,7 @@ test('sampling', function (t) {
 
 test('unsampled transactions do not include spans', function (t) {
   var agent = mockAgent(1, function (data, cb) {
-    t.equal(data.transactions.length, 1)
+    t.strictEqual(data.transactions.length, 1)
 
     data.transactions.forEach(function (trans) {
       t.ok(/^[\da-f]{16}$/.test(trans.id))
@@ -381,7 +381,7 @@ test('unsampled transactions do not include spans', function (t) {
       t.ok(trans.duration > 0, 'duration should be >0ms')
       t.ok(trans.duration < 100, 'duration should be <100ms')
       t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
-      t.equal(trans.sampled, false)
+      t.strictEqual(trans.sampled, false)
     })
 
     t.end()
@@ -404,11 +404,11 @@ test('unsampled transactions do not include spans', function (t) {
 
 test('unsampled request transactions should have the correct result', function (t) {
   resetAgent(1, function (data) {
-    t.equal(data.transactions.length, 1)
+    t.strictEqual(data.transactions.length, 1)
 
     data.transactions.forEach(function (trans) {
-      t.equal(trans.sampled, false)
-      t.equal(trans.result, 'HTTP 2xx')
+      t.strictEqual(trans.sampled, false)
+      t.strictEqual(trans.result, 'HTTP 2xx')
     })
 
     server.close()
@@ -437,7 +437,7 @@ test('unsampled request transactions should have the correct result', function (
 test('bind', function (t) {
   t.test('does not create spans in unbound function context', function (t) {
     resetAgent(1, function (data) {
-      t.equal(data.transactions.length, 1)
+      t.strictEqual(data.transactions.length, 1)
       t.end()
     })
     var ins = agent._instrumentation
@@ -456,9 +456,9 @@ test('bind', function (t) {
 
   t.test('creates spans in bound function', function (t) {
     resetAgent(2, function (data) {
-      t.equal(data.transactions.length, 1)
-      t.equal(data.spans.length, 1)
-      t.equal(data.spans[0].name, 't0')
+      t.strictEqual(data.transactions.length, 1)
+      t.strictEqual(data.spans.length, 1)
+      t.strictEqual(data.spans[0].name, 't0')
       t.end()
     })
     var ins = agent._instrumentation
@@ -477,7 +477,7 @@ test('bind', function (t) {
 
   t.test('removes listeners properly', function (t) {
     resetAgent(1, function (data) {
-      t.equal(data.transactions.length, 1)
+      t.strictEqual(data.transactions.length, 1)
       t.end()
     })
     var ins = agent._instrumentation
@@ -491,12 +491,12 @@ test('bind', function (t) {
 
     emitter.addListener('foo', handler)
     listeners = emitter.listeners('foo')
-    t.equal(listeners.length, 1)
+    t.strictEqual(listeners.length, 1)
     t.notEqual(listeners[0], handler)
 
     emitter.removeListener('foo', handler)
     listeners = emitter.listeners('foo')
-    t.equal(listeners.length, 0)
+    t.strictEqual(listeners.length, 0)
 
     trans.end()
   })
@@ -512,7 +512,7 @@ test('bind', function (t) {
   methods.forEach(function (method) {
     t.test('does not create spans in unbound emitter with ' + method, function (t) {
       resetAgent(1, function (data) {
-        t.equal(data.transactions.length, 1)
+        t.strictEqual(data.transactions.length, 1)
         t.end()
       })
       var ins = agent._instrumentation
@@ -535,9 +535,9 @@ test('bind', function (t) {
   methods.forEach(function (method) {
     t.test('creates spans in bound emitter with ' + method, function (t) {
       resetAgent(2, function (data) {
-        t.equal(data.transactions.length, 1)
-        t.equal(data.spans.length, 1)
-        t.equal(data.spans[0].name, 't0')
+        t.strictEqual(data.transactions.length, 1)
+        t.strictEqual(data.spans.length, 1)
+        t.strictEqual(data.spans[0].name, 't0')
         t.end()
       })
       var ins = agent._instrumentation
@@ -561,38 +561,38 @@ test('bind', function (t) {
 
 test('nested spans', function (t) {
   resetAgent(6, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 5)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 5)
 
     const trans = data.transactions[0]
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
-    t.equal(trans.span_count.started, 5)
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'custom')
+    t.strictEqual(trans.span_count.started, 5)
 
     const s0 = findObjInArray(data.spans, 'name', 's0')
-    t.equal(s0.parent_id, trans.id, 's0 should directly descend from the transaction')
-    t.equal(s0.trace_id, trans.trace_id, 's0 has same trace_id as transaction')
-    t.equal(s0.transaction_id, trans.id, 's0 transaction_id matches transaction id')
+    t.strictEqual(s0.parent_id, trans.id, 's0 should directly descend from the transaction')
+    t.strictEqual(s0.trace_id, trans.trace_id, 's0 has same trace_id as transaction')
+    t.strictEqual(s0.transaction_id, trans.id, 's0 transaction_id matches transaction id')
 
     const s1 = findObjInArray(data.spans, 'name', 's1')
-    t.equal(s1.parent_id, trans.id, 's1 should directly descend from the transaction')
-    t.equal(s1.trace_id, trans.trace_id, 's1 has same trace_id as transaction')
-    t.equal(s1.transaction_id, trans.id, 's1 transaction_id matches transaction id')
+    t.strictEqual(s1.parent_id, trans.id, 's1 should directly descend from the transaction')
+    t.strictEqual(s1.trace_id, trans.trace_id, 's1 has same trace_id as transaction')
+    t.strictEqual(s1.transaction_id, trans.id, 's1 transaction_id matches transaction id')
 
     const s01 = findObjInArray(data.spans, 'name', 's01')
-    t.equal(s01.parent_id, s0.id, 's01 should descend from s0')
-    t.equal(s01.trace_id, trans.trace_id, 's01 has same trace_id as transaction')
-    t.equal(s01.transaction_id, trans.id, 's01 transaction_id matches transaction id')
+    t.strictEqual(s01.parent_id, s0.id, 's01 should descend from s0')
+    t.strictEqual(s01.trace_id, trans.trace_id, 's01 has same trace_id as transaction')
+    t.strictEqual(s01.transaction_id, trans.id, 's01 transaction_id matches transaction id')
 
     const s11 = findObjInArray(data.spans, 'name', 's11')
-    t.equal(s11.parent_id, s1.id, 's11 should descend from s1')
-    t.equal(s11.trace_id, trans.trace_id, 's11 has same trace_id as transaction')
-    t.equal(s11.transaction_id, trans.id, 's11 transaction_id matches transaction id')
+    t.strictEqual(s11.parent_id, s1.id, 's11 should descend from s1')
+    t.strictEqual(s11.trace_id, trans.trace_id, 's11 has same trace_id as transaction')
+    t.strictEqual(s11.transaction_id, trans.id, 's11 transaction_id matches transaction id')
 
     const s12 = findObjInArray(data.spans, 'name', 's12')
-    t.equal(s12.parent_id, s1.id, 's12 should descend from s1')
-    t.equal(s12.trace_id, trans.trace_id, 's12 has same trace_id as transaction')
-    t.equal(s12.transaction_id, trans.id, 's12 transaction_id matches transaction id')
+    t.strictEqual(s12.parent_id, s1.id, 's12 should descend from s1')
+    t.strictEqual(s12.trace_id, trans.trace_id, 's12 has same trace_id as transaction')
+    t.strictEqual(s12.transaction_id, trans.id, 's12 transaction_id matches transaction id')
 
     t.end()
   })
@@ -641,28 +641,28 @@ test('nested spans', function (t) {
 
 test('nested transactions', function (t) {
   resetAgent(4, function (data) {
-    t.equal(data.transactions.length, 2)
-    t.equal(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 2)
+    t.strictEqual(data.spans.length, 2)
 
     const t0 = findObjInArray(data.transactions, 'name', 't0')
-    t.equal(t0.type, 'custom')
-    t.equal(t0.span_count.started, 1)
+    t.strictEqual(t0.type, 'custom')
+    t.strictEqual(t0.span_count.started, 1)
 
     const s0 = findObjInArray(data.spans, 'name', 's0')
-    t.equal(s0.parent_id, t0.id, 's0 should directly descend from the transaction')
-    t.equal(s0.trace_id, t0.trace_id, 't0 has same trace_id as transaction')
-    t.equal(s0.transaction_id, t0.id, 't0 transaction_id matches transaction id')
+    t.strictEqual(s0.parent_id, t0.id, 's0 should directly descend from the transaction')
+    t.strictEqual(s0.trace_id, t0.trace_id, 't0 has same trace_id as transaction')
+    t.strictEqual(s0.transaction_id, t0.id, 't0 transaction_id matches transaction id')
 
     const t1 = findObjInArray(data.transactions, 'name', 't1')
-    t.equal(t1.type, 'custom')
-    t.equal(t1.span_count.started, 1)
-    t.equal(t1.parent_id, t0.id, 't1 should directly descend from the t0')
-    t.equal(t1.trace_id, t0.trace_id, 't1 has same trace_id as transaction')
+    t.strictEqual(t1.type, 'custom')
+    t.strictEqual(t1.span_count.started, 1)
+    t.strictEqual(t1.parent_id, t0.id, 't1 should directly descend from the t0')
+    t.strictEqual(t1.trace_id, t0.trace_id, 't1 has same trace_id as transaction')
 
     const s1 = findObjInArray(data.spans, 'name', 's1')
-    t.equal(s1.parent_id, t1.id, 's1 should directly descend from the transaction')
-    t.equal(s1.trace_id, t1.trace_id, 't1 has same trace_id as transaction')
-    t.equal(s1.transaction_id, t1.id, 't1 transaction_id matches transaction id')
+    t.strictEqual(s1.parent_id, t1.id, 's1 should directly descend from the transaction')
+    t.strictEqual(s1.trace_id, t1.trace_id, 't1 has same trace_id as transaction')
+    t.strictEqual(s1.transaction_id, t1.id, 't1 transaction_id matches transaction id')
 
     t.end()
   })

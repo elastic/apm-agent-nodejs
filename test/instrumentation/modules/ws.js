@@ -22,7 +22,7 @@ test('ws.send', function (t) {
 
   wss.on('connection', function (ws) {
     ws.on('message', function (message) {
-      t.equal(message, 'ping')
+      t.strictEqual(message, 'ping')
       ws.send('pong')
     })
   })
@@ -37,7 +37,7 @@ test('ws.send', function (t) {
   })
 
   ws.on('message', function (message) {
-    t.equal(message, 'pong')
+    t.strictEqual(message, 'pong')
     wss.close(function () {
       agent.flush()
     })
@@ -46,17 +46,17 @@ test('ws.send', function (t) {
 
 function done (t) {
   return function (data, cb) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 1)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 1)
 
     var trans = data.transactions[0]
     var span = data.spans[0]
 
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'websocket')
-    t.equal(span.name, 'Send WebSocket Message')
-    t.equal(span.type, 'websocket')
-    t.equal(span.subtype, 'send')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'websocket')
+    t.strictEqual(span.name, 'Send WebSocket Message')
+    t.strictEqual(span.type, 'websocket')
+    t.strictEqual(span.subtype, 'send')
 
     var offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)

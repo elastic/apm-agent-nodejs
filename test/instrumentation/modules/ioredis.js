@@ -24,19 +24,19 @@ test('not nested', function (t) {
 
   redis.flushall(function (err, reply) {
     t.error(err)
-    t.equal(reply, 'OK')
+    t.strictEqual(reply, 'OK')
     calls++
   })
 
   redis.set('foo', 'bar')
   redis.get('foo', function (err, result) {
     t.error(err)
-    t.equal(result, 'bar')
+    t.strictEqual(result, 'bar')
     calls++
   })
 
   redis.get('foo').then(function (result) {
-    t.equal(result, 'bar')
+    t.strictEqual(result, 'bar')
     calls++
   })
 
@@ -48,7 +48,7 @@ test('not nested', function (t) {
   redis.keys('*', function testing123 (err, replies) {
     t.error(err)
     t.deepEqual(replies.sort(), ['foo', 'key', 'set'])
-    t.equal(calls, 3)
+    t.strictEqual(calls, 3)
 
     agent.endTransaction()
     redis.quit()
@@ -65,18 +65,18 @@ test('nested', function (t) {
 
   redis.flushall(function (err, reply) {
     t.error(err)
-    t.equal(reply, 'OK')
+    t.strictEqual(reply, 'OK')
     var calls = 0
 
     redis.set('foo', 'bar')
     redis.get('foo', function (err, result) {
       t.error(err)
-      t.equal(result, 'bar')
+      t.strictEqual(result, 'bar')
       calls++
     })
 
     redis.get('foo').then(function (result) {
-      t.equal(result, 'bar')
+      t.strictEqual(result, 'bar')
       calls++
     })
 
@@ -88,7 +88,7 @@ test('nested', function (t) {
     redis.keys('*', function testing123 (err, replies) {
       t.error(err)
       t.deepEqual(replies.sort(), ['foo', 'key', 'set'])
-      t.equal(calls, 2)
+      t.strictEqual(calls, 2)
 
       agent.endTransaction()
       redis.quit()
@@ -141,20 +141,20 @@ function done (t) {
       'KEYS'
     ]
 
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, groups.length)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, groups.length)
 
     var trans = data.transactions[0]
 
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'bar')
-    t.equal(trans.result, 'success')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'bar')
+    t.strictEqual(trans.result, 'success')
 
     groups.forEach(function (name, i) {
       const span = data.spans[i]
-      t.equal(span.name, name)
-      t.equal(span.type, 'cache')
-      t.equal(span.subtype, 'redis')
+      t.strictEqual(span.name, name)
+      t.strictEqual(span.type, 'cache')
+      t.strictEqual(span.subtype, 'redis')
 
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000)

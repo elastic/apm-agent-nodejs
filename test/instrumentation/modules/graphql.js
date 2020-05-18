@@ -51,7 +51,7 @@ test('graphql.graphql - invalid query', function (t) {
   graphql.graphql(schema, query, root).then(function (response) {
     agent.endTransaction()
     t.deepEqual(Object.keys(response), ['errors'])
-    t.equal(response.errors.length, 1, 'should have one error')
+    t.strictEqual(response.errors.length, 1, 'should have one error')
     t.ok(response.errors[0].message.indexOf('Syntax Error') !== -1, 'should return a sytax error')
     agent.flush()
   })
@@ -61,13 +61,13 @@ test('graphql.graphql - transaction ended', function (t) {
   t.plan(5)
 
   resetAgent(1, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 0)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 0)
 
     var trans = data.transactions[0]
 
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'custom')
   })
 
   var schema = graphql.buildSchema('type Query { hello: String }')
@@ -111,13 +111,13 @@ test('graphql.execute - transaction ended', function (t) {
   t.plan(5)
 
   resetAgent(1, function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 0)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 0)
 
     var trans = data.transactions[0]
 
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'custom')
   })
 
   var schema = graphql.buildSchema('type Query { hello: String }')
@@ -192,18 +192,18 @@ function done (t, spanNameSuffix) {
   spanNameSuffix = spanNameSuffix || 'hello'
 
   return function (data, cb) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 1)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 1)
 
     var trans = data.transactions[0]
     var span = data.spans[0]
 
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
-    t.equal(span.name, 'GraphQL: ' + spanNameSuffix)
-    t.equal(span.type, 'db')
-    t.equal(span.subtype, 'graphql')
-    t.equal(span.action, 'execute')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'custom')
+    t.strictEqual(span.name, 'GraphQL: ' + spanNameSuffix)
+    t.strictEqual(span.type, 'db')
+    t.strictEqual(span.subtype, 'graphql')
+    t.strictEqual(span.action, 'execute')
 
     var offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)
