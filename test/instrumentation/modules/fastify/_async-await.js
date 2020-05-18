@@ -12,13 +12,14 @@ const agent = require('../../../..')
 const mockClient = require('../../../_mock_http_client')
 
 test('transaction name', function (t) {
+  t.plan(5)
+
   resetAgent(data => {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     const trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
-    t.end()
   })
 
   const fastify = Fastify()
@@ -38,6 +39,7 @@ test('transaction name', function (t) {
         t.strictEqual(result, '{"hello":"world"}', 'got correct body')
         agent.flush()
         fastify.close()
+        t.end()
       })
     })
   })
@@ -45,6 +47,8 @@ test('transaction name', function (t) {
 
 if (semver.gte(fastifyVersion, '2.0.0-rc')) {
   test('error reporting', function (t) {
+    t.plan(9)
+
     resetAgent(data => {
       t.ok(errored, 'reported an error')
       t.strictEqual(data.transactions.length, 1, 'has a transaction')
@@ -52,7 +56,6 @@ if (semver.gte(fastifyVersion, '2.0.0-rc')) {
       const trans = data.transactions[0]
       t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
       t.strictEqual(trans.type, 'request', 'transaction type is request')
-      t.end()
     })
 
     let request
@@ -90,6 +93,7 @@ if (semver.gte(fastifyVersion, '2.0.0-rc')) {
           }, 'got correct body')
           agent.flush()
           fastify.close()
+          t.end()
         })
       })
     })

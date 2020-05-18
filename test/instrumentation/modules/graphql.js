@@ -30,7 +30,7 @@ test('graphql.graphql', function (t) {
 
   graphql.graphql(schema, query, root).then(function (response) {
     agent.endTransaction()
-    t.deepEqual(response, { data: { hello: 'Hello world!' } })
+    t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
   })
 })
@@ -81,7 +81,7 @@ test('graphql.graphql - transaction ended', function (t) {
   agent.startTransaction('foo').end()
 
   graphql.graphql(schema, query, root).then(function (response) {
-    t.deepEqual(response, { data: { hello: 'Hello world!' } })
+    t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
   })
 })
 
@@ -102,7 +102,7 @@ test('graphql.execute', function (t) {
 
   graphql.execute(schema, documentAST, root).then(function (response) {
     agent.endTransaction()
-    t.deepEqual(response, { data: { hello: 'Hello world!' } })
+    t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
   })
 })
@@ -133,7 +133,7 @@ test('graphql.execute - transaction ended', function (t) {
   agent.startTransaction('foo').end()
 
   graphql.execute(schema, documentAST, root).then(function (response) {
-    t.deepEqual(response, { data: { hello: 'Hello world!' } })
+    t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
   })
 })
 
@@ -159,7 +159,7 @@ test('graphql.execute args object', function (t) {
 
   graphql.execute(args).then(function (response) {
     agent.endTransaction()
-    t.deepEqual(response, { data: { hello: 'Hello world!' } })
+    t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
   })
 })
@@ -183,7 +183,7 @@ if (semver.satisfies(pkg.version, '>=0.12')) {
     var response = graphql.execute(schema, documentAST, root)
 
     agent.endTransaction()
-    t.deepEqual(response, { data: { hello: 'Hello world!' } })
+    t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
     agent.flush()
   })
 }

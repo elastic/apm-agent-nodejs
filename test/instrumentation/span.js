@@ -275,7 +275,7 @@ test('#_encode() - disabled stack traces', function (t) {
 test('#ids', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  t.deepEqual(span.ids, {
+  t.deepLooseEqual(span.ids, {
     'trace.id': span.traceId,
     'span.id': span.id
   })

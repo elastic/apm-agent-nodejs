@@ -217,7 +217,7 @@ test('#currentTraceIds', function (t) {
   t.test('no active transaction or span', function (t) {
     var agent = Agent()
     agent.start()
-    t.deepEqual(agent.currentTraceIds, {})
+    t.deepLooseEqual(agent.currentTraceIds, {})
     t.strictEqual(agent.currentTraceIds.toString(), '')
     t.end()
   })
@@ -226,7 +226,7 @@ test('#currentTraceIds', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.deepEqual(agent.currentTraceIds, {
+    t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': trans.traceId,
       'transaction.id': trans.id
     })
@@ -240,7 +240,7 @@ test('#currentTraceIds', function (t) {
     agent.start()
     agent.startTransaction()
     var span = agent.startSpan()
-    t.deepEqual(agent.currentTraceIds, {
+    t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': span.traceId,
       'span.id': span.id
     })

@@ -494,7 +494,7 @@ test('#_encode() - not sampled', function (t) {
 
 test('#ids', function (t) {
   var trans = new Transaction(agent)
-  t.deepEqual(trans.ids, {
+  t.deepLooseEqual(trans.ids, {
     'trace.id': trans.traceId,
     'transaction.id': trans.id
   })

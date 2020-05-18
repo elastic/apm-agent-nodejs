@@ -23,10 +23,11 @@ isSecure.forEach(secure => {
   var method = secure ? 'createSecureServer' : 'createServer'
 
   test(`http2.${method} compatibility mode`, t => {
+    t.plan(14)
+
     resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
-      t.end()
     })
 
     function onRequest (req, res) {
@@ -64,10 +65,11 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respond`, t => {
+    t.plan(14)
+
     resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
-      t.end()
     })
 
     var port
@@ -106,10 +108,11 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respondWithFD`, t => {
+    t.plan(15)
+
     resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
-      t.end()
     })
 
     var port
@@ -155,10 +158,11 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respondWithFile`, t => {
+    t.plan(14)
+
     resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
-      t.end()
     })
 
     var port
@@ -268,6 +272,8 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
+    t.plan(31)
+
     resetAgent(3, (data) => {
       t.strictEqual(data.transactions.length, 2)
       t.strictEqual(data.spans.length, 1)
@@ -299,7 +305,6 @@ isSecure.forEach(secure => {
       })
 
       server.close()
-      t.end()
     })
 
     var port
@@ -384,7 +389,7 @@ function assertPath (t, trans, secure, port, path) {
     }
   })
 
-  t.deepEqual(trans.context.response, {
+  t.deepLooseEqual(trans.context.response, {
     status_code: 200,
     headers: {
       'content-type': 'text/plain',

@@ -17,18 +17,20 @@ const test = require('tape')
 const mockClient = require('../../../_mock_http_client')
 
 test('transaction name', function (t) {
+  t.plan(5)
+
   resetAgent((data) => {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     const trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
-    t.end()
   })
 
   const server = restify.createServer()
   const done = once(() => {
     server.close()
+    t.end()
   })
   t.on('end', done)
 
@@ -61,6 +63,8 @@ test('transaction name', function (t) {
 })
 
 test('error reporting', function (t) {
+  t.plan(8)
+
   resetAgent((data) => {
     t.ok(errored, 'reported an error')
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
@@ -68,7 +72,6 @@ test('error reporting', function (t) {
     const trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
-    t.end()
   })
 
   let request
@@ -88,6 +91,7 @@ test('error reporting', function (t) {
   const server = restify.createServer()
   const done = once(() => {
     server.close()
+    t.end()
   })
   t.on('end', done)
 
@@ -112,6 +116,8 @@ test('error reporting', function (t) {
 })
 
 test('error reporting from chained handler', function (t) {
+  t.plan(8)
+
   resetAgent((data) => {
     t.ok(errored, 'reported an error')
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
@@ -119,7 +125,6 @@ test('error reporting from chained handler', function (t) {
     const trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
-    t.end()
   })
 
   let request
@@ -139,6 +144,7 @@ test('error reporting from chained handler', function (t) {
   const server = restify.createServer()
   const done = once(() => {
     server.close()
+    t.end()
   })
   t.on('end', done)
 
@@ -165,6 +171,8 @@ test('error reporting from chained handler', function (t) {
 })
 
 test('error reporting from chained handler given as array', function (t) {
+  t.plan(8)
+
   resetAgent((data) => {
     t.ok(errored, 'reported an error')
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
@@ -172,7 +180,6 @@ test('error reporting from chained handler given as array', function (t) {
     const trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
-    t.end()
   })
 
   let request
@@ -192,6 +199,7 @@ test('error reporting from chained handler given as array', function (t) {
   const server = restify.createServer()
   const done = once(() => {
     server.close()
+    t.end()
   })
   t.on('end', done)
 
