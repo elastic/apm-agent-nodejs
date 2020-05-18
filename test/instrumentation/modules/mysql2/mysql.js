@@ -16,6 +16,7 @@ var utils = require('./_utils')
 var mockClient = require('../../../_mock_http_client')
 var findObjInArray = require('../../../_utils').findObjInArray
 
+var connectionOptions = utils.credentials()
 var queryable
 var queryablePromise
 var factories = [
@@ -386,6 +387,7 @@ function assertSpan (t, span, sql) {
   t.equal(span.subtype, 'mysql')
   t.equal(span.action, 'query')
   t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+  t.deepEqual(span.context.destination, { service: { name: 'mysql', resource: 'mysql', type: 'db' }, port: 3306, address: connectionOptions.host })
 }
 
 function createConnection (cb) {
@@ -401,10 +403,10 @@ function createConnection (cb) {
       }
     }
 
-    queryable = mysql.createConnection(utils.credentials())
+    queryable = mysql.createConnection(connectionOptions)
     queryable.connect()
 
-    mysqlPromise.createConnection(utils.credentials()).then(connection => {
+    mysqlPromise.createConnection(connectionOptions).then(connection => {
       queryablePromise = connection
       cb()
     })
@@ -424,8 +426,8 @@ function createPool (cb) {
       }
     }
 
-    queryable = mysql.createPool(utils.credentials())
-    queryablePromise = mysqlPromise.createPool(utils.credentials())
+    queryable = mysql.createPool(connectionOptions)
+    queryablePromise = mysqlPromise.createPool(connectionOptions)
 
     cb()
   })
@@ -446,8 +448,8 @@ function createPoolAndGetConnection (cb) {
       }
     }
 
-    var pool = mysql.createPool(utils.credentials())
-    var poolPromise = mysqlPromise.createPool(utils.credentials())
+    var pool = mysql.createPool(connectionOptions)
+    var poolPromise = mysqlPromise.createPool(connectionOptions)
 
     pool.getConnection(function (err, conn) {
       if (err) throw err
@@ -472,7 +474,7 @@ function createPoolClusterAndGetConnection (cb) {
     }
 
     var cluster = mysql.createPoolCluster()
-    cluster.add(utils.credentials())
+    cluster.add(connectionOptions)
     cluster.getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn
@@ -488,7 +490,7 @@ function createPoolClusterAndGetConnectionViaOf (cb) {
     }
 
     var cluster = mysql.createPoolCluster()
-    cluster.add(utils.credentials())
+    cluster.add(connectionOptions)
     cluster.of('*').getConnection(function (err, conn) {
       if (err) throw err
       queryable = conn

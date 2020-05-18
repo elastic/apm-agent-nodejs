@@ -19,49 +19,25 @@ const mockClient = require('../../_mock_http_client')
 const version = require('tedious/package').version
 
 let connection
+const hostname = process.env.MSSQL_HOST || '127.0.0.1'
 
 if (semver.gte(version, '4.0.0')) {
-  connection = process.env.APPVEYOR
-    ? {
-      server: 'localhost',
-      authentication: {
-        type: 'default',
-        options: {
-          userName: 'sa',
-          password: 'Password12!'
-        }
-      },
+  connection = {
+    server: hostname,
+    authentication: {
+      type: 'default',
       options: {
-        database: 'master',
-        encrypt: false
+        userName: 'SA',
+        password: process.env.SA_PASSWORD || 'Very(!)Secure'
       }
     }
-    : {
-      server: process.env.MSSQL_HOST || '127.0.0.1',
-      authentication: {
-        type: 'default',
-        options: {
-          userName: 'SA',
-          password: process.env.SA_PASSWORD || 'Very(!)Secure'
-        }
-      }
-    }
+  }
 } else {
-  connection = process.env.APPVEYOR
-    ? {
-      server: 'localhost',
-      userName: 'sa',
-      password: 'Password12!',
-      options: {
-        database: 'master',
-        encrypt: false
-      }
-    }
-    : {
-      server: process.env.MSSQL_HOST || '127.0.0.1',
-      userName: 'SA',
-      password: process.env.SA_PASSWORD || 'Very(!)Secure'
-    }
+  connection = {
+    server: hostname,
+    userName: 'SA',
+    password: process.env.SA_PASSWORD || 'Very(!)Secure'
+  }
 }
 
 function withConnection (t) {
@@ -158,7 +134,16 @@ function assertQuery (t, sql, span, name) {
   t.deepEqual(span.context.db, {
     statement: sql,
     type: 'sql'
-  }, 'span context')
+  }, 'span db context')
+  t.deepEqual(span.context.destination, {
+    service: {
+      name: 'mssql',
+      resource: 'mssql',
+      type: 'db'
+    },
+    address: hostname,
+    port: 1433
+  }, 'span destination context')
 }
 
 function assertBasicQuery (t, sql, data) {
