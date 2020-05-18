@@ -86,6 +86,8 @@ test('instrument simple command', function (t) {
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000)
     })
+
+    t.end()
   })
 
   var server = new Server({ host: process.env.MONGODB_HOST })
@@ -126,10 +128,8 @@ test('instrument simple command', function (t) {
 
                   // Cleanup
                   _server.remove('elasticapm.test', [{ q: {}, limit: 0 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
-                    t.error(err)
+                    if (err) throw err
                     _server.destroy()
-
-                    t.end()
                   })
                 })
               })
