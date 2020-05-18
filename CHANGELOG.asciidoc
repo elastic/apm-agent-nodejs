@@ -21,6 +21,16 @@ endif::[]
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.6.0]]
+==== 3.6.0 - 2020/5/18
+
+* feat: add destination metadata for db spans {pull}1687[#1687]
+* feat: add support for Node.js 14 {pull}1742[#1742]
+* feat(pg): add support for pg v8.x {pull}1743[#1743]
+* feat: add metrics for external memory {pull}1724[#1724]
+* feat: enrich spans with destination info {pull}1685[#1685]
+* fix(instrumentation): add .js to module path {pull}1711[#1711]
+
 [[release-notes-3.5.0]]
 ==== 3.5.0 - 2020/3/9
 
