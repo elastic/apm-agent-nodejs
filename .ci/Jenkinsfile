@@ -482,6 +482,7 @@ def generateStepForWindows(Map params = [:]){
           deleteDir()
           unstash 'source'
           dir(BASE_DIR) {
+            bat label: 'Ping linux worker', script: "ping -n 3 ${linuxIp}"
             installTools([ [tool: 'nodejs-lts', version: "${version}" ] ])
             bat label: 'Tool versions', script: '''
               npm --version
@@ -507,7 +508,8 @@ def grabWorkerIP(){
   def linuxIp = ''
   retry(3){
     linuxIp = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)?.trim()
-    if(linuxIp == null || ''.equals(linuxIp)){
+    log(level: 'INFO', text: "Worker IP '${linuxIp}'")
+    if(!linuxIp?.trim()){
       sleep(10)
       error('Unable to get the Linux worker IP')
     }
