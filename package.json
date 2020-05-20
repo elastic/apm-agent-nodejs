@@ -8,8 +8,8 @@
     "backport": "backport",
     "docs:open": "PREVIEW=1 npm run docs:build",
     "docs:build": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
-    "lint": "standard",
-    "lint:fix": "standard --fix",
+    "lint": "eslint . --rulesdir dev-utils/eslint-rules",
+    "lint:fix": "eslint . --fix --rulesdir dev-utils/eslint-rules",
     "lint:commit": "test/lint-commits.sh",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
     "coverage:prereport": "npm run coverage",
@@ -130,6 +130,8 @@
     "container-info": "^1.0.1",
     "dependency-check": "^4.1.0",
     "elasticsearch": "^16.5.0",
+    "eslint": "^7.0.0",
+    "eslint-plugin-standard": "^4.0.1",
     "express": "^4.17.1",
     "express-graphql": "^0.9.0",
     "express-queue": "^0.0.12",
@@ -170,7 +172,6 @@
     "restify-clients": "^2.6.9",
     "rimraf": "^3.0.2",
     "send": "^0.17.1",
-    "standard": "^14.3.3",
     "tape": "^4.13.0",
     "tedious": "^8.0.1",
     "test-all-versions": "^4.1.1",
@@ -185,11 +186,9 @@
       "inquirer"
     ]
   },
-  "standard": {
-    "ignore": [
-      "/test/sourcemaps/fixtures/lib"
-    ]
-  },
+  "eslintIgnore": [
+    "/test/sourcemaps/fixtures/lib"
+  ],
   "commitlint": {
     "extends": [
       "squash-pr",

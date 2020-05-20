@@ -38,7 +38,7 @@ setup_env () {
 }
 
 run_test_suite () {
-  standard
+  eslint .
   npm run test:deps
   npm run lint:commit
   
