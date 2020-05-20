@@ -44,7 +44,7 @@ test('instrument simple command', function (t) {
 
     collection.insertMany([{ a: 1 }, { a: 2 }, { a: 3 }], { w: 1 }, function (err, results) {
       t.error(err, 'no insert error')
-      t.equal(results.result.n, 3, 'inserted three records')
+      t.strictEqual(results.result.n, 3, 'inserted three records')
 
       // If records have been inserted, they should be cleaned up
       t.on('end', () => {
@@ -55,21 +55,21 @@ test('instrument simple command', function (t) {
 
       collection.updateOne({ a: 1 }, { $set: { b: 1 } }, { w: 1 }, function (err, results) {
         t.error(err, 'no update error')
-        t.equal(results.result.n, 1, 'updated one record')
+        t.strictEqual(results.result.n, 1, 'updated one record')
 
         collection.deleteOne({ a: 1 }, { w: 1 }, function (err, results) {
           t.error(err, 'no delete error')
-          t.equal(results.result.n, 1, 'deleted one record')
+          t.strictEqual(results.result.n, 1, 'deleted one record')
 
           var cursor = collection.find({})
 
           cursor.next(function (err, doc) {
             t.error(err, 'no cursor next error')
-            t.equal(doc.a, 2, 'found record #2')
+            t.strictEqual(doc.a, 2, 'found record #2')
 
             cursor.next(function (err, doc) {
               t.error(err, 'no cursor next error')
-              t.equal(doc.a, 3, 'found record #3')
+              t.strictEqual(doc.a, 3, 'found record #3')
 
               agent.endTransaction()
               agent.flush()
@@ -87,9 +87,9 @@ function makeTransactionTest (t) {
       return type === 'transaction'
     },
     test (trans) {
-      t.equal(trans.name, 'foo', 'transaction name is "foo"')
-      t.equal(trans.type, 'bar', 'transaction type is "bar"')
-      t.equal(trans.result, 'success', 'transaction result is "success"')
+      t.strictEqual(trans.name, 'foo', 'transaction name is "foo"')
+      t.strictEqual(trans.type, 'bar', 'transaction type is "bar"')
+      t.strictEqual(trans.result, 'success', 'transaction result is "success"')
     }
   }
 }
@@ -101,10 +101,10 @@ function makeSpanTest (t, name) {
     },
     test (span) {
       t.ok(span, 'found valid span')
-      t.equal(span.name, name, `span name is "${name}"`)
-      t.equal(span.type, 'db', 'span type is "db"')
-      t.equal(span.subtype, 'mongodb', 'span subtype is "mongodb"')
-      t.equal(span.action, 'query', 'span action is "query"')
+      t.strictEqual(span.name, name, `span name is "${name}"`)
+      t.strictEqual(span.type, 'db', 'span type is "db"')
+      t.strictEqual(span.subtype, 'mongodb', 'span subtype is "mongodb"')
+      t.strictEqual(span.action, 'query', 'span action is "query"')
     }
   }
 }

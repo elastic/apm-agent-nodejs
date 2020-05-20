@@ -130,9 +130,9 @@ function echoTest (type, opts, handler) {
   return function (t) {
     echoServer(type, (cp, port) => {
       resetAgent(opts, data => {
-        t.equal(data.transactions.length, 1, 'has one transaction')
-        t.equal(data.spans.length, 1, 'has one span')
-        t.equal(data.spans[0].name, 'GET localhost:' + port + '/', 'has expected span name')
+        t.strictEqual(data.transactions.length, 1, 'has one transaction')
+        t.strictEqual(data.spans.length, 1, 'has one span')
+        t.strictEqual(data.spans[0].name, 'GET localhost:' + port + '/', 'has expected span name')
         t.deepEqual(data.spans[0].context.http, {
           method: 'GET',
           status_code: 200,
@@ -162,17 +162,17 @@ function echoTest (type, opts, handler) {
       var traceparent = req.getHeader('traceparent')
       t.ok(traceparent, 'should have traceparent header')
       if (opts && opts.useElasticTraceparentHeader === false) {
-        t.equal(req.getHeader('elastic-apm-traceparent'), undefined)
+        t.strictEqual(req.getHeader('elastic-apm-traceparent'), undefined)
       } else {
         t.ok(req.getHeader('elastic-apm-traceparent'), 'should have elastic-apm-traceparent header')
       }
 
       var expected = TraceParent.fromString(trans._context.toString())
       var received = TraceParent.fromString(traceparent)
-      t.equal(received.version, expected.version, 'traceparent header has matching version')
-      t.equal(received.traceId, expected.traceId, 'traceparent header has matching traceId')
+      t.strictEqual(received.version, expected.version, 'traceparent header has matching version')
+      t.strictEqual(received.traceId, expected.traceId, 'traceparent header has matching traceId')
       t.ok(/^[\da-f]{16}$/.test(expected.id), 'traceparent header has valid id')
-      t.equal(received.flags, expected.flags, 'traceparent header has matching flags')
+      t.strictEqual(received.flags, expected.flags, 'traceparent header has matching flags')
 
       // Detect if the test called `http.get` (in which case outputSize should
       // be greater than zero) or `http.request` (in which case it should equal

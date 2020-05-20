@@ -25,19 +25,19 @@ test(function (t) {
       'HKEYS'
     ]
 
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, groups.length)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, groups.length)
 
     var trans = data.transactions[0]
 
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'bar')
-    t.equal(trans.result, 'success')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'bar')
+    t.strictEqual(trans.result, 'success')
 
     groups.forEach(function (name) {
       var span = findObjInArray(data.spans, 'name', name)
-      t.equal(span.type, 'cache')
-      t.equal(span.subtype, 'redis')
+      t.strictEqual(span.type, 'cache')
+      t.strictEqual(span.subtype, 'redis')
       t.deepEqual(span.context.destination, {
         service: { name: 'redis', resource: 'redis', type: 'cache' },
         address: process.env.REDIS_HOST || '127.0.0.1',
@@ -57,12 +57,12 @@ test(function (t) {
 
   client.flushall(function (err, reply) {
     t.error(err)
-    t.equal(reply, 'OK')
+    t.strictEqual(reply, 'OK')
     var done = 0
 
     client.set('string key', 'string val', function (err, reply) {
       t.error(err)
-      t.equal(reply, 'OK')
+      t.strictEqual(reply, 'OK')
       done++
     })
 
@@ -71,22 +71,22 @@ test(function (t) {
 
     client.hset('hash key', 'hashtest 1', 'some value', function (err, reply) {
       t.error(err)
-      t.equal(reply, 1)
+      t.strictEqual(reply, 1)
       done++
     })
     client.hset(['hash key', 'hashtest 2', 'some other value'], function (err, reply) {
       t.error(err)
-      t.equal(reply, 1)
+      t.strictEqual(reply, 1)
       done++
     })
 
     client.hkeys('hash key', function (err, replies) {
       t.error(err)
-      t.equal(replies.length, 2)
+      t.strictEqual(replies.length, 2)
       replies.forEach(function (reply, i) {
-        t.equal(reply, 'hashtest ' + (i + 1))
+        t.strictEqual(reply, 'hashtest ' + (i + 1))
       })
-      t.equal(done, 3)
+      t.strictEqual(done, 3)
 
       agent.endTransaction()
       client.quit()

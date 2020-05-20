@@ -69,7 +69,7 @@ test('reports expected metrics', function (t) {
         }
       },
       'system.memory.total': (value) => {
-        t.equal(value, os.totalmem(), 'should match total memory')
+        t.strictEqual(value, os.totalmem(), 'should match total memory')
       },
       'system.memory.actual.free': (value) => {
         const free = os.freemem()
@@ -124,7 +124,7 @@ test('reports expected metrics', function (t) {
         t.ok(value >= 0, 'is positive')
       },
       'ws.connections': (value) => {
-        t.equal(value, 23)
+        t.strictEqual(value, 23)
       }
     }
 
@@ -132,7 +132,7 @@ test('reports expected metrics', function (t) {
       const metric = metricset.samples[name]
       t.comment(name)
       t.ok(metric, 'is present')
-      t.equal(typeof metric.value, 'number', 'is a number')
+      t.strictEqual(typeof metric.value, 'number', 'is a number')
       t.ok(Number.isFinite(metric.value), `is finite (was: ${metric.value})`)
       metrics[name](metric.value)
     }
@@ -161,7 +161,7 @@ test('applies metrics limit', function (t) {
     hostname: 'foo',
     environment: 'bar'
   }, (metricset = {}) => {
-    t.equal(Object.keys(metricset.samples).length, 2, 'has expected number of metrics')
+    t.strictEqual(Object.keys(metricset.samples).length, 2, 'has expected number of metrics')
     t.end()
   })
 
@@ -184,16 +184,16 @@ test('increments counter when active', function (t) {
   metrics = new Metrics(agent)
   metrics.start()
 
-  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 0, 'should start at zero')
+  t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 0, 'should start at zero')
 
   metrics.incrementCounter('test-counter')
-  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 1, 'should have incremented by 1 by default')
+  t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 1, 'should have incremented by 1 by default')
 
   metrics.incrementCounter('test-counter', null, 2)
-  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 3, 'should have incremented by an amount')
+  t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 3, 'should have incremented by an amount')
 
   metrics.incrementCounter('test-counter', null)
-  t.equal(metrics.getOrCreateCounter('test-counter').toJSON(), 4, 'should have incremented')
+  t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 4, 'should have incremented')
 
   t.end()
 })

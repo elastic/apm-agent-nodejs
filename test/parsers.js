@@ -201,7 +201,7 @@ test('#getContextFromRequest()', function (t) {
     }
     req.headers['content-length'] = String(req.body.length)
     var parsed = parsers.getContextFromRequest(req, conf)
-    t.equal(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
+    t.strictEqual(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
     t.end()
   })
 
@@ -211,7 +211,7 @@ test('#getContextFromRequest()', function (t) {
     req.body = 'secret stuff'
     req.headers['content-length'] = String(req.body.length)
     var parsed = parsers.getContextFromRequest(req, conf)
-    t.equal(parsed.body, '[REDACTED]')
+    t.strictEqual(parsed.body, '[REDACTED]')
     t.end()
   })
 
@@ -234,9 +234,9 @@ test('#getContextFromRequest()', function (t) {
     }
     req.headers['content-length'] = JSON.stringify(req.body).length
     var parsed = parsers.getContextFromRequest(req, conf)
-    t.equal(typeof parsed.body, 'string')
-    t.equal(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
-    t.equal(parsed.body.slice(0, 10), '{"foo":"xx')
+    t.strictEqual(typeof parsed.body, 'string')
+    t.strictEqual(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
+    t.strictEqual(parsed.body.slice(0, 10), '{"foo":"xx')
     t.end()
   })
 
@@ -291,11 +291,11 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
-      t.equal(parsed.exception.message, '')
-      t.equal(parsed.exception.type, 'Error')
+      t.strictEqual(parsed.exception.message, '')
+      t.strictEqual(parsed.exception.type, 'Error')
       t.notOk('code' in parsed.exception)
       t.notOk('handled' in parsed.exception)
       t.notOk('attributes' in parsed.exception)
@@ -315,11 +315,11 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
-      t.equal(parsed.exception.message, 'Crap')
-      t.equal(parsed.exception.type, 'Error')
+      t.strictEqual(parsed.exception.message, 'Crap')
+      t.strictEqual(parsed.exception.type, 'Error')
       t.notOk('code' in parsed.exception)
       t.notOk('handled' in parsed.exception)
       t.notOk('attributes' in parsed.exception)
@@ -339,11 +339,11 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
-      t.equal(parsed.exception.message, 'Crap')
-      t.equal(parsed.exception.type, 'TypeError')
+      t.strictEqual(parsed.exception.message, 'Crap')
+      t.strictEqual(parsed.exception.type, 'TypeError')
       t.notOk('code' in parsed.exception)
       t.notOk('handled' in parsed.exception)
       t.notOk('attributes' in parsed.exception)
@@ -366,11 +366,11 @@ test('#parseError()', function (t) {
     } catch (e) {
       parsers.parseError(e, fakeAgent, function (err, parsed) {
         t.error(err)
-        t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+        t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
         t.notOk('log' in parsed)
         t.ok('exception' in parsed)
-        t.equal(parsed.exception.message, 'Derp')
-        t.equal(parsed.exception.type, 'Error')
+        t.strictEqual(parsed.exception.message, 'Derp')
+        t.strictEqual(parsed.exception.type, 'Error')
         t.notOk('code' in parsed.exception)
         t.notOk('handled' in parsed.exception)
         t.notOk('attributes' in parsed.exception)
@@ -395,11 +395,11 @@ test('#parseError()', function (t) {
     } catch (e) {
       parsers.parseError(e, fakeAgent, function (err, parsed) {
         t.error(err)
-        t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+        t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
         t.notOk('log' in parsed)
         t.ok('exception' in parsed)
-        t.equal(parsed.exception.message, 'Cannot read property \'Derp\' of undefined')
-        t.equal(parsed.exception.type, 'TypeError')
+        t.strictEqual(parsed.exception.message, 'Cannot read property \'Derp\' of undefined')
+        t.strictEqual(parsed.exception.type, 'TypeError')
         t.notOk('code' in parsed.exception)
         t.notOk('handled' in parsed.exception)
         t.notOk('attributes' in parsed.exception)
@@ -422,11 +422,11 @@ test('#parseError()', function (t) {
     t.ok(typeof err.stack === 'string')
     parsers.parseError(err, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
-      t.equal(parsed.exception.message, 'foo')
-      t.equal(parsed.exception.type, 'Error')
+      t.strictEqual(parsed.exception.message, 'foo')
+      t.strictEqual(parsed.exception.type, 'Error')
       t.notOk('code' in parsed.exception)
       t.notOk('handled' in parsed.exception)
       t.notOk('attributes' in parsed.exception)
@@ -451,8 +451,8 @@ test('#parseError()', function (t) {
       t.ok('culprit' in parsed)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
-      t.equal(parsed.exception.message, 'foo')
-      t.equal(parsed.exception.type, 'Error')
+      t.strictEqual(parsed.exception.message, 'foo')
+      t.strictEqual(parsed.exception.type, 'Error')
       t.notOk('code' in parsed.exception)
       t.notOk('handled' in parsed.exception)
       t.notOk('attributes' in parsed.exception)
@@ -485,11 +485,11 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(err, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, 'original stack')
+      t.strictEqual(parsed.culprit, 'original stack')
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
-      t.equal(parsed.exception.message, 'error with originalError')
-      t.equal(parsed.exception.type, 'Error')
+      t.strictEqual(parsed.exception.message, 'error with originalError')
+      t.strictEqual(parsed.exception.type, 'Error')
       t.notOk('code' in parsed.exception)
       t.notOk('handled' in parsed.exception)
       t.notOk('attributes' in parsed.exception)
@@ -516,11 +516,11 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
       t.error(err)
-      t.equal(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
-      t.equal(parsed.exception.message, '')
-      t.equal(parsed.exception.type, 'Error')
+      t.strictEqual(parsed.exception.message, '')
+      t.strictEqual(parsed.exception.type, 'Error')
       t.notOk('code' in parsed.exception)
       t.notOk('handled' in parsed.exception)
       t.notOk('attributes' in parsed.exception)
@@ -558,11 +558,11 @@ test('#parseError()', function (t) {
           t.notOk('post_context' in callsite)
         } else {
           t.ok(Array.isArray(callsite.pre_context))
-          t.equal(callsite.pre_context.length, 2)
-          t.equal(typeof callsite.context_line, 'string')
+          t.strictEqual(callsite.pre_context.length, 2)
+          t.strictEqual(typeof callsite.context_line, 'string')
           t.ok(callsite.context_line.length > 0)
           t.ok(Array.isArray(callsite.post_context))
-          t.equal(callsite.post_context.length, 2)
+          t.strictEqual(callsite.post_context.length, 2)
         }
       })
       t.end()
@@ -584,11 +584,11 @@ test('#parseError()', function (t) {
         var nodeCore = callsite.abs_path.indexOf(path.sep) === -1
         if (callsite.library_frame && !nodeCore) {
           t.ok(Array.isArray(callsite.pre_context))
-          t.equal(callsite.pre_context.length, 2)
-          t.equal(typeof callsite.context_line, 'string')
+          t.strictEqual(callsite.pre_context.length, 2)
+          t.strictEqual(typeof callsite.context_line, 'string')
           t.ok(callsite.context_line.length > 0)
           t.ok(Array.isArray(callsite.post_context))
-          t.equal(callsite.post_context.length, 2)
+          t.strictEqual(callsite.post_context.length, 2)
         } else {
           t.notOk('pre_context' in callsite)
           t.notOk('context_line' in callsite)
@@ -618,18 +618,18 @@ test('#parseError()', function (t) {
           t.notOk('post_context' in callsite)
         } else if (callsite.library_frame) {
           t.ok(Array.isArray(callsite.pre_context))
-          t.equal(callsite.pre_context.length, 3)
-          t.equal(typeof callsite.context_line, 'string')
+          t.strictEqual(callsite.pre_context.length, 3)
+          t.strictEqual(typeof callsite.context_line, 'string')
           t.ok(callsite.context_line.length > 0)
           t.ok(Array.isArray(callsite.post_context))
-          t.equal(callsite.post_context.length, 2)
+          t.strictEqual(callsite.post_context.length, 2)
         } else {
           t.ok(Array.isArray(callsite.pre_context))
-          t.equal(callsite.pre_context.length, 1)
-          t.equal(typeof callsite.context_line, 'string')
+          t.strictEqual(callsite.pre_context.length, 1)
+          t.strictEqual(typeof callsite.context_line, 'string')
           t.ok(callsite.context_line.length > 0)
           t.ok(Array.isArray(callsite.post_context))
-          t.equal(callsite.post_context.length, 1)
+          t.strictEqual(callsite.post_context.length, 1)
         }
       })
       t.end()
@@ -725,15 +725,15 @@ function validateParseCallsite (t, opts) {
     callsite.isApp = function () { return opts.isApp }
     parsers.parseCallsite(callsite, opts.isError, agent, function (err, frame) {
       t.error(err)
-      t.equal(frame.filename, callsite.getRelativeFileName(), 'should have expected frame filename')
-      t.equal(frame.lineno, callsite.getLineNumber(), 'should have expected frame lineno')
-      t.equal(frame.function, callsite.getFunctionNameSanitized(), 'should have expected frame function')
-      t.equal(frame.library_frame, !callsite.isApp(), 'should have expected frame library_frame')
-      t.equal(frame.abs_path, callsite.getFileName(), 'should have expected frame abs_path')
+      t.strictEqual(frame.filename, callsite.getRelativeFileName(), 'should have expected frame filename')
+      t.strictEqual(frame.lineno, callsite.getLineNumber(), 'should have expected frame lineno')
+      t.strictEqual(frame.function, callsite.getFunctionNameSanitized(), 'should have expected frame function')
+      t.strictEqual(frame.library_frame, !callsite.isApp(), 'should have expected frame library_frame')
+      t.strictEqual(frame.abs_path, callsite.getFileName(), 'should have expected frame abs_path')
       t.deepEqual(frame.pre_context, opts.pre, opts.pre
         ? 'should have expected frame pre_context'
         : 'should not have a frame pre_context')
-      t.equal(frame.context_line, opts.line, opts.line
+      t.strictEqual(frame.context_line, opts.line, opts.line
         ? 'should have expected frame context_line'
         : 'should not have a frame context_line')
       t.deepEqual(frame.post_context, opts.post, opts.post

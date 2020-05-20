@@ -27,8 +27,8 @@ const next = afterAll(function (err, validators) {
     const validators = [validateMetadata, validateSpan]
 
     const server = http.createServer(function (req, res) {
-      t.equal(req.method, 'POST', 'server should recieve a POST request')
-      t.equal(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
+      t.strictEqual(req.method, 'POST', 'server should recieve a POST request')
+      t.strictEqual(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
 
       req
         .pipe(zlib.createGunzip())
@@ -36,8 +36,8 @@ const next = afterAll(function (err, validators) {
         .on('data', function (data) {
           const type = Object.keys(data)[0]
           const validate = validators.shift()
-          t.equal(validate(data[type]), true, type + ' should be valid')
-          t.equal(validate.errors, null, type + ' should not have any validation errors')
+          t.strictEqual(validate(data[type]), true, type + ' should be valid')
+          t.strictEqual(validate.errors, null, type + ' should not have any validation errors')
         })
         .on('end', function () {
           res.end()

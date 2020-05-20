@@ -24,7 +24,7 @@ test('remote config enabled', function (t) {
   let agent, timer
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'relative:///')
-    t.equal(url.pathname, '/config/v1/agents')
+    t.strictEqual(url.pathname, '/config/v1/agents')
     res.writeHead(200, {
       Etag: 1,
       'Cache-Control': 'max-age=30, must-revalidate'
@@ -53,7 +53,7 @@ test('remote config enabled', function (t) {
           set (value) {
             const expectValue = expect[key]
             if (expectValue !== undefined) {
-              t.equal(value, expectValue)
+              t.strictEqual(value, expectValue)
               delete expect[key]
               if (Object.keys(expect).length === 0) {
                 t.end()

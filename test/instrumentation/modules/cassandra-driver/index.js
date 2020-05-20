@@ -19,11 +19,11 @@ const hasPromises = semver.satisfies(version, '>=3.2')
 
 test('connect', function (t) {
   resetAgent(2, function (data) {
-    t.equal(data.transactions.length, 1, 'transaction count')
-    t.equal(data.spans.length, 1, 'span count')
+    t.strictEqual(data.transactions.length, 1, 'transaction count')
+    t.strictEqual(data.spans.length, 1, 'span count')
 
     const trans = data.transactions[0]
-    t.equal(trans.name, 'foo', 'transaction name')
+    t.strictEqual(trans.name, 'foo', 'transaction name')
     assertConnectSpan(t, data.spans[0])
 
     t.end()
@@ -50,8 +50,8 @@ if (hasPromises) {
       agent.startTransaction('foo')
 
       assertPromise(t, client.execute(sql), function (rows) {
-        t.equal(rows.length, 1, 'number of rows')
-        t.equal(rows[0].key, 'local', 'result key')
+        t.strictEqual(rows.length, 1, 'number of rows')
+        t.strictEqual(rows[0].key, 'local', 'result key')
       })
     })
   })
@@ -70,8 +70,8 @@ test('execute - callback', function (t) {
     agent.startTransaction('foo')
 
     client.execute(sql, assertCallback(t, function (rows) {
-      t.equal(rows.length, 1, 'number of rows')
-      t.equal(rows[0].key, 'local', 'result key')
+      t.strictEqual(rows.length, 1, 'number of rows')
+      t.strictEqual(rows[0].key, 'local', 'result key')
     }))
   })
 })
@@ -82,11 +82,11 @@ if (hasPromises) {
     const summary = 'Cassandra: Batch query'
 
     resetAgent(3, function (data) {
-      t.equal(data.transactions.length, 1, 'transaction count')
-      t.equal(data.spans.length, 2, 'span count')
+      t.strictEqual(data.transactions.length, 1, 'transaction count')
+      t.strictEqual(data.spans.length, 2, 'span count')
 
       const trans = data.transactions[0]
-      t.equal(trans.name, 'foo', 'transaction name')
+      t.strictEqual(trans.name, 'foo', 'transaction name')
       assertConnectSpan(t, data.spans[0])
       const joined = `${sql};\n${sql}`
       assertSpan(t, joined, summary, data.spans[1])
@@ -112,11 +112,11 @@ test('batch - callback', function (t) {
   const summary = 'Cassandra: Batch query'
 
   resetAgent(3, function (data) {
-    t.equal(data.transactions.length, 1, 'transaction count')
-    t.equal(data.spans.length, 2, 'span count')
+    t.strictEqual(data.transactions.length, 1, 'transaction count')
+    t.strictEqual(data.spans.length, 2, 'span count')
 
     const trans = data.transactions[0]
-    t.equal(trans.name, 'foo', 'transaction name')
+    t.strictEqual(trans.name, 'foo', 'transaction name')
     assertConnectSpan(t, data.spans[0])
     const joined = `${sql};\n${sql}`
     assertSpan(t, joined, summary, data.spans[1])
@@ -151,7 +151,7 @@ test('eachRow', function (t) {
     agent.startTransaction('foo')
 
     client.eachRow(sql, [], (n, row) => {
-      t.equal(row.key, 'local', 'row key')
+      t.strictEqual(row.key, 'local', 'row key')
     }, (err) => {
       t.error(err, 'no error')
       agent.endTransaction()
@@ -178,7 +178,7 @@ test('stream', function (t) {
       let row
       while ((row = this.read())) {
         rows++
-        t.equal(row.key, 'local', 'row key')
+        t.strictEqual(row.key, 'local', 'row key')
       }
     })
 
@@ -187,7 +187,7 @@ test('stream', function (t) {
     })
 
     stream.on('end', function () {
-      t.equal(rows, 1, 'number of rows')
+      t.strictEqual(rows, 1, 'number of rows')
       agent.endTransaction()
     })
   })
@@ -207,28 +207,28 @@ function assertPromise (t, promise, handle) {
 }
 
 function assertBasicQuery (t, sql, summary, data) {
-  t.equal(data.transactions.length, 1, 'transaction count')
-  t.equal(data.spans.length, 2, 'span count')
+  t.strictEqual(data.transactions.length, 1, 'transaction count')
+  t.strictEqual(data.spans.length, 2, 'span count')
 
   const trans = data.transactions[0]
-  t.equal(trans.name, 'foo', 'transaction name')
+  t.strictEqual(trans.name, 'foo', 'transaction name')
 
   assertConnectSpan(t, data.spans[0])
   assertSpan(t, sql, summary, data.spans[1])
 }
 
 function assertConnectSpan (t, span) {
-  t.equal(span.name, 'Cassandra: Connect', 'span name')
-  t.equal(span.type, 'db', 'span type')
-  t.equal(span.subtype, 'cassandra', 'span subtype')
-  t.equal(span.action, 'connect', 'span action')
+  t.strictEqual(span.name, 'Cassandra: Connect', 'span name')
+  t.strictEqual(span.type, 'db', 'span type')
+  t.strictEqual(span.subtype, 'cassandra', 'span subtype')
+  t.strictEqual(span.action, 'connect', 'span action')
 }
 
 function assertSpan (t, sql, summary, span) {
-  t.equal(span.name, summary, 'span name')
-  t.equal(span.type, 'db', 'span type')
-  t.equal(span.subtype, 'cassandra', 'span subtype')
-  t.equal(span.action, 'query', 'span action')
+  t.strictEqual(span.name, summary, 'span name')
+  t.strictEqual(span.type, 'db', 'span type')
+  t.strictEqual(span.subtype, 'cassandra', 'span subtype')
+  t.strictEqual(span.action, 'query', 'span action')
   t.deepEqual(span.context.db, {
     statement: sql,
     type: 'cassandra'

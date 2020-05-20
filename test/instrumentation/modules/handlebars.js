@@ -18,21 +18,21 @@ var findObjInArray = require('../../_utils').findObjInArray
 
 test('handlebars compile and render', function userLandCode (t) {
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 2)
 
     var trans = data.transactions[0]
 
     t.ok(/^foo\d$/.test(trans.name))
-    t.equal(trans.type, 'custom')
+    t.strictEqual(trans.type, 'custom')
 
     const actions = ['compile', 'render']
     for (const action of actions) {
       const span = findObjInArray(data.spans, 'action', action)
       t.ok(span, 'should have span of action ' + action)
-      t.equal(span.name, 'handlebars')
-      t.equal(span.type, 'template')
-      t.equal(span.subtype, 'handlebars')
+      t.strictEqual(span.name, 'handlebars')
+      t.strictEqual(span.type, 'template')
+      t.strictEqual(span.subtype, 'handlebars')
       t.ok(span.stacktrace.some(function (frame) {
         return frame.function === 'userLandCode'
       }), 'include user-land code frame')

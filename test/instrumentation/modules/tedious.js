@@ -68,12 +68,12 @@ test('execSql', (t) => {
 
     const request = new tedious.Request(sql, (err, rowCount) => {
       t.error(err, 'no error')
-      t.equal(rowCount, 1, 'row count')
+      t.strictEqual(rowCount, 1, 'row count')
       agent.endTransaction()
     })
 
     request.on('row', (columns) => {
-      t.equal(columns[0].value, 1, 'column value')
+      t.strictEqual(columns[0].value, 1, 'column value')
     })
 
     connection.execSql(request)
@@ -96,13 +96,13 @@ test('prepare / execute', (t) => {
 
     const request = new tedious.Request(sql, (err, rowCount) => {
       t.error(err, 'no error')
-      t.equal(rowCount, 1, 'row count')
+      t.strictEqual(rowCount, 1, 'row count')
       agent.endTransaction()
     })
     request.addParameter('value', tedious.TYPES.Int)
 
     request.on('row', (columns) => {
-      t.equal(columns[0].value, 42, 'column value')
+      t.strictEqual(columns[0].value, 42, 'column value')
     })
 
     request.on('prepared', function () {
@@ -119,18 +119,18 @@ test('prepare / execute', (t) => {
 })
 
 function assertTransaction (t, sql, data, spanCount) {
-  t.equal(data.transactions.length, 1, 'transaction count')
-  t.equal(data.spans.length, spanCount, 'span count')
+  t.strictEqual(data.transactions.length, 1, 'transaction count')
+  t.strictEqual(data.spans.length, spanCount, 'span count')
 
   var trans = data.transactions[0]
-  t.equal(trans.name, 'foo', 'transaction name')
+  t.strictEqual(trans.name, 'foo', 'transaction name')
 }
 
 function assertQuery (t, sql, span, name) {
-  t.equal(span.name, name, 'span name')
-  t.equal(span.type, 'db', 'span type')
-  t.equal(span.subtype, 'mssql', 'span subtype')
-  t.equal(span.action, 'query', 'span action')
+  t.strictEqual(span.name, name, 'span name')
+  t.strictEqual(span.type, 'db', 'span type')
+  t.strictEqual(span.subtype, 'mssql', 'span subtype')
+  t.strictEqual(span.action, 'query', 'span action')
   t.deepEqual(span.context.db, {
     statement: sql,
     type: 'sql'

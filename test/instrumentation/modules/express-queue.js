@@ -76,16 +76,16 @@ function request (port, path) {
 
 function done (t, query) {
   return function (data, cb) {
-    t.equal(data.transactions.length, 5)
+    t.strictEqual(data.transactions.length, 5)
 
     data.transactions.forEach(function (trans, i) {
       t.comment('request ' + (i + 1))
-      t.equal(trans.name, 'GET /', 'name should be GET /')
-      t.equal(trans.type, 'request', 'type should be request')
-      t.equal(data.spans.filter(span => span.transaction_id === trans.id).length, 1, 'transaction should have 1 span')
+      t.strictEqual(trans.name, 'GET /', 'name should be GET /')
+      t.strictEqual(trans.type, 'request', 'type should be request')
+      t.strictEqual(data.spans.filter(span => span.transaction_id === trans.id).length, 1, 'transaction should have 1 span')
       const span = findObjInArray(data.spans, 'transaction_id', trans.id)
-      t.equal(span.name, 'foo', 'span name should be foo')
-      t.equal(span.type, 'bar', 'span name should be bar')
+      t.strictEqual(span.name, 'foo', 'span name should be foo')
+      t.strictEqual(span.type, 'bar', 'span name should be bar')
 
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000, 'span should have valid timings')
