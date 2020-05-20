@@ -40,6 +40,11 @@ declare class Agent implements Taggable, StartSpanFn {
 
   // Distributed Tracing
   currentTraceparent: string | null;
+  currentTraceIds: {
+    'trace.id'?: string;
+    'transaction.id'?: string;
+    'span.id'?: string;
+  }
 
   // Transactions
   startTransaction(
