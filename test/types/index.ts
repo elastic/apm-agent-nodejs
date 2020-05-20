@@ -15,6 +15,11 @@ const span = agent.currentSpan
 if (span) span.end()
 const traceparent = agent.currentTraceparent
 if (traceparent) traceparent.split('-')
+const currentTraceIds = agent.currentTraceIds
+let traceId = currentTraceIds['trace.id'] || ''
+traceId += '-' + (currentTraceIds['transaction.id'] === undefined
+  ? currentTraceIds['transaction.id']
+  : currentTraceIds['span.id'])
 
 agent.setFramework({})
 agent.setFramework({ name: 'foo' })

@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.5.0",
+  "version": "3.6.1",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -82,7 +82,7 @@
     "console-log-level": "^1.4.1",
     "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "^9.3.0",
+    "elastic-apm-http-client": "^9.4.0",
     "end-of-stream": "^1.4.4",
     "error-stack-parser": "^2.0.6",
     "fast-safe-stringify": "^2.0.7",
@@ -197,7 +197,7 @@
     ]
   },
   "coordinates": [
-    56.043902,
-    12.609232
+    56.038606,
+    12.619913
   ]
 }
