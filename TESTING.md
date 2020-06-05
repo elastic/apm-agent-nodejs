@@ -140,13 +140,13 @@ have any effect).
 Run the regular test suite:
 
 ```
-jenkins run the tests please
+jenkins run the tests
 ```
 
 Run the lint tests only:
 
 ```
-jenkins run lint please
+jenkins run lint
 ```
 
 Run TAV tests for one or more modules, where `<modules>` can be either a
@@ -155,4 +155,10 @@ string literal `ALL` to test _all_ modules:
 
 ```
 jenkins run the module tests for <modules>
+```
+
+Run the benchmark test only:
+
+```
+jenkins run benchmark tests
 ```
