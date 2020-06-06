@@ -6,7 +6,7 @@ export = agent;
 
 declare const agent: Agent;
 
-declare class Agent implements Taggable, StartSpanFn {
+export declare class Agent implements Taggable, StartSpanFn {
   // Configuration
   start (options?: AgentConfigOptions): Agent;
   isStarted (): boolean;
@@ -41,11 +41,6 @@ declare class Agent implements Taggable, StartSpanFn {
 
   // Distributed Tracing
   currentTraceparent: string | null;
-  currentTraceIds: {
-    'trace.id'?: string;
-    'transaction.id'?: string;
-    'span.id'?: string;
-  }
 
   // Transactions
   startTransaction(
@@ -125,9 +120,9 @@ declare class Agent implements Taggable, StartSpanFn {
   setSpanOutcome(outcome: Outcome): void;
 }
 
-type Outcome = 'unknown' | 'success' | 'failure'
+export type Outcome = 'unknown' | 'success' | 'failure'
 
-declare class GenericSpan implements Taggable {
+export declare class GenericSpan implements Taggable {
   // The following properties and methods are currently not documented as their API isn't considered official:
   // timestamp, ended, id, traceId, parentId, sampled, duration()
 
@@ -142,7 +137,7 @@ declare class GenericSpan implements Taggable {
   addLabels (labels: Labels, stringify?: boolean): boolean;
 }
 
-declare class Transaction extends GenericSpan implements StartSpanFn {
+export declare class Transaction extends GenericSpan implements StartSpanFn {
   // The following properties and methods are currently not documented as their API isn't considered official:
   // setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
 
@@ -177,7 +172,7 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
   setOutcome(outcome: Outcome): void;
 }
 
-declare class Span extends GenericSpan {
+export declare class Span extends GenericSpan {
   // The following properties and methods are currently not documented as their API isn't considered official:
   // customStackTrace(), setDbContext()
 
@@ -189,7 +184,7 @@ declare class Span extends GenericSpan {
   setOutcome(outcome: Outcome): void;
 }
 
-interface AgentConfigOptions {
+export interface AgentConfigOptions {
   abortedErrorThreshold?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   active?: boolean;
   addPatch?: KeyValueConfig;
@@ -255,7 +250,7 @@ interface AgentConfigOptions {
   verifyServerCert?: boolean;
 }
 
-interface CaptureErrorOptions {
+export interface CaptureErrorOptions {
   request?: IncomingMessage;
   response?: ServerResponse;
   timestamp?: number;
@@ -269,22 +264,22 @@ interface CaptureErrorOptions {
   skipOutcome?: boolean;
 }
 
-interface Labels {
+export interface Labels {
   [key: string]: LabelValue;
 }
 
-interface UserObject {
+export interface UserObject {
   id?: string | number;
   username?: string;
   email?: string;
 }
 
-interface ParameterizedMessageObject {
+export interface ParameterizedMessageObject {
   message: string;
   params: Array<any>;
 }
 
-interface Logger {
+export interface Logger {
   fatal (msg: string, ...args: any[]): void;
   fatal (obj: {}, msg?: string, ...args: any[]): void;
   error (msg: string, ...args: any[]): void;
@@ -300,39 +295,39 @@ interface Logger {
   [propName: string]: any;
 }
 
-interface TransactionOptions {
+export interface TransactionOptions {
   startTime?: number;
   childOf?: Transaction | Span | string;
 }
 
-interface SpanOptions {
+export interface SpanOptions {
   childOf?: Transaction | Span | string;
 }
 
-type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
-type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
-type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'warning' | 'error' | 'fatal' | 'critical' | 'off';
+export type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
+export type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
+export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'warning' | 'error' | 'fatal' | 'critical' | 'off';
 
-type CaptureErrorCallback = (err: Error | null, id: string) => void;
-type FilterFn = (payload: Payload) => Payload | boolean | void;
-type LabelValue = string | number | boolean | null | undefined;
-type KeyValueConfig = string | Labels | Array<Array<LabelValue>>
+export type CaptureErrorCallback = (err: Error | null, id: string) => void;
+export type FilterFn = (payload: Payload) => Payload | boolean | void;
+export type LabelValue = string | number | boolean | null | undefined;
+export type KeyValueConfig = string | Labels | Array<Array<LabelValue>>
 
-type Payload = { [propName: string]: any }
+export type Payload = { [propName: string]: any }
 
-type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
+export type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
 
-interface PatchOptions {
+export interface PatchOptions {
   version: string | undefined,
   enabled: boolean
 }
 
-interface Taggable {
+export interface Taggable {
   setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
   addLabels (labels: Labels, stringify?: boolean): boolean;
 }
 
-interface StartSpanFn {
+export interface StartSpanFn {
   startSpan(
     name?: string | null,
     options?: SpanOptions
@@ -358,19 +353,19 @@ interface StartSpanFn {
 }
 
 // Inlined from @types/aws-lambda - start
-declare namespace AwsLambda {
-  interface CognitoIdentity {
+export declare namespace AwsLambda {
+  export interface CognitoIdentity {
     cognitoIdentityId: string;
     cognitoIdentityPoolId: string;
   }
 
-  interface ClientContext {
+  export interface ClientContext {
     client: ClientContextClient;
     custom?: any;
     env: ClientContextEnv;
   }
 
-  interface ClientContextClient {
+  export interface ClientContextClient {
     installationId: string;
     appTitle: string;
     appVersionName: string;
@@ -378,7 +373,7 @@ declare namespace AwsLambda {
     appPackageName: string;
   }
 
-  interface ClientContextEnv {
+  export interface ClientContextEnv {
     platformVersion: string;
     platform: string;
     make: string;
@@ -386,9 +381,9 @@ declare namespace AwsLambda {
     locale: string;
   }
 
-  type Callback<TResult = any> = (error?: Error | null | string, result?: TResult) => void;
+  export type Callback<TResult = any> = (error?: Error | null | string, result?: TResult) => void;
 
-  interface Context {
+  export interface Context {
     // Properties
     callbackWaitsForEmptyEventLoop: boolean;
     functionName: string;
@@ -412,7 +407,7 @@ declare namespace AwsLambda {
     succeed(message: string, object: any): void;
   }
 
-  type Handler<TEvent = any, TResult = any> = (
+  export type Handler<TEvent = any, TResult = any> = (
     event: TEvent,
     context: Context,
     callback: Callback<TResult>,
@@ -420,7 +415,7 @@ declare namespace AwsLambda {
 }
 
 // Inlined from @types/connect - start
-declare namespace Connect {
-  type NextFunction = (err?: any) => void;
-  type ErrorHandleFunction = (err: any, req: IncomingMessage, res: ServerResponse, next: NextFunction) => void;
+export declare namespace Connect {
+  export type NextFunction = (err?: any) => void;
+  export type ErrorHandleFunction = (err: any, req: IncomingMessage, res: ServerResponse, next: NextFunction) => void;
 }
