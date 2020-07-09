@@ -72,6 +72,7 @@ The Node.js agent will automatically instrument the following modules to give yo
 [options="header"]
 |=======================================================================
 |Module |Version |Note
+|https://www.npmjs.com/package/amqplib[amqplib] |>=0.5.5 |Will instrument outgoing messages
 |https://www.npmjs.com/package/cassandra-driver[cassandra-driver] |>=3.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/elasticsearch[elasticsearch] |>=8.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 <15.0.0 |Will instrument all queries

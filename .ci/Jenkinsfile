@@ -478,7 +478,8 @@ def generateStepForWindows(Map params = [:]){
                "MSSQL_HOST=${linuxIp}",
                "MYSQL_HOST=${linuxIp}",
                "PGHOST=${linuxIp}",
-               "REDIS_HOST=${linuxIp}"]) {
+               "REDIS_HOST=${linuxIp}",
+               "RABBITMQ_HOST=${linuxIp}"]) {
         try {
           deleteDir()
           unstash 'source'

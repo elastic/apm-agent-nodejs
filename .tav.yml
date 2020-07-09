@@ -311,3 +311,7 @@ finalhandler:
 memcached:
   versions: '>=2.2.0'
   commands: node test/instrumentation/modules/memcached.js
+
+amqplib:
+  versions: '>=0.5.5'
+  commands: node test/instrumentation/modules/amqplib.js

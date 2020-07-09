@@ -105,7 +105,8 @@
     "sql-summary": "^1.0.1",
     "stackman": "^4.0.1",
     "traceparent": "^1.0.0",
-    "unicode-byte-truncate": "^1.0.0"
+    "unicode-byte-truncate": "^1.0.0",
+    "url-parse": "^1.4.7"
   },
   "devDependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.1",
@@ -118,6 +119,7 @@
     "@hapi/hapi": "^18.4.1",
     "@koa/router": "^8.0.8",
     "@types/node": "^13.7.4",
+    "amqplib": "^0.5.5",
     "apollo-server-express": "^2.10.1",
     "aws-sdk": "^2.622.0",
     "backport": "^5.1.2",

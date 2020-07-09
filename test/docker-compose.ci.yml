@@ -3,7 +3,8 @@ version: '2.1'
 services:
   node_tests:
     image: node:${NODE_VERSION}
-    environment: 
+    environment:
+      RABBITMQ_HOST: 'rabbitmq'
       MONGODB_HOST: 'mongodb'
       REDIS_HOST: 'redis'
       ES_HOST: 'elasticsearch'
@@ -21,6 +22,8 @@ services:
       mssql:
         condition: service_started
       mysql:
+        condition: service_started
+      rabbitmq:
         condition: service_started
       redis:
         condition: service_started
