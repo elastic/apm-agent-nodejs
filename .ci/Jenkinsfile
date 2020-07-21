@@ -370,20 +370,20 @@ def generateStep(Map params = [:]){
   return {
     node('linux && immutable'){
       withEnv(["VERSION=${version}", "ELASTIC_APM_ASYNC_HOOKS=${disableAsyncHooks}"]) {
-        try {
-          deleteDir()
-          unstash 'source'
-          dir("${BASE_DIR}"){
+        deleteDir()
+        unstash 'source'
+        dir("${BASE_DIR}"){
+          try {
             retry(2){
               sleep randomNumber(min:5, max: 10)
               sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
             }
+          } catch(e){
+            error(e.toString())
+          } finally {
+            tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js')
+            codecov(repo: env.REPO, basedir: '.', secret: "${CODECOV_SECRET}")
           }
-        } catch(e){
-          error(e.toString())
-        } finally {
-          tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js')
-          codecov(repo: env.REPO, basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
         }
       }
     }
