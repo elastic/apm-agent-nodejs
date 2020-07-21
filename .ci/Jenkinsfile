@@ -374,8 +374,7 @@ def generateStep(Map params = [:]){
         unstash 'source'
         dir("${BASE_DIR}"){
           try {
-            retry(2){
-              sleep randomNumber(min:5, max: 10)
+            retryWithSleep(retries: 2, seconds: 5, backoff: true) {
               sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
             }
           } catch(e){
@@ -504,11 +503,10 @@ def generateStepForWindows(Map params = [:]){
 
 def grabWorkerIP(){
   def linuxIp = ''
-  retry(3){
+  retryWithSleep(retries: 3, seconds: 5, backoff: true){
     linuxIp = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)?.trim()
     log(level: 'INFO', text: "Worker IP '${linuxIp}'")
     if(!linuxIp?.trim()){
-      sleep(10)
       error('Unable to get the Linux worker IP')
     }
   }
