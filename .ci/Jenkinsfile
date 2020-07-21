@@ -382,7 +382,7 @@ def generateStep(Map params = [:]){
         } catch(e){
           error(e.toString())
         } finally {
-          tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Agent Node.js')
+          tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js')
           codecov(repo: env.REPO, basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
         }
       }
