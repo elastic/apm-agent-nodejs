@@ -226,11 +226,22 @@ function abortTest (type, handler) {
         url: undefined
       }
 
-      resetAgent(data => {
+      resetAgent({}, data => {
         t.equal(data.transactions.length, 1, 'has one transaction')
         t.equal(data.spans.length, 1, 'has one span')
         t.equal(data.spans[0].name, `${req.method} localhost:${port}/`, 'has expected span name')
         t.deepEqual(data.spans[0].context.http, httpContext)
+        if (httpContext.url) {
+          t.deepEqual(data.spans[0].context.destination, {
+            service: {
+              name: `${type}://127.0.0.1:${port}`,
+              resource: `127.0.0.1:${port}`,
+              type: data.spans[0].type
+            },
+            address: '127.0.0.1',
+            port: Number(port)
+          })
+        }
         t.end()
         cp.kill()
       })
