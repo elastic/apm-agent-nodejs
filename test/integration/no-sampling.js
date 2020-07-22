@@ -31,8 +31,8 @@ getPort().then(function (port) {
         received[type]++
       })
       req.on('end', function () {
-        t.equal(received.metadata, 1, 'expected 1 metadata to be sent')
-        t.equal(received.transaction, 20, 'expected 20 transactions to be sent')
+        t.strictEqual(received.metadata, 1, 'expected 1 metadata to be sent')
+        t.strictEqual(received.transaction, 20, 'expected 20 transactions to be sent')
         res.end()
         t.end()
         server.close()

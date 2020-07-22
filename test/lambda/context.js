@@ -34,13 +34,13 @@ test('context.succeed', function (t) {
     verboseLevel: 0,
     callback: function (err, result) {
       t.error(err)
-      t.equal(result, output)
+      t.strictEqual(result, output)
 
       t.ok(agent.flushed)
 
-      t.equal(agent.errors.length, 0)
+      t.strictEqual(agent.errors.length, 0)
 
-      t.equal(agent.transactions.length, 1)
+      t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], name, context, input, output)
 
       t.end()
@@ -70,13 +70,13 @@ test('context.done', function (t) {
     verboseLevel: 0,
     callback: function (err, result) {
       t.error(err)
-      t.equal(result, output)
+      t.strictEqual(result, output)
 
       t.ok(agent.flushed)
 
-      t.equal(agent.errors.length, 0)
+      t.strictEqual(agent.errors.length, 0)
 
-      t.equal(agent.transactions.length, 1)
+      t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], name, context, input, output)
 
       t.end()
@@ -110,10 +110,10 @@ test('context.fail', function (t) {
 
       t.ok(agent.flushed)
 
-      t.equal(agent.errors.length, 1)
+      t.strictEqual(agent.errors.length, 1)
       assertError(t, agent.errors[0], error)
 
-      t.equal(agent.transactions.length, 1)
+      t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], name, context, input)
 
       t.end()

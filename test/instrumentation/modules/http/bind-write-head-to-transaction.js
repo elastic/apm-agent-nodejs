@@ -10,10 +10,10 @@ var mockClient = require('../../../_mock_http_client')
 
 test('response writeHead is bound to transaction', function (t) {
   resetAgent(data => {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
-    t.equal(trans.result, 'HTTP 2xx', 'has correct result')
+    t.strictEqual(trans.result, 'HTTP 2xx', 'has correct result')
 
     t.end()
   })

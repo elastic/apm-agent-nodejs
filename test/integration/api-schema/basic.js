@@ -22,7 +22,7 @@ const next = afterAll(function (err, validators) {
   const [validateMetadata, validateTransaction, validateSpan, validateError] = validators
 
   test('metadata schema failure', function (t) {
-    t.equal(validateMetadata({}), false)
+    t.strictEqual(validateMetadata({}), false)
     validateFieldMessages(t, validateMetadata.errors, [
       { field: 'data.service', message: 'is required' }
     ])
@@ -30,7 +30,7 @@ const next = afterAll(function (err, validators) {
   })
 
   test('transaction schema failure', function (t) {
-    t.equal(validateTransaction({}), false)
+    t.strictEqual(validateTransaction({}), false)
     validateFieldMessages(t, validateTransaction.errors, [
       { field: 'data.duration', message: 'is required' },
       { field: 'data.type', message: 'is required' },
@@ -42,7 +42,7 @@ const next = afterAll(function (err, validators) {
   })
 
   test('span schema failure', function (t) {
-    t.equal(validateSpan({}), false)
+    t.strictEqual(validateSpan({}), false)
     validateFieldMessages(t, validateSpan.errors, [
       { field: 'data.duration', message: 'is required' },
       { field: 'data.name', message: 'is required' },
@@ -56,16 +56,16 @@ const next = afterAll(function (err, validators) {
   })
 
   test('error schema failure', function (t) {
-    t.equal(validateError({}), false)
+    t.strictEqual(validateError({}), false)
     validateFieldMessages(t, validateError.errors, [
       { field: 'data', message: 'no schemas match' },
       { field: 'data.id', message: 'is required' }
     ])
-    t.equal(validateError({ id: 'foo', exception: {} }), false)
+    t.strictEqual(validateError({ id: 'foo', exception: {} }), false)
     validateFieldMessages(t, validateError.errors, [
       { field: 'data.exception', message: 'no schemas match' }
     ])
-    t.equal(validateError({ id: 'foo', log: {} }), false)
+    t.strictEqual(validateError({ id: 'foo', log: {} }), false)
     validateFieldMessages(t, validateError.errors, [
       { field: 'data.log.message', message: 'is required' }
     ])
@@ -79,8 +79,8 @@ const next = afterAll(function (err, validators) {
     const validators = [validateMetadata, validateTransaction]
 
     const server = http.createServer(function (req, res) {
-      t.equal(req.method, 'POST', 'server should recieve a POST request')
-      t.equal(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
+      t.strictEqual(req.method, 'POST', 'server should recieve a POST request')
+      t.strictEqual(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
 
       req
         .pipe(zlib.createGunzip())
@@ -88,8 +88,8 @@ const next = afterAll(function (err, validators) {
         .on('data', function (data) {
           const type = Object.keys(data)[0]
           const validate = validators.shift()
-          t.equal(validate(data[type]), true, type + ' should be valid')
-          t.equal(validate.errors, null, type + ' should not have any validation errors')
+          t.strictEqual(validate(data[type]), true, type + ' should be valid')
+          t.strictEqual(validate.errors, null, type + ' should not have any validation errors')
         })
         .on('end', function () {
           res.end()
@@ -116,8 +116,8 @@ const next = afterAll(function (err, validators) {
     const validators = [validateMetadata, validateSpan]
 
     const server = http.createServer(function (req, res) {
-      t.equal(req.method, 'POST', 'server should recieve a POST request')
-      t.equal(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
+      t.strictEqual(req.method, 'POST', 'server should recieve a POST request')
+      t.strictEqual(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
 
       req
         .pipe(zlib.createGunzip())
@@ -125,8 +125,8 @@ const next = afterAll(function (err, validators) {
         .on('data', function (data) {
           const type = Object.keys(data)[0]
           const validate = validators.shift()
-          t.equal(validate(data[type]), true, type + ' should be valid')
-          t.equal(validate.errors, null, type + ' should not have any validation errors')
+          t.strictEqual(validate(data[type]), true, type + ' should be valid')
+          t.strictEqual(validate.errors, null, type + ' should not have any validation errors')
         })
         .on('end', function () {
           res.end()
@@ -164,8 +164,8 @@ const next = afterAll(function (err, validators) {
       const validators = [validateMetadata, validateError]
 
       const server = http.createServer(function (req, res) {
-        t.equal(req.method, 'POST', 'server should recieve a POST request')
-        t.equal(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
+        t.strictEqual(req.method, 'POST', 'server should recieve a POST request')
+        t.strictEqual(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
 
         req
           .pipe(zlib.createGunzip())
@@ -173,8 +173,8 @@ const next = afterAll(function (err, validators) {
           .on('data', function (data) {
             const type = Object.keys(data)[0]
             const validate = validators.shift()
-            t.equal(validate(data[type]), true, type + ' should be valid')
-            t.equal(validate.errors, null, type + ' should not have any validation errors')
+            t.strictEqual(validate(data[type]), true, type + ' should be valid')
+            t.strictEqual(validate.errors, null, type + ' should not have any validation errors')
           })
           .on('end', function () {
             res.end()
@@ -200,10 +200,10 @@ utils.spanValidator(next())
 utils.errorValidator(next())
 
 function validateFieldMessages (t, errors, expectations) {
-  t.equal(errors.length, expectations.length)
+  t.strictEqual(errors.length, expectations.length)
   expectations.forEach(expected => {
     const field = findObjInArray(errors, 'field', expected.field)
-    t.equal(field.message, expected.message)
+    t.strictEqual(field.message, expected.message)
   })
 }
 

@@ -12,13 +12,14 @@ const agent = require('../../../..')
 const mockClient = require('../../../_mock_http_client')
 
 test('transaction name', function (t) {
+  t.plan(5)
+
   resetAgent(data => {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     const trans = data.transactions[0]
-    t.equal(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
-    t.equal(trans.type, 'request', 'transaction type is request')
-    t.end()
+    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   const fastify = Fastify()
@@ -35,9 +36,10 @@ test('transaction name', function (t) {
       res.on('data', chunks.push.bind(chunks))
       res.on('end', function () {
         const result = Buffer.concat(chunks).toString()
-        t.equal(result, '{"hello":"world"}', 'got correct body')
+        t.strictEqual(result, '{"hello":"world"}', 'got correct body')
         agent.flush()
         fastify.close()
+        t.end()
       })
     })
   })
@@ -45,14 +47,15 @@ test('transaction name', function (t) {
 
 if (semver.gte(fastifyVersion, '2.0.0-rc')) {
   test('error reporting', function (t) {
+    t.plan(9)
+
     resetAgent(data => {
       t.ok(errored, 'reported an error')
-      t.equal(data.transactions.length, 1, 'has a transaction')
+      t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
       const trans = data.transactions[0]
-      t.equal(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
-      t.equal(trans.type, 'request', 'transaction type is request')
-      t.end()
+      t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
+      t.strictEqual(trans.type, 'request', 'transaction type is request')
     })
 
     let request
@@ -60,9 +63,9 @@ if (semver.gte(fastifyVersion, '2.0.0-rc')) {
     const error = new Error('wat')
     const captureError = agent.captureError
     agent.captureError = function (err, data) {
-      t.equal(err, error, 'has the expected error')
+      t.strictEqual(err, error, 'has the expected error')
       t.ok(data, 'captured data with error')
-      t.equal(data.request, request, 'captured data has the request object')
+      t.strictEqual(data.request, request, 'captured data has the request object')
       errored = true
     }
     t.on('end', function () {
@@ -90,6 +93,7 @@ if (semver.gte(fastifyVersion, '2.0.0-rc')) {
           }, 'got correct body')
           agent.flush()
           fastify.close()
+          t.end()
         })
       })
     })

@@ -18,8 +18,8 @@ var mockClient = require('../_mock_http_client')
 times(5, function (n, done) {
   test('https://github.com/elastic/apm-agent-nodejs/issues/75 ' + n, function (t) {
     resetAgent(4, function (data) {
-      t.equal(data.transactions.length, 2, 'should create transactions')
-      t.equal(data.spans.length, 2, 'should create spans')
+      t.strictEqual(data.transactions.length, 2, 'should create transactions')
+      t.strictEqual(data.spans.length, 2, 'should create spans')
       data.spans.forEach(function (span) {
         let trans
         data.transactions = data.transactions.filter(function (_trans) {

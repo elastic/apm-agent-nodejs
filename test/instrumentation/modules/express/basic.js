@@ -51,13 +51,13 @@ nestedRouteTestCases.forEach(function ([parentRoute = '', pathPrefix = ''] = [])
       t.plan(5)
 
       resetAgent(function (data) {
-        t.equal(data.transactions.length, 1, 'has a transaction')
+        t.strictEqual(data.transactions.length, 1, 'has a transaction')
         const trans = data.transactions[0]
         const transName = (expressFn === 'use' && path === '/')
           ? `${method} unknown route`
           : `${method} ${normalizePathElements(parentRoute, route)}`
-        t.equal(trans.name, transName, 'transaction name is ' + transName)
-        t.equal(trans.type, 'request', 'transaction type is request')
+        t.strictEqual(trans.name, transName, 'transaction name is ' + transName)
+        t.strictEqual(trans.type, 'request', 'transaction type is request')
       })
 
       const app = express()
@@ -78,7 +78,7 @@ nestedRouteTestCases.forEach(function ([parentRoute = '', pathPrefix = ''] = [])
       const server = app.listen(function () {
         get(server, { method, path }, (err, body) => {
           t.error(err)
-          t.equal(body, method === 'HEAD' ? '' : 'foo', 'should have expected response body')
+          t.strictEqual(body, method === 'HEAD' ? '' : 'foo', 'should have expected response body')
           server.close()
           agent.flush()
         })
@@ -91,20 +91,20 @@ test('error intercept', function (t) {
   t.plan(8)
 
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
-    t.equal(trans.name, 'GET /', 'transaction name is GET /')
-    t.equal(trans.type, 'request', 'transaction type is request')
+    t.strictEqual(trans.name, 'GET /', 'transaction name is GET /')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   var request
   var error = new Error('wat')
   var captureError = agent.captureError
   agent.captureError = function (err, data) {
-    t.equal(err, error, 'has the expected error')
+    t.strictEqual(err, error, 'has the expected error')
     t.ok(data, 'captured data with error')
-    t.equal(data.request, request, 'captured data has the request object')
+    t.strictEqual(data.request, request, 'captured data has the request object')
   }
   t.on('end', function () {
     agent.captureError = captureError
@@ -126,7 +126,7 @@ test('error intercept', function (t) {
     get(server, { path: '/' }, (err, body) => {
       t.error(err)
       const expected = JSON.stringify({ error: error.message })
-      t.equal(body, expected, 'got correct body from error handler middleware')
+      t.strictEqual(body, expected, 'got correct body from error handler middleware')
       server.close()
       agent.flush()
     })
@@ -137,11 +137,11 @@ test('ignore 404 errors', function (t) {
   t.plan(5)
 
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
-    t.equal(trans.name, 'GET unknown route', 'transaction name is GET unknown route')
-    t.equal(trans.type, 'request', 'transaction type is request')
+    t.strictEqual(trans.name, 'GET unknown route', 'transaction name is GET unknown route')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   var captureError = agent.captureError
@@ -162,7 +162,7 @@ test('ignore 404 errors', function (t) {
   var server = app.listen(function () {
     get(server, { path: '/' }, (err, body) => {
       t.error(err)
-      t.equal(body, 'not found', 'got correct body from error handler middleware')
+      t.strictEqual(body, 'not found', 'got correct body from error handler middleware')
       server.close()
       agent.flush()
     })
@@ -173,11 +173,11 @@ test('ignore invalid errors', function (t) {
   t.plan(5)
 
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
-    t.equal(trans.name, 'GET /', 'transaction name is GET /')
-    t.equal(trans.type, 'request', 'transaction type is request')
+    t.strictEqual(trans.name, 'GET /', 'transaction name is GET /')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   var captureError = agent.captureError
@@ -202,7 +202,7 @@ test('ignore invalid errors', function (t) {
   var server = app.listen(function () {
     get(server, { path: '/' }, (err, body) => {
       t.error(err)
-      t.equal(body, 'done', 'got correct body from error handler middleware')
+      t.strictEqual(body, 'done', 'got correct body from error handler middleware')
       server.close()
       agent.flush()
     })
@@ -213,11 +213,11 @@ test('do not inherit past route names', function (t) {
   t.plan(5)
 
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
-    t.equal(trans.name, 'GET /', 'transaction name is GET /')
-    t.equal(trans.type, 'request', 'transaction type is request')
+    t.strictEqual(trans.name, 'GET /', 'transaction name is GET /')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   var captureError = agent.captureError
@@ -243,7 +243,7 @@ test('do not inherit past route names', function (t) {
   var server = app.listen(function () {
     get(server, { path: '/' }, (err, body) => {
       t.error(err)
-      t.equal(body, 'done', 'got correct body from error handler middleware')
+      t.strictEqual(body, 'done', 'got correct body from error handler middleware')
       server.close()
       agent.flush()
     })
@@ -254,11 +254,11 @@ test('sub-routers include base path', function (t) {
   t.plan(5)
 
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
-    t.equal(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
-    t.equal(trans.type, 'request', 'transaction type is request')
+    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   var captureError = agent.captureError
@@ -281,7 +281,7 @@ test('sub-routers include base path', function (t) {
   var server = app.listen(function () {
     get(server, { path: '/hello/world' }, (err, body) => {
       t.error(err)
-      t.equal(body, 'hello, world', 'got correct body')
+      t.strictEqual(body, 'hello, world', 'got correct body')
       server.close()
       agent.flush()
     })
@@ -292,11 +292,11 @@ test('sub-routers throw exception', function (t) {
   t.plan(4)
 
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     var trans = data.transactions[0]
-    t.equal(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name')
-    t.equal(trans.type, 'request', 'transaction type is request')
+    t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   var error = new Error('hello')
@@ -330,7 +330,7 @@ test('expose app.use handle properties', function (t) {
   t.plan(7)
 
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
   })
 
   const handle = function (req, res) {
@@ -338,11 +338,11 @@ test('expose app.use handle properties', function (t) {
     const handle = stack[stack.length - 1].handle
 
     t.ok(Array.isArray(handle.stack), 'expose stack array on handle')
-    t.equal(handle.stack.length, 1, 'stack should contain one layer')
+    t.strictEqual(handle.stack.length, 1, 'stack should contain one layer')
 
     const layer = handle.stack[0]
-    t.equal(layer.handle.foo, 1, 'expose foo property on sub-handle')
-    t.equal(layer.handle.bar, 2, 'expose bar property on sub-handle')
+    t.strictEqual(layer.handle.foo, 1, 'expose foo property on sub-handle')
+    t.strictEqual(layer.handle.bar, 2, 'expose bar property on sub-handle')
 
     res.send('hello world')
   }
@@ -358,7 +358,7 @@ test('expose app.use handle properties', function (t) {
   const server = app.listen(function () {
     get(server, { path: '/' }, (err, body) => {
       t.error(err)
-      t.equal(body, 'hello world')
+      t.strictEqual(body, 'hello world')
       server.close()
       agent.flush()
     })

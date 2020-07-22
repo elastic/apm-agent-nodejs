@@ -21,35 +21,35 @@ process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
 test('#setFramework()', function (t) {
   var agent = Agent()
   agent.start()
-  t.equal(agent._conf.frameworkName, undefined)
-  t.equal(agent._conf.frameworkVersion, undefined)
-  t.equal(agent._transport._conf.frameworkName, undefined)
-  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._conf.frameworkName, undefined)
+  t.strictEqual(agent._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._transport._conf.frameworkName, undefined)
+  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
   agent.setFramework({})
-  t.equal(agent._conf.frameworkName, undefined)
-  t.equal(agent._conf.frameworkVersion, undefined)
-  t.equal(agent._transport._conf.frameworkName, undefined)
-  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._conf.frameworkName, undefined)
+  t.strictEqual(agent._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._transport._conf.frameworkName, undefined)
+  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
   agent.setFramework({ name: 'foo' })
-  t.equal(agent._conf.frameworkName, 'foo')
-  t.equal(agent._conf.frameworkVersion, undefined)
-  t.equal(agent._transport._conf.frameworkName, 'foo')
-  t.equal(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._conf.frameworkName, 'foo')
+  t.strictEqual(agent._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._transport._conf.frameworkName, 'foo')
+  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
   agent.setFramework({ version: 'bar' })
-  t.equal(agent._conf.frameworkName, 'foo')
-  t.equal(agent._conf.frameworkVersion, 'bar')
-  t.equal(agent._transport._conf.frameworkName, 'foo')
-  t.equal(agent._transport._conf.frameworkVersion, 'bar')
+  t.strictEqual(agent._conf.frameworkName, 'foo')
+  t.strictEqual(agent._conf.frameworkVersion, 'bar')
+  t.strictEqual(agent._transport._conf.frameworkName, 'foo')
+  t.strictEqual(agent._transport._conf.frameworkVersion, 'bar')
   agent.setFramework({ name: 'a', version: 'b' })
-  t.equal(agent._conf.frameworkName, 'a')
-  t.equal(agent._conf.frameworkVersion, 'b')
-  t.equal(agent._transport._conf.frameworkName, 'a')
-  t.equal(agent._transport._conf.frameworkVersion, 'b')
+  t.strictEqual(agent._conf.frameworkName, 'a')
+  t.strictEqual(agent._conf.frameworkVersion, 'b')
+  t.strictEqual(agent._transport._conf.frameworkName, 'a')
+  t.strictEqual(agent._transport._conf.frameworkVersion, 'b')
   agent.setFramework({ name: 'foo', version: 'bar', overwrite: false })
-  t.equal(agent._conf.frameworkName, 'a')
-  t.equal(agent._conf.frameworkVersion, 'b')
-  t.equal(agent._transport._conf.frameworkName, 'a')
-  t.equal(agent._transport._conf.frameworkVersion, 'b')
+  t.strictEqual(agent._conf.frameworkName, 'a')
+  t.strictEqual(agent._conf.frameworkVersion, 'b')
+  t.strictEqual(agent._transport._conf.frameworkName, 'a')
+  t.strictEqual(agent._transport._conf.frameworkVersion, 'b')
   t.end()
 })
 
@@ -58,10 +58,10 @@ test('#startTransaction()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction('foo', 'type', 'subtype', 'action')
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'type')
-    t.equal(trans.subtype, 'subtype')
-    t.equal(trans.action, 'action')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'type')
+    t.strictEqual(trans.subtype, 'subtype')
+    t.strictEqual(trans.action, 'action')
     t.end()
   })
 
@@ -82,11 +82,11 @@ test('#startTransaction()', function (t) {
     agent.start()
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     var trans = agent.startTransaction('foo', 'bar', { childOf })
-    t.equal(trans._context.version, '00')
-    t.equal(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.strictEqual(trans._context.version, '00')
+    t.strictEqual(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(trans._context.id, '00f067aa0ba902b7')
-    t.equal(trans._context.parentId, '00f067aa0ba902b7')
-    t.equal(trans._context.flags, '01')
+    t.strictEqual(trans._context.parentId, '00f067aa0ba902b7')
+    t.strictEqual(trans._context.flags, '01')
     t.end()
   })
 })
@@ -103,10 +103,10 @@ test('#endTransaction()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(trans.ended, false)
+    t.strictEqual(trans.ended, false)
     agent.endTransaction()
-    t.equal(trans.ended, true)
-    t.equal(trans.result, 'success')
+    t.strictEqual(trans.ended, true)
+    t.strictEqual(trans.result, 'success')
     t.end()
   })
 
@@ -114,10 +114,10 @@ test('#endTransaction()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(trans.ended, false)
+    t.strictEqual(trans.ended, false)
     agent.endTransaction('done')
-    t.equal(trans.ended, true)
-    t.equal(trans.result, 'done')
+    t.strictEqual(trans.ended, true)
+    t.strictEqual(trans.result, 'done')
     t.end()
   })
 
@@ -128,7 +128,7 @@ test('#endTransaction()', function (t) {
     var endTime = startTime + 2000.123
     var trans = agent.startTransaction('foo', 'bar', { startTime })
     agent.endTransaction('done', endTime)
-    t.equal(trans.duration(), 2000.123)
+    t.strictEqual(trans.duration(), 2000.123)
     t.end()
   })
 })
@@ -145,7 +145,7 @@ test('#currentTransaction', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.currentTransaction, trans)
+    t.strictEqual(agent.currentTransaction, trans)
     agent.endTransaction()
     t.end()
   })
@@ -164,7 +164,7 @@ test('#currentSpan', function (t) {
     agent.start()
     var trans = agent.startTransaction()
     var span = agent.startSpan()
-    t.equal(agent.currentSpan, span)
+    t.strictEqual(agent.currentSpan, span)
     span.end()
     trans.end()
     t.end()
@@ -176,7 +176,7 @@ test('#currentSpan', function (t) {
     var trans = agent.startTransaction()
     var span = agent.startSpan()
     process.nextTick(() => {
-      t.equal(agent.currentSpan, span)
+      t.strictEqual(agent.currentSpan, span)
       span.end()
       trans.end()
       t.end()
@@ -196,7 +196,7 @@ test('#currentTraceparent', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.currentTraceparent, trans.traceparent)
+    t.strictEqual(agent.currentTraceparent, trans.traceparent)
     agent.endTransaction()
     t.end()
   })
@@ -206,7 +206,7 @@ test('#currentTraceparent', function (t) {
     agent.start()
     agent.startTransaction()
     var span = agent.startSpan()
-    t.equal(agent.currentTraceparent, span.traceparent)
+    t.strictEqual(agent.currentTraceparent, span.traceparent)
     span.end()
     agent.endTransaction()
     t.end()
@@ -217,8 +217,8 @@ test('#currentTraceIds', function (t) {
   t.test('no active transaction or span', function (t) {
     var agent = Agent()
     agent.start()
-    t.deepEqual(agent.currentTraceIds, {})
-    t.equal(agent.currentTraceIds.toString(), '')
+    t.deepLooseEqual(agent.currentTraceIds, {})
+    t.strictEqual(agent.currentTraceIds.toString(), '')
     t.end()
   })
 
@@ -226,11 +226,11 @@ test('#currentTraceIds', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.deepEqual(agent.currentTraceIds, {
+    t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': trans.traceId,
       'transaction.id': trans.id
     })
-    t.equal(agent.currentTraceIds.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`)
+    t.strictEqual(agent.currentTraceIds.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`)
     agent.endTransaction()
     t.end()
   })
@@ -240,11 +240,11 @@ test('#currentTraceIds', function (t) {
     agent.start()
     agent.startTransaction()
     var span = agent.startSpan()
-    t.deepEqual(agent.currentTraceIds, {
+    t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': span.traceId,
       'span.id': span.id
     })
-    t.equal(agent.currentTraceIds.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
+    t.strictEqual(agent.currentTraceIds.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
     span.end()
     agent.endTransaction()
     t.end()
@@ -266,7 +266,7 @@ test('#setTransactionName', function (t) {
     agent.start()
     var trans = agent.startTransaction()
     agent.setTransactionName('foo')
-    t.equal(trans.name, 'foo')
+    t.strictEqual(trans.name, 'foo')
     t.end()
   })
 })
@@ -275,7 +275,7 @@ test('#startSpan()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.startSpan(), null)
+    t.strictEqual(agent.startSpan(), null)
     t.end()
   })
 
@@ -285,10 +285,10 @@ test('#startSpan()', function (t) {
     agent.startTransaction()
     var span = agent.startSpan('span-name', 'type', 'subtype', 'action')
     t.ok(span, 'should return a span')
-    t.equal(span.name, 'span-name')
-    t.equal(span.type, 'type')
-    t.equal(span.subtype, 'subtype')
-    t.equal(span.action, 'action')
+    t.strictEqual(span.name, 'span-name')
+    t.strictEqual(span.type, 'type')
+    t.strictEqual(span.subtype, 'subtype')
+    t.strictEqual(span.action, 'action')
     t.end()
   })
 
@@ -311,11 +311,11 @@ test('#startSpan()', function (t) {
     agent.startTransaction()
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     var span = agent.startSpan(null, null, { childOf })
-    t.equal(span._context.version, '00')
-    t.equal(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.strictEqual(span._context.version, '00')
+    t.strictEqual(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(span._context.id, '00f067aa0ba902b7')
-    t.equal(span._context.parentId, '00f067aa0ba902b7')
-    t.equal(span._context.flags, '01')
+    t.strictEqual(span._context.parentId, '00f067aa0ba902b7')
+    t.strictEqual(span._context.flags, '01')
     t.end()
   })
 })
@@ -324,7 +324,7 @@ test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.setUserContext({ foo: 1 }), false)
+    t.strictEqual(agent.setUserContext({ foo: 1 }), false)
     t.end()
   })
 
@@ -332,7 +332,7 @@ test('#setUserContext()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.setUserContext({ foo: 1 }), true)
+    t.strictEqual(agent.setUserContext({ foo: 1 }), true)
     t.deepEqual(trans._user, { foo: 1 })
     t.end()
   })
@@ -342,7 +342,7 @@ test('#setCustomContext()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.setCustomContext({ foo: 1 }), false)
+    t.strictEqual(agent.setCustomContext({ foo: 1 }), false)
     t.end()
   })
 
@@ -350,7 +350,7 @@ test('#setCustomContext()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.setCustomContext({ foo: 1 }), true)
+    t.strictEqual(agent.setCustomContext({ foo: 1 }), true)
     t.deepEqual(trans._custom, { foo: 1 })
     t.end()
   })
@@ -360,7 +360,7 @@ test('#setLabel()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.setLabel('foo', 1), false)
+    t.strictEqual(agent.setLabel('foo', 1), false)
     t.end()
   })
 
@@ -368,7 +368,7 @@ test('#setLabel()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.setLabel('foo', 1), true)
+    t.strictEqual(agent.setLabel('foo', 1), true)
     t.deepEqual(trans._labels, { foo: '1' })
     t.end()
   })
@@ -378,7 +378,7 @@ test('#addLabels()', function (t) {
   t.test('no active transaction', function (t) {
     var agent = Agent()
     agent.start()
-    t.equal(agent.addLabels({ foo: 1 }), false)
+    t.strictEqual(agent.addLabels({ foo: 1 }), false)
     t.end()
   })
 
@@ -386,8 +386,8 @@ test('#addLabels()', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.equal(agent.addLabels({ foo: 1, bar: 2 }), true)
-    t.equal(agent.addLabels({ foo: 3 }), true)
+    t.strictEqual(agent.addLabels({ foo: 1, bar: 2 }), true)
+    t.strictEqual(agent.addLabels({ foo: 3 }), true)
     t.deepEqual(trans._labels, { foo: '3', bar: '2' })
     t.end()
   })
@@ -399,22 +399,22 @@ test('filters', function (t) {
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         this.agent.addFilter(function (obj) {
-          t.equal(obj.exception.message, 'foo')
-          t.equal(++obj.context.custom.order, 1)
+          t.strictEqual(obj.exception.message, 'foo')
+          t.strictEqual(++obj.context.custom.order, 1)
           return obj
         })
         this.agent.addFilter('invalid')
         this.agent.addFilter(function (obj) {
-          t.equal(obj.exception.message, 'foo')
-          t.equal(++obj.context.custom.order, 2)
+          t.strictEqual(obj.exception.message, 'foo')
+          t.strictEqual(++obj.context.custom.order, 2)
           return obj
         })
 
         this.agent.captureError(new Error('foo'), { custom: { order: 0 } })
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'foo')
-        t.equal(data.context.custom.order, 2)
+        t.strictEqual(data.exception.message, 'foo')
+        t.strictEqual(data.context.custom.order, 2)
         t.end()
       })
   })
@@ -424,14 +424,14 @@ test('filters', function (t) {
     APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
       .on('listening', function () {
         this.agent.addFilter(function (obj) {
-          t.equal(obj.name, 'transaction-name')
-          t.equal(++obj.context.custom.order, 1)
+          t.strictEqual(obj.name, 'transaction-name')
+          t.strictEqual(++obj.context.custom.order, 1)
           return obj
         })
         this.agent.addFilter('invalid')
         this.agent.addFilter(function (obj) {
-          t.equal(obj.name, 'transaction-name')
-          t.equal(++obj.context.custom.order, 2)
+          t.strictEqual(obj.name, 'transaction-name')
+          t.strictEqual(++obj.context.custom.order, 2)
           return obj
         })
 
@@ -441,8 +441,8 @@ test('filters', function (t) {
         this.agent.flush()
       })
       .on('data-transaction', function (data) {
-        t.equal(data.name, 'transaction-name')
-        t.equal(data.context.custom.order, 2)
+        t.strictEqual(data.name, 'transaction-name')
+        t.strictEqual(data.context.custom.order, 2)
         t.end()
       })
   })
@@ -452,14 +452,14 @@ test('filters', function (t) {
     APMServerWithDefaultAsserts(t, {}, { expect: 'span' })
       .on('listening', function () {
         this.agent.addFilter(function (obj) {
-          t.equal(obj.name, 'span-name')
+          t.strictEqual(obj.name, 'span-name')
           obj.order = 1
           return obj
         })
         this.agent.addFilter('invalid')
         this.agent.addFilter(function (obj) {
-          t.equal(obj.name, 'span-name')
-          t.equal(++obj.order, 2)
+          t.strictEqual(obj.name, 'span-name')
+          t.strictEqual(++obj.order, 2)
           return obj
         })
 
@@ -471,8 +471,8 @@ test('filters', function (t) {
         }, 50)
       })
       .on('data-span', function (data) {
-        t.equal(data.name, 'span-name')
-        t.equal(data.order, 2)
+        t.strictEqual(data.name, 'span-name')
+        t.strictEqual(data.order, 2)
         t.end()
       })
   })
@@ -488,22 +488,22 @@ test('filters', function (t) {
           t.fail('should not call span filter')
         })
         this.agent.addErrorFilter(function (obj) {
-          t.equal(obj.exception.message, 'foo')
-          t.equal(++obj.context.custom.order, 1)
+          t.strictEqual(obj.exception.message, 'foo')
+          t.strictEqual(++obj.context.custom.order, 1)
           return obj
         })
         this.agent.addErrorFilter('invalid')
         this.agent.addErrorFilter(function (obj) {
-          t.equal(obj.exception.message, 'foo')
-          t.equal(++obj.context.custom.order, 2)
+          t.strictEqual(obj.exception.message, 'foo')
+          t.strictEqual(++obj.context.custom.order, 2)
           return obj
         })
 
         this.agent.captureError(new Error('foo'), { custom: { order: 0 } })
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'foo')
-        t.equal(data.context.custom.order, 2)
+        t.strictEqual(data.exception.message, 'foo')
+        t.strictEqual(data.context.custom.order, 2)
         t.end()
       })
   })
@@ -519,14 +519,14 @@ test('filters', function (t) {
           t.fail('should not call span filter')
         })
         this.agent.addTransactionFilter(function (obj) {
-          t.equal(obj.name, 'transaction-name')
-          t.equal(++obj.context.custom.order, 1)
+          t.strictEqual(obj.name, 'transaction-name')
+          t.strictEqual(++obj.context.custom.order, 1)
           return obj
         })
         this.agent.addTransactionFilter('invalid')
         this.agent.addTransactionFilter(function (obj) {
-          t.equal(obj.name, 'transaction-name')
-          t.equal(++obj.context.custom.order, 2)
+          t.strictEqual(obj.name, 'transaction-name')
+          t.strictEqual(++obj.context.custom.order, 2)
           return obj
         })
 
@@ -536,8 +536,8 @@ test('filters', function (t) {
         this.agent.flush()
       })
       .on('data-transaction', function (data) {
-        t.equal(data.name, 'transaction-name')
-        t.equal(data.context.custom.order, 2)
+        t.strictEqual(data.name, 'transaction-name')
+        t.strictEqual(data.context.custom.order, 2)
         t.end()
       })
   })
@@ -553,14 +553,14 @@ test('filters', function (t) {
           t.fail('should not call transaction filter')
         })
         this.agent.addSpanFilter(function (obj) {
-          t.equal(obj.name, 'span-name')
+          t.strictEqual(obj.name, 'span-name')
           obj.order = 1
           return obj
         })
         this.agent.addSpanFilter('invalid')
         this.agent.addSpanFilter(function (obj) {
-          t.equal(obj.name, 'span-name')
-          t.equal(++obj.order, 2)
+          t.strictEqual(obj.name, 'span-name')
+          t.strictEqual(++obj.order, 2)
           return obj
         })
 
@@ -572,8 +572,8 @@ test('filters', function (t) {
         }, 50)
       })
       .on('data-span', function (data) {
-        t.equal(data.name, 'span-name')
-        t.equal(data.order, 2)
+        t.strictEqual(data.name, 'span-name')
+        t.strictEqual(data.order, 2)
         t.end()
       })
   })
@@ -592,7 +592,7 @@ test('filters', function (t) {
         const agent = Agent().start({ serverUrl: 'http://localhost:' + server.address().port })
 
         agent.addFilter(function (obj) {
-          t.equal(obj.exception.message, 'foo')
+          t.strictEqual(obj.exception.message, 'foo')
           return falsy
         })
         agent.addFilter(function () {
@@ -622,7 +622,7 @@ test('filters', function (t) {
         })
 
         agent.addErrorFilter(function (obj) {
-          t.equal(obj.exception.message, 'foo')
+          t.strictEqual(obj.exception.message, 'foo')
           return falsy
         })
         agent.addErrorFilter(function () {
@@ -652,7 +652,7 @@ test('filters', function (t) {
         })
 
         agent.addTransactionFilter(function (obj) {
-          t.equal(obj.name, 'transaction-name')
+          t.strictEqual(obj.name, 'transaction-name')
           return falsy
         })
         agent.addTransactionFilter(function () {
@@ -684,7 +684,7 @@ test('filters', function (t) {
         })
 
         agent.addSpanFilter(function (obj) {
-          t.equal(obj.name, 'span-name')
+          t.strictEqual(obj.name, 'span-name')
           return falsy
         })
         agent.addSpanFilter(function () {
@@ -749,7 +749,7 @@ test('#flush()', function (t) {
         })
       })
       .on('data-transaction', function (data) {
-        t.equal(data.name, 'foo')
+        t.strictEqual(data.name, 'foo')
         t.end()
       })
   })
@@ -767,7 +767,7 @@ test('#captureError()', function (t) {
         })
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'with callback')
+        t.strictEqual(data.exception.message, 'with callback')
         t.end()
       })
   })
@@ -779,7 +779,7 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('without callback'))
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'without callback')
+        t.strictEqual(data.exception.message, 'without callback')
         t.end()
       })
   })
@@ -803,7 +803,7 @@ test('#captureError()', function (t) {
         this.agent.captureError('Hey!')
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'Hey!')
+        t.strictEqual(data.log.message, 'Hey!')
         t.end()
       })
   })
@@ -815,8 +815,8 @@ test('#captureError()', function (t) {
         this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'Hello World')
-        t.equal(data.log.param_message, 'Hello %s')
+        t.strictEqual(data.log.message, 'Hello World')
+        t.strictEqual(data.log.param_message, 'Hello %s')
         t.end()
       })
   })
@@ -830,7 +830,7 @@ test('#captureError()', function (t) {
         this.agent.captureError(err)
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, '[object Object]')
+        t.strictEqual(data.exception.message, '[object Object]')
         t.end()
       })
   })
@@ -842,8 +842,8 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('foo'), { message: 'bar' })
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'foo')
-        t.equal(data.log.message, 'bar')
+        t.strictEqual(data.exception.message, 'foo')
+        t.strictEqual(data.log.message, 'bar')
         t.end()
       })
   })
@@ -855,8 +855,8 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('foo'), { message: 'foo' })
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'foo')
-        t.equal(data.log, undefined)
+        t.strictEqual(data.exception.message, 'foo')
+        t.strictEqual(data.log, undefined)
         t.end()
       })
   })
@@ -868,8 +868,8 @@ test('#captureError()', function (t) {
         this.agent.captureError(deep(256))
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.stacktrace.length, 50)
-        t.equal(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
+        t.strictEqual(data.exception.stacktrace.length, 50)
+        t.strictEqual(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
         t.end()
       })
   })
@@ -881,8 +881,8 @@ test('#captureError()', function (t) {
         this.agent.captureError(deep(42))
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.stacktrace.length, 5)
-        t.equal(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
+        t.strictEqual(data.exception.stacktrace.length, 5)
+        t.strictEqual(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
         t.end()
       })
   })
@@ -894,8 +894,8 @@ test('#captureError()', function (t) {
         var agent = this.agent
         var server = http.createServer(function (req, res) {
           agent.startTransaction()
-          t.equal(agent.setUserContext({ a: 1, merge: { a: 2 } }), true)
-          t.equal(agent.setCustomContext({ a: 3, merge: { a: 4 } }), true)
+          t.strictEqual(agent.setUserContext({ a: 1, merge: { a: 2 } }), true)
+          t.strictEqual(agent.setCustomContext({ a: 3, merge: { a: 4 } }), true)
           agent.captureError(new Error('foo'), { user: { b: 1, merge: { shallow: true } }, custom: { b: 2, merge: { shallow: true } } })
           res.end()
         })
@@ -925,7 +925,7 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('foo'))
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'foo')
+        t.strictEqual(data.exception.message, 'foo')
         t.notOk('log' in data, 'should not have a log')
         assertStackTrace(t, data.exception.stacktrace)
         t.end()
@@ -939,7 +939,7 @@ test('#captureError()', function (t) {
         this.agent.captureError('foo')
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'foo')
+        t.strictEqual(data.log.message, 'foo')
         t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace')
         t.notOk('exception' in data, 'should not have an exception')
         t.end()
@@ -953,7 +953,7 @@ test('#captureError()', function (t) {
         this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'Hello World')
+        t.strictEqual(data.log.message, 'Hello World')
         t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace')
         t.notOk('exception' in data, 'should not have an exception')
         t.end()
@@ -967,7 +967,7 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('foo'))
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'foo')
+        t.strictEqual(data.exception.message, 'foo')
         t.notOk('log' in data, 'should not have a log')
         assertStackTrace(t, data.exception.stacktrace)
         t.end()
@@ -981,7 +981,7 @@ test('#captureError()', function (t) {
         this.agent.captureError('foo')
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'foo')
+        t.strictEqual(data.log.message, 'foo')
         t.notOk('exception' in data, 'should not have an exception')
         assertStackTrace(t, data.log.stacktrace)
         t.end()
@@ -995,7 +995,7 @@ test('#captureError()', function (t) {
         this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'Hello World')
+        t.strictEqual(data.log.message, 'Hello World')
         t.notOk('exception' in data, 'should not have an exception')
         assertStackTrace(t, data.log.stacktrace)
         t.end()
@@ -1009,8 +1009,8 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('foo'))
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'foo')
-        t.equal(data.exception.message, 'foo')
+        t.strictEqual(data.log.message, 'foo')
+        t.strictEqual(data.exception.message, 'foo')
         assertStackTrace(t, data.log.stacktrace)
         assertStackTrace(t, data.exception.stacktrace)
         t.end()
@@ -1024,7 +1024,7 @@ test('#captureError()', function (t) {
         this.agent.captureError('foo')
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'foo')
+        t.strictEqual(data.log.message, 'foo')
         t.notOk('exception' in data, 'should not have an exception')
         assertStackTrace(t, data.log.stacktrace)
         t.end()
@@ -1038,7 +1038,7 @@ test('#captureError()', function (t) {
         this.agent.captureError({ message: 'Hello %s', params: ['World'] })
       })
       .on('data-error', function (data) {
-        t.equal(data.log.message, 'Hello World')
+        t.strictEqual(data.log.message, 'Hello World')
         t.notOk('exception' in data, 'should not have an exception')
         assertStackTrace(t, data.log.stacktrace)
         t.end()
@@ -1048,7 +1048,7 @@ test('#captureError()', function (t) {
   t.test('capture error before agent is started - with callback', function (t) {
     var agent = Agent()
     agent.captureError(new Error('foo'), function (err) {
-      t.equal(err.message, 'cannot capture error before agent is started')
+      t.strictEqual(err.message, 'cannot capture error before agent is started')
       t.end()
     })
   })
@@ -1078,13 +1078,13 @@ test('#captureError()', function (t) {
         })
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'with callback')
-        t.equal(data.id.length, 32, 'id is 32 characters')
-        t.equal(data.parent_id, span.id, 'parent_id matches span id')
-        t.equal(data.trace_id, trans.traceId, 'trace_id matches transaction trace id')
-        t.equal(data.transaction_id, trans.id, 'transaction_id matches transaction id')
-        t.equal(data.transaction.type, trans.type, 'transaction.type matches transaction type')
-        t.equal(data.transaction.sampled, true, 'is sampled')
+        t.strictEqual(data.exception.message, 'with callback')
+        t.strictEqual(data.id.length, 32, 'id is 32 characters')
+        t.strictEqual(data.parent_id, span.id, 'parent_id matches span id')
+        t.strictEqual(data.trace_id, trans.traceId, 'trace_id matches transaction trace id')
+        t.strictEqual(data.transaction_id, trans.id, 'transaction_id matches transaction id')
+        t.strictEqual(data.transaction.type, trans.type, 'transaction.type matches transaction type')
+        t.strictEqual(data.transaction.sampled, true, 'is sampled')
         t.end()
       })
   })
@@ -1103,7 +1103,7 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('with callback'), { timestamp })
       })
       .on('data-error', function (data) {
-        t.equal(data.timestamp, timestamp * 1000)
+        t.strictEqual(data.timestamp, timestamp * 1000)
         t.end()
       })
   })
@@ -1127,7 +1127,7 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('with request'), { request: req })
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'with request')
+        t.strictEqual(data.exception.message, 'with request')
         t.deepEqual(data.context.request, {
           http_version: '1.1',
           method: 'POST',
@@ -1163,7 +1163,7 @@ test('#captureError()', function (t) {
         this.agent.captureError(new Error('with response'), { response: res })
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'with response')
+        t.strictEqual(data.exception.message, 'with response')
         t.deepEqual(data.context.response, {
           status_code: 204,
           headers: {
@@ -1183,14 +1183,14 @@ test('#captureError()', function (t) {
 test('#handleUncaughtExceptions()', function (t) {
   t.test('should add itself to the uncaughtException event list', function (t) {
     var agent = Agent()
-    t.equal(process._events.uncaughtException, undefined)
+    t.strictEqual(process._events.uncaughtException, undefined)
     agent.start({
       serviceName: 'some-service-name',
       captureExceptions: false,
       logLevel: 'error'
     })
     agent.handleUncaughtExceptions()
-    t.equal(process._events.uncaughtException.length, 1)
+    t.strictEqual(process._events.uncaughtException.length, 1)
     t.end()
   })
 
@@ -1204,7 +1204,7 @@ test('#handleUncaughtExceptions()', function (t) {
     agent.handleUncaughtExceptions()
     var before = process._events.uncaughtException.length
     agent.handleUncaughtExceptions()
-    t.equal(process._events.uncaughtException.length, before)
+    t.strictEqual(process._events.uncaughtException.length, before)
     t.end()
   })
 
@@ -1218,7 +1218,7 @@ test('#handleUncaughtExceptions()', function (t) {
         process.emit('uncaughtException', new Error('uncaught'))
       })
       .on('data-error', function (data) {
-        t.equal(data.exception.message, 'uncaught')
+        t.strictEqual(data.exception.message, 'uncaught')
         t.end()
       })
   })
@@ -1330,28 +1330,28 @@ test('patches', function (t) {
     // with labels
     agent.registerMetric('custom-metrics', labels, cb)
 
-    t.equal(mockMetrics.calledCount, 1)
-    t.equal(mockMetrics.name, 'custom-metrics')
-    t.equal(mockMetrics.callback, cb)
-    t.equal(mockMetrics.labels, labels)
-    t.equal(mockMetrics.cbValue, 12345)
+    t.strictEqual(mockMetrics.calledCount, 1)
+    t.strictEqual(mockMetrics.name, 'custom-metrics')
+    t.strictEqual(mockMetrics.callback, cb)
+    t.strictEqual(mockMetrics.labels, labels)
+    t.strictEqual(mockMetrics.cbValue, 12345)
 
     // without labels
     const cb2 = () => { return 6789 }
     agent.registerMetric('custom-metrics2', cb2)
 
-    t.equal(mockMetrics.calledCount, 2)
-    t.equal(mockMetrics.name, 'custom-metrics2')
-    t.equal(mockMetrics.callback, cb2)
-    t.equal(mockMetrics.labels, undefined)
-    t.equal(mockMetrics.cbValue, 6789)
+    t.strictEqual(mockMetrics.calledCount, 2)
+    t.strictEqual(mockMetrics.name, 'custom-metrics2')
+    t.strictEqual(mockMetrics.callback, cb2)
+    t.strictEqual(mockMetrics.labels, undefined)
+    t.strictEqual(mockMetrics.cbValue, 6789)
 
     t.end()
   })
 })
 
 function assertMetadata (t, payload) {
-  t.equal(payload.service.name, 'some-service-name')
+  t.strictEqual(payload.service.name, 'some-service-name')
   t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
   t.deepEqual(payload.service.agent, { name: 'nodejs', version: agentVersion })
 
@@ -1359,37 +1359,37 @@ function assertMetadata (t, payload) {
   if (inContainer) expectedSystemKeys.push('container')
 
   t.deepEqual(Object.keys(payload.system), expectedSystemKeys)
-  t.equal(payload.system.hostname, os.hostname())
-  t.equal(payload.system.architecture, process.arch)
-  t.equal(payload.system.platform, process.platform)
+  t.strictEqual(payload.system.hostname, os.hostname())
+  t.strictEqual(payload.system.architecture, process.arch)
+  t.strictEqual(payload.system.platform, process.platform)
 
   if (inContainer) {
     t.deepEqual(Object.keys(payload.system.container), ['id'])
-    t.equal(typeof payload.system.container.id, 'string')
+    t.strictEqual(typeof payload.system.container.id, 'string')
     t.ok(/^[\da-f]{64}$/.test(payload.system.container.id))
   }
 
   t.ok(payload.process)
-  t.equal(payload.process.pid, process.pid)
+  t.strictEqual(payload.process.pid, process.pid)
   t.ok(payload.process.pid > 0, 'should have a pid greater than 0')
   t.ok(payload.process.title, 'should have a process title')
-  t.equal(payload.process.title, process.title)
+  t.strictEqual(payload.process.title, process.title)
   t.deepEqual(payload.process.argv, process.argv)
   t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
 }
 assertMetadata.asserts = inContainer ? 17 : 14
 
 function assertTransaction (t, trans, name, input, output) {
-  t.equal(trans.name, name)
-  t.equal(trans.type, 'lambda')
-  t.equal(trans.result, 'success')
+  t.strictEqual(trans.name, name)
+  t.strictEqual(trans.type, 'lambda')
+  t.strictEqual(trans.result, 'success')
   t.ok(trans.context)
   var custom = trans.context.custom
   t.ok(custom)
   var lambda = custom.lambda
   t.ok(lambda)
   t.deepEqual(lambda.input, input)
-  t.equal(lambda.output, output)
+  t.strictEqual(lambda.output, output)
 }
 assertTransaction.asserts = 8
 
@@ -1397,21 +1397,21 @@ function assertStackTrace (t, stacktrace) {
   t.ok(stacktrace !== undefined, 'should have a stack trace')
   t.ok(Array.isArray(stacktrace), 'stack trace should be an array')
   t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
-  t.equal(stacktrace[0].filename, path.join('test', 'agent.js'))
+  t.strictEqual(stacktrace[0].filename, path.join('test', 'agent.js'))
 }
 assertStackTrace.asserts = 4
 
 function validateRequest (t) {
   return function (req) {
-    t.equal(req.method, 'POST', 'should be a POST request')
-    t.equal(req.url, '/intake/v2/events', 'should be sent to the intake endpoint')
+    t.strictEqual(req.method, 'POST', 'should be a POST request')
+    t.strictEqual(req.url, '/intake/v2/events', 'should be sent to the intake endpoint')
   }
 }
 validateRequest.asserts = 2
 
 function validateMetadata (t) {
   return function (data, index) {
-    t.equal(index, 0, 'metadata should always be sent first')
+    t.strictEqual(index, 0, 'metadata should always be sent first')
     assertMetadata(t, data)
   }
 }

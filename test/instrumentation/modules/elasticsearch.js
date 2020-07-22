@@ -169,13 +169,13 @@ test('client.count with callback', function userLandCode (t) {
 var queryRegexp = /_((search|msearch)(\/template)?|count)$/
 function done (t, method, path, query) {
   return function (data, cb) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 2)
 
     var trans = data.transactions[0]
 
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
+    t.strictEqual(trans.name, 'foo')
+    t.strictEqual(trans.type, 'custom')
 
     let span1, span2
     {
@@ -184,22 +184,22 @@ function done (t, method, path, query) {
       const action = 'http'
       span1 = findObjInArray(data.spans, 'type', type)
       t.ok(span1, 'should have span with type ' + type)
-      t.equal(span1.type, type)
-      t.equal(span1.subtype, subtype)
-      t.equal(span1.action, action)
+      t.strictEqual(span1.type, type)
+      t.strictEqual(span1.subtype, subtype)
+      t.strictEqual(span1.action, action)
     } {
       const type = 'db'
       const subtype = 'elasticsearch'
       const action = 'request'
       span2 = findObjInArray(data.spans, 'subtype', subtype)
       t.ok(span2, 'should have span with subtype ' + subtype)
-      t.equal(span2.type, type)
-      t.equal(span2.subtype, subtype)
-      t.equal(span2.action, action)
+      t.strictEqual(span2.type, type)
+      t.strictEqual(span2.subtype, subtype)
+      t.strictEqual(span2.action, action)
     }
 
-    t.equal(span1.name, method + ' ' + host + path)
-    t.equal(span2.name, 'Elasticsearch: ' + method + ' ' + path)
+    t.strictEqual(span1.name, method + ' ' + host + path)
+    t.strictEqual(span2.name, 'Elasticsearch: ' + method + ' ' + path)
 
     t.ok(span2.stacktrace.some(function (frame) {
       return frame.function === 'userLandCode'

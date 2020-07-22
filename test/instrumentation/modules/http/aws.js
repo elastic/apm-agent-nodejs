@@ -18,7 +18,7 @@ AWS.config.update({
 
 test('non aws-sdk request', function (t) {
   const server = http.createServer(function (req, res) {
-    t.equal(req.headers.authorization, undefined, 'no authorization header')
+    t.strictEqual(req.headers.authorization, undefined, 'no authorization header')
     t.ok(req.headers.traceparent.length > 0, 'traceparent header')
     t.ok(req.headers['elastic-apm-traceparent'].length > 0, 'elastic-apm-traceparent header')
     res.end()
@@ -40,9 +40,9 @@ test('non aws-sdk request', function (t) {
 
 test('aws-sdk request', function (t) {
   const server = http.createServer(function (req, res) {
-    t.equal(req.headers.authorization.substr(0, 5), 'AWS4-', 'AWS authorization header')
-    t.equal(req.headers.traceparent, undefined, 'no traceparent header')
-    t.equal(req.headers['elastic-apm-traceparent'], undefined, 'no elastic-apm-traceparent header')
+    t.strictEqual(req.headers.authorization.substr(0, 5), 'AWS4-', 'AWS authorization header')
+    t.strictEqual(req.headers.traceparent, undefined, 'no traceparent header')
+    t.strictEqual(req.headers['elastic-apm-traceparent'], undefined, 'no elastic-apm-traceparent header')
     res.end()
     server.close()
     t.end()

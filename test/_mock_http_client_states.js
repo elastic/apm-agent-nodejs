@@ -10,11 +10,11 @@ module.exports = function (expectations = [], done) {
       for (let i = 0; i < expectations.length; i++) {
         const { find, test } = expectations[i]
         if (find(type, obj[type])) {
+          test(obj[type])
           expectations.splice(i, 1)
           if (!expectations.length) {
             done()
           }
-          test(obj[type])
           break
         }
       }
