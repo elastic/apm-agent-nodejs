@@ -101,7 +101,7 @@ ws-new:
   commands: node test/instrumentation/modules/ws.js
 graphql:
   preinstall: npm uninstall express-graphql
-  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <15.0.0'
+  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16.0.0'
   commands: node test/instrumentation/modules/graphql.js
 express:
   versions: '>=4'
