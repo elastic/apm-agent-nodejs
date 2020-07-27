@@ -101,7 +101,7 @@ ws-new:
   commands: node test/instrumentation/modules/ws.js
 graphql:
   preinstall: npm uninstall express-graphql
-  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <15.0.0'
+  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16.0.0'
   commands: node test/instrumentation/modules/graphql.js
 express:
   versions: '>=4'
@@ -226,12 +226,12 @@ express-queue:
 koa-router:
   node: '>=6.0.0'
   peerDependencies: koa@2
-  versions: '>=5.2.0 <9'
+  versions: '>=5.2.0 <10'
   commands: node test/instrumentation/modules/koa-router/old-name.js
 '@koa/router':
   node: '>=8.0.0'
   peerDependencies: koa@2
-  versions: '>=8 <9'
+  versions: '>=8 <10'
   commands: node test/instrumentation/modules/koa-router/new-name.js
 
 elasticsearch:
