@@ -164,7 +164,7 @@
     "p-finally": "^2.0.1",
     "pg": "^8.1.0",
     "pug": "^2.0.4",
-    "redis": "^2.8.0",
+    "redis": "^3.0.2",
     "request": "^2.88.2",
     "restify": "^8.5.1",
     "restify-clients": "^2.6.9",
