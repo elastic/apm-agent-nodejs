@@ -90,6 +90,11 @@ knex-new:
   node: '>=8.6.0'
   versions: '>=0.17 <0.21'
   commands: node test/instrumentation/modules/pg/knex.js
+knex-gt-nodev8:
+  name: knex
+  node: '>=10.22.0'
+  versions: '>=0.21 <0.22'
+  commands: node test/instrumentation/modules/pg/knex.js
 ws-old:
   name: ws
   versions: '>=1 <7'
