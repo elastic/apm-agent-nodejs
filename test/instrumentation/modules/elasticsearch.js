@@ -68,6 +68,7 @@ test('client.ping with unhandled promise', function userLandCode (t) {
 
   function unhandledRejection (reason, promise) {
     t.equal(promise, unhandledPromise)
+    t.strictEqual(typeof promise.abort, 'function', 'promise.abort should be a function')
     agent.endTransaction()
     agent.flush()
     client.close()
