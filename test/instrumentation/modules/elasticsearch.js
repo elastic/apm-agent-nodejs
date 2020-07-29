@@ -48,33 +48,6 @@ test('client.ping with promise', function userLandCode (t) {
   })
 })
 
-test('client.ping with unhandled promise', function userLandCode (t) {
-  resetAgent(2, doneNoHTTP(t, 'HEAD', '/'))
-
-  agent.startTransaction('foo')
-
-  const client = new elasticsearch.Client({
-    host: 'thiswillneverwork',
-    log: {
-      type: 'file',
-      level: 'error',
-      path: '/dev/null'
-    }
-  })
-
-  const unhandledPromise = client.ping()
-
-  process.once('unhandledRejection', agent._instrumentation.bindFunction(unhandledRejection))
-
-  function unhandledRejection (reason, promise) {
-    t.equal(promise, unhandledPromise)
-    t.strictEqual(typeof promise.abort, 'function', 'promise.abort should be a function')
-    agent.endTransaction()
-    agent.flush()
-    client.close()
-  }
-})
-
 test('client.search with callback', function userLandCode (t) {
   resetAgent(done(t, 'POST', '/_search', '{"q":"pants"}'))
 
@@ -85,6 +58,23 @@ test('client.search with callback', function userLandCode (t) {
 
   client.search(query, function (err) {
     t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client.search with abort', function userLandCode (t) {
+  resetAgent(3, done(t, 'POST', '/_search', '{"q":"pants"}', true))
+
+  agent.startTransaction('foo')
+
+  var client = new elasticsearch.Client({ host: host })
+  var query = { q: 'pants' }
+
+  var req = client.search(query)
+
+  setImmediate(() => {
+    req.abort()
     agent.endTransaction()
     agent.flush()
   })
@@ -194,7 +184,7 @@ test('client.count with callback', function userLandCode (t) {
 })
 
 var queryRegexp = /_((search|msearch)(\/template)?|count)$/
-function done (t, method, path, query) {
+function done (t, method, path, query, abort = false) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 2)
@@ -247,33 +237,11 @@ function done (t, method, path, query) {
     }
 
     t.ok(span1.timestamp > span2.timestamp, 'http span should start after elasticsearch span')
-    t.ok(span1.timestamp + span1.duration * 1000 < span2.timestamp + span2.duration * 1000, 'http span should end before elasticsearch span')
-
-    t.end()
-  }
-}
-
-function doneNoHTTP (t, method, path, query) {
-  return function (data, cb) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 1)
-
-    var trans = data.transactions[0]
-    var span = data.spans[0]
-
-    t.equal(trans.name, 'foo')
-    t.equal(trans.type, 'custom')
-
-    t.equal(span.type, 'db')
-    t.equal(span.subtype, 'elasticsearch')
-    t.equal(span.action, 'request')
-    t.equal(span.name, 'Elasticsearch: ' + method + ' ' + path)
-
-    t.ok(span.stacktrace.some(function (frame) {
-      return frame.function === 'userLandCode'
-    }), 'include user-land code frame')
-
-    t.notOk(span.context)
+    if (abort) {
+      t.ok(span1.timestamp + span1.duration * 1000 > span2.timestamp + span2.duration * 1000, 'http span should end after elasticsearch span when req is aborted')
+    } else {
+      t.ok(span1.timestamp + span1.duration * 1000 < span2.timestamp + span2.duration * 1000, 'http span should end before elasticsearch span')
+    }
 
     t.end()
   }
