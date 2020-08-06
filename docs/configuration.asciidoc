@@ -263,12 +263,20 @@ Possible options are: `off`, `all`, `errors`, and `transactions`.
 * `transactions` - request bodies will only be reported with request transactions
 * `all` - request bodies will be reported with both errors and request transactions
 
-The recorded body will be truncated if larger than 2 KiB.
+By default the recorded body will be truncated if larger than 2 KiB, this can be configured with `maxHttpBodyChars`.
 
 For the agent to be able to access the body,
 the body needs to be available as a property on the incoming HTTP https://nodejs.org/api/http.html#http_class_http_incomingmessage[`request`] object.
 The agent will look for the body on the following properties:
 `req.json || req.body || req.payload`
+
+[[max-http-body-chars]]
+==== `maxHttpBodyChars`
+* *Type:* Number
+* *Default:* `2048`
+* *Env:* `ELASTIC_APM_MAX_BODY_CHARS`
+
+Specify the value at which the body will be truncated.
 
 [[capture-headers]]
 ==== `captureHeaders`
