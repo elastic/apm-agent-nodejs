@@ -63,6 +63,23 @@ test('client.search with callback', function userLandCode (t) {
   })
 })
 
+test('client.search with abort', function userLandCode (t) {
+  resetAgent(3, done(t, 'POST', '/_search', '{"q":"pants"}', true))
+
+  agent.startTransaction('foo')
+
+  var client = new elasticsearch.Client({ host: host })
+  var query = { q: 'pants' }
+
+  var req = client.search(query)
+
+  setImmediate(() => {
+    req.abort()
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
 if (semver.satisfies(pkg.version, '>= 10')) {
   test('client.searchTemplate with callback', function userLandCode (t) {
     var body = {
@@ -167,7 +184,7 @@ test('client.count with callback', function userLandCode (t) {
 })
 
 var queryRegexp = /_((search|msearch)(\/template)?|count)$/
-function done (t, method, path, query) {
+function done (t, method, path, query, abort = false) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 2)
@@ -220,14 +237,22 @@ function done (t, method, path, query) {
     }
 
     t.ok(span1.timestamp > span2.timestamp, 'http span should start after elasticsearch span')
-    t.ok(span1.timestamp + span1.duration * 1000 < span2.timestamp + span2.duration * 1000, 'http span should end before elasticsearch span')
+    if (abort) {
+      t.ok(span1.timestamp + span1.duration * 1000 > span2.timestamp + span2.duration * 1000, 'http span should end after elasticsearch span when req is aborted')
+    } else {
+      t.ok(span1.timestamp + span1.duration * 1000 < span2.timestamp + span2.duration * 1000, 'http span should end before elasticsearch span')
+    }
 
     t.end()
   }
 }
 
-function resetAgent (cb) {
+function resetAgent (expected, cb) {
+  if (typeof expected === 'function') {
+    cb = expected
+    expected = 3
+  }
   agent._instrumentation.currentTransaction = null
-  agent._transport = mockClient(3, cb)
+  agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }
