@@ -370,23 +370,19 @@ def generateStep(Map params = [:]){
   return {
     node('linux && immutable'){
       withEnv(["VERSION=${version}", "ELASTIC_APM_ASYNC_HOOKS=${disableAsyncHooks}"]) {
-        try {
-          deleteDir()
-          unstash 'source'
-          dir("${BASE_DIR}"){
-            retry(2){
-              sleep randomNumber(min:5, max: 10)
+        deleteDir()
+        unstash 'source'
+        dir("${BASE_DIR}"){
+          try {
+            retryWithSleep(retries: 2, seconds: 5, backoff: true) {
               sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
             }
+          } catch(e){
+            error(e.toString())
+          } finally {
+            tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js')
+            codecov(repo: env.REPO, basedir: '.', secret: "${CODECOV_SECRET}")
           }
-        } catch(e){
-          error(e.toString())
-        } finally {
-          docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app"){
-            sh(label: "Convert Test results to JUnit format", script: 'cd /app && .ci/scripts/convert_tap_to_junit.sh')
-          }
-          junit(allowEmptyResults: true, keepLongStdio: true, testResults: "${BASE_DIR}/**/junit-*.xml")
-          codecov(repo: env.REPO, basedir: "${BASE_DIR}", secret: "${CODECOV_SECRET}")
         }
       }
     }
@@ -507,11 +503,10 @@ def generateStepForWindows(Map params = [:]){
 
 def grabWorkerIP(){
   def linuxIp = ''
-  retry(3){
+  retryWithSleep(retries: 3, seconds: 5, backoff: true){
     linuxIp = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)?.trim()
     log(level: 'INFO', text: "Worker IP '${linuxIp}'")
     if(!linuxIp?.trim()){
-      sleep(10)
       error('Unable to get the Linux worker IP')
     }
   }
