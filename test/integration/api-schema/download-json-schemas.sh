@@ -35,6 +35,7 @@ FILES=( \
   "metadata.json" \
   "process.json" \
   "request.json" \
+  "rum_experience.json" \
   "service.json" \
   "span_subtype.json" \
   "span_type.json" \
