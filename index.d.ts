@@ -184,6 +184,7 @@ interface AgentConfigOptions {
   abortedErrorThreshold?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   active?: boolean;
   addPatch?: KeyValueConfig;
+  apiKey?: string;
   apiRequestSize?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   apiRequestTime?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   asyncHooks?: boolean;

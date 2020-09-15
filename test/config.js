@@ -28,6 +28,7 @@ process.env._ELASTIC_APM_ASYNC_HOOKS_RESETTABLE = 'true'
 var optionFixtures = [
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
   ['active', 'ACTIVE', true],
+  ['apiKey', 'API_KEY'],
   ['apiRequestSize', 'API_REQUEST_SIZE', 768 * 1024],
   ['apiRequestTime', 'API_REQUEST_TIME', 10],
   ['asyncHooks', 'ASYNC_HOOKS', true],
