@@ -33,7 +33,9 @@ Once your changes are ready to submit for review:
 
 2. Test your changes
 
-    Run the test suite to make sure that nothing is broken.
+    Run the test suite to make sure that nothing is broken. If you're adding
+    new code or changing existing code, write some automated tests that
+    exercise this code.
     See [testing](#testing) for details.
 
 3. Rebase your changes
