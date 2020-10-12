@@ -233,6 +233,8 @@ function abortTest (type, handler) {
         t.equal(data.spans[0].name, `${req.method} localhost:${port}/`, 'has expected span name')
         if (typeof httpContext.status_code === 'undefined') {
           t.equal(data.spans[0].outcome, 'unknown')
+        } else {
+          t.equal(data.spans[0].outcome, 'success')
         }
 
         t.deepEqual(data.spans[0].context.http, httpContext)
