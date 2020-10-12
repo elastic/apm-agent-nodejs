@@ -23,7 +23,7 @@ isSecure.forEach(secure => {
   var method = secure ? 'createSecureServer' : 'createServer'
 
   test(`http2.${method} compatibility mode`, t => {
-    t.plan(14)
+    t.plan(15)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
@@ -65,7 +65,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respond`, t => {
-    t.plan(14)
+    t.plan(15)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
@@ -108,7 +108,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respondWithFD`, t => {
-    t.plan(15)
+    t.plan(16)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
@@ -158,7 +158,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respondWithFile`, t => {
-    t.plan(14)
+    t.plan(15)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
@@ -272,7 +272,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
-    t.plan(31)
+    t.plan(33)
 
     resetAgent(3, (data) => {
       t.strictEqual(data.transactions.length, 2)
@@ -366,6 +366,7 @@ function assertPath (t, trans, secure, port, path) {
   t.strictEqual(trans.name, 'GET unknown route')
   t.strictEqual(trans.type, 'request')
   t.strictEqual(trans.result, 'HTTP 2xx')
+  t.strictEqual(trans.outcome, 'success')
   t.ok(trans.duration > 0)
   t.ok(trans.timestamp > 0)
 
