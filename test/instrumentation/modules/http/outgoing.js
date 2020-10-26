@@ -6,6 +6,7 @@ var http = require('http')
 var https = require('https')
 var url = require('url')
 
+var endOfStream = require('end-of-stream')
 var semver = require('semver')
 var test = require('tape')
 
@@ -33,6 +34,40 @@ test('http.request(options, callback)', echoTest('http', (port, cb) => {
 test('http: consider useElasticTraceparentHeader config option', echoTest('http', { useElasticTraceparentHeader: false }, (port, cb) => {
   var options = { port }
   return http.request(options, cb)
+}))
+
+test('http.request(options, callback) - aborted before socket', abortTest('http', (port, cb) => {
+  const req = http.request({ port }, cb)
+
+  setImmediate(() => {
+    req.abort()
+  })
+
+  return req
+}))
+
+test('http.request(options, callback) - aborted on socket', abortTest('http', (port, cb) => {
+  const req = http.request({ port }, cb)
+
+  req.on('socket', () => {
+    req.abort()
+  })
+
+  return req
+}))
+
+test('http.request(options, callback) - aborted on data', abortTest('http', (port, cb) => {
+  const req = http.request({ method: 'POST', port }, cb)
+
+  req.on('response', (res) => {
+    res.on('data', () => {
+      req.abort()
+    })
+  })
+
+  req.write('hello')
+
+  return req
 }))
 
 methods.forEach(function (name) {
@@ -130,9 +165,10 @@ function echoTest (type, opts, handler) {
   return function (t) {
     echoServer(type, (cp, port) => {
       resetAgent(opts, data => {
-        t.equal(data.transactions.length, 1, 'has one transaction')
-        t.equal(data.spans.length, 1, 'has one span')
-        t.equal(data.spans[0].name, 'GET localhost:' + port + '/', 'has expected span name')
+        t.strictEqual(data.transactions.length, 1, 'has one transaction')
+        t.strictEqual(data.spans.length, 1, 'has one span')
+        t.strictEqual(data.spans[0].name, 'GET localhost:' + port + '/', 'has expected span name')
+        t.strictEqual(data.spans[0].outcome, 'success')
         t.deepEqual(data.spans[0].context.http, {
           method: 'GET',
           status_code: 200,
@@ -162,21 +198,78 @@ function echoTest (type, opts, handler) {
       var traceparent = req.getHeader('traceparent')
       t.ok(traceparent, 'should have traceparent header')
       if (opts && opts.useElasticTraceparentHeader === false) {
-        t.equal(req.getHeader('elastic-apm-traceparent'), undefined)
+        t.strictEqual(req.getHeader('elastic-apm-traceparent'), undefined)
       } else {
         t.ok(req.getHeader('elastic-apm-traceparent'), 'should have elastic-apm-traceparent header')
       }
 
       var expected = TraceParent.fromString(trans._context.toString())
       var received = TraceParent.fromString(traceparent)
-      t.equal(received.version, expected.version, 'traceparent header has matching version')
-      t.equal(received.traceId, expected.traceId, 'traceparent header has matching traceId')
+      t.strictEqual(received.version, expected.version, 'traceparent header has matching version')
+      t.strictEqual(received.traceId, expected.traceId, 'traceparent header has matching traceId')
       t.ok(/^[\da-f]{16}$/.test(expected.id), 'traceparent header has valid id')
-      t.equal(received.flags, expected.flags, 'traceparent header has matching flags')
+      t.strictEqual(received.flags, expected.flags, 'traceparent header has matching flags')
 
       // Detect if the test called `http.get` (in which case outputSize should
       // be greater than zero) or `http.request` (in which case it should equal
       // zero)
+      if (req.outputSize === 0) req.end()
+    })
+  }
+}
+
+function abortTest (type, handler) {
+  return function (t) {
+    echoServer(type, (cp, port) => {
+      const httpContext = {
+        method: 'GET',
+        status_code: undefined,
+        url: undefined
+      }
+
+      resetAgent({}, data => {
+        t.equal(data.transactions.length, 1, 'has one transaction')
+        t.equal(data.spans.length, 1, 'has one span')
+        t.equal(data.spans[0].name, `${req.method} localhost:${port}/`, 'has expected span name')
+        if (typeof httpContext.status_code === 'undefined') {
+          t.equal(data.spans[0].outcome, 'unknown')
+        } else {
+          t.equal(data.spans[0].outcome, 'success')
+        }
+
+        t.deepEqual(data.spans[0].context.http, httpContext)
+        if (httpContext.url) {
+          t.deepEqual(data.spans[0].context.destination, {
+            service: {
+              name: `${type}://127.0.0.1:${port}`,
+              resource: `127.0.0.1:${port}`,
+              type: data.spans[0].type
+            },
+            address: '127.0.0.1',
+            port: Number(port)
+          })
+        }
+        t.end()
+        cp.kill()
+      })
+
+      agent.startTransaction()
+      const req = handler(port, res => {
+        res.resume()
+      })
+
+      httpContext.method = req.method
+
+      req.on('response', () => {
+        httpContext.status_code = 200
+        httpContext.url = `${type}://127.0.0.1:${port}/`
+      })
+
+      // NOTE: Don't use an arrow function here
+      endOfStream(req, function () {
+        agent.endTransaction()
+      })
+
       if (req.outputSize === 0) req.end()
     })
   }

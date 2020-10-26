@@ -90,8 +90,8 @@ module.exports = function (test, Promise, ins) {
         Promise.spawn(function * () {
           return yield Promise.resolve('foo')
         }).then(function (value) {
-          t.equal(value, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(value, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
       })
     })
@@ -115,7 +115,7 @@ function assertPingPong (t, ins, p) {
   t.ok(p.start + 1000 > p.pingDelay, 'ping should be delayed max 1000ms (delayed ' + (p.pingDelay - p.start) + 'ms)')
   t.ok(p.pingDelay + 1000 > p.pongDelay, 'pong should be delayed max 1000ms (delayed ' + (p.pongDelay - p.pingDelay) + 'ms)')
 
-  t.equal(ins.currentTransaction.id, p.trans.id)
+  t.strictEqual(ins.currentTransaction.id, p.trans.id)
 }
 
 function twice (fn) {

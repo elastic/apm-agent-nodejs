@@ -27,9 +27,9 @@ test('Promise.prototype.spread - all formal', function (t) {
   twice(function () {
     var trans = ins.startTransaction()
     Promise.all(['foo', 'bar']).spread(function (a, b) {
-      t.equal(a, 'foo')
-      t.equal(b, 'bar')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(a, 'foo')
+      t.strictEqual(b, 'bar')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -40,9 +40,9 @@ test('Promise.prototype.spread - all promises', function (t) {
     var trans = ins.startTransaction()
     var arr = [resolved('foo'), resolved('bar')]
     Promise.all(arr).spread(function (a, b) {
-      t.equal(a, 'foo')
-      t.equal(b, 'bar')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(a, 'foo')
+      t.strictEqual(b, 'bar')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -54,9 +54,9 @@ test('Promise.prototype.spread - then formal', function (t) {
     Promise.delay(1).then(function () {
       return ['foo', 'bar']
     }).spread(function (a, b) {
-      t.equal(a, 'foo')
-      t.equal(b, 'bar')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(a, 'foo')
+      t.strictEqual(b, 'bar')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -68,9 +68,9 @@ test('Promise.prototype.spread - then promises', function (t) {
     Promise.delay(1).then(function () {
       return [resolved('foo'), resolved('bar')]
     }).spread(function (a, b) {
-      t.equal(a, 'foo')
-      t.equal(b, 'bar')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(a, 'foo')
+      t.strictEqual(b, 'bar')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -86,8 +86,8 @@ CATCH_NAMES.forEach(function (fnName) {
           t.fail('should not resolve')
         })[fnName](TypeError, function (err) {
           t.ok(err instanceof TypeError)
-          t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })[fnName](ReferenceError, function () {
           t.fail('should not catch a ReferenceError')
         })[fnName](function () {
@@ -107,8 +107,8 @@ CATCH_NAMES.forEach(function (fnName) {
           t.fail('should not catch a TypeError')
         })[fnName](ReferenceError, function (err) {
           t.ok(err instanceof ReferenceError)
-          t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.fail('should not catch a generic error')
         })
@@ -129,8 +129,8 @@ CATCH_NAMES.forEach(function (fnName) {
             t.fail('should not catch a ReferenceError')
           })[fnName](function (err) {
             t.ok(err instanceof SyntaxError)
-            t.equal(err.message, 'foo')
-            t.equal(ins.currentTransaction.id, trans.id)
+            t.strictEqual(err.message, 'foo')
+            t.strictEqual(ins.currentTransaction.id, trans.id)
           })
       })
     })
@@ -145,8 +145,8 @@ CATCH_NAMES.forEach(function (fnName) {
           t.fail('should not resolve')
         })[fnName](TypeError, SyntaxError, function (err) {
           t.ok(err instanceof SyntaxError)
-          t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })[fnName](ReferenceError, RangeError, function () {
           t.fail('should not catch a ReferenceError or RangeError')
         })[fnName](function () {
@@ -166,8 +166,8 @@ CATCH_NAMES.forEach(function (fnName) {
           t.fail('should not catch a TypeError')
         })[fnName](ReferenceError, RangeError, function (err) {
           t.ok(err instanceof RangeError)
-          t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.fail('should not catch a generic error')
         })
@@ -187,8 +187,8 @@ CATCH_NAMES.forEach(function (fnName) {
           t.fail('should not catch a ReferenceError')
         })[fnName](function (err) {
           t.ok(err instanceof URIError)
-          t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -205,23 +205,23 @@ CATCH_NAMES.forEach(function (fnName) {
           t.fail('should not reject if predicate doesn\'t match')
         })[fnName](PredicateTestMatch, function (err) {
           t.ok(err instanceof URIError)
-          t.equal(err.message, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err.message, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.fail('should not catch a generic error')
         })
 
       function PredicateTestNoMatch (err) {
         t.ok(err instanceof URIError)
-        t.equal(err.message, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err.message, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
         return false
       }
 
       function PredicateTestMatch (err) {
         t.ok(err instanceof URIError)
-        t.equal(err.message, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err.message, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
         return true
       }
     })
@@ -241,8 +241,8 @@ CATCH_NAMES.forEach(function (fnName) {
             t.fail('should not reject if predicate doesn\'t match')
           })[fnName]({ code: 42 }, function (err) {
             t.ok(err instanceof URIError)
-            t.equal(err.message, 'foo')
-            t.equal(ins.currentTransaction.id, trans.id)
+            t.strictEqual(err.message, 'foo')
+            t.strictEqual(ins.currentTransaction.id, trans.id)
           })[fnName](function () {
             t.fail('should not catch a generic error')
           })
@@ -260,8 +260,8 @@ test('new Promise -> reject -> error', function (t) {
         t.fail('should not resolve')
       }).error(function (err) {
         t.ok(err instanceof Promise.OperationalError)
-        t.equal(err.message, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err.message, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not call catch')
       })
@@ -279,7 +279,7 @@ FINALLY_NAMES.forEach(function (fnName) {
           t.fail('should not resolve')
         })[fnName](function () {
           t.ok('should call ' + fnName)
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -292,8 +292,8 @@ FINALLY_NAMES.forEach(function (fnName) {
         .then(function () {
           t.fail('should not resolve')
         }).catch(function (err) {
-          t.equal(err, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.ok('should call ' + fnName)
         })
@@ -308,13 +308,13 @@ FINALLY_NAMES.forEach(function (fnName) {
         .then(function () {
           t.fail('should not resolve')
         }).catch(function (err) {
-          t.equal(err, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })[fnName](function () {
           t.ok('should call ' + fnName)
           return resolved('bar')
         }).then(function (result) {
-          t.equal(result, undefined)
+          t.strictEqual(result, undefined)
         })
     })
   })
@@ -326,7 +326,7 @@ FINALLY_NAMES.forEach(function (fnName) {
       var finallyCalled = false
       resolved('foo')
         .then(function (result) {
-          t.equal(result, 'foo')
+          t.strictEqual(result, 'foo')
         }).catch(function () {
           t.fail('should not reject')
         })[fnName](function () {
@@ -335,8 +335,8 @@ FINALLY_NAMES.forEach(function (fnName) {
           return resolved('bar')
         }).then(function (result) {
           t.ok(finallyCalled)
-          t.equal(result, undefined)
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(result, undefined)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -355,8 +355,8 @@ FINALLY_NAMES.forEach(function (fnName) {
           return resolved('bar')
         }).then(function (result) {
           t.ok(finallyCalled)
-          t.equal(result, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(result, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -375,9 +375,9 @@ test('new Promise -> bind -> then', function (t) {
     resolved('foo')
       .bind(obj)
       .then(function (result) {
-        t.equal(this.n, n)
-        t.equal(result, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(this.n, n)
+        t.strictEqual(result, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -398,9 +398,9 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.0')) {
       p = Promise.bind(obj, p)
 
       p.then(function (result) {
-        t.equal(this.n, n)
-        t.equal(result, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(this.n, n)
+        t.strictEqual(result, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -416,8 +416,8 @@ test('Promise.bind - promise, without value', function (t) {
     p = Promise.bind(p)
 
     p.then(function (result) {
-      t.equal(result, undefined)
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(result, undefined)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -435,9 +435,9 @@ test('Promise.bind - non-promise, without value', function (t) {
     var p = Promise.bind(obj)
 
     p.then(function (result) {
-      t.equal(this.n, n)
-      t.equal(result, undefined)
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(this.n, n)
+      t.strictEqual(result, undefined)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -452,10 +452,10 @@ test('Promise.join', function (t) {
     var p3 = resolved('p3')
 
     Promise.join(p1, p2, p3, function (a, b, c) {
-      t.equal(a, 'p1')
-      t.equal(b, 'p2')
-      t.equal(c, 'p3')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(a, 'p1')
+      t.strictEqual(b, 'p2')
+      t.strictEqual(c, 'p3')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -469,8 +469,8 @@ TRY_NAMES.forEach(function (fnName) {
       Promise[fnName](function () {
         return 'foo'
       }).then(function (result) {
-        t.equal(result, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(result, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -486,8 +486,8 @@ TRY_NAMES.forEach(function (fnName) {
       }).then(function () {
         t.fail('should not resolve')
       }).catch(function (err) {
-        t.equal(err.message, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err.message, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -497,11 +497,11 @@ TRY_NAMES.forEach(function (fnName) {
     twice(function () {
       var trans = ins.startTransaction()
       Promise[fnName](function (value) {
-        t.equal(value, 'bar')
+        t.strictEqual(value, 'bar')
         return 'foo'
       }, 'bar').then(function (result) {
-        t.equal(result, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(result, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -516,8 +516,8 @@ TRY_NAMES.forEach(function (fnName) {
         t.deepEqual([].slice.call(arguments), [1, 2, 3])
         return 'foo'
       }, [1, 2, 3]).then(function (result) {
-        t.equal(result, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(result, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -530,12 +530,12 @@ TRY_NAMES.forEach(function (fnName) {
       var trans = ins.startTransaction()
       var obj = {}
       Promise[fnName](function (value) {
-        t.equal(value, undefined)
-        t.equal(this, obj)
+        t.strictEqual(value, undefined)
+        t.strictEqual(this, obj)
         return 'foo'
       }, undefined, obj).then(function (result) {
-        t.equal(result, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(result, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -550,8 +550,8 @@ test('Promise.method -> return value', function (t) {
     Promise.method(function () {
       return 'foo'
     })().then(function (result) {
-      t.equal(result, 'foo')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(result, 'foo')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     }).catch(function () {
       t.fail('should not reject')
     })
@@ -567,8 +567,8 @@ test('Promise.method -> throw', function (t) {
     })().then(function () {
       t.fail('should not resolve')
     }).catch(function (err) {
-      t.equal(err.message, 'foo')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(err.message, 'foo')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -584,7 +584,7 @@ test('Promise.all', function (t) {
 
     Promise.all([p1, p2, p3]).then(function (result) {
       t.deepEqual(result, ['p1', 'p2', 'p3'])
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -600,7 +600,7 @@ test('new Promise -> all', function (t) {
 
     resolved([p1, p2, p3]).all().then(function (result) {
       t.deepEqual(result, ['p1', 'p2', 'p3'])
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -618,7 +618,7 @@ test('Promise.props', function (t) {
 
     Promise.props(props).then(function (result) {
       t.deepEqual(result, { p1: 'p1', p2: 'p2', p3: 'p3' })
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -636,7 +636,7 @@ test('new Promise -> props', function (t) {
 
     resolved(props).props().then(function (result) {
       t.deepEqual(result, { p1: 'p1', p2: 'p2', p3: 'p3' })
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -655,8 +655,8 @@ test('Promise.any', function (t) {
     var p3 = resolved('p3')
 
     Promise.any([p1, p2, p3]).then(function (result) {
-      t.equal(result, 'p3')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(result, 'p3')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -675,8 +675,8 @@ test('new Promise -> any', function (t) {
     var p3 = resolved('p3')
 
     resolved([p1, p2, p3]).any().then(function (result) {
-      t.equal(result, 'p3')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(result, 'p3')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -697,7 +697,7 @@ test('Promise.some', function (t) {
 
     Promise.some([p1, p2, p3, p4], 2).then(function (result) {
       t.deepEqual(result, ['p2', 'p4'])
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -718,7 +718,7 @@ test('new Promise -> some', function (t) {
 
     resolved([p1, p2, p3, p4]).some(2).then(function (result) {
       t.deepEqual(result, ['p2', 'p4'])
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -732,7 +732,7 @@ test('Promise.map', function (t) {
       return resolved(value)
     }).then(function (result) {
       t.deepEqual(result, [1, 2, 3])
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -746,7 +746,7 @@ test('new Promise -> map', function (t) {
       return resolved(value)
     }).then(function (result) {
       t.deepEqual(result, [1, 2, 3])
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -763,8 +763,8 @@ test('Promise.reduce', function (t) {
         })
       })
     }, 36).then(function (result) {
-      t.equal(result, 42)
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(result, 42)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -781,8 +781,8 @@ test('new Promise -> reduce', function (t) {
         })
       })
     }, 36).then(function (result) {
-      t.equal(result, 42)
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(result, 42)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -797,7 +797,7 @@ test('Promise.filter', function (t) {
       return value > 2
     }).then(function (result) {
       t.deepEqual(result, [3, 4])
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -812,7 +812,7 @@ test('new Promise -> filter', function (t) {
       return value > 2
     }).then(function (result) {
       t.deepEqual(result, [3, 4])
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -829,10 +829,10 @@ test('Promise.each', function (t) {
 
     Promise.each(arr, function (item, index, length) {
       var expected = results.shift()
-      t.equal(item, expected)
-      t.equal(index, expected - 1, 'index should be expected - 1')
-      t.equal(length, 3, 'length should be 3')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(item, expected)
+      t.strictEqual(index, expected - 1, 'index should be expected - 1')
+      t.strictEqual(length, 3, 'length should be 3')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -849,10 +849,10 @@ test('new Promise -> each', function (t) {
 
     resolved(arr).each(function (item, index, length) {
       var expected = results.shift()
-      t.equal(item, expected)
-      t.equal(index, expected - 1, 'index should be expected - 1')
-      t.equal(length, 3, 'length should be 3')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(item, expected)
+      t.strictEqual(index, expected - 1, 'index should be expected - 1')
+      t.strictEqual(length, 3, 'length should be 3')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -871,10 +871,10 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
 
       Promise.mapSeries(arr, function (item, index, length) {
         var expected = results.shift()
-        t.equal(item, expected)
-        t.equal(index, i++)
-        t.equal(length, 3, 'length should be 3')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(item, expected)
+        t.strictEqual(index, i++)
+        t.strictEqual(length, 3, 'length should be 3')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -892,10 +892,10 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
 
       resolved(arr).mapSeries(function (item, index, length) {
         var expected = results.shift()
-        t.equal(item, expected)
-        t.equal(index, i++)
-        t.equal(length, 3, 'length should be 3')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(item, expected)
+        t.strictEqual(index, i++)
+        t.strictEqual(length, 3, 'length should be 3')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -907,13 +907,13 @@ test('Promise.using', function (t) {
     var trans = ins.startTransaction()
 
     Promise.using(getResource(), function (resource) {
-      t.equal(resource, 'foo')
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(resource, 'foo')
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
 
     function getResource () {
       return resolved('foo').disposer(function (resource) {
-        t.equal(resource, 'foo')
+        t.strictEqual(resource, 'foo')
       })
     }
   })
@@ -928,7 +928,7 @@ test('Promise.promisify', function (t) {
     readFile(__filename, 'utf8').then(function (contents) {
       var firstLine = contents.split('\n')[0]
       t.ok(/use strict/.test(firstLine))
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -955,8 +955,8 @@ test('Promise.promisifyAll', function (t) {
 
     obj.successAsync()
       .then(function (value) {
-        t.equal(value, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(value, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -965,8 +965,8 @@ test('Promise.promisifyAll', function (t) {
       .then(function () {
         t.fail('should not resolve')
       }).catch(function (err) {
-        t.equal(err.message, 'bar')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err.message, 'bar')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -985,8 +985,8 @@ fromCallbackNames.forEach(function (fnName) {
           cb(null, 'foo')
         })
       }).then(function (value) {
-        t.equal(value, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(value, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       }).catch(function () {
         t.fail('should not reject')
       })
@@ -1005,8 +1005,8 @@ fromCallbackNames.forEach(function (fnName) {
       }).then(function () {
         t.fail('should not resolve')
       }).catch(function (err) {
-        t.equal(err.message, 'bar')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err.message, 'bar')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -1021,14 +1021,14 @@ asCallbackNames.forEach(function (fnName) {
       var trans = ins.startTransaction()
 
       getSomething().then(function (value) {
-        t.equal(value, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(value, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
 
       getSomething(function (err, value) {
-        t.equal(err, null)
-        t.equal(value, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err, null)
+        t.strictEqual(value, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
 
       function getSomething (cb) {
@@ -1046,14 +1046,14 @@ asCallbackNames.forEach(function (fnName) {
         .then(function () {
           t.fail('should not resolve')
         }).catch(function (err) {
-          t.equal(err, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(err, 'foo')
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
 
       getSomething(function (err, value) {
-        t.equal(err, 'foo')
-        t.equal(value, undefined)
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err, 'foo')
+        t.strictEqual(value, undefined)
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
 
       function getSomething (cb) {
@@ -1073,7 +1073,7 @@ test('Promise.delay', function (t) {
       var expected = start + 49 // timings are hard
       var now = Date.now()
       t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -1088,7 +1088,7 @@ test('new Promise -> delay', function (t) {
       var expected = start + 49 // timings are hard
       var now = Date.now()
       t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -1101,8 +1101,8 @@ test('new Promise -> timeout (resolve in time)', function (t) {
     resolved('foo')
       .timeout(50)
       .then(function (value) {
-        t.equal(value, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(value, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
       .catch(function () {
         t.fail('should not reject')
@@ -1121,8 +1121,8 @@ test('new Promise -> timeout (reject in time)', function (t) {
         t.fail('should not resolve')
       })
       .catch(function (err) {
-        t.equal(err, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1144,7 +1144,7 @@ test('new Promise -> timeout (timed out)', function (t) {
       var now = Date.now()
       t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
       t.ok(err instanceof Promise.TimeoutError)
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })
@@ -1161,8 +1161,8 @@ test('new Promise -> reject -> tap -> catch', function (t) {
         t.fail('should not resolve')
       })
       .catch(function (err) {
-        t.equal(err, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(err, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1173,11 +1173,11 @@ test('new Promise -> resolve -> tap -> then (no return)', function (t) {
     var trans = ins.startTransaction()
     resolved('foo')
       .tap(function (value) {
-        t.equal(value, 'foo')
+        t.strictEqual(value, 'foo')
       })
       .then(function (value) {
-        t.equal(value, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(value, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1188,12 +1188,12 @@ test('new Promise -> resolve -> tap -> then (return)', function (t) {
     var trans = ins.startTransaction()
     resolved('foo')
       .tap(function (value) {
-        t.equal(value, 'foo')
+        t.strictEqual(value, 'foo')
         return resolved('bar')
       })
       .then(function (value) {
-        t.equal(value, 'foo')
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(value, 'foo')
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1204,8 +1204,8 @@ test('new Promise -> call', function (t) {
     var trans = ins.startTransaction()
     var obj = {
       foo (a, b) {
-        t.equal(a, 1)
-        t.equal(b, 2)
+        t.strictEqual(a, 1)
+        t.strictEqual(b, 2)
         return a + b
       }
     }
@@ -1213,7 +1213,7 @@ test('new Promise -> call', function (t) {
       .call('foo', 1, 2)
       .then(function (value) {
         t.deepEqual(value, 3)
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1226,7 +1226,7 @@ test('new Promise -> get', function (t) {
       .get('foo')
       .then(function (value) {
         t.deepEqual(value, 42)
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
   })
 })
@@ -1240,11 +1240,11 @@ RETURN_NAMES.forEach(function (fnName) {
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })[fnName]('bar')
         .then(function (value) {
           t.deepEqual(value, 'bar')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1262,7 +1262,7 @@ THROW_NAMES.forEach(function (fnName) {
         })
         .catch(function (err) {
           t.deepEqual(err.message, 'bar')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1276,12 +1276,12 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
         .catchReturn('bar')
         .then(function (value) {
           t.deepEqual(value, undefined)
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1297,7 +1297,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
         .catchReturn('bar')
         .then(function (value) {
           t.deepEqual(value, 'bar')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1309,12 +1309,12 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
         .catchThrow(new Error('bar'))
         .then(function (value) {
           t.deepEqual(value, undefined)
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
         .catch(function () {
           t.fail('should not reject')
@@ -1336,7 +1336,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
         })
         .catch(function (err) {
           t.deepEqual(err.message, 'bar')
-          t.equal(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currentTransaction.id, trans.id)
         })
     })
   })
@@ -1349,7 +1349,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=2.3.6')) {
       var trans = ins.startTransaction()
       resolved('foo').reflect().then(function (p) {
         t.ok(p.isFulfilled())
-        t.equal(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currentTransaction.id, trans.id)
       })
     })
   })
@@ -1360,9 +1360,9 @@ test('new Promise -> settle', function (t) {
   twice(function () {
     var trans = ins.startTransaction()
     Promise.settle([resolved('foo')]).then(function (result) {
-      t.equal(result.length, 1)
+      t.strictEqual(result.length, 1)
       t.ok(result[0].isFulfilled())
-      t.equal(ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currentTransaction.id, trans.id)
     })
   })
 })

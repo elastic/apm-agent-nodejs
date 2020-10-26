@@ -17,7 +17,7 @@ getPort().then(function (port) {
 
   test('should allow path in serverUrl', function (t) {
     var server = http.createServer(function (req, res) {
-      t.equal(req.url, '/sub/intake/v2/events')
+      t.strictEqual(req.url, '/sub/intake/v2/events')
       res.end()
       t.end()
       server.close()

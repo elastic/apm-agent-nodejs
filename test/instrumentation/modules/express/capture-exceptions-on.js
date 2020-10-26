@@ -17,9 +17,9 @@ test('use given error handler middleware if captureExceptions: true', function (
   t.plan(7)
 
   onAPMData(function (data) {
-    t.equal(data.transactions.length, 1, 'has a transaction')
-    t.equal(data.errors.length, 1, 'has an error')
-    t.equal(data.errors[0].exception.message, err.message)
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.errors.length, 1, 'has an error')
+    t.strictEqual(data.errors[0].exception.message, err.message)
   })
 
   const err = new Error('foo')
@@ -29,15 +29,15 @@ test('use given error handler middleware if captureExceptions: true', function (
     throw err
   })
   app.use(function (_err, req, res, next) {
-    t.equal(_err, err)
+    t.strictEqual(_err, err)
     res.send('hello from error handler')
   })
 
   const server = app.listen(function () {
     get(server, (err, stdout, stderr) => {
       t.error(err)
-      t.equal(stdout, 'hello from error handler')
-      t.equal(stderr, '')
+      t.strictEqual(stdout, 'hello from error handler')
+      t.strictEqual(stderr, '')
       server.close()
     })
   })

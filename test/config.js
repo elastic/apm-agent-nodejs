@@ -109,7 +109,7 @@ optionFixtures.forEach(function (fixture) {
       if (array) {
         t.deepEqual(agent._conf[fixture[0]], [value])
       } else {
-        t.equal(agent._conf[fixture[0]], bool ? !fixture[2] : value)
+        t.strictEqual(agent._conf[fixture[0]], bool ? !fixture[2] : value)
       }
 
       if (existingValue) {
@@ -156,7 +156,7 @@ optionFixtures.forEach(function (fixture) {
       if (array) {
         t.deepEqual(agent._conf[fixture[0]], [value2])
       } else {
-        t.equal(agent._conf[fixture[0]], value2)
+        t.strictEqual(agent._conf[fixture[0]], value2)
       }
 
       if (existingValue) {
@@ -179,7 +179,7 @@ optionFixtures.forEach(function (fixture) {
     if (array) {
       t.deepEqual(agent._conf[fixture[0]], fixture[2])
     } else {
-      t.equal(agent._conf[fixture[0]], fixture[2])
+      t.strictEqual(agent._conf[fixture[0]], fixture[2])
     }
 
     if (existingValue) {
@@ -195,7 +195,7 @@ falsyValues.forEach(function (val) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
     agent.start({ serviceName: 'foo', secretToken: 'baz' })
-    t.equal(agent._conf.active, false)
+    t.strictEqual(agent._conf.active, false)
     delete process.env.ELASTIC_APM_ACTIVE
     t.end()
   })
@@ -206,7 +206,7 @@ truthyValues.forEach(function (val) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
     agent.start({ serviceName: 'foo', secretToken: 'baz' })
-    t.equal(agent._conf.active, true)
+    t.strictEqual(agent._conf.active, true)
     delete process.env.ELASTIC_APM_ACTIVE
     t.end()
   })
@@ -223,16 +223,16 @@ test('should log invalid booleans', function (t) {
     logger
   })
 
-  t.equal(logger.calls.length, 2)
+  t.strictEqual(logger.calls.length, 2)
 
   var warning = logger.calls.shift()
-  t.equal(warning.message, 'unrecognized boolean value "%s" for "%s"')
-  t.equal(warning.args[0], 'nope')
-  t.equal(warning.args[1], 'active')
+  t.strictEqual(warning.message, 'unrecognized boolean value "%s" for "%s"')
+  t.strictEqual(warning.args[0], 'nope')
+  t.strictEqual(warning.args[1], 'active')
 
   var debug = logger.calls.shift()
-  t.equal(debug.message, 'Elastic APM agent disabled (`active` is false)')
-  t.equal(debug.args.length, 0)
+  t.strictEqual(debug.message, 'Elastic APM agent disabled (`active` is false)')
+  t.strictEqual(debug.args.length, 0)
 
   t.end()
 })
@@ -247,7 +247,7 @@ MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
     var opts = {}
     opts[key] = -1
     agent.start(opts)
-    t.equal(agent._conf[key], Infinity)
+    t.strictEqual(agent._conf[key], Infinity)
     t.end()
   })
 })
@@ -263,7 +263,7 @@ bytesValues.forEach(function (key) {
     var opts = {}
     opts[key] = '1mb'
     agent.start(opts)
-    t.equal(agent._conf[key], 1024 * 1024)
+    t.strictEqual(agent._conf[key], 1024 * 1024)
     t.end()
   })
 })
@@ -288,7 +288,7 @@ timeValues.forEach(function (key) {
     var opts = {}
     opts[key] = '1m'
     agent.start(opts)
-    t.equal(agent._conf[key], 60)
+    t.strictEqual(agent._conf[key], 60)
     t.end()
   })
 
@@ -304,7 +304,7 @@ timeValues.forEach(function (key) {
     var opts = {}
     opts[key] = '2000ms'
     agent.start(opts)
-    t.equal(agent._conf[key], 2)
+    t.strictEqual(agent._conf[key], 2)
     t.end()
   })
 
@@ -320,7 +320,7 @@ timeValues.forEach(function (key) {
     var opts = {}
     opts[key] = '5s'
     agent.start(opts)
-    t.equal(agent._conf[key], 5)
+    t.strictEqual(agent._conf[key], 5)
     t.end()
   })
 
@@ -336,7 +336,7 @@ timeValues.forEach(function (key) {
     var opts = {}
     opts[key] = 10
     agent.start(opts)
-    t.equal(agent._conf[key], 10)
+    t.strictEqual(agent._conf[key], 10)
     t.end()
   })
 })
@@ -402,7 +402,7 @@ noPrefixValues.forEach(function (pair) {
     process.env[envVar] = 'test'
     agent.start()
     delete process.env[envVar]
-    t.equal(agent._conf[key], 'test')
+    t.strictEqual(agent._conf[key], 'test')
     t.end()
   })
 })
@@ -412,7 +412,7 @@ test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (
   var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
   process.env.ELASTIC_APM_ACTIVE = 'false'
   agent.start(opts)
-  t.equal(agent._conf.active, false)
+  t.strictEqual(agent._conf.active, false)
   delete process.env.ELASTIC_APM_ACTIVE
   t.end()
 })
@@ -420,17 +420,17 @@ test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (
 test('should default serviceName to package name', function (t) {
   var agent = Agent()
   agent.start()
-  t.equal(agent._conf.serviceName, 'elastic-apm-node')
+  t.strictEqual(agent._conf.serviceName, 'elastic-apm-node')
   t.end()
 })
 
 test('should default to empty request blacklist arrays', function (t) {
   var agent = Agent()
   agent.start()
-  t.equal(agent._conf.ignoreUrlStr.length, 0)
-  t.equal(agent._conf.ignoreUrlRegExp.length, 0)
-  t.equal(agent._conf.ignoreUserAgentStr.length, 0)
-  t.equal(agent._conf.ignoreUserAgentRegExp.length, 0)
+  t.strictEqual(agent._conf.ignoreUrlStr.length, 0)
+  t.strictEqual(agent._conf.ignoreUrlRegExp.length, 0)
+  t.strictEqual(agent._conf.ignoreUserAgentStr.length, 0)
+  t.strictEqual(agent._conf.ignoreUserAgentRegExp.length, 0)
   t.end()
 })
 
@@ -444,13 +444,13 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.deepEqual(agent._conf.ignoreUrlStr, ['str1'])
   t.deepEqual(agent._conf.ignoreUserAgentStr, ['str2'])
 
-  t.equal(agent._conf.ignoreUrlRegExp.length, 1)
+  t.strictEqual(agent._conf.ignoreUrlRegExp.length, 1)
   t.ok(isRegExp(agent._conf.ignoreUrlRegExp[0]))
-  t.equal(agent._conf.ignoreUrlRegExp[0].toString(), '/regex1/')
+  t.strictEqual(agent._conf.ignoreUrlRegExp[0].toString(), '/regex1/')
 
-  t.equal(agent._conf.ignoreUserAgentRegExp.length, 1)
+  t.strictEqual(agent._conf.ignoreUserAgentRegExp.length, 1)
   t.ok(isRegExp(agent._conf.ignoreUserAgentRegExp[0]))
-  t.equal(agent._conf.ignoreUserAgentRegExp[0].toString(), '/regex2/')
+  t.strictEqual(agent._conf.ignoreUserAgentRegExp[0].toString(), '/regex2/')
 
   t.end()
 })
@@ -458,14 +458,14 @@ test('should separate strings and regexes into their own blacklist arrays', func
 test('invalid serviceName => inactive', function (t) {
   var agent = Agent()
   agent.start({ serviceName: 'foo&bar' })
-  t.equal(agent._conf.active, false)
+  t.strictEqual(agent._conf.active, false)
   t.end()
 })
 
 test('valid serviceName => active', function (t) {
   var agent = Agent()
   agent.start({ serviceName: 'fooBAR0123456789_- ' })
-  t.equal(agent._conf.active, true)
+  t.strictEqual(agent._conf.active, true)
   t.end()
 })
 
@@ -567,8 +567,8 @@ test('serviceName defaults to package name', function (t) {
     }
 
     return testServiceConfig(pkg).then(conf => {
-      t.equal(conf.active, true)
-      t.equal(conf.serviceName, pkg.name)
+      t.strictEqual(conf.active, true)
+      t.strictEqual(conf.serviceName, pkg.name)
       t.end()
     })
   })
@@ -579,8 +579,8 @@ test('serviceName defaults to package name', function (t) {
     }
 
     return testServiceConfig(pkg).then(conf => {
-      t.equal(conf.active, false)
-      t.equal(conf.serviceName, pkg.name)
+      t.strictEqual(conf.active, false)
+      t.strictEqual(conf.serviceName, pkg.name)
       t.end()
     })
   })
@@ -589,7 +589,7 @@ test('serviceName defaults to package name', function (t) {
     var pkg = {}
 
     return testServiceConfig(pkg).then(conf => {
-      t.equal(conf.active, false)
+      t.strictEqual(conf.active, false)
       t.end()
     })
   })
@@ -600,7 +600,7 @@ test('serviceName defaults to package name', function (t) {
     }
 
     return testServiceConfig(pkg).then(conf => {
-      t.equal(conf.serviceVersion, pkg.version)
+      t.strictEqual(conf.serviceVersion, pkg.version)
       t.end()
     })
   })
@@ -629,13 +629,13 @@ captureBodyTests.forEach(function (captureBodyTest) {
     agent._transport.sendError = function (error, cb) {
       var request = error.context.request
       t.ok(request)
-      t.equal(request.body, captureBodyTest.errors)
+      t.strictEqual(request.body, captureBodyTest.errors)
       if (cb) process.nextTick(cb)
     }
     agent._transport.sendTransaction = function (trans, cb) {
       var request = trans.context.request
       t.ok(request)
-      t.equal(request.body, captureBodyTest.transactions)
+      t.strictEqual(request.body, captureBodyTest.transactions)
       if (cb) process.nextTick(cb)
     }
     t.on('end', function () {
@@ -676,7 +676,7 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
     var sendTransaction = agent._transport.sendTransaction
     agent._transport.sendTransaction = function (trans, cb) {
       t.ok(trans)
-      t.equal(trans.name, usePathAsTransactionNameTest.transactionName)
+      t.strictEqual(trans.name, usePathAsTransactionNameTest.transactionName)
       if (cb) process.nextTick(cb)
     }
     t.on('end', function () {
@@ -790,11 +790,11 @@ test('custom transport', function (t) {
 
           // add slight delay to give the span time to be fully encoded and sent
           setTimeout(function () {
-            t.equal(transactions.length, 1, 'received correct number of transactions')
+            t.strictEqual(transactions.length, 1, 'received correct number of transactions')
             assertEncodedTransaction(t, trans, transactions[0])
-            t.equal(spans.length, 1, 'received correct number of spans')
+            t.strictEqual(spans.length, 1, 'received correct number of spans')
             assertEncodedSpan(t, span, spans[0])
-            t.equal(errors.length, 1, 'received correct number of errors')
+            t.strictEqual(errors.length, 1, 'received correct number of errors')
             assertEncodedError(t, error, errors[0], trans, span)
             t.end()
           }, 200)
@@ -874,38 +874,38 @@ test('instrument: false allows manual instrumentation', function (t) {
 
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
-  t.equal(result.id, trans.id, 'id matches')
-  t.equal(result.trace_id, trans.traceId, 'trace id matches')
-  t.equal(result.parent_id, trans.parentId, 'parent id matches')
-  t.equal(result.name, trans.name, 'name matches')
-  t.equal(result.type, trans.type || 'custom', 'type matches')
-  t.equal(result.duration, trans._timer.duration, 'duration matches')
-  t.equal(result.timestamp, trans.timestamp, 'timestamp matches')
-  t.equal(result.result, trans.result, 'result matches')
-  t.equal(result.sampled, trans.sampled, 'sampled matches')
+  t.strictEqual(result.id, trans.id, 'id matches')
+  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
+  t.strictEqual(result.parent_id, trans.parentId, 'parent id matches')
+  t.strictEqual(result.name, trans.name, 'name matches')
+  t.strictEqual(result.type, trans.type || 'custom', 'type matches')
+  t.strictEqual(result.duration, trans._timer.duration, 'duration matches')
+  t.strictEqual(result.timestamp, trans.timestamp, 'timestamp matches')
+  t.strictEqual(result.result, trans.result, 'result matches')
+  t.strictEqual(result.sampled, trans.sampled, 'sampled matches')
 }
 
 function assertEncodedSpan (t, span, result) {
   t.comment('span')
-  t.equal(result.id, span.id, 'id matches')
-  t.equal(result.transaction_id, span.transaction.id, 'transaction id matches')
-  t.equal(result.trace_id, span.traceId, 'trace id matches')
-  t.equal(result.parent_id, span.parentId, 'parent id matches')
-  t.equal(result.name, span.name, 'name matches')
-  t.equal(result.type, span.type || 'custom', 'type matches')
-  t.equal(result.duration, span._timer.duration, 'duration matches')
-  t.equal(result.timestamp, span.timestamp, 'timestamp matches')
+  t.strictEqual(result.id, span.id, 'id matches')
+  t.strictEqual(result.transaction_id, span.transaction.id, 'transaction id matches')
+  t.strictEqual(result.trace_id, span.traceId, 'trace id matches')
+  t.strictEqual(result.parent_id, span.parentId, 'parent id matches')
+  t.strictEqual(result.name, span.name, 'name matches')
+  t.strictEqual(result.type, span.type || 'custom', 'type matches')
+  t.strictEqual(result.duration, span._timer.duration, 'duration matches')
+  t.strictEqual(result.timestamp, span.timestamp, 'timestamp matches')
 }
 
 function assertEncodedError (t, error, result, trans, parent) {
   t.comment('error')
   t.ok(result.id, 'has a valid id')
-  t.equal(result.trace_id, trans.traceId, 'trace id matches')
-  t.equal(result.transaction_id, trans.id, 'transaction id matches')
-  t.equal(result.parent_id, parent.id, 'parent id matches')
+  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
+  t.strictEqual(result.transaction_id, trans.id, 'transaction id matches')
+  t.strictEqual(result.parent_id, parent.id, 'parent id matches')
   t.ok(result.exception, 'has an exception object')
-  t.equal(result.exception.message, error.message, 'exception message matches')
-  t.equal(result.exception.type, error.constructor.name, 'exception type matches')
+  t.strictEqual(result.exception.message, error.message, 'exception message matches')
+  t.strictEqual(result.exception.type, error.constructor.name, 'exception type matches')
   t.ok(result.culprit, 'has a valid culprit')
   t.ok(result.timestamp, 'has a valid timestamp')
 }

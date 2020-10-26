@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -108,7 +108,7 @@
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
-    "@apidevtools/json-schema-ref-parser": "^8.0.0",
+    "@apidevtools/json-schema-ref-parser": "^9.0.1",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
@@ -116,7 +116,7 @@
     "@commitlint/config-conventional": "^8.3.4",
     "@commitlint/travis-cli": "^8.3.5",
     "@hapi/hapi": "^18.4.1",
-    "@koa/router": "^8.0.8",
+    "@koa/router": "^9.0.1",
     "@types/node": "^13.7.4",
     "apollo-server-express": "^2.10.1",
     "aws-sdk": "^2.622.0",
@@ -138,7 +138,7 @@
     "generic-pool": "^3.7.1",
     "get-port": "^5.1.1",
     "got": "^9.6.0",
-    "graphql": "^14.6.0",
+    "graphql": "^15.3.0",
     "handlebars": "^4.7.3",
     "hapi": "^18.1.0",
     "https-pem": "^2.0.0",
@@ -146,9 +146,9 @@
     "ioredis": "^4.16.0",
     "is-my-json-valid": "^2.20.0",
     "jade": "^1.11.0",
-    "knex": "^0.20.10",
+    "knex": "^0.21.2",
     "koa": "^2.11.0",
-    "koa-router": "^8.0.8",
+    "koa-router": "^9.0.1",
     "lambda-local": "^1.7.1",
     "memcached": "^2.2.2",
     "mimic-response": "^2.1.0",
@@ -164,14 +164,14 @@
     "p-finally": "^2.0.1",
     "pg": "^8.1.0",
     "pug": "^2.0.4",
-    "redis": "^2.8.0",
+    "redis": "^3.0.2",
     "request": "^2.88.2",
     "restify": "^8.5.1",
     "restify-clients": "^2.6.9",
     "rimraf": "^3.0.2",
     "send": "^0.17.1",
     "standard": "^14.3.3",
-    "tape": "^4.13.0",
+    "tape": "^5.0.0",
     "tedious": "^8.0.1",
     "test-all-versions": "^4.1.1",
     "thunky": "^1.1.0",
@@ -197,7 +197,7 @@
     ]
   },
   "coordinates": [
-    56.038606,
-    12.619913
+    56.038184,
+    12.61979
   ]
 }

@@ -35,7 +35,7 @@ cases.forEach(function (testCase) {
 
     target.on('data', function (chunk) {
       t.ok(this === target, 'target -> onData should be bound to target stream')
-      t.equal(chunk.toString(), 'HELLO WORLD')
+      t.strictEqual(chunk.toString(), 'HELLO WORLD')
       t.end()
     })
 

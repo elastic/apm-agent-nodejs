@@ -21,20 +21,20 @@ function makeTest (makeServer) {
     t.plan(7)
 
     resetAgent(function (data) {
-      t.equal(data.transactions.length, 1, 'has a transaction')
+      t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
       var trans = data.transactions[0]
-      t.equal(trans.name, 'GET /', 'transaction name is GET /')
-      t.equal(trans.type, 'request', 'transaction type is request')
+      t.strictEqual(trans.name, 'GET /', 'transaction name is GET /')
+      t.strictEqual(trans.type, 'request', 'transaction type is request')
     })
 
     var request
     var error = new Error('wat')
     var captureError = agent.captureError
     agent.captureError = function (err, data) {
-      t.equal(err, error, 'has the expected error')
+      t.strictEqual(err, error, 'has the expected error')
       t.ok(data, 'captured data with error')
-      t.equal(data.request, request, 'captured data has the request object')
+      t.strictEqual(data.request, request, 'captured data has the request object')
     }
     t.on('end', function () {
       agent.captureError = captureError
@@ -47,7 +47,7 @@ function makeTest (makeServer) {
     server.listen(function () {
       var port = server.address().port
       http.get(`http://localhost:${port}`, res => {
-        t.equal(res.statusCode, 500)
+        t.strictEqual(res.statusCode, 500)
         res.resume()
         res.on('end', () => {
           server.close()

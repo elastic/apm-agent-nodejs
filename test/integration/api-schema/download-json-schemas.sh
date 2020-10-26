@@ -1,60 +1,35 @@
+
 #!/usr/bin/env bash
 
-set -x
+set -ex
+if ! [ -n "$1" ]; then
+    echo "USAGE: ./download-json-schemas.sh /path/to/folder"
+    echo ""
+    echo "Downloads the APM Server Schema files to the specified folder"
+    exit 1
+fi
 
 download_schema()
 {
-  from=$1
-  to=$2
+    rm -rf ${1} && mkdir -p ${1}
+    for run in 1 2 3 4 5
+    do
+        if [ -x "$(command -v gtar)" ]; then
+            curl --silent --fail https://codeload.github.com/elastic/apm-server/tar.gz/${2} | gtar xzvf - --wildcards --directory=${1} --strip-components=1 "*/docs/spec/*"
+        else
+            curl --silent --fail https://codeload.github.com/elastic/apm-server/tar.gz/${2} | tar xzvf - --wildcards --directory=${1} --strip-components=1 "*/docs/spec/*"
+        fi
+        result=$?
+        if [ $result -eq 0 ]; then break; fi
+        sleep 1
+    done
 
-  for run in {1..5}
-  do
-    curl -sf --compressed ${from} > ${to}
-    result=$?
-    if [ $result -eq 0 ]; then break; fi
-    sleep 1
-  done
+    if [ $result -ne 0 ]; then exit $result; fi
 
-  if [ $result -ne 0 ]; then exit $result; fi
+    mv -f ${1}/docs/spec/* ${1}/
+    rm -rf ${1}/docs
 }
 
-schemadir="${1:-.schemacache}"
+download_schema $1 master
 
-FILES=( \
-  "errors/error.json" \
-  "metricsets/sample.json" \
-  "metricsets/metricset.json" \
-  "sourcemaps/payload.json" \
-  "spans/span.json" \
-  "transactions/mark.json" \
-  "transactions/transaction.json" \
-  "cloud.json" \
-  "context.json" \
-  "http_response.json" \
-  "message.json" \
-  "metadata.json" \
-  "process.json" \
-  "request.json" \
-  "service.json" \
-  "span_subtype.json" \
-  "span_type.json" \
-  "stacktrace_frame.json" \
-  "system.json" \
-  "tags.json" \
-  "timestamp_epoch.json" \
-  "transaction_name.json" \
-  "transaction_type.json" \
-  "user.json" \
-)
-
-mkdir -p \
-  ${schemadir}/errors \
-  ${schemadir}/transactions \
-  ${schemadir}/spans \
-  ${schemadir}/metricsets \
-  ${schemadir}/sourcemaps
-
-for i in "${FILES[@]}"; do
-  download_schema https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec/${i} ${schemadir}/${i}
-done
 echo "Done."

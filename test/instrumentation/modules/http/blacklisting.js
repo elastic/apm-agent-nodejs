@@ -93,8 +93,8 @@ test('ignore User-Agent regex - match', function (t) {
 })
 
 function assertNoMatch (t, data) {
-  t.equal(data.transactions.length, 1)
-  t.equal(data.transactions[0].name, 'GET unknown route')
+  t.strictEqual(data.transactions.length, 1)
+  t.strictEqual(data.transactions[0].name, 'GET unknown route')
 }
 
 function request (path, headers, cb) {

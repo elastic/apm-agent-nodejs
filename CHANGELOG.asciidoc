@@ -21,6 +21,19 @@ endif::[]
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.7.0]]
+==== 3.7.0 - 2020/8/10
+
+* feat(knex): add support for 0.21.x {pull}1801[#1801]
+* feat(redis): add support for v3.x {pull}1641[#1641]
+* feat(graphql): add support for 15.x {pull}1795[#1795]
+* feat(koa-router): add support for 9.x {pull}1772[#1772]
+* fix(elasticsearch): ensure requests can be aborted {pull}1566[#1566]
+* fix: end span if outgoing http request ends prematurely {pull}1583[#1583]
+* fix: don't throw on invalid URL {pull}1771[#1771]
+* fix: patch apollo-server-core > 2.14 correctly {pull}1796[#1796]
+* fix: add currentTraceIds to typings {pull}1733[#1733]
+
 [[release-notes-3.6.1]]
 ==== 3.6.1 - 2020/5/20
 

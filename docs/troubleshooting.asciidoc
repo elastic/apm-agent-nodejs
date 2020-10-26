@@ -7,6 +7,24 @@ endif::[]
 
 == Troubleshooting
 
+Is something not working as expected?
+Don't worry if you can't figure out what the problem is; we’re here to help!
+As a first step, ensure your app is compatible with the agent's <<supported-technologies,supported technologies>>.
+
+If you're an existing Elastic customer with a support contract, please create a ticket in the
+https://support.elastic.co/customers/s/login/[Elastic Support portal].
+Other users can post in the https://discuss.elastic.co/c/apm[APM discuss forum].
+
+IMPORTANT: *Please upload your complete debug logs* to a service like https://gist.github.com[GitHub Gist]
+so that we can analyze the problem.
+Logs should include everything from when the application starts up until the first request executes.
+See <<debug-mode>> for more information.
+
+* <<no-data-sent>>
+* <<missing-performance-metrics>>
+* <<debug-mode>>
+* <<disable-agent>>
+
 [float]
 [[no-data-sent]]
 === No data is sent to the APM Server
@@ -22,6 +40,7 @@ it's a good idea to first check your log file and look for output just as the ap
 [[message-agent-inactive]]
 ===== Agent Inactive
 
+[source,text]
 ----
 Elastic APM agent is inactive due to configuration
 ----
@@ -35,6 +54,7 @@ See the API documentation about <<active,`active`>> for details.
 [[message-missing-service-name]]
 ===== Missing `serviceName`
 
+[source,text]
 ----
 Elastic APM isn't correctly configured: Missing serviceName
 ----
@@ -49,6 +69,7 @@ See the API documentation on <<service-name,`serviceName`>> for details.
 [[message-invalid-service-name]]
 ===== Invalid `serviceName`
 
+[source,text]
 ----
 Elastic APM isn't correctly configured: serviceName "..." contains invalid characters! (allowed: a-z, A-Z, 0-9, _, -, <space>)
 ----
@@ -90,9 +111,19 @@ Please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 [[debug-mode]]
 === Debug mode
 
-To enable agent debugging and capture enough information,
+To enable agent debugging and capture enough information for troubleshooting,
 perform these steps:
 
 1. Start your app with the environment variable `ELASTIC_APM_LOG_LEVEL=trace` or add `logLevel: 'trace'` to the config file or `start(options)` call (see <<log-level,`logLevel`>> for details)
 2. Send a few HTTP requests to some of the app endpoints
 3. Wait at least 10 seconds to allow the agent to try and connect to the APM Server (controlled by <<api-request-time,`apiRequestTime`>>)
+
+[float]
+[[disable-agent]]
+=== Disable the Agent
+
+In the unlikely event the agent causes disruptions to a production application,
+you can disable the agent while you troubleshoot.
+
+To disable the agent, set <<active,`active`>> to `false`.
+You'll need to restart your application for the changes to apply.

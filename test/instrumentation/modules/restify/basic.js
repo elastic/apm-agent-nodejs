@@ -17,18 +17,20 @@ const test = require('tape')
 const mockClient = require('../../../_mock_http_client')
 
 test('transaction name', function (t) {
+  t.plan(5)
+
   resetAgent((data) => {
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     const trans = data.transactions[0]
-    t.equal(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
-    t.equal(trans.type, 'request', 'transaction type is request')
-    t.end()
+    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   const server = restify.createServer()
   const done = once(() => {
     server.close()
+    t.end()
   })
   t.on('end', done)
 
@@ -43,7 +45,7 @@ test('transaction name', function (t) {
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(0, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
-      t.equal(res.statusCode, 200, 'server should respond with status code 200')
+      t.strictEqual(res.statusCode, 200, 'server should respond with status code 200')
       const chunks = []
       res.on('data', chunks.push.bind(chunks))
       res.on('end', () => {
@@ -61,14 +63,15 @@ test('transaction name', function (t) {
 })
 
 test('error reporting', function (t) {
+  t.plan(8)
+
   resetAgent((data) => {
     t.ok(errored, 'reported an error')
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     const trans = data.transactions[0]
-    t.equal(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
-    t.equal(trans.type, 'request', 'transaction type is request')
-    t.end()
+    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   let request
@@ -76,9 +79,9 @@ test('error reporting', function (t) {
   const error = new Error('wat')
   const captureError = agent.captureError
   agent.captureError = function (err, data) {
-    t.equal(err, error, 'has the expected error')
+    t.strictEqual(err, error, 'has the expected error')
     t.ok(data, 'captured data with error')
-    t.equal(data.request, request, 'captured data has the request object')
+    t.strictEqual(data.request, request, 'captured data has the request object')
     errored = true
   }
   t.on('end', function () {
@@ -88,6 +91,7 @@ test('error reporting', function (t) {
   const server = restify.createServer()
   const done = once(() => {
     server.close()
+    t.end()
   })
   t.on('end', done)
 
@@ -100,7 +104,7 @@ test('error reporting', function (t) {
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(0, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
-      t.equal(res.statusCode, 500, 'server should respond with status code 500')
+      t.strictEqual(res.statusCode, 500, 'server should respond with status code 500')
       res.resume()
       res.on('end', () => {
         agent.flush()
@@ -112,14 +116,15 @@ test('error reporting', function (t) {
 })
 
 test('error reporting from chained handler', function (t) {
+  t.plan(8)
+
   resetAgent((data) => {
     t.ok(errored, 'reported an error')
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     const trans = data.transactions[0]
-    t.equal(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
-    t.equal(trans.type, 'request', 'transaction type is request')
-    t.end()
+    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   let request
@@ -127,9 +132,9 @@ test('error reporting from chained handler', function (t) {
   const error = new Error('wat')
   const captureError = agent.captureError
   agent.captureError = function (err, data) {
-    t.equal(err, error, 'has the expected error')
+    t.strictEqual(err, error, 'has the expected error')
     t.ok(data, 'captured data with error')
-    t.equal(data.request, request, 'captured data has the request object')
+    t.strictEqual(data.request, request, 'captured data has the request object')
     errored = true
   }
   t.on('end', function () {
@@ -139,6 +144,7 @@ test('error reporting from chained handler', function (t) {
   const server = restify.createServer()
   const done = once(() => {
     server.close()
+    t.end()
   })
   t.on('end', done)
 
@@ -153,7 +159,7 @@ test('error reporting from chained handler', function (t) {
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(0, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
-      t.equal(res.statusCode, 500, 'server should respond with status code 500')
+      t.strictEqual(res.statusCode, 500, 'server should respond with status code 500')
       res.resume()
       res.on('end', () => {
         agent.flush()
@@ -165,14 +171,15 @@ test('error reporting from chained handler', function (t) {
 })
 
 test('error reporting from chained handler given as array', function (t) {
+  t.plan(8)
+
   resetAgent((data) => {
     t.ok(errored, 'reported an error')
-    t.equal(data.transactions.length, 1, 'has a transaction')
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
     const trans = data.transactions[0]
-    t.equal(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
-    t.equal(trans.type, 'request', 'transaction type is request')
-    t.end()
+    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   let request
@@ -180,9 +187,9 @@ test('error reporting from chained handler given as array', function (t) {
   const error = new Error('wat')
   const captureError = agent.captureError
   agent.captureError = function (err, data) {
-    t.equal(err, error, 'has the expected error')
+    t.strictEqual(err, error, 'has the expected error')
     t.ok(data, 'captured data with error')
-    t.equal(data.request, request, 'captured data has the request object')
+    t.strictEqual(data.request, request, 'captured data has the request object')
     errored = true
   }
   t.on('end', function () {
@@ -192,6 +199,7 @@ test('error reporting from chained handler given as array', function (t) {
   const server = restify.createServer()
   const done = once(() => {
     server.close()
+    t.end()
   })
   t.on('end', done)
 
@@ -215,7 +223,7 @@ test('error reporting from chained handler given as array', function (t) {
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(0, '0.0.0.0', function () {
     const req = http.get(`${server.url}/hello/world`, res => {
-      t.equal(res.statusCode, 500, 'server should respond with status code 500')
+      t.strictEqual(res.statusCode, 500, 'server should respond with status code 500')
       res.resume()
       res.on('end', () => {
         agent.flush()

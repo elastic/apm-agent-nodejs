@@ -13,16 +13,18 @@ var findObjInArray = require('../../../_utils').findObjInArray
 
 test('request', function (t) {
   resetAgent(function (data) {
-    t.equal(data.transactions.length, 2)
-    t.equal(data.spans.length, 1)
+    t.strictEqual(data.transactions.length, 2)
+    t.strictEqual(data.spans.length, 1)
 
     var sub = data.transactions[0]
-    t.equal(sub.name, 'GET /test')
+    t.strictEqual(sub.name, 'GET /test')
 
     var root = data.transactions[1]
-    t.equal(root.name, 'GET /')
+    t.strictEqual(root.name, 'GET /')
+    t.strictEqual(root.outcome, 'success')
     const span = findObjInArray(data.spans, 'transaction_id', root.id)
-    t.equal(span.name, 'GET localhost:' + server.address().port + '/test')
+    t.strictEqual(span.outcome, 'success')
+    t.strictEqual(span.name, 'GET localhost:' + server.address().port + '/test')
 
     server.close()
     t.end()
@@ -33,6 +35,37 @@ test('request', function (t) {
 
   app.get('/test', (req, res) => {
     res.end('hello')
+  })
+
+  app.get('/', (req, res) => {
+    request(`http://localhost:${req.socket.localPort}/test`).pipe(res)
+  })
+
+  sendRequest(server)
+})
+
+test('Outcome', function (t) {
+  resetAgent(function (data) {
+    t.strictEqual(data.transactions.length, 2)
+    t.strictEqual(data.spans.length, 1)
+
+    var root = data.transactions[1]
+    t.strictEqual(root.name, 'GET /')
+    t.strictEqual(root.outcome, 'failure')
+    const span = findObjInArray(data.spans, 'transaction_id', root.id)
+    t.strictEqual(span.outcome, 'failure')
+    t.strictEqual(span.name, 'GET localhost:' + server.address().port + '/test')
+
+    server.close()
+    t.end()
+  })
+
+  var app = express()
+  var server = http.createServer(app)
+
+  app.get('/test', (req, res) => {
+    res.statusCode = 500
+    res.end('Bad Request')
   })
 
   app.get('/', (req, res) => {

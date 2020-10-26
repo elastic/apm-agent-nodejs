@@ -63,26 +63,26 @@ test('SSE response with implicit headers', function (t) {
 })
 
 function assertNonSSEResponse (t, data) {
-  t.equal(data.transactions.length, 1)
-  t.equal(data.spans.length, 1)
+  t.strictEqual(data.transactions.length, 1)
+  t.strictEqual(data.spans.length, 1)
 
   var trans = data.transactions[0]
   var span = data.spans[0]
 
-  t.equal(trans.name, 'GET unknown route')
-  t.equal(trans.context.request.method, 'GET')
-  t.equal(span.name, 'foo')
-  t.equal(span.type, 'bar')
+  t.strictEqual(trans.name, 'GET unknown route')
+  t.strictEqual(trans.context.request.method, 'GET')
+  t.strictEqual(span.name, 'foo')
+  t.strictEqual(span.type, 'bar')
 }
 
 function assertSSEResponse (t, data) {
-  t.equal(data.transactions.length, 1)
-  t.equal(data.spans.length, 0)
+  t.strictEqual(data.transactions.length, 1)
+  t.strictEqual(data.spans.length, 0)
 
   var trans = data.transactions[0]
 
-  t.equal(trans.name, 'GET unknown route')
-  t.equal(trans.context.request.method, 'GET')
+  t.strictEqual(trans.name, 'GET unknown route')
+  t.strictEqual(trans.context.request.method, 'GET')
 }
 
 function request (server) {

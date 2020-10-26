@@ -40,6 +40,11 @@ declare class Agent implements Taggable, StartSpanFn {
 
   // Distributed Tracing
   currentTraceparent: string | null;
+  currentTraceIds: {
+    'trace.id'?: string;
+    'transaction.id'?: string;
+    'span.id'?: string;
+  }
 
   // Transactions
   startTransaction(
@@ -115,6 +120,8 @@ declare class Agent implements Taggable, StartSpanFn {
   registerMetric(name: string, labels: Labels, callback: Function): void;
 }
 
+type Outcome = 'unknown' | 'success' | 'failure'
+
 declare class GenericSpan implements Taggable {
   // The following properties and methods are currently not documented as their API isn't considered official:
   // timestamp, ended, id, traceId, parentId, sampled, duration()
@@ -123,6 +130,7 @@ declare class GenericSpan implements Taggable {
   subtype: string | null;
   action: string | null;
   traceparent: string;
+  outcome: Outcome;
 
   setType (type?: string | null, subtype?: string | null, action?: string | null): void;
   setLabel (name: string, value: LabelValue): boolean;

@@ -49,7 +49,7 @@ paths.forEach(function (path) {
         res.on('end', function () {
           server.close()
           var result = Buffer.concat(chunks).toString()
-          t.equal(result, '{"data":{"hello":"Hello world!"}}')
+          t.strictEqual(result, '{"data":{"hello":"Hello world!"}}')
           agent.flush()
         })
       })
@@ -84,7 +84,7 @@ paths.forEach(function (path) {
         res.on('end', function () {
           server.close()
           var result = Buffer.concat(chunks).toString()
-          t.equal(result, '{"data":{"hello":"Hello world!"}}')
+          t.strictEqual(result, '{"data":{"hello":"Hello world!"}}')
           agent.flush()
         })
       })
@@ -120,7 +120,7 @@ paths.forEach(function (path) {
         res.on('end', function () {
           server.close()
           var result = Buffer.concat(chunks).toString()
-          t.equal(result, '{"data":{"hello":"Hello world!"}}')
+          t.strictEqual(result, '{"data":{"hello":"Hello world!"}}')
           agent.flush()
         })
       })
@@ -160,7 +160,7 @@ paths.forEach(function (path) {
         res.on('end', function () {
           server.close()
           var result = Buffer.concat(chunks).toString()
-          t.equal(result, '{"data":{"life":42,"hello":"Hello world!"}}')
+          t.strictEqual(result, '{"data":{"life":42,"hello":"Hello world!"}}')
           agent.flush()
         })
       })
@@ -171,18 +171,18 @@ paths.forEach(function (path) {
 
 function done (t, query, path) {
   return function (data, cb) {
-    t.equal(data.transactions.length, 1)
-    t.equal(data.spans.length, 1)
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 1)
 
     var trans = data.transactions[0]
     var span = data.spans[0]
 
-    t.equal(trans.name, `${query} (${path})`)
-    t.equal(trans.type, 'graphql')
-    t.equal(span.name, 'GraphQL: ' + query)
-    t.equal(span.type, 'db')
-    t.equal(span.subtype, 'graphql')
-    t.equal(span.action, 'execute')
+    t.strictEqual(trans.name, `${query} (${path})`)
+    t.strictEqual(trans.type, 'graphql')
+    t.strictEqual(span.name, 'GraphQL: ' + query)
+    t.strictEqual(span.type, 'db')
+    t.strictEqual(span.subtype, 'graphql')
+    t.strictEqual(span.action, 'execute')
 
     var offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)
