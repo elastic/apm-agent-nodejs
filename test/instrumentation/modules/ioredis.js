@@ -51,7 +51,7 @@ test('not nested', function (t) {
     t.strictEqual(calls, 3)
 
     agent.endTransaction()
-    redis.quit()
+    redis.disconnect()
     agent.flush()
   })
 })
@@ -91,7 +91,7 @@ test('nested', function (t) {
       t.strictEqual(calls, 2)
 
       agent.endTransaction()
-      redis.quit()
+      redis.disconnect()
       agent.flush()
     })
   })
@@ -123,7 +123,7 @@ test('rejections_handled', function (t) {
   redis.get('a', function (err, result) {
     t.ok(err)
     trans.end()
-    redis.quit()
+    redis.disconnect()
     agent.flush()
   }) // wrong type, should reject
 })
