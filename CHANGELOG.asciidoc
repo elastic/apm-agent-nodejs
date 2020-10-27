@@ -175,7 +175,7 @@ endif::[]
 [float]
 ===== Bug fixes
 * fix: bug where spans sometimes wouldn't have stack traces {pull}1299[#1299]
-* fix(async\_hooks): properly update sync flag {pull}1306[#1306]
+* fix(async_hooks): properly update sync flag {pull}1306[#1306]
 * fix: change agent active status log message to debug level {pull}1300[#1300]
 
 [[release-notes-2.15.0]]
@@ -285,7 +285,7 @@ endif::[]
 
 [float]
 ===== Bug fixes
-* fix(config): do not use ELASTIC\_APM\_ prefix for k8s {pull}1041[#1041]
+* fix(config): do not use ELASTIC_APM_ prefix for k8s {pull}1041[#1041]
 * fix(instrumentation): prevent handler leak in bindEmitter {pull}1044[#1044]
 
 [[release-notes-2.10.0]]
@@ -507,7 +507,7 @@ endif::[]
   * feat: add support for Distributed Tracing {pull}538[#538]
   * feat(transaction): add transaction.ensureParentId function {pull}661[#661]
   * feat(config): support byte suffixes {pull}601[#601]
-  * feat(transaction): restructure span\_count and include total {pull}553[#553]
+  * feat(transaction): restructure span_count and include total {pull}553[#553]
   * perf: improve Async Hooks implementation {pull}679[#679]
 
 [[release-notes-1.x]]
@@ -515,7 +515,7 @@ endif::[]
 
 [[release-notes-1.14.3]]
 ==== 1.14.3 - 2018/11/13
-  * fix(async\_hooks): more reliable cleanup {pull}674[#674]
+  * fix(async_hooks): more reliable cleanup {pull}674[#674]
 
 [[release-notes-1.14.2]]
 ==== 1.14.2 - 2018/11/10
@@ -693,16 +693,16 @@ endif::[]
 
 [[release-notes-0.12.0]]
 ==== 0.12.0 - 2018/1/24
-  * feat(\*): control amount of source context lines collected using new config options {pull}196[#196]
+  * feat(*): control amount of source context lines collected using new config options {pull}196[#196]
   * feat(agent): add public flush function to force flush of transaction queue: agent.flush([callback]) {pull}187[#187]
   * feat(mongodb): add support for mongodb-core 3.x {pull}190[#190]
   * refactor(config): update default flushInterval to 10 seconds (lower memory usage) {pull}186[#186]
-  * chore(\*): drop support for Node.js 5 and 7 {pull}169[#169]
+  * chore(*): drop support for Node.js 5 and 7 {pull}169[#169]
   * refactor(instrumentation): encode transactions as they are added to the queue (lower memory usage) {pull}184[#184]
 
 [[release-notes-0.11.0]]
 ==== 0.11.0 - 2018/1/11
-  * feat(\*): Set default stack trace limit to 50 frames {pull}171[#171]
+  * feat(*): Set default stack trace limit to 50 frames {pull}171[#171]
   * feat(ws): add support for ws@4.x {pull}164[#164]
   * feat(errors): associate errors with active transaction
 
@@ -710,18 +710,18 @@ endif::[]
 ==== 0.10.0 - 2018/1/3
   * feat(express): auto-track errors (BREAKING CHANGE: removed express middleware) {pull}127[#127]
   * feat(hapi): add hapi 17 support {pull}146[#146]
-  * fix(\*): fix Node.js 8 support using async\_hooks {pull}77[#77]
+  * fix(*): fix Node.js 8 support using async_hooks {pull}77[#77]
   * fix(graphql): support sync execute {pull}139[#139]
   * refactor(agent): make all config properties private (BREAKING CHANGE) {pull}107[#107]
 
 [[release-notes-0.9.0]]
 ==== 0.9.0 - 2017/12/15
   * feat(conf): allow serverUrl to contain a sub-path {pull}116[#116]
-  * refactor(\*): better format of error messages from the APM Server {pull}108[#108]
+  * refactor(*): better format of error messages from the APM Server {pull}108[#108]
 
 [[release-notes-0.8.1]]
 ==== 0.8.1 - 2017/12/13
-  * docs(\*): we're now in beta! {pull}103[#103]
+  * docs(*): we're now in beta! {pull}103[#103]
 
 [[release-notes-0.8.0]]
 ==== 0.8.0 - 2017/12/13
@@ -730,7 +730,7 @@ endif::[]
 [[release-notes-0.7.0]]
 ==== 0.7.0 - 2017/12/6
   * feat(parser): add sourceContext config option to control if code snippets are sent to the APM Server {pull}87[#87]
-  * fix(\*): move https-pem to list of devDependencies
+  * fix(*): move https-pem to list of devDependencies
 
 [[release-notes-0.6.0]]
 ==== 0.6.0 - 2017/11/17
@@ -738,8 +738,8 @@ endif::[]
 
 [[release-notes-0.5.0]]
 ==== 0.5.0 - 2017/11/17
-  * refactor(\*): drop support for Node.js <4 {pull}65[#65]
-  * refactor(\*): rename module to elastic-apm-node {pull}71[#71]
+  * refactor(*): drop support for Node.js <4 {pull}65[#65]
+  * refactor(*): rename module to elastic-apm-node {pull}71[#71]
   * feat(queue): add fuzziness to flushInterval {pull}63[#63]
 
 [[release-notes-0.4.0]]
@@ -761,15 +761,15 @@ endif::[]
   * feat(graphql): include GraphQL operation name in trace and transaction names {pull}27[#27]
   * feat(tls): add validateServerCert config option {pull}32[#32]
   * feat(parser): support http requests with full URI's {pull}26[#26]
-  * refactor(\*): remove appGitRef config option
+  * refactor(*): remove appGitRef config option
   * fix(instrumentation): fix setting of custom flushInterval
   * feat(elasticsearch): add simple Elasticsearch instrumentation
-  * fix(\*): don't start agent if appName is invalid
+  * fix(*): don't start agent if appName is invalid
 
 [[release-notes-0.2.0]]
 ==== 0.2.0 - 2017/8/28
-  * refactor(\*): support new default port 8200 in APM Server
-  * refactor(\*): support new context.response status code format
+  * refactor(*): support new default port 8200 in APM Server
+  * refactor(*): support new context.response status code format
 
 [[release-notes-0.1.1]]
 ==== 0.1.1 - 2017/8/17
