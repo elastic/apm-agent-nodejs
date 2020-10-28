@@ -45,7 +45,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "^8.6.0 || 10 || 12 || 13 || 14"
+    "node": "^8.6.0 || 10 || 12 || 13 || 14 || 15"
   },
   "keywords": [
     "opbeat",
@@ -145,7 +145,7 @@
     "generic-pool": "^3.7.1",
     "get-port": "^5.1.1",
     "got": "^9.6.0",
-    "graphql": "^15.3.0",
+    "graphql": "^15.4.0",
     "handlebars": "^4.7.3",
     "hapi": "^18.1.0",
     "https-pem": "^2.0.0",

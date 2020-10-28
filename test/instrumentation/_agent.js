@@ -28,7 +28,7 @@ module.exports = function mockAgent (expected, cb) {
     _spanFilters: new Filters(),
     _transport: mockClient(expected, cb || noop),
     logger: consoleLogLevel({
-      level: 'fatal'
+      level: process.env.ELASTIC_APM_LOG_LEVEL || 'fatal'
     }),
     setFramework: function () {}
   }
