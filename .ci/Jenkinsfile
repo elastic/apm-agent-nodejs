@@ -382,7 +382,7 @@ def generateStep(Map params = [:]){
           } finally {
             // TAV tests run 'npm run test:tav' which does *not* produce TAP
             // output or code coverage .
-            if (! "${tav}") {
+            if (!tav?.trim()) {
               tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
               codecov(repo: env.REPO, basedir: '.', secret: "${CODECOV_SECRET}")
             }
