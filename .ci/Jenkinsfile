@@ -380,8 +380,12 @@ def generateStep(Map params = [:]){
           } catch(e){
             error(e.toString())
           } finally {
-            tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
-            codecov(repo: env.REPO, basedir: '.', secret: "${CODECOV_SECRET}")
+            // TAV tests run 'npm run test:tav' which does *not* produce TAP
+            // output or code coverage .
+            if (!tav?.trim()) {
+              tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
+              codecov(repo: env.REPO, basedir: '.', secret: "${CODECOV_SECRET}")
+            }
           }
         }
       }
