@@ -278,9 +278,12 @@ hapi-async-await:
   commands:
     - node test/instrumentation/modules/hapi/basic.js
     - node test/instrumentation/modules/hapi/set-framework-2.js
+
 tedious:
   name: tedious
-  versions: '>=1.9 <2.7 || 3.x || >4.0.0'
+  # - tedious@4.0.0 was broken, fixed in 4.0.1 by
+  #   https://github.com/tediousjs/tedious/commit/4eceb48
+  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x'
   commands: node test/instrumentation/modules/tedious.js
 
 cassandra-driver:

@@ -1,12 +1,25 @@
 'use strict'
 
-// The mock client will call the `done` callback with the written data once the
-// `expected` number of writes have occurrd.
+// This is a mock "elastic-apm-http-client".
 //
-// In case the caller don't know how many writes will happen, they can omit the
-// `expected` argument. When the `expected` arguemnt is missing, the mock
-// client will instead call the `done` callback when no new spans have been
-// written after a given delay (controlled by the `resetTimer` below).
+// Usage:
+//
+// 1. Create a client for an expected number of writes:
+//
+//      var mockClient = require('.../_mock_http_client')
+//      agent._transport = mockClient(expected, done)
+//
+//    The `done` callback will be called with the written data (`_writes`)
+//    once the `expected` number of writes have occurred.
+//
+// 2. Create a client that calls back after a delay without writes:
+//
+//      var mockClient = require('.../_mock_http_client')
+//      agent._transport = mockClient(done)
+//
+//    The `done` callback will be called with the written data (`_writes`)
+//    after a 200ms delay with no writes (the timer only starts after the
+//    first write).
 module.exports = function (expected, done) {
   const timerBased = typeof expected === 'function'
   if (timerBased) done = expected

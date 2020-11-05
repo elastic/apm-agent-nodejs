@@ -18,11 +18,11 @@ const test = require('tape')
 const mockClient = require('../../_mock_http_client')
 const version = require('tedious/package').version
 
-let connection
+let connOpts
 const hostname = process.env.MSSQL_HOST || '127.0.0.1'
 
 if (semver.gte(version, '4.0.0')) {
-  connection = {
+  connOpts = {
     server: hostname,
     authentication: {
       type: 'default',
@@ -30,10 +30,16 @@ if (semver.gte(version, '4.0.0')) {
         userName: 'SA',
         password: process.env.SA_PASSWORD || 'Very(!)Secure'
       }
+    },
+    options: {
+      // Tedious@9 changed to `trustServerCertificate: false` by default.
+      trustServerCertificate: true,
+      // Silence deprecation warning in tedious@8.
+      validateBulkLoadParameters: true
     }
   }
 } else {
-  connection = {
+  connOpts = {
     server: hostname,
     userName: 'SA',
     password: process.env.SA_PASSWORD || 'Very(!)Secure'
@@ -42,15 +48,27 @@ if (semver.gte(version, '4.0.0')) {
 
 function withConnection (t) {
   return new Promise((resolve, reject) => {
-    const conn = new tedious.Connection(connection)
+    const conn = new tedious.Connection(connOpts)
+    const onConnect = (err) => {
+      if (err) return reject(err)
+      resolve(conn)
+    }
+
+    if (typeof tedious.connect === 'function') {
+      // Tedious@8.3.0 deprecated automatic connection and tedious@9 dropped it,
+      // requiring `conn.connect(onConnect)` usage.
+      //
+      // We cannot switch on the presence of `conn.connect` because a different
+      // version of that existed before tedious@8.3.0; instead we check for the
+      // top-level `tedious.connect` helper that was added in the same commit:
+      // https://github.com/tediousjs/tedious/pull/1069
+      conn.connect(onConnect)
+    } else {
+      conn.on('connect', onConnect)
+    }
 
     t.on('end', () => {
       conn.close()
-    })
-
-    conn.on('connect', (err) => {
-      if (err) return reject(err)
-      resolve(conn)
     })
   })
 }
