@@ -253,14 +253,14 @@ pug:
   commands: node test/instrumentation/modules/pug.js
 
 # hapi and @hapi/hapi
-# - Package name: Starting with v17.9.0 the name changed from 'hapi' to
-#   '@hapi/hapi'.
+# - Package name: Starting with v17.9.0 and v18.2.0 the name changed from
+#   'hapi' to '@hapi/hapi'.
 # - Node version compat:
 #   - hapi@15: supports node >=v4; breaks on node v14 (usage of `os.tmpDir()`)
 #   - hapi@16: supports node >=v4
 #   - hapi@17, @hapi/hapi@17: supports node >=v8.12.0 (per its README);
 #     the instrumentation changed significantly for this version
-#   - @hapi/hapi@18: supports node >=v8.12.0 (per its README)
+#   - hapi@18, @hapi/hapi@18: supports node >=v8.12.0 (per its README)
 #   - @hapi/hapi@19: supports node >=v12 (judging from commit 50d8d7d)
 #   - @hapi/hapi@20: appears (from travis template refs) to support node >=v12
 hapi-v9-v15:
