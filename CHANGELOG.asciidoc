@@ -29,7 +29,13 @@ endif::[]
 
 * feat: expand k8s pod ID discovery regex {pull}1863[#1863]
 * feat: implements tracestate {pull}1828[#1828]
-* feat: add span and transaction outcome {pull}1828[#1828]
+  Expands support for the W3C Trace Context specification by adding a tracestate
+  header implementation, and uses this new header to track the Elastic
+  transaction sample rate across a trace's service boundaries.
+* feat: add span and transaction outcome {pull}1824[#1824]
+  This adds an "outcome" field to HTTP(S)
+  https://github.com/elastic/apm/blob/master/specs/agents/tracing-transactions.md#transaction-outcome[transactions]
+  and https://github.com/elastic/apm/blob/master/specs/agents/tracing-spans.md#span-outcome[spans].
 
 [float]
 ===== Bug fixes
