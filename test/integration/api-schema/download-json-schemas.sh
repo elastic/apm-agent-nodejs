@@ -10,7 +10,7 @@ if ! [ -n "$1" ]; then
     exit 1
 fi
 
-# download_schema [/path/to/download/to] [branch]
+# download_schema </path/to/download/to> <branch>
 download_schema()
 {
     rm -rf ${1} && mkdir -p ${1}
