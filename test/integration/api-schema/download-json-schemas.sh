@@ -5,9 +5,12 @@ if ! [ -n "$1" ]; then
     echo "USAGE: ./download-json-schemas.sh /path/to/folder"
     echo ""
     echo "Downloads the APM Server Schema files to the specified folder"
+    echo ""
+    echo "Sources from: https://codeload.github.com/elastic/apm-server/"
     exit 1
 fi
 
+# download_schema [/path/to/download/to] [branch]
 download_schema()
 {
     rm -rf ${1} && mkdir -p ${1}
