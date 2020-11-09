@@ -446,6 +446,39 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
       })
     })
   })
+
+  test.only('handles promise rejections from pg', function (t) {
+    function unhandledRejection (e) {
+      t.fail('had unhandledRejection')
+    }
+    process.once('unhandledRejection', unhandledRejection)
+    t.on('end', function () {
+      process.removeListener('unhandledRejection', unhandledRejection)
+      teardown()
+    })
+
+    var sql = 'select \'not-a-uuid\' = \'00000000-0000-0000-0000-000000000000\'::uuid'
+
+    createPool(function (connector) {
+      agent.startTransaction('foo')
+
+      connector(function (err, client, release) {
+        t.error(err)
+
+        client.query(sql)
+          .then(function () {
+            t.fail('query should have rejected')
+          })
+          .catch(function () {})
+          .then(function () {
+            setTimeout(function () {
+              release()
+              t.end()
+            }, 100)
+          })
+      })
+    })
+  })
 }
 
 function basicQueryCallback (t) {
