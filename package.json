@@ -34,6 +34,12 @@
   "directories": {
     "test": "test"
   },
+  "files": [
+    "lib",
+    "start.js",
+    "index.d.ts",
+    "start.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
