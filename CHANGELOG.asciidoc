@@ -21,6 +21,23 @@ endif::[]
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.8.0]]
+==== 3.8.0 - 2020/11/09
+
+[float]
+===== Features
+
+* feat: expand k8s pod ID discovery regex {pull}1863[#1863]
+* feat: implements tracestate {pull}1828[#1828]
+* feat: add span and transaction outcome {pull}1828[#1828]
+
+[float]
+===== Bug fixes
+
+* fix(pg): prevent unhandled promise rejection {pull}1846[#1846]
+* fix: redis@2.x instrumentation was broken {pull}1852[#1852]
+* A number of fixes to the test suite.
+
 [[release-notes-3.7.0]]
 ==== 3.7.0 - 2020/8/10
 
@@ -379,14 +396,14 @@ endif::[]
 
 [float]
 ===== Bug fixes
-* fix(metrics): ensure NaN becomes 0, not null {pull}837[#837] 
+* fix(metrics): ensure NaN becomes 0, not null {pull}837[#837]
 
 [[release-notes-2.5.0]]
 ==== 2.5.0 - 2019/1/29
 
 [float]
 ===== Features
-* feat(metrics): added basic metrics gathering {pull}731[#731] 
+* feat(metrics): added basic metrics gathering {pull}731[#731]
 
 [[release-notes-2.4.0]]
 ==== 2.4.0 - 2019/1/24
