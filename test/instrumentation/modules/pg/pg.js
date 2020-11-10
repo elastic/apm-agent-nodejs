@@ -447,38 +447,47 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
     })
   })
 
-  test.only('handles promise rejections from pg', function (t) {
-    function unhandledRejection (e) {
-      t.fail('had unhandledRejection')
-    }
-    process.once('unhandledRejection', unhandledRejection)
-    t.on('end', function () {
-      process.removeListener('unhandledRejection', unhandledRejection)
-      teardown()
-    })
+  // The same guard logic as from the instrumentation module
+  //
+  // https://github.com/elastic/apm-agent-nodejs/blob/8a5e908b8e9ee83bb1b828a3bef980388ea6e08e/lib/instrumentation/modules/pg.js#L91
+  //
+  // ensures this tests runs when ending a span via promise.then
+  if( typeof pg.Client.prototype.query.on !== 'function' &&
+      typeof pg.Client.prototype.query.then === 'function') {
 
-    var sql = 'select \'not-a-uuid\' = \'00000000-0000-0000-0000-000000000000\'::uuid'
+    test.test('handles promise rejections from pg', function (t) {
+      function unhandledRejection (e) {
+        t.fail('had unhandledRejection')
+      }
+      process.once('unhandledRejection', unhandledRejection)
+      t.on('end', function () {
+        process.removeListener('unhandledRejection', unhandledRejection)
+        teardown()
+      })
 
-    createPool(function (connector) {
-      agent.startTransaction('foo')
+      var sql = 'select \'not-a-uuid\' = \'00000000-0000-0000-0000-000000000000\'::uuid'
 
-      connector(function (err, client, release) {
-        t.error(err)
+      createPool(function (connector) {
+        agent.startTransaction('foo')
 
-        client.query(sql)
-          .then(function () {
-            t.fail('query should have rejected')
-          })
-          .catch(function () {})
-          .then(function () {
-            setTimeout(function () {
-              release()
-              t.end()
-            }, 100)
-          })
+        connector(function (err, client, release) {
+          t.error(err)
+
+          client.query(sql)
+            .then(function () {
+              t.fail('query should have rejected')
+            })
+            .catch(function () {})
+            .then(function () {
+              setTimeout(function () {
+                release()
+                t.end()
+              }, 100)
+            })
+        })
       })
     })
-  })
+  }
 }
 
 function basicQueryCallback (t) {
