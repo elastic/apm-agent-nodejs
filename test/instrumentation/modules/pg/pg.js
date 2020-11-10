@@ -452,9 +452,8 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
   // https://github.com/elastic/apm-agent-nodejs/blob/8a5e908b8e9ee83bb1b828a3bef980388ea6e08e/lib/instrumentation/modules/pg.js#L91
   //
   // ensures this tests runs when ending a span via promise.then
-  if( typeof pg.Client.prototype.query.on !== 'function' &&
+  if (typeof pg.Client.prototype.query.on !== 'function' &&
       typeof pg.Client.prototype.query.then === 'function') {
-
     test.test('handles promise rejections from pg', function (t) {
       function unhandledRejection (e) {
         t.fail('had unhandledRejection')
