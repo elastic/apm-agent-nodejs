@@ -12,12 +12,14 @@ test('remote config enabled', function (t) {
   const updates = {
     transaction_sample_rate: '0.42',
     transaction_max_spans: '99',
-    capture_body: 'all'
+    capture_body: 'all',
+    transaction_ignore_urls: ['foo']
   }
   const expect = {
     transactionSampleRate: 0.42,
     transactionMaxSpans: 99,
-    captureBody: 'all'
+    captureBody: 'all',
+    transactionIgnoreUrls: ['foo']
   }
   t.plan(Object.keys(expect).length + 1)
 
@@ -53,7 +55,7 @@ test('remote config enabled', function (t) {
           set (value) {
             const expectValue = expect[key]
             if (expectValue !== undefined) {
-              t.strictEqual(value, expectValue)
+              t.deepEqual(value, expectValue)
               delete expect[key]
               if (Object.keys(expect).length === 0) {
                 t.end()

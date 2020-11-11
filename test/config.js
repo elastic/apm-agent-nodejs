@@ -431,6 +431,7 @@ test('should default to empty request blacklist arrays', function (t) {
   t.strictEqual(agent._conf.ignoreUrlRegExp.length, 0)
   t.strictEqual(agent._conf.ignoreUserAgentStr.length, 0)
   t.strictEqual(agent._conf.ignoreUserAgentRegExp.length, 0)
+  t.strictEqual(agent._conf.transactionIgnoreUrlRegExp.length, 0)
   t.end()
 })
 
@@ -451,6 +452,27 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.strictEqual(agent._conf.ignoreUserAgentRegExp.length, 1)
   t.ok(isRegExp(agent._conf.ignoreUserAgentRegExp[0]))
   t.strictEqual(agent._conf.ignoreUserAgentRegExp[0].toString(), '/regex2/')
+
+  t.end()
+})
+
+test('should compile wildcards from string', function (t) {
+  var agent = Agent()
+  agent.start({
+    transactionIgnoreUrls: ['foo', '/str1', '/wil*card']
+  })
+
+  t.strictEqual(
+    agent._conf.transactionIgnoreUrlRegExp.length,
+    3,
+    'was everything added?'
+  )
+
+  t.strictEquals(
+    '/foo'.search(agent._conf.transactionIgnoreUrlRegExp[0]),
+    0,
+    'was leading / added automatically to "foo"'
+  )
 
   t.end()
 })
