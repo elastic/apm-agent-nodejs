@@ -1,6 +1,7 @@
 TAV:
   - '@hapi/hapi'
   - '@koa/router'
+  - amqplib
   - apollo-server-express
   - bluebird
   - cassandra-driver

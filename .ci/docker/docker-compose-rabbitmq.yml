@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  rabbitmq:
+    extends:
+      file: docker-compose.yml
+      service: rabbitmq
+  node_tests:
+    extends:
+      file: docker-compose-node-test.yml
+      service: node_tests
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

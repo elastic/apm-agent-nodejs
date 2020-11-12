@@ -11,6 +11,7 @@ services:
     command: >
       /bin/bash -c ".ci/scripts/docker-test.sh"
     environment:
+      RABBITMQ_HOST: 'rabbitmq'
       MONGODB_HOST: 'mongodb'
       REDIS_HOST: 'redis'
       ES_HOST: 'elasticsearch'

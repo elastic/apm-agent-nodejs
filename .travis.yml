@@ -16,6 +16,7 @@ services:
   - postgresql
   - cassandra
   - memcached
+  - rabbitmq
   
 cache:
   npm: false
