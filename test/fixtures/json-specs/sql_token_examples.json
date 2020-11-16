@@ -1,0 +1,230 @@
+[
+  {
+    "name": "whitespace-only",
+    "comment": "whitespace between tokens is ignored",
+    "input": "  "
+  },
+  {
+    "name": "keywords",
+    "comment": "keywords each have their own kind, and are scanned case-insensitively",
+    "input": "INSERT or rEpLaCe",
+    "tokens": [
+      {
+        "kind": "INSERT",
+        "text": "INSERT"
+      },
+      {
+        "kind": "OR",
+        "text": "or"
+      },
+      {
+        "kind": "REPLACE",
+        "text": "rEpLaCe"
+      }
+    ]
+  },
+  {
+    "name": "qualified-table",
+    "input": "schema.Abc_123",
+    "tokens": [
+      {
+        "kind": "IDENT",
+        "text": "schema"
+      },
+      {
+        "kind": "PERIOD",
+        "text": "."
+      },
+      {
+        "kind": "IDENT",
+        "text": "Abc_123"
+      }
+    ]
+  },
+  {
+    "name": "dollar-variable",
+    "comment": "dollar variables mustn't confuse dollar quoting",
+    "input": "$123",
+    "tokens": [
+      {
+        "kind": "OTHER",
+        "text": "$123"
+      }
+    ]
+  },
+  {
+    "name": "identifiers",
+    "input": "_foo foo$",
+    "tokens": [
+      {
+        "kind": "IDENT",
+        "text": "_foo"
+      },
+      {
+        "kind": "IDENT",
+        "text": "foo$"
+      }
+    ]
+  },
+  {
+    "name": "quoted-identifiers",
+    "input": "`SELECT` \"SELECT \"\"\" [SELECT '']",
+    "tokens": [
+      {
+        "kind": "IDENT",
+        "text": "SELECT"
+      },
+      {
+        "kind": "IDENT",
+        "text": "SELECT \"\""
+      },
+      {
+        "kind": "IDENT",
+        "text": "SELECT ''"
+      }
+    ]
+  },
+  {
+    "name": "punctuation",
+    "input": "().",
+    "tokens": [
+      {
+        "kind": "LPAREN",
+        "text": "("
+      },
+      {
+        "kind": "RPAREN",
+        "text": ")"
+      },
+      {
+        "kind": "PERIOD",
+        "text": "."
+      }
+    ]
+  },
+  {
+    "name": "comments",
+    "input": "/* /*nested*/ */ -- SELECT /*",
+    "tokens": [
+      {
+        "kind": "COMMENT",
+        "text": "/* /*nested*/ */"
+      },
+      {
+        "kind": "COMMENT",
+        "text": "-- SELECT /*"
+      }
+    ]
+  },
+  {
+    "name": "string-literal",
+    "input": "'abc '' def\\''",
+    "tokens": [
+      {
+        "kind": "STRING",
+        "text": "'abc '' def\\''"
+      }
+    ]
+  },
+  {
+    "name": "dollar-quoted-string-literal",
+    "input": "$$f$o$o$$ $$ $$ $foo$'`$$$$\"$foo$ $foo $bar",
+    "tokens": [
+      {
+        "kind": "STRING",
+        "text": "$$f$o$o$$"
+      },
+      {
+        "kind": "STRING",
+        "text": "$$ $$"
+      },
+      {
+        "kind": "STRING",
+        "text": "$foo$'`$$$$\"$foo$"
+      },
+      {
+        "kind": "OTHER",
+        "text": "$foo"
+      },
+      {
+        "kind": "OTHER",
+        "text": "$bar"
+      }
+    ]
+  },
+  {
+    "name": "unterminated-dollar-quoted-string-literal",
+    "comment": "Unterminated dollar-quoted string rewinds back to the first whitespace, under the assumption that the input is valid and we've interpreted it wrongly",
+    "input": "$foo$ banana $",
+    "tokens": [
+      {
+        "kind": "OTHER",
+        "text": "$foo$"
+      },
+      {
+        "kind": "IDENT",
+        "text": "banana"
+      },
+      {
+        "kind": "OTHER",
+        "text": "$"
+      }
+    ]
+  },
+  {
+    "name": "numeric-literals",
+    "input": "123 123.456 123E45 123e+45 123e-45 1.2.3",
+    "tokens": [
+      {
+        "kind": "NUMBER",
+        "text": "123"
+      },
+      {
+        "kind": "NUMBER",
+        "text": "123.456"
+      },
+      {
+        "kind": "NUMBER",
+        "text": "123E45"
+      },
+      {
+        "kind": "NUMBER",
+        "text": "123e+45"
+      },
+      {
+        "kind": "NUMBER",
+        "text": "123e-45"
+      },
+      {
+        "kind": "NUMBER",
+        "text": "1.2"
+      },
+      {
+        "kind": "PERIOD",
+        "text": "."
+      },
+      {
+        "kind": "NUMBER",
+        "text": "3"
+      }
+    ]
+  },
+  {
+    "name": "unicode",
+    "input": "选择 FROM foo",
+    "tokens": [
+      {
+        "kind": "IDENT",
+        "text": "选择"
+      },
+      {
+        "kind": "FROM",
+        "text": "FROM"
+      },
+      {
+        "kind": "IDENT",
+        "text": "foo"
+      }
+    ]
+  }
+]
