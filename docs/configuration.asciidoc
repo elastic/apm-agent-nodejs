@@ -185,6 +185,41 @@ please https://github.com/elastic/apm-agent-nodejs/issues[open an issue].
 
 Note that not all core Node.js API's can be instrumented without the use of Async Hooks if running Node.js 8 or above.
 
+[[transaction-ignore-urls]]
+==== `transactionIgnoreUrls`
+
+* *Type:* Array
+* *Default:* `[]`
+* *Env:* `ELASTIC_TRANSACTION_IGNORE_URLS`
+
+Used to restrict requests for certain URLs from being instrumented.
+
+This property should be set to an array containing one or more string patterns.
+
+When an incoming HTTP request is detected, its URL will be tested against each element 
+in this list.  The `transactionIgnoreUrls` property supports exact string matches, and
+simple wildcard (`*`) matches.  You may turn on case sensitivity by using the 
+`(?+i)` prefix.
+
+Note that all errors that are captured during a request to an ignored URL are still sent 
+to the APM Server regardless of this setting.
+
+If you need full regular expression pattern matching, see <<ignore-urls>>.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  transactionIgnoreUrls: [
+    '/ping',
+    '/fetch/*',
+    '(?+i)/caseSensativeSearch'
+  ]
+})
+----
+
+
 [[ignore-urls]]
 ==== `ignoreUrls`
 
@@ -202,6 +237,8 @@ If an element in the array is a `RegExp` object,
 its test function will be called with the URL being tested.
 
 Note that all errors that are captured during a request to an ignored URL are still sent to the APM Server regardless of this setting.
+
+If you'd prefer simple wildcard pattern matching, see <<transaction-ignore-urls>>.
 
 Example usage:
 
