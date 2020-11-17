@@ -135,7 +135,7 @@ test('sync/async tracking', function (t) {
   })
 })
 
-test.only('sync/async tracking 2', function (t) {
+test('sync/async tracking 2', function (t) {
   var trans = agent.startTransaction()
 
   var span = agent.startSpan()
