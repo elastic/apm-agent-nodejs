@@ -12,6 +12,10 @@ endif::[]
 
 [float]
 ===== Features
+* feat: transaction_ignore_url wildcard matching {pull}1870[#1870]
+  Allows users to ignore URLs using simple wildcard matching patterns that behaves
+  the same across language agents. 
+
 * Cool new feature: {pull}2526[#2526]
 
 [float]
