@@ -135,6 +135,22 @@ test('sync/async tracking', function (t) {
   })
 })
 
+test.only('sync/async tracking 2', function (t) {
+  var trans = agent.startTransaction()
+
+  var span = agent.startSpan()
+  t.strictEqual(span.sync, true, 'span.sync=true immediately after creation')
+
+  span.end()
+  t.strictEqual(span.sync, true, 'span.sync=true immediately after end')
+
+  setImmediate(() => {
+    t.strictEqual(span.sync, true,
+      'span.sync=true later after having ended sync')
+    t.end()
+  })
+})
+
 function twice (fn) {
   setImmediate(fn)
   setImmediate(fn)
