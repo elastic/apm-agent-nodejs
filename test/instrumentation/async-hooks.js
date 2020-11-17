@@ -125,28 +125,20 @@ test('sync/async tracking', function (t) {
   var trans = agent.startTransaction()
   t.strictEqual(trans.sync, true)
 
-  var span = agent.startSpan()
-  t.strictEqual(span.sync, true)
+  var span1 = agent.startSpan()
+  t.strictEqual(span1.sync, true)
+
+  // This span will be *ended* synchronously. It should stay `span.sync=true`.
+  var span2 = agent.startSpan()
+  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after creation')
+  span2.end()
+  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end')
 
   setImmediate(() => {
     t.strictEqual(trans.sync, false)
-    t.strictEqual(span.sync, false)
-    t.end()
-  })
-})
-
-test('sync/async tracking 2', function (t) {
-  var trans = agent.startTransaction()
-
-  var span = agent.startSpan()
-  t.strictEqual(span.sync, true, 'span.sync=true immediately after creation')
-
-  span.end()
-  t.strictEqual(span.sync, true, 'span.sync=true immediately after end')
-
-  setImmediate(() => {
-    t.strictEqual(span.sync, true,
-      'span.sync=true later after having ended sync')
+    t.strictEqual(span1.sync, false)
+    t.strictEqual(span2.sync, true,
+      'span2.sync=true later after having ended sync')
     t.end()
   })
 })
