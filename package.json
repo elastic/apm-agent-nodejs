@@ -115,6 +115,7 @@
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
     "@commitlint/travis-cli": "^8.3.5",
+    "@elastic/elasticsearch": "^7.10.0",
     "@hapi/hapi": "^18.4.1",
     "@koa/router": "^9.0.1",
     "@types/node": "^13.7.4",

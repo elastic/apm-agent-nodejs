@@ -75,6 +75,7 @@ var directories = [
   'test',
   'test/instrumentation',
   'test/instrumentation/modules',
+  'test/instrumentation/modules/@elastic',
   'test/instrumentation/modules/bluebird',
   'test/instrumentation/modules/cassandra-driver',
   'test/instrumentation/modules/express',
