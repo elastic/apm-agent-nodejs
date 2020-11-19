@@ -61,7 +61,7 @@ test('client.search with promise', function userLandCode (t) {
     .catch(t.error)
 })
 
-test.only('client.child', function userLandCode (t) {
+test('client.child', function userLandCode (t) {
   const searchOpts = { q: 'pants' }
 
   resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants'))
