@@ -34,6 +34,12 @@
   "directories": {
     "test": "test"
   },
+  "files": [
+    "lib",
+    "start.js",
+    "index.d.ts",
+    "start.d.ts"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
@@ -108,7 +114,6 @@
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
-    "@apidevtools/json-schema-ref-parser": "^9.0.1",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
@@ -119,6 +124,7 @@
     "@hapi/hapi": "^18.4.1",
     "@koa/router": "^9.0.1",
     "@types/node": "^13.7.4",
+    "ajv": "^6.12.6",
     "apollo-server-express": "^2.10.1",
     "aws-sdk": "^2.622.0",
     "backport": "^5.1.2",
@@ -145,7 +151,6 @@
     "https-pem": "^2.0.0",
     "inquirer": "^0.12.0",
     "ioredis": "^4.16.0",
-    "is-my-json-valid": "^2.20.0",
     "jade": "^1.11.0",
     "knex": "^0.21.2",
     "koa": "^2.11.0",

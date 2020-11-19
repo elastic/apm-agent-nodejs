@@ -24,7 +24,7 @@ const next = afterAll(function (err, validators) {
   test('metadata schema failure', function (t) {
     t.strictEqual(validateMetadata({}), false)
     validateFieldMessages(t, validateMetadata.errors, [
-      { field: 'data.service', message: 'is required' }
+      { message: 'should have required property \'service\'' }
     ])
     t.end()
   })
@@ -32,11 +32,11 @@ const next = afterAll(function (err, validators) {
   test('transaction schema failure', function (t) {
     t.strictEqual(validateTransaction({}), false)
     validateFieldMessages(t, validateTransaction.errors, [
-      { field: 'data.duration', message: 'is required' },
-      { field: 'data.type', message: 'is required' },
-      { field: 'data.id', message: 'is required' },
-      { field: 'data.trace_id', message: 'is required' },
-      { field: 'data.span_count', message: 'is required' }
+      { message: 'should have required property \'duration\'' },
+      { message: 'should have required property \'id\'' },
+      { message: 'should have required property \'span_count\'' },
+      { message: 'should have required property \'trace_id\'' },
+      { message: 'should have required property \'type\'' }
     ])
     t.end()
   })
@@ -44,13 +44,15 @@ const next = afterAll(function (err, validators) {
   test('span schema failure', function (t) {
     t.strictEqual(validateSpan({}), false)
     validateFieldMessages(t, validateSpan.errors, [
-      { field: 'data.duration', message: 'is required' },
-      { field: 'data.name', message: 'is required' },
-      { field: 'data.type', message: 'is required' },
-      { field: 'data.id', message: 'is required' },
-      { field: 'data.trace_id', message: 'is required' },
-      { field: 'data.parent_id', message: 'is required' },
-      { field: 'data', message: 'no schemas match' }
+      { message: 'should have required property \'duration\'' },
+      { message: 'should have required property \'id\'' },
+      { message: 'should have required property \'name\'' },
+      { message: 'should have required property \'parent_id\'' },
+      { message: 'should have required property \'trace_id\'' },
+      { message: 'should have required property \'type\'' },
+      { message: 'should have required property \'start\'' },
+      { message: 'should have required property \'timestamp\'' },
+      { message: 'should match some schema in anyOf' }
     ])
     t.end()
   })
@@ -58,16 +60,38 @@ const next = afterAll(function (err, validators) {
   test('error schema failure', function (t) {
     t.strictEqual(validateError({}), false)
     validateFieldMessages(t, validateError.errors, [
-      { field: 'data', message: 'no schemas match' },
-      { field: 'data.id', message: 'is required' }
+      { message: 'should have required property \'id\'' },
+      { message: 'should have required property \'exception\'' },
+      { message: 'should have required property \'log\'' },
+      { message: 'should match some schema in anyOf' }
     ])
+
     t.strictEqual(validateError({ id: 'foo', exception: {} }), false)
     validateFieldMessages(t, validateError.errors, [
-      { field: 'data.exception', message: 'no schemas match' }
+      {
+        dataPath: '.exception',
+        params: { missingProperty: 'message' },
+        message: 'should have required property \'message\''
+      },
+      {
+        dataPath: '.exception',
+        params: { missingProperty: 'type' },
+        message: 'should have required property \'type\''
+      },
+      {
+        dataPath: '.exception',
+        params: {},
+        message: 'should match some schema in anyOf'
+      }
     ])
+
     t.strictEqual(validateError({ id: 'foo', log: {} }), false)
     validateFieldMessages(t, validateError.errors, [
-      { field: 'data.log.message', message: 'is required' }
+      {
+        dataPath: '.log',
+        params: { missingProperty: 'message' },
+        message: 'should have required property \'message\''
+      }
     ])
     t.end()
   })
@@ -200,10 +224,20 @@ utils.spanValidator(next())
 utils.errorValidator(next())
 
 function validateFieldMessages (t, errors, expectations) {
-  t.strictEqual(errors.length, expectations.length)
+  t.strictEqual(errors.length, expectations.length,
+    'got expected number of errors')
   expectations.forEach(expected => {
-    const field = findObjInArray(errors, 'field', expected.field)
-    t.strictEqual(field.message, expected.message)
+    // Attempt to find the matching error object by 'message'. In general
+    // this *could* be ambiguous, but should suffice here.
+    const actual = findObjInArray(errors, 'message', expected.message)
+    if (!actual) {
+      t.fail(`errors include message "${expected.message}"`)
+    } else {
+      Object.keys(expected).forEach((field) => {
+        t.deepEqual(actual[field], expected[field],
+           `actual error field "${field}" matches ` + JSON.stringify(expected[field]))
+      })
+    }
   })
 }
 
