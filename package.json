@@ -91,6 +91,7 @@
     "elastic-apm-http-client": "^9.4.1",
     "end-of-stream": "^1.4.4",
     "error-stack-parser": "^2.0.6",
+    "escape-string-regexp": "^4.0.0",
     "fast-safe-stringify": "^2.0.7",
     "http-headers": "^3.0.2",
     "http-request-to-url": "^1.0.0",

@@ -227,6 +227,7 @@ interface AgentConfigOptions {
   sourceLinesSpanAppFrames?: number;
   sourceLinesSpanLibraryFrames?: number;
   stackTraceLimit?: number;
+  transactionIgnoreUrls?: Array<string>;
   transactionMaxSpans?: number;
   transactionSampleRate?: number;
   usePathAsTransactionName?: boolean;
