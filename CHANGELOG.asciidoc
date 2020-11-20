@@ -7,6 +7,8 @@ endif::[]
 [[release-notes-x.x.x]]
 ==== x.x.x - YYYY/MM/DD
 
+* fix: Synchronous spans would never have `span.sync == true`. {pull}1879[#1879]
+
 [float]
 ===== Breaking changes
 
