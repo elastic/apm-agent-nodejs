@@ -12,6 +12,7 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
+const shimmer = require('../../../../lib/instrumentation/shimmer')
 const test = require('tape')
 
 const { Client } = require('@elastic/elasticsearch')
@@ -70,8 +71,7 @@ test('client.child', function userLandCode (t) {
 
   const client = new Client({ node })
   const child = client.child({
-    headers: { 'x-foo': 'bar' },
-    requestTimeout: 1000
+    headers: { 'x-foo': 'bar' }
   })
   child.search(searchOpts, function (err) {
     t.error(err)
@@ -108,8 +108,7 @@ test('client.search with body', function userLandCode (t) {
     body: body
   }
 
-  resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`,
-    JSON.stringify(body)))
+  resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, JSON.stringify(body)))
 
   agent.startTransaction('myTrans')
 
@@ -242,6 +241,96 @@ test('client.msearchTempate', function userLandCode (t) {
   })
 })
 
+// Test some error scenarios:
+// - DeserializationError includes err.data which might be interesting to
+//   ensure is sanitized.
+// - TimeoutError XXX
+
+test('DeserializationError', function (t) {
+  resetAgent(
+    function done (data) {
+      const err = data.errors[0]
+      t.ok(err, 'sent an error to APM server')
+      t.ok(err.id, 'err.id')
+      t.ok(err.exception.message, 'err.exception.message')
+      t.equal(err.exception.type, 'DeserializationError',
+        'err.exception.type is DeserializationError')
+      t.end()
+    }
+  )
+
+  agent.startTransaction('myTrans')
+
+  const client = new Client({ node })
+
+  // To simulate an error we monkey patch the client's Serializer such that
+  // deserialization of the response body fails.
+  shimmer.wrap(client.transport.serializer, 'deserialize', function wrapDeserialize (origDeserialize) {
+    return function wrappedDeserialize (json) {
+      return origDeserialize.call(this, json + 'THIS_WILL_BREAK_JSON_DESERIALIZATION')
+    }
+  })
+
+  client.search({ q: 'pants' }, function (err, _result) {
+    t.ok(err, 'got an error from search callback')
+    t.equal(err.name, 'DeserializationError', 'error name is "DeserializationError"')
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('TimeoutError without retries', function (t) {
+  resetAgent(
+    function done (data) {
+      const err = data.errors[0]
+      t.ok(err, 'sent an error to APM server')
+      t.ok(err.id, 'err.id')
+      t.ok(err.exception.message, 'err.exception.message')
+      t.equal(err.exception.type, 'TimeoutError',
+        'err.exception.type is TimeoutError')
+      t.end()
+    }
+  )
+
+  agent.startTransaction('myTrans')
+
+  // (Hopefully) force a timeout error with a short 1ms timeout.
+  const client = new Client({ node, requestTimeout: 1, maxRetries: 0 })
+  client.search({ q: 'pants' }, function (err, _result) {
+    t.ok(err, 'got an error from search callback')
+    t.equal(err.name, 'TimeoutError', 'error name is "TimeoutError"')
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+// test('TimeoutError with retries', function (t) {
+//   resetAgent(
+//     function done(data) {
+//       const err = data.errors[0];
+//       t.ok(err, 'sent an error to APM server')
+//       t.ok(err.id, 'err.id')
+//       t.ok(err.exception.message, 'err.exception.message')
+//       t.equal(err.exception.type, 'TimeoutError',
+//         'err.exception.type is TimeoutError')
+//       t.end();
+//     }
+//   )
+
+//   agent.startTransaction('myTrans')
+
+//   // (Hopefully) force a timeout error with a short 1ms timeout.
+//   const client = new Client({ node, requestTimeout: 1, maxRetries: 1 })
+//   client.search({q: 'pants'}, function (err, _result) {
+//     t.ok(err, 'got an error from search callback')
+//     t.equal(err.name, 'TimeoutError', 'error name is "TimeoutError"')
+//     agent.endTransaction()
+//     agent.flush()
+//   })
+// })
+
+// Utility functions.
+
 function checkDataAndEnd (t, method, path, dbStatement) {
   return function (data) {
     t.equal(data.transactions.length, 1, 'should have 1 transaction')
@@ -251,7 +340,6 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.equal(trans.name, 'myTrans', 'should have expected transaction name')
     t.equal(trans.type, 'custom', 'should have expected transaction type')
 
-    console.log('XXX spans', data.spans)
     const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
     t.ok(esSpan, 'have an elasticsearch span')
     t.strictEqual(esSpan.type, 'db')
@@ -278,8 +366,12 @@ function checkDataAndEnd (t, method, path, dbStatement) {
         { type: 'elasticsearch', statement: dbStatement },
         'elasticsearch span has correct .context.db')
     } else {
-      t.notOk(esSpan.context, 'elasticsearch span should not have .context.db')
+      t.notOk(esSpan.context.db, 'elasticsearch span should not have .context.db')
     }
+
+    // Ensure "destination" context is set.
+    t.equal(esSpan.context.destination.service.name, 'elasticsearch',
+      'elasticsearch span.context.destination.service.name=="elasticsearch"')
 
     t.ok(httpSpan.timestamp > esSpan.timestamp,
       'http span should start after elasticsearch span')
@@ -297,5 +389,4 @@ function checkDataAndEnd (t, method, path, dbStatement) {
 function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
   agent._transport = mockClient(cb)
-  agent.captureError = function (err) { throw err }
 }
