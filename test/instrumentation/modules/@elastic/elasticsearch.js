@@ -319,7 +319,7 @@ test('TimeoutError with 2 retries', function (t) {
       t.equal(httpSpans.length, 3, 'have 3 http spans')
       httpSpans.forEach(httpSpan => {
         t.ok(httpSpan.timestamp > esSpan.timestamp,
-          'http span should start after elasticsearch span')
+          `http span should start, ${httpSpan.timestamp}, after elasticsearch span, ${esSpan.timestamp}`)
         // On timeout the Transport returns to retry-handling immediately
         // while the timed out HTTP request is aborted asynchronously. That
         // means the HTTP spans could end *after* the Elasticsearch span.
