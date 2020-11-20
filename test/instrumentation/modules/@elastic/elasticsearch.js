@@ -306,7 +306,7 @@ test('TimeoutError without retries', function (t) {
 
 test('TimeoutError with 2 retries', function (t) {
   resetAgent(
-    function done(data) {
+    function done (data) {
       // We expect to get:
       // - 1 elasticsearch span
       // - 3 HTTP spans
@@ -325,14 +325,14 @@ test('TimeoutError with 2 retries', function (t) {
         // means the HTTP spans could end *after* the Elasticsearch span.
       })
 
-      const err = data.errors[0];
+      const err = data.errors[0]
       t.ok(err, 'sent an error to APM server')
       t.ok(err.id, 'err.id')
       t.ok(err.exception.message, 'err.exception.message')
       t.equal(err.exception.type, 'TimeoutError',
         'err.exception.type is TimeoutError')
 
-      t.end();
+      t.end()
     }
   )
 
@@ -340,12 +340,93 @@ test('TimeoutError with 2 retries', function (t) {
 
   // (Hopefully) force a timeout error with a short 1ms timeout.
   const client = new Client({ node, requestTimeout: 1, maxRetries: 2 })
-  client.search({q: 'pants'}, function (err, _result) {
+  client.search({ q: 'pants' }, function (err, _result) {
     t.ok(err, 'got an error from search callback')
     t.equal(err.name, 'TimeoutError', 'error name is "TimeoutError"')
     agent.endTransaction()
     agent.flush()
   })
+})
+
+// Abort handling.
+
+test('request.abort() works', function (t) {
+  resetAgent(
+    function done (data) {
+      // We expect to get:
+      // - 1 elasticsearch span
+      // - N HTTP spans (one for each attempt)
+      // - 1 abort error
+
+      const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+      t.ok(esSpan, 'have an elasticsearch span')
+
+      const err = data.errors[0]
+      t.ok(err, 'sent an error to APM server')
+      t.ok(err.id, 'err.id')
+      t.ok(err.exception.message, 'err.exception.message')
+      t.equal(err.exception.type, 'RequestAbortedError',
+        'err.exception.type is RequestAbortedError')
+
+      t.end()
+    }
+  )
+
+  agent.startTransaction('myTrans')
+
+  // Start a request that we expect to be retrying frequently (timeout=1ms),
+  // then abort it after 10ms.
+  const client = new Client({ node, requestTimeout: 1, maxRetries: 50 })
+  const req = client.search({ q: 'pants' }, function (err, _result) {
+    t.ok(err, 'got error')
+    t.equal(err.name, 'RequestAbortedError', 'error is RequestAbortedError')
+    agent.endTransaction()
+    agent.flush()
+  })
+  setTimeout(function () {
+    req.abort()
+  }, 10)
+})
+
+test('promise.abort() works', function (t) {
+  resetAgent(
+    function done (data) {
+      // We expect to get:
+      // - 1 elasticsearch span
+      // - N HTTP spans (one for each attempt)
+      // - 1 abort error
+
+      const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+      t.ok(esSpan, 'have an elasticsearch span')
+
+      const err = data.errors[0]
+      t.ok(err, 'sent an error to APM server')
+      t.ok(err.id, 'err.id')
+      t.ok(err.exception.message, 'err.exception.message')
+      t.equal(err.exception.type, 'RequestAbortedError',
+        'err.exception.type is RequestAbortedError')
+
+      t.end()
+    }
+  )
+
+  agent.startTransaction('myTrans')
+
+  // Start a request that we expect to be retrying frequently (timeout=1ms),
+  // then abort it after 10ms.
+  const client = new Client({ node, requestTimeout: 1, maxRetries: 50 })
+  const promise = client.search({ q: 'pants' })
+  promise
+    .then(_result => {})
+    .catch(err => {
+      t.ok(err, 'got error')
+      t.equal(err.name, 'RequestAbortedError', 'error is RequestAbortedError')
+      agent.endTransaction()
+      agent.flush()
+    })
+  setTimeout(function () {
+    promise.abort()
+  }, 10)
 })
 
 // Utility functions.
@@ -397,8 +478,6 @@ function checkDataAndEnd (t, method, path, dbStatement) {
       'http span should end before elasticsearch span')
 
     // TODO test that httpSpan is child of esSpan? currently it isn't
-    // XXX test retries
-    // XXX test error capture
 
     t.end()
   }
