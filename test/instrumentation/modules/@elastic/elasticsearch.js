@@ -244,7 +244,7 @@ test('client.msearchTempate', function userLandCode (t) {
 // Test some error scenarios:
 // - DeserializationError includes err.data which might be interesting to
 //   ensure is sanitized.
-// - TimeoutError XXX
+// - TimeoutError is a convenient way to test retries.
 
 test('DeserializationError', function (t) {
   resetAgent(
@@ -304,30 +304,49 @@ test('TimeoutError without retries', function (t) {
   })
 })
 
-// test('TimeoutError with retries', function (t) {
-//   resetAgent(
-//     function done(data) {
-//       const err = data.errors[0];
-//       t.ok(err, 'sent an error to APM server')
-//       t.ok(err.id, 'err.id')
-//       t.ok(err.exception.message, 'err.exception.message')
-//       t.equal(err.exception.type, 'TimeoutError',
-//         'err.exception.type is TimeoutError')
-//       t.end();
-//     }
-//   )
+test('TimeoutError with 2 retries', function (t) {
+  resetAgent(
+    function done(data) {
+      // We expect to get:
+      // - 1 elasticsearch span
+      // - 3 HTTP spans
+      // - 1 timeout error
 
-//   agent.startTransaction('myTrans')
+      const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+      t.ok(esSpan, 'have an elasticsearch span')
 
-//   // (Hopefully) force a timeout error with a short 1ms timeout.
-//   const client = new Client({ node, requestTimeout: 1, maxRetries: 1 })
-//   client.search({q: 'pants'}, function (err, _result) {
-//     t.ok(err, 'got an error from search callback')
-//     t.equal(err.name, 'TimeoutError', 'error name is "TimeoutError"')
-//     agent.endTransaction()
-//     agent.flush()
-//   })
-// })
+      const httpSpans = data.spans.filter(s => s.subtype === 'http')
+      t.equal(httpSpans.length, 3, 'have 3 http spans')
+      httpSpans.forEach(httpSpan => {
+        t.ok(httpSpan.timestamp > esSpan.timestamp,
+          'http span should start after elasticsearch span')
+        // On timeout the Transport returns to retry-handling immediately
+        // while the timed out HTTP request is aborted asynchronously. That
+        // means the HTTP spans could end *after* the Elasticsearch span.
+      })
+
+      const err = data.errors[0];
+      t.ok(err, 'sent an error to APM server')
+      t.ok(err.id, 'err.id')
+      t.ok(err.exception.message, 'err.exception.message')
+      t.equal(err.exception.type, 'TimeoutError',
+        'err.exception.type is TimeoutError')
+
+      t.end();
+    }
+  )
+
+  agent.startTransaction('myTrans')
+
+  // (Hopefully) force a timeout error with a short 1ms timeout.
+  const client = new Client({ node, requestTimeout: 1, maxRetries: 2 })
+  client.search({q: 'pants'}, function (err, _result) {
+    t.ok(err, 'got an error from search callback')
+    t.equal(err.name, 'TimeoutError', 'error name is "TimeoutError"')
+    agent.endTransaction()
+    agent.flush()
+  })
+})
 
 // Utility functions.
 
@@ -347,7 +366,6 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.strictEqual(esSpan.action, 'request')
 
     const httpSpan = findObjInArray(data.spans, 'subtype', 'http')
-
     t.ok(httpSpan, 'have an http span')
     t.strictEqual(httpSpan.type, 'external')
     t.strictEqual(httpSpan.subtype, 'http')
