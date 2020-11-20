@@ -7,11 +7,17 @@ endif::[]
 [[release-notes-x.x.x]]
 ==== x.x.x - YYYY/MM/DD
 
+* fix: Synchronous spans would never have `span.sync == true`. {pull}1879[#1879]
+
 [float]
 ===== Breaking changes
 
 [float]
 ===== Features
+* feat: transactionIgnoreUrl wildcard matching {pull}1870[#1870]
+  Allows users to ignore URLs using simple wildcard matching patterns that behave
+  the same across language agents. See https://github.com/elastic/apm/issues/144
+
 * Cool new feature: {pull}2526[#2526]
 
 [float]

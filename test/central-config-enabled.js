@@ -7,20 +7,10 @@ const { URL } = require('url')
 const http = require('http')
 
 const test = require('tape')
+const Agent = require('./_agent')
 
-test('remote config enabled', function (t) {
-  const updates = {
-    transaction_sample_rate: '0.42',
-    transaction_max_spans: '99',
-    capture_body: 'all'
-  }
-  const expect = {
-    transactionSampleRate: 0.42,
-    transactionMaxSpans: 99,
-    captureBody: 'all'
-  }
+const runTestsWithServer = (t, updates, expect) => {
   t.plan(Object.keys(expect).length + 1)
-
   let agent, timer
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'relative:///')
@@ -36,7 +26,7 @@ test('remote config enabled', function (t) {
   })
 
   server.listen(function () {
-    agent = require('..').start({
+    agent = new Agent().start({
       serverUrl: 'http://localhost:' + server.address().port,
       serviceName: 'test',
       captureExceptions: false,
@@ -53,7 +43,7 @@ test('remote config enabled', function (t) {
           set (value) {
             const expectValue = expect[key]
             if (expectValue !== undefined) {
-              t.strictEqual(value, expectValue)
+              t.deepEqual(value, expectValue)
               delete expect[key]
               if (Object.keys(expect).length === 0) {
                 t.end()
@@ -75,4 +65,55 @@ test('remote config enabled', function (t) {
   t.on('end', function () {
     if (existingValue) process.env.ELASTIC_APM_CENTRAL_CONFIG = existingValue
   })
+}
+
+test('remote config enabled', function (t) {
+  const updates = {
+    transaction_sample_rate: '0.42',
+    transaction_max_spans: '99',
+    capture_body: 'all',
+    transaction_ignore_urls: ['foo']
+  }
+  const expect = {
+    transactionSampleRate: 0.42,
+    transactionMaxSpans: 99,
+    captureBody: 'all',
+    transactionIgnoreUrls: ['foo']
+  }
+
+  runTestsWithServer(t, updates, expect)
+})
+
+test('remote config enabled: receives comma delimited', function (t) {
+  const updates = {
+    transaction_sample_rate: '0.42',
+    transaction_max_spans: '99',
+    capture_body: 'all',
+    transaction_ignore_urls: 'foo,bar'
+  }
+  const expect = {
+    transactionSampleRate: 0.42,
+    transactionMaxSpans: 99,
+    captureBody: 'all',
+    transactionIgnoreUrls: ['foo', 'bar']
+  }
+
+  runTestsWithServer(t, updates, expect)
+})
+
+test('remote config enabled: receives non delimited string', function (t) {
+  const updates = {
+    transaction_sample_rate: '0.42',
+    transaction_max_spans: '99',
+    capture_body: 'all',
+    transaction_ignore_urls: 'foo:bar'
+  }
+  const expect = {
+    transactionSampleRate: 0.42,
+    transactionMaxSpans: 99,
+    captureBody: 'all',
+    transactionIgnoreUrls: ['foo:bar']
+  }
+
+  runTestsWithServer(t, updates, expect)
 })
