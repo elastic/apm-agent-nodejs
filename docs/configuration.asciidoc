@@ -194,12 +194,10 @@ Note that not all core Node.js API's can be instrumented without the use of Asyn
 
 Array or comma-separated string used to restrict requests for certain URLs from being instrumented.
 
-This property should be set to an array containing one or more string patterns.
-
-When an incoming HTTP request is detected, its URL pathname will be tested against each element
+When an incoming HTTP request is detected, its URL pathname will be tested against each string
 in this list.  The `transactionIgnoreUrls` property supports exact string matches,
 simple wildcard (`*`) matches, and may not include commas.  Wildcard matches are
-case insensative by default. You may make wildcard searches case sensative by
+case-insensitive by default. You may make wildcard searches case-sensitive by
 using the `(?-i)` prefix.
 
 Note that all errors that are captured during a request to an ignored URL are still sent
