@@ -8,6 +8,10 @@ endif::[]
 ==== x.x.x - YYYY/MM/DD
 
 * fix: Synchronous spans would never have `span.sync == true`. {pull}1879[#1879]
+* feat: support fastify 3
+  Adds .default and .fastify module.exports to instrumented fastify function
+  for 3.x line, and prefers req.routerMethod and req.routerPath for
+  transaction name
 
 [float]
 ===== Breaking changes
