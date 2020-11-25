@@ -9,9 +9,14 @@ const agent = require('../../..').start({
 })
 
 const MongoClient = require('mongodb').MongoClient
+const mongodbVersion = require('mongodb/package.json').version
+const semver = require('semver')
 const test = require('tape')
 
 const mockClient = require('../../_mock_http_client_states')
+
+const host = process.env.MONGODB_HOST || 'localhost'
+const url = `mongodb://${host}:27017`
 
 test('instrument simple command', function (t) {
   resetAgent([
@@ -23,9 +28,6 @@ test('instrument simple command', function (t) {
   ], function () {
     t.end()
   })
-
-  const host = process.env.MONGODB_HOST || 'localhost'
-  const url = `mongodb://${host}:27017`
 
   const server = new MongoClient(url, {
     useUnifiedTopology: true,
@@ -105,6 +107,22 @@ function makeSpanTest (t, name) {
       t.strictEqual(span.type, 'db', 'span type is "db"')
       t.strictEqual(span.subtype, 'mongodb', 'span subtype is "mongodb"')
       t.strictEqual(span.action, 'query', 'span action is "query"')
+
+      var expectedAddress = host;
+      if (host === 'localhost' && semver.satisfies(mongodbVersion, '>=3.5.0')) {
+        // mongodb >3.5.0 normalizes "localhost" to "127.0.0.1" in the
+        // "started" event.
+        expectedAddress = '127.0.0.1'
+      }
+      t.deepEqual(span.context.destination, {
+        service: {
+          name: 'mongodb',
+          resource: 'mongodb',
+          type: 'db'
+        },
+        address: expectedAddress,
+        port: 27017
+      }, 'span.context.destination')
     }
   }
 }

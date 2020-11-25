@@ -14,6 +14,12 @@ endif::[]
 
 [float]
 ===== Features
+
+* feat: Set "destination" context on spans for "mongodb". {pull}1893[#1893] +
+  This allows Kibana APM Service Maps to show a "mongodb" node for services using
+  the https://www.npmjs.com/package/mongodb[mongodb] package (which includes
+  mongoose and mongojs).
+
 * feat: transactionIgnoreUrl wildcard matching {pull}1870[#1870]
   Allows users to ignore URLs using simple wildcard matching patterns that behave
   the same across language agents. See https://github.com/elastic/apm/issues/144
