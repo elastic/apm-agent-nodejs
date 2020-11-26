@@ -108,7 +108,7 @@ function makeSpanTest (t, name) {
       t.strictEqual(span.subtype, 'mongodb', 'span subtype is "mongodb"')
       t.strictEqual(span.action, 'query', 'span action is "query"')
 
-      var expectedAddress = host;
+      var expectedAddress = host
       if (host === 'localhost' && semver.satisfies(mongodbVersion, '>=3.5.0')) {
         // mongodb >3.5.0 normalizes "localhost" to "127.0.0.1" in the
         // "started" event.
