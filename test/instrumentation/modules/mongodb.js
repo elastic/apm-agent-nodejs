@@ -9,8 +9,6 @@ const agent = require('../../..').start({
 })
 
 const MongoClient = require('mongodb').MongoClient
-const mongodbVersion = require('mongodb/package.json').version
-const semver = require('semver')
 const test = require('tape')
 
 const mockClient = require('../../_mock_http_client_states')
