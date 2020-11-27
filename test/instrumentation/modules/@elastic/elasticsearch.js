@@ -241,11 +241,47 @@ test('client.msearchTempate', function userLandCode (t) {
   })
 })
 
-// Test some error scenarios:
-// - DeserializationError includes err.data which might be interesting to
-//   ensure is sanitized.
-// - TimeoutError is a convenient way to test retries.
+// Test some error scenarios.
 
+// 'ResponseError' is the client's way of passing back an Elasticsearch API
+// error. Some interesting parts of that error response body should be
+// included in `err.context.custom`.
+test('ResponseError', function (t) {
+  resetAgent(
+    function done (data) {
+      const err = data.errors[0]
+      t.ok(err, 'sent an error to APM server')
+      t.ok(err.id, 'err.id')
+      t.ok(err.exception.message, 'err.exception.message')
+      t.equal(err.exception.type, 'ResponseError',
+        'err.exception.type is ResponseError')
+      t.deepEqual(err.context.custom, {
+        type: 'illegal_argument_exception',
+        reason: 'Failed to parse int parameter [size] with value [surprise_me]',
+        caused_by: {
+          type: 'number_format_exception',
+          reason: 'For input string: "surprise_me"'
+        },
+        status: 400
+      })
+      t.end()
+    }
+  )
+
+  agent.startTransaction('myTrans')
+
+  const client = new Client({ node })
+
+  client.search({ size: 'surprise_me', q: 'pants' }, function (err, _result) {
+    t.ok(err, 'got an error from search callback')
+    t.equal(err.name, 'ResponseError', 'error name is "ResponseError"')
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+// Ensure that `captureError` serialization does *not* include the possibly
+// large `data` field from a deserialization error.
 test('DeserializationError', function (t) {
   resetAgent(
     function done (data) {
@@ -255,6 +291,8 @@ test('DeserializationError', function (t) {
       t.ok(err.exception.message, 'err.exception.message')
       t.equal(err.exception.type, 'DeserializationError',
         'err.exception.type is DeserializationError')
+      t.notOk(err.exception.attributes.data,
+        'captured error should NOT include "data" attribute')
       t.end()
     }
   )
@@ -279,6 +317,7 @@ test('DeserializationError', function (t) {
   })
 })
 
+// TimeoutError is a convenient way to test retries.
 test('TimeoutError without retries', function (t) {
   resetAgent(
     function done (data) {
@@ -476,8 +515,6 @@ function checkDataAndEnd (t, method, path, dbStatement) {
       'http span should start after elasticsearch span')
     t.ok(httpSpan.timestamp + httpSpan.duration * 1000 < esSpan.timestamp + esSpan.duration * 1000,
       'http span should end before elasticsearch span')
-
-    // TODO test that httpSpan is child of esSpan? currently it isn't
 
     t.end()
   }
