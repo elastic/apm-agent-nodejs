@@ -1,6 +1,5 @@
 'use strict'
 
-
 const { pathIsAQuery } = require('../../../lib/instrumentation/elasticsearch-shared')
 
 process.env.ELASTIC_APM_TEST = true
