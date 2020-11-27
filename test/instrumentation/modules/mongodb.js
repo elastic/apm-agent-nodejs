@@ -13,6 +13,9 @@ const test = require('tape')
 
 const mockClient = require('../../_mock_http_client_states')
 
+const host = process.env.MONGODB_HOST || 'localhost'
+const url = `mongodb://${host}:27017`
+
 test('instrument simple command', function (t) {
   resetAgent([
     makeSpanTest(t, 'elasticapm.test.insert'),
@@ -23,9 +26,6 @@ test('instrument simple command', function (t) {
   ], function () {
     t.end()
   })
-
-  const host = process.env.MONGODB_HOST || 'localhost'
-  const url = `mongodb://${host}:27017`
 
   const server = new MongoClient(url, {
     useUnifiedTopology: true,
@@ -105,6 +105,21 @@ function makeSpanTest (t, name) {
       t.strictEqual(span.type, 'db', 'span type is "db"')
       t.strictEqual(span.subtype, 'mongodb', 'span subtype is "mongodb"')
       t.strictEqual(span.action, 'query', 'span action is "query"')
+
+      // We can't easily assert destination.address because mongodb >3.5.0
+      // returns a resolved IP for the given connection hostname. In our CI
+      // setup, the host is set to "mongodb" which is a Docker container with
+      // some IP. We could `dns.resolve4()` here, but that's overkill I think.
+      t.ok(span.context.destination.address, 'context.destination.address is defined')
+      t.deepEqual(span.context.destination, {
+        service: {
+          name: 'mongodb',
+          resource: 'mongodb',
+          type: 'db'
+        },
+        address: span.context.destination.address,
+        port: 27017
+      }, 'span.context.destination')
     }
   }
 }
