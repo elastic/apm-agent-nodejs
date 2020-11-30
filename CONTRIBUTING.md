@@ -170,7 +170,7 @@ If you have access to make releases, the process is as follows:
         [[release-notes-x.x.x]]
         ==== x.x.x - YYYY/MM/DD
         ```
-    - Add missing changelog entries, if any. (Typically commits will include changelog entries in the "Unreleased" section.
+    - Add missing changelog entries, if any. (Typically commits will include changelog entries in the "Unreleased" section.)
 1. If a major or minor release, update the EOL table in `docs/upgrading.asciidoc`. EOL is 18 months after release date.
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
 1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
@@ -190,7 +190,7 @@ If you have access to make releases, the process is as follows:
         [[release-notes-x.x.x]]
         ==== x.x.x - YYYY/MM/DD
         ```
-    - Add missing changelog entries, if any. (Typically commits will include changelog entries in the "Unreleased" section.
+    - Add missing changelog entries, if any. (Typically commits will include changelog entries in the "Unreleased" section.)
 1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
 1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
 1. Run tests with `npm test`
