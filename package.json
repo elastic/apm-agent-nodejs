@@ -10,7 +10,6 @@
     "docs:build": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "lint:commit": "test/lint-commits.sh",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
     "coverage:prereport": "npm run coverage",
     "coverage:report": "nyc report --reporter=lcov",
@@ -118,9 +117,6 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
-    "@commitlint/cli": "^8.3.5",
-    "@commitlint/config-conventional": "^8.3.4",
-    "@commitlint/travis-cli": "^8.3.5",
     "@hapi/hapi": "^18.4.1",
     "@koa/router": "^9.0.1",
     "@types/node": "^13.7.4",
@@ -132,7 +128,6 @@
     "bluebird": "^3.7.2",
     "cassandra-driver": "^4.4.0",
     "columnify": "^1.5.4",
-    "commitlint-config-squash-pr": "^1.0.1",
     "connect": "^3.7.0",
     "container-info": "^1.0.1",
     "dependency-check": "^4.1.0",
@@ -194,12 +189,6 @@
   "standard": {
     "ignore": [
       "/test/sourcemaps/fixtures/lib"
-    ]
-  },
-  "commitlint": {
-    "extends": [
-      "squash-pr",
-      "@commitlint/config-conventional"
     ]
   }
 }
