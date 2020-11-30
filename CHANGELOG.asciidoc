@@ -4,10 +4,33 @@ https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes.html[elas
 endif::[]
 
 ////
-[[release-notes-x.x.x]]
-==== x.x.x - YYYY/MM/DD
+Notes:
+1. When adding a changelog entry, if the "Unreleased" section doesn't yet exist,
+   please add the following under the "=== Node.js Agent version 3.x" header:
 
-* fix: Synchronous spans would never have `span.sync == true`. {pull}1879[#1879]
+        ==== Unreleased
+
+        [float]
+        ===== Breaking changes
+
+        [float]
+        ===== Features
+
+        [float]
+        ===== Bug fixes
+
+2. When making a release, change the "==== Unreleased" section header to:
+
+        [[release-notes-x.x.x]]
+        ==== x.x.x - YYYY/MM/DD
+////
+
+
+[[release-notes-3.x]]
+=== Node.js Agent version 3.x
+
+
+==== Unreleased
 
 [float]
 ===== Breaking changes
@@ -26,23 +49,34 @@ endif::[]
     query params and the request body if both exist (separated by `\n\n`) and
     (b) to *URL encode* the query params, rather than JSON encoding.
 
+[float]
+===== Bug fixes
+
+
+[[release-notes-3.9.0]]
+==== 3.9.0 - 2020/11/30
+
+[float]
+===== Features
+
+* feat: support fastify 3 {pull}1891[#1891] +
+  Adds .default and .fastify module.exports to instrumented fastify function
+  for 3.x line, and prefers req.routerMethod and req.routerPath for
+  transaction name
 * feat: Set "destination" context on spans for "mongodb". {pull}1893[#1893] +
   This allows Kibana APM Service Maps to show a "mongodb" node for services using
   the https://www.npmjs.com/package/mongodb[mongodb] package (which includes
   mongoose and mongojs).
-
 * feat: transactionIgnoreUrl wildcard matching {pull}1870[#1870] +
   Allows users to ignore URLs using simple wildcard matching patterns that behave
   the same across language agents. See https://github.com/elastic/apm/issues/144
 
-* Cool new feature: {pull}2526[#2526]
-
 [float]
 ===== Bug fixes
-////
 
-[[release-notes-3.x]]
-=== Node.js Agent version 3.x
+* fix: treat set-cookie in response headers as sensitive data {pull}1886[#1886]
+* fix: Synchronous spans would never have `span.sync == true`. {pull}1879[#1879]
+
 
 [[release-notes-3.8.0]]
 ==== 3.8.0 - 2020/11/09
