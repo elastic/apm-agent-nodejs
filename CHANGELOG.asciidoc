@@ -30,10 +30,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.9.0]]
+==== 3.9.0 - 2020/11/30
 
 [float]
 ===== Features
@@ -53,6 +51,7 @@ Notes:
 [float]
 ===== Bug fixes
 
+* fix: treat set-cookie in response headers as sensitive data {pull}1886[#1886]
 * fix: Synchronous spans would never have `span.sync == true`. {pull}1879[#1879]
 
 
