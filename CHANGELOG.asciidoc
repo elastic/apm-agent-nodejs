@@ -19,23 +19,31 @@ endif::[]
 [float]
 ===== Features
 
-* feat: Set "destination" context on spans for "mongodb". {pull}1893[#1893] +
-  This allows Kibana APM Service Maps to show a "mongodb" node for services using
-  the https://www.npmjs.com/package/mongodb[mongodb] package (which includes
-  mongoose and mongojs).
-
-* feat: transactionIgnoreUrl wildcard matching {pull}1870[#1870] +
-  Allows users to ignore URLs using simple wildcard matching patterns that behave
-  the same across language agents. See https://github.com/elastic/apm/issues/144
-
-* Cool new feature: {pull}2526[#2526]
-
 [float]
 ===== Bug fixes
 ////
 
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
+
+==== Unreleased
+
+[float]
+===== Features
+
+* feat: Set "destination" context on spans for "mongodb". {pull}1893[#1893] +
+  This allows Kibana APM Service Maps to show a "mongodb" node for services using
+  the https://www.npmjs.com/package/mongodb[mongodb] package (which includes
+  mongoose and mongojs).
+* feat: transactionIgnoreUrl wildcard matching {pull}1870[#1870] +
+  Allows users to ignore URLs using simple wildcard matching patterns that behave
+  the same across language agents. See https://github.com/elastic/apm/issues/144
+
+[float]
+===== Bug fixes
+
+* fix: Synchronous spans would never have `span.sync == true`. {pull}1879[#1879]
+
 
 [[release-notes-3.8.0]]
 ==== 3.8.0 - 2020/11/09
