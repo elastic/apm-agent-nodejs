@@ -1,10 +1,11 @@
 'use strict'
-const test = require('tape')
 const querystring = require('querystring')
+const test = require('tape')
+
 const {
   removeKeysFromObject,
   removeKeysFromPostedFormVariables
-} = require('../lib/filters/sanitize-field-names')
+} = require('../../lib/filters/sanitize-field-names')
 
 test('removeKeysFromObject unit tests', function (t) {
   t.ok(removeKeysFromObject, 'can import function')
