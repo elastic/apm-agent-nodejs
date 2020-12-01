@@ -19,14 +19,14 @@ function resetAgent (cb) {
   agent.captureError = function (err) { throw err }
 }
 
-test('express tests', function(t) {
+test('express tests', function (t) {
   const app = express()
-  app.use(bodyParser.urlencoded({extended:false}))
+  app.use(bodyParser.urlencoded({ extended: false }))
   // app.use(bodyParser.raw({type:'*/*'}))
   // app.use(bodyParser.text({type:'*/*'}))
 
   resetAgent((data) => {
-    t.ok('called reset agent', 'called reset agent', )
+    t.ok('called reset agent', 'called reset agent')
     const transaction = data.transactions.pop()
     t.ok(transaction, 'generated transaction')
     console.log(transaction.context.request.headers)
@@ -47,7 +47,8 @@ test('express tests', function(t) {
 
   const server = app.listen(0, '0.0.0.0', () => {
     const url = `http://${server.address().address}:${server.address().port}/test`
-    request.post(url, {form:{thisisa:'test',password:'science'}}, function(error, response, body){
+    request.post(url, { form: { thisisa: 'test', password: 'science' } }, function (error, response, body) {
+      if (error) { }
       t.ok(body, 'received response')
       // TODO assert request headers here
       t.end()
@@ -58,4 +59,4 @@ test('express tests', function(t) {
     server.close()
   }
   t.on('end', done)
-});
+})
