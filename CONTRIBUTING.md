@@ -23,7 +23,7 @@ or that there are particular issues that you should know about before implementi
 Generally, we require that you test any code you are adding or modifying.
 Once your changes are ready to submit for review:
 
-1. Sign the Contributor License Agreement
+1. Sign the Contributor License Agreement (CLA)
 
     Please make sure you have signed our [Contributor License Agreement](https://www.elastic.co/contributor-agreement/).
     We are not asking you to assign copyright to us,
@@ -33,21 +33,27 @@ Once your changes are ready to submit for review:
 
 2. Test your changes
 
-    Run the test suite to make sure that nothing is broken. If you're adding
-    new code or changing existing code, write some automated tests that
-    exercise this code.
-    See [testing](#testing) for details.
+        npm test     # requires a local Docker
+
+    If you are adding new code or changing existing code, write some automated
+    tests that exercise this code.
+    See [the TESTING.md doc](./TESTING.md) for details.
+
+3. Document your changes
+
+    * See the [Commit message guidelines](#commit-message-guidelines) below.
+    * If your changes will be visible to users of this package, then add an item
+      to the "Unreleased" section of [the changelog](./CHANGELOG.asciidoc).
+    * If you are changing usage of this package, are there updates under
+      "docs/" that should be made?
 
 3. Rebase your changes
 
     Update your local repository with the most recent code from the main repo,
     and rebase your branch on top of the latest master branch.
     We prefer your initial changes to be squashed into a single commit.
-    Later,
-    if we ask you to make changes,
-    add them as separate commits.
+    Later, if we ask you to make changes, add them as separate commits.
     This makes them easier to review.
-    As a final step before merging we will either ask you to squash all commits yourself or we'll do it for you.
 
 4. Submit a pull request
 
@@ -56,7 +62,7 @@ Once your changes are ready to submit for review:
     choose a title which sums up the changes that you have made,
     and in the body provide more details about what your changes do.
     Also mention the number of the issue where discussion has taken place,
-    eg "Closes #123".
+    e.g. "Closes #123".
 
 5. Be patient
 
@@ -66,53 +72,56 @@ Once your changes are ready to submit for review:
 
 ### Commit message guidelines
 
-This repo uses the [Conventional
-Commits](https://www.conventionalcommits.org/) standard for comment
-messages (see linked spec for a complete list of commit message
-formatting rules).
-
-A good commit message should describe what changed and why.
-
-1. The first line should:
-   * contain a short description of the change (preferably 50 characters
-     or less, and no more than 72 characters)
-   * be entirely in lowercase with the exception of proper nouns,
-     acronyms, and the words that refer to code, like function/variable
-     names
-   * be prefixed with the type of change, optionally the name of the
-     changed subsystem, and start with an imperative verb. Check the
-     output of `git log --oneline files/you/changed` to find out what
-     subsystems your changes touch.
-
-   Examples:
-   * `fix(ioredis): prevent unhandled promise rejection`
-   * `docs: fix typos in README.md`
-
-2. Keep the second line blank.
-
-3. Wrap all other lines at 72 columns (except for long URLs).
-
-4. If your patch fixes an open issue, you can add a reference to it at the end
-   of the log. Use the `Fixes:` or `Closes:` prefix and the issue number.
-
-   Examples:
-   * `Fixes: #42`
-
-5. If your commit introduces a breaking change (`semver-major`), it should
-  contain an explanation about the reason of the breaking change, which
-  situation would trigger the breaking change and what is the exact
-  change. The explanation should be prefixed with `BREAKING CHANGE:`.
-
-To validate the commit message locally, run:
+This repo *loosely* encourages commit messages per [Conventional
+Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary).
 
 ```
-npm run lint:commit
+[optional type, e.g. "fix:", "feat:"] <description>
+
+[Optional body paragraphs.]
+
+[Optional "BREAKING CHANGE: ..." paragraphs.]
+
+[Optional footers, e.g. "Fixes: #123" or "Co-authored-by: ...".]
 ```
+
+1. The first line should contain **a short description* of the change.**
+   Ideally a description is less than 50 characters, and certainly less than 72.
+
+2. The first line may optionally be prefixed with a *type*:
+    * "fix:" when fixing a bug
+    * "feat:" when adding a new feature
+    * "docs:" when only updating documentation
+    * "refactor:" when refactoring code without changing functional behavior
+    * "test:" when only updating tests
+    * "perf:" when improving performance without changing functional behavior
+    * "chore:" when making some other task that does not change functional behavior
+
+2. The second line MUST be blank.
+
+3. Optionally provide **body paragraphs that explain the what and why of the
+   change,** and not the how.
+
+3. Wrap all lines at 72 columns, within reason (URLs, quoted output).
+
+4. If your commit introduces a breaking change, it should (*strongly
+   encouraged*) contain a "BREAKING CHANGE: ..." paragraph, explaining the
+   reason for the change, which situations would trigger the breaking change,
+   and what is the exact change.
+
+5. If fixing an open issue, add a footer block of the form `Fixes: #123` or
+   `Closes: #123`.
+
+Of these guidelines, #1 and #3 are the most important. A succinct description
+and a body that answers "what" and "why" will best help future maintainers of
+the software.
+
 
 ### Testing
 
 For information about how to run the test suite,
 see [TESTING.md](TESTING.md).
+
 
 ### Backporting
 

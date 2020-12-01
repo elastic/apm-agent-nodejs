@@ -40,8 +40,7 @@ setup_env () {
 run_test_suite () {
   standard
   npm run test:deps
-  npm run lint:commit
-  
+
   if [ -n "${JUNIT}" ]
   then
     npm install -g tap-junit

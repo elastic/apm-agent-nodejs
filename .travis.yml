@@ -73,12 +73,6 @@ jobs:
       node_js: '8'
       env: ELASTIC_APM_ASYNC_HOOKS=false
 
-    # Commit Messages
-    -
-      node_js: 'lts/*'
-      name: "Lint Commit Messages"
-      script: commitlint-travis
-
     # Coverage
     -
       node_js: 'lts/*'

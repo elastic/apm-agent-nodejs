@@ -9,7 +9,6 @@ all:
 .PHONY: check
 check:
 	npm run lint
-	npm run lint:commit
 
 .PHONY: fmt
 fmt:
