@@ -10,14 +10,23 @@ function makeTransactionWithHeaders (headers) {
     context: {
       request: {
         headers
+      },
+      response: {
+        headers
       }
     }
   }
 }
 
-function getHeaders (result) {
+function getRequestHeaders (result) {
   try {
     return result.context.request.headers
+  } catch (err) {}
+}
+
+function getResponseHeaders (result) {
+  try {
+    return result.context.response.headers
   } catch (err) {}
 }
 
@@ -35,7 +44,14 @@ test('set-cookie', function (t) {
     })
   )
 
-  t.deepEqual(getHeaders(result), {
+  t.deepEqual(getRequestHeaders(result), {
+    'set-cookie': [
+      'password=%5BREDACTED%5D',
+      'card=%5BREDACTED%5D; Secure'
+    ]
+  })
+
+  t.deepEqual(getResponseHeaders(result), {
     'set-cookie': [
       'password=%5BREDACTED%5D',
       'card=%5BREDACTED%5D; Secure'

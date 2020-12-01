@@ -251,36 +251,59 @@ jade:
 pug:
   versions: '0.1.0 || >2.0.0'
   commands: node test/instrumentation/modules/pug.js
-hapi-no-async-await:
+
+# hapi and @hapi/hapi
+# - Package name: Starting with v17.9.0 and v18.2.0 the name changed from
+#   'hapi' to '@hapi/hapi'.
+# - Node version compat:
+#   - hapi@15: supports node >=v4; breaks on node v14 (usage of `os.tmpDir()`)
+#   - hapi@16: supports node >=v4
+#   - hapi@17, @hapi/hapi@17: supports node >=v8.12.0 (per its README);
+#     the instrumentation changed significantly for this version
+#   - hapi@18, @hapi/hapi@18: supports node >=v8.12.0 (per its README)
+#   - @hapi/hapi@19: supports node >=v12 (judging from commit 50d8d7d)
+#   - @hapi/hapi@20: appears (from travis template refs) to support node >=v12
+hapi-v9-v15:
   name: hapi
-  versions: '>=9.0.1 <17.0.0'
+  versions: '>=9.0.1 <16.0.0'
+  node: '>=4 <14'
   commands:
     - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
-hapi-async-await:
+hapi-v16:
   name: hapi
-  node: '>=8.2'
+  versions: '>=16.0.0 <17.0.0'
+  node: '>=4'
+  commands:
+    - node test/instrumentation/modules/hapi/basic-legacy-path.js
+    - node test/instrumentation/modules/hapi/set-framework.js
+hapi:
+  name: hapi
   versions: '>=17.0.0'
+  node: '>=8.12.0'
   commands:
     - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
-'@hapi/hapi-old':
+'@hapi/hapi-v17-v18':
   name: '@hapi/hapi'
-  node: '>=8.2'
   versions: '>=17.0.0 <19.0.0'
+  node: '>=8.12.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.js
     - node test/instrumentation/modules/hapi/set-framework-2.js
-'@hapi/hapi-new':
+'@hapi/hapi':
   name: '@hapi/hapi'
-  node: '>=12'
   versions: '>=19.0.0'
+  node: '>=12'
   commands:
     - node test/instrumentation/modules/hapi/basic.js
     - node test/instrumentation/modules/hapi/set-framework-2.js
+
 tedious:
   name: tedious
-  versions: '>=1.9 <2.7 || 3.x || >4.0.0'
+  # - tedious@4.0.0 was broken, fixed in 4.0.1 by
+  #   https://github.com/tediousjs/tedious/commit/4eceb48
+  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x'
   commands: node test/instrumentation/modules/tedious.js
 
 cassandra-driver:

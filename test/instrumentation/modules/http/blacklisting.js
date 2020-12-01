@@ -8,6 +8,8 @@ var test = require('tape')
 
 var mockClient = require('../../../_mock_http_client')
 
+const { WildcardMatcher } = require('../../../../lib/wildcard-matcher')
+
 test('ignore url string - no match', function (t) {
   resetAgent({
     ignoreUrlStr: ['/exact']
@@ -46,6 +48,29 @@ test('ignore url regex - match', function (t) {
     t.fail('should not have any data')
   })
   request('/foo/regex/bar', null, function () {
+    t.end()
+  })
+})
+
+test('ignore url wildcard - no match', function (t) {
+  const wc = new WildcardMatcher()
+  resetAgent({
+    transactionIgnoreUrlRegExp: [wc.compile('/wil*card')]
+  }, function (data) {
+    assertNoMatch(t, data)
+    t.end()
+  })
+  request('/tamecard')
+})
+
+test('ignore url wildcard - match', function (t) {
+  const wc = new WildcardMatcher()
+  resetAgent({
+    transactionIgnoreUrlRegExp: [wc.compile('/wil*card')]
+  }, function () {
+    t.fail('should not have any data')
+  })
+  request('/wildcard', null, function () {
     t.end()
   })
 })
@@ -124,5 +149,6 @@ function resetAgent (opts, cb) {
   agent._conf.ignoreUrlRegExp = opts.ignoreUrlRegExp || []
   agent._conf.ignoreUserAgentStr = opts.ignoreUserAgentStr || []
   agent._conf.ignoreUserAgentRegExp = opts.ignoreUserAgentRegExp || []
+  agent._conf.transactionIgnoreUrlRegExp = opts.transactionIgnoreUrlRegExp || []
   agent._instrumentation.currentTransaction = null
 }

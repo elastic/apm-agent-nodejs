@@ -1,0 +1,146 @@
+[
+  {
+    "input": "",
+    "output": ""
+  },
+  {
+    "input": " ",
+    "output": ""
+  },
+  {
+    "input": "SELECT * FROM foo.bar",
+    "output": "SELECT FROM foo.bar"
+  },
+  {
+    "input": "SELECT * FROM foo.bar.baz",
+    "output": "SELECT FROM foo.bar.baz"
+  },
+  {
+    "input": "SELECT * FROM `foo.bar`",
+    "output": "SELECT FROM foo.bar"
+  },
+  {
+    "input": "SELECT * FROM \"foo.bar\"",
+    "output": "SELECT FROM foo.bar"
+  },
+  {
+    "input": "SELECT * FROM [foo.bar]",
+    "output": "SELECT FROM foo.bar"
+  },
+  {
+    "input": "SELECT (x, y) FROM foo,bar,baz",
+    "output": "SELECT FROM foo"
+  },
+  {
+    "input": "SELECT * FROM foo JOIN bar",
+    "output": "SELECT FROM foo"
+  },
+  {
+    "input": "SELECT * FROM dollar$bill",
+    "output": "SELECT FROM dollar$bill"
+  },
+  {
+    "input": "SELECT id FROM \"myta\n-æøåble\" WHERE id = 2323",
+    "output": "SELECT FROM myta\n-æøåble"
+  },
+  {
+    "input": "SELECT * FROM foo-- abc\n./*def*/bar",
+    "output": "SELECT FROM foo.bar"
+  },
+  {
+    "comment": "We capture the first table of the outermost select statement",
+    "input": "SELECT *,(SELECT COUNT(*) FROM table2 WHERE table2.field1 = table1.id) AS count FROM table1 WHERE table1.field1 = 'value'",
+    "output": "SELECT FROM table1"
+  },
+  {
+    "comment": "If the outermost select operates on derived tables, then we just return 'SELECT' (i.e. the fallback)",
+    "input": "SELECT * FROM (SELECT foo FROM bar) AS foo_bar",
+    "output": "SELECT"
+  },
+  {
+    "input": "DELETE FROM foo.bar WHERE baz=1",
+    "output": "DELETE FROM foo.bar"
+  },
+  {
+    "input": "UPDATE IGNORE foo.bar SET bar=1 WHERE baz=2",
+    "output": "UPDATE foo.bar"
+  },
+  {
+    "input": "UPDATE ONLY foo AS bar SET baz=1",
+    "output": "UPDATE foo"
+  },
+  {
+    "input": "INSERT INTO foo.bar (col) VALUES(?)",
+    "output": "INSERT INTO foo.bar"
+  },
+  {
+    "input": "INSERT LOW_PRIORITY IGNORE INTO foo.bar (col) VALUES(?)",
+    "output": "INSERT INTO foo.bar"
+  },
+  {
+    "input": "CALL foo(bar, 123)",
+    "output": "CALL foo"
+  },
+  {
+    "comment": "For DDL we only capture the first token",
+    "input": "ALTER TABLE foo ADD ()",
+    "output": "ALTER"
+  },
+  {
+    "input": "CREATE TABLE foo ...",
+    "output": "CREATE"
+  },
+  {
+    "input": "DROP TABLE foo",
+    "output": "DROP"
+  },
+  {
+    "input": "SAVEPOINT x_asd1234",
+    "output": "SAVEPOINT"
+  },
+  {
+    "input": "BEGIN",
+    "output": "BEGIN"
+  },
+  {
+    "input": "COMMIT",
+    "output": "COMMIT"
+  },
+  {
+    "input": "ROLLBACK",
+    "output": "ROLLBACK"
+  },
+  {
+    "comment": "For broken statements we only capture the first token",
+    "input": "SELECT * FROM (SELECT EOF",
+    "output": "SELECT"
+  },
+  {
+    "input": "SELECT 'neverending literal FROM (SELECT * FROM ...",
+    "output": "SELECT"
+  },
+  {
+    "input": "INSERT COIN TO PLAY",
+    "output": "INSERT"
+  },
+  {
+    "input": "INSERT $2 INTO",
+    "output": "INSERT"
+  },
+  {
+    "input": "UPDATE 99",
+    "output": "UPDATE"
+  },
+  {
+    "input": "DELETE 99",
+    "output": "DELETE"
+  },
+  {
+    "input": "DELETE FROM",
+    "output": "DELETE"
+  },
+  {
+    "input": "CALL",
+    "output": "CALL"
+  }
+]
