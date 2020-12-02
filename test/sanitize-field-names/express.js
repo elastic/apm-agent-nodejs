@@ -124,15 +124,9 @@ function createAgentConfig(values={}) {
   )
   return agentConfig
 }
+
 const fixtures = require('./fixtures')
 
-// const agentConfig = createAgentConfig({
-//   sanitizeFieldNames:['thi*isa']
-// })
-// const middleware = bodyParser.urlencoded({ extended: false })
-// app.use(bodyParser.urlencoded({ extended: false }))
-// app.use(bodyParser.raw({type:'*/*'}))
-// app.use(bodyParser.text({type:'*/*'}))
 
 function createMiddleware(type) {
   if ('urlencoded' === type) {
