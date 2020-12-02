@@ -30,6 +30,15 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Features
+
+* feat: Add support for api keys {pull}1818[#1818] +
+  This allows the usage of API keys for authentication to the APM server
+
+
 [[release-notes-3.9.0]]
 ==== 3.9.0 - 2020/11/30
 
