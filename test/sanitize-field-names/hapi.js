@@ -50,9 +50,6 @@ async function runTest (
     assertRequestHeadersWithFixture(transaction, expected, t)
     assertResponseHeadersWithFixture(transaction, expected, t)
     // TO DO: uncomment once we fix https://...
-    // also -- we'll need to decide what to do about some of the test fixtures
-    //         that don't apply -- hapi appears to always parse into on object
-    //         (i.e. urlencoded in express speak)
     // assertFormsWithFixture(transaction, expected, t)
   })
 
