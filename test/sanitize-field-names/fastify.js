@@ -26,7 +26,8 @@ function runTest (
     const transaction = data.transactions.pop()
     assertRequestHeadersWithFixture(transaction, expected, t)
     assertResponseHeadersWithFixture(transaction, expected, t)
-    // TO DO: uncomment once we fix https://...
+    // TODO: uncomment once we fix
+    // https://github.com/elastic/apm-agent-nodejs/issues/1906
     // assertFormsWithFixture(transaction, expected, t)
   })
 
