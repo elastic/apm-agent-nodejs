@@ -7,7 +7,7 @@ const {
 const agent = require('../..').start(createAgentConfig())
 const test = require('tape')
 const request = require('request')
-const Hapi = require('@hapi/hapi');
+const Hapi = require('@hapi/hapi')
 const fixtures = require('./fixtures')
 
 test('Running fixtures with hapi', function (t1) {
@@ -41,7 +41,7 @@ async function runTest (
   const server = Hapi.server({
     port: 0,
     host: '0.0.0.0'
-  });
+  })
 
   // resets agent values for tests.  Callback fires
   // after mockClient receives data
@@ -61,14 +61,14 @@ async function runTest (
     method: 'POST',
     path: '/test',
     handler: (request, h) => {
-        t.ok('received request', 'received request')
-        const response = h.response('Hello World!')
-        for(const [header, value] of Object.entries(responseHeaders)) {
-          response.header(header, value)
-        }
-        return response
+      t.ok('received request', 'received request')
+      const response = h.response('Hello World!')
+      for (const [header, value] of Object.entries(responseHeaders)) {
+        response.header(header, value)
+      }
+      return response
     }
-  });
+  })
 
   await server.start()
   const url = `http://${server.info.host}:${server.info.port}/test`
