@@ -1,3 +1,4 @@
+'use strict'
 const querystring = require('querystring')
 const mockClient = require('../_mock_http_client')
 

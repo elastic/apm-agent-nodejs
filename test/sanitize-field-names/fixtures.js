@@ -1,32 +1,37 @@
-// description of the test fixture's structure
-// const fixture = {
-//   name: '', // the name of the test,
-//   agentConfig: '', // additional default configuration values for agent
-//   middleware: '', // what sort of body parsing to do for application/x-www-form-urlencoded
-//   // urlencoded -- test runner should parse values into an object
-//   // raw        -- test runner should provide raw Buffer object
-//   // text       -- test runner should provide string parsing
-//   // introduced to handle express middleware body parsers
-//   input: {
-//     requestHeaders: {}, // key/value pairs of HTTP request header values to set
-//     responseHeaders: {}, // key/value pairs of HTTP response header values to set
-//     formFields: {} // key/value pairs of form data to post
-//   },
-//   expected: {
-//     requestHeaders: {
-//       defined: [], // list of header keys we expected to be reported
-//       undefined: [] // list of header fields we expected to be sanitized
-//     },
-//     responseHeaders: {
-//       defined: [], // list of header keys we expected to be reported
-//       undefined: [] // list of header fields we expected to be sanitized
-//     },
-//     formFields: {
-//       defined: [], // list of form keys we expected to be reported
-//       undefined: [] // list of form fields we expected to be sanitized
-//     }
-//   }
-// }
+'use strict'
+/**
+ * Description of the test fixture's structure
+ *
+ * const fixture = {
+ *   name: '', // the name of the test,
+ *   agentConfig: '', // additional default configuration values for agent
+ *   middleware: '', // what sort of body parsing to do for application/x-www-form-urlencoded
+ *   // urlencoded -- test runner should parse values into an object
+ *   // raw        -- test runner should provide raw Buffer object
+ *   // text       -- test runner should provide string parsing
+ *   // introduced to handle express middleware body parsers
+ *   input: {
+ *     requestHeaders: {}, // key/value pairs of HTTP request header values to set
+ *     responseHeaders: {}, // key/value pairs of HTTP response header values to set
+ *     formFields: {} // key/value pairs of form data to post
+ *   },
+ *   expected: {
+ *     requestHeaders: {
+ *       defined: [], // list of header keys we expected to be reported
+ *       undefined: [] // list of header fields we expected to be sanitized
+ *     },
+ *     responseHeaders: {
+ *       defined: [], // list of header keys we expected to be reported
+ *       undefined: [] // list of header fields we expected to be sanitized
+ *     },
+ *     formFields: {
+ *       defined: [], // list of form keys we expected to be reported
+ *       undefined: [] // list of form fields we expected to be sanitized
+ *     }
+ *   }
+ * }
+ *
+ */
 module.exports = [
   {
     name: 'tests deault wildcard handling, with urlencode bodyparsing',
