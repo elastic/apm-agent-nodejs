@@ -7,11 +7,10 @@ const {
 const agent = require('../..').start(createAgentConfig())
 const test = require('tape')
 const request = require('request')
-const Koa = require('koa')
-const koaBodyparser = require('koa-bodyparser')
+const Hapi = require('@hapi/hapi');
 const fixtures = require('./fixtures')
 
-test('Running fixtures with koa', function (t1) {
+test('Running fixtures with hapi', function (t1) {
   for (const [, fixture] of fixtures.entries()) {
     test(fixture.name, function (t2) {
       runTest(
@@ -21,32 +20,28 @@ test('Running fixtures with koa', function (t1) {
         fixture.input.requestHeaders,
         fixture.input.responseHeaders,
         fixture.input.formFields,
-        createMiddleware(fixture.bodyParsing)
+        false // hapi does body parsing by default, no middleware
       )
     })
   }
   t1.end()
 })
 
-function createMiddleware (type) {
-  return koaBodyparser()
-}
-
-function runTest (
+async function runTest (
   t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
 ) {
   // register a listener to close the server when we're done
   const done = () => {
-    server.close()
+    server.stop()
   }
   t.on('end', done)
 
   // configure agent and instantiated new app
   agent._config(agentConfig)
-  const app = new Koa()
-  if (middleware) {
-    app.use(middleware)
-  }
+  const server = Hapi.server({
+    port: 0,
+    host: '0.0.0.0'
+  });
 
   // resets agent values for tests.  Callback fires
   // after mockClient receives data
@@ -55,30 +50,40 @@ function runTest (
     assertRequestHeadersWithFixture(transaction, expected, t)
     assertResponseHeadersWithFixture(transaction, expected, t)
     // TO DO: uncomment once we fix https://...
+    // also -- we'll need to decide what to do about some of the test fixtures
+    //         that don't apply -- hapi appears to always parse into on object
+    //         (i.e. urlencoded in express speak)
     // assertFormsWithFixture(transaction, expected, t)
   })
 
   // register request handler
-  app.use(async ctx => {
-    t.ok('received request', 'received request')
-    ctx.set(responseHeaders)
-    ctx.body = 'Hello World'
-  })
-
-  const server = app.listen(0, '0.0.0.0', () => {
-    const url = `http://${server.address().address}:${server.address().port}/test`
-    request.post(
-      url,
-      {
-        form: formFields,
-        headers: requestHeaders
-      },
-      function (error, response, body) {
-        if (error) {
-          t.fail(error)
+  server.route({
+    method: 'POST',
+    path: '/test',
+    handler: (request, h) => {
+        t.ok('received request', 'received request')
+        const response = h.response('Hello World!')
+        for(const [header, value] of Object.entries(responseHeaders)) {
+          response.header(header, value)
         }
-        t.ok(body, 'received response')
-        t.end()
-      })
-  })
+        return response
+    }
+  });
+
+  await server.start()
+  const url = `http://${server.info.host}:${server.info.port}/test`
+  request.post(
+    url,
+    {
+      form: formFields,
+      headers: requestHeaders
+    },
+    function (error, response, body) {
+      if (error) {
+        t.fail(error)
+      }
+      t.ok(body, 'received response')
+      t.end()
+    }
+  )
 }

@@ -93,6 +93,7 @@ var directories = [
   'test/lambda',
   'test/metrics',
   'test/redact-secrets',
+  'test/sanitize-field-names',
   'test/sourcemaps',
   'test/uncaught-exceptions'
 ]
