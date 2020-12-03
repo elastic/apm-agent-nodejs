@@ -2,21 +2,48 @@ const {
   createAgentConfig,
   resetAgent,
   assertRequestHeadersWithFixture,
-  assertResponseHeadersWithFixture,
-  assertFormsWithFixture
+  assertResponseHeadersWithFixture
 } = require('./shared')
 const agent = require('../..').start(createAgentConfig())
 const test = require('tape')
 const request = require('request')
-const express = require('express')
-const bodyParser = require('body-parser')
+const Koa = require('koa')
+const koaBodyparser = require('koa-bodyparser')
 const fixtures = require('./fixtures')
+
+test('Running fixtures with express', function (t1) {
+  for (const [, fixture] of fixtures.entries()) {
+    test(fixture.name, function (t2) {
+      runTest(
+        t2,
+        fixture.expected,
+        createAgentConfig(fixture.agentConfig),
+        fixture.input.requestHeaders,
+        fixture.input.responseHeaders,
+        fixture.input.formFields,
+        createMiddleware(fixture.bodyParsing)
+      )
+    })
+  }
+  t1.end()
+})
+
+function createMiddleware (type) {
+  return koaBodyparser()
+}
 
 function runTest (
   t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
 ) {
+  // register a listener to close the server when we're done
+  const done = () => {
+    server.close()
+  }
+  t.on('end', done)
+
+  // configure agent and instantiated new app
   agent._config(agentConfig)
-  const app = express()
+  const app = new Koa()
   if (middleware) {
     app.use(middleware)
   }
@@ -27,14 +54,15 @@ function runTest (
     const transaction = data.transactions.pop()
     assertRequestHeadersWithFixture(transaction, expected, t)
     assertResponseHeadersWithFixture(transaction, expected, t)
-    assertFormsWithFixture(transaction, expected, t)
+    // TO DO: uncomment once we fix https://...
+    // assertFormsWithFixture(transaction, expected, t)
   })
 
   // register request handler
-  app.post('/test', (req, res) => {
+  app.use(async ctx => {
     t.ok('received request', 'received request')
-    res.header(responseHeaders)
-    res.send('Hello World')
+    ctx.set(responseHeaders)
+    ctx.body = 'Hello World'
   })
 
   const server = app.listen(0, '0.0.0.0', () => {
@@ -53,38 +81,4 @@ function runTest (
         t.end()
       })
   })
-
-  const done = () => {
-    server.close()
-  }
-  t.on('end', done)
 }
-
-function createMiddleware (type) {
-  if (type === 'urlencoded') {
-    return bodyParser.urlencoded({ extended: false })
-  } else if (type === 'text') {
-    return bodyParser.text({ type: '*/*' })
-  } else if (type === 'raw') {
-    return bodyParser.raw({ type: '*/*' })
-  }
-
-  throw new Error(`I don't know how to create a ${type} middleware`)
-}
-
-test('Running fixtures with express', function (t) {
-  for (const [, fixture] of fixtures.entries()) {
-    test(fixture.name, function (t2) {
-      runTest(
-        t2,
-        fixture.expected,
-        createAgentConfig(fixture.agentConfig),
-        fixture.input.requestHeaders,
-        fixture.input.responseHeaders,
-        fixture.input.formFields,
-        createMiddleware(fixture.bodyParsing)
-      )
-    })
-  }
-  t.end()
-})
