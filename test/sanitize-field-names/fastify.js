@@ -8,7 +8,7 @@ const agent = require('../..').start(createAgentConfig())
 const test = require('tape')
 const request = require('request')
 const fastify = require('fastify')
-const fastifyFormbody = require('fastify-formbody');
+const fastifyFormbody = require('fastify-formbody')
 const fixtures = require('./fixtures')
 
 function runTest (
@@ -36,10 +36,13 @@ function runTest (
     for (const [header, value] of Object.entries(responseHeaders)) {
       reply.header(header, value)
     }
-    reply.send("Hello World")
+    reply.send('Hello World')
   })
 
   app.listen(0, '0.0.0.0', (err, address) => {
+    if (err) {
+      throw err
+    }
     const url = `${address}/test`
     console.log(url)
     request.post(
