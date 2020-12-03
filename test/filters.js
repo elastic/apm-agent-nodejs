@@ -5,14 +5,14 @@ const test = require('tape')
 const Filters = require('object-filter-sequence')
 const filterHttpHeaders = require('../lib/filters/http-headers')
 
-function makeTransactionWithHeaders (requestHeaders, responseHeaders) {
+function makeTransactionWithHeaders (headers) {
   return {
     context: {
       request: {
-        headers: requestHeaders
+        headers
       },
       response: {
-        headers: responseHeaders
+        headers
       }
     }
   }
@@ -41,14 +41,7 @@ test('set-cookie', function (t) {
         'password=this-is-a-password',
         'card=1234%205678%201234%205678; Secure'
       ]
-    },
-    {
-      'set-cookie': [
-        'password=this-is-a-password',
-        'card=1234%205678%201234%205678; Secure'
-      ]
-    }
-    )
+    })
   )
 
   t.deepEqual(getRequestHeaders(result), {
