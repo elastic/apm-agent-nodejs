@@ -46,7 +46,6 @@ function runTest (
       throw err
     }
     const url = `${address}/test`
-    console.log(url)
     request.post(
       url,
       {
