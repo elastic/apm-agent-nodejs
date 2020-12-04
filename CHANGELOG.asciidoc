@@ -25,6 +25,9 @@ Notes:
         ==== x.x.x - YYYY/MM/DD
 ////
 
+[[release-notes-3.x]]
+=== Node.js Agent version 3.x
+
 ==== Unreleased
 
 [float]
@@ -36,10 +39,10 @@ Notes:
 
         Allows users to configure a list of wildcard patterns to _remove_ items
         from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
-        
+
         spec: https://github.com/elastic/apm/blob/master/specs/agents/sanitization.md
         docs: https://github.com/elastic/apm-agent-nodejs/blob/master/docs/configuration.asciidoc#sanitize-field-names
-        
+
 [float]
 ===== Bug fixes
 
