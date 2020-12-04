@@ -30,6 +30,21 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* feat: Add `log_level` central config support. {pull}1908[#1908] +
+  Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
+
+[float]
+===== Bug fixes
+
+
 [[release-notes-3.9.0]]
 ==== 3.9.0 - 2020/11/30
 
