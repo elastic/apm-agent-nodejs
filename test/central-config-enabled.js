@@ -8,7 +8,6 @@ const http = require('http')
 
 const test = require('tape')
 const Agent = require('./_agent')
-const logging = require('../lib/logging')
 
 const runTestsWithServer = (t, updates, expect) => {
   t.plan(Object.keys(expect).length + 1)
@@ -122,7 +121,7 @@ test('remote config enabled: receives non delimited string', function (t) {
 })
 
 // Ensure the logger updates if the central config `log_level` changes.
-test('agent.logger updates for central config `log_level` change', {timeout: 1000}, function (t) {
+test('agent.logger updates for central config `log_level` change', { timeout: 1000 }, function (t) {
   let agent
 
   const server = http.createServer((req, res) => {
