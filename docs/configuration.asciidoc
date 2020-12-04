@@ -704,7 +704,7 @@ The timeout is applied once the agent has sent the entire request body to the AP
 If the response from the server takes longer than allowed by this timeout,
 the HTTP request is terminated and the TCP socket closed.
 
-[[sanitize_field_names]]
+[[sanitize-field-names]]
 ==== `sanitizeFieldNames`
 * *Type:* Array
 * *Default:* ['password', 'passwd', 'pwd', 'secret', '\*key', '*token*', '\*session*', '\*credit*', '\*card*', 'authorization', 'set-cookie']
@@ -714,7 +714,7 @@ Sometimes it is necessary to sanitize the data sent to Elastic APM, e.g. remove 
 
 The `sanitizeFieldNames` configuration values allows you to configure a list of wildcard patterns of field names which should be _removed_ from agent payloads. These patterns apply to the request and response HTTP headers, as well as any form field capturing during an `application/x-www-form-urlencoded data` request.
 
-The `sanitizeFieldNames` will _remove_ any matched fields.  If you wish to filter or _redact_ other data the <<filter-http-headers,`filterHttpHeaders`>> configuration field or the <<apm-add-filter,API filtering functions>> may be a better choice. 
+The `sanitizeFieldNames` will _remove_ any matched fields.  If you wish to filter or _redact_ other data the <<filter-http-headers,`filterHttpHeaders`>> configuration field or the <<apm-add-filter,API filtering functions>> may be a better choice.
 
 [[filter-http-headers]]
 ==== `filterHttpHeaders`
