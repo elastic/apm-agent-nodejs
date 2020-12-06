@@ -28,6 +28,14 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[float]
+===== Features
+
+* feat: support numeric and boolean labels {pull}1909[#1909] +
+  Add an optional `stringify` option to `apm.setLabel(name, version, stringify = true)`
+  and `apm.addLabels(labels, stringify = true)`, which can be set `false` to
+  allow numeric and boolean labels. Stringify defaults to true for backwards
+  compatibility -- stringification will be removed in a future major version.
 
 [[release-notes-3.10.0]]
 ==== 3.10.0 - 2021/01/11

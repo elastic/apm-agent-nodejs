@@ -199,18 +199,19 @@ TIP: Before using custom context, ensure you understand the different types of
 {apm-overview-ref-v}/metadata.html[metadata] that are available.
 
 [[apm-set-label]]
-==== `apm.setLabel(name, value)`
+==== `apm.setLabel(name, value[, stringify = true])`
 
-[small]#Added in: v0.1.0#
-
-[small]#Renamed from `apm.setTag()` to `apm.setLabel()`: v2.10.0#
+[small]#Added in: v0.1.0# +
+[small]#Renamed from `apm.setTag()` to `apm.setLabel()`: v2.10.0# +
+[small]#Added `stringify` argument in: v3.10.0#
 
 * `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
-* `value` +{type-string}+
-If a non-string data type is given,
-it's converted to a string before being sent to the APM Server
+* `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+* `stringify` +{type-boolean}+
+Defaults to `true`. When true, if a non-string `value` is given, it is
+converted to a string before being sent to the APM Server.
 
 Set a label on the current transaction.
 You can set multiple labels on the same transaction.
@@ -227,19 +228,20 @@ Defining too many unique fields in an index is a condition that can lead to a
 {ref}/mapping.html#mapping-limit-settings[mapping explosion].
 
 [[apm-add-labels]]
-==== `apm.addLabels({ [name]: value })`
+==== `apm.addLabels({ [name]: value }[, stringify = true])`
 
-[small]#Added in: v1.5.0#
-
-[small]#Renamed from `apm.addTags()` to `apm.addLabels()`: v2.10.0#
+[small]#Added in: v1.5.0# +
+[small]#Renamed from `apm.addTags()` to `apm.addLabels()`: v2.10.0# +
+[small]#Added `stringify` argument in: v3.10.0#
 
 * `labels` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
-** `value` +{type-string}+
-If a non-string data type is given,
-it's converted to a string before being sent to the APM Server
+** `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+* `stringify` +{type-boolean}+
+Defaults to `true`. When true, if a non-string `value` is given, it is
+converted to a string before being sent to the APM Server.
 
 Add several labels on the current transaction.
 You can add labels multiple times.
