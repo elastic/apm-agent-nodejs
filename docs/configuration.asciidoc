@@ -414,7 +414,8 @@ require('elastic-apm-node').start({
 Set the verbosity level for the agent.
 Note that this does not have any influence on the types of errors that are sent to the APM Server.
 This only controls how chatty the agent is in your logs.
-This only applies when not using a custom `logger`.
+As well, this only applies when using the built in logger.
+Log levels will not be automatically applied to a custom `logger`.
 
 Possible levels are: `trace`, `debug`, `info`, `warning`, `error`, `critical`, and `off`.
 
