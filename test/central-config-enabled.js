@@ -134,8 +134,7 @@ test('agent.logger updates for central config `log_level` change', { timeout: 10
     })
     res.end(JSON.stringify({ log_level: 'error' }))
 
-    const SHORT_TIME_LATER = 10 // Hopefully this isn't a race we lose.
-    setTimeout(function () {
+    agent._transport.once('config', function () {
       // 4. agent.logger should be updated from central config.
       t.equal(agent.logger.level, 'error',
         'shortly after fetching central config, agent.logger level should be updated')
@@ -143,7 +142,7 @@ test('agent.logger updates for central config `log_level` change', { timeout: 10
       agent.destroy()
       server.close()
       t.end()
-    }, SHORT_TIME_LATER)
+    })
   })
 
   // 1. Start a mock APM Server.
