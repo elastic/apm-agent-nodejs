@@ -19,6 +19,8 @@ the agent will use the `name` from `package.json` by default if available.
 [[service-name]]
 ==== `serviceName`
 
+[small]#Added in: v1.0.0#
+
 * *Type:* String
 * *Default:* `name` field of `package.json`
 * *Env:* `ELASTIC_APM_SERVICE_NAME`
@@ -30,6 +32,8 @@ Allowed characters: `a-z`, `A-Z`, `0-9`, `-`, `_`, and space.
 [float]
 [[service-node-name]]
 ==== `serviceNodeName`
+
+[small]#Added in: v3.2.0#
 
 * *Type:* String
 * *Env:* `ELASTIC_APM_SERVICE_NODE_NAME`
@@ -44,6 +48,8 @@ This option allows you to set the node name manually to ensure uniqueness and me
 [[secret-token]]
 ==== `secretToken`
 
+[small]#Added in: v0.1.0#
+
 * *Type:* String
 * *Env:* `ELASTIC_APM_SECRET_TOKEN`
 
@@ -51,6 +57,8 @@ The secret token optionally expected by the APM Server.
 
 [[server-url]]
 ==== `serverUrl`
+
+[small]#Added in: v0.1.0#
 
 * *Type:* String
 * *Default:* `http://localhost:8200`
@@ -61,6 +69,8 @@ The URL to where the APM Server is deployed.
 [[validate-server-cert]]
 ==== `verifyServerCert`
 
+[small]#Added in: v0.3.0#
+
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_VERIFY_SERVER_CERT`
@@ -70,6 +80,8 @@ You can switch this behavior off by setting this option to `false`.
 
 [[server-ca-cert-file]]
 ==== `serverCaCertFile`
+
+[small]#Added in: v3.3.0#
 
 * *Type:* String
 * *Env:* `ELASTIC_APM_SERVER_CA_CERT_FILE`
@@ -86,6 +98,8 @@ certificate validation is disabled.
 [[service-version]]
 ==== `serviceVersion`
 
+[small]#Added in: v1.0.0#
+
 * *Type:* String
 * *Default:* `version` field of `package.json`
 * *Env:* `ELASTIC_APM_SERVICE_VERSION`
@@ -97,6 +111,8 @@ or any other string that might help you pinpoint a specific version or deploymen
 
 [[active]]
 ==== `active`
+
+[small]#Added in: v0.1.0#
 
 * *Type:* Boolean
 * *Default:* `true`
@@ -119,6 +135,8 @@ var options = {
 [[environment]]
 ===== `environment`
 
+[small]#Added in: v2.12.0#
+
 * *Type:* String
 * *Default:* `process.env.NODE_ENV || 'development'`
 * *Env:* `ELASTIC_APM_ENVIRONMENT`
@@ -137,6 +155,8 @@ You must use the query bar to filter for a specific environment in versions prio
 [[instrument]]
 ==== `instrument`
 
+[small]#Added in: v0.1.0#
+
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_INSTRUMENT`
@@ -147,6 +167,8 @@ Note that both `active` and `instrument` needs to be `true` for instrumentation 
 
 [[instrument-incoming-http-requests]]
 ==== `instrumentIncomingHTTPRequests?:`
+
+[small]#Added in: v3.0.0#
 
 * *Type:* Boolean
 * *Default:* `true`
@@ -160,6 +182,8 @@ see <<disable-instrumentations, `disableInstrumentations`>>.
 [[central-config]]
 ==== `centralConfig`
 
+[small]#Added in: v2.13.0#
+
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_CENTRAL_CONFIG`
@@ -172,6 +196,8 @@ More information is available in {kibana-ref}/agent-configuration.html[APM Agent
 
 [[async-hooks]]
 ==== `asyncHooks`
+
+[small]#Added in: v0.10.0#
 
 * *Type:* Boolean
 * *Default:* `true`
@@ -286,6 +312,8 @@ require('elastic-apm-node').start({
 
 <<dynamic-configuration, image:./images/dynamic-config.svg[] >>
 
+[small]#Added in: v1.0.0#
+
 * *Type:* String
 * *Default:* `off`
 * *Env:* `ELASTIC_APM_CAPTURE_BODY`
@@ -309,6 +337,8 @@ The agent will look for the body on the following properties:
 [[capture-headers]]
 ==== `captureHeaders`
 
+[small]#Added in: v2.3.0#
+
 * *Type:* Boolean
 * *Default:* true
 * *Env:* `ELASTIC_APM_CAPTURE_HEADERS`
@@ -321,6 +351,8 @@ This can be disabled by setting this option to `false`.
 [[error-on-aborted-requests]]
 ==== `errorOnAbortedRequests`
 
+[small]#Added in: v0.4.0#
+
 * *Type:* Boolean
 * *Default:* `false`
 * *Env:* `ELASTIC_APM_ERROR_ON_ABORTED_REQUESTS`
@@ -330,6 +362,8 @@ An error will be generated and sent to the APM Server if this happens.
 
 [[aborted-error-threshold]]
 ==== `abortedErrorThreshold`
+
+[small]#Added in: v0.4.0#
 
 * *Type:* Number
 * *Default:* `25s`
@@ -346,6 +380,8 @@ If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 
 <<dynamic-configuration, image:./images/dynamic-config.svg[] >>
 
+[small]#Added in: v1.0.0#
+
 * *Type:* Number
 * *Default:* `1.0`
 * *Env:* `ELASTIC_APM_TRANSACTION_SAMPLE_RATE`
@@ -357,6 +393,8 @@ The value should between `0.0` and `1.0` where `1.0` is 100% of all requests.
 [[hostname]]
 ==== `hostname`
 
+[small]#Added in: v0.1.0#
+
 * *Type:* String
 * *Default:* OS hostname
 * *Env:* `ELASTIC_APM_HOSTNAME`
@@ -367,6 +405,8 @@ use this option.
 
 [[framework-name]]
 ==== `frameworkName`
+
+[small]#Added in: v1.0.0#
 
 * *Type:* String
 * *Env:* `ELASTIC_APM_FRAMEWORK_NAME`
@@ -380,6 +420,8 @@ the agent will set the value of this config option if the framework can be detec
 
 [[framework-version]]
 ==== `frameworkVersion`
+
+[small]#Added in: v1.0.0#
 
 * *Type:* String
 * *Env:* `ELASTIC_APM_FRAMEWORK_VERSION`
@@ -406,6 +448,8 @@ require('elastic-apm-node').start({
 
 [[log-level]]
 ==== `logLevel`
+
+[small]#Added in: v0.1.0#
 
 * *Type:* String
 * *Default:* `'info'`
@@ -443,6 +487,8 @@ Note that if a custom logger is provided, the `logLevel` option will be ignored.
 [[capture-exceptions]]
 ==== `captureExceptions`
 
+[small]#Added in: v0.1.0#
+
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_CAPTURE_EXCEPTIONS`
@@ -451,6 +497,8 @@ Whether or not the agent should monitor for uncaught exceptions and send them to
 
 [[log-uncaught-exceptions]]
 ==== `logUncaughtExceptions`
+
+[small]#Added in: v3.1.0#
 
 * *Type:* Boolean
 * *Default:* `false`
@@ -461,6 +509,8 @@ Set this config option to `true` to have the agent write stack traces of uncaugh
 
 [[capture-error-log-stack-traces]]
 ==== `captureErrorLogStackTraces`
+
+[small]#Added in: v1.0.0#
 
 * *Type:* String
 * *Default:* `messages`
@@ -495,6 +545,8 @@ A capture location stack trace is never generated for uncaught exceptions.
 [[capture-span-stack-traces]]
 ==== `captureSpanStackTraces`
 
+[small]#Added in: v1.0.0#
+
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES`
@@ -503,6 +555,8 @@ Set this option to `false` to disable capture of stack traces for measured spans
 
 [[use-path-as-transaction-name]]
 ==== `usePathAsTransactionName`
+
+[small]#Added in: v2.8.0#
 
 * *Type:* Boolean
 * *Default:* `false`
@@ -528,6 +582,8 @@ Use the following two config options to change how many lines of source code to 
 [[source-context-error-app-frames]]
 *`sourceLinesErrorAppFrames`*
 
+[small]#Added in: v0.12.0#
+
 * *Type:* Number
 * *Default:* `5`
 * *Env:* `ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES`
@@ -539,6 +595,8 @@ Setting this config option to `0` means that no source code will be collected fo
 
 [[source-context-error-library-frames]]
 *`sourceLinesErrorLibraryFrames`*
+
+[small]#Added in: v0.12.0#
 
 * *Type:* Number
 * *Default:* `5`
@@ -569,6 +627,8 @@ Use the following two config options to change how many lines of source code to 
 [[source-context-span-app-frames]]
 *`sourceLinesSpanAppFrames`*
 
+[small]#Added in: v1.0.0#
+
 * *Type:* Number
 * *Default:* `0`
 * *Env:* `ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES`
@@ -578,6 +638,8 @@ The default value `0` means that no source code will be collected for in-app spa
 [[source-context-span-library-frames]]
 *`sourceLinesSpanLibraryFrames`*
 
+[small]#Added in: v1.0.0#
+
 * *Type:* Number
 * *Default:* `0`
 * *Env:* `ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES`
@@ -586,6 +648,8 @@ The default value `0` means that no source code will be collected for span libra
 
 [[error-message-max-length]]
 ==== `errorMessageMaxLength`
+
+[small]#Added in: v1.8.0#
 
 * *Type:* String
 * *Default:* `2kb`
@@ -609,6 +673,8 @@ This applies to the following properties:
 [[stack-trace-limit]]
 ==== `stackTraceLimit`
 
+[small]#Added in: v0.1.0#
+
 * *Type:* Number
 * *Default:* `50`
 * *Env:* `ELASTIC_APM_STACK_TRACE_LIMIT`
@@ -622,6 +688,8 @@ Setting it to `Infinity` means that all frames will be collected.
 
 <<dynamic-configuration, image:./images/dynamic-config.svg[] >>
 
+[small]#Added in: v1.0.0#
+
 * *Type:* Number
 * *Default:* `500`
 * *Env:* `ELASTIC_APM_TRANSACTION_MAX_SPANS`
@@ -632,6 +700,8 @@ Setting to `-1` means that spans will never be dropped.
 
 [[api-request-time]]
 ==== `apiRequestTime`
+
+[small]#Added in: v2.0.0#
 
 * *Type:* String
 * *Default:* `10s`
@@ -654,6 +724,8 @@ Use the <<api-request-size,`apiRequestSize`>> config option to control the byte 
 
 [[api-request-size]]
 ==== `apiRequestSize`
+
+[small]#Added in: v2.0.0#
 
 * *Type:* String
 * *Default:* `768kb`
@@ -681,6 +753,8 @@ The HTTP request is otherwise ended at regular intervals controlled by the <<api
 [[server-timeout]]
 ==== `serverTimeout`
 
+[small]#Added in: v1.2.0#
+
 * *Type:* String
 * *Default:* `30s`
 * *Env:* `ELASTIC_APM_SERVER_TIMEOUT`
@@ -695,6 +769,8 @@ the HTTP request is terminated and the TCP socket closed.
 
 [[filter-http-headers]]
 ==== `filterHttpHeaders`
+
+[small]#Added in: v0.1.0#
 
 * *Type:* Boolean
 * *Default:* `true`
@@ -719,6 +795,8 @@ use one of the <<apm-add-filter,filtering>> functions.
 
 [[disable-instrumentations]]
 ==== `disableInstrumentations`
+
+[small]#Added in: v1.7.0#
 
 * *Type:* Array of strings
 * *Env:* `ELASTIC_APM_DISABLE_INSTRUMENTATIONS`
@@ -754,6 +832,8 @@ see <<instrument-incoming-http-requests, `instrumentIncomingHTTPRequests`>>.
 [[container-id]]
 ==== `containerId`
 
+[small]#Added in: v2.3.0#
+
 * *Type:* String
 * *Env:* `ELASTIC_APM_CONTAINER_ID`
 
@@ -764,6 +844,8 @@ it will be parsed out of the `/proc/self/cgroup` file.
 [[kubernetes-node-name]]
 ==== `kubernetesNodeName`
 
+[small]#Added in: v2.11.0#
+
 * *Type:* String
 * *Env:* `KUBERNETES_NODE_NAME`
 
@@ -772,6 +854,8 @@ Specify the kubernetes node name to associate with all reported events.
 [[kubernetes-namespace]]
 ==== `kubernetesNamespace`
 
+[small]#Added in: v2.11.0#
+
 * *Type:* String
 * *Env:* `KUBERNETES_NAMESPACE`
 
@@ -779,6 +863,8 @@ Specify the kubernetes namespace to associate with all reported events.
 
 [[kubernetes-pod-name]]
 ==== `kubernetesPodName`
+
+[small]#Added in: v2.11.0#
 
 * *Type:* String
 * *Env:* `KUBERNETES_POD_NAME`
@@ -791,6 +877,8 @@ this will default to the local hostname.
 [[kubernetes-pod-uid]]
 ==== `kubernetesPodUID`
 
+[small]#Added in: v2.11.0#
+
 * *Type:* String
 * *Env:* `KUBERNETES_POD_UID`
 
@@ -800,6 +888,8 @@ it will be parsed out of the `/proc/self/cgroup` file.
 
 [[metrics-interval]]
 ==== `metricsInterval`
+
+[small]#Added in: v2.5.0#
 
 * *Type:* String
 * *Default:* `30s`
@@ -815,6 +905,8 @@ set the interval to `0`.
 [[metrics-limit]]
 ==== `metricsLimit`
 
+[small]#Added in: v2.15.0#
+
 * *Type:* Number
 * *Default:* `1000`
 * *Env:* `ELASTIC_APM_METRICS_LIMIT`
@@ -825,6 +917,8 @@ the oldest metric will be dropped to give it space.
 
 [[global-labels]]
 ==== `globalLabels`
+
+[small]#Added in: v2.11.0#
 
 * *Type:* Object
 * *Env:* `ELASTIC_APM_GLOBAL_LABELS`
@@ -839,6 +933,8 @@ ELASTIC_APM_GLOBAL_LABELS="subspace=sap-hana,rack=number6"
 
 [[config-file]]
 ==== `configFile`
+
+[small]#Added in: v0.3.0#
 
 * *Type:* String
 * *Default:* `elastic-apm-node.js`
@@ -877,6 +973,8 @@ module.exports = {
 
 [[breakdown-metrics]]
 ==== `breakdownMetrics`
+
+[small]#Added in: v2.13.0#
 
 * *Type:* Boolean
 * *Default:* `true`
