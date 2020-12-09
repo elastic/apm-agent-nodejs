@@ -289,6 +289,7 @@ require('elastic-apm-node').start({
 * *Type:* String
 * *Default:* `off`
 * *Env:* `ELASTIC_APM_CAPTURE_BODY`
+* *Central config name:* `capture_body`
 
 The HTTP body of incoming HTTP requests is not recorded and sent to the APM Server by default.
 
@@ -349,6 +350,7 @@ If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 * *Type:* Number
 * *Default:* `1.0`
 * *Env:* `ELASTIC_APM_TRANSACTION_SAMPLE_RATE`
+* *Central config name:* `transaction_sample_rate`
 
 Specify the sampling rate to use when deciding whether to trace a request.
 
@@ -470,7 +472,7 @@ Normally only `Error` objects have a stack trace associated with them.
 This stack trace is stored along with the error message when the error is sent to the APM Server.
 The stack trace points to the place where the `Error` object was instantiated.
 
-But sometimes its valuable to know,
+But sometimes it's valuable to know,
 not where the `Error` was instantiated,
 but where it was detected.
 For instance,
@@ -625,6 +627,7 @@ Setting it to `Infinity` means that all frames will be collected.
 * *Type:* Number
 * *Default:* `500`
 * *Env:* `ELASTIC_APM_TRANSACTION_MAX_SPANS`
+* *Central config name:* `transaction_max_spans`
 
 Specify the maximum number of spans to capture within a request transaction
 before dropping further spans.
