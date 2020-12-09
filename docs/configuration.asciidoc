@@ -284,12 +284,10 @@ require('elastic-apm-node').start({
 [[capture-body]]
 ==== `captureBody`
 
-<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
-
 * *Type:* String
 * *Default:* `off`
 * *Env:* `ELASTIC_APM_CAPTURE_BODY`
-* *Central config name:* `capture_body`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `capture_body`
 
 The HTTP body of incoming HTTP requests is not recorded and sent to the APM Server by default.
 
@@ -345,12 +343,10 @@ If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 [[transaction-sample-rate]]
 ==== `transactionSampleRate`
 
-<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
-
 * *Type:* Number
 * *Default:* `1.0`
 * *Env:* `ELASTIC_APM_TRANSACTION_SAMPLE_RATE`
-* *Central config name:* `transaction_sample_rate`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `transaction_sample_rate`
 
 Specify the sampling rate to use when deciding whether to trace a request.
 
@@ -622,12 +618,10 @@ Setting it to `Infinity` means that all frames will be collected.
 [[transaction-max-spans]]
 ==== `transactionMaxSpans`
 
-<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
-
 * *Type:* Number
 * *Default:* `500`
 * *Env:* `ELASTIC_APM_TRANSACTION_MAX_SPANS`
-* *Central config name:* `transaction_max_spans`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `transaction_max_spans`
 
 Specify the maximum number of spans to capture within a request transaction
 before dropping further spans.
