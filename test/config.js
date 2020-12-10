@@ -888,6 +888,76 @@ test('instrument: false allows manual instrumentation', function (t) {
   })
 })
 
+test('parsing of ARRAY and KEY_VALUE opts', function (t) {
+  var cases = [
+    {
+      opts: { transactionIgnoreUrls: ['foo', 'bar'] },
+      expect: { transactionIgnoreUrls: ['foo', 'bar'] }
+    },
+    {
+      opts: { transactionIgnoreUrls: 'foo' },
+      expect: { transactionIgnoreUrls: ['foo'] }
+    },
+    {
+      opts: { transactionIgnoreUrls: 'foo,bar' },
+      expect: { transactionIgnoreUrls: ['foo', 'bar'] }
+    },
+    {
+      env: { ELASTIC_APM_TRANSACTION_IGNORE_URLS: 'foo, bar' },
+      expect: { transactionIgnoreUrls: ['foo', 'bar'] }
+    },
+    {
+      opts: { transactionIgnoreUrls: ' \tfoo , bar ' },
+      expect: { transactionIgnoreUrls: ['foo', 'bar'] }
+    },
+    {
+      opts: { transactionIgnoreUrls: 'foo, bar bling' },
+      expect: { transactionIgnoreUrls: ['foo', 'bar bling'] }
+    },
+
+    {
+      opts: { disableInstrumentations: 'foo, bar' },
+      expect: { disableInstrumentations: ['foo', 'bar'] }
+    },
+
+    {
+      opts: { addPatch: 'foo=./foo.js,bar=./bar.js' },
+      expect: { addPatch: [['foo', './foo.js'], ['bar', './bar.js']] }
+    },
+    {
+      opts: { addPatch: ' foo=./foo.js, bar=./bar.js ' },
+      expect: { addPatch: [['foo', './foo.js'], ['bar', './bar.js']] }
+    },
+    {
+      env: { ELASTIC_APM_ADD_PATCH: ' foo=./foo.js, bar=./bar.js ' },
+      expect: { addPatch: [['foo', './foo.js'], ['bar', './bar.js']] }
+    },
+
+    {
+      opts: { globalLabels: 'foo=bar, spam=eggs' },
+      expect: { globalLabels: [['foo', 'bar'], ['spam', 'eggs']] }
+    }
+  ]
+
+  cases.forEach(function testOneCase ({ opts, env, expect }) {
+    var origEnv = process.env
+    try {
+      if (env) {
+        process.env = Object.assign({}, origEnv, env)
+      }
+      var cfg = config(opts)
+      for (var field in expect) {
+        t.deepEqual(cfg[field], expect[field],
+          util.format('opts=%j env=%j -> %j', opts, env, expect))
+      }
+    } finally {
+      process.env = origEnv
+    }
+  })
+
+  t.end()
+})
+
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
   t.strictEqual(result.id, trans.id, 'id matches')

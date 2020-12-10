@@ -42,11 +42,26 @@ Notes:
   allow *disabling* the automatic capture of Error object properties. This
   is useful for cases where those properties should not be sent to the APM
   Server, e.g. for performance (large string fields) or security (PII data).
+  {pull}1912[#1912]
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
 
 [float]
 ===== Bug fixes
+
+* fix: Fix parsing of comma-separated strings for relevant config vars to allow
+  whitespace around the commas. E.g.:
++
+----
+export ELASTIC_APM_TRANSACTION_IGNORE_URLS='/ping, /metrics*'
+----
++
+Config vars affected are: `disableInstrumentations`, `transactionIgnoreUrls`
+`addPatch`, and `globalLabels`.
+* fix: Correct the environment variable for setting `transactionIgnoreUrl`
+  (added in v3.9.0) from `ELASTIC_TRANSACTION_IGNORE_URLS` to
+  `ELASTIC_APM_TRANSACTION_IGNORE_URLS`.
+
 
 
 [[release-notes-3.9.0]]
