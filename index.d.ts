@@ -244,6 +244,7 @@ interface CaptureErrorOptions {
   tags?: Labels;
   custom?: object;
   message?: string;
+  captureAttributes?: boolean;
 }
 
 interface Labels {

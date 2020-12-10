@@ -57,7 +57,7 @@ See the <<configuration,Configuration documentation>> for available options.
 [small]#Added in: v1.5.0#
 
 Use `isStarted()` to check if the agent has already started.
-Returns `true` if the agent has started, 
+Returns `true` if the agent has started,
 otherwise returns `false`.
 
 [[apm-set-framework]]
@@ -292,6 +292,8 @@ See <<http-responses,http responses section>> for more details.
 
 ** `labels` +{type-object}+ Add additional context with labels, these labels will be added to the error along with the labels from the current transaction.
 See the <<apm-add-labels,`apm.addLabels()`>> method for details about the format.
+
+** `captureAttributes` +{type-boolean}+ Whether to include properties on the given +{type-error}+ object in the data sent to the APM Server (as `error.exception.attributes`). *Default:* `true`.
 
 * `callback` - Will be called after the error has been sent to the APM Server.
 It will receive an `Error` instance if the agent failed to send the error,
