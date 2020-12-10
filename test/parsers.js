@@ -289,7 +289,7 @@ test('#parseError()', function (t) {
       },
       logger: logger
     }
-    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+    parsers.parseError(new Error(), true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
@@ -313,7 +313,7 @@ test('#parseError()', function (t) {
       },
       logger: logger
     }
-    parsers.parseError(new Error('Crap'), fakeAgent, function (err, parsed) {
+    parsers.parseError(new Error('Crap'), true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
@@ -337,7 +337,7 @@ test('#parseError()', function (t) {
       },
       logger: logger
     }
-    parsers.parseError(new TypeError('Crap'), fakeAgent, function (err, parsed) {
+    parsers.parseError(new TypeError('Crap'), true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
@@ -364,7 +364,7 @@ test('#parseError()', function (t) {
     try {
       throw new Error('Derp')
     } catch (e) {
-      parsers.parseError(e, fakeAgent, function (err, parsed) {
+      parsers.parseError(e, true, fakeAgent, function (err, parsed) {
         t.error(err)
         t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
         t.notOk('log' in parsed)
@@ -393,7 +393,7 @@ test('#parseError()', function (t) {
       var o = {}
       o['...'].Derp()
     } catch (e) {
-      parsers.parseError(e, fakeAgent, function (err, parsed) {
+      parsers.parseError(e, true, fakeAgent, function (err, parsed) {
         t.error(err)
         t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
         t.notOk('log' in parsed)
@@ -420,7 +420,7 @@ test('#parseError()', function (t) {
     }
     var err = new Error('foo')
     t.ok(typeof err.stack === 'string')
-    parsers.parseError(err, fakeAgent, function (err, parsed) {
+    parsers.parseError(err, true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
@@ -446,7 +446,7 @@ test('#parseError()', function (t) {
     }
     var err = new Error('foo')
     err.stack = 'foo'
-    parsers.parseError(err, fakeAgent, function (err, parsed) {
+    parsers.parseError(err, true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.ok('culprit' in parsed)
       t.notOk('log' in parsed)
@@ -483,7 +483,7 @@ test('#parseError()', function (t) {
       message: 'foo',
       stack: 'original stack'
     }
-    parsers.parseError(err, fakeAgent, function (err, parsed) {
+    parsers.parseError(err, true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.strictEqual(parsed.culprit, 'original stack')
       t.notOk('log' in parsed)
@@ -506,6 +506,38 @@ test('#parseError()', function (t) {
     })
   })
 
+  t.test('should handle captureAttributes', function (t) {
+    var fakeAgent = {
+      _conf: {
+        sourceLinesErrorAppFrames: 5,
+        sourceLinesErrorLibraryFrames: 5
+      },
+      logger: logger
+    }
+
+    var err = new Error('boom')
+    err.stack = ''
+    err.aProperty = 'this is my property'
+
+    // captureAttributes=true
+    parsers.parseError(err, true, fakeAgent, function (parseErr1, parsed) {
+      t.error(parseErr1)
+      t.ok('exception' in parsed)
+      t.ok('attributes' in parsed.exception)
+      t.strictEqual(parsed.exception.attributes.aProperty, 'this is my property')
+
+      // captureAttributes=false
+      parsers.parseError(err, false, fakeAgent, function (parseErr2, parsed) {
+        t.error(parseErr2)
+        t.ok('exception' in parsed)
+        t.notOk('attributes' in parsed.exception,
+          'should not have captured any attributes')
+
+        t.end()
+      })
+    })
+  })
+
   t.test('should be able to exclude source context data', function (t) {
     var fakeAgent = {
       _conf: {
@@ -514,7 +546,7 @@ test('#parseError()', function (t) {
       },
       logger: logger
     }
-    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+    parsers.parseError(new Error(), true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
       t.notOk('log' in parsed)
@@ -548,7 +580,7 @@ test('#parseError()', function (t) {
       },
       logger: logger
     }
-    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+    parsers.parseError(new Error(), true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.ok(parsed.exception.stacktrace.length > 0)
       parsed.exception.stacktrace.forEach(function (callsite) {
@@ -577,7 +609,7 @@ test('#parseError()', function (t) {
       },
       logger: logger
     }
-    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+    parsers.parseError(new Error(), true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.ok(parsed.exception.stacktrace.length > 0)
       parsed.exception.stacktrace.forEach(function (callsite) {
@@ -607,7 +639,7 @@ test('#parseError()', function (t) {
       },
       logger: logger
     }
-    parsers.parseError(new Error(), fakeAgent, function (err, parsed) {
+    parsers.parseError(new Error(), true, fakeAgent, function (err, parsed) {
       t.error(err)
       t.ok(parsed.exception.stacktrace.length > 0)
       parsed.exception.stacktrace.forEach(function (callsite) {
