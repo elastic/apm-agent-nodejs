@@ -295,7 +295,7 @@ test('DeserializationError', function (t) {
       t.ok(err.exception.message, 'err.exception.message')
       t.equal(err.exception.type, 'DeserializationError',
         'err.exception.type is DeserializationError')
-      t.notOk(err.exception.attributes.data,
+      t.notOk(err.exception.attributes && err.exception.attributes.data,
         'captured error should NOT include "data" attribute')
       t.end()
     }
