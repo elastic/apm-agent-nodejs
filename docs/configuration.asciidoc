@@ -284,11 +284,10 @@ require('elastic-apm-node').start({
 [[capture-body]]
 ==== `captureBody`
 
-<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
-
 * *Type:* String
 * *Default:* `off`
 * *Env:* `ELASTIC_APM_CAPTURE_BODY`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `capture_body`
 
 The HTTP body of incoming HTTP requests is not recorded and sent to the APM Server by default.
 
@@ -344,11 +343,10 @@ If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 [[transaction-sample-rate]]
 ==== `transactionSampleRate`
 
-<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
-
 * *Type:* Number
 * *Default:* `1.0`
 * *Env:* `ELASTIC_APM_TRANSACTION_SAMPLE_RATE`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `transaction_sample_rate`
 
 Specify the sampling rate to use when deciding whether to trace a request.
 
@@ -414,9 +412,10 @@ require('elastic-apm-node').start({
 Set the verbosity level for the agent.
 Note that this does not have any influence on the types of errors that are sent to the APM Server.
 This only controls how chatty the agent is in your logs.
-This only applies when not using a custom logger.
+As well, this only applies when using the built in logger.
+Log levels will not be automatically applied to a custom `logger`.
 
-Possible levels are: `trace`, `debug`, `info`, `warn`, `error`, and `fatal`.
+Possible levels are: `trace`, `debug`, `info`, `warning`, `error`, `critical`, and `off`.
 
 [[logger]]
 ==== `logger`
@@ -469,7 +468,7 @@ Normally only `Error` objects have a stack trace associated with them.
 This stack trace is stored along with the error message when the error is sent to the APM Server.
 The stack trace points to the place where the `Error` object was instantiated.
 
-But sometimes its valuable to know,
+But sometimes it's valuable to know,
 not where the `Error` was instantiated,
 but where it was detected.
 For instance,
@@ -619,11 +618,10 @@ Setting it to `Infinity` means that all frames will be collected.
 [[transaction-max-spans]]
 ==== `transactionMaxSpans`
 
-<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
-
 * *Type:* Number
 * *Default:* `500`
 * *Env:* `ELASTIC_APM_TRANSACTION_MAX_SPANS`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `transaction_max_spans`
 
 Specify the maximum number of spans to capture within a request transaction
 before dropping further spans.

@@ -72,13 +72,15 @@ test('remote config enabled', function (t) {
     transaction_sample_rate: '0.42',
     transaction_max_spans: '99',
     capture_body: 'all',
-    transaction_ignore_urls: ['foo']
+    transaction_ignore_urls: ['foo'],
+    log_level: 'debug'
   }
   const expect = {
     transactionSampleRate: 0.42,
     transactionMaxSpans: 99,
     captureBody: 'all',
-    transactionIgnoreUrls: ['foo']
+    transactionIgnoreUrls: ['foo'],
+    logLevel: 'debug'
   }
 
   runTestsWithServer(t, updates, expect)
@@ -116,4 +118,46 @@ test('remote config enabled: receives non delimited string', function (t) {
   }
 
   runTestsWithServer(t, updates, expect)
+})
+
+// Ensure the logger updates if the central config `log_level` changes.
+test('agent.logger updates for central config `log_level` change', { timeout: 1000 }, function (t) {
+  let agent
+
+  const server = http.createServer((req, res) => {
+    // 3. The agent should fetch central config with log_level=error.
+    const url = new URL(req.url, 'relative:///')
+    t.strictEqual(url.pathname, '/config/v1/agents')
+    res.writeHead(200, {
+      Etag: 1,
+      'Cache-Control': 'max-age=30, must-revalidate'
+    })
+    res.end(JSON.stringify({ log_level: 'error' }))
+
+    agent._transport.once('config', function () {
+      // 4. agent.logger should be updated from central config.
+      t.equal(agent.logger.level, 'error',
+        'shortly after fetching central config, agent.logger level should be updated')
+
+      agent.destroy()
+      server.close()
+      t.end()
+    })
+  })
+
+  // 1. Start a mock APM Server.
+  server.listen(function () {
+    // 2. Start an agent with logLevel=debug.
+    agent = new Agent().start({
+      serverUrl: 'http://localhost:' + server.address().port,
+      serviceName: 'test',
+      captureExceptions: false,
+      metricsInterval: 0,
+      centralConfig: true,
+      logLevel: 'debug'
+    })
+
+    t.equal(agent.logger.level, 'debug',
+      'immediately after .start() logger level should be the given "debug" level')
+  })
 })

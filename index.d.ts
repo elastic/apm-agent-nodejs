@@ -244,6 +244,7 @@ interface CaptureErrorOptions {
   tags?: Labels;
   custom?: object;
   message?: string;
+  captureAttributes?: boolean;
 }
 
 interface Labels {
@@ -288,7 +289,7 @@ interface SpanOptions {
 
 type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
 type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
-type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'warning' | 'error' | 'fatal' | 'critical' | 'off';
 
 type CaptureErrorCallback = (err: Error | null, id: string) => void;
 type FilterFn = (payload: Payload) => Payload | boolean | void;

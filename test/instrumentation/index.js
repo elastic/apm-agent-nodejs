@@ -316,6 +316,46 @@ test('errors should have a transaction id - ended transaction', function (t) {
   agent.captureError(new Error('bar'))
 })
 
+// At the time of writing, `apm.captureError(err)` will, by default, add
+// properties (strings, nums, dates) found on the given `err` as
+// `error.exception.attributes` in the payload sent to APM server. However, at
+// the time of writing, there are no tests or docs for that behavior.
+//
+// Subsequently the `opts.captureAttributes` feature was added as an escape
+// hatch to allow disabling that automatic capture of properties when known to
+// be problematic. The intent of this test case is to test that escape hatch and
+// *not* to imply the automatic additions to `error.exception.attributes` is a
+// promised interface.
+test('captureError should handle opts.captureAttributes', function (t) {
+  resetAgent(3, function (data) {
+    t.strictEqual(data.errors.length, 3)
+    t.strictEqual(
+      data.errors[0].exception.attributes && data.errors[0].exception.attributes.theProperty,
+      'this is the property',
+      'ex0 did capture attributes.theProperty')
+    t.strictEqual(
+      data.errors[1].exception.attributes && data.errors[1].exception.attributes.theProperty,
+      'this is the property',
+      'ex0 did capture attributes.theProperty')
+    t.notOk(data.errors[2].exception.attributes, 'ex2 did not capture attributes')
+    t.end()
+  })
+
+  agent.captureError = origCaptureError
+
+  var ex0 = new Error('ex0')
+  ex0.theProperty = 'this is the property'
+  agent.captureError(ex0)
+
+  var ex1 = new Error('ex1')
+  ex1.theProperty = 'this is the property'
+  agent.captureError(ex1, { captureAttributes: true })
+
+  var ex2 = new Error('ex2')
+  ex2.theProperty = 'this is the property'
+  agent.captureError(ex2, { captureAttributes: false })
+})
+
 test('sampling', function (t) {
   function generateSamples (rate, count) {
     count = count || 1000
