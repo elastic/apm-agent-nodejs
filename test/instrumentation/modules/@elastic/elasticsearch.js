@@ -15,6 +15,9 @@ const agent = require('../../../..').start({
 const shimmer = require('../../../../lib/instrumentation/shimmer')
 const test = require('tape')
 
+// Silence deprecation warning from @elastic/elasticsearch when using a Node.js
+// version that is *soon* to be EOL'd, but isn't yet.
+process.noDeprecation = true;
 const { Client } = require('@elastic/elasticsearch')
 
 const mockClient = require('../../../_mock_http_client')
@@ -252,6 +255,7 @@ test('ResponseError', function (t) {
       const err = data.errors[0]
       t.ok(err, 'sent an error to APM server')
       t.ok(err.id, 'err.id')
+      t.equal(err.exception.module, '@elastic/elasticsearch')
       t.ok(err.exception.message, 'err.exception.message')
       t.equal(err.exception.type, 'ResponseError',
         'err.exception.type is ResponseError')
