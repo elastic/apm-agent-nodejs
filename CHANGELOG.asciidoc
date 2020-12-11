@@ -33,10 +33,22 @@ Notes:
 ==== Unreleased
 
 [float]
+===== Breaking changes
+
+[float]
 ===== Features
 
 * feat: Add support for api keys {pull}1818[#1818] +
   This allows the usage of API keys for authentication to the APM server
+* feat: Add `captureAttributes` boolean option to `apm.captureError()` to
+  allow *disabling* the automatic capture of Error object properties. This
+  is useful for cases where those properties should not be sent to the APM
+  Server, e.g. for performance (large string fields) or security (PII data).
+* feat: Add `log_level` central config support. {pull}1908[#1908] +
+  Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
+
+[float]
+===== Bug fixes
 
 
 [[release-notes-3.9.0]]
