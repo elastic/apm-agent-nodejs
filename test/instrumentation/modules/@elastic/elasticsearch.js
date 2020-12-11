@@ -17,7 +17,7 @@ const test = require('tape')
 
 // Silence deprecation warning from @elastic/elasticsearch when using a Node.js
 // version that is *soon* to be EOL'd, but isn't yet.
-process.noDeprecation = true;
+process.noDeprecation = true
 const { Client } = require('@elastic/elasticsearch')
 
 const mockClient = require('../../../_mock_http_client')
