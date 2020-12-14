@@ -21,6 +21,7 @@ process.noDeprecation = true
 const { Client } = require('@elastic/elasticsearch')
 
 const mockClient = require('../../../_mock_http_client')
+const { Readable } = require('stream')
 const findObjInArray = require('../../../_utils').findObjInArray
 
 test('client.ping with promise', function userLandCode (t) {
@@ -328,15 +329,16 @@ test('request.abort() works', function (t) {
     function done (data) {
       // We expect to get:
       // - 1 elasticsearch span
-      // - 1..many HTTP spans (one for each attempt) which we ignore here
-      // - 1 abort error
+      // - 1 abort error (and possibly another error due to the double-callback
+      //   bug mentioned below)
       const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
       t.ok(esSpan, 'have an elasticsearch span')
 
-      const err = data.errors[0]
+      const err = data.errors
+        .filter((e) => e.exception.type === 'RequestAbortedError')[0]
       t.ok(err, 'sent an error to APM server')
       t.ok(err.id, 'err.id')
-      t.ok(err.exception.message, 'err.exception.message')
+      t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
       t.equal(err.exception.type, 'RequestAbortedError',
         'err.exception.type is RequestAbortedError')
 
@@ -346,14 +348,29 @@ test('request.abort() works', function (t) {
 
   agent.startTransaction('myTrans')
 
-  // Start a request that we expect to *not* succeed (artificial quick
-  // timeout of 1ms), then abort as soon as possible.
-  const client = new Client({ node, requestTimeout: 1, maxRetries: 50 })
-  const req = client.search({ q: 'pants' }, function (err, _result) {
-    t.ok(err, 'got error')
-    t.equal(err.name, 'RequestAbortedError', 'error is RequestAbortedError')
-    agent.endTransaction()
-    agent.flush()
+  // Start a request that we expect to *not* succeed quickly (artificially
+  // make getting the request body slow via `slowBody`) then abort as soon
+  // as possible.
+  const slowBody = new Readable({
+    read(size) {
+      setTimeout(() => {
+        this.push('{"query":{"match_all":{}}}')
+        this.push(null) // EOF
+      }, 1000).unref()
+    }
+  })
+  let gotCallbackAlready = false
+  const client = new Client({ node })
+  const req = client.search({ body: slowBody }, function (err, _result) {
+    // Use gotCallbackAlready to avoid double-callback bug
+    // https://github.com/elastic/elasticsearch-js/issues/1374
+    if (!gotCallbackAlready) {
+      gotCallbackAlready = true
+      t.ok(err, 'got error')
+      t.equal(err.name, 'RequestAbortedError', 'error is RequestAbortedError')
+      agent.endTransaction()
+      agent.flush()
+    }
   })
   setImmediate(function () {
     req.abort()
@@ -365,13 +382,14 @@ test('promise.abort() works', function (t) {
     function done (data) {
       // We expect to get:
       // - 1 elasticsearch span
-      // - N HTTP spans (one for each attempt)
-      // - 1 abort error
+      // - 1 abort error (and possibly another error due to a double-callback
+      //   bug https://github.com/elastic/elasticsearch-js/issues/1374)
 
       const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
       t.ok(esSpan, 'have an elasticsearch span')
 
-      const err = data.errors[0]
+      const err = data.errors
+        .filter((e) => e.exception.type === 'RequestAbortedError')[0]
       t.ok(err, 'sent an error to APM server')
       t.ok(err.id, 'err.id')
       t.ok(err.exception.message, 'err.exception.message')
@@ -384,10 +402,19 @@ test('promise.abort() works', function (t) {
 
   agent.startTransaction('myTrans')
 
-  // Start a request that we expect to be retrying frequently (timeout=1ms),
-  // then abort it after 10ms.
-  const client = new Client({ node, requestTimeout: 1, maxRetries: 50 })
-  const promise = client.search({ q: 'pants' })
+  // Start a request that we expect to *not* succeed quickly (artificially
+  // make getting the request body slow via `slowBody`) then abort as soon
+  // as possible.
+  const slowBody = new Readable({
+    read(size) {
+      setTimeout(() => {
+        this.push('{"query":{"match_all":{}}}')
+        this.push(null) // EOF
+      }, 1000).unref()
+    }
+  })
+  const client = new Client({ node })
+  const promise = client.search({ body: slowBody })
   promise
     .then(_result => {})
     .catch(err => {
@@ -396,9 +423,9 @@ test('promise.abort() works', function (t) {
       agent.endTransaction()
       agent.flush()
     })
-  setTimeout(function () {
+  setImmediate(function () {
     promise.abort()
-  }, 10)
+  })
 })
 
 // Utility functions.
