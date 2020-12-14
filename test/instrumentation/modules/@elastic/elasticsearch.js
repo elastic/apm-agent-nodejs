@@ -398,9 +398,8 @@ test('request.abort() works', function (t) {
     function done (data) {
       // We expect to get:
       // - 1 elasticsearch span
-      // - N HTTP spans (one for each attempt)
+      // - 1..many HTTP spans (one for each attempt) which we ignore here
       // - 1 abort error
-
       const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
       t.ok(esSpan, 'have an elasticsearch span')
 
@@ -417,8 +416,8 @@ test('request.abort() works', function (t) {
 
   agent.startTransaction('myTrans')
 
-  // Start a request that we expect to be retrying frequently (timeout=1ms),
-  // then abort it after 10ms.
+  // Start a request that we expect to *not* succeed (artificial quick
+  // timeout of 1ms), then abort as soon as possible.
   const client = new Client({ node, requestTimeout: 1, maxRetries: 50 })
   const req = client.search({ q: 'pants' }, function (err, _result) {
     t.ok(err, 'got error')
@@ -426,9 +425,9 @@ test('request.abort() works', function (t) {
     agent.endTransaction()
     agent.flush()
   })
-  setTimeout(function () {
+  setImmediate(function () {
     req.abort()
-  }, 10)
+  })
 })
 
 test('promise.abort() works', function (t) {
