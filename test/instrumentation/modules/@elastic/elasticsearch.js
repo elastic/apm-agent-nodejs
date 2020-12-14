@@ -352,7 +352,7 @@ test('request.abort() works', function (t) {
   // make getting the request body slow via `slowBody`) then abort as soon
   // as possible.
   const slowBody = new Readable({
-    read(size) {
+    read (size) {
       setTimeout(() => {
         this.push('{"query":{"match_all":{}}}')
         this.push(null) // EOF
@@ -406,7 +406,7 @@ test('promise.abort() works', function (t) {
   // make getting the request body slow via `slowBody`) then abort as soon
   // as possible.
   const slowBody = new Readable({
-    read(size) {
+    read (size) {
       setTimeout(() => {
         this.push('{"query":{"match_all":{}}}')
         this.push(null) // EOF
