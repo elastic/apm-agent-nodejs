@@ -15,14 +15,16 @@ process.noDeprecation = true
 const { Client } = require('@elastic/elasticsearch')
 
 const { Readable } = require('stream')
+const semver = require('semver')
 const test = require('tape')
-const shimmer = require('../../../../lib/instrumentation/shimmer')
 
-const mockClient = require('../../../_mock_http_client')
 const findObjInArray = require('../../../_utils').findObjInArray
+const mockClient = require('../../../_mock_http_client')
+const shimmer = require('../../../../lib/instrumentation/shimmer')
 
 const host = (process.env.ES_HOST || 'localhost') + ':9200'
 const node = 'http://' + host
+const pkgVersion = require('@elastic/elasticsearch/package.json').version
 
 test('client.ping with promise', function userLandCode (t) {
   resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
@@ -322,111 +324,113 @@ test('DeserializationError', function (t) {
   })
 })
 
-// Abort handling.
+if (semver.gte(pkgVersion, '7.7.0')) {
+  // Abort handling was added to @elastic/elasticsearch@7.7.0.
 
-test('request.abort() works', function (t) {
-  resetAgent(
-    function done (data) {
-      // We expect to get:
-      // - 1 elasticsearch span
-      // - 1 abort error (and possibly another error due to the double-callback
-      //   bug mentioned below)
-      const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
-      t.ok(esSpan, 'have an elasticsearch span')
+  test('request.abort() works', function (t) {
+    resetAgent(
+      function done (data) {
+        // We expect to get:
+        // - 1 elasticsearch span
+        // - 1 abort error (and possibly another error due to the double-callback
+        //   bug mentioned below)
+        const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+        t.ok(esSpan, 'have an elasticsearch span')
 
-      const err = data.errors
-        .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-      t.ok(err, 'sent an error to APM server')
-      t.ok(err.id, 'err.id')
-      t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
-      t.equal(err.exception.type, 'RequestAbortedError',
-        'err.exception.type is RequestAbortedError')
+        const err = data.errors
+          .filter((e) => e.exception.type === 'RequestAbortedError')[0]
+        t.ok(err, 'sent an error to APM server')
+        t.ok(err.id, 'err.id')
+        t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
+        t.equal(err.exception.type, 'RequestAbortedError',
+          'err.exception.type is RequestAbortedError')
 
-      t.end()
-    }
-  )
+        t.end()
+      }
+    )
 
-  agent.startTransaction('myTrans')
+    agent.startTransaction('myTrans')
 
-  // Start a request that we expect to *not* succeed quickly (artificially
-  // make getting the request body slow via `slowBody`) then abort as soon
-  // as possible.
-  const slowBody = new Readable({
-    read (size) {
-      setTimeout(() => {
-        this.push('{"query":{"match_all":{}}}')
-        this.push(null) // EOF
-      }, 1000).unref()
-    }
-  })
-  let gotCallbackAlready = false
-  const client = new Client({ node })
-  const req = client.search({ body: slowBody }, function (err, _result) {
-    // Use gotCallbackAlready to avoid double-callback bug
-    // https://github.com/elastic/elasticsearch-js/issues/1374
-    if (!gotCallbackAlready) {
-      gotCallbackAlready = true
-      t.ok(err, 'got error')
-      t.equal(err.name, 'RequestAbortedError', 'error is RequestAbortedError')
-      agent.endTransaction()
-      agent.flush()
-    }
-  })
-  setImmediate(function () {
-    req.abort()
-  })
-})
-
-test('promise.abort() works', function (t) {
-  resetAgent(
-    function done (data) {
-      // We expect to get:
-      // - 1 elasticsearch span
-      // - 1 abort error (and possibly another error due to a double-callback
-      //   bug https://github.com/elastic/elasticsearch-js/issues/1374)
-
-      const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
-      t.ok(esSpan, 'have an elasticsearch span')
-
-      const err = data.errors
-        .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-      t.ok(err, 'sent an error to APM server')
-      t.ok(err.id, 'err.id')
-      t.ok(err.exception.message, 'err.exception.message')
-      t.equal(err.exception.type, 'RequestAbortedError',
-        'err.exception.type is RequestAbortedError')
-
-      t.end()
-    }
-  )
-
-  agent.startTransaction('myTrans')
-
-  // Start a request that we expect to *not* succeed quickly (artificially
-  // make getting the request body slow via `slowBody`) then abort as soon
-  // as possible.
-  const slowBody = new Readable({
-    read (size) {
-      setTimeout(() => {
-        this.push('{"query":{"match_all":{}}}')
-        this.push(null) // EOF
-      }, 1000).unref()
-    }
-  })
-  const client = new Client({ node })
-  const promise = client.search({ body: slowBody })
-  promise
-    .then(_result => {})
-    .catch(err => {
-      t.ok(err, 'got error')
-      t.equal(err.name, 'RequestAbortedError', 'error is RequestAbortedError')
-      agent.endTransaction()
-      agent.flush()
+    // Start a request that we expect to *not* succeed quickly (artificially
+    // make getting the request body slow via `slowBody`) then abort as soon
+    // as possible.
+    const slowBody = new Readable({
+      read (size) {
+        setTimeout(() => {
+          this.push('{"query":{"match_all":{}}}')
+          this.push(null) // EOF
+        }, 1000).unref()
+      }
     })
-  setImmediate(function () {
-    promise.abort()
+    let gotCallbackAlready = false
+    const client = new Client({ node })
+    const req = client.search({ body: slowBody }, function (err, _result) {
+      // Use gotCallbackAlready to avoid double-callback bug
+      // https://github.com/elastic/elasticsearch-js/issues/1374
+      if (!gotCallbackAlready) {
+        gotCallbackAlready = true
+        t.ok(err, 'got error')
+        t.equal(err.name, 'RequestAbortedError', 'error is RequestAbortedError')
+        agent.endTransaction()
+        agent.flush()
+      }
+    })
+    setImmediate(function () {
+      req.abort()
+    })
   })
-})
+
+  test('promise.abort() works', function (t) {
+    resetAgent(
+      function done (data) {
+        // We expect to get:
+        // - 1 elasticsearch span
+        // - 1 abort error (and possibly another error due to a double-callback
+        //   bug https://github.com/elastic/elasticsearch-js/issues/1374)
+
+        const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+        t.ok(esSpan, 'have an elasticsearch span')
+
+        const err = data.errors
+          .filter((e) => e.exception.type === 'RequestAbortedError')[0]
+        t.ok(err, 'sent an error to APM server')
+        t.ok(err.id, 'err.id')
+        t.ok(err.exception.message, 'err.exception.message')
+        t.equal(err.exception.type, 'RequestAbortedError',
+          'err.exception.type is RequestAbortedError')
+
+        t.end()
+      }
+    )
+
+    agent.startTransaction('myTrans')
+
+    // Start a request that we expect to *not* succeed quickly (artificially
+    // make getting the request body slow via `slowBody`) then abort as soon
+    // as possible.
+    const slowBody = new Readable({
+      read (size) {
+        setTimeout(() => {
+          this.push('{"query":{"match_all":{}}}')
+          this.push(null) // EOF
+        }, 1000).unref()
+      }
+    })
+    const client = new Client({ node })
+    const promise = client.search({ body: slowBody })
+    promise
+      .then(_result => {})
+      .catch(err => {
+        t.ok(err, 'got error')
+        t.equal(err.name, 'RequestAbortedError', 'error is RequestAbortedError')
+        agent.endTransaction()
+        agent.flush()
+      })
+    setImmediate(function () {
+      promise.abort()
+    })
+  })
+}
 
 // Utility functions.
 
