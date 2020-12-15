@@ -190,7 +190,7 @@ Note that not all core Node.js API's can be instrumented without the use of Asyn
 
 * *Type:* Array
 * *Default:* `[]`
-* *Env:* `ELASTIC_TRANSACTION_IGNORE_URLS`
+* *Env:* `ELASTIC_APM_TRANSACTION_IGNORE_URLS`
 
 Array or comma-separated string used to restrict requests for certain URLs from being instrumented.
 
