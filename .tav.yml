@@ -243,8 +243,12 @@ elasticsearch:
   versions: '>=8.0.0'
   commands: node test/instrumentation/modules/elasticsearch.js
 
+# @elastic/elasticsearch
+# - Version 7.7.0 included a change that broke usage with Node.js < 10.
+#   Fixed in 7.7.1: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_7_7_1
+#   Note: When Node.js v8 support is dropped, `versions` can be simplified.
 '@elastic/elasticsearch':
-  versions: '>=7.0.0 <8.0.0'
+  versions: '>=7.0.0 <7.7.0 || >7.7.0 <8.0.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.js
 
 handlebars:
