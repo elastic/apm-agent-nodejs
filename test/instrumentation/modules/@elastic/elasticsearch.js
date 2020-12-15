@@ -1,9 +1,6 @@
 'use strict'
 
 process.env.ELASTIC_APM_TEST = true
-const host = (process.env.ES_HOST || 'localhost') + ':9200'
-const node = 'http://' + host
-
 const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -12,17 +9,20 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
-const shimmer = require('../../../../lib/instrumentation/shimmer')
-const test = require('tape')
-
 // Silence deprecation warning from @elastic/elasticsearch when using a Node.js
 // version that is *soon* to be EOL'd, but isn't yet.
 process.noDeprecation = true
 const { Client } = require('@elastic/elasticsearch')
 
-const mockClient = require('../../../_mock_http_client')
 const { Readable } = require('stream')
+const test = require('tape')
+const shimmer = require('../../../../lib/instrumentation/shimmer')
+
+const mockClient = require('../../../_mock_http_client')
 const findObjInArray = require('../../../_utils').findObjInArray
+
+const host = (process.env.ES_HOST || 'localhost') + ':9200'
+const node = 'http://' + host
 
 test('client.ping with promise', function userLandCode (t) {
   resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
