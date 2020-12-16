@@ -45,7 +45,8 @@ Notes:
   {pull}1912[#1912]
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
-
+* chore: Pulled `is-secret` and `redact-secrets` into agent as private modules
+  and removed them as external dependencies.
 [float]
 ===== Bug fixes
 
