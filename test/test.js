@@ -91,6 +91,7 @@ var directories = [
   'test/integration/api-schema',
   'test/lambda',
   'test/metrics',
+  'test/redact-secrets',
   'test/sourcemaps',
   'test/uncaught-exceptions'
 ]

@@ -101,7 +101,6 @@
     "object-identity-map": "^1.0.2",
     "original-url": "^1.2.3",
     "read-pkg-up": "^7.0.1",
-    "redact-secrets": "^1.0.0",
     "relative-microtime": "^2.0.0",
     "require-ancestors": "^1.0.0",
     "require-in-the-middle": "^5.0.3",
@@ -111,6 +110,7 @@
     "sql-summary": "^1.0.1",
     "stackman": "^4.0.1",
     "traceparent": "^1.0.0",
+    "traverse": "^0.6.6",
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
