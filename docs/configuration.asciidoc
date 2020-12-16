@@ -707,14 +707,16 @@ the HTTP request is terminated and the TCP socket closed.
 [[sanitize-field-names]]
 ==== `sanitizeFieldNames`
 * *Type:* Array
-* *Default:* ['password', 'passwd', 'pwd', 'secret', '\*key', '*token*', '\*session*', '\*credit*', '\*card*', 'authorization', 'set-cookie']
+* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', 'authorization', 'set-cookie']`
 * *Env:* `ELASTIC_SANITIZE_FIELD_NAMES`
 
-Sometimes it is necessary to sanitize the data sent to Elastic APM, e.g. remove sensitive data.
+Remove sensitive data sent to Elastic APM.
 
-The `sanitizeFieldNames` configuration values allows you to configure a list of wildcard patterns of field names which should be _removed_ from agent payloads. These patterns apply to the request and response HTTP headers, as well as any form field capturing during an `application/x-www-form-urlencoded data` request.
+The `sanitizeFieldNames` configuration values allows you to configure a list of wildcard patterns of field names which should be redacted from agent payloads. Wildcard matches are
+case-insensitive by default. You may make wildcard searches case-sensitive by
+using the `(?-i)` prefix. These patterns apply to the request and response HTTP headers, as well as any form field captured during an `application/x-www-form-urlencoded data` request.
 
-The `sanitizeFieldNames` will _remove_ any matched fields.  If you wish to filter or _redact_ other data the <<filter-http-headers,`filterHttpHeaders`>> configuration field or the <<apm-add-filter,API filtering functions>> may be a better choice.
+The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to filter or _redact_ other data the <<filter-http-headers,`filterHttpHeaders`>> configuration field or the <<apm-add-filter,API filtering functions>> may be a better choice.
 
 [[filter-http-headers]]
 ==== `filterHttpHeaders`
@@ -733,7 +735,7 @@ the header value will be set to `[REDACTED]`
 
 Currently, the following HTTP headers are anonymized by default:
 
-* `Authorization` - The full value of this header is redacted
+* `Authorization` - The full value of this header is redacted.  In versions of the agent greater than v3.9, the authorization header is redacted by the default configuration of <<sanitize-field-names>>.
 * `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
   See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
 

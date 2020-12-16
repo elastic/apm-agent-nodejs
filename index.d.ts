@@ -217,7 +217,7 @@ interface AgentConfigOptions {
   metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   payloadLogFile?: string;
   centralConfig?: boolean;
-  sanitizeFieldNames?:Array<string>;
+  sanitizeFieldNames?: Array<string>;
   secretToken?: string;
   serverCaCertFile?: string;
   serverTimeout?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
