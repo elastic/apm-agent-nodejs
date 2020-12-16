@@ -1,5 +1,7 @@
 'use strict'
 
+const { pathIsAQuery } = require('../../../lib/instrumentation/elasticsearch-shared')
+
 process.env.ELASTIC_APM_TEST = true
 var host = (process.env.ES_HOST || 'localhost') + ':9200'
 
@@ -49,7 +51,7 @@ test('client.ping with promise', function userLandCode (t) {
 })
 
 test('client.search with callback', function userLandCode (t) {
-  resetAgent(done(t, 'POST', '/_search', '{"q":"pants"}'))
+  resetAgent(done(t, 'POST', '/_search', 'q=pants'))
 
   agent.startTransaction('foo')
 
@@ -64,7 +66,7 @@ test('client.search with callback', function userLandCode (t) {
 })
 
 test('client.search with abort', function userLandCode (t) {
-  resetAgent(3, done(t, 'POST', '/_search', '{"q":"pants"}', true))
+  resetAgent(3, done(t, 'POST', '/_search', 'q=pants', true))
 
   agent.startTransaction('foo')
 
@@ -171,7 +173,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 }
 
 test('client.count with callback', function userLandCode (t) {
-  resetAgent(done(t, 'POST', '/_count'))
+  resetAgent(done(t, 'POST', '/_count', ''))
 
   agent.startTransaction('foo')
 
@@ -183,16 +185,15 @@ test('client.count with callback', function userLandCode (t) {
   })
 })
 
-var queryRegexp = /_((search|msearch)(\/template)?|count)$/
 function done (t, method, path, query, abort = false) {
   return function (data, cb) {
-    t.strictEqual(data.transactions.length, 1)
-    t.strictEqual(data.spans.length, 2)
+    t.strictEqual(data.transactions.length, 1, 'should have 1 transaction')
+    t.strictEqual(data.spans.length, 2, 'should have 2 spans')
 
     var trans = data.transactions[0]
 
-    t.strictEqual(trans.name, 'foo')
-    t.strictEqual(trans.type, 'custom')
+    t.strictEqual(trans.name, 'foo', 'transaction name should be "foo"')
+    t.strictEqual(trans.type, 'custom', 'transaction type should be "custom"')
 
     let span1, span2
     {
@@ -222,19 +223,20 @@ function done (t, method, path, query, abort = false) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
 
-    if (queryRegexp.test(path)) {
-      t.deepEqual(span2.context.db, { statement: query || '{}', type: 'elasticsearch' })
-      const [address, port] = host.split(':')
-      t.deepEqual(span2.context.destination, {
-        service: {
-          name: 'elasticsearch', resource: 'elasticsearch', type: 'db'
-        },
-        port: Number(port),
-        address
-      })
+    if (pathIsAQuery.test(path)) {
+      t.deepEqual(span2.context.db, { statement: query, type: 'elasticsearch' })
     } else {
-      t.notOk(span2.context)
+      t.notOk(span2.context.db, 'span2 should not have "context.db"')
     }
+
+    const [address, port] = host.split(':')
+    t.deepEqual(span2.context.destination, {
+      service: {
+        name: 'elasticsearch', resource: 'elasticsearch', type: 'db'
+      },
+      port: Number(port),
+      address
+    })
 
     t.ok(span1.timestamp > span2.timestamp, 'http span should start after elasticsearch span')
     if (abort) {

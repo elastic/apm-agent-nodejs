@@ -38,11 +38,24 @@ Notes:
 [float]
 ===== Features
 
+* feat: Add automatic instrumentation of the https://github.com/elastic/elasticsearch-js[@elastic/elasticsearch] package {pull}1877[#1870]
++
+The instrumentation of the legacy "elasticsearch" package has also changed
+slightly to commonalize:
++
+** "span.context.destination" is set on all Elasticsearch spans, not just a
+   subset of query-like API endpoints.
+** For query-like API endpoints (e.g. `/_search`), the capturing of query details
+   on "span.context.db.statement" has changed (a) to include *both* the
+   query params and the request body if both exist (separated by `\n\n`) and
+   (b) to *URL encode* the query params, rather than JSON encoding.
+
 * feat: Add `captureAttributes` boolean option to `apm.captureError()` to
   allow *disabling* the automatic capture of Error object properties. This
   is useful for cases where those properties should not be sent to the APM
   Server, e.g. for performance (large string fields) or security (PII data).
   {pull}1912[#1912]
+
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
 

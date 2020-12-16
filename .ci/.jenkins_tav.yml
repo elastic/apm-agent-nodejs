@@ -1,4 +1,5 @@
 TAV:
+  - '@elastic/elasticsearch'
   - '@hapi/hapi'
   - '@koa/router'
   - apollo-server-express
