@@ -127,6 +127,7 @@
     "benchmark": "^2.1.4",
     "bluebird": "^3.7.2",
     "cassandra-driver": "^4.4.0",
+    "clone": "^2.0.0",
     "columnify": "^1.5.4",
     "connect": "^3.7.0",
     "container-info": "^1.0.1",
