@@ -16,8 +16,9 @@ test('removeKeysFromObject unit tests', function (t) {
     five: 'six'
   }
   removeKeysFromObject(obj1, [/th.*ee/])
-  t.ok(!obj1.three, 'key three removed from object')
-  t.equals(obj1.one, 'two', 'key one remains in ibject')
+  // t.ok(!obj1.three, 'key three removed from object')
+  t.equals(obj1.three, '[REDACTED]', 'key three redacted')
+  t.equals(obj1.one, 'two', 'key one remains in object')
   t.equals(obj1.five, 'six', 'key five remains in object')
 
   const obj2 = {
@@ -26,9 +27,9 @@ test('removeKeysFromObject unit tests', function (t) {
     five: 'six'
   }
   removeKeysFromObject(obj2, [/th.*ee/, /three/, /.*five/])
-  t.ok(!obj2.three, 'key three removed from object')
+  t.equals(obj2.three, '[REDACTED]', 'key three redacted')
   t.equals(obj2.one, 'two', 'key one remains in ibject')
-  t.ok(!obj2.five, 'key five removed from object')
+  t.equals(obj2.five, '[REDACTED]', 'key five redacted')
 
   t.end()
 })
@@ -42,7 +43,7 @@ test('removeKeysFromObject tests', function (t) {
     five: 'six'
   }
   removeKeysFromObject(obj1, [/th.*ee/])
-  t.ok(!obj1.three, 'key three removed from object')
+  t.equals(obj1.three, '[REDACTED]', 'key three redacted')
   t.equals(obj1.one, 'two', 'key one remains in ibject')
   t.equals(obj1.five, 'six', 'key five remains in object')
 
@@ -52,9 +53,9 @@ test('removeKeysFromObject tests', function (t) {
     five: 'six'
   }
   removeKeysFromObject(obj2, [/th.*ee/, /three/, /.*five/])
-  t.ok(!obj2.three, 'key three removed from object')
+  t.equals(obj2.three, '[REDACTED]', 'key three redacted')
   t.equals(obj2.one, 'two', 'key one remains in ibject')
-  t.ok(!obj2.five, 'key five removed from object')
+  t.equals(obj2.five, '[REDACTED]', 'key five redacted')
 
   t.end()
 })
@@ -78,7 +79,7 @@ test('removeKeysFromPostedFormVariables tests', function (t) {
   )
   t.equals(result1.three, 'four', 'key three removed from object')
   t.equals(result1.one, 'two', 'key one remains in object')
-  t.ok(!result1.five, 'key five removed from object')
+  t.equals(result1.five, '[REDACTED]', 'key five redacted')
 
   // body as string
   const body2 = 'one=two&three=four&five=six'
@@ -91,7 +92,7 @@ test('removeKeysFromPostedFormVariables tests', function (t) {
   )
 
   t.equals(result2.three, 'four', 'key three remains in object')
-  t.ok(!result2.one, 'key one removed from object')
+  t.equals(result2.one, '[REDACTED]', 'key one redacted')
   t.equals(result2.five, 'six', 'key five remains in object')
 
   // body as raw array of bytes
@@ -104,8 +105,8 @@ test('removeKeysFromPostedFormVariables tests', function (t) {
     ).toString()
   )
 
-  t.ok(!result3.three, 'key three removed from object')
-  t.ok(!result3.one, 'key one removed from object')
+  t.equals(result3.three, '[REDACTED]', 'key three redacted')
+  t.equals(result3.one, '[REDACTED]', 'key one redacted')
   t.equals(result3.five, 'six', 'key five remains in object')
 
   // untouched due to no application/x-www-form-urlencoded header

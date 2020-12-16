@@ -2,6 +2,7 @@
 const querystring = require('querystring')
 const mockClient = require('../_mock_http_client')
 
+const REDACTED = '[REDACTED]'
 /**
  * Checks that request header payload data meets expectations of test fixtures
  */
@@ -12,9 +13,10 @@ function assertRequestHeadersWithFixture (transaction, expected, t) {
     t.equals(transaction.context.request.headers[header.toLowerCase()], value, `key "${header}" has correct value`)
   }
   for (const [, header] of expected.requestHeaders.undefined.entries()) {
-    t.ok(
-      !transaction.context.request.headers[header.toLowerCase()],
-      `header "${header}" is not set`
+    t.equals(
+      transaction.context.request.headers[header.toLowerCase()],
+      REDACTED,
+      `header "${header}" is redacted`
     )
   }
 }
@@ -29,9 +31,10 @@ function assertResponseHeadersWithFixture (transaction, expected, t) {
     t.equals(transaction.context.response.headers[header.toLowerCase()], value, `key "${header}" has correct value`)
   }
   for (const [, header] of expected.responseHeaders.undefined.entries()) {
-    t.ok(
-      !transaction.context.response.headers[header.toLowerCase()],
-      `header "${header}" is not set`
+    t.equals(
+      transaction.context.response.headers[header.toLowerCase()],
+      REDACTED,
+      `header "${header}" is redacted`
     )
   }
 }
@@ -47,7 +50,7 @@ function assertFormsWithFixture (transaction, expected, t) {
     t.equals(bodyAsObject[key], value, `key "${key}" has correct value`)
   }
   for (const [, key] of expected.formFields.undefined.entries()) {
-    t.ok(!bodyAsObject[key], `key "${key}" is not set`)
+    t.equals(bodyAsObject[key], REDACTED, `key "${key}" is not set`)
   }
 }
 
