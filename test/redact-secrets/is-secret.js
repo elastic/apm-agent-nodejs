@@ -1,6 +1,6 @@
 'use strict'
 // This module is a fork of
-// https://github.com/watson/is-secret/blob/563cce48b4b89fd3f99221432a3f37b4662672b0/test.js
+// https://github.com/watson/is-secret/blob/v1.2.1/test.js
 // The MIT License (MIT)
 
 // Copyright (c) 2016-2018 Thomas Watson Steen

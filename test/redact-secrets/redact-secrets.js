@@ -1,6 +1,6 @@
 'use strict'
 // This module is a fork of
-// https://github.com/watson/redact-secrets/blob/cf8f95aaa343a85978c09222096fde5f4d608aea/test.js
+// https://github.com/watson/redact-secrets/blob/v1.0.0/test.js
 // The MIT License (MIT)
 
 // Copyright (c) 2016 Thomas Watson Steen
