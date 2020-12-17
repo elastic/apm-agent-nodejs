@@ -32,13 +32,13 @@ test('isSecret.key true', function (t) {
   t.equal(isSecret.key('api.key'), true)
   t.equal(isSecret.key('api_key'), true)
   t.equal(isSecret.key('apikey'), true)
+  t.equal(isSecret.key('api*key'), true)
   t.end()
 })
 
 test('isSecret.key false', function (t) {
   t.equal(isSecret.key('passport'), false)
   t.equal(isSecret.key('copenhagen'), false)
-  t.equal(isSecret.key('api*key'), false)
   t.end()
 })
 
