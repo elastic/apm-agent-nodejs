@@ -707,7 +707,7 @@ the HTTP request is terminated and the TCP socket closed.
 [[sanitize-field-names]]
 ==== `sanitizeFieldNames`
 * *Type:* Array
-* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', 'authorization', 'set-cookie']`
+* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', 'authorization', 'set-cookie', 'pw', 'pass', 'connect.sid']`
 * *Env:* `ELASTIC_SANITIZE_FIELD_NAMES`
 
 Remove sensitive data sent to Elastic APM.
