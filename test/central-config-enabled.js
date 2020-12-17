@@ -91,13 +91,13 @@ test('remote config enabled: receives comma delimited', function (t) {
     transaction_sample_rate: '0.42',
     transaction_max_spans: '99',
     capture_body: 'all',
-    transaction_ignore_urls: 'foo,bar'
+    transaction_ignore_urls: 'foo,bar , baz , bling'
   }
   const expect = {
     transactionSampleRate: 0.42,
     transactionMaxSpans: 99,
     captureBody: 'all',
-    transactionIgnoreUrls: ['foo', 'bar']
+    transactionIgnoreUrls: ['foo', 'bar', 'baz', 'bling']
   }
 
   runTestsWithServer(t, updates, expect)
