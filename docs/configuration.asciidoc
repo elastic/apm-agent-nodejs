@@ -49,6 +49,20 @@ This option allows you to set the node name manually to ensure uniqueness and me
 
 The secret token optionally expected by the APM Server.
 
+[[api-key]]
+==== `apiKey`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_API_KEY`
+
+The API key optionally expected by the APM Server. This is an alternative to `secretToken`.
+
+This base64-encoded string is used to ensure that only your agents can send data to your APM server. You must have created the API key using the APM server command line tool. Please see the {apm-server-ref}/api-key.html[APM server documentation] for details on how to do that.
+
+NOTE: This feature is fully supported in the APM Server versions >= 7.6.
+
+WARNING: The API key is sent as plain-text in every request to the server, so you should secure your communications using HTTPS. Unless you do so, your API key could be observed by an attacker.
+
 [[server-url]]
 ==== `serverUrl`
 

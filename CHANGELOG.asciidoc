@@ -38,6 +38,10 @@ Notes:
 [float]
 ===== Features
 
+
+* feat: Add support for api keys {pull}1818[#1818] +
+  This allows the usage of API keys for authentication to the APM server
+
 * feat: Add automatic instrumentation of the https://github.com/elastic/elasticsearch-js[@elastic/elasticsearch] package {pull}1877[#1870]
 +
 The instrumentation of the legacy "elasticsearch" package has also changed
@@ -49,7 +53,7 @@ slightly to commonalize:
    on "span.context.db.statement" has changed (a) to include *both* the
    query params and the request body if both exist (separated by `\n\n`) and
    (b) to *URL encode* the query params, rather than JSON encoding.
-
+   
 * feat: Add `captureAttributes` boolean option to `apm.captureError()` to
   allow *disabling* the automatic capture of Error object properties. This
   is useful for cases where those properties should not be sent to the APM
