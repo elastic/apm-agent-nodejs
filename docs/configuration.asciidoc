@@ -712,7 +712,7 @@ the HTTP request is terminated and the TCP socket closed.
 
 Remove sensitive data sent to Elastic APM.
 
-The `sanitizeFieldNames` configuration values allows you to configure a list of wildcard patterns of field names which should be redacted from agent payloads. Wildcard matches are
+The `sanitizeFieldNames` configuration value allows you to configure a list of wildcard patterns of field names which should be redacted from agent payloads. Wildcard matches are
 case-insensitive by default. You may make wildcard searches case-sensitive by
 using the `(?-i)` prefix. These patterns apply to the request and response HTTP headers, as well as any form field captured during an `application/x-www-form-urlencoded data` request.
 
