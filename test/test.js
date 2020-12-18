@@ -75,6 +75,7 @@ var directories = [
   'test',
   'test/instrumentation',
   'test/instrumentation/modules',
+  'test/instrumentation/modules/@elastic',
   'test/instrumentation/modules/bluebird',
   'test/instrumentation/modules/cassandra-driver',
   'test/instrumentation/modules/express',
@@ -91,6 +92,7 @@ var directories = [
   'test/integration/api-schema',
   'test/lambda',
   'test/metrics',
+  'test/redact-secrets',
   'test/sourcemaps',
   'test/uncaught-exceptions'
 ]
