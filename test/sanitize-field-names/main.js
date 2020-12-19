@@ -16,7 +16,6 @@ test('removeKeysFromObject unit tests', function (t) {
     five: 'six'
   }
   removeKeysFromObject(obj1, [/th.*ee/])
-  // t.ok(!obj1.three, 'key three removed from object')
   t.equals(obj1.three, '[REDACTED]', 'key three redacted')
   t.equals(obj1.one, 'two', 'key one remains in object')
   t.equals(obj1.five, 'six', 'key five remains in object')
