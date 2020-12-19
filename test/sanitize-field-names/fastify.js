@@ -4,13 +4,13 @@ const {
   resetAgent,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture
-} = require('./shared')
+} = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
 const test = require('tape')
 const request = require('request')
 const fastify = require('fastify')
 const fastifyFormbody = require('fastify-formbody')
-const fixtures = require('./fixtures')
+const fixtures = require('./_fixtures')
 
 function runTest (
   t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false

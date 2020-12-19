@@ -5,13 +5,13 @@ const {
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
   assertFormsWithFixture
-} = require('./shared')
+} = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
 const test = require('tape')
 const request = require('request')
 const express = require('express')
 const bodyParser = require('body-parser')
-const fixtures = require('./fixtures')
+const fixtures = require('./_fixtures')
 
 function runTest (
   t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false

@@ -5,12 +5,12 @@ const {
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
   assertFormsWithFixture
-} = require('./shared')
+} = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
 const test = require('tape')
 const request = require('request')
 const restify = require('restify')
-const fixtures = require('./fixtures')
+const fixtures = require('./_fixtures')
 
 test('Running fixtures with koa', function (t1) {
   for (const [, fixture] of fixtures.entries()) {

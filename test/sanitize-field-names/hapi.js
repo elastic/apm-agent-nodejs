@@ -4,12 +4,12 @@ const {
   resetAgent,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture
-} = require('./shared')
+} = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
 const test = require('tape')
 const request = require('request')
 const Hapi = require('@hapi/hapi')
-const fixtures = require('./fixtures')
+const fixtures = require('./_fixtures')
 
 test('Running fixtures with hapi', function (t1) {
   for (const [, fixture] of fixtures.entries()) {
