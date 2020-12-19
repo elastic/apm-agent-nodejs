@@ -3,19 +3,19 @@ const querystring = require('querystring')
 const test = require('tape')
 
 const {
-  removeKeysFromObject,
-  removeKeysFromPostedFormVariables
+  redactKeysFromObject,
+  redactKeysFromPostedFormVariables
 } = require('../../lib/filters/sanitize-field-names')
 
-test('removeKeysFromObject tests', function (t) {
-  t.ok(removeKeysFromObject, 'can import function')
+test('redactKeysFromObject tests', function (t) {
+  t.ok(redactKeysFromObject, 'can import function')
 
   const obj1 = {
     one: 'two',
     three: 'four',
     five: 'six'
   }
-  removeKeysFromObject(obj1, [/th.*ee/])
+  redactKeysFromObject(obj1, [/th.*ee/])
   t.equals(obj1.three, '[REDACTED]', 'key three redacted')
   t.equals(obj1.one, 'two', 'key one remains in ibject')
   t.equals(obj1.five, 'six', 'key five remains in object')
@@ -25,7 +25,7 @@ test('removeKeysFromObject tests', function (t) {
     three: 'four',
     five: 'six'
   }
-  removeKeysFromObject(obj2, [/th.*ee/, /three/, /.*five/])
+  redactKeysFromObject(obj2, [/th.*ee/, /three/, /.*five/])
   t.equals(obj2.three, '[REDACTED]', 'key three redacted')
   t.equals(obj2.one, 'two', 'key one remains in ibject')
   t.equals(obj2.five, '[REDACTED]', 'key five redacted')
@@ -33,8 +33,8 @@ test('removeKeysFromObject tests', function (t) {
   t.end()
 })
 
-test('removeKeysFromPostedFormVariables tests', function (t) {
-  t.ok(removeKeysFromPostedFormVariables, 'can import function')
+test('redactKeysFromPostedFormVariables tests', function (t) {
+  t.ok(redactKeysFromPostedFormVariables, 'can import function')
 
   const requestHeaders = {
     'content-type': 'application/x-www-form-urlencoded'
@@ -45,7 +45,7 @@ test('removeKeysFromPostedFormVariables tests', function (t) {
     three: 'four',
     five: 'six'
   }
-  const result1 = removeKeysFromPostedFormVariables(
+  const result1 = redactKeysFromPostedFormVariables(
     body1,
     requestHeaders,
     [/five*/]
@@ -57,7 +57,7 @@ test('removeKeysFromPostedFormVariables tests', function (t) {
   // body as string
   const body2 = 'one=two&three=four&five=six'
   const result2 = querystring.parse(
-    removeKeysFromPostedFormVariables(
+    redactKeysFromPostedFormVariables(
       body2,
       requestHeaders,
       [/one/]
@@ -71,7 +71,7 @@ test('removeKeysFromPostedFormVariables tests', function (t) {
   // body as raw array of bytes
   const body3 = Buffer.from(body2)
   const result3 = querystring.parse(
-    removeKeysFromPostedFormVariables(
+    redactKeysFromPostedFormVariables(
       body3,
       requestHeaders,
       [/one/, /th*/]
@@ -88,7 +88,7 @@ test('removeKeysFromPostedFormVariables tests', function (t) {
     three: 'four',
     five: 'six'
   }
-  const result4 = removeKeysFromPostedFormVariables(
+  const result4 = redactKeysFromPostedFormVariables(
     body4,
     { 'content-type': 'text/plain' },
     [/five*/]
