@@ -73,11 +73,11 @@ function createMiddleware (type) {
   throw new Error(`I don't know how to create a ${type} middleware`)
 }
 
-test('Running fixtures with express', function (t) {
+test('Running fixtures with express', function (suite) {
   for (const [, fixture] of fixtures.entries()) {
-    test(fixture.name, function (t2) {
+    test(fixture.name, function (t) {
       runTest(
-        t2,
+        t,
         fixture.expected,
         createAgentConfig(fixture.agentConfig),
         fixture.input.requestHeaders,
@@ -87,5 +87,5 @@ test('Running fixtures with express', function (t) {
       )
     })
   }
-  t.end()
+  suite.end()
 })

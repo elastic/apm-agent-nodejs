@@ -12,11 +12,11 @@ const request = require('request')
 const restify = require('restify')
 const fixtures = require('./_fixtures')
 
-test('Running fixtures with restify', function (t1) {
+test('Running fixtures with restify', function (suite) {
   for (const [, fixture] of fixtures.entries()) {
-    test(fixture.name, function (t2) {
+    test(fixture.name, function (t) {
       runTest(
-        t2,
+        t,
         fixture.expected,
         createAgentConfig(fixture.agentConfig),
         fixture.input.requestHeaders,
@@ -26,7 +26,7 @@ test('Running fixtures with restify', function (t1) {
       )
     })
   }
-  t1.end()
+  suite.end()
 })
 
 function createMiddleware (type) {

@@ -73,11 +73,11 @@ function createMiddleware (type) {
   return fastifyFormbody
 }
 
-test('Running fixtures with fastify', function (t) {
+test('Running fixtures with fastify', function (suite) {
   for (const [, fixture] of fixtures.entries()) {
-    test(fixture.name, function (t2) {
+    test(fixture.name, function (t) {
       runTest(
-        t2,
+        t,
         fixture.expected,
         createAgentConfig(fixture.agentConfig),
         fixture.input.requestHeaders,
@@ -87,5 +87,5 @@ test('Running fixtures with fastify', function (t) {
       )
     })
   }
-  t.end()
+  suite.end()
 })
