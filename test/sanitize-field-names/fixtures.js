@@ -4,7 +4,7 @@
  *
  * const fixture = {
  *   name: '', // the name of the test,
- *   agentConfig: '', // additional default configuration values for agent
+ *   agentConfig: {}, // additional default configuration values for agent
  *   middleware: '', // what sort of body parsing to do for application/x-www-form-urlencoded
  *   // urlencoded -- test runner should parse values into an object
  *   // raw        -- test runner should provide raw Buffer object
