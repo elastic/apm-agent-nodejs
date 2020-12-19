@@ -73,7 +73,7 @@ function createMiddleware (type) {
   return fastifyFormbody
 }
 
-test('Running fixtures with express', function (t) {
+test('Running fixtures with fastify', function (t) {
   for (const [, fixture] of fixtures.entries()) {
     test(fixture.name, function (t2) {
       runTest(
