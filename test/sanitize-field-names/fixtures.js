@@ -34,7 +34,7 @@
  */
 module.exports = [
   {
-    name: 'tests deault wildcard handling, with urlencode bodyparsing',
+    name: 'tests default wildcard handling, with urlencode bodyparsing',
     agentConfig: {},
     bodyParsing: 'urlencoded',
     input: {
