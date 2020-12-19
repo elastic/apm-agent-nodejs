@@ -12,7 +12,7 @@ const request = require('request')
 const restify = require('restify')
 const fixtures = require('./_fixtures')
 
-test('Running fixtures with koa', function (t1) {
+test('Running fixtures with restify', function (t1) {
   for (const [, fixture] of fixtures.entries()) {
     test(fixture.name, function (t2) {
       runTest(
