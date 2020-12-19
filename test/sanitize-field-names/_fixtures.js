@@ -267,7 +267,6 @@ module.exports = [
       }
     }
   },
-
   {
     name: 'tests configured wildcard handling, with urlencode bodyparsing',
     agentConfig: {
@@ -305,5 +304,43 @@ module.exports = [
         defined: { Somethingkey: 'five' }
       }
     }
+  },
+  {
+    name: 'tests configured wildcard handling, case insensativity turned off',
+    agentConfig: {
+      sanitizeFieldNames: ['(?-i)Thi*isa']
+    },
+    bodyParsing: 'urlencoded',
+    input: {
+      requestHeaders: {
+        password: 'one',
+        thisisa: 'test'
+      },
+      responseHeaders: {
+        passwd: 'two',
+        thisisa: 'second test'
+      },
+      formFields: {
+        Somethingkey: 'five',
+        thisisa: 'third test'
+      }
+    },
+    expected: {
+      // we expect the case insenitivity being on means values are not stripped
+      // since it's specified with _Thi*isa_
+      requestHeaders: {
+        undefined: [],
+        defined: { password: 'one',thisisa:'test'}
+      },
+      responseHeaders: {
+        undefined: [],
+        defined: { passwd: 'two',thisisa:'second test' }
+      },
+      formFields: {
+        undefined: [],
+        defined: { Somethingkey: 'five',thisisa:'third test' }
+      }
+    }
   }
+
 ]
