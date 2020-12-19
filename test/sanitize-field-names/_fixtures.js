@@ -112,7 +112,7 @@ module.exports = [
     }
   },
   {
-    name: 'tests deault wildcard handling, with text bodyparsing',
+    name: 'tests default wildcard handling, with text bodyparsing',
     agentConfig: {},
     bodyParsing: 'text',
     input: {
@@ -190,7 +190,7 @@ module.exports = [
     }
   },
   {
-    name: 'tests deault wildcard handling, with raw/Buffer bodyparsing',
+    name: 'tests default wildcard handling, with raw/Buffer bodyparsing',
     agentConfig: {},
     bodyParsing: 'raw',
     input: {
