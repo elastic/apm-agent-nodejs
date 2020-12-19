@@ -330,15 +330,15 @@ module.exports = [
       // since it's specified with _Thi*isa_
       requestHeaders: {
         undefined: [],
-        defined: { password: 'one',thisisa:'test'}
+        defined: { password: 'one', thisisa: 'test' }
       },
       responseHeaders: {
         undefined: [],
-        defined: { passwd: 'two',thisisa:'second test' }
+        defined: { passwd: 'two', thisisa: 'second test' }
       },
       formFields: {
         undefined: [],
-        defined: { Somethingkey: 'five',thisisa:'third test' }
+        defined: { Somethingkey: 'five', thisisa: 'third test' }
       }
     }
   }

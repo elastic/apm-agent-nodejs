@@ -1,11 +1,10 @@
 'use strict'
-const {createAgentConfig} = require('./_shared')
+const { createAgentConfig } = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
 const {
   resetAgent,
   assertRequestHeadersWithFixture,
-  assertResponseHeadersWithFixture,
-  assertFormsWithFixture
+  assertResponseHeadersWithFixture
 } = require('./_shared')
 const test = require('tape')
 const request = require('request')

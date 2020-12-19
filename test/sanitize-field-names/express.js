@@ -1,5 +1,5 @@
 'use strict'
-const {createAgentConfig} = require('./_shared')
+const { createAgentConfig } = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
 const {
   resetAgent,
