@@ -7,32 +7,6 @@ const {
   removeKeysFromPostedFormVariables
 } = require('../../lib/filters/sanitize-field-names')
 
-test('removeKeysFromObject unit tests', function (t) {
-  t.ok(removeKeysFromObject, 'can import function')
-
-  const obj1 = {
-    one: 'two',
-    three: 'four',
-    five: 'six'
-  }
-  removeKeysFromObject(obj1, [/th.*ee/])
-  t.equals(obj1.three, '[REDACTED]', 'key three redacted')
-  t.equals(obj1.one, 'two', 'key one remains in object')
-  t.equals(obj1.five, 'six', 'key five remains in object')
-
-  const obj2 = {
-    one: 'two',
-    three: 'four',
-    five: 'six'
-  }
-  removeKeysFromObject(obj2, [/th.*ee/, /three/, /.*five/])
-  t.equals(obj2.three, '[REDACTED]', 'key three redacted')
-  t.equals(obj2.one, 'two', 'key one remains in ibject')
-  t.equals(obj2.five, '[REDACTED]', 'key five redacted')
-
-  t.end()
-})
-
 test('removeKeysFromObject tests', function (t) {
   t.ok(removeKeysFromObject, 'can import function')
 
