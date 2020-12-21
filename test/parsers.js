@@ -263,8 +263,8 @@ test('#getContextFromRequest()', function (t) {
 
   t.test('body is a Buffer', function (t) {
     const conf = { captureBody: 'all' }
-    const requestPropsToTest = ['body','json','payload']
-    for(const [,prop] of requestPropsToTest.entries()) {
+    const requestPropsToTest = ['body', 'json', 'payload']
+    for (const [, prop] of requestPropsToTest.entries()) {
       const req = getMockReq()
       req[prop] = Buffer.from('almost, but not quite, entirely unlike a string.')
       req.headers['content-length'] = req[prop].length
