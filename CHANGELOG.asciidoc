@@ -39,6 +39,9 @@ Notes:
 ===== Features
 
 
+* feat: Improve handling of raw body parsing
+  The agent will now report raw/`Buffer` encoded post bodies as '<Buffer>'.
+
 * feat: Add support for api keys {pull}1818[#1818] +
   This allows the usage of API keys for authentication to the APM server
 
@@ -53,7 +56,7 @@ slightly to commonalize:
    on "span.context.db.statement" has changed (a) to include *both* the
    query params and the request body if both exist (separated by `\n\n`) and
    (b) to *URL encode* the query params, rather than JSON encoding.
-   
+
 * feat: Add `captureAttributes` boolean option to `apm.captureError()` to
   allow *disabling* the automatic capture of Error object properties. This
   is useful for cases where those properties should not be sent to the APM
