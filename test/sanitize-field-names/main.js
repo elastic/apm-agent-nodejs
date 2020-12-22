@@ -68,20 +68,6 @@ test('redactKeysFromPostedFormVariables tests', function (t) {
   t.equals(result2.one, '[REDACTED]', 'key one redacted')
   t.equals(result2.five, 'six', 'key five remains in object')
 
-  // body as raw array of bytes
-  const body3 = Buffer.from(body2)
-  const result3 = querystring.parse(
-    redactKeysFromPostedFormVariables(
-      body3,
-      requestHeaders,
-      [/one/, /th*/]
-    ).toString()
-  )
-
-  t.equals(result3.three, '[REDACTED]', 'key three redacted')
-  t.equals(result3.one, '[REDACTED]', 'key one redacted')
-  t.equals(result3.five, 'six', 'key five remains in object')
-
   // untouched due to no application/x-www-form-urlencoded header
   const body4 = {
     one: 'two',

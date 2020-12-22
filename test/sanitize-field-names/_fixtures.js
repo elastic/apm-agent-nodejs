@@ -190,84 +190,6 @@ module.exports = [
     }
   },
   {
-    name: 'tests default wildcard handling, with raw/Buffer bodyparsing',
-    agentConfig: {},
-    bodyParsing: 'raw',
-    input: {
-      requestHeaders: {
-        password: 'one',
-        passwd: 'two',
-        pwd: 'three',
-        secret: 'four',
-        Somethingkey: 'five',
-        FOOtokenBAR: 'six',
-        ZIPsessionZAP: 'seven',
-        FOOsessionBAR: 'eight',
-        FULLOFcreditBEES: 'nine',
-        SINGcardSONG: 'ten',
-        authorization: 'eleven',
-        'set-cookie': 'twelve',
-        keepmeRequest: 'request'
-      },
-      responseHeaders: {
-        password: 'one',
-        passwd: 'two',
-        pwd: 'three',
-        secret: 'four',
-        Somethingkey: 'five',
-        FOOtokenBAR: 'six',
-        ZIPsessionZAP: 'seven',
-        FOOsessionBAR: 'eight',
-        FULLOFcreditBEES: 'nine',
-        SINGcardSONG: 'ten',
-        authorization: 'eleven',
-        'set-cookie': 'twelve',
-        keepmeResponse: 'response'
-      },
-      formFields: {
-        password: 'one',
-        passwd: 'two',
-        pwd: 'three',
-        secret: 'four',
-        Somethingkey: 'five',
-        FOOtokenBAR: 'six',
-        ZIPsessionZAP: 'seven',
-        FOOsessionBAR: 'eight',
-        FULLOFcreditBEES: 'nine',
-        SINGcardSONG: 'ten',
-        authorization: 'eleven',
-        'set-cookie': 'twelve',
-        keepmeForm: 'formFields'
-      }
-    },
-    expected: {
-      requestHeaders: {
-        undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
-        ],
-        defined: { keepmeRequest: 'request' }
-      },
-      responseHeaders: {
-        undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
-        ],
-        defined: { keepmeResponse: 'response' }
-      },
-      formFields: {
-        undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
-        ],
-        defined: { keepmeForm: 'formFields' }
-      }
-    }
-  },
-  {
     name: 'tests configured wildcard handling, with urlencode bodyparsing',
     agentConfig: {
       sanitizeFieldNames: ['thi*isa']
@@ -342,5 +264,4 @@ module.exports = [
       }
     }
   }
-
 ]
