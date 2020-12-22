@@ -48,9 +48,7 @@ function runTest (
         headers: requestHeaders
       },
       function (error, response, body) {
-        if (error) {
-          t.error(error)
-        }
+        t.error(error)
         t.ok(body, 'received response')
         t.end()
       })
