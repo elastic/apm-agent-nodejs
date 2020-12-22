@@ -314,6 +314,8 @@ Possible options are: `off`, `all`, `errors`, and `transactions`.
 
 The recorded body will be truncated if larger than 2 KiB.
 
+If the body parsing middleware captures the body as raw `Buffer` data, the request body will be represented as the string `"<Buffer>"`.
+
 For the agent to be able to access the body,
 the body needs to be available as a property on the incoming HTTP https://nodejs.org/api/http.html#http_class_http_incomingmessage[`request`] object.
 The agent will look for the body on the following properties:
