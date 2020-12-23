@@ -30,5 +30,4 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - run: npm install
-    - run: echo PING | nc localhost 6379
     - run: node test/instrumentation/modules/redis.js
