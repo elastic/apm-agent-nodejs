@@ -117,4 +117,4 @@ jobs:
         node-version: ${{ matrix.node }}
     - run: docker ps  # the services against which we'll be testing
     - run: npm install
-    - run: ./test/script/run_tests.sh
+    - run: npm test
