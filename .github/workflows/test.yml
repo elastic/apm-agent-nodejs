@@ -12,10 +12,10 @@ on:
 jobs:
   test-vers:
     services:
-      # redis:
-      #   image: redis
-      #   ports:
-      #     - 6379:6379
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
       # XXX mssql
       # - mysql
       # - mongodb
@@ -26,6 +26,10 @@ jobs:
         image: memcached
         ports:
           - 11211:11211
+      cassandra:
+        image: cassandra
+        ports:
+          - 9042:9042
 
     strategy:
       matrix:
@@ -39,5 +43,7 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - run: npm install
-    # - run: node test/instrumentation/modules/redis.js
+    - run: node test/instrumentation/modules/redis.js
     - run: node test/instrumentation/modules/memcached.js
+    - run: node test/instrumentation/modules/cassandra-driver/index.js
+    - run: docker ps   # do we have access to docker CLI?
