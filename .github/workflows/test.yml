@@ -3,10 +3,11 @@
 # Examples of things *not* being run here currently that are run by
 # the Jenkins-based tests:
 # - a test run on windows
-# - a test run on macos
 # - the "TAV" tests that run against all supported versions of instrumented
 #   modules
 # - the integration tests that run with an apm-server
+# - testing with ELASTIC_APM_ASYNC_HOOKS=false
+# - code coverage (npm run coverage, codecov)
 
 name: Test
 
@@ -95,26 +96,25 @@ jobs:
           - 9200:9200
         volumes:
           - nodeesdata:/usr/share/elasticsearch/data
-      # XXX es
 
     strategy:
       matrix:
         node:
           - '14'
-          # - '14.0'
-          # - '13'
-          # - '12'
-          # - '12.0'
-          # - '10'
-          # - '10.0'
-          # - '8'
-          # - '8.6'
+          - '14.0'
+          - '13'
+          - '12'
+          - '12.0'
+          - '10'
+          - '10.0'
+          - '8'
+          - '8.6'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node }}
-    - run: docker ps  # the services against which we'll be testing
+    - run: docker ps  # show the services against which we'll be testing
     - run: npm install
     - run: npm test
