@@ -56,6 +56,18 @@ jobs:
           - 1433:1433
         volumes:
           - nodemssqldata:/var/opt/mssql
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.10
+        environment:
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+          network.host: ''
+          transport.host: '127.0.0.1'
+          http.host: '0.0.0.0'
+          xpack.security.enabled: 'false'
+        ports:
+          - 9200:9200
+        volumes:
+          - nodeesdata:/usr/share/elasticsearch/data
       # XXX es
 
     strategy:
@@ -83,3 +95,5 @@ jobs:
     - run: node test/instrumentation/modules/mysql2/mysql.js
     - run: node test/instrumentation/modules/mysql2/pool-release-1.js
     - run: node test/instrumentation/modules/tedious.js
+    - run: node test/instrumentation/modules/elasticsearch.js
+    - run: node test/instrumentation/modules/@elastic/elasticsearch.js
