@@ -23,4 +23,4 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - run: npm install
-    - run: node test/metrics/index.js
+    - run: node test/instrumentation/modules/redis.js
