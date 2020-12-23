@@ -1,3 +1,13 @@
+# Run a significant subset of tests on GitHub Actions.
+#
+# Examples of things *not* being run here currently that are run by
+# the Jenkins-based tests:
+# - a test run on windows
+# - a test run on macos
+# - the "TAV" tests that run against all supported versions of instrumented
+#   modules
+# - the integration tests that run with an apm-server
+
 name: Test
 
 # https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
@@ -29,7 +39,7 @@ jobs:
         image: cassandra
         ports:
           - 9042:9042
-        environment:
+        env:
           MAX_HEAP_SIZE: '1G'
           HEAP_NEWSIZE: '400m'
         volumes:
@@ -89,9 +99,16 @@ jobs:
 
     strategy:
       matrix:
-        # XXX Just one version while in draft.
-        #node: ['8.0', '8', '10.0', '10', '12.0', '12', '14.0', '14', '15']
-        node: ['14']
+        node:
+          - '14'
+          # - '14.0'
+          # - '13'
+          # - '12'
+          # - '12.0'
+          # - '10'
+          # - '10.0'
+          # - '8'
+          # - '8.6'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
