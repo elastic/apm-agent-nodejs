@@ -12,18 +12,18 @@ on:
 jobs:
   test-vers:
     services:
-      # redis:
-      #   image: redis
-      #   ports:
-      #     - 6379:6379
-      # memcached:
-      #   image: memcached
-      #   ports:
-      #     - 11211:11211
-      # cassandra:
-      #   image: cassandra
-      #   ports:
-      #     - 9042:9042
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+      memcached:
+        image: memcached
+        ports:
+          - 11211:11211
+      cassandra:
+        image: cassandra
+        ports:
+          - 9042:9042
       postgresql:
         image: postgres:9.6
         ports:
@@ -34,14 +34,18 @@ jobs:
           POSTGRES_USER: 'postgres'
           POSTGRES_DB: 'test_elastic_apm'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
-      # mongodb:
-      #   image: mongo
-      #   ports:
-      #     - 27017:27017
-      # mysql:
-      #   image: mysql
-      #   ports:
-      #     - 3306:3306
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        volumes:
+          - nodemysqldata:/var/lib/mysql
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
       # XXX mssql
       # XXX es
 
@@ -58,14 +62,14 @@ jobs:
         node-version: ${{ matrix.node }}
     - run: npm install
     - run: docker ps  # the services against which we'll be testing
-    # - run: node test/instrumentation/modules/redis.js
-    # - run: node test/instrumentation/modules/memcached.js
-    # - run: node test/instrumentation/modules/cassandra-driver/index.js
+    - run: node test/instrumentation/modules/redis.js
+    - run: node test/instrumentation/modules/memcached.js
+    - run: node test/instrumentation/modules/cassandra-driver/index.js
     - run: node test/instrumentation/modules/pg/pg.js
     - run: node test/instrumentation/modules/pg/knex.js
-    # - run: node test/instrumentation/modules/mongodb-core.js
-    # - run: node test/instrumentation/modules/mongodb.js
-    # - run: node test/instrumentation/modules/mysql/mysql.js
-    # - run: node test/instrumentation/modules/mysql/pool-release-1.js
-    # - run: node test/instrumentation/modules/mysql2/mysql.js
-    # - run: node test/instrumentation/modules/mysql2/pool-release-1.js
+    - run: node test/instrumentation/modules/mongodb-core.js
+    - run: node test/instrumentation/modules/mongodb.js
+    - run: node test/instrumentation/modules/mysql/mysql.js
+    - run: node test/instrumentation/modules/mysql/pool-release-1.js
+    - run: node test/instrumentation/modules/mysql2/mysql.js
+    - run: node test/instrumentation/modules/mysql2/pool-release-1.js
