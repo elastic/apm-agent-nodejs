@@ -14,9 +14,8 @@ jobs:
     services:
       redis:
         image: redis
-        # # Map TCP port 6379 on Docker host to a random free port on the Redis container
-        # ports:
-        #   - 6379/tcp
+        ports:
+          - 6379:6379
 
     strategy:
       matrix:
