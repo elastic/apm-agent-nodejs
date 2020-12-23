@@ -46,7 +46,16 @@ jobs:
           - nodemysqldata:/var/lib/mysql
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
-      # XXX mssql
+      mssql:
+        image: microsoft/mssql-server-linux
+        env:
+          ACCEPT_EULA: 'Y'
+          SA_PASSWORD: 'Very(!)Secure'
+          MSSQL_PID: 'Developer'
+        ports:
+          - 1433:1433
+        volumes:
+          - nodemssqldata:/var/opt/mssql
       # XXX es
 
     strategy:
@@ -73,3 +82,4 @@ jobs:
     - run: node test/instrumentation/modules/mysql/pool-release-1.js
     - run: node test/instrumentation/modules/mysql2/mysql.js
     - run: node test/instrumentation/modules/mysql2/pool-release-1.js
+    - run: node test/instrumentation/modules/tedious.js
