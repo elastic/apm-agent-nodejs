@@ -11,51 +11,68 @@ on:
 
 jobs:
   test-vers:
+
+    # These services and their configuration should match test/docker-compose.yml.
     services:
-      # redis:
-      #   image: redis
-      #   ports:
-      #     - 6379:6379
-      # memcached:
-      #   image: memcached
-      #   ports:
-      #     - 11211:11211
-      # cassandra:
-      #   image: cassandra
-      #   ports:
-      #     - 9042:9042
-      # postgresql:
-      #   image: postgres:9.6
-      #   ports:
-      #     - 5432:5432
-      #   volumes:
-      #     - nodepgdata:/var/lib/postgresql/data
-      #   env:
-      #     POSTGRES_USER: 'postgres'
-      #     POSTGRES_DB: 'test_elastic_apm'
-      #     POSTGRES_HOST_AUTH_METHOD: 'trust'
-      # mongodb:
-      #   image: mongo
-      #   ports:
-      #     - 27017:27017
-      # mysql:
-      #   image: mysql:5.7
-      #   ports:
-      #     - 3306:3306
-      #   volumes:
-      #     - nodemysqldata:/var/lib/mysql
-      #   env:
-      #     MYSQL_ALLOW_EMPTY_PASSWORD: 1
-      # mssql:
-      #   image: microsoft/mssql-server-linux
-      #   env:
-      #     ACCEPT_EULA: 'Y'
-      #     SA_PASSWORD: 'Very(!)Secure'
-      #     MSSQL_PID: 'Developer'
-      #   ports:
-      #     - 1433:1433
-      #   volumes:
-      #     - nodemssqldata:/var/opt/mssql
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+      memcached:
+        image: memcached:alpine
+        ports:
+          - 11211:11211
+
+      cassandra:
+        image: cassandra
+        ports:
+          - 9042:9042
+        environment:
+          MAX_HEAP_SIZE: '1G'
+          HEAP_NEWSIZE: '400m'
+        volumes:
+          - nodecassandradata:/var/lib/cassandra
+
+      postgres:
+        image: postgres:9.6
+        ports:
+          - 5432:5432
+        volumes:
+          - nodepgdata:/var/lib/postgresql/data
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_DB: 'test_elastic_apm'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+        volumes:
+          - nodemongodata:/data/db
+
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        volumes:
+          - nodemysqldata:/var/lib/mysql
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
+
+      mssql:
+        image: microsoft/mssql-server-linux
+        env:
+          ACCEPT_EULA: 'Y'
+          SA_PASSWORD: 'Very(!)Secure'
+          MSSQL_PID: 'Developer'
+        ports:
+          - 1433:1433
+        volumes:
+          - nodemssqldata:/var/opt/mssql
+
       elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
         env:
@@ -81,19 +98,7 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node }}
-    - run: npm install
     - run: docker ps  # the services against which we'll be testing
-    # - run: node test/instrumentation/modules/redis.js
-    # - run: node test/instrumentation/modules/memcached.js
-    # - run: node test/instrumentation/modules/cassandra-driver/index.js
-    # - run: node test/instrumentation/modules/pg/pg.js
-    # - run: node test/instrumentation/modules/pg/knex.js
-    # - run: node test/instrumentation/modules/mongodb-core.js
-    # - run: node test/instrumentation/modules/mongodb.js
-    # - run: node test/instrumentation/modules/mysql/mysql.js
-    # - run: node test/instrumentation/modules/mysql/pool-release-1.js
-    # - run: node test/instrumentation/modules/mysql2/mysql.js
-    # - run: node test/instrumentation/modules/mysql2/pool-release-1.js
-    # - run: node test/instrumentation/modules/tedious.js
-    - run: node test/instrumentation/modules/elasticsearch.js
-    - run: node test/instrumentation/modules/@elastic/elasticsearch.js
+    - run: npm install
+    - run: ./test/script/run_tests.sh
+      env: CI=true
