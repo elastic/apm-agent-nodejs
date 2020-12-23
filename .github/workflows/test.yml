@@ -12,10 +12,20 @@ on:
 jobs:
   test-vers:
     services:
-      redis:
-        image: redis
+      # redis:
+      #   image: redis
+      #   ports:
+      #     - 6379:6379
+      # XXX mssql
+      # - mysql
+      # - mongodb
+      # - postgresql
+      # - cassandra
+      # - memcached
+      memcached:
+        image: memcached
         ports:
-          - 6379:6379
+          - 11211:11211
 
     strategy:
       matrix:
@@ -29,4 +39,5 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - run: npm install
-    - run: node test/instrumentation/modules/redis.js
+    # - run: node test/instrumentation/modules/redis.js
+    - run: node test/instrumentation/modules/memcached.js
