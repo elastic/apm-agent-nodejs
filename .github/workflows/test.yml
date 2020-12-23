@@ -1,0 +1,26 @@
+name: Test
+
+# https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  test-vers:
+    strategy:
+      matrix:
+        # XXX Just one version while in draft.
+        #node: ['8.0', '8', '10.0', '10', '12.0', '12', '14.0', '14', '15']
+        node: ['14']
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm install
+    - run: npm test
