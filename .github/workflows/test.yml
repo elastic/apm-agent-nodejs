@@ -23,4 +23,4 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - run: npm install
-    - run: npm test
+    - run: node test/metrics/index.js
