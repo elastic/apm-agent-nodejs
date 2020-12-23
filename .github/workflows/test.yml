@@ -25,9 +25,15 @@ jobs:
       #   ports:
       #     - 9042:9042
       postgresql:
-        image: postgres
+        image: postgres:9.6
         ports:
           - 5432:5432
+        volumes:
+          - nodepgdata:/var/lib/postgresql/data
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_DB: 'test_elastic_apm'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
       # mongodb:
       #   image: mongo
       #   ports:
