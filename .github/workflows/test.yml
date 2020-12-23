@@ -116,8 +116,5 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - run: docker ps  # the services against which we'll be testing
-    - run: env  #XXX
     - run: npm install
     - run: ./test/script/run_tests.sh
-      env:
-        CI: 'true'
