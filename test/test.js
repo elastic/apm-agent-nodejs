@@ -95,7 +95,8 @@ var directories = [
   'test/redact-secrets',
   'test/sanitize-field-names',
   'test/sourcemaps',
-  'test/uncaught-exceptions'
+  'test/uncaught-exceptions',
+  'test/cloud-metadata'
 ]
 
 mapSeries(directories, readdir, function (err, directoryFiles) {
