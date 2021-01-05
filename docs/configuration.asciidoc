@@ -49,6 +49,20 @@ This option allows you to set the node name manually to ensure uniqueness and me
 
 The secret token optionally expected by the APM Server.
 
+[[api-key]]
+==== `apiKey`
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_API_KEY`
+
+The API key optionally expected by the APM Server. This is an alternative to `secretToken`.
+
+This base64-encoded string is used to ensure that only your agents can send data to your APM server. You must have created the API key using the APM server command line tool. Please see the {apm-server-ref}/api-key.html[APM server documentation] for details on how to do that.
+
+NOTE: This feature is fully supported in the APM Server versions >= 7.6.
+
+WARNING: The API key is sent as plain-text in every request to the server, so you should secure your communications using HTTPS. Unless you do so, your API key could be observed by an attacker.
+
 [[server-url]]
 ==== `serverUrl`
 
@@ -299,6 +313,8 @@ Possible options are: `off`, `all`, `errors`, and `transactions`.
 * `all` - request bodies will be reported with both errors and request transactions
 
 The recorded body will be truncated if larger than 2 KiB.
+
+If the body parsing middleware captures the body as raw `Buffer` data, the request body will be represented as the string `"<Buffer>"`.
 
 For the agent to be able to access the body,
 the body needs to be available as a property on the incoming HTTP https://nodejs.org/api/http.html#http_class_http_incomingmessage[`request`] object.
@@ -690,6 +706,20 @@ The timeout is applied once the agent has sent the entire request body to the AP
 If the response from the server takes longer than allowed by this timeout,
 the HTTP request is terminated and the TCP socket closed.
 
+[[sanitize-field-names]]
+==== `sanitizeFieldNames`
+* *Type:* Array
+* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', 'authorization', 'set-cookie', 'pw', 'pass', 'connect.sid']`
+* *Env:* `ELASTIC_SANITIZE_FIELD_NAMES`
+
+Remove sensitive data sent to Elastic APM.
+
+The `sanitizeFieldNames` configuration value allows you to configure a list of wildcard patterns of field names which should be redacted from agent payloads. Wildcard matches are
+case-insensitive by default. You may make wildcard searches case-sensitive by
+using the `(?-i)` prefix. These patterns apply to the request and response HTTP headers, as well as any form field captured during an `application/x-www-form-urlencoded` data request.
+
+The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to filter or _redact_ other data the <<filter-http-headers,`filterHttpHeaders`>> configuration field or the <<apm-add-filter,API filtering functions>> may be a better choice.
+
 [[filter-http-headers]]
 ==== `filterHttpHeaders`
 
@@ -707,7 +737,7 @@ the header value will be set to `[REDACTED]`
 
 Currently, the following HTTP headers are anonymized by default:
 
-* `Authorization` - The full value of this header is redacted
+* `Authorization` - The full value of this header is redacted.  In versions of the agent greater than v3.9, the authorization header is redacted by the default configuration of <<sanitize-field-names>>.
 * `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
   See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
 

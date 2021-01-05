@@ -348,3 +348,8 @@ finalhandler:
 memcached:
   versions: '>=2.2.0'
   commands: node test/instrumentation/modules/memcached.js
+
+body-parser:
+  versions: '>=1.19.0'
+  commands:
+    - node test/sanitize-field-names/express.js

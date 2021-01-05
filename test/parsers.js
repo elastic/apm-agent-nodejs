@@ -261,6 +261,19 @@ test('#getContextFromRequest()', function (t) {
     t.end()
   })
 
+  t.test('body is a Buffer', function (t) {
+    const conf = { captureBody: 'all' }
+    const requestPropsToTest = ['body', 'json', 'payload']
+    for (const [, prop] of requestPropsToTest.entries()) {
+      const req = getMockReq()
+      req[prop] = Buffer.from('almost, but not quite, entirely unlike a string.')
+      req.headers['content-length'] = req[prop].length
+      const parsed = parsers.getContextFromRequest(req, conf)
+      t.equals(parsed.body, '<Buffer>')
+    }
+    t.end()
+  })
+
   function getMockReq () {
     return {
       httpVersion: '1.1',
@@ -667,6 +680,92 @@ test('#parseError()', function (t) {
       t.end()
     })
   })
+})
+
+test('#_moduleNameFromFrames()', function (suite) {
+  var cases = [
+    {
+      name: 'unnamespaced package',
+      frames: [
+        {
+          library_frame: true,
+          filename: 'node_modules/tape/lib/test.js'
+          // Typical fields in a frame, but not used by _moduleNameFromFrames:
+          //  abs_path: '/home/bob/src/myproj/node_modules/tape/lib/test.js'
+          //  function: 'bound'
+          //  lineno: 84
+          //  pre_context: ...
+          //  context_line: ...
+          //  post_context: ...
+        }
+        // More frames... Only top frame is used by _moduleNameFromFrames.
+      ],
+      expected: 'tape'
+    },
+    {
+      name: 'namespaced package',
+      frames: [
+        {
+          library_frame: true,
+          filename: 'node_modules/@elastic/elasticsearch/lib/config.js'
+          // Typical fields in a frame, but not used by _moduleNameFromFrames:
+          //  abs_path: '/home/bob/src/myproj/node_modules/tape/lib/test.js'
+          //  function: 'bound'
+          //  lineno: 84
+          //  pre_context: ...
+          //  context_line: ...
+          //  post_context: ...
+        }
+        // More frames... Only top frame is used by _moduleNameFromFrames.
+      ],
+      expected: '@elastic/elasticsearch'
+    },
+    {
+      name: 'empty frames',
+      frames: [],
+      expected: undefined
+    },
+    {
+      name: 'not library_frame',
+      frames: [
+        {
+          library_frame: false,
+          filename: 'node:_http_common'
+        }
+      ],
+      expected: undefined
+    },
+    {
+      name: 'frame in node lib',
+      frames: [
+        {
+          filename: 'timers.js',
+          lineno: 658,
+          function: 'processImmediate',
+          library_frame: true,
+          abs_path: 'timers.js'
+        }
+      ],
+      expected: undefined
+    }
+
+  ]
+
+  cases.forEach(function (opts) {
+    suite.test(opts.name || '[anonymous test case]', function (t) {
+      // Normalize top frame path if running on Windows. The
+      // _moduleNameFromFrames implementation adapts to path.sep.
+      if (path.sep === '\\' && opts.frames.length > 0) {
+        opts.frames[0].filename = opts.frames[0].filename.replace(/\//g, '\\')
+      }
+
+      t.strictEqual(parsers._moduleNameFromFrames(opts.frames), opts.expected,
+        'got ' + opts.expected)
+      t.end()
+    })
+  })
+
+  suite.end()
 })
 
 test('#parseCallsite()', function (t) {

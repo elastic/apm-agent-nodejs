@@ -1,0 +1,120 @@
+# Run a significant subset of tests on GitHub Actions.
+#
+# Examples of things *not* being run here currently that are run by
+# the Jenkins-based tests:
+# - a test run on windows
+# - the "TAV" tests that run against all supported versions of instrumented
+#   modules
+# - the integration tests that run with an apm-server
+# - testing with ELASTIC_APM_ASYNC_HOOKS=false
+# - code coverage (npm run coverage, codecov)
+
+name: Test
+
+# https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  test-vers:
+
+    # These services and their configuration should match test/docker-compose.yml.
+    services:
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+      memcached:
+        image: memcached:alpine
+        ports:
+          - 11211:11211
+
+      cassandra:
+        image: cassandra
+        ports:
+          - 9042:9042
+        env:
+          MAX_HEAP_SIZE: '1G'
+          HEAP_NEWSIZE: '400m'
+        volumes:
+          - nodecassandradata:/var/lib/cassandra
+
+      postgres:
+        image: postgres:9.6
+        ports:
+          - 5432:5432
+        volumes:
+          - nodepgdata:/var/lib/postgresql/data
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_DB: 'test_elastic_apm'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+        volumes:
+          - nodemongodata:/data/db
+
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        volumes:
+          - nodemysqldata:/var/lib/mysql
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
+
+      mssql:
+        image: microsoft/mssql-server-linux
+        env:
+          ACCEPT_EULA: 'Y'
+          SA_PASSWORD: 'Very(!)Secure'
+          MSSQL_PID: 'Developer'
+        ports:
+          - 1433:1433
+        volumes:
+          - nodemssqldata:/var/opt/mssql
+
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        env:
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+          network.host: ''
+          transport.host: '127.0.0.1'
+          http.host: '0.0.0.0'
+          xpack.security.enabled: 'false'
+        ports:
+          - 9200:9200
+        volumes:
+          - nodeesdata:/usr/share/elasticsearch/data
+
+    strategy:
+      matrix:
+        node:
+          - '14'
+          - '14.0'
+          - '13'
+          - '12'
+          - '12.0'
+          - '10'
+          - '10.0'
+          - '8'
+          - '8.6'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node }}
+    - run: docker ps  # show the services against which we'll be testing
+    - run: npm install
+    - run: npm test

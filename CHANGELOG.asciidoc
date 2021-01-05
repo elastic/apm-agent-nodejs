@@ -25,7 +25,6 @@ Notes:
         ==== x.x.x - YYYY/MM/DD
 ////
 
-
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
@@ -37,6 +36,13 @@ Notes:
 
 [float]
 ===== Features
+
+
+* feat: Improve handling of raw body parsing
+  The agent will now report raw/`Buffer` encoded post bodies as '<Buffer>'.
+
+* feat: Add support for api keys {pull}1818[#1818] +
+  This allows the usage of API keys for authentication to the APM server
 
 * feat: Add automatic instrumentation of the https://github.com/elastic/elasticsearch-js[@elastic/elasticsearch] package {pull}1877[#1870]
 +
@@ -58,6 +64,11 @@ slightly to commonalize:
 
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
+* feat: implemented sanitize_feature_names specification +
+  Allows users to configure a list of wildcard patterns to _remove_ items
+  from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
+  ** https://github.com/elastic/apm/blob/master/specs/agents/sanitization.md[spec]
+  ** https://github.com/elastic/apm-agent-nodejs/blob/master/docs/configuration.asciidoc#sanitize-field-names[docs]
 
 [float]
 ===== Bug fixes
