@@ -1,9 +1,9 @@
 const tape = require('tape')
 
-const {getMetadataAws} = require('../lib/instrumentation/cloud-metadata')
+const {getMetadataAws} = require('../../lib/instrumentation/cloud-metadata')
 
 tape('cloud metadata', function(t) {
-    t.plan(4)
+    t.plan(1)
     const host = 'localhost'
     const validPort = 3000
     const invalidPort = 30001
@@ -19,7 +19,8 @@ tape('cloud metadata', function(t) {
       t.ok(err, 'expected timeout error')
     })
 
-    getMetadataAws(host, invalidPort, 0, protocol, function(err){
+    getMetadataAws(host, invalidPort, 1000, protocol, function(err){
+      console.log(err)
       t.ok(err, 'expected unreachable server error')
     })
 })
