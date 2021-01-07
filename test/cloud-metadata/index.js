@@ -20,12 +20,12 @@ tape('cloud metadata: returns valid data', function (t) {
     getMetadataAws(host, port, 100, protocol, function (err, metadata) {
       t.error(err, 'no errors expected')
       t.ok(metadata, 'returned data')
-      t.equals(metadata.account.id, fixture.response.accountId,'found expected metadata for account.id')
-      t.equals(metadata.instance.id, fixture.response.instanceId,'found expected metadata for')
-      t.equals(metadata.availability_zone, fixture.response.availabilityZone,'found expected metadata for')
-      t.equals(metadata.machine.type, fixture.response.instanceType,'found expected metadata for')
-      t.equals(metadata.provider, provider,'found expected metadata for')
-      t.equals(metadata.region, fixture.response.region,'found expected metadata for')
+      t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
+      t.equals(metadata.instance.id, fixture.response.instanceId, 'found expected metadata for')
+      t.equals(metadata.availability_zone, fixture.response.availabilityZone, 'found expected metadata for')
+      t.equals(metadata.machine.type, fixture.response.instanceType, 'found expected metadata for')
+      t.equals(metadata.provider, provider, 'found expected metadata for')
+      t.equals(metadata.region, fixture.response.region, 'found expected metadata for')
       listener.close()
     })
   })
@@ -53,7 +53,6 @@ tape('cloud metadata: if server is not there', function (t) {
   // even though the "socket ping then real network request"
   // approach creates the potential for lots of errors
   t.plan(1)
-  const serverAws = createTestServer('aws', 'default aws fixture')
   const host = 'localhost'
   const invalidPort = 30001
   const protocol = 'http'

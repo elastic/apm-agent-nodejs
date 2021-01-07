@@ -44,7 +44,7 @@ function createTestServer (provider, fixtureName) {
   return addRoutesToExpressApp(app, provider, fixture)
 }
 
-function loadFixtureData(provider, fixtureName) {
+function loadFixtureData (provider, fixtureName) {
   const providerFixtures = fixtures[provider] ? fixtures[provider] : []
   const fixture = providerFixtures.filter(function (item) {
     return item.name === fixtureName
