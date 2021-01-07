@@ -44,16 +44,16 @@ if (cluster.isMaster) {
       disableInstrumentations: '',
       instrumentIncomingHTTPRequests: true
     }, (t, data) => {
-      // t.strictEqual(data.transactions.length, 2, 'transaction count')
-      // t.strictEqual(data.spans.length, 1, 'span count')
+      t.strictEqual(data.transactions.length, 2, 'transaction count')
+      t.strictEqual(data.spans.length, 1, 'span count')
 
-      // assertRequestTransaction(t, data.transactions)
-      // assertTopTransaction(t, data.transactions)
-      // assertSpan(t, data.spans[0])
+      assertRequestTransaction(t, data.transactions)
+      assertTopTransaction(t, data.transactions)
+      assertSpan(t, data.spans[0])
 
       t.end()
     }))
-    /*
+
     t.test('incoming enabled + outgoing disabled', makeTest({
       disableInstrumentations: 'http',
       instrumentIncomingHTTPRequests: true
@@ -91,7 +91,6 @@ if (cluster.isMaster) {
 
       t.end()
     }))
-    */
   })
 } else {
   const http = require('http')
@@ -116,11 +115,14 @@ if (cluster.isMaster) {
 
     const mock = new MockTransport()
 
-    const agent = require('../../../..').start(Object.assign({
+    const agent = require('../../../..')
+    agent.start(Object.assign({
       captureExceptions: false,
       metricsInterval: 0,
       centralConfig: false,
-      transport: () => mock
+      transport: () => {
+        agent._transport = mock
+      }
     }, config))
 
     const express = require('express')
