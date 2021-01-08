@@ -115,14 +115,11 @@ if (cluster.isMaster) {
 
     const mock = new MockTransport()
 
-    const agent = require('../../../..')
-    agent.start(Object.assign({
+    const agent = require('../../../..').start(Object.assign({
       captureExceptions: false,
       metricsInterval: 0,
       centralConfig: false,
-      transport: () => {
-        agent._transport = mock
-      }
+      transport: () => mock
     }, config))
 
     const express = require('express')

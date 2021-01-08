@@ -789,7 +789,7 @@ test('custom transport', function (t) {
         }
       }
       var first = true
-      agent._transport = {
+      return {
         sendTransaction: makeSenderFor(transactions),
         sendSpan: makeSenderFor(spans),
         sendError: makeSenderFor(errors),

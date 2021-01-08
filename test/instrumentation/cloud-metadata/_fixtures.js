@@ -1,3 +1,4 @@
+'use strict'
 /**
  * Test fixtures for meta data test server.
  *

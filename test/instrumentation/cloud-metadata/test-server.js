@@ -1,3 +1,4 @@
+'use strict'
 const { createTestServer } = require('./_lib')
 const tape = require('tape')
 const request = require('request')

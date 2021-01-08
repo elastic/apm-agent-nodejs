@@ -1,9 +1,41 @@
+'use strict'
 const tape = require('tape')
 
-const { getMetadataAws } = require('../../lib/instrumentation/cloud-metadata')
+const { getCloudMetadata } = require('../../../lib/instrumentation/cloud-metadata')
+const { getMetadataAws } = require('../../../lib/instrumentation/cloud-metadata/aws')
+
 const { createTestServer, loadFixtureData } = require('./_lib')
 
-tape('cloud metadata: returns valid data', function (t) {
+tape('cloud metadata: main function returns aws data', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'aws'
+  const fixtureName = 'default aws fixture'
+  const serverAws = createTestServer(provider, fixtureName)
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAws.listen(0, function () {
+    const port = listener.address().port
+    getCloudMetadata({
+      aws: {
+        host: host,
+        protocol: protocol,
+        port: port
+      }
+    },
+    function (err, metadata) {
+      t.error(err, 'no errors expected')
+      t.ok(metadata, 'returned data')
+      listener.close()
+    }
+    )
+  })
+})
+
+tape('aws metadata: returns valid data', function (t) {
   // t.plan helps ensure our callback is only called onces,
   // even though the "socket ping then real network request"
   // approach creates the potential for lots of errors
@@ -31,7 +63,7 @@ tape('cloud metadata: returns valid data', function (t) {
   })
 })
 
-tape('cloud metadata: if socket ping times out', function (t) {
+tape('aws metadata: if socket ping times out', function (t) {
   // t.plan helps ensure our callback is only called onces,
   // even though the "socket ping then real network request"
   // approach creates the potential for lots of errors
@@ -48,7 +80,7 @@ tape('cloud metadata: if socket ping times out', function (t) {
   })
 })
 
-tape('cloud metadata: if server is not there', function (t) {
+tape('aws metadata: if server is not there', function (t) {
   // t.plan helps ensure our callback is only called onces,
   // even though the "socket ping then real network request"
   // approach creates the potential for lots of errors
