@@ -117,7 +117,7 @@ See <<span-api,Span API>> docs for details on how to use custom spans.
 
 [small]#Added in: v0.1.0# +
 [small]#Renamed from `transaction.setTag()` to `transaction.setLabel()`: v2.10.0# +
-[small]#Added `stringify` argument in: v3.10.0#
+[small]#Added `stringify` argument in: v3.11.0#
 
 * `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
@@ -139,7 +139,7 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 
 [small]#Added in: v1.5.0# +
 [small]#Renamed from `transaction.addTags()` to `transaction.addLabels()`: v2.10.0# +
-[small]#Added `stringify` argument in: v3.10.0#
+[small]#Added `stringify` argument in: v3.11.0#
 
 * `labels` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+

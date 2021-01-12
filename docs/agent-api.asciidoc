@@ -203,7 +203,7 @@ TIP: Before using custom context, ensure you understand the different types of
 
 [small]#Added in: v0.1.0# +
 [small]#Renamed from `apm.setTag()` to `apm.setLabel()`: v2.10.0# +
-[small]#Added `stringify` argument in: v3.10.0#
+[small]#Added `stringify` argument in: v3.11.0#
 
 * `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
@@ -232,7 +232,7 @@ Defining too many unique fields in an index is a condition that can lead to a
 
 [small]#Added in: v1.5.0# +
 [small]#Renamed from `apm.addTags()` to `apm.addLabels()`: v2.10.0# +
-[small]#Added `stringify` argument in: v3.10.0#
+[small]#Added `stringify` argument in: v3.11.0#
 
 * `labels` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+

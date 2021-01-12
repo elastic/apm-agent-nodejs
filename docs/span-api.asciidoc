@@ -99,7 +99,7 @@ Get the serialized traceparent string of the span.
 
 [small]#Added in: v2.1.0# +
 [small]#Renamed from `span.setTag()` to `span.setLabel()`: v2.10.0# +
-[small]#Added `stringify` argument in: v3.10.0#
+[small]#Added `stringify` argument in: v3.11.0#
 
 * `name` +{type-string}+
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
@@ -117,7 +117,7 @@ You can set multiple labels on the same span.
 
 [small]#Added in: v2.1.0# +
 [small]#Renamed from `span.addTags()` to `span.addLabels()`: v2.10.0# +
-[small]#Added `stringify` argument in: v3.10.0#
+[small]#Added `stringify` argument in: v3.11.0#
 
 * `labels` +{type-object}+ Contains key/value pairs:
 ** `name` +{type-string}+
