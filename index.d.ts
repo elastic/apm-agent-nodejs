@@ -133,8 +133,8 @@ declare class GenericSpan implements Taggable {
   outcome: Outcome;
 
   setType (type?: string | null, subtype?: string | null, action?: string | null): void;
-  setLabel (name: string, value: LabelValue): boolean;
-  addLabels (labels: Labels): boolean;
+  setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
+  addLabels (labels: Labels, stringify?: boolean): boolean;
 }
 
 declare class Transaction extends GenericSpan implements StartSpanFn {
@@ -308,8 +308,8 @@ interface PatchOptions {
 }
 
 interface Taggable {
-  setLabel (name: string, value: LabelValue): boolean;
-  addLabels (labels: Labels): boolean;
+  setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
+  addLabels (labels: Labels, stringify?: boolean): boolean;
 }
 
 interface StartSpanFn {
