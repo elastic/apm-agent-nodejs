@@ -29,14 +29,11 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.10.0]]
+==== 3.10.0 - 2021/01/11
 
 [float]
 ===== Features
-
 
 * feat: Improve handling of raw body parsing
   The agent will now report raw/`Buffer` encoded post bodies as '<Buffer>'.
@@ -64,6 +61,7 @@ slightly to commonalize:
 
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
+
 * feat: implemented sanitize_feature_names specification +
   Allows users to configure a list of wildcard patterns to _remove_ items
   from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
@@ -85,7 +83,6 @@ Config vars affected are: `disableInstrumentations`, `transactionIgnoreUrls`
 * fix: Correct the environment variable for setting `transactionIgnoreUrl`
   (added in v3.9.0) from `ELASTIC_TRANSACTION_IGNORE_URLS` to
   `ELASTIC_APM_TRANSACTION_IGNORE_URLS`.
-
 
 
 [[release-notes-3.9.0]]
