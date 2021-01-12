@@ -567,8 +567,6 @@ test('serviceName defaults to package name', function (t) {
         })
       })
       .then(result => {
-        console.log(result.stdout)
-        console.log('-----')
         return JSON.parse(result.stdout)
       })
       .catch(err => {
