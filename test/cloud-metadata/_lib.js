@@ -15,10 +15,62 @@ function addAwsRoute (app, fixture) {
   return app
 }
 
+/**
+ * Add GCP metadata route
+ *
+ * Requests require the Metadata-Flavor and the
+ * recursive query-string parameter.
+ *
+ * https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying
+ */
+function addGcpRoute (app, fixture) {
+  app.get('/computeMetadata/v1/instance', (req, res) => {
+    if (!req.query.recursive) {
+      throw new Error('recursive GET parameter required')
+    }
+
+    if (req.header('Metadata-Flavor') !== 'Google') {
+      throw new Error('Metadata-Flavor: Google header required')
+    }
+
+    res.send(fixture.response)
+  })
+
+  return app
+}
+
+/**
+ * Add Azure metadata route
+ *
+ * Requests require the api-version query string parameter
+ * as well as the Metadata header.
+ *
+ * https://docs.microsoft.com/en-us/azure/virtual-machines/windows/instance-metadata-service
+ */
+function addAzureRoute (app, fixture) {
+  app.get('/metadata/instance', (req, res) => {
+    if (!req.query['api-version']) {
+      throw new Error('api-version GET parameter required')
+    }
+
+    if (req.header('Metadata') !== 'true') {
+      throw new Error('Metadata header required')
+    }
+
+    res.send(fixture.response)
+  })
+
+  return app
+}
+
 function addRoutesToExpressApp (app, provider, fixture) {
   switch (provider) {
     case 'aws':
       return addAwsRoute(app, fixture)
+    case 'gcp':
+      return addGcpRoute(app, fixture)
+    case 'azure':
+      return addAzureRoute(app, fixture)
     default:
       throw Error(`I don't know how to start a ${provider} server`)
   }

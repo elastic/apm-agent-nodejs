@@ -73,6 +73,7 @@ function mapSeries (tasks, handler, cb) {
 
 var directories = [
   'test',
+  'test/cloud-metadata',
   'test/instrumentation',
   'test/instrumentation/modules',
   'test/instrumentation/modules/@elastic',
@@ -82,7 +83,6 @@ var directories = [
   'test/instrumentation/modules/fastify',
   'test/instrumentation/modules/hapi',
   'test/instrumentation/modules/http',
-  'test/instrumentation/cloud-metadata',
   'test/instrumentation/modules/koa',
   'test/instrumentation/modules/koa-router',
   'test/instrumentation/modules/mysql',

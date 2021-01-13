@@ -35,3 +35,47 @@ tape.test('basic metadata request: aws', function (t) {
     })
   })
 })
+
+tape.test('basic metadata request: gcp', function (t) {
+  const serverAws = createTestServer('gcp', 'default gcp fixture')
+  const listener = serverAws.listen(0, function () {
+    const url = `http://127.0.0.1:${listener.address().port}/computeMetadata/v1/instance?recursive=true`
+    const options = {
+      url: url,
+      headers: {
+        'Metadata-Flavor': 'Google'
+      }
+    }
+    request(options, function (error, response, rawBody) {
+      if (error) {
+        throw error
+      }
+      const body = JSON.parse(rawBody)
+      t.ok(body.id, 'id set')
+      listener.close()
+      t.end()
+    })
+  })
+})
+
+tape.test('basic metadata request: azure', function (t) {
+  const serverAws = createTestServer('azure', 'default azure fixture')
+  const listener = serverAws.listen(0, function () {
+    const url = `http://127.0.0.1:${listener.address().port}/metadata/instance?api-version=2020-09-01`
+    const options = {
+      url: url,
+      headers: {
+        Metadata: 'true'
+      }
+    }
+    request(options, function (error, response, rawBody) {
+      if (error) {
+        throw error
+      }
+      const body = JSON.parse(rawBody)
+      t.ok(body.compute.vmId, 'vmId set')
+      listener.close()
+      t.end()
+    })
+  })
+})
