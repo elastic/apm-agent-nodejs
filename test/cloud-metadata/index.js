@@ -1,8 +1,8 @@
 'use strict'
 const tape = require('tape')
 
-const { getCloudMetadata } = require('../../../lib/instrumentation/cloud-metadata')
-const { getMetadataAws } = require('../../../lib/instrumentation/cloud-metadata/aws')
+const { getCloudMetadata } = require('../../lib/cloud-metadata')
+const { getMetadataAws } = require('../../lib/cloud-metadata/aws')
 
 const { createTestServer, loadFixtureData } = require('./_lib')
 
