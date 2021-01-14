@@ -6,11 +6,11 @@ const http = require('http')
 const { httpRequest } = require('../lib/http-request')
 
 test('httpRequest - no timeouts', function (t) {
-  const server = http.createServer(function onReq(_req, res) {
+  const server = http.createServer(function onReq (_req, res) {
     res.end('hi')
-  }).listen(function onListening() {
+  }).listen(function onListening () {
     const port = server.address().port
-    const req = httpRequest(`http://127.0.0.1:${port}`, function onRes(res) {
+    const req = httpRequest(`http://127.0.0.1:${port}`, function onRes (res) {
       t.equal(res.statusCode, 200, 'got 200 response')
       server.close(function () {
         t.end()
@@ -22,18 +22,18 @@ test('httpRequest - no timeouts', function (t) {
 
 test('httpRequest - get timeout', function (t) {
   // 1. Start a server with a slow (500s) response time.
-  const server = http.createServer(function onReq(_req, res) {
+  const server = http.createServer(function onReq (_req, res) {
     setTimeout(function () {
       res.end('hi')
     }, 500)
-  }).listen(function onListening() {
+  }).listen(function onListening () {
     const port = server.address().port
 
     // 2. Make a request to that server that we expect to *timeout*.
     const req = httpRequest(`http://127.0.0.1:${port}`, {
       connectTimeout: 30,
       timeout: 100
-    }, function onRes(res) {
+    }, function onRes (res) {
       t.fail('got client response, but did not expect it')
     })
 
@@ -67,7 +67,7 @@ test('httpRequest - get connectTimeout', function (t) {
   const req = httpRequest('http://www.google.com:81', {
     connectTimeout: 100,
     timeout: 5000
-  }, function onRes(res) {
+  }, function onRes (res) {
     t.fail('got client response, but did not expect it')
   })
 
@@ -91,4 +91,3 @@ test('httpRequest - get connectTimeout', function (t) {
 
   req.end()
 })
-
