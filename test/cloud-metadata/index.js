@@ -24,6 +24,38 @@ const providerConfig = {
   }
 }
 
+// tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
+//   // t.plan helps ensure our callback is only called onces,
+//   // even though the "socket ping then real network request"
+//   // approach creates the potential for lots of errors
+//   t.plan(2)
+
+//   const provider = 'aws-IMDSv2'
+//   const fixtureName = 'default aws fixture'
+//   const serverAws = createTestServer(provider, fixtureName)
+//   const config = Object.assign({}, providerConfig)
+//   const agent = {
+//     _conf: {
+//       cloudProvider: 'auto'
+//     }
+//   }
+//   const listener = serverAws.listen(0, function () {
+//     config.aws.port = listener.address().port
+//     config.gcp.port = listener.address().port
+//     config.azure.port = listener.address().port
+
+//     const cloudMetadata = new CloudMetadata(agent)
+//     cloudMetadata.getCloudMetadata(
+//       providerConfig,
+//       function (err, metadata) {
+//         t.error(err, 'no errors expected')
+//         t.ok(metadata, 'returned data')
+//         listener.close()
+//       }
+//     )
+//   })
+// })
+
 tape('cloud metadata: main function returns aws data', function (t) {
   // t.plan helps ensure our callback is only called onces,
   // even though the "socket ping then real network request"

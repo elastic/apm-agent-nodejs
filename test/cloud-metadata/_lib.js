@@ -16,6 +16,29 @@ function addAwsRoute (app, fixture) {
 }
 
 /**
+ * Add AWS IMDSv2 Route metadata route
+ *
+ * Rejects requests without an appropriate token.
+ *
+ * https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html
+ */
+function addAwsIMDSv2Route (app, fixture) {
+  app.get('/latest/dynamic/instance-identity/document', (req, res) => {
+    const token = req.headers['x-aws-ec2-metadata-token']
+    if(!token) {
+      throw new Error('not authorized')
+    }
+    res.send(fixture.response)
+  })
+
+  app.put('/latest/api/token', (req, res) => {
+    res.send(fixture.responseToken)
+  })
+
+  return app
+}
+
+/**
  * Add GCP metadata route
  *
  * Requests require the Metadata-Flavor and the
@@ -67,6 +90,8 @@ function addRoutesToExpressApp (app, provider, fixture) {
   switch (provider) {
     case 'aws':
       return addAwsRoute(app, fixture)
+    case 'aws-IMDSv2':
+      return addAwsIMDSv2Route(app, fixture)
     case 'gcp':
       return addGcpRoute(app, fixture)
     case 'azure':

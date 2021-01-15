@@ -79,3 +79,38 @@ tape.test('basic metadata request: azure', function (t) {
     })
   })
 })
+
+tape.test('IMDSv2 token fetching: aws', function (t) {
+  const serverAws = createTestServer('aws-IMDSv2', 'default aws fixture')
+  const listener = serverAws.listen(0, function () {
+    const urlToken = `http://127.0.0.1:${listener.address().port}/latest/api/token`
+    const optionsToken = {
+      url: urlToken,
+      headers: {
+        "X-aws-ec2-metadata-token-ttl-seconds": "300"
+      }
+    }
+    request.put(optionsToken, function (errorToken, responseToken, rawBodyToken) {
+      // token request succeded, now make real request
+      t.equals(rawBodyToken,'AQAAAOaONNcThIsIsAfAkEtOkEn_b94UPLuLYRThIsIsAfAkEtOkEn==', 'returns correct fake token')
+      const url = `http://127.0.0.1:${listener.address().port}/latest/dynamic/instance-identity/document`
+      const options = {
+        url: url,
+        headers: {
+          'X-aws-ec2-metadata-token':rawBodyToken
+        }
+      }
+      request(options, function(error, response, rawBody){
+        if (error) {
+          throw error
+        }
+
+        const body = JSON.parse(rawBody)
+        t.ok(body.version, 'version set')
+        listener.close()
+        t.end()
+      })
+
+    })
+  })
+})
