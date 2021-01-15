@@ -70,7 +70,7 @@ tape('aws metadata: returns valid data', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAws(host, port, 100, protocol, function (err, metadata) {
+    getMetadataAws(host, port, 100, 1000, protocol, function (err, metadata) {
       t.error(err, 'no errors expected')
       t.ok(metadata, 'returned data')
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -94,7 +94,7 @@ tape('aws metadata: if socket ping times out', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const validPort = listener.address().port
-    getMetadataAws(host, validPort, 0, protocol, function (err) {
+    getMetadataAws(host, validPort, 0, 1000, protocol, function (err) {
       t.ok(err, 'expected timeout error')
     })
     listener.close()
@@ -109,7 +109,7 @@ tape('aws metadata: if server is not there', function (t) {
   const host = 'localhost'
   const invalidPort = 30001
   const protocol = 'http'
-  getMetadataAws(host, invalidPort, 100, protocol, function (err) {
+  getMetadataAws(host, invalidPort, 100, 1000, protocol, function (err) {
     t.ok(err, 'expected unreachable server error')
   })
 })
