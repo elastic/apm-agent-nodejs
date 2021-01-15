@@ -24,7 +24,7 @@ function addAwsRoute (app, fixture) {
  * https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying
  */
 function addGcpRoute (app, fixture) {
-  app.get('/computeMetadata/v1/instance', (req, res) => {
+  app.get('/computeMetadata/v1', (req, res) => {
     if (!req.query.recursive) {
       throw new Error('recursive GET parameter required')
     }
