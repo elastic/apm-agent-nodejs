@@ -1,7 +1,7 @@
 'use strict'
 const tape = require('tape')
 
-const { getCloudMetadata } = require('../../lib/cloud-metadata')
+const { CloudMetadata } = require('../../lib/cloud-metadata')
 const { getMetadataAws } = require('../../lib/cloud-metadata/aws')
 
 const { createTestServer, loadFixtureData } = require('./_lib')
@@ -21,7 +21,7 @@ const providerConfig = {
     host: 'localhost',
     protocol: 'http',
     port: null
-  },
+  }
 }
 
 tape('cloud metadata: main function returns aws data', function (t) {
@@ -34,12 +34,18 @@ tape('cloud metadata: main function returns aws data', function (t) {
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
   const listener = serverAws.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
-    getCloudMetadata(
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
         t.error(err, 'no errors expected')
@@ -106,4 +112,98 @@ tape('aws metadata: if server is not there', function (t) {
   getMetadataAws(host, invalidPort, 100, protocol, function (err) {
     t.ok(err, 'expected unreachable server error')
   })
+})
+
+tape('cloud metadata: do not hang when none is configured', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'aws'
+  const fixtureName = 'default aws fixture'
+  const serverAws = createTestServer(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'none'
+    }
+  }
+  const listener = serverAws.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.ok(err, 'error expected')
+        t.ok(!metadata, 'no metadata returned')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('cloud metadata: agent configuration wiring', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+
+  const cloudMetadataAuto = new CloudMetadata({
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  })
+  t.ok(cloudMetadataAuto.shouldFetchAws(), 'auto configuration should fetch aws')
+  t.ok(cloudMetadataAuto.shouldFetchGcp(), 'auto configuration should fetch gcp')
+  t.ok(cloudMetadataAuto.shouldFetchAzure(), 'auto configuration should fetch azure')
+
+  const cloudMetadataNone = new CloudMetadata({
+    _conf: {
+      cloudProvider: 'none'
+    }
+  })
+  t.ok(!cloudMetadataNone.shouldFetchAws(), 'none configuration should NOT fetch aws')
+  t.ok(!cloudMetadataNone.shouldFetchGcp(), 'none configuration should NOT fetch gcp')
+  t.ok(!cloudMetadataNone.shouldFetchAzure(), 'none configuration should NOT fetch azure')
+
+  const cloudMetadataAws = new CloudMetadata({
+    _conf: {
+      cloudProvider: 'aws'
+    }
+  })
+  t.ok(cloudMetadataAws.shouldFetchAws(), 'aws configuration should fetch aws')
+  t.ok(!cloudMetadataAws.shouldFetchGcp(), 'aws configuration should NOT fetch gcp')
+  t.ok(!cloudMetadataAws.shouldFetchAzure(), 'aws configuration should NOT fetch azure')
+
+  const cloudMetadataGcp = new CloudMetadata({
+    _conf: {
+      cloudProvider: 'gcp'
+    }
+  })
+  t.ok(!cloudMetadataGcp.shouldFetchAws(), 'gcp configuration should NOT fetch aws')
+  t.ok(cloudMetadataGcp.shouldFetchGcp(), 'gcp configuration should fetch gcp')
+  t.ok(!cloudMetadataGcp.shouldFetchAzure(), 'gcp configuration should NOT fetch azure')
+
+  const cloudMetadataAzure = new CloudMetadata({
+    _conf: {
+      cloudProvider: 'azure'
+    }
+  })
+  t.ok(!cloudMetadataAzure.shouldFetchAws(), 'azure configuration should NOT fetch aws')
+  t.ok(!cloudMetadataAzure.shouldFetchGcp(), 'azure configuration should NOT fetch gcp')
+  t.ok(cloudMetadataAzure.shouldFetchAzure(), 'azure configuration should fetch azure')
+
+  const cloudMetadataInvalid = new CloudMetadata({
+    _conf: {
+      cloudProvider: 'invalid-cloud-provider'
+    }
+  })
+  t.ok(!cloudMetadataInvalid.shouldFetchAws(), 'invalid configuration should NOT fetch aws')
+  t.ok(!cloudMetadataInvalid.shouldFetchGcp(), 'invalid configuration should NOT fetch gcp')
+  t.ok(!cloudMetadataInvalid.shouldFetchAzure(), 'invalid configuration should NOT fetch azure')
+
+  t.end()
 })
