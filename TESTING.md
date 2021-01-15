@@ -143,12 +143,6 @@ Run the regular test suite:
 jenkins run the tests
 ```
 
-Run the lint tests only:
-
-```
-jenkins run lint
-```
-
 Run TAV tests for one or more modules, where `<modules>` can be either a
 comma separated list of modules (e.g.  `memcached,redis`) or the
 string literal `ALL` to test _all_ modules:
