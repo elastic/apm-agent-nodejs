@@ -6,6 +6,24 @@ const { getMetadataAws } = require('../../lib/cloud-metadata/aws')
 
 const { createTestServer, loadFixtureData } = require('./_lib')
 
+const providerConfig = {
+  aws: {
+    host: 'localhost',
+    protocol: 'http',
+    port: null
+  },
+  gcp: {
+    host: 'localhost',
+    protocol: 'http',
+    port: null
+  },
+  azure: {
+    host: 'localhost',
+    protocol: 'http',
+    port: null
+  },
+}
+
 tape('cloud metadata: main function returns aws data', function (t) {
   // t.plan helps ensure our callback is only called onces,
   // even though the "socket ping then real network request"
@@ -15,22 +33,19 @@ tape('cloud metadata: main function returns aws data', function (t) {
   const provider = 'aws'
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
-  const host = 'localhost'
-  const protocol = 'http'
+  const config = Object.assign({}, providerConfig)
+
   const listener = serverAws.listen(0, function () {
-    const port = listener.address().port
-    getCloudMetadata({
-      aws: {
-        host: host,
-        protocol: protocol,
-        port: port
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+    getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.error(err, 'no errors expected')
+        t.ok(metadata, 'returned data')
+        listener.close()
       }
-    },
-    function (err, metadata) {
-      t.error(err, 'no errors expected')
-      t.ok(metadata, 'returned data')
-      listener.close()
-    }
     )
   })
 })
