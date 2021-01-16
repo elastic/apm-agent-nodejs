@@ -25,7 +25,7 @@ function addAwsRoute (app, fixture) {
 function addAwsIMDSv2Route (app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
     const token = req.headers['x-aws-ec2-metadata-token']
-    if(!token) {
+    if (!token) {
       throw new Error('not authorized')
     }
     res.send(fixture.response)

@@ -87,20 +87,20 @@ tape.test('IMDSv2 token fetching: aws', function (t) {
     const optionsToken = {
       url: urlToken,
       headers: {
-        "X-aws-ec2-metadata-token-ttl-seconds": "300"
+        'X-aws-ec2-metadata-token-ttl-seconds': '300'
       }
     }
     request.put(optionsToken, function (errorToken, responseToken, rawBodyToken) {
       // token request succeded, now make real request
-      t.equals(rawBodyToken,'AQAAAOaONNcThIsIsAfAkEtOkEn_b94UPLuLYRThIsIsAfAkEtOkEn==', 'returns correct fake token')
+      t.equals(rawBodyToken, 'AQAAAOaONNcThIsIsAfAkEtOkEn_b94UPLuLYRThIsIsAfAkEtOkEn==', 'returns correct fake token')
       const url = `http://127.0.0.1:${listener.address().port}/latest/dynamic/instance-identity/document`
       const options = {
         url: url,
         headers: {
-          'X-aws-ec2-metadata-token':rawBodyToken
+          'X-aws-ec2-metadata-token': rawBodyToken
         }
       }
-      request(options, function(error, response, rawBody){
+      request(options, function (error, response, rawBody) {
         if (error) {
           throw error
         }
@@ -110,7 +110,6 @@ tape.test('IMDSv2 token fetching: aws', function (t) {
         listener.close()
         t.end()
       })
-
     })
   })
 })
