@@ -511,7 +511,7 @@ tape('cloud metadata: main function returns data with azure server', function (t
         t.equals(metadata.instance.id, fixture.response.compute.vmId, 'instance id set')
         t.equals(metadata.instance.name, fixture.response.compute.name, 'instance name set')
         t.equals(metadata.project.name, fixture.response.compute.resourceGroupName, 'project name set')
-        t.equals(metadata.availability_zone,'fake-zone', 'availability_zone set')
+        t.equals(metadata.availability_zone, 'fake-zone', 'availability_zone set')
         t.equals(metadata.machine.type, fixture.response.compute.vmSize, 'machine type set')
         t.equals(metadata.provider, provider, 'provider set')
         t.equals(metadata.region, fixture.response.compute.location, 'region set')
@@ -530,7 +530,6 @@ tape('cloud metadata: gcp string manipulation does not fail on non-strings', fun
   const provider = 'gcp'
   const fixtureName = 'gcp unexpected string fixture'
   const serverGcp = createTestServer(provider, fixtureName)
-  const fixture = loadFixtureData(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
   const agent = {
     _conf: {

@@ -191,12 +191,12 @@ module.exports = {
   ],
   azure: [
     {
-      name:'azure does not crash on empty response',
+      name: 'azure does not crash on empty response',
       response: {
       }
     },
     {
-      name:'azure does not crash on mostly empty response',
+      name: 'azure does not crash on mostly empty response',
       response: {
         compute: {
         }
