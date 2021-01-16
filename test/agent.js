@@ -372,6 +372,25 @@ test('#setLabel()', function (t) {
     t.deepEqual(trans._labels, { foo: '1' })
     t.end()
   })
+
+  t.test('active transaction without label stringification', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.strictEqual(agent.setLabel('positive', 1, false), true)
+    t.strictEqual(agent.setLabel('negative', -10, false), true)
+    t.strictEqual(agent.setLabel('boolean-true', true, false), true)
+    t.strictEqual(agent.setLabel('boolean-false', false, false), true)
+    t.strictEqual(agent.setLabel('string', 'a custom label', false), true)
+    t.deepEqual(trans._labels, {
+      positive: 1,
+      negative: -10,
+      'boolean-true': true,
+      'boolean-false': false,
+      string: 'a custom label'
+    })
+    t.end()
+  })
 })
 
 test('#addLabels()', function (t) {
@@ -389,6 +408,15 @@ test('#addLabels()', function (t) {
     t.strictEqual(agent.addLabels({ foo: 1, bar: 2 }), true)
     t.strictEqual(agent.addLabels({ foo: 3 }), true)
     t.deepEqual(trans._labels, { foo: '3', bar: '2' })
+    t.end()
+  })
+
+  t.test('active transaction without label stringification', function (t) {
+    var agent = Agent()
+    agent.start()
+    var trans = agent.startTransaction()
+    t.strictEqual(agent.addLabels({ foo: 1, bar: true }, false), true)
+    t.deepEqual(trans._labels, { foo: 1, bar: true })
     t.end()
   })
 })

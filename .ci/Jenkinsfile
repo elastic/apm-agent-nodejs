@@ -93,11 +93,8 @@ pipeline {
               // Only 12 for the time being
               parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12')
 
-              // PRs don't require to run here as it's now managed within the linting pipeline
-              if (!env.CHANGE_ID) {
-                // Linting in parallel with the test stage
-                parallelTasks['linting'] = linting()
-              }
+              // Linting in parallel with the test stage
+              parallelTasks['linting'] = linting()
 
               parallel(parallelTasks)
             }
