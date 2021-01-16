@@ -27,6 +27,12 @@ module.exports = {
         region: 'us-west-2'
       },
       responseToken: 'AQAAAOaONNcThIsIsAfAkEtOkEn_b94UPLuLYRThIsIsAfAkEtOkEn=='
+    },
+    {
+      name: 'aws does not crash on empty response',
+      response: {
+      },
+      responseToken: 'AQAAAOaONNcThIsIsAfAkEtOkEn_b94UPLuLYRThIsIsAfAkEtOkEn=='
     }
   ],
   'aws-IMDSv2': [
@@ -53,6 +59,20 @@ module.exports = {
     }
   ],
   gcp: [
+    {
+      name: 'gcp does not crash on empty response',
+      response: {
+      }
+    },
+    {
+      name: 'gcp unexpected string fixture',
+      response: {
+        instance: {
+          zone: 123456,
+          machineType: 123456
+        }
+      }
+    },
     {
       name: 'default gcp fixture',
       response: {
@@ -171,6 +191,18 @@ module.exports = {
   ],
   azure: [
     {
+      name:'azure does not crash on empty response',
+      response: {
+      }
+    },
+    {
+      name:'azure does not crash on mostly empty response',
+      response: {
+        compute: {
+        }
+      }
+    },
+    {
       name: 'default azure fixture',
       response: {
         compute: {
@@ -268,7 +300,7 @@ module.exports = {
           vmId: '02aab8a4-74ef-476e-8182-f6d2ba4166a6',
           vmScaleSetName: 'crpteste9vflji9',
           vmSize: 'Standard_A3',
-          zone: ''
+          zone: 'fake-zone'
         },
         network: {
           interface: [{

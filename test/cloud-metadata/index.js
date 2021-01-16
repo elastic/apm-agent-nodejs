@@ -24,15 +24,16 @@ const providerConfig = {
   }
 }
 
-tape('cloud metadata: main function returns data', function (t) {
+tape('cloud metadata: main function returns data with aws server', function (t) {
   // t.plan helps ensure our callback is only called onces,
   // even though the "socket ping then real network request"
   // approach creates the potential for lots of errors
-  t.plan(2)
+  t.plan(8)
 
   const provider = 'aws'
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
+  const fixture = loadFixtureData(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
   const agent = {
     _conf: {
@@ -50,6 +51,12 @@ tape('cloud metadata: main function returns data', function (t) {
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
+        t.equals(metadata.account.id, fixture.response.accountId, 'account id set')
+        t.equals(metadata.instance.id, fixture.response.instanceId, 'instance id set')
+        t.equals(metadata.availability_zone, fixture.response.availabilityZone, 'availability_zone set')
+        t.equals(metadata.machine.type, fixture.response.instanceType, 'machine type set')
+        t.equals(metadata.provider, provider, 'provider set')
+        t.equals(metadata.region, fixture.response.region, 'region set')
         listener.close()
       }
     )
@@ -285,6 +292,252 @@ tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
     }
   }
   const listener = serverAws.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.error(err, 'no errors expected')
+        t.ok(metadata, 'returned data')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('cloud metadata: aws empty data', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'aws'
+  const fixtureName = 'aws does not crash on empty response'
+  const serverAws = createTestServer(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
+  const listener = serverAws.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.error(err, 'no errors expected')
+        t.ok(metadata, 'returned data')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('cloud metadata: gcp empty data', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'gcp'
+  const fixtureName = 'gcp does not crash on empty response'
+  const serverGcp = createTestServer(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
+  const listener = serverGcp.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.error(err, 'no errors expected')
+        t.ok(metadata, 'returned data')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('cloud metadata: azure empty data', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'azure'
+  const fixtureName = 'azure does not crash on empty response'
+  const serverAzure = createTestServer(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
+  const listener = serverAzure.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.error(err, 'no errors expected')
+        t.ok(metadata, 'returned data')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('cloud metadata: azure empty data', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'azure'
+  const fixtureName = 'azure does not crash on mostly empty response'
+  const serverAzure = createTestServer(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
+  const listener = serverAzure.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.error(err, 'no errors expected')
+        t.ok(metadata, 'returned data')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('cloud metadata: main function returns data with gcp server', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(9)
+
+  const provider = 'gcp'
+  const fixtureName = 'default gcp fixture'
+  const serverGcp = createTestServer(provider, fixtureName)
+  const fixture = loadFixtureData(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
+  const listener = serverGcp.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.error(err, 'no errors expected')
+        t.ok(metadata, 'returned data')
+        t.equals(metadata.instance.id, fixture.response.instance.id, 'instance id is set')
+        t.equals(metadata.provider, provider, 'provider is set')
+        t.equals(metadata.project.id, fixture.response.project.numericProjectId, 'project id is set')
+        t.equals(metadata.project.name, fixture.response.project.projectId, 'project name is set')
+
+        // for properties we create via manipuation, just test hard coded
+        // string contants rather than re-manipulate in that same, possibly
+        // buggy, way
+        t.equals(metadata.region, 'us-west1', 'region is set')
+        t.equals(metadata.availability_zone, 'us-west1-b', 'availability_zone is set')
+        t.equals(metadata.machine.type, 'e2-micro', 'machine type is set')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('cloud metadata: main function returns data with azure server', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(10)
+
+  const provider = 'azure'
+  const fixtureName = 'default azure fixture'
+  const serverAzure = createTestServer(provider, fixtureName)
+  const fixture = loadFixtureData(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
+  const listener = serverAzure.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.error(err, 'no errors expected')
+        t.ok(metadata, 'returned data')
+        t.equals(metadata.account.id, fixture.response.compute.subscriptionId, 'account id set')
+        t.equals(metadata.instance.id, fixture.response.compute.vmId, 'instance id set')
+        t.equals(metadata.instance.name, fixture.response.compute.name, 'instance name set')
+        t.equals(metadata.project.name, fixture.response.compute.resourceGroupName, 'project name set')
+        t.equals(metadata.availability_zone,'fake-zone', 'availability_zone set')
+        t.equals(metadata.machine.type, fixture.response.compute.vmSize, 'machine type set')
+        t.equals(metadata.provider, provider, 'provider set')
+        t.equals(metadata.region, fixture.response.compute.location, 'region set')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('cloud metadata: gcp string manipulation does not fail on non-strings', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'gcp'
+  const fixtureName = 'gcp unexpected string fixture'
+  const serverGcp = createTestServer(provider, fixtureName)
+  const fixture = loadFixtureData(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
+  const listener = serverGcp.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
