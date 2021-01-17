@@ -1,7 +1,7 @@
 const tape = require('tape')
-const { FetchCoordination } = require('../../lib/cloud-metadata/fetch-coordination')
+const { CallbackCoordination } = require('../../lib/cloud-metadata/fetch-coordination')
 tape.test('fetch coordination: all successful', function(t) {
-  const fetcher = new FetchCoordination;
+  const fetcher = new CallbackCoordination;
   fetcher.schedule(function(fetcher) {
     // to do -- can this just be a callback?
     setTimeout(function(){
@@ -41,7 +41,7 @@ tape.test('fetch coordination: all successful', function(t) {
 })
 
 tape.test('fetch coordination: all errors', function(t) {
-  const fetcher = new FetchCoordination;
+  const fetcher = new CallbackCoordination;
   fetcher.schedule(function(fetcher) {
     setTimeout(function(){
       fetcher.recordResult(new Error('an error'))
@@ -73,7 +73,7 @@ tape.test('fetch coordination: all errors', function(t) {
 })
 
 tape.test('fetch coordination: fails to invoke callback (timeout)', function(t) {
-  const fetcher = new FetchCoordination(100);
+  const fetcher = new CallbackCoordination(100);
   fetcher.schedule(function(fetcher) {
     setTimeout(function(){
       fetcher.recordResult(new Error('an error'))
