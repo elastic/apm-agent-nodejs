@@ -1,5 +1,5 @@
 const tape = require('tape')
-const { CallbackCoordination } = require('../../lib/cloud-metadata/fetch-coordination')
+const { CallbackCoordination } = require('../../lib/cloud-metadata/callback-coordination')
 tape.test('fetch coordination: all successful', function(t) {
   const fetcher = new CallbackCoordination;
   fetcher.schedule(function(fetcher) {
