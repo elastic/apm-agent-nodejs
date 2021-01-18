@@ -2,6 +2,9 @@
 const express = require('express')
 const fixtures = require('./_fixtures')
 
+// how many seconds to wait for a "slow" server
+const TIMEOUT_SLOWSERVER_MS = 5000
+
 /**
  * Add AWS metadata route
  *
@@ -10,6 +13,16 @@ const fixtures = require('./_fixtures')
 function addAwsRoute (app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
     res.send(fixture.response)
+  })
+
+  return app
+}
+
+function addSlowAwsRoute (app, fixture) {
+  app.get('/latest/dynamic/instance-identity/document', (req, res) => {
+    setTimeout(function () {
+      res.send(fixture.response)
+    }, TIMEOUT_SLOWSERVER_MS)
   })
 
   return app
@@ -33,6 +46,26 @@ function addAwsIMDSv2Route (app, fixture) {
 
   app.put('/latest/api/token', (req, res) => {
     res.send(fixture.responseToken)
+  })
+
+  return app
+}
+
+function addSlowAwsIMDSv2Route (app, fixture) {
+  app.get('/latest/dynamic/instance-identity/document', (req, res) => {
+    const token = req.headers['x-aws-ec2-metadata-token']
+    if (!token) {
+      throw new Error('not authorized')
+    }
+    setTimeout(function () {
+      res.send(fixture.response)
+    }, TIMEOUT_SLOWSERVER_MS)
+  })
+
+  app.put('/latest/api/token', (req, res) => {
+    setTimeout(function () {
+      res.send(fixture.responseToken)
+    }, TIMEOUT_SLOWSERVER_MS)
   })
 
   return app
@@ -62,6 +95,23 @@ function addGcpRoute (app, fixture) {
   return app
 }
 
+function addSlowGcpRoute (app, fixture) {
+  app.get('/computeMetadata/v1', (req, res) => {
+    if (!req.query.recursive) {
+      throw new Error('recursive GET parameter required')
+    }
+
+    if (req.header('Metadata-Flavor') !== 'Google') {
+      throw new Error('Metadata-Flavor: Google header required')
+    }
+    setTimeout(function () {
+      res.send(fixture.response)
+    }, TIMEOUT_SLOWSERVER_MS)
+  })
+
+  return app
+}
+
 /**
  * Add Azure metadata route
  *
@@ -84,6 +134,39 @@ function addAzureRoute (app, fixture) {
   })
 
   return app
+}
+
+function addSlowAzureRoute (app, fixture) {
+  app.get('/metadata/instance', (req, res) => {
+    if (!req.query['api-version']) {
+      throw new Error('api-version GET parameter required')
+    }
+
+    if (req.header('Metadata') !== 'true') {
+      throw new Error('Metadata header required')
+    }
+    setTimeout(function () {
+      res.send(fixture.response)
+    }, TIMEOUT_SLOWSERVER_MS)
+  })
+
+  return app
+}
+
+function addSlowRoutesToExpressApp (app, provider, fixture) {
+  switch (provider) {
+    case 'aws':
+      return addSlowAwsRoute(app, fixture)
+    case 'aws-IMDSv2':
+      return addSlowAwsIMDSv2Route(app, fixture)
+    case 'gcp':
+      return addSlowGcpRoute(app, fixture)
+    case 'azure':
+      return addSlowAzureRoute(app, fixture)
+
+    default:
+      throw Error(`I don't know how to start a slow ${provider} server`)
+  }
 }
 
 function addRoutesToExpressApp (app, provider, fixture) {
@@ -122,6 +205,24 @@ function createTestServer (provider, fixtureName) {
   return addRoutesToExpressApp(app, provider, fixture)
 }
 
+/**
+ * Creates a slow Test server
+ *
+ * Same as createTestServer, but responses will be delayed
+ * in order to simulate a timeout.
+ *
+ * @param {string} provider name of cloud meta data provider
+ * @param {string} fixtureName name of to response fixtures
+ */
+function createSlowTestServer (provider, fixtureName) {
+  const fixture = loadFixtureData(provider, fixtureName)
+  if (!fixture) {
+    throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`)
+  }
+  const app = express()
+  return addSlowRoutesToExpressApp(app, provider, fixture)
+}
+
 function loadFixtureData (provider, fixtureName) {
   const providerFixtures = fixtures[provider] ? fixtures[provider] : []
   const fixture = providerFixtures.filter(function (item) {
@@ -132,5 +233,6 @@ function loadFixtureData (provider, fixtureName) {
 
 module.exports = {
   createTestServer,
+  createSlowTestServer,
   loadFixtureData
 }

@@ -3,8 +3,10 @@ const tape = require('tape')
 
 const { CloudMetadata } = require('../../lib/cloud-metadata')
 const { getMetadataAwsV1, getMetadataAwsV2 } = require('../../lib/cloud-metadata/aws')
+const { getMetadataGcp } = require('../../lib/cloud-metadata/gcp')
+const { getMetadataAzure } = require('../../lib/cloud-metadata/azure')
 
-const { createTestServer, loadFixtureData } = require('./_lib')
+const { createTestServer, createSlowTestServer, loadFixtureData } = require('./_lib')
 
 const providerConfig = {
   aws: {
@@ -547,6 +549,138 @@ tape('cloud metadata: gcp string manipulation does not fail on non-strings', fun
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
+        listener.close()
+      }
+    )
+  })
+})
+
+tape('gcp metadata: no gcp server', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(1)
+
+  const host = 'localhost'
+  const protocol = 'http'
+  const port = 30001
+
+  getMetadataGcp(host, port, 100, 1000, protocol, function (err, metadata) {
+    t.ok(err, 'error expected')
+  })
+})
+
+tape('aws metadata: slow v1 metadata server', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'aws'
+  const fixtureName = 'default aws fixture'
+  const serverAws = createSlowTestServer(provider, fixtureName)
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAws.listen(0, function () {
+    const port = listener.address().port
+    getMetadataAwsV1(host, port, 100, 1000, protocol, function (err, metadata) {
+      t.ok(err, 'error expected')
+      t.equals(err.message, 'request to metadata server timed out')
+      listener.close()
+    })
+  })
+})
+
+tape('aws metadata: slow v2 metadata server', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'aws-IMDSv2'
+  const fixtureName = 'default aws fixture'
+  const serverAws = createSlowTestServer(provider, fixtureName)
+
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAws.listen(0, function () {
+    const port = listener.address().port
+    getMetadataAwsV2(host, port, 100, 1000, protocol, function (err, metadata) {
+      t.ok(err, 'error expected')
+      t.equals(err.message, 'request for metadata token timed out')
+      listener.close()
+    })
+  })
+})
+
+tape('gcp metadata: slow metadata server', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'gcp'
+  const fixtureName = 'default gcp fixture'
+  const serverGcp = createSlowTestServer(provider, fixtureName)
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverGcp.listen(0, function () {
+    const port = listener.address().port
+    getMetadataGcp(host, port, 100, 1000, protocol, function (err, metadata) {
+      t.ok(err, 'error expected')
+      t.equals(err.message, 'request to metadata server timed out')
+      listener.close()
+    })
+  })
+})
+
+tape('azure metadata: slow metadata server', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'azure'
+  const fixtureName = 'azure does not crash on empty response'
+  const serverAzure = createSlowTestServer(provider, fixtureName)
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAzure.listen(0, function () {
+    const port = listener.address().port
+    getMetadataAzure(host, port, 100, 1000, protocol, function (err, metadata) {
+      t.ok(err, 'error expected')
+      t.equals(err.message, 'request to azure metadata server timed out')
+      listener.close()
+    })
+  })
+})
+
+tape('cloud metadata: main function with slow aws server', function (t) {
+  // t.plan helps ensure our callback is only called onces,
+  // even though the "socket ping then real network request"
+  // approach creates the potential for lots of errors
+  t.plan(2)
+
+  const provider = 'aws'
+  const fixtureName = 'default aws fixture'
+  const serverAws = createSlowTestServer(provider, fixtureName)
+  const config = Object.assign({}, providerConfig)
+  const agent = {
+    _conf: {
+      cloudProvider: 'auto'
+    }
+  }
+  const listener = serverAws.listen(0, function () {
+    config.aws.port = listener.address().port
+    config.gcp.port = listener.address().port
+    config.azure.port = listener.address().port
+
+    const cloudMetadata = new CloudMetadata(agent)
+    cloudMetadata.getCloudMetadata(
+      providerConfig,
+      function (err, metadata) {
+        t.ok(err, 'error expected')
+        t.equals(err.message, 'all callbacks failed')
         listener.close()
       }
     )
