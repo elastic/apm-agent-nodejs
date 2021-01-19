@@ -28,7 +28,6 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-
 ==== Unreleased
 
 [float]
@@ -37,6 +36,21 @@ Notes:
 [float]
 ===== Features
 
+* feat: support numeric and boolean labels {pull}1909[#1909] +
+  Add an optional `stringify` option to `apm.setLabel(name, version, stringify = true)`
+  and `apm.addLabels(labels, stringify = true)`, which can be set `false` to
+  allow numeric and boolean labels. Stringify defaults to true for backwards
+  compatibility -- stringification will be removed in a future major version.
+
+[float]
+===== Bug fixes
+
+
+[[release-notes-3.10.0]]
+==== 3.10.0 - 2021/01/11
+
+[float]
+===== Features
 
 * feat: Improve handling of raw body parsing
   The agent will now report raw/`Buffer` encoded post bodies as '<Buffer>'.
@@ -64,6 +78,7 @@ slightly to commonalize:
 
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
+
 * feat: implemented sanitize_feature_names specification +
   Allows users to configure a list of wildcard patterns to _remove_ items
   from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
@@ -85,7 +100,6 @@ Config vars affected are: `disableInstrumentations`, `transactionIgnoreUrls`
 * fix: Correct the environment variable for setting `transactionIgnoreUrl`
   (added in v3.9.0) from `ELASTIC_TRANSACTION_IGNORE_URLS` to
   `ELASTIC_APM_TRANSACTION_IGNORE_URLS`.
-
 
 
 [[release-notes-3.9.0]]
