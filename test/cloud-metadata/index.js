@@ -424,9 +424,9 @@ tape('cloud metadata: main function returns data with gcp server', function (t) 
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
         t.equals(metadata.instance.id, fixture.response.instance.id + '', 'instance id is set and is a string')
-        t.equals(metadata.provider, provider  + '', 'provider is set and is a string')
-        t.equals(metadata.project.id, fixture.response.project.numericProjectId  + '', 'project id is set and is a string')
-        t.equals(metadata.project.name, fixture.response.project.projectId  + '', 'project name is set and is a string')
+        t.equals(metadata.provider, provider + '', 'provider is set and is a string')
+        t.equals(metadata.project.id, fixture.response.project.numericProjectId + '', 'project id is set and is a string')
+        t.equals(metadata.project.name, fixture.response.project.projectId + '', 'project name is set and is a string')
 
         // for properties we create via manipulation, just test hard coded
         // string constants rather than re-manipulate in that same, possibly
