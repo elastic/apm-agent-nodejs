@@ -45,6 +45,14 @@ Notes:
 [float]
 ===== Bug fixes
 
+* fix: fixes bug where tedious could crash the agent on bulk inserts
+  Reported [via the forum](https://discuss.elastic.co/t/apm-agent-crashes-nodejs-after-reporting-exception-in-tedious-instrumentation-code/259851)
+
+  Error manifested via the following error statment.
+
+  `Cannot read property 'statement' of undefined`
+
+
 
 [[release-notes-3.10.0]]
 ==== 3.10.0 - 2021/01/11
