@@ -27,9 +27,6 @@ const providerConfig = {
 }
 
 tape('cloud metadata: main function returns data with aws server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(8)
 
   const provider = 'aws'
@@ -66,9 +63,6 @@ tape('cloud metadata: main function returns data with aws server', function (t) 
 })
 
 tape('cloud metadata: main function returns aws data', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'aws'
@@ -98,9 +92,6 @@ tape('cloud metadata: main function returns aws data', function (t) {
 })
 
 tape('aws metadata: returns valid data', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(8)
 
   const provider = 'aws'
@@ -126,9 +117,6 @@ tape('aws metadata: returns valid data', function (t) {
 })
 
 tape('aws metadata: if socket ping times out', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(1)
   const serverAws = createTestServer('aws', 'default aws fixture')
   const host = 'localhost'
@@ -143,9 +131,6 @@ tape('aws metadata: if socket ping times out', function (t) {
 })
 
 tape('aws metadata: if server is not there', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(1)
   const host = 'localhost'
   const invalidPort = 30001
@@ -156,9 +141,6 @@ tape('aws metadata: if server is not there', function (t) {
 })
 
 tape('cloud metadata: do not hang when none is configured', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'aws'
@@ -188,10 +170,6 @@ tape('cloud metadata: do not hang when none is configured', function (t) {
 })
 
 tape('cloud metadata: agent configuration wiring', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
-
   const cloudMetadataAuto = new CloudMetadata({
     _conf: {
       cloudProvider: 'auto'
@@ -250,9 +228,6 @@ tape('cloud metadata: agent configuration wiring', function (t) {
 })
 
 tape('aws metadata: IMDSv2 returns valid data', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(8)
 
   const provider = 'aws-IMDSv2'
@@ -279,9 +254,6 @@ tape('aws metadata: IMDSv2 returns valid data', function (t) {
 })
 
 tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'aws-IMDSv2'
@@ -311,9 +283,6 @@ tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
 })
 
 tape('cloud metadata: aws empty data', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'aws'
@@ -343,9 +312,6 @@ tape('cloud metadata: aws empty data', function (t) {
 })
 
 tape('cloud metadata: gcp empty data', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'gcp'
@@ -375,9 +341,6 @@ tape('cloud metadata: gcp empty data', function (t) {
 })
 
 tape('cloud metadata: azure empty data', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'azure'
@@ -407,9 +370,6 @@ tape('cloud metadata: azure empty data', function (t) {
 })
 
 tape('cloud metadata: azure empty data', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'azure'
@@ -439,9 +399,6 @@ tape('cloud metadata: azure empty data', function (t) {
 })
 
 tape('cloud metadata: main function returns data with gcp server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(9)
 
   const provider = 'gcp'
@@ -470,8 +427,8 @@ tape('cloud metadata: main function returns data with gcp server', function (t) 
         t.equals(metadata.project.id, fixture.response.project.numericProjectId, 'project id is set')
         t.equals(metadata.project.name, fixture.response.project.projectId, 'project name is set')
 
-        // for properties we create via manipuation, just test hard coded
-        // string contants rather than re-manipulate in that same, possibly
+        // for properties we create via manipulation, just test hard coded
+        // string constants rather than re-manipulate in that same, possibly
         // buggy, way
         t.equals(metadata.region, 'us-west1', 'region is set')
         t.equals(metadata.availability_zone, 'us-west1-b', 'availability_zone is set')
@@ -483,9 +440,6 @@ tape('cloud metadata: main function returns data with gcp server', function (t) 
 })
 
 tape('cloud metadata: main function returns data with azure server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(10)
 
   const provider = 'azure'
@@ -524,9 +478,6 @@ tape('cloud metadata: main function returns data with azure server', function (t
 })
 
 tape('cloud metadata: gcp string manipulation does not fail on non-strings', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'gcp'
@@ -556,9 +507,6 @@ tape('cloud metadata: gcp string manipulation does not fail on non-strings', fun
 })
 
 tape('gcp metadata: no gcp server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(1)
 
   const host = 'localhost'
@@ -571,9 +519,6 @@ tape('gcp metadata: no gcp server', function (t) {
 })
 
 tape('aws metadata: slow v1 metadata server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'aws'
@@ -592,9 +537,6 @@ tape('aws metadata: slow v1 metadata server', function (t) {
 })
 
 tape('aws metadata: slow v2 metadata server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'aws-IMDSv2'
@@ -614,9 +556,6 @@ tape('aws metadata: slow v2 metadata server', function (t) {
 })
 
 tape('gcp metadata: slow metadata server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'gcp'
@@ -635,9 +574,6 @@ tape('gcp metadata: slow metadata server', function (t) {
 })
 
 tape('azure metadata: slow metadata server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'azure'
@@ -656,9 +592,6 @@ tape('azure metadata: slow metadata server', function (t) {
 })
 
 tape('cloud metadata: main function with slow aws server', function (t) {
-  // t.plan helps ensure our callback is only called onces,
-  // even though the "socket ping then real network request"
-  // approach creates the potential for lots of errors
   t.plan(2)
 
   const provider = 'aws'

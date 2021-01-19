@@ -82,7 +82,7 @@ module.exports = {
           description: '',
           disks: [
             {
-              deviceName: 'astorm-temp-delete-me-cloud-metadata',
+              deviceName: 'username-temp-delete-me-cloud-metadata',
               index: 0,
               interface: 'SCSI',
               mode: 'READ_WRITE',
@@ -90,7 +90,7 @@ module.exports = {
             }
           ],
           guestAttributes: {},
-          hostname: 'astorm-temp-delete-me-cloud-metadata.c.elastic-apm.internal',
+          hostname: 'username-temp-delete-me-cloud-metadata.c.elastic-apm.internal',
           id: 7684572792595385000,
           image: 'projects/debian-cloud/global/images/debian-10-buster-v20201216',
           legacyEndpointAccess: {
@@ -104,7 +104,7 @@ module.exports = {
           ],
           machineType: 'projects/513326162531/machineTypes/e2-micro',
           maintenanceEvent: 'NONE',
-          name: 'astorm-temp-delete-me-cloud-metadata',
+          name: 'username-temp-delete-me-cloud-metadata',
           networkInterfaces: [
             {
               accessConfigs: [

@@ -1,23 +1,21 @@
+'use strict'
 const tape = require('tape')
 const { CallbackCoordination } = require('../../lib/cloud-metadata/callback-coordination')
 tape.test('fetch coordination: all successful', function (t) {
   const fetcher = new CallbackCoordination()
   fetcher.schedule(function (fetcher) {
-    // to do -- can this just be a callback?
     setTimeout(function () {
       fetcher.recordResult(null, 'pass1')
     }, 10)
   })
 
   fetcher.schedule(function (fetcher) {
-    // to do -- can this just be a callback?
     setTimeout(function () {
       fetcher.recordResult(null, 'pass2')
     }, 20)
   })
 
   fetcher.schedule(function (fetcher) {
-    // to do -- can this just be a callback?
     setTimeout(function () {
       fetcher.recordResult(null, 'pass3')
     }, 30)
@@ -88,11 +86,12 @@ tape.test('fetch coordination: fails to invoke callback (timeout)', function (t)
 
   fetcher.schedule(function (fetcher) {
     setTimeout(function () {
-      // forgot to call the final recordResult
+      // Deliberately empty — simulates forgetting to call fetcher.recordResult
     }, 30)
   })
 
   fetcher.on('result', function (result) {
+    t.error('do no expect to reach')
   })
 
   fetcher.on('error', function (error) {
