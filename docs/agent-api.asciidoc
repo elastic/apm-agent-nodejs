@@ -60,6 +60,14 @@ Use `isStarted()` to check if the agent has already started.
 Returns `true` if the agent has started,
 otherwise returns `false`.
 
+[[apm-get-service-name]]
+==== `apm.getServiceName()`
+
+[small]#Added in: v3.11.0#
+
+Get the configured <<service-name,`serviceName`>>. If a service name was not
+explicitly configured, this value may have been automatically determined.
+
 [[apm-set-framework]]
 ==== `apm.setFramework(options)`
 
