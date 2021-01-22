@@ -18,6 +18,13 @@ var inContainer = 'containerId' in (containerInfo() || {})
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
 
+test('#getServiceName()', function (t) {
+  var agent = Agent()
+  agent.start()
+  t.strictEqual(agent.getServiceName(), agent._conf.serviceName)
+  t.end()
+})
+
 test('#setFramework()', function (t) {
   var agent = Agent()
   agent.start()
