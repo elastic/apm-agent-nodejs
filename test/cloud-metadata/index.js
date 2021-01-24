@@ -40,6 +40,7 @@ tape('cloud metadata: main function returns data with aws server', function (t) 
     }
   }
   const listener = serverAws.listen(0, function () {
+
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
