@@ -34,17 +34,13 @@ tape('cloud metadata: main function returns data with aws server', function (t) 
   const serverAws = createTestServer(provider, fixtureName)
   const fixture = loadFixtureData(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -69,17 +65,13 @@ tape('cloud metadata: main function returns aws data', function (t) {
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -148,17 +140,13 @@ tape('cloud metadata: do not hang when none is configured', function (t) {
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'none'
-    }
-  }
+  const cloudProvider = 'none'
   const listener = serverAws.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -171,56 +159,32 @@ tape('cloud metadata: do not hang when none is configured', function (t) {
 })
 
 tape('cloud metadata: agent configuration wiring', function (t) {
-  const cloudMetadataAuto = new CloudMetadata({
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  })
+  const cloudMetadataAuto = new CloudMetadata('auto')
   t.ok(cloudMetadataAuto.shouldFetchAws(), 'auto configuration should fetch aws')
   t.ok(cloudMetadataAuto.shouldFetchGcp(), 'auto configuration should fetch gcp')
   t.ok(cloudMetadataAuto.shouldFetchAzure(), 'auto configuration should fetch azure')
 
-  const cloudMetadataNone = new CloudMetadata({
-    _conf: {
-      cloudProvider: 'none'
-    }
-  })
+  const cloudMetadataNone = new CloudMetadata('none')
   t.ok(!cloudMetadataNone.shouldFetchAws(), 'none configuration should NOT fetch aws')
   t.ok(!cloudMetadataNone.shouldFetchGcp(), 'none configuration should NOT fetch gcp')
   t.ok(!cloudMetadataNone.shouldFetchAzure(), 'none configuration should NOT fetch azure')
 
-  const cloudMetadataAws = new CloudMetadata({
-    _conf: {
-      cloudProvider: 'aws'
-    }
-  })
+  const cloudMetadataAws = new CloudMetadata('aws')
   t.ok(cloudMetadataAws.shouldFetchAws(), 'aws configuration should fetch aws')
   t.ok(!cloudMetadataAws.shouldFetchGcp(), 'aws configuration should NOT fetch gcp')
   t.ok(!cloudMetadataAws.shouldFetchAzure(), 'aws configuration should NOT fetch azure')
 
-  const cloudMetadataGcp = new CloudMetadata({
-    _conf: {
-      cloudProvider: 'gcp'
-    }
-  })
+  const cloudMetadataGcp = new CloudMetadata('gcp')
   t.ok(!cloudMetadataGcp.shouldFetchAws(), 'gcp configuration should NOT fetch aws')
   t.ok(cloudMetadataGcp.shouldFetchGcp(), 'gcp configuration should fetch gcp')
   t.ok(!cloudMetadataGcp.shouldFetchAzure(), 'gcp configuration should NOT fetch azure')
 
-  const cloudMetadataAzure = new CloudMetadata({
-    _conf: {
-      cloudProvider: 'azure'
-    }
-  })
+  const cloudMetadataAzure = new CloudMetadata('azure')
   t.ok(!cloudMetadataAzure.shouldFetchAws(), 'azure configuration should NOT fetch aws')
   t.ok(!cloudMetadataAzure.shouldFetchGcp(), 'azure configuration should NOT fetch gcp')
   t.ok(cloudMetadataAzure.shouldFetchAzure(), 'azure configuration should fetch azure')
 
-  const cloudMetadataInvalid = new CloudMetadata({
-    _conf: {
-      cloudProvider: 'invalid-cloud-provider'
-    }
-  })
+  const cloudMetadataInvalid = new CloudMetadata('invalid-cloud-provider')
   t.ok(!cloudMetadataInvalid.shouldFetchAws(), 'invalid configuration should NOT fetch aws')
   t.ok(!cloudMetadataInvalid.shouldFetchGcp(), 'invalid configuration should NOT fetch gcp')
   t.ok(!cloudMetadataInvalid.shouldFetchAzure(), 'invalid configuration should NOT fetch azure')
@@ -261,17 +225,13 @@ tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -290,17 +250,13 @@ tape('cloud metadata: aws empty data', function (t) {
   const fixtureName = 'aws does not crash on empty response'
   const serverAws = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -319,17 +275,13 @@ tape('cloud metadata: gcp empty data', function (t) {
   const fixtureName = 'gcp does not crash on empty response'
   const serverGcp = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverGcp.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -348,17 +300,13 @@ tape('cloud metadata: azure empty data', function (t) {
   const fixtureName = 'azure does not crash on empty response'
   const serverAzure = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverAzure.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -377,17 +325,13 @@ tape('cloud metadata: azure empty data', function (t) {
   const fixtureName = 'azure does not crash on mostly empty response'
   const serverAzure = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverAzure.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -407,17 +351,13 @@ tape('cloud metadata: main function returns data with gcp server', function (t) 
   const serverGcp = createTestServer(provider, fixtureName)
   const fixture = loadFixtureData(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverGcp.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -448,17 +388,13 @@ tape('cloud metadata: main function returns data with azure server', function (t
   const serverAzure = createTestServer(provider, fixtureName)
   const fixture = loadFixtureData(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverAzure.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -485,17 +421,13 @@ tape('cloud metadata: gcp string manipulation does not fail on non-strings', fun
   const fixtureName = 'gcp unexpected string fixture'
   const serverGcp = createTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverGcp.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
@@ -599,17 +531,13 @@ tape('cloud metadata: main function with slow aws server', function (t) {
   const fixtureName = 'default aws fixture'
   const serverAws = createSlowTestServer(provider, fixtureName)
   const config = Object.assign({}, providerConfig)
-  const agent = {
-    _conf: {
-      cloudProvider: 'auto'
-    }
-  }
+  const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
     config.aws.port = listener.address().port
     config.gcp.port = listener.address().port
     config.azure.port = listener.address().port
 
-    const cloudMetadata = new CloudMetadata(agent)
+    const cloudMetadata = new CloudMetadata(cloudProvider)
     cloudMetadata.getCloudMetadata(
       providerConfig,
       function (err, metadata) {
