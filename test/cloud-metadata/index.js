@@ -13,7 +13,7 @@ const logger = {
   },
   debug: function () {
   },
-  trace: function() {
+  trace: function () {
   }
 }
 
