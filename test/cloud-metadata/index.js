@@ -12,6 +12,8 @@ const logger = {
   error: function () {
   },
   debug: function () {
+  },
+  trace: function() {
   }
 }
 
@@ -101,7 +103,7 @@ tape('aws metadata: returns valid data', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAwsV1(host, port, 100, 1000, protocol, function (err, metadata) {
+    getMetadataAwsV1(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.error(err, 'no errors expected')
       t.ok(metadata, 'returned data')
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -123,7 +125,7 @@ tape('aws metadata: if socket ping times out', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const validPort = listener.address().port
-    getMetadataAwsV1(host, validPort, 0, 1000, protocol, function (err) {
+    getMetadataAwsV1(host, validPort, 0, 1000, protocol, logger, function (err) {
       t.ok(err, 'expected timeout error')
     })
     listener.close()
@@ -135,7 +137,7 @@ tape('aws metadata: if server is not there', function (t) {
   const host = 'localhost'
   const invalidPort = 30001
   const protocol = 'http'
-  getMetadataAwsV1(host, invalidPort, 100, 1000, protocol, function (err) {
+  getMetadataAwsV1(host, invalidPort, 100, 1000, protocol, logger, function (err) {
     t.ok(err, 'expected unreachable server error')
   })
 })
@@ -211,7 +213,7 @@ tape('aws metadata: IMDSv2 returns valid data', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAwsV2(host, port, 100, 1000, protocol, function (err, metadata) {
+    getMetadataAwsV2(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.error(err, 'no errors expected')
       t.ok(metadata, 'returned data')
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -453,7 +455,7 @@ tape('gcp metadata: no gcp server', function (t) {
   const protocol = 'http'
   const port = 30001
 
-  getMetadataGcp(host, port, 100, 1000, protocol, function (err, metadata) {
+  getMetadataGcp(host, port, 100, 1000, protocol, logger, function (err, metadata) {
     t.ok(err, 'error expected')
   })
 })
@@ -468,7 +470,7 @@ tape('aws metadata: slow v1 metadata server', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAwsV1(host, port, 100, 1000, protocol, function (err, metadata) {
+    getMetadataAwsV1(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to metadata server timed out')
       listener.close()
@@ -487,7 +489,7 @@ tape('aws metadata: slow v2 metadata server', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAwsV2(host, port, 100, 1000, protocol, function (err, metadata) {
+    getMetadataAwsV2(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request for metadata token timed out')
       listener.close()
@@ -505,7 +507,7 @@ tape('gcp metadata: slow metadata server', function (t) {
   const protocol = 'http'
   const listener = serverGcp.listen(0, function () {
     const port = listener.address().port
-    getMetadataGcp(host, port, 100, 1000, protocol, function (err, metadata) {
+    getMetadataGcp(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to metadata server timed out')
       listener.close()
@@ -523,7 +525,7 @@ tape('azure metadata: slow metadata server', function (t) {
   const protocol = 'http'
   const listener = serverAzure.listen(0, function () {
     const port = listener.address().port
-    getMetadataAzure(host, port, 100, 1000, protocol, function (err, metadata) {
+    getMetadataAzure(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to azure metadata server timed out')
       listener.close()
