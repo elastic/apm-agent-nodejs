@@ -9,9 +9,9 @@ const { getMetadataAzure } = require('../../lib/cloud-metadata/azure')
 const { createTestServer, createSlowTestServer, loadFixtureData } = require('./_lib')
 // mock logger
 const logger = {
-  error: function() {
+  error: function () {
   },
-  debug: function() {
+  debug: function () {
   }
 }
 
