@@ -2,7 +2,7 @@
 const tape = require('tape')
 
 const { CloudMetadata } = require('../../lib/cloud-metadata')
-const { getMetadataAwsV1, getMetadataAwsV2 } = require('../../lib/cloud-metadata/aws')
+const { getMetadataAwsV3 } = require('../../lib/cloud-metadata/aws')
 const { getMetadataGcp } = require('../../lib/cloud-metadata/gcp')
 const { getMetadataAzure } = require('../../lib/cloud-metadata/azure')
 
@@ -92,56 +92,6 @@ tape('cloud metadata: main function returns aws data', function (t) {
   })
 })
 
-tape('aws metadata: returns valid data', function (t) {
-  t.plan(8)
-
-  const provider = 'aws'
-  const fixtureName = 'default aws fixture'
-  const serverAws = createTestServer(provider, fixtureName)
-  const fixture = loadFixtureData(provider, fixtureName)
-  const host = 'localhost'
-  const protocol = 'http'
-  const listener = serverAws.listen(0, function () {
-    const port = listener.address().port
-    getMetadataAwsV1(host, port, 100, 1000, protocol, logger, function (err, metadata) {
-      t.error(err, 'no errors expected')
-      t.ok(metadata, 'returned data')
-      t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
-      t.equals(metadata.instance.id, fixture.response.instanceId, 'found expected metadata for')
-      t.equals(metadata.availability_zone, fixture.response.availabilityZone, 'found expected metadata for')
-      t.equals(metadata.machine.type, fixture.response.instanceType, 'found expected metadata for')
-      t.equals(metadata.provider, provider, 'found expected metadata for')
-      t.equals(metadata.region, fixture.response.region, 'found expected metadata for')
-
-      listener.close()
-    })
-  })
-})
-
-tape('aws metadata: if socket ping times out', function (t) {
-  t.plan(1)
-  const serverAws = createTestServer('aws', 'default aws fixture')
-  const host = 'localhost'
-  const protocol = 'http'
-  const listener = serverAws.listen(0, function () {
-    const validPort = listener.address().port
-    getMetadataAwsV1(host, validPort, 0, 1000, protocol, logger, function (err) {
-      t.ok(err, 'expected timeout error')
-    })
-    listener.close()
-  })
-})
-
-tape('aws metadata: if server is not there', function (t) {
-  t.plan(1)
-  const host = 'localhost'
-  const invalidPort = 30001
-  const protocol = 'http'
-  getMetadataAwsV1(host, invalidPort, 100, 1000, protocol, logger, function (err) {
-    t.ok(err, 'expected unreachable server error')
-  })
-})
-
 tape('cloud metadata: do not hang when none is configured', function (t) {
   t.plan(2)
 
@@ -199,32 +149,6 @@ tape('cloud metadata: agent configuration wiring', function (t) {
   t.ok(!cloudMetadataInvalid.shouldFetchAzure(), 'invalid configuration should NOT fetch azure')
 
   t.end()
-})
-
-tape('aws metadata: IMDSv2 returns valid data', function (t) {
-  t.plan(8)
-
-  const provider = 'aws-IMDSv2'
-  const fixtureName = 'default aws fixture'
-  const serverAws = createTestServer(provider, fixtureName)
-  const fixture = loadFixtureData(provider, fixtureName)
-
-  const host = 'localhost'
-  const protocol = 'http'
-  const listener = serverAws.listen(0, function () {
-    const port = listener.address().port
-    getMetadataAwsV2(host, port, 100, 1000, protocol, logger, function (err, metadata) {
-      t.error(err, 'no errors expected')
-      t.ok(metadata, 'returned data')
-      t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
-      t.equals(metadata.instance.id, fixture.response.instanceId, 'found expected metadata for')
-      t.equals(metadata.availability_zone, fixture.response.availabilityZone, 'found expected metadata for')
-      t.equals(metadata.machine.type, fixture.response.instanceType, 'found expected metadata for')
-      t.equals(metadata.provider, 'aws', `found expected metadata for ${t.name}`)
-      t.equals(metadata.region, fixture.response.region, 'found expected metadata for')
-      listener.close()
-    })
-  })
 })
 
 tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
@@ -460,43 +384,6 @@ tape('gcp metadata: no gcp server', function (t) {
   })
 })
 
-tape('aws metadata: slow v1 metadata server', function (t) {
-  t.plan(2)
-
-  const provider = 'aws'
-  const fixtureName = 'default aws fixture'
-  const serverAws = createSlowTestServer(provider, fixtureName)
-  const host = 'localhost'
-  const protocol = 'http'
-  const listener = serverAws.listen(0, function () {
-    const port = listener.address().port
-    getMetadataAwsV1(host, port, 100, 1000, protocol, logger, function (err, metadata) {
-      t.ok(err, 'error expected')
-      t.equals(err.message, 'request to metadata server timed out')
-      listener.close()
-    })
-  })
-})
-
-tape('aws metadata: slow v2 metadata server', function (t) {
-  t.plan(2)
-
-  const provider = 'aws-IMDSv2'
-  const fixtureName = 'default aws fixture'
-  const serverAws = createSlowTestServer(provider, fixtureName)
-
-  const host = 'localhost'
-  const protocol = 'http'
-  const listener = serverAws.listen(0, function () {
-    const port = listener.address().port
-    getMetadataAwsV2(host, port, 100, 1000, protocol, logger, function (err, metadata) {
-      t.ok(err, 'error expected')
-      t.equals(err.message, 'request for metadata token timed out')
-      listener.close()
-    })
-  })
-})
-
 tape('gcp metadata: slow metadata server', function (t) {
   t.plan(2)
 
@@ -555,5 +442,123 @@ tape('cloud metadata: main function with slow aws server', function (t) {
         listener.close()
       }
     )
+  })
+})
+
+tape('aws metadata unified IMDS: returns valid data from v2 server', function (t) {
+  t.plan(8)
+
+  const provider = 'aws-IMDSv2'
+  const fixtureName = 'default aws fixture'
+  const serverAws = createTestServer(provider, fixtureName)
+  const fixture = loadFixtureData(provider, fixtureName)
+
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAws.listen(0, function () {
+    const port = listener.address().port
+    getMetadataAwsV3(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+      t.error(err)
+      t.ok(metadata)
+      t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
+      t.equals(metadata.instance.id, fixture.response.instanceId, 'found expected metadata for')
+      t.equals(metadata.availability_zone, fixture.response.availabilityZone, 'found expected metadata for')
+      t.equals(metadata.machine.type, fixture.response.instanceType, 'found expected metadata for')
+      t.equals(metadata.provider, 'aws', `found expected metadata for ${t.name}`)
+      t.equals(metadata.region, fixture.response.region, 'found expected metadata for')
+      t.end()
+      listener.close()
+    })
+  })
+})
+
+tape('aws metadata unified IMDS: returns valid data from v1 server', function (t) {
+  t.plan(8)
+
+  const provider = 'aws'
+  const fixtureName = 'default aws fixture'
+  const serverAws = createTestServer(provider, fixtureName)
+  const fixture = loadFixtureData(provider, fixtureName)
+
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAws.listen(0, function () {
+    const port = listener.address().port
+    getMetadataAwsV3(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+      t.error(err)
+      t.ok(metadata)
+      t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
+      t.equals(metadata.instance.id, fixture.response.instanceId, 'found expected metadata for')
+      t.equals(metadata.availability_zone, fixture.response.availabilityZone, 'found expected metadata for')
+      t.equals(metadata.machine.type, fixture.response.instanceType, 'found expected metadata for')
+      t.equals(metadata.provider, 'aws', `found expected metadata for ${t.name}`)
+      t.equals(metadata.region, fixture.response.region, 'found expected metadata for')
+
+      t.end()
+      listener.close()
+    })
+  })
+})
+
+tape('aws metadata unified IMDS: errors for non-aws server', function (t) {
+  t.plan(2)
+
+  const provider = 'gcp'
+  const fixtureName = 'default gcp fixture'
+  const serverAws = createTestServer(provider, fixtureName)
+
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAws.listen(0, function () {
+    const port = listener.address().port
+    getMetadataAwsV3(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+      t.ok(err, 'expected error')
+      t.ok(!metadata, 'no metadata expected')
+      t.end()
+      listener.close()
+    })
+  })
+})
+
+tape('aws metadata unified IMDS: slow v2 metadata server', function (t) {
+  t.plan(2)
+
+  const provider = 'aws-IMDSv2'
+  const fixtureName = 'default aws fixture'
+  const serverAws = createSlowTestServer(provider, fixtureName)
+
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAws.listen(0, function () {
+    const port = listener.address().port
+    getMetadataAwsV3(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+      t.ok(err, 'error expected')
+      t.equals(err.message, 'request for metadata token timed out')
+      listener.close()
+    })
+  })
+})
+
+tape('aws metadata unified IMDS: connection times out', function (t) {
+  t.plan(1)
+  const serverAws = createTestServer('aws', 'default aws fixture')
+  const host = 'localhost'
+  const protocol = 'http'
+  const listener = serverAws.listen(0, function () {
+    const validPort = listener.address().port
+    getMetadataAwsV3(host, validPort, 0, 1000, protocol, logger, function (err) {
+      t.ok(err, 'expected timeout error')
+    })
+    listener.close()
+  })
+})
+
+tape('aws metadata unified IMDS: if server is not there', function (t) {
+  t.plan(1)
+  const host = 'localhost'
+  const invalidPort = 30001
+  const protocol = 'http'
+  getMetadataAwsV3(host, invalidPort, 100, 1000, protocol, logger, function (err) {
+    t.ok(err, 'expected unreachable server error')
   })
 })
