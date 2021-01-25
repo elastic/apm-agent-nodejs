@@ -2,7 +2,7 @@
 const tape = require('tape')
 
 const { CloudMetadata } = require('../../lib/cloud-metadata')
-const { getMetadataAwsV3 } = require('../../lib/cloud-metadata/aws')
+const { getMetadataAws } = require('../../lib/cloud-metadata/aws')
 const { getMetadataGcp } = require('../../lib/cloud-metadata/gcp')
 const { getMetadataAzure } = require('../../lib/cloud-metadata/azure')
 
@@ -457,7 +457,7 @@ tape('aws metadata unified IMDS: returns valid data from v2 server', function (t
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAwsV3(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    getMetadataAws(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.error(err)
       t.ok(metadata)
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -484,7 +484,7 @@ tape('aws metadata unified IMDS: returns valid data from v1 server', function (t
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAwsV3(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    getMetadataAws(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.error(err)
       t.ok(metadata)
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -511,7 +511,7 @@ tape('aws metadata unified IMDS: errors for non-aws server', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAwsV3(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    getMetadataAws(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.ok(err, 'expected error')
       t.ok(!metadata, 'no metadata expected')
       t.end()
@@ -531,7 +531,7 @@ tape('aws metadata unified IMDS: slow v2 metadata server', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAwsV3(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    getMetadataAws(host, port, 100, 1000, protocol, logger, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request for metadata token timed out')
       listener.close()
@@ -546,7 +546,7 @@ tape('aws metadata unified IMDS: connection times out', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const validPort = listener.address().port
-    getMetadataAwsV3(host, validPort, 0, 1000, protocol, logger, function (err) {
+    getMetadataAws(host, validPort, 0, 1000, protocol, logger, function (err) {
       t.ok(err, 'expected timeout error')
     })
     listener.close()
@@ -558,7 +558,7 @@ tape('aws metadata unified IMDS: if server is not there', function (t) {
   const host = 'localhost'
   const invalidPort = 30001
   const protocol = 'http'
-  getMetadataAwsV3(host, invalidPort, 100, 1000, protocol, logger, function (err) {
+  getMetadataAws(host, invalidPort, 100, 1000, protocol, logger, function (err) {
     t.ok(err, 'expected unreachable server error')
   })
 })
