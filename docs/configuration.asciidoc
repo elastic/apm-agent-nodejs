@@ -910,3 +910,19 @@ module.exports = {
 * *Env:* `ELASTIC_APM_BREAKDOWN_METRICS`
 
 Used to disable reporting of breakdown metrics which records self time spent in each unique type of span.
+
+[[cloud-provider]]
+==== `cloudProvider`
+* *Type:* String
+* *Default:* `auto`
+* *Env:* `ELASTIC_APM_CLOUD_PROVIDER`
+
+During startup the Node.js agent queries the local environment to determine whether the application is running in a cloud environment, and provides the agent with details about that environment.  These details are called metadata, and will be sent to APM Server with other instrumented data. The `cloudProvider` configuration value allows you to control this behavior.
+
+- `auto`: Automatically determine which cloud provider the agent is running on.
+- `gcp`: Only query for Google Cloud Platform information.
+- `aws`: Only query for Amazon Web Service information.
+- `azure`: Only query for Azure information.
+- `none`: Do not query for any cloud provider information.
+
+If the value is not one of the five listed above the agent will use the value of `auto`.
