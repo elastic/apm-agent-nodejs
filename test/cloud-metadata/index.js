@@ -369,7 +369,7 @@ tape('gcp metadata: no gcp server', function (t) {
   const port = 30001
 
   const url = new URL('/', `${protocol}://${host}:${port}`)
-  getMetadataGcp(url, 100, 1000, logger, function (err, metadata) {
+  getMetadataGcp(100, 1000, logger, url, function (err, metadata) {
     t.ok(err, 'error expected')
   })
 })
@@ -385,7 +385,7 @@ tape('gcp metadata: slow metadata server', function (t) {
   const listener = serverGcp.listen(0, function () {
     const port = listener.address().port
     const url = new URL('/', `${protocol}://${host}:${port}`)
-    getMetadataGcp(url, 100, 1000, logger, function (err, metadata) {
+    getMetadataGcp(100, 1000, logger, url, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to metadata server timed out')
       listener.close()
@@ -404,7 +404,7 @@ tape('azure metadata: slow metadata server', function (t) {
   const listener = serverAzure.listen(0, function () {
     const port = listener.address().port
     const url = new URL('/', `${protocol}://${host}:${port}`)
-    getMetadataAzure(url, 100, 1000, logger, function (err, metadata) {
+    getMetadataAzure(100, 1000, logger, url, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to azure metadata server timed out')
       listener.close()
@@ -450,7 +450,7 @@ tape('aws metadata unified IMDS: returns valid data from v2 server', function (t
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
     const url = new URL('/', `${protocol}://${host}:${port}`)
-    getMetadataAws(url, 100, 1000, logger, function (err, metadata) {
+    getMetadataAws(100, 1000, logger, url, function (err, metadata) {
       t.error(err)
       t.ok(metadata)
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -478,7 +478,7 @@ tape('aws metadata unified IMDS: returns valid data from v1 server', function (t
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
     const url = new URL('/', `${protocol}://${host}:${port}`)
-    getMetadataAws(url, 100, 1000, logger, function (err, metadata) {
+    getMetadataAws(100, 1000, logger, url, function (err, metadata) {
       t.error(err)
       t.ok(metadata)
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -506,7 +506,7 @@ tape('aws metadata unified IMDS: errors for non-aws server', function (t) {
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
     const url = new URL('/', `${protocol}://${host}:${port}`)
-    getMetadataAws(url, 100, 1000, logger, function (err, metadata) {
+    getMetadataAws(100, 1000, logger, url, function (err, metadata) {
       t.ok(err, 'expected error')
       t.ok(!metadata, 'no metadata expected')
       t.end()
@@ -527,7 +527,7 @@ tape('aws metadata unified IMDS: slow v2 metadata server', function (t) {
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
     const url = new URL('/', `${protocol}://${host}:${port}`)
-    getMetadataAws(url, 100, 1000, logger, function (err, metadata) {
+    getMetadataAws(100, 1000, logger, url, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request for metadata token timed out')
       listener.close()
@@ -543,7 +543,7 @@ tape('aws metadata unified IMDS: connection times out', function (t) {
   const listener = serverAws.listen(0, function () {
     const validPort = listener.address().port
     const url = new URL('/', `${protocol}://${host}:${validPort}`)
-    getMetadataAws(url, 0, 1000, logger, function (err) {
+    getMetadataAws(0, 1000, logger, url, function (err) {
       t.ok(err, 'expected timeout error')
     })
     listener.close()
@@ -556,7 +556,7 @@ tape('aws metadata unified IMDS: if server is not there', function (t) {
   const invalidPort = 30001
   const protocol = 'http'
   const url = new URL('/', `${protocol}://${host}:${invalidPort}`)
-  getMetadataAws(url, 100, 1000, logger, function (err) {
+  getMetadataAws(100, 1000, logger, url, function (err) {
     t.ok(err, 'expected unreachable server error')
   })
 })
