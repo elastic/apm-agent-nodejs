@@ -7,6 +7,7 @@ const { getMetadataGcp } = require('../../lib/cloud-metadata/gcp')
 const { getMetadataAzure } = require('../../lib/cloud-metadata/azure')
 
 const { createTestServer, createSlowTestServer, loadFixtureData } = require('./_lib')
+
 // mock logger
 const logger = {
   error: function () {
@@ -17,24 +18,11 @@ const logger = {
   }
 }
 
-const providerConfig = {
-  aws: {
-    host: 'localhost',
-    protocol: 'http',
-    port: null
-  },
-  gcp: {
-    host: 'localhost',
-    protocol: 'http',
-    port: null
-  },
-  azure: {
-    host: 'localhost',
-    protocol: 'http',
-    port: null
-  }
+const providerUrls = {
+  aws: new URL('/', 'http://localhost'),
+  gcp: new URL('/', 'http://localhost'),
+  azure: new URL('/', 'http://localhost')
 }
-
 tape('cloud metadata: main function returns data with aws server', function (t) {
   t.plan(8)
 
@@ -42,16 +30,16 @@ tape('cloud metadata: main function returns data with aws server', function (t) 
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
   const fixture = loadFixtureData(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -73,16 +61,16 @@ tape('cloud metadata: main function returns aws data', function (t) {
   const provider = 'aws'
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -98,16 +86,16 @@ tape('cloud metadata: do not hang when none is configured', function (t) {
   const provider = 'aws'
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'none'
   const listener = serverAws.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.ok(err, 'error expected')
         t.ok(!metadata, 'no metadata returned')
@@ -157,16 +145,16 @@ tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
   const provider = 'aws-IMDSv2'
   const fixtureName = 'default aws fixture'
   const serverAws = createTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -182,16 +170,16 @@ tape('cloud metadata: aws empty data', function (t) {
   const provider = 'aws'
   const fixtureName = 'aws does not crash on empty response'
   const serverAws = createTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -207,16 +195,16 @@ tape('cloud metadata: gcp empty data', function (t) {
   const provider = 'gcp'
   const fixtureName = 'gcp does not crash on empty response'
   const serverGcp = createTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverGcp.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -232,16 +220,16 @@ tape('cloud metadata: azure empty data', function (t) {
   const provider = 'azure'
   const fixtureName = 'azure does not crash on empty response'
   const serverAzure = createTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverAzure.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -257,16 +245,16 @@ tape('cloud metadata: azure empty data', function (t) {
   const provider = 'azure'
   const fixtureName = 'azure does not crash on mostly empty response'
   const serverAzure = createTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverAzure.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -283,16 +271,16 @@ tape('cloud metadata: main function returns data with gcp server', function (t) 
   const fixtureName = 'default gcp fixture'
   const serverGcp = createTestServer(provider, fixtureName)
   const fixture = loadFixtureData(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverGcp.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -320,16 +308,16 @@ tape('cloud metadata: main function returns data with azure server', function (t
   const fixtureName = 'default azure fixture'
   const serverAzure = createTestServer(provider, fixtureName)
   const fixture = loadFixtureData(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverAzure.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -353,16 +341,16 @@ tape('cloud metadata: gcp string manipulation does not fail on non-strings', fun
   const provider = 'gcp'
   const fixtureName = 'gcp unexpected string fixture'
   const serverGcp = createTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverGcp.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
@@ -379,7 +367,8 @@ tape('gcp metadata: no gcp server', function (t) {
   const protocol = 'http'
   const port = 30001
 
-  getMetadataGcp(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+  const url = new URL('/', `${protocol}://${host}:${port}`)
+  getMetadataGcp(url, 100, 1000, logger, function (err, metadata) {
     t.ok(err, 'error expected')
   })
 })
@@ -394,7 +383,8 @@ tape('gcp metadata: slow metadata server', function (t) {
   const protocol = 'http'
   const listener = serverGcp.listen(0, function () {
     const port = listener.address().port
-    getMetadataGcp(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    const url = new URL('/', `${protocol}://${host}:${port}`)
+    getMetadataGcp(url, 100, 1000, logger, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to metadata server timed out')
       listener.close()
@@ -412,7 +402,8 @@ tape('azure metadata: slow metadata server', function (t) {
   const protocol = 'http'
   const listener = serverAzure.listen(0, function () {
     const port = listener.address().port
-    getMetadataAzure(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    const url = new URL('/', `${protocol}://${host}:${port}`)
+    getMetadataAzure(url, 100, 1000, logger, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to azure metadata server timed out')
       listener.close()
@@ -426,16 +417,16 @@ tape('cloud metadata: main function with slow aws server', function (t) {
   const provider = 'aws'
   const fixtureName = 'default aws fixture'
   const serverAws = createSlowTestServer(provider, fixtureName)
-  const config = Object.assign({}, providerConfig)
+
   const cloudProvider = 'auto'
   const listener = serverAws.listen(0, function () {
-    config.aws.port = listener.address().port
-    config.gcp.port = listener.address().port
-    config.azure.port = listener.address().port
+    providerUrls.aws.port = listener.address().port
+    providerUrls.gcp.port = listener.address().port
+    providerUrls.azure.port = listener.address().port
 
     const cloudMetadata = new CloudMetadata(cloudProvider, logger)
     cloudMetadata.getCloudMetadata(
-      providerConfig,
+      providerUrls,
       function (err, metadata) {
         t.ok(err, 'error expected')
         t.equals(err.message, 'all callbacks failed')
@@ -457,7 +448,8 @@ tape('aws metadata unified IMDS: returns valid data from v2 server', function (t
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAws(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    const url = new URL('/', `${protocol}://${host}:${port}`)
+    getMetadataAws(url, 100, 1000, logger, function (err, metadata) {
       t.error(err)
       t.ok(metadata)
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -484,7 +476,8 @@ tape('aws metadata unified IMDS: returns valid data from v1 server', function (t
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAws(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    const url = new URL('/', `${protocol}://${host}:${port}`)
+    getMetadataAws(url, 100, 1000, logger, function (err, metadata) {
       t.error(err)
       t.ok(metadata)
       t.equals(metadata.account.id, fixture.response.accountId, 'found expected metadata for account.id')
@@ -511,7 +504,8 @@ tape('aws metadata unified IMDS: errors for non-aws server', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAws(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    const url = new URL('/', `${protocol}://${host}:${port}`)
+    getMetadataAws(url, 100, 1000, logger, function (err, metadata) {
       t.ok(err, 'expected error')
       t.ok(!metadata, 'no metadata expected')
       t.end()
@@ -531,7 +525,8 @@ tape('aws metadata unified IMDS: slow v2 metadata server', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const port = listener.address().port
-    getMetadataAws(host, port, 100, 1000, protocol, logger, function (err, metadata) {
+    const url = new URL('/', `${protocol}://${host}:${port}`)
+    getMetadataAws(url, 100, 1000, logger, function (err, metadata) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request for metadata token timed out')
       listener.close()
@@ -546,7 +541,8 @@ tape('aws metadata unified IMDS: connection times out', function (t) {
   const protocol = 'http'
   const listener = serverAws.listen(0, function () {
     const validPort = listener.address().port
-    getMetadataAws(host, validPort, 0, 1000, protocol, logger, function (err) {
+    const url = new URL('/', `${protocol}://${host}:${validPort}`)
+    getMetadataAws(url, 0, 1000, logger, function (err) {
       t.ok(err, 'expected timeout error')
     })
     listener.close()
@@ -558,7 +554,8 @@ tape('aws metadata unified IMDS: if server is not there', function (t) {
   const host = 'localhost'
   const invalidPort = 30001
   const protocol = 'http'
-  getMetadataAws(host, invalidPort, 100, 1000, protocol, logger, function (err) {
+  const url = new URL('/', `${protocol}://${host}:${invalidPort}`)
+  getMetadataAws(url, 100, 1000, logger, function (err) {
     t.ok(err, 'expected unreachable server error')
   })
 })
