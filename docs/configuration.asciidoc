@@ -925,4 +925,4 @@ During startup the Node.js agent queries the local environment to determine whet
 - `azure`: Only query for Azure information.
 - `none`: Do not query for any cloud provider information.
 
-If the value is not one of the five listed above the agent will use the value of `auto`.
+If the value is not one of the five listed above, the agent will use the value of `auto`.
