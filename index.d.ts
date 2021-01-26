@@ -10,7 +10,7 @@ declare class Agent implements Taggable, StartSpanFn {
   // Configuration
   start (options?: AgentConfigOptions): Agent;
   isStarted (): boolean;
-  getServiceName (): string;
+  getServiceName (): string | undefined;
   setFramework (options: {
     name?: string;
     version?: string;

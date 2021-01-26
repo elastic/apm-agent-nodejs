@@ -68,6 +68,10 @@ otherwise returns `false`.
 Get the configured <<service-name,`serviceName`>>. If a service name was not
 explicitly configured, this value may have been automatically determined.
 
+This may be called before `agent.start()`, but the values before and after
+might differ as config is reloaded during and can be set from options given to
+`.start()`. A misconfigured agent can have an `undefined` service name.
+
 [[apm-set-framework]]
 ==== `apm.setFramework(options)`
 

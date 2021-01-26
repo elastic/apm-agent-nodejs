@@ -12,7 +12,7 @@ var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
 var config = require('../lib/config')
 
-var agentVersion = require('../package.json').version
+var packageJson = require('../package.json')
 var inContainer = 'containerId' in (containerInfo() || {})
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
@@ -20,8 +20,18 @@ process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
 
 test('#getServiceName()', function (t) {
   var agent = Agent()
-  agent.start()
+
+  // Before agent.start() config will have already been loaded once, which
+  // typically means a `serviceName` determined from package.json.
+  t.strictEqual(agent.getServiceName(), packageJson.name)
   t.strictEqual(agent.getServiceName(), agent._conf.serviceName)
+
+  // After agent.start() config will be loaded again, this time with possible
+  // provided config.
+  agent.start({ serviceName: 'myServiceName' })
+  t.strictEqual(agent.getServiceName(), 'myServiceName')
+  t.strictEqual(agent.getServiceName(), agent._conf.serviceName)
+
   t.end()
 })
 
@@ -1388,7 +1398,7 @@ test('patches', function (t) {
 function assertMetadata (t, payload) {
   t.strictEqual(payload.service.name, 'some-service-name')
   t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
-  t.deepEqual(payload.service.agent, { name: 'nodejs', version: agentVersion })
+  t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version })
 
   const expectedSystemKeys = ['hostname', 'architecture', 'platform']
   if (inContainer) expectedSystemKeys.push('container')
