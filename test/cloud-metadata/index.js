@@ -1,5 +1,6 @@
 'use strict'
 const tape = require('tape')
+const URL = require('url').URL
 
 const { CloudMetadata } = require('../../lib/cloud-metadata')
 const { getMetadataAws } = require('../../lib/cloud-metadata/aws')
