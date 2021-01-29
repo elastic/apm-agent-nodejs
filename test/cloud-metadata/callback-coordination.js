@@ -1,12 +1,8 @@
 'use strict'
 const tape = require('tape')
-// mock logger
-const logger = {
-  error: function () {
-  },
-  debug: function () {
-  }
-}
+const logging = require('../../lib/logging')
+
+const logger = logging.createLogger('off')
 
 const { CallbackCoordination } = require('../../lib/cloud-metadata/callback-coordination')
 tape.test('fetch coordination: all successful', function (t) {
