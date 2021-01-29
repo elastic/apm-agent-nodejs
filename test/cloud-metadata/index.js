@@ -7,7 +7,7 @@ const { getMetadataAws } = require('../../lib/cloud-metadata/aws')
 const { getMetadataGcp } = require('../../lib/cloud-metadata/gcp')
 const { getMetadataAzure } = require('../../lib/cloud-metadata/azure')
 const { createTestServer, createSlowTestServer, loadFixtureData } = require('./_lib')
-const logging = require('../logging')
+const logging = require('../../lib/logging')
 const logger = logging.createLogger('off')
 
 const providerUrls = {
