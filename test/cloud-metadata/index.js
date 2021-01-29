@@ -6,18 +6,9 @@ const { CloudMetadata } = require('../../lib/cloud-metadata')
 const { getMetadataAws } = require('../../lib/cloud-metadata/aws')
 const { getMetadataGcp } = require('../../lib/cloud-metadata/gcp')
 const { getMetadataAzure } = require('../../lib/cloud-metadata/azure')
-
 const { createTestServer, createSlowTestServer, loadFixtureData } = require('./_lib')
-
-// mock logger
-const logger = {
-  error: function () {
-  },
-  debug: function () {
-  },
-  trace: function () {
-  }
-}
+const logging = require('../logging')
+logging.createLogger('off')
 
 const providerUrls = {
   aws: new URL('/', 'http://localhost'),
