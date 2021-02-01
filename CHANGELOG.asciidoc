@@ -36,6 +36,10 @@ Notes:
 [float]
 ===== Features
 
+* feat: set span outcome to success or failure depending on whether an error
+  was captured during when the span was active.
+  https://github.com/elastic/apm-agent-nodejs/issues/1814
+
 * feat: support numeric and boolean labels {pull}1909[#1909] +
   Add an optional `stringify` option to `apm.setLabel(name, version, stringify = true)`
   and `apm.addLabels(labels, stringify = true)`, which can be set `false` to
