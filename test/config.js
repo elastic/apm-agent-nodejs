@@ -959,6 +959,48 @@ test('parsing of ARRAY and KEY_VALUE opts', function (t) {
   t.end()
 })
 
+test('should accept and normalize cloudProvider', function (t) {
+  const agentDefault = Agent()
+  agentDefault.start()
+  t.equals(agentDefault._conf.cloudProvider, 'auto', 'cloudProvider config defaults to auto')
+
+  const agentGcp = Agent()
+  agentGcp.start({
+    cloudProvider: 'gcp'
+  })
+  t.equals(agentGcp._conf.cloudProvider, 'gcp', 'cloudProvider can be set to gcp')
+
+  const agentAzure = Agent()
+  agentAzure.start({
+    cloudProvider: 'azure'
+  })
+  t.equals(agentAzure._conf.cloudProvider, 'azure', 'cloudProvider can be set to azure')
+
+  const agentAws = Agent()
+  agentAws.start({
+    cloudProvider: 'aws'
+  })
+  t.equals(agentAws._conf.cloudProvider, 'aws', 'cloudProvider can be set to aws')
+
+  const agentNone = Agent()
+  agentNone.start({
+    cloudProvider: 'none'
+  })
+  t.equals(agentNone._conf.cloudProvider, 'none', 'cloudProvider can be set to none')
+
+  const agentUnknown = Agent()
+  agentUnknown.start({
+    cloudProvider: 'this-is-not-a-thing'
+  })
+  t.equals(agentUnknown._conf.cloudProvider, 'auto', 'unknown cloudProvider defaults to auto')
+
+  const agentGcpFromEnv = Agent()
+  process.env.ELASTIC_APM_CLOUD_PROVIDER = 'gcp'
+  agentGcpFromEnv.start()
+  t.equals(agentGcpFromEnv._conf.cloudProvider, 'gcp', 'cloudProvider can be set via env')
+  delete process.env.ELASTIC_APM_CLOUD_PROVIDER
+  t.end()
+})
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
   t.strictEqual(result.id, trans.id, 'id matches')
