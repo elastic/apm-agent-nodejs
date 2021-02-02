@@ -73,6 +73,7 @@ function mapSeries (tasks, handler, cb) {
 
 var directories = [
   'test',
+  'test/cloud-metadata',
   'test/instrumentation',
   'test/instrumentation/modules',
   'test/instrumentation/modules/@elastic',
