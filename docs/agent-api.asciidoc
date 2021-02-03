@@ -821,3 +821,25 @@ apm.registerMetric( 'ws.connections' , {module : 'ws'}, () => {
 })
 
 ----
+
+[[apm-transaction-outcome]]
+==== `apm.setTransactionOutcome(outcome)`
+
+[small]#Added in: v?.?.?#
+
+* `outcome` +{type-string}+
+
+Will set the outcome property on the _current_ transaction.
+
+See the <<transaction-outcome, Transaction Outcome docs>> for more information.
+
+[[apm-span-outcome]]
+==== `apm.setSpanOutcome(outcome)`
+
+[small]#Added in: v?.?.?#
+
+* `outcome` +{type-string}+
+
+Will set the outcome property on the _current_ span.
+
+See the <<span-outcome, Span Outcome docs>> for more information.

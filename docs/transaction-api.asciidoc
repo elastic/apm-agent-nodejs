@@ -243,3 +243,29 @@ If the transaction has already ended,
 nothing happens.
 
 Alternatively you can call <<apm-end-transaction,`apm.endTransaction()`>> to end the active transaction.
+
+[[transaction-outcome]]
+==== `transaction.outcome`
+
+[small]#Added in: v?.?.?#
+
+The Node.js agent automatically sets an `outcome` property on transactions.  This property will be one of two values
+
+`success`: Indicates the transaction's operation was a success.
+
+`failure`: Indicates the transaction's operation was _not_ a success.
+
+`unknown`: Indicates we were unable to determine if the transaction's operation was a success or not.  An `unknown` outcome removes a transaction from error rate considerations.
+
+A transaction is considered a success if the underlying HTTP request handling produces a response with a status code that is less than `500`.  A transaction is considered a failure if the underlying HTTP request handling produces a response with a status code that is `500` or greater.
+
+Non-HTTP transactions will begin with an outcome of `unknown`.
+
+[[transaction-setoutcome]]
+==== `transaction.setOutcome(outcome)`
+
+[small]#Added in: v?.?.?#
+
+* `outcome` +{type-string}+
+
+The `setOutcome` method allows an end user to override the Node.js agent's default setting of a transaction's `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific's span.
