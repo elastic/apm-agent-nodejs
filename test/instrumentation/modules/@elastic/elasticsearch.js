@@ -455,6 +455,8 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.strictEqual(httpSpan.subtype, 'http')
     t.strictEqual(httpSpan.action, 'http')
 
+    t.equal(httpSpan.parent_id, esSpan.id, 'http span should be a child of the elasticsearch span')
+
     t.equal(httpSpan.name, method + ' ' + host + path, 'http span should have expected name')
     t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')
 
