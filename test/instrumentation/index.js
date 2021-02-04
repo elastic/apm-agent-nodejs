@@ -599,7 +599,7 @@ test('bind', function (t) {
   })
 })
 
-test('nested spans', function (t) {
+test.only('nested spans', function (t) {
   resetAgent(6, function (data) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 5)
@@ -620,7 +620,7 @@ test('nested spans', function (t) {
     t.strictEqual(s1.transaction_id, trans.id, 's1 transaction_id matches transaction id')
 
     const s01 = findObjInArray(data.spans, 'name', 's01')
-    t.strictEqual(s01.parent_id, s0.id, 's01 should descend from s0')
+    t.strictEqual(s01.parent_id, trans.id, 's01 should descend from the transaction')
     t.strictEqual(s01.trace_id, trans.trace_id, 's01 has same trace_id as transaction')
     t.strictEqual(s01.transaction_id, trans.id, 's01 transaction_id matches transaction id')
 
@@ -650,6 +650,8 @@ test('nested spans', function (t) {
   var s0 = ins.startSpan('s0')
   process.nextTick(function () {
     process.nextTick(function () {
+      // will adopt the transaction as its parent,
+      // because s0 ended before the new span started
       var s01 = ins.startSpan('s01')
       process.nextTick(function () {
         s01.end()
