@@ -143,20 +143,18 @@ test('sync/async tracking', function (t) {
   })
 })
 
-test.only('span.end()', function ( t ) {
+test.only('span.end()', function (t) {
   var transaction = agent.startTransaction()
-  
+
   var firstSpan = agent.startSpan('first-span')
   t.strictEqual(firstSpan.parentId, transaction.id, 'first span is a child of the active transaction')
 
-  process.nextTick(function ( ) {
-
+  process.nextTick(function () {
     var childSpan = agent.startSpan('child-span')
 
     t.equal(childSpan.parentId, firstSpan.id, 'child-span is a direct child of first-span')
 
-    process.nextTick(function ( ) {
-
+    process.nextTick(function () {
       childSpan.end()
 
       var siblingSpan = agent.startSpan('sibling-span')
@@ -167,15 +165,12 @@ test.only('span.end()', function ( t ) {
       siblingSpan.end()
 
       firstSpan.end()
-      
+
       transaction.end()
 
       t.end()
-
     })
-
   })
-
 })
 
 function twice (fn) {
