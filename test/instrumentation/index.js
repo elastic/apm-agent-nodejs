@@ -599,7 +599,7 @@ test('bind', function (t) {
   })
 })
 
-test.only('nested spans', function (t) {
+test('nested spans', function (t) {
   resetAgent(6, function (data) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 5)

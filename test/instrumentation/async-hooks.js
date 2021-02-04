@@ -143,7 +143,7 @@ test('sync/async tracking', function (t) {
   })
 })
 
-test.only('span.end()', function (t) {
+test('span.end()', function (t) {
   var transaction = agent.startTransaction()
 
   var firstSpan = agent.startSpan('first-span')
