@@ -432,7 +432,54 @@ if (semver.gte(pkgVersion, '7.7.0')) {
   })
 }
 
+test('outcome=success on both spans', function userLandCode (t) {
+  resetAgent(checkSpanOutcomesSuccess(t))
+
+  agent.startTransaction('myTrans')
+
+  const client = new Client({ node })
+  client.ping().then(function () {
+    agent.endTransaction()
+    agent.flush()
+  }).catch(t.error)
+})
+
+test('outcome=failure on both spans', function userLandCode (t) {
+  const searchOpts = { notaparam: 'notthere' }
+
+  resetAgent(checkSpanOutcomesFailures(t))
+
+  agent.startTransaction('myTrans')
+
+  const client = new Client({ node })
+  client
+    .search(searchOpts)
+    .then(_result => {})
+    .catch(function () {
+      agent.endTransaction()
+      agent.flush()
+    })
+})
+
 // Utility functions.
+
+function checkSpanOutcomesFailures (t) {
+  return function (data) {
+    for (const span of data.spans) {
+      t.equals(span.outcome, 'failure', 'spans outcomes are failure')
+    }
+    t.end()
+  }
+}
+
+function checkSpanOutcomesSuccess (t) {
+  return function (data) {
+    for (const span of data.spans) {
+      t.equals(span.outcome, 'success', 'spans outcomes are success')
+    }
+    t.end()
+  }
+}
 
 function checkDataAndEnd (t, method, path, dbStatement) {
   return function (data) {

@@ -40,6 +40,10 @@ Notes:
   was captured during when the span was active.
   https://github.com/elastic/apm-agent-nodejs/issues/1814
 
+* feat: Adds public `setOutcome` method to span and transaction APIs, and
+  adds a top level `setTransactionOutcome` and `setSpanOutcome` to set
+  outcome values for the current active transaction or active span.
+
 * feat: support numeric and boolean labels {pull}1909[#1909] +
   Add an optional `stringify` option to `apm.setLabel(name, version, stringify = true)`
   and `apm.addLabels(labels, stringify = true)`, which can be set `false` to
