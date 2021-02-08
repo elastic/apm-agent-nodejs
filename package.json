@@ -87,7 +87,7 @@
     "console-log-level": "^1.4.1",
     "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "^9.4.2",
+    "elastic-apm-http-client": "^9.5.0",
     "end-of-stream": "^1.4.4",
     "error-stack-parser": "^2.0.6",
     "escape-string-regexp": "^4.0.0",
