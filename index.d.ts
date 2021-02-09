@@ -248,7 +248,6 @@ interface CaptureErrorOptions {
   custom?: object;
   message?: string;
   captureAttributes?: boolean;
-  skipOutcome?: boolean;
 }
 
 interface Labels {
