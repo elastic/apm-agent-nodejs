@@ -205,6 +205,7 @@ Note that not all core Node.js API's can be instrumented without the use of Asyn
 * *Type:* Array
 * *Default:* `[]`
 * *Env:* `ELASTIC_APM_TRANSACTION_IGNORE_URLS`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `transaction_ignore_urls`
 
 Array or comma-separated string used to restrict requests for certain URLs from being instrumented.
 
@@ -424,6 +425,7 @@ require('elastic-apm-node').start({
 * *Type:* String
 * *Default:* `'info'`
 * *Env:* `ELASTIC_APM_LOG_LEVEL`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `log_level`
 
 Set the verbosity level for the agent.
 Note that this does not have any influence on the types of errors that are sent to the APM Server.
@@ -711,6 +713,7 @@ the HTTP request is terminated and the TCP socket closed.
 * *Type:* Array
 * *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', 'authorization', 'set-cookie', 'pw', 'pass', 'connect.sid']`
 * *Env:* `ELASTIC_SANITIZE_FIELD_NAMES`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `sanitize_field_names`
 
 Remove sensitive data sent to Elastic APM.
 
