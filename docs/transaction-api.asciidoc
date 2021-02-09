@@ -247,9 +247,9 @@ Alternatively you can call <<apm-end-transaction,`apm.endTransaction()`>> to end
 [[transaction-outcome]]
 ==== `transaction.outcome`
 
-[small]#Added in: v?.?.?#
+[small]#Added in: v3.12.0#
 
-The Node.js agent automatically sets an `outcome` property on transactions.  This property will be one of two values
+The Node.js agent automatically sets an `outcome` property on transactions.  This property will be one of three values
 
 `success`: Indicates the transaction's operation was a success.
 
@@ -264,7 +264,7 @@ Non-HTTP transactions will begin with an outcome of `unknown`.
 [[transaction-setoutcome]]
 ==== `transaction.setOutcome(outcome)`
 
-[small]#Added in: v?.?.?#
+[small]#Added in: v3.12.0#
 
 * `outcome` +{type-string}+
 
