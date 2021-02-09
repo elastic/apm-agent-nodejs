@@ -28,10 +28,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.11.0]]
+==== 3.11.0 - 2021/02/08
 
 [float]
 ===== Features
@@ -46,11 +44,10 @@ Notes:
   allow numeric and boolean labels. Stringify defaults to true for backwards
   compatibility -- stringification will be removed in a future major version.
 
-* feat: added support for cloud metadata fetching
-  Implements: https://github.com/elastic/apm-agent-nodejs/issues/1815
-
-  Agent now collects information about its cloud environment and includes this data in the APM Server's metadata payload.  See
-  https://github.com/elastic/apm/blob/3acd10afa0a9d3510e819229dfce0764133083d3/specs/agents/metadata.md#cloud-provider-metadata
+* feat: added support for cloud metadata fetching {pull}1937[#1937] +
+  Agent now collects information about its cloud environment and includes this
+  data in the APM Server's metadata payload. See
+  https://github.com/elastic/apm/blob/3acd10afa0a9d3510e819229dfce0764133083d3/specs/agents/metadata.md#cloud-provider-metadata[the spec]
   for more information.
 
 [float]
