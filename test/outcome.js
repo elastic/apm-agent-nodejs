@@ -51,26 +51,14 @@ test('span outcome tests', function (test) {
     t.end()
   })
 
-  test.test('external span\'s value is not changed after ending after an error', function (t) {
-    agent.startTransaction('foo', 'type', 'subtype', 'action')
-    const span = agent.startSpan()
-    span.setType('external')
-    t.equals(span.outcome, 'unknown', 'spans start with unknown outcome')
-    agent.captureError(new Error('this is an error'))
-    span.end()
-    agent.endTransaction()
-    t.equals(span.outcome, 'unknown', 'external spans don\'t change on end')
-    t.end()
-  })
-
-  test.test('test that external span\'s value is not changed after ending without an error', function (t) {
+  test.test('test that external span\'s value is a success if not explicatly set', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     span.setType('external')
     t.equals(span.outcome, 'unknown', 'spans start with unknown outcome')
     span.end()
     agent.endTransaction()
-    t.equals(span.outcome, 'unknown', 'external spans don\'t change on end')
+    t.equals(span.outcome, 'success', 'external spans don\'t change on end')
     t.end()
   })
 
