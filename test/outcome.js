@@ -104,8 +104,7 @@ test('API span.setOutcome tests', function (test) {
 })
 
 test('API span.setOutcome tests', function (test) {
-
-  test.test('API set value will be honored over non-API value', function(t){
+  test.test('API set value will be honored over non-API value', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.SPAN.OUTCOME.UNKNOWN, 'spans start with unknown outcome')
@@ -116,7 +115,7 @@ test('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('API set value wil be honored over non-API with error', function(t){
+  test.test('API set value wil be honored over non-API with error', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.SPAN.OUTCOME.UNKNOWN, 'spans start with unknown outcome')
@@ -128,7 +127,7 @@ test('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('set value of unknown will override normal success', function(t){
+  test.test('set value of unknown will override normal success', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.SPAN.OUTCOME.UNKNOWN, 'spans start with unknown outcome')
@@ -139,7 +138,7 @@ test('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('API calls ignored after a span has ended', function(t){
+  test.test('API calls ignored after a span has ended', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.SPAN.OUTCOME.UNKNOWN, 'spans start with unknown outcome')
