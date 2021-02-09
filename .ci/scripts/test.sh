@@ -79,8 +79,11 @@ docker-compose \
   --abort-on-container-exit \
   node_tests
 
-NODE_VERSION=${NODE_VERSION} docker-compose \
-  --no-ansi \
-  --log-level ERROR \
-  -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
-  down -v
+if ! NODE_VERSION=${NODE_VERSION} docker-compose \
+    --no-ansi \
+    --log-level ERROR \
+    -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
+    down -v; then
+  docker network inspect docker_default
+  docker network inspect -f '{{range .Containers}}{{ .Name }} {{end}}' docker_default
+fi
