@@ -28,10 +28,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.11.0]]
+==== 3.11.0 - 2021/02/08
 
 [float]
 ===== Features
@@ -51,9 +49,6 @@ Notes:
   data in the APM Server's metadata payload. See
   https://github.com/elastic/apm/blob/3acd10afa0a9d3510e819229dfce0764133083d3/specs/agents/metadata.md#cloud-provider-metadata[the spec]
   for more information.
-
-[float]
-===== Bug fixes
 
 
 [[release-notes-3.10.0]]

@@ -181,12 +181,10 @@ If you have access to make releases, the process is as follows:
         ```
     - Add missing changelog entries, if any. (Typically commits will include changelog entries in the "Unreleased" section.)
 1. If a major or minor release, update the EOL table in `docs/upgrading.asciidoc`. EOL is 18 months after release date.
-1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
-1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
-1. Reset the latest major branch (currently `3.x`) to point to the current master, e.g. `git branch -f 3.x master`
-1. Run tests with `npm test`
-1. Push commits and tags upstream with `git push upstream master && git push upstream --tags` (and optionally to your own fork as well)
-1. Update the latest major branch on upstream with `git push upstream <major_branch>`
+1. Make a PR titled `x.y.z` -- where `x.y.z` is the new version in package.json -- with these changes.
+1. Ensure PR checks pass, then merge to master.
+1. Working on the elastic repo now (not a fork), tag the merged-to-master commit with `git tag vx.y.x && git push origin --tags`. For example: `git tag v1.2.3 && git push origin --tags`.
+1. Reset the latest major branch (currently `3.x`) to point to the current master, e.g. `git branch -f 3.x master && git push origin 3.x`
 1. Publish to npm with `npm publish`
 
 #### Past major
