@@ -86,4 +86,5 @@ if ! NODE_VERSION=${NODE_VERSION} docker-compose \
     down -v; then
   docker network inspect docker_default
   docker network inspect -f '{{range .Containers}}{{ .Name }} {{end}}' docker_default
+  exit 1
 fi
