@@ -119,6 +119,9 @@ declare class Agent implements Taggable, StartSpanFn {
   // Custom metrics
   registerMetric(name: string, callback: Function): void;
   registerMetric(name: string, labels: Labels, callback: Function): void;
+
+  setTransactionOutcome(outcome: Outcome): void;
+  setSpanOutcome(outcome: Outcome): void;
 }
 
 type Outcome = 'unknown' | 'success' | 'failure'
@@ -169,6 +172,8 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
   ): Span | null;
   ensureParentId (): string;
   end (result?: string | number | null, endTime?: number): void;
+
+  setOutcome(outcome: Outcome): void;
 }
 
 declare class Span extends GenericSpan {
@@ -179,6 +184,8 @@ declare class Span extends GenericSpan {
   name: string;
 
   end (endTime?: number): void;
+
+  setOutcome(outcome: Outcome): void;
 }
 
 interface AgentConfigOptions {
