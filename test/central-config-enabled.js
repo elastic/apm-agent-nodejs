@@ -161,3 +161,48 @@ test('agent.logger updates for central config `log_level` change', { timeout: 10
       'immediately after .start() logger level should be the given "debug" level')
   })
 })
+
+// Ensure that a central config that updates some var other than `cloudProvider`
+// does not result in *cloudProvider* being updated (issue #1976).
+test('central config change does not erroneously update cloudProvider', {timeout: 1000}, function (t) {
+  let agent
+
+  const server = http.createServer((req, res) => {
+    // 3. The agent should fetch central config. We provide some non-empty
+    //    config change that does not include `cloudProvider`.
+    const url = new URL(req.url, 'relative:///')
+    t.strictEqual(url.pathname, '/config/v1/agents')
+    res.writeHead(200, {
+      Etag: 1,
+      'Cache-Control': 'max-age=30, must-revalidate'
+    })
+    res.end(JSON.stringify({ log_level: 'error' }))
+
+    agent._transport.once('config', function () {
+      // 4. Ensure that `cloudProvider` is *not* reset to the default "auto".
+      t.equal(agent._conf.cloudProvider, 'aws',
+        'after fetching central config, cloudProvider is not reset to default')
+
+      agent.destroy()
+      server.close()
+      t.end()
+    })
+  })
+
+  // 1. Start a mock APM Server.
+  server.listen(function () {
+    // 2. Start an agent with cloudProvider=aws.
+    agent = new Agent().start({
+      serverUrl: 'http://localhost:' + server.address().port,
+      serviceName: 'test',
+      centralConfig: true,
+      cloudProvider: 'aws',
+      // These settings to reduce some agent activity:
+      captureExceptions: false,
+      metricsInterval: 0
+    })
+
+    t.equal(agent._conf.cloudProvider, 'aws',
+      'immediately after .start(), cloudProvider=aws')
+  })
+})

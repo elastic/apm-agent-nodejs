@@ -1,4 +1,5 @@
 :pull: https://github.com/elastic/apm-agent-nodejs/pull/
+:issues: https://github.com/elastic/apm-agent-nodejs/issues/
 
 [[release-notes]]
 == Release notes
