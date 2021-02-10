@@ -28,6 +28,21 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
+[[release-notes-unreleased]]
+==== Unreleased
+
+[float]
+===== Breaking changes
+[float]
+===== Features
+[float]
+===== Bug fixes
+
+* fix: fixes bug where tedious could crash the agent on bulk inserts {pull}1935[#1935] +
+  Reported https://discuss.elastic.co/t/apm-agent-crashes-nodejs-after-reporting-exception-in-tedious-instrumentation-code/259851[via the forum].
+  The error symptom was: `Cannot read property 'statement' of undefined`
+
 [[release-notes-3.11.0]]
 ==== 3.11.0 - 2021/02/08
 
@@ -49,7 +64,6 @@ Notes:
   data in the APM Server's metadata payload. See
   https://github.com/elastic/apm/blob/3acd10afa0a9d3510e819229dfce0764133083d3/specs/agents/metadata.md#cloud-provider-metadata[the spec]
   for more information.
-
 
 [[release-notes-3.10.0]]
 ==== 3.10.0 - 2021/01/11
