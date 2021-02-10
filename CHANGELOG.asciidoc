@@ -31,6 +31,11 @@ Notes:
 [[release-notes-unreleased]]
 ==== Unreleased
 
+[float]
+===== Breaking changes
+[float]
+===== Features
+
 * feat: set span outcome to success or failure depending on whether an error
   was captured during when the span was active.
   https://github.com/elastic/apm-agent-nodejs/issues/1814
@@ -39,23 +44,6 @@ Notes:
   adds a top level `setTransactionOutcome` and `setSpanOutcome` to set
   outcome values for the current active transaction or active span.
 
-[float]
-===== Breaking changes
-
-[float]
-===== Features
-
-[float]
-===== Bug fixes
-
-
-[[release-notes-unreleased]]
-==== Unreleased
-
-[float]
-===== Breaking changes
-[float]
-===== Features
 [float]
 ===== Bug fixes
 
