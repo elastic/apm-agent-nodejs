@@ -179,13 +179,13 @@ nothing happens.
 ==== `span.outcome`
 [small]#Added in: v3.12.0#
 
-The Node.js agent automatically sets an `outcome` property on spans.  This property will be one of three values
+The Node.js agent automatically sets an `outcome` property on spans.  This property will be one of three values:
 
-`success`: Indicates the span's operation was a success.
+- `success`: Indicates the span's operation was a success.
 
-`failure`: Indicates the span's operation was _not_ a success.
+- `failure`: Indicates the span's operation was _not_ a success.
 
-`unknown`: Indicates the agent was unable to determine whether the span's operation was a success or not. An `unknown` outcome removes a transaction from error rate considerations.
+- `unknown`: Indicates the agent was unable to determine whether the span's operation was a success or not. An `unknown` outcome removes a transaction from error rate considerations.
 
 What constitutes a success or failure will depend on the span type.
 

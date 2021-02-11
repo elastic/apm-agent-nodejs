@@ -249,15 +249,15 @@ Alternatively you can call <<apm-end-transaction,`apm.endTransaction()`>> to end
 
 [small]#Added in: v3.12.0#
 
-The Node.js agent automatically sets an `outcome` property on transactions.  This property will be one of three values
+The Node.js agent automatically sets an `outcome` property on transactions.  This property will be one of three values:
 
-`success`: Indicates the transaction's operation was a success.
+- `success`: Indicates the transaction's operation was a success.
 
-`failure`: Indicates the transaction's operation was _not_ a success.
+- `failure`: Indicates the transaction's operation was _not_ a success.
 
-`unknown`: Indicates we were unable to determine if the transaction's operation was a success or not.  An `unknown` outcome removes a transaction from error rate considerations.
+- `unknown`: Indicates we were unable to determine if the transaction's operation was a success or not.  An `unknown` outcome removes a transaction from error rate considerations.
 
-A transaction is considered a success if the underlying HTTP request handling produces a response with a status code that is less than `500`.  A transaction is considered a failure if the underlying HTTP request handling produces a response with a status code that is `500` or greater.
+A transaction is considered a success if the underlying HTTP request handling produces a response with a status code that is less than `500`.  A status code of `500` or greater is considered a failure.
 
 Non-HTTP transactions will begin with an outcome of `unknown`.
 
