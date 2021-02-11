@@ -200,4 +200,4 @@ However, for `external` spans that represent an HTTP request, the `outcome` is b
 
 * `outcome` +{type-string}+
 
-The `setOutcome` method allows an end user to override the Node.js agent's default setting of a span's `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific's span.
+The `setOutcome` method allows an end user to override the Node.js agent's default setting of a span's `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific span.
