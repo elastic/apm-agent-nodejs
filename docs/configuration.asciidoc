@@ -367,7 +367,11 @@ If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 
 Specify the sampling rate to use when deciding whether to trace a request.
 
-The value should between `0.0` and `1.0` where `1.0` is 100% of all requests.
+The must be a value between `0.0` and `1.0`, where `1.0` means 100% of requests
+are traced. The value is rounded to four decimal places of precision (e.g.
+0.0001, 0.3333) to ensure consistency and reasonable size when propagating the
+sampling rate in the `tracestate` header for
+<<distributed-tracing,distributed tracing>>.
 
 [[hostname]]
 ==== `hostname`

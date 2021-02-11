@@ -40,7 +40,7 @@ Notes:
 
 * Limit the `transactionSampleRate` value to 4 decimal places of precision
   according to the shared https://github.com/elastic/apm/blob/master/specs/agents/tracing-sampling.md#transaction_sample_rate-configuration[APM spec]. This ensures that propagated sampling rate
-  in the `tracestate` header is short and consistent.
+  in the `tracestate` header is short and consistent. {pull}1979[#1979]
 
 [float]
 ===== Bug fixes
