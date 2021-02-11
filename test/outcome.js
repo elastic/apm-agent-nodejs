@@ -162,7 +162,7 @@ test('API transaction.setOutcome tests', function (test) {
 
   test.test('transaction status code >= 500 is a failure', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
-    transaction._setOutcomeFromStatusCode(500)
+    transaction._setOutcomeFromHttpStatusCode(500)
     agent.endTransaction()
     t.equals(transaction.outcome, constants.TRANSACTION.OUTCOME.FAILURE, '500 is an error')
     t.end()
@@ -170,7 +170,7 @@ test('API transaction.setOutcome tests', function (test) {
 
   test.test('transaction status code < 400 is a success', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
-    transaction._setOutcomeFromStatusCode(499)
+    transaction._setOutcomeFromHttpStatusCode(499)
     agent.endTransaction()
     t.equals(transaction.outcome, constants.TRANSACTION.OUTCOME.SUCCESS, '499 is a success')
     t.end()
@@ -179,25 +179,25 @@ test('API transaction.setOutcome tests', function (test) {
   test.test('transaction public API setOutcome "wins" over internal APIs', function (t) {
     const transactionSuccess = agent.startTransaction('foo', 'type', 'subtype', 'action')
     transactionSuccess.setOutcome(constants.TRANSACTION.OUTCOME.SUCCESS)
-    transactionSuccess._setOutcomeFromStatusCode(500)
+    transactionSuccess._setOutcomeFromHttpStatusCode(500)
     agent.endTransaction()
     t.equals(transactionSuccess.outcome, constants.TRANSACTION.OUTCOME.SUCCESS, 'agent uses setOutcome status')
 
     const transactionFailure = agent.startTransaction('foo', 'type', 'subtype', 'action')
     transactionFailure.setOutcome(constants.TRANSACTION.OUTCOME.FAILURE)
-    transactionFailure._setOutcomeFromStatusCode(200)
+    transactionFailure._setOutcomeFromHttpStatusCode(200)
     agent.endTransaction()
     t.equals(transactionFailure.outcome, constants.TRANSACTION.OUTCOME.FAILURE, 'agent uses setOutcome status')
 
     const transactionUnknown = agent.startTransaction('foo', 'type', 'subtype', 'action')
     transactionUnknown.setOutcome(constants.TRANSACTION.OUTCOME.UNKNOWN)
-    transactionUnknown._setOutcomeFromStatusCode(200)
+    transactionUnknown._setOutcomeFromHttpStatusCode(200)
     agent.endTransaction()
     t.equals(transactionUnknown.outcome, constants.TRANSACTION.OUTCOME.UNKNOWN, 'agent uses setOutcome status')
 
     test.test('outcome not set after transaction ends', function (t) {
       const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
-      transaction._setOutcomeFromStatusCode(200)
+      transaction._setOutcomeFromHttpStatusCode(200)
       agent.endTransaction()
       t.equals(transaction.outcome, constants.TRANSACTION.OUTCOME.SUCCESS, 'success')
       transaction.setOutcome(constants.TRANSACTION.OUTCOME.FAILURE)

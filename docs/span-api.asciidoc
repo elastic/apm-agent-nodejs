@@ -191,7 +191,7 @@ What constitutes a success or failure will depend on the span type.
 
 For the general case, a span's outcome is considered a failure if the Node.js agent captures an error during the execution of the work a span represents.
 
-However, for `external` spans that represent an HTTP request, the `outcome` is based on the status code of the HTTP response.  A status code less than `400` is considered a success.  A status code greater than `400` is considered a failure.
+However, for exit spans that represent an HTTP request, the `outcome` is based on the status code of the HTTP response.  A status code less than `400` is considered a success.  A status code greater or equal to `400` is considered a failure.
 
 [[span-setoutcome]]
 ==== `span.setOutcome(outcome)`
