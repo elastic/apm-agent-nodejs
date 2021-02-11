@@ -13,6 +13,7 @@ pipeline {
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
     OPBEANS_REPO = 'opbeans-node'
+    GITHUB_CHECK = 'true'
   }
   options {
     timeout(time: 3, unit: 'HOURS')
