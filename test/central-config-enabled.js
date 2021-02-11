@@ -164,7 +164,7 @@ test('agent.logger updates for central config `log_level` change', { timeout: 10
 
 // Ensure that a central config that updates some var other than `cloudProvider`
 // does not result in *cloudProvider* being updated (issue #1976).
-test('central config change does not erroneously update cloudProvider', {timeout: 1000}, function (t) {
+test('central config change does not erroneously update cloudProvider', { timeout: 1000 }, function (t) {
   let agent
 
   const server = http.createServer((req, res) => {
