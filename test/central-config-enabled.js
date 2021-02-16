@@ -120,6 +120,23 @@ test('remote config enabled: receives non delimited string', function (t) {
   runTestsWithServer(t, updates, expect)
 })
 
+// Tests for transaction_sample_rate precision from central config.
+;[
+  ['0', 0],
+  ['0.0001', 0.0001],
+  ['0.00002', 0.0001],
+  ['0.300000002', 0.3],
+  ['0.444444', 0.4444],
+  ['0.555555', 0.5556],
+  ['1', 1]
+].forEach(function ([centralVal, expected]) {
+  test(`central transaction_sample_rate precision: "${centralVal}"`, function (t) {
+    runTestsWithServer(t,
+      { transaction_sample_rate: centralVal },
+      { transactionSampleRate: expected })
+  })
+})
+
 // Ensure the logger updates if the central config `log_level` changes.
 test('agent.logger updates for central config `log_level` change', { timeout: 1000 }, function (t) {
   let agent
