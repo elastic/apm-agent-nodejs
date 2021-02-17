@@ -33,6 +33,7 @@ Notes:
 
 [float]
 ===== Breaking changes
+
 [float]
 ===== Features
 
@@ -43,12 +44,16 @@ Notes:
 * feat: Adds public `setOutcome` method to span and transaction APIs, and
   adds a top level `setTransactionOutcome` and `setSpanOutcome` to set
   outcome values for the current active transaction or active span.
+* Limit the `transactionSampleRate` value to 4 decimal places of precision
+  according to the shared https://github.com/elastic/apm/blob/master/specs/agents/tracing-sampling.md#transaction_sample_rate-configuration[APM spec]. This ensures that propagated sampling rate
+  in the `tracestate` header is short and consistent. {pull}1979[#1979]
 
 [float]
 ===== Bug fixes
 
 * fix: It was possible for fetching central config to result in the
   `cloudProvider` config value being reset to its default. {issues}1976[#1976]
+
 * fix: fixes bug where tedious could crash the agent on bulk inserts {pull}1935[#1935] +
   Reported https://discuss.elastic.co/t/apm-agent-crashes-nodejs-after-reporting-exception-in-tedious-instrumentation-code/259851[via the forum].
   The error symptom was: `Cannot read property 'statement' of undefined`

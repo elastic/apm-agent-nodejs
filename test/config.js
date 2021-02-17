@@ -959,6 +959,65 @@ test('parsing of ARRAY and KEY_VALUE opts', function (t) {
   t.end()
 })
 
+test('transactionSampleRate precision', function (t) {
+  var cases = [
+    {
+      opts: { transactionSampleRate: 0 },
+      expect: { transactionSampleRate: 0 }
+    },
+    {
+      env: { ELASTIC_APM_TRANSACTION_SAMPLE_RATE: '0' },
+      expect: { transactionSampleRate: 0 }
+    },
+    {
+      opts: { transactionSampleRate: 0.0001 },
+      expect: { transactionSampleRate: 0.0001 }
+    },
+    {
+      opts: { transactionSampleRate: 0.00002 },
+      expect: { transactionSampleRate: 0.0001 }
+    },
+    {
+      env: { ELASTIC_APM_TRANSACTION_SAMPLE_RATE: '0.00002' },
+      expect: { transactionSampleRate: 0.0001 }
+    },
+    {
+      opts: { transactionSampleRate: 0.300000002 },
+      expect: { transactionSampleRate: 0.3 }
+    },
+    {
+      opts: { transactionSampleRate: 0.444444 },
+      expect: { transactionSampleRate: 0.4444 }
+    },
+    {
+      opts: { transactionSampleRate: 0.555555 },
+      expect: { transactionSampleRate: 0.5556 }
+    },
+    {
+      opts: { transactionSampleRate: 1 },
+      expect: { transactionSampleRate: 1 }
+    }
+  ]
+
+  cases.forEach(function testOneCase ({ opts, env, expect }) {
+    var origEnv = process.env
+    try {
+      if (env) {
+        process.env = Object.assign({}, origEnv, env)
+      }
+      var cfg = config(opts)
+      for (var field in expect) {
+        t.deepEqual(cfg[field], expect[field],
+          util.format('opts=%j env=%j -> %j', opts, env, expect))
+      }
+    } finally {
+      process.env = origEnv
+    }
+  })
+
+  t.end()
+})
+
 test('should accept and normalize cloudProvider', function (t) {
   const agentDefault = Agent()
   agentDefault.start()
