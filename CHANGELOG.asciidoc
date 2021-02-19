@@ -28,7 +28,6 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-
 [[release-notes-unreleased]]
 ==== Unreleased
 
@@ -38,6 +37,13 @@ Notes:
 [float]
 ===== Features
 
+* feat: set span outcome to success or failure depending on whether an error
+  was captured during when the span was active.
+  https://github.com/elastic/apm-agent-nodejs/issues/1814
+
+* feat: Adds public `setOutcome` method to span and transaction APIs, and
+  adds a top level `setTransactionOutcome` and `setSpanOutcome` to set
+  outcome values for the current active transaction or active span.
 * Limit the `transactionSampleRate` value to 4 decimal places of precision
   according to the shared https://github.com/elastic/apm/blob/master/specs/agents/tracing-sampling.md#transaction_sample_rate-configuration[APM spec]. This ensures that propagated sampling rate
   in the `tracestate` header is short and consistent. {pull}1979[#1979]
