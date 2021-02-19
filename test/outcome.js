@@ -1,3 +1,4 @@
+'use strict'
 var agent = require('..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -17,11 +18,10 @@ const noOpClient = {
 }
 agent._transport = noOpClient
 
-const test = require('tape')
+const suite = require('tape')
 
-test('span outcome tests', function (test) {
+suite('span outcome tests', function (test) {
   test.test('span starts unknown, ends with success', function (t) {
-    // test that
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -65,7 +65,7 @@ test('span outcome tests', function (test) {
   test.end()
 })
 
-test('API span.setOutcome tests', function (test) {
+suite('API span.setOutcome tests', function (test) {
   test.test('API set value will be honored over non-API value', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
@@ -103,7 +103,7 @@ test('API span.setOutcome tests', function (test) {
   test.end()
 })
 
-test('API span.setOutcome tests', function (test) {
+suite('API span.setOutcome tests', function (test) {
   test.test('API set value will be honored over non-API value', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
@@ -152,7 +152,7 @@ test('API span.setOutcome tests', function (test) {
   test.end()
 })
 
-test('API transaction.setOutcome tests', function (test) {
+suite('API transaction.setOutcome tests', function (test) {
   test.test('transaction defaults to unknown', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
     agent.endTransaction()
@@ -210,7 +210,7 @@ test('API transaction.setOutcome tests', function (test) {
   test.end()
 })
 
-test('agent level setTransactionOutcome tests', function (test) {
+suite('agent level setTransactionOutcome tests', function (test) {
   test.test('outcome set', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
     agent.setTransactionOutcome(constants.OUTCOME_SUCCESS)
@@ -221,7 +221,7 @@ test('agent level setTransactionOutcome tests', function (test) {
   test.end()
 })
 
-test('agent level setSpanOutcome tests', function (test) {
+suite('agent level setSpanOutcome tests', function (test) {
   test.test('outcome set', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = transaction.startSpan()
