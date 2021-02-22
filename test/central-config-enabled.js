@@ -14,7 +14,8 @@ const runTestsWithServer = (t, updates, expect) => {
   let agent, timer
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'relative:///')
-    t.strictEqual(url.pathname, '/config/v1/agents')
+    t.strictEqual(url.pathname, '/config/v1/agents',
+      'mock apm-server got central config request')
     res.writeHead(200, {
       Etag: 1,
       'Cache-Control': 'max-age=30, must-revalidate'
@@ -29,6 +30,7 @@ const runTestsWithServer = (t, updates, expect) => {
     agent = new Agent().start({
       serverUrl: 'http://localhost:' + server.address().port,
       serviceName: 'test',
+      logLevel: 'off', // silence for cleaner test output
       captureExceptions: false,
       metricsInterval: 0,
       centralConfig: true
@@ -36,14 +38,15 @@ const runTestsWithServer = (t, updates, expect) => {
 
     for (const key in expect) {
       if (!Object.prototype.hasOwnProperty.call(agent._conf, key)) {
-        t.fail('unknown config key: ' + key)
+        t.fail('unknown key in central config response: ' + key)
         t.end()
       } else {
         Object.defineProperty(agent._conf, key, {
           set (value) {
             const expectValue = expect[key]
             if (expectValue !== undefined) {
-              t.deepEqual(value, expectValue)
+              t.deepEqual(value, expectValue,
+                `got expected value for central config key ${key}`)
               delete expect[key]
               if (Object.keys(expect).length === 0) {
                 t.end()
@@ -73,14 +76,14 @@ test('remote config enabled', function (t) {
     transaction_max_spans: '99',
     capture_body: 'all',
     transaction_ignore_urls: ['foo'],
-    log_level: 'debug'
+    log_level: 'warn'
   }
   const expect = {
     transactionSampleRate: 0.42,
     transactionMaxSpans: 99,
     captureBody: 'all',
     transactionIgnoreUrls: ['foo'],
-    logLevel: 'debug'
+    logLevel: 'warn'
   }
 
   runTestsWithServer(t, updates, expect)
@@ -144,7 +147,8 @@ test('agent.logger updates for central config `log_level` change', { timeout: 10
   const server = http.createServer((req, res) => {
     // 3. The agent should fetch central config with log_level=error.
     const url = new URL(req.url, 'relative:///')
-    t.strictEqual(url.pathname, '/config/v1/agents')
+    t.strictEqual(url.pathname, '/config/v1/agents',
+      'mock apm-server got central config request')
     res.writeHead(200, {
       Etag: 1,
       'Cache-Control': 'max-age=30, must-revalidate'
@@ -164,18 +168,18 @@ test('agent.logger updates for central config `log_level` change', { timeout: 10
 
   // 1. Start a mock APM Server.
   server.listen(function () {
-    // 2. Start an agent with logLevel=debug.
+    // 2. Start an agent with logLevel=warn.
     agent = new Agent().start({
       serverUrl: 'http://localhost:' + server.address().port,
       serviceName: 'test',
       captureExceptions: false,
       metricsInterval: 0,
       centralConfig: true,
-      logLevel: 'debug'
+      logLevel: 'warn'
     })
 
-    t.equal(agent.logger.level, 'debug',
-      'immediately after .start() logger level should be the given "debug" level')
+    t.equal(agent.logger.level, 'warn',
+      'immediately after .start() logger level should be the given "warn" level')
   })
 })
 
@@ -188,7 +192,8 @@ test('central config change does not erroneously update cloudProvider', { timeou
     // 3. The agent should fetch central config. We provide some non-empty
     //    config change that does not include `cloudProvider`.
     const url = new URL(req.url, 'relative:///')
-    t.strictEqual(url.pathname, '/config/v1/agents')
+    t.strictEqual(url.pathname, '/config/v1/agents',
+      'mock apm-server got central config request')
     res.writeHead(200, {
       Etag: 1,
       'Cache-Control': 'max-age=30, must-revalidate'
