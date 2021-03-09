@@ -10,9 +10,10 @@ const test = require('tape')
 const Agent = require('./_agent')
 
 const runTestsWithServer = (t, updates, expect) => {
-  t.plan(Object.keys(expect).length + 1)
-  let agent, timer
+  let agent
+
   const server = http.createServer((req, res) => {
+    // 3. The agent should fetch central config with log_level=error.
     const url = new URL(req.url, 'relative:///')
     t.strictEqual(url.pathname, '/config/v1/agents',
       'mock apm-server got central config request')
@@ -21,12 +22,25 @@ const runTestsWithServer = (t, updates, expect) => {
       'Cache-Control': 'max-age=30, must-revalidate'
     })
     res.end(JSON.stringify(updates))
-    clearTimeout(timer)
-    agent.destroy()
-    server.close()
+
+    // 4. After the 'config' event is handled in the agent, the expected
+    //    config vars should be updated.
+    agent._transport.once('config', function (remoteConf) {
+      for (const key in expect) {
+        t.deepEqual(agent._conf[key], expect[key],
+          `agent conf for key ${key} was updated to expected value`)
+      }
+
+      // 5. Clean up and finish.
+      agent.destroy()
+      server.close()
+      t.end()
+    })
   })
 
+  // 1. Start a mock APM Server.
   server.listen(function () {
+    // 2. Start an agent.
     agent = new Agent().start({
       serverUrl: 'http://localhost:' + server.address().port,
       serviceName: 'test',
@@ -35,34 +49,6 @@ const runTestsWithServer = (t, updates, expect) => {
       metricsInterval: 0,
       centralConfig: true
     })
-
-    for (const key in expect) {
-      if (!Object.prototype.hasOwnProperty.call(agent._conf, key)) {
-        t.fail('unknown key in central config response: ' + key)
-        t.end()
-      } else {
-        Object.defineProperty(agent._conf, key, {
-          set (value) {
-            const expectValue = expect[key]
-            if (expectValue !== undefined) {
-              t.deepEqual(value, expectValue,
-                `got expected value for central config key ${key}`)
-              delete expect[key]
-              if (Object.keys(expect).length === 0) {
-                t.end()
-              }
-            }
-          },
-          get () {},
-          enumerable: true,
-          configurable: true
-        })
-      }
-    }
-
-    timer = setTimeout(function () {
-      t.fail('should poll APM Server for config')
-    }, 1000)
   })
 
   t.on('end', function () {
