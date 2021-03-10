@@ -23,7 +23,6 @@ const basicMetrics = [
   'system.process.memory.rss.bytes',
   'nodejs.handles.active',
   'nodejs.requests.active',
-  'nodejs.eventloop.delay.ns',
   'nodejs.memory.heap.allocated.bytes',
   'nodejs.memory.heap.used.bytes',
   'nodejs.eventloop.delay.avg.ms'
