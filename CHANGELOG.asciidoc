@@ -39,6 +39,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Remove the "ancestors" field from a log.trace message on startup. Its info
+  is a duplicate of info in the "startTrace" field in the same log record.
+  {pull}2005[#2005]
+
 * Remove the accidental `nodejs.eventloop.delay.ns` metric that was always
   reporting a zero value. The existing `nodejs.eventloop.delay.avg.ms` is
   the intended metric. {pull}1993[#1993]
