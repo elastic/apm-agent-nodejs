@@ -453,7 +453,8 @@ https://getpino.io/#/docs/api?id=logger[pino API]. To avoid issues with
 incompatible logger APIs, a given a custom logger is wrapped in such a way
 that only the log _message_ is passed through -- structured log data is
 dropped. As a special case, if the provided logger is a
-_pino logger instance_, then it will be used directly.
+_pino logger instance_, then it will be used directly without loss of structured
+fields.
 
 An example using a custom pino logger:
 
