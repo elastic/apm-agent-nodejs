@@ -434,8 +434,6 @@ require('elastic-apm-node').start({
 Set the verbosity level for the agent.
 Note that this does not have any influence on the types of errors that are sent to the APM Server.
 This only controls how chatty the agent is in your logs.
-As well, this only applies when using the built in logger.
-Log levels will not be automatically applied to a custom `logger`.
 
 Possible levels are: `trace`, `debug`, `info`, `warning`, `error`, `critical`, and `off`.
 
@@ -444,21 +442,51 @@ Possible levels are: `trace`, `debug`, `info`, `warning`, `error`, `critical`, a
 
 * *Type:* object
 
-Set a custom logger, e.g. https://github.com/trentm/node-bunyan[bunyan]:
+Pass in a custom logger. The custom logger must provide `trace`, `debug`,
+`info`, `warn`, `error`, and `fatal` methods that take a string message
+argument.
+
+As of version 3.13, the agent uses structured logging using the
+https://getpino.io/#/docs/api?id=logger[pino API]. To avoid issues with
+incompatible logger APIs, a given a custom logger is wrapped in a logger that
+drops fields other than the log _message_. As a special case, if the provided
+logger is a _pino logger instance_, then it will be used directly. Note, as
+well, that as of version 3.13 the <<log-level,`logLevel`>> configuration
+value *applies* to a custom logger.
+
+An example using a custom pino logger:
+
+[source,js]
+----
+const pino = require('pino')
+require('elastic-apm-node').start({
+  logger: pino({ level: 'info' })
+})
+----
+
+or using a https://github.com/trentm/node-bunyan[Bunyan] logger:
+
+[source,js]
+----
+const bunyan = require('bunyan')
+require('elastic-apm-node').start({
+  logger: bunyan.createLogger({ level: 'info' })
+})
+----
+
+To get the https://github.com/watson/console-log-level[unstructured logging output]
+used in agent versions before 3.13, use the following:
 
 [source,js]
 ----
 require('elastic-apm-node').start({
-  logger: require('bunyan')({ level: 'info' })
+  logger: require('console-log-level')()
 })
 ----
 
-If no custom logger is provided,
-the agent will use its built-in logger which will log to STDOUT and STDERR depending on the log level.
-
-The logger should expose the following functions: `trace`, `debug`,`info`, `warn`, `error`, and `fatal`.
-
-Note that if a custom logger is provided, the `logLevel` option will be ignored.
+If no custom logger is provided, the agent will log to stdout in
+https://www.elastic.co/guide/en/ecs-logging/overview/current/intro.html[ecs-logging]
+format.
 
 [[capture-exceptions]]
 ==== `captureExceptions`
