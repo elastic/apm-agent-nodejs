@@ -431,11 +431,13 @@ require('elastic-apm-node').start({
 * *Env:* `ELASTIC_APM_LOG_LEVEL`
 * <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `log_level`
 
-Set the verbosity level for the agent.
-Note that this does not have any influence on the types of errors that are sent to the APM Server.
-This only controls how chatty the agent is in your logs.
+Set the verbosity level for the agent. Note that this does not have any
+influence on the types of errors that are sent to the APM Server. This only
+controls how chatty the agent is in your logs. Possible levels are: `trace`,
+`debug`, `info`, `warning`, `error`, `critical`, and `off`.
 
-Possible levels are: `trace`, `debug`, `info`, `warning`, `error`, `critical`, and `off`.
+This config only applies when using the built-in logger. Log levels will not
+be automatically applied to a custom <<logger,`logger`>>.
 
 [[logger]]
 ==== `logger`
@@ -448,11 +450,10 @@ argument.
 
 As of version 3.13, the agent uses structured logging using the
 https://getpino.io/#/docs/api?id=logger[pino API]. To avoid issues with
-incompatible logger APIs, a given a custom logger is wrapped in a logger that
-drops fields other than the log _message_. As a special case, if the provided
-logger is a _pino logger instance_, then it will be used directly. Note, as
-well, that as of version 3.13 the <<log-level,`logLevel`>> configuration
-value *applies* to a custom logger.
+incompatible logger APIs, a given a custom logger is wrapped in such a way
+that only the log _message_ is passed through -- structured log data is
+dropped. As a special case, if the provided logger is a
+_pino logger instance_, then it will be used directly.
 
 An example using a custom pino logger:
 
