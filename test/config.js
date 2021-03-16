@@ -1100,7 +1100,7 @@ class CaptureLogger {
     this.calls = []
   }
 
-  _log (type, message, args) {
+  _log (type, message) {
     this.calls.push({
       type,
       message
