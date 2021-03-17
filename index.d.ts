@@ -211,6 +211,7 @@ interface AgentConfigOptions {
   frameworkVersion?: string;
   globalLabels?: KeyValueConfig;
   hostname?: string;
+  ignoreMessageQueues: Array<string>;
   ignoreUrls?: Array<string | RegExp>;
   ignoreUserAgents?: Array<string | RegExp>;
   instrument?: boolean;
