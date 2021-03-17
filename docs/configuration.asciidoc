@@ -933,3 +933,33 @@ During startup the Node.js agent queries the local environment to determine whet
 - `none`: Do not query for any cloud provider information.
 
 If the value is not one of the five listed above, the agent will use the value of `auto`.
+
+[[ignore_message_queues]]
+==== `ignoreMessageQueues`
+* *Type:* Array
+* *Default:* `[]`
+* *Env:* `ELASTIC_IGNORE_MESSAGE_QUEUES`
+
+Array or comma-separated string of wildcard patterns that tell the agent to
+ignore certain queues/topics when instrumenting messaging systems.
+
+When an instrumented messaging system sends or receives a message, the agent
+will test the queue/topic name against each wildcard in this list. If
+the name matches the agent will skip instrumenting the operation.
+
+The `ignoreMessageQueues` property supports simple wildcard (`*`) patterns, and
+may not include commas.  Wildcard matches are case-insensitive by default. You
+may make wildcard searches case-sensitive by using the `(?-i)` prefix.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  ignoreMessageQueues: [
+    'overnight_jobs',
+    'events_*',
+    '(?-i)/caseSensitiveSearch'
+  ]
+})
+----
