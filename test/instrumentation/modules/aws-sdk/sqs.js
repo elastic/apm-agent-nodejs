@@ -292,6 +292,35 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
       });
     })
   })
+
+  test.test('API: receiveMessage', function(t) {
+    const app = createMockServer(
+      getXmlResponse('receiveMessage')
+    )
+    const listener = app.listen(0, function(){
+      resetAgent(function(data){
+        t.equals(data.spans.length, 2, 'generated two spans')
+        const spanHttp = data.spans[0]
+        t.equals(spanHttp.type, 'external', 'first span is for HTTP request')
+
+        const spanSqs = data.spans[1]
+        t.equals(spanSqs.name, 'SQS RECEIVE from our-queue', 'SQS span named correctly')
+        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
+        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
+        t.equals(spanSqs.action, 'receive', 'span action matches API method called')
+
+        t.end()
+      })
+      agent.startTransaction('myTransaction')
+      const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+      const params = getParams('receiveMessage', listener.address().port)
+      sqs.receiveMessage(params, function(err, data) {
+        t.error(err)
+        agent.endTransaction()
+        listener.close()
+      });
+    })
+  })
   test.end()
 })
 
@@ -313,26 +342,6 @@ function getParams(method, port) {
   const params = fixtures[method]['request']
   params.QueueUrl = `http://localhost:${port}/1/our-queue`
   return params
-  return {
-    // Remove DelaySeconds parameter and value for FIFO queues
-   DelaySeconds: 10,
-   MessageAttributes: {
-     "Title": {
-       DataType: "String",
-       StringValue: "The Whistler"
-     },
-     "Author": {
-       DataType: "String",
-       StringValue: "John Grisham"
-     },
-     "WeeksOn": {
-       DataType: "Number",
-       StringValue: "6"
-     }
-   },
-   MessageBody: "Information about current NY Times fiction bestseller for week of 12/11/2016.",
-   QueueUrl: `http://localhost:${port}/1/our-queue`
- }
 }
 
 function initializeAwsSdk() {
