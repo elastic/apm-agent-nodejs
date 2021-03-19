@@ -36,6 +36,8 @@ Notes:
 [float]
 ===== Features
 
+* Adds support for Amazon SQS queues via `aws-sdk` instrumentation.
+
 [float]
 ===== Bug fixes
 
