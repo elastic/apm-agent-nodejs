@@ -1,26 +1,26 @@
 'use strict'
 module.exports = {
-  'sendMessage':{
-    'request': {
+  sendMessage: {
+    request: {
       DelaySeconds: 10,
       MessageAttributes: {
-        "Title": {
-          DataType: "String",
-          StringValue: "The Whistler"
+        Title: {
+          DataType: 'String',
+          StringValue: 'The Whistler'
         },
-        "Author": {
-          DataType: "String",
-          StringValue: "John Grisham"
+        Author: {
+          DataType: 'String',
+          StringValue: 'John Grisham'
         },
-        "WeeksOn": {
-          DataType: "Number",
-          StringValue: "6"
+        WeeksOn: {
+          DataType: 'Number',
+          StringValue: '6'
         }
       },
-      MessageBody: "Information about current NY Times fiction bestseller for week of 12/11/2016.",
+      MessageBody: 'Information about current NY Times fiction bestseller for week of 12/11/2016.'
 
     },
-    'response':`<?xml version="1.0"?>
+    response: `<?xml version="1.0"?>
       <SendMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/">
         <SendMessageResult>
           <MessageId>4b8a5a94-e3a3-43b7-9a98-16179f3b894f</MessageId>
@@ -32,30 +32,30 @@ module.exports = {
         </ResponseMetadata>
       </SendMessageResponse>`
   },
-  'sendMessageBatch': {
-    'request':{
+  sendMessageBatch: {
+    request: {
       // Remove DelaySeconds parameter and value for FIFO queues
-      Entries:[{
+      Entries: [{
         Id: 'foo',
         DelaySeconds: 10,
         MessageAttributes: {
-          "Title": {
-            DataType: "String",
-            StringValue: "The Whistler"
+          Title: {
+            DataType: 'String',
+            StringValue: 'The Whistler'
           },
-          "Author": {
-            DataType: "String",
-            StringValue: "John Grisham"
+          Author: {
+            DataType: 'String',
+            StringValue: 'John Grisham'
           },
-          "WeeksOn": {
-            DataType: "Number",
-            StringValue: "6"
+          WeeksOn: {
+            DataType: 'Number',
+            StringValue: '6'
           }
         },
-        MessageBody: "Information about current NY Times fiction bestseller for week of 12/11/2016.",
-      }],
+        MessageBody: 'Information about current NY Times fiction bestseller for week of 12/11/2016.'
+      }]
     },
-    'respnse':`<?xml version="1.0"?>
+    respnse: `<?xml version="1.0"?>
       <SendMessageBatchResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/">
         <SendMessageBatchResult>
           <SendMessageBatchResultEntry>
@@ -70,11 +70,11 @@ module.exports = {
         </ResponseMetadata>
       </SendMessageBatchResponse>`
   },
-  'deleteMessage': {
-    'request':{
-      ReceiptHandle:`AQEBylmNUj4N0S/U4rDCOgiJks1yfJVcInUpvhe5hmLbeHnEd9q5uynTpJvXOBwHSlMrWZhtus7xJzULz/fi90Ni0cImfu+G9dqp6kIqVXYIItf0iOOT0+w6Yu2RHtuRCGOfxo28EKCBZRbREh6EAmXRL7IAoYZgkR/BI4c9dZi6MHXXwyjW93yFbK+CkMTVh/MoW8ADr9D/4rzf5fb7ipKht73Fe1j1gLCxiBuQiNj7owaxVPb/jVY3NEtWYDKXkhCOscdPoLb6CueADxXPn7mC/l5Kp8DTi6GoI39E3Qbq4kIylA7wmPS5wo+rffLqi9gASN+YpmUG/03+poOzgtM2q0ZYIrFNPjNKSriuWE16V6iTl0ng7uG4pmeCj9zKwaAu8SOZQwRHmMq9qhiyDzBqfDP3GQcZXO8i5WRLdG6nmoRkyUzXq6Zo50eWzzsK2hZ5`
+  deleteMessage: {
+    request: {
+      ReceiptHandle: 'AQEBylmNUj4N0S/U4rDCOgiJks1yfJVcInUpvhe5hmLbeHnEd9q5uynTpJvXOBwHSlMrWZhtus7xJzULz/fi90Ni0cImfu+G9dqp6kIqVXYIItf0iOOT0+w6Yu2RHtuRCGOfxo28EKCBZRbREh6EAmXRL7IAoYZgkR/BI4c9dZi6MHXXwyjW93yFbK+CkMTVh/MoW8ADr9D/4rzf5fb7ipKht73Fe1j1gLCxiBuQiNj7owaxVPb/jVY3NEtWYDKXkhCOscdPoLb6CueADxXPn7mC/l5Kp8DTi6GoI39E3Qbq4kIylA7wmPS5wo+rffLqi9gASN+YpmUG/03+poOzgtM2q0ZYIrFNPjNKSriuWE16V6iTl0ng7uG4pmeCj9zKwaAu8SOZQwRHmMq9qhiyDzBqfDP3GQcZXO8i5WRLdG6nmoRkyUzXq6Zo50eWzzsK2hZ5'
     },
-    'response':`<?xml version="1.0"?>
+    response: `<?xml version="1.0"?>
     <DeleteMessageBatchResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/">
       <DeleteMessageBatchResult>
         <DeleteMessageBatchResultEntry>
@@ -86,32 +86,32 @@ module.exports = {
       </ResponseMetadata>
     </DeleteMessageBatchResponse>`
   },
-  'deleteMessageBatch': {
-    'request':{
-      Entries:[{
+  deleteMessageBatch: {
+    request: {
+      Entries: [{
         Id: 'foo',
-        ReceiptHandle:`AQEBylmNUj4N0S/U4rDCOgiJks1yfJVcInUpvhe5hmLbeHnEd9q5uynTpJvXOBwHSlMrWZhtus7xJzULz/fi90Ni0cImfu+G9dqp6kIqVXYIItf0iOOT0+w6Yu2RHtuRCGOfxo28EKCBZRbREh6EAmXRL7IAoYZgkR/BI4c9dZi6MHXXwyjW93yFbK+CkMTVh/MoW8ADr9D/4rzf5fb7ipKht73Fe1j1gLCxiBuQiNj7owaxVPb/jVY3NEtWYDKXkhCOscdPoLb6CueADxXPn7mC/l5Kp8DTi6GoI39E3Qbq4kIylA7wmPS5wo+rffLqi9gASN+YpmUG/03+poOzgtM2q0ZYIrFNPjNKSriuWE16V6iTl0ng7uG4pmeCj9zKwaAu8SOZQwRHmMq9qhiyDzBqfDP3GQcZXO8i5WRLdG6nmoRkyUzXq6Zo50eWzzsK2hZ5`
+        ReceiptHandle: 'AQEBylmNUj4N0S/U4rDCOgiJks1yfJVcInUpvhe5hmLbeHnEd9q5uynTpJvXOBwHSlMrWZhtus7xJzULz/fi90Ni0cImfu+G9dqp6kIqVXYIItf0iOOT0+w6Yu2RHtuRCGOfxo28EKCBZRbREh6EAmXRL7IAoYZgkR/BI4c9dZi6MHXXwyjW93yFbK+CkMTVh/MoW8ADr9D/4rzf5fb7ipKht73Fe1j1gLCxiBuQiNj7owaxVPb/jVY3NEtWYDKXkhCOscdPoLb6CueADxXPn7mC/l5Kp8DTi6GoI39E3Qbq4kIylA7wmPS5wo+rffLqi9gASN+YpmUG/03+poOzgtM2q0ZYIrFNPjNKSriuWE16V6iTl0ng7uG4pmeCj9zKwaAu8SOZQwRHmMq9qhiyDzBqfDP3GQcZXO8i5WRLdG6nmoRkyUzXq6Zo50eWzzsK2hZ5'
       }]
     },
-    'response':`<?xml version="1.0"?>
+    response: `<?xml version="1.0"?>
       <DeleteMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/">
         <ResponseMetadata>
           <RequestId>2ce5ae8b-9308-5c11-8484-f64644126cd4</RequestId>
         </ResponseMetadata>
       </DeleteMessageResponse>`
   },
-  'receiveMessage': {
-    'request': {
+  receiveMessage: {
+    request: {
       AttributeNames: [
-         "SentTimestamp"
+        'SentTimestamp'
       ],
       MaxNumberOfMessages: 1,
       MessageAttributeNames: [
-         "All"
+        'All'
       ],
-      VisibilityTimeout: 20,
+      VisibilityTimeout: 20
     },
-    'response':`<?xml version="1.0"?>
+    response: `<?xml version="1.0"?>
       <ReceiveMessageResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/">
         <ReceiveMessageResult>
           <Message>
@@ -151,5 +151,5 @@ module.exports = {
           <RequestId>c1f742a0-56ba-59a4-95d5-1a6e8dc7f577</RequestId>
         </ResponseMetadata>
       </ReceiveMessageResponse>`
-   }
+  }
 }

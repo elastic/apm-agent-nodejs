@@ -1062,9 +1062,7 @@ test('should accept and normalize cloudProvider', function (t) {
 })
 
 test('should accept and normalize ignoreMessageQueues', function (suite) {
-
-
-  suite.test('ignoreMessageQueues defaults', function(t){
+  suite.test('ignoreMessageQueues defaults', function (t) {
     const agent = Agent()
     agent.start()
     t.equals(
@@ -1081,9 +1079,9 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
     t.end()
   })
 
-  suite.test('ignoreMessageQueues via configuration', function(t){
+  suite.test('ignoreMessageQueues via configuration', function (t) {
     const agent = Agent()
-    agent.start({ignoreMessageQueues: ['f*o','bar']})
+    agent.start({ ignoreMessageQueues: ['f*o', 'bar'] })
     t.equals(
       agent._conf.ignoreMessageQueues.length,
       2,
@@ -1103,9 +1101,9 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
     t.end()
   })
 
-  suite.test('ignoreMessageQueues via env', function(t){
+  suite.test('ignoreMessageQueues via env', function (t) {
     const agent = Agent()
-    process.env['ELASTIC_IGNORE_MESSAGE_QUEUES'] = 'f*o,bar,baz'
+    process.env.ELASTIC_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz'
     agent.start()
     t.equals(
       agent._conf.ignoreMessageQueues.length,

@@ -11,7 +11,6 @@ const tape = require('tape')
 const AWS = require('aws-sdk')
 const express = require('express')
 const bodyParser = require('body-parser')
-const { type } = require('os')
 const fixtures = require('./fixtures-sqs')
 const mockClient = require('../../../_mock_http_client')
 
@@ -22,13 +21,13 @@ const {
   getRegionFromRequest,
   getMessagingDestinationContextFromRequest,
   shouldIgnoreRequest
-}
-  = require('../../../../lib/instrumentation/modules/aws-sdk/sqs')
+} =
+  require('../../../../lib/instrumentation/modules/aws-sdk/sqs')
 
 initializeAwsSdk()
 
-tape.test('AWS SQS: Unit Test Functions', function(test){
-  test.test('function getToFromFromOperation', function(t) {
+tape.test('AWS SQS: Unit Test Functions', function (test) {
+  test.test('function getToFromFromOperation', function (t) {
     t.equals(getToFromFromOperation('deleteMessage'), 'from')
     t.equals(getToFromFromOperation('deleteMessageBatch'), 'from')
     t.equals(getToFromFromOperation('receiveMessage'), 'from')
@@ -37,7 +36,7 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
     t.end()
   })
 
-  test.test('function getActionFromOperation', function(t) {
+  test.test('function getActionFromOperation', function (t) {
     const request = {}
 
     request.operation = 'deleteMessage'
@@ -68,20 +67,20 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
     t.equals(getActionFromRequest(request), 'receive')
 
     request.operation = 'receiveMessage'
-    request.params = {WaitTimeSeconds:0}
+    request.params = { WaitTimeSeconds: 0 }
     t.equals(getActionFromRequest(request), 'receive')
 
     request.operation = 'receiveMessage'
-    request.params = {WaitTimeSeconds:-1}
+    request.params = { WaitTimeSeconds: -1 }
     t.equals(getActionFromRequest(request), 'receive')
 
     request.operation = 'receiveMessage'
-    request.params = {WaitTimeSeconds:1}
+    request.params = { WaitTimeSeconds: 1 }
     t.equals(getActionFromRequest(request), 'poll')
     t.end()
   })
 
-  test.test('function getQueueNameFromRequest', function(t) {
+  test.test('function getQueueNameFromRequest', function (t) {
     const request = {}
     t.equals(getQueueNameFromRequest(null), 'unknown')
     t.equals(getQueueNameFromRequest(request), 'unknown')
@@ -106,7 +105,7 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
     t.end()
   })
 
-  test.test('function getRegionFromRequest', function(t) {
+  test.test('function getRegionFromRequest', function (t) {
     const request = {}
     t.equals(getRegionFromRequest(null), '')
     t.equals(getRegionFromRequest(request), '')
@@ -129,11 +128,11 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
     t.end()
   })
 
-  test.test('function shouldIgnoreRequest', function(t) {
+  test.test('function shouldIgnoreRequest', function (t) {
     t.equals(shouldIgnoreRequest(null, null), true)
 
     const request = {
-      operation:'deleteMessage',
+      operation: 'deleteMessage',
       params: {
         QueueUrl: 'http://foo/baz/bar/bing?some=params&ok=true'
       }
@@ -154,15 +153,15 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
     t.end()
   })
 
-  test.test('function getMessagingDestinationContext', function(t) {
+  test.test('function getMessagingDestinationContext', function (t) {
     const request = {
       service: {
-        config:{
-          region:'region-name'
+        config: {
+          region: 'region-name'
         }
       },
       params: {
-        QueueUrl:'http://foo/baz/bar/bing?some=params&ok=true'
+        QueueUrl: 'http://foo/baz/bar/bing?some=params&ok=true'
       }
     }
 
@@ -170,24 +169,24 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
     t.equals(getQueueNameFromRequest(request), 'bing')
 
     t.deepEquals(getMessagingDestinationContextFromRequest(request), {
-      service:{
-        name:'sqs',
-        resource:`sqs/bing`,
+      service: {
+        name: 'sqs',
+        resource: 'sqs/bing',
         type: 'messaging'
       },
-      cloud:{
-        region:'region-name'
+      cloud: {
+        region: 'region-name'
       }
     })
     t.end()
   })
 
-  test.test('API: sendMessage', function(t) {
+  test.test('API: sendMessage', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessage')
     )
-    const listener = app.listen(0, function(){
-      resetAgent(function(data){
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
         t.equals(data.spans.length, 2, 'generated two spans')
         const spanSqs = data.spans[0]
         t.equals(spanSqs.name, 'SQS SEND to our-queue', 'SQS span named correctly')
@@ -200,21 +199,21 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
         t.end()
       })
       agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
       const params = getParams('sendMessage', listener.address().port)
-      sqs.sendMessage(params, function(err, data) {
+      sqs.sendMessage(params, function (err, data) {
         t.error(err)
         agent.endTransaction()
         listener.close()
-      });
+      })
     })
   })
-  test.test('API: sendMessageBatch', function(t) {
+  test.test('API: sendMessageBatch', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessageBatch')
     )
-    const listener = app.listen(0, function(){
-      resetAgent(function(data){
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
         t.equals(data.spans.length, 2, 'generated two spans')
         const spanSqs = data.spans[0]
         t.equals(spanSqs.name, 'SQS SEND_BATCH to our-queue', 'SQS span named correctly')
@@ -227,22 +226,22 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
         t.end()
       })
       agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
       const params = getParams('sendMessageBatch', listener.address().port)
-      sqs.sendMessageBatch(params, function(err, data) {
+      sqs.sendMessageBatch(params, function (err, data) {
         t.error(err)
         agent.endTransaction()
         listener.close()
-      });
+      })
     })
   })
 
-  test.test('API: deleteMessage', function(t) {
+  test.test('API: deleteMessage', function (t) {
     const app = createMockServer(
       getXmlResponse('deleteMessage')
     )
-    const listener = app.listen(0, function(){
-      resetAgent(function(data){
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
         t.equals(data.spans.length, 2, 'generated two spans')
         const spanSqs = data.spans[0]
         t.equals(spanSqs.name, 'SQS DELETE from our-queue', 'SQS span named correctly')
@@ -255,22 +254,22 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
         t.end()
       })
       agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
       const params = getParams('deleteMessage', listener.address().port)
-      sqs.deleteMessage(params, function(err, data) {
+      sqs.deleteMessage(params, function (err, data) {
         t.error(err)
         agent.endTransaction()
         listener.close()
-      });
+      })
     })
   })
 
-  test.test('API: deleteMessageBatch', function(t) {
+  test.test('API: deleteMessageBatch', function (t) {
     const app = createMockServer(
       getXmlResponse('deleteMessageBatch')
     )
-    const listener = app.listen(0, function(){
-      resetAgent(function(data){
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
         t.equals(data.spans.length, 2, 'generated two spans')
         const spanSqs = data.spans[0]
         t.equals(spanSqs.name, 'SQS DELETE_BATCH from our-queue', 'SQS span named correctly')
@@ -283,22 +282,22 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
         t.end()
       })
       agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
       const params = getParams('deleteMessageBatch', listener.address().port)
-      sqs.deleteMessageBatch(params, function(err, data) {
+      sqs.deleteMessageBatch(params, function (err, data) {
         t.error(err)
         agent.endTransaction()
         listener.close()
-      });
+      })
     })
   })
 
-  test.test('API: receiveMessage', function(t) {
+  test.test('API: receiveMessage', function (t) {
     const app = createMockServer(
       getXmlResponse('receiveMessage')
     )
-    const listener = app.listen(0, function(){
-      resetAgent(function(data){
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
         t.equals(data.spans.length, 2, 'generated two spans')
         const spanHttp = data.spans[0]
         t.equals(spanHttp.type, 'external', 'first span is for HTTP request')
@@ -312,46 +311,84 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
         t.end()
       })
       agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
       const params = getParams('receiveMessage', listener.address().port)
-      sqs.receiveMessage(params, function(err, data) {
+      sqs.receiveMessage(params, function (err, data) {
         t.error(err)
         agent.endTransaction()
         listener.close()
-      });
+      })
     })
   })
+
+  test.test('API: receiveMessage no transaction', function (t) {
+    const app = createMockServer(
+      getXmlResponse('receiveMessage')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        t.equals(data.spans.length, 0, 'no spans without a transaction')
+        t.end()
+      })
+
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('receiveMessage', listener.address().port)
+      sqs.receiveMessage(params, function (err, data) {
+        t.error(err)
+        listener.close()
+      })
+    })
+  })
+
+  test.test('API: sendMessage without a transaction', function (t) {
+    const app = createMockServer(
+      getXmlResponse('sendMessage')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        t.equals(data.spans.length, 0, 'no spans without a transaction')
+        t.end()
+      })
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('sendMessage', listener.address().port)
+      sqs.sendMessage(params, function (err, data) {
+        t.error(err)
+        listener.close()
+      })
+    })
+  })
+
   test.end()
 })
 
-function createMockServer(xmlResponse) {
+function createMockServer (xmlResponse) {
   const app = express()
   app.use(bodyParser.urlencoded({ extended: false }))
   app.post('/', (req, res) => {
-    res.setHeader('Content-Type', 'text/xml');
+    res.setHeader('Content-Type', 'text/xml')
     res.send(xmlResponse)
   })
   return app
 }
 
-function getXmlResponse(method) {
-  return fixtures[method]['response'];
+function getXmlResponse (method) {
+  return fixtures[method].response
 }
 
-function getParams(method, port) {
-  const params = fixtures[method]['request']
+function getParams (method, port) {
+  const params = fixtures[method].request
   params.QueueUrl = `http://localhost:${port}/1/our-queue`
   return params
 }
 
-function initializeAwsSdk() {
+function initializeAwsSdk () {
   // SDk requires a region to be set
-  AWS.config.update({region: 'us-west'});
+  AWS.config.update({ region: 'us-west' })
 
   // without fake credentials the aws-sdk will attempt to fetch
   // credentials as though it was on an EC2 instance
-  process.env.AWS_ACCESS_KEY_ID='fake-1'
-  process.env.AWS_SECRET_ACCESS_KEY='fake-2'
+  process.env.AWS_ACCESS_KEY_ID = 'fake-1'
+  process.env.AWS_SECRET_ACCESS_KEY = 'fake-2'
 }
 
 function resetAgent (cb) {
