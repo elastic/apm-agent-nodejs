@@ -353,3 +353,8 @@ body-parser:
   versions: '>=1.19.0'
   commands:
     - node test/sanitize-field-names/express.js
+
+aws-sdk:
+  versions: '>=2.858 <3'
+  commands:
+    - node test/instrumentation/modules/aws-sdk/sqs.js
