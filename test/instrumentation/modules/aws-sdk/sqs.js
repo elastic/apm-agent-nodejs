@@ -203,6 +203,7 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
       const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
       const params = getParams('sendMessage', listener.address().port)
       sqs.sendMessage(params, function(err, data) {
+        t.error(err)
         agent.endTransaction()
         listener.close()
       });
@@ -229,6 +230,7 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
       const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
       const params = getParams('sendMessageBatch', listener.address().port)
       sqs.sendMessageBatch(params, function(err, data) {
+        t.error(err)
         agent.endTransaction()
         listener.close()
       });
@@ -256,6 +258,35 @@ tape.test('AWS SQS: Unit Test Functions', function(test){
       const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
       const params = getParams('deleteMessage', listener.address().port)
       sqs.deleteMessage(params, function(err, data) {
+        t.error(err)
+        agent.endTransaction()
+        listener.close()
+      });
+    })
+  })
+
+  test.test('API: deleteMessageBatch', function(t) {
+    const app = createMockServer(
+      getXmlResponse('deleteMessageBatch')
+    )
+    const listener = app.listen(0, function(){
+      resetAgent(function(data){
+        t.equals(data.spans.length, 2, 'generated two spans')
+        const spanSqs = data.spans[0]
+        t.equals(spanSqs.name, 'SQS DELETE_BATCH from our-queue', 'SQS span named correctly')
+        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
+        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
+        t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
+
+        const spanHttp = data.spans[1]
+        t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
+        t.end()
+      })
+      agent.startTransaction('myTransaction')
+      const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+      const params = getParams('deleteMessageBatch', listener.address().port)
+      sqs.deleteMessageBatch(params, function(err, data) {
+        t.error(err)
         agent.endTransaction()
         listener.close()
       });
