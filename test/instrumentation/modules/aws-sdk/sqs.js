@@ -46,7 +46,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.equals(getActionFromRequest(request), 'delete_batch')
 
     request.operation = 'receiveMessage'
-    t.equals(getActionFromRequest(request), 'receive')
+    t.equals(getActionFromRequest(request), 'poll')
 
     request.operation = 'sendMessage'
     t.equals(getActionFromRequest(request), 'send')
@@ -64,15 +64,15 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
 
     request.operation = 'receiveMessage'
     request.params = {}
-    t.equals(getActionFromRequest(request), 'receive')
+    t.equals(getActionFromRequest(request), 'poll')
 
     request.operation = 'receiveMessage'
     request.params = { WaitTimeSeconds: 0 }
-    t.equals(getActionFromRequest(request), 'receive')
+    t.equals(getActionFromRequest(request), 'poll')
 
     request.operation = 'receiveMessage'
     request.params = { WaitTimeSeconds: -1 }
-    t.equals(getActionFromRequest(request), 'receive')
+    t.equals(getActionFromRequest(request), 'poll')
 
     request.operation = 'receiveMessage'
     request.params = { WaitTimeSeconds: 1 }
@@ -303,10 +303,10 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanHttp.type, 'external', 'first span is for HTTP request')
 
         const spanSqs = data.spans[1]
-        t.equals(spanSqs.name, 'SQS RECEIVE from our-queue', 'SQS span named correctly')
+        t.equals(spanSqs.name, 'SQS POLL from our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'receive', 'span action matches API method called')
+        t.equals(spanSqs.action, 'poll', 'span action matches API method called')
 
         t.end()
       })
