@@ -431,10 +431,11 @@ require('elastic-apm-node').start({
 * *Env:* `ELASTIC_APM_LOG_LEVEL`
 * <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `log_level`
 
-Set the verbosity level for the agent. Note that this does not have any
-influence on the types of errors that are sent to the APM Server. This only
-controls how chatty the agent is in your logs. Possible levels are: `trace`,
-`debug`, `info`, `warning`, `error`, `critical`, and `off`.
+Set the verbosity level for the agent's logging. Note that this does not have
+any influence on the types of errors that are sent to the APM Server. This only
+controls how chatty the agent is in your logs. Possible levels are: `trace`
+(the most verbose logging, avoid in production), `debug`, `info`, `warning`,
+`error`, `critical`, and `off` (disable all logging).
 
 This config only applies when using the built-in logger. Log levels will not
 be automatically applied to a custom <<logger,`logger`>>.
@@ -443,18 +444,23 @@ be automatically applied to a custom <<logger,`logger`>>.
 ==== `logger`
 
 * *Type:* object
+* *Env:* `ELASTIC_APM_LOGGER=false` to _ignore_ a custom logger
 
-Pass in a custom logger. The custom logger must provide `trace`, `debug`,
-`info`, `warn`, `error`, and `fatal` methods that take a string message
-argument.
+By default, the APM agent logs to stdout in
+https://www.elastic.co/guide/en/ecs-logging/overview/current/intro.html[ecs-logging]
+format. Use the `logger` config to pass in a custom logger object. The custom
+logger must provide `trace`, `debug`, `info`, `warn`, `error`, and `fatal`
+methods that take a string message argument.
 
-As of version 3.13, the agent uses structured logging using the
+A custom logger may result in _structured log data being lost_. As of version
+3.13, the agent uses structured logging using the
 https://getpino.io/#/docs/api?id=logger[pino API]. To avoid issues with
-incompatible logger APIs, a given a custom logger is wrapped in such a way
-that only the log _message_ is passed through -- structured log data is
-dropped. As a special case, if the provided logger is a
-_pino logger instance_, then it will be used directly without loss of structured
-fields.
+incompatible logger APIs, a given custom logger is wrapped in such a way that
+only the log message is passed through. As a special case, if the provided
+logger is a _pino logger instance_, then it will be used directly without
+loss of structured fields. Setting the environment variable
+`ELASTIC_APM_LOGGER=false` will *ignore* a custom logger. This is provided to
+assist with <<debug-mode>> troubleshooting.
 
 An example using a custom pino logger:
 
@@ -477,7 +483,7 @@ require('elastic-apm-node').start({
 ----
 
 To get the https://github.com/watson/console-log-level[unstructured logging output]
-used in agent versions before 3.13, use the following:
+similar to agent versions before 3.13, use the following:
 
 [source,js]
 ----
@@ -485,10 +491,6 @@ require('elastic-apm-node').start({
   logger: require('console-log-level')()
 })
 ----
-
-If no custom logger is provided, the agent will log to stdout in
-https://www.elastic.co/guide/en/ecs-logging/overview/current/intro.html[ecs-logging]
-format.
 
 [[capture-exceptions]]
 ==== `captureExceptions`

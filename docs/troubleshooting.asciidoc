@@ -114,9 +114,28 @@ Please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 To enable agent debugging and capture enough information for troubleshooting,
 perform these steps:
 
-1. Start your app with the environment variable `ELASTIC_APM_LOG_LEVEL=trace` or add `logLevel: 'trace'` to the config file or `start(options)` call (see <<log-level,`logLevel`>> for details)
-2. Send a few HTTP requests to some of the app endpoints
-3. Wait at least 10 seconds to allow the agent to try and connect to the APM Server (controlled by <<api-request-time,`apiRequestTime`>>)
+1. Start your app with "trace"-level logging. This can be done by setting the
+   environment variable `ELASTIC_APM_LOG_LEVEL=trace` or adding `logLevel: 'trace'`
+   to the `apm.start(options)` call (see <<log-level,`logLevel`>> for details).
+2. Disable a possible custom `logger` config, because a custom logger can
+   result in structured log data being lost. This can be done by setting the
+   environment variable `ELASTIC_APM_LOGGER=false`.
+3. Send a few HTTP requests to some of the app endpoints and/or reproduce the
+   issue you are seeing.
+4. Wait at least 10 seconds to allow the agent to try and connect to the APM
+   Server (controlled by <<api-request-time,`apiRequestTime`>>).
+
+For example:
+
+[source,bash]
+----
+ELASTIC_APM_LOG_LEVEL=trace ELASTIC_APM_LOGGER=false node app.js | tee -a apm-debug.log
+----
+
+If you are capturing debugging output for Elastic support, for help on the
+Elastic forums, or for a GitHub issue, please *please upload the complete
+debug output* to a service like https://gist.github.com[GitHub Gist] so that
+we can analyze the problem.
 
 [float]
 [[disable-agent]]

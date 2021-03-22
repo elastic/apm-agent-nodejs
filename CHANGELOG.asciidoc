@@ -36,6 +36,10 @@ Notes:
 [float]
 ===== Features
 
+* Add support for setting the `ELASTIC_APM_LOGGER=false` environment variable
+  to disable/ignore a given custom <<logger>>. This is to support easier
+  <<debug-mode>> for troubleshooting.
+
 [float]
 ===== Bug fixes
 
