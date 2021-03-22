@@ -1060,6 +1060,73 @@ test('should accept and normalize cloudProvider', function (t) {
   delete process.env.ELASTIC_APM_CLOUD_PROVIDER
   t.end()
 })
+
+test('should accept and normalize ignoreMessageQueues', function (suite) {
+  suite.test('ignoreMessageQueues defaults', function (t) {
+    const agent = Agent()
+    agent.start()
+    t.equals(
+      agent._conf.ignoreMessageQueues.length,
+      0,
+      'ignore message queue defaults empty'
+    )
+
+    t.equals(
+      agent._conf.ignoreMessageQueuesRegExp.length,
+      0,
+      'ignore message queue regex defaults empty'
+    )
+    t.end()
+  })
+
+  suite.test('ignoreMessageQueues via configuration', function (t) {
+    const agent = Agent()
+    agent.start({ ignoreMessageQueues: ['f*o', 'bar'] })
+    t.equals(
+      agent._conf.ignoreMessageQueues.length,
+      2,
+      'ignore message picks up configured values'
+    )
+
+    t.equals(
+      agent._conf.ignoreMessageQueuesRegExp.length,
+      2,
+      'ignore message queue regex picks up configured values'
+    )
+
+    t.ok(
+      agent._conf.ignoreMessageQueuesRegExp[0].test('faooooo'),
+      'wildcard converted to regular expression'
+    )
+    t.end()
+  })
+
+  suite.test('ignoreMessageQueues via env', function (t) {
+    const agent = Agent()
+    process.env.ELASTIC_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz'
+    agent.start()
+    t.equals(
+      agent._conf.ignoreMessageQueues.length,
+      3,
+      'ignore message queue picks up env values'
+    )
+
+    t.equals(
+      agent._conf.ignoreMessageQueuesRegExp.length,
+      3,
+      'ignore message queue regex picks up env values'
+    )
+
+    t.ok(
+      agent._conf.ignoreMessageQueuesRegExp[0].test('faooooo'),
+      'wildcard converted to regular expression'
+    )
+    t.end()
+  })
+
+  suite.end()
+})
+
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
   t.strictEqual(result.id, trans.id, 'id matches')
