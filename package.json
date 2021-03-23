@@ -102,7 +102,6 @@
     "original-url": "^1.2.3",
     "read-pkg-up": "^7.0.1",
     "relative-microtime": "^2.0.0",
-    "require-ancestors": "^1.0.0",
     "require-in-the-middle": "^5.0.3",
     "semver": "^6.3.0",
     "set-cookie-serde": "^1.0.0",
