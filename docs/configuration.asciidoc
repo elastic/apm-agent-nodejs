@@ -447,10 +447,10 @@ be automatically applied to a custom <<logger,`logger`>>.
 * *Env:* `ELASTIC_APM_LOGGER=false` to _ignore_ a custom logger
 
 By default, the APM agent logs to stdout in
-{ecs-logging-ref}/intro.html[ecs-logging]
-format. Use the `logger` config to pass in a custom logger object. The custom
-logger must provide `trace`, `debug`, `info`, `warn`, `error`, and `fatal`
-methods that take a string message argument.
+{ecs-logging-ref}/intro.html[ecs-logging] format. Use the `logger` config to
+pass in a custom logger object. The custom logger must provide `trace`,
+`debug`, `info`, `warn`, `error`, and `fatal` methods that take a string
+message argument.
 
 A custom logger may result in _structured log data being lost_. As of version
 3.13, the agent uses structured logging using the

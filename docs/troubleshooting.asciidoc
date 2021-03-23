@@ -133,8 +133,8 @@ ELASTIC_APM_LOG_LEVEL=trace ELASTIC_APM_LOGGER=false node app.js | tee -a apm-de
 ----
 
 If you are capturing debugging output for Elastic support, for help on the
-Elastic forums, or for a GitHub issue, *please upload the complete
-debug output* to a service like https://gist.github.com[GitHub Gist] so that
+Elastic forums, or for a GitHub issue, *please upload the complete debug
+output* to a service like https://gist.github.com[GitHub Gist] so that
 we can analyze the problem.
 
 [float]

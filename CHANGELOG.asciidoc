@@ -38,8 +38,8 @@ Notes:
 
 * The APM agent's own internal logging now uses structured JSON logging using
   the https://getpino.io/#/docs/api?id=logger[pino API], and formatted in
-  {ecs-logging-ref}/intro.html[ecs-logging]
-  format. The log records on stdout are now single-line JSON objects. For example:
+  {ecs-logging-ref}/intro.html[ecs-logging] format. The log records on stdout
+  are now single-line JSON objects. For example:
 +
 [source,bash]
 ----
