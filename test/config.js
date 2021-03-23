@@ -227,13 +227,10 @@ test('should log invalid booleans', function (t) {
   t.strictEqual(logger.calls.length, 2)
 
   var warning = logger.calls.shift()
-  t.strictEqual(warning.message, 'unrecognized boolean value "%s" for "%s"')
-  t.strictEqual(warning.args[0], 'nope')
-  t.strictEqual(warning.args[1], 'active')
+  t.strictEqual(warning.message, 'unrecognized boolean value "nope" for "active"')
 
   var debug = logger.calls.shift()
   t.strictEqual(debug.message, 'Elastic APM agent disabled (`active` is false)')
-  t.strictEqual(debug.args.length, 0)
 
   t.end()
 })
@@ -509,7 +506,7 @@ test('serviceName defaults to package name', function (t) {
         action: 'create',
         path: path.join(tmp, 'index.js'),
         contents: `
-          var apm = require('elastic-apm-node').start()
+          var apm = require('elastic-apm-node').start({logLevel: 'off'})
           console.log(JSON.stringify(apm._conf))
         `
       },
@@ -1170,23 +1167,17 @@ class CaptureLogger {
     this.calls = []
   }
 
-  _log (type, message, args) {
+  _log (type, message) {
     this.calls.push({
       type,
-      message,
-      args
+      message
     })
   }
 
-  warn (message, ...args) {
-    this._log('warn', message, args)
-  }
-
-  info (message, ...args) {
-    this._log('info', message, args)
-  }
-
-  debug (message, ...args) {
-    this._log('debug', message, args)
-  }
+  fatal (message) { this._log('fatal', message) }
+  error (message) { this._log('error', message) }
+  warn (message) { this._log('warn', message) }
+  info (message) { this._log('info', message) }
+  debug (message) { this._log('debug', message) }
+  trace (message) { this._log('trace', message) }
 }
