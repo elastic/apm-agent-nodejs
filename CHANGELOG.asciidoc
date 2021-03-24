@@ -37,6 +37,31 @@ Notes:
 ===== Features
 
 * Adds support for Amazon SQS queues via `aws-sdk` instrumentation.
+* The APM agent's own internal logging now uses structured JSON logging using
+  the https://getpino.io/#/docs/api?id=logger[pino API], and formatted in
+  {ecs-logging-ref}/intro.html[ecs-logging] format. The log records on stdout
+  are now single-line JSON objects. For example:
++
+[source,bash]
+----
+# Before
+APM Server transport error (ECONNREFUSED): connect ECONNREFUSED 127.0.0.1:8200
+
+# After
+{"log.level":"error","@timestamp":"2021-03-19T00:21:17.571Z","log":{"logger":"elastic-apm-node"},
+"ecs":{"version":"1.6.0"},"message":"APM Server transport error (ECONNREFUSED): connect ECONNREFUSED 127.0.0.1:8200"}
+----
++
+Pretty formatting (and filtering) on the console may be done via the
+https://github.com/trentm/go-ecslog[`ecslog`] tool.
++
+A custom <<logger>> is still supported as before. However, a non-pino custom
+logger will only receive the "message" field, and not structured log fields
+as they are added over time.
+
+* Add support for setting the `ELASTIC_APM_LOGGER=false` environment variable
+  to disable/ignore a given custom <<logger>>. This is to support easier
+  <<debug-mode>> for troubleshooting.
 
 [float]
 ===== Bug fixes
