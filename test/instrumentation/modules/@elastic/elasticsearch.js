@@ -9,13 +9,21 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
+// Skip (exit the process) if this package version doesn't support this version
+// of node.
+const esVersion = require('@elastic/elasticsearch/package.json').version
+const semver = require('semver')
+if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
+  console.log(`# SKIP @elastic/elasticsearch@${esVersion} does not support node ${process.version}`)
+  process.exit()
+}
+
 // Silence deprecation warning from @elastic/elasticsearch when using a Node.js
 // version that is *soon* to be EOL'd, but isn't yet.
 process.noDeprecation = true
 const { Client } = require('@elastic/elasticsearch')
 
 const { Readable } = require('stream')
-const semver = require('semver')
 const test = require('tape')
 
 const findObjInArray = require('../../../_utils').findObjInArray
