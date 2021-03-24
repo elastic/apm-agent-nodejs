@@ -711,6 +711,7 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
   var expressGraphqlVersion = require('express-graphql/package.json').version
+  var esVersion = require('@elastic/elasticsearch/package.json').version
 
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
@@ -722,6 +723,9 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
     modules.delete('express-graphql')
+  }
+  if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
+    modules.delete('@elastic/elasticsearch')
   }
 
   function testSlice (t, name, selector) {
