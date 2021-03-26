@@ -227,13 +227,10 @@ test('should log invalid booleans', function (t) {
   t.strictEqual(logger.calls.length, 2)
 
   var warning = logger.calls.shift()
-  t.strictEqual(warning.message, 'unrecognized boolean value "%s" for "%s"')
-  t.strictEqual(warning.args[0], 'nope')
-  t.strictEqual(warning.args[1], 'active')
+  t.strictEqual(warning.message, 'unrecognized boolean value "nope" for "active"')
 
   var debug = logger.calls.shift()
   t.strictEqual(debug.message, 'Elastic APM agent disabled (`active` is false)')
-  t.strictEqual(debug.args.length, 0)
 
   t.end()
 })
@@ -509,7 +506,7 @@ test('serviceName defaults to package name', function (t) {
         action: 'create',
         path: path.join(tmp, 'index.js'),
         contents: `
-          var apm = require('elastic-apm-node').start()
+          var apm = require('elastic-apm-node').start({logLevel: 'off'})
           console.log(JSON.stringify(apm._conf))
         `
       },
@@ -714,6 +711,7 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
   var expressGraphqlVersion = require('express-graphql/package.json').version
+  var esVersion = require('@elastic/elasticsearch/package.json').version
 
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
@@ -725,6 +723,9 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
     modules.delete('express-graphql')
+  }
+  if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
+    modules.delete('@elastic/elasticsearch')
   }
 
   function testSlice (t, name, selector) {
@@ -1060,6 +1061,73 @@ test('should accept and normalize cloudProvider', function (t) {
   delete process.env.ELASTIC_APM_CLOUD_PROVIDER
   t.end()
 })
+
+test('should accept and normalize ignoreMessageQueues', function (suite) {
+  suite.test('ignoreMessageQueues defaults', function (t) {
+    const agent = Agent()
+    agent.start()
+    t.equals(
+      agent._conf.ignoreMessageQueues.length,
+      0,
+      'ignore message queue defaults empty'
+    )
+
+    t.equals(
+      agent._conf.ignoreMessageQueuesRegExp.length,
+      0,
+      'ignore message queue regex defaults empty'
+    )
+    t.end()
+  })
+
+  suite.test('ignoreMessageQueues via configuration', function (t) {
+    const agent = Agent()
+    agent.start({ ignoreMessageQueues: ['f*o', 'bar'] })
+    t.equals(
+      agent._conf.ignoreMessageQueues.length,
+      2,
+      'ignore message picks up configured values'
+    )
+
+    t.equals(
+      agent._conf.ignoreMessageQueuesRegExp.length,
+      2,
+      'ignore message queue regex picks up configured values'
+    )
+
+    t.ok(
+      agent._conf.ignoreMessageQueuesRegExp[0].test('faooooo'),
+      'wildcard converted to regular expression'
+    )
+    t.end()
+  })
+
+  suite.test('ignoreMessageQueues via env', function (t) {
+    const agent = Agent()
+    process.env.ELASTIC_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz'
+    agent.start()
+    t.equals(
+      agent._conf.ignoreMessageQueues.length,
+      3,
+      'ignore message queue picks up env values'
+    )
+
+    t.equals(
+      agent._conf.ignoreMessageQueuesRegExp.length,
+      3,
+      'ignore message queue regex picks up env values'
+    )
+
+    t.ok(
+      agent._conf.ignoreMessageQueuesRegExp[0].test('faooooo'),
+      'wildcard converted to regular expression'
+    )
+    t.end()
+  })
+
+  suite.end()
+})
+
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
   t.strictEqual(result.id, trans.id, 'id matches')
@@ -1103,23 +1171,17 @@ class CaptureLogger {
     this.calls = []
   }
 
-  _log (type, message, args) {
+  _log (type, message) {
     this.calls.push({
       type,
-      message,
-      args
+      message
     })
   }
 
-  warn (message, ...args) {
-    this._log('warn', message, args)
-  }
-
-  info (message, ...args) {
-    this._log('info', message, args)
-  }
-
-  debug (message, ...args) {
-    this._log('debug', message, args)
-  }
+  fatal (message) { this._log('fatal', message) }
+  error (message) { this._log('error', message) }
+  warn (message) { this._log('warn', message) }
+  info (message) { this._log('info', message) }
+  debug (message) { this._log('debug', message) }
+  trace (message) { this._log('trace', message) }
 }
