@@ -1,5 +1,5 @@
 [[message-queues]]
-== Message Queues
+== Message queues
 
 The Node.js Agent will automatically create spans for any activity to/from your Amazon SQS message queues.  In order to have those spans recorded, your message queue activity must  occur during a transaction.
 
