@@ -19,7 +19,7 @@ const sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 
 /* ... */
 
-const transaction = apm.startTransaction("Process Messages", 'cli')
+const transaction = apm.startTransaction("Process Messages", 'cli') <1>
 sqs.receiveMessage(params, function(err, data) {
   if(err) {
     console.log("Receive Error", err);
@@ -28,11 +28,11 @@ sqs.receiveMessage(params, function(err, data) {
     /* process messages */
   }
   // end the transaction
-  transaction.end()
+  transaction.end() <2>
 })
 ----
-
-In the above code you can see we've started a transaction before calling the `sqs.receiveMessage` method, and ended it _after_ the queue's processing callback finishes executing.  The will ensure a transaction is active while processing your queue messages.
+<1> Prior to calling the `sqs.receiveMessage` method, start a new transaction.
+<2> Only end the transaction _after_ the queue's processing callback finishes executing. The will ensure a transaction is active while processing your queue messages.
 
 [float]
 [[message-queues-distributed-tracing]]
