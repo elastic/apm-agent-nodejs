@@ -36,7 +36,7 @@ sqs.receiveMessage(params, function(err, data) {
 
 [float]
 [[message-queues-distributed-tracing]]
-=== Distributed Tracing and Messaging Queues
+=== Distributed tracing and messaging queues
 
 Similarly, if you want to connect your queue scheduling and queue processing via distributed tracing, you'll need to use the Node.js Agent's API to _store_ a `traceparent` header with your queue message and then provide that `traceparent` header when starting the new transaction.
 
