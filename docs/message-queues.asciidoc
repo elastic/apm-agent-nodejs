@@ -42,7 +42,7 @@ Similarly, if you want to connect your queue scheduling and queue processing via
 
 Here's an example that uses the Node.js Agent API to store the `traceparent` as a message attribute and then uses that attribute to link your new transaction with the original.
 
-First, when sending the message, we add the trace as one of the `MessageAttributes`
+First, when sending the message, we add the trace as one of the `MessageAttributes`.
 [source,js]
 ----
 // stores the traceparent when sending the queue message
