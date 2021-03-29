@@ -40,7 +40,9 @@ To enable queue scheduling and queue processing with distributed tracing, use th
 
 Here's an example that uses the Node.js Agent API to store the `traceparent` as a message attribute and then uses that attribute to link your new transaction with the original.
 
-First, when sending the message, we add the trace as one of the `MessageAttributes`.
+==== Storing the Traceparent
+
+When sending the message, you'll want to add the trace as one of the `MessageAttributes`.
 [source,js]
 ----
 // stores the traceparent when sending the queue message
@@ -64,7 +66,11 @@ sqs.sendMessage(params, function(err, data) {
 });
 ----
 
-Then, when receiving the messages, we start and end our transaction while looping over the messages.  
+This will save the traceparent value so we can use it later on when receiving the messages.
+
+==== Applying the Traceparent
+
+When we receive our queue messages, we'll check the message for our Traceparent header, and use it to start a new transaction.  By starting a transaction with this traceparent header we'll be linking the sending and receiving via distributed tracing. 
 
 [source,js]
 ----
@@ -92,5 +98,3 @@ sqs.receiveMessage(params, function(err, data) {
 })
 
 ----
-
-Unlike the first code sample, this approach will create a single transaction for each processed queue message.  This allows you to link each individual message with the transaction it started in. The <<apm-start-transaction,`startTransaction()`>> API allows _you_ to control how your queue data is reported to Elastic APM.
