@@ -38,7 +38,7 @@ sqs.receiveMessage(params, function(err, data) {
 
 To enable queue scheduling and queue processing with distributed tracing, use the Node.js Agent's API to _store_ a `traceparent` header with your queue message; then, provide that `traceparent` header when starting a new transaction.
 
-Here's an example that uses the Node.js Agent API to store the `traceparent` as a message attribute and then uses that attribute to link your new transaction with the original.
+Here's a _new_ example that uses the Node.js Agent API to store the `traceparent` as a message attribute and then uses that attribute to link your new transaction with the original.
 
 **Storing the Traceparent**
 
@@ -82,7 +82,7 @@ sqs.receiveMessage(params, function(err, data) {
   }
   
   // loop over your returned messages
-  for(const message of data.Messages) {
+  for(const message of data.Messages) { <1>
     // start a transaction to process each message, using our previously
     // saved distributed tracing traceparent header
     let traceparent
@@ -90,11 +90,15 @@ sqs.receiveMessage(params, function(err, data) {
         traceparent = message.MessageAttributes.MyTraceparent.StringValue
     }
     const transactionMessage = apm.startTransaction('RECEIVE_TRANSACTION', 'cli', {
-      childOf:traceparent
+      childOf:traceparent <2>
     })
     /* ... process message ... */
-    transactionMessage.end()
+    transactionMessage.end() <3>
   }
 })
 
 ----
+<1> Even though we only scheduled one queue message, Amazon's SQS API returns an array of  _multiple_ messages.  Therefore we'll need to loop over each one.
+<2> We extract the traceparent header we'd previously save, and use it to start a transaction.
+<3> Once we're done processing a single message, we end the transaction and move on to the next.
+
