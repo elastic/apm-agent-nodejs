@@ -3,7 +3,7 @@
 
 The Node.js Agent will automatically create spans for any activity to/from your Amazon SQS message queues.  To record these spans, your message queue activity must occur during a transaction.
 
-If you're performing queue operations during an HTTP request from a <<compatibility-frameworks,supported framework>>     the agent will start a transaction automatically.  However, if you're performing queue operations in a stand alone program (such as a message processor) you'll need to use the Node.js Agent's <<apm-start-transaction,`startTransaction()`>> method to create transactions for your messages.
+If you're performing queue operations during an HTTP request from a <<compatibility-frameworks,supported framework>>, the agent will start a transaction automatically.  However, if you're performing queue operations in a stand-alone program (such as a message processor), you'll need to use the Node.js Agent's <<apm-start-transaction,`startTransaction()`>> method to manually create transactions for your messages.
 
 You can see an example of this in the following code sample.
 
