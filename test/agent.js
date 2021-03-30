@@ -649,7 +649,7 @@ test('filters', function (t) {
         setTimeout(function () {
           t.end()
           server.close()
-        }, 1000)
+        }, 200)
       })
     })
 
