@@ -1,7 +1,7 @@
 [[message-queues]]
 == Message queues
 
-The Node.js Agent will automatically create spans for any activity to/from your Amazon SQS message queues.  To record these spans, your message queue activity must occur during a transaction. If you're performing queue operations during an HTTP request from a <<compatibility-frameworks,supported framework>>, the agent will start a transaction automatically.  However, if you're performing queue operations in a stand-alone program (such as a message processor), you'll need to use the Node.js Agent's <<apm-start-transaction,`startTransaction()`>> method to manually create transactions for your messages.
+The Node.js Agent will automatically create spans for activity to/from your Amazon SQS message queues.  To record these spans, your message queue activity must occur during a transaction. If you're performing queue operations during an HTTP request from a <<compatibility-frameworks,supported framework>>, the agent will start a transaction automatically.  However, if you're performing queue operations in a stand-alone program (such as a message processor), you'll need to use the Node.js Agent's <<apm-start-transaction,`startTransaction()`>> method to manually create transactions for your messages.
 
 You can see an example of this in the following code sample.
 
@@ -48,7 +48,7 @@ When sending the message, you'll want to add the trace as one of the `MessageAtt
 // stores the traceparent when sending the queue message
 const traceParent = apm.currentTransaction ? apm.currentTransaction.traceparent : ''
 
-// Use the Amazon SQS `MessageAttributes` to pass 
+// Use the Amazon SQS `MessageAttributes` to pass
 // on the  traceparent header
 const params = {
   /* ... other params ... */
@@ -70,7 +70,7 @@ This will save the traceparent value so we can use it later on when receiving th
 
 **Applying the Traceparent**
 
-When we receive our queue messages, we'll check the message for our Traceparent header, and use it to start a new transaction.  By starting a transaction with this traceparent header we'll be linking the sending and receiving via distributed tracing. 
+When we receive our queue messages, we'll check the message for our Traceparent header, and use it to start a new transaction.  By starting a transaction with this traceparent header we'll be linking the sending and receiving via distributed tracing.
 
 [source,js]
 ----
@@ -80,7 +80,7 @@ sqs.receiveMessage(params, function(err, data) {
   if(!data.Messages) {
     return
   }
-  
+
   // loop over your returned messages
   for(const message of data.Messages) { <1>
     // start a transaction to process each message, using our previously
