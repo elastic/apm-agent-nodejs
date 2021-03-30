@@ -140,8 +140,15 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     const agent = {
       _conf: {
         ignoreMessageQueuesRegExp: []
+      },
+      logger: {
+        trace: function () {
+        }
       }
     }
+    t.equals(shouldIgnoreRequest(request, agent), true)
+
+    agent.currentTransaction = { mocked: 'transaction' }
     t.equals(shouldIgnoreRequest(request, agent), false)
 
     agent._conf.ignoreMessageQueuesRegExp.push(/b.*g/)
@@ -193,6 +200,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
 
         const spanHttp = data.spans[1]
         t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
@@ -220,6 +228,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
 
         const spanHttp = data.spans[1]
         t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
@@ -248,6 +257,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
 
         const spanHttp = data.spans[1]
         t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
@@ -276,6 +286,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
 
         const spanHttp = data.spans[1]
         t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
@@ -299,15 +310,16 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
         t.equals(data.spans.length, 2, 'generated two spans')
-        const spanHttp = data.spans[0]
-        t.equals(spanHttp.type, 'external', 'first span is for HTTP request')
 
-        const spanSqs = data.spans[1]
+        const spanSqs = data.spans[0]
         t.equals(spanSqs.name, 'SQS POLL from our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'poll', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
 
+        const spanHttp = data.spans[1]
+        t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
         t.end()
       })
       agent.startTransaction('myTransaction')
