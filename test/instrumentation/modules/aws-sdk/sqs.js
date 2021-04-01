@@ -188,6 +188,10 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.end()
   })
 
+  test.end()
+})
+
+tape.test('AWS SQS: End to End Tests', function (test) {
   test.test('API: sendMessage', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessage')
@@ -373,6 +377,64 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     })
   })
 
+  test.test('API: sendMessage without a transaction', function (t) {
+    const app = createMockServer(
+      getXmlResponse('sendMessage')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        t.equals(data.spans.length, 0, 'no spans without a transaction')
+        t.end()
+      })
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('sendMessage', listener.address().port)
+      sqs.sendMessage(params, function (err, data) {
+        t.error(err)
+        listener.close()
+      })
+    })
+  })
+
+  test.test('API: sendMessage promise', function (t) {
+    const app = createMockServer(
+      getXmlResponse('sendMessage')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        console.log(data)
+        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+
+        t.equals(spanSqs.name, 'SQS SEND to our-queue', 'SQS span named correctly')
+        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
+        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
+        t.equals(spanSqs.action, 'send', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+
+        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
+        t.end()
+      })
+      agent.startTransaction('myTransaction')
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('sendMessage', listener.address().port)
+      const request = sqs.sendMessage(params).promise()
+
+      function awsPromiseFinally() {
+        agent.endTransaction()
+        listener.close()
+      }
+
+      request.then(
+        function(data){
+          awsPromiseFinally()
+        },
+        function(err){
+          t.fail(err)
+          awsPromiseFinally()
+        }
+      )
+    })
+  })
   test.end()
 })
 
