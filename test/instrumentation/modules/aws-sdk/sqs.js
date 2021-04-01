@@ -401,7 +401,6 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        console.log(data)
         const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
 
         t.equals(spanSqs.name, 'SQS SEND to our-queue', 'SQS span named correctly')
@@ -419,24 +418,164 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       const params = getParams('sendMessage', listener.address().port)
       const request = sqs.sendMessage(params).promise()
 
-      function awsPromiseFinally() {
-        agent.endTransaction()
-        listener.close()
-      }
-
       request.then(
         function(data){
-          awsPromiseFinally()
+          awsPromiseFinally(agent, listener)
         },
         function(err){
           t.fail(err)
-          awsPromiseFinally()
+          awsPromiseFinally(agent, listener)
+        }
+      )
+    })
+  })
+
+  test.test('API: sendMessageBatch promise', function (t) {
+    const app = createMockServer(
+      getXmlResponse('sendMessageBatch')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+
+        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
+
+        t.equals(spanSqs.name, 'SQS SEND_BATCH to our-queue', 'SQS span named correctly')
+        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
+        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
+        t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+
+        t.end()
+      })
+      agent.startTransaction('myTransaction')
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('sendMessageBatch', listener.address().port)
+      const promise = sqs.sendMessageBatch(params).promise()
+      promise.then(
+        function(data){
+          awsPromiseFinally(agent, listener)
+        },
+        function(err){
+          t.fail(err)
+          awsPromiseFinally(agent, listener)
+        }
+      )
+    })
+  })
+  test.test('API: deleteMessage promise', function (t) {
+    const app = createMockServer(
+      getXmlResponse('deleteMessage')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+
+        t.equals(spanSqs.name, 'SQS DELETE from our-queue', 'SQS span named correctly')
+        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
+        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
+        t.equals(spanSqs.action, 'delete', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+
+        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
+
+        t.end()
+      })
+      agent.startTransaction('myTransaction')
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('deleteMessage', listener.address().port)
+      const promise = sqs.deleteMessage(params).promise()
+      promise.then(
+        function(data){
+          awsPromiseFinally(agent, listener)
+        },
+        function(err){
+          t.fail(err)
+          awsPromiseFinally(agent, listener)
+        }
+      )
+
+    })
+  })
+
+  test.test('API: deleteMessageBatch promise', function (t) {
+    const app = createMockServer(
+      getXmlResponse('deleteMessageBatch')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+
+        t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
+
+        t.equals(spanSqs.name, 'SQS DELETE_BATCH from our-queue', 'SQS span named correctly')
+        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
+        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
+        t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+
+        t.end()
+      })
+      agent.startTransaction('myTransaction')
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('deleteMessageBatch', listener.address().port)
+      const promise = sqs.deleteMessageBatch(params).promise()
+      promise.then(
+        function(data){
+          awsPromiseFinally(agent, listener)
+        },
+        function(err){
+          t.fail(err)
+          awsPromiseFinally(agent, listener)
+        }
+      )
+    })
+  })
+
+  test.test('API: receiveMessage promise', function (t) {
+    const app = createMockServer(
+      getXmlResponse('receiveMessage')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+
+        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
+
+        t.equals(spanSqs.name, 'SQS POLL from our-queue', 'SQS span named correctly')
+        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
+        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
+        t.equals(spanSqs.action, 'poll', 'span action matches API method called')
+        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+
+        t.end()
+      })
+      agent.startTransaction('myTransaction')
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('receiveMessage', listener.address().port)
+      const promise = sqs.receiveMessage(params).promise()
+      promise.then(
+        function(data){
+          awsPromiseFinally(agent, listener)
+        },
+        function(err){
+          t.fail(err)
+          awsPromiseFinally(agent, listener)
         }
       )
     })
   })
   test.end()
 })
+
+function awsPromiseFinally(agent, listener) {
+  agent.endTransaction()
+  listener.close()
+}
 
 function createMockServer (xmlResponse) {
   const app = express()
