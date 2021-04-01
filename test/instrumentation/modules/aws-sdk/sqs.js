@@ -12,6 +12,7 @@ const AWS = require('aws-sdk')
 const express = require('express')
 const bodyParser = require('body-parser')
 const fixtures = require('./fixtures-sqs')
+const logging = require('../../../../lib/logging')
 const mockClient = require('../../../_mock_http_client')
 
 const {
@@ -141,10 +142,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
       _conf: {
         ignoreMessageQueuesRegExp: []
       },
-      logger: {
-        trace: function () {
-        }
-      }
+      logger: logging.createLogger('off')
     }
     t.equals(shouldIgnoreRequest(request, agent), true)
 
@@ -419,10 +417,10 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       const request = sqs.sendMessage(params).promise()
 
       request.then(
-        function(data){
+        function (data) {
           awsPromiseFinally(agent, listener)
         },
-        function(err){
+        function (err) {
           t.fail(err)
           awsPromiseFinally(agent, listener)
         }
@@ -454,10 +452,10 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       const params = getParams('sendMessageBatch', listener.address().port)
       const promise = sqs.sendMessageBatch(params).promise()
       promise.then(
-        function(data){
+        function (data) {
           awsPromiseFinally(agent, listener)
         },
-        function(err){
+        function (err) {
           t.fail(err)
           awsPromiseFinally(agent, listener)
         }
@@ -488,15 +486,14 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       const params = getParams('deleteMessage', listener.address().port)
       const promise = sqs.deleteMessage(params).promise()
       promise.then(
-        function(data){
+        function (data) {
           awsPromiseFinally(agent, listener)
         },
-        function(err){
+        function (err) {
           t.fail(err)
           awsPromiseFinally(agent, listener)
         }
       )
-
     })
   })
 
@@ -524,10 +521,10 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       const params = getParams('deleteMessageBatch', listener.address().port)
       const promise = sqs.deleteMessageBatch(params).promise()
       promise.then(
-        function(data){
+        function (data) {
           awsPromiseFinally(agent, listener)
         },
-        function(err){
+        function (err) {
           t.fail(err)
           awsPromiseFinally(agent, listener)
         }
@@ -559,10 +556,10 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       const params = getParams('receiveMessage', listener.address().port)
       const promise = sqs.receiveMessage(params).promise()
       promise.then(
-        function(data){
+        function (data) {
           awsPromiseFinally(agent, listener)
         },
-        function(err){
+        function (err) {
           t.fail(err)
           awsPromiseFinally(agent, listener)
         }
@@ -572,7 +569,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
   test.end()
 })
 
-function awsPromiseFinally(agent, listener) {
+function awsPromiseFinally (agent, listener) {
   agent.endTransaction()
   listener.close()
 }
