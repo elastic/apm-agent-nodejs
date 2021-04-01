@@ -201,6 +201,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send', 'span action matches API method called')
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
         t.end()
@@ -230,6 +231,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
       })
@@ -257,6 +259,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete', 'span action matches API method called')
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
 
@@ -288,6 +291,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
       })
@@ -317,6 +321,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'poll', 'span action matches API method called')
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
       })
