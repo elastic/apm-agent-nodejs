@@ -6,7 +6,7 @@ delete process.env.ELASTIC_APM_CENTRAL_CONFIG
 const { URL } = require('url')
 const http = require('http')
 
-const test = require('tape')
+const test = require('tap').test
 const Agent = require('./_agent')
 
 const runTestsWithServer = (t, updates, expect) => {

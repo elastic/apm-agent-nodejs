@@ -1,6 +1,6 @@
 'use strict'
 
-var test = require('tape')
+var test = require('tap').test
 
 const http = require('http')
 const { httpRequest } = require('../lib/http-request')

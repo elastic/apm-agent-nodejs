@@ -3,17 +3,13 @@
 var http = require('http')
 var path = require('path')
 
-var test = require('tape')
+var test = require('tap').test
 
+var logging = require('../lib/logging')
 var parsers = require('../lib/parsers')
 var stackman = require('../lib/stackman')
 
-var logger = {
-  error () {},
-  warn () {},
-  info () {},
-  debug () {}
-}
+var logger = logging.createLogger('off')
 
 test('#parseMessage()', function (t) {
   t.test('should parse string', function (t) {
@@ -39,6 +35,8 @@ test('#parseMessage()', function (t) {
     t.deepEqual(data, { log: { message: 'null' } })
     t.end()
   })
+
+  t.end()
 })
 
 test('#getContextFromResponse()', function (t) {
@@ -116,6 +114,8 @@ test('#getContextFromResponse()', function (t) {
       res.end()
     })
   })
+
+  t.end()
 })
 
 test('#getContextFromRequest()', function (t) {
@@ -274,6 +274,8 @@ test('#getContextFromRequest()', function (t) {
     t.end()
   })
 
+  t.end()
+
   function getMockReq () {
     return {
       httpVersion: '1.1',
@@ -304,7 +306,7 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error(), true, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.test.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.strictEqual(parsed.exception.message, '')
@@ -328,7 +330,7 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error('Crap'), true, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.test.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.strictEqual(parsed.exception.message, 'Crap')
@@ -352,7 +354,7 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new TypeError('Crap'), true, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.test.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.strictEqual(parsed.exception.message, 'Crap')
@@ -379,7 +381,7 @@ test('#parseError()', function (t) {
     } catch (e) {
       parsers.parseError(e, true, fakeAgent, function (err, parsed) {
         t.error(err)
-        t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+        t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.test.js')})`)
         t.notOk('log' in parsed)
         t.ok('exception' in parsed)
         t.strictEqual(parsed.exception.message, 'Derp')
@@ -408,7 +410,7 @@ test('#parseError()', function (t) {
     } catch (e) {
       parsers.parseError(e, true, fakeAgent, function (err, parsed) {
         t.error(err)
-        t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+        t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.test.js')})`)
         t.notOk('log' in parsed)
         t.ok('exception' in parsed)
         t.strictEqual(parsed.exception.message, 'Cannot read property \'Derp\' of undefined')
@@ -435,7 +437,7 @@ test('#parseError()', function (t) {
     t.ok(typeof err.stack === 'string')
     parsers.parseError(err, true, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.test.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.strictEqual(parsed.exception.message, 'foo')
@@ -561,7 +563,7 @@ test('#parseError()', function (t) {
     }
     parsers.parseError(new Error(), true, fakeAgent, function (err, parsed) {
       t.error(err)
-      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.js')})`)
+      t.strictEqual(parsed.culprit, `Test.<anonymous> (${path.join('test', 'parsers.test.js')})`)
       t.notOk('log' in parsed)
       t.ok('exception' in parsed)
       t.strictEqual(parsed.exception.message, '')
@@ -680,6 +682,8 @@ test('#parseError()', function (t) {
       t.end()
     })
   })
+
+  t.end()
 })
 
 test('#_moduleNameFromFrames()', function (suite) {
@@ -801,6 +805,8 @@ test('#parseCallsite()', function (t) {
       validateParseCallsite(t, opts)
     })
   })
+
+  t.end()
 })
 
 function validateParseCallsite (t, opts) {

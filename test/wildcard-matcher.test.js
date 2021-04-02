@@ -1,5 +1,6 @@
 'use strict'
-var test = require('tape')
+
+var test = require('tap').test
 
 const { WildcardMatcher } = require('../lib/wildcard-matcher')
 

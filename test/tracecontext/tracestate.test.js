@@ -1,6 +1,9 @@
-var test = require('tape')
+'use strict'
+
+const test = require('tap').test
 
 const TraceState = require('../../lib/tracecontext/tracestate')
+
 test('TraceState binary format functionality', function (t) {
   const stringFormat = 'foo=34f067aa0ba902b7,bar=0.25,es=a:b;cee:de,34@ree=xxxy'
   const tracestate = TraceState.fromStringFormatString(stringFormat)

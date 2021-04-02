@@ -12,7 +12,7 @@ var mkdirp = require('mkdirp')
 var pFinally = require('p-finally')
 var rimraf = require('rimraf')
 var semver = require('semver')
-var test = require('tape')
+var test = require('tap').test
 
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
@@ -24,6 +24,65 @@ var apmName = require('../package').name
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
 process.env._ELASTIC_APM_ASYNC_HOOKS_RESETTABLE = 'true'
+process.noDeprecation = true // disable warning from @elastic/elasticsearch on Node <=10
+
+class CaptureLogger {
+  constructor () {
+    this.calls = []
+  }
+
+  _log (type, message) {
+    this.calls.push({
+      type,
+      message
+    })
+  }
+
+  fatal (message) { this._log('fatal', message) }
+  error (message) { this._log('error', message) }
+  warn (message) { this._log('warn', message) }
+  info (message) { this._log('info', message) }
+  debug (message) { this._log('debug', message) }
+  trace (message) { this._log('trace', message) }
+}
+
+function assertEncodedTransaction (t, trans, result) {
+  t.comment('transaction')
+  t.strictEqual(result.id, trans.id, 'id matches')
+  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
+  t.strictEqual(result.parent_id, trans.parentId, 'parent id matches')
+  t.strictEqual(result.name, trans.name, 'name matches')
+  t.strictEqual(result.type, trans.type || 'custom', 'type matches')
+  t.strictEqual(result.duration, trans._timer.duration, 'duration matches')
+  t.strictEqual(result.timestamp, trans.timestamp, 'timestamp matches')
+  t.strictEqual(result.result, trans.result, 'result matches')
+  t.strictEqual(result.sampled, trans.sampled, 'sampled matches')
+}
+
+function assertEncodedSpan (t, span, result) {
+  t.comment('span')
+  t.strictEqual(result.id, span.id, 'id matches')
+  t.strictEqual(result.transaction_id, span.transaction.id, 'transaction id matches')
+  t.strictEqual(result.trace_id, span.traceId, 'trace id matches')
+  t.strictEqual(result.parent_id, span.parentId, 'parent id matches')
+  t.strictEqual(result.name, span.name, 'name matches')
+  t.strictEqual(result.type, span.type || 'custom', 'type matches')
+  t.strictEqual(result.duration, span._timer.duration, 'duration matches')
+  t.strictEqual(result.timestamp, span.timestamp, 'timestamp matches')
+}
+
+function assertEncodedError (t, error, result, trans, parent) {
+  t.comment('error')
+  t.ok(result.id, 'has a valid id')
+  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
+  t.strictEqual(result.transaction_id, trans.id, 'transaction id matches')
+  t.strictEqual(result.parent_id, parent.id, 'parent id matches')
+  t.ok(result.exception, 'has an exception object')
+  t.strictEqual(result.exception.message, error.message, 'exception message matches')
+  t.strictEqual(result.exception.type, error.constructor.name, 'exception type matches')
+  t.ok(result.culprit, 'has a valid culprit')
+  t.ok(result.timestamp, 'has a valid timestamp')
+}
 
 var optionFixtures = [
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
@@ -86,6 +145,7 @@ optionFixtures.forEach(function (fixture) {
     var array = Array.isArray(fixture[2])
     var envName = 'ELASTIC_APM_' + fixture[1]
     var existingValue = process.env[envName]
+    var logger = new CaptureLogger()
 
     test(`should be configurable by environment variable ${envName}`, function (t) {
       var agent = Agent()
@@ -105,7 +165,7 @@ optionFixtures.forEach(function (fixture) {
 
       process.env[envName] = value.toString()
 
-      agent.start()
+      agent.start({ logger })
 
       if (array) {
         t.deepEqual(agent._conf[fixture[0]], [value])
@@ -124,7 +184,7 @@ optionFixtures.forEach(function (fixture) {
 
     test(`should overwrite option property ${fixture[0]} by ${envName}`, function (t) {
       var agent = Agent()
-      var opts = {}
+      var opts = { logger }
       var value1, value2
 
       if (bool) {
@@ -176,7 +236,7 @@ optionFixtures.forEach(function (fixture) {
     }
 
     var agent = Agent()
-    agent.start()
+    agent.start({ logger })
     if (array) {
       t.deepEqual(agent._conf[fixture[0]], fixture[2])
     } else {
@@ -195,7 +255,7 @@ falsyValues.forEach(function (val) {
   test('should be disabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
-    agent.start({ serviceName: 'foo', secretToken: 'baz' })
+    agent.start({ logLevel: 'off', serviceName: 'foo', secretToken: 'baz' })
     t.strictEqual(agent._conf.active, false)
     delete process.env.ELASTIC_APM_ACTIVE
     t.end()
@@ -206,7 +266,7 @@ truthyValues.forEach(function (val) {
   test('should be enabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
     var agent = Agent()
     process.env.ELASTIC_APM_ACTIVE = val
-    agent.start({ serviceName: 'foo', secretToken: 'baz' })
+    agent.start({ logLevel: 'off', serviceName: 'foo', secretToken: 'baz' })
     t.strictEqual(agent._conf.active, true)
     delete process.env.ELASTIC_APM_ACTIVE
     t.end()
@@ -242,7 +302,7 @@ var MINUS_ONE_EQUAL_INFINITY = [
 MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
   test(key + ' should be Infinity if set to -1', function (t) {
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = -1
     agent.start(opts)
     t.strictEqual(agent._conf[key], Infinity)
@@ -258,7 +318,7 @@ var bytesValues = [
 bytesValues.forEach(function (key) {
   test(key + ' should be converted to a number', function (t) {
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = '1mb'
     agent.start(opts)
     t.strictEqual(agent._conf[key], 1024 * 1024)
@@ -283,7 +343,7 @@ timeValues.forEach(function (key) {
     }
 
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = '1m'
     agent.start(opts)
     t.strictEqual(agent._conf[key], 60)
@@ -299,7 +359,7 @@ timeValues.forEach(function (key) {
     }
 
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = '2000ms'
     agent.start(opts)
     t.strictEqual(agent._conf[key], 2)
@@ -315,7 +375,7 @@ timeValues.forEach(function (key) {
     }
 
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = '5s'
     agent.start(opts)
     t.strictEqual(agent._conf[key], 5)
@@ -331,7 +391,7 @@ timeValues.forEach(function (key) {
     }
 
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = 10
     agent.start(opts)
     t.strictEqual(agent._conf[key], 10)
@@ -360,7 +420,7 @@ keyValuePairValues.forEach(function (key) {
 
   test(key + ' should support string form', function (t) {
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = string
     agent._config(opts)
     t.deepEqual(agent._conf[key], pairs)
@@ -369,7 +429,7 @@ keyValuePairValues.forEach(function (key) {
 
   test(key + ' should support object form', function (t) {
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = object
     agent._config(opts)
     t.deepEqual(agent._conf[key], pairs)
@@ -378,7 +438,7 @@ keyValuePairValues.forEach(function (key) {
 
   test(key + ' should support pair form', function (t) {
     var agent = Agent()
-    var opts = {}
+    var opts = { logLevel: 'off' }
     opts[key] = pairs
     agent._config(opts)
     t.deepEqual(agent._conf[key], pairs)
@@ -398,7 +458,7 @@ noPrefixValues.forEach(function (pair) {
   test(`maps ${envVar} to ${key}`, (t) => {
     var agent = Agent()
     process.env[envVar] = 'test'
-    agent.start()
+    agent.start({ logLevel: 'off' })
     delete process.env[envVar]
     t.strictEqual(agent._conf[key], 'test')
     t.end()
@@ -407,7 +467,7 @@ noPrefixValues.forEach(function (pair) {
 
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
   var agent = Agent()
-  var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
+  var opts = { logLevel: 'off', serviceName: 'foo', secretToken: 'baz', active: true }
   process.env.ELASTIC_APM_ACTIVE = 'false'
   agent.start(opts)
   t.strictEqual(agent._conf.active, false)
@@ -471,19 +531,25 @@ test('should compile wildcards from string', function (t) {
 
 test('invalid serviceName => inactive', function (t) {
   var agent = Agent()
-  agent.start({ serviceName: 'foo&bar' })
+  agent.start({
+    serviceName: 'foo&bar',
+    logLevel: 'off'
+  })
   t.strictEqual(agent._conf.active, false)
   t.end()
 })
 
 test('valid serviceName => active', function (t) {
   var agent = Agent()
-  agent.start({ serviceName: 'fooBAR0123456789_- ' })
+  agent.start({
+    serviceName: 'fooBAR0123456789_- ',
+    logLevel: 'off'
+  })
   t.strictEqual(agent._conf.active, true)
   t.end()
 })
 
-test('serviceName defaults to package name', function (t) {
+test('serviceName defaults to package name', function (suite) {
   var mkdirpPromise = util.promisify(mkdirp)
   var rimrafPromise = util.promisify(rimraf)
   var writeFile = util.promisify(fs.writeFile)
@@ -567,7 +633,7 @@ test('serviceName defaults to package name', function (t) {
         return JSON.parse(result.stdout)
       })
       .catch(err => {
-        t.error(err)
+        suite.error(err)
       })
 
     return pFinally(promise, () => {
@@ -575,7 +641,7 @@ test('serviceName defaults to package name', function (t) {
     })
   }
 
-  t.test('should be active when valid', function (t) {
+  suite.test('should be active when valid', function (t) {
     var pkg = {
       name: 'valid'
     }
@@ -587,7 +653,7 @@ test('serviceName defaults to package name', function (t) {
     })
   })
 
-  t.test('should be inactive when blank', function (t) {
+  suite.test('should be inactive when blank', function (t) {
     var pkg = {
       name: ''
     }
@@ -599,7 +665,7 @@ test('serviceName defaults to package name', function (t) {
     })
   })
 
-  t.test('should be inactive when missing', function (t) {
+  suite.test('should be inactive when missing', function (t) {
     var pkg = {}
 
     return testServiceConfig(pkg).then(conf => {
@@ -608,7 +674,7 @@ test('serviceName defaults to package name', function (t) {
     })
   })
 
-  t.test('serviceVersion should default to package version', function (t) {
+  suite.test('serviceVersion should default to package version', function (t) {
     var pkg = {
       version: '1.2.3'
     }
@@ -618,6 +684,8 @@ test('serviceName defaults to package name', function (t) {
       t.end()
     })
   })
+
+  suite.end()
 })
 
 var captureBodyTests = [
@@ -635,7 +703,8 @@ captureBodyTests.forEach(function (captureBodyTest) {
     agent.start({
       serviceName: 'test',
       captureExceptions: false,
-      captureBody: captureBodyTest.value
+      captureBody: captureBodyTest.value,
+      logLevel: 'off'
     })
 
     var sendError = agent._transport.sendError
@@ -684,7 +753,8 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
     agent.start({
       serviceName: 'test',
       captureExceptions: false,
-      usePathAsTransactionName: usePathAsTransactionNameTest.value
+      usePathAsTransactionName: usePathAsTransactionNameTest.value,
+      logLevel: 'off'
     })
 
     var sendTransaction = agent._transport.sendTransaction
@@ -737,7 +807,8 @@ test('disableInstrumentations', function (t) {
       agent.start({
         serviceName: 'service',
         disableInstrumentations: selection,
-        captureExceptions: false
+        captureExceptions: false,
+        logLevel: 'off'
       })
 
       var found = new Set()
@@ -775,6 +846,7 @@ test('disableInstrumentations', function (t) {
 test('custom transport', function (t) {
   var agent = Agent()
   agent.start({
+    logLevel: 'off',
     captureExceptions: false,
     serviceName: 'fooBAR0123456789_- ',
     transport () {
@@ -839,7 +911,8 @@ test('addPatch', function (t) {
   const agent = Agent()
   agent.start({
     addPatch: 'express=./test/_patch.js',
-    captureExceptions: false
+    captureExceptions: false,
+    logLevel: 'off'
   })
 
   t.deepEqual(require('express'), patch(before))
@@ -1021,42 +1094,47 @@ test('transactionSampleRate precision', function (t) {
 
 test('should accept and normalize cloudProvider', function (t) {
   const agentDefault = Agent()
-  agentDefault.start()
+  agentDefault.start({ logLevel: 'off' })
   t.equals(agentDefault._conf.cloudProvider, 'auto', 'cloudProvider config defaults to auto')
 
   const agentGcp = Agent()
   agentGcp.start({
+    logLevel: 'off',
     cloudProvider: 'gcp'
   })
   t.equals(agentGcp._conf.cloudProvider, 'gcp', 'cloudProvider can be set to gcp')
 
   const agentAzure = Agent()
   agentAzure.start({
+    logLevel: 'off',
     cloudProvider: 'azure'
   })
   t.equals(agentAzure._conf.cloudProvider, 'azure', 'cloudProvider can be set to azure')
 
   const agentAws = Agent()
   agentAws.start({
+    logLevel: 'off',
     cloudProvider: 'aws'
   })
   t.equals(agentAws._conf.cloudProvider, 'aws', 'cloudProvider can be set to aws')
 
   const agentNone = Agent()
   agentNone.start({
+    logLevel: 'off',
     cloudProvider: 'none'
   })
   t.equals(agentNone._conf.cloudProvider, 'none', 'cloudProvider can be set to none')
 
   const agentUnknown = Agent()
   agentUnknown.start({
+    logLevel: 'off',
     cloudProvider: 'this-is-not-a-thing'
   })
   t.equals(agentUnknown._conf.cloudProvider, 'auto', 'unknown cloudProvider defaults to auto')
 
   const agentGcpFromEnv = Agent()
   process.env.ELASTIC_APM_CLOUD_PROVIDER = 'gcp'
-  agentGcpFromEnv.start()
+  agentGcpFromEnv.start({ logLevel: 'off' })
   t.equals(agentGcpFromEnv._conf.cloudProvider, 'gcp', 'cloudProvider can be set via env')
   delete process.env.ELASTIC_APM_CLOUD_PROVIDER
   t.end()
@@ -1065,7 +1143,7 @@ test('should accept and normalize cloudProvider', function (t) {
 test('should accept and normalize ignoreMessageQueues', function (suite) {
   suite.test('ignoreMessageQueues defaults', function (t) {
     const agent = Agent()
-    agent.start()
+    agent.start({ logLevel: 'off' })
     t.equals(
       agent._conf.ignoreMessageQueues.length,
       0,
@@ -1082,7 +1160,10 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
 
   suite.test('ignoreMessageQueues via configuration', function (t) {
     const agent = Agent()
-    agent.start({ ignoreMessageQueues: ['f*o', 'bar'] })
+    agent.start({
+      logLevel: 'off',
+      ignoreMessageQueues: ['f*o', 'bar']
+    })
     t.equals(
       agent._conf.ignoreMessageQueues.length,
       2,
@@ -1105,7 +1186,7 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
   suite.test('ignoreMessageQueues via env', function (t) {
     const agent = Agent()
     process.env.ELASTIC_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz'
-    agent.start()
+    agent.start({ logLevel: 'off' })
     t.equals(
       agent._conf.ignoreMessageQueues.length,
       3,
@@ -1127,61 +1208,3 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
 
   suite.end()
 })
-
-function assertEncodedTransaction (t, trans, result) {
-  t.comment('transaction')
-  t.strictEqual(result.id, trans.id, 'id matches')
-  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
-  t.strictEqual(result.parent_id, trans.parentId, 'parent id matches')
-  t.strictEqual(result.name, trans.name, 'name matches')
-  t.strictEqual(result.type, trans.type || 'custom', 'type matches')
-  t.strictEqual(result.duration, trans._timer.duration, 'duration matches')
-  t.strictEqual(result.timestamp, trans.timestamp, 'timestamp matches')
-  t.strictEqual(result.result, trans.result, 'result matches')
-  t.strictEqual(result.sampled, trans.sampled, 'sampled matches')
-}
-
-function assertEncodedSpan (t, span, result) {
-  t.comment('span')
-  t.strictEqual(result.id, span.id, 'id matches')
-  t.strictEqual(result.transaction_id, span.transaction.id, 'transaction id matches')
-  t.strictEqual(result.trace_id, span.traceId, 'trace id matches')
-  t.strictEqual(result.parent_id, span.parentId, 'parent id matches')
-  t.strictEqual(result.name, span.name, 'name matches')
-  t.strictEqual(result.type, span.type || 'custom', 'type matches')
-  t.strictEqual(result.duration, span._timer.duration, 'duration matches')
-  t.strictEqual(result.timestamp, span.timestamp, 'timestamp matches')
-}
-
-function assertEncodedError (t, error, result, trans, parent) {
-  t.comment('error')
-  t.ok(result.id, 'has a valid id')
-  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
-  t.strictEqual(result.transaction_id, trans.id, 'transaction id matches')
-  t.strictEqual(result.parent_id, parent.id, 'parent id matches')
-  t.ok(result.exception, 'has an exception object')
-  t.strictEqual(result.exception.message, error.message, 'exception message matches')
-  t.strictEqual(result.exception.type, error.constructor.name, 'exception type matches')
-  t.ok(result.culprit, 'has a valid culprit')
-  t.ok(result.timestamp, 'has a valid timestamp')
-}
-
-class CaptureLogger {
-  constructor () {
-    this.calls = []
-  }
-
-  _log (type, message) {
-    this.calls.push({
-      type,
-      message
-    })
-  }
-
-  fatal (message) { this._log('fatal', message) }
-  error (message) { this._log('error', message) }
-  warn (message) { this._log('warn', message) }
-  info (message) { this._log('info', message) }
-  debug (message) { this._log('debug', message) }
-  trace (message) { this._log('trace', message) }
-}

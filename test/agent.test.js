@@ -6,7 +6,7 @@ var os = require('os')
 
 var { sync: containerInfo } = require('container-info')
 var isError = require('core-util-is').isError
-var test = require('tape')
+var test = require('tap').test
 
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
@@ -17,6 +17,95 @@ var inContainer = 'containerId' in (containerInfo() || {})
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
+process.env.ELASTIC_APM_LOG_LEVEL = 'off'
+
+// ---- support functions
+
+function assertMetadata (t, payload) {
+  t.strictEqual(payload.service.name, 'some-service-name')
+  t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
+  t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version })
+
+  const expectedSystemKeys = ['hostname', 'architecture', 'platform']
+  if (inContainer) expectedSystemKeys.push('container')
+
+  t.deepEqual(Object.keys(payload.system), expectedSystemKeys)
+  t.strictEqual(payload.system.hostname, os.hostname())
+  t.strictEqual(payload.system.architecture, process.arch)
+  t.strictEqual(payload.system.platform, process.platform)
+
+  if (inContainer) {
+    t.deepEqual(Object.keys(payload.system.container), ['id'])
+    t.strictEqual(typeof payload.system.container.id, 'string')
+    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id))
+  }
+
+  t.ok(payload.process)
+  t.strictEqual(payload.process.pid, process.pid)
+  t.ok(payload.process.pid > 0, 'should have a pid greater than 0')
+  t.ok(payload.process.title, 'should have a process title')
+  t.strictEqual(payload.process.title, process.title)
+  t.deepEqual(payload.process.argv, process.argv)
+  t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
+}
+assertMetadata.asserts = inContainer ? 17 : 14
+
+function assertTransaction (t, trans, name, input, output) {
+  t.strictEqual(trans.name, name)
+  t.strictEqual(trans.type, 'lambda')
+  t.strictEqual(trans.result, 'success')
+  t.ok(trans.context)
+  var custom = trans.context.custom
+  t.ok(custom)
+  var lambda = custom.lambda
+  t.ok(lambda)
+  t.deepEqual(lambda.input, input)
+  t.strictEqual(lambda.output, output)
+}
+assertTransaction.asserts = 8
+
+function assertStackTrace (t, stacktrace) {
+  t.ok(stacktrace !== undefined, 'should have a stack trace')
+  t.ok(Array.isArray(stacktrace), 'stack trace should be an array')
+  t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
+  t.strictEqual(stacktrace[0].filename, path.join('test', 'agent.test.js'))
+}
+assertStackTrace.asserts = 4
+
+function validateRequest (t) {
+  return function (req) {
+    t.strictEqual(req.method, 'POST', 'should be a POST request')
+    t.strictEqual(req.url, '/intake/v2/events', 'should be sent to the intake endpoint')
+  }
+}
+validateRequest.asserts = 2
+
+function validateMetadata (t) {
+  return function (data, index) {
+    t.strictEqual(index, 0, 'metadata should always be sent first')
+    assertMetadata(t, data)
+  }
+}
+validateMetadata.asserts = 1 + assertMetadata.asserts
+
+function APMServerWithDefaultAsserts (t, opts, mockOpts) {
+  var server = APMServer(opts, mockOpts)
+    .on('request', validateRequest(t))
+    .on('data-metadata', validateMetadata(t))
+  t.on('end', function () {
+    server.destroy()
+  })
+  return server
+}
+APMServerWithDefaultAsserts.asserts = validateRequest.asserts + validateMetadata.asserts
+
+function deep (depth, n) {
+  if (!n) n = 0
+  if (n < depth) return deep(depth, ++n)
+  return new Error()
+}
+
+// ---- tests
 
 test('#getServiceName()', function (t) {
   var agent = Agent()
@@ -106,6 +195,8 @@ test('#startTransaction()', function (t) {
     t.strictEqual(trans._context.flags, '01')
     t.end()
   })
+
+  t.end()
 })
 
 test('#endTransaction()', function (t) {
@@ -148,6 +239,8 @@ test('#endTransaction()', function (t) {
     t.strictEqual(trans.duration(), 2000.123)
     t.end()
   })
+
+  t.end()
 })
 
 test('#currentTransaction', function (t) {
@@ -166,6 +259,8 @@ test('#currentTransaction', function (t) {
     agent.endTransaction()
     t.end()
   })
+
+  t.end()
 })
 
 test('#currentSpan', function (t) {
@@ -199,6 +294,8 @@ test('#currentSpan', function (t) {
       t.end()
     })
   })
+
+  t.end()
 })
 
 test('#currentTraceparent', function (t) {
@@ -228,13 +325,15 @@ test('#currentTraceparent', function (t) {
     agent.endTransaction()
     t.end()
   })
+
+  t.end()
 })
 
 test('#currentTraceIds', function (t) {
   t.test('no active transaction or span', function (t) {
     var agent = Agent()
     agent.start()
-    t.deepLooseEqual(agent.currentTraceIds, {})
+    t.deepEqual(agent.currentTraceIds, {})
     t.strictEqual(agent.currentTraceIds.toString(), '')
     t.end()
   })
@@ -243,7 +342,7 @@ test('#currentTraceIds', function (t) {
     var agent = Agent()
     agent.start()
     var trans = agent.startTransaction()
-    t.deepLooseEqual(agent.currentTraceIds, {
+    t.deepEqual(agent.currentTraceIds, {
       'trace.id': trans.traceId,
       'transaction.id': trans.id
     })
@@ -257,7 +356,7 @@ test('#currentTraceIds', function (t) {
     agent.start()
     agent.startTransaction()
     var span = agent.startSpan()
-    t.deepLooseEqual(agent.currentTraceIds, {
+    t.deepEqual(agent.currentTraceIds, {
       'trace.id': span.traceId,
       'span.id': span.id
     })
@@ -266,6 +365,8 @@ test('#currentTraceIds', function (t) {
     agent.endTransaction()
     t.end()
   })
+
+  t.end()
 })
 
 test('#setTransactionName', function (t) {
@@ -286,6 +387,8 @@ test('#setTransactionName', function (t) {
     t.strictEqual(trans.name, 'foo')
     t.end()
   })
+
+  t.end()
 })
 
 test('#startSpan()', function (t) {
@@ -335,6 +438,8 @@ test('#startSpan()', function (t) {
     t.strictEqual(span._context.flags, '01')
     t.end()
   })
+
+  t.end()
 })
 
 test('#setUserContext()', function (t) {
@@ -353,6 +458,8 @@ test('#setUserContext()', function (t) {
     t.deepEqual(trans._user, { foo: 1 })
     t.end()
   })
+
+  t.end()
 })
 
 test('#setCustomContext()', function (t) {
@@ -371,6 +478,8 @@ test('#setCustomContext()', function (t) {
     t.deepEqual(trans._custom, { foo: 1 })
     t.end()
   })
+
+  t.end()
 })
 
 test('#setLabel()', function (t) {
@@ -408,6 +517,8 @@ test('#setLabel()', function (t) {
     })
     t.end()
   })
+
+  t.end()
 })
 
 test('#addLabels()', function (t) {
@@ -436,6 +547,8 @@ test('#addLabels()', function (t) {
     t.deepEqual(trans._labels, { foo: 1, bar: true })
     t.end()
   })
+
+  t.end()
 })
 
 test('filters', function (t) {
@@ -750,6 +863,8 @@ test('filters', function (t) {
       })
     })
   })
+
+  t.end()
 })
 
 test('#flush()', function (t) {
@@ -798,6 +913,8 @@ test('#flush()', function (t) {
         t.end()
       })
   })
+
+  t.end()
 })
 
 test('#captureError()', function (t) {
@@ -1223,6 +1340,8 @@ test('#captureError()', function (t) {
         t.end()
       })
   })
+
+  t.end()
 })
 
 test('#handleUncaughtExceptions()', function (t) {
@@ -1234,22 +1353,24 @@ test('#handleUncaughtExceptions()', function (t) {
       captureExceptions: false,
       logLevel: 'error'
     })
+    t.strictEqual(process._events.uncaughtException, undefined)
     agent.handleUncaughtExceptions()
-    t.strictEqual(process._events.uncaughtException.length, 1)
-    t.end()
-  })
 
-  t.test('should not add more than one listener for the uncaughtException event', function (t) {
-    var agent = Agent()
-    agent.start({
-      serviceName: 'some-service-name',
-      captureExceptions: false,
-      logLevel: 'error'
-    })
+    // A subtlety here. If something in this process has caused 'domain'
+    // (https://nodejs.org/api/domain.html) to be required, then, since node
+    // v10, a `domainUncaughtExceptionClear` handler for "uncaughtException"
+    // will be prepended to "uncaughtException" listeners when one is added.
+    // Somewhere -- I don't know where -- node-tap v14 is causing this to
+    // happen.
+    var count1 = process._events.uncaughtException
+      .filter(h => { return h.name === 'elasticApmCaptureException' }).length
+    t.equal(count1, 1, 'the elasticApmCaptureException handler was added')
+
     agent.handleUncaughtExceptions()
-    var before = process._events.uncaughtException.length
-    agent.handleUncaughtExceptions()
-    t.strictEqual(process._events.uncaughtException.length, before)
+    var count2 = process._events.uncaughtException
+      .filter(h => { return h.name === 'elasticApmCaptureException' }).length
+    t.equal(count2, 1, 'a second `agent.handleUncaughtExceptions()` results in still only one elasticApmCaptureException handler')
+
     t.end()
   })
 
@@ -1267,6 +1388,8 @@ test('#handleUncaughtExceptions()', function (t) {
         t.end()
       })
   })
+
+  t.end()
 })
 
 test('#active: false', function (t) {
@@ -1277,6 +1400,8 @@ test('#active: false', function (t) {
     t.doesNotThrow(() => client.endTransaction())
     t.end()
   })
+
+  t.end()
 })
 
 test('patches', function (t) {
@@ -1393,88 +1518,7 @@ test('patches', function (t) {
 
     t.end()
   })
+
+  t.end()
 })
 
-function assertMetadata (t, payload) {
-  t.strictEqual(payload.service.name, 'some-service-name')
-  t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
-  t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version })
-
-  const expectedSystemKeys = ['hostname', 'architecture', 'platform']
-  if (inContainer) expectedSystemKeys.push('container')
-
-  t.deepEqual(Object.keys(payload.system), expectedSystemKeys)
-  t.strictEqual(payload.system.hostname, os.hostname())
-  t.strictEqual(payload.system.architecture, process.arch)
-  t.strictEqual(payload.system.platform, process.platform)
-
-  if (inContainer) {
-    t.deepEqual(Object.keys(payload.system.container), ['id'])
-    t.strictEqual(typeof payload.system.container.id, 'string')
-    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id))
-  }
-
-  t.ok(payload.process)
-  t.strictEqual(payload.process.pid, process.pid)
-  t.ok(payload.process.pid > 0, 'should have a pid greater than 0')
-  t.ok(payload.process.title, 'should have a process title')
-  t.strictEqual(payload.process.title, process.title)
-  t.deepEqual(payload.process.argv, process.argv)
-  t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
-}
-assertMetadata.asserts = inContainer ? 17 : 14
-
-function assertTransaction (t, trans, name, input, output) {
-  t.strictEqual(trans.name, name)
-  t.strictEqual(trans.type, 'lambda')
-  t.strictEqual(trans.result, 'success')
-  t.ok(trans.context)
-  var custom = trans.context.custom
-  t.ok(custom)
-  var lambda = custom.lambda
-  t.ok(lambda)
-  t.deepEqual(lambda.input, input)
-  t.strictEqual(lambda.output, output)
-}
-assertTransaction.asserts = 8
-
-function assertStackTrace (t, stacktrace) {
-  t.ok(stacktrace !== undefined, 'should have a stack trace')
-  t.ok(Array.isArray(stacktrace), 'stack trace should be an array')
-  t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
-  t.strictEqual(stacktrace[0].filename, path.join('test', 'agent.js'))
-}
-assertStackTrace.asserts = 4
-
-function validateRequest (t) {
-  return function (req) {
-    t.strictEqual(req.method, 'POST', 'should be a POST request')
-    t.strictEqual(req.url, '/intake/v2/events', 'should be sent to the intake endpoint')
-  }
-}
-validateRequest.asserts = 2
-
-function validateMetadata (t) {
-  return function (data, index) {
-    t.strictEqual(index, 0, 'metadata should always be sent first')
-    assertMetadata(t, data)
-  }
-}
-validateMetadata.asserts = 1 + assertMetadata.asserts
-
-function APMServerWithDefaultAsserts (t, opts, mockOpts) {
-  var server = APMServer(opts, mockOpts)
-    .on('request', validateRequest(t))
-    .on('data-metadata', validateMetadata(t))
-  t.on('end', function () {
-    server.destroy()
-  })
-  return server
-}
-APMServerWithDefaultAsserts.asserts = validateRequest.asserts + validateMetadata.asserts
-
-function deep (depth, n) {
-  if (!n) n = 0
-  if (n < depth) return deep(depth, ++n)
-  return new Error()
-}

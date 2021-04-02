@@ -1,11 +1,13 @@
 'use strict'
-const tape = require('tape')
+
+const test = require('tap').test
+
+const { CallbackCoordination } = require('../../lib/cloud-metadata/callback-coordination')
 const logging = require('../../lib/logging')
 
 const logger = logging.createLogger('off')
 
-const { CallbackCoordination } = require('../../lib/cloud-metadata/callback-coordination')
-tape.test('fetch coordination: all successful', function (t) {
+test('fetch coordination: all successful', function (t) {
   const fetcher = new CallbackCoordination(-1, logger)
   fetcher.schedule(function (fetcher) {
     setTimeout(function () {
@@ -42,7 +44,7 @@ tape.test('fetch coordination: all successful', function (t) {
   fetcher.start()
 })
 
-tape.test('fetch coordination: all errors', function (t) {
+test('fetch coordination: all errors', function (t) {
   const fetcher = new CallbackCoordination(-1, logger)
   fetcher.schedule(function (fetcher) {
     setTimeout(function () {
@@ -74,7 +76,7 @@ tape.test('fetch coordination: all errors', function (t) {
   fetcher.start()
 })
 
-tape.test('fetch coordination: fails to invoke callback (timeout)', function (t) {
+test('fetch coordination: fails to invoke callback (timeout)', function (t) {
   const fetcher = new CallbackCoordination(100, logger)
   fetcher.schedule(function (fetcher) {
     setTimeout(function () {

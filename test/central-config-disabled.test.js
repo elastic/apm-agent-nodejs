@@ -5,7 +5,7 @@ delete process.env.ELASTIC_APM_CENTRAL_CONFIG
 
 const http = require('http')
 
-const test = require('tape')
+const test = require('tap').test
 
 test('central config disabled', function (t) {
   const server = http.createServer((req, res) => {

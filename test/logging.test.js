@@ -1,7 +1,7 @@
 'use strict'
 
 const pino = require('pino')
-const test = require('tape')
+const test = require('tap').test
 
 const logging = require('../lib/logging')
 

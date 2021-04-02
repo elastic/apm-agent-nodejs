@@ -1,5 +1,6 @@
 'use strict'
-const tape = require('tape')
+
+const test = require('tap').test
 const URL = require('url').URL
 
 const { CloudMetadata } = require('../../lib/cloud-metadata')
@@ -8,6 +9,7 @@ const { getMetadataGcp } = require('../../lib/cloud-metadata/gcp')
 const { getMetadataAzure } = require('../../lib/cloud-metadata/azure')
 const { createTestServer, createSlowTestServer, loadFixtureData } = require('./_lib')
 const logging = require('../../lib/logging')
+
 const logger = logging.createLogger('off')
 
 const providerUrls = {
@@ -15,7 +17,8 @@ const providerUrls = {
   gcp: new URL('/', 'http://localhost'),
   azure: new URL('/', 'http://localhost')
 }
-tape('cloud metadata: main function returns data with aws server', function (t) {
+
+test('cloud metadata: main function returns data with aws server', function (t) {
   t.plan(8)
 
   const provider = 'aws'
@@ -42,12 +45,13 @@ tape('cloud metadata: main function returns data with aws server', function (t) 
         t.equals(metadata.provider, provider + '', 'provider set and is a string')
         t.equals(metadata.region, fixture.response.region + '', 'region set and is a string')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: main function returns aws data', function (t) {
+test('cloud metadata: main function returns aws data', function (t) {
   t.plan(2)
 
   const provider = 'aws'
@@ -67,12 +71,13 @@ tape('cloud metadata: main function returns aws data', function (t) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: do not hang when none is configured', function (t) {
+test('cloud metadata: do not hang when none is configured', function (t) {
   t.plan(2)
 
   const provider = 'aws'
@@ -92,12 +97,13 @@ tape('cloud metadata: do not hang when none is configured', function (t) {
         t.ok(err, 'error expected')
         t.ok(!metadata, 'no metadata returned')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: agent configuration wiring', function (t) {
+test('cloud metadata: agent configuration wiring', function (t) {
   const cloudMetadataAuto = new CloudMetadata('auto', logger)
   t.ok(cloudMetadataAuto.shouldFetchAws(), 'auto configuration should fetch aws')
   t.ok(cloudMetadataAuto.shouldFetchGcp(), 'auto configuration should fetch gcp')
@@ -131,7 +137,7 @@ tape('cloud metadata: agent configuration wiring', function (t) {
   t.end()
 })
 
-tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
+test('cloud metadata: main function returns aws IMDSv2 data', function (t) {
   t.plan(2)
 
   const provider = 'aws-IMDSv2'
@@ -151,12 +157,13 @@ tape('cloud metadata: main function returns aws IMDSv2 data', function (t) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: aws empty data', function (t) {
+test('cloud metadata: aws empty data', function (t) {
   t.plan(2)
 
   const provider = 'aws'
@@ -176,12 +183,13 @@ tape('cloud metadata: aws empty data', function (t) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: gcp empty data', function (t) {
+test('cloud metadata: gcp empty data', function (t) {
   t.plan(2)
 
   const provider = 'gcp'
@@ -201,12 +209,13 @@ tape('cloud metadata: gcp empty data', function (t) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: azure empty data', function (t) {
+test('cloud metadata: azure empty data', function (t) {
   t.plan(2)
 
   const provider = 'azure'
@@ -226,12 +235,13 @@ tape('cloud metadata: azure empty data', function (t) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: azure empty data', function (t) {
+test('cloud metadata: azure empty data', function (t) {
   t.plan(2)
 
   const provider = 'azure'
@@ -251,12 +261,13 @@ tape('cloud metadata: azure empty data', function (t) {
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: main function returns data with gcp server', function (t) {
+test('cloud metadata: main function returns data with gcp server', function (t) {
   t.plan(9)
 
   const provider = 'gcp'
@@ -287,13 +298,15 @@ tape('cloud metadata: main function returns data with gcp server', function (t) 
         t.equals(metadata.region, 'us-west1', 'region is set')
         t.equals(metadata.availability_zone, 'us-west1-b', 'availability_zone is set')
         t.equals(metadata.machine.type, 'e2-micro', 'machine type is set')
+
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: main function returns data with azure server', function (t) {
+test('cloud metadata: main function returns data with azure server', function (t) {
   t.plan(10)
 
   const provider = 'azure'
@@ -322,12 +335,13 @@ tape('cloud metadata: main function returns data with azure server', function (t
         t.equals(metadata.provider, provider + '', 'provider set and is a string')
         t.equals(metadata.region, fixture.response.compute.location + '', 'region set and is a string')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('cloud metadata: gcp string manipulation does not fail on non-strings', function (t) {
+test('cloud metadata: gcp string manipulation does not fail on non-strings', function (t) {
   t.plan(2)
 
   const provider = 'gcp'
@@ -347,12 +361,13 @@ tape('cloud metadata: gcp string manipulation does not fail on non-strings', fun
         t.error(err, 'no errors expected')
         t.ok(metadata, 'returned data')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('gcp metadata: no gcp server', function (t) {
+test('gcp metadata: no gcp server', function (t) {
   t.plan(1)
 
   const host = 'localhost'
@@ -362,10 +377,11 @@ tape('gcp metadata: no gcp server', function (t) {
   const url = new URL('/', `${protocol}://${host}:${port}`)
   getMetadataGcp(100, 1000, logger, url, function (err, metadata) {
     t.ok(err, 'error expected')
+    t.end()
   })
 })
 
-tape('gcp metadata: slow metadata server', function (t) {
+test('gcp metadata: slow metadata server', function (t) {
   t.plan(2)
 
   const provider = 'gcp'
@@ -380,11 +396,12 @@ tape('gcp metadata: slow metadata server', function (t) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to metadata server timed out')
       listener.close()
+      t.end()
     })
   })
 })
 
-tape('azure metadata: slow metadata server', function (t) {
+test('azure metadata: slow metadata server', function (t) {
   t.plan(2)
 
   const provider = 'azure'
@@ -399,11 +416,12 @@ tape('azure metadata: slow metadata server', function (t) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request to azure metadata server timed out')
       listener.close()
+      t.end()
     })
   })
 })
 
-tape('cloud metadata: main function with slow aws server', function (t) {
+test('cloud metadata: main function with slow aws server', function (t) {
   t.plan(2)
 
   const provider = 'aws'
@@ -423,12 +441,13 @@ tape('cloud metadata: main function with slow aws server', function (t) {
         t.ok(err, 'error expected')
         t.equals(err.message, 'all callbacks failed')
         listener.close()
+        t.end()
       }
     )
   })
 })
 
-tape('aws metadata unified IMDS: returns valid data from v2 server', function (t) {
+test('aws metadata unified IMDS: returns valid data from v2 server', function (t) {
   t.plan(8)
 
   const provider = 'aws-IMDSv2'
@@ -450,13 +469,13 @@ tape('aws metadata unified IMDS: returns valid data from v2 server', function (t
       t.equals(metadata.machine.type, fixture.response.instanceType, 'found expected metadata for')
       t.equals(metadata.provider, 'aws', `found expected metadata for ${t.name}`)
       t.equals(metadata.region, fixture.response.region, 'found expected metadata for')
-      t.end()
       listener.close()
+      t.end()
     })
   })
 })
 
-tape('aws metadata unified IMDS: returns valid data from v1 server', function (t) {
+test('aws metadata unified IMDS: returns valid data from v1 server', function (t) {
   t.plan(8)
 
   const provider = 'aws'
@@ -479,13 +498,13 @@ tape('aws metadata unified IMDS: returns valid data from v1 server', function (t
       t.equals(metadata.provider, 'aws', `found expected metadata for ${t.name}`)
       t.equals(metadata.region, fixture.response.region, 'found expected metadata for')
 
-      t.end()
       listener.close()
+      t.end()
     })
   })
 })
 
-tape('aws metadata unified IMDS: errors for non-aws server', function (t) {
+test('aws metadata unified IMDS: errors for non-aws server', function (t) {
   t.plan(2)
 
   const provider = 'gcp'
@@ -500,13 +519,13 @@ tape('aws metadata unified IMDS: errors for non-aws server', function (t) {
     getMetadataAws(100, 1000, logger, url, function (err, metadata) {
       t.ok(err, 'expected error')
       t.ok(!metadata, 'no metadata expected')
-      t.end()
       listener.close()
+      t.end()
     })
   })
 })
 
-tape('aws metadata unified IMDS: slow v2 metadata server', function (t) {
+test('aws metadata unified IMDS: slow v2 metadata server', function (t) {
   t.plan(2)
 
   const provider = 'aws-IMDSv2'
@@ -522,11 +541,12 @@ tape('aws metadata unified IMDS: slow v2 metadata server', function (t) {
       t.ok(err, 'error expected')
       t.equals(err.message, 'request for metadata token timed out')
       listener.close()
+      t.end()
     })
   })
 })
 
-tape('aws metadata unified IMDS: connection times out', function (t) {
+test('aws metadata unified IMDS: connection times out', function (t) {
   t.plan(1)
   const serverAws = createTestServer('aws', 'default aws fixture')
   const host = 'localhost'
@@ -536,12 +556,13 @@ tape('aws metadata unified IMDS: connection times out', function (t) {
     const url = new URL('/', `${protocol}://${host}:${validPort}`)
     getMetadataAws(0, 1000, logger, url, function (err) {
       t.ok(err, 'expected timeout error')
+      t.end()
     })
     listener.close()
   })
 })
 
-tape('aws metadata unified IMDS: if server is not there', function (t) {
+test('aws metadata unified IMDS: if server is not there', function (t) {
   t.plan(1)
   const host = 'localhost'
   const invalidPort = 30001
@@ -549,5 +570,6 @@ tape('aws metadata unified IMDS: if server is not there', function (t) {
   const url = new URL('/', `${protocol}://${host}:${invalidPort}`)
   getMetadataAws(100, 1000, logger, url, function (err) {
     t.ok(err, 'expected unreachable server error')
+    t.end()
   })
 })

@@ -1,11 +1,15 @@
 'use strict'
 var agent = require('..').start({
-  serviceName: 'test',
+  serviceName: 'outcome-test',
   secretToken: 'test',
   captureExceptions: true,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  logLevel: 'off'
 })
+
+const test = require('tap').test
+
 const constants = require('../lib/constants')
 
 const noOpClient = {
@@ -18,10 +22,8 @@ const noOpClient = {
 }
 agent._transport = noOpClient
 
-const suite = require('tape')
-
-suite('span outcome tests', function (test) {
-  test.test('span starts unknown, ends with success', function (t) {
+test('span outcome tests', function (suite) {
+  suite.test('span starts unknown, ends with success', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -31,7 +33,7 @@ suite('span outcome tests', function (test) {
     t.end()
   })
 
-  test.test('span starts unknown, and ends unknowns if it\'s not ended', function (t) {
+  suite.test('span starts unknown, and ends unknowns if it\'s not ended', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -40,7 +42,7 @@ suite('span outcome tests', function (test) {
     t.end()
   })
 
-  test.test('span starts unknown, and ends with failure if error captured', function (t) {
+  suite.test('span starts unknown, and ends with failure if error captured', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -51,7 +53,7 @@ suite('span outcome tests', function (test) {
     t.end()
   })
 
-  test.test('test that external span\'s value is a success if not explicatly set', function (t) {
+  suite.test('test that external span\'s value is a success if not explicatly set', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     span.setType('external')
@@ -62,11 +64,11 @@ suite('span outcome tests', function (test) {
     t.end()
   })
 
-  test.end()
+  suite.end()
 })
 
-suite('API span.setOutcome tests', function (test) {
-  test.test('API set value will be honored over non-API value', function (t) {
+test('API span.setOutcome tests', function (suite) {
+  suite.test('API set value will be honored over non-API value', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -77,7 +79,7 @@ suite('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('API set value wil be honored over non-API with error', function (t) {
+  suite.test('API set value wil be honored over non-API with error', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -89,7 +91,7 @@ suite('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('API set value of unknown will override normal success', function (t) {
+  suite.test('API set value of unknown will override normal success', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -100,11 +102,11 @@ suite('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.end()
+  suite.end()
 })
 
-suite('API span.setOutcome tests', function (test) {
-  test.test('API set value will be honored over non-API value', function (t) {
+test('API span.setOutcome tests', function (suite) {
+  suite.test('API set value will be honored over non-API value', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -115,7 +117,7 @@ suite('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('API set value wil be honored over non-API with error', function (t) {
+  suite.test('API set value wil be honored over non-API with error', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -127,7 +129,7 @@ suite('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('set value of unknown will override normal success', function (t) {
+  suite.test('set value of unknown will override normal success', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -138,7 +140,7 @@ suite('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('API calls ignored after a span has ended', function (t) {
+  suite.test('API calls ignored after a span has ended', function (t) {
     agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = agent.startSpan()
     t.equals(span.outcome, constants.OUTCOME_UNKNOWN, 'spans start with unknown outcome')
@@ -149,18 +151,18 @@ suite('API span.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.end()
+  suite.end()
 })
 
-suite('API transaction.setOutcome tests', function (test) {
-  test.test('transaction defaults to unknown', function (t) {
+test('API transaction.setOutcome tests', function (suite) {
+  suite.test('transaction defaults to unknown', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
     agent.endTransaction()
     t.equals(transaction.outcome, constants.OUTCOME_UNKNOWN, 'make it')
     t.end()
   })
 
-  test.test('transaction status code >= 500 is a failure', function (t) {
+  suite.test('transaction status code >= 500 is a failure', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
     transaction._setOutcomeFromHttpStatusCode(500)
     agent.endTransaction()
@@ -168,7 +170,7 @@ suite('API transaction.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('transaction status code < 400 is a success', function (t) {
+  suite.test('transaction status code < 400 is a success', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
     transaction._setOutcomeFromHttpStatusCode(499)
     agent.endTransaction()
@@ -176,7 +178,7 @@ suite('API transaction.setOutcome tests', function (test) {
     t.end()
   })
 
-  test.test('transaction public API setOutcome "wins" over internal APIs', function (t) {
+  suite.test('transaction public API setOutcome "wins" over internal APIs', function (t) {
     const transactionSuccess = agent.startTransaction('foo', 'type', 'subtype', 'action')
     transactionSuccess.setOutcome(constants.OUTCOME_SUCCESS)
     transactionSuccess._setOutcomeFromHttpStatusCode(500)
@@ -195,7 +197,8 @@ suite('API transaction.setOutcome tests', function (test) {
     agent.endTransaction()
     t.equals(transactionUnknown.outcome, constants.OUTCOME_UNKNOWN, 'agent uses setOutcome status')
 
-    test.test('outcome not set after transaction ends', function (t) {
+    // XXX does this need to be nested *again* here?
+    suite.test('outcome not set after transaction ends', function (t) {
       const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
       transaction._setOutcomeFromHttpStatusCode(200)
       agent.endTransaction()
@@ -207,22 +210,22 @@ suite('API transaction.setOutcome tests', function (test) {
 
     t.end()
   })
-  test.end()
+  suite.end()
 })
 
-suite('agent level setTransactionOutcome tests', function (test) {
-  test.test('outcome set', function (t) {
+test('agent level setTransactionOutcome tests', function (suite) {
+  suite.test('outcome set', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
     agent.setTransactionOutcome(constants.OUTCOME_SUCCESS)
     agent.endTransaction()
     t.equals(transaction.outcome, constants.OUTCOME_SUCCESS, 'outcome set to success')
     t.end()
   })
-  test.end()
+  suite.end()
 })
 
-suite('agent level setSpanOutcome tests', function (test) {
-  test.test('outcome set', function (t) {
+test('agent level setSpanOutcome tests', function (suite) {
+  suite.test('outcome set', function (t) {
     const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
     const span = transaction.startSpan()
     const childSpan = transaction.startSpan()
@@ -239,5 +242,5 @@ suite('agent level setSpanOutcome tests', function (test) {
       t.end()
     }, 1)
   })
-  test.end()
+  suite.end()
 })
