@@ -1,6 +1,6 @@
 'use strict'
 
-const test = require('tape')
+const test = require('tap').test
 const lambdaLocal = require('lambda-local')
 
 const lambda = require('../../lib/lambda')
@@ -11,8 +11,11 @@ const assertTransaction = util.assertTransaction
 
 process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs8.10'
 process.env.AWS_REGION = 'us-east-1'
+// If the user has AWS_PROFILE set, it results in a warning from lambda-local:
+//    warning Using both auth systems: aws_access_key/id and secret_access_token !
+delete process.env.AWS_PROFILE
 
-test('resolve', function (t) {
+test('context.succeed', function (t) {
   const name = 'greet.hello'
   const input = { name: 'world' }
   const output = 'Hello, world!'
@@ -26,7 +29,7 @@ test('resolve', function (t) {
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
         context = _context
-        return Promise.resolve(`Hello, ${payload.name}!`)
+        context.succeed(`Hello, ${payload.name}!`)
       })
     },
     lambdaHandler: name,
@@ -48,14 +51,9 @@ test('resolve', function (t) {
   })
 })
 
-test('resolve with parent id header present', function (t) {
+test('context.done', function (t) {
   const name = 'greet.hello'
-  const input = {
-    name: 'world',
-    headers: {
-      traceparent: 'test'
-    }
-  }
+  const input = { name: 'world' }
   const output = 'Hello, world!'
   let context
 
@@ -67,7 +65,7 @@ test('resolve with parent id header present', function (t) {
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
         context = _context
-        return Promise.resolve(`Hello, ${payload.name}!`)
+        context.done(null, `Hello, ${payload.name}!`)
       })
     },
     lambdaHandler: name,
@@ -84,14 +82,12 @@ test('resolve with parent id header present', function (t) {
       t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], name, context, input, output)
 
-      t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
-
       t.end()
     }
   })
 })
 
-test('reject', function (t) {
+test('context.fail', function (t) {
   const name = 'fn.fail'
   const input = {}
   const error = new Error('fail')
@@ -105,7 +101,7 @@ test('reject', function (t) {
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
         context = _context
-        return Promise.reject(error)
+        context.fail(error)
       })
     },
     lambdaHandler: name,
