@@ -22,7 +22,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-var test = require('tape')
+
+var test = require('tap').test
 var isSecret = require('../../lib/redact-secrets/is-secret')
 
 test('isSecret.key true', function (t) {
