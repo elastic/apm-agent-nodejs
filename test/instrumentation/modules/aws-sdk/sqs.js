@@ -20,7 +20,7 @@ const {
   getActionFromRequest,
   getQueueNameFromRequest,
   getRegionFromRequest,
-  getMessagingDestinationContextFromRequest,
+  getMessageDestinationContextFromRequest,
   shouldIgnoreRequest
 } =
   require('../../../../lib/instrumentation/modules/aws-sdk/sqs')
@@ -158,7 +158,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.end()
   })
 
-  test.test('function getMessagingDestinationContext', function (t) {
+  test.test('function getMessageDestinationContext', function (t) {
     const request = {
       service: {
         config: {
@@ -173,7 +173,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.equals(getRegionFromRequest(request), 'region-name')
     t.equals(getQueueNameFromRequest(request), 'bing')
 
-    t.deepEquals(getMessagingDestinationContextFromRequest(request), {
+    t.deepEquals(getMessageDestinationContextFromRequest(request), {
       service: {
         name: 'sqs',
         resource: 'sqs/bing',
