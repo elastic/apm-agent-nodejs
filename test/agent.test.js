@@ -6,7 +6,7 @@ var os = require('os')
 
 var { sync: containerInfo } = require('container-info')
 var isError = require('core-util-is').isError
-var test = require('tap').test
+var { test } = require('tap')
 
 var Agent = require('./_agent')
 var APMServer = require('./_apm_server')
@@ -904,12 +904,12 @@ test('#flush()', function (t) {
         this.agent.startTransaction('foo')
         this.agent.endTransaction()
         this.agent.flush(function (err) {
-          t.error(err)
+          t.error(err, 'should not get error to agent.flush callback')
           t.pass('should call flush callback after flushing the queue')
         })
       })
       .on('data-transaction', function (data) {
-        t.strictEqual(data.name, 'foo')
+        t.strictEqual(data.name, 'foo', 'got expected transaction.name')
         t.end()
       })
   })
