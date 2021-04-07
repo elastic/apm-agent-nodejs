@@ -34,6 +34,10 @@ Notes:
 [float]
 ===== Features
 
+* Adds support for Amazon SQS queues via `aws-sdk` instrumentation that
+  partially implements the https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-messaging.md[APM messaging spec],
+  and adds `queue.latency.min.ms`, `queue.latency.max.ms`, and `queue.latency.avg.ms` 
+  metrics for SQS queues. 
 * The APM agent's own internal logging now uses structured JSON logging using
   the https://getpino.io/#/docs/api?id=logger[pino API], and formatted in
   {ecs-logging-ref}/intro.html[ecs-logging] format. The log records on stdout
