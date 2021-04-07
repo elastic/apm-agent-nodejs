@@ -65,7 +65,7 @@ index 1dd168f..f35877d 100644
 
 If the "Integration Tests" check fails for your PR, here are some notes on
 debugging that. (The actual ".ci/Jenkinsfile" and apm-integration-testing.git
-are the authority.)
+are the authority. See also the [APM integration test troubleshooting guide](https://github.com/elastic/observability-dev/blob/master/docs/apm/apm-integration-test-troubleshooting-guide.md).)
 
 The Node.js integration tests are ["test\_nodejs.py" in apm-integration-testing](https://github.com/elastic/apm-integration-testing/blob/master/tests/agent/test_nodejs.py). Roughly speaking, the integration tests:
 
