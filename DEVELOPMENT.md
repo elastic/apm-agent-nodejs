@@ -107,3 +107,12 @@ Note that it might likely get out of date:
 
         docker logs -f expressapp | ecslog
 
+6. When done, stop the docker containers via:
+
+        make stop-env
+        # OR: python3 scripts/compose.py stop
+
+   Also, optionally, turn off the Python virtual env:
+
+        deactivate
+
