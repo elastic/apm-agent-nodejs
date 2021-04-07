@@ -42,6 +42,11 @@ Notes:
   the agent will now https://github.com/elastic/apm/blob/master/specs/agents/transport.md#transport-errors[backoff]
   when the APM server errors. Finally, improved error handling means it will
   terminate failing requests to the APM server more quickly.
++
+Note: v1 of this agent (EOL'd 2 years ago), included a `maxQueueSize` config
+variable with a different meaning. If you have a lingering usage of that
+setting (also possibly as the `ELASTIC_APM_MAX_QUEUE_SIZE` environment
+variable), then it should be removed.
 
 * The APM agent's own internal logging now uses structured JSON logging using
   the https://getpino.io/#/docs/api?id=logger[pino API], and formatted in
