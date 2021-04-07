@@ -28,10 +28,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.13.0]]
+==== 3.13.0 - 2021/04/06
 
 [float]
 ===== Features
@@ -73,6 +71,10 @@ as they are added over time.
 
 [float]
 ===== Bug fixes
+
+* Lock package dependency "elastic-apm-http-client@9.6.0" to avoid using
+  v9.7.0 for now, because it is breaking tests. A coming release will get back
+  on the latest of this dependency. {issues}2032[#2032]
 
 * Remove the "ancestors" field from a log.trace message on startup. Its info
   is a duplicate of info in the "startTrace" field in the same log record.
