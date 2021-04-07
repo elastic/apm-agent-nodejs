@@ -89,6 +89,7 @@ var directories = [
   'test/instrumentation/modules/mysql2',
   'test/instrumentation/modules/pg',
   'test/instrumentation/modules/restify',
+  'test/instrumentation/modules/aws-sdk',
   'test/integration',
   'test/integration/api-schema',
   'test/lambda',

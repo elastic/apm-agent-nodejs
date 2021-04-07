@@ -240,7 +240,7 @@ test('#_encode() - with meta data', function myTest2 (t) {
     t.strictEqual(payload.type, 'bar')
     t.strictEqual(payload.timestamp, span._timer.start)
     t.ok(payload.duration > 0)
-    t.deepEqual(payload.context, { db: { statement: 'foo', type: 'bar' }, http: undefined, tags: { baz: '1' }, destination: undefined })
+    t.deepEqual(payload.context, { db: { statement: 'foo', type: 'bar' }, http: undefined, tags: { baz: '1' }, destination: undefined, message: undefined })
     assert.stacktrace(t, 'myTest2', __filename, payload.stacktrace, agent)
     t.end()
   })
