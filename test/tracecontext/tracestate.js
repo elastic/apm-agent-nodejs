@@ -288,7 +288,7 @@ test('TraceState defaultValues', function (t) {
   t.end()
 })
 
-test('TraceState empty or invalid values', function(t) {
+test('TraceState empty or invalid values', function (t) {
   const tracestateEmpty = TraceState.fromStringFormatString('')
   t.ok(undefined === tracestateEmpty.getValue('s'), 'does not crash for empty tracestate')
 
