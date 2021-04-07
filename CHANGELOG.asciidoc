@@ -28,8 +28,10 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-[[release-notes-3.13.0]]
-==== 3.13.0 - 2021/04/06
+==== Unreleased
+
+[float]
+===== Breaking changes
 
 [float]
 ===== Features
@@ -50,8 +52,19 @@ variable), then it should be removed.
 
 * Adds support for Amazon SQS queues via `aws-sdk` instrumentation that
   partially implements the https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-messaging.md[APM messaging spec],
-  and adds `queue.latency.min.ms`, `queue.latency.max.ms`, and `queue.latency.avg.ms` 
-  metrics for SQS queues. 
+  and adds `queue.latency.min.ms`, `queue.latency.max.ms`, and `queue.latency.avg.ms`
+  metrics for SQS queues.
+
+[float]
+===== Bug fixes
+
+
+[[release-notes-3.13.0]]
+==== 3.13.0 - 2021/04/06
+
+[float]
+===== Features
+
 * The APM agent's own internal logging now uses structured JSON logging using
   the https://getpino.io/#/docs/api?id=logger[pino API], and formatted in
   {ecs-logging-ref}/intro.html[ecs-logging] format. The log records on stdout
