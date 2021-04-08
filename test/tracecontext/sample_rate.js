@@ -97,24 +97,83 @@ suite('Sample Rate Propagation', function (test) {
     t.end()
   })
 
-  // Test that a blank tracestate -- does what?
-  test.test('recorded transaction continuing with no tracestate', function(t){
+  // Test that an invalid tracestate in a recorded transaction
+  // results in a serialized span without a sample_rate, per the spec.
+  test.test('blank tracestate, recorded', function(t){
     // sort of gross while shenanagins to let us get an unsampled
     // transaction with a non-zero sample rate
     const transaction = agent.startTransaction('foo','bar','baz','bing',{
       childOf:TRACEPARENT_RECORDED,
-      tracestate:'dsvoihd'
+      tracestate:'notavalidtracestate'
     })
-
     const span = transaction.startSpan('foo')
+    span.end()
+    span._encode(function(err, spanSerialized){
+      t.error(err)
+      const transactionSerialized = transaction.toJSON()
 
-    console.log(transaction.sample_rate)
-    console.log(span.sample_rate)
+      t.equals(transactionSerialized.sample_rate, undefined, 'serialized transaction should have no sample_rate')
+      t.equals(spanSerialized.sample_rate, undefined, 'serialized span should have no sample_rate')
+
+      t.end()
+
+    })
+  })
+
+  // Test that a blank tracestate in a recorded transaction
+  // results in a serialized span without a sample_rate, per the spec.
+  test.test('blank tracestate, recorded', function(t){
+    // sort of gross while shenanagins to let us get an unsampled
+    // transaction with a non-zero sample rate
+    const transaction = agent.startTransaction('foo','bar','baz','bing',{
+      childOf:TRACEPARENT_RECORDED,
+      tracestate:''
+    })
+    const span = transaction.startSpan('foo')
+    span.end()
+    span._encode(function(err, spanSerialized){
+      t.error(err)
+      const transactionSerialized = transaction.toJSON()
+
+      t.equals(transactionSerialized.sample_rate, undefined, 'serialized transaction should have no sample_rate')
+      t.equals(spanSerialized.sample_rate, undefined, 'serialized span should have no sample_rate')
+
+      t.end()
+
+    })
+  })
+
+  // Test that an invalid tracestate in an unrecorded transaction
+  // results in a serialized span without a sample_rate, per the spec.
+  test.test('blank tracestate, recorded', function(t){
+    // sort of gross while shenanagins to let us get an unsampled
+    // transaction with a non-zero sample rate
+    const transaction = agent.startTransaction('foo','bar','baz','bing',{
+      childOf:TRACEPARENT_NOTRECORDED,
+      tracestate:'notavalidtracestate'
+    })
+    const span = transaction.startSpan('foo')
+    const transactionSerialized = transaction.toJSON()
+    t.equals(transactionSerialized.sample_rate, undefined, 'serialized transaction should have no sample_rate')
+    t.ok(!span, 'no span for unsampled transaction')
     t.end()
   })
 
-  // Test that an invalid tracestate -- does what?
-
+  // Test that a blank tracestate in an unrecorded transaction
+  // results in a serialized span without a sample_rate, per the spec.
+  test.test('blank tracestate, recorded', function(t){
+    // sort of gross while shenanagins to let us get an unsampled
+    // transaction with a non-zero sample rate
+    const transaction = agent.startTransaction('foo','bar','baz','bing',{
+      childOf:TRACEPARENT_NOTRECORDED,
+      tracestate:''
+    })
+    const span = transaction.startSpan('foo')
+    const transactionSerialized = transaction.toJSON()
+    t.equals(transactionSerialized.sample_rate, undefined, 'serialized transaction should have no sample_rate')
+    t.ok(!span, 'no span for unsampled transaction')
+    t.end()
+  })
   test.end()
 
 })
