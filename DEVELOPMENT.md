@@ -99,6 +99,9 @@ Note that it might likely get out of date:
           --apm-log-level=trace"
         make start-env
 
+        # OR: replace all this with a suitable call to
+        #     'python3 scripts/compose.py start ...'
+
 4. Run the test suite:
 
         pytest tests/agent/test_nodejs.py -v
