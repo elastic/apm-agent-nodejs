@@ -18,21 +18,6 @@ function requestFromOptions (options) {
   return req
 }
 
-// Creates a ClientRequest from url and options
-//
-// Same as requestFromOptions, but uses optional URL argument
-//
-// @param {url} string
-// @param {object} options
-// @return {ClientRequest}
-
-function requestFromUrlAndOptions (url, options) {
-  const req = http.request(url, options)
-  req.on('error', function () {})
-  req.destroy()
-  return req
-}
-
 tape('getUrlFromRequestAndOptions', function (suite) {
   suite.test('host', function (t) {
     const options = {
@@ -83,34 +68,33 @@ tape('getUrlFromRequestAndOptions', function (suite) {
     t.end()
   })
 
-  suite.test('passes URL string to request but also options', function (t) {
+  suite.test('hostname beats host', function (t) {
     const options = {
-      host: 'username:password@one.example.com'
+      host: 'username:password@two.example.com',
+      hostname: 'username:password@one.example.com',
+      path: '/bar'
     }
-    const req = requestFromUrlAndOptions(
-      'http://username2:password2@two.example.com/bar',
-      options
-    )
+    const req = requestFromOptions(options)
     const url = getUrlFromRequestAndOptions(req, options)
-    t.equals(url, 'http://two.example.com/bar', 'url rendered as expected')
+    t.equals(url, 'http://one.example.com/bar', 'url rendered as expected')
     t.end()
   })
 
-  suite.test('exceptions caught', function (t) {
+  suite.test('exceptions handled', function (t) {
     const options = {
-      host: 'username:password@one.example.com'
+      host: 'username:password@two.example.com',
+      hostname: 'username:password@one.example.com',
+      path: '/bar'
     }
-    const req = requestFromUrlAndOptions(
-      'http://username2:password2@two.example.com/bar',
-      options
-    )
+    const req = requestFromOptions(options)
+
     const url1 = getUrlFromRequestAndOptions(null, null)
     const url2 = getUrlFromRequestAndOptions(req, null)
     const url3 = getUrlFromRequestAndOptions(null, options)
     const url4 = getUrlFromRequestAndOptions({}, options)
 
     t.equal(url1, false, 'no url returned')
-    t.equal(url2, 'http://two.example.com/bar', 'no url returned')
+    t.ok(url2, 'URL returned')
     t.equal(url3, false, 'no url returned')
     t.equal(url4, false, 'no url returned')
     t.end()
