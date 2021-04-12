@@ -681,6 +681,26 @@ Specify the maximum number of spans to capture within a request transaction
 before dropping further spans.
 Setting to `-1` means that spans will never be dropped.
 
+[[max-queue-size]]
+==== `maxQueueSize`
+
+* *Type:* Number
+* *Default:* `1024`
+* *Env:* `ELASTIC_APM_MAX_QUEUE_SIZE`
+
+The maximum size of buffered events.
+
+Events like transactions, spans, and errors are buffered when the agent can't
+keep up with sending them to the APM Server or if the APM server is down.
+If the queue is full, events are rejected which means you will lose
+transactions and spans. This guards the application from consuming too much
+memory and possibly crashing in case the APM server is unavailable for a longer
+period of time.
+
+A lower value will decrease the heap overhead of the agent, while a higher
+value makes it less likely to lose events in case of a temporary spike in
+throughput.
+
 [[api-request-time]]
 ==== `apiRequestTime`
 

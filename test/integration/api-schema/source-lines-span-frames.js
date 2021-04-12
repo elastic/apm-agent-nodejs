@@ -41,9 +41,6 @@ const next = afterAll(function (err, validators) {
         })
         .on('end', function () {
           res.end()
-          server.close()
-          agent.destroy()
-          t.end()
         })
     })
 
@@ -56,6 +53,9 @@ const next = afterAll(function (err, validators) {
       setTimeout(function () {
         agent.flush(function (err) {
           t.error(err, 'flush should not result in an error')
+          server.close()
+          agent.destroy()
+          t.end()
         })
       }, 250)
     })
