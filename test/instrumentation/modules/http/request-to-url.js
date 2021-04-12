@@ -18,8 +18,8 @@ function requestFromOptions (options) {
   return req
 }
 
-tape('getUrlFromRequestAndOptions', function (suite) {
-  suite.test('host', function (t) {
+tape('getUrlFromRequestAndOptions tests', function (suite) {
+  suite.test('options with host', function (t) {
     const options = {
       host: 'example.com'
     }
@@ -30,7 +30,7 @@ tape('getUrlFromRequestAndOptions', function (suite) {
     t.end()
   })
 
-  suite.test('host, path', function (t) {
+  suite.test('options with host and path', function (t) {
     const options = {
       host: 'example.com',
       path: '/foo'
@@ -42,7 +42,7 @@ tape('getUrlFromRequestAndOptions', function (suite) {
     t.end()
   })
 
-  suite.test('host, path, port, and query string', function (t) {
+  suite.test('options with host, path, port, and a query string', function (t) {
     const options = {
       host: 'example.com',
       path: '/foo?fpp=bar',
@@ -55,7 +55,7 @@ tape('getUrlFromRequestAndOptions', function (suite) {
     t.end()
   })
 
-  suite.test('host, path, port, query string, password', function (t) {
+  suite.test('options with host, path, port, query string, and a username/password', function (t) {
     const options = {
       host: 'username:password@example.com',
       path: '/foo?fpp=bar',
@@ -68,7 +68,7 @@ tape('getUrlFromRequestAndOptions', function (suite) {
     t.end()
   })
 
-  suite.test('hostname beats host', function (t) {
+  suite.test('options with host and hostname', function (t) {
     const options = {
       host: 'username:password@two.example.com',
       hostname: 'username:password@one.example.com',
@@ -76,11 +76,11 @@ tape('getUrlFromRequestAndOptions', function (suite) {
     }
     const req = requestFromOptions(options)
     const url = getUrlFromRequestAndOptions(req, options)
-    t.equals(url, 'http://one.example.com/bar', 'url rendered as expected')
+    t.equals(url, 'http://one.example.com/bar', 'url rendered as expected (hostname wins)')
     t.end()
   })
 
-  suite.test('exceptions handled', function (t) {
+  suite.test('does not crash with unexpected data', function (t) {
     const options = {
       host: 'username:password@two.example.com',
       hostname: 'username:password@one.example.com',
