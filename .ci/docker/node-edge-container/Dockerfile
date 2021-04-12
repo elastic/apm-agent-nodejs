@@ -1,10 +1,12 @@
 FROM ubuntu:18.04
 
-# Install nvm dependencies
+# - nvm dependencies: build-essential, libssl-dev, curl
+# - git is installed for usage in tests using this image
 RUN apt-get -qq update \
   && apt-get -qq install -y build-essential \
   && apt-get -qq install -y libssl-dev \
   && apt-get -qq install -y curl \
+  && apt-get -qq install -y git \
   && apt-get -qq clean \
   && rm -fr /var/lib/apt/lists/*
 
