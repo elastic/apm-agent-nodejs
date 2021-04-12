@@ -15,8 +15,9 @@ suite('Sample Rate Propagation', function (test) {
 
   test.test('sample rate is set', function (t) {
     agent._conf.transactionSampleRate = 0.499
-    const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing', {
-    })
+    // const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing', {
+    // })
+    const transaction = startSampledTransaction()
     t.equals(transaction.sample_rate, 0.499, 'sample rate set')
 
     t.end()
@@ -86,10 +87,7 @@ suite('Sample Rate Propagation', function (test) {
 
     // sort of gross while shenanagins to let us get an unsampled
     // transaction with a non-zero sample rate
-    let transaction = { sampled: true }
-    while (transaction.sampled) {
-      transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing')
-    }
+    const transaction = startUnSampledTransaction()
     const span = transaction.startSpan('foo')
     const serialized = transaction.toJSON()
     t.equals(serialized.sample_rate, 0, 'serialized sample rate is zero')
@@ -174,3 +172,47 @@ suite('Sample Rate Propagation', function (test) {
   })
   test.end()
 })
+
+// returns a sampled transaction
+//
+// Some testing scenarios require us to test the behavior of the
+// the agent when a root transaction is sampled.  Whether a root transaction
+// is sampled or not has an element of randomness to it.  This function
+// will keep trying to start a transaction until we have one that's
+// sampled/recorded
+//
+// @return {Transaction}
+function startSampledTransaction() {
+  let transaction = { sampled: false }
+  let guardCount = 0
+  while (!transaction.sampled && guardCount < 10000) {
+    transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing')
+    guardCount++
+  }
+  if(guardCount >= 10000) {
+    throw new Error('startSampledTransaction could not start a sampled transaction')
+  }
+  return transaction
+}
+
+// returns an unsampled transaction
+//
+// Some testing scenarios require us to test the behavior of the
+// the agent when a root transaction is not sampled.  Whether a root transaction
+// is sampled or not has an element of randomness to it.  This function
+// will keep trying to start a transaction until we have one that's
+// unsampled/unrecorded
+//
+// @return {Transaction}
+function startUnSampledTransaction() {
+  let transaction = { sampled: true }
+  let guardCount = 0
+  while (transaction.sampled && guardCount < 10000) {
+    transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing')
+    guardCount++
+  }
+  if(guardCount >= 10000) {
+    throw new Error('startUnSampledTransaction could not start a sampled transaction')
+  }
+  return transaction
+}
