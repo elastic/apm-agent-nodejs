@@ -182,14 +182,14 @@ suite('Sample Rate Propagation', function (test) {
 // sampled/recorded
 //
 // @return {Transaction}
-function startSampledTransaction() {
+function startSampledTransaction () {
   let transaction = { sampled: false }
   let guardCount = 0
   while (!transaction.sampled && guardCount < 10000) {
     transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing')
     guardCount++
   }
-  if(guardCount >= 10000) {
+  if (guardCount >= 10000) {
     throw new Error('startSampledTransaction could not start a sampled transaction')
   }
   return transaction
@@ -204,14 +204,14 @@ function startSampledTransaction() {
 // unsampled/unrecorded
 //
 // @return {Transaction}
-function startUnSampledTransaction() {
+function startUnSampledTransaction () {
   let transaction = { sampled: true }
   let guardCount = 0
   while (transaction.sampled && guardCount < 10000) {
     transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing')
     guardCount++
   }
-  if(guardCount >= 10000) {
+  if (guardCount >= 10000) {
     throw new Error('startUnSampledTransaction could not start a sampled transaction')
   }
   return transaction
