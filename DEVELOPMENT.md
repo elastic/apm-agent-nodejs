@@ -102,6 +102,9 @@ Note that it might likely get out of date:
         # OR: replace all this with a suitable call to
         #     'python3 scripts/compose.py start ...'
 
+    Note: There is an easier way with "ELASTIC_STACK_VERSION=...
+    APM_AGENT_NODEJS_VERSION=... make start-env" I believe. See the README.
+
 4. Run the test suite:
 
         pytest tests/agent/test_nodejs.py -v
