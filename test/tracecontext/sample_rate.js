@@ -95,8 +95,6 @@ suite('Sample Rate Propagation', function (test) {
   // Test that an invalid tracestate in a recorded transaction
   // results in a serialized span without a sample_rate, per the spec.
   test.test('invalid tracestate with recorded transaction has no span.sample_rate', function (t) {
-    // sort of gross while shenanagins to let us get an unsampled
-    // transaction with a non-zero sample rate
     const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing', {
       childOf: TRACEPARENT_RECORDED,
       tracestate: 'notavalidtracestate'
