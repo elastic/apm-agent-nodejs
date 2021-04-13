@@ -84,8 +84,6 @@ suite('Sample Rate Propagation', function (test) {
   test.test('unrecorded root transactions "sample rate of 0" is preferred over "transactionSampleRate"', function (t) {
     agent._conf.transactionSampleRate = 0.1
 
-    // sort of gross while shenanagins to let us get an unsampled
-    // transaction with a non-zero sample rate
     const transaction = startUnSampledTransaction()
     const span = transaction.startSpan('foo')
     const serialized = transaction.toJSON()
