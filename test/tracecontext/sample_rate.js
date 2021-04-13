@@ -1,3 +1,4 @@
+'use strict'
 const agent = require('../..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -15,8 +16,6 @@ suite('Sample Rate Propagation', function (test) {
 
   test.test('sample rate is set', function (t) {
     agent._conf.transactionSampleRate = 0.499
-    // const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing', {
-    // })
     const transaction = startSampledTransaction()
     t.equals(transaction.sample_rate, 0.499, 'sample rate set')
 
