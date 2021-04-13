@@ -211,7 +211,7 @@ function startUnSampledTransaction () {
     guardCount++
   }
   if (guardCount >= 10000) {
-    throw new Error('startUnSampledTransaction could not start a sampled transaction')
+    throw new Error('startUnSampledTransaction could not start an unsampled transaction')
   }
   return transaction
 }
