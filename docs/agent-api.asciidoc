@@ -313,7 +313,7 @@ See the <<apm-add-labels,`apm.addLabels()`>> method for details about the format
 
 * `callback` - Will be called after the error has been sent to the APM Server.
 It will receive an `Error` instance if the agent failed to send the error,
-and the id of the captured error
+and the id of the captured error.
 
 Send an error to the APM Server:
 
