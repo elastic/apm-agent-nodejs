@@ -117,9 +117,6 @@ const next = afterAll(function (err, validators) {
         })
         .on('end', function () {
           res.end()
-          server.close()
-          agent.destroy()
-          t.end()
         })
     })
 
@@ -129,6 +126,9 @@ const next = afterAll(function (err, validators) {
       agent.endTransaction()
       agent.flush(function (err) {
         t.error(err, 'flush should not result in an error')
+        server.close()
+        agent.destroy()
+        t.end()
       })
     })
   })
@@ -154,9 +154,6 @@ const next = afterAll(function (err, validators) {
         })
         .on('end', function () {
           res.end()
-          server.close()
-          agent.destroy()
-          t.end()
         })
     })
 
@@ -171,6 +168,9 @@ const next = afterAll(function (err, validators) {
       setTimeout(function () {
         agent.flush(function (err) {
           t.error(err, 'flush should not result in an error')
+          server.close()
+          agent.destroy()
+          t.end()
         })
       }, 250)
     })
@@ -202,9 +202,6 @@ const next = afterAll(function (err, validators) {
           })
           .on('end', function () {
             res.end()
-            server.close()
-            agent.destroy()
-            t.end()
           })
       })
 
@@ -212,6 +209,9 @@ const next = afterAll(function (err, validators) {
         agent = newAgent(server)
         agent.captureError(error, function (err) {
           t.error(err, 'captureError should not result in an error')
+          server.close()
+          agent.destroy()
+          t.end()
         })
       })
     })
