@@ -17,7 +17,7 @@ suite('Sample Rate Propagation', function (test) {
   test.test('sample rate is set', function (t) {
     agent._conf.transactionSampleRate = 0.499
     const transaction = startSampledTransaction()
-    t.equals(transaction.getTraceContextSampleRate(), 0.499, 'sample rate set')
+    t.equals(transaction.sample_rate, 0.499, 'sample rate set')
 
     t.end()
   })
@@ -27,7 +27,7 @@ suite('Sample Rate Propagation', function (test) {
       childOf: TRACEPARENT_RECORDED,
       tracestate: 'es=s:0.7654321'
     })
-    t.equals(transaction.getTraceContextSampleRate(), 0.7654321, 'sample rate set')
+    t.equals(transaction.sample_rate, 0.7654321, 'sample rate set')
     t.end()
   })
 
@@ -39,8 +39,8 @@ suite('Sample Rate Propagation', function (test) {
       tracestate: 'es=s:0.7654321'
     })
     const span = transaction.startSpan('foo')
-    t.equals(transaction.getTraceContextSampleRate(), 0.7654321, 'sample rate set')
-    t.equals(span.getTraceContextSampleRate(), 0.7654321, 'sample rate set')
+    t.equals(transaction.sample_rate, 0.7654321, 'sample rate set')
+    t.equals(span.sample_rate, 0.7654321, 'sample rate set')
     t.end()
   })
 
@@ -52,7 +52,7 @@ suite('Sample Rate Propagation', function (test) {
       tracestate: 'es=s:0'
     })
     const span = transaction.startSpan('foo')
-    t.equals(transaction.getTraceContextSampleRate(), 0, 'sample rate set')
+    t.equals(transaction.sample_rate, 0, 'sample rate set')
     t.ok(!span, 'span not started')
     t.end()
   })
@@ -63,8 +63,8 @@ suite('Sample Rate Propagation', function (test) {
     agent._conf.transactionSampleRate = 1
     const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing')
     const span = transaction.startSpan('foo')
-    t.equals(transaction.getTraceContextSampleRate(), 1, 'sample rate set')
-    t.equals(span.getTraceContextSampleRate(), 1, 'sample rate set')
+    t.equals(transaction.sample_rate, 1, 'sample rate set')
+    t.equals(span.sample_rate, 1, 'sample rate set')
     t.end()
   })
 
@@ -74,7 +74,7 @@ suite('Sample Rate Propagation', function (test) {
     agent._conf.transactionSampleRate = 0
     const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing')
     const span = transaction.startSpan('foo')
-    t.equals(transaction.getTraceContextSampleRate(), 0, 'sample rate set')
+    t.equals(transaction.sample_rate, 0, 'sample rate set')
     t.ok(!span, 'no span for unsampled transactions')
     t.end()
   })
