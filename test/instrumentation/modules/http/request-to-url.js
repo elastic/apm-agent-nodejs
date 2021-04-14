@@ -104,5 +104,16 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
     t.end()
   })
 
+  suite.test('port 80 makes it through', function (t) {
+    const options = {
+      host: 'two.example.com',
+      port: 80
+    }
+    const req = requestFromOptions(options)
+
+    const url = getUrlFromRequestAndOptions(req, options)
+    t.equals(url, 'http://two.example.com:80/', 'port 80 made it thorugh')
+    t.end()
+  })
   suite.end()
 })
