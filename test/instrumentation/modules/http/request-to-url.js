@@ -57,33 +57,39 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
 
   suite.test('options with host, path, port, query string, and a username/password', function (t) {
     const options = {
-      host: 'username:password@example.com',
+      host: 'example.com',
       path: '/foo?fpp=bar',
+      auth: 'username:password',
       port: 32
     }
     const req = requestFromOptions(options)
 
     const url = getUrlFromRequestAndOptions(req, options)
     t.equals(url, 'http://example.com:32/foo?fpp=bar', 'url rendered as expected')
+    t.equals(url.indexOf('username'), -1, 'no auth information in url')
+    t.equals(url.indexOf('password'), -1, 'no auth information in url')
     t.end()
   })
 
   suite.test('options with host and hostname', function (t) {
     const options = {
-      host: 'username:password@two.example.com',
-      hostname: 'username:password@one.example.com',
-      path: '/bar'
+      host: 'two.example.com',
+      hostname: 'one.example.com',
+      path: '/bar',
+      auth: 'username:password'
     }
     const req = requestFromOptions(options)
     const url = getUrlFromRequestAndOptions(req, options)
     t.equals(url, 'http://one.example.com/bar', 'url rendered as expected (hostname wins)')
+    t.equals(url.indexOf('username'), -1, 'no auth information in url')
+    t.equals(url.indexOf('password'), -1, 'no auth information in url')
     t.end()
   })
 
   suite.test('does not crash with unexpected data', function (t) {
     const options = {
-      host: 'username:password@two.example.com',
-      hostname: 'username:password@one.example.com',
+      host: 'two.example.com',
+      hostname: 'one.example.com',
       path: '/bar'
     }
     const req = requestFromOptions(options)
@@ -91,12 +97,10 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
     const url1 = getUrlFromRequestAndOptions(null, null)
     const url2 = getUrlFromRequestAndOptions(req, null)
     const url3 = getUrlFromRequestAndOptions(null, options)
-    const url4 = getUrlFromRequestAndOptions({}, options)
 
-    t.equal(url1, false, 'no url returned')
+    t.equal(url1, undefined, 'no url returned')
     t.ok(url2, 'URL returned')
-    t.equal(url3, false, 'no url returned')
-    t.equal(url4, false, 'no url returned')
+    t.equal(url3, undefined, 'no url returned')
     t.end()
   })
 
