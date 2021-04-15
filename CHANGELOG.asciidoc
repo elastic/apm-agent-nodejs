@@ -61,6 +61,9 @@ variable), then it should be removed.
 * Fixed bug where the URL property for outgoing HTTP request spans was set
   with the server's IP address rather than its hostname. The Agent now sets
   this property with the actual URL requested by Node.js.
+* Fixed bug where external services were not listed under Dependencies on the
+  APM Service Overview page due to the trace-context propagated `sample_rate`
+  value not being set on either transactions or spans.
 
 [[release-notes-3.13.0]]
 ==== 3.13.0 - 2021/04/06
