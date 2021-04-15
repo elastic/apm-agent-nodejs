@@ -28,16 +28,50 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Add `apm.addMetadataFilter(fn)` for filtering the
+  https://www.elastic.co/guide/en/apm/server/current/metadata-api.html[metadata object]
+  sent to APM server.
+
+* The handling of sending events (transactions, spans, errors) to APM server
+  has improved in a few ways. During temporary spikes in load and/or an APM
+  server that is unresponsive, the agent will buffer a number of events and
+  *drop* them above a certain limit (configurable via <<max-queue-size>>).
+  This helps ensure the agent does not overly consume memory and CPU. As well,
+  the agent will now https://github.com/elastic/apm/blob/master/specs/agents/transport.md#transport-errors[backoff]
+  when the APM server errors. Finally, improved error handling means it will
+  terminate failing requests to the APM server more quickly.
++
+Note: v1 of this agent (EOL'd 2 years ago), included a `maxQueueSize` config
+variable with a different meaning. If you have a lingering usage of that
+setting (also possibly as the `ELASTIC_APM_MAX_QUEUE_SIZE` environment
+variable), then it should be removed.
+
+* Adds support for Amazon SQS queues via `aws-sdk` instrumentation that
+  partially implements the https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-messaging.md[APM messaging spec],
+  and adds `queue.latency.min.ms`, `queue.latency.max.ms`, and `queue.latency.avg.ms`
+  metrics for SQS queues.
+
+[float]
+===== Bug fixes
+
+* Fixed bug where external services were not listed under Dependencies on the
+  APM Service Overview page due to the trace-context propagated `sample_rate`
+  value not being set on either transactions or spans.
+
 [[release-notes-3.13.0]]
 ==== 3.13.0 - 2021/04/06
 
 [float]
 ===== Features
 
-* Adds support for Amazon SQS queues via `aws-sdk` instrumentation that
-  partially implements the https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-messaging.md[APM messaging spec],
-  and adds `queue.latency.min.ms`, `queue.latency.max.ms`, and `queue.latency.avg.ms` 
-  metrics for SQS queues. 
 * The APM agent's own internal logging now uses structured JSON logging using
   the https://getpino.io/#/docs/api?id=logger[pino API], and formatted in
   {ecs-logging-ref}/intro.html[ecs-logging] format. The log records on stdout

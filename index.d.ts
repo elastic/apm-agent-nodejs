@@ -110,6 +110,7 @@ declare class Agent implements Taggable, StartSpanFn {
   addErrorFilter (fn: FilterFn): void;
   addSpanFilter (fn: FilterFn): void;
   addTransactionFilter (fn: FilterFn): void;
+  addMetadataFilter (fn: FilterFn): void;
   flush (callback?: Function): void;
   destroy (): void;
 
@@ -223,6 +224,7 @@ interface AgentConfigOptions {
   logLevel?: LogLevel;
   logUncaughtExceptions?: boolean;
   logger?: Logger;
+  maxQueueSize?: number;
   metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   payloadLogFile?: string;
   centralConfig?: boolean;
