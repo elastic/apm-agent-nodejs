@@ -58,6 +58,9 @@ variable), then it should be removed.
 [float]
 ===== Bug fixes
 
+* Fixed bug where external services were not listed under Dependencies on the
+  APM Service Overview page due to the trace-context propagated `sample_rate`
+  value not being set on either transactions or spans.
 
 [[release-notes-3.13.0]]
 ==== 3.13.0 - 2021/04/06
