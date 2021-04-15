@@ -50,6 +50,7 @@ ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
 NODE_VERSION=${NODE_VERSION} \
 TAV_VERSIONS=${TAV_VERSIONS} \
 USER_ID="$(id -u):$(id -g)" \
+docker-compose --version
 docker-compose \
   --ansi never \
   --log-level ERROR \
