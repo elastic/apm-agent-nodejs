@@ -88,7 +88,7 @@ Set or change the <<framework-name,`frameworkName`>> or <<framework-version,`fra
 These config options can also be provided as part of the <<configuration,regular agent configuration>>.
 
 [[apm-add-filter]]
-==== `apm.addFilter(callback)`
+==== `apm.addFilter(fn)`
 
 [small]#Added in: v0.1.0#
 
@@ -97,6 +97,8 @@ Use `addFilter()` to supply a filter function.
 Each filter function will be called just before data is being sent to the APM Server.
 This will allow you to manipulate the data being sent,
 for instance to remove sensitive information like passwords etc.
+(Note: Filters added via `addFilter` are *not* applied to the "metadata"
+object sent to the APM Server -- use `addMetadataFilter` instead.)
 
 Each filter function will be called in the order they were added,
 and will receive a `payload` object as the only argument,
@@ -114,8 +116,11 @@ Example usage:
 
 [source,js]
 ----
-apm.addFilter(function (payload) {
-  if (payload.context.request && payload.context.request.headers) {
+apm.addFilter(function redactSecretHeader(payload) {
+  if (payload.context &&
+      payload.context.request &&
+      payload.context.request.headers &&
+      payload.context.request.headers['x-secret']) {
     // redact sensitive data
     payload.context.request.headers['x-secret'] = '[REDACTED]'
   }
@@ -132,28 +137,67 @@ Though you can also use filter functions to add new contextual information to th
 it's recommended that you use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context,`apm.setCustomContext()`>> for that purpose.
 
 [[apm-add-error-filter]]
-==== `apm.addErrorFilter(callback)`
+==== `apm.addErrorFilter(fn)`
 
 [small]#Added in: v2.0.0#
 
 Similar to <<apm-add-filter,`apm.addFilter()`>>,
-but the `callback` will only be called with error payloads.
+but the `fn` will only be called with error payloads.
 
 [[apm-add-transaction-filter]]
-==== `apm.addTransactionFilter(callback)`
+==== `apm.addTransactionFilter(fn)`
 
 [small]#Added in: v2.0.0#
 
 Similar to <<apm-add-filter,`apm.addFilter()`>>,
-but the `callback` will only be called with transaction payloads.
+but the `fn` will only be called with transaction payloads.
 
 [[apm-add-span-filter]]
-==== `apm.addSpanFilter(callback)`
+==== `apm.addSpanFilter(fn)`
 
 [small]#Added in: v2.0.0#
 
 Similar to <<apm-add-filter,`apm.addFilter()`>>,
-but the `callback` will only be called with span payloads.
+but the `fn` will only be called with span payloads.
+
+[[apm-add-metadata-filter]]
+==== `apm.addMetadataFilter(fn)`
+
+[small]#Added in: v3.14.0#
+
+Use `addMetadataFilter(fn)` to supply a filter function for the
+https://www.elastic.co/guide/en/apm/server/current/metadata-api.html[metadata object]
+sent to the APM Server. This will allow you to manipulate the data being
+sent, for instance to remove possibly sensitive information.
+
+Each filter function will be called in the order they were added, and will
+receive a `metadata` object as the only argument. The filter function is
+synchronous and must return the manipulated object. Example usage:
+
+[source,js]
+----
+apm.addMetadataFilter(function dropArgv(metadata) {
+  if (metadata.process && metadata.process.argv) {
+    delete metadata.process.argv
+  }
+  return metadata
+})
+----
+
+Warning: It is the responsibility of the author to ensure the returned object
+conforms to the
+https://www.elastic.co/guide/en/apm/server/current/metadata-api.html#metadata-schema[metadata schema]
+otherwise all APM data injest will fail. A metadata filter that breaks the
+metadata will result in error logging from the agent, something like:
+
+[source,text]
+----
+ERROR (elastic-apm-node): APM Server transport error (400): Unexpected APM Server response
+APM Server accepted 0 events in the last request
+Error: validation error: 'metadata' required
+  Document: {"metadata":null}
+----
+
 
 [[apm-set-user-context]]
 ==== `apm.setUserContext(context)`
