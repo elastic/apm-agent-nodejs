@@ -23,7 +23,7 @@ fi
 
 if [ -x "$(command -v docker-compose)" ]; then
   docker-compose \
-    --no-ansi \
+    --ansi never \
     --log-level ERROR \
     -f .ci/docker/docker-compose-all.yml \
     pull --quiet --ignore-pull-failures

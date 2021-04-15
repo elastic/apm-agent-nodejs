@@ -51,7 +51,7 @@ NODE_VERSION=${NODE_VERSION} \
 TAV_VERSIONS=${TAV_VERSIONS} \
 USER_ID="$(id -u):$(id -g)" \
 docker-compose \
-  --no-ansi \
+  --ansi never \
   --log-level ERROR \
   -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
   build >docker-compose.log 2>docker-compose.err
@@ -70,7 +70,7 @@ NODE_VERSION=${NODE_VERSION} \
 TAV_VERSIONS=${TAV_VERSIONS} \
 USER_ID="$(id -u):$(id -g)" \
 docker-compose \
-  --no-ansi \
+  --ansi never \
   --log-level ERROR \
   -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
   up \
@@ -80,7 +80,7 @@ docker-compose \
   node_tests
 
 NODE_VERSION=${NODE_VERSION} docker-compose \
-  --no-ansi \
+  --ansi never \
   --log-level ERROR \
   -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
   down -v

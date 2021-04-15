@@ -6,6 +6,8 @@
 /test/babel/out.js
 /test/types/transpile/index.js
 /test-suite-output.tap
+/docker-compose.err
+/docker-compose.log
 
 # Folders to ignore
 /.nyc_output
