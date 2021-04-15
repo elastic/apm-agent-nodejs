@@ -115,8 +115,6 @@ suite('Sample Rate Propagation', function (test) {
   // Test that a blank tracestate in a recorded transaction
   // results in a serialized span without a sample_rate, per the spec.
   test.test('blank tracestate with a recorded transaction has no span.sample_rate', function (t) {
-    // sort of gross while shenanagins to let us get an unsampled
-    // transaction with a non-zero sample rate
     const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing', {
       childOf: TRACEPARENT_RECORDED,
       tracestate: ''
@@ -137,8 +135,6 @@ suite('Sample Rate Propagation', function (test) {
   // Test that an invalid tracestate in an unrecorded transaction
   // results in a serialized span without a sample_rate, per the spec.
   test.test('invalid tracestate with an unrecorded transaction has no span.sample_rate', function (t) {
-    // sort of gross while shenanagins to let us get an unsampled
-    // transaction with a non-zero sample rate
     const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing', {
       childOf: TRACEPARENT_NOTRECORDED,
       tracestate: 'notavalidtracestate'
@@ -153,8 +149,6 @@ suite('Sample Rate Propagation', function (test) {
   // Test that a blank tracestate in an unrecorded transaction
   // results in a serialized span without a sample_rate, per the spec.
   test.test('invalid tracestate with an unrecorded transaction has no span.sample_rate', function (t) {
-    // sort of gross while shenanagins to let us get an unsampled
-    // transaction with a non-zero sample rate
     const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing', {
       childOf: TRACEPARENT_NOTRECORDED,
       tracestate: ''
@@ -163,6 +157,15 @@ suite('Sample Rate Propagation', function (test) {
     const transactionSerialized = transaction.toJSON()
     t.equals(transactionSerialized.sample_rate, undefined, 'serialized transaction should have no sample_rate')
     t.ok(!span, 'no span for unsampled transaction')
+    t.end()
+  })
+
+  test.test('non-number trace state', function (t) {
+    const transaction = agent.startTransaction('foo', 'bar', 'baz', 'bing', {
+      childOf: TRACEPARENT_NOTRECORDED,
+      tracestate: 'es=s:foo'
+    })
+    t.equals(transaction.sampleRate, null, 'invalid sample rate returns null')
     t.end()
   })
   test.end()
