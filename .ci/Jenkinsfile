@@ -9,7 +9,6 @@ pipeline {
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
-    CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-nodejs-codecov'
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
     OPBEANS_REPO = 'opbeans-node'
@@ -379,10 +378,9 @@ def generateStep(Map params = [:]){
             error(e.toString())
           } finally {
             // TAV tests run 'npm run test:tav' which does *not* produce TAP
-            // output or code coverage .
+            // output.
             if (!tav?.trim()) {
               tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
-              codecov(repo: env.REPO, basedir: '.', secret: "${CODECOV_SECRET}")
             }
           }
         }

@@ -11,8 +11,6 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
-    "coverage:prereport": "npm run coverage",
-    "coverage:report": "nyc report --reporter=lcov",
     "test": "./test/script/run_tests.sh",
     "test:cli": "node test/script/cli.js",
     "test:deps": "dependency-check start.js index.js 'lib/**/*.js' 'test/**/*.js' --no-dev -i async_hooks -i perf_hooks -i parseurl",
