@@ -623,6 +623,39 @@ test('filters', function (t) {
       })
   })
 
+  t.test('#addMetadataFilter()', function (t) {
+    t.plan(5 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: ['metadata', 'transaction'] })
+      .on('listening', function () {
+        this.agent.addErrorFilter(function () {
+          t.fail('should not call error filter')
+        })
+        this.agent.addSpanFilter(function () {
+          t.fail('should not call span filter')
+        })
+        this.agent.addMetadataFilter(function (obj) {
+          t.strictEqual(obj.service.agent.name, 'nodejs')
+          obj.order = 1
+          return obj
+        })
+        this.agent.addMetadataFilter('invalid')
+        this.agent.addMetadataFilter(function (obj) {
+          t.strictEqual(obj.service.agent.name, 'nodejs')
+          t.strictEqual(++obj.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction()
+        this.agent.endTransaction()
+        this.agent.flush()
+      })
+      .on('data-metadata', function (metadata) {
+        t.strictEqual(metadata.service.agent.name, 'nodejs')
+        t.strictEqual(metadata.order, 2)
+        t.end()
+      })
+  })
+
   const falsyValues = [undefined, null, false, 0, '', NaN]
 
   falsyValues.forEach(falsy => {
