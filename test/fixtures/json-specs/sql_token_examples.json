@@ -117,6 +117,20 @@
     ]
   },
   {
+    "name": "CQL line comment",
+    "input": "/* /*nested*/ */ // SELECT /*",
+    "tokens": [
+      {
+        "kind": "COMMENT",
+        "text": "/* /*nested*/ */"
+      },
+      {
+        "kind": "COMMENT",
+        "text": "// SELECT /*"
+      }
+    ]
+  },
+  {
     "name": "string-literal",
     "input": "'abc '' def\\''",
     "tokens": [
