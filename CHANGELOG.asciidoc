@@ -62,6 +62,9 @@ variable), then it should be removed.
 [float]
 ===== Bug fixes
 
+* Fixed bug where the URL property for outgoing HTTP request spans was set
+  with the server's IP address rather than its hostname. The Agent now sets
+  this property with the actual URL requested by Node.js.
 * Fixed bug where external services were not listed under Dependencies on the
   APM Service Overview page due to the trace-context propagated `sample_rate`
   value not being set on either transactions or spans.
