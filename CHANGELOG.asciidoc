@@ -36,6 +36,10 @@ Notes:
 [float]
 ===== Features
 
+* Add `apm.addMetadataFilter(fn)` for filtering the
+  https://www.elastic.co/guide/en/apm/server/current/metadata-api.html[metadata object]
+  sent to APM server.
+
 * The handling of sending events (transactions, spans, errors) to APM server
   has improved in a few ways. During temporary spikes in load and/or an APM
   server that is unresponsive, the agent will buffer a number of events and
