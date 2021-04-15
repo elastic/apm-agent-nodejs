@@ -172,15 +172,15 @@ function echoTest (type, opts, handler) {
         t.deepEqual(data.spans[0].context.http, {
           method: 'GET',
           status_code: 200,
-          url: `${type}://127.0.0.1:${port}/`
+          url: `${type}://localhost:${port}/`
         })
         t.deepEqual(data.spans[0].context.destination, {
           service: {
-            name: `${type}://127.0.0.1:${port}`,
-            resource: `127.0.0.1:${port}`,
+            name: `${type}://localhost:${port}`,
+            resource: `localhost:${port}`,
             type: data.spans[0].type
           },
-          address: '127.0.0.1',
+          address: 'localhost',
           port: Number(port)
         })
         t.end()
@@ -224,7 +224,7 @@ function abortTest (type, handler) {
       const httpContext = {
         method: 'GET',
         status_code: undefined,
-        url: undefined
+        url: `http://localhost:${port}/`
       }
 
       resetAgent({}, data => {
@@ -241,11 +241,11 @@ function abortTest (type, handler) {
         if (httpContext.url) {
           t.deepEqual(data.spans[0].context.destination, {
             service: {
-              name: `${type}://127.0.0.1:${port}`,
-              resource: `127.0.0.1:${port}`,
+              name: `${type}://localhost:${port}`,
+              resource: `localhost:${port}`,
               type: data.spans[0].type
             },
-            address: '127.0.0.1',
+            address: 'localhost',
             port: Number(port)
           })
         }
@@ -262,7 +262,7 @@ function abortTest (type, handler) {
 
       req.on('response', () => {
         httpContext.status_code = 200
-        httpContext.url = `${type}://127.0.0.1:${port}/`
+        httpContext.url = `${type}://localhost:${port}/`
       })
 
       // NOTE: Don't use an arrow function here

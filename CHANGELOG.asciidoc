@@ -36,6 +36,10 @@ Notes:
 [float]
 ===== Features
 
+* Add `apm.addMetadataFilter(fn)` for filtering the
+  https://www.elastic.co/guide/en/apm/server/current/metadata-api.html[metadata object]
+  sent to APM server.
+
 * The handling of sending events (transactions, spans, errors) to APM server
   has improved in a few ways. During temporary spikes in load and/or an APM
   server that is unresponsive, the agent will buffer a number of events and
@@ -58,6 +62,12 @@ variable), then it should be removed.
 [float]
 ===== Bug fixes
 
+* Fixed bug where the URL property for outgoing HTTP request spans was set
+  with the server's IP address rather than its hostname. The Agent now sets
+  this property with the actual URL requested by Node.js.
+* Fixed bug where external services were not listed under Dependencies on the
+  APM Service Overview page due to the trace-context propagated `sample_rate`
+  value not being set on either transactions or spans.
 
 [[release-notes-3.13.0]]
 ==== 3.13.0 - 2021/04/06
