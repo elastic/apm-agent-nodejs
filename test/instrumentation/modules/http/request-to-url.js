@@ -115,5 +115,22 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
     t.equals(url, 'http://two.example.com:80/', 'port 80 made it thorugh')
     t.end()
   })
+
+  suite.test('missing protocol', function (t) {
+    const options = {
+      hostname: 'localhost',
+      path: '/get',
+      // A custom agent that implements the minimum to pass muster, but does
+      // *not* define `agent.protocol`.
+      agent: {
+        addRequest() {}
+      }
+    }
+    const req = requestFromOptions(options)
+
+    const url = getUrlFromRequestAndOptions(req, options,'http:')
+    t.equals(url, 'http://localhost/get', 'protocol falls back correctly')
+    t.end()
+  })
   suite.end()
 })
