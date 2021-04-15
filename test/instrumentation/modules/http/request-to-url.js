@@ -123,12 +123,12 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
       // A custom agent that implements the minimum to pass muster, but does
       // *not* define `agent.protocol`.
       agent: {
-        addRequest() {}
+        addRequest () {}
       }
     }
     const req = requestFromOptions(options)
 
-    const url = getUrlFromRequestAndOptions(req, options,'http:')
+    const url = getUrlFromRequestAndOptions(req, options, 'http:')
     t.equals(url, 'http://localhost/get', 'protocol falls back correctly')
     t.end()
   })
