@@ -166,7 +166,7 @@ but the `fn` will only be called with span payloads.
 [small]#Added in: v3.14.0#
 
 Use `addMetadataFilter(fn)` to supply a filter function for the
-https://www.elastic.co/guide/en/apm/server/current/metadata-api.html[metadata object]
+{apm-server-ref-v}/metadata-api.html[metadata object]
 sent to the APM Server. This will allow you to manipulate the data being
 sent, for instance to remove possibly sensitive information.
 
@@ -186,7 +186,7 @@ apm.addMetadataFilter(function dropArgv(metadata) {
 
 Warning: It is the responsibility of the author to ensure the returned object
 conforms to the
-https://www.elastic.co/guide/en/apm/server/current/metadata-api.html#metadata-schema[metadata schema]
+{apm-server-ref-v}/metadata-api.html#metadata-schema[metadata schema]
 otherwise all APM data injest will fail. A metadata filter that breaks the
 metadata will result in error logging from the agent, something like:
 
