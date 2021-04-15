@@ -110,6 +110,7 @@ declare class Agent implements Taggable, StartSpanFn {
   addErrorFilter (fn: FilterFn): void;
   addSpanFilter (fn: FilterFn): void;
   addTransactionFilter (fn: FilterFn): void;
+  addMetadataFilter (fn: FilterFn): void;
   flush (callback?: Function): void;
   destroy (): void;
 
