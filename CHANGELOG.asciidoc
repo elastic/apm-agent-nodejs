@@ -58,6 +58,9 @@ variable), then it should be removed.
 [float]
 ===== Bug fixes
 
+* Fixed bug where the URL property for outgoing HTTP request spans was set
+  with the server's IP address rather than its hostname. The Agent now sets
+  this property with the actual URL requested by Node.js.
 
 [[release-notes-3.13.0]]
 ==== 3.13.0 - 2021/04/06
