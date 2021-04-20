@@ -25,7 +25,6 @@ fi
 NODE_VERSION=${1} docker-compose --no-ansi --log-level ERROR -f ./test/docker-compose.yml -f ./test/docker-compose.ci.yml run \
   -e NODE_VERSION=${NODE_VERSION} \
   -e TAV=${TAV_VERSIONS} \
-  -e JUNIT=${JUNIT} \
   -e CI=true \
   -v ${npm_cache}:${docker_npm_cache} \
   -v ${nyc_output}:${docker_nyc_output} \
