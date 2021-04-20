@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.13.0",
+  "version": "3.14.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -11,8 +11,6 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
-    "coverage:prereport": "npm run coverage",
-    "coverage:report": "nyc report --reporter=lcov",
     "test": "./test/script/run_tests.sh",
     "test:cli": "node test/script/cli.js",
     "test:deps": "dependency-check start.js index.js 'lib/**/*.js' 'test/**/*.js' --no-dev -i async_hooks -i perf_hooks -i parseurl",
