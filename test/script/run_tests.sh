@@ -41,12 +41,7 @@ run_test_suite () {
   standard
   npm run test:deps
 
-  if [ -n "${JUNIT}" ]
-  then
-    npm install -g tap-junit
-    nyc node test/test.js | tee test-output.tap
-    cat test-output.tap | tap-junit --package="Agent Node.js" > junit-node-report.xml
-  elif [ -z "$COVERAGE" ]
+  if [ -z "$COVERAGE" ]
   then
     node test/test.js
   else
