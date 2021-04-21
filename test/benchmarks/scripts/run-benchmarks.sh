@@ -78,6 +78,10 @@ function runBenchmark() {
   log "Running benchmark $benchmark without agent..."
   node $benchmark > $appout_no_agent
 
+  echo "XXX"
+  ps -ef
+  netstat -rn
+  echo "XXX"
   startAPMServer
 
   log "Running benchmark $benchmark with agent..."
