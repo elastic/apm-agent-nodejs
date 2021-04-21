@@ -293,10 +293,21 @@ hapi-v16:
   commands:
     - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
-hapi:
+hapi-prenodev15:
   name: hapi
   versions: '>=17.0.0'
-  node: '>=8.12.0'
+  node: '>=8.12.0 <15.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic-legacy-path.js
+    - node test/instrumentation/modules/hapi/set-framework.js
+hapi:
+  name: hapi
+  # Work around https://github.com/npm/cli/issues/2267 in npm@7.
+  # Note: An alternative might be to just not test the "hapi" package with
+  # node >= 15, given that "hapi" was deprecated before node v16.
+  preinstall: rm -rf node_modules/hapi
+  node: '>=15.0.0'
+  versions: '>=17.0.0'
   commands:
     - node test/instrumentation/modules/hapi/basic-legacy-path.js
     - node test/instrumentation/modules/hapi/set-framework.js
