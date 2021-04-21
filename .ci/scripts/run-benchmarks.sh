@@ -9,6 +9,6 @@ if [[ -z "$RESULT_FILE" || -z "$NODE_VERSION" ]]; then
 fi
 
 SCRIPTPATH=$(dirname "$0")
-./${SCRIPTPATH}/prepare-benchmarks-env.sh "${NODE_VERSION}"
+source ./${SCRIPTPATH}/prepare-benchmarks-env.sh
 
 npm run bench:ci "${RESULT_FILE}" "${NODE_VERSION}"

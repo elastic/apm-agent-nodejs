@@ -105,7 +105,8 @@ mkdir -p $outputdir
 # If running as sudo then prepare the environment
 if [ -n "${SUDO_COMMAND}" ] ; then
   log "Running benchmark as sudo, let's re-prepare the node environment..."
-  ./${basedir}/../../.ci/scripts/prepare-benchmarks-env.sh "${NODE_VERSION}"
+  export NODE_VERSION="${NODE_VERSION}"
+  source ./${basedir}/../../.ci/scripts/prepare-benchmarks-env.sh
   [ -e env_vars.sh ] && source env_vars.sh || echo "env_vars.sh not found"
 fi
 
