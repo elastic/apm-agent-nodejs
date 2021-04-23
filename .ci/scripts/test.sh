@@ -70,8 +70,7 @@ case ${TAV_MODULE} in
   cassandra-driver)
     DOCKER_COMPOSE_FILE=docker-compose-cassandra.yml
     ;;
-  # XXX elasticsearch|@elastic/elasticsearch)
-  elasticsearch)
+  elasticsearch|@elastic/elasticsearch)
     DOCKER_COMPOSE_FILE=docker-compose-elasticsearch.yml
     ;;
   mysql|mysql2)
