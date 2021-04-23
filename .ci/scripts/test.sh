@@ -1,15 +1,60 @@
 #!/usr/bin/env bash
+
+#
+# Run a set of Node.js APM agent tests with a particular version of node.js in
+# Docker.
+#
+# - A suitable config file for "docker-compose build" is selected.
+# - A "node_tests" container image, plus any images for services (like redis,
+#   or postgresql) needed for this set of tests, are built.
+# - The "node_tests" container is run, which runs the tests -- its command is:
+#     /bin/bash -c ".ci/scripts/docker-test.sh"
+#
+# Usage:
+#     .ci/scripts/tests.sh NODE_VERSION [TAV_MODULE] [IS_EDGE]
+#
+# - NODE_VERSION is a version of Node.js, e.g. "14", usable both to select
+#   a image from Docker Hub:
+#       docker pull docker.io/library/node:$NODE_VERSION
+#   and to install Node with nvm:
+#       nvm install $NODE_VERSION
+# - TAV_MODULE, if specified and not the empty string, will result in
+#   "test-all-versions" (TAV) tests being run. It identifies the name of a
+#   module in ".tav.yml", e.g. "redis" or "pg". If this argument is not given
+#   then the regular agent tests (i.e. the same as 'npm test') will be run.
+# - IS_EDGE is "true" or "false" (the default). If true, then the node version
+#   used for testing will be installed via:
+#       NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} nvm install ${NODE_VERSION}
+#   where typically the mirror URL is also set to one of:
+#       https://nodejs.org/download/nightly/
+#       https://nodejs.org/download/rc/
+#   to test against a recent pre-releases of node.
+#
+# Examples:
+#     .ci/scripts/test.sh 14                # regular tests against latest docker:14 image
+#     .ci/scripts/test.sh 14 "" false       # same
+#     .ci/scripts/test.sh 8.6               # regular tests against latest docker:8.6 image
+#     .ci/scripts/test.sh 14 "redis" false  # redis TAV tests against latest docker:14 image
+#     NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/ \
+#       .ci/scripts/test.sh 14 "" true      # regular tests against latest node 14 nightly release
+#
+
 set -exo pipefail
+
+function fatal {
+  echo "$(basename $0): error: $*"
+  exit 1
+}
 
 DOCKER_FOLDER=.ci/docker
 NODE_VERSION=${1:?Nodejs version missing NODE_VERSION is not set}
-TAV_VERSIONS=${2}
+TAV_MODULE=${2}
 IS_EDGE=${3:false}
 
-case ${TAV_VERSIONS} in
-  generic-pool|koa-router|handlebars|jade|pug|finalhandler|restify|fastify|mimic-response|got|bluebird|apollo-server-express|ws|graphql|express-graphql|hapi|express|express-queue)
-    DOCKER_COMPOSE_FILE=docker-compose-node-test.yml
-    ;;
+# Select a config for 'docker-compose build' that sets up (a) the "node_tests"
+# container where the tests are actually run and (b) any services that are
+# needed for this set of tests, if any.
+case ${TAV_MODULE} in
   redis|ioredis)
     DOCKER_COMPOSE_FILE=docker-compose-redis.yml
     ;;
@@ -25,6 +70,7 @@ case ${TAV_VERSIONS} in
   cassandra-driver)
     DOCKER_COMPOSE_FILE=docker-compose-cassandra.yml
     ;;
+  # XXX elasticsearch|@elastic/elasticsearch)
   elasticsearch)
     DOCKER_COMPOSE_FILE=docker-compose-elasticsearch.yml
     ;;
@@ -35,12 +81,16 @@ case ${TAV_VERSIONS} in
     DOCKER_COMPOSE_FILE=docker-compose-memcached.yml
     ;;
   *)
-    DOCKER_COMPOSE_FILE=docker-compose-all.yml
+    # Just the "node_tests" container. No additional services needed for testing.
+    DOCKER_COMPOSE_FILE=docker-compose-node-test.yml
     ;;
 esac
 
 ## This will use RC/nightly node versions. It does NOT support TAV!
 if [ "${IS_EDGE}" = "true" ]; then
+  if [[ -n "${TAV_MODULE}" ]]; then
+    fatal "running TAV tests (TAV_MODULE=${TAV_MODULE}) with IS_EDGE=${IS_EDGE} is not supported"
+  fi
   DOCKER_COMPOSE_FILE=docker-compose-edge.yml
 fi
 
@@ -48,7 +98,7 @@ set +e
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
 NODE_VERSION=${NODE_VERSION} \
-TAV_VERSIONS=${TAV_VERSIONS} \
+TAV_MODULE=${TAV_MODULE} \
 USER_ID="$(id -u):$(id -g)" \
 docker-compose \
   --no-ansi \
@@ -67,7 +117,7 @@ set -e
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
 NODE_VERSION=${NODE_VERSION} \
-TAV_VERSIONS=${TAV_VERSIONS} \
+TAV_MODULE=${TAV_MODULE} \
 USER_ID="$(id -u):$(id -g)" \
 docker-compose \
   --no-ansi \
