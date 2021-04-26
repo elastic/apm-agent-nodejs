@@ -314,7 +314,7 @@ pipeline {
       environment {
         HOME = "${env.WORKSPACE}"
         RESULT_FILE = 'apm-agent-benchmark-results.json'
-        NODE_VERSION = '12'
+        NODE_VERSION = '14'
       }
       when {
         beforeAgent true
@@ -334,7 +334,7 @@ pipeline {
             deleteDir()
             unstash 'source'
             dir(BASE_DIR){
-              sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}"'
+              sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}" "${NODE_VERSION}"'
             }
           }
         }
