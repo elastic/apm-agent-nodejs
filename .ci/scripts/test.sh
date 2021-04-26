@@ -54,43 +54,48 @@ IS_EDGE=${3:false}
 # Select a config for 'docker-compose build' that sets up (a) the "node_tests"
 # container where the tests are actually run and (b) any services that are
 # needed for this set of tests, if any.
-case ${TAV_MODULE} in
-  redis|ioredis)
-    DOCKER_COMPOSE_FILE=docker-compose-redis.yml
-    ;;
-  tedious)
-    DOCKER_COMPOSE_FILE=docker-compose-mssql.yml
-    ;;
-  mongodb-core)
-    DOCKER_COMPOSE_FILE=docker-compose-mongodb.yml
-    ;;
-  pg|knex)
-    DOCKER_COMPOSE_FILE=docker-compose-postgres.yml
-    ;;
-  cassandra-driver)
-    DOCKER_COMPOSE_FILE=docker-compose-cassandra.yml
-    ;;
-  elasticsearch|@elastic/elasticsearch)
-    DOCKER_COMPOSE_FILE=docker-compose-elasticsearch.yml
-    ;;
-  mysql|mysql2)
-    DOCKER_COMPOSE_FILE=docker-compose-mysql.yml
-    ;;
-  memcached)
-    DOCKER_COMPOSE_FILE=docker-compose-memcached.yml
-    ;;
-  *)
-    # Just the "node_tests" container. No additional services needed for testing.
-    DOCKER_COMPOSE_FILE=docker-compose-node-test.yml
-    ;;
-esac
-
-## This will use RC/nightly node versions. It does NOT support TAV!
-if [ "${IS_EDGE}" = "true" ]; then
+if [[ "${IS_EDGE}" = "true" ]]; then
+  # This will run the regular tests against rc and nightly builds of
+  # node.js. It does NOT support TAV tests.
   if [[ -n "${TAV_MODULE}" ]]; then
     fatal "running TAV tests (TAV_MODULE=${TAV_MODULE}) with IS_EDGE=${IS_EDGE} is not supported"
   fi
   DOCKER_COMPOSE_FILE=docker-compose-edge.yml
+elif [[ -n "${TAV_MODULE}" ]]; then
+  # Run the TAV tests for a particular module.
+  case ${TAV_MODULE} in
+    redis|ioredis)
+      DOCKER_COMPOSE_FILE=docker-compose-redis.yml
+      ;;
+    tedious)
+      DOCKER_COMPOSE_FILE=docker-compose-mssql.yml
+      ;;
+    mongodb-core)
+      DOCKER_COMPOSE_FILE=docker-compose-mongodb.yml
+      ;;
+    pg|knex)
+      DOCKER_COMPOSE_FILE=docker-compose-postgres.yml
+      ;;
+    cassandra-driver)
+      DOCKER_COMPOSE_FILE=docker-compose-cassandra.yml
+      ;;
+    elasticsearch|@elastic/elasticsearch)
+      DOCKER_COMPOSE_FILE=docker-compose-elasticsearch.yml
+      ;;
+    mysql|mysql2)
+      DOCKER_COMPOSE_FILE=docker-compose-mysql.yml
+      ;;
+    memcached)
+      DOCKER_COMPOSE_FILE=docker-compose-memcached.yml
+      ;;
+    *)
+      # Just the "node_tests" container. No additional services needed for testing.
+      DOCKER_COMPOSE_FILE=docker-compose-node-test.yml
+      ;;
+  esac
+else
+  # Run the regular tests against a release build of node.js.
+  DOCKER_COMPOSE_FILE=docker-compose-all.yml
 fi
 
 set +e
