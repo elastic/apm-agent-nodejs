@@ -711,6 +711,7 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 
 test('disableInstrumentations', function (t) {
   var hapiVersion = require('hapi/package.json').version
+  var hapiHapiVersion = require('@hapi/hapi/package.json').version
   var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = require('@elastic/elasticsearch/package.json').version
 
@@ -720,7 +721,7 @@ test('disableInstrumentations', function (t) {
     modules.delete('hapi')
   }
   if (semver.lt(process.version, '8.9.0') ||
-      (semver.lt(process.version, '12.0.0') && semver.gte(hapiVersion, '19.0.0'))) {
+      (semver.lt(process.version, '12.0.0') && semver.gte(hapiHapiVersion, '19.0.0'))) {
     modules.delete('@hapi/hapi')
   }
   if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
