@@ -28,6 +28,7 @@ if (parsedVer.major === 10 && parsedVer.minor >= 0 && parsedVer.minor < 8) {
   process.exit()
 }
 
+const test = require('tape')
 const request = require('request')
 const Hapi = require('@hapi/hapi')
 const fixtures = require('./_fixtures')
