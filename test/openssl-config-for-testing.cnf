@@ -1,0 +1,19 @@
+# An OpenSSL config to provide to node for test runs.
+#
+# This sets to OpenSSL security level (SECLEVEL) to 0. The
+# "http2.createSecureServer()" tests in test/instrumentation/modules/http2.js
+# fail if SECLEVEL=2, which it is in some environments, e.g. the "node:16"
+# docker image.
+#
+# Based on https://github.com/nodejs/node/issues/36655
+
+openssl_conf = openssl_init
+
+[openssl_init]
+ssl_conf = ssl_sect
+
+[ssl_sect]
+system_default = system_default_sect
+
+[system_default_sect]
+CipherString = DEFAULT:@SECLEVEL=0
