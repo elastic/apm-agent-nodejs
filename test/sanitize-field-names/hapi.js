@@ -31,6 +31,8 @@ test('Running fixtures with hapi', function (suite) {
 async function runTest (
   t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
 ) {
+  t.timeoutAfter(1000) // ensure no hang
+
   // register a listener to close the server when we're done
   const done = () => {
     server.stop()
@@ -41,7 +43,7 @@ async function runTest (
   agent._config(agentConfig)
   const server = Hapi.server({
     port: 0,
-    host: '0.0.0.0'
+    host: 'localhost'
   })
 
   // resets agent values for tests.  Callback fires
@@ -65,12 +67,16 @@ async function runTest (
       for (const [header, value] of Object.entries(responseHeaders)) {
         response.header(header, value)
       }
+
+      // Note: Returning a `h.response(...)` from a hapi handler when both
+      // (a) node >=v16 and (b) using @hapi/hapi@18.x, the response hangs.
+      // We are ignoring this issue and just not testing this combination.
       return response
     }
   })
 
   await server.start()
-  const url = `http://${server.info.host}:${server.info.port}/test`
+  const url = server.info.uri + '/test'
   request.post(
     url,
     {
