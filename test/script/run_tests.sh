@@ -65,7 +65,12 @@ fi
 # "test/instrumentation/modules/http2.js" fails if the OpenSSL SECLEVEL=2,
 # which is the case in the node:16 Docker image and could be in other
 # environments. Here we explicitly set it to SECLEVEL=0 for testing.
-export NODE_OPTIONS="$NODE_OPTIONS --openssl-config=./test/openssl-config-for-testing.cnf"
+#
+# Skip for node v8 because it results in this warning:
+#   openssl config failed: error:25066067:DSO support routines:DLFCN_LOAD:could not load the shared library
+if [[ $major_node_version -le 8 ]]; then
+  export NODE_OPTIONS="$NODE_OPTIONS --openssl-config=./test/openssl-config-for-testing.cnf"
+fi
 
 if [[ "$CI" || "$1" == "none" ]]
 then
