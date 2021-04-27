@@ -719,7 +719,8 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
     modules.delete('hapi')
   }
-  if (semver.lt(process.version, '8.9.0')) {
+  if (semver.lt(process.version, '8.9.0') ||
+      (semver.lt(process.version, '12.0.0') && semver.gte(hapiVersion, '19.0.0'))) {
     modules.delete('@hapi/hapi')
   }
   if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
