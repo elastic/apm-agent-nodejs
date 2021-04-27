@@ -14,7 +14,7 @@ fi
 #
 # Skip for node v8 because it results in this warning:
 #   openssl config failed: error:25066067:DSO support routines:DLFCN_LOAD:could not load the shared library
-if [[ $major_node_version -lte 8 ]]; then
+if [[ $major_node_version -le 8 ]]; then
   export NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS}} --openssl-config=./test/openssl-config-for-testing.cnf"
 fi
 
