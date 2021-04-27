@@ -1,12 +1,33 @@
 'use strict'
-const { createAgentConfig } = require('./_shared')
-const agent = require('../..').start(createAgentConfig())
+
 const {
-  resetAgent,
   assertRequestHeadersWithFixture,
-  assertResponseHeadersWithFixture
+  assertResponseHeadersWithFixture,
+  createAgentConfig,
+  resetAgent
 } = require('./_shared')
-const test = require('tape')
+const agent = require('../..').start(createAgentConfig())
+
+// Skip out of testing hapi if the current version combo is unsupported.
+// (See similar logic in "test/instrumentation/modules/hapi/shared.js".)
+const semver = require('semver')
+const hapiVersion = require('@hapi/hapi/package.json').version
+// - hapi 17+ requires Node.js 8.9.0 or higher
+if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
+  process.exit()
+}
+// - hapi 19+ requires Node.js 12 or higher
+if (semver.lt(process.version, '12.0.0') && semver.gte(hapiVersion, '19.0.0')) {
+  process.exit()
+}
+// - hapi does not work on early versions of Node.js 10 because of
+//   https://github.com/nodejs/node/issues/20516
+//   NOTE: Do not use semver.satisfies, as it does not match prereleases
+const parsedVer = semver.parse(process.version)
+if (parsedVer.major === 10 && parsedVer.minor >= 0 && parsedVer.minor < 8) {
+  process.exit()
+}
+
 const request = require('request')
 const Hapi = require('@hapi/hapi')
 const fixtures = require('./_fixtures')
