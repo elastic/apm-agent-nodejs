@@ -9,22 +9,18 @@ module.exports = (moduleName) => {
     metricsInterval: 0,
     centralConfig: false
   })
-  var pkg = require(`${moduleName}/package.json`)
-  var semver = require('semver')
 
-  // hapi 17+ requires Node.js 8.9.0 or higher
-  if (semver.lt(process.version, '8.9.0') && semver.gte(pkg.version, '17.0.0')) process.exit()
-  // hapi 19+ requires Node.js 12 or higher
-  if (semver.lt(process.version, '12.0.0') && semver.gte(pkg.version, '19.0.0')) process.exit()
-
-  // hapi does not work on early versions of Node.js 10 because of https://github.com/nodejs/node/issues/20516
-  // NOTE: Do not use semver.satisfies, as it does not match prereleases
-  var parsed = semver.parse(process.version)
-  if (parsed.major === 10 && parsed.minor >= 0 && parsed.minor < 8) process.exit()
+  var isHapiIncompat = require('../../../_is_hapi_incompat')
+  if (isHapiIncompat(moduleName)) {
+    // Skip out of this test.
+    process.exit()
+  }
 
   var http = require('http')
 
   var Hapi = require(moduleName)
+  var pkg = require(moduleName + '/package.json')
+  var semver = require('semver')
   var test = require('tape')
 
   var mockClient = require('../../../_mock_http_client')

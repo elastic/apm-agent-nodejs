@@ -20,6 +20,7 @@ var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
 var apmName = require('../package').name
+var isHapiIncompat = require('./_is_hapi_incompat')
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
@@ -710,18 +711,15 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 })
 
 test('disableInstrumentations', function (t) {
-  var hapiVersion = require('hapi/package.json').version
-  var hapiHapiVersion = require('@hapi/hapi/package.json').version
   var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = require('@elastic/elasticsearch/package.json').version
 
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
-  if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
+  if (isHapiIncompat('hapi')) {
     modules.delete('hapi')
   }
-  if (semver.lt(process.version, '8.9.0') ||
-      (semver.lt(process.version, '12.0.0') && semver.gte(hapiHapiVersion, '19.0.0'))) {
+  if (isHapiIncompat('@hapi/hapi')) {
     modules.delete('@hapi/hapi')
   }
   if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
