@@ -90,8 +90,8 @@ pipeline {
                 // parallelTasks["Windows-Node.js-${version}"] = generateStepForWindows(version: version)
               }
 
-              // Only 12 for the time being
-              parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12')
+              // Only 14 for the time being
+              parallelTasks["Windows-Node.js-14"] = generateStepForWindows(version: '14')
 
               // Linting in parallel with the test stage
               parallelTasks['linting'] = linting()
