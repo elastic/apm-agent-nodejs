@@ -28,6 +28,21 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Add support for Node.js v16. (This also drops testing of Node.js v13
+  releases.)
+
+[float]
+===== Bug fixes
+
+
 [[release-notes-3.14.0]]
 ==== 3.14.0 - 2021/04/19
 
