@@ -23,7 +23,7 @@ fi
 # see http://git.661346.n2.nabble.com/git-clone-fails-when-current-user-is-not-in-etc-passwd-td7643604.html
 if [ -z "$(grep \"\:$(id -u)\:\" /etc/passwd)" ]; then
   git config --global user.name foo
-  git config --global user.email foo@exemple.com
+  git config --global user.email foo@example.com
   git config -l
 fi
 
