@@ -7,33 +7,33 @@ TAV_VERSIONS=${2}
 IS_EDGE=${3:false}
 
 case ${TAV_VERSIONS} in
-  # generic-pool|koa-router|handlebars|jade|pug|finalhandler|restify|fastify|mimic-response|got|bluebird|apollo-server-express|ws|graphql|express-graphql|hapi|express|express-queue)
-  #   DOCKER_COMPOSE_FILE=docker-compose-node-test.yml
-  #   ;;
-  # redis|ioredis)
-  #   DOCKER_COMPOSE_FILE=docker-compose-redis.yml
-  #   ;;
-  # tedious)
-  #   DOCKER_COMPOSE_FILE=docker-compose-mssql.yml
-  #   ;;
-  # mongodb-core)
-  #   DOCKER_COMPOSE_FILE=docker-compose-mongodb.yml
-  #   ;;
-  # pg|knex)
-  #   DOCKER_COMPOSE_FILE=docker-compose-postgres.yml
-  #   ;;
-  # cassandra-driver)
-  #   DOCKER_COMPOSE_FILE=docker-compose-cassandra.yml
-  #   ;;
-  # elasticsearch)
-  #   DOCKER_COMPOSE_FILE=docker-compose-elasticsearch.yml
-  #   ;;
-  # mysql|mysql2)
-  #   DOCKER_COMPOSE_FILE=docker-compose-mysql.yml
-  #   ;;
-  # memcached)
-  #   DOCKER_COMPOSE_FILE=docker-compose-memcached.yml
-  #   ;;
+  generic-pool|koa-router|handlebars|jade|pug|finalhandler|restify|fastify|mimic-response|got|bluebird|apollo-server-express|ws|graphql|express-graphql|hapi|express|express-queue)
+    DOCKER_COMPOSE_FILE=docker-compose-node-test.yml
+    ;;
+  redis|ioredis)
+    DOCKER_COMPOSE_FILE=docker-compose-redis.yml
+    ;;
+  tedious)
+    DOCKER_COMPOSE_FILE=docker-compose-mssql.yml
+    ;;
+  mongodb-core)
+    DOCKER_COMPOSE_FILE=docker-compose-mongodb.yml
+    ;;
+  pg|knex)
+    DOCKER_COMPOSE_FILE=docker-compose-postgres.yml
+    ;;
+  cassandra-driver)
+    DOCKER_COMPOSE_FILE=docker-compose-cassandra.yml
+    ;;
+  elasticsearch)
+    DOCKER_COMPOSE_FILE=docker-compose-elasticsearch.yml
+    ;;
+  mysql|mysql2)
+    DOCKER_COMPOSE_FILE=docker-compose-mysql.yml
+    ;;
+  memcached)
+    DOCKER_COMPOSE_FILE=docker-compose-memcached.yml
+    ;;
   *)
     DOCKER_COMPOSE_FILE=docker-compose-all.yml
     ;;
