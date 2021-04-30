@@ -4,16 +4,16 @@ set -exo pipefail
 
 SCRIPTPATH=$(dirname "$0")
 RESULT_FILE=${1}
+NODE_VERSION=${2}
 
-if [ -z "$1" ]
-then
+if [[ -z "$1" || -z "$2" ]]; then
   echo "Usage:"
-  echo "  run-benchmarks-ci.sh <output-file>"
+  echo "  run-benchmarks-ci.sh <output-file> <node-version>"
   echo
-  echo "Examples:"
-  echo "  run-benchmarks-ci.sh out.ndjson  - Run benchmark + store result in out.ndjson"
+  echo "Example: Run benchmark with node v14, store result in out.ndjson"
+  echo "  run-benchmarks-ci.sh out.ndjson 14"
   echo
-  exit
+  exit 1
 fi
 
 echo $(pwd)
@@ -82,7 +82,7 @@ function benchmark() {
     safe_env_export "CHANGE_TITLE" "${CHANGE_TITLE}" >> env_vars.sh
     echo "export CHANGE_TARGET='${CHANGE_TARGET}'" >> env_vars.sh
     echo "export CHANGE_URL='${CHANGE_URL}'" >> env_vars.sh
-    sudo -n cset proc --exec /benchmark -- ./"${SCRIPTPATH}"/run-benchmarks.sh all "${RESULT_FILE}"
+    sudo -n cset proc --exec /benchmark -- ./"${SCRIPTPATH}"/run-benchmarks.sh all "${RESULT_FILE}" "${NODE_VERSION}"
 }
 
 function tearDown() {

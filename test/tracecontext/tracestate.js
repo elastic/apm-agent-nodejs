@@ -287,3 +287,13 @@ test('TraceState defaultValues', function (t) {
   t.equals(tracestate2.toW3cString(), 'es=foo:bar2;zip:zap2', 'prefers defautlValues over binary in constructor')
   t.end()
 })
+
+test('TraceState empty or invalid values', function (t) {
+  const tracestateEmpty = TraceState.fromStringFormatString('')
+  t.ok(undefined === tracestateEmpty.getValue('s'), 'does not crash for empty tracestate')
+
+  const tracestateInvalid = TraceState.fromStringFormatString('xxxxxx')
+  t.ok(undefined === tracestateInvalid.getValue('s'), 'does not crash for invalid tracestate')
+
+  t.end()
+})

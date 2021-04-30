@@ -205,6 +205,7 @@ Note that not all core Node.js API's can be instrumented without the use of Asyn
 * *Type:* Array
 * *Default:* `[]`
 * *Env:* `ELASTIC_APM_TRANSACTION_IGNORE_URLS`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `transaction_ignore_urls`
 
 Array or comma-separated string used to restrict requests for certain URLs from being instrumented.
 
@@ -366,7 +367,11 @@ If the `errorOnAbortedRequests` property is `false`, this property is ignored.
 
 Specify the sampling rate to use when deciding whether to trace a request.
 
-The value should between `0.0` and `1.0` where `1.0` is 100% of all requests.
+This must be a value between `0.0` and `1.0`, where `1.0` means 100% of requests
+are traced. The value is rounded to four decimal places of precision (e.g.
+0.0001, 0.3333) to ensure consistency and reasonable size when propagating the
+sampling rate in the `tracestate` header for
+<<distributed-tracing,distributed tracing>>.
 
 [[hostname]]
 ==== `hostname`
@@ -424,35 +429,68 @@ require('elastic-apm-node').start({
 * *Type:* String
 * *Default:* `'info'`
 * *Env:* `ELASTIC_APM_LOG_LEVEL`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `log_level`
 
-Set the verbosity level for the agent.
-Note that this does not have any influence on the types of errors that are sent to the APM Server.
-This only controls how chatty the agent is in your logs.
-As well, this only applies when using the built in logger.
-Log levels will not be automatically applied to a custom `logger`.
+Set the verbosity level for the agent's logging. Note that this does not have
+any influence on the types of errors that are sent to the APM Server. This only
+controls how chatty the agent is in your logs. Possible levels are: `trace`
+(the most verbose logging, avoid in production), `debug`, `info`, `warning`,
+`error`, `critical`, and `off` (disable all logging).
 
-Possible levels are: `trace`, `debug`, `info`, `warning`, `error`, `critical`, and `off`.
+This config only applies when using the built-in logger. Log levels will not
+be automatically applied to a custom <<logger,`logger`>>.
 
 [[logger]]
 ==== `logger`
 
 * *Type:* object
+* *Env:* `ELASTIC_APM_LOGGER=false` to _ignore_ a custom logger
 
-Set a custom logger, e.g. https://github.com/trentm/node-bunyan[bunyan]:
+By default, the APM agent logs to stdout in
+{ecs-logging-ref}/intro.html[ecs-logging] format. Use the `logger` config to
+pass in a custom logger object. The custom logger must provide `trace`,
+`debug`, `info`, `warn`, `error`, and `fatal` methods that take a string
+message argument.
+
+A custom logger may result in _structured log data being lost_. As of version
+3.13, the agent uses structured logging using the
+https://getpino.io/#/docs/api?id=logger[pino API]. To avoid issues with
+incompatible logger APIs, a given custom logger is wrapped in such a way that
+only the log message is passed through. As a special case, if the provided
+logger is a _pino logger instance_, then it will be used directly without
+loss of structured fields. Setting the environment variable
+`ELASTIC_APM_LOGGER=false` will *ignore* a custom logger. This is provided to
+assist with <<debug-mode>> troubleshooting.
+
+An example using a custom pino logger:
+
+[source,js]
+----
+const pino = require('pino')
+require('elastic-apm-node').start({
+  logger: pino({ level: 'info' })
+})
+----
+
+or using a https://github.com/trentm/node-bunyan[Bunyan] logger:
+
+[source,js]
+----
+const bunyan = require('bunyan')
+require('elastic-apm-node').start({
+  logger: bunyan.createLogger({ level: 'info' })
+})
+----
+
+To get the https://github.com/watson/console-log-level[unstructured logging output]
+similar to agent versions before 3.13, use the following:
 
 [source,js]
 ----
 require('elastic-apm-node').start({
-  logger: require('bunyan')({ level: 'info' })
+  logger: require('console-log-level')()
 })
 ----
-
-If no custom logger is provided,
-the agent will use its built-in logger which will log to STDOUT and STDERR depending on the log level.
-
-The logger should expose the following functions: `trace`, `debug`,`info`, `warn`, `error`, and `fatal`.
-
-Note that if a custom logger is provided, the `logLevel` option will be ignored.
 
 [[capture-exceptions]]
 ==== `captureExceptions`
@@ -643,6 +681,26 @@ Specify the maximum number of spans to capture within a request transaction
 before dropping further spans.
 Setting to `-1` means that spans will never be dropped.
 
+[[max-queue-size]]
+==== `maxQueueSize`
+
+* *Type:* Number
+* *Default:* `1024`
+* *Env:* `ELASTIC_APM_MAX_QUEUE_SIZE`
+
+The maximum size of buffered events.
+
+Events like transactions, spans, and errors are buffered when the agent can't
+keep up with sending them to the APM Server or if the APM server is down.
+If the queue is full, events are rejected which means you will lose
+transactions and spans. This guards the application from consuming too much
+memory and possibly crashing in case the APM server is unavailable for a longer
+period of time.
+
+A lower value will decrease the heap overhead of the agent, while a higher
+value makes it less likely to lose events in case of a temporary spike in
+throughput.
+
 [[api-request-time]]
 ==== `apiRequestTime`
 
@@ -711,6 +769,7 @@ the HTTP request is terminated and the TCP socket closed.
 * *Type:* Array
 * *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', 'authorization', 'set-cookie', 'pw', 'pass', 'connect.sid']`
 * *Env:* `ELASTIC_SANITIZE_FIELD_NAMES`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `sanitize_field_names`
 
 Remove sensitive data sent to Elastic APM.
 
@@ -926,3 +985,34 @@ During startup the Node.js agent queries the local environment to determine whet
 - `none`: Do not query for any cloud provider information.
 
 If the value is not one of the five listed above, the agent will use the value of `auto`.
+
+[[ignore-message-queues]]
+==== `ignoreMessageQueues`
+* *Type:* Array
+* *Default:* `[]`
+* *Env:* `ELASTIC_IGNORE_MESSAGE_QUEUES`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `ignore_message_queues`
+
+Array or comma-separated string of wildcard patterns that tell the agent to
+ignore certain queues/topics when instrumenting messaging systems.
+
+When an instrumented messaging system sends or receives a message, the agent
+will test the queue/topic name against each wildcard in this list. If
+the name matches, the agent will skip instrumenting the operation.
+
+The `ignoreMessageQueues` property supports simple wildcard (`*`) patterns, and
+may not include commas.  Wildcard matches are case-insensitive by default. You
+may make wildcard searches case-sensitive by using the `(?-i)` prefix.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  ignoreMessageQueues: [
+    'overnight_jobs',
+    'events_*',
+    '(?-i)caseSensitiveSearch'
+  ]
+})
+----
