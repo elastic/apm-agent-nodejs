@@ -36,6 +36,23 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
+      // Explicitly respond with headers before aborting the client request,
+      // because:
+      // (a) `assert(t, data)` above asserts that `trans.result` has been set
+      //     to "HTTP 2xx", which depends on the wrapped `writeHead` having been
+      //     called, and
+      // (b) calling res.write('...') or res.end('...') *after* a clientReq.abort()
+      //     in node >=15 leads to a race on whether `ServerResponse.writeHead()`
+      //     is called.
+      //
+      // The race:
+      // - clientReq.abort() closes the client-side of the socket
+      // - The server-side of the socket closes (`onClose` in lib/_http_agent.js)
+      // - (race) If the server-side socket is closed before `res.write` is
+      //   called, then res.writeHead() will not be called as of this change:
+      //   https://github.com/nodejs/node/pull/31818/files#diff-48d21edbddb6e855d1ee5716c49bcdc0d913c11ee8a24a98ea7dbc60cd253556L661-R706
+      res.writeHead(200)
+
       clientReq.abort()
       res.write('sync write')
       process.nextTick(function () {
@@ -80,9 +97,11 @@ test('client-side abort above error threshold - call end', function (t) {
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
+      res.writeHead(200) // See race comment above.
+
       clientReq.abort()
       setTimeout(function () {
-        res.write('Hello') // server emits clientError if written in same tick as abort
+        res.write('Hello')
         setTimeout(function () {
           res.end(' World')
         }, 10)
@@ -197,6 +216,7 @@ test('server-side abort below error threshold and socket closed - call end', fun
   }
 
   var server = http.createServer(function (req, res) {
+    res.writeHead(200) // See race comment above.
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
       t.notOk(ended, 'should not have ended transaction')
@@ -240,6 +260,7 @@ test('server-side abort above error threshold and socket closed - call end', fun
   }
 
   var server = http.createServer(function (req, res) {
+    res.writeHead(200) // See race comment above.
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
       t.notOk(ended, 'should not have ended transaction')

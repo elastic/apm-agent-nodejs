@@ -42,7 +42,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "^8.6.0 || 10 || 12 || 13 || 14"
+    "node": "^8.6.0 || 10 || 12 || 13 || 14 || 15 || 16"
   },
   "keywords": [
     "opbeat",
@@ -115,10 +115,8 @@
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
     "@elastic/elasticsearch": "^7.10.0",
-    "body-parser": "^1.19.0",
-    "@hapi/hapi": "^18.4.1",
+    "@hapi/hapi": "^20.1.2",
     "@koa/router": "^9.0.1",
-    "koa-bodyparser": "^3.2.0",
     "@types/node": "^13.7.4",
     "ajv": "^6.12.6",
     "apollo-server-express": "^2.10.1",
@@ -126,6 +124,7 @@
     "backport": "^5.1.2",
     "benchmark": "^2.1.4",
     "bluebird": "^3.7.2",
+    "body-parser": "^1.19.0",
     "cassandra-driver": "^4.4.0",
     "clone": "^2.0.0",
     "columnify": "^1.5.4",
@@ -151,6 +150,7 @@
     "jade": "^1.11.0",
     "knex": "^0.21.2",
     "koa": "^2.11.0",
+    "koa-bodyparser": "^3.2.0",
     "koa-router": "^9.0.1",
     "lambda-local": "^1.7.1",
     "memcached": "^2.2.2",
