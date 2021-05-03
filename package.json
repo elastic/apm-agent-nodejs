@@ -98,6 +98,7 @@
     "lru-cache": "^6.0.0",
     "measured-reporting": "^1.51.1",
     "monitor-event-loop-delay": "^1.0.0",
+    "native-hdr-histogram": "^1.0.0",
     "object-filter-sequence": "^1.0.0",
     "object-identity-map": "^1.0.2",
     "original-url": "^1.2.3",

@@ -44,6 +44,7 @@ test('reports expected metrics', function (t) {
     hostname: 'foo',
     environment: 'bar'
   }, (metricset = {}) => {
+
     t.comment(`event #${++count}`)
 
     const now = Date.now()
@@ -60,7 +61,7 @@ test('reports expected metrics', function (t) {
       env: 'bar'
     }, 'has expected tags')
 
-    const metrics = {
+    const metricsToTest = {
       'system.cpu.total.norm.pct': (value) => {
         if (count === 1) {
           t.ok(value >= 0 && value <= 1, 'is betewen 0 and 1')
@@ -128,17 +129,19 @@ test('reports expected metrics', function (t) {
       }
     }
 
-    for (const name of Object.keys(metrics)) {
+    for (const name of Object.keys(metricsToTest)) {
       const metric = metricset.samples[name]
       t.comment(name)
       t.ok(metric, 'is present')
+      console.log(name, metric.value)
       t.strictEqual(typeof metric.value, 'number', 'is a number')
       t.ok(Number.isFinite(metric.value), `is finite (was: ${metric.value})`)
-      metrics[name](metric.value)
+      metricsToTest[name](metric.value)
     }
 
     if (count === 2) {
       clearTimeout(timeout)
+      metrics.stop()
       t.end()
     } else {
       last = metricset.timestamp
@@ -152,6 +155,7 @@ test('reports expected metrics', function (t) {
   metrics.getOrCreateGauge('ws.connections', () => {
     return 23
   })
+
 })
 
 test('applies metrics limit', function (t) {
@@ -227,3 +231,49 @@ function spinCPUFor (durationMs) {
   const start = Date.now()
   while (Date.now() - start < durationMs) {}
 }
+
+test('sends histogram', function ( t ) {
+
+  let calls = 1
+  let stopwatch
+  let timer
+  let intervalId
+
+  let agent
+  let metrics
+
+  agent = mockAgent({
+    metricsInterval: delayMs / 1000,
+    hostname: 'foo',
+    environment: 'bar'
+  }, (metricset = {}) => {
+    calls--
+
+    let sample = metricset.samples['ts.server_start']
+
+    t.ok(sample.values.length > 0, 'has at least one value')
+    t.ok(sample.counts.length == sample.values.length, 'has as much values as counts')
+    t.ok(sample.values[0] > 0, 'value is larger than 0')
+    t.ok(sample.counts[0] > 0, 'count is larger than 0')
+
+    if(calls === 0) {
+      clearInterval(intervalId)
+      timer.unref()
+      metrics.stop()
+      t.end()
+    }
+  })
+
+  metrics = new Metrics(agent)
+  metrics.start()
+
+  timer = metrics.getOrCreateTimer('ts.server_start')
+
+  stopwatch = timer.start()
+
+  intervalId = setInterval(function ( ) {
+    stopwatch.end()
+    stopwatch = timer.start()
+  }, delayMs/4)
+  
+})
