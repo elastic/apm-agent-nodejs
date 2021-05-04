@@ -25,6 +25,10 @@ isSecure.forEach(secure => {
   test(`http2.${method} compatibility mode`, t => {
     t.plan(15)
 
+    // Note NODE_OPTIONS env because it sometimes has a setting relevant
+    // for this test.
+    t.comment(`NODE_OPTIONS=${process.env.NODE_OPTIONS}`)
+
     resetAgent((data) => {
       assert(t, data, secure, port)
       server.close()
