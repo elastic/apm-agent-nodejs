@@ -122,3 +122,26 @@ Note that it might likely get out of date:
 
         deactivate
 
+
+# Other tips
+
+## How to trigger a benchmark run for a PR
+
+1. Go to the [apm-ci list of apm-agent-nodejs PRs](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/view/change-requests/) and click on your PR.
+2. Click "Build with Parameters" in the left sidebar. (If you don't have "Build with Parameters" then you aren't logged in.)
+3. Select these options to (mostly) *only* run the ["Benchmarks" step](https://github.com/elastic/apm-agent-nodejs/blob/v3.14.0/.ci/Jenkinsfile#L311-L330):
+    - [x] Run\_As\_Master\_Branch
+    - [x] bench\_ci
+    - [ ] tav\_ci
+    - [ ] tests\_ci
+    - [ ] test\_edge\_ci
+
+Limitation: The current dashboard for benchmark results only shows datapoints
+from the "master" branch. It would be useful to have a separate chart that
+showed PR values.
+
+(Another way to start the "Benchmarks" step is via a GitHub comment
+"jenkins run the benchmark tests". However, that also triggers the "Test" step
+and, depending on other conditions, the "TAV Test" step -- both of which are
+long and will run before getting to the Benchmarks run.)
+
