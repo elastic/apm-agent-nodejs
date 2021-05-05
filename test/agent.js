@@ -1207,6 +1207,7 @@ test('#captureError()', function (t) {
     req.headers.string = 'foo'
     req.headers.number = 42 // in case someone messes with the headers
     req.headers.array = ['foo', 42]
+    req.headers.password = 'this should be redacted' // testing sanitizeFieldNames
     req.body = 'test'
 
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
@@ -1224,9 +1225,46 @@ test('#captureError()', function (t) {
             'content-length': '4',
             string: 'foo',
             number: '42',
-            array: ['foo', '42']
+            array: ['foo', '42'],
+            password: '[REDACTED]'
           },
           body: '[REDACTED]'
+        })
+        t.end()
+      })
+  })
+
+  // This tests that a urlencoded request body captured in an *error* event
+  // is properly sanitized according to sanitizeFieldNames.
+  t.test('options.request + captureBody=errors', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+
+    const req = new http.IncomingMessage()
+    req.httpVersion = '1.1'
+    req.method = 'POST'
+    req.url = '/'
+    req.socket = { remoteAddress: '127.0.0.1' }
+    req.body = 'foo=bar&password=sekrit'
+    const bodyLen = Buffer.byteLength(req.body)
+    req.headers['content-length'] = String(bodyLen)
+    req.headers['content-type'] = 'application/x-www-form-urlencoded'
+
+    APMServerWithDefaultAsserts(t, { captureBody: 'errors' }, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with request'), { request: req })
+      })
+      .on('data-error', function (data) {
+        t.strictEqual(data.exception.message, 'with request')
+        t.deepEqual(data.context.request, {
+          http_version: '1.1',
+          method: 'POST',
+          url: { raw: '/', protocol: 'http:', pathname: '/' },
+          socket: { remote_address: '127.0.0.1', encrypted: false },
+          headers: {
+            'content-length': String(bodyLen),
+            'content-type': 'application/x-www-form-urlencoded'
+          },
+          body: 'foo=bar&password=' + encodeURIComponent('[REDACTED]')
         })
         t.end()
       })
@@ -1242,7 +1280,8 @@ test('#captureError()', function (t) {
       'content-length': 4,
       string: 'foo',
       number: 42, // in case someone messes with the headers
-      array: ['foo', 42]
+      array: ['foo', 42],
+      password: 'this should be redacted' // testing sanitizeFieldNames
     }
 
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
@@ -1257,7 +1296,8 @@ test('#captureError()', function (t) {
             'content-length': '4',
             string: 'foo',
             number: '42',
-            array: ['foo', '42']
+            array: ['foo', '42'],
+            password: '[REDACTED]'
           },
           headers_sent: false,
           finished: false
