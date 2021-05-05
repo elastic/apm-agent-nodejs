@@ -99,11 +99,11 @@ test('#startTransaction()', function (t) {
     agent.start()
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     var trans = agent.startTransaction('foo', 'bar', { childOf })
-    t.strictEqual(trans._context.version, '00')
-    t.strictEqual(trans._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
-    t.notEqual(trans._context.id, '00f067aa0ba902b7')
-    t.strictEqual(trans._context.parentId, '00f067aa0ba902b7')
-    t.strictEqual(trans._context.flags, '01')
+    t.strictEqual(trans._context.traceparent.version, '00')
+    t.strictEqual(trans._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(trans._context.traceparent.id, '00f067aa0ba902b7')
+    t.strictEqual(trans._context.traceparent.parentId, '00f067aa0ba902b7')
+    t.strictEqual(trans._context.traceparent.flags, '01')
     t.end()
   })
 })
@@ -328,11 +328,11 @@ test('#startSpan()', function (t) {
     agent.startTransaction()
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     var span = agent.startSpan(null, null, { childOf })
-    t.strictEqual(span._context.version, '00')
-    t.strictEqual(span._context.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
-    t.notEqual(span._context.id, '00f067aa0ba902b7')
-    t.strictEqual(span._context.parentId, '00f067aa0ba902b7')
-    t.strictEqual(span._context.flags, '01')
+    t.strictEqual(span._context.traceparent.version, '00')
+    t.strictEqual(span._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
+    t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7')
+    t.strictEqual(span._context.traceparent.parentId, '00f067aa0ba902b7')
+    t.strictEqual(span._context.traceparent.flags, '01')
     t.end()
   })
 })
@@ -623,6 +623,39 @@ test('filters', function (t) {
       })
   })
 
+  t.test('#addMetadataFilter()', function (t) {
+    t.plan(5 + APMServerWithDefaultAsserts.asserts)
+    APMServerWithDefaultAsserts(t, {}, { expect: ['metadata', 'transaction'] })
+      .on('listening', function () {
+        this.agent.addErrorFilter(function () {
+          t.fail('should not call error filter')
+        })
+        this.agent.addSpanFilter(function () {
+          t.fail('should not call span filter')
+        })
+        this.agent.addMetadataFilter(function (obj) {
+          t.strictEqual(obj.service.agent.name, 'nodejs')
+          obj.order = 1
+          return obj
+        })
+        this.agent.addMetadataFilter('invalid')
+        this.agent.addMetadataFilter(function (obj) {
+          t.strictEqual(obj.service.agent.name, 'nodejs')
+          t.strictEqual(++obj.order, 2)
+          return obj
+        })
+
+        this.agent.startTransaction()
+        this.agent.endTransaction()
+        this.agent.flush()
+      })
+      .on('data-metadata', function (metadata) {
+        t.strictEqual(metadata.service.agent.name, 'nodejs')
+        t.strictEqual(metadata.order, 2)
+        t.end()
+      })
+  })
+
   const falsyValues = [undefined, null, false, 0, '', NaN]
 
   falsyValues.forEach(falsy => {
@@ -649,7 +682,7 @@ test('filters', function (t) {
         setTimeout(function () {
           t.end()
           server.close()
-        }, 50)
+        }, 200)
       })
     })
 
@@ -757,8 +790,9 @@ test('#flush()', function (t) {
     t.plan(2)
     var agent = Agent()
     agent.flush(function (err) {
-      t.error(err)
+      t.error(err, 'no error passed to agent.flush callback')
       t.pass('should call flush callback even if agent.start() wasn\'t called')
+      t.end()
     })
   })
 
@@ -767,8 +801,9 @@ test('#flush()', function (t) {
     var agent = Agent()
     agent.start({ active: false })
     agent.flush(function (err) {
-      t.error(err)
+      t.error(err, 'no error passed to agent.flush callback')
       t.pass('should call flush callback even if agent is inactive')
+      t.end()
     })
   })
 
@@ -777,8 +812,9 @@ test('#flush()', function (t) {
     var agent = Agent()
     agent.start()
     agent.flush(function (err) {
-      t.error(err)
+      t.error(err, 'no error passed to agent.flush callback')
       t.pass('should call flush callback even if there\'s nothing to flush')
+      t.end()
     })
   })
 
@@ -789,31 +825,36 @@ test('#flush()', function (t) {
         this.agent.startTransaction('foo')
         this.agent.endTransaction()
         this.agent.flush(function (err) {
-          t.error(err)
+          // 2. ... the flush callback should be called.
+          t.error(err, 'no error passed to agent.flush callback')
           t.pass('should call flush callback after flushing the queue')
+          t.end()
         })
       })
       .on('data-transaction', function (data) {
-        t.strictEqual(data.name, 'foo')
-        t.end()
+        // 1. The APM server should receive the transaction, and then ...
+        t.strictEqual(data.name, 'foo', 'APM server received the "foo" transaction')
       })
   })
 })
 
 test('#captureError()', function (t) {
   t.test('with callback', function (t) {
-    t.plan(4 + APMServerWithDefaultAsserts.asserts)
+    t.plan(5 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         this.agent.captureError(new Error('with callback'), function (err, id) {
-          t.error(err)
+          // 2. ... the captureError callback should be called.
+          t.pass('called captureError callback')
+          t.error(err, 'no error from captureError callback')
           t.ok(/^[a-z0-9]{32}$/i.test(id), 'has valid error.id')
-          t.pass('called callback')
+          t.end()
         })
       })
       .on('data-error', function (data) {
+        // 1. The APM server should receive the error, and then ...
+        t.pass('APM Server received the error')
         t.strictEqual(data.exception.message, 'with callback')
-        t.end()
       })
   })
 
@@ -1105,7 +1146,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('include valid context ids and sampled flag', function (t) {
-    t.plan(8 + APMServerWithDefaultAsserts.asserts)
+    t.plan(9 + APMServerWithDefaultAsserts.asserts)
 
     let trans = null
     let span = null
@@ -1119,10 +1160,12 @@ test('#captureError()', function (t) {
         trans = this.agent.startTransaction('foo')
         span = this.agent.startSpan('bar')
         this.agent.captureError(new Error('with callback'), function () {
-          t.pass('called callback')
+          t.pass('captureError callback was called')
+          t.end()
         })
       })
       .on('data-error', function (data) {
+        t.pass('APM server received the error')
         t.strictEqual(data.exception.message, 'with callback')
         t.strictEqual(data.id.length, 32, 'id is 32 characters')
         t.strictEqual(data.parent_id, span.id, 'parent_id matches span id')
@@ -1130,7 +1173,6 @@ test('#captureError()', function (t) {
         t.strictEqual(data.transaction_id, trans.id, 'transaction_id matches transaction id')
         t.strictEqual(data.transaction.type, trans.type, 'transaction.type matches transaction type')
         t.strictEqual(data.transaction.sampled, true, 'is sampled')
-        t.end()
       })
   })
 
@@ -1165,6 +1207,7 @@ test('#captureError()', function (t) {
     req.headers.string = 'foo'
     req.headers.number = 42 // in case someone messes with the headers
     req.headers.array = ['foo', 42]
+    req.headers.password = 'this should be redacted' // testing sanitizeFieldNames
     req.body = 'test'
 
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
@@ -1182,9 +1225,46 @@ test('#captureError()', function (t) {
             'content-length': '4',
             string: 'foo',
             number: '42',
-            array: ['foo', '42']
+            array: ['foo', '42'],
+            password: '[REDACTED]'
           },
           body: '[REDACTED]'
+        })
+        t.end()
+      })
+  })
+
+  // This tests that a urlencoded request body captured in an *error* event
+  // is properly sanitized according to sanitizeFieldNames.
+  t.test('options.request + captureBody=errors', function (t) {
+    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+
+    const req = new http.IncomingMessage()
+    req.httpVersion = '1.1'
+    req.method = 'POST'
+    req.url = '/'
+    req.socket = { remoteAddress: '127.0.0.1' }
+    req.body = 'foo=bar&password=sekrit'
+    const bodyLen = Buffer.byteLength(req.body)
+    req.headers['content-length'] = String(bodyLen)
+    req.headers['content-type'] = 'application/x-www-form-urlencoded'
+
+    APMServerWithDefaultAsserts(t, { captureBody: 'errors' }, { expect: 'error' })
+      .on('listening', function () {
+        this.agent.captureError(new Error('with request'), { request: req })
+      })
+      .on('data-error', function (data) {
+        t.strictEqual(data.exception.message, 'with request')
+        t.deepEqual(data.context.request, {
+          http_version: '1.1',
+          method: 'POST',
+          url: { raw: '/', protocol: 'http:', pathname: '/' },
+          socket: { remote_address: '127.0.0.1', encrypted: false },
+          headers: {
+            'content-length': String(bodyLen),
+            'content-type': 'application/x-www-form-urlencoded'
+          },
+          body: 'foo=bar&password=' + encodeURIComponent('[REDACTED]')
         })
         t.end()
       })
@@ -1200,7 +1280,8 @@ test('#captureError()', function (t) {
       'content-length': 4,
       string: 'foo',
       number: 42, // in case someone messes with the headers
-      array: ['foo', 42]
+      array: ['foo', 42],
+      password: 'this should be redacted' // testing sanitizeFieldNames
     }
 
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
@@ -1215,7 +1296,8 @@ test('#captureError()', function (t) {
             'content-length': '4',
             string: 'foo',
             number: '42',
-            array: ['foo', '42']
+            array: ['foo', '42'],
+            password: '[REDACTED]'
           },
           headers_sent: false,
           finished: false
@@ -1254,17 +1336,19 @@ test('#handleUncaughtExceptions()', function (t) {
   })
 
   t.test('should send an uncaughtException to server', function (t) {
-    t.plan(2 + APMServerWithDefaultAsserts.asserts)
+    t.plan(4 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
         this.agent.handleUncaughtExceptions(function (err) {
+          t.pass('handleUncaughtExceptions callback was called')
           t.ok(isError(err))
+          t.end()
         })
         process.emit('uncaughtException', new Error('uncaught'))
       })
       .on('data-error', function (data) {
+        t.pass('APM server received the error for the uncaughtException')
         t.strictEqual(data.exception.message, 'uncaught')
-        t.end()
       })
   })
 })
@@ -1462,8 +1546,8 @@ function validateMetadata (t) {
 }
 validateMetadata.asserts = 1 + assertMetadata.asserts
 
-function APMServerWithDefaultAsserts (t, opts, mockOpts) {
-  var server = APMServer(opts, mockOpts)
+function APMServerWithDefaultAsserts (t, agentOpts, mockOpts) {
+  var server = APMServer(agentOpts, mockOpts)
     .on('request', validateRequest(t))
     .on('data-metadata', validateMetadata(t))
   t.on('end', function () {

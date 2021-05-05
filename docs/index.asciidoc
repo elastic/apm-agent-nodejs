@@ -39,6 +39,8 @@ include::./source-maps.asciidoc[]
 
 include::./distributed-tracing.asciidoc[]
 
+include::./message-queues.asciidoc[]
+
 include::./performance-tuning.asciidoc[]
 
 include::./troubleshooting.asciidoc[]

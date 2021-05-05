@@ -9,13 +9,21 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
+// Skip (exit the process) if this package version doesn't support this version
+// of node.
+const esVersion = require('@elastic/elasticsearch/package.json').version
+const semver = require('semver')
+if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
+  console.log(`# SKIP @elastic/elasticsearch@${esVersion} does not support node ${process.version}`)
+  process.exit()
+}
+
 // Silence deprecation warning from @elastic/elasticsearch when using a Node.js
 // version that is *soon* to be EOL'd, but isn't yet.
 process.noDeprecation = true
 const { Client } = require('@elastic/elasticsearch')
 
 const { Readable } = require('stream')
-const semver = require('semver')
 const test = require('tape')
 
 const findObjInArray = require('../../../_utils').findObjInArray
@@ -432,7 +440,54 @@ if (semver.gte(pkgVersion, '7.7.0')) {
   })
 }
 
+test('outcome=success on both spans', function userLandCode (t) {
+  resetAgent(checkSpanOutcomesSuccess(t))
+
+  agent.startTransaction('myTrans')
+
+  const client = new Client({ node })
+  client.ping().then(function () {
+    agent.endTransaction()
+    agent.flush()
+  }).catch(t.error)
+})
+
+test('outcome=failure on both spans', function userLandCode (t) {
+  const searchOpts = { notaparam: 'notthere' }
+
+  resetAgent(checkSpanOutcomesFailures(t))
+
+  agent.startTransaction('myTrans')
+
+  const client = new Client({ node })
+  client
+    .search(searchOpts)
+    .then(_result => {})
+    .catch(function () {
+      agent.endTransaction()
+      agent.flush()
+    })
+})
+
 // Utility functions.
+
+function checkSpanOutcomesFailures (t) {
+  return function (data) {
+    for (const span of data.spans) {
+      t.equals(span.outcome, 'failure', 'spans outcomes are failure')
+    }
+    t.end()
+  }
+}
+
+function checkSpanOutcomesSuccess (t) {
+  return function (data) {
+    for (const span of data.spans) {
+      t.equals(span.outcome, 'success', 'spans outcomes are success')
+    }
+    t.end()
+  }
+}
 
 function checkDataAndEnd (t, method, path, dbStatement) {
   return function (data) {

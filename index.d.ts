@@ -110,6 +110,7 @@ declare class Agent implements Taggable, StartSpanFn {
   addErrorFilter (fn: FilterFn): void;
   addSpanFilter (fn: FilterFn): void;
   addTransactionFilter (fn: FilterFn): void;
+  addMetadataFilter (fn: FilterFn): void;
   flush (callback?: Function): void;
   destroy (): void;
 
@@ -119,6 +120,9 @@ declare class Agent implements Taggable, StartSpanFn {
   // Custom metrics
   registerMetric(name: string, callback: Function): void;
   registerMetric(name: string, labels: Labels, callback: Function): void;
+
+  setTransactionOutcome(outcome: Outcome): void;
+  setSpanOutcome(outcome: Outcome): void;
 }
 
 type Outcome = 'unknown' | 'success' | 'failure'
@@ -169,6 +173,8 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
   ): Span | null;
   ensureParentId (): string;
   end (result?: string | number | null, endTime?: number): void;
+
+  setOutcome(outcome: Outcome): void;
 }
 
 declare class Span extends GenericSpan {
@@ -179,6 +185,8 @@ declare class Span extends GenericSpan {
   name: string;
 
   end (endTime?: number): void;
+
+  setOutcome(outcome: Outcome): void;
 }
 
 interface AgentConfigOptions {
@@ -204,6 +212,7 @@ interface AgentConfigOptions {
   frameworkVersion?: string;
   globalLabels?: KeyValueConfig;
   hostname?: string;
+  ignoreMessageQueues?: Array<string>;
   ignoreUrls?: Array<string | RegExp>;
   ignoreUserAgents?: Array<string | RegExp>;
   instrument?: boolean;
@@ -215,6 +224,7 @@ interface AgentConfigOptions {
   logLevel?: LogLevel;
   logUncaughtExceptions?: boolean;
   logger?: Logger;
+  maxQueueSize?: number;
   metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   payloadLogFile?: string;
   centralConfig?: boolean;
@@ -248,6 +258,7 @@ interface CaptureErrorOptions {
   custom?: object;
   message?: string;
   captureAttributes?: boolean;
+  skipOutcome?: boolean;
 }
 
 interface Labels {

@@ -174,3 +174,30 @@ the current time will be used
 End the span.
 If the span has already ended,
 nothing happens.
+
+[[span-outcome]]
+==== `span.outcome`
+[small]#Added in: v3.12.0#
+
+The Node.js agent automatically sets an `outcome` property on spans.  This property will be one of three values:
+
+- `success`: Indicates the span's operation was a success.
+
+- `failure`: Indicates the span's operation was _not_ a success.
+
+- `unknown`: Indicates the agent was unable to determine whether the span's operation was a success or not. An `unknown` outcome removes a transaction from error rate considerations.
+
+What constitutes a success or failure will depend on the span type.
+
+For the general case, a span's outcome is considered a failure if the Node.js agent captures an error during the execution of the work a span represents.
+
+However, for exit spans that represent an HTTP request, the `outcome` is based on the status code of the HTTP response.  A status code less than `400` is considered a success.  A status code greater or equal to `400` is considered a failure.
+
+[[span-setoutcome]]
+==== `span.setOutcome(outcome)`
+
+[small]#Added in: v3.12.0#
+
+* `outcome` +{type-string}+
+
+The `setOutcome` method allows an end user to override the Node.js agent's default setting of a span's `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific span.

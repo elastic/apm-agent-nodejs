@@ -136,9 +136,9 @@ function onRequest (t, useElasticHeader) {
     var traceparent = useElasticHeader ? req.headers['elastic-apm-traceparent'] : req.headers.traceparent
     var parent = TraceParent.fromString(traceparent)
     var context = agent.currentTransaction._context
-    t.strictEqual(parent.traceId, context.traceId, 'context trace id matches parent trace id')
-    t.notEqual(parent.id, context.id, 'context id does not match parent id')
-    t.strictEqual(parent.flags, context.flags, 'context flags matches parent flags')
+    t.strictEqual(parent.traceId, context.traceparent.traceId, 'context trace id matches parent trace id')
+    t.notEqual(parent.id, context.traceparent.id, 'context id does not match parent id')
+    t.strictEqual(parent.flags, context.traceparent.flags, 'context flags matches parent flags')
     res.end()
   }
 }
