@@ -137,4 +137,4 @@ NODE_VERSION=${NODE_VERSION} docker-compose \
   --no-ansi \
   --log-level ERROR \
   -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
-  down -v
+  down -v --remove-orphans
