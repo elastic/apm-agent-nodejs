@@ -42,6 +42,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Update TypeScript typings for `Agent.setLabel` and `Agent.addLabels` to
+  include the `stringify` argument that was added in v3.11.0.
+
 
 [[release-notes-3.14.0]]
 ==== 3.14.0 - 2021/04/19
