@@ -721,6 +721,7 @@ test('nested transactions', function (t) {
 })
 
 function resetAgent (expected, cb) {
+  agent._conf.captureSpanStackTracesThreshold = 0
   agent._instrumentation.currentTransaction = null
   agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }

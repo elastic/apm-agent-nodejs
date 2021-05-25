@@ -202,6 +202,7 @@ interface AgentConfigOptions {
   captureExceptions?: boolean;
   captureHeaders?: boolean;
   captureSpanStackTraces?: boolean;
+  captureSpanStackTracesThreshold?: string;
   containerId?: string;
   disableInstrumentations?: string | string[];
   environment?: string;

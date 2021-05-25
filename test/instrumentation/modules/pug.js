@@ -7,7 +7,8 @@ var agent = require('../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  captureSpanStackTracesThreshold: 0
 })
 
 var pug = require('pug')
