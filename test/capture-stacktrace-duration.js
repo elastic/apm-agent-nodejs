@@ -1,3 +1,4 @@
+'use strict'
 const tape = require('tape')
 const Agent = require('./_agent')
 
