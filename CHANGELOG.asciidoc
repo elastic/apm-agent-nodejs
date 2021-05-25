@@ -28,10 +28,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.15.0]]
+==== 3.15.0 - 2021/05/19
 
 [float]
 ===== Features
@@ -41,6 +39,9 @@ Notes:
 
 [float]
 ===== Bug fixes
+
+* Update TypeScript typings for `Agent.setLabel` and `Agent.addLabels` to
+  include the `stringify` argument that was added in v3.11.0.
 
 
 [[release-notes-3.14.0]]

@@ -100,8 +100,8 @@ declare class Agent implements Taggable, StartSpanFn {
   currentSpan: Span | null;
 
   // Context
-  setLabel (name: string, value: LabelValue): boolean;
-  addLabels (labels: Labels): boolean;
+  setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
+  addLabels (labels: Labels, stringify?: boolean): boolean;
   setUserContext (user: UserObject): void;
   setCustomContext (custom: object): void;
 
