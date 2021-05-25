@@ -28,6 +28,21 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Added <<capture-span-stack-traces-threshold, `captureSpanStackTracesThreshold`>>
+  configuration field, allowing users to set a time threshold value that spans
+  must reach before the agent will add a stack trace to the span.
+
+[float]
+===== Bug fixes
+
 [[release-notes-3.15.0]]
 ==== 3.15.0 - 2021/05/19
 

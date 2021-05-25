@@ -63,4 +63,6 @@ tape.test(function (suite) {
       })
     }, 501)
   })
+
+  suite.end()
 })
