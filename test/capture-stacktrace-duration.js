@@ -1,6 +1,6 @@
 'use strict'
 const tape = require('tape')
-const Agent = require('./_agent')
+// const Agent = require('./_agent')
 
 tape.test(function (suite) {
   // suite.test('under 10ms (default) has no stack trace', function (t) {
