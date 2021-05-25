@@ -1236,7 +1236,7 @@ test('#captureError()', function (t) {
 
   // This tests that a urlencoded request body captured in an *error* event
   // is properly sanitized according to sanitizeFieldNames.
-  t.test('options.request + captureBody=errors', function (t) {
+  t.test('options.request + captureBody=errors ', function (t) {
     t.plan(2 + APMServerWithDefaultAsserts.asserts)
 
     const req = new http.IncomingMessage()
