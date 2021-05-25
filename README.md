@@ -1,4 +1,4 @@
-# Elastic APM Node.js Agent
+# Elastic APM Node.js  Agent
 
 This is the official Node.js agent for [Elastic APM](https://www.elastic.co/solutions/apm).
 
