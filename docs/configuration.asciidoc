@@ -548,10 +548,19 @@ A capture location stack trace is never generated for uncaught exceptions.
 ==== `captureSpanStackTraces`
 
 * *Type:* Boolean
-* *Default:* `true`
+* *Default:* `false`
 * *Env:* `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES`
 
-Set this option to `false` to disable capture of stack traces for measured spans during instrumentation.
+Set this option to `true` to enable capture of stack traces for measured spans during instrumentation. If this value is set to `true`, the agent will capture stack traces for spans whose duration falls within the <<capture-span-stack-traces-threshold, `captureSpanStackTracesThreshold`>> threshold.
+
+[[capture-span-stack-traces-threshold]]
+==== `captureSpanStackTracesThreshold`
+
+* *Type:* Int
+* *Default:* `10`
+* *Env:* `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES_THRESHOLD`
+
+A value, in miliseconds, to control whether the agent will report stack traces for measured spans. If a span's duration reaches this threshold, the agent will report stack traces.
 
 [[use-path-as-transaction-name]]
 ==== `usePathAsTransactionName`
