@@ -72,49 +72,49 @@ function mapSeries (tasks, handler, cb) {
 }
 
 var directories = [
-  'test',
-  'test/cloud-metadata',
-  'test/instrumentation',
-  'test/instrumentation/modules',
-  'test/instrumentation/modules/@elastic',
-  'test/instrumentation/modules/bluebird',
-  'test/instrumentation/modules/cassandra-driver',
-  'test/instrumentation/modules/express',
-  'test/instrumentation/modules/fastify',
-  'test/instrumentation/modules/hapi',
-  'test/instrumentation/modules/http',
-  'test/instrumentation/modules/koa',
-  'test/instrumentation/modules/koa-router',
-  'test/instrumentation/modules/mysql',
-  'test/instrumentation/modules/mysql2',
-  'test/instrumentation/modules/pg',
-  'test/instrumentation/modules/restify',
-  'test/instrumentation/modules/aws-sdk',
+  // 'test',
+  // 'test/cloud-metadata',
+  // 'test/instrumentation',
+  // 'test/instrumentation/modules',
+  // 'test/instrumentation/modules/@elastic',
+  // 'test/instrumentation/modules/bluebird',
+  // 'test/instrumentation/modules/cassandra-driver',
+  // 'test/instrumentation/modules/express',
+  // 'test/instrumentation/modules/fastify',
+  // 'test/instrumentation/modules/hapi',
+  // 'test/instrumentation/modules/http',
+  // 'test/instrumentation/modules/koa',
+  // 'test/instrumentation/modules/koa-router',
+  // 'test/instrumentation/modules/mysql',
+  // 'test/instrumentation/modules/mysql2',
+  // 'test/instrumentation/modules/pg',
+  // 'test/instrumentation/modules/restify',
+  // 'test/instrumentation/modules/aws-sdk',
   'test/integration',
-  'test/integration/api-schema',
-  'test/lambda',
-  'test/metrics',
-  'test/redact-secrets',
-  'test/sanitize-field-names',
-  'test/sourcemaps',
-  'test/uncaught-exceptions'
+  // 'test/integration/api-schema',
+  // 'test/lambda',
+  // 'test/metrics',
+  // 'test/redact-secrets',
+  // 'test/sanitize-field-names',
+  // 'test/sourcemaps',
+  // 'test/uncaught-exceptions'
 ]
 
 mapSeries(directories, readdir, function (err, directoryFiles) {
   if (err) throw err
 
   var tests = [
-    {
-      file: 'test.js',
-      cwd: 'test/start/env',
-      env: {
-        ELASTIC_APM_SERVICE_NAME: 'from-env'
-      }
-    },
-    {
-      file: 'test.js',
-      cwd: 'test/start/file'
-    }
+    // {
+    //   file: 'test.js',
+    //   cwd: 'test/start/env',
+    //   env: {
+    //     ELASTIC_APM_SERVICE_NAME: 'from-env'
+    //   }
+    // },
+    // {
+    //   file: 'test.js',
+    //   cwd: 'test/start/file'
+    // }
   ]
 
   directoryFiles.forEach(function (files, i) {

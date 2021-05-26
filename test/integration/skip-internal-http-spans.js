@@ -14,6 +14,15 @@ getPort().then(port => {
     centralConfig: false
   })
 
+  // XXX
+  // Client.prototype._encode = function (obj, enc) {
+  agent._transport._origEncode = agent._transport._encode
+  agent._transport._encode = function (obj, enc) {
+    const encoded = this._origEncode(obj, enc)
+    console.warn('XXX encoded: %s', encoded)
+    return encoded
+  }
+
   // hack to ensure that all incoming http requests picked up on the mock APM
   // Server doesn't generate any transactions that again will be sent to the
   // same APM Server
