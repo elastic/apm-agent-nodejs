@@ -1,5 +1,6 @@
 'use strict'
 
+const { Transform } = require('stream')
 const getPort = require('get-port')
 
 const agent = require('../../')
@@ -43,6 +44,13 @@ getPort().then(port => {
     const server = http.createServer((req, res) => {
       req
         .pipe(zlib.createGunzip())
+        .pipe(new Transform({
+          transform (chunk, encoding, callback) {
+            console.warn('XXX gunzipped+toStringed chunk:', chunk.toString())
+            this.push(chunk)
+            callback()
+          }
+        }))
         .pipe(ndjson.parse())
         .on('data', data => {
           const key = Object.keys(data)[0]
