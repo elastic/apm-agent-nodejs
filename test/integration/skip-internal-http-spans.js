@@ -52,6 +52,13 @@ getPort().then(port => {
 
     const server = http.createServer((req, res) => {
       req
+        .pipe(new Transform({
+          transform (chunk, encoding, callback) {
+            console.warn('XXX raw chunk (base64):', chunk.toString('base64'))
+            this.push(chunk)
+            callback()
+          }
+        }))
         .pipe(zlib.createGunzip())
         .pipe(new Transform({
           transform (chunk, encoding, callback) {
