@@ -553,10 +553,10 @@ A capture location stack trace is never generated for uncaught exceptions.
 
 Set this option to `false` to disable capture of stack traces.
 
-When set to `true` the agent will capture stack traces for spans whose duration falls within the <<capture-span-stack-traces-threshold, `captureSpanStackTracesThreshold`>> threshold.
+When set to `true` the agent will capture stack traces for spans whose duration falls within the <<span-frames-min-duration, `spanFramesMinDuration`>> threshold.
 
-[[capture-span-stack-traces-threshold]]
-==== `captureSpanStackTracesThreshold`
+[[span-frames-min-duration]]
+==== `spanFramesMinDuration`
 
 * *Type:* String
 * *Default:* `10ms`
