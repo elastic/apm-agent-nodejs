@@ -6,7 +6,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  captureSpanStackTracesThreshold: 0
+  spanFramesMinDuration: 0
 })
 
 var test = require('tape')

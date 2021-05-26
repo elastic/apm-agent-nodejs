@@ -17,7 +17,7 @@ module.exports = function mockAgent (expected, cb) {
       this._conf = config(
         Object.assign({
           abortedErrorThreshold: '250ms',
-          captureSpanStackTracesThreshold: 0,
+          spanFramesMinDuration: 0,
           centralConfig: false,
           errorOnAbortedRequests: false,
           metricsInterval: 0

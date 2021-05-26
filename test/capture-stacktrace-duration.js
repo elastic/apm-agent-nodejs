@@ -32,7 +32,7 @@ tape.test(function (suite) {
   })
 
   suite.test('under configured value has no stack trace', function (t) {
-    agent._config({ logLevel: 'off', captureSpanStackTracesThreshold: '100ms' })
+    agent._config({ logLevel: 'off', spanFramesMinDuration: '100ms' })
     const trans = agent.startTransaction()
     const span = agent.startSpan()
     setTimeout(function () {
@@ -48,7 +48,7 @@ tape.test(function (suite) {
   })
 
   suite.test('over configured value has has stack trace', function (t) {
-    agent._config({ logLevel: 'off', captureSpanStackTracesThreshold: '100ms' })
+    agent._config({ logLevel: 'off', spanFramesMinDuration: '100ms' })
     const trans = agent.startTransaction()
     const span = agent.startSpan()
     setTimeout(function () {
