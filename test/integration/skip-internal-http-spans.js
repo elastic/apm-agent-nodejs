@@ -11,7 +11,8 @@ getPort().then(port => {
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
     metricsInterval: 0,
-    centralConfig: false
+    centralConfig: false,
+    logLevel: 'trace'
   })
 
   // XXX
