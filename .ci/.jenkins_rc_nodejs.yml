@@ -1,6 +1,15 @@
+# The node.js project *sometimes* produces "rc" builds leading up to a new
+# release. They get uploaded to: https://nodejs.org/download/rc/
+#
+# There is only value in testing an RC build, e.g. "v16.0.0-rc.5" before that
+# version, e.g. "v16.0.0", is released. The only versions that should be
+# listed here are active major releases listed at
+# https://nodejs.org/en/about/releases/
+#
+# (Ideally the Jenkins build steps would automatically determine if a given RC
+# build need not be tested.)
 NODEJS_VERSION:
+  - "17"
   - "16"
-  - "15"
   - "14"
   - "12"
-  - "10"
