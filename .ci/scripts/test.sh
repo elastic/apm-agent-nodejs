@@ -60,6 +60,22 @@ function usage {
   echo "  -t TAV_MODULE           A module for which to do TAV tests."
 }
 
+
+function skip {
+  local reason="$1"
+  echo "$reason"
+
+  # This creates a "*-output.tap" file, which the 'generateStep()' function
+  # in .ci/Jenkinsfile currently expects from this test run.
+  echo "TAP version 13
+ok 1 - test suite # SKIP $reason
+1..1
+" > test-suite-output.tap
+
+  exit 0
+}
+
+
 # ---- Process args
 
 FORCE=false
@@ -131,8 +147,7 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   latest_edge_version=$(curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab \
     | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1)
   if [[ -z "$latest_edge_version" ]]; then
-    echo "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
-    exit 0
+    skip "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
   fi
 
   # If there is already a *release* build for this same version, then there is
@@ -141,8 +156,7 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   release_version=$(curl -sS https://nodejs.org/dist/index.tab \
     | (grep -E "^${possible_release_version}\>" || true) | awk '{print $1}')
   if [[ -n "$release_version" ]]; then
-    echo "There is already a release build (${release_version}) of the latest v${NODE_VERSION} ${BUILD_TYPE} (${latest_edge_version}). Skipping tests."
-    exit 0
+    skip "There is already a release build (${release_version}) of the latest v${NODE_VERSION} ${BUILD_TYPE} (${latest_edge_version}). Skipping tests."
   fi
 fi
 
