@@ -205,7 +205,7 @@ USER_ID="$(id -u):$(id -g)" \
 docker-compose \
   --no-ansi \
   --log-level ERROR \
-  -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
+  -f .ci/docker/${DOCKER_COMPOSE_FILE} \
   build >docker-compose.log 2>docker-compose.err
 
 if [ $? -gt 0 ] ; then
@@ -224,7 +224,7 @@ USER_ID="$(id -u):$(id -g)" \
 docker-compose \
   --no-ansi \
   --log-level ERROR \
-  -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
+  -f .ci/docker/${DOCKER_COMPOSE_FILE} \
   up \
   --exit-code-from node_tests \
   --remove-orphans \
@@ -234,5 +234,5 @@ docker-compose \
 NODE_VERSION=${NODE_VERSION} docker-compose \
   --no-ansi \
   --log-level ERROR \
-  -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
+  -f .ci/docker/${DOCKER_COMPOSE_FILE} \
   down -v --remove-orphans

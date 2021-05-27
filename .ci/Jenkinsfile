@@ -145,8 +145,11 @@ pipeline {
         }
       }
     }
+
     /**
-      Run Edge tests.
+      The "Edge Test" is a run of the agent test suite with pre-release builds
+      of node.js, if available and useful. "Pre-release" builds are release
+      candidate (RC) and "nightly" node.js builds.
     */
     stage('Edge Test') {
       options { skipDefaultCheckout() }
@@ -167,9 +170,6 @@ pipeline {
       parallel {
         stage('Nightly Test') {
           agent { label 'linux && immutable' }
-          environment {
-            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
-          }
           steps {
             withGithubNotify(context: 'Nightly Test', tab: 'tests') {
               deleteDir()
@@ -189,9 +189,6 @@ pipeline {
         }
         stage('Nightly Test - No async hooks') {
           agent { label 'linux && immutable' }
-          environment {
-            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
-          }
           steps {
             withGithubNotify(context: 'Nightly No Async Hooks Test', tab: 'tests') {
               deleteDir()
@@ -211,9 +208,6 @@ pipeline {
         }
         stage('RC Test') {
           agent { label 'linux && immutable' }
-          environment {
-            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
-          }
           steps {
             withGithubNotify(context: 'RC Test', tab: 'tests') {
               deleteDir()
@@ -233,9 +227,6 @@ pipeline {
         }
         stage('RC Test - No async hooks') {
           agent { label 'linux && immutable' }
-          environment {
-            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
-          }
           steps {
             withGithubNotify(context: 'RC No Async Hooks Test', tab: 'tests') {
               deleteDir()
