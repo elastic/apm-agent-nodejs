@@ -152,11 +152,11 @@ fi
 # Select a config for 'docker-compose build' that sets up (a) the "node_tests"
 # container where the tests are actually run and (b) any services that are
 # needed for this set of tests, if any.
-if [[ "${IS_EDGE}" = "true" ]]; then
+if [[ "${BUILD_TYPE}" = "rc" || "${BUILD_TYPE}" = "nightly" ]]; then
   # This will run the regular tests against rc and nightly builds of
   # node.js. It does NOT support TAV tests.
   if [[ -n "${TAV_MODULE}" ]]; then
-    fatal "running TAV tests (TAV_MODULE=${TAV_MODULE}) with IS_EDGE=${IS_EDGE} is not supported"
+    fatal "running TAV tests (TAV_MODULE=${TAV_MODULE}) with BUILD_TYPE=${BUILD_TYPE} is not supported"
   fi
   DOCKER_COMPOSE_FILE=docker-compose-edge.yml
 elif [[ -n "${TAV_MODULE}" ]]; then
