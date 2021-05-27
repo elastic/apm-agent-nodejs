@@ -28,6 +28,21 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Prefer W3C "traceparent" header over "elastic-apm-traceparent" for incoming
+  requests. {pull}2079[#2079]
+
+[float]
+===== Bug fixes
+
+
 [[release-notes-3.15.0]]
 ==== 3.15.0 - 2021/05/19
 
@@ -35,7 +50,7 @@ Notes:
 ===== Features
 
 * Add support for Node.js v16. (This also drops testing of Node.js v13
-  releases.)
+  releases.) {pull}2055[#2055]
 
 [float]
 ===== Bug fixes
