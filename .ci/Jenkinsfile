@@ -179,7 +179,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
+                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, buildType: 'nightly')
                   }
                   parallel(parallelTasks)
                 }
@@ -201,7 +201,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-nightly-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
+                    parallelTasks["Node.js-${version}-nightly-no-async-hooks"] = generateStep(version: version, buildType: 'nightly', disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -223,7 +223,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
+                    parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, buildType: 'rc')
                   }
                   parallel(parallelTasks)
                 }
@@ -245,7 +245,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
+                    parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, buildType: 'rc', disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -362,7 +362,7 @@ pipeline {
 def generateStep(Map params = [:]){
   def version = params?.version
   def tav = params.containsKey('tav') ? params.tav : ''
-  def edge = params.containsKey('edge') ? params.edge : false
+  def buildType = params.containsKey('buildType') ? params.buildType : 'release'
   def disableAsyncHooks = params.get('disableAsyncHooks', false)
   return {
     node('linux && immutable'){
@@ -372,7 +372,7 @@ def generateStep(Map params = [:]){
         dir("${BASE_DIR}"){
           try {
             retryWithSleep(retries: 2, seconds: 5, backoff: true) {
-              sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+              sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" -t "${tav}" "${version}" """)
             }
           } catch(e){
             error(e.toString())

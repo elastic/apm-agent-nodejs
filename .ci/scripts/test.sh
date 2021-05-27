@@ -11,45 +11,143 @@
 #     /bin/bash -c ".ci/scripts/docker-test.sh"
 #
 # Usage:
-#     .ci/scripts/tests.sh NODE_VERSION [TAV_MODULE] [IS_EDGE]
+#     .ci/scripts/tests.sh [-b release|rc|nightly] [-f] [-t TAV_MODULE] NODE_VERSION
 #
 # - NODE_VERSION is a version of Node.js, e.g. "14", usable both to select
 #   a image from Docker Hub:
 #       docker pull docker.io/library/node:$NODE_VERSION
 #   and to install Node with nvm:
 #       nvm install $NODE_VERSION
-# - TAV_MODULE, if specified and not the empty string, will result in
-#   "test-all-versions" (TAV) tests being run. It identifies the name of a
-#   module in ".tav.yml", e.g. "redis" or "pg". If this argument is not given
-#   then the regular agent tests (i.e. the same as 'npm test') will be run.
-# - IS_EDGE is "true" or "false" (the default). If true, then the node version
-#   used for testing will be installed via:
-#       NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} nvm install ${NODE_VERSION}
-#   where typically the mirror URL is also set to one of:
-#       https://nodejs.org/download/nightly/
-#       https://nodejs.org/download/rc/
-#   to test against a recent pre-releases of node.
+# - TAV_MODULE, if specified, will result in "test-all-versions" (TAV) tests
+#   being run. It identifies the name of a module in ".tav.yml", e.g. "redis" or
+#   "pg". If this argument is not given then the regular agent tests (i.e. the
+#   same as 'npm test') will be run.
+# - The "-b" option (BUILD_TYPE) can be used to test with pre-release "rc" or
+#   "nightly" builds of Node.js. This will skip out if there is already a
+#   release build for the given version.
+# - The "-f" option (FORCE) can be used to force a "nightly" or "rc" test,
+#   even if there is already a release build for the same version.
 #
 # Examples:
-#     .ci/scripts/test.sh 14                # regular tests against latest docker:14 image
-#     .ci/scripts/test.sh 14 "" false       # same
-#     .ci/scripts/test.sh 8.6               # regular tests against latest docker:8.6 image
-#     .ci/scripts/test.sh 14 "redis" false  # redis TAV tests against latest docker:14 image
-#     NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/ \
-#       .ci/scripts/test.sh 14 "" true      # regular tests against latest node 14 nightly release
+#     .ci/scripts/test.sh 14                # run agent tests against latest docker:14 image
+#     .ci/scripts/test.sh -b release 14     # same
+#     .ci/scripts/test.sh 8.6               # run agent tests against latest docker:8.6 image
+#     .ci/scripts/test.sh -t redis 14       # run redis TAV tests against latest docker:14 image
+#     .ci/scripts/test.sh -b nightly 17     # run agent tests against the latest v17 node.js nightly build
+#     .ci/scripts/test.sh -f -b nightly 17  # ... same, but force doing tests even if there
+#                                           #     is already a node.js v17 release
 #
 
-set -exo pipefail
+set -eo pipefail
 
 function fatal {
-  echo "$(basename $0): error: $*"
+  echo "$(basename $0): error: $*" >&2
   exit 1
 }
 
-DOCKER_FOLDER=.ci/docker
-NODE_VERSION=${1:?Nodejs version missing NODE_VERSION is not set}
-TAV_MODULE=${2}
-IS_EDGE=${3:false}
+function usage {
+  echo "usage:"
+  echo "  .ci/scripts/test.sh [-b release|rc|nightly] [-f] [-t TAV_MODULE] NODE_VERSION"
+  echo ""
+  echo "options:"
+  echo "  -h                      Show this help and exit."
+  echo "  -b release|rc|nightly   Node.js build type. Defaults to a 'release' build."
+  echo "  -f                      Force a build. By default this script will"
+  echo "                          skip a 'rc' or 'nightly' build if there isn't"
+  echo "                          one available for the given NODE_VERSION or if"
+  echo "                          there is already a release build for the same"
+  echo "                          version"
+  echo "  -t TAV_MODULE           A module for which to do TAV tests."
+}
+
+# ---- Process args
+
+FORCE=false
+TAV_MODULE=
+BUILD_TYPE=release
+
+while getopts "hb:ft:" opt; do
+  case "$opt" in
+    h)
+      usage
+      exit 0
+      ;;
+    b)
+      BUILD_TYPE=$OPTARG
+      ;;
+    f)
+      FORCE=true
+      ;;
+    t)
+      TAV_MODULE=$OPTARG
+      ;;
+    *)
+      fatal "unknown option: -$opt"
+      ;;
+  esac
+done
+
+# Should have only one argument left.
+if [[ $OPTIND -ne $# ]]; then
+  fatal "incorrect number of arguments: $@"
+fi
+shift $(($OPTIND - 1))
+NODE_VERSION="$1"
+
+# Determine NVM_NODEJS_ORG_MIRROR from BUILD_TYPE.
+case "$BUILD_TYPE" in
+  release)
+    # Leave empty, nvm will default to: https://nodejs.org/dist
+    NVM_NODEJS_ORG_MIRROR=
+    ;;
+  nightly)
+    NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly
+    ;;
+  rc)
+    NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/rc
+    ;;
+  *)
+    fatal "invalid BUILD_TYPE: $BUILD_TYPE"
+    ;;
+esac
+
+if [[ -z "$TAV_MODULE" ]]; then
+  echo "Running Agent tests with node v$NODE_VERSION (BUILD_TYPE=$BUILD_TYPE, FORCE=$FORCE)"
+else
+  echo "Running '$TAV_MODULE' TAV tests with node v$NODE_VERSION (BUILD_TYPE=$BUILD_TYPE, FORCE=$FORCE)"
+fi
+
+# Turn on xtrace output only after processing args.
+set -x
+
+
+# ---- For nightly and rc builds, determine if there is a point in testing.
+
+if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
+  # If there is no nightly/rc build for this version, then skip.
+  #
+  # Note: We are relying on new releases being added to the top of index.tab,
+  # which currently seems to be the case.
+  latest_edge_version=$(curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab \
+    | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1)
+  if [[ -z "$latest_edge_version" ]]; then
+    echo "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
+    exit 0
+  fi
+
+  # If there is already a *release* build for this same version, then there is
+  # no point in testing against this node version, so skip out.
+  possible_release_version=${latest_edge_version%-*}  # remove "-*" suffix
+  release_version=$(curl -sS https://nodejs.org/dist/index.tab \
+    | (grep -E "^${possible_release_version}\>" || true) | awk '{print $1}')
+  if [[ -n "$release_version" ]]; then
+    echo "There is already a release build (${release_version}) of the latest v${NODE_VERSION} ${BUILD_TYPE} (${latest_edge_version}). Skipping tests."
+    exit 0
+  fi
+fi
+
+
+# ---- Run the tests
 
 # Select a config for 'docker-compose build' that sets up (a) the "node_tests"
 # container where the tests are actually run and (b) any services that are
