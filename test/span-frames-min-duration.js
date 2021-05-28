@@ -2,6 +2,8 @@
 const tape = require('tape')
 const agent = require('..').start({ logLevel: 'off' })
 
+// this test suite ensure the behavior of the spanFramesMinDuration
+// configuration variable works as intended
 tape.test(function (suite) {
   suite.test('under 10ms (default) has no stack trace', function (t) {
     const trans = agent.startTransaction()
