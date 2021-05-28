@@ -413,6 +413,13 @@ body-parser:
     - node test/sanitize-field-names/express.js
 
 aws-sdk:
-  versions: '>=2.858 <3'
+  # We want this version range:
+  #   versions: '>=2.858 <3'
+  # However, awk-sdk releases *very* frequently (almost every day) and there
+  # is no need to test *all* those releases. Instead we statically list every
+  # N=5 releases to test.
+  #
+  # Maintenance note: This should be updated periodically.
+  versions: '2.858.0 || 2.863.0 || 2.868.0 || 2.873.0 || 2.878.0 || 2.883.0 || 2.888.0 || 2.893.0 || 2.898.0 || 2.903.0 || 2.908.0 || 2.913.0 || 2.918.0 || >2.918 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/sqs.js
