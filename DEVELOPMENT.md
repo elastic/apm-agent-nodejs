@@ -133,24 +133,24 @@ we can list the slowest ones via:
 npm install -g json  # Re-writing this to use jq is an exercise for the reader.
 
 curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/.../artifact/steps-info.json \
-    | json -c 'this.displayName==="Run Tests"' -ga durationInMillis displayDescription | sort -n -k1 | tail -20
+    | json -c 'this.displayName==="Run Tests"' -ga durationInMillis state result displayDescription | sort -n -k1 | tail -20
 ```
 
 For example:
 
 ```
 % curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/master/903/artifact/steps-info.json \
-    | json -c 'this.displayName==="Run Tests"' -ga durationInMillis displayDescription | sort -n -k1 | tail -10
-1940297 .ci/scripts/test.sh "14" "fastify" "false"
-2434461 .ci/scripts/test.sh "15" "apollo-server-express" "false"
-2867593 .ci/scripts/test.sh "16" "apollo-server-express" "false"
-3232404 .ci/scripts/test.sh "8" "pg" "false"
-3233514 .ci/scripts/test.sh "12" "pg" "false"
-3371890 .ci/scripts/test.sh "10" "pg" "false"
-5394174 .ci/scripts/test.sh "12" "apollo-server-express" "false"
-5832066 .ci/scripts/test.sh "10" "apollo-server-express" "false"
-6481178 .ci/scripts/test.sh "14" "apollo-server-express" "false"
-6626799 .ci/scripts/test.sh "8" "apollo-server-express" "false"
+    | json -c 'this.displayName==="Run Tests"' -ga durationInMillis state result displayDescription | sort -n -k1 | tail -10
+1940297 FINISHED SUCCESS .ci/scripts/test.sh "14" "fastify" "false"
+2434461 FINISHED SUCCESS .ci/scripts/test.sh "15" "apollo-server-express" "false"
+2867593 FINISHED SUCCESS .ci/scripts/test.sh "16" "apollo-server-express" "false"
+3232404 FINISHED SUCCESS .ci/scripts/test.sh "8" "pg" "false"
+3233514 FINISHED SUCCESS .ci/scripts/test.sh "12" "pg" "false"
+3371890 FINISHED SUCCESS .ci/scripts/test.sh "10" "pg" "false"
+5394174 FINISHED SUCCESS .ci/scripts/test.sh "12" "apollo-server-express" "false"
+5832066 FINISHED SUCCESS .ci/scripts/test.sh "10" "apollo-server-express" "false"
+6481178 FINISHED SUCCESS .ci/scripts/test.sh "14" "apollo-server-express" "false"
+6626799 FINISHED SUCCESS .ci/scripts/test.sh "8" "apollo-server-express" "false"
 ```
 
 
