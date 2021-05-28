@@ -142,7 +142,7 @@ test('sync/async tracking: span ended in same function is sync', function (t) {
   })
 })
 
-test('sync/async tracking: span ended across async boundry is not sync', function (t) {
+test('sync/async tracking: span ended across async boundary is not sync', function (t) {
   var trans = agent.startTransaction()
   t.strictEqual(trans.sync, true)
 
