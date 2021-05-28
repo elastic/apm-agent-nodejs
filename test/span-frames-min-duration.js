@@ -49,7 +49,7 @@ tape.test(function (suite) {
     }, 50)
   })
 
-  suite.test('over configured value has has stack trace', function (t) {
+  suite.test('over configured value has stack trace', function (t) {
     agent._config({ logLevel: 'off', spanFramesMinDuration: '100ms' })
     const trans = agent.startTransaction()
     const span = agent.startSpan()
