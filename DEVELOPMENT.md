@@ -145,3 +145,38 @@ showed PR values.
 and, depending on other conditions, the "TAV Test" step -- both of which are
 long and will run before getting to the Benchmarks run.)
 
+
+## How to test your local agent in Docker
+
+If you are developing on macOS, it can be convenient to test your local
+agent changes in Linux via docker:
+
+1. Optionally start services whose clients the agent instruments (redis, mysql,
+   etc.). These are placed on the `test_default` network.
+
+        npm run docker:start
+
+2. Start Bash in a linux container on that same network, mounting your current
+   dir:
+
+        docker run --rm -ti --network test_default -v $(pwd):/app --workdir /app node:16 /bin/bash
+
+3. When you are done, stop the services:
+
+        npm run docker:stop
+
+For example:
+
+```
+% docker run --rm -ti --network test_default -v $(pwd):/app --workdir /app node:16 /bin/bash
+root@248cddc5b508:/app# ls package.json
+package.json
+
+root@248cddc5b508:/app# ping mongodb
+PING mongodb (172.20.0.3) 56(84) bytes of data.
+64 bytes from test_mongodb_1.test_default (172.20.0.3): icmp_seq=1 ttl=64 time=0.315 ms
+^C
+--- mongodb ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.315/0.315/0.315/0.000 ms
+```
