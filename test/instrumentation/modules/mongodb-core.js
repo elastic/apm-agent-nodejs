@@ -43,18 +43,23 @@ test('instrument simple command', function (t) {
     // Check that the APM server received the expected spans in order.
     //
     // Note that there might be some additional spans that we allow and ignore:
-    // - mongodb-core@1.x always does a `admin.$cmd.ismaster` command on
-    //   initial connection. The APM agent captures this if asyncHooks=true.
+    // - mongodb-core@1.x always does a `admin.$cmd.ismaster` or
+    //   `system.$cmd.ismaster` (the latter in for mongodb-core@<=1.2.22)
+    //   command on initial connection. The APM agent captures this if
+    //   asyncHooks=true.
     // - mongodb-core@1.x includes `elasticapm.$cmd.command` spans after the
     //   insert, update, and remove commands.
     for (var i = 0; i < data.spans.length; i++) {
       const span = data.spans[i]
       if (semver.lt(mongodbCoreVersion, '2.0.0')) {
         if (span.name === 'admin.$cmd.ismaster' && i === 0) {
-          t.comment("ignore 'admin.$cmd.ismaster' captured span")
+          t.comment("ignore extra 'admin.$cmd.ismaster' captured span")
+          continue
+        } else if (span.name === 'system.$cmd.ismaster' && expectedSpanNamesInOrder[0] !== 'system.$cmd.ismaster') {
+          t.comment("ignore extra 'system.$cmd.ismaster' captured span")
           continue
         } else if (span.name === 'elasticapm.$cmd.command') {
-          t.comment("ignore 'elasticapm.$cmd.command' captured span")
+          t.comment("ignore extra 'elasticapm.$cmd.command' captured span")
           continue
         }
       }
