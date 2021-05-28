@@ -202,7 +202,6 @@ interface AgentConfigOptions {
   captureExceptions?: boolean;
   captureHeaders?: boolean;
   captureSpanStackTraces?: boolean;
-  captureSpanStackTracesThreshold?: string;
   containerId?: string;
   disableInstrumentations?: string | string[];
   environment?: string;
@@ -240,6 +239,7 @@ interface AgentConfigOptions {
   sourceLinesErrorLibraryFrames?: number;
   sourceLinesSpanAppFrames?: number;
   sourceLinesSpanLibraryFrames?: number;
+  spanFramesMinDuration?: string;
   stackTraceLimit?: number;
   transactionIgnoreUrls?: Array<string>;
   transactionMaxSpans?: number;
