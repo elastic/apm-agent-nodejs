@@ -560,9 +560,9 @@ When set to `true` the agent will capture stack traces for spans whose duration 
 
 * *Type:* String
 * *Default:* `10ms`
-* *Env:* `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES_THRESHOLD`
+* *Env:* `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION`
 
-A time value to control whether the agent will report stack traces for measured spans. If a span's duration reaches this threshold, the agent will report stack traces.
+A time value to control whether the agent will report stack traces for measured spans. If a span's duration reaches this threshold, the agent will report stack traces. If <<capture-span-stack-traces, `captureSpanStackTraces`>> is set to `false` the agent will ignore the `spanFramesMinDuration` value.
 
 [[use-path-as-transaction-name]]
 ==== `usePathAsTransactionName`
