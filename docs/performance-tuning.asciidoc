@@ -116,8 +116,10 @@ There are several settings to adjust how they are used.
 In a complex application,
 a request may produce many spans.
 Capturing a stack trace for every span can result in significant memory usage.
-To disable capturing stack traces for spans,
-set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.
+To disable capturing stack traces for all spans,
+set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.  You may also use
+the <<span-frames-min-duration,`spanFramesMinDuration`>> to set a duration threshold for
+when stack traces are captured.
 
 This will mainly impact memory usage,
 but may also have a noticeable impact on speed too.
