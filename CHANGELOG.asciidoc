@@ -38,7 +38,9 @@ Notes:
 
 * Added <<span-frames-min-duration, `spanFramesMinDuration`>>
   configuration field, allowing users to set a time threshold value that spans
-  must reach before the agent will add a stack trace to the span.
+  must reach before the agent will add a stack trace to the span. As a result,
+  many short spans that previously included stack traces by default no longer
+  will.
 
 * Prefer W3C "traceparent" header over "elastic-apm-traceparent" for incoming
   requests. {pull}2079[#2079]
