@@ -123,6 +123,37 @@ Note that it might likely get out of date:
         deactivate
 
 
+## How to show the slowest TAV tests from a Jenkins build
+
+Jenkins builds of the agent produce a "steps-info.json" artifact that gives
+execution time of each of the build steps. For a build that ran the TAV tests
+we can list the slowest ones via:
+
+```
+npm install -g json  # Re-writing this to use jq is an exercise for the reader.
+
+curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/.../artifact/steps-info.json \
+    | json -c 'this.displayName==="Run Tests"' -ga durationInMillis state result displayDescription | sort -n -k1 | tail -20
+```
+
+For example:
+
+```
+% curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/master/903/artifact/steps-info.json \
+    | json -c 'this.displayName==="Run Tests"' -ga durationInMillis state result displayDescription | sort -n -k1 | tail -10
+1940297 FINISHED SUCCESS .ci/scripts/test.sh "14" "fastify" "false"
+2434461 FINISHED SUCCESS .ci/scripts/test.sh "15" "apollo-server-express" "false"
+2867593 FINISHED SUCCESS .ci/scripts/test.sh "16" "apollo-server-express" "false"
+3232404 FINISHED SUCCESS .ci/scripts/test.sh "8" "pg" "false"
+3233514 FINISHED SUCCESS .ci/scripts/test.sh "12" "pg" "false"
+3371890 FINISHED SUCCESS .ci/scripts/test.sh "10" "pg" "false"
+5394174 FINISHED SUCCESS .ci/scripts/test.sh "12" "apollo-server-express" "false"
+5832066 FINISHED SUCCESS .ci/scripts/test.sh "10" "apollo-server-express" "false"
+6481178 FINISHED SUCCESS .ci/scripts/test.sh "14" "apollo-server-express" "false"
+6626799 FINISHED SUCCESS .ci/scripts/test.sh "8" "apollo-server-express" "false"
+```
+
+
 # Other tips
 
 ## How to trigger a benchmark run for a PR
@@ -145,3 +176,38 @@ showed PR values.
 and, depending on other conditions, the "TAV Test" step -- both of which are
 long and will run before getting to the Benchmarks run.)
 
+
+## How to test your local agent in Docker
+
+If you are developing on macOS, it can be convenient to test your local
+agent changes in Linux via docker:
+
+1. Optionally start services whose clients the agent instruments (redis, mysql,
+   etc.). These are placed on the `test_default` network.
+
+        npm run docker:start
+
+2. Start Bash in a linux container on that same network, mounting your current
+   dir:
+
+        docker run --rm -ti --network test_default -v $(pwd):/app --workdir /app node:16 /bin/bash
+
+3. When you are done, stop the services:
+
+        npm run docker:stop
+
+For example:
+
+```
+% docker run --rm -ti --network test_default -v $(pwd):/app --workdir /app node:16 /bin/bash
+root@248cddc5b508:/app# ls package.json
+package.json
+
+root@248cddc5b508:/app# ping mongodb
+PING mongodb (172.20.0.3) 56(84) bytes of data.
+64 bytes from test_mongodb_1.test_default (172.20.0.3): icmp_seq=1 ttl=64 time=0.315 ms
+^C
+--- mongodb ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.315/0.315/0.315/0.000 ms
+```

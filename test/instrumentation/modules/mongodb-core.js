@@ -11,81 +11,70 @@ var agent = require('../../..').start({
 var Server = require('mongodb-core').Server
 var semver = require('semver')
 var test = require('tape')
-var version = require('mongodb-core/package').version
+var mongodbCoreVersion = require('mongodb-core/package').version
 
 var mockClient = require('../../_mock_http_client')
 
 test('instrument simple command', function (t) {
-  const expected = semver.lt(version, '2.0.0')
-    ? (process.platform === 'darwin' ? 11 : 10)
-    : 7
-
-  resetAgent(expected, function (data) {
-    var trans = data.transactions[0]
-    var groups
+  // Because a variable number of events to the APM server is possible (see
+  // the "Note ... additional spans" below), we cannot use the 'expected' arg
+  // to `mockClient` here.
+  resetAgent(function (data) {
+    var expectedSpanNamesInOrder = [
+      'system.$cmd.ismaster',
+      'elasticapm.test.insert',
+      'elasticapm.test.update',
+      'elasticapm.test.remove',
+      'elasticapm.test.find',
+      'system.$cmd.ismaster'
+    ]
 
     t.strictEqual(data.transactions.length, 1)
-
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'foo')
     t.strictEqual(trans.type, 'bar')
     t.strictEqual(trans.result, 'success')
 
-    // Ensure spans are sorted by start time
+    // Ensure spans are sorted by start time.
     data.spans = data.spans.sort((a, b) => {
       return a.timestamp - b.timestamp
     })
 
-    if (semver.lt(version, '2.0.0')) {
-      groups = [
-        'system.$cmd.ismaster',
-        'elasticapm.test.insert',
-        'elasticapm.$cmd.command',
-        'elasticapm.test.update',
-        'elasticapm.$cmd.command',
-        'elasticapm.test.remove',
-        'elasticapm.$cmd.command',
-        'elasticapm.test.find',
-        'system.$cmd.ismaster'
-      ]
-
-      if (process.platform === 'darwin') {
-        // mongodb-core v1.x will sometimes perform two `ismaster` queries
-        // towards the admin and/or the system database. This doesn't always
-        // happen, but if it does, we'll accept it.
-        if (data.spans[0].name === 'admin.$cmd.ismaster') {
-          groups.unshift('admin.$cmd.ismaster')
-        } else if (data.spans[1].name === 'system.$cmd.ismaster') {
-          groups.unshift('system.$cmd.ismaster')
+    // Check that the APM server received the expected spans in order.
+    //
+    // Note that there might be some additional spans that we allow and ignore:
+    // - mongodb-core@1.x always does a `admin.$cmd.ismaster` or
+    //   `system.$cmd.ismaster` (the latter in for mongodb-core@<=1.2.22)
+    //   command on initial connection. The APM agent captures this if
+    //   asyncHooks=true.
+    // - mongodb-core@1.x includes `elasticapm.$cmd.command` spans after the
+    //   insert, update, and remove commands.
+    for (var i = 0; i < data.spans.length; i++) {
+      const span = data.spans[i]
+      if (semver.lt(mongodbCoreVersion, '2.0.0')) {
+        if (span.name === 'admin.$cmd.ismaster' && i === 0) {
+          t.comment("ignore extra 'admin.$cmd.ismaster' captured span")
+          continue
+        } else if (span.name === 'system.$cmd.ismaster' && expectedSpanNamesInOrder[0] !== 'system.$cmd.ismaster') {
+          t.comment("ignore extra 'system.$cmd.ismaster' captured span")
+          continue
+        } else if (span.name === 'elasticapm.$cmd.command') {
+          t.comment("ignore extra 'elasticapm.$cmd.command' captured span")
+          continue
         }
       }
-    } else {
-      groups = [
-        'system.$cmd.ismaster',
-        'elasticapm.test.insert',
-        'elasticapm.test.update',
-        'elasticapm.test.remove',
-        'elasticapm.test.find',
-        'system.$cmd.ismaster'
-      ]
-    }
 
-    t.strictEqual(data.spans.length, groups.length)
-
-    // spans are sorted by their end time - we need them sorted by their start time
-    data.spans = data.spans.sort(function (a, b) {
-      return a.timestamp - b.timestamp
-    })
-
-    groups.forEach(function (name, i) {
-      const span = data.spans[i]
-      t.strictEqual(span.name, name)
-      t.strictEqual(span.type, 'db')
-      t.strictEqual(span.subtype, 'mongodb')
-      t.strictEqual(span.action, 'query')
-
+      t.strictEqual(span.name, expectedSpanNamesInOrder[0],
+        'captured span has expected name: ' + expectedSpanNamesInOrder[0])
+      t.strictEqual(span.type, 'db', 'span has expected type')
+      t.strictEqual(span.subtype, 'mongodb', 'span has expected subtype')
+      t.strictEqual(span.action, 'query', 'span has expected action')
       var offset = span.timestamp - trans.timestamp
-      t.ok(offset + span.duration * 1000 < trans.duration * 1000)
-    })
+      t.ok(offset + span.duration * 1000 < trans.duration * 1000,
+        `span ends (${span.timestamp / 1000 + span.duration}ms) before the transaction (${trans.timestamp / 1000 + trans.duration}ms)`)
+
+      expectedSpanNamesInOrder.shift()
+    }
 
     t.end()
   })
