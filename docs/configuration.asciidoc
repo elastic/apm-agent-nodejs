@@ -572,7 +572,7 @@ By default, the agent will also collect a few lines of source code around the li
 This can make it easier to determine the cause of an error as the source code related to the error is visible directly in Kibana.
 
 The agent differentiates between so-called in-app frames and library frames.
-Library frames are frames belonging to Node core and code inside the applications `node_modules` folder.
+Library frames are frames belonging to Node core and code inside the application's `node_modules` folder.
 In-app frames are everything else.
 
 Use the following two config options to change how many lines of source code to include for the different types of stack frames:
