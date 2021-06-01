@@ -4,7 +4,8 @@ var agent = require('../..').start({
   serviceName: 'test',
   breakdownMetrics: false,
   captureExceptions: false,
-  metricsInterval: 0
+  metricsInterval: 0,
+  spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
 var EventEmitter = require('events')
@@ -721,7 +722,7 @@ test('nested transactions', function (t) {
 })
 
 function resetAgent (expected, cb) {
-  agent._conf.spanFramesMinDuration = 0
+  agent._conf.spanFramesMinDuration = -1
   agent._instrumentation.currentTransaction = null
   agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }

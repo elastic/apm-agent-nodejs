@@ -65,5 +65,37 @@ tape.test(function (suite) {
     }, 101)
   })
 
+  suite.test('spanFrameMinDuration=0 sets no stack traces', function (t) {
+    agent._config({ logLevel: 'off', spanFramesMinDuration: '0' })
+    const trans = agent.startTransaction()
+    const span = agent.startSpan()
+    setTimeout(function () {
+      span.end()
+      trans.end()
+      // t.ok(false,'we are parsing the callsites after we are encoded the span')
+      span._encode(function (err, data) {
+        t.error(err)
+        t.ok(!data.stacktrace, 'stacktrace is not set')
+        t.end()
+      })
+    }, 1)
+  })
+
+  suite.test('spanFrameMinDuration=-1 always sets', function (t) {
+    agent._config({ logLevel: 'off', spanFramesMinDuration: '-1' })
+    const trans = agent.startTransaction()
+    const span = agent.startSpan()
+    setTimeout(function () {
+      span.end()
+      trans.end()
+      // t.ok(false,'we are parsing the callsites after we are encoded the span')
+      span._encode(function (err, data) {
+        t.error(err)
+        t.ok(data.stacktrace, 'stacktrace is set')
+        t.end()
+      })
+    }, 200)
+  })
+
   suite.end()
 })

@@ -564,6 +564,10 @@ When set to `true` the agent will capture stack traces for spans whose duration 
 
 A time value to control whether the agent will report stack traces for measured spans. If a span's duration reaches this threshold, the agent will report stack traces. If <<capture-span-stack-traces, `captureSpanStackTraces`>> is set to `false` the agent will ignore the `spanFramesMinDuration` value.
 
+When set to `0` the agent will not record stack traces for any spans.
+
+When set to a negative value (like `-1`) the agent will always record stack traces for spans.
+
 [[use-path-as-transaction-name]]
 ==== `usePathAsTransactionName`
 

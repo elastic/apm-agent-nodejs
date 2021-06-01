@@ -7,7 +7,7 @@ const agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanFramesMinDuration: 0
+  spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
 // Skip (exit the process) if this package version doesn't support this version
