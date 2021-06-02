@@ -4,9 +4,11 @@
 // server.
 
 const { exec } = require('child_process')
+const fs = require('fs')
 const path = require('path')
 const tape = require('tape')
 
+const logging = require('../../lib/logging')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { stackTraceFromErrStackString } = require('../../lib/stacktraces')
 
@@ -155,6 +157,10 @@ tape.test('span.stacktrace', function (t) {
 // 2. '*context*' fields load the "sourcesContent" from the sourcemap. We
 //    force this by building the sourcemap with a bogus "no-such-dir"
 //    "sourceRoot" (see the setting in fixtures/tsconfig.json).
+//
+// Note: Other sourcemap tests are in "test/sourcemaps/". That set currently
+// lacks a test that "sourcesContent" works -- which is one of the things tested
+// by this case.
 tape.test('error.exception.stacktrace with sourcemap', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
@@ -193,4 +199,38 @@ tape.test('error.exception.stacktrace with sourcemap', function (t) {
   })
 })
 
-// XXX test stackTraceFromErrStackString
+tape.test('stackTraceFromErrStackString', function (t) {
+  function theFunction () {
+    return new Error('here I am') // <-- the top frame will point here
+  }
+
+  // To avoid the "lineno" test below failing frequently whenever this file is
+  // edited, we read this file to get the current line number of the
+  // `new Error('...')` line above.
+  const lines = fs.readFileSync(__filename, { encoding: 'utf8' }).split(/\n/g)
+  let lineno = null
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*return new Error\('here I am'\)/.test(lines[i])) {
+      lineno = i + 1
+      break
+    }
+  }
+
+  var log = logging.createLogger('off')
+  const stacktrace = stackTraceFromErrStackString(log, theFunction())
+  t.ok(stacktrace, 'got a stacktrace')
+  t.ok(Array.isArray(stacktrace), 'stacktrace is an Array')
+  t.deepEqual(
+    stacktrace[0],
+    {
+      filename: 'stacktraces.test.js',
+      function: 'theFunction',
+      lineno: lineno,
+      library_frame: false,
+      abs_path: __filename
+    },
+    'stacktrace top frame is as expected'
+  )
+
+  t.end()
+})
