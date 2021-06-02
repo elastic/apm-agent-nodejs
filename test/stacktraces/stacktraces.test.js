@@ -8,6 +8,7 @@ const path = require('path')
 const tape = require('tape')
 
 const { MockAPMServer } = require('./_mock_apm_server')
+const { stackTraceFromErrStackString } = require('../../lib/stacktraces')
 
 // Execute 'node fixtures/throw-an-error.js' and assert APM server gets the
 // error.exception.stacktrace we expect.
@@ -148,40 +149,48 @@ tape.test('span.stacktrace', function (t) {
   })
 })
 
-// tape.test('error.exception.stacktrace with sourcemap', function (t) {
-//   const server = new MockAPMServer()
-//   server.start(function (serverUrl) {
-//     exec(
-//       `${process.execPath} fixtures/throw-an-error.js`,
-//       {
-//         cwd: __dirname,
-//         timeout: 3000,
-//         env: {
-//           ELASTIC_APM_SERVER_URL: serverUrl
-//         }
-//       },
-//       function done (err, _stdout, _stderr) {
-//         t.ok(err, 'throw-an-error.js errored out')
-//         t.ok(server.events[0].metadata, 'APM server got event metadata object')
-//         t.ok(server.events[1].error, 'APM server got error event')
-//         const stacktrace = server.events[1].error.exception.stacktrace
-//         t.deepEqual(
-//           stacktrace[0],
-//           {
-//             filename: path.join('fixtures', 'throw-an-error.js'),
-//             lineno: 15,
-//             function: 'main',
-//             library_frame: false,
-//             abs_path: path.join(process.cwd(), 'fixtures', 'throw-an-error.js'),
-//             pre_context: ['', 'function main () {'],
-//             context_line: "  throw new Error('boom')",
-//             post_context: ['}', '']
-//           },
-//           'stacktrace top frame is as expected'
-//         )
-//         server.close()
-//         t.end()
-//       }
-//     )
-//   })
-// })
+// Test that the stacktrace from a file with a sourcemap works:
+// 1. 'filename', 'lineno', 'abs_path' point to the mapped file (in this
+//    case the source TypeScript file)
+// 2. '*context*' fields load the "sourcesContent" from the sourcemap. We
+//    force this by building the sourcemap with a bogus "no-such-dir"
+//    "sourceRoot" (see the setting in fixtures/tsconfig.json).
+tape.test('error.exception.stacktrace with sourcemap', function (t) {
+  const server = new MockAPMServer()
+  server.start(function (serverUrl) {
+    exec(
+      `${process.execPath} fixtures/dist/throw-an-error-with-sourcemap.js`,
+      {
+        cwd: __dirname,
+        timeout: 3000,
+        env: {
+          ELASTIC_APM_SERVER_URL: serverUrl
+        }
+      },
+      function done (err, _stdout, _stderr) {
+        t.ok(err, 'throw-an-error-with-sourcemap.js errored out')
+        t.ok(server.events[0].metadata, 'APM server got event metadata object')
+        t.ok(server.events[1].error, 'APM server got error event')
+        const stacktrace = server.events[1].error.exception.stacktrace
+        t.deepEqual(
+          stacktrace[0],
+          {
+            filename: path.join('fixtures', 'dist', 'no-such-dir', 'throw-an-error-with-sourcemap.ts'),
+            lineno: 16,
+            function: 'main',
+            library_frame: false,
+            abs_path: path.join(process.cwd(), 'fixtures', 'dist', 'no-such-dir', 'throw-an-error-with-sourcemap.ts'),
+            pre_context: ['', 'function main(msg: string) {'],
+            context_line: '  throw new Error(msg)',
+            post_context: ['}', '']
+          },
+          'stacktrace top frame is as expected'
+        )
+        server.close()
+        t.end()
+      }
+    )
+  })
+})
+
+// XXX test stackTraceFromErrStackString

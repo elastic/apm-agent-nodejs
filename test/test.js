@@ -97,6 +97,7 @@ var directories = [
   'test/redact-secrets',
   'test/sanitize-field-names',
   'test/sourcemaps',
+  'test/stacktraces',
   'test/uncaught-exceptions'
 ]
 
