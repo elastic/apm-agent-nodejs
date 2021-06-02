@@ -81,7 +81,7 @@ tape.test(function (suite) {
     }, 1)
   })
 
-  suite.test('spanFrameMinDuration=-1 always sets', function (t) {
+  suite.test('spanFrameMinDuration=<negative> always sets', function (t) {
     agent._config({ logLevel: 'off', spanFramesMinDuration: '-1' })
     const trans = agent.startTransaction()
     const span = agent.startSpan()
