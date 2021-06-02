@@ -197,11 +197,14 @@ interface AgentConfigOptions {
   apiRequestSize?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   apiRequestTime?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   asyncHooks?: boolean;
+  breakdownMetrics?: boolean;
   captureBody?: CaptureBody;
   captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
   captureExceptions?: boolean;
   captureHeaders?: boolean;
   captureSpanStackTraces?: boolean;
+  cloudProvider?: string;
+  configFile?: string;
   containerId?: string;
   disableInstrumentations?: string | string[];
   environment?: string;
@@ -226,6 +229,7 @@ interface AgentConfigOptions {
   logger?: Logger;
   maxQueueSize?: number;
   metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
+  metricsLimit?: number;
   payloadLogFile?: string;
   centralConfig?: boolean;
   sanitizeFieldNames?: Array<string>;
@@ -234,6 +238,7 @@ interface AgentConfigOptions {
   serverTimeout?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   serverUrl?: string;
   serviceName?: string;
+  serviceNodeName?: string;
   serviceVersion?: string;
   sourceLinesErrorAppFrames?: number;
   sourceLinesErrorLibraryFrames?: number;
@@ -244,6 +249,7 @@ interface AgentConfigOptions {
   transactionIgnoreUrls?: Array<string>;
   transactionMaxSpans?: number;
   transactionSampleRate?: number;
+  useElasticTraceparentHeader?: boolean;
   usePathAsTransactionName?: boolean;
   verifyServerCert?: boolean;
 }

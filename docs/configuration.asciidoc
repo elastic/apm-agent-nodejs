@@ -160,7 +160,7 @@ A boolean specifying if the agent should automatically apply instrumentation to 
 Note that both `active` and `instrument` needs to be `true` for instrumentation to be running.
 
 [[instrument-incoming-http-requests]]
-==== `instrumentIncomingHTTPRequests?:`
+==== `instrumentIncomingHTTPRequests`
 
 * *Type:* Boolean
 * *Default:* `true`
