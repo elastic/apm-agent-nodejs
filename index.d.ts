@@ -244,6 +244,7 @@ interface AgentConfigOptions {
   sourceLinesErrorLibraryFrames?: number;
   sourceLinesSpanAppFrames?: number;
   sourceLinesSpanLibraryFrames?: number;
+  spanFramesMinDuration?: string;
   stackTraceLimit?: number;
   transactionIgnoreUrls?: Array<string>;
   transactionMaxSpans?: number;

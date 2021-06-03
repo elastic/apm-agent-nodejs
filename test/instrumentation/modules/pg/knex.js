@@ -7,7 +7,8 @@ var agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
 var knexVersion = require('knex/package').version
