@@ -934,18 +934,19 @@ test('#captureError()', function (t) {
       })
   })
 
-  t.test('should not use custom log message together with exception if equal', function (t) {
-    t.plan(2 + APMServerWithDefaultAsserts.asserts)
-    APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
-      .on('listening', function () {
-        this.agent.captureError(new Error('foo'), { message: 'foo' })
-      })
-      .on('data-error', function (data) {
-        t.strictEqual(data.exception.message, 'foo')
-        t.strictEqual(data.log, undefined)
-        t.end()
-      })
-  })
+  // XXX mini-survey
+  // t.test('should not use custom log message together with exception if equal', function (t) {
+  //   t.plan(2 + APMServerWithDefaultAsserts.asserts)
+  //   APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
+  //     .on('listening', function () {
+  //       this.agent.captureError(new Error('foo'), { message: 'foo' })
+  //     })
+  //     .on('data-error', function (data) {
+  //       t.strictEqual(data.exception.message, 'foo')
+  //       t.strictEqual(data.log, undefined)
+  //       t.end()
+  //     })
+  // })
 
   t.test('should adhere to default stackTraceLimit', function (t) {
     t.plan(2 + APMServerWithDefaultAsserts.asserts)

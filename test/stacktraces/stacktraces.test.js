@@ -10,7 +10,9 @@ const tape = require('tape')
 
 const logging = require('../../lib/logging')
 const { MockAPMServer } = require('./_mock_apm_server')
-const { stackTraceFromErrStackString } = require('../../lib/stacktraces')
+const { gatherStackTrace, stackTraceFromErrStackString } = require('../../lib/stacktraces')
+
+const log = logging.createLogger('off')
 
 // Execute 'node fixtures/throw-an-error.js' and assert APM server gets the
 // error.exception.stacktrace we expect.
@@ -38,7 +40,7 @@ tape.test('error.exception.stacktrace', function (t) {
             lineno: 15,
             function: 'main',
             library_frame: false,
-            abs_path: path.join(process.cwd(), 'fixtures', 'throw-an-error.js'),
+            abs_path: path.join(__dirname, 'fixtures', 'throw-an-error.js'),
             pre_context: ['', 'function main () {'],
             context_line: "  throw new Error('boom')",
             post_context: ['}', '']
@@ -74,7 +76,7 @@ tape.test('error.log.stacktrace', function (t) {
             lineno: 15,
             function: 'main',
             library_frame: false,
-            abs_path: path.join(process.cwd(), 'fixtures', 'capture-error-string.js'),
+            abs_path: path.join(__dirname, 'fixtures', 'capture-error-string.js'),
             pre_context: ['', 'function main () {'],
             context_line: '  agent.captureError(\'a string error message\')',
             post_context: ['  agent.captureError({ message: \'message template: %d\', params: [42] })', '}']
@@ -88,7 +90,7 @@ tape.test('error.log.stacktrace', function (t) {
             lineno: 16,
             function: 'main',
             library_frame: false,
-            abs_path: path.join(process.cwd(), 'fixtures', 'capture-error-string.js'),
+            abs_path: path.join(__dirname, 'fixtures', 'capture-error-string.js'),
             pre_context: ['function main () {', '  agent.captureError(\'a string error message\')'],
             context_line: '  agent.captureError({ message: \'message template: %d\', params: [42] })',
             post_context: ['}', '']
@@ -134,7 +136,7 @@ tape.test('span.stacktrace', function (t) {
             lineno: 23,
             function: 'main',
             library_frame: false,
-            abs_path: path.join(process.cwd(), 'fixtures', 'send-a-span.js'),
+            abs_path: path.join(__dirname, 'fixtures', 'send-a-span.js'),
             pre_context: [
               'function main () {',
               "  const trans = agent.startTransaction('main')"
@@ -185,7 +187,7 @@ tape.test('error.exception.stacktrace with sourcemap', function (t) {
             lineno: 16,
             function: 'main',
             library_frame: false,
-            abs_path: path.join(process.cwd(), 'fixtures', 'dist', 'no-such-dir', 'throw-an-error-with-sourcemap.ts'),
+            abs_path: path.join(__dirname, 'fixtures', 'dist', 'no-such-dir', 'throw-an-error-with-sourcemap.ts'),
             pre_context: ['', 'function main(msg: string) {'],
             context_line: '  throw new Error(msg)',
             post_context: ['}', '']
@@ -199,7 +201,7 @@ tape.test('error.exception.stacktrace with sourcemap', function (t) {
   })
 })
 
-tape.test('stackTraceFromErrStackString', function (t) {
+tape.test('stackTraceFromErrStackString()', function (t) {
   function theFunction () {
     return new Error('here I am') // <-- the top frame will point here
   }
@@ -216,14 +218,13 @@ tape.test('stackTraceFromErrStackString', function (t) {
     }
   }
 
-  var log = logging.createLogger('off')
   const stacktrace = stackTraceFromErrStackString(log, theFunction())
   t.ok(stacktrace, 'got a stacktrace')
   t.ok(Array.isArray(stacktrace), 'stacktrace is an Array')
   t.deepEqual(
     stacktrace[0],
     {
-      filename: 'stacktraces.test.js',
+      filename: path.relative(process.cwd(), __filename),
       function: 'theFunction',
       lineno: lineno,
       library_frame: false,
@@ -233,4 +234,103 @@ tape.test('stackTraceFromErrStackString', function (t) {
   )
 
   t.end()
+})
+
+// XXX REVIEW-NOTE This partly reproduces '#parseCallsite()' test from test/parsers.js
+tape.test('gatherStackTrace()', function (suite) {
+  function thisIsMyFunction () {
+    // before 2
+    // before 1
+    return new Error('sha-boom')
+    // after 1
+    // after 2
+  }
+
+  // To avoid the "lineno" test below failing frequently whenever this file is
+  // edited, we read this file to get the current line number of the
+  // `new Error('...')` line above.
+  const lines = fs.readFileSync(__filename, { encoding: 'utf8' }).split(/\n/g)
+  let lineno = null
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*return new Error\('sha-boom'\)/.test(lines[i])) {
+      lineno = i + 1
+      break
+    }
+  }
+
+  var cases = [
+    {
+      lines: 0,
+      expectedContext: {}
+    },
+    {
+      lines: 1,
+      expectedContext: {
+        pre_context: [],
+        context_line: '    return new Error(\'sha-boom\')',
+        post_context: []
+      }
+    },
+    {
+      lines: 2,
+      expectedContext: {
+        pre_context: ['    // before 1'],
+        context_line: '    return new Error(\'sha-boom\')',
+        post_context: []
+      }
+    },
+    {
+      lines: 3,
+      expectedContext: {
+        pre_context: ['    // before 1'],
+        context_line: '    return new Error(\'sha-boom\')',
+        post_context: ['    // after 1']
+      }
+    },
+    {
+      lines: 4,
+      expectedContext: {
+        pre_context: [
+          '    // before 2',
+          '    // before 1'
+        ],
+        context_line: '    return new Error(\'sha-boom\')',
+        post_context: ['    // after 1']
+      }
+    },
+    {
+      lines: 5,
+      expectedContext: {
+        pre_context: [
+          '    // before 2',
+          '    // before 1'
+        ],
+        context_line: '    return new Error(\'sha-boom\')',
+        post_context: [
+          '    // after 1',
+          '    // after 2'
+        ]
+      }
+    }
+  ]
+
+  cases.forEach(c => {
+    suite.test(`${c.lines} lines of source context`, t => {
+      const err = thisIsMyFunction()
+      gatherStackTrace(log, err, c.lines, c.lines, null, function (_, stacktrace) {
+        const expectedTopFrame = {
+          filename: path.relative(process.cwd(), __filename),
+          lineno: lineno,
+          function: 'thisIsMyFunction',
+          library_frame: false,
+          abs_path: __filename,
+          ...c.expectedContext
+        }
+        t.deepEqual(stacktrace[0], expectedTopFrame, 'top frame is as expected')
+        t.end()
+      })
+    })
+  })
+
+  suite.end()
 })
