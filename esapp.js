@@ -18,22 +18,32 @@ const http = require('http')
 const express = require('express')
 
 const { Client } = require('@elastic/elasticsearch')
-var client = new Client({
+var esclient = new Client({
   node: 'http://localhost:9200',
   auth: { username: 'admin', password: 'changeme' }
 })
 
-client.on('request', function (_err, event) {
+// Warn on "slow" ES queries, include execution context.
+const WHAT_IS_SLOW = 10 // ms
+esclient.on('request', function (_err, event) {
   const { meta } = event
   if (!meta.context) {
     meta.context = {}
   }
   meta.context.startTime = Date.now()
 })
-client.on('response', function (_err, event) {
+esclient.on('response', function (_err, event) {
   const latency = Date.now() - event.meta.context.startTime
-  if (latency > 10) {
-    console.warn(`ZOMG this ES query was SLOW:\n  latency: ${latency}ms\n  kibanaExecutionContext: ${apm.currentTransaction.getBaggageEntry('kibanaExecutionContext')}`, )
+  if (latency > WHAT_IS_SLOW) {
+    console.warn(`ZOMG this ES query was SLOW:\n  latency: ${latency}ms\n  kibanaExecutionContext: ${apm.getBaggageEntry('kibanaExecutionContext')}`, )
+  }
+})
+
+// Add `x-opaque-id: <execution context>` header to ES requests.
+esclient.on('request', function (_err, event) {
+  const ec = apm.getBaggageEntry('kibanaExecutionContext')
+  if (ec) {
+    event.meta.request.params.headers['x-opaque-id'] = ec
   }
 })
 
@@ -49,7 +59,7 @@ app.get('/', (req, res) => {
     type: 'someType',
     url: req.url
   })
-  client.search({
+  esclient.search({
     body: {
       size: 1,
       query: {
