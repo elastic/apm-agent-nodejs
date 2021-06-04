@@ -244,7 +244,6 @@ tape.test('stackTraceFromErrStackString()', function (t) {
   t.end()
 })
 
-// XXX REVIEW-NOTE This partly reproduces '#parseCallsite()' test from test/parsers.js
 tape.test('gatherStackTrace()', function (suite) {
   function thisIsMyFunction () {
     // before 2
