@@ -95,6 +95,7 @@
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
     "load-source-map": "^2.0.0",
+    "lru-cache": "^6.0.0",
     "measured-reporting": "^1.51.1",
     "monitor-event-loop-delay": "^1.0.0",
     "object-filter-sequence": "^1.0.0",
