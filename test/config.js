@@ -777,6 +777,7 @@ test('custom transport', function (t) {
   var agent = Agent()
   agent.start({
     captureExceptions: false,
+    cloudProvider: 'none',
     serviceName: 'fooBAR0123456789_- ',
     transport () {
       var transactions = []
@@ -784,6 +785,9 @@ test('custom transport', function (t) {
       var errors = []
       function makeSenderFor (list) {
         return (item, callback) => {
+          if (list === spans) {
+            console.warn('XXX got the span')
+          }
           list.push(item)
           if (callback) {
             setImmediate(callback)
