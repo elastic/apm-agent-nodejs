@@ -29,6 +29,9 @@ tape.test('error.exception.stacktrace', function (t) {
         }
       },
       function done (err, _stdout, _stderr) {
+        console.warn('XXX err', err)
+        console.warn('XXX _stdout', _stdout)
+        console.warn('XXX _stderr', _stderr)
         t.ok(err, 'throw-an-error.js errored out')
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
         t.ok(server.events[1].error, 'APM server got error event')
