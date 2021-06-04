@@ -23,16 +23,15 @@ tape.test('error.exception.stacktrace', function (t) {
       `${process.execPath} fixtures/throw-an-error.js`,
       {
         cwd: __dirname,
-        timeout: 3000,
-        env: {
+        timeout: 10000, // sanity stop, 3s is sometimes too short for CI
+        env: Object.assign({}, process.env, {
           ELASTIC_APM_SERVER_URL: serverUrl
-        }
+        })
       },
       function done (err, _stdout, _stderr) {
-        console.warn('XXX err', err)
-        console.warn('XXX _stdout', _stdout)
-        console.warn('XXX _stderr', _stderr)
         t.ok(err, 'throw-an-error.js errored out')
+        t.ok(/Error: boom/.test(err.message),
+          'err.message includes /Error: boom/: ' + JSON.stringify(err.message))
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
         t.ok(server.events[1].error, 'APM server got error event')
         const stacktrace = server.events[1].error.exception.stacktrace
@@ -65,9 +64,9 @@ tape.test('error.log.stacktrace', function (t) {
       {
         cwd: __dirname,
         timeout: 3000,
-        env: {
+        env: Object.assign({}, process.env, {
           ELASTIC_APM_SERVER_URL: serverUrl
-        }
+        })
       },
       function done (err, _stdout, _stderr) {
         t.error(err, 'capture-error-string.js did not error')
@@ -116,9 +115,9 @@ tape.test('span.stacktrace', function (t) {
       {
         cwd: __dirname,
         timeout: 3000,
-        env: {
+        env: Object.assign({}, process.env, {
           ELASTIC_APM_SERVER_URL: serverUrl
-        }
+        })
       },
       function done (err, _stdout, _stderr) {
         t.error(err, 'send-a-span.js did not error')
@@ -174,12 +173,14 @@ tape.test('error.exception.stacktrace with sourcemap', function (t) {
       {
         cwd: __dirname,
         timeout: 3000,
-        env: {
+        env: Object.assign({}, process.env, {
           ELASTIC_APM_SERVER_URL: serverUrl
-        }
+        })
       },
       function done (err, _stdout, _stderr) {
         t.ok(err, 'throw-an-error-with-sourcemap.js errored out')
+        t.ok(/Error: boom/.test(err.message),
+          'err.message includes /Error: boom/: ' + JSON.stringify(err.message))
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
         t.ok(server.events[1].error, 'APM server got error event')
         const stacktrace = server.events[1].error.exception.stacktrace
