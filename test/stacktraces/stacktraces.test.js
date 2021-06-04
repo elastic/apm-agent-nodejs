@@ -3,7 +3,7 @@
 // Test the various ways a 'stacktrace' can be captured and reported to APM
 // server.
 
-const { exec } = require('child_process')
+const { execFile } = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const tape = require('tape')
@@ -19,8 +19,9 @@ const log = logging.createLogger('off')
 tape.test('error.exception.stacktrace', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
-    exec(
-      `${process.execPath} fixtures/throw-an-error.js`,
+    execFile(
+      process.execPath,
+      ['fixtures/throw-an-error.js'],
       {
         cwd: __dirname,
         timeout: 10000, // sanity stop, 3s is sometimes too short for CI
@@ -59,8 +60,9 @@ tape.test('error.exception.stacktrace', function (t) {
 tape.test('error.log.stacktrace', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
-    exec(
-      `${process.execPath} fixtures/capture-error-string.js`,
+    execFile(
+      process.execPath,
+      ['fixtures/capture-error-string.js'],
       {
         cwd: __dirname,
         timeout: 3000,
@@ -110,8 +112,9 @@ tape.test('span.stacktrace', function (t) {
   const server = new MockAPMServer()
   const testScript = path.join('fixtures', 'send-a-span.js')
   server.start(function (serverUrl) {
-    exec(
-      `${process.execPath} ${testScript}`,
+    execFile(
+      process.execPath,
+      [testScript],
       {
         cwd: __dirname,
         timeout: 3000,
@@ -168,8 +171,9 @@ tape.test('span.stacktrace', function (t) {
 tape.test('error.exception.stacktrace with sourcemap', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
-    exec(
-      `${process.execPath} fixtures/dist/throw-an-error-with-sourcemap.js`,
+    execFile(
+      process.execPath,
+      ['fixtures/dist/throw-an-error-with-sourcemap.js'],
       {
         cwd: __dirname,
         timeout: 3000,
