@@ -57,6 +57,59 @@ tape.test('error.exception.stacktrace', function (t) {
   })
 })
 
+// There was a bug in stacktrace frame caching when a stacktrace had duplicate
+// frames: the JSON serialization protection against circular references would
+// accidentally replace duplicate frames with `["Circular"]`.
+tape.test('error.exception.stacktrace does not have "[Circular]" frames', function (t) {
+  const server = new MockAPMServer()
+  server.start(function (serverUrl) {
+    execFile(
+      process.execPath,
+      ['fixtures/circular-stack.js'],
+      {
+        cwd: __dirname,
+        timeout: 10000, // sanity stop, 3s is sometimes too short for CI
+        env: Object.assign({}, process.env, {
+          ELASTIC_APM_SERVER_URL: serverUrl
+        })
+      },
+      function done (err, _stdout, _stderr) {
+        t.error(err, 'circular-stack.js exited non-zero')
+        t.ok(server.events[0].metadata, 'APM server got first metadata object')
+        t.ok(server.events[1].error, 'APM server got first error event')
+        t.ok(server.events[2].metadata, 'APM server got second metadata object')
+        t.ok(server.events[3].error, 'APM server got second error event')
+        // The script calls `boomOnZero(10)`, so we expect to see *9* frames at the
+        // `boomOnZero(n)` line.
+        let count = 0
+        const stacktrace = server.events[3].error.exception.stacktrace
+        stacktrace.forEach(function (frame) {
+          if (frame.context_line === '    boomOnZero(n)') {
+            count++
+            t.deepEqual(
+              frame,
+              {
+                filename: path.join('fixtures', 'circular-stack.js'),
+                lineno: 19,
+                function: 'boomOnZero',
+                library_frame: false,
+                abs_path: path.join(__dirname, 'fixtures', 'circular-stack.js'),
+                pre_context: ['    throw new Error(\'boom on zero\')', '  } else {'],
+                context_line: '    boomOnZero(n)',
+                post_context: ['  }', '}']
+              },
+              '"boom on zero" stacktrace frame is as expected'
+            )
+          }
+        })
+        t.equal(count, 9, 'found 9 "boom on zero" stacktrace frames')
+        server.close()
+        t.end()
+      }
+    )
+  })
+})
+
 tape.test('error.log.stacktrace', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
