@@ -48,7 +48,7 @@ Notes:
 [float]
 ===== Bug fixes
 
-* Performance improvements have been made in error and stacktrace capture. {pull}2094[#2094]
+* Performance improvements have been made in error and stacktrace capture ({pull}2094[#2094]).
   This also included in two bug fixes:
 +
 ** Before this change, some captured errors (for example a `next(new Error('boom')` from
