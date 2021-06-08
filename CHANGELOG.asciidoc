@@ -48,9 +48,14 @@ Notes:
 [float]
 ===== Bug fixes
 
-* Performance improvements have been made in error and stacktrace capture.
-  {pull}2094[#2094]
-
+* Performance improvements have been made in error and stacktrace capture. {pull}2094[#2094]
+  This also included in two bug fixes:
++
+** Before this change, some captured errors (for example a `next(new Error('boom')` from
+   an Express handler) would mark the error as "unhandled" incorrectly. "Unhandled"
+   exceptions are those caught by an `uncaughtException` handler.
+** Before this change, source context lines for a stacktrace would not properly
+   use the "sourcesContext" field of a file's source map.
 
 [[release-notes-3.15.0]]
 ==== 3.15.0 - 2021/05/19
