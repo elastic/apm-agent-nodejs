@@ -68,29 +68,6 @@ class MockAPMServer {
   }
 }
 
-// const server = http.createServer(function (req, res) {
-//   const parsedStream = req.pipe(zlib.createGunzip()).pipe(ndjson.parse())
-//   let n = 0
-//   parsedStream.on('data', function (obj) {
-//     switch (n) {
-//       case 0:
-//         t.ok(obj.metadata, 'APM server got metadata obj')
-//         break
-//       case 1:
-//         t.ok(obj.error, 'APM server got error obj')
-//         theError = obj.error
-//         break
-//       default:
-//         t.fail('APM server got unexpected intake obj: ' + obj)
-//         break
-//     }
-//     n++
-//   })
-//   parsedStream.on('end', function () {
-//     res.end()
-//   })
-// })
-
 module.exports = {
   MockAPMServer
 }
