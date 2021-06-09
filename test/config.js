@@ -777,6 +777,7 @@ test('custom transport', function (t) {
   var agent = Agent()
   agent.start({
     captureExceptions: false,
+    cloudProvider: 'none',
     serviceName: 'fooBAR0123456789_- ',
     transport () {
       var transactions = []

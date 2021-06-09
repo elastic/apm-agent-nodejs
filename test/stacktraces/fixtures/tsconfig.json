@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "outDir": "dist",
+    "strict": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    // Use a bogus "sourceRoot" path to force source lookup via
+    // "sourcesContent".
+    "sourceRoot": "./no-such-dir"
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}
