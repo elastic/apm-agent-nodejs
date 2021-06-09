@@ -291,7 +291,7 @@ isSecure.forEach(secure => {
       var span = findObjInArray(data.spans, 'transaction_id', root.id)
       t.ok(span, 'root transaction should have span')
       t.strictEqual(span.type, 'external')
-      t.strictEqual(span.subtype, 'http2')
+      t.strictEqual(span.subtype, 'http')
       t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}/sub`)
       t.deepEqual(span.context.http, {
         method: 'GET',
