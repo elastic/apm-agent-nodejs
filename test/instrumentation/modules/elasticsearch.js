@@ -200,7 +200,7 @@ function done (t, method, path, query, abort = false) {
     {
       const type = 'external'
       const subtype = 'http'
-      const action = 'http'
+      const action = method
       span1 = findObjInArray(data.spans, 'type', type)
       t.ok(span1, 'should have span with type ' + type)
       t.strictEqual(span1.type, type)
