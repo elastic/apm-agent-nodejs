@@ -276,7 +276,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
-    t.plan(33)
+    t.plan(34)
 
     resetAgent(3, (data) => {
       t.strictEqual(data.transactions.length, 2)
@@ -292,6 +292,7 @@ isSecure.forEach(secure => {
       t.ok(span, 'root transaction should have span')
       t.strictEqual(span.type, 'external')
       t.strictEqual(span.subtype, 'http')
+      t.strictEqual(span.action, 'GET')
       t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}/sub`)
       t.deepEqual(span.context.http, {
         method: 'GET',
