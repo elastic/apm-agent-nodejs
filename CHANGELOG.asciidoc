@@ -48,6 +48,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix a crash (`TypeError: lastPrepareStackTrace`) in the agent when used with
+  React v17 and later ({issues}1980[#1980]).
+
 * Performance improvements have been made in error and stacktrace capture ({pull}2094[#2094]).
   This also included in two bug fixes:
 +
