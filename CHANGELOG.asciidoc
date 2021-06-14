@@ -28,10 +28,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-x.x.x]]
+==== 3.16.0 - 2021/06/14
 
 [float]
 ===== Features
