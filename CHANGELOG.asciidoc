@@ -28,6 +28,24 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix inconsistencies in HTTP spans from other APM agents.
+  <<span-subtype, `span.subtype`>> will now be "http" for HTTP, HTTPS, and
+  HTTP/2 outgoing spans -- previously it was "http", "https", "http2",
+  respectively. As well, <<span-action, `span.action`>> will now be the HTTP
+  method (e.g. "GET", "PUT", "POST"), rather than "http". ({pull}2075[#2075])
+
+
 [[release-notes-x.x.x]]
 ==== 3.16.0 - 2021/06/14
 
@@ -57,6 +75,7 @@ Notes:
    exceptions are those caught by an `uncaughtException` handler.
 ** Before this change, source context lines for a stacktrace would not properly
    use the "sourcesContext" field of a file's source map.
+
 
 [[release-notes-3.15.0]]
 ==== 3.15.0 - 2021/05/19
