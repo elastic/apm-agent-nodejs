@@ -144,7 +144,6 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
       },
       logger: logging.createLogger('off')
     }
-    t.equals(shouldIgnoreRequest(request, agent), true)
 
     agent.currentTransaction = { mocked: 'transaction' }
     t.equals(shouldIgnoreRequest(request, agent), false)
