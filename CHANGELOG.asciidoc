@@ -127,7 +127,7 @@ variable), then it should be removed.
 
 * Fixed bug where the URL property for outgoing HTTP request spans was set
   with the server's IP address rather than its hostname. The Agent now sets
-  this property with the actual URL requested by Node.js.
+  this property with the actual URL requested by Node.js. {issues}2035[#2035]
 
 * Fixed bug where external services were not listed under Dependencies on the
   APM Service Overview page due to the trace-context propagated `sample_rate`
