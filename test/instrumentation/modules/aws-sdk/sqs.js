@@ -566,6 +566,28 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       )
     })
   })
+
+  test.test('API: no transaction', function (t) {
+    const app = createMockServer(
+      getXmlResponse('sendMessage')
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        t.equals(data.spans.length, 0, 'no spans generated because no transaction')
+        t.end()
+      })
+      agent.startTransaction('myTransaction')
+      agent.endTransaction()
+      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+      const params = getParams('sendMessage', listener.address().port)
+      sqs.sendMessage(params, function (err, data) {
+        t.error(err)
+        agent.endTransaction()
+        listener.close()
+      })
+    })
+  })
+
   test.end()
 })
 
