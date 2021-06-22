@@ -25,20 +25,22 @@ const endpoint = process.env.LOCALSTACK_HOST
 tape.test('simple S3 usage scenario', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
+    const additionalEnv = {
+      ELASTIC_APM_SERVER_URL: serverUrl,
+      AWS_ACCESS_KEY_ID: 'fake',
+      AWS_SECRET_ACCESS_KEY: 'fake',
+      TEST_BUCKET_NAME: 'elasticapmtest-bucket-1',
+      TEST_ENDPOINT: endpoint,
+      TEST_REGION: 'us-east-2'
+    }
+    t.comment('executing test script with this env: ' + JSON.stringify(additionalEnv))
     execFile(
       process.execPath,
       ['fixtures/use-s3-callback-style.js'],
       {
         cwd: __dirname,
         timeout: 10000, // sanity guard on the test hanging
-        env: Object.assign({}, process.env, {
-          ELASTIC_APM_SERVER_URL: serverUrl,
-          AWS_ACCESS_KEY_ID: 'fake',
-          AWS_SECRET_ACCESS_KEY: 'fake',
-          TEST_BUCKET_NAME: 'elasticapmtest-bucket-1',
-          TEST_ENDPOINT: endpoint,
-          TEST_REGION: 'us-east-2'
-        })
+        env: Object.assign({}, process.env, additionalEnv)
       },
       function done (err, stdout, stderr) {
         t.error(err, 'use-s3-callback-style.js errored out')

@@ -7,3 +7,6 @@ cassandra -p /tmp/cassandra.pid &> /tmp/cassandra.log
 memcached -d -P /tmp/memcached.pid
 redis-server /usr/local/etc/redis.conf --daemonize yes
 mysql.server start
+
+# Note: localstack is not included here because running localstack
+# outside of Docker is deprecated/not supported.

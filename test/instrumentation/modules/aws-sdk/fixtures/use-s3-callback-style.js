@@ -56,7 +56,12 @@ const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
 function useS3 (s3Client, bucketName, cb) {
   const region = s3Client.config.region
-  const log = apm.logger.child({ 'event.module': 'app', bucketName, region })
+  const log = apm.logger.child({
+    'event.module': 'app',
+    endpoint: s3Client.config.endpoint,
+    bucketName,
+    region
+  })
   const key = 'aDir/aFile.txt'
   const content = 'hi there'
 
@@ -158,6 +163,24 @@ function useS3 (s3Client, bucketName, cb) {
             next(new Error('expected NotModified error for conditional request'))
           }
         })
+      },
+
+      function getObjUsingPromise (_, next) {
+        const req = s3Client.getObject({
+          Bucket: bucketName,
+          Key: key
+        }).promise()
+
+        req.then(
+          function onResolve (data) {
+            log.info({ data }, 'getObject using Promise, resolve')
+            next()
+          },
+          function onReject (err) {
+            log.info({ err }, 'getObject using Promise, reject')
+            next(err)
+          }
+        )
       },
 
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#deleteObject-property
