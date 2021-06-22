@@ -45,6 +45,8 @@ Notes:
   respectively. As well, <<span-action, `span.action`>> will now be the HTTP
   method (e.g. "GET", "PUT", "POST"), rather than "http". ({pull}2075[#2075])
 
+* Fixed error where SQS messages sent without an active transactions could
+  crash the agent. ({issues}2113[#2113])
 
 [[release-notes-x.x.x]]
 ==== 3.16.0 - 2021/06/14
@@ -272,9 +274,10 @@ slightly to commonalize:
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
 
-* feat: implemented sanitize_feature_names specification +
+* feat: Add `sanitize_field_names` configuration option. +
   Allows users to configure a list of wildcard patterns to _remove_ items
   from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
+  {pull}1898[#1898]
   ** https://github.com/elastic/apm/blob/master/specs/agents/sanitization.md[spec]
   ** https://github.com/elastic/apm-agent-nodejs/blob/master/docs/configuration.asciidoc#sanitize-field-names[docs]
 
