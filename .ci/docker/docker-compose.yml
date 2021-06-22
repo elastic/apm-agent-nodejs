@@ -114,6 +114,24 @@ services:
       timeout: 10s
       retries: 5
 
+  localstack:
+    # https://hub.docker.com/r/localstack/localstack/tags
+    image: localstack/localstack:0.12.12
+    environment:
+      # XXX See note about TMPDIR on macos at https://github.com/localstack/localstack#using-docker-compose
+      - "LOCALSTACK_SERVICES=s3"
+      - "DATA_DIR=/var/lib/localstack"
+    ports:
+      - "4566:4566"
+    healthcheck:
+      # https://github.com/localstack/localstack/issues/1095#issuecomment-505368702
+      test: ["CMD", "awslocal", "s3", "ls"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - nodelocalstackdata:/var/lib/localstack
+
 volumes:
   nodepgdata:
     driver: local
@@ -126,4 +144,6 @@ volumes:
   nodeesdata:
     driver: local
   nodecassandradata:
+    driver: local
+  nodelocalstackdata:
     driver: local

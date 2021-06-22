@@ -200,6 +200,9 @@ elif [[ -n "${TAV_MODULE}" ]]; then
     memcached)
       DOCKER_COMPOSE_FILE=docker-compose-memcached.yml
       ;;
+    aws-sdk)
+      DOCKER_COMPOSE_FILE=docker-compose-localstack.yml
+      ;;
     *)
       # Just the "node_tests" container. No additional services needed for testing.
       DOCKER_COMPOSE_FILE=docker-compose-node-test.yml
