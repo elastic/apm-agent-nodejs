@@ -38,8 +38,12 @@ tape.test('simple S3 usage scenario', function (t) {
           TEST_REGION: 'us-east-2'
         })
       },
-      function done (err, _stdout, _stderr) {
+      function done (err, stdout, stderr) {
         t.error(err, 'use-s3-callback-style.js errored out')
+        if (err) {
+          t.comment(`use-s3-callback-style stdout: ${stdout}`)
+          t.comment(`use-s3-callback-style stderr: ${stderr}`)
+        }
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
 
         // Sort the events by timestamp, then work through each expected span.
