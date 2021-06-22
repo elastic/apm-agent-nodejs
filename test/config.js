@@ -728,9 +728,6 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
     modules.delete('@elastic/elasticsearch')
   }
-  if (semver.lt(process.version, '10.0.0')) {
-    modules.delete('@aws-sdk/client-s3')
-  }
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)
