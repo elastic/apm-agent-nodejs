@@ -62,6 +62,7 @@ tape.test('simple S3 usage scenario', function (t) {
 
         // Currently HTTP spans under each S3 span are included. Eventually
         // those will be excluded. Filter those out for now.
+        // https://github.com/elastic/apm-agent-nodejs/issues/2125
         const spans = events.map(e => e.span).filter(e => e.subtype !== 'http')
 
         // Compare some common fields across all spans.
