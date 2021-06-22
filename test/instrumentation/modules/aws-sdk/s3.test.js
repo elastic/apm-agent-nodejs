@@ -13,14 +13,13 @@ const { execFile } = require('child_process')
 
 const tape = require('tape')
 
-// XXX move this to shared
-const { MockAPMServer } = require('../../../stacktraces/_mock_apm_server')
+const { MockAPMServer } = require('../../../_mock_apm_server')
 
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost'
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566'
 
-// Execute 'node fixtures/use-s3-callback-style.js' and assert APM server gets
-// the expected spans.
+// Execute 'node fixtures/use-s3js' and assert APM server gets the expected
+// spans.
 tape.test('simple S3 usage scenario', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
@@ -35,17 +34,17 @@ tape.test('simple S3 usage scenario', function (t) {
     t.comment('executing test script with this env: ' + JSON.stringify(additionalEnv))
     execFile(
       process.execPath,
-      ['fixtures/use-s3-callback-style.js'],
+      ['fixtures/use-s3.js'],
       {
         cwd: __dirname,
         timeout: 10000, // sanity guard on the test hanging
         env: Object.assign({}, process.env, additionalEnv)
       },
       function done (err, stdout, stderr) {
-        t.error(err, 'use-s3-callback-style.js errored out')
+        t.error(err, 'use-s3.js errored out')
         if (err) {
-          t.comment(`use-s3-callback-style stdout:\n${stdout}\n`)
-          t.comment(`use-s3-callback-style stderr:\n${stderr}\n`)
+          t.comment(`use-s3.js stdout:\n${stdout}\n`)
+          t.comment(`use-s3.js stderr:\n${stderr}\n`)
         }
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
 

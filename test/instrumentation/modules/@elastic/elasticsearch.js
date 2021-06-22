@@ -38,9 +38,6 @@ const pkgVersion = require('@elastic/elasticsearch/package.json').version
 test('client.ping with promise', function userLandCode (t) {
   resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
 
-  t.comment('XXX ES_HOST: ' + process.env.ES_HOST)
-  t.comment('XXX ES node: ' + node)
-
   agent.startTransaction('myTrans')
 
   const client = new Client({ node })

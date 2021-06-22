@@ -21,21 +21,21 @@
 // Usage:
 //    # Run against the default configured AWS profile, creating a new bucket
 //    # and deleting it afterwards.
-//    node use-s3-callback-style.js | ecslog
+//    node use-s3.js | ecslog
 //
 //    # Testing against localstack.
 //    docker run --rm -it -e SERVICES=s3 -p 4566:4566 -p 4571:4571 localstack/localstack
-//    TEST_ENDPOINT=http://localhost:4566 node use-s3-callback-style.js | ecslog
+//    TEST_ENDPOINT=http://localhost:4566 node use-s3.js | ecslog
 //
 //    # Use TEST_BUCKET_NAME to re-use an existing bucket (and not delete it).
 //    # For safety the bucket name must start with "elasticapmtest-bucket-".
-//    TEST_BUCKET_NAME=elasticapmtest-bucket-1 node use-s3-callback-style.js | ecslog
+//    TEST_BUCKET_NAME=elasticapmtest-bucket-1 node use-s3.js | ecslog
 //
 // Output from a sample run is here:
 // https://gist.github.com/trentm/c402bcab8c0571f26d879ec0bcf5759c
 
 const apm = require('../../../../..').start({
-  serviceName: 'use-s3-callback-style',
+  serviceName: 'use-s3',
   captureExceptions: false,
   centralConfig: false,
   metricsInterval: 0,
