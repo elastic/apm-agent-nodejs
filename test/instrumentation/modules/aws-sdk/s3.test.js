@@ -45,8 +45,8 @@ tape.test('simple S3 usage scenario', function (t) {
       function done (err, stdout, stderr) {
         t.error(err, 'use-s3-callback-style.js errored out')
         if (err) {
-          t.comment(`use-s3-callback-style stdout: ${stdout}`)
-          t.comment(`use-s3-callback-style stderr: ${stderr}`)
+          t.comment(`use-s3-callback-style stdout:\n${stdout}\n`)
+          t.comment(`use-s3-callback-style stderr:\n${stderr}\n`)
         }
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
 
@@ -222,6 +222,25 @@ tape.test('simple S3 usage scenario', function (t) {
             }
           }
         }, 'getObjConditionalGet produced expected span')
+
+        t.deepEqual(spans.shift(), {
+          name: 'S3 GetObject elasticapmtest-bucket-1',
+          type: 'storage',
+          subtype: 's3',
+          action: 'GetObject',
+          context: {
+            destination: {
+              address: 'elasticapmtest-bucket-1.localhost',
+              port: 4566,
+              service: {
+                name: 's3',
+                type: 'storage',
+                resource: 'elasticapmtest-bucket-1'
+              },
+              cloud: { region: 'us-east-2' }
+            }
+          }
+        }, 'getObjUsingPromise produced expected span')
 
         t.deepEqual(spans.shift(), {
           name: 'S3 DeleteObject elasticapmtest-bucket-1',

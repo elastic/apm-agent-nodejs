@@ -72,8 +72,8 @@ function mapSeries (tasks, handler, cb) {
 }
 
 var directories = [
-  'test',
   // XXX
+  // 'test',
   // 'test/cloud-metadata',
   // 'test/instrumentation',
   // 'test/instrumentation/modules',
@@ -98,7 +98,7 @@ var directories = [
   // 'test/redact-secrets',
   // 'test/sanitize-field-names',
   // 'test/sourcemaps',
-  'test/stacktraces',
+  // 'test/stacktraces',
   'test/uncaught-exceptions'
 ]
 

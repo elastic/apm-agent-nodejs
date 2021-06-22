@@ -64,6 +64,7 @@ function useS3 (s3Client, bucketName, cb) {
   })
   const key = 'aDir/aFile.txt'
   const content = 'hi there'
+  log.info('XXX started')
 
   vasync.pipeline({
     arg: {},
