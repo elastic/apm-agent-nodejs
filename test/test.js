@@ -99,7 +99,7 @@ var directories = [
   // 'test/sanitize-field-names',
   // 'test/sourcemaps',
   'test/stacktraces',
-  // 'test/uncaught-exceptions'
+  'test/uncaught-exceptions'
 ]
 
 mapSeries(directories, readdir, function (err, directoryFiles) {
