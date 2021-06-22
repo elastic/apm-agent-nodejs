@@ -16,9 +16,8 @@ const tape = require('tape')
 // XXX move this to shared
 const { MockAPMServer } = require('../../../stacktraces/_mock_apm_server')
 
-const endpoint = process.env.LOCALSTACK_HOST
-  ? 'http://' + process.env.LOCALSTACK_HOST + ':4566' // used by docker-compose config
-  : 'http://localhost:4566' // default to localstack
+const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost'
+const endpoint = 'http://' + LOCALSTACK_HOST + ':4566'
 
 // Execute 'node fixtures/use-s3-callback-style.js' and assert APM server gets
 // the expected spans.
@@ -99,7 +98,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'ListBuckets',
           context: {
             destination: {
-              address: 'localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: { name: 's3', type: 'storage' },
               cloud: { region: 'us-east-2' }
@@ -114,7 +113,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'CreateBucket',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',
@@ -126,7 +125,6 @@ tape.test('simple S3 usage scenario', function (t) {
           }
         }, 'createTheBucketIfNecessary produced expected span')
 
-        // XXX Could be a timing issue here.
         t.deepEqual(spans.shift(), {
           name: 'S3 HeadBucket elasticapmtest-bucket-1',
           type: 'storage',
@@ -134,7 +132,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'HeadBucket',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',
@@ -153,7 +151,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'PutObject',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',
@@ -165,7 +163,6 @@ tape.test('simple S3 usage scenario', function (t) {
           }
         }, 'createObj produced expected span')
 
-        // XXX Could be a timing issue here.
         t.deepEqual(spans.shift(), {
           name: 'S3 HeadObject elasticapmtest-bucket-1',
           type: 'storage',
@@ -173,7 +170,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'HeadObject',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',
@@ -192,7 +189,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'GetObject',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',
@@ -211,7 +208,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'GetObject',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',
@@ -230,7 +227,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'GetObject',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',
@@ -249,7 +246,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'DeleteObject',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',
@@ -268,7 +265,7 @@ tape.test('simple S3 usage scenario', function (t) {
           action: 'DeleteBucket',
           context: {
             destination: {
-              address: 'elasticapmtest-bucket-1.localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               service: {
                 name: 's3',

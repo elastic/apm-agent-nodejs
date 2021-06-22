@@ -118,9 +118,8 @@ services:
     # https://hub.docker.com/r/localstack/localstack/tags
     image: localstack/localstack:0.12.12
     environment:
-      # XXX See note about TMPDIR on macos at https://github.com/localstack/localstack#using-docker-compose
-      - "LOCALSTACK_SERVICES=s3"
-      - "DATA_DIR=/var/lib/localstack"
+      - LOCALSTACK_SERVICES=s3
+      - DATA_DIR=/var/lib/localstack
     ports:
       - "4566:4566"
     healthcheck:

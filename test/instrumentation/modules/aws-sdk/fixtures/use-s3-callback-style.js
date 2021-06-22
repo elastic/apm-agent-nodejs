@@ -64,7 +64,6 @@ function useS3 (s3Client, bucketName, cb) {
   })
   const key = 'aDir/aFile.txt'
   const content = 'hi there'
-  log.info('XXX started')
 
   vasync.pipeline({
     arg: {},
@@ -241,7 +240,28 @@ function main () {
   const s3Client = new AWS.S3({
     apiVersion: '2006-03-01',
     region,
-    endpoint
+    endpoint,
+    // In Jenkins CI the endpoint is "http://localstack:4566", which points to
+    // a "localstack" docker container on the same network as the container
+    // running tests. The aws-sdk S3 client defaults to "bucket style" URLs,
+    // i.e. "http://$bucketName.localstack:4566/$key". This breaks with:
+    //    UnknownEndpoint: Inaccessible host: `mahbukkit.localstack'. This service may not be available in the `us-east-2' region.
+    //        at Request.ENOTFOUND_ERROR (/app/node_modules/aws-sdk/lib/event_listeners.js:530:46)
+    //        ...
+    //    originalError: Error: getaddrinfo ENOTFOUND mahbukkit.localstack
+    //        at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:66:26) {
+    //      errno: 'ENOTFOUND',
+    //      code: 'NetworkingError',
+    //      syscall: 'getaddrinfo',
+    //      hostname: 'mahbukkit.localstack',
+    //
+    // It *works* with common localstack usage where the endpoint uses
+    // *localhost*, because "$subdomain.localhost" DNS resolution still resolves
+    // to 127.0.0.1.
+    //
+    // The work around is to force the client to use "path-style" URLs, e.g.:
+    //    http://localstack:4566/$bucketName/$key
+    s3ForcePathStyle: true
   })
 
   // Ensure an APM transaction so spans can happen.
