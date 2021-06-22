@@ -10,6 +10,14 @@
 // https://github.com/localstack/localstack that *simulates* S3 with imperfect
 // fidelity.
 //
+// Auth note: By default this uses the AWS profile/configuration from the
+// environment. If you do not have that configured (i.e. do not have
+// "~/.aws/...") files, then you can still use localstack via setting:
+//    unset AWS_PROFILE
+//    export AWS_ACCESS_KEY_ID=fake
+//    export AWS_SECRET_ACCESS_KEY=fake
+// See also: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+//
 // Usage:
 //    # Run against the default configured AWS profile, creating a new bucket
 //    # and deleting it afterwards.

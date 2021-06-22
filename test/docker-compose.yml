@@ -124,8 +124,7 @@ services:
     ports:
       - "4566:4566"
     healthcheck:
-      # https://github.com/localstack/localstack/issues/1095#issuecomment-505368702
-      test: ["CMD", "awslocal", "s3", "ls"]
+      test: ["CMD", "curl", "-f", "http://localhost:4566/health"]
       interval: 30s
       timeout: 10s
       retries: 5
