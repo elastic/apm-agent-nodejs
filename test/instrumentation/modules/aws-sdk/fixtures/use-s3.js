@@ -24,7 +24,7 @@
 //    node use-s3.js | ecslog
 //
 //    # Testing against localstack.
-//    docker run --rm -it -e SERVICES=s3 -p 4566:4566 -p 4571:4571 localstack/localstack
+//    docker run --rm -it -e SERVICES=s3 -p 4566:4566 localstack/localstack
 //    TEST_ENDPOINT=http://localhost:4566 node use-s3.js | ecslog
 //
 //    # Use TEST_BUCKET_NAME to re-use an existing bucket (and not delete it).

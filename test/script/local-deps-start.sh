@@ -8,5 +8,7 @@ memcached -d -P /tmp/memcached.pid
 redis-server /usr/local/etc/redis.conf --daemonize yes
 mysql.server start
 
-# Note: localstack is not included here because running localstack
-# outside of Docker is deprecated/not supported.
+# Note: Running a "local" (i.e. outside of Docker) localstack is deprecated/not
+# supported. So we run it in Docker.
+docker run --name dev-localstack -d --rm -e SERVICES=s3 -p 4566:4566 localstack/localstack
+

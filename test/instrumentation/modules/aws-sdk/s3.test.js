@@ -51,14 +51,16 @@ tape.test('simple S3 usage scenario', function (t) {
         // Sort the events by timestamp, then work through each expected span.
         const events = server.events.slice(1)
         events.sort((a, b) => {
-          const aTimestamp = (a.transaction || a.span).timestamp
-          const bTimestamp = (b.transaction || b.span).timestamp
+          const aTimestamp = (a.transaction || a.span || {}).timestamp
+          const bTimestamp = (b.transaction || b.span || {}).timestamp
           return aTimestamp < bTimestamp ? -1 : 1
         })
 
         // First the transaction.
         t.ok(events[0].transaction, 'got the transaction')
         const tx = events.shift().transaction
+        t.equal(events.filter(e => e.span).length, events.length,
+          'all remaining events are spans')
 
         // Currently HTTP spans under each S3 span are included. Eventually
         // those will be excluded. Filter those out for now.
