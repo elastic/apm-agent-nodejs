@@ -2,6 +2,7 @@
 const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
+  cloudProvider: 'none',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false

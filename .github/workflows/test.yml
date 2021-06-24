@@ -105,6 +105,16 @@ jobs:
         volumes:
           - nodeesdata:/usr/share/elasticsearch/data
 
+      localstack:
+        image: localstack/localstack:0.12.12
+        env:
+          LOCALSTACK_SERVICES: 's3'
+          DATA_DIR: '/var/lib/localstack'
+        ports:
+          - "4566:4566"
+        volumes:
+          - nodelocalstackdata:/var/lib/localstack
+
     strategy:
       matrix:
         node:

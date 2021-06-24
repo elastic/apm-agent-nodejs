@@ -460,6 +460,7 @@ def generateStepForWindows(Map params = [:]){
                "ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS}",
                "CASSANDRA_HOST=${linuxIp}",
                "ES_HOST=${linuxIp}",
+               "LOCALSTACK_HOST=${linuxIp}",
                "MEMCACHED_HOST=${linuxIp}",
                "MONGODB_HOST=${linuxIp}",
                "MSSQL_HOST=${linuxIp}",

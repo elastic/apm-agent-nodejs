@@ -9,7 +9,7 @@ const path = require('path')
 const tape = require('tape')
 
 const logging = require('../../lib/logging')
-const { MockAPMServer } = require('./_mock_apm_server')
+const { MockAPMServer } = require('../_mock_apm_server')
 const { gatherStackTrace, stackTraceFromErrStackString } = require('../../lib/stacktraces')
 
 const log = logging.createLogger('off')
