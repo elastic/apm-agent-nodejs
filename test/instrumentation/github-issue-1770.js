@@ -1,7 +1,8 @@
 const agent = require('../..').start({
   serviceName: 'test',
   secretToken: 'test',
-  centralConfig: false
+  centralConfig: false,
+  metricsInterval:0
 })
 
 const tape = require('tape')
