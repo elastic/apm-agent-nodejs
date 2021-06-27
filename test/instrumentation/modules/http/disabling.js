@@ -37,7 +37,7 @@ if (cluster.isMaster) {
       t.ok(/GET localhost:\d+\//.test(span.name), 'span name')
       t.strictEqual(span.type, 'external', 'span type')
       t.strictEqual(span.subtype, 'http', 'span subtype')
-      t.strictEqual(span.action, 'http', 'span action')
+      t.strictEqual(span.action, 'GET', 'span action')
     }
 
     t.test('incoming enabled + outgoing enabled', makeTest({

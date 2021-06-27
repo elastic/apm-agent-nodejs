@@ -509,7 +509,7 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.ok(httpSpan, 'have an http span')
     t.strictEqual(httpSpan.type, 'external')
     t.strictEqual(httpSpan.subtype, 'http')
-    t.strictEqual(httpSpan.action, 'http')
+    t.strictEqual(httpSpan.action, method)
 
     t.equal(httpSpan.name, method + ' ' + host + path, 'http span should have expected name')
     t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')

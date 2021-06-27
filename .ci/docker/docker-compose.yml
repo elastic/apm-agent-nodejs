@@ -114,6 +114,22 @@ services:
       timeout: 10s
       retries: 5
 
+  localstack:
+    # https://hub.docker.com/r/localstack/localstack/tags
+    image: localstack/localstack:0.12.12
+    environment:
+      - LOCALSTACK_SERVICES=s3
+      - DATA_DIR=/var/lib/localstack
+    ports:
+      - "4566:4566"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - nodelocalstackdata:/var/lib/localstack
+
 volumes:
   nodepgdata:
     driver: local
@@ -126,4 +142,6 @@ volumes:
   nodeesdata:
     driver: local
   nodecassandradata:
+    driver: local
+  nodelocalstackdata:
     driver: local

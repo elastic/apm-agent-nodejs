@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  localstack:
+    extends:
+      file: docker-compose.yml
+      service: localstack
+  node_tests:
+    extends:
+      file: docker-compose-node-test.yml
+      service: node_tests
+    depends_on:
+      localstack:
+        condition: service_healthy

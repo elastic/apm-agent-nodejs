@@ -36,6 +36,27 @@ Notes:
 [float]
 ===== Features
 
+* Add instrumentation of all AWS S3 methods when using the
+  https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
+
+[float]
+===== Bug fixes
+
+* Fix inconsistencies in HTTP spans from other APM agents.
+  <<span-subtype, `span.subtype`>> will now be "http" for HTTP, HTTPS, and
+  HTTP/2 outgoing spans -- previously it was "http", "https", "http2",
+  respectively. As well, <<span-action, `span.action`>> will now be the HTTP
+  method (e.g. "GET", "PUT", "POST"), rather than "http". ({pull}2075[#2075])
+
+* Fixed error where SQS messages sent without an active transactions could
+  crash the agent. ({issues}2113[#2113])
+
+[[release-notes-x.x.x]]
+==== 3.16.0 - 2021/06/14
+
+[float]
+===== Features
+
 * Added <<span-frames-min-duration, `spanFramesMinDuration`>>
   configuration field, allowing users to set a time threshold value that spans
   must reach before the agent will add a stack trace to the span. As a result,
@@ -47,6 +68,18 @@ Notes:
 
 [float]
 ===== Bug fixes
+
+* Fix a crash (`TypeError: lastPrepareStackTrace`) in the agent when used with
+  React v17 and later ({issues}1980[#1980]).
+
+* Performance improvements have been made in error and stacktrace capture ({pull}2094[#2094]).
+  This also included in two bug fixes:
++
+** Before this change, some captured errors (for example a `next(new Error('boom')` from
+   an Express handler) would mark the error as "unhandled" incorrectly. "Unhandled"
+   exceptions are those caught by an `uncaughtException` handler.
+** Before this change, source context lines for a stacktrace would not properly
+   use the "sourcesContext" field of a file's source map.
 
 
 [[release-notes-3.15.0]]
@@ -99,7 +132,7 @@ variable), then it should be removed.
 
 * Fixed bug where the URL property for outgoing HTTP request spans was set
   with the server's IP address rather than its hostname. The Agent now sets
-  this property with the actual URL requested by Node.js.
+  this property with the actual URL requested by Node.js. {issues}2035[#2035]
 
 * Fixed bug where external services were not listed under Dependencies on the
   APM Service Overview page due to the trace-context propagated `sample_rate`
@@ -244,9 +277,10 @@ slightly to commonalize:
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
 
-* feat: implemented sanitize_feature_names specification +
+* feat: Add `sanitize_field_names` configuration option. +
   Allows users to configure a list of wildcard patterns to _remove_ items
   from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
+  {pull}1898[#1898]
   ** https://github.com/elastic/apm/blob/master/specs/agents/sanitization.md[spec]
   ** https://github.com/elastic/apm-agent-nodejs/blob/master/docs/configuration.asciidoc#sanitize-field-names[docs]
 

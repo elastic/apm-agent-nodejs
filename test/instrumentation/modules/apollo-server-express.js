@@ -55,7 +55,8 @@ test('POST /graphql', function (t) {
       res.on('end', function () {
         server.close()
         var result = Buffer.concat(chunks).toString()
-        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n')
+        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
+          'client got the expected response body')
         agent.flush()
       })
     })
@@ -97,7 +98,8 @@ test('GET /graphql', function (t) {
       res.on('end', function () {
         server.close()
         var result = Buffer.concat(chunks).toString()
-        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n')
+        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
+          'client got the expected response body')
         agent.flush()
       })
     })
@@ -283,6 +285,11 @@ function done (t, query) {
 
 function resetAgent (cb) {
   agent._instrumentation.currentTransaction = null
-  agent._transport = mockClient(2, cb)
+  // Cannot use the 'expected' argument to mockClient, because the way the
+  // tests above are structured, there is a race between the mockClient
+  // receiving events from the APM agent and the graphql request receiving a
+  // response. Using the 200ms delay in mockClient slows things down such that
+  // "done" should always come last.
+  agent._transport = mockClient(cb)
   agent.captureError = function (err) { throw err }
 }
