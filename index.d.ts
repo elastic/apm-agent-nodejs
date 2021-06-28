@@ -207,6 +207,7 @@ interface AgentConfigOptions {
   configFile?: string;
   containerId?: string;
   disableInstrumentations?: string | string[];
+  disableSend?: boolean;
   environment?: string;
   errorMessageMaxLength?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   errorOnAbortedRequests?: boolean;
