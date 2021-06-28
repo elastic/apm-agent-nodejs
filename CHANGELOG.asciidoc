@@ -39,6 +39,9 @@ Notes:
 * Add instrumentation of all AWS S3 methods when using the
   https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
 
+* Add instrumentation of all DynamoDB methods when using the
+  https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
+
 [float]
 ===== Bug fixes
 
