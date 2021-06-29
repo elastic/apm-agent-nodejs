@@ -51,6 +51,8 @@ Notes:
 * Fixed error where SQS messages sent without an active transactions could
   crash the agent. ({issues}2113[#2113])
 
+* Fixed support for proxies in destination context ({issues}1770[#1770])
+
 [[release-notes-x.x.x]]
 ==== 3.16.0 - 2021/06/14
 
