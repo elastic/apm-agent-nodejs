@@ -10,7 +10,8 @@ module.exports = function (name, { agentConf, ...benchConf }) {
       serviceName: 'test',
       centralConfig: false,
       captureExceptions: false,
-      metricsInterval: 0
+      metricsInterval: 0,
+      logLevel: 'off'
     }, agentConf))
   }
 
