@@ -9,6 +9,10 @@ module.exports = {
     },
     httpStatusCode: 200
   },
+  listTable: {
+    response: { Success: { TableNames: ['fixture-table'] } },
+    httpStatusCode: 200
+  },
   error: {
     response: { __type: 'com.amazonaws.dynamodb.v20120810#ResourceNotFoundException', message: 'Requested resource not found' },
     httpStatusCode: 400

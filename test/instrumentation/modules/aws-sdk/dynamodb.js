@@ -173,6 +173,35 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
     })
   })
 
+  test.test('API: listTable', function (t) {
+    const app = createMockServer(
+      fixtures.listTable
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        const span = data.spans.filter((span) => span.type === 'db').pop()
+        t.equals(span.name, 'DynamoDB ListTables', 'span named correctly')
+        t.equals(span.type, 'db', 'span type correctly set')
+        t.equals(span.subtype, 'dynamodb', 'span subtype set correctly')
+        t.equals(span.action, 'query', 'query set correctly')
+        t.equals(span.context.destination.service.name, 'dynamodb', 'service name in destination context')
+
+        t.end()
+      })
+      const port = listener.address().port
+      AWS.config.update({
+        endpoint: `http://localhost:${port}`
+      })
+      agent.startTransaction('myTransaction')
+      var ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
+      ddb.listTables(function (err, data) {
+        t.error(err)
+        agent.endTransaction()
+        listener.close()
+      })
+    })
+  })
+
   test.test('API: error', function (t) {
     const app = createMockServer(
       fixtures.error
