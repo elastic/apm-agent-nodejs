@@ -82,7 +82,7 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
 
       mssql:
-        image: microsoft/mssql-server-linux
+        image: mcr.microsoft.com/mssql/server
         env:
           ACCEPT_EULA: 'Y'
           SA_PASSWORD: 'Very(!)Secure'
