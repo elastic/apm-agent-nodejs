@@ -39,6 +39,7 @@ var optionFixtures = [
   ['captureSpanStackTraces', 'CAPTURE_SPAN_STACK_TRACES', true],
   ['centralConfig', 'CENTRAL_CONFIG', true],
   ['containerId', 'CONTAINER_ID'],
+  ['disableSend', 'DISABLE_SEND', false],
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
   ['environment', 'ENVIRONMENT', 'development'],
   ['errorMessageMaxLength', 'ERROR_MESSAGE_MAX_LENGTH', 2048],

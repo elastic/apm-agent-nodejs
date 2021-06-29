@@ -38,6 +38,8 @@ Notes:
 
 * Add instrumentation of all AWS S3 methods when using the
   https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
+* Add <<disable-send, `disableSend`>> configuration option. This supports some
+  use cases using the APM agent **without** an APM server. ({issues}2101[#2101])
 
 * Add instrumentation of all DynamoDB methods when using the
   https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
@@ -53,6 +55,8 @@ Notes:
 
 * Fixed error where SQS messages sent without an active transactions could
   crash the agent. ({issues}2113[#2113])
+
+* Fixed support for proxies in destination context ({issues}1770[#1770])
 
 [[release-notes-x.x.x]]
 ==== 3.16.0 - 2021/06/14
