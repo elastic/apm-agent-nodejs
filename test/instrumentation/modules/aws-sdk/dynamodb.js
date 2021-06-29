@@ -34,18 +34,15 @@ function initializeAwsSdk () {
   process.env.AWS_SECRET_ACCESS_KEY = 'fake-2'
 }
 
-function createMockServer (jsonResponse) {
+function createMockServer (fixture) {
   const app = express()
   app.use(bodyParser.urlencoded({ extended: false }))
   app.post('/', (req, res) => {
+    res.status(fixture.httpStatusCode)
     res.setHeader('Content-Type', 'application/javascript')
-    res.send(jsonResponse)
+    res.send(fixture.response)
   })
   return app
-}
-
-function getJsonResponse (method) {
-  return fixtures[method].response
 }
 
 function resetAgent (cb) {
@@ -142,7 +139,7 @@ tape.test('AWS DynamoDB: Unit Test Functions', function (test) {
 tape.test('AWS DynamoDB: End to End Test', function (test) {
   test.test('API: query', function (t) {
     const app = createMockServer(
-      getJsonResponse('query')
+      fixtures.query
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
@@ -176,10 +173,43 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
     })
   })
 
+  test.test('API: error', function (t) {
+    const app = createMockServer(
+      fixtures.error
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        t.equals(data.errors.length, 1, 'expect captured error')
+        const span = data.spans.filter((span) => span.type === 'db').pop()
+        t.ok(span, 'expect a db span')
+        t.equals(span.outcome, 'failure', 'expect db span to have failure outcome')
+        t.end()
+      })
+      const port = listener.address().port
+      AWS.config.update({
+        endpoint: `http://localhost:${port}`
+      })
+      agent.startTransaction('myTransaction')
+      var ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
+      var params = {
+        TableName: 'fixture-table',
+        KeyConditionExpression: 'id = :foo',
+        ExpressionAttributeValues: {
+          ':foo': { S: '001' }
+        }
+      }
+      ddb.query(params, function (err, data) {
+        t.ok(err, 'expect error')
+        agent.endTransaction()
+        listener.close()
+      })
+    })
+  })
+
   tape.test('AWS DynamoDB: No Transaction', function (test) {
     test.test('API: query', function (t) {
       const app = createMockServer(
-        getJsonResponse('query')
+        fixtures.query
       )
       const listener = app.listen(0, function () {
         resetAgent(function (data) {
