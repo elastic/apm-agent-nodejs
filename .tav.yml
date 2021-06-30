@@ -416,8 +416,8 @@ aws-sdk:
   # We want this version range:
   #   versions: '>=2.858 <3'
   # However, awk-sdk releases *very* frequently (almost every day) and there
-  # is no need to test *all* those releases. Instead we keep statically list
-  # every N=5 releases to test.
+  # is no need to test *all* those releases. Instead we statically list every
+  # N=5 releases to test.
   #
   # Maintenance note: This should be updated periodically, keeping 2.858
   # as the earliest version but updating the others.
