@@ -4,13 +4,13 @@ const agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: 'none',
-  logLevel: off
+  logLevel: 'off'
 })
 const tape = require('tape')
 const AWS = require('aws-sdk')
 const express = require('express')
 const bodyParser = require('body-parser')
-const fixtures = require('./fixtures-dynamodb')
+const fixtures = require('./fixtures/dynamodb')
 
 const mockClient = require('../../../_mock_http_client')
 
