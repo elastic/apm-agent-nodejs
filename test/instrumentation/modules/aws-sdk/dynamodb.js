@@ -109,7 +109,7 @@ tape.test('AWS DynamoDB: Unit Test Functions', function (test) {
     const request = {
       service: {
         endpoint: {
-          host: 'dynamodb.us-west-2.amazonaws.com'
+          hostname: 'dynamodb.us-west-2.amazonaws.com'
         }
       }
     }
@@ -117,7 +117,7 @@ tape.test('AWS DynamoDB: Unit Test Functions', function (test) {
     t.equals(getAddressFromRequest({}), undefined)
     t.equals(getAddressFromRequest({ service: null }), null)
     t.equals(getAddressFromRequest({ service: { endpoint: null } }), null)
-    t.equals(getAddressFromRequest({ service: { endpoint: { host: null } } }), null)
+    t.equals(getAddressFromRequest({ service: { endpoint: { hostname: null } } }), null)
     t.equals(getAddressFromRequest(), undefined)
     t.equals(getAddressFromRequest(null), null)
     t.end()
