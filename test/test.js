@@ -124,6 +124,7 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
       if (directory === 'test' && file === 'test.js') return
       if (extname(file) !== '.js') return
       if (file[0] === '_') return
+      if(file.indexOf('.test.') === -1) return
 
       tests.push({
         file: join(directory, file)
