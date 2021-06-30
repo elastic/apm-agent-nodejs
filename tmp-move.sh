@@ -1,17 +1,11 @@
 #!/bin/bash
 mv test/metrics/index.js mv test/metrics/index.test.js
 mv test/agent.js test/agent.test.js
-mv test/babel/src.js test/babel/src.test.js
 mv test/benchmarks/001-transaction-and-span-no-stack-trace.js test/benchmarks/001-transaction-and-span-no-stack-trace.test.js
 mv test/benchmarks/002-transaction-and-span-overhead-realistic-size.js test/benchmarks/002-transaction-and-span-overhead-realistic-size.test.js
 mv test/benchmarks/003-transaction-and-span-with-stack-trace.js test/benchmarks/003-transaction-and-span-with-stack-trace.test.js
 mv test/benchmarks/004-transaction.js test/benchmarks/004-transaction.test.js
 mv test/benchmarks/005-transaction-reading-file.js test/benchmarks/005-transaction-reading-file.test.js
-mv test/benchmarks/utils/analyzer.js test/benchmarks/utils/analyzer.test.js
-mv test/benchmarks/utils/apm-server.js test/benchmarks/utils/apm-server.test.js
-mv test/benchmarks/utils/bench.js test/benchmarks/utils/bench.test.js
-mv test/benchmarks/utils/callstack.js test/benchmarks/utils/callstack.test.js
-mv test/benchmarks/utils/result-logger.js test/benchmarks/utils/result-logger.test.js
 mv test/central-config-disabled.js test/central-config-disabled.test.js
 mv test/central-config-enabled.js test/central-config-enabled.test.js
 mv test/cloud-metadata/callback-coordination.js test/cloud-metadata/callback-coordination.test.js
@@ -27,8 +21,6 @@ mv test/instrumentation/github-issue-75.js test/instrumentation/github-issue-75.
 mv test/instrumentation/index.js test/instrumentation/index.test.js
 mv test/instrumentation/modules/@elastic/elasticsearch.js test/instrumentation/modules/@elastic/elasticsearch.test.js
 mv test/instrumentation/modules/apollo-server-express.js test/instrumentation/modules/apollo-server-express.test.js
-mv test/instrumentation/modules/aws-sdk/fixtures-sqs.js test/instrumentation/modules/aws-sdk/fixtures-sqs.test.js
-mv test/instrumentation/modules/aws-sdk/fixtures/use-s3.js test/instrumentation/modules/aws-sdk/fixtures/use-s3.test.js
 mv test/instrumentation/modules/aws-sdk/sqs.js test/instrumentation/modules/aws-sdk/sqs.test.js
 mv test/instrumentation/modules/bluebird/bluebird.js test/instrumentation/modules/bluebird/bluebird.test.js
 mv test/instrumentation/modules/bluebird/cancel.js test/instrumentation/modules/bluebird/cancel.test.js
@@ -47,11 +39,6 @@ mv test/instrumentation/modules/finalhandler.js test/instrumentation/modules/fin
 mv test/instrumentation/modules/generic-pool.js test/instrumentation/modules/generic-pool.test.js
 mv test/instrumentation/modules/graphql.js test/instrumentation/modules/graphql.test.js
 mv test/instrumentation/modules/handlebars.js test/instrumentation/modules/handlebars.test.js
-mv test/instrumentation/modules/hapi/basic-legacy-path.js test/instrumentation/modules/hapi/basic-legacy-path.test.js
-mv test/instrumentation/modules/hapi/basic.js test/instrumentation/modules/hapi/basic.test.js
-mv test/instrumentation/modules/hapi/set-framework-hapi.js test/instrumentation/modules/hapi/set-framework-hapi.test.js
-mv test/instrumentation/modules/hapi/set-framework-hapihapi.js test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
-mv test/instrumentation/modules/hapi/shared.js test/instrumentation/modules/hapi/shared.test.js
 mv test/instrumentation/modules/http/aborted-requests-disabled.js test/instrumentation/modules/http/aborted-requests-disabled.test.js
 mv test/instrumentation/modules/http/aborted-requests-enabled.js test/instrumentation/modules/http/aborted-requests-enabled.test.js
 mv test/instrumentation/modules/http/aws.js test/instrumentation/modules/http/aws.test.js
@@ -68,9 +55,6 @@ mv test/instrumentation/modules/http/sse.js test/instrumentation/modules/http/ss
 mv test/instrumentation/modules/http2.js test/instrumentation/modules/http2.test.js
 mv test/instrumentation/modules/ioredis.js test/instrumentation/modules/ioredis.test.js
 mv test/instrumentation/modules/jade.js test/instrumentation/modules/jade.test.js
-mv test/instrumentation/modules/koa-router/new-name.js test/instrumentation/modules/koa-router/new-name.test.js
-mv test/instrumentation/modules/koa-router/old-name.js test/instrumentation/modules/koa-router/old-name.test.js
-mv test/instrumentation/modules/koa-router/shared.js test/instrumentation/modules/koa-router/shared.test.js
 mv test/instrumentation/modules/koa/set-framework.js test/instrumentation/modules/koa/set-framework.test.js
 mv test/instrumentation/modules/memcached.js test/instrumentation/modules/memcached.test.js
 mv test/instrumentation/modules/mimic-response.js test/instrumentation/modules/mimic-response.test.js
@@ -107,8 +91,6 @@ mv test/integration/socket-close.js test/integration/socket-close.test.js
 mv test/integration/verify-server-ca-cert.js test/integration/verify-server-ca-cert.test.js
 mv test/lambda/callbacks.js test/lambda/callbacks.test.js
 mv test/lambda/context.js test/lambda/context.test.js
-mv test/lambda/mock/agent.js test/lambda/mock/agent.test.js
-mv test/lambda/mock/transaction.js test/lambda/mock/transaction.test.js
 mv test/lambda/promises.js test/lambda/promises.test.js
 mv test/logging.js test/logging.test.js
 mv test/metrics/breakdown.js test/metrics/breakdown.test.js
@@ -123,15 +105,6 @@ mv test/sanitize-field-names/koa.js test/sanitize-field-names/koa.test.js
 mv test/sanitize-field-names/main.js test/sanitize-field-names/main.test.js
 mv test/sanitize-field-names/restify.js test/sanitize-field-names/restify.test.js
 mv test/script/cli.js test/script/cli.test.js
-mv test/sourcemaps/fixtures/lib/error-broken.js test/sourcemaps/fixtures/lib/error-broken.test.js
-mv test/sourcemaps/fixtures/lib/error-inline-broken.js test/sourcemaps/fixtures/lib/error-inline-broken.test.js
-mv test/sourcemaps/fixtures/lib/error-inline.js test/sourcemaps/fixtures/lib/error-inline.test.js
-mv test/sourcemaps/fixtures/lib/error-map-missing.js test/sourcemaps/fixtures/lib/error-map-missing.test.js
-mv test/sourcemaps/fixtures/lib/error-src-embedded.js test/sourcemaps/fixtures/lib/error-src-embedded.test.js
-mv test/sourcemaps/fixtures/lib/error-src-missing.js test/sourcemaps/fixtures/lib/error-src-missing.test.js
-mv test/sourcemaps/fixtures/lib/error.js test/sourcemaps/fixtures/lib/error.test.js
-mv test/sourcemaps/fixtures/src/error.js test/sourcemaps/fixtures/src/error.test.js
-mv test/sourcemaps/index.js test/sourcemaps/index.test.js
 mv test/span-frames-min-duration.js test/span-frames-min-duration.test.js
 mv test/stacktraces/fixtures/capture-error-string.js test/stacktraces/fixtures/capture-error-string.test.js
 mv test/stacktraces/fixtures/circular-stack.js test/stacktraces/fixtures/circular-stack.test.js
