@@ -3,7 +3,8 @@ const agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: 'none',
+  logLevel: off
 })
 const tape = require('tape')
 const AWS = require('aws-sdk')
