@@ -423,5 +423,6 @@ aws-sdk:
   # as the earliest version but updating the others.
   versions: '2.858.0 || 2.881.0 || 2.886.0 || 2.891.0 || 2.896.0 || 2.901.0 || 2.906.0 || 2.911.0 || 2.916.0 || 2.921.0 || 2.926.0 || 2.931.0 || 2.936.0 || >2.936 <3'
   commands:
+    - node test/instrumentation/modules/aws-sdk/s3.test.js
     - node test/instrumentation/modules/aws-sdk/sqs.js
     - node test/instrumentation/modules/aws-sdk/dynamodb.js
