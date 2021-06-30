@@ -12,3 +12,7 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
+
+volumes:
+  nodelocalstackdata:
+    driver: local
