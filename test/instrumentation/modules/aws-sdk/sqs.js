@@ -12,7 +12,7 @@ const tape = require('tape')
 const AWS = require('aws-sdk')
 const express = require('express')
 const bodyParser = require('body-parser')
-const fixtures = require('./fixtures-sqs')
+const fixtures = require('./fixtures/sqs')
 const logging = require('../../../../lib/logging')
 const mockClient = require('../../../_mock_http_client')
 
