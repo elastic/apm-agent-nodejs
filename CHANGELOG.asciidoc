@@ -28,10 +28,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== 3.17.0 2021/07/5
-
-[float]
-===== Breaking changes
+[[release-notes-3.17.0]]
+==== 3.17.0 2021/07/05
 
 [float]
 ===== Features
@@ -58,7 +56,7 @@ Notes:
 
 * Fixed support for proxies in destination context ({issues}1770[#1770])
 
-[[release-notes-x.x.x]]
+[[release-notes-3.16.0]]
 ==== 3.16.0 - 2021/06/14
 
 [float]
