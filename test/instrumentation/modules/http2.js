@@ -27,7 +27,7 @@ isSecure.forEach(secure => {
 
     // Note NODE_OPTIONS env because it sometimes has a setting relevant
     // for this test.
-    t.comment(`NODE_OPTIONS=${process.env.NODE_OPTIONS}`)
+    t.comment(`NODE_OPTIONS=${process.env.NODE_OPTIONS || ''}`)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
