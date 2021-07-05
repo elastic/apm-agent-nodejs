@@ -365,8 +365,6 @@ def generateStep(Map params = [:]){
             retryWithSleep(retries: 2, seconds: 5, backoff: true) {
               sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" -t "${tav}" "${version}" """)
             }
-          } catch(e){
-            error(e.toString())
           } finally {
             // TAV tests run 'npm run test:tav' which does *not* produce TAP
             // output.
