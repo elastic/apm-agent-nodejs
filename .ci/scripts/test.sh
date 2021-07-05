@@ -250,6 +250,9 @@ docker-compose \
   --abort-on-container-exit \
   node_tests
 
+echo "Workaround issues with docker-compose down while removing network"
+docker network prune --force || true
+
 NODE_VERSION=${NODE_VERSION} docker-compose \
   --no-ansi \
   --log-level ERROR \
