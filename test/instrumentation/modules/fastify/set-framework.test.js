@@ -6,17 +6,20 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
-let asserts = 0
+const tape = require('tape')
 
-agent.setFramework = function ({ name, version, overwrite }) {
-  asserts++
-  assert.strictEqual(name, 'fastify')
-  assert.strictEqual(version, require('fastify/package').version)
-  assert.strictEqual(overwrite, false)
-}
+tape('restify set-framework test', function (t) {
+  let asserts = 0
 
-const assert = require('assert')
+  agent.setFramework = function ({ name, version, overwrite }) {
+    asserts++
+    t.equals(name, 'fastify')
+    t.equals(version, require('fastify/package').version)
+    t.equals(overwrite, false)
+  }
 
-require('fastify')
+  require('fastify')
 
-assert.strictEqual(asserts, 1)
+  t.equals(asserts, 1)
+  t.end()
+})
