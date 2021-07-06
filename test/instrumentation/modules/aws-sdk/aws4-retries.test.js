@@ -36,7 +36,7 @@ tape.test('AWS4 signature auth with retry', function (t) {
     switch (numRequests) {
       case 1:
         t.equal(req.method, 'HEAD', 'request 1 method is HEAD')
-        t.equal(req.url, '/' + KEY, 'request 1 path is /$KEY')
+        t.equal(req.url, '/' + BUKKIT + '/' + KEY, 'request 1 path is /$BUKKIT/$KEY')
         t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-east-1\/.*/.test(req.headers.authorization),
           `request 1 "Authorization" header is for us-east-1: "${req.headers.authorization}"`)
         t.equal(signedHeaders, 'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
@@ -48,7 +48,7 @@ tape.test('AWS4 signature auth with retry', function (t) {
         break
       case 2:
         t.equal(req.method, 'HEAD', 'request 2 method is HEAD')
-        t.equal(req.url, '/', 'request 2 path is /')
+        t.equal(req.url, '/' + BUKKIT, 'request 2 path is /$BUKKIT')
         t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-east-1\/.*/.test(req.headers.authorization),
           `request 2 "Authorization" header is for us-east-1: "${req.headers.authorization}"`)
         t.equal(signedHeaders, 'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
@@ -60,7 +60,7 @@ tape.test('AWS4 signature auth with retry', function (t) {
         break
       case 3:
         t.equal(req.method, 'HEAD', 'request 3 method is HEAD')
-        t.equal(req.url, '/' + KEY, 'request 3 path is /$KEY')
+        t.equal(req.url, '/' + BUKKIT + '/' + KEY, 'request 3 path is /$BUKKIT/$KEY')
         t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-west-1\/.*/.test(req.headers.authorization),
           `request 3 "Authorization" header is for *us-west-1*: "${req.headers.authorization}"`)
         // This is where the #2134 bug fix is being tested. Before that
