@@ -17,6 +17,8 @@ services:
       interval: 1s
       timeout: 10s
       retries: 30
+    networks:
+      - apm-agent-nodejs
 
   mongodb:
     image: mongo
@@ -29,6 +31,8 @@ services:
       interval: 1s
       timeout: 10s
       retries: 30
+    networks:
+      - apm-agent-nodejs
 
   mssql:
     image: mcr.microsoft.com/mssql/server
@@ -45,6 +49,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - apm-agent-nodejs
 
   mysql:
     image: mysql:5.7
@@ -59,6 +65,8 @@ services:
       interval: 1s
       timeout: 10s
       retries: 30
+    networks:
+      - apm-agent-nodejs
 
   redis:
     image: redis
@@ -69,6 +77,8 @@ services:
       interval: 1s
       timeout: 10s
       retries: 30
+    networks:
+      - apm-agent-nodejs
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
@@ -87,6 +97,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - apm-agent-nodejs
 
   cassandra:
     image: cassandra:3
@@ -102,6 +114,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - apm-agent-nodejs
 
   memcached:
     image: memcached:alpine
@@ -113,6 +127,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - apm-agent-nodejs
 
   localstack:
     # https://hub.docker.com/r/localstack/localstack/tags
@@ -129,6 +145,8 @@ services:
       retries: 5
     volumes:
       - nodelocalstackdata:/var/lib/localstack
+    networks:
+      - apm-agent-nodejs
 
 volumes:
   nodepgdata:
@@ -145,3 +163,7 @@ volumes:
     driver: local
   nodelocalstackdata:
     driver: local
+
+networks:
+  apm-agent-nodejs:
+    driver: bridge

@@ -31,3 +31,5 @@ services:
     volumes:
       - ${PWD}:/app
     user: ${USER_ID}
+    networks:
+      - apm-agent-nodejs
