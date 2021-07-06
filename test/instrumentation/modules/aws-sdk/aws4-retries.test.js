@@ -24,6 +24,7 @@ tape.test('AWS4 signature auth with retry', function (t) {
 
   // Start a transaction so we have a trace-context to propagate.
   const tx = apm.startTransaction('test-aws4-retries-manual-tx')
+  t.comment('manual transaction trace id: ' + tx.traceId)
   const traceparentRe = new RegExp(`^00-${tx.traceId}-`)
   const tracestateRe = /es=s:1/
 
@@ -41,7 +42,8 @@ tape.test('AWS4 signature auth with retry', function (t) {
           `request 1 "Authorization" header is for us-east-1: "${req.headers.authorization}"`)
         t.equal(signedHeaders, 'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
           'request 1 "Authorization" header has expected SignedHeaders')
-        t.ok(traceparentRe.test(req.headers.traceparent), 'request 1 traceparent has expected trace id')
+        t.ok(traceparentRe.test(req.headers.traceparent),
+          'request 1 traceparent has expected trace id: ' + req.headers.traceparent)
         t.ok(tracestateRe.test(req.headers.tracestate), 'request 1 tracestate has expected es item')
         res.writeHead(400, {})
         res.end()
@@ -53,7 +55,8 @@ tape.test('AWS4 signature auth with retry', function (t) {
           `request 2 "Authorization" header is for us-east-1: "${req.headers.authorization}"`)
         t.equal(signedHeaders, 'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
           'request 2 "Authorization" header has expected SignedHeaders')
-        t.ok(traceparentRe.test(req.headers.traceparent), 'request 2 traceparent has expected trace id')
+        t.ok(traceparentRe.test(req.headers.traceparent),
+          'request 2 traceparent has expected trace id: ' + req.headers.traceparent)
         t.ok(tracestateRe.test(req.headers.tracestate), 'request 2 tracestate has expected es item')
         res.writeHead(400, { 'x-amz-bucket-region': 'us-west-1' })
         res.end()
@@ -68,7 +71,8 @@ tape.test('AWS4 signature auth with retry', function (t) {
         // agent-added headers in `SignedHeaders=...`.
         t.equal(signedHeaders, 'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
           'request 3 "Authorization" header has expected SignedHeaders')
-        t.ok(traceparentRe.test(req.headers.traceparent), 'request 3 traceparent has expected trace id')
+        t.ok(traceparentRe.test(req.headers.traceparent),
+          'request 3 traceparent has expected trace id: ' + req.headers.traceparent)
         t.ok(tracestateRe.test(req.headers.tracestate), 'request 3 tracestate has expected es item')
         res.writeHead(200, {
           'x-amz-id-2': 'jF2PKn8hyuCt3lMJ+DWJfUwDUDFK/sLLa4dlrtLKKCtE9tEuU4ioy2WMtRJlNzuqMthx6ZkwXMg=',
