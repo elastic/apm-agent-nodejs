@@ -6,7 +6,6 @@ var spawn = require('child_process').spawn
 
 var semver = require('semver')
 
-var extname = path.extname
 var join = path.join
 
 var bin = join(process.cwd(), 'node_modules/.bin')
