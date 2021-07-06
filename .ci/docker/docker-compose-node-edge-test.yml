@@ -33,3 +33,7 @@ services:
     user: ${USER_ID}
     networks:
       - apm-agent-nodejs
+
+networks:
+  apm-agent-nodejs:
+    driver: bridge

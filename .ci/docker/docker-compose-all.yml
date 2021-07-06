@@ -76,3 +76,7 @@ volumes:
     driver: local
   nodelocalstackdata:
     driver: local
+
+networks:
+  apm-agent-nodejs:
+    driver: bridge

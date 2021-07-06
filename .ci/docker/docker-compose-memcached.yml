@@ -12,3 +12,7 @@ services:
     depends_on:
       memcached:
         condition: service_healthy
+
+networks:
+  apm-agent-nodejs:
+    driver: bridge
