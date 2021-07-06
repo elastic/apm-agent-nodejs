@@ -121,10 +121,7 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
   directoryFiles.forEach(function (files, i) {
     var directory = directories[i]
     files.forEach(function (file) {
-      if (directory === 'test' && file === 'test.js') return
-      if (extname(file) !== '.js') return
-      if (file[0] === '_') return
-      if (file.indexOf('.test.') === -1) return
+      if (!file.endsWith('.test.js')) return
 
       tests.push({
         file: join(directory, file)
