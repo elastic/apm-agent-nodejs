@@ -95,12 +95,10 @@ tape.test('AWS4 signature auth with retry', function (t) {
       apiVersion: '2006-03-01',
       accessKeyId: 'fake',
       secretAccessKey: 'fake',
-      // XXX
-      // // See discussion in use-s3.js for why the s3For
-      // s3ForcePathStyle: true,
-      // On windows:
-      // UnknownEndpoint: Inaccessible host: `test-aws4-retries-bukkit.localhost'. This service may not be available in the `us-east-1' region.
-      endpoint: `http://127.0.0.1:${mockS3Server.address().port}`
+      // Use s3ForcePathStyle to avoid `$bucketName.localhost` attempted usage
+      // by the client -- which fails on Windows.
+      s3ForcePathStyle: true,
+      endpoint: `http://localhost:${mockS3Server.address().port}`
     })
     s3Client.headObject({ Bucket: BUKKIT, Key: KEY }, function (err, data) {
       t.ifErr(err, 'headObject did not return an error')
