@@ -106,14 +106,14 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
 
   var tests = [
     {
-      file: 'test.js',
+      file: 'test.test.js',
       cwd: 'test/start/env',
       env: {
         ELASTIC_APM_SERVICE_NAME: 'from-env'
       }
     },
     {
-      file: 'test.js',
+      file: 'test.test.js',
       cwd: 'test/start/file'
     }
   ]
