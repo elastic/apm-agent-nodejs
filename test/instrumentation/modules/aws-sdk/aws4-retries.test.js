@@ -22,11 +22,8 @@ tape.test('AWS4 signature auth with retry', function (t) {
   const BUKKIT = 'test-aws4-retries-bukkit'
   const KEY = 'aDir/aFile.txt'
 
-  // Start a transaction so we have a trace-context to propagate.
-  const tx = apm.startTransaction('test-aws4-retries-manual-tx')
-  t.comment('manual transaction trace id: ' + tx.traceId)
-  const traceparentRe = new RegExp(`^00-${tx.traceId}-`)
-  const tracestateRe = /es=s:1/
+  let traceparentRe
+  let tracestateRe
 
   // Mock an S3 server and the expected 3 responses for the `HeadObject $KEY`
   // client request we'll make below.
@@ -93,6 +90,12 @@ tape.test('AWS4 signature auth with retry', function (t) {
   })
 
   mockS3Server.listen(function () {
+    // Start a transaction so we have a trace-context to propagate.
+    const tx = apm.startTransaction('test-aws4-retries-manual-tx')
+    t.comment('manual transaction trace id: ' + tx.traceId)
+    traceparentRe = new RegExp(`^00-${tx.traceId}-`)
+    tracestateRe = /es=s:1/
+
     // Setup a client to (a) talk to the mock S3 server and (b) not specifying
     // a "region", so it gets the default "us-east-1".
     const s3Client = new AWS.S3({
