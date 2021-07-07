@@ -33,6 +33,8 @@ tape.test('AWS4 signature auth with retry', function (t) {
     const signedHeaders = req.headers.authorization.split(/ /g)[2]
     switch (numRequests) {
       case 1:
+        // Request 1: a request with credentials for us-east-1 (the wrong region)
+        // results in a 400 response.
         t.equal(req.method, 'HEAD', 'request 1 method is HEAD')
         t.equal(req.url, '/' + BUKKIT + '/' + KEY, 'request 1 path is /$BUKKIT/$KEY')
         t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-east-1\/.*/.test(req.headers.authorization),
@@ -46,6 +48,8 @@ tape.test('AWS4 signature auth with retry', function (t) {
         res.end()
         break
       case 2:
+        // Request 2: a "HEAD /" which responds with 'x-amz-bucket-region' header.
+        // Still has credentials for wrong region, so responds with 400.
         t.equal(req.method, 'HEAD', 'request 2 method is HEAD')
         t.equal(req.url, '/' + BUKKIT, 'request 2 path is /$BUKKIT')
         t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-east-1\/.*/.test(req.headers.authorization),
@@ -59,6 +63,7 @@ tape.test('AWS4 signature auth with retry', function (t) {
         res.end()
         break
       case 3:
+        // Request 3: A HeadObject with creds for the correct region -> 200.
         t.equal(req.method, 'HEAD', 'request 3 method is HEAD')
         t.equal(req.url, '/' + BUKKIT + '/' + KEY, 'request 3 path is /$BUKKIT/$KEY')
         t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-west-1\/.*/.test(req.headers.authorization),
@@ -107,6 +112,9 @@ tape.test('AWS4 signature auth with retry', function (t) {
       s3ForcePathStyle: true,
       endpoint: `http://localhost:${mockS3Server.address().port}`
     })
+
+    // Make a HeadObject request on a bucket that lives in a different
+    // region (us-west-1 in this example).
     s3Client.headObject({ Bucket: BUKKIT, Key: KEY }, function (err, data) {
       t.ifErr(err, 'headObject did not return an error')
       t.ok(data, 'headObject returned data')
