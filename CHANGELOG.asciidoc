@@ -37,6 +37,11 @@ Notes:
 [float]
 ===== Features
 
+* Trace an incoming HTTP/1.1 request to an HTTP/2 server using the
+  https://nodejs.org/api/http2.html#http2_http2_createsecureserver_options_onrequesthandler[allowHTTP1]
+  option. Before this change only incoming requests supporting HTTP/2 would
+  be traced. ({pull}2143[#2143])
+
 [float]
 ===== Bug fixes
 

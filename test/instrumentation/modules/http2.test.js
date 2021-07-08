@@ -4,11 +4,13 @@ var agent = require('../../..').start({
   serviceName: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  cloudProvider: 'none'
 })
 var ins = agent._instrumentation
 
 var fs = require('fs')
+var https = require('https')
 var http2 = require('http2')
 
 var semver = require('semver')
@@ -27,7 +29,7 @@ isSecure.forEach(secure => {
 
     // Note NODE_OPTIONS env because it sometimes has a setting relevant
     // for this test.
-    t.comment(`NODE_OPTIONS=${process.env.NODE_OPTIONS}`)
+    t.comment(`NODE_OPTIONS=${process.env.NODE_OPTIONS || ''}`)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
@@ -283,10 +285,10 @@ isSecure.forEach(secure => {
       t.strictEqual(data.spans.length, 1)
 
       var sub = data.transactions[0]
-      assertPath(t, sub, secure, port, '/sub')
+      assertPath(t, sub, secure, port, '/sub', '2.0')
 
       var root = data.transactions[1]
-      assertPath(t, root, secure, port, '/')
+      assertPath(t, root, secure, port, '/', '2.0')
 
       var span = findObjInArray(data.spans, 'transaction_id', root.id)
       t.ok(span, 'root transaction should have span')
@@ -363,45 +365,139 @@ isSecure.forEach(secure => {
   })
 })
 
+test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true', t => {
+  // Note NODE_OPTIONS env because it sometimes has a setting relevant
+  // for this test.
+  t.comment(`NODE_OPTIONS=${process.env.NODE_OPTIONS || ''}`)
+
+  let tx
+  resetAgent(1, (data) => {
+    t.equal(data.length, 1, 'got just the one data event')
+    tx = data.transactions[0]
+  })
+
+  var port
+  var serverOpts = Object.assign({ allowHTTP1: true }, pem)
+  var server = http2.createSecureServer(serverOpts)
+  server.on('request', function onRequest (req, res) {
+    var trans = ins.currentTransaction
+    t.ok(trans, 'have current transaction')
+    t.strictEqual(trans.type, 'request')
+    res.writeHead(200, { 'content-type': 'text/plain' })
+    res.end('foo')
+  })
+  server.on('error', function (err) {
+    t.fail('http2 server error event:' + err)
+  })
+  server.listen(() => {
+    port = server.address().port
+
+    // Make an HTTP/1.1 request.
+    var getOpts = {
+      protocol: 'https:',
+      host: 'localhost',
+      port: port,
+      path: '/',
+      ALPNProtocols: ['http/1.1'],
+      rejectUnauthorized: false
+    }
+    var req = https.get(getOpts, function (res) {
+      assertResponse(t, res, 'foo', function () {
+        // Assert the APM transaction is as expected for an HTTP/1.x request.
+        t.ok(tx, 'got the transaction')
+        assertPath(t, tx, true, port, '/', '1.1')
+
+        server.close()
+        t.end()
+      })
+    })
+    req.on('error', function (err) {
+      t.fail('HTTP/1.1 client request error event: ' + err)
+    })
+  })
+})
+
 var matchId = /^[\da-f]{16}$/
 
-function assertPath (t, trans, secure, port, path) {
+function assertPath (t, trans, secure, port, path, httpVersion) {
   t.ok(trans)
   t.ok(matchId.test(trans.id))
   t.strictEqual(trans.name, 'GET unknown route')
   t.strictEqual(trans.type, 'request')
-  t.strictEqual(trans.result, 'HTTP 2xx')
-  t.strictEqual(trans.outcome, 'success')
+  if (httpVersion === '1.1' && secure) {
+    // Drop this if-block when result and outcome are fixed for https:
+    // https://github.com/elastic/apm-agent-nodejs/issues/2146
+    t.strictEqual(trans.result, 'success', 'trans.result')
+    t.strictEqual(trans.outcome, 'unknown', 'trans.outcome')
+  } else {
+    t.strictEqual(trans.result, 'HTTP 2xx', 'trans.result is "HTTP 2xx"')
+    t.strictEqual(trans.outcome, 'success', 'trans.outcome is success')
+  }
   t.ok(trans.duration > 0)
   t.ok(trans.timestamp > 0)
 
+  let expectedUrl
+  let expectedReqHeaders
+  let expectedResHeaders
+  switch (httpVersion) {
+    case '1.1':
+      expectedUrl = {
+        raw: path,
+        protocol: secure ? 'https:' : 'http:',
+        hostname: 'localhost',
+        port: port.toString(),
+        pathname: path,
+        full: `https://localhost:${port}/`
+      }
+      expectedReqHeaders = {
+        host: `localhost:${port}`,
+        connection: 'close'
+      }
+      expectedResHeaders = {
+        'content-type': 'text/plain',
+        date: trans.context.response.headers.date,
+        connection: 'close',
+        'transfer-encoding': 'chunked'
+      }
+      break
+    case '2.0':
+      expectedUrl = {
+        raw: path,
+        protocol: 'http:',
+        pathname: path
+      }
+      expectedReqHeaders = {
+        ':scheme': secure ? 'https' : 'http',
+        ':authority': `localhost:${port}`,
+        ':method': 'GET',
+        ':path': path
+      }
+      expectedResHeaders = {
+        'content-type': 'text/plain',
+        ':status': 200
+      }
+      break
+  }
+  // Sometime between node (v8.6.0, v8.17.0] there was a fix such that
+  // socket.remoteAddress was set properly for https.
+  const expectedRemoteAddress = httpVersion === '1.1' && semver.lt(process.version, '8.17.0')
+    ? undefined : '::ffff:127.0.0.1'
+
   t.deepEqual(trans.context.request, {
-    http_version: '2.0',
+    http_version: httpVersion,
     method: 'GET',
-    url: {
-      raw: path,
-      protocol: 'http:',
-      pathname: path
-    },
+    url: expectedUrl,
     socket: {
-      remote_address: '::ffff:127.0.0.1',
+      remote_address: expectedRemoteAddress,
       encrypted: secure
     },
-    headers: {
-      ':scheme': secure ? 'https' : 'http',
-      ':authority': `localhost:${port}`,
-      ':method': 'GET',
-      ':path': path
-    }
-  })
+    headers: expectedReqHeaders
+  }, 'trans.context.request is as expected')
 
   t.deepLooseEqual(trans.context.response, {
     status_code: 200,
-    headers: {
-      'content-type': 'text/plain',
-      ':status': 200
-    }
-  })
+    headers: expectedResHeaders
+  }, 'trans.context.response is as expected')
 }
 
 function assert (t, data, secure, port) {
@@ -411,7 +507,7 @@ function assert (t, data, secure, port) {
   // Top-level props of the transaction need to be checked individually
   // because there are a few dynamic properties
   var trans = data.transactions[0]
-  assertPath(t, trans, secure, port, '/')
+  assertPath(t, trans, secure, port, '/', '2.0')
 }
 
 function assertResponse (t, stream, expected, done) {
