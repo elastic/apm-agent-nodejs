@@ -4,7 +4,8 @@ var agent = require('../../..').start({
   serviceName: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  cloudProvider: 'none'
 })
 var ins = agent._instrumentation
 
@@ -392,10 +393,15 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
     port = server.address().port
 
     // Make an HTTP/1.1 request.
-    var req = https.get(`https://localhost:${port}/`, {
+    var getOpts = {
+      protocol: 'https:',
+      host: 'localhost',
+      port: port,
+      path: '/',
       ALPNProtocols: ['http/1.1'],
       rejectUnauthorized: false
-    }, function (res) {
+    }
+    var req = https.get(getOpts, function (res) {
       assertResponse(t, res, 'foo', function () {
         // Assert the APM transaction is as expected for an HTTP/1.x request.
         t.ok(tx, 'got the transaction')
@@ -472,13 +478,17 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
       }
       break
   }
+  // Sometime between node (v8.6.0, v8.17.0] there was a fix such that
+  // socket.remoteAddress was set properly for https.
+  const expectedRemoteAddress = httpVersion === '1.1' && semver.lt(process.version, '8.17.0')
+    ? undefined : '::ffff:127.0.0.1'
 
   t.deepEqual(trans.context.request, {
     http_version: httpVersion,
     method: 'GET',
     url: expectedUrl,
     socket: {
-      remote_address: '::ffff:127.0.0.1',
+      remote_address: expectedRemoteAddress,
       encrypted: secure
     },
     headers: expectedReqHeaders
