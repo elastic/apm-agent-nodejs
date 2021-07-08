@@ -28,6 +28,23 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix a header object re-use bug that prevented propagation of trace-context
+  headers (`traceparent` et al) in AWS requests using AWS v4 signature auth.
+  ({issues}2134[#2134])
+
+
 [[release-notes-3.17.0]]
 ==== 3.17.0 2021/07/05
 
