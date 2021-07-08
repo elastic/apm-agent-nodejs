@@ -44,6 +44,10 @@ Notes:
   headers (`traceparent` et al) in AWS requests using AWS v4 signature auth.
   ({issues}2134[#2134])
 
+* Fix a possible infinite loop in `captureError` when handling uncaught
+  exceptions and the process is at or near its file descriptor limit
+  (receiving EMFILE errors).  ({issues}2148[#2148])
+
 
 [[release-notes-3.17.0]]
 ==== 3.17.0 2021/07/05
