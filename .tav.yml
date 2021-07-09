@@ -272,12 +272,12 @@ koa-router:
   node: '>=6.0.0'
   peerDependencies: koa@2
   versions: '>=5.2.0 <11'
-  commands: node test/instrumentation/modules/koa-router/old-name.js
+  commands: node test/instrumentation/modules/koa-router/old-name.test.js
 '@koa/router':
   node: '>=8.0.0'
   peerDependencies: koa@2
   versions: '>=8 <11'
-  commands: node test/instrumentation/modules/koa-router/new-name.js
+  commands: node test/instrumentation/modules/koa-router/new-name.test.js
 
 elasticsearch:
   versions: '>=8.0.0'
