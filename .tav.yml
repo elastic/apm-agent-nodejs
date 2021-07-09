@@ -124,7 +124,7 @@ express:
     - node test/instrumentation/modules/express/basic.test.js
     - node test/instrumentation/modules/express/capture-exceptions-off.test.js
     - node test/instrumentation/modules/express/capture-exceptions-on.test.js
-    - node test/instrumentation/modules/express/set-framework.js
+    - node test/instrumentation/modules/express/set-framework.test.js
 
 express-graphql-1:
   name: express-graphql
@@ -324,22 +324,22 @@ hapi-v9-v15:
   versions: '>=9.0.1 <16.0.0'
   node: '>=4 <14'
   commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
 hapi-v16:
   name: hapi
   versions: '>=16.0.0 <17.0.0'
   node: '>=4'
   commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
 hapi-prenodev15:
   name: hapi
   versions: '>=17.0.0'
   node: '>=8.12.0 <15.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
 hapi:
   name: hapi
   # Work around https://github.com/npm/cli/issues/2267 in npm@7.
@@ -349,22 +349,22 @@ hapi:
   node: '>=15.0.0'
   versions: '>=17.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
 '@hapi/hapi-v17-v18':
   name: '@hapi/hapi'
   versions: '>=17.0.0 <19.0.0'
   node: '>=8.12.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.js
-    - node test/instrumentation/modules/hapi/set-framework-hapihapi.js
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
 '@hapi/hapi':
   name: '@hapi/hapi'
   versions: '>=19.0.0'
   node: '>=12'
   commands:
-    - node test/instrumentation/modules/hapi/basic.js
-    - node test/instrumentation/modules/hapi/set-framework-hapihapi.js
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
 
 tedious:
   name: tedious
@@ -383,21 +383,21 @@ restify-old:
   versions: '>=5.2.0 <8.0.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
-    - node test/instrumentation/modules/restify/set-framework.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
 restify-new:
   name: restify
   node: '>=8.6.0'
   versions: '>=8.0.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
-    - node test/instrumentation/modules/restify/set-framework.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
 
 fastify:
   versions: '>=0.27.0 <0.29.0 || >0.29.0 <2.4.0 || >2.4.0'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
-    - node test/instrumentation/modules/fastify/async-await.js
-    - node test/instrumentation/modules/fastify/set-framework.js
+    - node test/instrumentation/modules/fastify/async-await.test.js
+    - node test/instrumentation/modules/fastify/set-framework.test.js
 
 finalhandler:
   versions: '*'
