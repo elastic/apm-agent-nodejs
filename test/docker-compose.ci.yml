@@ -3,7 +3,7 @@ version: '2.1'
 services:
   node_tests:
     image: node:${NODE_VERSION}
-    environment: 
+    environment:
       MONGODB_HOST: 'mongodb'
       REDIS_HOST: 'redis'
       ES_HOST: 'elasticsearch'
@@ -11,6 +11,7 @@ services:
       MYSQL_HOST: 'mysql'
       CASSANDRA_HOST: 'cassandra'
       MEMCACHED_HOST: 'memcached'
+      LOCALSTACK_HOST: 'localstack'
       PGHOST: 'postgres'
       PGUSER: 'postgres'
     depends_on:
@@ -29,4 +30,6 @@ services:
       cassandra:
         condition: service_started
       memcached:
+        condition: service_started
+      localstack:
         condition: service_started

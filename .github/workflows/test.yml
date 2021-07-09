@@ -82,7 +82,7 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: 1
 
       mssql:
-        image: microsoft/mssql-server-linux
+        image: mcr.microsoft.com/mssql/server
         env:
           ACCEPT_EULA: 'Y'
           SA_PASSWORD: 'Very(!)Secure'
@@ -105,12 +105,21 @@ jobs:
         volumes:
           - nodeesdata:/usr/share/elasticsearch/data
 
+      localstack:
+        image: localstack/localstack:0.12.12
+        env:
+          LOCALSTACK_SERVICES: 's3'
+          DATA_DIR: '/var/lib/localstack'
+        ports:
+          - "4566:4566"
+        volumes:
+          - nodelocalstackdata:/var/lib/localstack
+
     strategy:
       matrix:
         node:
           - '16'
           - '16.0'
-          - '15'
           - '14'
           - '14.0'
           - '12'
