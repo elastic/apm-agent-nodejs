@@ -3,11 +3,10 @@
 
 import apm, { AgentConfigOptions } from '../../'
 
-const agentOpts: apm.AgentConfigOptions = {
-  bogus: 'bar',
+const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
   metricsInterval: '0',
-  centralConfig: false
+  centralConfig: false,
 }
 
 apm.start(agentOpts)
