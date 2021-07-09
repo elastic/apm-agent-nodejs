@@ -33,6 +33,10 @@ services:
     extends:
       file: docker-compose.yml
       service: memcached
+  localstack:
+    extends:
+      file: docker-compose.yml
+      service: localstack
   node_tests:
     extends:
       file: docker-compose-node-test.yml
@@ -54,6 +58,8 @@ services:
         condition: service_healthy
       memcached:
         condition: service_healthy
+      localstack:
+        condition: service_healthy
 
 volumes:
   nodepgdata:
@@ -67,4 +73,6 @@ volumes:
   nodeesdata:
     driver: local
   nodecassandradata:
+    driver: local
+  nodelocalstackdata:
     driver: local

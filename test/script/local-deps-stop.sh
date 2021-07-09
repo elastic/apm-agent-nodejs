@@ -7,3 +7,4 @@ kill `cat /tmp/cassandra.pid`
 kill `cat /tmp/memcached.pid`
 redis-cli shutdown
 mysql.server stop
+docker stop dev-localstack

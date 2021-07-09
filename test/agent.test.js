@@ -1513,7 +1513,7 @@ function assertStackTrace (t, stacktrace) {
   t.ok(stacktrace !== undefined, 'should have a stack trace')
   t.ok(Array.isArray(stacktrace), 'stack trace should be an array')
   t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
-  t.strictEqual(stacktrace[0].filename, path.join('test', 'agent.js'))
+  t.strictEqual(stacktrace[0].filename, path.join('test', 'agent.test.js'))
 }
 assertStackTrace.asserts = 4
 

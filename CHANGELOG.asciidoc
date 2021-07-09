@@ -28,6 +28,7 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
 ==== Unreleased
 
 [float]
@@ -35,6 +36,37 @@ Notes:
 
 [float]
 ===== Features
+
+* Trace an incoming HTTP/1.1 request to an HTTP/2 server using the
+  https://nodejs.org/api/http2.html#http2_http2_createsecureserver_options_onrequesthandler[allowHTTP1]
+  option. Before this change only incoming requests supporting HTTP/2 would
+  be traced. ({pull}2143[#2143])
+
+[float]
+===== Bug fixes
+
+* Fix a header object re-use bug that prevented propagation of trace-context
+  headers (`traceparent` et al) in AWS requests using AWS v4 signature auth.
+  ({issues}2134[#2134])
+
+* Fix a possible infinite loop in `captureError` when handling uncaught
+  exceptions and the process is at or near its file descriptor limit
+  (receiving EMFILE errors).  ({issues}2148[#2148])
+
+
+[[release-notes-3.17.0]]
+==== 3.17.0 2021/07/05
+
+[float]
+===== Features
+
+* Add instrumentation of all AWS S3 methods when using the
+  https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
+* Add <<disable-send, `disableSend`>> configuration option. This supports some
+  use cases using the APM agent **without** an APM server. ({issues}2101[#2101])
+
+* Add instrumentation of all DynamoDB methods when using the
+  https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
 
 [float]
 ===== Bug fixes
@@ -48,7 +80,9 @@ Notes:
 * Fixed error where SQS messages sent without an active transactions could
   crash the agent. ({issues}2113[#2113])
 
-[[release-notes-x.x.x]]
+* Fixed support for proxies in destination context ({issues}1770[#1770])
+
+[[release-notes-3.16.0]]
 ==== 3.16.0 - 2021/06/14
 
 [float]
@@ -274,9 +308,10 @@ slightly to commonalize:
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
 
-* feat: implemented sanitize_feature_names specification +
+* feat: Add `sanitize_field_names` configuration option. +
   Allows users to configure a list of wildcard patterns to _remove_ items
   from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
+  {pull}1898[#1898]
   ** https://github.com/elastic/apm/blob/master/specs/agents/sanitization.md[spec]
   ** https://github.com/elastic/apm-agent-nodejs/blob/master/docs/configuration.asciidoc#sanitize-field-names[docs]
 

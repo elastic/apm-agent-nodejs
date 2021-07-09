@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.16.0",
+  "version": "3.17.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -79,7 +79,7 @@
   },
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
   "dependencies": {
-    "@elastic/ecs-pino-format": "^1.1.2",
+    "@elastic/ecs-pino-format": "^1.2.0",
     "after-all-results": "^2.0.0",
     "async-cache": "^1.1.0",
     "async-value-promise": "^1.1.1",
@@ -186,6 +186,7 @@
     "thunky": "^1.1.0",
     "typescript": "^3.7.5",
     "untildify": "^4.0.0",
+    "vasync": "^2.2.0",
     "wait-on": "^3.3.0",
     "ws": "^7.2.1"
   },

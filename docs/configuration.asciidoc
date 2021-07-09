@@ -148,6 +148,22 @@ See {kibana-ref}/filters.html#environment-selector[environment selector] in the 
 NOTE: This feature is fully supported in the APM app in Kibana versions >= 7.2.
 You must use the query bar to filter for a specific environment in versions prior to 7.2.
 
+[[disable-send]]
+==== `disableSend`
+
+* *Type:* Boolean
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_DISABLE_SEND`
+
+If set to `true`, the agent will work as usual, except for any task requiring
+communication with the APM server. Events will be dropped and the agent won't be
+able to receive central configuration, which means that any other configuration
+cannot be changed in this state without restarting the service.  Example uses
+for this setting are: maintaining the ability to create traces and log
+trace/transaction/span IDs through the log correlation feature, and getting
+automatic distributed tracing via the https://w3c.github.io/trace-context/[W3C
+HTTP headers].
+
 [[instrument]]
 ==== `instrument`
 
