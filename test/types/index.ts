@@ -1,112 +1,111 @@
 // Test the Agent's .d.ts type files by exercising the API in TypeScript:
 // tsc will error out of there is a type conflict.
 
-import apm, { AgentConfigOptions } from '../../'
+import agent, { AgentConfigOptions } from '../../'
 
 const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
   metricsInterval: '0',
-  centralConfig: false,
+  centralConfig: false
 }
-
-apm.start(agentOpts)
+agent.start(agentOpts)
 
 function started (aBool: boolean) {
   console.log(`aBool is: ${aBool}`)
 }
-started(apm.isStarted())
+started(agent.isStarted())
 
-const trans = apm.currentTransaction
+const trans = agent.currentTransaction
 if (trans) trans.end()
-const span = apm.currentSpan
+const span = agent.currentSpan
 if (span) span.end()
-const traceparent = apm.currentTraceparent
+const traceparent = agent.currentTraceparent
 if (traceparent) traceparent.split('-')
-const currentTraceIds = apm.currentTraceIds
+const currentTraceIds = agent.currentTraceIds
 let traceId = currentTraceIds['trace.id'] || ''
 traceId += '-' + (currentTraceIds['transaction.id'] === undefined
   ? currentTraceIds['transaction.id']
   : currentTraceIds['span.id'])
 
-apm.setFramework({})
-apm.setFramework({ name: 'foo' })
-apm.setFramework({ name: 'foo', version: 'bar' })
-apm.setFramework({ version: 'bar' })
-apm.setFramework({ name: 'foo', version: 'bar', overwrite: false })
+agent.setFramework({})
+agent.setFramework({ name: 'foo' })
+agent.setFramework({ name: 'foo', version: 'bar' })
+agent.setFramework({ version: 'bar' })
+agent.setFramework({ name: 'foo', version: 'bar', overwrite: false })
 
-apm.addPatch('foo', 'bar')
-apm.addPatch(['foo'], 'bar')
-apm.addPatch('foo', function (exports, agent, options) {
+agent.addPatch('foo', 'bar')
+agent.addPatch(['foo'], 'bar')
+agent.addPatch('foo', function (exports, agent, options) {
   agent.isStarted()
   if (options.enabled) {}
 })
-apm.removePatch('foo', 'bar')
-apm.removePatch(['foo'], 'bar')
-apm.clearPatches('foo')
-apm.clearPatches(['foo'])
+agent.removePatch('foo', 'bar')
+agent.removePatch(['foo'], 'bar')
+agent.clearPatches('foo')
+agent.clearPatches(['foo'])
 
-apm.lambda(() => {})
-apm.lambda('foo', () => {})
+agent.lambda(() => {})
+agent.lambda('foo', () => {})
 
-apm.handleUncaughtExceptions()
-apm.handleUncaughtExceptions((err: Error) => {
+agent.handleUncaughtExceptions()
+agent.handleUncaughtExceptions((err: Error) => {
   console.error(err.stack)
   process.exit(1)
 })
 
-apm.captureError(new Error('foo'))
-apm.captureError('foo')
-apm.captureError({ message: 'hello %s', params: ['world'] })
-apm.captureError(new Error('foo'), { tags: { foo: 'bar' } })
-apm.captureError('foo', { tags: { foo: 'bar' } })
-apm.captureError({ message: 'hello %s', params: ['world'] }, { tags: { foo: 'bar' } })
-apm.captureError(new Error('foo'), { tags: { foo: 'bar' } }, () => {})
-apm.captureError('foo', { tags: { foo: 'bar' } }, () => {})
-apm.captureError({ message: 'hello %s', params: ['world'] }, { tags: { foo: 'bar' } }, () => {})
-apm.captureError(new Error('foo'), () => {})
-apm.captureError('foo', () => {})
-apm.captureError({ message: 'hello %s', params: ['world'] }, () => {})
+agent.captureError(new Error('foo'))
+agent.captureError('foo')
+agent.captureError({ message: 'hello %s', params: ['world'] })
+agent.captureError(new Error('foo'), { tags: { foo: 'bar' } })
+agent.captureError('foo', { tags: { foo: 'bar' } })
+agent.captureError({ message: 'hello %s', params: ['world'] }, { tags: { foo: 'bar' } })
+agent.captureError(new Error('foo'), { tags: { foo: 'bar' } }, () => {})
+agent.captureError('foo', { tags: { foo: 'bar' } }, () => {})
+agent.captureError({ message: 'hello %s', params: ['world'] }, { tags: { foo: 'bar' } }, () => {})
+agent.captureError(new Error('foo'), () => {})
+agent.captureError('foo', () => {})
+agent.captureError({ message: 'hello %s', params: ['world'] }, () => {})
 
-apm.startTransaction()
-apm.startTransaction('foo')
-apm.startTransaction('foo', 'type')
-apm.startTransaction('foo', 'type', 'subtype')
-apm.startTransaction('foo', 'type', 'subtype', 'action')
-apm.startTransaction('foo', { startTime: 1 })
-apm.startTransaction('foo', 'type', { startTime: 1 })
-apm.startTransaction('foo', 'type', 'subtype', { startTime: 1 })
-apm.startTransaction('foo', 'type', 'subtype', 'action', { startTime: 1 })
+agent.startTransaction()
+agent.startTransaction('foo')
+agent.startTransaction('foo', 'type')
+agent.startTransaction('foo', 'type', 'subtype')
+agent.startTransaction('foo', 'type', 'subtype', 'action')
+agent.startTransaction('foo', { startTime: 1 })
+agent.startTransaction('foo', 'type', { startTime: 1 })
+agent.startTransaction('foo', 'type', 'subtype', { startTime: 1 })
+agent.startTransaction('foo', 'type', 'subtype', 'action', { startTime: 1 })
 
-apm.setTransactionName('foo')
+agent.setTransactionName('foo')
 
-apm.endTransaction()
+agent.endTransaction()
 
-apm.startSpan()
-apm.startSpan('foo')
-apm.startSpan('foo', 'type')
-apm.startSpan('foo', 'type', 'subtype')
-apm.startSpan('foo', 'type', 'subtype', 'action')
-apm.startSpan('foo', { childOf: 'baz' })
-apm.startSpan('foo', 'type', { childOf: 'baz' })
-apm.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
-apm.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
+agent.startSpan()
+agent.startSpan('foo')
+agent.startSpan('foo', 'type')
+agent.startSpan('foo', 'type', 'subtype')
+agent.startSpan('foo', 'type', 'subtype', 'action')
+agent.startSpan('foo', { childOf: 'baz' })
+agent.startSpan('foo', 'type', { childOf: 'baz' })
+agent.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
+agent.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
 
-apm.setLabel('foo', 'bar')
-apm.setLabel('foo', 1)
-apm.setLabel('foo', false)
-apm.setLabel('foo', 1, false)
-apm.setLabel('foo', false, false)
+agent.setLabel('foo', 'bar')
+agent.setLabel('foo', 1)
+agent.setLabel('foo', false)
+agent.setLabel('foo', 1, false)
+agent.setLabel('foo', false, false)
 
-apm.addLabels({ s: 'bar', n: 42, b: false })
-apm.addLabels({ s: 'bar', n: 42, b: false }, false)
+agent.addLabels({ s: 'bar', n: 42, b: false })
+agent.addLabels({ s: 'bar', n: 42, b: false }, false)
 
-apm.setUserContext({
+agent.setUserContext({
   id: 'foo',
   username: 'bar',
   email: 'baz'
 })
 
-apm.setCustomContext({ foo: { bar: { baz: true } } })
+agent.setCustomContext({ foo: { bar: { baz: true } } })
 
 function filter1 (payload: any) {
   payload.foo = 'bar'
@@ -116,36 +115,36 @@ function filter2 (payload: any) {
   return false
 }
 function filter3 (payload: any) {}
-apm.addFilter(filter1)
-apm.addFilter(filter2)
-apm.addFilter(filter3)
-apm.addErrorFilter(filter1)
-apm.addErrorFilter(filter2)
-apm.addErrorFilter(filter3)
-apm.addTransactionFilter(filter1)
-apm.addTransactionFilter(filter2)
-apm.addTransactionFilter(filter3)
-apm.addSpanFilter(filter1)
-apm.addSpanFilter(filter2)
-apm.addSpanFilter(filter3)
-apm.addMetadataFilter(filter1)
-apm.addMetadataFilter(filter2)
-apm.addMetadataFilter(filter3)
+agent.addFilter(filter1)
+agent.addFilter(filter2)
+agent.addFilter(filter3)
+agent.addErrorFilter(filter1)
+agent.addErrorFilter(filter2)
+agent.addErrorFilter(filter3)
+agent.addTransactionFilter(filter1)
+agent.addTransactionFilter(filter2)
+agent.addTransactionFilter(filter3)
+agent.addSpanFilter(filter1)
+agent.addSpanFilter(filter2)
+agent.addSpanFilter(filter3)
+agent.addMetadataFilter(filter1)
+agent.addMetadataFilter(filter2)
+agent.addMetadataFilter(filter3)
 
-apm.flush()
-apm.flush(() => {})
+agent.flush()
+agent.flush(() => {})
 
-apm.destroy()
+agent.destroy()
 
-apm.logger.trace('')
-apm.logger.debug('')
-apm.logger.info('')
-apm.logger.warn('')
-apm.logger.error('')
-apm.logger.fatal('')
+agent.logger.trace('')
+agent.logger.debug('')
+agent.logger.info('')
+agent.logger.warn('')
+agent.logger.error('')
+agent.logger.fatal('')
 
 {
-  const trans = apm.startTransaction()
+  const trans = agent.startTransaction()
   if (trans) {
     trans.traceparent.split('-')
 
@@ -177,7 +176,7 @@ apm.logger.fatal('')
 }
 
 {
-  const trans = apm.startTransaction()
+  const trans = agent.startTransaction()
   if (trans) {
     const span = trans.startSpan()
     if (span) {
