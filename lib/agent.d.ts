@@ -325,8 +325,9 @@ type KeyValueConfig = string | Labels | Array<Array<LabelValue>>
 
 type Payload = { [propName: string]: any }
 
+type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
+
 interface PatchOptions {
   version: string | undefined,
   enabled: boolean
 }
-type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
