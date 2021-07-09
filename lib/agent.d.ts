@@ -305,12 +305,12 @@ interface Logger {
   [propName: string]: any;
 }
 
-interface TransactionOptions {
+export interface TransactionOptions {
   startTime?: number;
   childOf?: Transaction | Span | string;
 }
 
-interface SpanOptions {
+export interface SpanOptions {
   childOf?: Transaction | Span | string;
 }
 

@@ -1,7 +1,7 @@
 // Test the Agent's .d.ts type files by exercising the API in TypeScript:
 // tsc will error out of there is a type conflict.
 
-import agent, { AgentConfigOptions } from '../../'
+import agent, { AgentConfigOptions, Transaction, Span, TransactionOptions, SpanOptions } from '../../'
 
 const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
