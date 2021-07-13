@@ -42,6 +42,9 @@ Notes:
   option. Before this change only incoming requests supporting HTTP/2 would
   be traced. ({pull}2143[#2143])
 
+* Add instrumentation of the AWS SNS publish method when using the
+  https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`). ({pull}2143[#2157])
+  
 [float]
 ===== Bug fixes
 
