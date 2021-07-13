@@ -60,7 +60,7 @@ These modules override that behavior to give better insights into specialized HT
 |=======================================================================
 |Module |Version |Note
 |https://www.npmjs.com/package/express-graphql[express-graphql] |>=0.6.1 <0.10.0 |Will name all transactions by the GraphQL query name
-|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |^2.0.4 |Will name all transactions by the GraphQL query name
+|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |^2.0.4 <3|Will name all transactions by the GraphQL query name
 |=======================================================================
 
 [float]
