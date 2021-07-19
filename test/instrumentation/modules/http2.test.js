@@ -295,7 +295,7 @@ isSecure.forEach(secure => {
       t.strictEqual(span.type, 'external')
       t.strictEqual(span.subtype, 'http')
       t.strictEqual(span.action, 'GET')
-      t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}/sub`)
+      t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}`)
       t.deepEqual(span.context.http, {
         method: 'GET',
         status_code: 200,

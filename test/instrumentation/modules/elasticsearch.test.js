@@ -217,7 +217,7 @@ function done (t, method, path, query, abort = false) {
       t.strictEqual(span2.action, action)
     }
 
-    t.strictEqual(span1.name, method + ' ' + host + path)
+    t.strictEqual(span1.name, method + ' ' + host)
     t.strictEqual(span2.name, 'Elasticsearch: ' + method + ' ' + path)
 
     t.ok(span2.stacktrace.some(function (frame) {
