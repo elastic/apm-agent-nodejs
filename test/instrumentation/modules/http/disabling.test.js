@@ -34,7 +34,7 @@ if (cluster.isMaster) {
     }
 
     function assertSpan (t, span) {
-      t.ok(/GET localhost:\d+\//.test(span.name), 'span name')
+      t.ok(/GET localhost:\d*$/.test(span.name), 'span name')
       t.strictEqual(span.type, 'external', 'span type')
       t.strictEqual(span.subtype, 'http', 'span subtype')
       t.strictEqual(span.action, 'GET', 'span action')
