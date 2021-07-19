@@ -24,7 +24,7 @@ test('request', function (t) {
     t.strictEqual(root.outcome, 'success')
     const span = findObjInArray(data.spans, 'transaction_id', root.id)
     t.strictEqual(span.outcome, 'success')
-    t.strictEqual(span.name, 'GET localhost:' + server.address().port + '/test')
+    t.strictEqual(span.name, 'GET localhost:' + server.address().port)
 
     server.close()
     t.end()
@@ -54,7 +54,7 @@ test('Outcome', function (t) {
     t.strictEqual(root.outcome, 'failure')
     const span = findObjInArray(data.spans, 'transaction_id', root.id)
     t.strictEqual(span.outcome, 'failure')
-    t.strictEqual(span.name, 'GET localhost:' + server.address().port + '/test')
+    t.strictEqual(span.name, 'GET localhost:' + server.address().port)
 
     server.close()
     t.end()
