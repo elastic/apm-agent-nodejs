@@ -29,7 +29,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
+[[release-notes-3.18.0]]
+==== 3.18.0 2021/07/20
 
 [float]
 ===== Breaking changes
@@ -47,6 +48,10 @@ Notes:
   
 [float]
 ===== Bug fixes
+
+* Fixed naming for outgoing HTTP spans to comply with the spec.
+  https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-http.md#http-client-spans
+  Span names no longer include the path portion of the URL. ({pull}2161[#2161])
 
 * Fix a header object re-use bug that prevented propagation of trace-context
   headers (`traceparent` et al) in AWS requests using AWS v4 signature auth.
