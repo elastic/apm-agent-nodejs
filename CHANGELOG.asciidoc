@@ -29,7 +29,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
+[[release-notes-3.18.0]]
+==== 3.18.0 2021/07/20
 
 [float]
 ===== Breaking changes
@@ -37,6 +38,253 @@ Notes:
 [float]
 ===== Features
 
+* Trace an incoming HTTP/1.1 request to an HTTP/2 server using the
+  https://nodejs.org/api/http2.html#http2_http2_createsecureserver_options_onrequesthandler[allowHTTP1]
+  option. Before this change only incoming requests supporting HTTP/2 would
+  be traced. ({pull}2143[#2143])
+
+[float]
+===== Bug fixes
+
+* Fixed naming for outgoing HTTP spans to comply with the spec.
+  https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-http.md#http-client-spans
+  Span names no longer include the path portion of the URL. ({pull}2161[#2161])
+
+* Fix a header object re-use bug that prevented propagation of trace-context
+  headers (`traceparent` et al) in AWS requests using AWS v4 signature auth.
+  ({issues}2134[#2134])
+
+* Fix a possible infinite loop in `captureError` when handling uncaught
+  exceptions and the process is at or near its file descriptor limit
+  (receiving EMFILE errors).  ({issues}2148[#2148])
+
+
+[[release-notes-3.17.0]]
+==== 3.17.0 2021/07/05
+
+[float]
+===== Features
+
+* Add instrumentation of all AWS S3 methods when using the
+  https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
+* Add <<disable-send, `disableSend`>> configuration option. This supports some
+  use cases using the APM agent **without** an APM server. ({issues}2101[#2101])
+
+* Add instrumentation of all DynamoDB methods when using the
+  https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
+
+[float]
+===== Bug fixes
+
+* Fix inconsistencies in HTTP spans from other APM agents.
+  <<span-subtype, `span.subtype`>> will now be "http" for HTTP, HTTPS, and
+  HTTP/2 outgoing spans -- previously it was "http", "https", "http2",
+  respectively. As well, <<span-action, `span.action`>> will now be the HTTP
+  method (e.g. "GET", "PUT", "POST"), rather than "http". ({pull}2075[#2075])
+
+* Fixed error where SQS messages sent without an active transactions could
+  crash the agent. ({issues}2113[#2113])
+
+* Fixed support for proxies in destination context ({issues}1770[#1770])
+
+[[release-notes-3.16.0]]
+==== 3.16.0 - 2021/06/14
+
+[float]
+===== Features
+
+* Added <<span-frames-min-duration, `spanFramesMinDuration`>>
+  configuration field, allowing users to set a time threshold value that spans
+  must reach before the agent will add a stack trace to the span. As a result,
+  many short spans that previously included stack traces by default no longer
+  will.
+
+* Prefer W3C "traceparent" header over "elastic-apm-traceparent" for incoming
+  requests. {pull}2079[#2079]
+
+[float]
+===== Bug fixes
+
+* Fix a crash (`TypeError: lastPrepareStackTrace`) in the agent when used with
+  React v17 and later ({issues}1980[#1980]).
+
+* Performance improvements have been made in error and stacktrace capture ({pull}2094[#2094]).
+  This also included in two bug fixes:
++
+** Before this change, some captured errors (for example a `next(new Error('boom')` from
+   an Express handler) would mark the error as "unhandled" incorrectly. "Unhandled"
+   exceptions are those caught by an `uncaughtException` handler.
+** Before this change, source context lines for a stacktrace would not properly
+   use the "sourcesContext" field of a file's source map.
+
+
+[[release-notes-3.15.0]]
+==== 3.15.0 - 2021/05/19
+
+[float]
+===== Features
+
+* Add support for Node.js v16. (This also drops testing of Node.js v13
+  releases.) {pull}2055[#2055]
+
+[float]
+===== Bug fixes
+
+* Update TypeScript typings for `Agent.setLabel` and `Agent.addLabels` to
+  include the `stringify` argument that was added in v3.11.0.
+
+
+[[release-notes-3.14.0]]
+==== 3.14.0 - 2021/04/19
+
+[float]
+===== Features
+
+* Add `apm.addMetadataFilter(fn)` for filtering the
+  https://www.elastic.co/guide/en/apm/server/current/metadata-api.html[metadata object]
+  sent to APM server.
+
+* The handling of sending events (transactions, spans, errors) to APM server
+  has improved in a few ways. During temporary spikes in load and/or an APM
+  server that is unresponsive, the agent will buffer a number of events and
+  *drop* them above a certain limit (configurable via <<max-queue-size>>).
+  This helps ensure the agent does not overly consume memory and CPU. As well,
+  the agent will now https://github.com/elastic/apm/blob/master/specs/agents/transport.md#transport-errors[backoff]
+  when the APM server errors. Finally, improved error handling means it will
+  terminate failing requests to the APM server more quickly.
++
+Note: v1 of this agent (EOL'd 2 years ago), included a `maxQueueSize` config
+variable with a different meaning. If you have a lingering usage of that
+setting (also possibly as the `ELASTIC_APM_MAX_QUEUE_SIZE` environment
+variable), then it should be removed.
+
+* Adds support for Amazon SQS queues via `aws-sdk` instrumentation that
+  partially implements the https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-messaging.md[APM messaging spec],
+  and adds `queue.latency.min.ms`, `queue.latency.max.ms`, and `queue.latency.avg.ms`
+  metrics for SQS queues.
+
+[float]
+===== Bug fixes
+
+* Fixed bug where the URL property for outgoing HTTP request spans was set
+  with the server's IP address rather than its hostname. The Agent now sets
+  this property with the actual URL requested by Node.js. {issues}2035[#2035]
+
+* Fixed bug where external services were not listed under Dependencies on the
+  APM Service Overview page due to the trace-context propagated `sample_rate`
+  value not being set on either transactions or spans.
+
+[[release-notes-3.13.0]]
+==== 3.13.0 - 2021/04/06
+
+[float]
+===== Features
+
+* The APM agent's own internal logging now uses structured JSON logging using
+  the https://getpino.io/#/docs/api?id=logger[pino API], and formatted in
+  {ecs-logging-ref}/intro.html[ecs-logging] format. The log records on stdout
+  are now single-line JSON objects. For example:
++
+[source,bash]
+----
+# Before
+APM Server transport error (ECONNREFUSED): connect ECONNREFUSED 127.0.0.1:8200
+
+# After
+{"log.level":"error","@timestamp":"2021-03-19T00:21:17.571Z","log":{"logger":"elastic-apm-node"},
+"ecs":{"version":"1.6.0"},"message":"APM Server transport error (ECONNREFUSED): connect ECONNREFUSED 127.0.0.1:8200"}
+----
++
+Pretty formatting (and filtering) on the console may be done via the
+https://github.com/trentm/go-ecslog[`ecslog`] tool.
++
+A custom <<logger>> is still supported as before. However, a non-pino custom
+logger will only receive the "message" field, and not structured log fields
+as they are added over time.
+
+* Add support for setting the `ELASTIC_APM_LOGGER=false` environment variable
+  to disable/ignore a given custom <<logger>>. This is to support easier
+  <<debug-mode>> for troubleshooting.
+
+[float]
+===== Bug fixes
+
+* Lock package dependency "elastic-apm-http-client@9.6.0" to avoid using
+  v9.7.0 for now, because it is breaking tests. A coming release will get back
+  on the latest of this dependency. {issues}2032[#2032]
+
+* Remove the "ancestors" field from a log.trace message on startup. Its info
+  is a duplicate of info in the "startTrace" field in the same log record.
+  {pull}2005[#2005]
+
+* Remove the accidental `nodejs.eventloop.delay.ns` metric that was always
+  reporting a zero value. The existing `nodejs.eventloop.delay.avg.ms` is
+  the intended metric. {pull}1993[#1993]
+
+
+[[release-notes-3.12.1]]
+==== 3.12.1 - 2021/02/25
+
+[float]
+===== Bug fixes
+
+* fix: Update https://github.com/elastic/apm-nodejs-http-client/blob/master/CHANGELOG.md#v951[apm-server client]
+  to fix a {issues}1749[possible crash] when polling for central config.
+
+
+[[release-notes-3.12.0]]
+==== 3.12.0 - 2021/02/21
+
+[float]
+===== Features
+
+* feat: Set span outcome to success or failure depending on whether an error
+  was captured during when the span was active. {issues}1814[#1814]
+
+* feat: Adds public `setOutcome` method to span and transaction APIs, and
+  adds a top level `setTransactionOutcome` and `setSpanOutcome` to set
+  outcome values for the current active transaction or active span.
+* Limit the `transactionSampleRate` value to 4 decimal places of precision
+  according to the shared https://github.com/elastic/apm/blob/master/specs/agents/tracing-sampling.md#transaction_sample_rate-configuration[APM spec]. This ensures that propagated sampling rate
+  in the `tracestate` header is short and consistent. {pull}1979[#1979]
+
+[float]
+===== Bug fixes
+
+* fix: It was possible for fetching central config to result in the
+  `cloudProvider` config value being reset to its default. {issues}1976[#1976]
+
+* fix: fixes bug where tedious could crash the agent on bulk inserts {pull}1935[#1935] +
+  Reported https://discuss.elastic.co/t/apm-agent-crashes-nodejs-after-reporting-exception-in-tedious-instrumentation-code/259851[via the forum].
+  The error symptom was: `Cannot read property 'statement' of undefined`
+
+[[release-notes-3.11.0]]
+==== 3.11.0 - 2021/02/08
+
+[float]
+===== Features
+
+* feat: add `apm.getServiceName()` {pull}1949[#1949] +
+  This will be used by https://github.com/elastic/ecs-logging-js[ecs-logging packages]
+  to integrate with APM.
+
+* feat: support numeric and boolean labels {pull}1909[#1909] +
+  Add an optional `stringify` option to `apm.setLabel(name, version, stringify = true)`
+  and `apm.addLabels(labels, stringify = true)`, which can be set `false` to
+  allow numeric and boolean labels. Stringify defaults to true for backwards
+  compatibility -- stringification will be removed in a future major version.
+
+* feat: added support for cloud metadata fetching {pull}1937[#1937] +
+  Agent now collects information about its cloud environment and includes this
+  data in the APM Server's metadata payload. See
+  https://github.com/elastic/apm/blob/3acd10afa0a9d3510e819229dfce0764133083d3/specs/agents/metadata.md#cloud-provider-metadata[the spec]
+  for more information.
+
+[[release-notes-3.10.0]]
+==== 3.10.0 - 2021/01/11
+
+[float]
+===== Features
 
 * feat: Improve handling of raw body parsing
   The agent will now report raw/`Buffer` encoded post bodies as '<Buffer>'.
@@ -64,9 +312,11 @@ slightly to commonalize:
 
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
   Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
-* feat: implemented sanitize_feature_names specification +
+
+* feat: Add `sanitize_field_names` configuration option. +
   Allows users to configure a list of wildcard patterns to _remove_ items
   from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
+  {pull}1898[#1898]
   ** https://github.com/elastic/apm/blob/master/specs/agents/sanitization.md[spec]
   ** https://github.com/elastic/apm-agent-nodejs/blob/master/docs/configuration.asciidoc#sanitize-field-names[docs]
 
@@ -85,7 +335,6 @@ Config vars affected are: `disableInstrumentations`, `transactionIgnoreUrls`
 * fix: Correct the environment variable for setting `transactionIgnoreUrl`
   (added in v3.9.0) from `ELASTIC_TRANSACTION_IGNORE_URLS` to
   `ELASTIC_APM_TRANSACTION_IGNORE_URLS`.
-
 
 
 [[release-notes-3.9.0]]

@@ -6,7 +6,6 @@ var spawn = require('child_process').spawn
 
 var semver = require('semver')
 
-var extname = path.extname
 var join = path.join
 
 var bin = join(process.cwd(), 'node_modules/.bin')
@@ -73,6 +72,7 @@ function mapSeries (tasks, handler, cb) {
 
 var directories = [
   'test',
+  'test/cloud-metadata',
   'test/instrumentation',
   'test/instrumentation/modules',
   'test/instrumentation/modules/@elastic',
@@ -88,6 +88,7 @@ var directories = [
   'test/instrumentation/modules/mysql2',
   'test/instrumentation/modules/pg',
   'test/instrumentation/modules/restify',
+  'test/instrumentation/modules/aws-sdk',
   'test/integration',
   'test/integration/api-schema',
   'test/lambda',
@@ -95,6 +96,7 @@ var directories = [
   'test/redact-secrets',
   'test/sanitize-field-names',
   'test/sourcemaps',
+  'test/stacktraces',
   'test/uncaught-exceptions'
 ]
 
@@ -103,14 +105,14 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
 
   var tests = [
     {
-      file: 'test.js',
+      file: 'test.test.js',
       cwd: 'test/start/env',
       env: {
         ELASTIC_APM_SERVICE_NAME: 'from-env'
       }
     },
     {
-      file: 'test.js',
+      file: 'test.test.js',
       cwd: 'test/start/file'
     }
   ]
@@ -118,9 +120,7 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
   directoryFiles.forEach(function (files, i) {
     var directory = directories[i]
     files.forEach(function (file) {
-      if (directory === 'test' && file === 'test.js') return
-      if (extname(file) !== '.js') return
-      if (file[0] === '_') return
+      if (!file.endsWith('.test.js')) return
 
       tests.push({
         file: join(directory, file)

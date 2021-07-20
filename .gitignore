@@ -1,7 +1,6 @@
 # Files to ignore
 .DS_Store
 /.vscode
-/coverage.lcov
 /package-lock.json
 /test/babel/out.js
 /test/types/transpile/index.js
@@ -10,7 +9,6 @@
 # Folders to ignore
 /.nyc_output
 /build
-/coverage
 /node_modules
 /test/benchmarks/.tmp
 /tmp

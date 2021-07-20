@@ -75,6 +75,19 @@ but increasing the size limit means that the combined overhead of these HTTP req
 as headers and metadata don't need to be re-sent that often.
 
 [float]
+[[performance-max-queue-size]]
+==== Max queue size
+
+Events (transactions, spans, and errors) are buffered when the agent can't keep
+up with sending them to the APM Server or if the APM server is down. If the
+buffer exceeds <<max-queue-size>>, then events are dropped to limit memory
+usage of the agent.
+
+A lower value will decrease the heap overhead (and possibly the CPU usage) of
+the agent, while a higher value makes it less likely to lose events in case of
+a temporary spike in throughput.
+
+[float]
 [[performance-server-timeout]]
 ==== APM Server Timeout
 
@@ -103,8 +116,10 @@ There are several settings to adjust how they are used.
 In a complex application,
 a request may produce many spans.
 Capturing a stack trace for every span can result in significant memory usage.
-To disable capturing stack traces for spans,
-set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.
+To disable capturing stack traces for all spans,
+set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.  You may also use
+the <<span-frames-min-duration,`spanFramesMinDuration`>> to set a duration threshold for
+when stack traces are captured.
 
 This will mainly impact memory usage,
 but may also have a noticeable impact on speed too.

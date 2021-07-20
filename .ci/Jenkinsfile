@@ -9,10 +9,10 @@ pipeline {
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
-    CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-nodejs-codecov'
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
     OPBEANS_REPO = 'opbeans-node'
+    GITHUB_CHECK = 'true'
   }
   options {
     timeout(time: 3, unit: 'HOURS')
@@ -90,14 +90,11 @@ pipeline {
                 // parallelTasks["Windows-Node.js-${version}"] = generateStepForWindows(version: version)
               }
 
-              // Only 12 for the time being
-              parallelTasks["Windows-Node.js-12"] = generateStepForWindows(version: '12')
+              // Only 14 for the time being
+              parallelTasks["Windows-Node.js-14"] = generateStepForWindows(version: '14')
 
-              // PRs don't require to run here as it's now managed within the linting pipeline
-              if (!env.CHANGE_ID) {
-                // Linting in parallel with the test stage
-                parallelTasks['linting'] = linting()
-              }
+              // Linting in parallel with the test stage
+              parallelTasks['linting'] = linting()
 
               parallel(parallelTasks)
             }
@@ -148,8 +145,11 @@ pipeline {
         }
       }
     }
+
     /**
-      Run Edge tests.
+      The "Edge Test" is a run of the agent test suite with pre-release builds
+      of node.js, if available and useful. "Pre-release" builds are release
+      candidate (RC) and "nightly" node.js builds.
     */
     stage('Edge Test') {
       options { skipDefaultCheckout() }
@@ -170,9 +170,6 @@ pipeline {
       parallel {
         stage('Nightly Test') {
           agent { label 'linux && immutable' }
-          environment {
-            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
-          }
           steps {
             withGithubNotify(context: 'Nightly Test', tab: 'tests') {
               deleteDir()
@@ -182,7 +179,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, edge: true)
+                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, buildType: 'nightly')
                   }
                   parallel(parallelTasks)
                 }
@@ -192,9 +189,6 @@ pipeline {
         }
         stage('Nightly Test - No async hooks') {
           agent { label 'linux && immutable' }
-          environment {
-            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/nightly/"
-          }
           steps {
             withGithubNotify(context: 'Nightly No Async Hooks Test', tab: 'tests') {
               deleteDir()
@@ -204,7 +198,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-nightly-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
+                    parallelTasks["Node.js-${version}-nightly-no-async-hooks"] = generateStep(version: version, buildType: 'nightly', disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -214,9 +208,6 @@ pipeline {
         }
         stage('RC Test') {
           agent { label 'linux && immutable' }
-          environment {
-            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
-          }
           steps {
             withGithubNotify(context: 'RC Test', tab: 'tests') {
               deleteDir()
@@ -226,7 +217,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, edge: true)
+                    parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, buildType: 'rc')
                   }
                   parallel(parallelTasks)
                 }
@@ -236,9 +227,6 @@ pipeline {
         }
         stage('RC Test - No async hooks') {
           agent { label 'linux && immutable' }
-          environment {
-            NVM_NODEJS_ORG_MIRROR = "https://nodejs.org/download/rc/"
-          }
           steps {
             withGithubNotify(context: 'RC No Async Hooks Test', tab: 'tests') {
               deleteDir()
@@ -248,7 +236,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, edge: true, disableAsyncHooks: true)
+                    parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, buildType: 'rc', disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -317,7 +305,7 @@ pipeline {
       environment {
         HOME = "${env.WORKSPACE}"
         RESULT_FILE = 'apm-agent-benchmark-results.json'
-        NODE_VERSION = '12'
+        NODE_VERSION = '14'
       }
       when {
         beforeAgent true
@@ -337,7 +325,7 @@ pipeline {
             deleteDir()
             unstash 'source'
             dir(BASE_DIR){
-              sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}"'
+              sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}" "${NODE_VERSION}"'
             }
           }
         }
@@ -365,26 +353,25 @@ pipeline {
 def generateStep(Map params = [:]){
   def version = params?.version
   def tav = params.containsKey('tav') ? params.tav : ''
-  def edge = params.containsKey('edge') ? params.edge : false
-  def disableAsyncHooks = params.get('disableAsyncHooks', false)
+  def buildType = params.containsKey('buildType') ? params.buildType : 'release'
+  def ELASTIC_APM_ASYNC_HOOKS = String.valueOf(!params.get('disableAsyncHooks', false))
   return {
-    node('linux && immutable'){
-      withEnv(["VERSION=${version}", "ELASTIC_APM_ASYNC_HOOKS=${disableAsyncHooks}"]) {
+    withNode(labels: 'linux && immutable', forceWorkspace: true, forceWorker: true) {
+      withEnv(["VERSION=${version}", "ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS}"]) {
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
           try {
             retryWithSleep(retries: 2, seconds: 5, backoff: true) {
-              sh(label: "Run Tests", script: """.ci/scripts/test.sh "${version}" "${tav}" "${edge}" """)
+              sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" -t "${tav}" "${version}" """)
             }
           } catch(e){
             error(e.toString())
           } finally {
             // TAV tests run 'npm run test:tav' which does *not* produce TAP
-            // output or code coverage .
+            // output.
             if (!tav?.trim()) {
               tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
-              codecov(repo: env.REPO, basedir: '.', secret: "${CODECOV_SECRET}")
             }
           }
         }
@@ -443,7 +430,7 @@ def getSmartTAVContext() {
 
  def linting(){
    return {
-    node('linux && immutable') {
+    withNode(labels: 'linux && immutable', forceWorkspace: true, forceWorker: true) {
       catchError(stageResult: 'UNSTABLE', message: 'Linting failures') {
         withGithubNotify(context: 'Linting') {
           deleteDir()
@@ -462,17 +449,18 @@ def getSmartTAVContext() {
 
 def generateStepForWindows(Map params = [:]){
   def version = params?.version
-  def disableAsyncHooks = params.get('disableAsyncHooks', false)
+  def ELASTIC_APM_ASYNC_HOOKS = String.valueOf(!params.get('disableAsyncHooks', false))
   return {
     sh label: 'Prepare services', script: ".ci/scripts/windows/prepare-test.sh ${version}"
     def linuxIp = grabWorkerIP()
-    node('windows-2019-docker-immutable'){
+    withNode(labels: 'windows-2019-docker-immutable', forceWorkspace: true, forceWorker: true) {
       // When installing with choco the PATH might not be updated within the already connected worker.
       withEnv(["PATH=${PATH};C:\\Program Files\\nodejs",
                "VERSION=${version}",
-               "ELASTIC_APM_ASYNC_HOOKS=${disableAsyncHooks}",
+               "ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS}",
                "CASSANDRA_HOST=${linuxIp}",
                "ES_HOST=${linuxIp}",
+               "LOCALSTACK_HOST=${linuxIp}",
                "MEMCACHED_HOST=${linuxIp}",
                "MONGODB_HOST=${linuxIp}",
                "MSSQL_HOST=${linuxIp}",

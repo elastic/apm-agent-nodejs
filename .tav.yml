@@ -1,198 +1,208 @@
 generic-pool:
   versions: ^2.0.0 || ^3.1.0
-  commands: node test/instrumentation/modules/generic-pool.js
+  commands: node test/instrumentation/modules/generic-pool.test.js
 mimic-response:
   versions: ^1.0.0
-  commands: node test/instrumentation/modules/mimic-response.js
+  commands: node test/instrumentation/modules/mimic-response.test.js
 got-very-old:
   name: got
   versions: '>=4.0.0 <9.0.0'
   node: '>=5'
-  commands: node test/instrumentation/modules/http/github-423.js
+  commands: node test/instrumentation/modules/http/github-423.test.js
 got-old:
   name: got
   versions: ^9.0.0
   node: '>=8.3'
-  commands: node test/instrumentation/modules/http/github-423.js
+  commands: node test/instrumentation/modules/http/github-423.test.js
 got-new:
   name: got
   versions: '>=10.0.0 <10.5.1 || >10.5.1' # v10.5.1 is broken
   node: '>=10'
-  commands: node test/instrumentation/modules/http/github-423.js
+  commands: node test/instrumentation/modules/http/github-423.test.js
 mysql:
   versions: ^2.0.0
   commands:
-    - node test/instrumentation/modules/mysql/mysql.js
-    - node test/instrumentation/modules/mysql/pool-release-1.js
+    - node test/instrumentation/modules/mysql/mysql.test.js
+    - node test/instrumentation/modules/mysql/pool-release-1.test.js
 mysql2-old:
   name: mysql2
   versions: '>=1.0.0 <1.6.0'
   commands:
-    - node test/instrumentation/modules/mysql2/mysql.js
-    - node test/instrumentation/modules/mysql2/pool-release-1.js
+    - node test/instrumentation/modules/mysql2/mysql.test.js
+    - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 mysql2-new:
   name: mysql2
   versions: '1.6.0 || 1.6.1 || >=1.6.3 <3' # v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
   node: '>=6.0.0'
   commands:
-    - node test/instrumentation/modules/mysql2/mysql.js
-    - node test/instrumentation/modules/mysql2/pool-release-1.js
+    - node test/instrumentation/modules/mysql2/mysql.test.js
+    - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 redis:
   versions: '>=2.0.0 <4.0.0'
-  commands: node test/instrumentation/modules/redis.js
+  commands: node test/instrumentation/modules/redis.test.js
 ioredis-old:
   name: ioredis
   versions: '>=2 <3.1.3 || >3.1.3 <4' # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
-  commands: node test/instrumentation/modules/ioredis.js
+  commands: node test/instrumentation/modules/ioredis.test.js
 ioredis-new:
   name: ioredis
   versions: '^4.0.0'
   node: '>=6'
-  commands: node test/instrumentation/modules/ioredis.js
+  commands: node test/instrumentation/modules/ioredis.test.js
 pg-old-node:
   name: pg
-  versions: '>=4 <9'
+  # We want this version range:
+  #   versions: '>=4 <9'
+  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
+  #
+  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
+  versions: '4.0.0 || 4.1.1 || 4.2.0 || 4.3.0 || 4.4.6 || 4.5.7 || 5.0.0 || 5.1.0 || 5.2.1 || 6.0.5 || 6.1.6 || 6.2.5 || 6.3.3 || 6.4.2 || 7.0.3 || 7.1.2 || 7.2.0 || 7.3.0 || 7.4.3 || 7.5.0 || 7.6.1 || 7.7.1 || 7.8.2 || 7.9.0 || 7.10.0 || 7.11.0 || 7.12.1 || 7.13.0 || 7.14.0 || 7.15.2 || 7.16.1 || 7.17.1 || 7.18.2 || 8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || >8.6.0 <9'
   node: '<14'
   peerDependencies:
     - bluebird@^3.0.0
     - knex@^0.17.3
   commands:
-    - node test/instrumentation/modules/pg/pg.js
-    - node test/instrumentation/modules/pg/knex.js
+    - node test/instrumentation/modules/pg/pg.test.js
+    - node test/instrumentation/modules/pg/knex.test.js
 pg-new-node:
   name: pg
-  versions: '>=8.0.3 <9' # Prior versions didn't work in Node.js 14
+  # We want this version range:
+  #   versions: '>=8.0.3 <9' # Prior versions didn't work in Node.js 14
+  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
+  #
+  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
+  versions: '8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || >8.6.0 <9'
   node: '>=14'
   peerDependencies:
     - bluebird@^3.0.0
     - knex@^0.17.3
   commands:
-    - node test/instrumentation/modules/pg/pg.js
-    - node test/instrumentation/modules/pg/knex.js
+    - node test/instrumentation/modules/pg/pg.test.js
+    - node test/instrumentation/modules/pg/knex.test.js
 mongodb-core:
   versions: '>=1.2.19 <4'
-  commands: node test/instrumentation/modules/mongodb-core.js
+  commands: node test/instrumentation/modules/mongodb-core.test.js
 mongodb:
   versions: '>=3.3'
-  commands: node test/instrumentation/modules/mongodb.js
+  commands: node test/instrumentation/modules/mongodb.test.js
 bluebird:
   versions: '>=2 <4'
   commands:
-    - node test/instrumentation/modules/bluebird/bluebird.js
-    - node test/instrumentation/modules/bluebird/cancel.js
+    - node test/instrumentation/modules/bluebird/bluebird.test.js
+    - node test/instrumentation/modules/bluebird/cancel.test.js
 knex-old:
   name: knex
   # v0.16.4 accidentally dropped support for Node.js 6
   versions: ^0.16.5 || <0.16.4 >=0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
-  commands: node test/instrumentation/modules/pg/knex.js
+  commands: node test/instrumentation/modules/pg/knex.test.js
 knex-new:
   name: knex
   node: '>=8.6.0'
   versions: '>=0.17 <0.21'
-  commands: node test/instrumentation/modules/pg/knex.js
+  commands: node test/instrumentation/modules/pg/knex.test.js
 knex-gt-nodev8:
   name: knex
   node: '>=10.22.0'
   versions: '>=0.21 <0.22'
-  commands: node test/instrumentation/modules/pg/knex.js
+  commands: node test/instrumentation/modules/pg/knex.test.js
 ws-old:
   name: ws
   versions: '>=1 <7'
-  commands: node test/instrumentation/modules/ws.js
+  commands: node test/instrumentation/modules/ws.test.js
 ws-new:
   name: ws
   node: '>=8.6.0'
   versions: '>=7 <8'
-  commands: node test/instrumentation/modules/ws.js
+  commands: node test/instrumentation/modules/ws.test.js
 graphql:
   preinstall: npm uninstall express-graphql
   versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16.0.0'
-  commands: node test/instrumentation/modules/graphql.js
+  commands: node test/instrumentation/modules/graphql.test.js
 express:
   versions: '>=4'
   commands:
-    - node test/instrumentation/modules/express/basic.js
-    - node test/instrumentation/modules/express/capture-exceptions-off.js
-    - node test/instrumentation/modules/express/capture-exceptions-on.js
-    - node test/instrumentation/modules/express/set-framework.js
+    - node test/instrumentation/modules/express/basic.test.js
+    - node test/instrumentation/modules/express/capture-exceptions-off.test.js
+    - node test/instrumentation/modules/express/capture-exceptions-on.test.js
+    - node test/instrumentation/modules/express/set-framework.test.js
 
 express-graphql-1:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.8.2
   versions: '0.6.1'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 
 express-graphql-2:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.9.0
   versions: '>=0.6.2 <0.6.6'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 
 express-graphql-3:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '>=0.6.6 <0.6.8'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 
 express-graphql-0.6.11_10:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '0.6.11'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 express-graphql-0.6.11_11:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.11.0
   versions: '0.6.11'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 
 express-graphql-0.6.12_10:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '^0.6.12'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 express-graphql-0.6.12_11:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.11.0
   versions: '^0.6.12'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 express-graphql-0.6.12_12:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.12.0
   versions: '^0.6.12'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 express-graphql-0.6.12_13:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.13.0
   versions: '^0.6.12'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 
 express-graphql-0.7.1_12:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.12.0
   versions: '>=0.7.1 <0.9.0'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 express-graphql-0.7.1_13:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.13.0
   versions: '>=0.7.1 <0.9.0'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 express-graphql-0.7.1_14:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^14.0.0
   versions: '>=0.7.1 <0.9.0'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 
 express-graphql-0.9.0:
   name: express-graphql
@@ -200,66 +210,103 @@ express-graphql-0.9.0:
   peerDependencies: graphql@^14.4.1
   versions: '>=0.9.0 <0.10.0'
   node: '>=7.6.0'
-  commands: node test/instrumentation/modules/express-graphql.js
+  commands: node test/instrumentation/modules/express-graphql.test.js
 
 apollo-server-express-2_12:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.12.0
-  versions: '>=2.0.4 <2.2 || >= 2.3.2'
+  # We want this version range:
+  #   versions: '>=2.0.4 <2.2 || >= 2.3.2 <3'
+  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
+  #
+  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
+  versions: '2.0.7 || 2.1.0 || 2.3.3 || 2.4.8 || 2.5.1 || 2.6.9 || 2.7.2 || 2.8.2 || 2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
   node: '>=6'
-  commands: node test/instrumentation/modules/apollo-server-express.js
+  commands: node test/instrumentation/modules/apollo-server-express.test.js
 apollo-server-express-2_13:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.13.0
-  versions: '>=2.0.4 <2.2 || >= 2.3.2'
+  # We want this version range:
+  #   versions: '>=2.0.4 <2.2 || >= 2.3.2 <3'
+  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
+  #
+  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
+  versions: '2.0.7 || 2.1.0 || 2.3.3 || 2.4.8 || 2.5.1 || 2.6.9 || 2.7.2 || 2.8.2 || 2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
   node: '>=6'
-  commands: node test/instrumentation/modules/apollo-server-express.js
+  commands: node test/instrumentation/modules/apollo-server-express.test.js
 apollo-server-express-2_14:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^14.0.0
-  versions: '>=2.0.4 <2.2 || >= 2.3.2'
+  # We want this version range:
+  #   versions: '>=2.0.4 <2.2 || >= 2.3.2 <3'
+  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
+  #
+  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
+  versions: '2.0.7 || 2.1.0 || 2.3.3 || 2.4.8 || 2.5.1 || 2.6.9 || 2.7.2 || 2.8.2 || 2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
   node: '>=6'
-  commands: node test/instrumentation/modules/apollo-server-express.js
+  commands: node test/instrumentation/modules/apollo-server-express.test.js
+apollo-server-express-2_15:
+  name: apollo-server-express
+  preinstall: npm uninstall express-graphql
+  peerDependencies: graphql@^15.0.0
+  # We want this version range (2.12.0 was the first release of
+  # apollo-server-express after graphql@15 was released):
+  #   versions: '>= 2.12.0 <3'
+  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
+  #
+  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
+  versions: '2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
+  # Per https://github.com/graphql/graphql-js/releases/tag/v15.0.0
+  # graphql v15 supports node v8 as a minimum.
+  node: '>=8'
+  commands: node test/instrumentation/modules/apollo-server-express.test.js
 
 express-queue:
   versions: '>=0.0.11'
-  commands: node test/instrumentation/modules/express-queue.js
+  commands: node test/instrumentation/modules/express-queue.test.js
 
 koa-router:
   node: '>=6.0.0'
   peerDependencies: koa@2
-  versions: '>=5.2.0 <10'
-  commands: node test/instrumentation/modules/koa-router/old-name.js
+  versions: '>=5.2.0 <11'
+  commands: node test/instrumentation/modules/koa-router/old-name.test.js
 '@koa/router':
   node: '>=8.0.0'
   peerDependencies: koa@2
-  versions: '>=8 <10'
-  commands: node test/instrumentation/modules/koa-router/new-name.js
+  versions: '>=8 <11'
+  commands: node test/instrumentation/modules/koa-router/new-name.test.js
 
 elasticsearch:
   versions: '>=8.0.0'
-  commands: node test/instrumentation/modules/elasticsearch.js
+  commands: node test/instrumentation/modules/elasticsearch.test.js
 
 # @elastic/elasticsearch
 # - Version 7.7.0 included a change that broke usage with Node.js < 10.
 #   Fixed in 7.7.1: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_7_7_1
-#   Note: When Node.js v8 support is dropped, `versions` can be simplified.
+#   Note: When this repo drops Node.js v8 support, `versions` can be simplified.
+# - Version 7.12.0 dropped support for node v8.
+'@elastic/elasticsearch-v7.0-v7.11':
+  name: '@elastic/elasticsearch'
+  versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
+  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 '@elastic/elasticsearch':
-  versions: '>=7.0.0 <7.7.0 || >7.7.0 <8.0.0'
-  commands: node test/instrumentation/modules/@elastic/elasticsearch.js
+  name: '@elastic/elasticsearch'
+  versions: '>=7.12.0 <8.0.0'
+  node: '>=10.0.0'
+  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
 handlebars:
   versions: '*'
-  commands: node test/instrumentation/modules/handlebars.js
+  commands: node test/instrumentation/modules/handlebars.test.js
 jade:
   versions: '>0.5.5'
-  commands: node test/instrumentation/modules/jade.js
+  commands: node test/instrumentation/modules/jade.test.js
 pug:
   versions: '0.1.0 || >2.0.0'
-  commands: node test/instrumentation/modules/pug.js
+  commands: node test/instrumentation/modules/pug.test.js
 
 # hapi and @hapi/hapi
 # - Package name: Starting with v17.9.0 and v18.2.0 the name changed from
@@ -277,79 +324,105 @@ hapi-v9-v15:
   versions: '>=9.0.1 <16.0.0'
   node: '>=4 <14'
   commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.js
-    - node test/instrumentation/modules/hapi/set-framework.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
 hapi-v16:
   name: hapi
   versions: '>=16.0.0 <17.0.0'
   node: '>=4'
   commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.js
-    - node test/instrumentation/modules/hapi/set-framework.js
-hapi:
+    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
+hapi-prenodev15:
   name: hapi
   versions: '>=17.0.0'
-  node: '>=8.12.0'
+  node: '>=8.12.0 <15.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.js
-    - node test/instrumentation/modules/hapi/set-framework.js
+    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
+hapi:
+  name: hapi
+  # Work around https://github.com/npm/cli/issues/2267 in npm@7.
+  # Note: An alternative might be to just not test the "hapi" package with
+  # node >= 15, given that "hapi" was deprecated before node v16.
+  preinstall: rm -rf node_modules/hapi
+  node: '>=15.0.0'
+  versions: '>=17.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
 '@hapi/hapi-v17-v18':
   name: '@hapi/hapi'
   versions: '>=17.0.0 <19.0.0'
   node: '>=8.12.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.js
-    - node test/instrumentation/modules/hapi/set-framework-2.js
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
 '@hapi/hapi':
   name: '@hapi/hapi'
   versions: '>=19.0.0'
   node: '>=12'
   commands:
-    - node test/instrumentation/modules/hapi/basic.js
-    - node test/instrumentation/modules/hapi/set-framework-2.js
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
 
 tedious:
   name: tedious
   # - tedious@4.0.0 was broken, fixed in 4.0.1 by
   #   https://github.com/tediousjs/tedious/commit/4eceb48
   versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x'
-  commands: node test/instrumentation/modules/tedious.js
+  commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:
   # 3.1.0 is broken
   versions: '>=3 <3.1.0 || >3.1.0 <5'
-  commands: node test/instrumentation/modules/cassandra-driver/index.js
+  commands: node test/instrumentation/modules/cassandra-driver/index.test.js
 
 restify-old:
   name: restify
   versions: '>=5.2.0 <8.0.0'
   commands:
-    - node test/instrumentation/modules/restify/basic.js
-    - node test/instrumentation/modules/restify/set-framework.js
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
 restify-new:
   name: restify
   node: '>=8.6.0'
   versions: '>=8.0.0'
   commands:
-    - node test/instrumentation/modules/restify/basic.js
-    - node test/instrumentation/modules/restify/set-framework.js
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
 
 fastify:
   versions: '>=0.27.0 <0.29.0 || >0.29.0 <2.4.0 || >2.4.0'
   commands:
-    - node test/instrumentation/modules/fastify/fastify.js
-    - node test/instrumentation/modules/fastify/async-await.js
-    - node test/instrumentation/modules/fastify/set-framework.js
+    - node test/instrumentation/modules/fastify/fastify.test.js
+    - node test/instrumentation/modules/fastify/async-await.test.js
+    - node test/instrumentation/modules/fastify/set-framework.test.js
 
 finalhandler:
   versions: '*'
-  commands: node test/instrumentation/modules/finalhandler.js
+  commands: node test/instrumentation/modules/finalhandler.test.js
 
 memcached:
   versions: '>=2.2.0'
-  commands: node test/instrumentation/modules/memcached.js
+  commands: node test/instrumentation/modules/memcached.test.js
 
 body-parser:
   versions: '>=1.19.0'
   commands:
-    - node test/sanitize-field-names/express.js
+    - node test/sanitize-field-names/express.test.js
+
+aws-sdk:
+  # We want this version range:
+  #   versions: '>=2.858 <3'
+  # However, awk-sdk releases *very* frequently (almost every day) and there
+  # is no need to test *all* those releases. Instead we statically list every
+  # N=5 releases to test.
+  #
+  # Maintenance note: This should be updated periodically, keeping 2.858
+  # as the earliest version but updating the others.
+  versions: '2.858.0 || 2.881.0 || 2.886.0 || 2.891.0 || 2.896.0 || 2.901.0 || 2.906.0 || 2.911.0 || 2.916.0 || 2.921.0 || 2.926.0 || 2.931.0 || 2.936.0 || >2.936 <3'
+  commands:
+    - node test/instrumentation/modules/aws-sdk/s3.test.js
+    - node test/instrumentation/modules/aws-sdk/sqs.test.js
+    - node test/instrumentation/modules/aws-sdk/dynamodb.test.js

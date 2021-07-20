@@ -22,10 +22,11 @@ services:
       PGHOST: 'postgres'
       PGUSER: 'postgres'
       MEMCACHED_HOST: 'memcached'
+      LOCALSTACK_HOST: 'localstack'
       NODE_VERSION: ${NODE_VERSION}
       NVM_NODEJS_ORG_MIRROR: ${NVM_NODEJS_ORG_MIRROR}
       ELASTIC_APM_ASYNC_HOOKS: ${ELASTIC_APM_ASYNC_HOOKS}
-      TAV: ${TAV_VERSIONS}
+      TAV: ${TAV_MODULE}
       HOME: /tmp
     volumes:
       - ${PWD}:/app

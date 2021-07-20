@@ -7,7 +7,7 @@ from writing tutorials or blog posts,
 improving the documentation,
 submitting bug reports and feature requests or writing code.
 
-You can get in touch with us through [Discuss](https://discuss.elastic.co/c/apm),
+You can get in touch with us through [Discuss](https://discuss.elastic.co/tags/c/apm/nodejs),
 feedback and ideas are always welcome.
 
 ## Code contributions
@@ -85,7 +85,7 @@ Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary).
 [Optional footers, e.g. "Fixes: #123" or "Co-authored-by: ...".]
 ```
 
-1. The first line should contain **a short description* of the change.**
+1. The first line should contain **a short description of the change.**
    Ideally a description is less than 50 characters, and certainly less than 72.
 
 2. The first line may optionally be prefixed with a *type*:
@@ -165,11 +165,12 @@ The following is an overview of what's required in order to add support to the a
    pick the TAV group that is currently running the fastest.
    Look at the "Dependencies" stage of one of our latest [Travis cron job builds](https://travis-ci.org/elastic/apm-agent-nodejs/builds) for an overview
 
-### Releasing
+
+## Releasing
 
 If you have access to make releases, the process is as follows:
 
-#### Current major
+### Current major
 
 1. Be sure you have checked out the `master` branch and have pulled latest changes
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
@@ -181,15 +182,13 @@ If you have access to make releases, the process is as follows:
         ```
     - Add missing changelog entries, if any. (Typically commits will include changelog entries in the "Unreleased" section.)
 1. If a major or minor release, update the EOL table in `docs/upgrading.asciidoc`. EOL is 18 months after release date.
-1. Commit changes with message `x.y.z` where `x.y.z` is the version in `package.json`
-1. Tag the commit with `git tag vx.y.x`, for example `git tag v1.2.3`
-1. Reset the latest major branch (currently `3.x`) to point to the current master, e.g. `git branch -f 3.x master`
-1. Run tests with `npm test`
-1. Push commits and tags upstream with `git push upstream master && git push upstream --tags` (and optionally to your own fork as well)
-1. Update the latest major branch on upstream with `git push upstream <major_branch>`
+1. Make a PR titled `x.y.z` -- where `x.y.z` is the new version in package.json -- with these changes.
+1. Ensure PR checks pass, then merge to master.
+1. Working on the elastic repo now (not a fork), tag the merged-to-master commit with `git tag vx.y.x && git push origin --tags`. For example: `git tag v1.2.3 && git push origin --tags`.
+1. Reset the latest major branch (currently `3.x`) to point to the current master, e.g. `git branch -f 3.x master && git push origin 3.x`
 1. Publish to npm with `npm publish`
 
-#### Past major
+### Past major
 
 1. Be sure you have checked out the branch associated with the major you wish to release and have pulled latest changes, e.g. `2.x`
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)

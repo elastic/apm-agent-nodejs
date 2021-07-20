@@ -3,6 +3,7 @@ TAV:
   - '@hapi/hapi'
   - '@koa/router'
   - apollo-server-express
+  - aws-sdk
   - bluebird
   - cassandra-driver
   - elasticsearch

@@ -87,8 +87,11 @@ agent.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
 agent.setLabel('foo', 'bar')
 agent.setLabel('foo', 1)
 agent.setLabel('foo', false)
+agent.setLabel('foo', 1, false)
+agent.setLabel('foo', false, false)
 
 agent.addLabels({ s: 'bar', n: 42, b: false })
+agent.addLabels({ s: 'bar', n: 42, b: false }, false)
 
 agent.setUserContext({
   id: 'foo',
@@ -118,6 +121,9 @@ agent.addTransactionFilter(filter3)
 agent.addSpanFilter(filter1)
 agent.addSpanFilter(filter2)
 agent.addSpanFilter(filter3)
+agent.addMetadataFilter(filter1)
+agent.addMetadataFilter(filter2)
+agent.addMetadataFilter(filter3)
 
 agent.flush()
 agent.flush(() => {})

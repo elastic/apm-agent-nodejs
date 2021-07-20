@@ -10,6 +10,7 @@ declare class Agent implements Taggable, StartSpanFn {
   // Configuration
   start (options?: AgentConfigOptions): Agent;
   isStarted (): boolean;
+  getServiceName (): string | undefined;
   setFramework (options: {
     name?: string;
     version?: string;
@@ -99,8 +100,8 @@ declare class Agent implements Taggable, StartSpanFn {
   currentSpan: Span | null;
 
   // Context
-  setLabel (name: string, value: LabelValue): boolean;
-  addLabels (labels: Labels): boolean;
+  setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
+  addLabels (labels: Labels, stringify?: boolean): boolean;
   setUserContext (user: UserObject): void;
   setCustomContext (custom: object): void;
 
@@ -109,6 +110,7 @@ declare class Agent implements Taggable, StartSpanFn {
   addErrorFilter (fn: FilterFn): void;
   addSpanFilter (fn: FilterFn): void;
   addTransactionFilter (fn: FilterFn): void;
+  addMetadataFilter (fn: FilterFn): void;
   flush (callback?: Function): void;
   destroy (): void;
 
@@ -118,6 +120,9 @@ declare class Agent implements Taggable, StartSpanFn {
   // Custom metrics
   registerMetric(name: string, callback: Function): void;
   registerMetric(name: string, labels: Labels, callback: Function): void;
+
+  setTransactionOutcome(outcome: Outcome): void;
+  setSpanOutcome(outcome: Outcome): void;
 }
 
 type Outcome = 'unknown' | 'success' | 'failure'
@@ -133,8 +138,8 @@ declare class GenericSpan implements Taggable {
   outcome: Outcome;
 
   setType (type?: string | null, subtype?: string | null, action?: string | null): void;
-  setLabel (name: string, value: LabelValue): boolean;
-  addLabels (labels: Labels): boolean;
+  setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
+  addLabels (labels: Labels, stringify?: boolean): boolean;
 }
 
 declare class Transaction extends GenericSpan implements StartSpanFn {
@@ -168,6 +173,8 @@ declare class Transaction extends GenericSpan implements StartSpanFn {
   ): Span | null;
   ensureParentId (): string;
   end (result?: string | number | null, endTime?: number): void;
+
+  setOutcome(outcome: Outcome): void;
 }
 
 declare class Span extends GenericSpan {
@@ -178,6 +185,8 @@ declare class Span extends GenericSpan {
   name: string;
 
   end (endTime?: number): void;
+
+  setOutcome(outcome: Outcome): void;
 }
 
 interface AgentConfigOptions {
@@ -188,13 +197,17 @@ interface AgentConfigOptions {
   apiRequestSize?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   apiRequestTime?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   asyncHooks?: boolean;
+  breakdownMetrics?: boolean;
   captureBody?: CaptureBody;
   captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
   captureExceptions?: boolean;
   captureHeaders?: boolean;
   captureSpanStackTraces?: boolean;
+  cloudProvider?: string;
+  configFile?: string;
   containerId?: string;
   disableInstrumentations?: string | string[];
+  disableSend?: boolean;
   environment?: string;
   errorMessageMaxLength?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   errorOnAbortedRequests?: boolean;
@@ -203,6 +216,7 @@ interface AgentConfigOptions {
   frameworkVersion?: string;
   globalLabels?: KeyValueConfig;
   hostname?: string;
+  ignoreMessageQueues?: Array<string>;
   ignoreUrls?: Array<string | RegExp>;
   ignoreUserAgents?: Array<string | RegExp>;
   instrument?: boolean;
@@ -214,7 +228,9 @@ interface AgentConfigOptions {
   logLevel?: LogLevel;
   logUncaughtExceptions?: boolean;
   logger?: Logger;
+  maxQueueSize?: number;
   metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
+  metricsLimit?: number;
   payloadLogFile?: string;
   centralConfig?: boolean;
   sanitizeFieldNames?: Array<string>;
@@ -223,15 +239,18 @@ interface AgentConfigOptions {
   serverTimeout?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
   serverUrl?: string;
   serviceName?: string;
+  serviceNodeName?: string;
   serviceVersion?: string;
   sourceLinesErrorAppFrames?: number;
   sourceLinesErrorLibraryFrames?: number;
   sourceLinesSpanAppFrames?: number;
   sourceLinesSpanLibraryFrames?: number;
+  spanFramesMinDuration?: string;
   stackTraceLimit?: number;
   transactionIgnoreUrls?: Array<string>;
   transactionMaxSpans?: number;
   transactionSampleRate?: number;
+  useElasticTraceparentHeader?: boolean;
   usePathAsTransactionName?: boolean;
   verifyServerCert?: boolean;
 }
@@ -247,6 +266,7 @@ interface CaptureErrorOptions {
   custom?: object;
   message?: string;
   captureAttributes?: boolean;
+  skipOutcome?: boolean;
 }
 
 interface Labels {
@@ -308,8 +328,8 @@ interface PatchOptions {
 }
 
 interface Taggable {
-  setLabel (name: string, value: LabelValue): boolean;
-  addLabels (labels: Labels): boolean;
+  setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
+  addLabels (labels: Labels, stringify?: boolean): boolean;
 }
 
 interface StartSpanFn {

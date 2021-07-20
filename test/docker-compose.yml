@@ -4,7 +4,7 @@ services:
   postgres:
     user: postgres
     image: postgres:9.6
-    ports: 
+    ports:
       - "5432:5432"
     volumes:
       - nodepgdata:/var/lib/postgresql/data
@@ -20,7 +20,7 @@ services:
 
   mongodb:
     image: mongo
-    ports: 
+    ports:
       - "27017:27017"
     volumes:
       - nodemongodata:/data/db
@@ -31,7 +31,7 @@ services:
       retries: 30
 
   mssql:
-    image: microsoft/mssql-server-linux
+    image: mcr.microsoft.com/mssql/server
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=Very(!)Secure
@@ -50,7 +50,7 @@ services:
     image: mysql:5.7
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
-    ports: 
+    ports:
       - "3306:3306"
     volumes:
       - nodemysqldata:/var/lib/mysql
@@ -114,6 +114,22 @@ services:
       timeout: 10s
       retries: 5
 
+  localstack:
+    # https://hub.docker.com/r/localstack/localstack/tags
+    image: localstack/localstack:0.12.12
+    environment:
+      - "LOCALSTACK_SERVICES=s3"
+      - "DATA_DIR=/var/lib/localstack"
+    ports:
+      - "4566:4566"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - nodelocalstackdata:/var/lib/localstack
+
 volumes:
   nodepgdata:
     driver: local
@@ -126,4 +142,6 @@ volumes:
   nodeesdata:
     driver: local
   nodecassandradata:
+    driver: local
+  nodelocalstackdata:
     driver: local

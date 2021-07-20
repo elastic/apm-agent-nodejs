@@ -1,0 +1,219 @@
+[
+  {
+    "span": {
+      "exit": "true",
+      "type": "custom",
+      "subtype": "test-subtype"
+    },
+    "expected_resource": "test-subtype",
+    "failure_message": "In the absence of specific context fields, subtype should used"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "custom",
+      "subtype": "test-subtype",
+      "context": {
+        "destination": {
+          "service": {
+            "resource": "already-set-resource"
+          }
+        }
+      }
+    },
+    "expected_resource": "already-set-resource",
+    "failure_message": "If the `service.resource` is already set, the inference mechanism should not override it"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "custom"
+    },
+    "expected_resource": "custom",
+    "failure_message": "In the absence of specific context fields and absence of subtype, the type should be used"
+  },
+  {
+    "span": {
+      "exit": "false",
+      "type": "custom",
+      "subtype": "test-subtype"
+    },
+    "expected_resource": null,
+    "failure_message": "The output for non-exit spans should be `null`"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "db",
+      "subtype": "mysql",
+      "context": {
+        "db": {
+          "instance": "myInstance"
+        }
+      }
+    },
+    "expected_resource": "mysql/myInstance",
+    "failure_message": "If `context.db.instance` exists, the output should be: `${subtype}/${context.db.instance}`"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "db",
+      "subtype": "mysql",
+      "context": {
+        "db": {
+          "type": "sql"
+        }
+      }
+    },
+    "expected_resource": "mysql",
+    "failure_message": "If `context.db` exists without `context.db.instance`, the subtype should be used"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "db",
+      "context": {
+        "db": {
+          "instance": "myInstance"
+        }
+      }
+    },
+    "expected_resource": "db/myInstance",
+    "failure_message": "If `context.db.instance` exists and subtype is `null`, the output should be: `${type}/${context.db.instance}`"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "db",
+      "subtype": "elasticsearch",
+      "context": {
+        "db": {
+          "type": "elasticsearch"
+        },
+        "http": {
+          "url": {
+            "host": "my-cluster.com",
+            "port": 9200
+          }
+        }
+      }
+    },
+    "expected_resource": "elasticsearch",
+    "failure_message": "If `context.db` exists without `context.db.instance`, the subtype should be used, even if `context.http` exists"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "messaging",
+      "subtype": "msg-http-client",
+      "context": {
+        "message": {
+          "body": "Text message"
+        },
+        "http": {
+          "url": {
+            "host": "my-broker.com",
+            "port": 8888
+          }
+        }
+      }
+    },
+    "expected_resource": "msg-http-client",
+    "failure_message": "If `context.message` exists without `context.message.queue.name`, the subtype should be used, even if `context.http` exists"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "http",
+      "context": {
+        "http": {
+          "url": {
+            "host": "my-cluster.com",
+            "port": 9200
+          }
+        }
+      }
+    },
+    "expected_resource": "my-cluster.com:9200",
+    "failure_message": "If `context.http.url` exists, output should be `${context.http.url.host}:${context.http.url.port}"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "http",
+      "context": {
+        "http": {
+          "url": {
+            "host": "my-cluster.com",
+            "port": -1
+          }
+        }
+      }
+    },
+    "expected_resource": "my-cluster.com",
+    "failure_message": "Negative `context.http.url.port` should be omitted from output"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "http",
+      "context": {
+        "http": {
+          "url": {
+            "host": "my-cluster.com"
+          }
+        }
+      }
+    },
+    "expected_resource": "my-cluster.com",
+    "failure_message": "If `context.http.url.port` does not exist, output should be `${context.http.url.host}`"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "messaging",
+      "context": {
+        "message": {
+          "body": "Text message",
+          "queue": {
+            "name": "myQueue"
+          }
+        }
+      }
+    },
+    "expected_resource": "messaging/myQueue",
+    "failure_message": "If `context.message` exists, and subtype is `null`, output should be `${type}:${context.message.queue.name}"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "messaging",
+      "subtype": "kafka",
+      "context": {
+        "message": {
+          "body": "Text message",
+          "queue": {
+            "name": "myQueue"
+          }
+        }
+      }
+    },
+    "expected_resource": "kafka/myQueue",
+    "failure_message": "If `context.message` exists, output should be `${subtype}:${context.message.queue.name}"
+  },
+  {
+    "span": {
+      "exit": "true",
+      "type": "messaging",
+      "subtype": "kafka",
+      "context": {
+        "message": {
+          "body": "Text message"
+        }
+      }
+    },
+    "expected_resource": "kafka",
+    "failure_message": "If `context.message` exists without `context.message.queue.name`, output should be `${subtype}`"
+  }
+]
