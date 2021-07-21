@@ -154,62 +154,62 @@ test('reports expected metrics', function (t) {
   })
 })
 
-// test('applies metrics limit', function (t) {
-//   agent = mockAgent({
-//     metricsInterval: 10,
-//     metricsLimit: 2,
-//     hostname: 'foo',
-//     environment: 'bar'
-//   }, (metricset = {}) => {
-//     t.strictEqual(Object.keys(metricset.samples).length, 2, 'has expected number of metrics')
-//     t.end()
-//   })
+test('applies metrics limit', function (t) {
+  agent = mockAgent({
+    metricsInterval: 10,
+    metricsLimit: 2,
+    hostname: 'foo',
+    environment: 'bar'
+  }, (metricset = {}) => {
+    t.strictEqual(Object.keys(metricset.samples).length, 2, 'has expected number of metrics')
+    t.end()
+  })
 
-//   metrics = new Metrics(agent)
-//   metrics.start()
+  metrics = new Metrics(agent)
+  metrics.start()
 
-//   // Ensure there are at least two counters
-//   metrics.getOrCreateCounter('first').inc()
-//   metrics.getOrCreateCounter('second').inc()
-//   metrics.getOrCreateCounter('third').inc()
-// })
+  // Ensure there are at least two counters
+  metrics.getOrCreateCounter('first').inc()
+  metrics.getOrCreateCounter('second').inc()
+  metrics.getOrCreateCounter('third').inc()
+})
 
-// test('increments counter when active', function (t) {
-//   agent = mockAgent({
-//     metricsInterval: delayMs / 1000,
-//     hostname: 'foo',
-//     environment: 'bar'
-//   }, () => {})
+test('increments counter when active', function (t) {
+  agent = mockAgent({
+    metricsInterval: delayMs / 1000,
+    hostname: 'foo',
+    environment: 'bar'
+  }, () => {})
 
-//   metrics = new Metrics(agent)
-//   metrics.start()
+  metrics = new Metrics(agent)
+  metrics.start()
 
-//   t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 0, 'should start at zero')
+  t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 0, 'should start at zero')
 
-//   metrics.incrementCounter('test-counter')
-//   t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 1, 'should have incremented by 1 by default')
+  metrics.incrementCounter('test-counter')
+  t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 1, 'should have incremented by 1 by default')
 
-//   metrics.incrementCounter('test-counter', null, 2)
-//   t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 3, 'should have incremented by an amount')
+  metrics.incrementCounter('test-counter', null, 2)
+  t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 3, 'should have incremented by an amount')
 
-//   metrics.incrementCounter('test-counter', null)
-//   t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 4, 'should have incremented')
+  metrics.incrementCounter('test-counter', null)
+  t.strictEqual(metrics.getOrCreateCounter('test-counter').toJSON(), 4, 'should have incremented')
 
-//   t.end()
-// })
+  t.end()
+})
 
-// test('noop counter when not active', function (t) {
-//   agent = mockAgent({
-//     metricsInterval: delayMs / 1000,
-//     hostname: 'foo',
-//     environment: 'bar'
-//   }, () => {})
+test('noop counter when not active', function (t) {
+  agent = mockAgent({
+    metricsInterval: delayMs / 1000,
+    hostname: 'foo',
+    environment: 'bar'
+  }, () => {})
 
-//   metrics = new Metrics(agent)
+  metrics = new Metrics(agent)
 
-//   t.doesNotThrow(() => metrics.incrementCounter('test-counter'))
-//   t.end()
-// })
+  t.doesNotThrow(() => metrics.incrementCounter('test-counter'))
+  t.end()
+})
 
 function spinCPUFor (durationMs) {
   const start = Date.now()
