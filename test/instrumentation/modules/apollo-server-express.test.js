@@ -40,27 +40,29 @@ test('POST /graphql', function (t) {
 
   var app = express()
   var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
-  apollo.applyMiddleware({ app })
-  var server = app.listen(function () {
-    var port = server.address().port
-    var opts = {
-      method: 'POST',
-      port: port,
-      path: '/graphql',
-      headers: { 'Content-Type': 'application/json' }
-    }
-    var req = http.request(opts, function (res) {
-      var chunks = []
-      res.on('data', chunks.push.bind(chunks))
-      res.on('end', function () {
-        server.close()
-        var result = Buffer.concat(chunks).toString()
-        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
-          'client got the expected response body')
-        agent.flush()
+  apollo.start().then(function(){
+    apollo.applyMiddleware({ app })
+    var server = app.listen(function () {
+      var port = server.address().port
+      var opts = {
+        method: 'POST',
+        port: port,
+        path: '/graphql',
+        headers: { 'Content-Type': 'application/json' }
+      }
+      var req = http.request(opts, function (res) {
+        var chunks = []
+        res.on('data', chunks.push.bind(chunks))
+        res.on('end', function () {
+          server.close()
+          var result = Buffer.concat(chunks).toString()
+          t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
+            'client got the expected response body')
+          agent.flush()
+        })
       })
+      req.end(query)
     })
-    req.end(query)
   })
 })
 
@@ -84,26 +86,28 @@ test('GET /graphql', function (t) {
 
   var app = express()
   var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
-  apollo.applyMiddleware({ app })
-  var server = app.listen(function () {
-    var port = server.address().port
-    var opts = {
-      method: 'GET',
-      port: port,
-      path: '/graphql?' + query
-    }
-    var req = http.request(opts, function (res) {
-      var chunks = []
-      res.on('data', chunks.push.bind(chunks))
-      res.on('end', function () {
-        server.close()
-        var result = Buffer.concat(chunks).toString()
-        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
-          'client got the expected response body')
-        agent.flush()
+  apollo.start().then(function(){
+    apollo.applyMiddleware({ app })
+    var server = app.listen(function () {
+      var port = server.address().port
+      var opts = {
+        method: 'GET',
+        port: port,
+        path: '/graphql?' + query
+      }
+      var req = http.request(opts, function (res) {
+        var chunks = []
+        res.on('data', chunks.push.bind(chunks))
+        res.on('end', function () {
+          server.close()
+          var result = Buffer.concat(chunks).toString()
+          t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
+            'client got the expected response body')
+          agent.flush()
+        })
       })
+      req.end()
     })
-    req.end()
   })
 })
 
@@ -127,26 +131,28 @@ test('POST /graphql - named query', function (t) {
 
   var app = express()
   var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
-  apollo.applyMiddleware({ app })
-  var server = app.listen(function () {
-    var port = server.address().port
-    var opts = {
-      method: 'POST',
-      port: port,
-      path: '/graphql',
-      headers: { 'Content-Type': 'application/json' }
-    }
-    var req = http.request(opts, function (res) {
-      var chunks = []
-      res.on('data', chunks.push.bind(chunks))
-      res.on('end', function () {
-        server.close()
-        var result = Buffer.concat(chunks).toString()
-        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n')
-        agent.flush()
+  apollo.start().then(function(){
+    apollo.applyMiddleware({ app })
+    var server = app.listen(function () {
+      var port = server.address().port
+      var opts = {
+        method: 'POST',
+        port: port,
+        path: '/graphql',
+        headers: { 'Content-Type': 'application/json' }
+      }
+      var req = http.request(opts, function (res) {
+        var chunks = []
+        res.on('data', chunks.push.bind(chunks))
+        res.on('end', function () {
+          server.close()
+          var result = Buffer.concat(chunks).toString()
+          t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n')
+          agent.flush()
+        })
       })
+      req.end(query)
     })
-    req.end(query)
   })
 })
 
@@ -175,26 +181,28 @@ test('POST /graphql - sort multiple queries', function (t) {
 
   var app = express()
   var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
-  apollo.applyMiddleware({ app })
-  var server = app.listen(function () {
-    var port = server.address().port
-    var opts = {
-      method: 'POST',
-      port: port,
-      path: '/graphql',
-      headers: { 'Content-Type': 'application/json' }
-    }
-    var req = http.request(opts, function (res) {
-      var chunks = []
-      res.on('data', chunks.push.bind(chunks))
-      res.on('end', function () {
-        server.close()
-        var result = Buffer.concat(chunks).toString()
-        t.strictEqual(result, '{"data":{"life":42,"hello":"Hello world!"}}\n')
-        agent.flush()
+  apollo.start().then(function(){
+    apollo.applyMiddleware({ app })
+    var server = app.listen(function () {
+      var port = server.address().port
+      var opts = {
+        method: 'POST',
+        port: port,
+        path: '/graphql',
+        headers: { 'Content-Type': 'application/json' }
+      }
+      var req = http.request(opts, function (res) {
+        var chunks = []
+        res.on('data', chunks.push.bind(chunks))
+        res.on('end', function () {
+          server.close()
+          var result = Buffer.concat(chunks).toString()
+          t.strictEqual(result, '{"data":{"life":42,"hello":"Hello world!"}}\n')
+          agent.flush()
+        })
       })
+      req.end(query)
     })
-    req.end(query)
   })
 })
 
@@ -238,26 +246,28 @@ test('POST /graphql - sub-query', function (t) {
 
   var app = express()
   var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
-  apollo.applyMiddleware({ app })
-  var server = app.listen(function () {
-    var port = server.address().port
-    var opts = {
-      method: 'POST',
-      port: port,
-      path: '/graphql',
-      headers: { 'Content-Type': 'application/json' }
-    }
-    var req = http.request(opts, function (res) {
-      var chunks = []
-      res.on('data', chunks.push.bind(chunks))
-      res.on('end', function () {
-        server.close()
-        var result = Buffer.concat(chunks).toString()
-        t.strictEqual(result, JSON.stringify({ data: { books } }) + '\n')
-        agent.flush()
+  apollo.start().then(function(){
+    apollo.applyMiddleware({ app })
+    var server = app.listen(function () {
+      var port = server.address().port
+      var opts = {
+        method: 'POST',
+        port: port,
+        path: '/graphql',
+        headers: { 'Content-Type': 'application/json' }
+      }
+      var req = http.request(opts, function (res) {
+        var chunks = []
+        res.on('data', chunks.push.bind(chunks))
+        res.on('end', function () {
+          server.close()
+          var result = Buffer.concat(chunks).toString()
+          t.strictEqual(result, JSON.stringify({ data: { books } }) + '\n')
+          agent.flush()
+        })
       })
+      req.end(query)
     })
-    req.end(query)
   })
 })
 
