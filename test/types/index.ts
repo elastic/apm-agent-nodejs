@@ -1,12 +1,18 @@
-import agent from '../../'
+// Test the Agent's .d.ts type files by exercising the API in TypeScript:
+// tsc will error out of there is a type conflict.
 
-agent.start({
+import agent, { AgentConfigOptions, Transaction, Span, TransactionOptions, SpanOptions } from '../../'
+
+const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
   metricsInterval: '0',
   centralConfig: false
-})
+}
+agent.start(agentOpts)
 
-function started (bool: boolean) {}
+function started (aBool: boolean) {
+  console.log(`aBool is: ${aBool}`)
+}
 started(agent.isStarted())
 
 const trans = agent.currentTransaction
