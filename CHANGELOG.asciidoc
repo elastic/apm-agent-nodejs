@@ -39,8 +39,8 @@ Notes:
 [float]
 ===== Bug fixes
 
-* The agent will no longer report couting metrics with a value of zero, and will
-  remove these metrics from the registry.
+* The agent will no longer report counting metrics with a value of zero, and will
+  remove these metrics from the registry. ({pull}2163[#2163])
 
 [[release-notes-3.18.0]]
 ==== 3.18.0 2021/07/20
