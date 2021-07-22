@@ -6,7 +6,7 @@ const agent = require('../../../..').start({
   centralConfig: 'none',
   logLevel: 'off',
   cloudProvider: 'none',
-  ignoreMessageQueues:[
+  ignoreMessageQueues: [
     'arn:aws:sns:us-west-2:111111111111:ignore-name'
   ]
 })
@@ -168,8 +168,8 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
             region: 'us-west-2'
           },
           endpoint: {
-            hostname:'example.com',
-            port:1234
+            hostname: 'example.com',
+            port: 1234
           }
         }
       }),
@@ -179,7 +179,7 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
           type: 'messaging',
           name: 'sns',
           address: 'example.com',
-          port:1234
+          port: 1234
         },
         cloud: { region: 'us-west-2' }
       }
