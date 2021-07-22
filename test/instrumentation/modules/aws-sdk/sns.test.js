@@ -5,7 +5,10 @@ const agent = require('../../../..').start({
   metricsInterval: 0,
   centralConfig: 'none',
   logLevel: 'off',
-  cloudProvider: 'none'
+  cloudProvider: 'none',
+  ignoreMessageQueues:[
+    'arn:aws:sns:us-west-2:111111111111:ignore-name'
+  ]
 })
 
 const tape = require('tape')
@@ -167,9 +170,11 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         }
       }),
       {
-        resource: 'sns/topic-name',
-        type: 'messaging',
-        name: 'sns',
+        service: {
+          resource: 'sns/topic-name',
+          type: 'messaging',
+          name: 'sns',
+        },
         cloud: { region: 'us-west-2' }
       }
     )
@@ -177,9 +182,11 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
     t.deepEquals(
       getMessageDestinationContextFromRequest(null),
       {
-        resource: 'sns/undefined',
-        type: 'messaging',
-        name: 'sns',
+        service: {
+          resource: 'sns/undefined',
+          type: 'messaging',
+          name: 'sns',
+        },
         cloud: { region: null }
       }
     )
@@ -187,9 +194,11 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
     t.deepEquals(
       getMessageDestinationContextFromRequest({}),
       {
-        resource: 'sns/undefined',
-        type: 'messaging',
-        name: 'sns',
+        service: {
+          resource: 'sns/undefined',
+          type: 'messaging',
+          name: 'sns',
+        },
         cloud: { region: undefined }
       }
     )
@@ -215,10 +224,10 @@ tape.test('AWS SNS: End to End Test', function (test) {
         t.equals(span.name, 'SNS PUBLISH topic-name', 'span named correctly')
         t.equals(span.type, 'messaging', 'span type correctly set')
         t.equals(span.subtype, 'sns', 'span subtype set correctly')
-        t.equals(span.context.message.queue_name, 'topic-name')
-        t.equals(span.context.destination.resource, 'sns/topic-name')
-        t.equals(span.context.destination.type, 'messaging')
-        t.equals(span.context.destination.name, 'sns')
+        t.equals(span.context.message.queue.name, 'topic-name')
+        t.equals(span.context.destination.service.resource, 'sns/topic-name')
+        t.equals(span.context.destination.service.type, 'messaging')
+        t.equals(span.context.destination.service.name, 'sns')
         t.equals(span.context.destination.cloud.region, 'us-west-2')
         t.end()
       })
@@ -327,6 +336,41 @@ tape.test('AWS SNS: End to End Test', function (test) {
       agent.startTransaction('myTransaction')
       const publishTextPromise = new AWS.SNS({ apiVersion: '2010-03-31' })
         .listTopics().promise()
+
+      // Handle promise's fulfilled/rejected states
+      publishTextPromise.then(function (data) {
+        agent.endTransaction()
+        listener.close()
+      }).catch(function (err) {
+        t.error(err)
+        agent.endTransaction()
+        listener.close()
+      })
+    })
+  })
+
+  test.test('API: publish', function (t) {
+    const params = {
+      Message: 'this is my test, there are many like it but this one is mine', /* required */
+      TopicArn: 'arn:aws:sns:us-west-2:111111111111:ignore-name'
+    }
+
+    const app = createMockServer(
+      fixtures.publish
+    )
+    const listener = app.listen(0, function () {
+      resetAgent(function (data) {
+        const span = data.spans.filter((span) => span.type === 'messaging').pop()
+        t.ok(!span, 'ignores configured topic name')
+        t.end()
+      })
+      const port = listener.address().port
+      AWS.config.update({
+        endpoint: `http://localhost:${port}`
+      })
+      agent.startTransaction('myTransaction')
+      const publishTextPromise = new AWS.SNS({ apiVersion: '2010-03-31' })
+        .publish(params).promise()
 
       // Handle promise's fulfilled/rejected states
       publishTextPromise.then(function (data) {
