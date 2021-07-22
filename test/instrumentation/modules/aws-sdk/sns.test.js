@@ -166,6 +166,10 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         service: {
           config: {
             region: 'us-west-2'
+          },
+          endpoint: {
+            hostname:'example.com',
+            port:1234
           }
         }
       }),
@@ -174,6 +178,8 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
           resource: 'sns/topic-name',
           type: 'messaging',
           name: 'sns',
+          address: 'example.com',
+          port:1234
         },
         cloud: { region: 'us-west-2' }
       }
@@ -186,6 +192,8 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
           resource: 'sns/undefined',
           type: 'messaging',
           name: 'sns',
+          address: null,
+          port: null
         },
         cloud: { region: null }
       }
@@ -198,6 +206,8 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
           resource: 'sns/undefined',
           type: 'messaging',
           name: 'sns',
+          address: undefined,
+          port: undefined
         },
         cloud: { region: undefined }
       }
@@ -219,6 +229,7 @@ tape.test('AWS SNS: End to End Test', function (test) {
       fixtures.publish
     )
     const listener = app.listen(0, function () {
+      const port = listener.address().port
       resetAgent(function (data) {
         const span = data.spans.filter((span) => span.type === 'messaging').pop()
         t.equals(span.name, 'SNS PUBLISH topic-name', 'span named correctly')
@@ -228,10 +239,12 @@ tape.test('AWS SNS: End to End Test', function (test) {
         t.equals(span.context.destination.service.resource, 'sns/topic-name')
         t.equals(span.context.destination.service.type, 'messaging')
         t.equals(span.context.destination.service.name, 'sns')
+        t.equals(span.context.destination.service.address, 'localhost')
+        t.equals(span.context.destination.service.port, port)
         t.equals(span.context.destination.cloud.region, 'us-west-2')
         t.end()
       })
-      const port = listener.address().port
+
       AWS.config.update({
         endpoint: `http://localhost:${port}`
       })
@@ -349,7 +362,7 @@ tape.test('AWS SNS: End to End Test', function (test) {
     })
   })
 
-  test.test('API: publish', function (t) {
+  test.test('API: ignored queue', function (t) {
     const params = {
       Message: 'this is my test, there are many like it but this one is mine', /* required */
       TopicArn: 'arn:aws:sns:us-west-2:111111111111:ignore-name'
