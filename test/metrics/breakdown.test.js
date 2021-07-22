@@ -44,7 +44,11 @@ const metrics = {
     'transaction.breakdown.count'
   ],
   'transaction span': spanMetrics,
-  span: spanMetrics
+  span: spanMetrics,
+  'transaction not sampling': [
+    'transaction.duration.count',
+    'transaction.duration.sum.us'
+  ]
 }
 
 function nullableEqual (a, b) {
@@ -66,6 +70,9 @@ const finders = {
       if (!nullableEqual(subtype, span.subtype)) return false
       return true
     })
+  },
+  'transaction not sampling' (metricsets) {
+    return metricsets.find(metricset => metricset.transaction && !metricset.span)
   }
 }
 
@@ -91,6 +98,14 @@ const expectations = {
         type: span.type
       }
     })
+  },
+  'transaction not sampling' (transaction) {
+    return {
+      transaction: {
+        name: transaction.name,
+        type: transaction.type
+      }
+    }
   }
 }
 
@@ -144,7 +159,7 @@ test('does not include breakdown when not sampling', t => {
 
     const { metricsets } = data
 
-    assertMetricSet(t, 'transaction', metricsets, {
+    assertMetricSet(t, 'transaction not sampling', metricsets, {
       transaction
     })
 
