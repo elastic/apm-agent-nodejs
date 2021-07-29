@@ -8,10 +8,10 @@ const agent = require('../../..').start({
   centralConfig: false
 })
 
-// require('mongodb') is a hard crash on node 8
+// require('mongodb') is a hard crash on nodes <10.4
 const mongodbVersion = require('../../../node_modules/mongodb/package.json').version
 const semver = require('semver')
-if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '10.0.0')) {
+if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '10.4.0')) {
   console.log(`# SKIP mongodb@${mongodbVersion} does not support node ${process.version}`)
   process.exit()
 }
