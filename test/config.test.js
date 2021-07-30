@@ -716,7 +716,7 @@ test('disableInstrumentations', function (t) {
   var esVersion = require('@elastic/elasticsearch/package.json').version
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
-  const apolloServerCoreVersion = require('../node_modules/apollo-server-core/package.json').version
+  const apolloServerCoreVersion = require('apollo-server-core/package.json').version
 
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
