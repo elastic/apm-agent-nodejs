@@ -122,7 +122,7 @@
     "@koa/router": "^9.0.1",
     "@types/node": "^13.7.4",
     "ajv": "^6.12.6",
-    "apollo-server-express": "^2.10.1",
+    "apollo-server-express": "^3.0.0",
     "aws-sdk": "^2.622.0",
     "backport": "^5.1.2",
     "benchmark": "^2.1.4",
