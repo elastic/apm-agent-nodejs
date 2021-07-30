@@ -511,7 +511,7 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.strictEqual(httpSpan.subtype, 'http')
     t.strictEqual(httpSpan.action, method)
 
-    t.equal(httpSpan.name, method + ' ' + host + path, 'http span should have expected name')
+    t.equal(httpSpan.name, method + ' ' + host, 'http span should have expected name')
     t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')
 
     t.ok(esSpan.stacktrace.some(function (frame) {

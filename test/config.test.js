@@ -729,6 +729,11 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
     modules.delete('@elastic/elasticsearch')
   }
+  // require('mongodb') is a hard crash on nodes < 10.4
+  const mongodbVersion = require('../node_modules/mongodb/package.json').version
+  if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '10.4.0')) {
+    modules.delete('mongodb')
+  }
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)

@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.17.0",
+  "version": "3.18.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -159,7 +159,7 @@
     "memcached": "^2.2.2",
     "mimic-response": "^2.1.0",
     "mkdirp": "^0.5.1",
-    "mongodb": "^3.5.3",
+    "mongodb": "^4.0.0",
     "mongodb-core": "^3.2.7",
     "mysql": "^2.18.1",
     "mysql2": "^2.1.0",
