@@ -14,6 +14,13 @@ var test = require('tape')
 var http = require('http')
 var express = require('express')
 var querystring = require('querystring')
+const semver = require('semver')
+// require('apollo-server-express') is a hard crash for nodes < 12.0.0
+const apolloServerExpressVersion = require('../../../node_modules/apollo-server-express/package.json').version
+if (semver.gte(apolloServerExpressVersion, '3.0.0') && semver.lt(process.version, '12.0.0')) {
+  console.log(`# SKIP apollo-server-express@${apolloServerExpressVersion} does not support node ${process.version}`)
+  process.exit()
+}
 
 var ApolloServer = require('apollo-server-express').ApolloServer
 var gql = require('apollo-server-express').gql
