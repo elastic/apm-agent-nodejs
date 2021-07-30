@@ -35,6 +35,7 @@ Notes:
 
 [float]
 ===== Features
+* The agent now supports the 3.x branch of apollo-server-express. ({pull}2155[#2155])
 
 [float]
 ===== Bug fixes

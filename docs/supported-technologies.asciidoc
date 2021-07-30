@@ -60,7 +60,7 @@ These modules override that behavior to give better insights into specialized HT
 |=======================================================================
 |Module |Version |Note
 |https://www.npmjs.com/package/express-graphql[express-graphql] |>=0.6.1 <0.10.0 |Will name all transactions by the GraphQL query name
-|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |^2.0.4 <3|Will name all transactions by the GraphQL query name
+|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |^2.0.4 <4|Will name all transactions by the GraphQL query name
 |=======================================================================
 
 [float]
@@ -86,7 +86,7 @@ The Node.js agent will automatically instrument the following modules to give yo
 A lot of higher level MongoDB modules use mongodb-core,
 so those should be supported as well.
 |https://www.npmjs.com/package/mongodb[mongodb] |>=2.0.0 <3.3.0 |Supported via mongodb-core
-|https://www.npmjs.com/package/mongodb[mongodb] |^3.3.0 <5 |Will instrument all queries
+|https://www.npmjs.com/package/mongodb[mongodb] |^3.3.0 |Will instrument all queries
 |https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 <2.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 <5.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all queries
