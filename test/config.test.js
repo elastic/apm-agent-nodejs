@@ -715,6 +715,9 @@ test('disableInstrumentations', function (t) {
   var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = require('@elastic/elasticsearch/package.json').version
 
+  // require('apollo-server-core') is a hard crash on nodes < 12.0.0
+  const apolloServerCoreVersion = require('apollo-server-core/package.json').version
+
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
   if (isHapiIncompat('hapi')) {
@@ -733,6 +736,10 @@ test('disableInstrumentations', function (t) {
   const mongodbVersion = require('../node_modules/mongodb/package.json').version
   if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '10.4.0')) {
     modules.delete('mongodb')
+  }
+
+  if (semver.gte(apolloServerCoreVersion, '3.0.0') && semver.lt(process.version, '12.0.0')) {
+    modules.delete('apollo-server-core')
   }
 
   function testSlice (t, name, selector) {
