@@ -1,11 +1,11 @@
 'use strict'
 
 const agent = require('../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-mongodb',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  cloudProvider: 'none'
 })
 
 // require('mongodb') is a hard crash on nodes <10.4
