@@ -53,7 +53,8 @@ test('resolve with parent id header present', function (t) {
   const input = {
     name: 'world',
     headers: {
-      traceparent: 'test'
+      traceparent: 'test',
+      tracestate: 'test2'
     }
   }
   const output = 'Hello, world!'
@@ -85,7 +86,7 @@ test('resolve with parent id header present', function (t) {
       assertTransaction(t, agent.transactions[0], name, context, input, output)
 
       t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
-
+      t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
       t.end()
     }
   })
