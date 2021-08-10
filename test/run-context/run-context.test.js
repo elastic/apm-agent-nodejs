@@ -1,0 +1,71 @@
+'use strict'
+
+// Test "run context" tracking by the APM agent. Run context is what determines
+// the `currentTransaction` and `currentSpan` during execution of JS code, and
+// hence the parent/child relationship of spans.
+//
+// Most of the tests below execute a script from "fixtures/" and assert that
+// the (mock) APM server got the expected trace (parent/child relationships,
+// span.sync property, etc.).
+//
+// The scripts also tend to `assert(...)` that the current transaction and span
+// are as expected at different points in code. These asserts can also be
+// illustrative when learning or debugging run context handling in the agent.
+// The scripts can be run independent of the test suite.
+
+const { execFile } = require('child_process')
+const path = require('path')
+const tape = require('tape')
+
+const { MockAPMServer } = require('../_mock_apm_server')
+const { findObjInArray } = require('../_utils')
+
+const cases = [
+  {
+    script: 'simple.js',
+    check: (t, events) => {
+      console.warn('XXX ', events)
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      t.equal(events.length, 3, 'exactly 3 events')
+      const t1 = findObjInArray(events, 'transaction.name', 't1')
+      const s2 = findObjInArray(events, 'span.name', 's2')
+      t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
+      // XXX not ready to test this yet.
+      // t.equal(s2.sync, false, 's2.sync=false')
+    }
+  }
+  // {
+  //   script: 'ls-callbacks.js',
+  //   check: (t, events) => {
+  //     t.ok(events[0].metadata, 'APM server got event metadata object')
+  //     console.warn('XXX ', events)
+  //     t.ok('hi')
+  //   }
+  // }
+]
+
+cases.forEach(c => {
+  tape.test(`run-context/fixtures/${c.script}`, t => {
+    const server = new MockAPMServer()
+    const scriptPath = path.join('fixtures', c.script)
+    server.start(function (serverUrl) {
+      execFile(
+        process.execPath,
+        [scriptPath],
+        {
+          cwd: __dirname,
+          timeout: 10000, // guard on hang, 3s is sometimes too short for CI
+          env: Object.assign({}, process.env, {
+            ELASTIC_APM_SERVER_URL: serverUrl
+          })
+        },
+        function done (err, _stdout, _stderr) {
+          t.error(err, `${scriptPath} exited non-zero`)
+          c.check(t, server.events)
+          server.close()
+          t.end()
+        }
+      )
+    })
+  })
+})

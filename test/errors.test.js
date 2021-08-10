@@ -8,23 +8,9 @@ const tape = require('tape')
 
 const logging = require('../lib/logging')
 const { createAPMError, _moduleNameFromFrames } = require('../lib/errors')
+const { dottedLookup } = require('_utils')
 
 const log = logging.createLogger('off')
-
-// Lookup the property "str" (given in dot-notation) in the object "obj".
-// If the property isn't found, then `undefined` is returned.
-function dottedLookup (obj, str) {
-  var o = obj
-  var fields = str.split('.')
-  for (var i = 0; i < fields.length; i++) {
-    var field = fields[i]
-    if (!Object.prototype.hasOwnProperty.call(o, field)) {
-      return undefined
-    }
-    o = o[field]
-  }
-  return o
-}
 
 // Test processing of Error instances by `createAPMError`.
 tape.test('#createAPMError({ exception: ... })', function (suite) {
