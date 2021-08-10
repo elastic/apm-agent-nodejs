@@ -53,7 +53,6 @@ test('resolve with parent id header present', function (t) {
   const input = {
     name: 'world',
     headers: {
-      // 'elastic-apm-traceparent':'prefer-w3c',
       traceparent: 'test',
       tracestate: 'test2'
     }
