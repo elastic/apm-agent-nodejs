@@ -3,7 +3,7 @@
 const test = require('tape')
 const lambdaLocal = require('lambda-local')
 
-const lambda = require('../../lib/lambda')
+const { elasticApmAwsLambda } = require('../../lib/lambda')
 const AgentMock = require('./mock/agent')
 const util = require('./_util')
 const assertError = util.assertError
@@ -19,7 +19,7 @@ test('resolve', function (t) {
   let context
 
   const agent = new AgentMock()
-  const wrap = lambda(agent)
+  const wrap = elasticApmAwsLambda(agent)
 
   lambdaLocal.execute({
     event: input,
@@ -61,7 +61,7 @@ test('resolve with parent id header present', function (t) {
   let context
 
   const agent = new AgentMock()
-  const wrap = lambda(agent)
+  const wrap = elasticApmAwsLambda(agent)
 
   lambdaLocal.execute({
     event: input,
@@ -105,7 +105,7 @@ test('resolve with elastic-apm-traceparent present', function (t) {
   let context
 
   const agent = new AgentMock()
-  const wrap = lambda(agent)
+  const wrap = elasticApmAwsLambda(agent)
 
   lambdaLocal.execute({
     event: input,
@@ -142,7 +142,7 @@ test('resolve with both elastic-apm-traceparent and traceparent present', functi
   let context
 
   const agent = new AgentMock()
-  const wrap = lambda(agent)
+  const wrap = elasticApmAwsLambda(agent)
 
   lambdaLocal.execute({
     event: input,
@@ -180,7 +180,7 @@ test('resolve with both elastic-apm-traceparent before traceparent present', fun
   let context
 
   const agent = new AgentMock()
-  const wrap = lambda(agent)
+  const wrap = elasticApmAwsLambda(agent)
 
   lambdaLocal.execute({
     event: input,
@@ -211,7 +211,7 @@ test('reject', function (t) {
   let context
 
   const agent = new AgentMock()
-  const wrap = lambda(agent)
+  const wrap = elasticApmAwsLambda(agent)
 
   lambdaLocal.execute({
     event: input,
