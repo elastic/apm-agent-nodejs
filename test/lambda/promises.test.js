@@ -53,7 +53,8 @@ test('resolve with parent id header present', function (t) {
   const input = {
     name: 'world',
     headers: {
-      traceparent: 'test'
+      traceparent: 'test',
+      tracestate: 'test2'
     }
   }
   const output = 'Hello, world!'
@@ -85,7 +86,119 @@ test('resolve with parent id header present', function (t) {
       assertTransaction(t, agent.transactions[0], name, context, input, output)
 
       t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
+      t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
+      t.end()
+    }
+  })
+})
 
+test('resolve with elastic-apm-traceparent present', function (t) {
+  const name = 'greet.hello'
+  const input = {
+    name: 'world',
+    headers: {
+      'elastic-apm-traceparent': 'test',
+      tracestate: 'test2'
+    }
+  }
+  const output = 'Hello, world!'
+  let context
+
+  const agent = new AgentMock()
+  const wrap = lambda(agent)
+
+  lambdaLocal.execute({
+    event: input,
+    lambdaFunc: {
+      [name]: wrap((payload, _context) => {
+        context = _context
+        return Promise.resolve(`Hello, ${payload.name}!`)
+      })
+    },
+    lambdaHandler: name,
+    timeoutMs: 3000,
+    verboseLevel: 0,
+    callback: function (err, result) {
+      t.error(err)
+      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      t.strictEqual(input.headers['elastic-apm-traceparent'], agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
+      t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
+      t.end()
+    }
+  })
+})
+
+test('resolve with both elastic-apm-traceparent and traceparent present', function (t) {
+  const name = 'greet.hello'
+  const input = {
+    name: 'world',
+    headers: {
+      traceparent: 'test',
+      'elastic-apm-traceparent': 'prefer-w3c',
+      tracestate: 'test2'
+    }
+  }
+  const output = 'Hello, world!'
+  let context
+
+  const agent = new AgentMock()
+  const wrap = lambda(agent)
+
+  lambdaLocal.execute({
+    event: input,
+    lambdaFunc: {
+      [name]: wrap((payload, _context) => {
+        context = _context
+        return Promise.resolve(`Hello, ${payload.name}!`)
+      })
+    },
+    lambdaHandler: name,
+    timeoutMs: 3000,
+    verboseLevel: 0,
+    callback: function (err, result) {
+      t.error(err)
+      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
+      t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
+      t.notEquals(input.headers['elastic-apm-traceparent'], agent.transactions[0].opts.childOf, 'prefers traceparent to elastic-apm-traceparent')
+      t.end()
+    }
+  })
+})
+
+test('resolve with both elastic-apm-traceparent before traceparent present', function (t) {
+  const name = 'greet.hello'
+  const input = {
+    name: 'world',
+    headers: {
+      'elastic-apm-traceparent': 'prefer-w3c',
+      traceparent: 'test',
+      tracestate: 'test2'
+    }
+  }
+  const output = 'Hello, world!'
+  let context
+
+  const agent = new AgentMock()
+  const wrap = lambda(agent)
+
+  lambdaLocal.execute({
+    event: input,
+    lambdaFunc: {
+      [name]: wrap((payload, _context) => {
+        context = _context
+        return Promise.resolve(`Hello, ${payload.name}!`)
+      })
+    },
+    lambdaHandler: name,
+    timeoutMs: 3000,
+    verboseLevel: 0,
+    callback: function (err, result) {
+      t.error(err)
+      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
+      t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
+      t.notEquals(input.headers['elastic-apm-traceparent'], agent.transactions[0].opts.childOf, 'prefers traceparent to elastic-apm-traceparent')
       t.end()
     }
   })
