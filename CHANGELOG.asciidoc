@@ -41,7 +41,7 @@ Notes:
 ===== Bug fixes
 
 - Fix failing tests and a possible runtime crash in
-  `@elastic/elasticsearch@7.14.0` instrumentation.
+  `@elastic/elasticsearch@7.14.0` instrumentation. ({issues}2187[#2187])
 
 
 [[release-notes-3.19.0]]
