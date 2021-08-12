@@ -29,13 +29,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
+[[release-notes-3.20.0]]
+==== 3.20.0 2021/08/12
 
 [float]
 ===== Bug fixes
