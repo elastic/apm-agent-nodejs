@@ -29,6 +29,21 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Add "queryMaxLength" config variable to allow overriding the 10000 byte
+  default. ({issues}1921[#1921])
+
+[float]
+===== Bug fixes
+
+
 [[release-notes-3.20.0]]
 ==== 3.20.0 2021/08/12
 
