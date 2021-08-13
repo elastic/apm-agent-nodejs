@@ -59,6 +59,7 @@ var optionFixtures = [
   ['maxQueueSize', 'MAX_QUEUE_SIZE', 1024],
   ['metricsInterval', 'METRICS_INTERVAL', 30],
   ['metricsLimit', 'METRICS_LIMIT', 1000],
+  ['queryMaxLength', 'QUERY_MAX_LENGTH', 10000],
   ['secretToken', 'SECRET_TOKEN'],
   ['serverCaCertFile', 'SERVER_CA_CERT_FILE'],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
@@ -82,40 +83,85 @@ var truthyValues = [true, 'true']
 
 optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
-    var bool = typeof fixture[2] === 'boolean'
-    var url = fixture[0] === 'serverUrl' // special case for url's so they can be parsed using url.parse()
-    var file = fixture[0] === 'serverCaCertFile' // special case for files, so a temp file can be written
-    var number = typeof fixture[2] === 'number'
-    var array = Array.isArray(fixture[2])
+    var type
+    if (typeof fixture[2] === 'boolean') {
+      type = 'bool'
+    } else if (fixture[0] === 'serverUrl') {
+      // special case for url's so they can be parsed using url.parse()
+      type = 'url'
+    } else if (fixture[0] === 'serverCaCertFile') {
+      // special case for files, so a temp file can be written
+      type = 'file'
+    } else if (['queryMaxLength'].includes(fixture[0])) {
+      // Special case for strict bytes values, so can use separate input value
+      // (str) and normalized value (number).
+      type = 'strictBytes'
+    } else if (typeof fixture[2] === 'number') {
+      type = 'number'
+    } else if (Array.isArray(fixture[2])) {
+      type = 'array'
+    } else {
+      type = 'string'
+    }
+
     var envName = 'ELASTIC_APM_' + fixture[1]
     var existingValue = process.env[envName]
 
     test(`should be configurable by environment variable ${envName}`, function (t) {
       var agent = Agent()
       var value
+      var normalizedValue
 
-      if (bool) value = !fixture[2]
-      else if (number) value = 1
-      else if (url) value = 'http://custom-value'
-      else if (file) {
-        var tmpdir = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
-        var tmpfile = path.join(tmpdir, 'custom-file')
-        t.on('end', function () { rimraf.sync(tmpdir) })
-        mkdirp.sync(tmpdir)
-        fs.writeFileSync(tmpfile, tmpfile)
-        value = tmpfile
-      } else value = 'custom-value'
-
-      process.env[envName] = value.toString()
-
-      agent.start()
-
-      if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [value])
-      } else {
-        t.strictEqual(agent._conf[fixture[0]], bool ? !fixture[2] : value)
+      switch (type) {
+        case 'bool':
+          value = !fixture[2]
+          break
+        case 'number':
+          value = 1
+          break
+        case 'url':
+          value = 'http://custom-value'
+          break
+        case 'file':
+          var tmpdir = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
+          var tmpfile = path.join(tmpdir, 'custom-file')
+          t.on('end', function () { rimraf.sync(tmpdir) })
+          mkdirp.sync(tmpdir)
+          fs.writeFileSync(tmpfile, tmpfile)
+          value = tmpfile
+          break
+        case 'strictBytes':
+          value = '42b'
+          normalizedValue = 42
+          break
+        case 'array':
+          value = ['custom-value']
+          break
+        case 'string':
+          value = 'custom-value'
+          break
+        default:
+          t.fail(`missing handling for config var type "${type}"`)
       }
 
+      process.env[envName] = value.toString()
+      agent.start()
+
+      switch (type) {
+        case 'bool':
+          t.strictEqual(agent._conf[fixture[0]], !fixture[2])
+          break
+        case 'strictBytes':
+          t.strictEqual(agent._conf[fixture[0]], normalizedValue)
+          break
+        case 'array':
+          t.deepEqual(agent._conf[fixture[0]], value)
+          break
+        default:
+          t.strictEqual(agent._conf[fixture[0]], value)
+      }
+
+      // Restore process.env state.
       if (existingValue) {
         process.env[envName] = existingValue
       } else {
@@ -129,38 +175,60 @@ optionFixtures.forEach(function (fixture) {
       var agent = Agent()
       var opts = {}
       var value1, value2
+      var normalizedValue2
 
-      if (bool) {
-        value1 = !fixture[2]
-        value2 = fixture[2]
-      } else if (number) {
-        value1 = 2
-        value2 = 1
-      } else if (url) {
-        value1 = 'http://overwriting-value'
-        value2 = 'http://custom-value'
-      } else if (file) {
-        var tmpdir = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
-        var tmpfile = path.join(tmpdir, 'custom-file')
-        t.on('end', function () { rimraf.sync(tmpdir) })
-        mkdirp.sync(tmpdir)
-        fs.writeFileSync(tmpfile, tmpfile)
-        value1 = path.join(tmpdir, 'does-not-exist')
-        value2 = tmpfile
-      } else {
-        value1 = 'overwriting-value'
-        value2 = 'custom-value'
+      switch (type) {
+        case 'bool':
+          value1 = !fixture[2]
+          value2 = fixture[2]
+          break
+        case 'number':
+          value1 = 2
+          value2 = 1
+          break
+        case 'url':
+          value1 = 'http://overwriting-value'
+          value2 = 'http://custom-value'
+          break
+        case 'file':
+          var tmpdir = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
+          var tmpfile = path.join(tmpdir, 'custom-file')
+          t.on('end', function () { rimraf.sync(tmpdir) })
+          mkdirp.sync(tmpdir)
+          fs.writeFileSync(tmpfile, tmpfile)
+          value1 = path.join(tmpdir, 'does-not-exist')
+          value2 = tmpfile
+          break
+        case 'strictBytes':
+          value1 = '1b'
+          value2 = '42b'
+          normalizedValue2 = 42
+          break
+        case 'array':
+          value1 = ['overwriting-value']
+          value2 = ['custom-value']
+          break
+        case 'string':
+          value1 = 'overwriting-value'
+          value2 = 'custom-value'
+          break
+        default:
+          t.fail(`missing handling for config var type "${type}"`)
       }
 
       opts[fixture[0]] = value1
       process.env[envName] = value2.toString()
-
       agent.start(opts)
 
-      if (array) {
-        t.deepEqual(agent._conf[fixture[0]], [value2])
-      } else {
-        t.strictEqual(agent._conf[fixture[0]], value2)
+      switch (type) {
+        case 'strictBytes':
+          t.strictEqual(agent._conf[fixture[0]], normalizedValue2)
+          break
+        case 'array':
+          t.deepEqual(agent._conf[fixture[0]], value2)
+          break
+        default:
+          t.strictEqual(agent._conf[fixture[0]], value2)
       }
 
       if (existingValue) {
@@ -180,10 +248,13 @@ optionFixtures.forEach(function (fixture) {
 
     var agent = Agent()
     agent.start()
-    if (array) {
-      t.deepEqual(agent._conf[fixture[0]], fixture[2])
-    } else {
-      t.strictEqual(agent._conf[fixture[0]], fixture[2])
+
+    switch (type) {
+      case 'array':
+        t.deepEqual(agent._conf[fixture[0]], fixture[2])
+        break
+      default:
+        t.strictEqual(agent._conf[fixture[0]], fixture[2])
     }
 
     if (existingValue) {
@@ -265,6 +336,34 @@ bytesValues.forEach(function (key) {
     opts[key] = '1mb'
     agent.start(opts)
     t.strictEqual(agent._conf[key], 1024 * 1024)
+    t.end()
+  })
+})
+
+var strictBytesValues = [
+  ['queryMaxLength', 10000]
+]
+
+strictBytesValues.forEach(function (info) {
+  var key = info[0]
+  var defaultValue = info[1]
+
+  test(key + ' (strict bytes) should be converted to a number', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '1mb'
+    agent.start(opts)
+    t.strictEqual(agent._conf[key], 1024 * 1024)
+    t.end()
+  })
+
+  test(key + ' (strict bytes) invalid value should use default', function (t) {
+    var agent = Agent()
+    var opts = {}
+    opts[key] = '42' // invalid value: missing units
+    agent.start(opts)
+    t.strictEqual(agent._conf[key], defaultValue,
+      `${key}='42' should fallback to default ${defaultValue}`)
     t.end()
   })
 })

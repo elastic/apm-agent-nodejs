@@ -233,6 +233,7 @@ interface AgentConfigOptions {
   metricsLimit?: number;
   payloadLogFile?: string;
   centralConfig?: boolean;
+  queryMaxLength?: string;
   sanitizeFieldNames?: Array<string>;
   secretToken?: string;
   serverCaCertFile?: string;

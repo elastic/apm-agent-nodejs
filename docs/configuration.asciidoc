@@ -689,6 +689,25 @@ This applies to the following properties:
 - `error.exception.message`
 - `error.log.message`
 
+
+[[query-max-length]]
+==== `queryMaxLength`
+
+* *Type:* String
+* *Default:* `10000b`
+* *Env:* `ELASTIC_APM_QUERY_MAX_LENGTH`
+
+The query captured for database spans will be truncated at this length.
+It is expressed as an integer size and a unit (one of `b`, `kb`, `mb`, `gb`,
+case-insensitive).  For example, `100b` is 100 bytes, `2kb` is 2048 bytes, `1mb`
+is 1048576 bytes.
+
+Note that span data is limited at the upstream APM server to
+{apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`],
+which defaults to 300kB. If you configure `queryMaxLength` too large, it could
+result in spans that are rejected by APM server.
+
+
 [[stack-trace-limit]]
 ==== `stackTraceLimit`
 
