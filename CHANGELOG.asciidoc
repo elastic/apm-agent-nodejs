@@ -36,15 +36,21 @@ Notes:
 
 [float]
 ===== Features
-[[release-notes-3.20.0]]
-==== 3.20.0 2021/08/12
 
 [float]
 ===== Bug fixes
 
 * Ensure the internal HTTP(S) client requests made by the APM agent to APM
   server are not themselves traced. ({issues}1168[#1168], {issues}1136[#1136])
-- Fix failing tests and a possible runtime crash in
+
+
+[[release-notes-3.20.0]]
+==== 3.20.0 2021/08/12
+
+[float]
+===== Bug fixes
+
+* Fix failing tests and a possible runtime crash in
   `@elastic/elasticsearch@7.14.0` instrumentation. ({issues}2187[#2187])
 
 
