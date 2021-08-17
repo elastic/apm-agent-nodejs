@@ -1,5 +1,8 @@
-// Test the Agent's .d.ts type files by exercising the API in TypeScript:
-// tsc will error out of there is a type conflict.
+// Test the index.d.ts type file by exercising the API in TypeScript.
+// `tsc` will error out of there is a type conflict.
+//
+// Note: This test file is the one intended to *fully* exercise the exported
+// types. Any types changes should result in an update to this file.
 
 import agent, { AgentConfigOptions, Transaction, Span, TransactionOptions, SpanOptions } from '../../'
 
