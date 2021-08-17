@@ -24,28 +24,65 @@ const cases = [
   {
     script: 'simple.js',
     check: (t, events) => {
-      console.warn('XXX ', events)
       t.ok(events[0].metadata, 'APM server got event metadata object')
       t.equal(events.length, 3, 'exactly 3 events')
       const t1 = findObjInArray(events, 'transaction.name', 't1')
       const s2 = findObjInArray(events, 'span.name', 's2')
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
+      // console.warn('XXX ', events)
       // XXX not ready to test this yet.
       // t.equal(s2.sync, false, 's2.sync=false')
     }
+  },
+  {
+    script: 'ls-callbacks.js',
+    check: (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      t.equal(events.length, 4, 'exactly 4 events')
+      const t1 = findObjInArray(events, 'transaction.name', 'ls')
+      const s2 = findObjInArray(events, 'span.name', 'cwd')
+      const s3 = findObjInArray(events, 'span.name', 'readdir')
+      t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
+      t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
+      // XXX check sync for the spans
+    }
+  },
+  {
+    script: 'ls-promises.js',
+    testOpts: {
+      skip: !require('fs').promises
+    },
+    check: (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      t.equal(events.length, 4, 'exactly 4 events')
+      const t1 = findObjInArray(events, 'transaction.name', 'ls')
+      const s2 = findObjInArray(events, 'span.name', 'cwd')
+      const s3 = findObjInArray(events, 'span.name', 'readdir')
+      t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
+      t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
+      // XXX check sync for the spans
+    }
+  },
+  {
+    script: 'ls-await.js',
+    testOpts: {
+      skip: !require('fs').promises
+    },
+    check: (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      t.equal(events.length, 4, 'exactly 4 events')
+      const t1 = findObjInArray(events, 'transaction.name', 'ls')
+      const s2 = findObjInArray(events, 'span.name', 'cwd')
+      const s3 = findObjInArray(events, 'span.name', 'readdir')
+      t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
+      t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
+      // XXX check sync for the spans
+    }
   }
-  // {
-  //   script: 'ls-callbacks.js',
-  //   check: (t, events) => {
-  //     t.ok(events[0].metadata, 'APM server got event metadata object')
-  //     console.warn('XXX ', events)
-  //     t.ok('hi')
-  //   }
-  // }
 ]
 
 cases.forEach(c => {
-  tape.test(`run-context/fixtures/${c.script}`, t => {
+  tape.test(`run-context/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()
     const scriptPath = path.join('fixtures', c.script)
     server.start(function (serverUrl) {
