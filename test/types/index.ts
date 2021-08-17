@@ -4,7 +4,13 @@
 // Note: This test file is the one intended to *fully* exercise the exported
 // types. Any types changes should result in an update to this file.
 
-import agent, { AgentConfigOptions, Transaction, Span, TransactionOptions, SpanOptions } from '../../'
+import agent, {
+  AgentConfigOptions,
+  Transaction,
+  Span,
+  TransactionOptions,
+  SpanOptions
+} from '../../'
 
 const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
