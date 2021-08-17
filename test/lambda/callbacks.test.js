@@ -3,7 +3,7 @@
 const test = require('tape')
 const lambdaLocal = require('lambda-local')
 
-const lambda = require('../../lib/lambda')
+const { elasticApmAwsLambda } = require('../../lib/lambda')
 const AgentMock = require('./mock/agent')
 const util = require('./_util')
 const assertError = util.assertError
@@ -19,7 +19,7 @@ test('success', function (t) {
   let context
 
   const agent = new AgentMock()
-  const wrap = lambda(agent)
+  const wrap = elasticApmAwsLambda(agent)
 
   lambdaLocal.execute({
     event: input,
@@ -55,7 +55,7 @@ test('failure', function (t) {
   let context
 
   const agent = new AgentMock()
-  const wrap = lambda(agent)
+  const wrap = elasticApmAwsLambda(agent)
 
   lambdaLocal.execute({
     event: input,
