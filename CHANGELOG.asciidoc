@@ -37,6 +37,46 @@ Notes:
 [float]
 ===== Features
 
+[float]
+===== Bug fixes
+
+* Ensure the internal HTTP(S) client requests made by the APM agent to APM
+  server are not themselves traced. ({issues}1168[#1168], {issues}1136[#1136])
+
+
+[[release-notes-3.20.0]]
+==== 3.20.0 2021/08/12
+
+[float]
+===== Bug fixes
+
+* Fix failing tests and a possible runtime crash in
+  `@elastic/elasticsearch@7.14.0` instrumentation. ({issues}2187[#2187])
+
+
+[[release-notes-3.19.0]]
+==== 3.19.0 2021/08/05
+
+[float]
+===== Features
+
+* The agent now supports the 3.x branch of apollo-server-express. ({pull}2155[#2155])
+
+* Add instrumentation support for mongodb@4.x. ({pull}2171[#2171])
+
+[float]
+===== Bug fixes
+
+* The agent will no longer report counting metrics with a value of zero, and will
+  remove these metrics from the registry. ({pull}2163[#2163])
+
+
+[[release-notes-3.18.0]]
+==== 3.18.0 2021/07/20
+
+[float]
+===== Features
+
 * Trace an incoming HTTP/1.1 request to an HTTP/2 server using the
   https://nodejs.org/api/http2.html#http2_http2_createsecureserver_options_onrequesthandler[allowHTTP1]
   option. Before this change only incoming requests supporting HTTP/2 would
@@ -44,6 +84,10 @@ Notes:
 
 [float]
 ===== Bug fixes
+
+* Fixed naming for outgoing HTTP spans to comply with the spec.
+  https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-http.md#http-client-spans
+  Span names no longer include the path portion of the URL. ({pull}2161[#2161])
 
 * Fix a header object re-use bug that prevented propagation of trace-context
   headers (`traceparent` et al) in AWS requests using AWS v4 signature auth.

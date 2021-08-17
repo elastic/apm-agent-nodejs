@@ -38,7 +38,7 @@ pipeline {
     stage('Run Tasks'){
       steps {
         script {
-          ['master', '2.x'].each { branch ->
+          ['master'].each { branch ->
             build(
               job: "apm-agent-nodejs/apm-agent-nodejs-mbp/${branch}",
               parameters: [

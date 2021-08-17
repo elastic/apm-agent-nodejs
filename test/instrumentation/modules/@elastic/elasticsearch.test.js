@@ -30,12 +30,13 @@ const test = require('tape')
 const findObjInArray = require('../../../_utils').findObjInArray
 const mockClient = require('../../../_mock_http_client')
 const shimmer = require('../../../../lib/instrumentation/shimmer')
+const { MockES } = require('./_mock_es')
 
 const host = (process.env.ES_HOST || 'localhost') + ':9200'
 const node = 'http://' + host
 const pkgVersion = require('@elastic/elasticsearch/package.json').version
 
-test('client.ping with promise', function userLandCode (t) {
+test('client.ping with promise', function (t) {
   resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
 
   agent.startTransaction('myTrans')
@@ -47,7 +48,7 @@ test('client.ping with promise', function userLandCode (t) {
   }).catch(t.error)
 })
 
-test('client.ping with callback', function userLandCode (t) {
+test('client.ping with callback', function (t) {
   resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
 
   agent.startTransaction('myTrans')
@@ -60,7 +61,7 @@ test('client.ping with callback', function userLandCode (t) {
   })
 })
 
-test('client.search with promise', function userLandCode (t) {
+test('client.search with promise', function (t) {
   const searchOpts = { q: 'pants' }
 
   resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants'))
@@ -77,7 +78,7 @@ test('client.search with promise', function userLandCode (t) {
     .catch(t.error)
 })
 
-test('client.child', function userLandCode (t) {
+test('client.child', function (t) {
   const searchOpts = { q: 'pants' }
 
   resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants'))
@@ -95,7 +96,7 @@ test('client.child', function userLandCode (t) {
   })
 })
 
-test('client.search with queryparam', function userLandCode (t) {
+test('client.search with queryparam', function (t) {
   const searchOpts = { q: 'pants' }
 
   resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants'))
@@ -110,7 +111,7 @@ test('client.search with queryparam', function userLandCode (t) {
   })
 })
 
-test('client.search with body', function userLandCode (t) {
+test('client.search with body', function (t) {
   const body = {
     query: {
       match: {
@@ -137,7 +138,7 @@ test('client.search with body', function userLandCode (t) {
 
 // Test `span.context.db.statement` format when the client request includes
 // both a body *and* queryparam.
-test('client.search with body & queryparams', function userLandCode (t) {
+test('client.search with body & queryparams', function (t) {
   const body = {
     query: {
       match: {
@@ -167,7 +168,7 @@ ${JSON.stringify(body)}`
   })
 })
 
-test('client.searchTemplate', function userLandCode (t) {
+test('client.searchTemplate', function (t) {
   const body = {
     source: {
       query: {
@@ -193,7 +194,7 @@ test('client.searchTemplate', function userLandCode (t) {
   })
 })
 
-test('client.msearch', function userLandCode (t) {
+test('client.msearch', function (t) {
   const body = [
     {},
     {
@@ -226,7 +227,7 @@ ${body.map(JSON.stringify).join('\n')}
   })
 })
 
-test('client.msearchTempate', function userLandCode (t) {
+test('client.msearchTempate', function (t) {
   const body = [
     {},
     {
@@ -333,6 +334,49 @@ test('DeserializationError', function (t) {
   })
 })
 
+if (semver.gte(pkgVersion, '7.14.0')) {
+  test('ProductNotSupportedError', function (t) {
+    // Create a mock Elasticsearch server that responds to "GET /" with a body
+    // that triggers ProductNotSupportedError.
+    const esServer = new MockES({
+      responses: [
+        {
+          statusCode: 200,
+          headers: {
+            'X-elastic-product': 'Elasticsearch',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({ hi: 'there' })
+        }
+      ]
+    })
+    esServer.start(function (esUrl) {
+      resetAgent(
+        function done (data) {
+          const err = data.errors[0]
+          t.ok(err, 'sent an error to APM server')
+          t.ok(err.id, 'err.id')
+          t.ok(err.exception.message, 'got err.exception.message: ' + err.exception.message)
+          t.equal(err.exception.type, 'ProductNotSupportedError',
+            'err.exception.type is ProductNotSupportedError')
+          t.end()
+        }
+      )
+
+      agent.startTransaction('myTrans')
+      const client = new Client({ node: esUrl })
+      client.search({ q: 'pants' }, function (err, _result) {
+        t.ok(err, 'got an error from search callback')
+        t.equal(err.name, 'ProductNotSupportedError', 'error name is "ProductNotSupportedError"')
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+        esServer.close()
+      })
+    })
+  })
+}
+
 if (semver.gte(pkgVersion, '7.7.0')) {
   // Abort handling was added to @elastic/elasticsearch@7.7.0.
 
@@ -348,11 +392,16 @@ if (semver.gte(pkgVersion, '7.7.0')) {
 
         const err = data.errors
           .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-        t.ok(err, 'sent an error to APM server')
-        t.ok(err.id, 'err.id')
-        t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
-        t.equal(err.exception.type, 'RequestAbortedError',
-          'err.exception.type is RequestAbortedError')
+        if (semver.eq(esVersion, '7.14.0')) {
+          // https://github.com/elastic/elasticsearch-js/issues/1517
+          t.ok(!err, 'no APM error reported for abort because elastic/elasticsearch-js#1517')
+        } else {
+          t.ok(err, 'sent an error to APM server')
+          t.ok(err.id, 'err.id')
+          t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
+          t.equal(err.exception.type, 'RequestAbortedError',
+            'err.exception.type is RequestAbortedError')
+        }
 
         t.end()
       }
@@ -402,11 +451,16 @@ if (semver.gte(pkgVersion, '7.7.0')) {
 
         const err = data.errors
           .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-        t.ok(err, 'sent an error to APM server')
-        t.ok(err.id, 'err.id')
-        t.ok(err.exception.message, 'err.exception.message')
-        t.equal(err.exception.type, 'RequestAbortedError',
-          'err.exception.type is RequestAbortedError')
+        if (semver.eq(esVersion, '7.14.0')) {
+          // https://github.com/elastic/elasticsearch-js/issues/1517
+          t.ok(!err, 'no APM error reported for abort because elastic/elasticsearch-js#1517')
+        } else {
+          t.ok(err, 'sent an error to APM server')
+          t.ok(err.id, 'err.id')
+          t.ok(err.exception.message, 'err.exception.message')
+          t.equal(err.exception.type, 'RequestAbortedError',
+            'err.exception.type is RequestAbortedError')
+        }
 
         t.end()
       }
@@ -441,7 +495,7 @@ if (semver.gte(pkgVersion, '7.7.0')) {
   })
 }
 
-test('outcome=success on both spans', function userLandCode (t) {
+test('outcome=success on both spans', function (t) {
   resetAgent(checkSpanOutcomesSuccess(t))
 
   agent.startTransaction('myTrans')
@@ -453,7 +507,7 @@ test('outcome=success on both spans', function userLandCode (t) {
   }).catch(t.error)
 })
 
-test('outcome=failure on both spans', function userLandCode (t) {
+test('outcome=failure on both spans', function (t) {
   const searchOpts = { notaparam: 'notthere' }
 
   resetAgent(checkSpanOutcomesFailures(t))
@@ -474,6 +528,12 @@ test('outcome=failure on both spans', function userLandCode (t) {
 
 function checkSpanOutcomesFailures (t) {
   return function (data) {
+    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
+    if (semver.gte(esVersion, '7.14.0')) {
+      // Remove leading ES span and HTTP span from product check.
+      data.spans = data.spans.slice(2)
+    }
+
     for (const span of data.spans) {
       t.equals(span.outcome, 'failure', 'spans outcomes are failure')
     }
@@ -483,6 +543,12 @@ function checkSpanOutcomesFailures (t) {
 
 function checkSpanOutcomesSuccess (t) {
   return function (data) {
+    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
+    if (semver.gte(esVersion, '7.14.0')) {
+      // Remove leading ES span and HTTP span from product check.
+      data.spans = data.spans.slice(2)
+    }
+
     for (const span of data.spans) {
       t.equals(span.outcome, 'success', 'spans outcomes are success')
     }
@@ -493,11 +559,25 @@ function checkSpanOutcomesSuccess (t) {
 function checkDataAndEnd (t, method, path, dbStatement) {
   return function (data) {
     t.equal(data.transactions.length, 1, 'should have 1 transaction')
-    t.equal(data.spans.length, 2, 'should have 2 spans')
-
     const trans = data.transactions[0]
     t.equal(trans.name, 'myTrans', 'should have expected transaction name')
     t.equal(trans.type, 'custom', 'should have expected transaction type')
+
+    // As of @elastic/elasticsearch@7.14.0 the first request from an ES Client
+    // will be preceded by a "GET /" product check.
+    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
+    if (semver.gte(esVersion, '7.14.0')) {
+      const prodCheckEsSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+      t.ok(prodCheckEsSpan, 'have >=7.14.0 product check ES span')
+      t.equal(prodCheckEsSpan.name, 'Elasticsearch: GET /', 'product check ES span name')
+      const prodCheckHttpSpan = findObjInArray(data.spans, 'subtype', 'http')
+      t.ok(prodCheckHttpSpan, 'have >=7.14.0 product check HTTP span')
+      t.equal(prodCheckHttpSpan.name, `GET ${host}`, 'product check HTTP span name')
+      // Remove the product check spans for subsequent assertions.
+      data.spans = data.spans.slice(2)
+    }
+
+    t.equal(data.spans.length, 2, 'should have 2 spans (excluding product check spans in >=7.14.0)')
 
     const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
     t.ok(esSpan, 'have an elasticsearch span')
@@ -511,12 +591,8 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.strictEqual(httpSpan.subtype, 'http')
     t.strictEqual(httpSpan.action, method)
 
-    t.equal(httpSpan.name, method + ' ' + host + path, 'http span should have expected name')
+    t.equal(httpSpan.name, method + ' ' + host, 'http span should have expected name')
     t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')
-
-    t.ok(esSpan.stacktrace.some(function (frame) {
-      return frame.function === 'userLandCode'
-    }), 'esSpan.stacktrace includes "userLandCode" frame')
 
     // Iff the test case provided a `dbStatement`, then we expect `.context.db`.
     if (dbStatement) {

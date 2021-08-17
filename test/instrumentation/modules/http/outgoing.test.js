@@ -167,7 +167,7 @@ function echoTest (type, opts, handler) {
       resetAgent(opts, data => {
         t.strictEqual(data.transactions.length, 1, 'has one transaction')
         t.strictEqual(data.spans.length, 1, 'has one span')
-        t.strictEqual(data.spans[0].name, 'GET localhost:' + port + '/', 'has expected span name')
+        t.strictEqual(data.spans[0].name, 'GET localhost:' + port, 'has expected span name')
         t.strictEqual(data.spans[0].outcome, 'success')
         t.deepEqual(data.spans[0].context.http, {
           method: 'GET',
@@ -230,7 +230,7 @@ function abortTest (type, handler) {
       resetAgent({}, data => {
         t.equal(data.transactions.length, 1, 'has one transaction')
         t.equal(data.spans.length, 1, 'has one span')
-        t.equal(data.spans[0].name, `${req.method} localhost:${port}/`, 'has expected span name')
+        t.equal(data.spans[0].name, `${req.method} localhost:${port}`, 'has expected span name')
         if (typeof httpContext.status_code === 'undefined') {
           t.equal(data.spans[0].outcome, 'unknown')
         } else {
