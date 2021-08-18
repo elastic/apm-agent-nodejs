@@ -43,6 +43,7 @@ Notes:
 * Ensure the internal HTTP(S) client requests made by the APM agent to APM
   server are not themselves traced. ({issues}1168[#1168], {issues}1136[#1136])
 
+* Fix crashing error with `agent.registerMetric` and `active:false` configuration. ({issues}[#1799], {pull}[#2290])
 
 [[release-notes-3.20.0]]
 ==== 3.20.0 2021/08/12
