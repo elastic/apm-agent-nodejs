@@ -57,9 +57,10 @@ function teardown() {
 
 function startAPMServer() {
   log "Starting mock APM Server..."
-  node $utils/apm-server.js &
+  node $utils/apm-server.js $apm_server_port &
   pid=$!
-  log "Mock APM Server running as pid $pid"
+  log "Mock APM Server running on port $apm_server_port as pid $pid"
+  export ELASTIC_APM_SERVER_URL=http://localhost:$apm_server_port
 
   sleep 1
 }
@@ -68,6 +69,7 @@ function shutdownAPMServer() {
   log "Shutting down mock APM Server (pid: $pid)..."
   kill -SIGUSR2 $pid
   unset pid
+  unset ELASTIC_APM_SERVER_URL
 }
 
 function runBenchmark() {
@@ -97,6 +99,9 @@ outputdir=$basedir/.tmp
 appout_no_agent=$outputdir/app-no-agent.json
 appout_agent=$outputdir/app-agent.json
 result_file=$2
+# Avoid port 8200 conflicts with others on shared machines in the past
+# (https://github.com/elastic/apm-agent-rum-js/issues/1074).
+apm_server_port=8201
 
 rm -f $result_file # in case it's left over from an old run somehow
 rm -fr $outputdir
