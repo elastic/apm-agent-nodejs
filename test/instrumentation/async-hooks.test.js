@@ -18,7 +18,7 @@ test('setTimeout', function (t) {
   twice(function () {
     var trans = agent.startTransaction()
     setTimeout(function () {
-      t.strictEqual(ins.currentTransaction && ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currTx() && ins.currTx().id, trans.id)
       trans.end()
     }, 50)
   })
@@ -30,7 +30,7 @@ test('setInterval', function (t) {
     var trans = agent.startTransaction()
     var timer = setInterval(function () {
       clearInterval(timer)
-      t.strictEqual(ins.currentTransaction && ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currTx() && ins.currTx().id, trans.id)
       trans.end()
     }, 50)
   })
@@ -41,7 +41,7 @@ test('setImmediate', function (t) {
   twice(function () {
     var trans = agent.startTransaction()
     setImmediate(function () {
-      t.strictEqual(ins.currentTransaction && ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currTx() && ins.currTx().id, trans.id)
       trans.end()
     })
   })
@@ -52,7 +52,7 @@ test('process.nextTick', function (t) {
   twice(function () {
     var trans = agent.startTransaction()
     process.nextTick(function () {
-      t.strictEqual(ins.currentTransaction && ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currTx() && ins.currTx().id, trans.id)
       trans.end()
     })
   })
@@ -67,7 +67,7 @@ test('pre-defined, pre-resolved shared promise', function (t) {
     var trans = agent.startTransaction()
     p.then(function (result) {
       t.strictEqual(result, 'success')
-      t.strictEqual(ins.currentTransaction && ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currTx() && ins.currTx().id, trans.id)
       trans.end()
     })
   })
@@ -81,7 +81,7 @@ test('pre-defined, pre-resolved non-shared promise', function (t) {
     var trans = agent.startTransaction()
     p.then(function (result) {
       t.strictEqual(result, 'success')
-      t.strictEqual(ins.currentTransaction && ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currTx() && ins.currTx().id, trans.id)
       trans.end()
     })
   })
@@ -98,7 +98,7 @@ test('pre-defined, post-resolved promise', function (t) {
     var trans = agent.startTransaction()
     p.then(function (result) {
       t.strictEqual(result, 'success')
-      t.strictEqual(ins.currentTransaction && ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currTx() && ins.currTx().id, trans.id)
       trans.end()
     })
   })
@@ -115,45 +115,35 @@ test('post-defined, post-resolved promise', function (t) {
     })
     p.then(function (result) {
       t.strictEqual(result, 'success')
-      t.strictEqual(ins.currentTransaction && ins.currentTransaction.id, trans.id)
+      t.strictEqual(ins.currTx() && ins.currTx().id, trans.id)
       trans.end()
     })
   })
 })
 
-test('sync/async tracking: span ended in same function is sync', function (t) {
+// XXX move this out of async-hooks. It should work with asyncHooks=false as well!
+test('span.sync', function (t) {
   var trans = agent.startTransaction()
   t.strictEqual(trans.sync, true)
 
-  var span1 = agent.startSpan()
+  var span1 = agent.startSpan('span1')
   t.strictEqual(span1.sync, true)
 
   // This span will be *ended* synchronously. It should stay `span.sync=true`.
-  var span2 = agent.startSpan()
+  var span2 = agent.startSpan('span2')
   t.strictEqual(span2.sync, true, 'span2.sync=true immediately after creation')
   span2.end()
   t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end')
 
   setImmediate(() => {
+    // XXX ctxmgr changes are changing the guarantee to only update `.sync` after .end()
+    span1.end()
+    t.strictEqual(span1.sync, false)
+    trans.end()
+    // XXX drop trans.sync checking with https://github.com/elastic/apm-agent-nodejs/issues/2292
     t.strictEqual(trans.sync, false)
     t.strictEqual(span2.sync, true,
       'span2.sync=true later after having ended sync')
-    t.end()
-  })
-})
-
-test('sync/async tracking: span ended across async boundary is not sync', function (t) {
-  var trans = agent.startTransaction()
-  t.strictEqual(trans.sync, true)
-
-  var span1 = agent.startSpan()
-  t.strictEqual(span1.sync, true)
-
-  setImmediate(() => {
-    span1.end()
-    t.strictEqual(trans.sync, false)
-    t.strictEqual(span1.sync, false,
-      'span1.sync=true after having ended sync')
     t.end()
   })
 })

@@ -20,7 +20,10 @@
 //    The `done` callback will be called with the written data (`_writes`)
 //    after a 200ms delay with no writes (the timer only starts after the
 //    first write).
-module.exports = function (expected, done) {
+
+function noop () {}
+
+function createMockClient (expected, done) {
   const timerBased = typeof expected === 'function'
   if (timerBased) done = expected
   let timer
@@ -37,8 +40,26 @@ module.exports = function (expected, done) {
       process.nextTick(cb)
 
       if (timerBased) resetTimer()
-      else if (this._writes.length === expected) done(this._writes)
-      else if (this._writes.length > expected) throw new Error('too many writes')
+      else if (this._writes.length === expected) {
+        // Give a short delay for subsequent events (typically a span delayed
+        // by asynchronous `span._encode()`) to come in so a test doesn't
+        // unwittingly pass, when in fact more events than expected are
+        // produced.
+        // XXX Play with this delay? This might significantly increase test time. Not sure.
+        //    E.g. 'node test/integration/index.test.js' from 0.5s to 3.5s :/
+        //    Better solutions: (a) explicit delay when playing with spans
+        //    (b) issue #2294 to have `agent.flush()` actually flush inflight spans.
+        const SHORT_DELAY = 100
+        setTimeout(() => {
+          done(this._writes)
+        }, SHORT_DELAY)
+      } else if (this._writes.length > expected) {
+        let summary = JSON.stringify(obj)
+        if (summary.length > 200) {
+          summary = summary.slice(0, 197) + '...'
+        }
+        throw new Error(`too many writes: unexpected write: ${summary}`)
+      }
     },
     sendSpan (span, cb) {
       this._write({ span }, cb)
@@ -67,4 +88,4 @@ module.exports = function (expected, done) {
   }
 }
 
-function noop () {}
+module.exports = createMockClient

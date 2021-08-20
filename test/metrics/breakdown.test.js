@@ -509,7 +509,8 @@ test('acceptance', t => {
     var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
 
     // Hack to make it look like an async tick has already happened
-    agent._instrumentation.activeSpan = span0
+    t.fail('XXX redo this without using internal (now removed) `ins.activeSpan`')
+    // agent._instrumentation.activeSpan = span0
 
     var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 15, childOf: span0 })
     if (span0) span0.end(20)
@@ -547,7 +548,8 @@ test('acceptance', t => {
     var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
 
     // Hack to make it look like an async tick has already happened
-    agent._instrumentation.activeSpan = span0
+    t.fail('XXX redo this without using internal (now removed) `ins.activeSpan`')
+    // agent._instrumentation.activeSpan = span0
 
     transaction.end(null, 20)
     var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: span0 })

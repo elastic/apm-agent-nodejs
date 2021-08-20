@@ -5,6 +5,8 @@ var agent = require('../..').start({
   breakdownMetrics: false,
   captureExceptions: false,
   metricsInterval: 0,
+  centralConfig: false,
+  cloudProvider: 'none',
   spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
@@ -13,6 +15,7 @@ var http = require('http')
 
 var test = require('tape')
 
+const logging = require('../../lib/logging')
 var mockAgent = require('./_agent')
 var mockClient = require('../_mock_http_client')
 var Instrumentation = require('../../lib/instrumentation')
@@ -186,6 +189,7 @@ test('stack branching - no parents', function (t) {
   }, 50)
 })
 
+// XXX update for runctxmgr changes
 test('currentTransaction missing - recoverable', function (t) {
   resetAgent(2, function (data) {
     t.strictEqual(data.transactions.length, 1)
@@ -364,12 +368,7 @@ test('sampling', function (t) {
       _conf: {
         transactionSampleRate: rate
       },
-      logger: {
-        error () {},
-        warn () {},
-        info () {},
-        debug () {}
-      }
+      logger: logging.createLogger('off')
     }
     var ins = new Instrumentation(agent)
     agent._instrumentation = ins
@@ -487,11 +486,13 @@ test('bind', function (t) {
 
     function fn () {
       var t0 = ins.startSpan('t0')
+      t.equal(t0, null, 'should not get a span, because there is no current transaction')
       if (t0) t0.end()
       trans.end()
     }
 
-    ins.currentTransaction = undefined
+    // Artificially make the current run context empty.
+    ins.enterEmptyRunContext()
     fn()
   })
 
@@ -508,14 +509,18 @@ test('bind', function (t) {
 
     var fn = ins.bindFunction(function () {
       var t0 = ins.startSpan('t0')
+      t.ok(t0, 'should get a span, because run context with transaction was bound to fn')
       if (t0) t0.end()
       trans.end()
     })
 
-    ins.currentTransaction = null
+    // Artificially make the current run context empty.
+    ins.enterEmptyRunContext()
     fn()
   })
 
+  // XXX an equiv test for once (removed after one event successfully?), and for removeAllListeners,
+  //     and for '.off' (straight alias of removeListener, problem with double binding?)
   t.test('removes listeners properly', function (t) {
     resetAgent(1, function (data) {
       t.strictEqual(data.transactions.length, 1)
@@ -528,16 +533,26 @@ test('bind', function (t) {
     var emitter = new EventEmitter()
     ins.bindEmitter(emitter)
 
-    function handler () { }
+    function myHandler () { }
 
-    emitter.addListener('foo', handler)
+    emitter.addListener('foo', myHandler)
+    // Re-add the *same* handler function to another event to test that
+    // `removeListener` works below.
+    emitter.addListener('bar', myHandler)
     listeners = emitter.listeners('foo')
-    t.strictEqual(listeners.length, 1)
-    t.notEqual(listeners[0], handler)
+    t.strictEqual(listeners.length, 1, 'have 1 listener for "foo"')
+    t.notEqual(listeners[0], myHandler, 'that 1 listener is not myHandler() (it is a wrapped version of it)')
+    listeners = emitter.listeners('bar')
+    t.strictEqual(listeners.length, 1, 'have 1 listener for "bar"')
+    t.notEqual(listeners[0], myHandler, 'that 1 listener is not myHandler() (it is a wrapped version of it)')
 
-    emitter.removeListener('foo', handler)
+    emitter.removeListener('foo', myHandler)
     listeners = emitter.listeners('foo')
-    t.strictEqual(listeners.length, 0)
+    t.strictEqual(listeners.length, 0, 'now have 0 listeners for "foo"')
+
+    emitter.removeListener('bar', myHandler)
+    listeners = emitter.listeners('bar')
+    t.strictEqual(listeners.length, 0, 'now have 0 listeners for "bar"')
 
     trans.end()
   })
@@ -552,6 +567,11 @@ test('bind', function (t) {
 
   methods.forEach(function (method) {
     t.test('does not create spans in unbound emitter with ' + method, function (t) {
+      // XXX *If* an erroneous span does come, it comes asynchronously after
+      // s1.end(), because of span stack processing. This means
+      // `resetAgent(1, ...` here will barrel on, thinking all is well. The
+      // subsequently sent span will bleed into the next test case. This is
+      // poorly written. Basically "_mock_http_client.js"-style is flawed.
       resetAgent(1, function (data) {
         t.strictEqual(data.transactions.length, 1)
         t.end()
@@ -561,40 +581,47 @@ test('bind', function (t) {
       var trans = ins.startTransaction('foo')
 
       var emitter = new EventEmitter()
+      // Explicitly *not* using `bindEmitter` here.
 
       emitter[method]('foo', function () {
-        var t0 = ins.startSpan('t0')
-        if (t0) t0.end()
+        var s1 = ins.startSpan('s1')
+        t.equal(s1, null, 'should *not* get span s1')
+        if (s1) s1.end()
         trans.end()
       })
 
-      ins.currentTransaction = null
+      // Artificially make the current run context empty.
+      ins.enterEmptyRunContext()
+
       emitter.emit('foo')
     })
   })
 
   methods.forEach(function (method) {
-    t.test('creates spans in bound emitter with ' + method, function (t) {
+    t.test(`creates spans in bound emitter with method="${method}"`, function (t) {
       resetAgent(2, function (data) {
         t.strictEqual(data.transactions.length, 1)
         t.strictEqual(data.spans.length, 1)
-        t.strictEqual(data.spans[0].name, 't0')
+        t.strictEqual(data.spans[0].name, 's1')
         t.end()
       })
-      var ins = agent._instrumentation
 
+      var ins = agent._instrumentation
       var trans = ins.startTransaction('foo')
 
       var emitter = new EventEmitter()
       ins.bindEmitter(emitter)
 
       emitter[method]('foo', function () {
-        var t0 = ins.startSpan('t0')
-        if (t0) t0.end()
+        var s1 = ins.startSpan('s1')
+        if (s1) s1.end()
         trans.end()
       })
 
-      ins.currentTransaction = null
+      // Artificially make the current run context empty to test that
+      // `bindEmitter` does its job of binding the run context.
+      ins.enterEmptyRunContext()
+
       emitter.emit('foo')
     })
   })
@@ -638,6 +665,9 @@ test('nested spans', function (t) {
     t.end()
   })
   var ins = agent._instrumentation
+
+  // XXX This is an intentional change in behaviour with the new context mgmt.
+  // Expected hierarchy before:
 
   var trans = ins.startTransaction('foo')
   var count = 0
@@ -722,8 +752,7 @@ test('nested transactions', function (t) {
 })
 
 function resetAgent (expected, cb) {
-  agent._conf.spanFramesMinDuration = -1
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

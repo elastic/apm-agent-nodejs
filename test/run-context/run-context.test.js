@@ -78,6 +78,26 @@ const cases = [
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
       // XXX check sync for the spans
     }
+  },
+  {
+    script: 'parentage-with-ended-span.js',
+    check: (t, events) => {
+      // Expected:
+      //  - transaction "t0"
+      //    - span "s1"
+      //      - span "s3"
+      //    - span "s2"
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      t.equal(events.length, 5, 'exactly 5 events')
+      const t0 = findObjInArray(events, 'transaction.name', 't0')
+      const s1 = findObjInArray(events, 'span.name', 's1')
+      const s2 = findObjInArray(events, 'span.name', 's2')
+      const s3 = findObjInArray(events, 'span.name', 's3')
+      t.equal(s1.parent_id, t0.id, 's1 is a child of t0')
+      t.equal(s2.parent_id, t0.id, 's2 is a child of t0 (because s1 ended before s2 was started, in the same async task)')
+      t.equal(s3.parent_id, s1.id, 's3 is a child of s1')
+      // XXX could check that s3 start time is after s1 end time
+    }
   }
 ]
 
@@ -98,7 +118,11 @@ cases.forEach(c => {
         },
         function done (err, _stdout, _stderr) {
           t.error(err, `${scriptPath} exited non-zero`)
-          c.check(t, server.events)
+          if (err) {
+            t.comment('skip checks because script errored out')
+          } else {
+            c.check(t, server.events)
+          }
           server.close()
           t.end()
         }

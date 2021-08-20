@@ -438,8 +438,8 @@ test('#addLabels()', function (t) {
   })
 })
 
-test('filters', function (t) {
-  t.test('#addFilter() - error', function (t) {
+test('filters', function (suite) {
+  suite.test('#addFilter() - error', function (t) {
     t.plan(6 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
@@ -464,19 +464,19 @@ test('filters', function (t) {
       })
   })
 
-  t.test('#addFilter() - transaction', function (t) {
+  suite.test('#addFilter() - transaction', function (t) {
     t.plan(6 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
       .on('listening', function () {
         this.agent.addFilter(function (obj) {
-          t.strictEqual(obj.name, 'transaction-name')
-          t.strictEqual(++obj.context.custom.order, 1)
+          t.strictEqual(obj.name, 'transaction-name', 'got expected transaction.name')
+          t.strictEqual(++obj.context.custom.order, 1, 'the first filter ran first')
           return obj
         })
         this.agent.addFilter('invalid')
         this.agent.addFilter(function (obj) {
-          t.strictEqual(obj.name, 'transaction-name')
-          t.strictEqual(++obj.context.custom.order, 2)
+          t.strictEqual(obj.name, 'transaction-name', 'got expected transaction.name')
+          t.strictEqual(++obj.context.custom.order, 2, 'the second filter ran second')
           return obj
         })
 
@@ -486,13 +486,13 @@ test('filters', function (t) {
         this.agent.flush()
       })
       .on('data-transaction', function (data) {
-        t.strictEqual(data.name, 'transaction-name')
-        t.strictEqual(data.context.custom.order, 2)
+        t.strictEqual(data.name, 'transaction-name', 'got "data-transaction" event')
+        t.strictEqual(data.context.custom.order, 2, '"data-transaction" event ran after both filters')
         t.end()
       })
   })
 
-  t.test('#addFilter() - span', function (t) {
+  suite.test('#addFilter() - span', function (t) {
     t.plan(5 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'span' })
       .on('listening', function () {
@@ -522,7 +522,7 @@ test('filters', function (t) {
       })
   })
 
-  t.test('#addErrorFilter()', function (t) {
+  suite.test('#addErrorFilter()', function (t) {
     t.plan(6 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'error' })
       .on('listening', function () {
@@ -553,7 +553,7 @@ test('filters', function (t) {
       })
   })
 
-  t.test('#addTransactionFilter()', function (t) {
+  suite.test('#addTransactionFilter()', function (t) {
     t.plan(6 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
       .on('listening', function () {
@@ -587,7 +587,7 @@ test('filters', function (t) {
       })
   })
 
-  t.test('#addSpanFilter()', function (t) {
+  suite.test('#addSpanFilter()', function (t) {
     t.plan(5 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'span' })
       .on('listening', function () {
@@ -623,7 +623,7 @@ test('filters', function (t) {
       })
   })
 
-  t.test('#addMetadataFilter()', function (t) {
+  suite.test('#addMetadataFilter()', function (t) {
     t.plan(5 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: ['metadata', 'transaction'] })
       .on('listening', function () {
@@ -659,7 +659,7 @@ test('filters', function (t) {
   const falsyValues = [undefined, null, false, 0, '', NaN]
 
   falsyValues.forEach(falsy => {
-    t.test(`#addFilter() - abort with '${String(falsy)}'`, function (t) {
+    suite.test(`#addFilter() - abort with '${String(falsy)}'`, function (t) {
       t.plan(1)
 
       const server = http.createServer(function (req, res) {
@@ -686,7 +686,7 @@ test('filters', function (t) {
       })
     })
 
-    t.test(`#addErrorFilter() - abort with '${String(falsy)}'`, function (t) {
+    suite.test(`#addErrorFilter() - abort with '${String(falsy)}'`, function (t) {
       t.plan(1)
 
       const server = http.createServer(function (req, res) {
@@ -716,7 +716,7 @@ test('filters', function (t) {
       })
     })
 
-    t.test(`#addTransactionFilter() - abort with '${String(falsy)}'`, function (t) {
+    suite.test(`#addTransactionFilter() - abort with '${String(falsy)}'`, function (t) {
       t.plan(1)
 
       const server = http.createServer(function (req, res) {
@@ -748,7 +748,7 @@ test('filters', function (t) {
       })
     })
 
-    t.test(`#addSpanFilter() - abort with '${String(falsy)}'`, function (t) {
+    suite.test(`#addSpanFilter() - abort with '${String(falsy)}'`, function (t) {
       t.plan(1)
 
       const server = http.createServer(function (req, res) {
@@ -783,6 +783,8 @@ test('filters', function (t) {
       })
     })
   })
+
+  suite.end()
 })
 
 test('#flush()', function (t) {
@@ -818,7 +820,7 @@ test('#flush()', function (t) {
     })
   })
 
-  t.test('agent started, but no data in the queue', function (t) {
+  t.test('agent started, with data in the queue', function (t) {
     t.plan(3 + APMServerWithDefaultAsserts.asserts)
     APMServerWithDefaultAsserts(t, {}, { expect: 'transaction' })
       .on('listening', function () {
@@ -1467,31 +1469,31 @@ test('patches', function (t) {
 })
 
 function assertMetadata (t, payload) {
-  t.strictEqual(payload.service.name, 'some-service-name')
-  t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
-  t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version })
+  t.strictEqual(payload.service.name, 'some-service-name', 'metadata: service.name')
+  t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node }, 'metadata: service.runtime')
+  t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version }, 'metadata: service.agent')
 
   const expectedSystemKeys = ['hostname', 'architecture', 'platform']
   if (inContainer) expectedSystemKeys.push('container')
 
-  t.deepEqual(Object.keys(payload.system), expectedSystemKeys)
-  t.strictEqual(payload.system.hostname, os.hostname())
-  t.strictEqual(payload.system.architecture, process.arch)
-  t.strictEqual(payload.system.platform, process.platform)
+  t.deepEqual(Object.keys(payload.system), expectedSystemKeys, 'metadata: system')
+  t.strictEqual(payload.system.hostname, os.hostname(), 'metadata: system.hostname')
+  t.strictEqual(payload.system.architecture, process.arch, 'metadata: system.architecture')
+  t.strictEqual(payload.system.platform, process.platform, 'metadata: system.platform')
 
   if (inContainer) {
-    t.deepEqual(Object.keys(payload.system.container), ['id'])
-    t.strictEqual(typeof payload.system.container.id, 'string')
-    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id))
+    t.deepEqual(Object.keys(payload.system.container), ['id'], 'metadata: system.container')
+    t.strictEqual(typeof payload.system.container.id, 'string', 'metadata: system.container.id is a string')
+    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id), 'metadata: system.container.id')
   }
 
-  t.ok(payload.process)
-  t.strictEqual(payload.process.pid, process.pid)
-  t.ok(payload.process.pid > 0, 'should have a pid greater than 0')
-  t.ok(payload.process.title, 'should have a process title')
-  t.strictEqual(payload.process.title, process.title)
-  t.deepEqual(payload.process.argv, process.argv)
-  t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
+  t.ok(payload.process, 'metadata: process')
+  t.strictEqual(payload.process.pid, process.pid, 'metadata: process.pid')
+  t.ok(payload.process.pid > 0, 'metadata: process.pid > 0')
+  t.ok(payload.process.title, 'metadata: has a process.title')
+  t.strictEqual(payload.process.title, process.title, 'metadata: process.title matches')
+  t.deepEqual(payload.process.argv, process.argv, 'metadata: has process.argv')
+  t.ok(payload.process.argv.length >= 2, 'metadata: process.argv has at least two args')
 }
 assertMetadata.asserts = inContainer ? 17 : 14
 
@@ -1519,15 +1521,15 @@ assertStackTrace.asserts = 4
 
 function validateRequest (t) {
   return function (req) {
-    t.strictEqual(req.method, 'POST', 'should be a POST request')
-    t.strictEqual(req.url, '/intake/v2/events', 'should be sent to the intake endpoint')
+    t.strictEqual(req.method, 'POST', 'intake request is a POST')
+    t.strictEqual(req.url, '/intake/v2/events', 'got intake request to expected path')
   }
 }
 validateRequest.asserts = 2
 
 function validateMetadata (t) {
   return function (data, index) {
-    t.strictEqual(index, 0, 'metadata should always be sent first')
+    t.strictEqual(index, 0, 'got metadata event first')
     assertMetadata(t, data)
   }
 }

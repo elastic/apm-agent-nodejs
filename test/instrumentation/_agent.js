@@ -36,14 +36,17 @@ module.exports = function mockAgent (expected, cb) {
   agent._metrics = new Metrics(agent)
   agent._metrics.start()
 
+  // XXX rejigger this to not rely on ins.currentTransaction
   Object.defineProperty(agent, 'currentTransaction', {
     get () {
+      XXX
       return agent._instrumentation.currentTransaction
     }
   })
 
   // We do not want to start the instrumentation multiple times during testing.
   // This would result in core functions being patched multiple times
+  // XXX rejigger this to not rely on endTransaction et al
   if (!sharedInstrumentation) {
     sharedInstrumentation = new Instrumentation(agent)
     agent._instrumentation = sharedInstrumentation

@@ -10,6 +10,7 @@ var apm = require('../').start({ // elastic-apm-node
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
+  transactionIgnoreUrls: '/ignore-this-url'
   // XXX
   // disableSend: true
 })
@@ -198,6 +199,17 @@ app.get('/s3', (req, res) => {
     var s3 = apm.startSpan('span3')
     s3.end()
   })
+})
+
+// Ensure that an ignored URL prevents spans being created in its run context
+// if there happens to be an earlier transaction already active.
+const globalTx = apm.startTransaction('globalTx')
+app.get('/ignore-this-url', (req, res) => {
+  assert(apm.currentTransaction === null)
+  const s1 = apm.startSpan('s1')
+  console.warn('XXX s1: ', s1)
+  assert(s1 === null && apm.currentSpan === null)
+  res.end('done')
 })
 
 app.listen(port, function () {

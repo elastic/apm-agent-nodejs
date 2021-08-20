@@ -38,6 +38,8 @@ environment variables:
 
 ## debug logging of `async_hooks` usage
 
+XXX Update this for runctxmgr work.
+
 The following patch to the agent's async-hooks.js can be helpful to learn
 how its async hook tracks relationships between async operations:
 

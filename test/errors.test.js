@@ -8,7 +8,7 @@ const tape = require('tape')
 
 const logging = require('../lib/logging')
 const { createAPMError, _moduleNameFromFrames } = require('../lib/errors')
-const { dottedLookup } = require('_utils')
+const { dottedLookup } = require('./_utils')
 
 const log = logging.createLogger('off')
 
