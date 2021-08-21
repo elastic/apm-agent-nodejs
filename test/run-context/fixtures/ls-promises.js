@@ -20,12 +20,13 @@ let t1
 
 function getCwd () {
   var s2 = apm.startSpan('cwd')
-  return Promise.resolve(process.cwd())
-    .finally(() => {
-      assert(apm.currentTransaction === t1)
-      assert(apm.currentSpan === s2)
-      s2.end()
-    })
+  try {
+    return Promise.resolve(process.cwd())
+  } finally {
+    assert(apm.currentTransaction === t1)
+    assert(apm.currentSpan === s2)
+    s2.end()
+  }
 }
 
 function main () {

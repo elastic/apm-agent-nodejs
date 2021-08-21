@@ -6,8 +6,6 @@
 //    - span "s1"
 //      - span "s3"
 //    - span "s2"
-//
-// XXX TODO Also have a more complex case that ends a span in the stack that isn't the top of stack.
 
 const apm = require('../../../').start({ // elastic-apm-node
   captureExceptions: false,
@@ -16,7 +14,7 @@ const apm = require('../../../').start({ // elastic-apm-node
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'run-context-child-of-ended-span'
+  serviceName: 'run-context-parentage-with-ended-span'
 })
 
 const assert = require('assert').strict

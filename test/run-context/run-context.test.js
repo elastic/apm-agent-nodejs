@@ -59,7 +59,7 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 'cwd')
       const s3 = findObjInArray(events, 'span.name', 'readdir')
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
-      t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
+      t.equal(s3 && s3.parent_id, t1.id, 's3 is a child of t1')
       // XXX check sync for the spans
     }
   },
@@ -98,7 +98,29 @@ const cases = [
       t.equal(s3.parent_id, s1.id, 's3 is a child of s1')
       // XXX could check that s3 start time is after s1 end time
     }
-  }
+  },
+  {
+    script: 'end-non-current-spans.js',
+    check: (t, events) => {
+      // Expected:
+      //   transaction "t0"
+      //   `- span "s1"
+      //     `- span "s2"
+      //     `- span "s3"
+      //       `- span "s4"
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      t.equal(events.length, 6, 'exactly 6 events')
+      const t0 = findObjInArray(events, 'transaction.name', 't0')
+      const s1 = findObjInArray(events, 'span.name', 's1')
+      const s2 = findObjInArray(events, 'span.name', 's2')
+      const s3 = findObjInArray(events, 'span.name', 's3')
+      const s4 = findObjInArray(events, 'span.name', 's4')
+      t.equal(s1.parent_id, t0.id, 's1 is a child of t0')
+      t.equal(s2.parent_id, s1.id, 's2 is a child of s1')
+      t.equal(s3.parent_id, s1.id, 's3 is a child of s1')
+      t.equal(s4.parent_id, s3.id, 's4 is a child of s3')
+    }
+  },
 ]
 
 cases.forEach(c => {
