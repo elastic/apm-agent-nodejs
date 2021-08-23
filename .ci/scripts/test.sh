@@ -141,22 +141,14 @@ set -o xtrace
 # ---- For nightly and rc builds, determine if there is a point in testing.
 
 if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
+  index_tab=./index.tab.tmp
+
   # If there is no nightly/rc build for this version, then skip.
   #
   # Note: We are relying on new releases being added to the top of index.tab,
   # which currently seems to be the case.
-  echo "XXX curl | wc"
-  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | wc -l
-  echo "XXX curl | head"
-  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | head -1
-  echo "XXX curl | grep"
-  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | (grep "^v${NODE_VERSION}" || true)
-  echo "XXX curl | grep | awk"
-  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}'
-  echo "XXX curl | grep | head"
-  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1
-  echo "XXX fin"
-  latest_edge_version=$(curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab \
+  curl -sS "${NVM_NODEJS_ORG_MIRROR}/index.tab" >$index_tab
+  latest_edge_version=$(cat "$index_tab" \
     | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1)
   if [[ -z "$latest_edge_version" ]]; then
     skip "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
@@ -165,11 +157,14 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   # If there is already a *release* build for this same version, then there is
   # no point in testing against this node version, so skip out.
   possible_release_version=${latest_edge_version%-*}  # remove "-*" suffix
-  release_version=$(curl -sS https://nodejs.org/dist/index.tab \
+  curl -sS https://nodejs.org/dist/index.tab >$index_tab
+  release_version=$(cat "$index_tab" \
     | (grep -E "^${possible_release_version}\>" || true) | awk '{print $1}')
   if [[ -n "$release_version" ]]; then
     skip "There is already a release build (${release_version}) of the latest v${NODE_VERSION} ${BUILD_TYPE} (${latest_edge_version}). Skipping tests."
   fi
+
+  rm -f "$index_tab"
 fi
 
 
