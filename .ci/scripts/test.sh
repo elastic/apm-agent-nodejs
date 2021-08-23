@@ -143,7 +143,7 @@ set -o xtrace
 if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   # If there is no nightly/rc build for this version, then skip.
   #
-  # Notes: We are relying on new releases being added to the top of index.tab,
+  # Note: We are relying on new releases being added to the top of index.tab,
   # which currently seems to be the case.
   index_tab_content=$(curl -sS "${NVM_NODEJS_ORG_MIRROR}/index.tab" \
     | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}')
