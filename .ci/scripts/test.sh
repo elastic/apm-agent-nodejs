@@ -147,9 +147,18 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   #
   # Note: We are relying on new releases being added to the top of index.tab,
   # which currently seems to be the case.
-  curl -sS "${NVM_NODEJS_ORG_MIRROR}/index.tab" >$index_tab
-  latest_edge_version=$(cat "$index_tab" \
-    | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1)
+  # echo "XXX cat | grep"
+  # cat "$index_tab" | (grep "^v${NODE_VERSION}" || true)
+  # echo "XXX cat | grep | awk"
+  # cat "$index_tab" | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}'
+  # echo "XXX cat | grep | awk | head"
+  # cat "$index_tab" | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1
+  # echo "XXX fin"
+  # curl -sS "${NVM_NODEJS_ORG_MIRROR}/index.tab" >$index_tab
+  # latest_edge_version=$(cat "$index_tab" \
+  #   | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1)
+  index_tab_content=$(curl -sS "${NVM_NODEJS_ORG_MIRROR}/index.tab" | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}')
+  latest_edge_version=$(echo "$index_tab_content" | head -1)
   if [[ -z "$latest_edge_version" ]]; then
     skip "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
   fi
