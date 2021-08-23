@@ -1,12 +1,27 @@
-import agent from '../../'
+// Test the index.d.ts type file by exercising the API in TypeScript.
+// `tsc` will error out of there is a type conflict.
+//
+// Note: This test file is the one intended to *fully* exercise the exported
+// types. Any types changes should result in an update to this file.
 
-agent.start({
+import agent, {
+  AgentConfigOptions,
+  Transaction,
+  Span,
+  TransactionOptions,
+  SpanOptions
+} from '../../'
+
+const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
   metricsInterval: '0',
   centralConfig: false
-})
+}
+agent.start(agentOpts)
 
-function started (bool: boolean) {}
+function started (aBool: boolean) {
+  console.log(`aBool is: ${aBool}`)
+}
 started(agent.isStarted())
 
 const trans = agent.currentTransaction
