@@ -37,6 +37,10 @@ Notes:
 [float]
 ===== Features
 
+* Improve the TypeScript types by exporting more of interfaces:
+  `AgentConfigOptions`, `Transaction`, `Span`, `TransactionOptions`,
+  `SpanOptions`. ({issues}2118[#2118])
+
 [float]
 ===== Bug fixes
 
@@ -44,6 +48,7 @@ Notes:
   server are not themselves traced. ({issues}1168[#1168], {issues}1136[#1136])
 
 * Fix crashing error with `agent.registerMetric` and `active:false` configuration. ({issues}1799[#1799], {pull}2290[#2290])
+
 
 [[release-notes-3.20.0]]
 ==== 3.20.0 2021/08/12
