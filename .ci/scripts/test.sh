@@ -134,7 +134,8 @@ else
 fi
 
 # Turn on xtrace output only after processing args.
-set -x
+export PS4='${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+set -o xtrace
 
 
 # ---- For nightly and rc builds, determine if there is a point in testing.
@@ -144,6 +145,17 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   #
   # Note: We are relying on new releases being added to the top of index.tab,
   # which currently seems to be the case.
+  echo "XXX curl | wc"
+  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | wc -l
+  echo "XXX curl | head"
+  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | head -1
+  echo "XXX curl | grep"
+  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | (grep "^v${NODE_VERSION}" || true)
+  echo "XXX curl | grep | awk"
+  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}'
+  echo "XXX curl | grep | head"
+  curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1
+  echo "XXX fin"
   latest_edge_version=$(curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab \
     | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1)
   if [[ -z "$latest_edge_version" ]]; then
