@@ -37,11 +37,20 @@ Notes:
 [float]
 ===== Features
 
-- Add "queryMaxLength" config variable to allow overriding the 10000 byte
+* Add "queryMaxLength" config variable to allow overriding the 10000 byte
   default. ({issues}1921[#1921])
+
+* Improve the TypeScript types by exporting more of interfaces:
+  `AgentConfigOptions`, `Transaction`, `Span`, `TransactionOptions`,
+  `SpanOptions`. ({issues}2118[#2118])
 
 [float]
 ===== Bug fixes
+
+* Ensure the internal HTTP(S) client requests made by the APM agent to APM
+  server are not themselves traced. ({issues}1168[#1168], {issues}1136[#1136])
+
+* Fix crashing error with `agent.registerMetric` and `active:false` configuration. ({issues}1799[#1799], {pull}2290[#2290])
 
 
 [[release-notes-3.20.0]]
@@ -50,7 +59,7 @@ Notes:
 [float]
 ===== Bug fixes
 
-- Fix failing tests and a possible runtime crash in
+* Fix failing tests and a possible runtime crash in
   `@elastic/elasticsearch@7.14.0` instrumentation. ({issues}2187[#2187])
 
 

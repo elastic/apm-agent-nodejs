@@ -211,6 +211,18 @@ test('noop counter when not active', function (t) {
   t.end()
 })
 
+test('Metrics objects do not throw/crash when not started', function (t) {
+  const metrics = new Metrics()
+
+  t.equals(metrics.stop(), undefined, 'unset registrySymbol does not crash metrics object')
+  t.equals(metrics.getOrCreateCounter('foo', {}, null), undefined, 'unset registrySymbol does not crash metrics object')
+  t.equals(metrics.incrementCounter('foo'), undefined, 'unset registrySymbol does not crash metrics object')
+  t.equals(metrics.getOrCreateGauge('foo', function () {}), undefined, 'unset registrySymbol does not crash metrics object')
+  t.equals(metrics.createQueueMetricsCollector('foo'), undefined, 'unset registrySymbol does not crash metrics object')
+
+  t.end()
+})
+
 function spinCPUFor (durationMs) {
   const start = Date.now()
   while (Date.now() - start < durationMs) {}
