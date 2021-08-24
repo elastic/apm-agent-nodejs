@@ -179,7 +179,7 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         service: {
           resource: 'sns/topic-name',
           type: 'messaging',
-          name: 'sns',
+          name: 'sns'
         },
         cloud: { region: 'us-west-2' }
       }
@@ -193,7 +193,7 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         service: {
           resource: 'sns/undefined',
           type: 'messaging',
-          name: 'sns',
+          name: 'sns'
         },
         cloud: { region: null }
       }
@@ -207,7 +207,7 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         service: {
           resource: 'sns/undefined',
           type: 'messaging',
-          name: 'sns',
+          name: 'sns'
         },
         cloud: { region: undefined }
       }
