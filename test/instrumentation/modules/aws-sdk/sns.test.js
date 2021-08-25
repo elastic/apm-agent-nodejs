@@ -82,9 +82,9 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
       operation: 'publish',
       params: {
         Message: 'this is my test, there are many lot like it but this one is mine',
-        TopicArn: 'arn:aws:sns:us-west-2:111111111111:accesspoint/withslashes'
+        TopicArn: 'arn:aws:sns:us-west-2:111111111111:foo/withslashes'
       }
-    }), 'accesspoint/withslashes')
+    }), 'foo/withslashes')
 
     t.equals(getDestinationNameFromRequest({
       operation: 'publish',
