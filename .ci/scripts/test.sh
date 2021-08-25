@@ -134,7 +134,8 @@ else
 fi
 
 # Turn on xtrace output only after processing args.
-set -x
+export PS4='${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+set -o xtrace
 
 
 # ---- For nightly and rc builds, determine if there is a point in testing.
@@ -144,8 +145,9 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   #
   # Note: We are relying on new releases being added to the top of index.tab,
   # which currently seems to be the case.
-  latest_edge_version=$(curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab \
-    | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1)
+  index_tab_content=$(curl -sS "${NVM_NODEJS_ORG_MIRROR}/index.tab" \
+    | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}')
+  latest_edge_version=$(echo "$index_tab_content" | head -1)
   if [[ -z "$latest_edge_version" ]]; then
     skip "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
   fi
