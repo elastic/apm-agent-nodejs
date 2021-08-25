@@ -17,7 +17,8 @@ const bodyParser = require('body-parser')
 const AWS = require('aws-sdk')
 
 const {
-  getSpanNameFromRequest, getDestinationNameFromRequest, getMessageDestinationContextFromRequest
+  getSpanNameFromRequest, getDestinationNameFromRequest,
+  getArnOrPhoneNumberFromRequest, getMessageDestinationContextFromRequest
 } = require('../../../../lib/instrumentation/modules/aws-sdk/sns')
 const fixtures = require('./fixtures/sns')
 const mockClient = require('../../../_mock_http_client')
@@ -51,6 +52,34 @@ function resetAgent (cb) {
 }
 
 tape.test('AWS SNS: Unit Test Functions', function (test) {
+  test.test('getArnOrPhoneNumberFromRequest tests', function (t) {
+    t.equals(getArnOrPhoneNumberFromRequest({
+      operation: 'publish',
+      params: {
+        Message: 'this is my test, there are many like it but this one is mine',
+        TopicArn: 'foo'
+      }
+    }), 'foo')
+
+    t.equals(getArnOrPhoneNumberFromRequest({
+      operation: 'publish',
+      params: {
+        Message: 'this is my test, there are many like it but this one is mine',
+        TargetArn: 'bar'
+      }
+    }), 'bar')
+
+    t.equals(getArnOrPhoneNumberFromRequest({
+      operation: 'publish',
+      params: {
+        Message: 'this is my test, there are many like it but this one is mine',
+        PhoneNumber: '1-555-555-5555'
+      }
+    }), '1-555-555-5555')
+
+    t.end()
+  })
+
   test.test('getDestinationNameFromRequest tests', function (t) {
     t.equals(getDestinationNameFromRequest({
       operation: 'publish',
