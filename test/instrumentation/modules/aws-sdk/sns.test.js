@@ -64,9 +64,19 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
       operation: 'publish',
       params: {
         Message: 'this is my test, there are many lot like it but this one is mine',
-        TargetArn: 'arn:aws:sns:us-west-2:111111111111:topic-name'
+        TargetArn: 'arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3'
       }
-    }), 'topic-name')
+    }), 'endpoint/GCM/gcmpushapp')
+
+    // unlikely we'll receive a targetArn without /, but we should
+    // do something reasonable, just in case
+    t.equals(getDestinationNameFromRequest({
+      operation: 'publish',
+      params: {
+        Message: 'this is my test, there are many lot like it but this one is mine',
+        TargetArn: 'arn:aws:sns:us-west-2:123456789012:endpoint:GCM'
+      }
+    }), 'GCM')
 
     t.equals(getDestinationNameFromRequest({
       operation: 'publish',
@@ -75,38 +85,6 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         TopicArn: 'arn:aws:sns:us-west-2:111111111111:accesspoint/withslashes'
       }
     }), 'accesspoint/withslashes')
-
-    t.equals(getDestinationNameFromRequest({
-      operation: 'publish',
-      params: {
-        Message: 'this is my test, there are many lot like it but this one is mine',
-        TargetArn: 'arn:aws:sns:us-west-2:111111111111:accesspoint/withslashes'
-      }
-    }), 'accesspoint/withslashes')
-
-    t.equals(getDestinationNameFromRequest({
-      operation: 'publish',
-      params: {
-        Message: 'this is my test, there are many lot like it but this one is mine',
-        TopicArn: 'arn:aws:sns:us-west-2:111111111111:accesspoint:withcolons'
-      }
-    }), 'accesspoint:withcolons')
-
-    t.equals(getDestinationNameFromRequest({
-      operation: 'publish',
-      params: {
-        Message: 'this is my test, there are many lot like it but this one is mine',
-        TargetArn: 'arn:aws:sns:us-west-2:111111111111:accesspoint:withcolons'
-      }
-    }), 'accesspoint:withcolons')
-
-    t.equals(getDestinationNameFromRequest({
-      operation: 'publish',
-      params: {
-        Message: 'this is my test, there are many lot like it but this one is mine',
-        TargetArn: 'arn:aws:sns:us-west-2:111111111111:accesspoint:withcolons'
-      }
-    }), 'accesspoint:withcolons')
 
     t.equals(getDestinationNameFromRequest({
       operation: 'publish',
@@ -123,7 +101,7 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
     t.end()
   })
 
-  test.test('getDestinationNameFromRequest tests', function (t) {
+  test.test('getSpanNameFromRequest tests', function (t) {
     t.equals(getSpanNameFromRequest({
       operation: 'publish',
       params: {
@@ -131,15 +109,15 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         Subject: 'Admin',
         PhoneNumber: '15555555555'
       }
-    }), 'SNS PUBLISH <PHONE_NUMBER>')
+    }), 'SNS PUBLISH to <PHONE_NUMBER>')
 
     t.equals(getSpanNameFromRequest({
       operation: 'publish',
       params: {
         Message: 'this is my test, there are many lot like it but this one is mine',
-        TargetArn: 'arn:aws:sns:us-west-2:111111111111:accesspoint:withcolons'
+        TargetArn: 'arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3'
       }
-    }), 'SNS PUBLISH accesspoint:withcolons')
+    }), 'SNS PUBLISH to endpoint/GCM/gcmpushapp')
 
     t.equals(getSpanNameFromRequest({
       operation: 'publish',
@@ -147,11 +125,11 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
         Message: 'this is my test, there are many lot like it but this one is mine',
         TopicArn: 'arn:aws:sns:us-west-2:111111111111:foo:topic-name'
       }
-    }), 'SNS PUBLISH topic-name')
+    }), 'SNS PUBLISH to topic-name')
 
-    t.equals(getSpanNameFromRequest(null), 'SNS PUBLISH undefined')
-    t.equals(getSpanNameFromRequest({}), 'SNS PUBLISH undefined')
-    t.equals(getSpanNameFromRequest({ params: {} }), 'SNS PUBLISH undefined')
+    t.equals(getSpanNameFromRequest(null), 'SNS PUBLISH to undefined')
+    t.equals(getSpanNameFromRequest({}), 'SNS PUBLISH to undefined')
+    t.equals(getSpanNameFromRequest({ params: {} }), 'SNS PUBLISH to undefined')
     t.end()
   })
 
@@ -232,9 +210,10 @@ tape.test('AWS SNS: End to End Test', function (test) {
       const port = listener.address().port
       resetAgent(function (data) {
         const span = data.spans.filter((span) => span.type === 'messaging').pop()
-        t.equals(span.name, 'SNS PUBLISH topic-name', 'span named correctly')
+        t.equals(span.name, 'SNS PUBLISH to topic-name', 'span named correctly')
         t.equals(span.type, 'messaging', 'span type correctly set')
         t.equals(span.subtype, 'sns', 'span subtype set correctly')
+        t.equals(span.action, 'publish', 'span action set correctly')
         t.equals(span.context.message.queue.name, 'topic-name')
         t.equals(span.context.destination.service.resource, 'sns/topic-name')
         t.equals(span.context.destination.service.type, 'messaging')
