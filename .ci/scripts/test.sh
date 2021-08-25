@@ -255,7 +255,7 @@ docker-compose \
 if ! NODE_VERSION=${NODE_VERSION} docker-compose \
     --no-ansi \
     --log-level ERROR \
-    -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
+    -f .ci/docker/${DOCKER_COMPOSE_FILE} \
     down -v --remove-orphans; then
   # Workaround for this commonly seen error:
   #   error while removing network: network docker_default id $id has active endpoints
