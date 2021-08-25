@@ -134,7 +134,8 @@ else
 fi
 
 # Turn on xtrace output only after processing args.
-set -x
+export PS4='${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+set -o xtrace
 
 
 # ---- For nightly and rc builds, determine if there is a point in testing.
@@ -144,8 +145,9 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   #
   # Note: We are relying on new releases being added to the top of index.tab,
   # which currently seems to be the case.
-  latest_edge_version=$(curl -sS ${NVM_NODEJS_ORG_MIRROR}/index.tab \
-    | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}' | head -1)
+  index_tab_content=$(curl -sS "${NVM_NODEJS_ORG_MIRROR}/index.tab" \
+    | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}')
+  latest_edge_version=$(echo "$index_tab_content" | head -1)
   if [[ -z "$latest_edge_version" ]]; then
     skip "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
   fi
@@ -250,8 +252,15 @@ docker-compose \
   --abort-on-container-exit \
   node_tests
 
-NODE_VERSION=${NODE_VERSION} docker-compose \
-  --no-ansi \
-  --log-level ERROR \
-  -f .ci/docker/${DOCKER_COMPOSE_FILE} \
-  down -v --remove-orphans
+if ! NODE_VERSION=${NODE_VERSION} docker-compose \
+    --no-ansi \
+    --log-level ERROR \
+    -f ${DOCKER_FOLDER}/${DOCKER_COMPOSE_FILE} \
+    down -v --remove-orphans; then
+  # Workaround for this commonly seen error:
+  #   error while removing network: network docker_default id $id has active endpoints
+  echo "Unexpected error in 'docker-compose down ...'. Forcing removal of unused networks."
+  docker network inspect docker_default || true
+  docker network inspect -f '{{range .Containers}}{{ .Name }} {{end}}' docker_default || true
+  docker network prune --force || true
+fi

@@ -217,11 +217,11 @@ apollo-server-express-2_12:
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.12.0
   # We want this version range:
-  #   versions: '>=2.0.4 <2.2 || >= 2.3.2 <3'
+  #   versions: '>=2.9.16 <2.2 || >= 2.3.2 <3'
   # but only the latest MAJOR.MINOR.x to reduce the test matrix.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '2.0.7 || 2.1.0 || 2.3.3 || 2.4.8 || 2.5.1 || 2.6.9 || 2.7.2 || 2.8.2 || 2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
+  versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.test.js
 apollo-server-express-2_13:
@@ -229,11 +229,11 @@ apollo-server-express-2_13:
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^0.13.0
   # We want this version range:
-  #   versions: '>=2.0.4 <2.2 || >= 2.3.2 <3'
+  #   versions: '>=2.9.16 <2.2 || >= 2.3.2 <3'
   # but only the latest MAJOR.MINOR.x to reduce the test matrix.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '2.0.7 || 2.1.0 || 2.3.3 || 2.4.8 || 2.5.1 || 2.6.9 || 2.7.2 || 2.8.2 || 2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
+  versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.test.js
 apollo-server-express-2_14:
@@ -241,11 +241,11 @@ apollo-server-express-2_14:
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^14.0.0
   # We want this version range:
-  #   versions: '>=2.0.4 <2.2 || >= 2.3.2 <3'
+  #   versions: '>=2.9.16 <2.2 || >= 2.3.2 <3'
   # but only the latest MAJOR.MINOR.x to reduce the test matrix.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '2.0.7 || 2.1.0 || 2.3.3 || 2.4.8 || 2.5.1 || 2.6.9 || 2.7.2 || 2.8.2 || 2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
+  versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.test.js
 apollo-server-express-2_15:
@@ -262,6 +262,14 @@ apollo-server-express-2_15:
   # Per https://github.com/graphql/graphql-js/releases/tag/v15.0.0
   # graphql v15 supports node v8 as a minimum.
   node: '>=8'
+  commands: node test/instrumentation/modules/apollo-server-express.test.js
+
+apollo-server-express-3_15:
+  name: apollo-server-express
+  preinstall: npm uninstall express-graphql
+  peerDependencies: graphql@^15.0.0
+  versions: '^3.0.0'
+  node: '>=12'
   commands: node test/instrumentation/modules/apollo-server-express.test.js
 
 express-queue:

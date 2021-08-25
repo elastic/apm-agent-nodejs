@@ -1,13 +1,20 @@
 'use strict'
 
 const agent = require('../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-mongodb',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  cloudProvider: 'none'
 })
 
+// require('mongodb') is a hard crash on nodes <10.4
+const mongodbVersion = require('../../../node_modules/mongodb/package.json').version
+const semver = require('semver')
+if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '10.4.0')) {
+  console.log(`# SKIP mongodb@${mongodbVersion} does not support node ${process.version}`)
+  process.exit()
+}
 const MongoClient = require('mongodb').MongoClient
 const test = require('tape')
 
@@ -44,7 +51,8 @@ test('instrument simple command', function (t) {
 
     collection.insertMany([{ a: 1 }, { a: 2 }, { a: 3 }], { w: 1 }, function (err, results) {
       t.error(err, 'no insert error')
-      t.strictEqual(results.result.n, 3, 'inserted three records')
+      const insertedCount = getInsertedCountFromResults(results)
+      t.strictEqual(insertedCount, 3, 'inserted three records')
 
       // If records have been inserted, they should be cleaned up
       t.on('end', () => {
@@ -55,11 +63,13 @@ test('instrument simple command', function (t) {
 
       collection.updateOne({ a: 1 }, { $set: { b: 1 } }, { w: 1 }, function (err, results) {
         t.error(err, 'no update error')
-        t.strictEqual(results.result.n, 1, 'updated one record')
+        const count = getMatchedCountFromResults(results)
+        t.strictEqual(count, 1, 'updated one record')
 
         collection.deleteOne({ a: 1 }, { w: 1 }, function (err, results) {
           t.error(err, 'no delete error')
-          t.strictEqual(results.result.n, 1, 'deleted one record')
+          const count = getDeletedCountFromResults(results)
+          t.strictEqual(count, 1, 'deleted one record')
 
           var cursor = collection.find({})
 
@@ -122,6 +132,20 @@ function makeSpanTest (t, name) {
       }, 'span.context.destination')
     }
   }
+}
+
+// MongoDB changed the structure of their results objects
+// between version 3 and version 4
+function getInsertedCountFromResults (results) {
+  return results.result ? results.result.n : results.insertedCount
+}
+
+function getMatchedCountFromResults (results) {
+  return results.result ? results.result.n : results.matchedCount
+}
+
+function getDeletedCountFromResults (results) {
+  return results.result ? results.result.n : results.deletedCount
 }
 
 function resetAgent (expectations, cb) {

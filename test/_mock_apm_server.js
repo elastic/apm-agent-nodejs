@@ -5,6 +5,7 @@
 //    server.start(function (serverUrl) {
 //      // Test code using `serverUrl`...
 //      // - Events received on the intake API will be on `server.events`.
+//      // - Raw request data is on `server.requests`.
 //      // - Call `server.close()` when done.
 //    })
 
@@ -15,6 +16,7 @@ const zlib = require('zlib')
 class MockAPMServer {
   constructor () {
     this.events = []
+    this.requests = []
     this.serverUrl = null // set in .start()
     this._http = http.createServer(this._onRequest.bind(this))
   }
@@ -51,6 +53,12 @@ class MockAPMServer {
       } else {
         res.writeHead(404)
       }
+      this.requests.push({
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        body: body
+      })
       res.end(resBody)
     })
   }
