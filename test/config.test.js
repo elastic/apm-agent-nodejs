@@ -734,7 +734,7 @@ test('disableInstrumentations', function (t) {
   }
   // As of mongodb@4 only supports node >=v12.
   const mongodbVersion = require('../node_modules/mongodb/package.json').version
-  if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '11.0.0')) {
+  if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
     modules.delete('mongodb')
   }
 

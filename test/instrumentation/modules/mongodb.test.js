@@ -8,10 +8,10 @@ const agent = require('../../..').start({
   cloudProvider: 'none'
 })
 
-// require('mongodb') is a hard crash on nodes <10.4
+// As of mongodb@4 only supports node >=v12.
 const mongodbVersion = require('../../../node_modules/mongodb/package.json').version
 const semver = require('semver')
-if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '10.4.0')) {
+if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
   console.log(`# SKIP mongodb@${mongodbVersion} does not support node ${process.version}`)
   process.exit()
 }
