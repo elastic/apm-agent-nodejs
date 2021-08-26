@@ -14,16 +14,35 @@ var rimraf = require('rimraf')
 var semver = require('semver')
 var test = require('tape')
 
-var Agent = require('./_agent')
-var APMServer = require('./_apm_server')
+const Agent = require('../lib/agent')
+const { MockAPMServer } = require('./_mock_apm_server')
+const { NoopTransport } = require('../lib/noop-transport')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
 var apmName = require('../package').name
 var isHapiIncompat = require('./_is_hapi_incompat')
 
-process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
-process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
+// Options to pass to `agent.start()` to turn off some default agent behavior
+// that is unhelpful for these tests.
+const agentOpts = {
+  centralConfig: false,
+  captureExceptions: false,
+  metricsInterval: '0s',
+  cloudProvider: 'none',
+  spanFramesMinDuration: -1, // Never discard fast spans.
+  logLevel: 'warn'
+}
+const agentOptsNoopTransport = Object.assign(
+  {},
+  agentOpts,
+  {
+    transport: function createNoopTransport () {
+      // Avoid accidentally trying to send data to an APM server.
+      return new NoopTransport()
+    }
+  }
+)
 
 var optionFixtures = [
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
@@ -90,7 +109,7 @@ optionFixtures.forEach(function (fixture) {
     var existingValue = process.env[envName]
 
     test(`should be configurable by environment variable ${envName}`, function (t) {
-      var agent = Agent()
+      var agent = new Agent()
       var value
 
       if (bool) value = !fixture[2]
@@ -107,7 +126,7 @@ optionFixtures.forEach(function (fixture) {
 
       process.env[envName] = value.toString()
 
-      agent.start()
+      agent.start(agentOptsNoopTransport)
 
       if (array) {
         t.deepEqual(agent._conf[fixture[0]], [value])
@@ -121,11 +140,12 @@ optionFixtures.forEach(function (fixture) {
         delete process.env[envName]
       }
 
+      agent.destroy()
       t.end()
     })
 
     test(`should overwrite option property ${fixture[0]} by ${envName}`, function (t) {
-      var agent = Agent()
+      var agent = new Agent()
       var opts = {}
       var value1, value2
 
@@ -154,7 +174,7 @@ optionFixtures.forEach(function (fixture) {
       opts[fixture[0]] = value1
       process.env[envName] = value2.toString()
 
-      agent.start(opts)
+      agent.start(Object.assign({}, agentOptsNoopTransport, opts))
 
       if (array) {
         t.deepEqual(agent._conf[fixture[0]], [value2])
@@ -168,6 +188,7 @@ optionFixtures.forEach(function (fixture) {
         delete process.env[envName]
       }
 
+      agent.destroy()
       t.end()
     })
   }
@@ -176,9 +197,12 @@ optionFixtures.forEach(function (fixture) {
     if (existingValue) {
       delete process.env[envName]
     }
+    var opts = Object.assign({}, agentOptsNoopTransport)
+    if (fixture[0] in opts) {
+      delete opts[fixture[0]]
+    }
 
-    var agent = Agent()
-    agent.start()
+    var agent = new Agent().start(opts)
     if (array) {
       t.deepEqual(agent._conf[fixture[0]], fixture[2])
     } else {
@@ -189,42 +213,49 @@ optionFixtures.forEach(function (fixture) {
       process.env[envName] = existingValue
     }
 
+    agent.destroy()
     t.end()
   })
 })
 
 falsyValues.forEach(function (val) {
   test('should be disabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
-    var agent = Agent()
+    var agent = new Agent()
     process.env.ELASTIC_APM_ACTIVE = val
-    agent.start({ serviceName: 'foo', secretToken: 'baz' })
+    agent.start(Object.assign({}, agentOptsNoopTransport, { serviceName: 'foo', secretToken: 'baz' }))
     t.strictEqual(agent._conf.active, false)
     delete process.env.ELASTIC_APM_ACTIVE
+    agent.destroy()
     t.end()
   })
 })
 
 truthyValues.forEach(function (val) {
   test('should be enabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
-    var agent = Agent()
+    var agent = new Agent()
     process.env.ELASTIC_APM_ACTIVE = val
-    agent.start({ serviceName: 'foo', secretToken: 'baz' })
+    agent.start(Object.assign({}, agentOptsNoopTransport, { serviceName: 'foo', secretToken: 'baz' }))
     t.strictEqual(agent._conf.active, true)
     delete process.env.ELASTIC_APM_ACTIVE
+    agent.destroy()
     t.end()
   })
 })
 
 test('should log invalid booleans', function (t) {
-  var agent = Agent()
+  var agent = new Agent()
   var logger = new CaptureLogger()
 
-  agent.start({
-    serviceName: 'foo',
-    secretToken: 'baz',
-    active: 'nope',
-    logger
-  })
+  agent.start(Object.assign(
+    {},
+    agentOptsNoopTransport,
+    {
+      serviceName: 'foo',
+      secretToken: 'baz',
+      active: 'nope',
+      logger
+    }
+  ))
 
   t.strictEqual(logger.calls.length, 2)
 
@@ -234,6 +265,7 @@ test('should log invalid booleans', function (t) {
   var debug = logger.calls.shift()
   t.strictEqual(debug.message, 'Elastic APM agent disabled (`active` is false)')
 
+  agent.destroy()
   t.end()
 })
 
@@ -243,11 +275,12 @@ var MINUS_ONE_EQUAL_INFINITY = [
 
 MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
   test(key + ' should be Infinity if set to -1', function (t) {
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = -1
-    agent.start(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], Infinity)
+    agent.destroy()
     t.end()
   })
 })
@@ -259,11 +292,12 @@ var bytesValues = [
 
 bytesValues.forEach(function (key) {
   test(key + ' should be converted to a number', function (t) {
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = '1mb'
-    agent.start(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 1024 * 1024)
+    agent.destroy()
     t.end()
   })
 })
@@ -277,66 +311,42 @@ var timeValues = [
 
 timeValues.forEach(function (key) {
   test(key + ' should convert minutes to seconds', function (t) {
-    if (key === 'metricsInterval') {
-      delete process.env.ELASTIC_APM_METRICS_INTERVAL
-      t.on('end', function () {
-        process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
-      })
-    }
-
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = '1m'
-    agent.start(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 60)
+    agent.destroy()
     t.end()
   })
 
   test(key + ' should convert milliseconds to seconds', function (t) {
-    if (key === 'metricsInterval') {
-      delete process.env.ELASTIC_APM_METRICS_INTERVAL
-      t.on('end', function () {
-        process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
-      })
-    }
-
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = '2000ms'
-    agent.start(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 2)
+    agent.destroy()
     t.end()
   })
 
   test(key + ' should parse seconds', function (t) {
-    if (key === 'metricsInterval') {
-      delete process.env.ELASTIC_APM_METRICS_INTERVAL
-      t.on('end', function () {
-        process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
-      })
-    }
-
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = '5s'
-    agent.start(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 5)
+    agent.destroy()
     t.end()
   })
 
   test(key + ' should support bare numbers', function (t) {
-    if (key === 'metricsInterval') {
-      delete process.env.ELASTIC_APM_METRICS_INTERVAL
-      t.on('end', function () {
-        process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
-      })
-    }
-
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = 10
-    agent.start(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 10)
+    agent.destroy()
     t.end()
   })
 })
@@ -361,29 +371,32 @@ keyValuePairValues.forEach(function (key) {
   ]
 
   test(key + ' should support string form', function (t) {
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = string
-    agent._config(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.deepEqual(agent._conf[key], pairs)
+    agent.destroy()
     t.end()
   })
 
   test(key + ' should support object form', function (t) {
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = object
-    agent._config(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.deepEqual(agent._conf[key], pairs)
+    agent.destroy()
     t.end()
   })
 
   test(key + ' should support pair form', function (t) {
-    var agent = Agent()
+    var agent = new Agent()
     var opts = {}
     opts[key] = pairs
-    agent._config(opts)
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.deepEqual(agent._conf[key], pairs)
+    agent.destroy()
     t.end()
   })
 })
@@ -398,49 +411,57 @@ var noPrefixValues = [
 noPrefixValues.forEach(function (pair) {
   const [key, envVar] = pair
   test(`maps ${envVar} to ${key}`, (t) => {
-    var agent = Agent()
+    var agent = new Agent()
     process.env[envVar] = 'test'
-    agent.start()
+    agent.start(agentOptsNoopTransport)
     delete process.env[envVar]
     t.strictEqual(agent._conf[key], 'test')
+    agent.destroy()
     t.end()
   })
 })
 
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
-  var agent = Agent()
+  var agent = new Agent()
   var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
   process.env.ELASTIC_APM_ACTIVE = 'false'
-  agent.start(opts)
+  agent.start(Object.assign({}, agentOptsNoopTransport, opts))
   t.strictEqual(agent._conf.active, false)
   delete process.env.ELASTIC_APM_ACTIVE
+  agent.destroy()
   t.end()
 })
 
 test('should default serviceName to package name', function (t) {
-  var agent = Agent()
+  var agent = new Agent()
   agent.start()
   t.strictEqual(agent._conf.serviceName, 'elastic-apm-node')
+  agent.destroy()
   t.end()
 })
 
 test('should default to empty request blacklist arrays', function (t) {
-  var agent = Agent()
-  agent.start()
+  var agent = new Agent()
+  agent.start(agentOptsNoopTransport)
   t.strictEqual(agent._conf.ignoreUrlStr.length, 0)
   t.strictEqual(agent._conf.ignoreUrlRegExp.length, 0)
   t.strictEqual(agent._conf.ignoreUserAgentStr.length, 0)
   t.strictEqual(agent._conf.ignoreUserAgentRegExp.length, 0)
   t.strictEqual(agent._conf.transactionIgnoreUrlRegExp.length, 0)
+  agent.destroy()
   t.end()
 })
 
 test('should separate strings and regexes into their own blacklist arrays', function (t) {
-  var agent = Agent()
-  agent.start({
-    ignoreUrls: ['str1', /regex1/],
-    ignoreUserAgents: ['str2', /regex2/]
-  })
+  var agent = new Agent()
+  agent.start(Object.assign(
+    {},
+    agentOptsNoopTransport,
+    {
+      ignoreUrls: ['str1', /regex1/],
+      ignoreUserAgents: ['str2', /regex2/]
+    }
+  ))
 
   t.deepEqual(agent._conf.ignoreUrlStr, ['str1'])
   t.deepEqual(agent._conf.ignoreUserAgentStr, ['str2'])
@@ -453,14 +474,19 @@ test('should separate strings and regexes into their own blacklist arrays', func
   t.ok(isRegExp(agent._conf.ignoreUserAgentRegExp[0]))
   t.strictEqual(agent._conf.ignoreUserAgentRegExp[0].toString(), '/regex2/')
 
+  agent.destroy()
   t.end()
 })
 
 test('should compile wildcards from string', function (t) {
-  var agent = Agent()
-  agent.start({
-    transactionIgnoreUrls: ['foo', '/str1', '/wil*card']
-  })
+  var agent = new Agent()
+  agent.start(Object.assign(
+    {},
+    agentOptsNoopTransport,
+    {
+      transactionIgnoreUrls: ['foo', '/str1', '/wil*card']
+    }
+  ))
 
   t.strictEqual(
     agent._conf.transactionIgnoreUrlRegExp.length,
@@ -468,20 +494,23 @@ test('should compile wildcards from string', function (t) {
     'was everything added?'
   )
 
+  agent.destroy()
   t.end()
 })
 
 test('invalid serviceName => inactive', function (t) {
-  var agent = Agent()
-  agent.start({ serviceName: 'foo&bar' })
+  var agent = new Agent()
+  agent.start(Object.assign({}, agentOptsNoopTransport, { serviceName: 'foo&bar' }))
   t.strictEqual(agent._conf.active, false)
+  agent.destroy()
   t.end()
 })
 
 test('valid serviceName => active', function (t) {
-  var agent = Agent()
-  agent.start({ serviceName: 'fooBAR0123456789_- ' })
+  var agent = new Agent()
+  agent.start(Object.assign({}, agentOptsNoopTransport, { serviceName: 'fooBAR0123456789_- ' }))
   t.strictEqual(agent._conf.active, true)
+  agent.destroy()
   t.end()
 })
 
@@ -508,7 +537,11 @@ test('serviceName defaults to package name', function (t) {
         action: 'create',
         path: path.join(tmp, 'index.js'),
         contents: `
-          var apm = require('elastic-apm-node').start({logLevel: 'off'})
+          var apm = require('elastic-apm-node').start({
+            centralConfig: false,
+            metricsInterval: '0s',
+            logLevel: 'off'
+          })
           console.log(JSON.stringify(apm._conf))
         `
       },
@@ -631,45 +664,45 @@ var captureBodyTests = [
 
 captureBodyTests.forEach(function (captureBodyTest) {
   test('captureBody => ' + captureBodyTest.value, function (t) {
-    t.plan(4)
+    const apmServer = new MockAPMServer()
+    apmServer.start(function (serverUrl) {
+      const agent = new Agent().start(Object.assign(
+        {},
+        agentOpts,
+        {
+          serverUrl,
+          captureBody: captureBodyTest.value
+        }
+      ))
 
-    var agent = Agent()
-    agent.start({
-      serviceName: 'test',
-      captureExceptions: false,
-      captureBody: captureBodyTest.value
+      var req = new IncomingMessage()
+      req.socket = { remoteAddress: '127.0.0.1' }
+      req.headers['transfer-encoding'] = 'chunked'
+      req.headers['content-length'] = 4
+      req.body = 'test'
+
+      var trans = agent.startTransaction()
+      trans.req = req
+      trans.end()
+
+      agent.captureError(new Error('wat'), { request: req },
+        function () {
+          t.equal(apmServer.events.length, 3, 'apmServer got 3 events')
+          let data = apmServer.events[1].transaction
+          t.ok(data, 'event 1 is a transaction')
+          t.strictEqual(data.context.request.body, captureBodyTest.transactions,
+            'transaction.context.request.body is ' + captureBodyTest.transactions)
+          data = apmServer.events[2].error
+          t.ok(data, 'event 2 is an error')
+          t.strictEqual(data.context.request.body, captureBodyTest.errors,
+            'error.context.request.body is ' + captureBodyTest.errors)
+
+          agent.destroy()
+          apmServer.close()
+          t.end()
+        }
+      )
     })
-
-    var sendError = agent._transport.sendError
-    var sendTransaction = agent._transport.sendTransaction
-    agent._transport.sendError = function (error, cb) {
-      var request = error.context.request
-      t.ok(request)
-      t.strictEqual(request.body, captureBodyTest.errors)
-      if (cb) process.nextTick(cb)
-    }
-    agent._transport.sendTransaction = function (trans, cb) {
-      var request = trans.context.request
-      t.ok(request)
-      t.strictEqual(request.body, captureBodyTest.transactions)
-      if (cb) process.nextTick(cb)
-    }
-    t.on('end', function () {
-      agent._transport.sendError = sendError
-      agent._transport.sendTransaction = sendTransaction
-    })
-
-    var req = new IncomingMessage()
-    req.socket = { remoteAddress: '127.0.0.1' }
-    req.headers['transfer-encoding'] = 'chunked'
-    req.headers['content-length'] = 4
-    req.body = 'test'
-
-    agent.captureError(new Error('wat'), { request: req })
-
-    var trans = agent.startTransaction()
-    trans.req = req
-    trans.end()
   })
 })
 
@@ -680,24 +713,26 @@ var usePathAsTransactionNameTests = [
 
 usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
   test('usePathAsTransactionName => ' + usePathAsTransactionNameTest.value, function (t) {
-    t.plan(2)
-
-    var agent = Agent()
-    agent.start({
-      serviceName: 'test',
-      captureExceptions: false,
-      usePathAsTransactionName: usePathAsTransactionNameTest.value
-    })
-
-    var sendTransaction = agent._transport.sendTransaction
-    agent._transport.sendTransaction = function (trans, cb) {
-      t.ok(trans)
-      t.strictEqual(trans.name, usePathAsTransactionNameTest.transactionName)
-      if (cb) process.nextTick(cb)
-    }
-    t.on('end', function () {
-      agent._transport.sendTransaction = sendTransaction
-    })
+    var sentTrans
+    var agent = new Agent()
+    agent.start(Object.assign(
+      {},
+      agentOptsNoopTransport,
+      {
+        usePathAsTransactionName: usePathAsTransactionNameTest.value,
+        transport () {
+          return {
+            sendTransaction (trans, cb) {
+              sentTrans = trans
+              if (cb) process.nextTick(cb)
+            },
+            flush (cb) {
+              if (cb) process.nextTick(cb)
+            }
+          }
+        }
+      }
+    ))
 
     var req = new IncomingMessage()
     req.socket = { remoteAddress: '127.0.0.1' }
@@ -707,9 +742,19 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
     var trans = agent.startTransaction()
     trans.req = req
     trans.end()
+
+    agent.flush(function () {
+      t.ok(sentTrans, 'sent a transaction')
+      t.strictEqual(sentTrans.name, usePathAsTransactionNameTest.transactionName,
+        'transaction.name is ' + usePathAsTransactionNameTest.transactionName)
+
+      agent.destroy()
+      t.end()
+    })
   })
 })
 
+if (false) // XXX skip slow
 test('disableInstrumentations', function (t) {
   var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = require('@elastic/elasticsearch/package.json').version
@@ -746,12 +791,12 @@ test('disableInstrumentations', function (t) {
     var selectionSet = new Set(typeof selection === 'string' ? selection.split(',') : selection)
 
     t.test(name + ' -> ' + Array.from(selectionSet).join(','), function (t) {
-      var agent = Agent()
-      agent.start({
-        serviceName: 'service',
-        disableInstrumentations: selection,
-        captureExceptions: false
-      })
+      var agent = new Agent()
+      agent.start(Object.assign(
+        {},
+        agentOptsNoopTransport,
+        { disableInstrumentations: selection }
+      ))
 
       var found = new Set()
 
@@ -766,6 +811,7 @@ test('disableInstrumentations', function (t) {
 
       t.deepEqual(selectionSet, found, 'disabled all selected modules')
 
+      agent.destroy()
       t.end()
     })
   }
@@ -786,54 +832,38 @@ test('disableInstrumentations', function (t) {
 })
 
 test('custom transport', function (t) {
-  var agent = Agent()
-  agent.start({
-    captureExceptions: false,
-    cloudProvider: 'none',
-    serviceName: 'fooBAR0123456789_- ',
-    transport () {
-      var transactions = []
-      var spans = []
-      var errors = []
-      function makeSenderFor (list) {
-        return (item, callback) => {
-          list.push(item)
-          if (callback) {
-            setImmediate(callback)
-          }
-        }
-      }
-      var first = true
-      return {
-        sendTransaction: makeSenderFor(transactions),
-        sendSpan: makeSenderFor(spans),
-        sendError: makeSenderFor(errors),
-        config: () => {},
-        flush (cb) {
-          if (cb) setImmediate(cb)
-          if (first) {
-            // first flush is from calling `agent.flush()` below, second flush
-            // is done by the internals of `captureError()`. This logic will
-            // change once the following issue is implemented:
-            // https://github.com/elastic/apm-agent-nodejs/issues/686
-            first = false
-            return
-          }
-
-          // add slight delay to give the span time to be fully encoded and sent
-          setTimeout(function () {
-            t.strictEqual(transactions.length, 1, 'received correct number of transactions')
-            assertEncodedTransaction(t, trans, transactions[0])
-            t.strictEqual(spans.length, 1, 'received correct number of spans')
-            assertEncodedSpan(t, span, spans[0])
-            t.strictEqual(errors.length, 1, 'received correct number of errors')
-            assertEncodedError(t, error, errors[0], trans, span)
-            t.end()
-          }, 200)
-        }
-      }
+  class MyTransport {
+    constructor () {
+      this.transactions = []
+      this.spans = []
+      this.errors = []
     }
-  })
+
+    sendTransaction (data, cb) {
+      this.transactions.push(data)
+      if (cb) setImmediate(cb)
+    }
+
+    sendSpan (data, cb) {
+      this.spans.push(data)
+      if (cb) setImmediate(cb)
+    }
+
+    sendError (data, cb) {
+      this.errors.push(data)
+      if (cb) setImmediate(cb)
+    }
+
+    config () {}
+
+    flush (cb) {
+      if (cb) setImmediate(cb)
+    }
+  }
+  const myTransport = new MyTransport()
+
+  var agent = new Agent()
+  agent.start(Object.assign({}, agentOpts, { transport: () => myTransport }))
 
   var error = new Error('error')
   var trans = agent.startTransaction('transaction')
@@ -841,7 +871,17 @@ test('custom transport', function (t) {
   agent.captureError(error)
   span.end()
   trans.end()
-  agent.flush()
+
+  setTimeout(function () {
+    t.equal(myTransport.transactions.length, 1, 'received correct number of transactions')
+    assertEncodedTransaction(t, trans, myTransport.transactions[0])
+    t.equal(myTransport.spans.length, 1, 'received correct number of spans')
+    assertEncodedSpan(t, span, myTransport.spans[0])
+    t.equal(myTransport.errors.length, 1, 'received correct number of errors')
+    assertEncodedError(t, error, myTransport.errors[0], trans, span)
+    agent.destroy()
+    t.end()
+  }, 50) // Hack wait for ended span and captured error to be sent to transport.
 })
 
 test('addPatch', function (t) {
@@ -850,14 +890,18 @@ test('addPatch', function (t) {
 
   delete require.cache[require.resolve('express')]
 
-  const agent = Agent()
-  agent.start({
-    addPatch: 'express=./test/_patch.js',
-    captureExceptions: false
-  })
+  const agent = new Agent()
+  agent.start(Object.assign(
+    {},
+    agentOptsNoopTransport,
+    {
+      addPatch: 'express=./test/_patch.js',
+    }
+  ))
 
   t.deepEqual(require('express'), patch(before))
 
+  agent.destroy()
   t.end()
 })
 
@@ -865,42 +909,53 @@ test('globalLabels should be received by transport', function (t) {
   var globalLabels = {
     foo: 'bar'
   }
-  var opts = { globalLabels }
 
-  var server = APMServer(opts, { expect: 'error' })
-    .on('listening', function () {
-      this.agent.captureError(new Error('trigger metadata'))
-    })
-    .on('data-metadata', (data) => {
-      t.deepEqual(data.labels, globalLabels)
-      t.end()
-    })
-
-  t.on('end', function () {
-    server.destroy()
+  const apmServer = new MockAPMServer()
+  apmServer.start(function (serverUrl) {
+    const agent = new Agent().start(Object.assign(
+      {},
+      agentOpts,
+      {
+        serverUrl,
+        globalLabels
+      }
+    ))
+    agent.captureError(new Error('trigger metadata'),
+      function () {
+        t.equal(apmServer.events.length, 2, 'apmServer got 2 events')
+        const data = apmServer.events[0].metadata
+        t.ok(data, 'first event is metadata')
+        t.deepEqual(data.labels, globalLabels, 'metadata.labels has globalLabels')
+        agent.destroy()
+        apmServer.close()
+        t.end()
+      }
+    )
   })
 })
 
 test('instrument: false allows manual instrumentation', function (t) {
-  var trans
-  var opts = {
-    metricsInterval: 0,
-    instrument: false
-  }
-
-  var server = APMServer(opts, { expect: 'transaction' })
-    .on('listening', function () {
-      trans = this.agent.startTransaction('trans')
-      trans.end()
-      this.agent.flush()
-    })
-    .on('data-transaction', (data) => {
+  const apmServer = new MockAPMServer()
+  apmServer.start(function (serverUrl) {
+    const agent = new Agent().start(Object.assign(
+      {},
+      agentOpts,
+      {
+        serverUrl,
+        instrument: false
+      }
+    ))
+    const trans = agent.startTransaction('trans')
+    trans.end()
+    agent.flush(function () {
+      t.equal(apmServer.events.length, 2, 'apmServer got 2 events')
+      const data = apmServer.events[1].transaction
+      t.ok(data, 'second event is a transaction')
       assertEncodedTransaction(t, trans, data)
+      agent.destroy()
+      apmServer.close()
       t.end()
     })
-
-  t.on('end', function () {
-    server.destroy()
   })
 })
 
@@ -1034,52 +1089,70 @@ test('transactionSampleRate precision', function (t) {
 })
 
 test('should accept and normalize cloudProvider', function (t) {
-  const agentDefault = Agent()
-  agentDefault.start()
+  const agentDefault = new Agent()
+  agentDefault.start({
+    disableSend: true
+  })
   t.equals(agentDefault._conf.cloudProvider, 'auto', 'cloudProvider config defaults to auto')
+  agentDefault.destroy()
 
-  const agentGcp = Agent()
+  const agentGcp = new Agent()
   agentGcp.start({
+    disableSend: true,
     cloudProvider: 'gcp'
   })
+  agentGcp.destroy()
   t.equals(agentGcp._conf.cloudProvider, 'gcp', 'cloudProvider can be set to gcp')
 
-  const agentAzure = Agent()
+  const agentAzure = new Agent()
   agentAzure.start({
+    disableSend: true,
     cloudProvider: 'azure'
   })
+  agentAzure.destroy()
   t.equals(agentAzure._conf.cloudProvider, 'azure', 'cloudProvider can be set to azure')
 
-  const agentAws = Agent()
+  const agentAws = new Agent()
   agentAws.start({
+    disableSend: true,
     cloudProvider: 'aws'
   })
+  agentAws.destroy()
   t.equals(agentAws._conf.cloudProvider, 'aws', 'cloudProvider can be set to aws')
 
-  const agentNone = Agent()
+  const agentNone = new Agent()
   agentNone.start({
+    disableSend: true,
     cloudProvider: 'none'
   })
+  agentNone.destroy()
   t.equals(agentNone._conf.cloudProvider, 'none', 'cloudProvider can be set to none')
 
-  const agentUnknown = Agent()
+  const agentUnknown = new Agent()
   agentUnknown.start({
+    disableSend: true,
+    logLevel: 'off', // Silence the log.warn for the invalid cloudProvider value.
     cloudProvider: 'this-is-not-a-thing'
   })
+  agentUnknown.destroy()
   t.equals(agentUnknown._conf.cloudProvider, 'auto', 'unknown cloudProvider defaults to auto')
 
-  const agentGcpFromEnv = Agent()
+  const agentGcpFromEnv = new Agent()
   process.env.ELASTIC_APM_CLOUD_PROVIDER = 'gcp'
-  agentGcpFromEnv.start()
+  agentGcpFromEnv.start({
+    disableSend: true
+  })
   t.equals(agentGcpFromEnv._conf.cloudProvider, 'gcp', 'cloudProvider can be set via env')
   delete process.env.ELASTIC_APM_CLOUD_PROVIDER
+  agentGcpFromEnv.destroy()
+
   t.end()
 })
 
 test('should accept and normalize ignoreMessageQueues', function (suite) {
   suite.test('ignoreMessageQueues defaults', function (t) {
-    const agent = Agent()
-    agent.start()
+    const agent = new Agent()
+    agent.start(agentOptsNoopTransport)
     t.equals(
       agent._conf.ignoreMessageQueues.length,
       0,
@@ -1091,12 +1164,17 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
       0,
       'ignore message queue regex defaults empty'
     )
+    agent.destroy()
     t.end()
   })
 
   suite.test('ignoreMessageQueues via configuration', function (t) {
-    const agent = Agent()
-    agent.start({ ignoreMessageQueues: ['f*o', 'bar'] })
+    const agent = new Agent()
+    agent.start(Object.assign(
+      {},
+      agentOptsNoopTransport,
+      { ignoreMessageQueues: ['f*o', 'bar'] }
+    ))
     t.equals(
       agent._conf.ignoreMessageQueues.length,
       2,
@@ -1113,13 +1191,14 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
       agent._conf.ignoreMessageQueuesRegExp[0].test('faooooo'),
       'wildcard converted to regular expression'
     )
+    agent.destroy()
     t.end()
   })
 
   suite.test('ignoreMessageQueues via env', function (t) {
-    const agent = Agent()
+    const agent = new Agent()
     process.env.ELASTIC_IGNORE_MESSAGE_QUEUES = 'f*o,bar,baz'
-    agent.start()
+    agent.start(agentOptsNoopTransport)
     t.equals(
       agent._conf.ignoreMessageQueues.length,
       3,
@@ -1136,6 +1215,7 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
       agent._conf.ignoreMessageQueuesRegExp[0].test('faooooo'),
       'wildcard converted to regular expression'
     )
+    agent.destroy()
     t.end()
   })
 
