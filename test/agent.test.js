@@ -912,7 +912,7 @@ test('#flush()', function (t) {
     const agent = new Agent()
     agent.flush(function (err) {
       t.error(err, 'no error passed to agent.flush callback')
-      t.pass('should call flush callback even if const agent = new Agent().start(agentOptsNoopTransport) wasn\'t called')
+      t.pass('should call flush callback even if agent.start() wasn\'t called')
       agent.destroy()
       t.end()
     })
