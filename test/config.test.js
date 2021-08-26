@@ -754,7 +754,6 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
   })
 })
 
-if (false) // XXX skip slow
 test('disableInstrumentations', function (t) {
   var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = require('@elastic/elasticsearch/package.json').version
@@ -895,7 +894,7 @@ test('addPatch', function (t) {
     {},
     agentOptsNoopTransport,
     {
-      addPatch: 'express=./test/_patch.js',
+      addPatch: 'express=./test/_patch.js'
     }
   ))
 

@@ -1354,8 +1354,6 @@ test('#captureError()', function (t) {
     t.end()
   })
 
-  // XXX This one is relying on the agent.captureError change to stash `this._transport`
-  //     so delayed-processing error from the previous one or two test cases don't bleed into this one.
   t.test('include valid context ids and sampled flag', function (t) {
     const agent = new Agent().start(ceAgentOpts)
     const trans = agent.startTransaction('foo')
