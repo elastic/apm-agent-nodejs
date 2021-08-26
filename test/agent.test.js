@@ -1,11 +1,10 @@
 'use strict'
 
 // Test the public Agent API.
-
+//
 // This test file does not rely on automatic instrumentation of modules, so
-// we do not need to `.start()` it at the top of file. Also, the first test
-// relies on testing state before the first start.
-const agent = require('..')
+// we do not need to start the agent at the top of file. Instead, tests create
+// separate instances of the Agent.
 
 var http = require('http')
 var path = require('path')
@@ -14,11 +13,12 @@ var os = require('os')
 var { sync: containerInfo } = require('container-info')
 var test = require('tape')
 
+const Agent = require('../lib/agent')
 var config = require('../lib/config')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
-
 var packageJson = require('../package.json')
+
 var inContainer = 'containerId' in (containerInfo() || {})
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
@@ -89,6 +89,8 @@ function deep (depth, n) {
 // ---- tests
 
 test('#getServiceName()', function (t) {
+  const agent = new Agent()
+
   // Before agent.start(), config will have already been loaded once, which
   // typically means a `serviceName` determined from package.json.
   t.ok(!agent.isStarted(), 'agent should not have been started yet')
@@ -105,14 +107,14 @@ test('#getServiceName()', function (t) {
   t.strictEqual(agent.getServiceName(), 'myServiceName')
   t.strictEqual(agent.getServiceName(), agent._conf.serviceName)
 
-  agent._testReset()
+  agent.destroy()
   t.end()
 })
 
 test('#setFramework()', function (t) {
   // Use `agentOpts` instead of `agentOptsNoopTransport` because this test is
   // reaching into `agent._transport` internals.
-  agent.start(agentOpts)
+  const agent = new Agent().start(agentOpts)
 
   t.strictEqual(agent._conf.frameworkName, undefined)
   t.strictEqual(agent._conf.frameworkVersion, undefined)
@@ -143,36 +145,36 @@ test('#setFramework()', function (t) {
   t.strictEqual(agent._conf.frameworkVersion, 'b')
   t.strictEqual(agent._transport._conf.frameworkName, 'a')
   t.strictEqual(agent._transport._conf.frameworkVersion, 'b')
-  agent._testReset()
+  agent.destroy()
   t.end()
 })
 
 test('#startTransaction()', function (t) {
   t.test('name, type, subtype and action', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction('foo', 'type', 'subtype', 'action')
     t.strictEqual(trans.name, 'foo')
     t.strictEqual(trans.type, 'type')
     t.strictEqual(trans.subtype, 'subtype')
     t.strictEqual(trans.action, 'action')
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('options.startTime', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var startTime = Date.now() - 1000
     var trans = agent.startTransaction('foo', 'bar', { startTime })
     trans.end()
     var duration = trans.duration()
     t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('options.childOf', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     var trans = agent.startTransaction('foo', 'bar', { childOf })
     t.strictEqual(trans._context.traceparent.version, '00')
@@ -180,7 +182,7 @@ test('#startTransaction()', function (t) {
     t.notEqual(trans._context.traceparent.id, '00f067aa0ba902b7')
     t.strictEqual(trans._context.traceparent.parentId, '00f067aa0ba902b7')
     t.strictEqual(trans._context.traceparent.flags, '01')
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -189,42 +191,42 @@ test('#startTransaction()', function (t) {
 
 test('#endTransaction()', function (t) {
   t.test('no active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     agent.endTransaction()
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with no result', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(trans.ended, false)
     agent.endTransaction()
     t.strictEqual(trans.ended, true)
     t.strictEqual(trans.result, 'success')
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with explicit result', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(trans.ended, false)
     agent.endTransaction('done')
     t.strictEqual(trans.ended, true)
     t.strictEqual(trans.result, 'done')
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with custom endTime', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var startTime = Date.now() - 1000
     var endTime = startTime + 2000.123
     var trans = agent.startTransaction('foo', 'bar', { startTime })
     agent.endTransaction('done', endTime)
     t.strictEqual(trans.duration(), 2000.123)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -233,50 +235,50 @@ test('#endTransaction()', function (t) {
 
 test('#currentTransaction', function (t) {
   t.test('no active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.notOk(agent.currentTransaction)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(agent.currentTransaction, trans)
     agent.endTransaction()
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 })
 
 test('#currentSpan', function (t) {
   t.test('no active or binding span', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.notOk(agent.currentSpan)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with binding span', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     var span = agent.startSpan()
     t.strictEqual(agent.currentSpan, span)
     span.end()
     trans.end()
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with active span', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     var span = agent.startSpan()
     process.nextTick(() => {
       t.strictEqual(agent.currentSpan, span)
       span.end()
       trans.end()
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
@@ -286,29 +288,29 @@ test('#currentSpan', function (t) {
 
 test('#currentTraceparent', function (t) {
   t.test('no active transaction or span', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.notOk(agent.currentTraceparent)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(agent.currentTraceparent, trans.traceparent)
     agent.endTransaction()
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with active span', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
     var span = agent.startSpan()
     t.strictEqual(agent.currentTraceparent, span.traceparent)
     span.end()
     agent.endTransaction()
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -317,15 +319,15 @@ test('#currentTraceparent', function (t) {
 
 test('#currentTraceIds', function (t) {
   t.test('no active transaction or span', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.deepLooseEqual(agent.currentTraceIds, {})
     t.strictEqual(agent.currentTraceIds.toString(), '')
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': trans.traceId,
@@ -333,12 +335,12 @@ test('#currentTraceIds', function (t) {
     })
     t.strictEqual(agent.currentTraceIds.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`)
     agent.endTransaction()
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('with active span', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
     var span = agent.startSpan()
     t.deepLooseEqual(agent.currentTraceIds, {
@@ -348,7 +350,7 @@ test('#currentTraceIds', function (t) {
     t.strictEqual(agent.currentTraceIds.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
     span.end()
     agent.endTransaction()
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -357,20 +359,20 @@ test('#currentTraceIds', function (t) {
 
 test('#setTransactionName', function (t) {
   t.test('no active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.doesNotThrow(function () {
       agent.setTransactionName('foo')
     })
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     agent.setTransactionName('foo')
     t.strictEqual(trans.name, 'foo')
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -379,14 +381,14 @@ test('#setTransactionName', function (t) {
 
 test('#startSpan()', function (t) {
   t.test('no active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.strictEqual(agent.startSpan(), null)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
     var span = agent.startSpan('span-name', 'type', 'subtype', 'action')
     t.ok(span, 'should return a span')
@@ -394,12 +396,12 @@ test('#startSpan()', function (t) {
     t.strictEqual(span.type, 'type')
     t.strictEqual(span.subtype, 'subtype')
     t.strictEqual(span.action, 'action')
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('options.startTime', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
     var startTime = Date.now() - 1000
     var span = agent.startSpan('span-with-startTime', null, { startTime })
@@ -407,12 +409,12 @@ test('#startSpan()', function (t) {
     var duration = span.duration()
     t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('options.childOf', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     var span = agent.startSpan(null, null, { childOf })
@@ -421,7 +423,7 @@ test('#startSpan()', function (t) {
     t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7')
     t.strictEqual(span._context.traceparent.parentId, '00f067aa0ba902b7')
     t.strictEqual(span._context.traceparent.flags, '01')
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -430,18 +432,18 @@ test('#startSpan()', function (t) {
 
 test('#setUserContext()', function (t) {
   t.test('no active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.strictEqual(agent.setUserContext({ foo: 1 }), false)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(agent.setUserContext({ foo: 1 }), true)
     t.deepEqual(trans._user, { foo: 1 })
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -450,18 +452,18 @@ test('#setUserContext()', function (t) {
 
 test('#setCustomContext()', function (t) {
   t.test('no active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.strictEqual(agent.setCustomContext({ foo: 1 }), false)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(agent.setCustomContext({ foo: 1 }), true)
     t.deepEqual(trans._custom, { foo: 1 })
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -470,23 +472,23 @@ test('#setCustomContext()', function (t) {
 
 test('#setLabel()', function (t) {
   t.test('no active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.strictEqual(agent.setLabel('foo', 1), false)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(agent.setLabel('foo', 1), true)
     t.deepEqual(trans._labels, { foo: '1' })
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('active transaction without label stringification', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(agent.setLabel('positive', 1, false), true)
     t.strictEqual(agent.setLabel('negative', -10, false), true)
@@ -500,7 +502,7 @@ test('#setLabel()', function (t) {
       'boolean-false': false,
       string: 'a custom label'
     })
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -509,28 +511,28 @@ test('#setLabel()', function (t) {
 
 test('#addLabels()', function (t) {
   t.test('no active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.strictEqual(agent.addLabels({ foo: 1 }), false)
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('active transaction', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(agent.addLabels({ foo: 1, bar: 2 }), true)
     t.strictEqual(agent.addLabels({ foo: 3 }), true)
     t.deepEqual(trans._labels, { foo: '3', bar: '2' })
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('active transaction without label stringification', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction()
     t.strictEqual(agent.addLabels({ foo: 1, bar: true }, false), true)
     t.deepEqual(trans._labels, { foo: 1, bar: true })
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
@@ -555,7 +557,7 @@ test('filters', function (t) {
   })
 
   t.test('#addFilter() - error', function (t) {
-    agent.start(filterAgentOpts)
+    const agent = new Agent().start(filterAgentOpts)
     // Test filters are run in the order specified...
     agent.addFilter(function (obj) {
       t.strictEqual(obj.exception.message, 'foo')
@@ -584,14 +586,14 @@ test('filters', function (t) {
         t.strictEqual(data.context.custom.order, 2)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('#addFilter() - transaction', function (t) {
-    agent.start(filterAgentOpts)
+    const agent = new Agent().start(filterAgentOpts)
     agent.addFilter(function (obj) {
       t.strictEqual(obj.name, 'transaction-name')
       t.strictEqual(++obj.context.custom.order, 1)
@@ -617,13 +619,13 @@ test('filters', function (t) {
       t.strictEqual(data.context.custom.order, 2)
 
       apmServer.clear()
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('#addFilter() - span', function (t) {
-    agent.start(filterAgentOpts)
+    const agent = new Agent().start(filterAgentOpts)
     agent.addFilter(function (obj) {
       t.strictEqual(obj.name, 'span-name')
       obj.order = 1
@@ -650,14 +652,14 @@ test('filters', function (t) {
         t.strictEqual(data.order, 2)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       })
     }, 50) // Hack wait for ended span to be sent to transport.
   })
 
   t.test('#addErrorFilter()', function (t) {
-    agent.start(filterAgentOpts)
+    const agent = new Agent().start(filterAgentOpts)
     agent.addTransactionFilter(function () {
       t.fail('should not call transaction filter')
     })
@@ -690,14 +692,14 @@ test('filters', function (t) {
         t.strictEqual(data.context.custom.order, 2)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('#addTransactionFilter()', function (t) {
-    agent.start(filterAgentOpts)
+    const agent = new Agent().start(filterAgentOpts)
     agent.addErrorFilter(function () {
       t.fail('should not call error filter')
     })
@@ -729,13 +731,13 @@ test('filters', function (t) {
       t.strictEqual(data.context.custom.order, 2)
 
       apmServer.clear()
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('#addSpanFilter()', function (t) {
-    agent.start(filterAgentOpts)
+    const agent = new Agent().start(filterAgentOpts)
     agent.addErrorFilter(function () {
       t.fail('should not call error filter')
     })
@@ -768,14 +770,14 @@ test('filters', function (t) {
         t.strictEqual(data.order, 2)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       })
     }, 50) // Hack wait for ended span to be sent to transport.
   })
 
   t.test('#addMetadataFilter()', function (t) {
-    agent.start(filterAgentOpts)
+    const agent = new Agent().start(filterAgentOpts)
     agent.addErrorFilter(function () {
       t.fail('should not call error filter')
     })
@@ -805,7 +807,7 @@ test('filters', function (t) {
       t.strictEqual(data.order, 2)
 
       apmServer.clear()
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
@@ -814,7 +816,7 @@ test('filters', function (t) {
   falsyValues.forEach(falsy => {
     t.test(`#addFilter() - abort with '${String(falsy)}'`, function (t) {
       let calledFirstFilter = false
-      agent.start(filterAgentOpts)
+      const agent = new Agent().start(filterAgentOpts)
       agent.addFilter(function (obj) {
         calledFirstFilter = true
         return falsy
@@ -826,14 +828,14 @@ test('filters', function (t) {
         t.ok(calledFirstFilter, 'called first filter')
         t.equal(apmServer.requests.length, 0, 'APM server did not receive a request')
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       })
     })
 
     t.test(`#addErrorFilter() - abort with '${String(falsy)}'`, function (t) {
       let calledFirstFilter = false
-      agent.start(filterAgentOpts)
+      const agent = new Agent().start(filterAgentOpts)
       agent.addErrorFilter(function (obj) {
         calledFirstFilter = true
         return falsy
@@ -845,14 +847,14 @@ test('filters', function (t) {
         t.ok(calledFirstFilter, 'called first filter')
         t.equal(apmServer.requests.length, 0, 'APM server did not receive a request')
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       })
     })
 
     t.test(`#addTransactionFilter() - abort with '${String(falsy)}'`, function (t) {
       let calledFirstFilter = false
-      agent.start(filterAgentOpts)
+      const agent = new Agent().start(filterAgentOpts)
       agent.addTransactionFilter(function (obj) {
         calledFirstFilter = true
         return falsy
@@ -866,14 +868,14 @@ test('filters', function (t) {
         t.ok(calledFirstFilter, 'called first filter')
         t.equal(apmServer.requests.length, 0, 'APM server did not receive a request')
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       })
     })
 
     t.test(`#addSpanFilter() - abort with '${String(falsy)}'`, function (t) {
       let calledFirstFilter = false
-      agent.start(filterAgentOpts)
+      const agent = new Agent().start(filterAgentOpts)
       agent.addSpanFilter(function (obj) {
         calledFirstFilter = true
         return falsy
@@ -889,7 +891,7 @@ test('filters', function (t) {
           t.ok(calledFirstFilter, 'called first filter')
           t.equal(apmServer.requests.length, 0, 'APM server did not receive a request')
           apmServer.clear()
-          agent._testReset()
+          agent.destroy()
           t.end()
         })
       }, 50) // Hack wait for ended span to be sent to transport.
@@ -907,32 +909,33 @@ test('filters', function (t) {
 test('#flush()', function (t) {
   t.test('start not called', function (t) {
     t.plan(2)
+    const agent = new Agent()
     agent.flush(function (err) {
       t.error(err, 'no error passed to agent.flush callback')
-      t.pass('should call flush callback even if agent.start(agentOptsNoopTransport) wasn\'t called')
-      agent._testReset()
+      t.pass('should call flush callback even if const agent = new Agent().start(agentOptsNoopTransport) wasn\'t called')
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('start called, but agent inactive', function (t) {
     t.plan(2)
-    agent.start({ active: false })
+    const agent = new Agent().start({ active: false })
     agent.flush(function (err) {
       t.error(err, 'no error passed to agent.flush callback')
       t.pass('should call flush callback even if agent is inactive')
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('agent started, but no data in the queue', function (t) {
     t.plan(2)
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     agent.flush(function (err) {
       t.error(err, 'no error passed to agent.flush callback')
       t.pass('should call flush callback even if there\'s nothing to flush')
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
@@ -940,7 +943,7 @@ test('#flush()', function (t) {
   t.test('flush with agent started, and data in the queue', function (t) {
     const apmServer = new MockAPMServer()
     apmServer.start(function (serverUrl) {
-      agent.start(Object.assign(
+      const agent = new Agent().start(Object.assign(
         {},
         agentOpts,
         { serverUrl }
@@ -955,7 +958,7 @@ test('#flush()', function (t) {
         t.equal(trans.name, 'foo', 'the transaction has the expected name')
 
         apmServer.close()
-        agent._testReset()
+        agent.destroy()
         t.end()
       })
     })
@@ -982,7 +985,7 @@ test('#captureError()', function (t) {
   })
 
   t.test('with callback', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     agent.captureError(new Error('with callback'), function (err, id) {
       t.error(err, 'no error from captureError callback')
       t.ok(/^[a-z0-9]{32}$/i.test(id), 'has valid error.id')
@@ -992,13 +995,13 @@ test('#captureError()', function (t) {
       t.strictEqual(data.exception.message, 'with callback')
 
       apmServer.clear()
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('without callback', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     agent.captureError(new Error('without callback'))
     setTimeout(function () {
       t.equal(apmServer.events.length, 2, 'APM server got 2 events')
@@ -1007,39 +1010,39 @@ test('#captureError()', function (t) {
       t.strictEqual(data.exception.message, 'without callback')
 
       apmServer.clear()
-      agent._testReset()
+      agent.destroy()
       t.end()
     }, 50) // Hack wait for captured error to be encoded and sent.
   })
 
   t.test('generate error id', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     agent.captureError(new Error('foo'), function () {
       t.equal(apmServer.events.length, 2, 'APM server got 2 events')
       const data = apmServer.events[1].error
       t.ok(/^[a-z0-9]{32}$/i.test(data.id), 'has valid error.id')
 
       apmServer.clear()
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('should send a plain text message to the server', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     agent.captureError('Hey!', function () {
       t.equal(apmServer.events.length, 2, 'APM server got 2 events')
       const data = apmServer.events[1].error
       t.strictEqual(data.log.message, 'Hey!')
 
       apmServer.clear()
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     agent.captureError({ message: 'Hello %s', params: ['World'] },
       function () {
         t.equal(apmServer.events.length, 2, 'APM server got 2 events')
@@ -1048,14 +1051,14 @@ test('#captureError()', function (t) {
         t.strictEqual(data.log.param_message, 'Hello %s')
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('should not fail on a non string err.message', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     var err = new Error()
     err.message = { foo: 'bar' }
     agent.captureError(err, function () {
@@ -1064,13 +1067,13 @@ test('#captureError()', function (t) {
       t.strictEqual(data.exception.message, '[object Object]')
 
       apmServer.clear()
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('should allow custom log message together with exception', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     agent.captureError(new Error('foo'), { message: 'bar' },
       function () {
         t.equal(apmServer.events.length, 2, 'APM server got 2 events')
@@ -1079,30 +1082,30 @@ test('#captureError()', function (t) {
         t.strictEqual(data.log.message, 'bar')
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('should adhere to default stackTraceLimit', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     agent.captureError(deep(256),
       function () {
         t.equal(apmServer.events.length, 2, 'APM server got 2 events')
         const data = apmServer.events[1].error
-        t.strictEqual(data.exception.stacktrace.length, 50)
+        t.strictEqual(data.exception.stacktrace.length, config.DEFAULTS.stackTraceLimit)
         t.strictEqual(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('should adhere to custom stackTraceLimit', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { stackTraceLimit: 5 }
@@ -1115,14 +1118,14 @@ test('#captureError()', function (t) {
         t.strictEqual(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('should merge context', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     agent.startTransaction()
     t.strictEqual(agent.setUserContext({ a: 1, merge: { a: 2 } }), true)
     t.strictEqual(agent.setCustomContext({ a: 3, merge: { a: 4 } }), true)
@@ -1139,14 +1142,14 @@ test('#captureError()', function (t) {
         t.deepEqual(data.context.custom, { a: 3, b: 2, merge: { shallow: true } })
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - off (error)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
@@ -1160,14 +1163,14 @@ test('#captureError()', function (t) {
         assertStackTrace(t, data.exception.stacktrace)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - off (string)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
@@ -1181,14 +1184,14 @@ test('#captureError()', function (t) {
         t.notOk('exception' in data, 'should not have an exception')
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - off (param msg)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
@@ -1202,14 +1205,14 @@ test('#captureError()', function (t) {
         t.notOk('exception' in data, 'should not have an exception')
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - non-errors (error)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
@@ -1223,14 +1226,14 @@ test('#captureError()', function (t) {
         assertStackTrace(t, data.exception.stacktrace)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - non-errors (string)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
@@ -1244,14 +1247,14 @@ test('#captureError()', function (t) {
         assertStackTrace(t, data.log.stacktrace)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - non-errors (param msg)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
@@ -1265,14 +1268,14 @@ test('#captureError()', function (t) {
         assertStackTrace(t, data.log.stacktrace)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - all (error)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
@@ -1287,14 +1290,14 @@ test('#captureError()', function (t) {
         assertStackTrace(t, data.exception.stacktrace)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - all (string)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
@@ -1308,14 +1311,14 @@ test('#captureError()', function (t) {
         assertStackTrace(t, data.log.stacktrace)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture location stack trace - all (param msg)', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
@@ -1329,30 +1332,32 @@ test('#captureError()', function (t) {
         assertStackTrace(t, data.log.stacktrace)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('capture error before agent is started - with callback', function (t) {
+    const agent = new Agent()
     agent.captureError(new Error('foo'), function (err) {
       t.strictEqual(err.message, 'cannot capture error before agent is started')
-      agent._testReset()
+      agent.destroy()
       t.end()
     })
   })
 
   t.test('capture error before agent is started - without callback', function (t) {
+    const agent = new Agent()
     agent.captureError(new Error('foo'))
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   // XXX This one is relying on the agent.captureError change to stash `this._transport`
   //     so delayed-processing error from the previous one or two test cases don't bleed into this one.
   t.test('include valid context ids and sampled flag', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     const trans = agent.startTransaction('foo')
     const span = agent.startSpan('bar')
     agent.captureError(
@@ -1370,14 +1375,14 @@ test('#captureError()', function (t) {
         t.strictEqual(data.transaction.sampled, true, 'is sampled')
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('custom timestamp', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
     const timestamp = Date.now() - 1000
     agent.captureError(
       new Error('with callback'),
@@ -1389,14 +1394,14 @@ test('#captureError()', function (t) {
         t.strictEqual(data.timestamp, timestamp * 1000)
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('options.request', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
 
     const req = new http.IncomingMessage()
     req.httpVersion = '1.1'
@@ -1434,7 +1439,7 @@ test('#captureError()', function (t) {
         })
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
@@ -1443,7 +1448,7 @@ test('#captureError()', function (t) {
   // This tests that a urlencoded request body captured in an *error* event
   // is properly sanitized according to sanitizeFieldNames.
   t.test('options.request + captureBody=errors', function (t) {
-    agent.start(Object.assign(
+    const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
       { captureBody: 'errors' }
@@ -1480,14 +1485,14 @@ test('#captureError()', function (t) {
         })
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
   })
 
   t.test('options.response', function (t) {
-    agent.start(ceAgentOpts)
+    const agent = new Agent().start(ceAgentOpts)
 
     const req = new http.IncomingMessage()
     const res = new http.ServerResponse(req)
@@ -1522,7 +1527,7 @@ test('#captureError()', function (t) {
         })
 
         apmServer.clear()
-        agent._testReset()
+        agent.destroy()
         t.end()
       }
     )
@@ -1539,30 +1544,30 @@ test('#captureError()', function (t) {
 test('#handleUncaughtExceptions()', function (t) {
   t.test('should add itself to the uncaughtException event list', function (t) {
     t.strictEqual(process._events.uncaughtException, undefined)
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     t.strictEqual(process._events.uncaughtException, undefined)
     agent.handleUncaughtExceptions()
     t.strictEqual(process._events.uncaughtException.length, 1)
 
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('should not add more than one listener for the uncaughtException event', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
     agent.handleUncaughtExceptions()
     var before = process._events.uncaughtException.length
     agent.handleUncaughtExceptions()
     t.strictEqual(process._events.uncaughtException.length, before)
 
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('should send an uncaughtException to server', function (t) {
     const apmServer = new MockAPMServer()
     apmServer.start(function (serverUrl) {
-      agent.start(Object.assign(
+      const agent = new Agent().start(Object.assign(
         {},
         agentOpts,
         { serverUrl }
@@ -1586,7 +1591,7 @@ test('#handleUncaughtExceptions()', function (t) {
           t.equal(handlerErr.message, 'uncaught')
 
           apmServer.close()
-          agent._testReset()
+          agent.destroy()
           t.end()
         })
       }, 50) // Hack wait for the agent's handler to finish captureError.
@@ -1598,27 +1603,27 @@ test('#handleUncaughtExceptions()', function (t) {
 
 test('#active: false', function (t) {
   t.test('should not error when started in an inactive state', function (t) {
-    var client = agent.start({ active: false })
-    t.ok(client.startTransaction())
-    t.doesNotThrow(() => client.endTransaction())
-
-    agent._testReset()
+    const agent = new Agent().start({ active: false })
+    t.ok(agent.startTransaction())
+    t.doesNotThrow(() => agent.endTransaction())
+    agent.destroy()
     t.end()
   })
 })
 
 test('patches', function (t) {
   t.test('#clearPatches(name)', function (t) {
+    const agent = new Agent()
     t.ok(agent._instrumentation._patches.has('express'))
     t.doesNotThrow(() => agent.clearPatches('express'))
     t.notOk(agent._instrumentation._patches.has('express'))
     t.doesNotThrow(() => agent.clearPatches('does-not-exists'))
-
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('#addPatch(name, moduleName)', function (t) {
+    const agent = new Agent()
     agent.clearPatches('express')
     agent.start(agentOptsNoopTransport)
 
@@ -1630,11 +1635,12 @@ test('patches', function (t) {
     delete require.cache[require.resolve('express')]
     t.deepEqual(require('express'), patch(before))
 
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('#addPatch(name, function) - does not exist', function (t) {
+    const agent = new Agent()
     agent.clearPatches('express')
     agent.start(agentOptsNoopTransport)
 
@@ -1653,12 +1659,12 @@ test('patches', function (t) {
     delete require.cache[require.resolve('express')]
     t.deepEqual(require('express'), replacement)
 
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 
   t.test('#removePatch(name, handler)', function (t) {
-    agent.start(agentOptsNoopTransport)
+    const agent = new Agent().start(agentOptsNoopTransport)
 
     t.notOk(agent._instrumentation._patches.has('does-not-exist'))
 
@@ -1673,13 +1679,13 @@ test('patches', function (t) {
     agent.removePatch('does-not-exist', handler)
     t.notOk(agent._instrumentation._patches.has('does-not-exist'))
 
-    agent._testReset()
+    agent.destroy()
     t.end()
   })
 })
 
 test('#registerMetric(name, labels, callback)', function (t) {
-  agent.start(agentOptsNoopTransport)
+  const agent = new Agent().start(agentOptsNoopTransport)
 
   const mockMetrics = {
     calledCount: 0,
@@ -1722,6 +1728,6 @@ test('#registerMetric(name, labels, callback)', function (t) {
   t.strictEqual(mockMetrics.labels, undefined)
   t.strictEqual(mockMetrics.cbValue, 6789)
 
-  agent._testReset()
+  agent.destroy()
   t.end()
 })
