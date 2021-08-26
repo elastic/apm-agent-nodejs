@@ -24,7 +24,6 @@ var isHapiIncompat = require('./_is_hapi_incompat')
 
 process.env.ELASTIC_APM_METRICS_INTERVAL = '0'
 process.env.ELASTIC_APM_CENTRAL_CONFIG = 'false'
-process.env._ELASTIC_APM_ASYNC_HOOKS_RESETTABLE = 'true'
 
 var optionFixtures = [
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
