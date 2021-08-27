@@ -1,5 +1,17 @@
 'use strict'
 
+// DEPRECATED: New tests should not use this wrapper. Instead using the
+// real Agent directly, and its `agent.destroy()` method to clean up state
+// and the end of tests. E.g.:
+//
+// const Agent = require('.../lib/agent')
+// test('test name', t => {
+//   const agent = new Agent().start({ ... })
+//   ...
+//   agent.destroy()
+//   t.end()
+// })
+
 var Agent = require('../lib/agent')
 var symbols = require('../lib/symbols')
 

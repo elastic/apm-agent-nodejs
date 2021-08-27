@@ -880,7 +880,7 @@ test('custom transport', function (t) {
     assertEncodedError(t, error, myTransport.errors[0], trans, span)
     agent.destroy()
     t.end()
-  }, 50) // Hack wait for ended span and captured error to be sent to transport.
+  }, 200) // Hack wait for ended span and captured error to be sent to transport.
 })
 
 test('addPatch', function (t) {

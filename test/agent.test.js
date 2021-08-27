@@ -655,7 +655,7 @@ test('filters', function (t) {
         agent.destroy()
         t.end()
       })
-    }, 50) // Hack wait for ended span to be sent to transport.
+    }, 200) // Hack wait for ended span to be sent to transport.
   })
 
   t.test('#addErrorFilter()', function (t) {
@@ -773,7 +773,7 @@ test('filters', function (t) {
         agent.destroy()
         t.end()
       })
-    }, 50) // Hack wait for ended span to be sent to transport.
+    }, 200) // Hack wait for ended span to be sent to transport.
   })
 
   t.test('#addMetadataFilter()', function (t) {
@@ -894,7 +894,7 @@ test('filters', function (t) {
           agent.destroy()
           t.end()
         })
-      }, 50) // Hack wait for ended span to be sent to transport.
+      }, 200) // Hack wait for ended span to be sent to transport.
     })
   })
 
@@ -1012,7 +1012,7 @@ test('#captureError()', function (t) {
       apmServer.clear()
       agent.destroy()
       t.end()
-    }, 50) // Hack wait for captured error to be encoded and sent.
+    }, 200) // Hack wait for captured error to be encoded and sent.
   })
 
   t.test('generate error id', function (t) {
@@ -1592,7 +1592,7 @@ test('#handleUncaughtExceptions()', function (t) {
           agent.destroy()
           t.end()
         })
-      }, 50) // Hack wait for the agent's handler to finish captureError.
+      }, 200) // Hack wait for the agent's handler to finish captureError.
     })
   })
 
