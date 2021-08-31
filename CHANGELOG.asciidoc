@@ -46,7 +46,7 @@ Notes:
 
 * Fix a crash in instrumentation of the old Elasticsearch client
   (`elasticsearch`) for some rarer cases of client options -- for example
-  passing multiple hosts.
+  passing multiple hosts. ({pull}2312[#2312])
 
 * Ensure the internal HTTP(S) client requests made by the APM agent to APM
   server are not themselves traced. ({issues}1168[#1168], {issues}1136[#1136])
