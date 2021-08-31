@@ -1,5 +1,7 @@
 'use strict'
 
+const URL = require('url').URL
+
 const { pathIsAQuery } = require('../../../lib/instrumentation/elasticsearch-shared')
 
 process.env.ELASTIC_APM_TEST = true
@@ -180,6 +182,43 @@ test('client.count with callback', function userLandCode (t) {
 
   var client = new elasticsearch.Client({ host: host })
   client.count(function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client with host=<array of host:port>', function userLandCode (t) {
+  resetAgent(done(t, 'HEAD', '/'))
+  agent.startTransaction('foo')
+  var client = new elasticsearch.Client({ host: [host] })
+  client.ping(function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client with hosts=<array of host:port>', function userLandCode (t) {
+  resetAgent(done(t, 'HEAD', '/'))
+  agent.startTransaction('foo')
+  var client = new elasticsearch.Client({ hosts: [host, host] })
+  client.ping(function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client with hosts="http://host:port"', function userLandCode (t) {
+  resetAgent(done(t, 'HEAD', '/'))
+  agent.startTransaction('foo')
+  let hostWithProto = host
+  if (!hostWithProto.startsWith('http')) {
+    hostWithProto = 'http://' + host
+  }
+  var client = new elasticsearch.Client({ hosts: hostWithProto })
+  client.ping(function (err) {
     t.error(err)
     agent.endTransaction()
     agent.flush()
