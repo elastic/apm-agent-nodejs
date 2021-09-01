@@ -127,31 +127,27 @@ declare namespace apm {
     setSpanOutcome(outcome: Outcome): void;
   }
 
-  type Outcome = 'unknown' | 'success' | 'failure'
+  type Outcome = 'unknown' | 'success' | 'failure';
 
-  interface GenericSpan {
+  // Transaction API
+  // https://www.elastic.co/guide/en/apm/agent/nodejs/current/transaction-api.html
+  export interface Transaction {
     // The following properties and methods are currently not documented as their API isn't considered official:
-    // timestamp, ended, id, traceId, parentId, sampled, duration()
+    // - timestamp, ended, id, traceId, parentId, sampled, duration()
+    // - setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
 
+    name: string;
     type: string | null;
     subtype: string | null;
     action: string | null;
     traceparent: string;
     outcome: Outcome;
+    result: string | number;
 
     setType (type?: string | null, subtype?: string | null, action?: string | null): void;
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
     addLabels (labels: Labels, stringify?: boolean): boolean;
-  }
-
-  // Transaction API
-  // https://www.elastic.co/guide/en/apm/agent/nodejs/current/transaction-api.html
-  export interface Transaction extends GenericSpan {
-    // The following properties and methods are currently not documented as their API isn't considered official:
-    // setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
-
-    name: string;
-    result: string | number;
+    setOutcome(outcome: Outcome): void;
 
     startSpan(
       name?: string | null,
@@ -177,22 +173,28 @@ declare namespace apm {
     ): Span | null;
     ensureParentId (): string;
     end (result?: string | number | null, endTime?: number): void;
-
-    setOutcome(outcome: Outcome): void;
   }
 
   // Span API
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/span-api.html
-  export interface Span extends GenericSpan {
+  export interface Span {
     // The following properties and methods are currently not documented as their API isn't considered official:
-    // customStackTrace(), setDbContext()
+    // - timestamp, ended, id, traceId, parentId, sampled, duration()
+    // - customStackTrace(), setDbContext()
 
     transaction: Transaction;
     name: string;
+    type: string | null;
+    subtype: string | null;
+    action: string | null;
+    traceparent: string;
+    outcome: Outcome;
 
-    end (endTime?: number): void;
-
+    setType (type?: string | null, subtype?: string | null, action?: string | null): void;
+    setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
+    addLabels (labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
+    end (endTime?: number): void;
   }
 
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html
@@ -331,10 +333,10 @@ declare namespace apm {
   type PatchHandler = (exports: any, agent: Agent, options: PatchOptions) => any;
 
   interface PatchOptions {
-    version: string | undefined,
-    enabled: boolean
+    version: string | undefined;
+    enabled: boolean;
   }
 }
 
 declare const apm: apm.Agent;
-export = apm
+export = apm;
