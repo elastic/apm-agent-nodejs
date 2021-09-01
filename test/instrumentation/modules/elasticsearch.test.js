@@ -186,6 +186,43 @@ test('client.count with callback', function userLandCode (t) {
   })
 })
 
+test('client with host=<array of host:port>', function userLandCode (t) {
+  resetAgent(done(t, 'HEAD', '/'))
+  agent.startTransaction('foo')
+  var client = new elasticsearch.Client({ host: [host] })
+  client.ping(function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client with hosts=<array of host:port>', function userLandCode (t) {
+  resetAgent(done(t, 'HEAD', '/'))
+  agent.startTransaction('foo')
+  var client = new elasticsearch.Client({ hosts: [host, host] })
+  client.ping(function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
+test('client with hosts="http://host:port"', function userLandCode (t) {
+  resetAgent(done(t, 'HEAD', '/'))
+  agent.startTransaction('foo')
+  let hostWithProto = host
+  if (!hostWithProto.startsWith('http')) {
+    hostWithProto = 'http://' + host
+  }
+  var client = new elasticsearch.Client({ hosts: hostWithProto })
+  client.ping(function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+})
+
 function done (t, method, path, query, abort = false) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 1, 'should have 1 transaction')
