@@ -158,6 +158,7 @@ test('sync/async tracking', function (t) {
   var span = new Span(trans)
   t.strictEqual(span.sync, true)
   setImmediate(() => {
+    span.end()
     t.strictEqual(span.sync, false)
     t.end()
   })

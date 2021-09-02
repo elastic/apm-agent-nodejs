@@ -109,6 +109,7 @@ const expectations = {
   }
 }
 
+// XXX HERE
 test('includes breakdown when sampling', t => {
   const conf = {
     metricsInterval: 1

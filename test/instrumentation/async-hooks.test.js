@@ -122,6 +122,7 @@ test('post-defined, post-resolved promise', function (t) {
 })
 
 // XXX move this out of async-hooks. It should work with asyncHooks=false as well!
+//     Already have tests for sync-ness in test/instrumentation/{span,transaction}.test.js
 test('span.sync', function (t) {
   var trans = agent.startTransaction()
   t.strictEqual(trans.sync, true)
@@ -136,7 +137,7 @@ test('span.sync', function (t) {
   t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end')
 
   setImmediate(() => {
-    // XXX ctxmgr changes are changing the guarantee to only update `.sync` after .end()
+    // XXX Change in behaviour: the guarantee is only to update `.sync` after .end()
     span1.end()
     t.strictEqual(span1.sync, false)
     trans.end()

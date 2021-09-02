@@ -189,7 +189,9 @@ test('stack branching - no parents', function (t) {
   }, 50)
 })
 
-// XXX update for runctxmgr changes
+// XXX update for runctxmgr changes. My guess is that we just deleted these
+//     tests. However, I need to make an effort to grok what *real* code
+//     situations these were covering.
 test('currentTransaction missing - recoverable', function (t) {
   resetAgent(2, function (data) {
     t.strictEqual(data.transactions.length, 1)
@@ -307,19 +309,24 @@ test('errors should have a transaction id - non-ended transaction', function (t)
   agent.captureError(new Error('bar'))
 })
 
-test('errors should have a transaction id - ended transaction', function (t) {
-  resetAgent(2, function (data) {
-    t.strictEqual(data.transactions.length, 1)
-    t.strictEqual(data.errors.length, 1)
-    const trans = data.transactions[0]
-    t.strictEqual(data.errors[0].transaction_id, trans.id)
-    t.strictEqual(typeof data.errors[0].transaction_id, 'string')
-    t.end()
-  })
-  agent.captureError = origCaptureError
-  agent.startTransaction('foo').end()
-  agent.captureError(new Error('bar'))
-})
+// XXX Intentional behaviour change. Before this PR an ended transaction would
+//     linger as `agent.currentTransaction`. Not any longer.
+//     This test was added in https://github.com/elastic/apm-agent-nodejs/issues/147
+//     My read of that is that there is no need to associate an error with a
+//     transaction if it is captured *after* the transaction has ended.
+// test('errors should have a transaction id - ended transaction', function (t) {
+//   resetAgent(2, function (data) {
+//     t.strictEqual(data.transactions.length, 1)
+//     t.strictEqual(data.errors.length, 1)
+//     const trans = data.transactions[0]
+//     t.strictEqual(data.errors[0].transaction_id, trans.id)
+//     t.strictEqual(typeof data.errors[0].transaction_id, 'string')
+//     t.end()
+//   })
+//   agent.captureError = origCaptureError
+//   agent.startTransaction('foo').end()
+//   agent.captureError(new Error('bar'))
+// })
 
 // At the time of writing, `apm.captureError(err)` will, by default, add
 // properties (strings, nums, dates) found on the given `err` as
@@ -643,7 +650,7 @@ test('nested spans', function (t) {
     t.strictEqual(s0.transaction_id, trans.id, 's0 transaction_id matches transaction id')
 
     const s1 = findObjInArray(data.spans, 'name', 's1')
-    t.strictEqual(s1.parent_id, trans.id, 's1 should directly descend from the transaction')
+    t.strictEqual(s1.parent_id, s0.id, 's1 should descend from s0')
     t.strictEqual(s1.trace_id, trans.trace_id, 's1 has same trace_id as transaction')
     t.strictEqual(s1.transaction_id, trans.id, 's1 transaction_id matches transaction id')
 
@@ -668,6 +675,21 @@ test('nested spans', function (t) {
 
   // XXX This is an intentional change in behaviour with the new context mgmt.
   // Expected hierarchy before:
+  //   transaction "foo"
+  //   `- span "s0"
+  //     `- span "s01"
+  //   `- span "s1"
+  //     `- span "s11"
+  //     `- span "s12"
+  // After:
+  //   transaction "foo"
+  //   `- span "s0"
+  //     `- span "s1"
+  //       `- span "s11"
+  //       `- span "s12"
+  //     `- span "s01"
+  // The change is that "s1" is a child of "s0". See discussion at
+  // https://github.com/elastic/apm-agent-nodejs/issues/1889
 
   var trans = ins.startTransaction('foo')
   var count = 0

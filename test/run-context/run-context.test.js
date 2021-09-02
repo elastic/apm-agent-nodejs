@@ -13,6 +13,8 @@
 // illustrative when learning or debugging run context handling in the agent.
 // The scripts can be run independent of the test suite.
 
+// XXX TODO: test cases with spans out-lasting tx.end() to see if there are issues there.
+
 const { execFile } = require('child_process')
 const path = require('path')
 const tape = require('tape')

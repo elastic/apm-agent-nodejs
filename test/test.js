@@ -73,24 +73,23 @@ function mapSeries (tasks, handler, cb) {
 var directories = [
   'test',
   'test/cloud-metadata',
+  'test/instrumentation',
   // XXX
-  // 'test/instrumentation',
-  // XXX
-  // 'test/instrumentation/modules',
-  // 'test/instrumentation/modules/@elastic',
-  // 'test/instrumentation/modules/bluebird',
-  // 'test/instrumentation/modules/cassandra-driver',
-  // 'test/instrumentation/modules/express',
-  // 'test/instrumentation/modules/fastify',
-  // 'test/instrumentation/modules/hapi',
-  // 'test/instrumentation/modules/http',
-  // 'test/instrumentation/modules/koa',
-  // 'test/instrumentation/modules/koa-router',
-  // 'test/instrumentation/modules/mysql',
-  // 'test/instrumentation/modules/mysql2',
-  // 'test/instrumentation/modules/pg',
-  // 'test/instrumentation/modules/restify',
-  // 'test/instrumentation/modules/aws-sdk',
+  'test/instrumentation/modules',
+  'test/instrumentation/modules/@elastic',
+  'test/instrumentation/modules/bluebird',
+  'test/instrumentation/modules/cassandra-driver',
+  'test/instrumentation/modules/express',
+  'test/instrumentation/modules/fastify',
+  'test/instrumentation/modules/hapi',
+  'test/instrumentation/modules/http',
+  'test/instrumentation/modules/koa',
+  'test/instrumentation/modules/koa-router',
+  'test/instrumentation/modules/mysql',
+  'test/instrumentation/modules/mysql2',
+  'test/instrumentation/modules/pg',
+  'test/instrumentation/modules/restify',
+  'test/instrumentation/modules/aws-sdk',
   'test/integration',
   'test/integration/api-schema',
   'test/lambda',
@@ -123,6 +122,9 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
     var directory = directories[i]
     files.forEach(function (file) {
       if (!file.endsWith('.test.js')) return
+
+      // XXX
+      if (directory === 'test/instrumentation' && file === 'index.test.js') return
 
       tests.push({
         file: join(directory, file)

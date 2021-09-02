@@ -281,6 +281,7 @@ test('sync/async tracking', function (t) {
   var trans = new Transaction(agent)
   t.strictEqual(trans.sync, true)
   setImmediate(() => {
+    trans.end()
     t.strictEqual(trans.sync, false)
     t.end()
   })
