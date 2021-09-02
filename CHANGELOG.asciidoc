@@ -37,11 +37,21 @@ Notes:
 [float]
 ===== Features
 
+* Improve the TypeScript types by exporting more of interfaces:
+  `AgentConfigOptions`, `Transaction`, `Span`, `TransactionOptions`,
+  `SpanOptions`. ({issues}2118[#2118])
+
 [float]
 ===== Bug fixes
 
+* Fix a crash in instrumentation of the old Elasticsearch client
+  (`elasticsearch`) for some rarer cases of client options -- for example
+  passing multiple hosts. ({pull}2312[#2312])
+
 * Ensure the internal HTTP(S) client requests made by the APM agent to APM
   server are not themselves traced. ({issues}1168[#1168], {issues}1136[#1136])
+
+* Fix crashing error with `agent.registerMetric` and `active:false` configuration. ({issues}1799[#1799], {pull}2290[#2290])
 
 
 [[release-notes-3.20.0]]
@@ -81,6 +91,9 @@ Notes:
   https://nodejs.org/api/http2.html#http2_http2_createsecureserver_options_onrequesthandler[allowHTTP1]
   option. Before this change only incoming requests supporting HTTP/2 would
   be traced. ({pull}2143[#2143])
+
+* Add instrumentation of the AWS SNS publish method when using the
+  https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`). ({pull}2157[#2157])
 
 [float]
 ===== Bug fixes

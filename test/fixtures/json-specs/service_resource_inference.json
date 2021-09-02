@@ -43,6 +43,20 @@
   },
   {
     "span": {
+      "exit": "false",
+      "type": "custom",
+      "subtype": "proprietary-db",
+      "context": {
+        "db": {
+          "instance": "myInstance"
+        }
+      }
+    },
+    "expected_resource": null,
+    "failure_message": "The output for non-exit spans should be `null` even if exit-related context data is set"
+  },
+  {
+    "span": {
       "exit": "true",
       "type": "db",
       "subtype": "mysql",
