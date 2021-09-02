@@ -69,6 +69,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix a bug in `apm.removePatch(module, aHandler)` that would remove the
+  last registered handler if `aHandler` did not match any currently
+  registered handlers. ({pull}2315[#2315])
+
 * Fix a crash in instrumentation of the old Elasticsearch client
   (`elasticsearch`) for some rarer cases of client options -- for example
   passing multiple hosts. ({pull}2312[#2312])
