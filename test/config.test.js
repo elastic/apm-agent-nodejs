@@ -60,7 +60,7 @@ var optionFixtures = [
   ['disableSend', 'DISABLE_SEND', false],
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
   ['environment', 'ENVIRONMENT', 'development'],
-  ['errorMessageMaxLength', 'ERROR_MESSAGE_MAX_LENGTH', 2048],
+  ['errorMessageMaxLength', 'ERROR_MESSAGE_MAX_LENGTH', undefined],
   ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
   ['filterHttpHeaders', 'FILTER_HTTP_HEADERS', true],
   ['frameworkName', 'FRAMEWORK_NAME'],
@@ -74,6 +74,7 @@ var optionFixtures = [
   ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
   ['logLevel', 'LOG_LEVEL', 'info'],
   ['logUncaughtExceptions', 'LOG_UNCAUGHT_EXCEPTIONS', false],
+  ['longFieldMaxLength', 'LONG_FIELD_MAX_LENGTH', 10000],
   ['maxQueueSize', 'MAX_QUEUE_SIZE', 1024],
   ['metricsInterval', 'METRICS_INTERVAL', 30],
   ['metricsLimit', 'METRICS_LIMIT', 1000],
@@ -109,7 +110,7 @@ optionFixtures.forEach(function (fixture) {
     } else if (fixture[0] === 'serverCaCertFile') {
       // special case for files, so a temp file can be written
       type = 'file'
-    } else if (typeof fixture[2] === 'number') {
+    } else if (typeof fixture[2] === 'number' || fixture[0] === 'errorMessageMaxLength') {
       type = 'number'
     } else if (Array.isArray(fixture[2])) {
       type = 'array'

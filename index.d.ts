@@ -218,7 +218,7 @@ declare namespace apm {
     disableInstrumentations?: string | string[];
     disableSend?: boolean;
     environment?: string;
-    errorMessageMaxLength?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
+    errorMessageMaxLength?: string; // DEPRECATED: use `longFieldMaxLength`.
     errorOnAbortedRequests?: boolean;
     filterHttpHeaders?: boolean;
     frameworkName?: string;
@@ -237,6 +237,7 @@ declare namespace apm {
     logLevel?: LogLevel;
     logUncaughtExceptions?: boolean;
     logger?: PinoLogger | Logger;
+    longFieldMaxLength?: number;
     maxQueueSize?: number;
     metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
     metricsLimit?: number;
