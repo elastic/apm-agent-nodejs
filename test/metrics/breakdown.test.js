@@ -310,7 +310,6 @@ test('acceptance', t => {
       agent.destroy()
       t.end()
     })
-
   })
 
   t.test('with single app sub-span', t => {
