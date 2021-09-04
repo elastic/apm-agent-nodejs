@@ -127,21 +127,16 @@ test('includes breakdown when sampling', t => {
   if (span) span.end()
   transaction.end()
 
-  // Wait for (a) the encode and sendSpan of any spans and (b) breakdown metrics
-  // to be sent.
+  // Wait for the following before test asserts:
+  // (a) the encode and sendSpan of any spans, and
+  // (b) breakdown metrics to be sent.
   //
   // If the above transactions/spans are all created and ended *synchronously*
-  // then breakdown metrics will be calculated synchronously and sent in the
-  // *initial* send of metrics -- which are in a setImmediate after
-  // `metrics.start()`. If `captureSpanStackTraces: false` then span encode and
-  // send will be faster than the initial send of metrics -- a
-  // `process.nextTick` in Span#_encode().
-  //
-  // tl;dr: If all transactions/spans are created/ended sync, then this suffices:
-  //    setImmediate(function () { /* make assertions */ })
-  // otherwise the test must wait for the next metrics interval:
-  //    setTimeout(function () { /* make assertions */ }, testMetricsIntervalMs)
-  setImmediate(function () {
+  // then *often* these are ready "soon" (within a setImmediate) -- but relying
+  // on that is a race. If the above transactions/spans are *asynchronous*, then
+  // the breakdown metrics will not be available until the next metricsInterval.
+  // We wait for that.
+  setTimeout(function () {
     const data = agent._transport
     t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
@@ -164,7 +159,7 @@ test('includes breakdown when sampling', t => {
 
     agent.destroy()
     t.end()
-  })
+  }, testMetricsIntervalMs)
 })
 
 test('does not include breakdown when not sampling', t => {
@@ -180,7 +175,7 @@ test('does not include breakdown when not sampling', t => {
   transaction.end()
 
   // See "Wait" comment above.
-  setImmediate(function () {
+  setTimeout(function () {
     const data = agent._transport
     t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
@@ -196,7 +191,7 @@ test('does not include breakdown when not sampling', t => {
 
     agent.destroy()
     t.end()
-  })
+  }, testMetricsIntervalMs)
 })
 
 test('does not include transaction breakdown when disabled', t => {
@@ -215,7 +210,7 @@ test('does not include transaction breakdown when disabled', t => {
   transaction.end()
 
   // See "Wait" comment above.
-  setImmediate(function () {
+  setTimeout(function () {
     const data = agent._transport
     t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
@@ -236,7 +231,7 @@ test('does not include transaction breakdown when disabled', t => {
 
     agent.destroy()
     t.end()
-  })
+  }, testMetricsIntervalMs)
 })
 
 test('acceptance', t => {
@@ -247,7 +242,7 @@ test('acceptance', t => {
     transaction.end(null, 30)
 
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets),
@@ -269,7 +264,7 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
+    }, testMetricsIntervalMs)
   })
 
   t.test('with single sub-span', t => {
@@ -281,7 +276,7 @@ test('acceptance', t => {
     transaction.end(null, 30)
 
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets, span),
@@ -310,14 +305,19 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
+    }, testMetricsIntervalMs)
   })
 
   t.test('with single app sub-span', t => {
     const agent = new Agent().start(testAgentOpts)
 
+    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+    var span = agent.startSpan('foo', 'app', { startTime: 10 })
+    if (span) span.end(20)
+    transaction.end(null, 30)
+
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets, span),
@@ -340,12 +340,7 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span = agent.startSpan('foo', 'app', { startTime: 10 })
-    if (span) span.end(20)
-    transaction.end(null, 30)
+    }, testMetricsIntervalMs)
   })
 
   t.test('with parallel sub-spans', t => {
@@ -466,7 +461,7 @@ test('acceptance', t => {
     transaction.end(null, 30)
 
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets),
@@ -495,7 +490,7 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
+    }, testMetricsIntervalMs)
   })
 
   t.test('with sub-spans returning to app time', t => {
@@ -509,7 +504,7 @@ test('acceptance', t => {
     transaction.end(null, 30)
 
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets),
@@ -538,7 +533,7 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
+    }, testMetricsIntervalMs)
   })
 
   t.test('with overlapping nested async sub-spans', t => {
@@ -552,7 +547,7 @@ test('acceptance', t => {
     transaction.end(null, 30)
 
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets),
@@ -581,7 +576,7 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
+    }, testMetricsIntervalMs)
   })
 
   t.test('with app sub-span extending beyond end', t => {
@@ -596,7 +591,7 @@ test('acceptance', t => {
     if (span1) span1.end(30)
 
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets),
@@ -620,7 +615,7 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
+    }, testMetricsIntervalMs)
   })
 
   t.test('with other sub-span extending beyond end', t => {
@@ -632,7 +627,7 @@ test('acceptance', t => {
     if (span) span.end(30)
 
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets),
@@ -656,7 +651,7 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
+    }, testMetricsIntervalMs)
   })
 
   t.test('with other sub-span starting after end', t => {
@@ -668,7 +663,7 @@ test('acceptance', t => {
     if (span) span.end(30)
 
     // See "Wait" comment above.
-    setImmediate(function () {
+    setTimeout(function () {
       const metricsets = agent._transport.metricsets
       const found = {
         transaction: finders.transaction(metricsets),
@@ -692,7 +687,7 @@ test('acceptance', t => {
 
       agent.destroy()
       t.end()
-    })
+    }, testMetricsIntervalMs)
   })
 
   t.end()
