@@ -671,8 +671,10 @@ The default value `0` means that no source code will be collected for span libra
 ==== `errorMessageMaxLength`
 
 * *Type:* String
-* *Default:* `2kb`
+* *Default:* `"2kb"`
 * *Env:* `ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH`
+
+This option is **deprecated** -- use <<long-field-max-length,`longFieldMaxLength`>> instead.
 
 The maximum length allowed for error messages.
 It is expressed in bytes or includes a size suffix such as `2kb`.
@@ -681,6 +683,8 @@ Size suffixes are case-insensitive and include `b`,
 `mb`,
 and `gb`.
 Messages above this length will be truncated before being sent to the APM Server.
+Note that while the configuration option accepts a number of *bytes*, truncation
+is based on a number of unicode characters, not bytes.
 
 Set to `-1` do disable truncation.
 
@@ -688,6 +692,31 @@ This applies to the following properties:
 
 - `error.exception.message`
 - `error.log.message`
+
+
+[[long-field-max-length]]
+==== `longFieldMaxLength`
+
+* *Type:* Integer
+* *Default:* 10000
+* *Env:* `ELASTIC_APM_LONG_FIELD_MAX_LENGTH`
+
+The following transaction, span, and error fields will be truncated at this
+number of unicode characters before being sent to APM server:
+
+- `transaction.context.request.body`, `error.context.request.body`
+- `transaction.context.message.body`, `span.context.message.body`,
+  `error.context.message.body`
+- `span.context.db.statement`
+- `error.exception.message`, `error.log.message` - If
+  <<error-message-max-length,`errorMessageMaxLength`>> is specified, then that
+  value takes precedence for these error message fields.
+
+Note that tracing data is limited at the upstream APM server to
+{apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`],
+which defaults to 300kB. If you configure `longFieldMaxLength` too large, it
+could result in transactions, spans, or errors that are rejected by APM server.
+
 
 [[stack-trace-limit]]
 ==== `stackTraceLimit`
