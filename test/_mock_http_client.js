@@ -36,6 +36,7 @@ function createMockClient (expected, done) {
       const type = Object.keys(obj)[0]
       this._writes.length++
       this._writes[type + 's'].push(obj[type])
+      // console.warn('XXX mock client "%s" write: %s', type, obj)
 
       process.nextTick(cb)
 
@@ -49,10 +50,13 @@ function createMockClient (expected, done) {
         //    E.g. 'node test/integration/index.test.js' from 0.5s to 3.5s :/
         //    Better solutions: (a) explicit delay when playing with spans
         //    (b) issue #2294 to have `agent.flush()` actually flush inflight spans.
-        const SHORT_DELAY = 100
-        setTimeout(() => {
-          done(this._writes)
-        }, SHORT_DELAY)
+        // XXX I've since disabled this because it breaks timing assumptions in
+        //     code using this mock client. While those assumptions are a pain,
+        //     I don't want to re-write *all* that test code now.
+        // const SHORT_DELAY = 100
+        // setTimeout(() => {
+        done(this._writes)
+        // }, SHORT_DELAY)
       } else if (this._writes.length > expected) {
         let summary = JSON.stringify(obj)
         if (summary.length > 200) {
