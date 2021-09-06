@@ -1,0 +1,320 @@
+{
+  "__description": {
+    "<type>": "root element for type identified by '<type>'",
+    "<type>.__description": "description for '<type>' (optional)",
+    "<type>.__used_by": "list of agents that use '<type>' to help document alignment (optional)",
+    "<type>.allow_null_subtype": "true to allow null subtype, false by default if omitted",
+    "<type>.allow_unlisted_subtype": "true to allow unlisted subtypes, false by default if omitted",
+    "<type>.subtypes": "root element for sub-types of type '<type>', if omitted or empty subtype must be null, unless 'allow_unlisted_subtype' is set to true",
+    "<type>.subtypes.<subtype>": "sub-type element for <subtype>",
+    "<type>.subtypes.<subtype>.__description": "description of <subtype> subtype (optional)",
+    "<type>.subtypes.<subtype>.__used_by": "list of agents that use <subtype> to help document alignment (optional)"
+  },
+  "app": {
+    "__description": "Spans within application (usually not calling an external system)",
+    "allow_null_subtype": true,
+    "subtypes": {
+      "inferred": {
+        "__description": "Sampling profiler inferred spans",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "controller": {
+        "__description": "Application controller actions",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "graphql": {
+        "__description": "Incoming GraphQL requests",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "mailer": {
+        "__description": "Application mailer actions",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "resource": {
+        "__description": "Application resource actions",
+        "__used_by": [
+          "ruby"
+        ]
+      }
+    }
+  },
+  "custom": {
+    "__description": "API custom instrumentation",
+    "__used_by": [
+      "java",
+      "ruby"
+    ],
+    "allow_null_subtype": true
+  },
+  "db": {
+    "__description": "database span",
+    "subtypes": {
+      "cassandra": {
+        "__description": "Cassandra",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "cosmosdb": {
+        "__description": "Azure CosmosDB"
+      },
+      "db2": {
+        "__description": "IBM DB2",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "derby": {
+        "__description": "Apache Derby",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "dynamodb": {
+        "__description": "AWS DynamoDB",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "elasticsearch": {
+        "__description": "Elasticsearch",
+        "__used_by": [
+          "java",
+          "ruby"
+        ]
+      },
+      "graphql": {
+        "__description": "GraphQL",
+        "__used_by": [
+          "nodejs"
+        ]
+      },
+      "h2": {
+        "__description": "H2",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "hsqldb": {
+        "__description": "HSQLDB",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "ingres": {
+        "__description": "Ingres"
+      },
+      "mariadb": {
+        "__description": "MariaDB",
+        "__used_by": [
+          "java",
+          "ruby"
+        ]
+      },
+      "memcached": {
+        "__description": "Memcached",
+        "__used_by": [
+          "nodejs"
+        ]
+      },
+      "mongodb": {
+        "__description": "MongoDB",
+        "__used_by": [
+          "java",
+          "ruby"
+        ]
+      },
+      "mssql": {
+        "__description": "Microsoft SQL Server",
+        "__used_by": [
+          "nodejs"
+        ]
+      },
+      "mysql": {
+        "__description": "MySQL",
+        "__used_by": [
+          "java",
+          "ruby"
+        ]
+      },
+      "oracle": {
+        "__description": "Oracle Database",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "postgresql": {
+        "__description": "PostgreSQL",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "redis": {
+        "__description": "Redis",
+        "__used_by": [
+          "java",
+          "ruby"
+        ]
+      },
+      "sqlite": {
+        "__description": "SQLite",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "sqlite3": {
+        "__description": "SQLite 3",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "sqlserver": {
+        "__description": "Microsoft SQL Server",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "unknown": {
+        "__description": "Unknown database",
+        "__used_by": [
+          "java",
+          "ruby"
+        ]
+      }
+    }
+  },
+  "external": {
+    "__description": "Request to external service, usually in request/response pattern",
+    "subtypes": {
+      "dubbo": {
+        "__description": "Apache Dubbo",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "grpc": {
+        "__description": "gRPC",
+        "__used_by": [
+          "ruby",
+          "java"
+        ]
+      },
+      "http": {
+        "__description": "HTTP client",
+        "__used_by": [
+          "ruby",
+          "java"
+        ]
+      }
+    }
+  },
+  "json": {
+    "__description": "JSON parsing and generation",
+    "subtypes": {
+      "parse": {
+        "__description": "JSON parsing"
+      },
+      "generate": {
+        "__description": "JSON generation"
+      }
+    },
+    "__used_by": [
+      "ruby"
+    ]
+  },
+  "messaging": {
+    "__description": "Messaging",
+    "subtypes": {
+      "azurequeue": {
+        "__description": "Azure Queue"
+      },
+      "azureservicebus": {
+        "__description": "Azure Service Bus"
+      },
+      "jms": {
+        "__description": "Java Messaging Service",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "kafka": {
+        "__description": "Apache Kafka",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "rabbitmq": {
+        "__description": "RabbitMQ",
+        "__used_by": [
+          "java"
+        ]
+      },
+      "sns": {
+        "__description": "AWS Simple Notification Service",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "sqs": {
+        "__description": "AWS Simple Queue Service",
+        "__used_by": [
+          "ruby"
+        ]
+      }
+    }
+  },
+  "process": {
+    "__description": "External process",
+    "__used_by": [
+      "java"
+    ]
+  },
+  "storage": {
+    "subtypes": {
+      "azureblob": {
+        "__description": "Azure Blob Storage"
+      },
+      "azurefile": {
+        "__description": "Azure Files"
+      },
+      "azuretable": {
+        "__description": "Azure Storage Table",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "s3": {
+        "__description": "AWS S3",
+        "__used_by": [
+          "ruby"
+        ]
+      }
+    }
+  },
+  "template": {
+    "__description": "Template engines (no sub-type for now as really platform-specific)",
+    "__used_by": [
+      "java",
+      "ruby"
+    ],
+    "allow_unlisted_subtype": true
+  },
+  "websocket": {
+    "__description": "Websockets",
+    "subtypes": {
+      "send": {
+        "__used_by": [
+          "nodejs"
+        ]
+      }
+    }
+  }
+}
