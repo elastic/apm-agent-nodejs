@@ -24,6 +24,10 @@
 
 class CapturingTransport {
   constructor () {
+    this.clear()
+  }
+
+  clear () {
     this.spans = []
     this.transactions = []
     this.errors = []
