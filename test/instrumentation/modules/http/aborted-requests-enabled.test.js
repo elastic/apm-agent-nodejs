@@ -1,6 +1,17 @@
 'use strict'
 
-var agent = require('../../_agent')()
+const agent = require('../../../..').start({
+  serviceName: 'test-http-aborted-requests-enabled',
+  breakdownMetrics: false,
+  captureExceptions: false,
+  metricsInterval: 0,
+  centralConfig: false,
+  cloudProvider: 'none',
+  spanFramesMinDuration: -1, // always capture stack traces with spans
+  // Testing these:
+  abortedErrorThreshold: '250ms',
+  errorOnAbortedRequests: true
+})
 
 var http = require('http')
 
@@ -10,7 +21,6 @@ var assert = require('./_assert')
 var mockClient = require('../../../_mock_http_client')
 
 var addEndedTransaction = agent._instrumentation.addEndedTransaction
-agent._conf.errorOnAbortedRequests = true
 
 test('client-side abort below error threshold - call end', { timeout: 10000 }, function (t) {
   var clientReq

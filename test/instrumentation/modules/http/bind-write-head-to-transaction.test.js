@@ -1,6 +1,14 @@
 'use strict'
 
-var agent = require('../../_agent')()
+const agent = require('../../../..').start({
+  serviceName: 'test-http-outgoing',
+  breakdownMetrics: false,
+  captureExceptions: false,
+  metricsInterval: 0,
+  centralConfig: false,
+  cloudProvider: 'none',
+  spanFramesMinDuration: -1 // always capture stack traces with spans
+})
 
 var http = require('http')
 
