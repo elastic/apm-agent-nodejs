@@ -39,8 +39,8 @@ module.exports = function mockAgent (expected, cb) {
   // XXX rejigger this to not rely on ins.currentTransaction
   Object.defineProperty(agent, 'currentTransaction', {
     get () {
-      XXX
-      return agent._instrumentation.currentTransaction
+      throw new Error('XXX')
+      // return agent._instrumentation.currentTransaction
     }
   })
 

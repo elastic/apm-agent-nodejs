@@ -19,7 +19,7 @@ var apm = require('../').start({ // elastic-apm-node
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'custom-spans-async-1',
+  serviceName: 'custom-spans-async-1'
   // XXX want to test with and without this:
   // asyncHooks: false
 })

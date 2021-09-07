@@ -122,7 +122,7 @@ const cases = [
       t.equal(s3.parent_id, s1.id, 's3 is a child of s1')
       t.equal(s4.parent_id, s3.id, 's4 is a child of s3')
     }
-  },
+  }
 ]
 
 cases.forEach(c => {

@@ -111,7 +111,7 @@ app.get('/f', (req, res) => { // '/nspans-dario'
 })
 
 app.get('/unended-span', (req, res) => {
-  var s1 = apm.startSpan('this is span 1')
+  apm.startSpan('this is span 1')
   res.end('done')
 })
 
@@ -203,7 +203,7 @@ app.get('/s3', (req, res) => {
 
 // Ensure that an ignored URL prevents spans being created in its run context
 // if there happens to be an earlier transaction already active.
-const globalTx = apm.startTransaction('globalTx')
+apm.startTransaction('globalTx')
 app.get('/ignore-this-url', (req, res) => {
   assert(apm.currentTransaction === null)
   const s1 = apm.startSpan('s1')
