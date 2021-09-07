@@ -16,7 +16,6 @@ var http = require('http')
 var test = require('tape')
 
 const logging = require('../../lib/logging')
-var mockAgent = require('./_agent')
 var mockClient = require('../_mock_http_client')
 var Instrumentation = require('../../lib/instrumentation')
 var findObjInArray = require('../_utils').findObjInArray
@@ -419,7 +418,7 @@ test('sampling', function (t) {
 })
 
 test('unsampled transactions do not include spans', function (t) {
-  var agent = mockAgent(1, function (data, cb) {
+  resetAgent(1, function (data, cb) {
     t.strictEqual(data.transactions.length, 1)
 
     data.transactions.forEach(function (trans) {
