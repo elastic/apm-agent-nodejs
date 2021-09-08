@@ -104,6 +104,7 @@ var directories = [
 mapSeries(directories, readdir, function (err, directoryFiles) {
   if (err) throw err
 
+  // XXX Would be nice to fix these to not need special launch handling.
   var tests = [
     {
       file: 'test.test.js',
