@@ -149,7 +149,7 @@ function getDeletedCountFromResults (results) {
 }
 
 function resetAgent (expectations, cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(expectations, cb)
   agent.captureError = function (err) { throw err }
 }

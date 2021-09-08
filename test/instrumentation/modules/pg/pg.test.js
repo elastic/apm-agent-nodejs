@@ -645,5 +645,5 @@ function resetAgent (expected, cb) {
   // let's just destroy it before creating the mock
   if (agent._transport.destroy) agent._transport.destroy()
   agent._transport = mockClient(expected, cb)
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
 }

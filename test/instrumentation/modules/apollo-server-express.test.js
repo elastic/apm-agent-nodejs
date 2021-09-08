@@ -301,7 +301,7 @@ function done (t, query) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   // Cannot use the 'expected' argument to mockClient, because the way the
   // tests above are structured, there is a race between the mockClient
   // receiving events from the APM agent and the graphql request receiving a

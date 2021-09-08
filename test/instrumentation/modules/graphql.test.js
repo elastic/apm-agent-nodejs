@@ -214,7 +214,7 @@ function done (t, spanNameSuffix) {
 
 function resetAgent (expected, cb) {
   if (typeof executed === 'function') return resetAgent(2, expected)
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

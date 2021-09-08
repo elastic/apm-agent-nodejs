@@ -96,7 +96,7 @@ test(function (t) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(7, cb)
   agent.captureError = function (err) { throw err }
 }

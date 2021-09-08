@@ -158,5 +158,5 @@ function resetAgent (opts, cb) {
   agent._conf.ignoreUserAgentStr = opts.ignoreUserAgentStr || []
   agent._conf.ignoreUserAgentRegExp = opts.ignoreUserAgentRegExp || []
   agent._conf.transactionIgnoreUrlRegExp = opts.transactionIgnoreUrlRegExp || []
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
 }

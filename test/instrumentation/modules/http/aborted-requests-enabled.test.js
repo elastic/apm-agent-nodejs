@@ -452,7 +452,7 @@ test('server-side abort above error threshold but socket not closed - call end',
 })
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(1, cb)
 }
 

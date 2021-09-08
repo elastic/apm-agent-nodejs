@@ -284,7 +284,7 @@ function abortTest (type, handler) {
 }
 
 function resetAgent (opts, cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._config(opts)
   agent._transport = mockClient(2, cb)
 }

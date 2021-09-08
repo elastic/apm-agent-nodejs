@@ -173,6 +173,6 @@ test('server-side abort - don\'t call end', function (t) {
 })
 
 function resetAgent () {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(1, function () {})
 }
