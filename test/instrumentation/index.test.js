@@ -1,7 +1,7 @@
 'use strict'
 
 var agent = require('../..').start({
-  serviceName: 'test',
+  serviceName: 'test-instrumentation',
   breakdownMetrics: false,
   captureExceptions: false,
   metricsInterval: 0,

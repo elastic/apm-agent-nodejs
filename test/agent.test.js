@@ -1680,6 +1680,38 @@ test('patches', function (t) {
     agent.destroy()
     t.end()
   })
+
+  t.test('#removePatch(name, oops) does not remove patches', function (t) {
+    const agent = new Agent().start(agentOptsNoopTransport)
+
+    const moduleName = 'removePatch-test-module'
+    t.notOk(agent._instrumentation._patches.has(moduleName))
+
+    const handler1 = function (exports) { return exports }
+    const handler2 = function (exports) { return exports }
+    agent.addPatch(moduleName, handler1)
+    agent.addPatch(moduleName, handler2)
+    const modulePatches = agent._instrumentation._patches.get(moduleName)
+    t.ok(modulePatches.length === 2 &&
+      modulePatches[0] === handler1 &&
+      modulePatches[1] === handler2, 'module patches are as expected')
+
+    agent.removePatch(moduleName)
+    t.equal(agent._instrumentation._patches.get(moduleName).length, 2,
+      'still have 2 patches after removePatch(name)')
+    agent.removePatch(moduleName, 'this is not one of the registered handlers')
+    t.equal(agent._instrumentation._patches.get(moduleName).length, 2,
+      'still have 2 patches after removePatch(name, oops)')
+    agent.removePatch(moduleName, function oops () {})
+    t.equal(agent._instrumentation._patches.get(moduleName).length, 2,
+      'still have 2 patches after removePatch(name, function oops () {})')
+
+    agent.removePatch(moduleName, handler2)
+    agent.removePatch(moduleName, handler1)
+    agent.destroy()
+
+    t.end()
+  })
 })
 
 test('#registerMetric(name, labels, callback)', function (t) {
