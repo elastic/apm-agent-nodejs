@@ -4,16 +4,19 @@
 if (process.platform === 'win32') process.exit()
 
 var agent = require('../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-memcached',
   captureExceptions: false,
-  metricsInterval: 0
+  metricsInterval: '0s',
+  centralConfig: false,
+  cloudProvider: 'none'
 })
 
 var test = require('tape')
 var mockClient = require('../../_mock_http_client')
+
 var host = process.env.MEMCACHED_HOST || '127.0.0.1'
-test(function (t) {
+
+test('memcached', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 7)
@@ -64,11 +67,40 @@ test(function (t) {
         port: 11211
       })
     })
+    // XXX Behaviour change in new ctxmgr
+    //
+    // Before this PR, the parent child relationship of the memcached commands was:
+    //     transaction "myTrans"
+    //     `- span "memcached.set"
+    //       `- span "memcached.replace"
+    //       `- span "memcached.get"
+    //       `- span "memcached.touch"
+    //       `- span "memcached.delete"
+    //       `- span "memcached.get"
+    //     `- span "memcached.get"
+    // I.e. weird. The first `cache.get` under `cache.set` is parented to the
+    // transaction, and thereafter every other `cache.$command` is parented to
+    // the initial `cache.set`.
+    //
+    // After this PR:
+    //     transaction "myTrans"
+    //     `- span "memcached.set"
+    //     `- span "memcached.get"
+    //     `- span "memcached.replace"
+    //     `- span "memcached.get"
+    //     `- span "memcached.touch"
+    //     `- span "memcached.delete"
+    //     `- span "memcached.get"
+    spans.forEach(span => {
+      t.equal(span.parent_id, data.transactions[0].id,
+        'span is a child of the transaction')
+    })
     t.end()
   })
+
   var Memcached = require('memcached')
   var cache = new Memcached(`${host}:11211`, { timeout: 500 })
-  agent.startTransaction('foo', 'bar')
+  agent.startTransaction('myTrans')
   cache.set('foo', 'bar', 300, (err) => {
     t.error(err)
     cache.get('foo', (err, data) => {
@@ -86,9 +118,12 @@ test(function (t) {
               cache.get('foo', (err, data) => {
                 t.error(err)
                 t.strictEqual(data, undefined)
-                agent.endTransaction()
-                agent.flush()
                 cache.end()
+                agent.endTransaction()
+                setTimeout(function () {
+                  // Wait for spans to encode and be sent, before flush.
+                  agent.flush()
+                }, 200)
               })
             })
           })
