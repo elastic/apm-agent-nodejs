@@ -392,9 +392,10 @@ if (semver.gte(pkgVersion, '7.7.0')) {
 
         const err = data.errors
           .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-        if (semver.eq(esVersion, '7.14.0')) {
-          // https://github.com/elastic/elasticsearch-js/issues/1517
-          t.ok(!err, 'no APM error reported for abort because elastic/elasticsearch-js#1517')
+        if (semver.satisfies(esVersion, '7.14.x')) {
+          // https://github.com/elastic/elasticsearch-js/issues/1517 was fixed
+          // for 7.15 and later.
+          t.ok(!err, 'no APM error reported for abort with v7.14.x of the client because elastic/elasticsearch-js#1517')
         } else {
           t.ok(err, 'sent an error to APM server')
           t.ok(err.id, 'err.id')
@@ -451,9 +452,10 @@ if (semver.gte(pkgVersion, '7.7.0')) {
 
         const err = data.errors
           .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-        if (semver.eq(esVersion, '7.14.0')) {
-          // https://github.com/elastic/elasticsearch-js/issues/1517
-          t.ok(!err, 'no APM error reported for abort because elastic/elasticsearch-js#1517')
+        if (semver.satisfies(esVersion, '7.14.x')) {
+          // https://github.com/elastic/elasticsearch-js/issues/1517 was fixed
+          // for 7.15 and later.
+          t.ok(!err, 'no APM error reported for abort with v7.14.x of the client because elastic/elasticsearch-js#1517')
         } else {
           t.ok(err, 'sent an error to APM server')
           t.ok(err.id, 'err.id')

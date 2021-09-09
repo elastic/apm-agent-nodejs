@@ -5,6 +5,9 @@
 //    server.start(function (serverUrl) {
 //      // Test code using `serverUrl`...
 //      // - Events received on the intake API will be on `server.events`.
+//      // - Raw request data is on `server.requests`.
+//      // - Use `server.clear()` to clear `server.events` and `server.requests`
+//      //   for re-use of the mock server in multiple test cases.
 //      // - Call `server.close()` when done.
 //    })
 
@@ -14,9 +17,14 @@ const zlib = require('zlib')
 
 class MockAPMServer {
   constructor () {
-    this.events = []
+    this.clear()
     this.serverUrl = null // set in .start()
     this._http = http.createServer(this._onRequest.bind(this))
+  }
+
+  clear () {
+    this.events = []
+    this.requests = []
   }
 
   _onRequest (req, res) {
@@ -51,6 +59,12 @@ class MockAPMServer {
       } else {
         res.writeHead(404)
       }
+      this.requests.push({
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        body: body
+      })
       res.end(resBody)
     })
   }
