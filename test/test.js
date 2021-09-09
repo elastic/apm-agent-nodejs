@@ -125,8 +125,6 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
       // XXX the remaining failing tests
       if (directory === 'test/instrumentation' && file === 'index.test.js') return
       if (directory === 'test/instrumentation' && file === 'transaction.test.js') return
-      if (directory === 'test/instrumentation/modules' && file === 'http2.test.js') return
-      if (directory === 'test/instrumentation/modules/aws-sdk' && file === 'sqs.test.js') return
 
       tests.push({
         file: join(directory, file)
