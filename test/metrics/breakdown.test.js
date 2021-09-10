@@ -358,7 +358,6 @@ test('with parallel sub-spans', t => {
     setImmediate(function () {
       if (span1) span1.end(20)
       transaction.end(null, 30)
-      agent.flush()
     })
   })
 
