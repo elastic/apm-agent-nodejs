@@ -342,27 +342,44 @@ test('with single app sub-span', t => {
   }, testMetricsIntervalMs)
 })
 
-test('with parallel sub-spans', t => {
+function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
+  const origSendMetricSet = agent._transport.sendMetricSet
+  agent._transport.sendMetricSet = function watchingSendMetricSet (metricset, cb) {
+    agent.logger.warn({ metricset }, 'XXX got a metricset')
+    return origSendMetricSet.apply(this, arguments)
+  }
+}
+
+test.only('with parallel sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
   var span0
   setImmediate(function () {
+    agent.logger.warn('XXX in span0 setImmediate')
     span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
     setImmediate(function () {
+      agent.logger.warn('XXX in span0.end setImmediate')
       if (span0) span0.end(20)
     })
   })
   setImmediate(function () {
+    agent.logger.warn('XXX in span1 setImmediate')
     var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 10 })
     setImmediate(function () {
+      agent.logger.warn('XXX in span1.end/tx.end setImmediate')
       if (span1) span1.end(20)
       transaction.end(null, 30)
     })
   })
 
+  waitForAgentToSendBreakdownMetrics(agent, function () {
+    agent.logger.warn('XXX yup, done waiting for breakdown metrics')
+  })
+
   // See "Wait" comment above.
   setTimeout(function () {
+    agent.logger.warn('XXX done guess setTimeout waiting for breakdown metrics')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -371,20 +388,20 @@ test('with parallel sub-spans', t => {
     }
 
     t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
+    t.deepEqual(found.transaction && found.transaction.samples, {
       'transaction.duration.count': { value: 1 },
       'transaction.duration.sum.us': { value: 30 },
       'transaction.breakdown.count': { value: 1 }
     }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
-    t.deepEqual(found.transaction_span.samples, {
+    t.deepEqual(found.transaction_span && found.transaction_span.samples, {
       'span.self_time.count': { value: 1 },
       'span.self_time.sum.us': { value: 20 }
     }, 'sample values match')
 
     t.ok(found.span, 'found db.mysql span metricset')
-    t.deepEqual(found.span.samples, {
+    t.deepEqual(found.span && found.span.samples, {
       'span.self_time.count': { value: 2 },
       'span.self_time.sum.us': { value: 20 }
     }, 'sample values match')
