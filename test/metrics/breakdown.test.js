@@ -119,6 +119,52 @@ const testAgentOpts = {
   metricsInterval: testMetricsInterval
 }
 
+// Call `waitCb()` callback after breakdown metrics have been sent by the given
+// agent. Or call `waitCb(err)` after `2 * testMetricsIntervalMs` to indicate
+// a timeout.
+//
+// A test of breakdown metrics involves:
+// 1. creating some transactions and spans with particular start/end times, then
+// 2. testing the metricsets sent to the agent's transport.
+//
+// The issue is that the agent currently does not provide a mechanism to know
+// *when* all breakdown metrics (which are N separate metricsets) for ended
+// transactions and spans have been sent. In a test case that creates and ends
+// all transactions and spans synchronously, it is possible that breakdown
+// metrics will come in the initial send of metricsets (which is async, but
+// soon). For other cases we know they will be sent soon after the next
+// metricsInterval (set to 1s in this test file). However, both the *start* of
+// that `setInterval` and the collection of metrics before calling
+// `transport.sendMetricSet()` are asynchronous.
+function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
+  const timeoutMs = 2 * testMetricsIntervalMs
+  const timeout = setTimeout(function () {
+    waitCb(new Error(`timeout: breakdown metrics were not sent within ${timeoutMs}ms`))
+  }, timeoutMs)
+
+  // Wrap `transport.sendMetricSet` to watch for sent metrics.
+  //
+  // The complete set of "breakdown metrics" is N metricsets with
+  // `metricset.transaction` sent at nearly the same time. That "nearly" is
+  // async with no strong guarantee. We could either have each test case pass
+  // in the expected number of metricsets, or use a short timeout to cover that
+  // "nearly the same time" gap. I prefer the latter, because it avoids the
+  // problem of a test expecting 2 metricsets and never noticing that 3 are
+  // actually sent.
+  const WAIT_FOR_FULL_BREAKDOWN_METRICSETS_GROUP_MS = 100
+  const origSendMetricSet = agent._transport.sendMetricSet
+  agent._transport.sendMetricSet = function watchingSendMetricSet (metricset, cb) {
+    if (metricset.transaction) {
+      // This is the first breakdown metric. Wait a short while for all of them
+      // in this "group" to be sent.
+      clearTimeout(timeout)
+      agent._transport.sendMetricSet = origSendMetricSet
+      setTimeout(waitCb, WAIT_FOR_FULL_BREAKDOWN_METRICSETS_GROUP_MS)
+    }
+    return origSendMetricSet.apply(this, arguments)
+  }
+}
+
 test('includes breakdown when sampling', t => {
   const agent = new Agent().start(testAgentOpts)
 
@@ -127,16 +173,8 @@ test('includes breakdown when sampling', t => {
   if (span) span.end()
   transaction.end()
 
-  // Wait for the following before test asserts:
-  // (a) the encode and sendSpan of any spans, and
-  // (b) breakdown metrics to be sent.
-  //
-  // If the above transactions/spans are all created and ended *synchronously*
-  // then *often* these are ready "soon" (within a setImmediate) -- but relying
-  // on that is a race. If the above transactions/spans are *asynchronous*, then
-  // the breakdown metrics will not be available until the next metricsInterval.
-  // We wait for that.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const data = agent._transport
     t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
@@ -174,8 +212,8 @@ test('does not include breakdown when not sampling', t => {
   if (span) span.end()
   transaction.end()
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const data = agent._transport
     t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
@@ -209,8 +247,8 @@ test('does not include transaction breakdown when disabled', t => {
   if (span) span.end()
   transaction.end()
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const data = agent._transport
     t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
@@ -240,8 +278,8 @@ test('only transaction', t => {
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
   transaction.end(null, 30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -274,8 +312,8 @@ test('with single sub-span', t => {
   if (span) span.end(20)
   transaction.end(null, 30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets, span),
@@ -315,8 +353,8 @@ test('with single app sub-span', t => {
   if (span) span.end(20)
   transaction.end(null, 30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets, span),
@@ -342,44 +380,27 @@ test('with single app sub-span', t => {
   }, testMetricsIntervalMs)
 })
 
-function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
-  const origSendMetricSet = agent._transport.sendMetricSet
-  agent._transport.sendMetricSet = function watchingSendMetricSet (metricset, cb) {
-    agent.logger.warn({ metricset }, 'XXX got a metricset')
-    return origSendMetricSet.apply(this, arguments)
-  }
-}
-
 test('with parallel sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
   var span0
   setImmediate(function () {
-    agent.logger.warn('XXX in span0 setImmediate')
     span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
     setImmediate(function () {
-      agent.logger.warn('XXX in span0.end setImmediate')
       if (span0) span0.end(20)
     })
   })
   setImmediate(function () {
-    agent.logger.warn('XXX in span1 setImmediate')
     var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 10 })
     setImmediate(function () {
-      agent.logger.warn('XXX in span1.end/tx.end setImmediate')
       if (span1) span1.end(20)
       transaction.end(null, 30)
     })
   })
 
-  waitForAgentToSendBreakdownMetrics(agent, function () {
-    agent.logger.warn('XXX yup, done waiting for breakdown metrics')
-  })
-
-  // See "Wait" comment above.
-  setTimeout(function () {
-    agent.logger.warn('XXX done guess setTimeout waiting for breakdown metrics')
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -432,8 +453,8 @@ test('with overlapping sub-spans', t => {
     })
   })
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -475,8 +496,8 @@ test('with sequential sub-spans', t => {
   if (span1) span1.end(25)
   transaction.end(null, 30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -518,8 +539,8 @@ test('with sub-spans returning to app time', t => {
   if (span1) span1.end(25)
   transaction.end(null, 30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -561,8 +582,8 @@ test('with overlapping nested async sub-spans', t => {
   if (span1) span1.end(25)
   transaction.end(null, 30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -605,8 +626,8 @@ test('with app sub-span extending beyond end', t => {
   if (span0) span0.end(30)
   if (span1) span1.end(30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -641,8 +662,8 @@ test('with other sub-span extending beyond end', t => {
   transaction.end(null, 20)
   if (span) span.end(30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
@@ -677,8 +698,8 @@ test('with other sub-span starting after end', t => {
   var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: transaction })
   if (span) span.end(30)
 
-  // See "Wait" comment above.
-  setTimeout(function () {
+  waitForAgentToSendBreakdownMetrics(agent, function (err) {
+    t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
       transaction: finders.transaction(metricsets),
