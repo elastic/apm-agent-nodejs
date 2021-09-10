@@ -392,7 +392,11 @@ test('with parallel sub-spans', t => {
     })
   })
   setImmediate(function () {
-    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 10 })
+    // Note: This use of `childOf` is to ensure span1 is a child of the
+    // transaction for the special case of (a) asyncHooks=false such that we are
+    // using "patch-async.js" and (b) use of `agent.destroy(); new Agent()`.
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
+      { startTime: 10, childOf: transaction })
     setImmediate(function () {
       if (span1) span1.end(20)
       transaction.end(null, 30)
@@ -444,7 +448,9 @@ test('with overlapping sub-spans', t => {
     })
   })
   setImmediate(function () {
-    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
+    // See "childOf" comment above for why `childOf` is used here.
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
+      { startTime: 15, childOf: transaction })
     setImmediate(function () {
       if (span1) span1.end(25)
       setImmediate(function () {
