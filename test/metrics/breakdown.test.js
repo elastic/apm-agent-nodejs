@@ -350,7 +350,7 @@ function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
   }
 }
 
-test.only('with parallel sub-spans', t => {
+test('with parallel sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
