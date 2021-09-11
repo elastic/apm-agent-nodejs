@@ -232,9 +232,10 @@ function spinCPUFor (durationMs) {
   while (Date.now() - start < durationMs) {}
 }
 
-test('sends histogram', function ( t ) {
+test.only('sends histogram', function ( t ) {
 
-  let calls = 1
+  let calls = 0
+  let totalCalls = 2
   let stopwatch
   let timer
   let intervalId
@@ -247,8 +248,12 @@ test('sends histogram', function ( t ) {
     hostname: 'foo',
     environment: 'bar'
   }, (metricset = {}) => {
-    calls--
 
+    if (calls === 0) {
+      calls++
+      return
+    }
+    
     let sample = metricset.samples['ts.server_start']
 
     t.ok(sample.values.length > 0, 'has at least one value')
@@ -256,12 +261,15 @@ test('sends histogram', function ( t ) {
     t.ok(sample.values[0] > 0, 'value is larger than 0')
     t.ok(sample.counts[0] > 0, 'count is larger than 0')
 
-    if(calls === 0) {
+    if(calls === totalCalls) {
       clearInterval(intervalId)
       timer.unref()
       metrics.stop()
       t.end()
     }
+
+
+    calls++
   })
 
   metrics = new Metrics(agent)
@@ -271,7 +279,7 @@ test('sends histogram', function ( t ) {
 
   stopwatch = timer.start()
 
-  intervalId = setInterval(function ( ) {
+  intervalId = setInterval(function measure ( ) {
     stopwatch.end()
     stopwatch = timer.start()
   }, delayMs/4)
