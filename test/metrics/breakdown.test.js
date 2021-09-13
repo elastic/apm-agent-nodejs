@@ -234,442 +234,438 @@ test('does not include transaction breakdown when disabled', t => {
   }, testMetricsIntervalMs)
 })
 
-test('acceptance', t => {
-  t.test('only transaction', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    transaction.end(null, 30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 30 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 30 }
-      }, 'sample values match')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with single sub-span', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
-    if (span) span.end(20)
-    transaction.end(null, 30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets, span),
-        transaction_span: finders['transaction span'](metricsets, span),
-        span: finders.span(metricsets, span)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 30 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 20 }
-      }, 'sample values match')
-
-      t.ok(found.span, 'found db.mysql span metricset')
-      t.deepEqual(found.span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 10 }
-      }, 'sample values match')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with single app sub-span', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span = agent.startSpan('foo', 'app', { startTime: 10 })
-    if (span) span.end(20)
-    transaction.end(null, 30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets, span),
-        transaction_span: finders['transaction span'](metricsets, span),
-        span: finders.span(metricsets, span)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 30 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 2 },
-        'span.self_time.sum.us': { value: 30 }
-      }, 'sample values match')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with parallel sub-spans', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
-    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 10 })
-    if (span0) span0.end(20)
-    if (span1) span1.end(20)
-    transaction.end(null, 30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets),
-        span: finders.span(metricsets, span0)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 30 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 20 }
-      }, 'sample values match')
-
-      t.ok(found.span, 'found db.mysql span metricset')
-      t.deepEqual(found.span.samples, {
-        'span.self_time.count': { value: 2 },
-        'span.self_time.sum.us': { value: 20 }
-      }, 'sample values match')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with overlapping sub-spans', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
-    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
-    if (span0) span0.end(20)
-    if (span1) span1.end(25)
-    transaction.end(null, 30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets),
-        span: finders.span(metricsets, span0)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 30 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 15 }
-      }, 'sample values match')
-
-      t.ok(found.span, 'found db.mysql span metricset')
-      t.deepEqual(found.span.samples, {
-        'span.self_time.count': { value: 2 },
-        'span.self_time.sum.us': { value: 20 }
-      }, 'sample values match')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with sequential sub-spans', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 5 })
-    if (span0) span0.end(15)
-    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
-    if (span1) span1.end(25)
-    transaction.end(null, 30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets),
-        span: finders.span(metricsets, span0)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 30 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 10 }
-      }, 'sample values match')
-
-      t.ok(found.span, 'found db.mysql span metricset')
-      t.deepEqual(found.span.samples, {
-        'span.self_time.count': { value: 2 },
-        'span.self_time.sum.us': { value: 20 }
-      }, 'sample values match')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with sub-spans returning to app time', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
-    if (span0) span0.end(15)
-    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 20 })
-    if (span1) span1.end(25)
-    transaction.end(null, 30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets),
-        span: finders.span(metricsets, span0)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 30 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 20 }
-      }, 'sample values match')
-
-      t.ok(found.span, 'found db.mysql span metricset')
-      t.deepEqual(found.span.samples, {
-        'span.self_time.count': { value: 2 },
-        'span.self_time.sum.us': { value: 10 }
-      }, 'sample values match')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with overlapping nested async sub-spans', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
-    var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 15, childOf: span0 })
-    if (span0) span0.end(20)
-    if (span1) span1.end(25)
-    transaction.end(null, 30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets),
-        span: finders.span(metricsets, span1)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 30 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 2 },
-        'span.self_time.sum.us': { value: 25 }
-      }, 'sample values match')
-
-      t.ok(found.span, 'found db.mysql span metricset')
-      t.deepEqual(found.span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 10 }
-      }, 'sample values match')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with app sub-span extending beyond end', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
-    transaction.end(null, 20)
-    // span1 is *not* created, because cannot create a span on an ended transaction.
-    var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: span0 })
-    if (span0) span0.end(30)
-    if (span1) span1.end(30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 20 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 10 }
-      }, 'sample values match')
-
-      t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with other sub-span extending beyond end', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
-    transaction.end(null, 20)
-    if (span) span.end(30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 20 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 10 }
-      }, 'sample values match')
-
-      t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.test('with other sub-span starting after end', t => {
-    const agent = new Agent().start(testAgentOpts)
-
-    var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-    transaction.end(null, 10)
-    var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: transaction })
-    if (span) span.end(30)
-
-    // See "Wait" comment above.
-    setTimeout(function () {
-      const metricsets = agent._transport.metricsets
-      const found = {
-        transaction: finders.transaction(metricsets),
-        transaction_span: finders['transaction span'](metricsets)
-      }
-
-      t.ok(found.transaction, 'found transaction metricset')
-      t.deepEqual(found.transaction.samples, {
-        'transaction.duration.count': { value: 1 },
-        'transaction.duration.sum.us': { value: 10 },
-        'transaction.breakdown.count': { value: 1 }
-      }, 'sample values match')
-
-      t.ok(found.transaction_span, 'found app span metricset')
-      t.deepEqual(found.transaction_span.samples, {
-        'span.self_time.count': { value: 1 },
-        'span.self_time.sum.us': { value: 10 }
-      }, 'sample values match')
-
-      t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
-
-      agent.destroy()
-      t.end()
-    }, testMetricsIntervalMs)
-  })
-
-  t.end()
+test('only transaction', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  transaction.end(null, 30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 30 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 30 }
+    }, 'sample values match')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with single sub-span', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
+  if (span) span.end(20)
+  transaction.end(null, 30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets, span),
+      transaction_span: finders['transaction span'](metricsets, span),
+      span: finders.span(metricsets, span)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 30 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 20 }
+    }, 'sample values match')
+
+    t.ok(found.span, 'found db.mysql span metricset')
+    t.deepEqual(found.span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 10 }
+    }, 'sample values match')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with single app sub-span', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span = agent.startSpan('foo', 'app', { startTime: 10 })
+  if (span) span.end(20)
+  transaction.end(null, 30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets, span),
+      transaction_span: finders['transaction span'](metricsets, span),
+      span: finders.span(metricsets, span)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 30 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 2 },
+      'span.self_time.sum.us': { value: 30 }
+    }, 'sample values match')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with parallel sub-spans', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+  var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 10 })
+  if (span0) span0.end(20)
+  if (span1) span1.end(20)
+  transaction.end(null, 30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets),
+      span: finders.span(metricsets, span0)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 30 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 20 }
+    }, 'sample values match')
+
+    t.ok(found.span, 'found db.mysql span metricset')
+    t.deepEqual(found.span.samples, {
+      'span.self_time.count': { value: 2 },
+      'span.self_time.sum.us': { value: 20 }
+    }, 'sample values match')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with overlapping sub-spans', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+  var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
+  if (span0) span0.end(20)
+  if (span1) span1.end(25)
+  transaction.end(null, 30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets),
+      span: finders.span(metricsets, span0)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 30 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 15 }
+    }, 'sample values match')
+
+    t.ok(found.span, 'found db.mysql span metricset')
+    t.deepEqual(found.span.samples, {
+      'span.self_time.count': { value: 2 },
+      'span.self_time.sum.us': { value: 20 }
+    }, 'sample values match')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with sequential sub-spans', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 5 })
+  if (span0) span0.end(15)
+  var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
+  if (span1) span1.end(25)
+  transaction.end(null, 30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets),
+      span: finders.span(metricsets, span0)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 30 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 10 }
+    }, 'sample values match')
+
+    t.ok(found.span, 'found db.mysql span metricset')
+    t.deepEqual(found.span.samples, {
+      'span.self_time.count': { value: 2 },
+      'span.self_time.sum.us': { value: 20 }
+    }, 'sample values match')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with sub-spans returning to app time', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+  if (span0) span0.end(15)
+  var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 20 })
+  if (span1) span1.end(25)
+  transaction.end(null, 30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets),
+      span: finders.span(metricsets, span0)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 30 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 20 }
+    }, 'sample values match')
+
+    t.ok(found.span, 'found db.mysql span metricset')
+    t.deepEqual(found.span.samples, {
+      'span.self_time.count': { value: 2 },
+      'span.self_time.sum.us': { value: 10 }
+    }, 'sample values match')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with overlapping nested async sub-spans', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
+  var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 15, childOf: span0 })
+  if (span0) span0.end(20)
+  if (span1) span1.end(25)
+  transaction.end(null, 30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets),
+      span: finders.span(metricsets, span1)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 30 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 2 },
+      'span.self_time.sum.us': { value: 25 }
+    }, 'sample values match')
+
+    t.ok(found.span, 'found db.mysql span metricset')
+    t.deepEqual(found.span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 10 }
+    }, 'sample values match')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with app sub-span extending beyond end', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
+  transaction.end(null, 20)
+  // span1 is *not* created, because cannot create a span on an ended transaction.
+  var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: span0 })
+  if (span0) span0.end(30)
+  if (span1) span1.end(30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 20 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 10 }
+    }, 'sample values match')
+
+    t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with other sub-span extending beyond end', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
+  transaction.end(null, 20)
+  if (span) span.end(30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 20 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 10 }
+    }, 'sample values match')
+
+    t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
+})
+
+test('with other sub-span starting after end', t => {
+  const agent = new Agent().start(testAgentOpts)
+
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  transaction.end(null, 10)
+  var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: transaction })
+  if (span) span.end(30)
+
+  // See "Wait" comment above.
+  setTimeout(function () {
+    const metricsets = agent._transport.metricsets
+    const found = {
+      transaction: finders.transaction(metricsets),
+      transaction_span: finders['transaction span'](metricsets)
+    }
+
+    t.ok(found.transaction, 'found transaction metricset')
+    t.deepEqual(found.transaction.samples, {
+      'transaction.duration.count': { value: 1 },
+      'transaction.duration.sum.us': { value: 10 },
+      'transaction.breakdown.count': { value: 1 }
+    }, 'sample values match')
+
+    t.ok(found.transaction_span, 'found app span metricset')
+    t.deepEqual(found.transaction_span.samples, {
+      'span.self_time.count': { value: 1 },
+      'span.self_time.sum.us': { value: 10 }
+    }, 'sample values match')
+
+    t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans')
+
+    agent.destroy()
+    t.end()
+  }, testMetricsIntervalMs)
 })
 
 function assertTransaction (t, expected, received) {
