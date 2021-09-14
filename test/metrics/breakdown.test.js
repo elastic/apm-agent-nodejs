@@ -413,20 +413,20 @@ test('with parallel sub-spans', t => {
     }
 
     t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction && found.transaction.samples, {
+    t.deepEqual(found.transaction.samples, {
       'transaction.duration.count': { value: 1 },
       'transaction.duration.sum.us': { value: 30 },
       'transaction.breakdown.count': { value: 1 }
     }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
-    t.deepEqual(found.transaction_span && found.transaction_span.samples, {
+    t.deepEqual(found.transaction_span.samples, {
       'span.self_time.count': { value: 1 },
       'span.self_time.sum.us': { value: 20 }
     }, 'sample values match')
 
     t.ok(found.span, 'found db.mysql span metricset')
-    t.deepEqual(found.span && found.span.samples, {
+    t.deepEqual(found.span.samples, {
       'span.self_time.count': { value: 2 },
       'span.self_time.sum.us': { value: 20 }
     }, 'sample values match')
