@@ -19,11 +19,11 @@ var apm = require('../').start({ // elastic-apm-node
 const assert = require('assert').strict
 
 var t1 = apm.startTransaction('t1')
-assert(apm._instrumentation.currTx() === t1)
+assert(apm._instrumentation.currTransaction() === t1)
 var t2 = apm.startTransaction('t2')
-assert(apm._instrumentation.currTx() === t2)
+assert(apm._instrumentation.currTransaction() === t2)
 var t3 = apm.startTransaction('t3')
-assert(apm._instrumentation.currTx() === t3)
+assert(apm._instrumentation.currTransaction() === t3)
 var s4 = apm.startSpan('s4')
 assert(apm._instrumentation.currSpan() === s4)
 var s5 = apm.startSpan('s5')
@@ -32,13 +32,13 @@ s4.end() // (out of order)
 assert(apm._instrumentation.currSpan() === s5)
 s5.end()
 assert(apm._instrumentation.currSpan() === null)
-assert(apm._instrumentation.currTx() === t3)
+assert(apm._instrumentation.currTransaction() === t3)
 t1.end() // (out of order)
-assert(apm._instrumentation.currTx() === t3)
+assert(apm._instrumentation.currTransaction() === t3)
 t3.end()
-assert(apm._instrumentation.currTx() === null)
+assert(apm._instrumentation.currTransaction() === null)
 t2.end()
-assert(apm._instrumentation.currTx() === null)
+assert(apm._instrumentation.currTransaction() === null)
 
 // Expect:
 //   transaction "t1"

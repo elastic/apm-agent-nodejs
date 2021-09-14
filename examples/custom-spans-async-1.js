@@ -27,9 +27,9 @@ const assert = require('assert').strict
 
 setImmediate(function () {
   var t1 = apm.startTransaction('t1')
-  assert(apm._instrumentation.currTx() === t1)
+  assert(apm._instrumentation.currTransaction() === t1)
   setImmediate(function () {
-    assert(apm._instrumentation.currTx() === t1)
+    assert(apm._instrumentation.currTransaction() === t1)
     // XXX add more asserts on ctxmgr state
     var s2 = apm.startSpan('s2')
     setImmediate(function () {
@@ -40,7 +40,7 @@ setImmediate(function () {
         s4.end()
         s2.end()
         t1.end()
-        // assert currTx=null
+        // assert currTransaction=null
       })
     })
   })
