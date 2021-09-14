@@ -30,11 +30,11 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
             resolve('foo')
           }, 100)
 
-          t.strictEqual(ins.currentTransaction.id, trans.id, 'before calling onCancel')
+          t.strictEqual(ins.currTransaction().id, trans.id, 'before calling onCancel')
 
           onCancel(function () {
             t.ok(cancelled, 'should be cancelled')
-            t.strictEqual(ins.currentTransaction.id, trans.id, 'onCancel callback')
+            t.strictEqual(ins.currTransaction().id, trans.id, 'onCancel callback')
           })
         }).then(function () {
           t.fail('should not resolve')
@@ -44,7 +44,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
 
         setTimeout(function () {
           cancelled = true
-          t.strictEqual(ins.currentTransaction.id, trans.id, 'before p.cancel')
+          t.strictEqual(ins.currTransaction().id, trans.id, 'before p.cancel')
           p[fnName]()
         }, 25)
       })
@@ -60,7 +60,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
       p.cancel(err)
       p.then(t.fail, function (e) {
         t.strictEqual(e, err)
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
       })
     })
   })
