@@ -122,9 +122,6 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
     files.forEach(function (file) {
       if (!file.endsWith('.test.js')) return
 
-      // XXX the remaining failing tests
-      if (directory === 'test/instrumentation' && file === 'index.test.js') return
-
       tests.push({
         file: join(directory, file)
       })

@@ -188,103 +188,135 @@ test('stack branching - no parents', function (t) {
   }, 50)
 })
 
-// XXX update for runctxmgr changes. My guess is that we just deleted these
-//     tests. However, I need to make an effort to grok what *real* code
-//     situations these were covering.
-test('currentTransaction missing - recoverable', function (t) {
-  resetAgent(2, function (data) {
-    t.strictEqual(data.transactions.length, 1)
-    t.strictEqual(data.spans.length, 1)
-    const trans = data.transactions[0]
-    const name = 't0'
-    const span = findObjInArray(data.spans, 'name', name)
-    t.ok(span, 'should have span named ' + name)
-    t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
-    t.end()
-  })
-  var ins = agent._instrumentation
-  var t0
+// XXX Reviewer notes: removing tests about "[not] recoverable" transactions/spans.
+//
+//    These date back to this commit from 5 years ago:
+//       https://github.com/elastic/apm-agent-nodejs/commit/f9d15b55fc469edccdf91878327f8b75a49ff3d1
+//    in relation to dealing with internal user-land callback queues
+//    (particularly in db modules).  See
+//    https://www.youtube.com/watch?v=omOtwqffhck&t=892s which describes the
+//    problem.  That commit added `Instrumentation#_recoverTransaction(trans)`
+//    and called it from what was to become `Span#end()` (after renamings).
+//
+//    Much later, `_recoverTransaction()` was added in http-shared.js to be
+//    called in the "response" event handler for `http.request()` outgoing
+//    HTTP request instrumentation.
+//
+//    This PR is removing `Instrumentation#_recoverTransaction()` and this
+//    note attempts to explain why that is okay. A better answer for ensuring
+//    these delayed and possibly user-land-queued callbacks are executed in
+//    the appropriate run context is to wrap them with
+//    `ins.bindFunction(callback)`. This has already been done for any
+//    instrumentations that were failing the test suite because of this:
+//    - memcached: `query.callback = agent._instrumentation.bindFunction(...)`
+//    - mysql: `return ins.bindFunction(function wrappedCallback ...`
+//    - tedious: `request.userCallback = ins.bindFunction(...`
+//    - pg: `args[index] = agent._instrumentation.bindFunction(...`
+//    - s3: `request.on('complete', ins.bindFunction(...`
+//    I will also review the rest.
+//
+//    The "recoverable" tests here are not meaningful translatable to the new
+//    RunContext management. What is more meaningful are tests on the particular
+//    instrumented modules, e.g. see the changes to
+//    "test/instrumentation/modules/memcached.test.js". Also each of the
+//    memcached, mysql, tedious, and pg tests failed when `_recoverTransaction`
+//    was made a no-op and before the added `bindFunction` calls. In other words
+//    there were meaningful tests for these cases.
+// XXX
+// test('currentTransaction missing - recoverable', function (t) {
+//   resetAgent(2, function (data) {
+//     t.strictEqual(data.transactions.length, 1)
+//     t.strictEqual(data.spans.length, 1)
+//     const trans = data.transactions[0]
+//     const name = 't0'
+//     const span = findObjInArray(data.spans, 'name', name)
+//     t.ok(span, 'should have span named ' + name)
+//     t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
+//     t.end()
+//   })
+//   var ins = agent._instrumentation
+//   var t0
 
-  var trans = ins.startTransaction('foo')
-  setImmediate(function () {
-    t0 = ins.startSpan('t0')
-    ins.currentTransaction = undefined
-    setImmediate(function () {
-      t0.end()
-      setImmediate(function () {
-        ins.currentTransaction = trans
-        trans.end()
-      })
-    })
-  })
-})
+//   var trans = ins.startTransaction('foo')
+//   setImmediate(function () {
+//     t0 = ins.startSpan('t0')
+//     ins.currentTransaction = undefined
+//     setImmediate(function () {
+//       t0.end()
+//       setImmediate(function () {
+//         ins.currentTransaction = trans
+//         trans.end()
+//       })
+//     })
+//   })
+// })
 
-test('currentTransaction missing - not recoverable - last span failed', function (t) {
-  resetAgent(2, function (data) {
-    t.strictEqual(data.transactions.length, 1)
-    t.strictEqual(data.spans.length, 1)
-    const trans = data.transactions[0]
-    const name = 't0'
-    const span = findObjInArray(data.spans, 'name', name)
-    t.ok(span, 'should have span named ' + name)
-    t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
-    t.end()
-  })
-  var ins = agent._instrumentation
-  var t0, t1
+// test('currentTransaction missing - not recoverable - last span failed', function (t) {
+//   resetAgent(2, function (data) {
+//     t.strictEqual(data.transactions.length, 1)
+//     t.strictEqual(data.spans.length, 1)
+//     const trans = data.transactions[0]
+//     const name = 't0'
+//     const span = findObjInArray(data.spans, 'name', name)
+//     t.ok(span, 'should have span named ' + name)
+//     t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
+//     t.end()
+//   })
+//   var ins = agent._instrumentation
+//   var t0, t1
 
-  var trans = ins.startTransaction('foo')
-  setImmediate(function () {
-    t0 = ins.startSpan('t0')
-    setImmediate(function () {
-      t0.end()
-      ins.currentTransaction = undefined
-      t1 = ins.startSpan('t1')
-      t.strictEqual(t1, null)
-      setImmediate(function () {
-        ins.currentTransaction = trans
-        trans.end()
-      })
-    })
-  })
-})
+//   var trans = ins.startTransaction('foo')
+//   setImmediate(function () {
+//     t0 = ins.startSpan('t0')
+//     setImmediate(function () {
+//       t0.end()
+//       ins.currentTransaction = undefined
+//       t1 = ins.startSpan('t1')
+//       t.strictEqual(t1, null)
+//       setImmediate(function () {
+//         ins.currentTransaction = trans
+//         trans.end()
+//       })
+//     })
+//   })
+// })
 
-test('currentTransaction missing - not recoverable - middle span failed', function (t) {
-  resetAgent(3, function (data) {
-    t.strictEqual(data.transactions.length, 1)
-    t.strictEqual(data.spans.length, 2)
-    const trans = data.transactions[0]
-    const names = ['t0', 't2']
-    for (const name of names) {
-      const span = findObjInArray(data.spans, 'name', name)
-      t.ok(span, 'should have span named ' + name)
-      t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
-    }
-    t.end()
-  })
-  var ins = agent._instrumentation
-  var t0, t1, t2
+// test('currentTransaction missing - not recoverable - middle span failed', function (t) {
+//   resetAgent(3, function (data) {
+//     t.strictEqual(data.transactions.length, 1)
+//     t.strictEqual(data.spans.length, 2)
+//     const trans = data.transactions[0]
+//     const names = ['t0', 't2']
+//     for (const name of names) {
+//       const span = findObjInArray(data.spans, 'name', name)
+//       t.ok(span, 'should have span named ' + name)
+//       t.strictEqual(span.transaction_id, trans.id, 'should belong to correct transaction')
+//     }
+//     t.end()
+//   })
+//   var ins = agent._instrumentation
+//   var t0, t1, t2
 
-  var trans = ins.startTransaction('foo')
-  setImmediate(function () {
-    t0 = ins.startSpan('t0')
-    setImmediate(function () {
-      ins.currentTransaction = undefined
-      t1 = ins.startSpan('t1')
-      t.strictEqual(t1, null)
-      setImmediate(function () {
-        t0.end()
-        t2 = ins.startSpan('t2')
-        setImmediate(function () {
-          t2.end()
-          setImmediate(function () {
-            trans.end()
-          })
-        })
-      })
-    })
-  })
-})
+//   var trans = ins.startTransaction('foo')
+//   setImmediate(function () {
+//     t0 = ins.startSpan('t0')
+//     setImmediate(function () {
+//       ins.currentTransaction = undefined
+//       t1 = ins.startSpan('t1')
+//       t.strictEqual(t1, null)
+//       setImmediate(function () {
+//         t0.end()
+//         t2 = ins.startSpan('t2')
+//         setImmediate(function () {
+//           t2.end()
+//           setImmediate(function () {
+//             trans.end()
+//           })
+//         })
+//       })
+//     })
+//   })
+// })
 
 test('errors should not have a transaction id if no transaction is present', function (t) {
   resetAgent(1, function (data) {
