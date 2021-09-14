@@ -3,7 +3,9 @@ generic-pool:
   commands: node test/instrumentation/modules/generic-pool.test.js
 mimic-response:
   versions: ^1.0.0
-  commands: node test/instrumentation/modules/mimic-response.test.js
+  commands:
+    - node test/instrumentation/modules/mimic-response.test.js
+    - node test/instrumentation/modules/http/github-179.test.js
 got-very-old:
   name: got
   versions: '>=4.0.0 <9.0.0'
