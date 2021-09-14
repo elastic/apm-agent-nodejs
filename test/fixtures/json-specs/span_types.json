@@ -43,6 +43,12 @@
         "__used_by": [
           "ruby"
         ]
+      },
+      "handler": {
+        "__description": "Application handler",
+        "__used_by": [
+          "java"
+        ]
       }
     }
   },
