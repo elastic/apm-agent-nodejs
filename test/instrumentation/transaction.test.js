@@ -334,14 +334,9 @@ test('#_encode() - with meta data', function (t) {
   trans.setLabel('bar', 1)
   trans.setCustomContext({ baz: 1 })
   trans.end()
-<<<<<<< HEAD
-  const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'faas', 'sample_rate'])
-=======
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'sample_rate'])
->>>>>>> master
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -362,14 +357,9 @@ test('#_encode() - http request meta data', function (t) {
   var trans = new Transaction(agent)
   trans.req = mockRequest()
   trans.end()
-<<<<<<< HEAD
-  const payload = trans._encode()
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'faas', 'sample_rate'])
-=======
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'sample_rate'])
->>>>>>> master
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
