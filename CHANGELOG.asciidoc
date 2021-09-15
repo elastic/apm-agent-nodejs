@@ -29,6 +29,24 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Guard against a negative value of `metricsInterval`, which can lead to
+  high CPU usage as metrics are collected as fast as possible. Also ensure
+  no metrics collection can happen if `metricsInterval="0s"` as intended.
+  Before this change it was possible for some metric collection to still
+  happen, even though none would be reported. ({pull}2330[#2330])
+
+
 [[release-notes-3.21.0]]
 ==== 3.21.0 2021/09/15
 
