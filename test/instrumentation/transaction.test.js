@@ -291,16 +291,6 @@ test('parallel transactions', function (t) {
   }, 25)
 })
 
-test('sync/async tracking', function (t) {
-  var trans = new Transaction(agent)
-  t.strictEqual(trans.sync, true)
-  setImmediate(() => {
-    trans.end()
-    t.strictEqual(trans.sync, false)
-    t.end()
-  })
-})
-
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent)
   t.strictEqual(trans._encode(), null, 'cannot encode un-ended transaction')

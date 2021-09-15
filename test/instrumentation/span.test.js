@@ -161,13 +161,24 @@ test('#addLabels', function (t) {
   t.end()
 })
 
-test('sync/async tracking', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
-  t.strictEqual(span.sync, true)
+test('span.sync', function (t) {
+  var trans = agent.startTransaction()
+
+  var span1 = agent.startSpan('span1')
+  t.strictEqual(span1.sync, true)
+
+  // This span will be *ended* synchronously. It should stay `span.sync=true`.
+  var span2 = agent.startSpan('span2')
+  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after creation')
+  span2.end()
+  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end')
+
   setImmediate(() => {
-    span.end()
-    t.strictEqual(span.sync, false)
+    span1.end()
+    t.strictEqual(span1.sync, false, 'span1.sync=false immediately after end')
+    trans.end()
+    t.strictEqual(span2.sync, true,
+      'span2.sync=true later after having ended sync')
     t.end()
   })
 })
