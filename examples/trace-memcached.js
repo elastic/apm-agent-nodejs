@@ -17,7 +17,13 @@ const HOST = process.env.MEMCACHED_HOST || '127.0.0.1'
 const PORT = 11211
 const client = new Memcached(`${HOST}:${PORT}`, { timeout: 500 })
 
+// For tracing spans to be created, there must be an active transaction.
+// Typically, a transaction is automatically started for incoming HTTP
+// requests to a Node.js server. However, because this script is not running
+// an HTTP server, we manually start a transaction. More details at:
+// https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 apm.startTransaction('t0')
+
 client.version(function (err, data) {
   console.log('Version: data=%j (err=%s)', data, err)
 

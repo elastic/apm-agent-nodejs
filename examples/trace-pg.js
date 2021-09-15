@@ -21,6 +21,11 @@ client.connect(function (err) {
 })
 
 // 1. Callback style
+// For tracing spans to be created, there must be an active transaction.
+// Typically, a transaction is automatically started for incoming HTTP
+// requests to a Node.js server. However, because this script is not running
+// an HTTP server, we manually start a transaction. More details at:
+// https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 apm.startTransaction('t1')
 client.query('SELECT $1::text as message', ['Hello world!'], (err, res) => {
   if (err) {
