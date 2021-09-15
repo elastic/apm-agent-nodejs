@@ -2,15 +2,23 @@
 
 process.env.ELASTIC_APM_TEST = true
 
+const { CapturingTransport } = require('../_capturing_transport')
+const agent = require('../..').start({
+  serviceName: 'test-span',
+  breakdownMetrics: false,
+  captureExceptions: false,
+  metricsInterval: 0,
+  centralConfig: false,
+  cloudProvider: 'none',
+  spanFramesMinDuration: -1, // always capture stack traces with spans
+  transport () { return new CapturingTransport() }
+})
+
 var test = require('tape')
 
 var assert = require('../_assert')
-var mockAgent = require('./_agent')
-var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
 var Span = require('../../lib/instrumentation/span')
-
-var agent = mockAgent()
 
 test('init', function (t) {
   t.test('properties', function (t) {
@@ -247,9 +255,10 @@ test('#_encode() - with meta data', function myTest2 (t) {
 })
 
 test('#_encode() - disabled stack traces', function (t) {
-  var ins = mockInstrumentation()
-  ins._agent._conf.captureSpanStackTraces = false
-  var trans = new Transaction(ins._agent)
+  const oldCaptureSpanStackTraces = agent._conf.captureSpanStackTraces
+  agent._conf.captureSpanStackTraces = false
+
+  var trans = new Transaction(agent)
   var span = new Span(trans)
   span.end()
   span._encode(function (err, payload) {
@@ -268,6 +277,8 @@ test('#_encode() - disabled stack traces', function (t) {
     t.ok(payload.duration > 0)
     t.strictEqual(payload.context, undefined)
     t.strictEqual(payload.stacktrace, undefined)
+
+    agent._conf.captureSpanStackTraces = oldCaptureSpanStackTraces
     t.end()
   })
 })

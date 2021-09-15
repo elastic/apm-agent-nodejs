@@ -2,13 +2,21 @@
 
 process.env.ELASTIC_APM_TEST = true
 
+const { CapturingTransport } = require('../_capturing_transport')
+const agent = require('../..').start({
+  serviceName: 'test-transaction',
+  breakdownMetrics: false,
+  captureExceptions: false,
+  metricsInterval: 0,
+  centralConfig: false,
+  cloudProvider: 'none',
+  spanFramesMinDuration: -1, // always capture stack traces with spans
+  transport () { return new CapturingTransport() }
+})
+
 var test = require('tape')
 
-var mockAgent = require('./_agent')
-var mockInstrumentation = require('./_instrumentation')
 var Transaction = require('../../lib/instrumentation/transaction')
-
-var agent = mockAgent()
 
 test('init', function (t) {
   t.test('name and type', function (t) {
@@ -165,26 +173,32 @@ test('#startSpan()', function (t) {
 })
 
 test('#end() - with result', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.strictEqual(added.ended, true)
-    t.strictEqual(added, trans)
-    t.strictEqual(trans.result, 'test')
-    t.end()
-  })
-  var trans = new Transaction(ins._agent)
-  trans.end('test')
+  var trans = new Transaction(agent)
+  trans.end('test-result')
+  t.strictEqual(trans.ended, true)
+  t.strictEqual(trans.result, 'test-result')
+
+  const added = agent._transport.transactions[0]
+  t.strictEqual(added.id, trans.id)
+  t.strictEqual(added.result, 'test-result')
+
+  agent._transport.clear() // clear the CapturingTransport for subsequent tests
+  t.end()
 })
 
 test('#duration()', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.ok(added.duration() > 40)
-    // TODO: Figure out why this fails on Jenkins...
-    // t.ok(added.duration() < 100)
-    t.end()
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   setTimeout(function () {
     trans.end()
+
+    const added = agent._transport.transactions[0]
+    t.ok(trans.duration() > 40)
+    t.ok(added.duration > 40)
+    // TODO: Figure out why this fails on Jenkins...
+    // t.ok(added.duration < 100)
+
+    agent._transport.clear()
+    t.end()
   }, 50)
 })
 
@@ -195,26 +209,28 @@ test('#duration() - un-ended transaction', function (t) {
 })
 
 test('custom start time', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    var duration = trans.duration()
-    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
-    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
-    t.end()
-  })
   var startTime = Date.now() - 1000
-  var trans = new Transaction(ins._agent, null, null, { startTime })
+  var trans = new Transaction(agent, null, null, { startTime })
   trans.end()
+
+  var duration = trans.duration()
+  t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
+  t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
+
+  agent._transport.clear()
+  t.end()
 })
 
 test('#end(time)', function (t) {
-  var ins = mockInstrumentation(function (added) {
-    t.strictEqual(trans.duration(), 2000.123)
-    t.end()
-  })
   var startTime = Date.now() - 1000
   var endTime = startTime + 2000.123
-  var trans = new Transaction(ins._agent, null, null, { startTime })
+  var trans = new Transaction(agent, null, null, { startTime })
   trans.end(null, endTime)
+
+  t.strictEqual(trans.duration(), 2000.123)
+
+  agent._transport.clear()
+  t.end()
 })
 
 test('#setDefaultName() - with initial value', function (t) {
@@ -250,27 +266,24 @@ test('name - default first, then custom', function (t) {
 })
 
 test('parallel transactions', function (t) {
-  var calls = 0
-  var ins = mockInstrumentation(function (added) {
-    calls++
-    if (calls === 1) {
-      t.strictEqual(added.name, 'second')
-    } else if (calls === 2) {
-      t.strictEqual(added.name, 'first')
-      t.end()
-    }
-  })
-  ins.currentTransaction = null
+  function finish () {
+    t.equal(agent._transport.transactions[0].name, 'second')
+    t.equal(agent._transport.transactions[1].name, 'first')
+
+    agent._transport.clear()
+    t.end()
+  }
 
   setImmediate(function () {
-    var t1 = new Transaction(ins._agent, 'first')
+    var t1 = new Transaction(agent, 'first')
     setTimeout(function () {
       t1.end()
+      finish()
     }, 100)
   })
 
   setTimeout(function () {
-    var t2 = new Transaction(ins._agent, 'second')
+    var t2 = new Transaction(agent, 'second')
     setTimeout(function () {
       t2.end()
     }, 25)
@@ -293,13 +306,10 @@ test('#_encode() - un-ended', function (t) {
 })
 
 test('#_encode() - ended', function (t) {
-  t.plan(13)
-  var ins = mockInstrumentation(function () {
-    t.pass('should end the transaction')
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   trans.end()
-  const payload = trans._encode()
+
+  const payload = agent._transport.transactions[0]
   t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
@@ -312,22 +322,26 @@ test('#_encode() - ended', function (t) {
   t.strictEqual(payload.timestamp, trans._timer.start)
   t.strictEqual(payload.result, 'success')
   t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
+
+  agent._transport.clear()
   t.end()
 })
 
 test('#_encode() - with meta data', function (t) {
-  t.plan(13)
-  var ins = mockInstrumentation(function () {
-    t.pass('should end the transaction')
-  })
-  var trans = new Transaction(ins._agent, 'foo', 'bar')
+  var trans = new Transaction(agent, 'foo', 'bar')
   trans.result = 'baz'
   trans.setUserContext({ foo: 1 })
   trans.setLabel('bar', 1)
   trans.setCustomContext({ baz: 1 })
   trans.end()
+<<<<<<< HEAD
   const payload = trans._encode()
   t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'faas', 'sample_rate'])
+=======
+
+  const payload = agent._transport.transactions[0]
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'sample_rate'])
+>>>>>>> master
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -339,19 +353,23 @@ test('#_encode() - with meta data', function (t) {
   t.strictEqual(payload.timestamp, trans._timer.start)
   t.strictEqual(payload.result, 'baz')
   t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 } })
+
+  agent._transport.clear()
   t.end()
 })
 
 test('#_encode() - http request meta data', function (t) {
-  t.plan(13)
-  var ins = mockInstrumentation(function () {
-    t.pass('should end the transaction')
-  })
-  var trans = new Transaction(ins._agent)
+  var trans = new Transaction(agent)
   trans.req = mockRequest()
   trans.end()
+<<<<<<< HEAD
   const payload = trans._encode()
   t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'faas', 'sample_rate'])
+=======
+
+  const payload = agent._transport.transactions[0]
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'sample_rate'])
+>>>>>>> master
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -363,78 +381,75 @@ test('#_encode() - http request meta data', function (t) {
   t.strictEqual(payload.timestamp, trans._timer.start)
   t.strictEqual(payload.result, 'success')
   t.deepEqual(payload.context, {
+    user: {},
+    tags: {},
+    custom: {},
     request: {
       http_version: '1.1',
       method: 'POST',
       url: {
+        raw: '/foo?bar=baz',
+        protocol: 'http:',
         hostname: 'example.com',
         pathname: '/foo',
         search: '?bar=baz',
-        raw: '/foo?bar=baz',
-        protocol: 'http:',
         full: 'http://example.com/foo?bar=baz'
-      },
-      headers: {
-        host: 'example.com',
-        'user-agent': 'user-agent-header',
-        'content-length': 42,
-        cookie: 'cookie1=foo;cookie2=bar',
-        'x-bar': 'baz',
-        'x-foo': 'bar'
       },
       socket: {
         remote_address: '127.0.0.1',
         encrypted: true
       },
+      headers: {
+        host: 'example.com',
+        'user-agent': 'user-agent-header',
+        'content-length': 42,
+        cookie: 'cookie1=foo; cookie2=bar',
+        'x-foo': 'bar',
+        'x-bar': 'baz'
+      },
       body: '[REDACTED]'
-    },
-    user: {},
-    tags: {},
-    custom: {}
+    }
   })
+
+  agent._transport.clear()
   t.end()
 })
 
 test('#_encode() - with spans', function (t) {
-  t.plan(9)
-  var ins = mockInstrumentation(function () {
-    t.pass('should end the transaction')
-  })
-
-  var trans = new Transaction(ins._agent, 'single-name', 'type')
+  var trans = new Transaction(agent, 'single-name', 'type')
   trans.result = 'result'
   var span = trans.startSpan('span')
   span.end()
   trans.end()
 
-  const payload = trans._encode()
-  t.strictEqual(payload.name, 'single-name')
-  t.strictEqual(payload.type, 'type')
-  t.strictEqual(payload.result, 'result')
-  t.strictEqual(payload.timestamp, trans._timer.start)
-  t.ok(payload.duration > 0, 'should have a duration >0ms')
-  t.ok(payload.duration < 100, 'should have a duration <100ms')
-  t.deepEqual(payload.context, {
-    user: {},
-    tags: {},
-    custom: {}
-  })
+  // Wait for span to be encoded and sent.
+  setTimeout(function () {
+    const payload = trans._encode()
+    t.strictEqual(payload.name, 'single-name')
+    t.strictEqual(payload.type, 'type')
+    t.strictEqual(payload.result, 'result')
+    t.strictEqual(payload.timestamp, trans._timer.start)
+    t.ok(payload.duration > 0, 'should have a duration >0ms')
+    t.ok(payload.duration < 100, 'should have a duration <100ms')
+    t.deepEqual(payload.context, {
+      user: {},
+      tags: {},
+      custom: {}
+    })
+    t.deepEqual(payload.span_count, {
+      started: 1
+    })
 
-  t.deepEqual(payload.span_count, {
-    started: 1
-  })
-
-  t.end()
+    agent._transport.clear()
+    t.end()
+  }, 200)
 })
 
 test('#_encode() - dropped spans', function (t) {
-  t.plan(9)
-  var ins = mockInstrumentation(function () {
-    t.pass('should end the transaction')
-  })
-  ins._agent._conf.transactionMaxSpans = 2
+  const oldTransactionMaxSpans = agent._conf.transactionMaxSpans
+  agent._conf.transactionMaxSpans = 2
 
-  var trans = new Transaction(ins._agent, 'single-name', 'type')
+  var trans = new Transaction(agent, 'single-name', 'type')
   trans.result = 'result'
   var span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
@@ -445,35 +460,36 @@ test('#_encode() - dropped spans', function (t) {
   span0.end()
   trans.end()
 
-  const payload = trans._encode()
-  t.strictEqual(payload.name, 'single-name')
-  t.strictEqual(payload.type, 'type')
-  t.strictEqual(payload.result, 'result')
-  t.strictEqual(payload.timestamp, trans._timer.start)
-  t.ok(payload.duration > 0, 'should have a duration >0ms')
-  t.ok(payload.duration < 100, 'should have a duration <100ms')
-  t.deepEqual(payload.context, {
-    user: {},
-    tags: {},
-    custom: {}
-  })
+  setTimeout(function () {
+    const payload = trans._encode()
+    t.strictEqual(payload.name, 'single-name')
+    t.strictEqual(payload.type, 'type')
+    t.strictEqual(payload.result, 'result')
+    t.strictEqual(payload.timestamp, trans._timer.start)
+    t.ok(payload.duration > 0, 'should have a duration >0ms')
+    t.ok(payload.duration < 100, 'should have a duration <100ms')
+    t.deepEqual(payload.context, {
+      user: {},
+      tags: {},
+      custom: {}
+    })
 
-  t.deepEqual(payload.span_count, {
-    started: 2,
-    dropped: 1
-  })
+    t.deepEqual(payload.span_count, {
+      started: 2,
+      dropped: 1
+    })
 
-  t.end()
+    agent._conf.transactionMaxSpans = oldTransactionMaxSpans
+    agent._transport.clear()
+    t.end()
+  }, 200)
 })
 
 test('#_encode() - not sampled', function (t) {
-  t.plan(9)
-  var ins = mockInstrumentation(function () {
-    t.pass('should end the transaction')
-  })
-  ins._agent._conf.transactionSampleRate = 0
+  const oldTransactionSampleRate = agent._conf.transactionSampleRate
+  agent._conf.transactionSampleRate = 0
 
-  var trans = new Transaction(ins._agent, 'single-name', 'type')
+  var trans = new Transaction(agent, 'single-name', 'type')
   trans.result = 'result'
   trans.req = mockRequest()
   trans.res = mockResponse()
@@ -489,6 +505,9 @@ test('#_encode() - not sampled', function (t) {
   t.ok(payload.duration > 0, 'should have a duration >0ms')
   t.ok(payload.duration < 100, 'should have a duration <100ms')
   t.notOk(payload.context)
+
+  agent._conf.transactionSampleRate = oldTransactionSampleRate
+  agent._transport.clear()
   t.end()
 })
 

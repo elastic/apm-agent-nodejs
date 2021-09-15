@@ -1,14 +1,22 @@
 'use strict'
 
-var agent = require('../../_agent')()
+const agent = require('../../../..').start({
+  serviceName: 'test-http-aborted-requests-disabled',
+  breakdownMetrics: false,
+  captureExceptions: false,
+  metricsInterval: 0,
+  centralConfig: false,
+  cloudProvider: 'none',
+  spanFramesMinDuration: -1, // always capture stack traces with spans
+  // Testing this config:
+  errorOnAbortedRequests: false
+})
 
 var http = require('http')
 
 var test = require('tape')
 
 var mockClient = require('../../../_mock_http_client')
-
-agent._conf.errorOnAbortedRequests = false
 
 test('client-side abort - call end', function (t) {
   resetAgent()
