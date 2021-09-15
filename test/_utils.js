@@ -15,7 +15,10 @@ function dottedLookup (obj, str) {
   return o
 }
 
-// Return the first element in the array that has a `key` with the given `val`
+// Return the first element in the array that has a `key` with the given `val`.
+//
+// The `key` maybe a nested field given in dot-notation, for example:
+// 'context.db.statement'.
 function findObjInArray (arr, key, val) {
   let result = null
   arr.some(function (elm) {
