@@ -45,6 +45,11 @@ Notes:
   no metrics collection can happen if `metricsInterval="0s"` as intended.
   Before this change it was possible for some metric collection to still
   happen, even though none would be reported. ({pull}2330[#2330])
++
+This change also guards against negative and invalid values in the following
+configuration options: `abortedErrorThreshold`, `apiRequestTime`, and
+`serverTimeout`. If an invalid value is given, then will fallback to their
+default value.
 
 
 [[release-notes-3.21.0]]
