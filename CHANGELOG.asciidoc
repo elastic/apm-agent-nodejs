@@ -43,7 +43,7 @@ Notes:
 * Update types to avoid imports of `@types/...` modules (other than
   `@types/node`), so that TypeScript users of elastic-apm-node need not
   manually `npm install @types/connect @types/pino @types/aws-lambda` to
-  compile.
+  compile. ({issues}2331[#2331])
 
 
 [[release-notes-3.21.0]]
