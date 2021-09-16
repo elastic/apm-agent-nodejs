@@ -33,6 +33,7 @@
   },
   "files": [
     "lib",
+    "types",
     "start.js",
     "index.d.ts",
     "start.d.ts"
@@ -120,8 +121,6 @@
     "@elastic/elasticsearch": "^7.14.0",
     "@hapi/hapi": "^20.1.2",
     "@koa/router": "^9.0.1",
-    "@types/aws-lambda": "^8.10.77",
-    "@types/connect": "^3.4.34",
     "@types/node": "^13.7.4",
     "@types/pino": "^6.3.8",
     "ajv": "^6.12.6",
