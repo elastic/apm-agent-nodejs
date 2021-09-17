@@ -123,6 +123,15 @@ you instead have to import the agent like so:
 import * as apm from 'elastic-apm-node/start'
 ----
 
+
+If your "tsconfig.json" sets https://www.typescriptlang.org/tsconfig#skipLibCheck[`skipLibCheck`] false (or excludes it), then you will need to install `@types/node` to avoid compile errors:
+
+[source,bash]
+----
+npm install --save-dev @types/node
+----
+
+
 include::./configuration.asciidoc[]
 
 include::./custom-transactions.asciidoc[]
