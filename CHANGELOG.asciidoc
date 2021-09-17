@@ -36,8 +36,6 @@ Notes:
 
 [float]
 ===== Features
-[[release-notes-3.21.1]]
-==== 3.21.1 2021/09/16
 
 [float]
 ===== Bug fixes
@@ -52,6 +50,14 @@ This change also guards against negative and invalid values in the following
 configuration options: `abortedErrorThreshold`, `apiRequestTime`, and
 `serverTimeout`. If an invalid value is given, then will fallback to their
 default value.
+
+
+[[release-notes-3.21.1]]
+==== 3.21.1 2021/09/16
+
+[float]
+===== Bug fixes
+
 * Update types to avoid imports of `@types/...` modules (other than
   `@types/node`), so that TypeScript users of elastic-apm-node need not
   manually `npm install @types/connect @types/pino @types/aws-lambda` to
