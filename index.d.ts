@@ -324,6 +324,7 @@ declare namespace apm {
   }
 
   export interface SpanOptions {
+    startTime?: number;
     childOf?: Transaction | Span | string;
   }
 
