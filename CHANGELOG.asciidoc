@@ -29,10 +29,20 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
+[[release-notes-3.21.1]]
+==== 3.21.1 2021/09/16
 
 [float]
-===== Breaking changes
+===== Bug fixes
+
+* Update types to avoid imports of `@types/...` modules (other than
+  `@types/node`), so that TypeScript users of elastic-apm-node need not
+  manually `npm install @types/connect @types/pino @types/aws-lambda` to
+  compile. ({issues}2331[#2331])
+
+
+[[release-notes-3.21.0]]
+==== 3.21.0 2021/09/15
 
 [float]
 ===== Features
