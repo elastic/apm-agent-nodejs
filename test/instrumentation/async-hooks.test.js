@@ -121,34 +121,6 @@ test('post-defined, post-resolved promise', function (t) {
   })
 })
 
-// XXX move this out of async-hooks. It should work with asyncHooks=false as well!
-//     Already have tests for sync-ness in test/instrumentation/{span,transaction}.test.js
-test('span.sync', function (t) {
-  var trans = agent.startTransaction()
-  t.strictEqual(trans.sync, true)
-
-  var span1 = agent.startSpan('span1')
-  t.strictEqual(span1.sync, true)
-
-  // This span will be *ended* synchronously. It should stay `span.sync=true`.
-  var span2 = agent.startSpan('span2')
-  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after creation')
-  span2.end()
-  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end')
-
-  setImmediate(() => {
-    // XXX Change in behaviour: the guarantee is only to update `.sync` after .end()
-    span1.end()
-    t.strictEqual(span1.sync, false)
-    trans.end()
-    // XXX drop trans.sync checking with https://github.com/elastic/apm-agent-nodejs/issues/2292
-    t.strictEqual(trans.sync, false)
-    t.strictEqual(span2.sync, true,
-      'span2.sync=true later after having ended sync')
-    t.end()
-  })
-})
-
 function twice (fn) {
   setImmediate(fn)
   setImmediate(fn)
