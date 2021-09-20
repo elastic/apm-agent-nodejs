@@ -98,6 +98,7 @@ apm.startSpan('foo', { childOf: 'baz' })
 apm.startSpan('foo', 'type', { childOf: 'baz' })
 apm.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
 apm.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
+apm.startSpan('foo', 'type', 'subtype', 'action', { startTime: 42 })
 
 apm.setLabel('foo', 'bar')
 apm.setLabel('foo', 1)

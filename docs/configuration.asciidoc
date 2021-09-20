@@ -948,15 +948,14 @@ it will be parsed out of the `/proc/self/cgroup` file.
 ==== `metricsInterval`
 
 * *Type:* String
-* *Default:* `30s`
+* *Default:* `"30s"`
 * *Env:* `ELASTIC_APM_METRICS_INTERVAL`
 
 Specify the interval for reporting metrics to APM Server.
 The interval should be in seconds,
 or should include a time suffix.
 
-To disable metrics reporting,
-set the interval to `0`.
+To disable metrics reporting, set the interval to `"0s"`.
 
 [[metrics-limit]]
 ==== `metricsLimit`
