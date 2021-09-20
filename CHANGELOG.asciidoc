@@ -40,6 +40,12 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Improve `span.sync` determination (fixes {issue}1996[#1996]) and stop
+  reporting `transaction.sync` which was never used ({issue}2292[#2292]).
+  A minor semantic change is that `span.sync` is not set to a final value
+  until `span.end()` is called. Before `span.end()` the value will always
+  by `true`.
+
 * Guard against a negative value of `metricsInterval`, which can lead to
   high CPU usage as metrics are collected as fast as possible. Also ensure
   no metrics collection can happen if `metricsInterval="0s"` as intended.
