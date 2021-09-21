@@ -1,3 +1,6 @@
+// A small script that lists the context of the current directory.
+// This exercises run context handling with callbacks.
+//
 // Expect:
 //     transaction "ls"
 //     `- span "cwd"

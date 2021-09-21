@@ -1,5 +1,5 @@
-// This exercises two couple subtle cases of context management around when
-// an *ended* span is considered the `currentSpan`.
+// This exercises two subtle cases of run context management around when an
+// *ended* span is considered the `currentSpan`.
 //
 // Expected:
 //  - transaction "t0"

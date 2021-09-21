@@ -71,10 +71,10 @@ function useS3 (s3Client, bucketName, cb) {
     funcs: [
       // Limitation: this doesn't handle paging.
       function listAllBuckets (arg, next) {
-        var req = s3Client.listBuckets({}, function (err, data) {
+        s3Client.listBuckets({}, function (err, data) {
           log.info({ err, data }, 'listBuckets')
-          assert(apm.currentSpan.name === 'S3 ListBuckets',
-            'currentSpan in s3Client method callback should be the s3 span')
+          assert(apm.currentSpan === null,
+            'S3 span should NOT be a currentSpan in its callback')
           if (err) {
             next(err)
           } else {
@@ -82,10 +82,8 @@ function useS3 (s3Client, bucketName, cb) {
             next()
           }
         })
-        req.on('success', function () {
-          assert(apm.currentSpan.name === 'S3 ListBuckets',
-            'currentSpan in s3Client Request event handlers should be the s3 span')
-        })
+        assert(apm.currentSpan === null,
+          'S3 span (or its HTTP span) should not be currentSpan in same async task after the method call')
       },
 
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#createBucket-property

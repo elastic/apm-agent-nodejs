@@ -1,3 +1,6 @@
+// A small script that lists the context of the current directory.
+// This exercises run context handling with async/await.
+//
 // Expect:
 //     transaction "ls"
 //     `- span "cwd"
