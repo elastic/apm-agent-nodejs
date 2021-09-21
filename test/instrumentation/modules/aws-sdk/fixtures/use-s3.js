@@ -48,6 +48,7 @@ const apm = require('../../../../..').start({
 const crypto = require('crypto')
 const vasync = require('vasync')
 const AWS = require('aws-sdk')
+const assert = require('assert')
 
 const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 
@@ -70,14 +71,20 @@ function useS3 (s3Client, bucketName, cb) {
     funcs: [
       // Limitation: this doesn't handle paging.
       function listAllBuckets (arg, next) {
-        s3Client.listBuckets({}, function (err, data) {
+        var req = s3Client.listBuckets({}, function (err, data) {
           log.info({ err, data }, 'listBuckets')
+          assert(apm.currentSpan.name === 'S3 ListBuckets',
+            'currentSpan in s3Client method callback should be the s3 span')
           if (err) {
             next(err)
           } else {
             arg.bucketIsPreexisting = data.Buckets.some(b => b.Name === bucketName)
             next()
           }
+        })
+        req.on('success', function () {
+          assert(apm.currentSpan.name === 'S3 ListBuckets',
+            'currentSpan in s3Client Request event handlers should be the s3 span')
         })
       },
 
