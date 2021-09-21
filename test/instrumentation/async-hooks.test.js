@@ -121,43 +121,6 @@ test('post-defined, post-resolved promise', function (t) {
   })
 })
 
-test('sync/async tracking: span ended in same function is sync', function (t) {
-  var trans = agent.startTransaction()
-  t.strictEqual(trans.sync, true)
-
-  var span1 = agent.startSpan()
-  t.strictEqual(span1.sync, true)
-
-  // This span will be *ended* synchronously. It should stay `span.sync=true`.
-  var span2 = agent.startSpan()
-  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after creation')
-  span2.end()
-  t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end')
-
-  setImmediate(() => {
-    t.strictEqual(trans.sync, false)
-    t.strictEqual(span2.sync, true,
-      'span2.sync=true later after having ended sync')
-    t.end()
-  })
-})
-
-test('sync/async tracking: span ended across async boundary is not sync', function (t) {
-  var trans = agent.startTransaction()
-  t.strictEqual(trans.sync, true)
-
-  var span1 = agent.startSpan()
-  t.strictEqual(span1.sync, true)
-
-  setImmediate(() => {
-    span1.end()
-    t.strictEqual(trans.sync, false)
-    t.strictEqual(span1.sync, false,
-      'span1.sync=true after having ended sync')
-    t.end()
-  })
-})
-
 function twice (fn) {
   setImmediate(fn)
   setImmediate(fn)

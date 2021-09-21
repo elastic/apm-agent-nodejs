@@ -586,12 +586,14 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.strictEqual(esSpan.type, 'db')
     t.strictEqual(esSpan.subtype, 'elasticsearch')
     t.strictEqual(esSpan.action, 'request')
+    t.strictEqual(esSpan.sync, false, 'span.sync=false')
 
     const httpSpan = findObjInArray(data.spans, 'subtype', 'http')
     t.ok(httpSpan, 'have an http span')
     t.strictEqual(httpSpan.type, 'external')
     t.strictEqual(httpSpan.subtype, 'http')
     t.strictEqual(httpSpan.action, method)
+    t.strictEqual(httpSpan.sync, false, 'span.sync=false')
 
     t.equal(httpSpan.name, method + ' ' + host, 'http span should have expected name')
     t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')
