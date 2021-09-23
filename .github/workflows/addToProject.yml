@@ -4,8 +4,6 @@ name: Auto Assign to Project(s)
 on:
   issues:
     types: [opened, edited, milestoned]
-  pull_request_target:
-    types: [opened, edited, milestoned]
 env:
   MY_GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
 
