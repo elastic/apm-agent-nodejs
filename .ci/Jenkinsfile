@@ -398,7 +398,7 @@ def getSmartTAVContext() {
    env.TAV_UPDATED=${env.TAV_UPDATED}""".stripIndent()
 
    if (env.GITHUB_COMMENT) {
-     def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
+     def modules = getModulesFromCommentTrigger(regex: 'run module tests for (.+)')
      if (modules.isEmpty()) {
        context.ghDescription = 'TAV Test disabled'
        context.tav = readYaml(text: 'TAV:')
