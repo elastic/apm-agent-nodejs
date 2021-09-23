@@ -147,10 +147,12 @@ This enables log correlation to APM traces with structured loggers.
 }
 ----
 
-[[span-to-string]]
-==== `span.toString()`
 
-[small]#Added in: v2.17.0#
+[[span-to-string]]
+==== `span.toString()` (deprecated)
+
+[small]#Added in: v2.17.0# +
+[small]#Deprecated in: v3.23.0#
 
 Produces a string representation of the span to inject in log messages.
 This enables log correlation to APM traces with text-only loggers.
@@ -159,6 +161,18 @@ This enables log correlation to APM traces with text-only loggers.
 ----
 "trace.id=abc123 span.id=abc123"
 ----
+
+Relying on the format of `span.toString()` has been **deprecated** and may
+change in v4 of the agent. Prefer the use of <<span-ids,`span.ids`>> or
+<<apm-current-trace-ids,`apm.currentTraceIds`>>. The v3 format may be reproduced
+via:
+
+[source,js]
+----
+const { stringify } = require('querystring')
+console.log( stringify(span.ids, ' ', '=')) )
+----
+
 
 [[span-end]]
 ==== `span.end([endTime])`
