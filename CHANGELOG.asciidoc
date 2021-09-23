@@ -40,6 +40,8 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Add `Span.ids` and `Transaction.ids` to TypeScript types. ({pull}2347[#2347])
+
 * Improve `span.sync` determination (fixes {issue}1996[#1996]) and stop
   reporting `transaction.sync` which was never used ({issue}2292[#2292]).
   A minor semantic change is that `span.sync` is not set to a final value
