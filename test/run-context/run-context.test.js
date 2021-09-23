@@ -24,16 +24,43 @@ const { findObjInArray } = require('../_utils')
 
 const cases = [
   {
+    // Expect:
+    //   transaction "t1"
+    //   `- span "s2"
+    //   transaction "t4"
+    //   `- span "s5"
     script: 'simple.js',
     check: (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
-      t.equal(events.length, 3, 'exactly 3 events')
-      const t1 = findObjInArray(events, 'transaction.name', 't1')
-      const s2 = findObjInArray(events, 'span.name', 's2')
+      t.equal(events.length, 5, 'exactly 5 events')
+      const t1 = findObjInArray(events, 'transaction.name', 't1').transaction
+      const s2 = findObjInArray(events, 'span.name', 's2').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
-      // console.warn('XXX ', events)
-      // XXX not ready to test this yet.
-      // t.equal(s2.sync, false, 's2.sync=false')
+      t.equal(s2.sync, false, 's2.sync=false')
+      const t4 = findObjInArray(events, 'transaction.name', 't4').transaction
+      const s5 = findObjInArray(events, 'span.name', 's5').span
+      t.equal(s5.parent_id, t4.id, 's5 is a child of t4')
+      t.equal(s5.sync, true, 's5.sync=true')
+    }
+  },
+  {
+    // Expect:
+    //   transaction "t1"
+    //   transaction "t2"
+    //   transaction "t3"
+    //   `- span "s4"
+    //     `- span "s5"
+    script: 'custom-instrumentation-sync.js',
+    check: (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      t.equal(events.length, 6, 'exactly 6 events')
+      const t3 = findObjInArray(events, 'transaction.name', 't3').transaction
+      const s4 = findObjInArray(events, 'span.name', 's4').span
+      const s5 = findObjInArray(events, 'span.name', 's5').span
+      t.equal(s4.parent_id, t3.id, 's4 is a child of t3')
+      t.equal(s4.sync, true, 's4.sync=true')
+      t.equal(s5.parent_id, s4.id, 's5 is a child of s4')
+      t.equal(s5.sync, true, 's5.sync=true')
     }
   },
   {
@@ -41,9 +68,9 @@ const cases = [
     check: (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
       t.equal(events.length, 4, 'exactly 4 events')
-      const t1 = findObjInArray(events, 'transaction.name', 'ls')
-      const s2 = findObjInArray(events, 'span.name', 'cwd')
-      const s3 = findObjInArray(events, 'span.name', 'readdir')
+      const t1 = findObjInArray(events, 'transaction.name', 'ls').transaction
+      const s2 = findObjInArray(events, 'span.name', 'cwd').span
+      const s3 = findObjInArray(events, 'span.name', 'readdir').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
       // XXX check sync for the spans
@@ -57,9 +84,9 @@ const cases = [
     check: (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
       t.equal(events.length, 4, 'exactly 4 events')
-      const t1 = findObjInArray(events, 'transaction.name', 'ls')
-      const s2 = findObjInArray(events, 'span.name', 'cwd')
-      const s3 = findObjInArray(events, 'span.name', 'readdir')
+      const t1 = findObjInArray(events, 'transaction.name', 'ls').transaction
+      const s2 = findObjInArray(events, 'span.name', 'cwd').span
+      const s3 = findObjInArray(events, 'span.name', 'readdir').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
       t.equal(s3 && s3.parent_id, t1.id, 's3 is a child of t1')
       // XXX check sync for the spans
@@ -73,9 +100,9 @@ const cases = [
     check: (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
       t.equal(events.length, 4, 'exactly 4 events')
-      const t1 = findObjInArray(events, 'transaction.name', 'ls')
-      const s2 = findObjInArray(events, 'span.name', 'cwd')
-      const s3 = findObjInArray(events, 'span.name', 'readdir')
+      const t1 = findObjInArray(events, 'transaction.name', 'ls').transaction
+      const s2 = findObjInArray(events, 'span.name', 'cwd').span
+      const s3 = findObjInArray(events, 'span.name', 'readdir').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
       // XXX check sync for the spans
@@ -91,10 +118,10 @@ const cases = [
       //    - span "s2"
       t.ok(events[0].metadata, 'APM server got event metadata object')
       t.equal(events.length, 5, 'exactly 5 events')
-      const t0 = findObjInArray(events, 'transaction.name', 't0')
-      const s1 = findObjInArray(events, 'span.name', 's1')
-      const s2 = findObjInArray(events, 'span.name', 's2')
-      const s3 = findObjInArray(events, 'span.name', 's3')
+      const t0 = findObjInArray(events, 'transaction.name', 't0').transaction
+      const s1 = findObjInArray(events, 'span.name', 's1').span
+      const s2 = findObjInArray(events, 'span.name', 's2').span
+      const s3 = findObjInArray(events, 'span.name', 's3').span
       t.equal(s1.parent_id, t0.id, 's1 is a child of t0')
       t.equal(s2.parent_id, t0.id, 's2 is a child of t0 (because s1 ended before s2 was started, in the same async task)')
       t.equal(s3.parent_id, s1.id, 's3 is a child of s1')
@@ -112,11 +139,11 @@ const cases = [
       //       `- span "s4"
       t.ok(events[0].metadata, 'APM server got event metadata object')
       t.equal(events.length, 6, 'exactly 6 events')
-      const t0 = findObjInArray(events, 'transaction.name', 't0')
-      const s1 = findObjInArray(events, 'span.name', 's1')
-      const s2 = findObjInArray(events, 'span.name', 's2')
-      const s3 = findObjInArray(events, 'span.name', 's3')
-      const s4 = findObjInArray(events, 'span.name', 's4')
+      const t0 = findObjInArray(events, 'transaction.name', 't0').transaction
+      const s1 = findObjInArray(events, 'span.name', 's1').span
+      const s2 = findObjInArray(events, 'span.name', 's2').span
+      const s3 = findObjInArray(events, 'span.name', 's3').span
+      const s4 = findObjInArray(events, 'span.name', 's4').span
       t.equal(s1.parent_id, t0.id, 's1 is a child of t0')
       t.equal(s2.parent_id, s1.id, 's2 is a child of s1')
       t.equal(s3.parent_id, s1.id, 's3 is a child of s1')

@@ -1,6 +1,8 @@
 // Expect:
 //   transaction "t1"
 //   `- span "s2"
+//   transaction "t4"
+//   `- span "s5"
 
 const apm = require('../../../').start({ // elastic-apm-node
   captureExceptions: false,
@@ -33,5 +35,15 @@ setImmediate(function () {
     })
 
     assert(apm.currentSpan === s2)
+  })
+
+  const t4 = apm.startTransaction('t4')
+  assert(apm.currentTransaction === t4)
+  setImmediate(function () {
+    const s5 = apm.startSpan('s5')
+    assert(apm.currentSpan === s5)
+    s5.end()
+    t4.end()
+    assert(apm.currentTransaction === null)
   })
 })
