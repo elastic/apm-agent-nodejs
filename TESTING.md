@@ -140,7 +140,7 @@ have any effect).
 Run the regular test suite:
 
 ```
-jenkins run the tests
+/test
 ```
 
 Run TAV tests for one or more modules, where `<modules>` can be either a
@@ -148,11 +148,11 @@ comma separated list of modules (e.g.  `memcached,redis`) or the
 string literal `ALL` to test _all_ modules:
 
 ```
-jenkins run the module tests for <modules>
+run module tests for <modules>
 ```
 
 Run the benchmark test only:
 
 ```
-jenkins run benchmark tests
+run benchmark tests
 ```
