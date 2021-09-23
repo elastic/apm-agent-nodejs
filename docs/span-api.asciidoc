@@ -149,7 +149,7 @@ This enables log correlation to APM traces with structured loggers.
 
 
 [[span-to-string]]
-==== `span.toString()` (deprecated)
+==== `span.toString()` deprecated:[v3.23.0]
 
 [small]#Added in: v2.17.0# +
 [small]#Deprecated in: v3.23.0#

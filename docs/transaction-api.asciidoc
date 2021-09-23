@@ -212,7 +212,7 @@ This enables log correlation to APM traces with structured loggers.
 
 
 [[transaction-to-string]]
-==== `transaction.toString()` (deprecated)
+==== `transaction.toString()` deprecated:[v3.23.0]
 
 [small]#Added in: v2.17.0# +
 [small]#Deprecated in: v3.23.0#
