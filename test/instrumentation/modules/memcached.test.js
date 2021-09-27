@@ -67,30 +67,6 @@ test('memcached', function (t) {
         port: 11211
       })
     })
-    // XXX Behaviour change in new ctxmgr
-    //
-    // Before this PR, the parent child relationship of the memcached commands was:
-    //     transaction "myTrans"
-    //     `- span "memcached.set"
-    //       `- span "memcached.replace"
-    //       `- span "memcached.get"
-    //       `- span "memcached.touch"
-    //       `- span "memcached.delete"
-    //       `- span "memcached.get"
-    //     `- span "memcached.get"
-    // I.e. weird. The first `cache.get` under `cache.set` is parented to the
-    // transaction, and thereafter every other `cache.$command` is parented to
-    // the initial `cache.set`.
-    //
-    // After this PR:
-    //     transaction "myTrans"
-    //     `- span "memcached.set"
-    //     `- span "memcached.get"
-    //     `- span "memcached.replace"
-    //     `- span "memcached.get"
-    //     `- span "memcached.touch"
-    //     `- span "memcached.delete"
-    //     `- span "memcached.get"
     spans.forEach(span => {
       t.equal(span.parent_id, data.transactions[0].id,
         'span is a child of the transaction')

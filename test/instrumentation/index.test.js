@@ -188,42 +188,6 @@ test('stack branching - no parents', function (t) {
   }, 50)
 })
 
-// XXX Reviewer notes: removing tests about "[not] recoverable" transactions/spans.
-//
-//    These date back to this commit from 5 years ago:
-//       https://github.com/elastic/apm-agent-nodejs/commit/f9d15b55fc469edccdf91878327f8b75a49ff3d1
-//    in relation to dealing with internal user-land callback queues
-//    (particularly in db modules).  See
-//    https://www.youtube.com/watch?v=omOtwqffhck&t=892s which describes the
-//    problem.  That commit added `Instrumentation#_recoverTransaction(trans)`
-//    and called it from what was to become `Span#end()` (after renamings).
-//
-//    Much later, `_recoverTransaction()` was added in http-shared.js to be
-//    called in the "response" event handler for `http.request()` outgoing
-//    HTTP request instrumentation.
-//
-//    This PR is removing `Instrumentation#_recoverTransaction()` and this
-//    note attempts to explain why that is okay. A better answer for ensuring
-//    these delayed and possibly user-land-queued callbacks are executed in
-//    the appropriate run context is to wrap them with
-//    `ins.bindFunction(callback)`. This has already been done for any
-//    instrumentations that were failing the test suite because of this:
-//    - memcached: `query.callback = agent._instrumentation.bindFunction(...)`
-//    - mysql: `return ins.bindFunction(function wrappedCallback ...`
-//    - tedious: `request.userCallback = ins.bindFunction(...`
-//    - pg: `args[index] = agent._instrumentation.bindFunction(...`
-//    - s3: `request.on('complete', ins.bindFunction(...`
-//    I will also review the rest.
-//
-//    The "recoverable" tests here are not meaningful translatable to the new
-//    RunContext management. What is more meaningful are tests on the particular
-//    instrumented modules, e.g. see the changes to
-//    "test/instrumentation/modules/memcached.test.js". Also each of the
-//    memcached, mysql, tedious, and pg tests failed when `_recoverTransaction`
-//    was made a no-op and before the added `bindFunction` calls. In other words
-//    there were meaningful tests for these cases.
-// XXX
-
 test('errors should not have a transaction id if no transaction is present', function (t) {
   resetAgent(1, function (data) {
     t.strictEqual(data.errors.length, 1)
@@ -245,25 +209,6 @@ test('errors should have a transaction id - non-ended transaction', function (t)
   var trans = agent.startTransaction('foo')
   agent.captureError(new Error('bar'))
 })
-
-// XXX Intentional behaviour change. Before this PR an ended transaction would
-//     linger as `agent.currentTransaction`. Not any longer.
-//     This test was added in https://github.com/elastic/apm-agent-nodejs/issues/147
-//     My read of that is that there is no need to associate an error with a
-//     transaction if it is captured *after* the transaction has ended.
-// test('errors should have a transaction id - ended transaction', function (t) {
-//   resetAgent(2, function (data) {
-//     t.strictEqual(data.transactions.length, 1)
-//     t.strictEqual(data.errors.length, 1)
-//     const trans = data.transactions[0]
-//     t.strictEqual(data.errors[0].transaction_id, trans.id)
-//     t.strictEqual(typeof data.errors[0].transaction_id, 'string')
-//     t.end()
-//   })
-//   agent.captureError = origCaptureError
-//   agent.startTransaction('foo').end()
-//   agent.captureError(new Error('bar'))
-// })
 
 // At the time of writing, `apm.captureError(err)` will, by default, add
 // properties (strings, nums, dates) found on the given `err` as
@@ -463,8 +408,6 @@ test('bind', function (t) {
     fn()
   })
 
-  // XXX an equiv test for once (removed after one event successfully?), and for removeAllListeners,
-  //     and for '.off' (straight alias of removeListener, problem with double binding?)
   t.test('removes listeners properly', function (t) {
     resetAgent(1, function (data) {
       t.strictEqual(data.transactions.length, 1)
@@ -511,11 +454,6 @@ test('bind', function (t) {
 
   methods.forEach(function (method) {
     t.test('does not create spans in unbound emitter with ' + method, function (t) {
-      // XXX *If* an erroneous span does come, it comes asynchronously after
-      // s1.end(), because of span stack processing. This means
-      // `resetAgent(1, ...` here will barrel on, thinking all is well. The
-      // subsequently sent span will bleed into the next test case. This is
-      // poorly written. Basically "_mock_http_client.js"-style is flawed.
       resetAgent(1, function (data) {
         t.strictEqual(data.transactions.length, 1)
         t.end()
@@ -609,24 +547,6 @@ test('nested spans', function (t) {
     t.end()
   })
   var ins = agent._instrumentation
-
-  // XXX This is an intentional change in behaviour with the new context mgmt.
-  // Expected hierarchy before:
-  //   transaction "foo"
-  //   `- span "s0"
-  //     `- span "s01"
-  //   `- span "s1"
-  //     `- span "s11"
-  //     `- span "s12"
-  // After:
-  //   transaction "foo"
-  //   `- span "s0"
-  //     `- span "s1"
-  //       `- span "s11"
-  //       `- span "s12"
-  //     `- span "s01"
-  // The change is that "s1" is a child of "s0". See discussion at
-  // https://github.com/elastic/apm-agent-nodejs/issues/1889
 
   var trans = ins.startTransaction('foo')
   var count = 0
