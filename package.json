@@ -162,6 +162,7 @@
     "memcached": "^2.2.2",
     "mimic-response": "^2.1.0",
     "mkdirp": "^0.5.1",
+    "module-details-from-path": "^1.0.3",
     "mongodb": "^4.1.0",
     "mongodb-core": "^3.2.7",
     "mysql": "^2.18.1",

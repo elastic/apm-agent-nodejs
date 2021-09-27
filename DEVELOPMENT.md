@@ -174,7 +174,7 @@ from the "master" branch. It would be useful to have a separate chart that
 showed PR values.
 
 (Another way to start the "Benchmarks" step is via a GitHub comment
-"jenkins run the benchmark tests". However, that also triggers the "Test" step
+"run benchmark tests". However, that also triggers the "Test" step
 and, depending on other conditions, the "TAV Test" step -- both of which are
 long and will run before getting to the Benchmarks run.)
 

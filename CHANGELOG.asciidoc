@@ -40,8 +40,14 @@ Notes:
 [float]
 ===== Bug fixes
 
-* Improve `span.sync` determination (fixes {issue}1996[#1996]) and stop
-  reporting `transaction.sync` which was never used ({issue}2292[#2292]).
+* <<span-to-string,`span.toString()`>> and <<transaction-to-string,`transaction.toString()`>>
+  have been *deprecated*. The exact string output may change in v4 of the
+  agent.
+
+* Add `Span.ids` and `Transaction.ids` to TypeScript types. ({pull}2347[#2347])
+
+* Improve `span.sync` determination (fixes {issues}1996[#1996]) and stop
+  reporting `transaction.sync` which was never used ({issues}2292[#2292]).
   A minor semantic change is that `span.sync` is not set to a final value
   until `span.end()` is called. Before `span.end()` the value will always
   by `true`.
