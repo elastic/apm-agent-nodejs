@@ -13,8 +13,6 @@
 // illustrative when learning or debugging run context handling in the agent.
 // The scripts can be run independent of the test suite.
 
-// XXX TODO: test cases with spans out-lasting tx.end() to see if there are issues there.
-
 const { execFile } = require('child_process')
 const path = require('path')
 const tape = require('tape')
@@ -72,8 +70,9 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 'cwd').span
       const s3 = findObjInArray(events, 'span.name', 'readdir').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
+      t.equal(s2.sync, false, 's2.sync=false')
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
-      // XXX check sync for the spans
+      t.equal(s3.sync, false, 's3.sync=false')
     }
   },
   {
@@ -88,8 +87,9 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 'cwd').span
       const s3 = findObjInArray(events, 'span.name', 'readdir').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
+      t.equal(s2.sync, false, 's2.sync=false')
       t.equal(s3 && s3.parent_id, t1.id, 's3 is a child of t1')
-      // XXX check sync for the spans
+      t.equal(s3.sync, false, 's3.sync=false')
     }
   },
   {
@@ -104,8 +104,9 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 'cwd').span
       const s3 = findObjInArray(events, 'span.name', 'readdir').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
+      t.equal(s2.sync, false, 's2.sync=false')
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
-      // XXX check sync for the spans
+      t.equal(s3.sync, false, 's3.sync=false')
     }
   },
   {
@@ -123,9 +124,11 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 's2').span
       const s3 = findObjInArray(events, 'span.name', 's3').span
       t.equal(s1.parent_id, t0.id, 's1 is a child of t0')
+      t.equal(s1.sync, false, 's1.sync=false')
       t.equal(s2.parent_id, t0.id, 's2 is a child of t0 (because s1 ended before s2 was started, in the same async task)')
+      t.equal(s2.sync, false, 's2.sync=false')
       t.equal(s3.parent_id, s1.id, 's3 is a child of s1')
-      // XXX could check that s3 start time is after s1 end time
+      t.equal(s3.sync, false, 's3.sync=false')
     }
   },
   {

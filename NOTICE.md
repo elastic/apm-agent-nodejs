@@ -1,3 +1,6 @@
+apm-agent-nodejs
+Copyright 2011-2021 Elasticsearch B.V.
+
 # Notice
 
 This project contains several dependencies which have been vendored in
