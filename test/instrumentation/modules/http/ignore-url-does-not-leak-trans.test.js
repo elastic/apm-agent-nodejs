@@ -53,7 +53,7 @@ test('an ignored incoming http URL does not leak previous transaction', function
           t.equal(apm._transport.transactions.length, 1)
           t.equal(apm._transport.spans.length, 1, 'only have the span for the http *request*')
           t.end()
-        }, 200)
+        }, 500) // 200ms was not long enough in CI.
       })
       res.resume()
     })
