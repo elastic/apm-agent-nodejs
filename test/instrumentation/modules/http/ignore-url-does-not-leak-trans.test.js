@@ -1,7 +1,7 @@
 'use strict'
 
 // Test that the run context inside the HTTP server request handler is nulled
-// out when the request path is ignored via "ignoreUrlStr" or the other
+// out when the requested path is ignored via "ignoreUrlStr" or the other
 // related configuration options.
 
 const { CapturingTransport } = require('../../../_capturing_transport')
@@ -20,6 +20,24 @@ const apm = require('../../../..').start({
     return new CapturingTransport()
   }
 })
+
+if (Number(process.versions.node.split('.')[0]) <= 8 && !apm._conf.asyncHooks) {
+  // With node v8 and asyncHooks=false, i.e. relying on patch-async.js, we
+  // do not support this test as written. Given node v8 support *and* arguably
+  // patch-async.js support are near EOL, it isn't worth rewriting this test
+  // case.
+  //
+  // Details: The 'only have the span for the http *request*' assert fails
+  // because of patch-async.js cannot fully patch node v8's "lib/net.js".
+  // Specifically, before https://github.com/nodejs/node/pull/19147 (which was
+  // part of node v10), Node would often internally use a private
+  //    const { nextTick } = require('internal/process/next_tick');
+  // instead of `process.nextTick`. patch-async.js is only able to patch the
+  // latter. This means a missed patch of "emitListeningNT" used to emit
+  // the server "listening" event.
+  console.log('# SKIP node <=8 and asyncHooks=false loses run context for server.listen callback')
+  process.exit()
+}
 
 var http = require('http')
 var test = require('tape')
@@ -53,7 +71,7 @@ test('an ignored incoming http URL does not leak previous transaction', function
           t.equal(apm._transport.transactions.length, 1)
           t.equal(apm._transport.spans.length, 1, 'only have the span for the http *request*')
           t.end()
-        }, 500) // 200ms was not long enough in CI.
+        }, 200)
       })
       res.resume()
     })
