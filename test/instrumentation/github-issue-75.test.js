@@ -35,7 +35,7 @@ times(5, function (n, done) {
     })
 
     var server = http.createServer(function (req, res) {
-      var span = agent.startSpan(agent._instrumentation.currentTransaction.id)
+      var span = agent.startSpan(agent.currentTransaction.id)
       setTimeout(function () {
         span.end()
         send(req, __filename).pipe(res)

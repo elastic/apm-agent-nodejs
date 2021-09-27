@@ -457,6 +457,6 @@ function resetAgent (cb) {
 }
 
 function get () {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   return http.get.apply(http, arguments)
 }
