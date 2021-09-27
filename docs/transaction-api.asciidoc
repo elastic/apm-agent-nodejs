@@ -210,10 +210,12 @@ This enables log correlation to APM traces with structured loggers.
 }
 ----
 
-[[transaction-to-string]]
-==== `transaction.toString()`
 
-[small]#Added in: v2.17.0#
+[[transaction-to-string]]
+==== `transaction.toString()` deprecated:[v3.23.0]
+
+[small]#Added in: v2.17.0# +
+[small]#Deprecated in: v3.23.0#
 
 Produces a string representation of the transaction to inject in log messages.
 This enables log correlation to APM traces with text-only loggers.
@@ -222,6 +224,18 @@ This enables log correlation to APM traces with text-only loggers.
 ----
 "trace.id=abc123 transaction.id=abc123"
 ----
+
+Relying on the format of `transaction.toString()` has been **deprecated** and may
+change in v4 of the agent. Prefer the use of <<transaction-ids,`transaction.ids`>> or
+<<apm-current-trace-ids,`apm.currentTraceIds`>>. The v3 format may be reproduced
+via:
+
+[source,js]
+----
+const { stringify } = require('querystring')
+console.log( stringify(transaction.ids, ' ', '=')) )
+----
+
 
 [[transaction-end]]
 ==== `transaction.end([result][, endTime])`
