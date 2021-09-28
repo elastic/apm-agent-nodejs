@@ -16,7 +16,10 @@ const apm = require('../../../').start({ // elastic-apm-node
   serviceName: 'ls-callbacks'
 })
 
-const assert = require('assert').strict
+let assert = require('assert')
+if (Number(process.versions.node.split('.')[0]) > 8) {
+  assert = assert.strict
+}
 const fs = require('fs')
 
 let t1

@@ -14,7 +14,10 @@ const apm = require('../../../').start({ // elastic-apm-node
   serviceName: 'run-context-simple'
 })
 
-const assert = require('assert').strict
+let assert = require('assert')
+if (Number(process.versions.node.split('.')[0]) > 8) {
+  assert = assert.strict
+}
 
 setImmediate(function () {
   const t1 = apm.startTransaction('t1')

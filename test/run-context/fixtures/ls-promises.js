@@ -16,7 +16,10 @@ var apm = require('../../../').start({ // elastic-apm-node
   serviceName: 'ls-promises'
 })
 
-const assert = require('assert').strict
+let assert = require('assert')
+if (Number(process.versions.node.split('.')[0]) > 8) {
+  assert = assert.strict
+}
 const fsp = require('fs').promises
 
 let t1

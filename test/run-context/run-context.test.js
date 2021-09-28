@@ -87,9 +87,7 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 'cwd').span
       const s3 = findObjInArray(events, 'span.name', 'readdir').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
-      t.equal(s2.sync, true, 's2.sync=true')
       t.equal(s3 && s3.parent_id, t1.id, 's3 is a child of t1')
-      t.equal(s3.sync, false, 's3.sync=false')
     }
   },
   {
@@ -104,9 +102,7 @@ const cases = [
       const s2 = findObjInArray(events, 'span.name', 'cwd').span
       const s3 = findObjInArray(events, 'span.name', 'readdir').span
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1')
-      t.equal(s2.sync, true, 's2.sync=true')
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1')
-      t.equal(s3.sync, false, 's3.sync=false')
     }
   },
   {
