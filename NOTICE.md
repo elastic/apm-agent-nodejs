@@ -98,3 +98,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+## opentelemetry-js
+
+- **path:** [lib/instrumentation/run-context/](lib/instrumentation/run-context/)
+- **author:** OpenTelemetry Authors
+- **project url:** https://github.com/open-telemetry/opentelemetry-js
+- **original file:** https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-context-async-hooks/src
+- **license:** Apache License 2.0, https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-context-async-hooks/LICENSE
+
+Parts of "lib/instrumentation/run-context" have been adapted from or influenced
+by TypeScript code in `@opentelemetry/context-async-hooks`.
