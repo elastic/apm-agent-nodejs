@@ -17,6 +17,7 @@ var test = require('tape')
 const Agent = require('../lib/agent')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
+const { safeGetPackageVersion } = require('./_utils')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
@@ -354,14 +355,66 @@ bytesValues.forEach(function (key) {
   })
 })
 
-var timeValues = [
+var POSITIVE_TIME_OPTS = [
   'abortedErrorThreshold',
   'apiRequestTime',
   'metricsInterval',
   'serverTimeout'
 ]
+// Time options allowing negative values.
+var TIME_OPTS = [
+  'spanFramesMinDuration'
+]
 
-timeValues.forEach(function (key) {
+POSITIVE_TIME_OPTS.forEach(function (key) {
+  test(key + ' should guard against a negative time', function (t) {
+    var agent = new Agent()
+    var logger = new CaptureLogger()
+    agent.start(Object.assign(
+      {},
+      agentOptsNoopTransport,
+      {
+        [key]: '-1s',
+        logger
+      }
+    ))
+
+    t.strictEqual(agent._conf[key], config.secondsFromTimeStr(config.DEFAULTS[key]),
+      'fell back to default value')
+    const warning = logger.calls[0]
+    t.equal(warning.type, 'warn', 'got a log.warn')
+    t.ok(warning.message.indexOf('-1s') !== -1, 'warning message includes the invalid value')
+    t.ok(warning.message.indexOf(key) !== -1, 'warning message includes the invalid key')
+
+    agent.destroy()
+    t.end()
+  })
+
+  test(key + ' should guard against a bogus non-time', function (t) {
+    var agent = new Agent()
+    var logger = new CaptureLogger()
+    agent.start(Object.assign(
+      {},
+      agentOptsNoopTransport,
+      {
+        [key]: 'bogusvalue',
+        logger
+      }
+    ))
+
+    t.strictEqual(agent._conf[key], config.secondsFromTimeStr(config.DEFAULTS[key]),
+      'fell back to default value')
+    const warning = logger.calls[0]
+    t.equal(warning.type, 'warn', 'got a log.warn')
+    t.ok(warning.message.indexOf('bogusvalue') !== -1, 'warning message includes the invalid value')
+    t.ok(warning.message.indexOf(key) !== -1, 'warning message includes the invalid key')
+
+    agent.destroy()
+    t.end()
+  })
+})
+
+POSITIVE_TIME_OPTS.concat(TIME_OPTS).forEach(function (key) {
   test(key + ' should convert minutes to seconds', function (t) {
     var agent = new Agent()
     var opts = {}
@@ -808,7 +861,7 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 
 test('disableInstrumentations', function (t) {
   var expressGraphqlVersion = require('express-graphql/package.json').version
-  var esVersion = require('@elastic/elasticsearch/package.json').version
+  var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
   const apolloServerCoreVersion = require('apollo-server-core/package.json').version

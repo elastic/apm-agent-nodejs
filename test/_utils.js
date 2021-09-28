@@ -1,5 +1,9 @@
 'use strict'
 
+const fs = require('fs')
+
+const moduleDetailsFromPath = require('module-details-from-path')
+
 // Lookup the property "str" (given in dot-notation) in the object "obj".
 // If the property isn't found, then `undefined` is returned.
 function dottedLookup (obj, str) {
@@ -30,7 +34,36 @@ function findObjInArray (arr, key, val) {
   return result
 }
 
+// "Safely" get the version of the given package, if possible. Otherwise return
+// null.
+//
+// Here "safely" means avoiding `require("$packageName/package.json")` because
+// that can fail if the package uses an old form of "exports"
+// (e.g. https://github.com/elastic/apm-agent-nodejs/issues/2350).
+function safeGetPackageVersion (packageName) {
+  let file
+  try {
+    file = require.resolve(packageName)
+  } catch (_err) {
+    return null
+  }
+
+  // Use the same logic as require-in-the-middle for finding the 'basedir' of
+  // the package from `file`.
+  const details = moduleDetailsFromPath(file)
+  if (!details) {
+    return null
+  }
+
+  try {
+    return JSON.parse(fs.readFileSync(details.basedir + '/package.json')).version
+  } catch (_err) {
+    return null
+  }
+}
+
 module.exports = {
   dottedLookup,
-  findObjInArray
+  findObjInArray,
+  safeGetPackageVersion
 }

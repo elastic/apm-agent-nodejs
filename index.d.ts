@@ -145,6 +145,10 @@ declare namespace apm {
     traceparent: string;
     outcome: Outcome;
     result: string | number;
+    ids: {
+      'trace.id': string;
+      'transaction.id': string;
+    }
 
     setType (type?: string | null, subtype?: string | null, action?: string | null): void;
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
@@ -191,6 +195,10 @@ declare namespace apm {
     action: string | null;
     traceparent: string;
     outcome: Outcome;
+    ids: {
+      'trace.id': string;
+      'span.id': string;
+    }
 
     setType (type?: string | null, subtype?: string | null, action?: string | null): void;
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
@@ -324,6 +332,7 @@ declare namespace apm {
   }
 
   export interface SpanOptions {
+    startTime?: number;
     childOf?: Transaction | Span | string;
   }
 

@@ -11,6 +11,7 @@ import apm, {
   TransactionOptions,
   SpanOptions
 } from '../../'
+import assert from 'assert'
 
 const agentOpts: AgentConfigOptions = {
   captureExceptions: false,
@@ -25,9 +26,7 @@ function started (aBool: boolean) {
 started(apm.isStarted())
 
 const trans = apm.currentTransaction
-if (trans) trans.end()
 const span = apm.currentSpan
-if (span) span.end()
 const traceparent = apm.currentTraceparent
 if (traceparent) traceparent.split('-')
 const currentTraceIds = apm.currentTraceIds
@@ -35,6 +34,14 @@ let traceId = currentTraceIds['trace.id'] || ''
 traceId += '-' + (currentTraceIds['transaction.id'] === undefined
   ? currentTraceIds['transaction.id']
   : currentTraceIds['span.id'])
+if (span) {
+  assert('span.id' in span.ids)
+  span.end()
+}
+if (trans) {
+  assert('transaction.id' in trans.ids)
+  trans.end()
+}
 
 apm.setFramework({})
 apm.setFramework({ name: 'foo' })
@@ -98,6 +105,7 @@ apm.startSpan('foo', { childOf: 'baz' })
 apm.startSpan('foo', 'type', { childOf: 'baz' })
 apm.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
 apm.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
+apm.startSpan('foo', 'type', 'subtype', 'action', { startTime: 42 })
 
 apm.setLabel('foo', 'bar')
 apm.setLabel('foo', 1)

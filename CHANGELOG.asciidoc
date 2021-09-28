@@ -29,6 +29,41 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* <<span-to-string,`span.toString()`>> and <<transaction-to-string,`transaction.toString()`>>
+  have been *deprecated*. The exact string output may change in v4 of the
+  agent.
+
+* Add `Span.ids` and `Transaction.ids` to TypeScript types. ({pull}2347[#2347])
+
+* Improve `span.sync` determination (fixes {issues}1996[#1996]) and stop
+  reporting `transaction.sync` which was never used ({issues}2292[#2292]).
+  A minor semantic change is that `span.sync` is not set to a final value
+  until `span.end()` is called. Before `span.end()` the value will always
+  by `true`.
+
+* Guard against a negative value of `metricsInterval`, which can lead to
+  high CPU usage as metrics are collected as fast as possible. Also ensure
+  no metrics collection can happen if `metricsInterval="0s"` as intended.
+  Before this change it was possible for some metric collection to still
+  happen, even though none would be reported. ({pull}2330[#2330])
++
+This change also guards against negative and invalid values in the following
+configuration options: `abortedErrorThreshold`, `apiRequestTime`, and
+`serverTimeout`. If an invalid value is given, then will fallback to their
+default value.
+
+
 [[release-notes-3.21.1]]
 ==== 3.21.1 2021/09/16
 
@@ -51,16 +86,16 @@ Notes:
   Specific transaction/span/error fields (see the list below) will be truncated
   at this number of unicode characters. ({pull}2193[#2193], {issues}1921[#1921])
 +
-  The `errorMessageMaxLength` configuration option is now *deprecated*, but
-  still supported. Users should switch to using `longFieldMaxLength. If
-  `errorMessageMaxLength` is not specified, truncation of error messages will
-  now use the `longFieldMaxLength` value.
+The `errorMessageMaxLength` configuration option is now *deprecated*, but
+still supported. Users should switch to using `longFieldMaxLength`. If
+`errorMessageMaxLength` is not specified, truncation of error messages will
+now use the `longFieldMaxLength` value.
 +
-  Note that ultimately the maximum length of any tracing field is limited by the
-  {apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`]
-  configured for the receiving APM server.
+Note that ultimately the maximum length of any tracing field is limited by the
+{apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`]
+configured for the receiving APM server.
 +
-  The fields affected by `longFieldMaxLength` are:
+The fields affected by `longFieldMaxLength` are:
 +
 ** `transaction.context.request.body`, `error.context.request.body` - Before
    this change these fields were not truncated.
