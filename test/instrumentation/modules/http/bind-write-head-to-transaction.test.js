@@ -27,7 +27,7 @@ test('response writeHead is bound to transaction', function (t) {
   })
 
   var server = http.createServer(function (req, res) {
-    agent._instrumentation.enterEmptyRunContext()
+    agent._instrumentation.supersedeWithEmptyRunContext()
     res.end()
   })
 

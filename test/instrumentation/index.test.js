@@ -381,7 +381,7 @@ test('bind', function (t) {
     }
 
     // Artificially make the current run context empty.
-    ins.enterEmptyRunContext()
+    ins.supersedeWithEmptyRunContext()
     fn()
   })
 
@@ -404,7 +404,7 @@ test('bind', function (t) {
     })
 
     // Artificially make the current run context empty.
-    ins.enterEmptyRunContext()
+    ins.supersedeWithEmptyRunContext()
     fn()
   })
 
@@ -473,7 +473,7 @@ test('bind', function (t) {
       })
 
       // Artificially make the current run context empty.
-      ins.enterEmptyRunContext()
+      ins.supersedeWithEmptyRunContext()
 
       emitter.emit('foo')
     })
@@ -502,7 +502,7 @@ test('bind', function (t) {
 
       // Artificially make the current run context empty to test that
       // `bindEmitter` does its job of binding the run context.
-      ins.enterEmptyRunContext()
+      ins.supersedeWithEmptyRunContext()
 
       emitter.emit('foo')
     })
