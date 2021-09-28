@@ -38,10 +38,12 @@ environment variables:
 
 ## debug logging of `async_hooks` usage
 
-XXX Update this for runctxmgr work.
+When using the `AsyncHooksRunContextManager` the following debug printf in
+the `init` async hook can be helpful to learn how its async hook tracks
+relationships between async operations:
 
-The following patch to the agent's async-hooks.js can be helpful to learn
-how its async hook tracks relationships between async operations:
+// XXX update after lib/run-context refactoring
+// process._rawDebug(`${' '.repeat(triggerAsyncId % 80}${type}(${asyncId}): triggerAsyncId=${triggerAsyncId} executionAsyncId=${asyncHooks.executionAsyncId()}`);
 
 ```diff
 diff --git a/lib/instrumentation/async-hooks.js b/lib/instrumentation/async-hooks.js
