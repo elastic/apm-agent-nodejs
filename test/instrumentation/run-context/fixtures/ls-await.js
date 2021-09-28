@@ -1,31 +1,31 @@
 // A small script that lists the context of the current directory.
-// This exercises run context handling with callbacks.
+// This exercises run context handling with async/await.
 //
 // Expect:
 //     transaction "ls"
 //     `- span "cwd"
 //     `- span "readdir"
 
-const apm = require('../../../').start({ // elastic-apm-node
+var apm = require('../../../../').start({ // elastic-apm-node
   captureExceptions: false,
   captureSpanStackTraces: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'ls-callbacks'
+  serviceName: 'ls-await'
 })
 
 let assert = require('assert')
 if (Number(process.versions.node.split('.')[0]) > 8) {
   assert = assert.strict
 }
-const fs = require('fs')
+const fsp = require('fs').promises
 
 let t1
 
-function getCwd () {
-  const s2 = apm.startSpan('cwd')
+async function getCwd () {
+  var s2 = apm.startSpan('cwd')
   try {
     return process.cwd()
   } finally {
@@ -35,24 +35,31 @@ function getCwd () {
   }
 }
 
-function main () {
+async function main () {
   t1 = apm.startTransaction('ls')
   assert(apm.currentTransaction === t1)
+  try {
+    const cwd = await getCwd()
 
-  const cwd = getCwd()
-  const s3 = apm.startSpan('readdir')
-  assert(apm.currentSpan === s3)
-  fs.readdir(cwd, function (_err, entries) {
-    assert(apm.currentSpan === s3)
-    s3.end()
+    let entries
+    var s3 = apm.startSpan('readdir')
+    try {
+      assert(apm.currentSpan === s3)
+      entries = await fsp.readdir(cwd)
+      assert(apm.currentSpan === s3)
+    } finally {
+      assert(apm.currentSpan === s3)
+      s3.end()
+    }
     assert(apm.currentSpan === null)
 
     console.log('entries:', entries)
-
+  } finally {
     assert(apm.currentTransaction === t1)
     t1.end()
-    assert(apm.currentTransaction === null)
-  })
+  }
+
+  assert(apm.currentTransaction === null)
 }
 
 main()

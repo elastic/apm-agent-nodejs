@@ -9,7 +9,7 @@
 //     `- span "s3"
 //       `- span "s4"
 
-const apm = require('../../../').start({ // elastic-apm-node
+const apm = require('../../../../').start({ // elastic-apm-node
   captureExceptions: false,
   captureSpanStackTraces: false,
   metricsInterval: 0,

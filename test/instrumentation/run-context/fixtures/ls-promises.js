@@ -6,7 +6,7 @@
 //     `- span "cwd"
 //     `- span "readdir"
 
-var apm = require('../../../').start({ // elastic-apm-node
+var apm = require('../../../../').start({ // elastic-apm-node
   captureExceptions: false,
   captureSpanStackTraces: false,
   metricsInterval: 0,

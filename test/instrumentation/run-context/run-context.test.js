@@ -17,8 +17,8 @@ const { execFile } = require('child_process')
 const path = require('path')
 const tape = require('tape')
 
-const { MockAPMServer } = require('../_mock_apm_server')
-const { findObjInArray } = require('../_utils')
+const { MockAPMServer } = require('../../_mock_apm_server')
+const { findObjInArray } = require('../../_utils')
 
 const cases = [
   {
