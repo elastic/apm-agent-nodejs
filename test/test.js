@@ -94,6 +94,7 @@ var directories = [
   'test/lambda',
   'test/metrics',
   'test/redact-secrets',
+  'test/run-context',
   'test/sanitize-field-names',
   'test/sourcemaps',
   'test/stacktraces',
