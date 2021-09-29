@@ -395,6 +395,7 @@ test('with parallel sub-spans', t => {
     // Note: This use of `childOf` is to ensure span1 is a child of the
     // transaction for the special case of (a) asyncHooks=false such that we are
     // using "patch-async.js" and (b) use of `agent.destroy(); new Agent()`.
+    // The latter breaks patch-async's patching of setImmediate.
     var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
       { startTime: 10, childOf: transaction })
     setImmediate(function () {

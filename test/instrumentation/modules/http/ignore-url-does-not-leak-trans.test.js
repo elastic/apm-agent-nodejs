@@ -27,14 +27,14 @@ if (Number(process.versions.node.split('.')[0]) <= 8 && !apm._conf.asyncHooks) {
   // patch-async.js support are near EOL, it isn't worth rewriting this test
   // case.
   //
-  // Details: The 'only have the span for the http *request*' assert fails
-  // because of patch-async.js cannot fully patch node v8's "lib/net.js".
+  // Details: The 'only have the span for the http *request*' assert below fails
+  // because patch-async.js cannot fully patch node v8's "lib/net.js".
   // Specifically, before https://github.com/nodejs/node/pull/19147 (which was
-  // part of node v10), Node would often internally use a private
+  // part of node v10), Node would internally use a private `nextTick`:
   //    const { nextTick } = require('internal/process/next_tick');
   // instead of `process.nextTick`. patch-async.js is only able to patch the
   // latter. This means a missed patch of "emitListeningNT" used to emit
-  // the server "listening" event.
+  // the server "listening" event, and context loss for `onListen()` below.
   console.log('# SKIP node <=8 and asyncHooks=false loses run context for server.listen callback')
   process.exit()
 }
@@ -57,7 +57,7 @@ test('an ignored incoming http URL does not leak previous transaction', function
     res.end()
   })
 
-  server.listen(function () {
+  server.listen(function onListen () {
     var opts = {
       port: server.address().port,
       path: '/ignore-this-path'

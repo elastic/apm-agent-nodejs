@@ -3,10 +3,10 @@
 //
 // Expect:
 //   transaction "t1"
-//   transaction "t2"
 //   transaction "t3"
 //   `- span "s4"
 //     `- span "s5"
+//   transaction "t2"
 
 const apm = require('../../../../').start({ // elastic-apm-node
   captureExceptions: false,
@@ -24,23 +24,23 @@ if (Number(process.versions.node.split('.')[0]) > 8) {
 }
 
 var t1 = apm.startTransaction('t1')
-assert(apm._instrumentation.currTransaction() === t1)
+assert(apm.currentTransaction === t1)
 var t2 = apm.startTransaction('t2')
-assert(apm._instrumentation.currTransaction() === t2)
+assert(apm.currentTransaction === t2)
 var t3 = apm.startTransaction('t3')
-assert(apm._instrumentation.currTransaction() === t3)
+assert(apm.currentTransaction === t3)
 var s4 = apm.startSpan('s4')
-assert(apm._instrumentation.currSpan() === s4)
+assert(apm.currentSpan === s4)
 var s5 = apm.startSpan('s5')
-assert(apm._instrumentation.currSpan() === s5)
+assert(apm.currentSpan === s5)
 s4.end() // (out of order)
-assert(apm._instrumentation.currSpan() === s5)
+assert(apm.currentSpan === s5)
 s5.end()
-assert(apm._instrumentation.currSpan() === null)
-assert(apm._instrumentation.currTransaction() === t3)
+assert(apm.currentSpan === null)
+assert(apm.currentTransaction === t3)
 t1.end() // (out of order)
-assert(apm._instrumentation.currTransaction() === t3)
+assert(apm.currentTransaction === t3)
 t3.end()
-assert(apm._instrumentation.currTransaction() === null)
+assert(apm.currentTransaction === null)
 t2.end()
-assert(apm._instrumentation.currTransaction() === null)
+assert(apm.currentTransaction === null)
