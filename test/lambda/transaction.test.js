@@ -1,5 +1,8 @@
 const tape = require('tape')
-const { setLambdaTransactionData } = require('../../lib/lambda')
+
+const AgentMock = require('./mock/agent')
+
+const { elasticApmAwsLambda, setLambdaTransactionData } = require('../../lib/lambda')
 class MockTransaction {
   constructor () {
     this.faas = null
@@ -65,5 +68,27 @@ tape.test('setLambdaTransactionData unit tests', function (t) {
   t.strictEquals(transaction.faas.execution, context.awsRequestId, 'execution value set')
   t.strictEquals(transaction.faas.trigger.type, 'http', 'execution value set')
   t.strictEquals(transaction.faas.trigger.request_id, event.requestContext.requestId, 'execution value set')
+  t.end()
+})
+
+tape.test('cold start tests', function (t) {
+  function mockLambda () {
+
+  }
+  const mockAgent = new AgentMock()
+  const wrapLambda = elasticApmAwsLambda(mockAgent)
+  const wrappedMockLambda = wrapLambda(mockLambda)
+  const mockEvent = {}
+  const mockContext = {}
+
+  // invoke the mock lambda twice
+  wrappedMockLambda(mockEvent, mockContext)
+  wrappedMockLambda(mockEvent, mockContext)
+
+  const cold = mockAgent.transactions.shift()
+  const warm = mockAgent.transactions.shift()
+
+  t.equals(cold.faas.coldstart, true, 'first invocation is a cold start')
+  t.equals(warm.faas.coldstart, false, 'second invocation is not a cold start')
   t.end()
 })
