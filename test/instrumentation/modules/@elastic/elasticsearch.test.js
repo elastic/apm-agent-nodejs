@@ -10,9 +10,11 @@ const agent = require('../../../..').start({
   spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
+const { safeGetPackageVersion } = require('../../../_utils')
+
 // Skip (exit the process) if this package version doesn't support this version
 // of node.
-const esVersion = require('@elastic/elasticsearch/package.json').version
+const esVersion = safeGetPackageVersion('@elastic/elasticsearch')
 const semver = require('semver')
 if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
   console.log(`# SKIP @elastic/elasticsearch@${esVersion} does not support node ${process.version}`)
@@ -34,7 +36,6 @@ const { MockES } = require('./_mock_es')
 
 const host = (process.env.ES_HOST || 'localhost') + ':9200'
 const node = 'http://' + host
-const pkgVersion = require('@elastic/elasticsearch/package.json').version
 
 test('client.ping with promise', function (t) {
   resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
@@ -334,7 +335,7 @@ test('DeserializationError', function (t) {
   })
 })
 
-if (semver.gte(pkgVersion, '7.14.0')) {
+if (semver.gte(esVersion, '7.14.0')) {
   test('ProductNotSupportedError', function (t) {
     // Create a mock Elasticsearch server that responds to "GET /" with a body
     // that triggers ProductNotSupportedError.
@@ -377,7 +378,7 @@ if (semver.gte(pkgVersion, '7.14.0')) {
   })
 }
 
-if (semver.gte(pkgVersion, '7.7.0')) {
+if (semver.gte(esVersion, '7.7.0')) {
   // Abort handling was added to @elastic/elasticsearch@7.7.0.
 
   test('request.abort() works', function (t) {
@@ -586,12 +587,14 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.strictEqual(esSpan.type, 'db')
     t.strictEqual(esSpan.subtype, 'elasticsearch')
     t.strictEqual(esSpan.action, 'request')
+    t.strictEqual(esSpan.sync, false, 'span.sync=false')
 
     const httpSpan = findObjInArray(data.spans, 'subtype', 'http')
     t.ok(httpSpan, 'have an http span')
     t.strictEqual(httpSpan.type, 'external')
     t.strictEqual(httpSpan.subtype, 'http')
     t.strictEqual(httpSpan.action, method)
+    t.strictEqual(httpSpan.sync, false, 'span.sync=false')
 
     t.equal(httpSpan.name, method + ' ' + host, 'http span should have expected name')
     t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')

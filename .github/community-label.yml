@@ -1,0 +1,5 @@
+# add 'community' label to all new issues and PRs created by the community
+community:
+  - '.*'
+triage:
+  - '.*'

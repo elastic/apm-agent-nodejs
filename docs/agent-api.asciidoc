@@ -822,7 +822,7 @@ apm.clearPatches(['timers'])
 
 `apm.currentTraceIds` produces an object containing `trace.id` and either `transaction.id` or `span.id` when a current transaction or span is available.
 When no transaction or span is available it will return an empty object.
-This enables log correlation to APM traces with structured loggers.
+This enables <<log-correlation,log correlation>> to APM traces with structured loggers.
 
 [source,js]
 ----
@@ -837,17 +837,6 @@ This enables log correlation to APM traces with structured loggers.
 }
 ----
 
-All current trace id objects,
-including the empty form,
-include a `toString()` implementation.
-This enables log correlation to APM traces with text-only loggers.
-
-[source,js]
-----
-"trace.id=abc123 transaction.id=abc123"
-// or ...
-"trace.id=abc123 span.id=abc123"
-----
 // end::currentTraceIds[]
 
 [[apm-register-custom-metrics]]

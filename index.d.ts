@@ -1,9 +1,11 @@
 /// <reference types="node" />
 
+// Note: We avoid import of any external `@types/...` to avoid TypeScript users
+// needing to manually install them. The only exception is the prerequisite to
+// `npm install -D @types/node`.
 import type { IncomingMessage, ServerResponse } from 'http';
-import type { Logger as PinoLogger } from 'pino';
-import type * as Connect from 'connect';
-import type * as AwsLambda from 'aws-lambda';
+import { Connect } from './types/connect';
+import { AwsLambda } from './types/aws-lambda';
 
 declare namespace apm {
   // Agent API
@@ -143,6 +145,10 @@ declare namespace apm {
     traceparent: string;
     outcome: Outcome;
     result: string | number;
+    ids: {
+      'trace.id': string;
+      'transaction.id': string;
+    }
 
     setType (type?: string | null, subtype?: string | null, action?: string | null): void;
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
@@ -189,6 +195,10 @@ declare namespace apm {
     action: string | null;
     traceparent: string;
     outcome: Outcome;
+    ids: {
+      'trace.id': string;
+      'span.id': string;
+    }
 
     setType (type?: string | null, subtype?: string | null, action?: string | null): void;
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
@@ -236,7 +246,7 @@ declare namespace apm {
     kubernetesPodUID?: string;
     logLevel?: LogLevel;
     logUncaughtExceptions?: boolean;
-    logger?: PinoLogger | Logger;
+    logger?: Logger; // Notably this Logger interface matches the Pino Logger.
     longFieldMaxLength?: number;
     maxQueueSize?: number;
     metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
@@ -295,6 +305,9 @@ declare namespace apm {
   }
 
   interface Logger {
+    // Defining overloaded methods rather than a separate `interface LogFn`
+    // as @types/pino does, because the IDE completion shows these as *methods*
+    // rather than as properties, which is slightly nicer.
     fatal (msg: string, ...args: any[]): void;
     fatal (obj: {}, msg?: string, ...args: any[]): void;
     error (msg: string, ...args: any[]): void;
@@ -307,6 +320,9 @@ declare namespace apm {
     debug (obj: {}, msg?: string, ...args: any[]): void;
     trace (msg: string, ...args: any[]): void;
     trace (obj: {}, msg?: string, ...args: any[]): void;
+    // Allow a passed in Logger that has other properties, as a Pino logger
+    // does. Discussion:
+    // https://github.com/elastic/apm-agent-nodejs/pull/926/files#r266239656
     [propName: string]: any;
   }
 
@@ -316,6 +332,7 @@ declare namespace apm {
   }
 
   export interface SpanOptions {
+    startTime?: number;
     childOf?: Transaction | Span | string;
   }
 
