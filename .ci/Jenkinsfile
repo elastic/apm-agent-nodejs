@@ -477,7 +477,9 @@ def generateStepForWindows(Map params = [:]){
               npm --version
               node --version
             '''
-            bat 'npm install'
+            retryWithSleep(retries: 3, sideEffect: { bat 'npm cache clean --force' }) {
+                bat 'npm install'
+            }
             bat 'node test/test.js'
           }
         } catch(e){
@@ -492,6 +494,7 @@ def generateStepForWindows(Map params = [:]){
     sh label: 'Stop services', script: ".ci/scripts/windows/stop-test.sh ${version}"
   }
 }
+
 
 def grabWorkerIP(){
   def linuxIp = ''
