@@ -27,11 +27,32 @@ if [ -z "$(grep \"\:$(id -u)\:\" /etc/passwd)" ]; then
   git config -l
 fi
 
+npm_install() {
+  local retries=2
+  local count=0
+
+  until npm install; do
+    exit=$?
+    wait=$((2 ** $count))
+    count=$(($count + 1))
+    if [ $count -lt $retries ]; then
+      printf "Retry of 'npm install' %s/%s exited %s, retrying in %s seconds...\n" "$count" "$retries" "$exit" "$wait" >&2
+      printf "Force-cleaning of npm cache"
+      npm cache clean --force
+      sleep $wait
+    else
+      printf "Retry %s/%s exited %s, no more retries left.\n" "$count" "$retries" "$exit" >&2
+      return $exit
+    fi
+  done
+  return 0
+}
+
 export
 id
 node --version
 npm --version
-npm install
+npm_install
 
 if [[ -n ${TAV} ]]; then
   npm run test:tav|tee tav-output.tap
