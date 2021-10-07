@@ -477,7 +477,7 @@ def generateStepForWindows(Map params = [:]){
               npm --version
               node --version
             '''
-            retryWithSleep(retries: 3, sideEffect: { bat 'npm cache clean --force' }) {
+            retryWithSleep(retries: 2, sideEffect: { bat 'npm cache clean --force' }) {
                 bat 'npm install'
             }
             bat 'node test/test.js'
