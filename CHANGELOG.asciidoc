@@ -47,6 +47,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* AWS Lambda changes: Disable metrics collection during the experimental phase
+  of (re)implementing Lambda support ({pull}2363[#2363]). Some fixes for better
+  flushing of data at the end of a Lambda invocation.
+
 * <<span-to-string,`span.toString()`>> and <<transaction-to-string,`transaction.toString()`>>
   have been *deprecated*. The exact string output may change in v4 of the
   agent.
