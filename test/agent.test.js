@@ -905,7 +905,7 @@ test('filters', function (t) {
 })
 
 // XXX only
-test.only('#flush()', function (t) {
+test('#flush()', function (t) {
   t.test('flush before start not called', function (t) {
     t.plan(2)
     const agent = new Agent()
@@ -1006,8 +1006,7 @@ test.only('#flush()', function (t) {
         t.error(err, 'no error passed to agent.flush callback')
         t.equal(apmServer.events.length, 3, 'apmServer got 3 events')
         t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0')
-        console.warn('XXX ', apmServer.events)
-        t.equal(apmServer.events[2].error, 's1', 'event[2] is error "boom"')
+        t.equal(apmServer.events[2].error.exception.message, 'boom', 'event[2] is error "boom"')
 
         apmServer.close()
         agent.destroy()
