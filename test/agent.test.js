@@ -641,21 +641,19 @@ test('filters', function (t) {
     agent.startTransaction()
     const span = agent.startSpan('span-name')
     span.end()
-    setTimeout(() => {
-      agent.flush(function () {
-        t.equal(apmServer.events.length, 2, 'got 2 events')
-        t.ok(apmServer.events[0].metadata, 'event 0 is metadata')
-        assertMetadata(t, apmServer.events[0].metadata)
-        const data = apmServer.events[1].span
-        t.ok(data, 'event 1 is a span')
-        t.strictEqual(data.name, 'span-name')
-        t.strictEqual(data.order, 2)
+    agent.flush(function () {
+      t.equal(apmServer.events.length, 2, 'got 2 events')
+      t.ok(apmServer.events[0].metadata, 'event 0 is metadata')
+      assertMetadata(t, apmServer.events[0].metadata)
+      const data = apmServer.events[1].span
+      t.ok(data, 'event 1 is a span')
+      t.strictEqual(data.name, 'span-name')
+      t.strictEqual(data.order, 2)
 
-        apmServer.clear()
-        agent.destroy()
-        t.end()
-      })
-    }, 200) // Hack wait for ended span to be sent to transport.
+      apmServer.clear()
+      agent.destroy()
+      t.end()
+    })
   })
 
   t.test('#addErrorFilter()', function (t) {
@@ -906,8 +904,9 @@ test('filters', function (t) {
   t.end()
 })
 
-test('#flush()', function (t) {
-  t.test('start not called', function (t) {
+// XXX only
+test.only('#flush()', function (t) {
+  t.test('flush before start not called', function (t) {
     t.plan(2)
     const agent = new Agent()
     agent.flush(function (err) {
@@ -918,7 +917,7 @@ test('#flush()', function (t) {
     })
   })
 
-  t.test('start called, but agent inactive', function (t) {
+  t.test('flush, start called, but agent inactive', function (t) {
     t.plan(2)
     const agent = new Agent().start({ active: false })
     agent.flush(function (err) {
@@ -929,7 +928,7 @@ test('#flush()', function (t) {
     })
   })
 
-  t.test('agent started, but no data in the queue', function (t) {
+  t.test('flush, agent started, but no data in the queue', function (t) {
     t.plan(2)
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.flush(function (err) {
@@ -940,7 +939,7 @@ test('#flush()', function (t) {
     })
   })
 
-  t.test('flush with agent started, and data in the queue', function (t) {
+  t.test('flush with transaction in the queue', function (t) {
     const apmServer = new MockAPMServer()
     apmServer.start(function (serverUrl) {
       const agent = new Agent().start(Object.assign(
@@ -956,6 +955,168 @@ test('#flush()', function (t) {
         const trans = apmServer.events[1].transaction
         t.ok(trans, 'event 1 is a transaction')
         t.equal(trans.name, 'foo', 'the transaction has the expected name')
+
+        apmServer.close()
+        agent.destroy()
+        t.end()
+      })
+    })
+  })
+
+  t.test('flush with inflight spans', function (t) {
+    const apmServer = new MockAPMServer()
+    apmServer.start(function (serverUrl) {
+      const agent = new Agent().start(Object.assign(
+        {},
+        agentOpts,
+        { serverUrl }
+      ))
+      const t0 = agent.startTransaction('t0')
+      for (var i = 0; i < 10; i++) {
+        agent.startSpan('s').end()
+      }
+      t0.end()
+      agent.flush(function (err) {
+        t.error(err, 'no error passed to agent.flush callback')
+        t.equal(apmServer.events.length, 12, 'apmServer got 12 events')
+        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0')
+        for (var i = 2; i < 12; i++) {
+          t.equal(apmServer.events[i].span.name, 's', `event[${i}] is span s`)
+        }
+
+        apmServer.close()
+        agent.destroy()
+        t.end()
+      })
+    })
+  })
+
+  t.test('flush with inflight error', function (t) {
+    const apmServer = new MockAPMServer()
+    apmServer.start(function (serverUrl) {
+      const agent = new Agent().start(Object.assign(
+        {},
+        agentOpts,
+        { serverUrl }
+      ))
+      const t0 = agent.startTransaction('t0')
+      agent.captureError(new Error('boom'))
+      t0.end()
+      agent.flush(function (err) {
+        t.error(err, 'no error passed to agent.flush callback')
+        t.equal(apmServer.events.length, 3, 'apmServer got 3 events')
+        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0')
+        console.warn('XXX ', apmServer.events)
+        t.equal(apmServer.events[2].error, 's1', 'event[2] is error "boom"')
+
+        apmServer.close()
+        agent.destroy()
+        t.end()
+      })
+    })
+  })
+
+  // This tests that flushing does the right thing when a second
+  // `agent.flush(...)` is called when an earlier `agent.flush(...)` is still in
+  // progress.
+  //
+  // The intended behavior when there are multiple flushes in progress is that
+  // a flush callback is called *when the newly inflight events since the last
+  // flush have been sent*. In other words, given:
+  //   1. end span A
+  //   2. first flush
+  //   3. end span B
+  //   4. second flush
+  // we expect the "first flush" to callback after span A has been sent, and
+  // the "second flush" to callback after span B has been sent. It is possible
+  // that the second flush calls back before the first flush, if span A takes
+  // a long time to encode and send.
+  t.test('second flush while flushing inflight spans', function (t) {
+    const apmServer = new MockAPMServer()
+    apmServer.start(function (serverUrl) {
+      const agent = new Agent().start(Object.assign(
+        {},
+        agentOpts,
+        { serverUrl }
+      ))
+
+      let nDone = 2
+      const done = function () {
+        nDone--
+        if (nDone <= 0) {
+          apmServer.close()
+          agent.destroy()
+          t.end()
+        }
+      }
+
+      const t0 = agent.startTransaction('t0')
+      const s1 = agent.startSpan('s1')
+      // Artificially slow down the Span#_encode for this span, so that it is
+      // "in flight" for a long time -- long enough for the first `.flush()`
+      // to be in progress when the second `.flush()` comes.
+      const origS1Encode = s1._encode.bind(s1)
+      s1._encode = function (cb) {
+        setTimeout(origS1Encode, 500, cb)
+      }
+      s1.end()
+      agent.flush(function firstFlushCallback (err) {
+        t.error(err, 'no error passed to first agent.flush callback')
+        t.equal(apmServer.events.length, 5, 'apmServer has 5 events')
+        t.ok(apmServer.events[0].metadata, 'event[0] is metadata')
+        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0')
+        t.equal(apmServer.events[2].span.name, 's2', 'event[2] is span s2')
+        t.ok(apmServer.events[3].metadata, 'event[3] is metadata')
+        t.equal(apmServer.events[4].span.name, 's1', 'event[4] is span s1')
+        done()
+      })
+
+      const s2 = agent.startSpan('s2')
+      s2.end()
+      t0.end()
+      agent.flush(function secondFlushCallback (err) {
+        t.error(err, 'no error passed to second agent.flush callback')
+        t.equal(apmServer.events.length, 3, 'apmServer has 3 events')
+        t.ok(apmServer.events[0].metadata, 'event[0] is metadata')
+        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0')
+        t.equal(apmServer.events[2].span.name, 's2', 'event[2] is span s2')
+        done()
+      })
+    })
+  })
+
+  // This tests that the internally-hardcoded 1s timeout on
+  // Instrumentation#flush works to prevent starvation of Agent#flush because
+  // of a possibly slow or broken handling of the encoding and send of an ended
+  // span.
+  t.test('flush timeout from slow inflight span', function (t) {
+    const apmServer = new MockAPMServer()
+    apmServer.start(function (serverUrl) {
+      const agent = new Agent().start(Object.assign(
+        {},
+        agentOpts,
+        { serverUrl }
+      ))
+
+      const t0 = agent.startTransaction('t0')
+      const s1 = agent.startSpan('s1')
+      // Artificially slow down the Span#_encode for this span, so that it is
+      // "in flight" for longer than the internal `INS_FLUSH_TIMEOUT_MS = 1000`
+      // timeout.
+      const origS1Encode = s1._encode.bind(s1)
+      s1._encode = function (cb) {
+        setTimeout(origS1Encode, 2000, cb)
+      }
+      s1.end()
+      const s2 = agent.startSpan('s2')
+      s2.end()
+      t0.end()
+      agent.flush(function (err) {
+        t.error(err, 'no error passed to agent.flush callback')
+        t.equal(apmServer.events.length, 3, 'apmServer got 3 events')
+        t.ok(apmServer.events[0].metadata, 'event[0] is metadata')
+        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0')
+        t.equal(apmServer.events[2].span.name, 's2', 'event[2] is span s2')
 
         apmServer.close()
         agent.destroy()
