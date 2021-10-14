@@ -37,8 +37,19 @@ Notes:
 [float]
 ===== Features
 
+* When an error is captured, the APM agent will only immediately flush it to
+  APM server if it is an "unhandled" error. Unhandled errors are typically those
+  captured via the `uncaughtException` process event. Before this change, a
+  captured error (e.g. for a 4xx or 5xx response from an HTTP server) was
+  always immediately flushed. This could negatively impact performance for
+  a service that was generating *frequent* errors. ({issues}686[#686])
+
 [float]
 ===== Bug fixes
+
+* AWS Lambda changes: Disable metrics collection during the experimental phase
+  of (re)implementing Lambda support ({pull}2363[#2363]). Some fixes for better
+  flushing of data at the end of a Lambda invocation.
 
 * <<span-to-string,`span.toString()`>> and <<transaction-to-string,`transaction.toString()`>>
   have been *deprecated*. The exact string output may change in v4 of the

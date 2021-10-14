@@ -1143,6 +1143,7 @@ test('#captureError()', function (t) {
     })
   })
 
+  // Passing a callback to `captureError` means agent.flush() will be called.
   t.test('with callback', function (t) {
     const agent = new Agent().start(ceAgentOpts)
     agent.captureError(new Error('with callback'), function (err, id) {
@@ -1163,14 +1164,16 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(ceAgentOpts)
     agent.captureError(new Error('without callback'))
     setTimeout(function () {
-      t.equal(apmServer.events.length, 2, 'APM server got 2 events')
-      assertMetadata(t, apmServer.events[0].metadata)
-      const data = apmServer.events[1].error
-      t.strictEqual(data.exception.message, 'without callback')
+      agent.flush(function () {
+        t.equal(apmServer.events.length, 2, 'APM server got 2 events')
+        assertMetadata(t, apmServer.events[0].metadata)
+        const data = apmServer.events[1].error
+        t.strictEqual(data.exception.message, 'without callback')
 
-      apmServer.clear()
-      agent.destroy()
-      t.end()
+        apmServer.clear()
+        agent.destroy()
+        t.end()
+      })
     }, 200) // Hack wait for captured error to be encoded and sent.
   })
 
