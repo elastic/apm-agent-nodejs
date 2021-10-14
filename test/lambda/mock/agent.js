@@ -1,5 +1,6 @@
 'use strict'
 
+const logging = require('../../../lib/logging')
 const TransactionMock = require('./transaction')
 
 module.exports = class AgentMock {
@@ -7,6 +8,7 @@ module.exports = class AgentMock {
     this.flushed = false
     this.transactions = []
     this.errors = []
+    this.logger = logging.createLogger('off')
   }
 
   startTransaction (name, type, opts) {

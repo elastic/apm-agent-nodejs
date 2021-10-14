@@ -9,7 +9,7 @@ const util = require('./_util')
 const assertError = util.assertError
 const assertTransaction = util.assertTransaction
 
-process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs8.10'
+process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs14.x'
 process.env.AWS_REGION = 'us-east-1'
 
 test('context.succeed', function (t) {
