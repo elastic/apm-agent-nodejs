@@ -904,9 +904,8 @@ test('filters', function (t) {
   t.end()
 })
 
-// XXX only
 test('#flush()', function (t) {
-  t.test('flush before start not called', function (t) {
+  t.test('flush, start not called', function (t) {
     t.plan(2)
     const agent = new Agent()
     agent.flush(function (err) {
