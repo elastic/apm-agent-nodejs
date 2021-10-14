@@ -345,7 +345,9 @@ See <<http-requests,http requests section>> for more details.
 However, in most cases, the agent will detect if an error occured during an http request and automatically add response details for you.
 See <<http-responses,http responses section>> for more details.
 
-** `handled` +{type-boolean}+ Adds additional context to the exception to show whether the error is handled or uncaught.
+** `handled` +{type-boolean}+ Adds additional context to the exception to show
+whether the error is handled or uncaught. Unhandled errors are immediately
+flushed to APM server, in case the application is about the crash.
 *Default:* `true`.
 
 ** `labels` +{type-object}+ Add additional context with labels, these labels will be added to the error along with the labels from the current transaction.

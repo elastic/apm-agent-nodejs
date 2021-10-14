@@ -37,6 +37,13 @@ Notes:
 [float]
 ===== Features
 
+* When an error is captured, the APM agent will only immediately flush it to
+  APM server if it is an "unhandled" error. Unhandled errors are typically those
+  captured via the `uncaughtException` process event. Before this change, a
+  captured error (e.g. for a 4xx or 5xx response from an HTTP server) was
+  always immediately flushed. This could negatively impact performance for
+  a service that was generating *frequent* errors. ({issues}686[#686])
+
 [float]
 ===== Bug fixes
 
