@@ -17,10 +17,16 @@ module.exports = class AgentMock {
     return trans
   }
 
-  captureError (error, callback) {
+  captureError (error, opts, cb) {
+    if (typeof opts === 'function') {
+      cb = opts
+      opts = {}
+    } else if (!opts) {
+      opts = {}
+    }
     this.errors.push(error)
-    if (callback) {
-      setImmediate(callback)
+    if (cb) {
+      setImmediate(cb)
     }
   }
 
