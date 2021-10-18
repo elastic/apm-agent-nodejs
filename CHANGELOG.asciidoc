@@ -47,6 +47,12 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Improve <<apm-flush,`apm.flush([cb])`>> to wait for inflight spans and errors
+  before flushing data to APM server. Before this change, a recently ended span
+  or recently <<apm-capture-error,captured error>> might not yet have completed
+  processing (for example, stacktrace collection is asynchronous) and might
+  not be included in the flush call.
+
 * AWS Lambda changes: Disable metrics collection during the experimental phase
   of (re)implementing Lambda support ({pull}2363[#2363]). Some fixes for better
   flushing of data at the end of a Lambda invocation.
