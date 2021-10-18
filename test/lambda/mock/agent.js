@@ -9,6 +9,10 @@ module.exports = class AgentMock {
     this.transactions = []
     this.errors = []
     this.logger = logging.createLogger('off')
+    this._conf = {
+      // A (very) minimal `agent._conf` to satisfy "lib/lambda.js" usage.
+      active: true
+    }
   }
 
   startTransaction (name, type, opts) {
