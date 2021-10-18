@@ -757,21 +757,19 @@ test('filters', function (t) {
     agent.startTransaction()
     const span = agent.startSpan('span-name')
     span.end()
-    setTimeout(() => {
-      agent.flush(function () {
-        t.equal(apmServer.events.length, 2, 'got 2 events')
-        t.ok(apmServer.events[0].metadata, 'event 0 is metadata')
-        assertMetadata(t, apmServer.events[0].metadata)
-        const data = apmServer.events[1].span
-        t.ok(data, 'event 1 is a span')
-        t.strictEqual(data.name, 'span-name')
-        t.strictEqual(data.order, 2)
+    agent.flush(function () {
+      t.equal(apmServer.events.length, 2, 'got 2 events')
+      t.ok(apmServer.events[0].metadata, 'event 0 is metadata')
+      assertMetadata(t, apmServer.events[0].metadata)
+      const data = apmServer.events[1].span
+      t.ok(data, 'event 1 is a span')
+      t.strictEqual(data.name, 'span-name')
+      t.strictEqual(data.order, 2)
 
-        apmServer.clear()
-        agent.destroy()
-        t.end()
-      })
-    }, 200) // Hack wait for ended span to be sent to transport.
+      apmServer.clear()
+      agent.destroy()
+      t.end()
+    })
   })
 
   t.test('#addMetadataFilter()', function (t) {
@@ -884,15 +882,13 @@ test('filters', function (t) {
       agent.startTransaction()
       const span = agent.startSpan('span-name')
       span.end()
-      setTimeout(function () {
-        agent.flush(function () {
-          t.ok(calledFirstFilter, 'called first filter')
-          t.equal(apmServer.requests.length, 0, 'APM server did not receive a request')
-          apmServer.clear()
-          agent.destroy()
-          t.end()
-        })
-      }, 200) // Hack wait for ended span to be sent to transport.
+      agent.flush(function () {
+        t.ok(calledFirstFilter, 'called first filter')
+        t.equal(apmServer.requests.length, 0, 'APM server did not receive a request')
+        apmServer.clear()
+        agent.destroy()
+        t.end()
+      })
     })
   })
 
@@ -1163,18 +1159,16 @@ test('#captureError()', function (t) {
   t.test('without callback', function (t) {
     const agent = new Agent().start(ceAgentOpts)
     agent.captureError(new Error('without callback'))
-    setTimeout(function () {
-      agent.flush(function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events')
-        assertMetadata(t, apmServer.events[0].metadata)
-        const data = apmServer.events[1].error
-        t.strictEqual(data.exception.message, 'without callback')
+    agent.flush(function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events')
+      assertMetadata(t, apmServer.events[0].metadata)
+      const data = apmServer.events[1].error
+      t.strictEqual(data.exception.message, 'without callback')
 
-        apmServer.clear()
-        agent.destroy()
-        t.end()
-      })
-    }, 200) // Hack wait for captured error to be encoded and sent.
+      apmServer.clear()
+      agent.destroy()
+      t.end()
+    })
   })
 
   t.test('generate error id', function (t) {

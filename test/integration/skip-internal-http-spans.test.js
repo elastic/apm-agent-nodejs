@@ -55,31 +55,28 @@ getPort().then(port => {
       agent.startTransaction('transaction')
       agent.startSpan('span').end()
 
-      // wait for span to be processed
-      setTimeout(() => {
-        // flush agent to generate outgoing http request to the APM Server
-        agent.flush(() => {
-          // wait for potential span related to the outgoing http request to be processed
-          setTimeout(() => {
-            for (const key of Object.keys(expected)) {
-              t.strictEqual(seen[key], expected[key], `has expected value for ${key}`)
-            }
+      // flush agent to generate outgoing http request to the APM Server
+      agent.flush(() => {
+        // wait for potential span related to the outgoing http request to be processed
+        setTimeout(() => {
+          for (const key of Object.keys(expected)) {
+            t.strictEqual(seen[key], expected[key], `has expected value for ${key}`)
+          }
 
-            // flush agent again to see if it created a span for the first flush
-            agent.flush(() => {
-              // give the APM Server time to receive an process the 2nd flush
-              setTimeout(() => {
-                for (const key of Object.keys(expected)) {
-                  t.strictEqual(seen[key], expected[key], `has expected value for ${key}`)
-                }
+          // flush agent again to see if it created a span for the first flush
+          agent.flush(() => {
+            // give the APM Server time to receive an process the 2nd flush
+            setTimeout(() => {
+              for (const key of Object.keys(expected)) {
+                t.strictEqual(seen[key], expected[key], `has expected value for ${key}`)
+              }
 
-                server.close()
-                t.end()
-              }, 100)
-            })
-          }, 100)
-        })
-      }, 100)
+              server.close()
+              t.end()
+            }, 100)
+          })
+        }, 100)
+      })
     })
   })
 })
