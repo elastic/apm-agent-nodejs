@@ -147,7 +147,14 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   # which currently seems to be the case.
   index_tab_content=$(curl -sS "${NVM_NODEJS_ORG_MIRROR}/index.tab" \
     | (grep "^v${NODE_VERSION}" || true) | awk '{print $1}')
-  latest_edge_version=$(echo "$index_tab_content" | head -1)
+  if [[ $BUILD_TYPE == "nightly" ]]; then
+    # Select the *penultimate* nightly to avoid an occasional race where
+    # the nightly build has been added to index.tab, but the built
+    # packages are not yet uploaded (sometimes for as long as an hour).
+    latest_edge_version=$(echo "$index_tab_content" | head -2 | tail -1)
+  else
+    latest_edge_version=$(echo "$index_tab_content" | head -1)
+  fi
   if [[ -z "$latest_edge_version" ]]; then
     skip "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
   fi
@@ -160,6 +167,9 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   if [[ -n "$release_version" ]]; then
     skip "There is already a release build (${release_version}) of the latest v${NODE_VERSION} ${BUILD_TYPE} (${latest_edge_version}). Skipping tests."
   fi
+
+  # Explicitly pass this version to the 'nvm install'.
+  NODE_FULL_VERSION=${latest_edge_version}
 fi
 
 
@@ -221,6 +231,7 @@ set +e
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
 NODE_VERSION=${NODE_VERSION} \
+NODE_FULL_VERSION=${NODE_FULL_VERSION} \
 TAV_MODULE=${TAV_MODULE} \
 USER_ID="$(id -u):$(id -g)" \
 docker-compose \
@@ -240,6 +251,7 @@ set -e
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
 NODE_VERSION=${NODE_VERSION} \
+NODE_FULL_VERSION=${NODE_FULL_VERSION} \
 TAV_MODULE=${TAV_MODULE} \
 USER_ID="$(id -u):$(id -g)" \
 docker-compose \
