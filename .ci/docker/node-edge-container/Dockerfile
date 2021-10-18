@@ -12,6 +12,7 @@ RUN apt-get -qq update \
 
 # Environment variables to set what version to be installed
 ARG NODE_VERSION
+ARG NODE_FULL_VERSION
 ARG NVM_NODEJS_ORG_MIRROR
 ARG ELASTIC_APM_ASYNC_HOOKS
 ENV NODE_VERSION=${NODE_VERSION}
