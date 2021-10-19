@@ -120,6 +120,7 @@ jobs:
     strategy:
       matrix:
         node:
+          - '17'
           - '16'
           - '16.0'
           - '14'
