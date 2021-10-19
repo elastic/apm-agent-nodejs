@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NODE_VERSION=${NODE_VERSION}
+        - NODE_FULL_VERSION=${NODE_FULL_VERSION}
         - NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR}
         - ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS}
     working_dir: /app
@@ -24,6 +25,7 @@ services:
       MEMCACHED_HOST: 'memcached'
       LOCALSTACK_HOST: 'localstack'
       NODE_VERSION: ${NODE_VERSION}
+      NODE_FULL_VERSION: ${NODE_FULL_VERSION}
       NVM_NODEJS_ORG_MIRROR: ${NVM_NODEJS_ORG_MIRROR}
       ELASTIC_APM_ASYNC_HOOKS: ${ELASTIC_APM_ASYNC_HOOKS}
       TAV: ${TAV_MODULE}
