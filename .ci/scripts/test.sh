@@ -151,25 +151,26 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
     # Select the *penultimate* nightly to avoid an occasional race where
     # the nightly build has been added to index.tab, but the built
     # packages are not yet uploaded (sometimes for as long as an hour).
-    latest_edge_version=$(echo "$index_tab_content" | head -2 | tail -1)
+    edge_node_version=$(echo "$index_tab_content" | head -2 | tail -1)
   else
-    latest_edge_version=$(echo "$index_tab_content" | head -1)
+    # Use the latest available rc build.
+    edge_node_version=$(echo "$index_tab_content" | head -1)
   fi
-  if [[ -z "$latest_edge_version" ]]; then
+  if [[ -z "$edge_node_version" ]]; then
     skip "No ${BUILD_TYPE} build of Node v${NODE_VERSION} was found. Skipping tests."
   fi
 
   # If there is already a *release* build for this same version, then there is
   # no point in testing against this node version, so skip out.
-  possible_release_version=${latest_edge_version%-*}  # remove "-*" suffix
+  possible_release_version=${edge_node_version%-*}  # remove "-*" suffix
   release_version=$(curl -sS https://nodejs.org/dist/index.tab \
     | (grep -E "^${possible_release_version}\>" || true) | awk '{print $1}')
   if [[ -n "$release_version" ]]; then
-    skip "There is already a release build (${release_version}) of the latest v${NODE_VERSION} ${BUILD_TYPE} (${latest_edge_version}). Skipping tests."
+    skip "There is already a release build (${release_version}) of the latest v${NODE_VERSION} ${BUILD_TYPE} (${edge_node_version}). Skipping tests."
   fi
 
-  # Explicitly pass this version to the 'nvm install'.
-  NODE_FULL_VERSION=${latest_edge_version}
+  # Explicitly pass this version to the 'nvm install ...'.
+  NODE_FULL_VERSION=${edge_node_version}
 fi
 
 
