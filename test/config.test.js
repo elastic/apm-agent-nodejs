@@ -976,7 +976,7 @@ test('custom transport', function (t) {
   span.end()
   trans.end()
 
-  setTimeout(function () {
+  agent.flush(function () {
     t.equal(myTransport.transactions.length, 1, 'received correct number of transactions')
     assertEncodedTransaction(t, trans, myTransport.transactions[0])
     t.equal(myTransport.spans.length, 1, 'received correct number of spans')
@@ -985,7 +985,7 @@ test('custom transport', function (t) {
     assertEncodedError(t, error, myTransport.errors[0], trans, span)
     agent.destroy()
     t.end()
-  }, 200) // Hack wait for ended span and captured error to be sent to transport.
+  })
 })
 
 test('addPatch', function (t) {

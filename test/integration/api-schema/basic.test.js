@@ -164,15 +164,12 @@ const next = afterAll(function (err, validators) {
       span.setDbContext({ statement: 'foo', type: 'bar' })
       span.setLabel('baz', 1)
       span.end()
-      // Collecting the span stack trace is an async process. Wait a little before flushing
-      setTimeout(function () {
-        agent.flush(function (err) {
-          t.error(err, 'flush should not result in an error')
-          server.close()
-          agent.destroy()
-          t.end()
-        })
-      }, 250)
+      agent.flush(function (err) {
+        t.error(err, 'flush should not result in an error')
+        server.close()
+        agent.destroy()
+        t.end()
+      })
     })
   })
 

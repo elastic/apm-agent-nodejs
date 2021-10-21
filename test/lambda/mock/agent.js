@@ -1,5 +1,6 @@
 'use strict'
 
+const logging = require('../../../lib/logging')
 const TransactionMock = require('./transaction')
 
 module.exports = class AgentMock {
@@ -7,6 +8,11 @@ module.exports = class AgentMock {
     this.flushed = false
     this.transactions = []
     this.errors = []
+    this.logger = logging.createLogger('off')
+    this._conf = {
+      // A (very) minimal `agent._conf` to satisfy "lib/lambda.js" usage.
+      active: true
+    }
   }
 
   startTransaction (name, type, opts) {
@@ -15,10 +21,16 @@ module.exports = class AgentMock {
     return trans
   }
 
-  captureError (error, callback) {
+  captureError (error, opts, cb) {
+    if (typeof opts === 'function') {
+      cb = opts
+      opts = {}
+    } else if (!opts) {
+      opts = {}
+    }
     this.errors.push(error)
-    if (callback) {
-      setImmediate(callback)
+    if (cb) {
+      setImmediate(cb)
     }
   }
 
