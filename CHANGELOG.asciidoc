@@ -37,6 +37,8 @@ Notes:
 [float]
 ===== Features
 
+* Add support for node v17.
+
 * When an error is captured, the APM agent will only immediately flush it to
   APM server if it is an "unhandled" error. Unhandled errors are typically those
   captured via the `uncaughtException` process event. Before this change, a

@@ -7,7 +7,8 @@ module.exports = (moduleName) => {
     captureExceptions: false,
     logLevel: 'fatal',
     metricsInterval: 0,
-    centralConfig: false
+    centralConfig: false,
+    cloudProvider: 'none'
   })
 
   var isHapiIncompat = require('../../../_is_hapi_incompat')
@@ -48,7 +49,7 @@ module.exports = (moduleName) => {
     agent.captureError = originalCaptureError
 
     var server = startServer(function (err, port) {
-      t.error(err)
+      t.error(err, 'no error from startServer')
       http.get('http://localhost:' + port + '/captureError?foo=bar')
     })
   })
@@ -523,7 +524,7 @@ module.exports = (moduleName) => {
   })
 
   function makeServer (opts) {
-    var server = new Hapi.Server()
+    var server = new Hapi.Server({ host: 'localhost' })
     if (semver.satisfies(pkg.version, '<17')) {
       server.connection(opts)
     }
