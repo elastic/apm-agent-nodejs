@@ -6,11 +6,16 @@ module.exports = class TransactionMock {
     this.type = type
     this.ended = false
     this.customContext = {}
+    this.outcome = 'success'
     this.opts = opts
   }
 
   setCustomContext (custom) {
     Object.assign(this.customContext, custom)
+  }
+
+  setOutcome (outcome) {
+    this.outcome = outcome
   }
 
   end () {
