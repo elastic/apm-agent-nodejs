@@ -296,14 +296,21 @@ elasticsearch:
 #   Fixed in 7.7.1: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_7_7_1
 #   Note: When this repo drops Node.js v8 support, `versions` can be simplified.
 # - Version 7.12.0 dropped support for node v8.
-'@elastic/elasticsearch-v7.0-v7.11':
+# - Version 8's min node is v12. We only support the latest canary release (at
+#   time of writing). The published '8.0.0-alpha.2' is *not* supported.
+'@elastic/elasticsearch-v7.0-v7.12':
   name: '@elastic/elasticsearch'
   versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
-'@elastic/elasticsearch':
+'@elastic/elasticsearch-v7.12-v8':
   name: '@elastic/elasticsearch'
   versions: '>=7.12.0 <8.0.0'
   node: '>=10.0.0'
+  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+'@elastic/elasticsearch-canary':
+  name: '@elastic/elasticsearch-canary'
+  versions: '^8.0.0-canary.28'
+  node: '>=12'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
 handlebars:
