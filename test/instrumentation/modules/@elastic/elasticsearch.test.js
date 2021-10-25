@@ -216,7 +216,7 @@ if (semver.gte(process.version, '10.0.0')) {
     } else {
       statement = `size=2&sort=myField%3Aasc
 
-  ${JSON.stringify(body)}`
+${JSON.stringify(body)}`
     }
 
     resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, statement))
