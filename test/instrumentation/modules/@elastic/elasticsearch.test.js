@@ -485,6 +485,60 @@ if (semver.gte(esVersion, '7.14.0')) {
   })
 }
 
+if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) && global.AbortController) {
+  // Abort handling in ES client version 8 changed to use AbortController.
+  // Test that if AbortController is available in this node version.
+  test('AbortController signal works', function (t) {
+    resetAgent(
+      function done (data) {
+        // We expect to get:
+        // - 1 elasticsearch span
+        // - 1 abort error (and possibly another error due to the double-callback
+        //   bug mentioned below)
+        const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+        t.ok(esSpan, 'have an elasticsearch span')
+
+        const err = data.errors
+          .filter((e) => e.exception.type === 'RequestAbortedError')[0]
+        if (semver.satisfies(esVersion, '7.14.x')) {
+          // https://github.com/elastic/elasticsearch-js/issues/1517 was fixed
+          // for 7.15 and later.
+          t.ok(!err, 'no APM error reported for abort with v7.14.x of the client because elastic/elasticsearch-js#1517')
+        } else {
+          t.ok(err, 'sent an error to APM server')
+          t.ok(err.id, 'err.id')
+          t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
+          t.equal(err.exception.type, 'RequestAbortedError',
+            'err.exception.type is RequestAbortedError')
+        }
+
+        t.end()
+      }
+    )
+
+    agent.startTransaction('myTrans')
+
+    const client = new es.Client(clientOpts)
+    const ac = new AbortController()
+    setImmediate(() => {
+      ac.abort()
+    })
+    client.search({ q: 'pants' }, { signal: ac.signal })
+      .then(() => {
+        t.fail('should not have gotten here, should have errored instead')
+      })
+      .catch((err) => {
+        t.ok(err, 'got an error from search callback')
+        t.equal(err.name, 'RequestAbortedError', 'error name is "RequestAbortedError"')
+      })
+      .finally(() => {
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+      })
+  })
+}
+
 if (semver.gte(esVersion, '7.7.0') && semver.satisfies(esVersion, '7')) {
   // Abort handling was added to @elastic/elasticsearch@7.7.0 for the 7.x series.
 
