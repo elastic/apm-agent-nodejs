@@ -12,22 +12,27 @@ const agent = require('../../../..').start({
 
 const { safeGetPackageVersion } = require('../../../_utils')
 
+// Support running these tests with a different package name -- typically
+// the '@elastic/elasticsearch-canary package that is sometimes used for
+// experimental pre-releases.
+const esClientPkgName = process.env.ELASTIC_APM_TEST_ESCLIENT_PACKAGE_NAME || '@elastic/elasticsearch'
+
 // Skip (exit the process) if this package version doesn't support this version
 // of node.
-const esVersion = safeGetPackageVersion('@elastic/elasticsearch')
+const esVersion = safeGetPackageVersion(esClientPkgName)
 const semver = require('semver')
 if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
-  console.log(`# SKIP @elastic/elasticsearch@${esVersion} does not support node ${process.version}`)
+  console.log(`# SKIP ${esClientPkgName}@${esVersion} does not support node ${process.version}`)
   process.exit()
 } else if (semver.lt(process.version, '12.0.0') && semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-  console.log(`# SKIP @elastic/elasticsearch@${esVersion} does not support node ${process.version}`)
+  console.log(`# SKIP ${esClientPkgName}@${esVersion} does not support node ${process.version}`)
   process.exit()
 }
 
 // Silence deprecation warning from @elastic/elasticsearch when using a Node.js
 // version that is *soon* to be EOL'd, but isn't yet.
 process.noDeprecation = true
-const es = require('@elastic/elasticsearch')
+const es = require(esClientPkgName)
 
 const { Readable } = require('stream')
 const test = require('tape')
@@ -350,7 +355,7 @@ test('ResponseError', function (t) {
           status: 400
         })
       } else {
-        t.equal(err.exception.module, '@elastic/elasticsearch')
+        t.equal(err.exception.module, esClientPkgName)
         t.deepEqual(err.context.custom, {
           type: 'illegal_argument_exception',
           reason: 'Failed to parse int parameter [size] with value [surprise_me]',

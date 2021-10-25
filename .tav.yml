@@ -311,7 +311,7 @@ elasticsearch:
   name: '@elastic/elasticsearch-canary'
   versions: '^8.0.0-canary.31'
   node: '>=12'
-  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+  commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
 
 handlebars:
   versions: '*'
