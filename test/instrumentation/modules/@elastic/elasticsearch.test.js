@@ -269,7 +269,7 @@ test('client.msearch', function (t) {
   }
   let statement
   if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-    // XXX This is pending https://github.com/elastic/elasticsearch-js/issues/1583
+    // This is pending on https://github.com/elastic/apm-agent-nodejs/issues/2388.
     statement = 'search_type=query_then_fetch&typed_keys=false'
   } else {
     statement = `search_type=query_then_fetch&typed_keys=false
@@ -309,7 +309,7 @@ test('client.msearchTempate', function (t) {
   ]
   let statement
   if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-    // XXX This is pending https://github.com/elastic/elasticsearch-js/issues/1583
+    // This is pending on https://github.com/elastic/apm-agent-nodejs/issues/2388.
     statement = ''
   } else {
     statement = body.map(JSON.stringify).join('\n') + '\n'
@@ -478,12 +478,6 @@ if (semver.gte(esVersion, '7.14.0')) {
         })
     })
   })
-}
-
-if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-  // Abort handling in ES client version 8 changed to use AbortController.
-  // TODO: This is pending a Q to delvedor on whether AbortController support
-  // is in an elasticsearch-canary release yet.
 }
 
 if (semver.gte(esVersion, '7.7.0') && semver.satisfies(esVersion, '7')) {

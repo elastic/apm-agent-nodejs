@@ -44,26 +44,3 @@ async function awaitStyle () {
   }
 }
 awaitStyle()
-
-// TODO: pending completion of AbortController work in ES client v8.
-// // Example aborting requests using AbortController.
-// async function abortExample () {
-//   apm.startTransaction('t3')
-//   const abortController = new AbortController()
-//   setImmediate(() => {
-//     abortController.abort()
-//   })
-//   try {
-//     const res = await client.search(
-//       { query: { match_all: {} } },
-//       { abortController })
-//     console.log('search response:', res)
-//   } catch (err) {
-//     console.log('search error:', err)
-//   } finally {
-//     apm.endTransaction()
-//   }
-// }
-// if (global.AbortController) {
-//   abortExample()
-// }
