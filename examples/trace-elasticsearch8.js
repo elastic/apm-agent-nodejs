@@ -49,6 +49,7 @@ awaitStyle()
 // Example aborting requests using AbortController.
 async function abortExample () {
   apm.startTransaction('t3')
+  // eslint-disable-next-line no-undef
   const ac = new AbortController()
   setImmediate(() => {
     ac.abort()
