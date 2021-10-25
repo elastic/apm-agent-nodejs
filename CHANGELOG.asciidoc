@@ -33,11 +33,17 @@ Notes:
 [float]
 ===== Breaking changes
 
+* Remove support for instrumenting versions of fastify earlier than 1.0.0.
+  This instrumentation might still work, but is no longer supported.
+  Fastify v1.0.0 was released in 2018. All current users should be using
+  fastify v2 or v3 at least. See https://www.fastify.io/docs/latest/LTS/
+  ({pull}2387[#2387])
+
 [float]
 ===== Features
 
-* Add initial support for version 8 of `@elastic/elasticsearch` (which is
-  still in pre-release).
+* Add initial support for version 8 of `@elastic/elasticsearch`, which is
+  still in pre-release. ({pull}2385[#2385])
 
 [float]
 ===== Bug fixes

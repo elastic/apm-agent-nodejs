@@ -524,9 +524,16 @@ module.exports = (moduleName) => {
   })
 
   function makeServer (opts) {
-    var server = new Hapi.Server({ host: 'localhost' })
+    // Specify 'localhost' to avoid Hapi default of '0.0.0.0' which ties to
+    // IPv4. We want a later HTTP client request using 'localhost' to work.
+    var server
     if (semver.satisfies(pkg.version, '<17')) {
+      server = new Hapi.Server()
+      opts = opts || {}
+      opts.host = opts.host || 'localhost'
       server.connection(opts)
+    } else {
+      server = new Hapi.Server({ host: 'localhost' })
     }
     return server
   }

@@ -407,8 +407,28 @@ restify-new:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
 
+# https://www.fastify.io/docs/latest/LTS/
+# - #1086 suggests fastify@2.4.0 was a broken release, skip it.
+fastify-v1:
+  name: fastify
+  versions: '1.x'
+  node: '>=6 <12'
+  commands:
+    - node test/instrumentation/modules/fastify/fastify.test.js
+    - node test/instrumentation/modules/fastify/async-await.test.js
+    - node test/instrumentation/modules/fastify/set-framework.test.js
+fastify-v2:
+  name: fastify
+  versions: '>=2.0.0 <2.4.0 || >2.4.0 <3'
+  node: '>=6 <15'
+  commands:
+    - node test/instrumentation/modules/fastify/fastify.test.js
+    - node test/instrumentation/modules/fastify/async-await.test.js
+    - node test/instrumentation/modules/fastify/set-framework.test.js
 fastify:
-  versions: '>=0.27.0 <0.29.0 || >0.29.0 <2.4.0 || >2.4.0'
+  name: fastify
+  versions: '>=3.0.0'
+  node: '>=10'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js
