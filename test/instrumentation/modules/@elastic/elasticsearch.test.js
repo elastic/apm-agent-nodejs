@@ -12,19 +12,27 @@ const agent = require('../../../..').start({
 
 const { safeGetPackageVersion } = require('../../../_utils')
 
+// Support running these tests with a different package name -- typically
+// the '@elastic/elasticsearch-canary package that is sometimes used for
+// experimental pre-releases.
+const esClientPkgName = process.env.ELASTIC_APM_TEST_ESCLIENT_PACKAGE_NAME || '@elastic/elasticsearch'
+
 // Skip (exit the process) if this package version doesn't support this version
 // of node.
-const esVersion = safeGetPackageVersion('@elastic/elasticsearch')
+const esVersion = safeGetPackageVersion(esClientPkgName)
 const semver = require('semver')
 if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
-  console.log(`# SKIP @elastic/elasticsearch@${esVersion} does not support node ${process.version}`)
+  console.log(`# SKIP ${esClientPkgName}@${esVersion} does not support node ${process.version}`)
+  process.exit()
+} else if (semver.lt(process.version, '12.0.0') && semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
+  console.log(`# SKIP ${esClientPkgName}@${esVersion} does not support node ${process.version}`)
   process.exit()
 }
 
 // Silence deprecation warning from @elastic/elasticsearch when using a Node.js
 // version that is *soon* to be EOL'd, but isn't yet.
 process.noDeprecation = true
-const { Client } = require('@elastic/elasticsearch')
+const es = require(esClientPkgName)
 
 const { Readable } = require('stream')
 const test = require('tape')
@@ -35,32 +43,44 @@ const shimmer = require('../../../../lib/instrumentation/shimmer')
 const { MockES } = require('./_mock_es')
 
 const host = (process.env.ES_HOST || 'localhost') + ':9200'
-const node = 'http://' + host
+const clientOpts = {
+  node: 'http://' + host
+}
+// Limitation: For v8 of the ES client, these tests assume the non-default
+// `HttpConnection` is used rather than the default usage of undici, because
+// the tests check for an HTTP span for each ES request and currently the
+// undici HTTP client is not instrumented.
+if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
+  clientOpts.Connection = es.HttpConnection
+}
 
 test('client.ping with promise', function (t) {
   resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
+  const client = new es.Client(clientOpts)
   client.ping().then(function () {
     agent.endTransaction()
     agent.flush()
   }).catch(t.error)
 })
 
-test('client.ping with callback', function (t) {
-  resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
+// Callback-style was dropped in ES client v8.
+if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
+  test('client.ping with callback', function (t) {
+    resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
 
-  agent.startTransaction('myTrans')
+    agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client.ping(function (err, _result) {
-    t.error(err)
-    agent.endTransaction()
-    agent.flush()
+    const client = new es.Client(clientOpts)
+    client.ping(function (err, _result) {
+      t.error(err)
+      agent.endTransaction()
+      agent.flush()
+    })
   })
-})
+}
 
 test('client.search with promise', function (t) {
   const searchOpts = { q: 'pants' }
@@ -69,7 +89,7 @@ test('client.search with promise', function (t) {
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
+  const client = new es.Client(clientOpts)
   client
     .search(searchOpts)
     .then(function () {
@@ -86,15 +106,16 @@ test('client.child', function (t) {
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
+  const client = new es.Client(clientOpts)
   const child = client.child({
     headers: { 'x-foo': 'bar' }
   })
-  child.search(searchOpts, function (err) {
-    t.error(err)
-    agent.endTransaction()
-    agent.flush()
-  })
+  child.search(searchOpts)
+    .catch((err) => { t.error(err) })
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
 
 test('client.search with queryparam', function (t) {
@@ -104,12 +125,13 @@ test('client.search with queryparam', function (t) {
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client.search(searchOpts, function (err) {
-    t.error(err)
-    agent.endTransaction()
-    agent.flush()
-  })
+  const client = new es.Client(clientOpts)
+  client.search(searchOpts)
+    .catch((err) => { t.error(err) })
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
 
 test('client.search with body', function (t) {
@@ -129,13 +151,43 @@ test('client.search with body', function (t) {
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client.search(searchOpts, function (err) {
-    t.error(err)
-    agent.endTransaction()
-    agent.flush()
-  })
+  const client = new es.Client(clientOpts)
+  client.search(searchOpts)
+    .catch((err) => { t.error(err) })
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
+
+// ES client version 8 no longer requires body fields to be in a "body" param.
+if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
+  test('client.search with query as top-level param (v8)', function (t) {
+    const searchOpts = {
+      index: 'myIndex*',
+      query: {
+        match: {
+          request: 'bar'
+        }
+      }
+    }
+
+    let expectedDbStatement = Object.assign({}, searchOpts)
+    delete expectedDbStatement.index
+    expectedDbStatement = JSON.stringify(expectedDbStatement)
+    resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, expectedDbStatement))
+
+    agent.startTransaction('myTrans')
+
+    const client = new es.Client(clientOpts)
+    client.search(searchOpts)
+      .catch((err) => { t.error(err) })
+      .finally(() => {
+        agent.endTransaction()
+        agent.flush()
+      })
+  })
+}
 
 // Test `span.context.db.statement` format when the client request includes
 // both a body *and* queryparam.
@@ -153,20 +205,28 @@ test('client.search with body & queryparams', function (t) {
     size: 2,
     sort: 'myField:asc'
   }
-  const statement = `size=2&sort=myField%3Aasc
+  let statement
+  // ES client version 8 merges options for *most* APIs into a single body
+  // object, instead of separate query params and body.
+  if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
+    statement = '{"query":{"match":{"request":"bar"}},"size":2,"sort":"myField:asc"}'
+  } else {
+    statement = `size=2&sort=myField%3Aasc
 
 ${JSON.stringify(body)}`
+  }
 
   resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, statement))
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client.search(searchOpts, function (err) {
-    t.error(err)
-    agent.endTransaction()
-    agent.flush()
-  })
+  const client = new es.Client(clientOpts)
+  client.search(searchOpts)
+    .catch((err) => { t.error(err) })
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
 
 test('client.searchTemplate', function (t) {
@@ -187,12 +247,13 @@ test('client.searchTemplate', function (t) {
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client.searchTemplate({ body }, function (err) {
-    t.error(err)
-    agent.endTransaction()
-    agent.flush()
-  })
+  const client = new es.Client(clientOpts)
+  client.searchTemplate({ body })
+    .catch((err) => { t.error(err) })
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
 
 test('client.msearch', function (t) {
@@ -220,12 +281,13 @@ ${body.map(JSON.stringify).join('\n')}
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client.msearch(searchOpts, function (err) {
-    t.error(err)
-    agent.endTransaction()
-    agent.flush()
-  })
+  const client = new es.Client(clientOpts)
+  client.msearch(searchOpts)
+    .catch((err) => { t.error(err) })
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
 
 test('client.msearchTempate', function (t) {
@@ -250,12 +312,13 @@ test('client.msearchTempate', function (t) {
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client.msearchTemplate({ body }, function (err) {
-    t.error(err)
-    agent.endTransaction()
-    agent.flush()
-  })
+  const client = new es.Client(clientOpts)
+  client.msearchTemplate({ body })
+    .catch((err) => { t.error(err) })
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
 
 // Test some error scenarios.
@@ -269,84 +332,106 @@ test('ResponseError', function (t) {
       const err = data.errors[0]
       t.ok(err, 'sent an error to APM server')
       t.ok(err.id, 'err.id')
-      t.equal(err.exception.module, '@elastic/elasticsearch')
       t.ok(err.exception.message, 'err.exception.message')
       t.equal(err.exception.type, 'ResponseError',
         'err.exception.type is ResponseError')
-      t.deepEqual(err.context.custom, {
-        type: 'illegal_argument_exception',
-        reason: 'Failed to parse int parameter [size] with value [surprise_me]',
-        caused_by: {
+      if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
+        t.equal(err.exception.module, '@elastic/transport')
+        t.deepEqual(err.context.custom, {
           type: 'number_format_exception',
-          reason: 'For input string: "surprise_me"'
-        },
-        status: 400
-      })
+          reason: 'For input string: "surprise_me"',
+          status: 400
+        })
+      } else {
+        t.equal(err.exception.module, esClientPkgName)
+        t.deepEqual(err.context.custom, {
+          type: 'illegal_argument_exception',
+          reason: 'Failed to parse int parameter [size] with value [surprise_me]',
+          caused_by: {
+            type: 'number_format_exception',
+            reason: 'For input string: "surprise_me"'
+          },
+          status: 400
+        })
+      }
       t.end()
     }
   )
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
+  const client = new es.Client(clientOpts)
 
-  client.search({ size: 'surprise_me', q: 'pants' }, function (err, _result) {
-    t.ok(err, 'got an error from search callback')
-    t.equal(err.name, 'ResponseError', 'error name is "ResponseError"')
-    agent.endTransaction()
-    agent.flush()
-  })
+  client.search({ size: 'surprise_me', q: 'pants' })
+    .then(() => {
+      t.fail('should not have gotten here, should have errored instead')
+    })
+    .catch((err) => {
+      t.ok(err, 'got an error from search callback')
+      t.equal(err.name, 'ResponseError', 'error name is "ResponseError"')
+    })
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
 
-// Ensure that `captureError` serialization does *not* include the possibly
-// large `data` field from a deserialization error.
-test('DeserializationError', function (t) {
-  resetAgent(
-    function done (data) {
-      const err = data.errors[0]
-      t.ok(err, 'sent an error to APM server')
-      t.ok(err.id, 'err.id')
-      t.ok(err.exception.message, 'err.exception.message')
-      t.equal(err.exception.type, 'DeserializationError',
-        'err.exception.type is DeserializationError')
-      t.notOk(err.exception.attributes && err.exception.attributes.data,
-        'captured error should NOT include "data" attribute')
-      t.end()
-    }
-  )
+if (semver.satisfies(esVersion, '<8', { includePrerelease: true })) {
+  // Ensure that `captureError` serialization does *not* include the possibly
+  // large `data` field from a deserialization error.
+  //
+  // Cannot simulate this with ES client version 8, because the
+  // `client.transport`'s serializer is hidden behind a Symbol.
+  test('DeserializationError', function (t) {
+    resetAgent(
+      function done (data) {
+        const err = data.errors[0]
+        t.ok(err, 'sent an error to APM server')
+        t.ok(err.id, 'err.id')
+        t.ok(err.exception.message, 'err.exception.message')
+        t.equal(err.exception.type, 'DeserializationError',
+          'err.exception.type is DeserializationError')
+        t.notOk(err.exception.attributes && err.exception.attributes.data,
+          'captured error should NOT include "data" attribute')
+        t.end()
+      }
+    )
 
-  agent.startTransaction('myTrans')
+    agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
+    const client = new es.Client(clientOpts)
 
-  // To simulate an error we monkey patch the client's Serializer such that
-  // deserialization of the response body fails.
-  shimmer.wrap(client.transport.serializer, 'deserialize', function wrapDeserialize (origDeserialize) {
-    return function wrappedDeserialize (json) {
-      return origDeserialize.call(this, json + 'THIS_WILL_BREAK_JSON_DESERIALIZATION')
-    }
+    // To simulate an error we monkey patch the client's Serializer such that
+    // deserialization of the response body fails.
+    shimmer.wrap(client.transport.serializer, 'deserialize', function wrapDeserialize (origDeserialize) {
+      return function wrappedDeserialize (json) {
+        return origDeserialize.call(this, json + 'THIS_WILL_BREAK_JSON_DESERIALIZATION')
+      }
+    })
+
+    client.search({ q: 'pants' }, function (err, _result) {
+      t.ok(err, 'got an error from search callback')
+      t.equal(err.name, 'DeserializationError', 'error name is "DeserializationError"')
+      agent.endTransaction()
+      agent.flush()
+    })
   })
-
-  client.search({ q: 'pants' }, function (err, _result) {
-    t.ok(err, 'got an error from search callback')
-    t.equal(err.name, 'DeserializationError', 'error name is "DeserializationError"')
-    agent.endTransaction()
-    agent.flush()
-  })
-})
+}
 
 if (semver.gte(esVersion, '7.14.0')) {
   test('ProductNotSupportedError', function (t) {
-    // Create a mock Elasticsearch server that responds to "GET /" with a body
+    // Create a mock Elasticsearch server that yields a "GET /" response
     // that triggers ProductNotSupportedError.
     const esServer = new MockES({
       responses: [
         {
           statusCode: 200,
           headers: {
-            'X-elastic-product': 'Elasticsearch',
+            // This header value triggers ProductNotSupportedError for ES client v8+.
+            'X-elastic-product': 'not-Elasticsearch',
             'content-type': 'application/json'
           },
+          // This body triggers ProductNotSupportedError for ES client 7.x.
           body: JSON.stringify({ hi: 'there' })
         }
       ]
@@ -365,21 +450,80 @@ if (semver.gte(esVersion, '7.14.0')) {
       )
 
       agent.startTransaction('myTrans')
-      const client = new Client({ node: esUrl })
-      client.search({ q: 'pants' }, function (err, _result) {
-        t.ok(err, 'got an error from search callback')
-        t.equal(err.name, 'ProductNotSupportedError', 'error name is "ProductNotSupportedError"')
-        agent.endTransaction()
-        agent.flush()
-        client.close()
-        esServer.close()
-      })
+      const client = new es.Client(Object.assign(
+        {},
+        clientOpts,
+        { node: esUrl }
+      ))
+      client.search({ q: 'pants' })
+        .then(() => {
+          t.fail('should not have gotten here, should have errored instead')
+        })
+        .catch((err) => {
+          t.ok(err, 'got an error from search callback')
+          t.equal(err.name, 'ProductNotSupportedError', 'error name is "ProductNotSupportedError"')
+        })
+        .finally(() => {
+          agent.endTransaction()
+          agent.flush()
+          client.close()
+          esServer.close()
+        })
     })
   })
 }
 
-if (semver.gte(esVersion, '7.7.0')) {
-  // Abort handling was added to @elastic/elasticsearch@7.7.0.
+if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) && global.AbortController) {
+  // Abort handling in ES client version 8 changed to use AbortController.
+  // Test that if AbortController is available in this node version.
+  test('AbortController signal works', function (t) {
+    resetAgent(
+      function done (data) {
+        // We expect to get:
+        // - 1 elasticsearch span
+        // - 1 abort error (and possibly another error due to the double-callback
+        //   bug mentioned below)
+        const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+        t.ok(esSpan, 'have an elasticsearch span')
+
+        const err = data.errors
+          .filter((e) => e.exception.type === 'RequestAbortedError')[0]
+        t.ok(err, 'sent an error to APM server')
+        t.ok(err.id, 'err.id')
+        t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
+        t.equal(err.exception.type, 'RequestAbortedError',
+          'err.exception.type is RequestAbortedError')
+
+        t.end()
+      }
+    )
+
+    agent.startTransaction('myTrans')
+
+    const client = new es.Client(clientOpts)
+    // eslint-disable-next-line no-undef
+    const ac = new AbortController()
+    setImmediate(() => {
+      ac.abort()
+    })
+    client.search({ q: 'pants' }, { signal: ac.signal })
+      .then(() => {
+        t.fail('should not have gotten here, should have errored instead')
+      })
+      .catch((err) => {
+        t.ok(err, 'got an error from search callback')
+        t.equal(err.name, 'RequestAbortedError', 'error name is "RequestAbortedError"')
+      })
+      .finally(() => {
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+      })
+  })
+}
+
+if (semver.gte(esVersion, '7.7.0') && semver.satisfies(esVersion, '7')) {
+  // Abort handling was added to @elastic/elasticsearch@7.7.0 for the 7.x series.
 
   test('request.abort() works', function (t) {
     resetAgent(
@@ -423,7 +567,7 @@ if (semver.gte(esVersion, '7.7.0')) {
       }
     })
     let gotCallbackAlready = false
-    const client = new Client({ node })
+    const client = new es.Client(clientOpts)
     const req = client.search({ body: slowBody }, function (err, _result) {
       // Use gotCallbackAlready to avoid double-callback bug
       // https://github.com/elastic/elasticsearch-js/issues/1374
@@ -482,7 +626,7 @@ if (semver.gte(esVersion, '7.7.0')) {
         }, 1000).unref()
       }
     })
-    const client = new Client({ node })
+    const client = new es.Client(clientOpts)
     const promise = client.search({ body: slowBody })
     promise
       .then(_result => {})
@@ -503,11 +647,13 @@ test('outcome=success on both spans', function (t) {
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client.ping().then(function () {
-    agent.endTransaction()
-    agent.flush()
-  }).catch(t.error)
+  const client = new es.Client(clientOpts)
+  client.ping()
+    .catch(t.error)
+    .finally(() => {
+      agent.endTransaction()
+      agent.flush()
+    })
 })
 
 test('outcome=failure on both spans', function (t) {
@@ -517,11 +663,12 @@ test('outcome=failure on both spans', function (t) {
 
   agent.startTransaction('myTrans')
 
-  const client = new Client({ node })
-  client
-    .search(searchOpts)
-    .then(_result => {})
-    .catch(function () {
+  const client = new es.Client(clientOpts)
+  client.search(searchOpts)
+    .catch((err) => {
+      t.ok(err, 'got an error from search with bogus "notaparam"')
+    })
+    .finally(() => {
       agent.endTransaction()
       agent.flush()
     })
@@ -532,7 +679,7 @@ test('outcome=failure on both spans', function (t) {
 function checkSpanOutcomesFailures (t) {
   return function (data) {
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
-    if (semver.gte(esVersion, '7.14.0')) {
+    if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
       // Remove leading ES span and HTTP span from product check.
       data.spans = data.spans.slice(2)
     }
@@ -547,7 +694,7 @@ function checkSpanOutcomesFailures (t) {
 function checkSpanOutcomesSuccess (t) {
   return function (data) {
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
-    if (semver.gte(esVersion, '7.14.0')) {
+    if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
       // Remove leading ES span and HTTP span from product check.
       data.spans = data.spans.slice(2)
     }
@@ -566,10 +713,11 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.equal(trans.name, 'myTrans', 'should have expected transaction name')
     t.equal(trans.type, 'custom', 'should have expected transaction type')
 
-    // As of @elastic/elasticsearch@7.14.0 the first request from an ES Client
-    // will be preceded by a "GET /" product check.
+    // As of @elastic/elasticsearch@7.14.0 and only for the 7.x series,
+    // the first request from an ES Client will be preceded by a preflight
+    // "GET /" product check.
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
-    if (semver.gte(esVersion, '7.14.0')) {
+    if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
       const prodCheckEsSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
       t.ok(prodCheckEsSpan, 'have >=7.14.0 product check ES span')
       t.equal(prodCheckEsSpan.name, 'Elasticsearch: GET /', 'product check ES span name')
@@ -600,7 +748,7 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')
 
     // Iff the test case provided a `dbStatement`, then we expect `.context.db`.
-    if (dbStatement) {
+    if (typeof dbStatement === 'string') {
       t.deepEqual(esSpan.context.db,
         { type: 'elasticsearch', statement: dbStatement },
         'elasticsearch span has correct .context.db')
