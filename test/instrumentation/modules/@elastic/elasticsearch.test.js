@@ -272,16 +272,10 @@ test('client.msearch', function (t) {
     typed_keys: false,
     body: body
   }
-  let statement
-  if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-    // This is pending on https://github.com/elastic/apm-agent-nodejs/issues/2388.
-    statement = 'search_type=query_then_fetch&typed_keys=false'
-  } else {
-    statement = `search_type=query_then_fetch&typed_keys=false
+  const statement = `search_type=query_then_fetch&typed_keys=false
 
 ${body.map(JSON.stringify).join('\n')}
 `
-  }
 
   resetAgent(checkDataAndEnd(t, 'POST', '/_msearch', statement))
 
@@ -312,13 +306,7 @@ test('client.msearchTempate', function (t) {
       }
     }
   ]
-  let statement
-  if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-    // This is pending on https://github.com/elastic/apm-agent-nodejs/issues/2388.
-    statement = ''
-  } else {
-    statement = body.map(JSON.stringify).join('\n') + '\n'
-  }
+  const statement = body.map(JSON.stringify).join('\n') + '\n'
 
   resetAgent(checkDataAndEnd(t, 'POST', '/_msearch/template', statement))
 
