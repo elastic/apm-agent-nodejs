@@ -277,8 +277,8 @@ if (semver.gte(process.version, '10.0.0')) {
     }
     const statement = `search_type=query_then_fetch&typed_keys=false
 
-  ${body.map(JSON.stringify).join('\n')}
-  `
+${body.map(JSON.stringify).join('\n')}
+`
 
     resetAgent(checkDataAndEnd(t, 'POST', '/_msearch', statement))
 
