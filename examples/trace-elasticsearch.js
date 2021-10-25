@@ -11,7 +11,7 @@ const apm = require('../').start({ // elastic-apm-node
   serviceName: 'example-trace-elasticsearch'
 })
 
-const { Client } = require('@elastic/elasticsearch-canary')
+const { Client } = require('@elastic/elasticsearch')
 
 const client = new Client({
   // With version 8 of the client, you can use `HttpConnection` to use the old
@@ -31,6 +31,7 @@ client.ping()
   .catch((err) => { console.log('ping error:', err) })
   .finally(() => { apm.endTransaction() })
 
+// Example using async/await style.
 async function awaitStyle () {
   apm.startTransaction('t2')
   try {
@@ -43,3 +44,26 @@ async function awaitStyle () {
   }
 }
 awaitStyle()
+
+// TODO: pending completion of AbortController work in ES client v8.
+// // Example aborting requests using AbortController.
+// async function abortExample () {
+//   apm.startTransaction('t3')
+//   const abortController = new AbortController()
+//   setImmediate(() => {
+//     abortController.abort()
+//   })
+//   try {
+//     const res = await client.search(
+//       { query: { match_all: {} } },
+//       { abortController })
+//     console.log('search response:', res)
+//   } catch (err) {
+//     console.log('search error:', err)
+//   } finally {
+//     apm.endTransaction()
+//   }
+// }
+// if (global.AbortController) {
+//   abortExample()
+// }

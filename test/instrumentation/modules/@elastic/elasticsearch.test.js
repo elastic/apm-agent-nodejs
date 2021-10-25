@@ -269,9 +269,7 @@ test('client.msearch', function (t) {
   }
   let statement
   if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-    // XXX This is pending a question to delvedor on the 'request' diagnostic
-    // event for client.msearch() not having `result.meta.request.params.body`,
-    // only the unserialized 'bulkBody'.
+    // XXX This is pending https://github.com/elastic/elasticsearch-js/issues/1583
     statement = 'search_type=query_then_fetch&typed_keys=false'
   } else {
     statement = `search_type=query_then_fetch&typed_keys=false
@@ -311,9 +309,7 @@ test('client.msearchTempate', function (t) {
   ]
   let statement
   if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-    // XXX This is pending a question to delvedor on the 'request' diagnostic
-    // event for client.msearch() not having `result.meta.request.params.body`,
-    // only the unserialized 'bulkBody'.
+    // XXX This is pending https://github.com/elastic/elasticsearch-js/issues/1583
     statement = ''
   } else {
     statement = body.map(JSON.stringify).join('\n') + '\n'
@@ -396,9 +392,7 @@ if (semver.satisfies(esVersion, '<8', { includePrerelease: true })) {
   test('DeserializationError', function (t) {
     resetAgent(
       function done (data) {
-        console.warn('XXX data: ', data)
         const err = data.errors[0]
-        console.warn('XXX err: ', err)
         t.ok(err, 'sent an error to APM server')
         t.ok(err.id, 'err.id')
         t.ok(err.exception.message, 'err.exception.message')
@@ -488,7 +482,8 @@ if (semver.gte(esVersion, '7.14.0')) {
 
 if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
   // Abort handling in ES client version 8 changed to use AbortController.
-  // XXX TODO
+  // TODO: This is pending a Q to delvedor on whether AbortController support
+  // is in an elasticsearch-canary release yet.
 }
 
 if (semver.gte(esVersion, '7.7.0') && semver.satisfies(esVersion, '7')) {
