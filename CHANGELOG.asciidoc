@@ -28,7 +28,9 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
+
+[[release-notes-3.23.0]]
+==== 3.23.0 2021/10/25
 
 [float]
 ===== Breaking changes
@@ -44,9 +46,6 @@ Notes:
 
 * Add initial support for version 8 of `@elastic/elasticsearch`, which is
   still in pre-release. ({pull}2385[#2385])
-
-[float]
-===== Bug fixes
 
 
 [[release-notes-3.22.0]]
