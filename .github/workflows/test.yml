@@ -95,7 +95,7 @@ jobs:
           - nodemssqldata:/var/opt/mssql
 
       elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
         env:
           ES_JAVA_OPTS: '-Xms512m -Xmx512m'
           network.host: ''
@@ -120,6 +120,7 @@ jobs:
     strategy:
       matrix:
         node:
+          - '17'
           - '16'
           - '16.0'
           - '14'
@@ -138,4 +139,5 @@ jobs:
         node-version: ${{ matrix.node }}
     - run: docker ps  # show the services against which we'll be testing
     - run: npm install
+    - run: npm ls --all || true
     - run: npm test

@@ -25,7 +25,7 @@ isSecure.forEach(secure => {
   var method = secure ? 'createSecureServer' : 'createServer'
 
   test(`http2.${method} compatibility mode`, t => {
-    t.plan(15)
+    t.plan(16)
 
     // Note NODE_OPTIONS env because it sometimes has a setting relevant
     // for this test.
@@ -71,7 +71,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respond`, t => {
-    t.plan(15)
+    t.plan(16)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
@@ -114,7 +114,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respondWithFD`, t => {
-    t.plan(16)
+    t.plan(17)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
@@ -164,7 +164,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.${method} stream respondWithFile`, t => {
-    t.plan(15)
+    t.plan(16)
 
     resetAgent((data) => {
       assert(t, data, secure, port)
@@ -278,7 +278,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
-    t.plan(34)
+    t.plan(36)
 
     resetAgent(3, (data) => {
       t.strictEqual(data.transactions.length, 2)
@@ -478,17 +478,25 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
       }
       break
   }
-  // Sometime between node (v8.6.0, v8.17.0] there was a fix such that
-  // socket.remoteAddress was set properly for https.
-  const expectedRemoteAddress = httpVersion === '1.1' && semver.lt(process.version, '8.17.0')
-    ? undefined : '::ffff:127.0.0.1'
+
+  // What is "expected" for transaction.context.request.socket.remote_address
+  // is a bit of a pain.
+  if (httpVersion === '1.1' && semver.lt(process.version, '8.17.0')) {
+    // Before node v8.17.0 `socket.remoteAddress` was not set for https.
+    t.pass(`skip checking on transaction.context.request.socket.remote_address on node ${process.version}`)
+  } else {
+    // With node v17 on Linux (or at least on the linux containers used for
+    // GitHub Action tests), the localhost socket.remoteAddress is "::1".
+    t.ok(trans.context.request.socket.remote_address === '::ffff:127.0.0.1' || trans.context.request.socket.remote_address === '::1',
+      'transaction.context.request.socket.remote_address is as expected: ' + trans.context.request.socket.remote_address)
+  }
+  delete trans.context.request.socket.remote_address
 
   t.deepEqual(trans.context.request, {
     http_version: httpVersion,
     method: 'GET',
     url: expectedUrl,
     socket: {
-      remote_address: expectedRemoteAddress,
       encrypted: secure
     },
     headers: expectedReqHeaders

@@ -40,6 +40,13 @@ test('should capture and log uncaught exceptions by default', function (t) {
     t.ok(__filename.includes(sentError.exception.stacktrace[0].filename), 'top frame should be this file')
   }
 
+  // Re-install the Agent's default (captureExceptions=true) uncaughtException
+  // handler, but with a *callback* so this test is called back instead of
+  // the Agent default of `process.exit(1)`. A process.exit breaks this test.
+  agent.handleUncaughtExceptions(_err => {
+    t.end()
+  })
+
   const thrownError = new Error('foo')
 
   throw thrownError
