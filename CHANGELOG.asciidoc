@@ -28,6 +28,33 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* A significant change was made to internal run context tracking (a.k.a. async
+  context tracking). There are no configuration changes or API changes for
+  custom instrumentation. ({pull}2181[#2181])
++
+One behavior change is that multiple spans created synchronously (in the same
+async task) will form parent/child relationships; before this change they would
+all be siblings. This fixes HTTP child spans of Elasticsearch and aws-sdk
+automatic spans to properly be children. ({issues}1889[#1889])
++
+Another behavior change is that a span B started after having ended span A in
+the same async task will *no longer* be a child of span A. ({pull}1964[#1964])
++
+This fixes an issue with context binding of EventEmitters, where
+`removeListener` would fail to actually remove if the same handler function was
+added to multiple events.
+
 
 [[release-notes-3.23.0]]
 ==== 3.23.0 2021/10/25
