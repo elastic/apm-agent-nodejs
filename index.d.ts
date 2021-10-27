@@ -225,6 +225,7 @@ declare namespace apm {
     cloudProvider?: string;
     configFile?: string;
     containerId?: string;
+    contextPropagationOnly?: boolean;
     disableInstrumentations?: string | string[];
     disableSend?: boolean;
     environment?: string;

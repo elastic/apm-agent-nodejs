@@ -58,6 +58,7 @@ var optionFixtures = [
   ['captureSpanStackTraces', 'CAPTURE_SPAN_STACK_TRACES', true],
   ['centralConfig', 'CENTRAL_CONFIG', true],
   ['containerId', 'CONTAINER_ID'],
+  ['contextPropagationOnly', 'CONTEXT_PROPAGATION_ONLY', false],
   ['disableSend', 'DISABLE_SEND', false],
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
   ['environment', 'ENVIRONMENT', 'development'],
