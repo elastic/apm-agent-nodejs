@@ -454,7 +454,7 @@ as they are added over time.
 ===== Features
 
 * feat: add `apm.getServiceName()` {pull}1949[#1949] +
-  This will be used by https://github.com/elastic/ecs-logging-js[ecs-logging packages]
+  This will be used by https://github.com/elastic/ecs-logging-nodejs[ecs-logging packages]
   to integrate with APM.
 
 * feat: support numeric and boolean labels {pull}1909[#1909] +
