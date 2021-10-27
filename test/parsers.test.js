@@ -157,19 +157,6 @@ test('#getContextFromRequest()', function (t) {
     t.end()
   })
 
-  t.test('should slice too large body\'s', function (t) {
-    var conf = { captureBody: 'all' }
-    var req = getMockReq()
-    req.body = ''
-    for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
-      req.body += 'x'
-    }
-    req.headers['content-length'] = String(req.body.length)
-    var parsed = parsers.getContextFromRequest(req, conf)
-    t.strictEqual(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
-    t.end()
-  })
-
   t.test('should not log body if opts.body is false', function (t) {
     var conf = { captureBody: 'off' }
     var req = getMockReq()
@@ -187,21 +174,6 @@ test('#getContextFromRequest()', function (t) {
     req.headers['content-length'] = JSON.stringify(req.body).length
     var parsed = parsers.getContextFromRequest(req, conf)
     t.deepEqual(parsed.body, JSON.stringify({ foo: 42 }))
-    t.end()
-  })
-
-  t.test('body is object, but too large', function (t) {
-    var conf = { captureBody: 'all' }
-    var req = getMockReq()
-    req.body = { foo: '' }
-    for (var n = 0; n < parsers._MAX_HTTP_BODY_CHARS + 10; n++) {
-      req.body.foo += 'x'
-    }
-    req.headers['content-length'] = JSON.stringify(req.body).length
-    var parsed = parsers.getContextFromRequest(req, conf)
-    t.strictEqual(typeof parsed.body, 'string')
-    t.strictEqual(parsed.body.length, parsers._MAX_HTTP_BODY_CHARS)
-    t.strictEqual(parsed.body.slice(0, 10), '{"foo":"xx')
     t.end()
   })
 
