@@ -39,6 +39,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Stop collecting transaction breakdown metrics (`transaction.breakdown.count`,
+  `transaction.duration.sum.us`, `transaction.duration.count`), as they are not
+  being used in APM UI. ({issues}2370[#2370])
+
 * A significant change was made to internal run context tracking (a.k.a. async
   context tracking). There are no configuration changes or API changes for
   custom instrumentation. ({pull}2181[#2181])
