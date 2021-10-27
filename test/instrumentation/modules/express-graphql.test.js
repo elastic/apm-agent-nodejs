@@ -28,7 +28,7 @@ paths.forEach(function (path) {
     var schema = buildSchema('type Query { hello: String }')
     var root = {
       hello () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 'Hello world!'
       }
     }
@@ -64,7 +64,7 @@ paths.forEach(function (path) {
     var schema = buildSchema('type Query { hello: String }')
     var root = {
       hello () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 'Hello world!'
       }
     }
@@ -99,7 +99,7 @@ paths.forEach(function (path) {
     var schema = buildSchema('type Query { hello: String }')
     var root = {
       hello () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 'Hello world!'
       }
     }
@@ -135,11 +135,11 @@ paths.forEach(function (path) {
     var schema = buildSchema('type Query { hello: String, life: Int }')
     var root = {
       hello () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 'Hello world!'
       },
       life () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 42
       }
     }
@@ -193,7 +193,7 @@ function done (t, query, path) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   // Cannot use the 'expected' argument to mockClient, because the way the
   // tests above are structured, there is a race between the mockClient
   // receiving events from the APM agent and the graphql request receiving a

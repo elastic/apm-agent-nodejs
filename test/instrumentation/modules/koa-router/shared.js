@@ -151,7 +151,7 @@ module.exports = (moduleName) => {
     // first time this function is called, the real client will be present - so
     // let's just destroy it before creating the mock
     if (agent._transport.destroy) agent._transport.destroy()
-    agent._instrumentation.currentTransaction = null
+    agent._instrumentation.testReset()
     agent._transport = mockClient(1, cb)
     agent.captureError = function (err) { throw err }
   }

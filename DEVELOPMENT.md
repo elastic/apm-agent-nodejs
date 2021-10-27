@@ -38,24 +38,24 @@ environment variables:
 
 ## debug logging of `async_hooks` usage
 
-The following patch to the agent's async-hooks.js can be helpful to learn
-how its async hook tracks relationships between async operations:
+When using the `AsyncHooksRunContextManager` the following debug printf in
+the `init` async hook can be helpful to learn how its async hook tracks
+relationships between async operations:
 
 ```diff
-diff --git a/lib/instrumentation/async-hooks.js b/lib/instrumentation/async-hooks.js
-index 1dd168f..f35877d 100644
---- a/lib/instrumentation/async-hooks.js
-+++ b/lib/instrumentation/async-hooks.js
-@@ -71,6 +71,9 @@ module.exports = function (ins) {
-     // type, which will init for each scheduled timer.
-     if (type === 'TIMERWRAP') return
+diff --git a/lib/instrumentation/run-context/AsyncHooksRunContextManager.js b/lib/instrumentation/run-context/AsyncHooksRunContextManager.js
+index 94376188..571539aa 100644
+--- a/lib/instrumentation/run-context/AsyncHooksRunContextManager.js
++++ b/lib/instrumentation/run-context/AsyncHooksRunContextManager.js
+@@ -60,6 +60,8 @@ class AsyncHooksRunContextManager extends BasicRunContextManager {
+       return
+     }
 
-+    const indent = ' '.repeat(triggerAsyncId % 80)
-+    process._rawDebug(`${indent}${type}(${asyncId}): triggerAsyncId=${triggerAsyncId} executionAsyncId=${asyncHooks.executionAsyncId()}`);
++    process._rawDebug(`${' '.repeat(triggerAsyncId % 80)}${type}(${asyncId}): triggerAsyncId=${triggerAsyncId} executionAsyncId=${asyncHooks.executionAsyncId()}`);
 +
-     const transaction = ins.currentTransaction
-     if (!transaction) return
-
+     const context = this._stack[this._stack.length - 1]
+     if (context !== undefined) {
+       this._runContextFromAsyncId.set(asyncId, context)
 ```
 
 

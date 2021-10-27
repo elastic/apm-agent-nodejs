@@ -96,7 +96,7 @@ function done (t, query) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(10, cb)
   agent.captureError = function (err) { throw err }
 }

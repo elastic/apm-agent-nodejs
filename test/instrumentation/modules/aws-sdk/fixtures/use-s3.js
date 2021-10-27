@@ -48,6 +48,7 @@ const apm = require('../../../../..').start({
 const crypto = require('crypto')
 const vasync = require('vasync')
 const AWS = require('aws-sdk')
+const assert = require('assert')
 
 const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 
@@ -72,6 +73,8 @@ function useS3 (s3Client, bucketName, cb) {
       function listAllBuckets (arg, next) {
         s3Client.listBuckets({}, function (err, data) {
           log.info({ err, data }, 'listBuckets')
+          assert(apm.currentSpan === null,
+            'S3 span should NOT be a currentSpan in its callback')
           if (err) {
             next(err)
           } else {
@@ -79,6 +82,8 @@ function useS3 (s3Client, bucketName, cb) {
             next()
           }
         })
+        assert(apm.currentSpan === null,
+          'S3 span (or its HTTP span) should not be currentSpan in same async task after the method call')
       },
 
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#createBucket-property

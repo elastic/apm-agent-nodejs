@@ -41,24 +41,24 @@ if (genericPool.createPool) {
 
     pool.acquire().then(function (resource) {
       t.strictEqual(resource.id, 1)
-      t.strictEqual(ins.currentTransaction.id, t1.id)
+      t.strictEqual(ins.currTransaction().id, t1.id)
       pool.release(resource)
     }).catch(function (err) {
       t.error(err)
     })
 
-    t.strictEqual(ins.currentTransaction.id, t1.id)
+    t.strictEqual(ins.currTransaction().id, t1.id)
     var t2 = ins.startTransaction()
 
     pool.acquire().then(function (resource) {
       t.strictEqual(resource.id, 1)
-      t.strictEqual(ins.currentTransaction.id, t2.id)
+      t.strictEqual(ins.currTransaction().id, t2.id)
       pool.release(resource)
     }).catch(function (err) {
       t.error(err)
     })
 
-    t.strictEqual(ins.currentTransaction.id, t2.id)
+    t.strictEqual(ins.currTransaction().id, t2.id)
 
     pool.drain().then(function () {
       pool.clear()
@@ -86,21 +86,21 @@ if (genericPool.createPool) {
     pool.acquire(function (err, resource) {
       t.error(err)
       t.strictEqual(resource.id, 1)
-      t.strictEqual(ins.currentTransaction.id, t1.id)
+      t.strictEqual(ins.currTransaction().id, t1.id)
       pool.release(resource)
     })
 
-    t.strictEqual(ins.currentTransaction.id, t1.id)
+    t.strictEqual(ins.currTransaction().id, t1.id)
     var t2 = ins.startTransaction()
 
     pool.acquire(function (err, resource) {
       t.error(err)
       t.strictEqual(resource.id, 1)
-      t.strictEqual(ins.currentTransaction.id, t2.id)
+      t.strictEqual(ins.currTransaction().id, t2.id)
       pool.release(resource)
     })
 
-    t.strictEqual(ins.currentTransaction.id, t2.id)
+    t.strictEqual(ins.currTransaction().id, t2.id)
 
     pool.drain(function () {
       pool.destroyAllNow()

@@ -105,7 +105,7 @@ test('express with error handler', makeTest((error, setRequest) => {
 }))
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(cb)
   agent.captureError = function (err) { throw err }
 }

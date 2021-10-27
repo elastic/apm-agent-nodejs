@@ -37,7 +37,7 @@ isSecure.forEach(secure => {
     })
 
     function onRequest (req, res) {
-      var trans = ins.currentTransaction
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -88,7 +88,7 @@ isSecure.forEach(secure => {
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      var trans = ins.currentTransaction
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -131,7 +131,7 @@ isSecure.forEach(secure => {
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      var trans = ins.currentTransaction
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -181,7 +181,7 @@ isSecure.forEach(secure => {
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      var trans = ins.currentTransaction
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -230,7 +230,7 @@ isSecure.forEach(secure => {
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      var trans = ins.currentTransaction
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -324,7 +324,7 @@ isSecure.forEach(secure => {
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      var trans = ins.currentTransaction
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -380,7 +380,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
   var serverOpts = Object.assign({ allowHTTP1: true }, pem)
   var server = http2.createSecureServer(serverOpts)
   server.on('request', function onRequest (req, res) {
-    var trans = ins.currentTransaction
+    var trans = ins.currTransaction()
     t.ok(trans, 'have current transaction')
     t.strictEqual(trans.type, 'request')
     res.writeHead(200, { 'content-type': 'text/plain' })
@@ -537,7 +537,7 @@ function connect (secure, port) {
 
 function resetAgent (expected, cb) {
   if (typeof expected === 'function') return resetAgent(1, expected)
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(expected, cb)
 }
 

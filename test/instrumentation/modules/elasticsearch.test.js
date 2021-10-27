@@ -292,7 +292,7 @@ function resetAgent (expected, cb) {
     cb = expected
     expected = 3
   }
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

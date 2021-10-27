@@ -4,7 +4,7 @@
 if (process.env.TRAVIS) process.exit()
 
 const agent = require('../../../').start({
-  serviceName: 'test',
+  serviceName: 'test-tedious',
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
@@ -188,5 +188,5 @@ function resetAgent (expected, cb) {
   // let's just destroy it before creating the mock
   if (agent._transport.destroy) agent._transport.destroy()
   agent._transport = mockClient(expected, cb)
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
 }

@@ -133,7 +133,7 @@ test('instrument simple command', function (t) {
 })
 
 function resetAgent (expected, cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

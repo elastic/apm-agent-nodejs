@@ -774,6 +774,6 @@ function checkDataAndEnd (t, method, path, dbStatement) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(cb)
 }
