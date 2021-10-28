@@ -2,7 +2,7 @@
 
 process.env.ELASTIC_APM_TEST = true
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -14,8 +14,8 @@ var agent = require('../../..').start({
 var pug = require('pug')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
-var findObjInArray = require('../../_utils').findObjInArray
+var mockClient = require('../../../_mock_http_client')
+var findObjInArray = require('../../../_utils').findObjInArray
 
 test('pug compile and render', function userLandCode (t) {
   resetAgent(function (data) {

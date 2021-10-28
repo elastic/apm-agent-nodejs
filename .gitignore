@@ -13,3 +13,4 @@
 /node_modules
 /test/benchmarks/.tmp
 /tmp
+/test/instrumentation/**/node_modules

@@ -315,16 +315,6 @@ elasticsearch:
   node: '>=12'
   commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
 
-handlebars:
-  versions: '*'
-  commands: node test/instrumentation/modules/handlebars.test.js
-jade:
-  versions: '>0.5.5'
-  commands: node test/instrumentation/modules/jade.test.js
-pug:
-  versions: '0.1.0 || >2.0.0'
-  commands: node test/instrumentation/modules/pug.test.js
-
 # hapi and @hapi/hapi
 # - Package name: Starting with v17.9.0 and v18.2.0 the name changed from
 #   'hapi' to '@hapi/hapi'.
