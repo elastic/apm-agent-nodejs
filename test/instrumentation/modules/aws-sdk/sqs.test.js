@@ -146,7 +146,6 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
       logger: logging.createLogger('off')
     }
 
-    agent.currentTransaction = { mocked: 'transaction' }
     t.equals(shouldIgnoreRequest(request, agent), false)
 
     agent._conf.ignoreMessageQueuesRegExp.push(/b.*g/)
@@ -645,6 +644,6 @@ function getSqsAndOtherSpanFromData (data, t) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(cb)
 }

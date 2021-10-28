@@ -1,11 +1,11 @@
 'use strict'
 
 var agent = require('../../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-pg',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  cloudProvider: 'none'
 })
 
 var semver = require('semver')
@@ -107,6 +107,8 @@ factories.forEach(function (f) {
           }, 250)
         })
       })
+
+      t.end()
     })
 
     t.test('basic query streaming', function (t) {
@@ -189,6 +191,8 @@ factories.forEach(function (f) {
           basicQueryStream(stream, t)
         })
       })
+
+      t.end()
     })
 
     if (semver.gte(pgVersion, '5.1.0') && global.Promise) {
@@ -641,5 +645,5 @@ function resetAgent (expected, cb) {
   // let's just destroy it before creating the mock
   if (agent._transport.destroy) agent._transport.destroy()
   agent._transport = mockClient(expected, cb)
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
 }

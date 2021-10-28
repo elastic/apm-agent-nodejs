@@ -235,7 +235,7 @@ test('error reporting from chained handler given as array', function (t) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }

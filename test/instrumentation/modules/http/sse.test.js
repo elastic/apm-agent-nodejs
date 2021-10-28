@@ -107,5 +107,5 @@ function request (server) {
 
 function resetAgent (expected, cb) {
   agent._transport = mockClient(expected, cb)
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
 }

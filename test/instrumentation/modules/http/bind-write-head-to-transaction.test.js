@@ -27,7 +27,7 @@ test('response writeHead is bound to transaction', function (t) {
   })
 
   var server = http.createServer(function (req, res) {
-    agent._instrumentation.currentTransaction = null
+    agent._instrumentation.supersedeWithEmptyRunContext()
     res.end()
   })
 
@@ -43,7 +43,7 @@ test('response writeHead is bound to transaction', function (t) {
 })
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }

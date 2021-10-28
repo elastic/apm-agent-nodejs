@@ -41,7 +41,7 @@ tape.test('simple S3 usage scenario', function (t) {
         env: Object.assign({}, process.env, additionalEnv)
       },
       function done (err, stdout, stderr) {
-        t.error(err, 'use-s3.js errored out')
+        t.error(err, 'use-s3.js did not error out')
         if (err) {
           t.comment(`use-s3.js stdout:\n${stdout}\n`)
           t.comment(`use-s3.js stderr:\n${stderr}\n`)

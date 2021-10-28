@@ -3,7 +3,9 @@ generic-pool:
   commands: node test/instrumentation/modules/generic-pool.test.js
 mimic-response:
   versions: ^1.0.0
-  commands: node test/instrumentation/modules/mimic-response.test.js
+  commands:
+    - node test/instrumentation/modules/mimic-response.test.js
+    - node test/instrumentation/modules/http/github-179.test.js
 got-very-old:
   name: got
   versions: '>=4.0.0 <9.0.0'
@@ -296,15 +298,22 @@ elasticsearch:
 #   Fixed in 7.7.1: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_7_7_1
 #   Note: When this repo drops Node.js v8 support, `versions` can be simplified.
 # - Version 7.12.0 dropped support for node v8.
-'@elastic/elasticsearch-v7.0-v7.11':
+# - Version 8's min node is v12. We only support the latest canary release (at
+#   time of writing). The published '8.0.0-alpha.2' is *not* supported.
+'@elastic/elasticsearch-v7.0-v7.12':
   name: '@elastic/elasticsearch'
   versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
-'@elastic/elasticsearch':
+'@elastic/elasticsearch-v7.12-v8':
   name: '@elastic/elasticsearch'
   versions: '>=7.12.0 <8.0.0'
   node: '>=10.0.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+'@elastic/elasticsearch-canary':
+  name: '@elastic/elasticsearch-canary'
+  versions: '^8.0.0-canary.35'
+  node: '>=12'
+  commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
 
 handlebars:
   versions: '*'
@@ -400,8 +409,28 @@ restify-new:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
 
+# https://www.fastify.io/docs/latest/LTS/
+# - #1086 suggests fastify@2.4.0 was a broken release, skip it.
+fastify-v1:
+  name: fastify
+  versions: '1.x'
+  node: '>=6 <12'
+  commands:
+    - node test/instrumentation/modules/fastify/fastify.test.js
+    - node test/instrumentation/modules/fastify/async-await.test.js
+    - node test/instrumentation/modules/fastify/set-framework.test.js
+fastify-v2:
+  name: fastify
+  versions: '>=2.0.0 <2.4.0 || >2.4.0 <3'
+  node: '>=6 <15'
+  commands:
+    - node test/instrumentation/modules/fastify/fastify.test.js
+    - node test/instrumentation/modules/fastify/async-await.test.js
+    - node test/instrumentation/modules/fastify/set-framework.test.js
 fastify:
-  versions: '>=0.27.0 <0.29.0 || >0.29.0 <2.4.0 || >2.4.0'
+  name: fastify
+  versions: '>=3.0.0'
+  node: '>=10'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js

@@ -384,11 +384,25 @@ test('with parallel sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
-  var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 10 })
-  if (span0) span0.end(20)
-  if (span1) span1.end(20)
-  transaction.end(null, 30)
+  var span0
+  setImmediate(function () {
+    span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+    setImmediate(function () {
+      if (span0) span0.end(20)
+    })
+  })
+  setImmediate(function () {
+    // Note: This use of `childOf` is to ensure span1 is a child of the
+    // transaction for the special case of (a) asyncHooks=false such that we are
+    // using "patch-async.js" and (b) use of `agent.destroy(); new Agent()`.
+    // The latter breaks patch-async's patching of setImmediate.
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
+      { startTime: 10, childOf: transaction })
+    setImmediate(function () {
+      if (span1) span1.end(20)
+      transaction.end(null, 30)
+    })
+  })
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
@@ -427,11 +441,24 @@ test('with overlapping sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
-  var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
-  if (span0) span0.end(20)
-  if (span1) span1.end(25)
-  transaction.end(null, 30)
+  var span0
+  setImmediate(function () {
+    span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+    setImmediate(function () {
+      if (span0) span0.end(20)
+    })
+  })
+  setImmediate(function () {
+    // See "childOf" comment above for why `childOf` is used here.
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
+      { startTime: 15, childOf: transaction })
+    setImmediate(function () {
+      if (span1) span1.end(25)
+      setImmediate(function () {
+        transaction.end(null, 30)
+      })
+    })
+  })
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')

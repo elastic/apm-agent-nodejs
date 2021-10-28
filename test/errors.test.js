@@ -7,7 +7,7 @@ const path = require('path')
 const tape = require('tape')
 
 const logging = require('../lib/logging')
-const { createAPMError, _moduleNameFromFrames } = require('../lib/errors')
+const { createAPMError, generateErrorId, _moduleNameFromFrames } = require('../lib/errors')
 const { dottedLookup } = require('./_utils')
 
 const log = logging.createLogger('off')
@@ -169,7 +169,7 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
   cases.forEach(c => {
     suite.test(c.name, function (t) {
       createAPMError(
-        Object.assign({}, defaultOpts, c.opts),
+        Object.assign({}, defaultOpts, { id: generateErrorId() }, c.opts),
         function (_, apmError) {
           // Test each of the exceptations in c.expectedApmErrorFields.
           Object.keys(c.expectedApmErrorFields).forEach(field => {
@@ -220,6 +220,7 @@ tape.test('#createAPMError({ logMessage: ... })', function (suite) {
       createAPMError(
         {
           log,
+          id: generateErrorId(),
           shouldCaptureAttributes: false,
           timestampUs: 42,
           handled: true,

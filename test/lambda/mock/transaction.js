@@ -7,6 +7,7 @@ module.exports = class TransactionMock {
     this.ended = false
     this.customContext = {}
     this.faas = {}
+    this.outcome = 'success'
     this.opts = opts
   }
 
@@ -16,6 +17,10 @@ module.exports = class TransactionMock {
 
   setFaas (context) {
     Object.assign(this.faas, context)
+  }
+
+  setOutcome (outcome) {
+    this.outcome = outcome
   }
 
   end () {

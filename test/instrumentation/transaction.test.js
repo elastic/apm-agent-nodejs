@@ -408,7 +408,7 @@ test('#_encode() - with spans', function (t) {
   trans.end()
 
   // Wait for span to be encoded and sent.
-  setTimeout(function () {
+  agent.flush(function () {
     const payload = trans._encode()
     t.strictEqual(payload.name, 'single-name')
     t.strictEqual(payload.type, 'type')
@@ -426,7 +426,7 @@ test('#_encode() - with spans', function (t) {
     })
 
     t.end()
-  }, 200)
+  })
 })
 
 test('#_encode() - dropped spans', function (t) {
@@ -444,7 +444,7 @@ test('#_encode() - dropped spans', function (t) {
   span0.end()
   trans.end()
 
-  setTimeout(function () {
+  agent.flush(function () {
     const payload = trans._encode()
     t.strictEqual(payload.name, 'single-name')
     t.strictEqual(payload.type, 'type')
@@ -465,7 +465,7 @@ test('#_encode() - dropped spans', function (t) {
 
     agent._conf.transactionMaxSpans = oldTransactionMaxSpans
     t.end()
-  }, 200)
+  })
 })
 
 test('#_encode() - not sampled', function (t) {

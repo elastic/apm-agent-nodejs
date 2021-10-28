@@ -30,7 +30,7 @@ test('transaction name', function (t) {
 
   fastify.listen(0, function (err, address) {
     t.error(err)
-    address = address || 'http://localhost:' + fastify.server.address().port
+    address = 'http://localhost:' + fastify.server.address().port
     http.get(`${address}/hello/world`, function (res) {
       const chunks = []
       res.on('data', chunks.push.bind(chunks))
@@ -81,7 +81,7 @@ if (semver.gte(fastifyVersion, '2.0.0-rc')) {
 
     fastify.listen(0, function (err, address) {
       t.error(err)
-      http.get(`${address}/hello/world`, function (res) {
+      http.get(`http://localhost:${fastify.server.address().port}/hello/world`, function (res) {
         const chunks = []
         res.on('data', chunks.push.bind(chunks))
         res.on('end', function () {
@@ -101,7 +101,7 @@ if (semver.gte(fastifyVersion, '2.0.0-rc')) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }

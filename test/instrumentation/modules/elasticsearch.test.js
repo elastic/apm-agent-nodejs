@@ -30,7 +30,7 @@ test('client.ping with callback', function userLandCode (t) {
   var client = new elasticsearch.Client({ host: host })
 
   client.ping(function (err) {
-    t.error(err)
+    t.error(err, 'no error from client.ping')
     agent.endTransaction()
     agent.flush()
   })
@@ -292,7 +292,7 @@ function resetAgent (expected, cb) {
     cb = expected
     expected = 3
   }
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }

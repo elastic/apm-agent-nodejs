@@ -862,6 +862,7 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 test('disableInstrumentations', function (t) {
   var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
+  const esCanaryVersion = safeGetPackageVersion('@elastic/elasticsearch-canary')
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
   const apolloServerCoreVersion = require('apollo-server-core/package.json').version
@@ -879,6 +880,9 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
     modules.delete('@elastic/elasticsearch')
+  }
+  if (semver.lt(process.version, '10.0.0') && semver.gte(esCanaryVersion, '7.12.0')) {
+    modules.delete('@elastic/elasticsearch-canary')
   }
   // As of mongodb@4 only supports node >=v12.
   const mongodbVersion = require('../node_modules/mongodb/package.json').version
@@ -976,7 +980,7 @@ test('custom transport', function (t) {
   span.end()
   trans.end()
 
-  setTimeout(function () {
+  agent.flush(function () {
     t.equal(myTransport.transactions.length, 1, 'received correct number of transactions')
     assertEncodedTransaction(t, trans, myTransport.transactions[0])
     t.equal(myTransport.spans.length, 1, 'received correct number of spans')
@@ -985,7 +989,7 @@ test('custom transport', function (t) {
     assertEncodedError(t, error, myTransport.errors[0], trans, span)
     agent.destroy()
     t.end()
-  }, 200) // Hack wait for ended span and captured error to be sent to transport.
+  })
 })
 
 test('addPatch', function (t) {

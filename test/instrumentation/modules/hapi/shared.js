@@ -7,7 +7,8 @@ module.exports = (moduleName) => {
     captureExceptions: false,
     logLevel: 'fatal',
     metricsInterval: 0,
-    centralConfig: false
+    centralConfig: false,
+    cloudProvider: 'none'
   })
 
   var isHapiIncompat = require('../../../_is_hapi_incompat')
@@ -48,7 +49,7 @@ module.exports = (moduleName) => {
     agent.captureError = originalCaptureError
 
     var server = startServer(function (err, port) {
-      t.error(err)
+      t.error(err, 'no error from startServer')
       http.get('http://localhost:' + port + '/captureError?foo=bar')
     })
   })
@@ -523,9 +524,16 @@ module.exports = (moduleName) => {
   })
 
   function makeServer (opts) {
-    var server = new Hapi.Server()
+    // Specify 'localhost' to avoid Hapi default of '0.0.0.0' which ties to
+    // IPv4. We want a later HTTP client request using 'localhost' to work.
+    var server
     if (semver.satisfies(pkg.version, '<17')) {
+      server = new Hapi.Server()
+      opts = opts || {}
+      opts.host = opts.host || 'localhost'
       server.connection(opts)
+    } else {
+      server = new Hapi.Server({ host: 'localhost' })
     }
     return server
   }
@@ -615,7 +623,7 @@ module.exports = (moduleName) => {
   }
 
   function resetAgent (expected, cb) {
-    agent._instrumentation.currentTransaction = null
+    agent._instrumentation.testReset()
     agent._transport = mockClient(expected, cb)
     agent.captureError = function (err) { throw err }
   }

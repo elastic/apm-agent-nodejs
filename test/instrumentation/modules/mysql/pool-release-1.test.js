@@ -20,11 +20,11 @@ test('release connection prior to transaction', function (t) {
       conn.release() // important to release connection before starting the transaction
 
       agent.startTransaction('foo')
-      t.ok(agent._instrumentation.currentTransaction)
+      t.ok(agent.currentTransaction)
 
       pool.getConnection(function (err, conn) {
         t.error(err)
-        t.ok(agent._instrumentation.currentTransaction)
+        t.ok(agent.currentTransaction)
         pool.end()
         t.end()
       })

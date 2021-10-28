@@ -28,7 +28,6 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-
 ==== Unreleased
 
 [float]
@@ -39,6 +38,70 @@ Notes:
 
 [float]
 ===== Bug fixes
+
+* A significant change was made to internal run context tracking (a.k.a. async
+  context tracking). There are no configuration changes or API changes for
+  custom instrumentation. ({pull}2181[#2181])
++
+One behavior change is that multiple spans created synchronously (in the same
+async task) will form parent/child relationships; before this change they would
+all be siblings. This fixes HTTP child spans of Elasticsearch and aws-sdk
+automatic spans to properly be children. ({issues}1889[#1889])
++
+Another behavior change is that a span B started after having ended span A in
+the same async task will *no longer* be a child of span A. ({pull}1964[#1964])
++
+This fixes an issue with context binding of EventEmitters, where
+`removeListener` would fail to actually remove if the same handler function was
+added to multiple events.
+
+
+[[release-notes-3.23.0]]
+==== 3.23.0 2021/10/25
+
+[float]
+===== Breaking changes
+
+* Remove support for instrumenting versions of fastify earlier than 1.0.0.
+  This instrumentation might still work, but is no longer supported.
+  Fastify v1.0.0 was released in 2018. All current users should be using
+  fastify v2 or v3 at least. See https://www.fastify.io/docs/latest/LTS/
+  ({pull}2387[#2387])
+
+[float]
+===== Features
+
+* Add initial support for version 8 of `@elastic/elasticsearch`, which is
+  still in pre-release. ({pull}2385[#2385])
+
+
+[[release-notes-3.22.0]]
+==== 3.22.0 2021/10/21
+
+[float]
+===== Features
+
+* Add support for node v17.
+
+* When an error is captured, the APM agent will only immediately flush it to
+  APM server if it is an "unhandled" error. Unhandled errors are typically those
+  captured via the `uncaughtException` process event. Before this change, a
+  captured error (e.g. for a 4xx or 5xx response from an HTTP server) was
+  always immediately flushed. This could negatively impact performance for
+  a service that was generating *frequent* errors. ({issues}686[#686])
+
+[float]
+===== Bug fixes
+
+* Improve <<apm-flush,`apm.flush([cb])`>> to wait for inflight spans and errors
+  before flushing data to APM server. Before this change, a recently ended span
+  or recently <<apm-capture-error,captured error>> might not yet have completed
+  processing (for example, stacktrace collection is asynchronous) and might
+  not be included in the flush call.
+
+* AWS Lambda changes: Disable metrics collection during the experimental phase
+  of (re)implementing Lambda support ({pull}2363[#2363]). Some fixes for better
+  flushing of data at the end of a Lambda invocation.
 
 * <<span-to-string,`span.toString()`>> and <<transaction-to-string,`transaction.toString()`>>
   have been *deprecated*. The exact string output may change in v4 of the
@@ -391,7 +454,7 @@ as they are added over time.
 ===== Features
 
 * feat: add `apm.getServiceName()` {pull}1949[#1949] +
-  This will be used by https://github.com/elastic/ecs-logging-js[ecs-logging packages]
+  This will be used by https://github.com/elastic/ecs-logging-nodejs[ecs-logging packages]
   to integrate with APM.
 
 * feat: support numeric and boolean labels {pull}1909[#1909] +

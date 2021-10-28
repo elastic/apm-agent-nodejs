@@ -121,6 +121,7 @@ include::./shared-set-up.asciidoc[tag=add-your-own-data]
 ==== Compatibility
 
 include::./shared-set-up.asciidoc[tag=compatibility-link]
+See also: https://www.fastify.io/docs/latest/LTS/[Fastify's own LTS documentation.]
 
 [float]
 [[fastify-troubleshooting]]

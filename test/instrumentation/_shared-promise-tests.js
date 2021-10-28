@@ -9,7 +9,7 @@ module.exports = function (test, Promise, ins) {
         resolve('foo')
       }).then(function (data) {
         t.strictEqual(data, 'foo')
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
       })
     })
   })
@@ -28,7 +28,7 @@ module.exports = function (test, Promise, ins) {
           t.fail('should not resolve')
         })[fnName](function (reason) {
           t.strictEqual(reason.message, 'foo')
-          t.strictEqual(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currTransaction().id, trans.id)
         })
       })
     })
@@ -41,11 +41,11 @@ module.exports = function (test, Promise, ins) {
           reject(new Error('foo'))
         })[fnName](function (err) {
           t.strictEqual(err.message, 'foo')
-          t.strictEqual(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currTransaction().id, trans.id)
           return Promise.resolve('bar')
         }).then(function (result) {
           t.strictEqual(result, 'bar')
-          t.strictEqual(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currTransaction().id, trans.id)
         })
       })
     })
@@ -61,7 +61,7 @@ module.exports = function (test, Promise, ins) {
         t.fail('should not resolve')
       }, function (reason) {
         t.strictEqual(reason.message, 'foo')
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
       })
     })
   })
@@ -73,7 +73,7 @@ module.exports = function (test, Promise, ins) {
       Promise.resolve('foo')
         .then(function (data) {
           t.strictEqual(data, 'foo')
-          t.strictEqual(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currTransaction().id, trans.id)
         })
         .catch(function () {
           t.fail('should not reject')
@@ -91,7 +91,7 @@ module.exports = function (test, Promise, ins) {
         })
         .catch(function (reason) {
           t.strictEqual(reason.message, 'foo')
-          t.strictEqual(ins.currentTransaction.id, trans.id)
+          t.strictEqual(ins.currTransaction().id, trans.id)
         })
     })
   })
@@ -108,7 +108,7 @@ module.exports = function (test, Promise, ins) {
 
       Promise.all([p1, p2, p3]).then(function (values) {
         t.deepEqual(values, [3, 1337, 'foo'])
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
       })
     })
   })
@@ -126,7 +126,7 @@ module.exports = function (test, Promise, ins) {
 
       Promise.race([p1, p2]).then(function (data) {
         t.strictEqual(data, 'two')
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
       })
     })
   })
@@ -144,7 +144,7 @@ module.exports = function (test, Promise, ins) {
 
       Promise.race([p1, p2]).then(function (data) {
         t.strictEqual(data, 'one')
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
       }, function () {
         t.fail('should not reject')
       })
@@ -166,7 +166,7 @@ module.exports = function (test, Promise, ins) {
         t.fail('should not resolve')
       }, function (reason) {
         t.strictEqual(reason, 'two')
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
       })
     })
   })
@@ -179,17 +179,17 @@ module.exports = function (test, Promise, ins) {
         resolve('foo')
       }).then(function (data) {
         t.strictEqual(data, 'foo')
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
         return new Promise(function (resolve) {
           resolve('bar')
         })
       }).then(function (data) {
         t.strictEqual(data, 'bar')
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
         return Promise.resolve('baz')
       }).then(function (data) {
         t.strictEqual(data, 'baz')
-        t.strictEqual(ins.currentTransaction.id, trans.id)
+        t.strictEqual(ins.currTransaction().id, trans.id)
       })
     })
   })
