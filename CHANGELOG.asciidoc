@@ -47,6 +47,7 @@ Notes:
 * Stop collecting transaction breakdown metrics (`transaction.breakdown.count`,
   `transaction.duration.sum.us`, `transaction.duration.count`), as they are not
   being used in APM UI. ({issues}2370[#2370])
+
 * Wrap `fs.realpath.native` when configured with `asyncHooks=false`. This
   fixes using that function (which was undefined before this fix) and a
   crash when importing fs-extra@10. ({issues}2401[#2401])
