@@ -382,8 +382,7 @@ test('#_encode() - http request meta data', function (t) {
         full: 'http://example.com/foo?bar=baz'
       },
       socket: {
-        remote_address: '127.0.0.1',
-        encrypted: true
+        remote_address: '127.0.0.1'
       },
       headers: {
         host: 'example.com',
@@ -522,7 +521,6 @@ function mockRequest () {
       'x-bar': 'baz'
     },
     socket: {
-      encrypted: true,
       remoteAddress: '127.0.0.1'
     },
     body: {
