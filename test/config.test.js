@@ -1331,6 +1331,26 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
   suite.end()
 })
 
+// Test User-Agent generation. It would be nice to also test against gherkin
+// specs from apm.git.
+// https://github.com/elastic/apm/blob/master/tests/agents/gherkin-specs/user_agent.feature
+test('userAgentFromConf', t => {
+  t.equal(config.userAgentFromConf({}),
+    `apm-agent-nodejs/${apmVersion}`)
+  t.equal(config.userAgentFromConf({ serviceName: 'foo' }),
+    `apm-agent-nodejs/${apmVersion} (foo)`)
+  t.equal(config.userAgentFromConf({ serviceName: 'foo', serviceVersion: '1.0.0' }),
+    `apm-agent-nodejs/${apmVersion} (foo 1.0.0)`)
+  // ISO-8859-1 characters are generally allowed.
+  t.equal(config.userAgentFromConf({ serviceName: 'fête', serviceVersion: '2021-été' }),
+    `apm-agent-nodejs/${apmVersion} (fête 2021-été)`)
+  // Higher code points are replaced with `_`.
+  t.equal(config.userAgentFromConf({ serviceName: 'myhomeismy🏰', serviceVersion: 'do you want to build a ☃' }),
+    `apm-agent-nodejs/${apmVersion} (myhomeismy__ do you want to build a _)`)
+
+  t.end()
+})
+
 function assertEncodedTransaction (t, trans, result) {
   t.comment('transaction')
   t.strictEqual(result.id, trans.id, 'id matches')

@@ -1581,7 +1581,7 @@ test('#captureError()', function (t) {
           http_version: '1.1',
           method: 'POST',
           url: { raw: '/foo?bar=baz#hash', protocol: 'http:', pathname: '/foo', search: '?bar=baz' },
-          socket: { remote_address: '127.0.0.1', encrypted: false },
+          socket: { remote_address: '127.0.0.1' },
           headers: {
             'content-length': '4',
             string: 'foo',
@@ -1630,7 +1630,7 @@ test('#captureError()', function (t) {
           http_version: '1.1',
           method: 'POST',
           url: { raw: '/', protocol: 'http:', pathname: '/' },
-          socket: { remote_address: '127.0.0.1', encrypted: false },
+          socket: { remote_address: '127.0.0.1' },
           headers: {
             'content-length': String(bodyLen),
             'content-type': 'application/x-www-form-urlencoded'

@@ -453,12 +453,14 @@ aws-sdk:
   # We want this version range:
   #   versions: '>=2.858 <3'
   # However, awk-sdk releases *very* frequently (almost every day) and there
-  # is no need to test *all* those releases. Instead we statically list every
-  # N=5 releases to test.
+  # is no need to test *all* those releases. Instead we statically list a subset
+  # of versions to test.
   #
-  # Maintenance note: This should be updated periodically, keeping 2.858
-  # as the earliest version but updating the others.
-  versions: '2.858.0 || 2.881.0 || 2.886.0 || 2.891.0 || 2.896.0 || 2.901.0 || 2.906.0 || 2.911.0 || 2.916.0 || 2.921.0 || 2.926.0 || 2.931.0 || 2.936.0 || >2.936 <3'
+  # Maintenance note: This should be updated periodically using:
+  #   ./dev-utils/aws-sdk-tav-versions.sh
+  #
+  # Test v2.858.0, every N=31 of 159 releases, and current latest.
+  versions: '2.858.0 || 2.889.0 || 2.920.0 || 2.951.0 || 2.982.0 || 2.1013.0 || 2.1016.0 || >2.1016.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/s3.test.js
     - node test/instrumentation/modules/aws-sdk/sqs.test.js
