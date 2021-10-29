@@ -74,7 +74,7 @@ function createMiddleware (type) {
 
 test('Running fixtures with express', function (suite) {
   for (const [, fixture] of fixtures.entries()) {
-    test(fixture.name, function (t) {
+    suite.test(fixture.name, function (t) {
       runTest(
         t,
         fixture.expected,

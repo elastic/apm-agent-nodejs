@@ -41,7 +41,6 @@ module.exports = (moduleName) => {
       t.strictEqual(request.url.raw, '/captureError?foo=bar')
       t.strictEqual(request.url.hostname, 'localhost')
       t.strictEqual(request.url.port, String(server.info.port))
-      t.strictEqual(request.socket.encrypted, false)
       server.stop(noop)
       t.end()
     })
