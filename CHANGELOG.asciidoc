@@ -33,6 +33,16 @@ Notes:
 [float]
 ===== Breaking changes
 
+* Change <<disable-send, `disableSend`>> to no longer skip internal processing
+  work. It now *only* disables communication with APM Server. Use
+  <<context-propagation-only, `contextPropagationOnly`>> if your use case is
+  to limit the APM agent's processing to the minimum to support context
+  propagation and log correlation.
++
+This is listed under "Breaking changes" as a heads-up. The only possible
+negative result of this `disableSend` change is some extra CPU processing time
+by the agent. There is no outward functionality change.
+
 [float]
 ===== Features
 
@@ -44,6 +54,7 @@ Notes:
 +
 This is similar to <<disable-send, `disableSend`>>, but differs in that
 `contextPropagationOnly: true` tells the agent to skip unnecessary work.
+
 * The User-Agent header used for communication with APM Server now includes
   the `serviceName` and `serviceVersion`. For some users this can be
   https://github.com/elastic/apm/issues/509[helpful for APM Server log analysis].
