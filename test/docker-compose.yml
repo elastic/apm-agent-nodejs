@@ -71,7 +71,7 @@ services:
       retries: 30
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - "network.host="

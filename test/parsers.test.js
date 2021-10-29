@@ -99,8 +99,7 @@ test('#getContextFromRequest()', function (t) {
         raw: '/some/path?key=value'
       },
       socket: {
-        remote_address: '127.0.0.1',
-        encrypted: true
+        remote_address: '127.0.0.1'
       },
       headers: {
         host: 'example.com',
@@ -223,8 +222,7 @@ test('#getContextFromRequest()', function (t) {
       body: '',
       cookies: {},
       socket: {
-        remoteAddress: '127.0.0.1',
-        encrypted: true
+        remoteAddress: '127.0.0.1'
       }
     }
   }
