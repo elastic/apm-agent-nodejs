@@ -149,49 +149,6 @@ Memory allocated for ArrayBuffers and SharedArrayBuffers, including all Node.js 
 This is also included in the `nodejs.memory.external.bytes` value.
 
 [float]
-[[metrics-transaction.duration.sum]]
-=== `transaction.duration.sum`
-
-* *Type:* Long
-* *Type:* Milliseconds
-
-The sum of all transaction durations in ms since the last report (the delta)
-
-You can filter and group by these dimensions:
-
-* `transaction.name`: The name of the transaction
-* `transaction.type`: The type of the transaction, for example `request`
-
-[float]
-[[metrics-transaction.duration.count]]
-=== `transaction.duration.count`
-
-* *Type:* Long
-* *Type:* Milliseconds
-
-The count of all transactions since the last report (the delta)
-
-You can filter and group by these dimensions:
-
-* `transaction.name`: The name of the transaction
-* `transaction.type`: The type of the transaction, for example `request`
-
-[float]
-[[metrics-transaction.breakdown.count]]
-=== `transaction.breakdown.count`
-
-* *Type:* Long
-* *Format:* Counter
-
-The number of transactions for which breakdown metrics (`span.self_time`) have been created.
-Breakdown metrics are only collected for sampled transactions.
-
-You can filter and group by these dimensions:
-
-* `transaction.name`: The name of the transaction
-* `transaction.type`: The type of the transaction, for example `request`
-
-[float]
 [[metrics-span.self_time.sum]]
 === `span.self_time.sum`
 
