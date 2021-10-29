@@ -29,18 +29,9 @@ const spanMetrics = [
   'span.self_time.sum.us'
 ]
 
-const metrics = {
-  transaction: [
-    'transaction.duration.count',
-    'transaction.duration.sum.us',
-    'transaction.breakdown.count'
-  ],
+const metricKeysFromName = {
   'transaction span': spanMetrics,
-  span: spanMetrics,
-  'transaction not sampling': [
-    'transaction.duration.count',
-    'transaction.duration.sum.us'
-  ]
+  span: spanMetrics
 }
 
 function nullableEqual (a, b) {
@@ -48,9 +39,6 @@ function nullableEqual (a, b) {
 }
 
 const finders = {
-  transaction (metricsets) {
-    return metricsets.find(metricset => metricset.transaction && !metricset.span)
-  },
   'transaction span' (metricsets) {
     return metricsets.find(metricset => metricset.span && metricset.span.type === 'app')
   },
@@ -62,9 +50,6 @@ const finders = {
       if (!nullableEqual(subtype, span.subtype)) return false
       return true
     })
-  },
-  'transaction not sampling' (metricsets) {
-    return metricsets.find(metricset => metricset.transaction && !metricset.span)
   }
 }
 
@@ -90,14 +75,6 @@ const expectations = {
         type: span.type
       }
     })
-  },
-  'transaction not sampling' (transaction) {
-    return {
-      transaction: {
-        name: transaction.name,
-        type: transaction.type
-      }
-    }
   }
 }
 
@@ -183,9 +160,6 @@ test('includes breakdown when sampling', t => {
     assertSpan(t, span, data.spans[0])
 
     const { metricsets } = data
-    assertMetricSet(t, 'transaction', metricsets, {
-      transaction
-    })
     assertMetricSet(t, 'span', metricsets, {
       transaction,
       span
@@ -194,78 +168,6 @@ test('includes breakdown when sampling', t => {
       transaction,
       span
     })
-
-    agent.destroy()
-    t.end()
-  }, testMetricsIntervalMs)
-})
-
-test('does not include breakdown when not sampling', t => {
-  const agent = new Agent().start(Object.assign(
-    {},
-    testAgentOpts,
-    { transactionSampleRate: 0 }
-  ))
-
-  var transaction = agent.startTransaction('foo', 'bar')
-  var span = agent.startSpan('s0 name', 's0 type')
-  if (span) span.end()
-  transaction.end()
-
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout')
-    const data = agent._transport
-    t.strictEqual(data.transactions.length, 1, 'has one transaction')
-    assertTransaction(t, transaction, data.transactions[0])
-
-    t.strictEqual(data.spans.length, 0, 'has no spans')
-
-    const { metricsets } = data
-    assertMetricSet(t, 'transaction not sampling', metricsets, {
-      transaction
-    })
-    t.comment('metricSet - span')
-    t.notOk(metricsets.find(metricset => !!metricset.span), 'should not have any span metricsets')
-
-    agent.destroy()
-    t.end()
-  }, testMetricsIntervalMs)
-})
-
-test('does not include transaction breakdown when disabled', t => {
-  const agent = new Agent().start(Object.assign(
-    {},
-    testAgentOpts,
-    {
-      transactionSampleRate: 0,
-      breakdownMetrics: false
-    }
-  ))
-
-  var transaction = agent.startTransaction('foo', 'bar')
-  var span = agent.startSpan('s0 name', 's0 type')
-  if (span) span.end()
-  transaction.end()
-
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout')
-    const data = agent._transport
-    t.strictEqual(data.transactions.length, 1, 'has one transaction')
-    assertTransaction(t, transaction, data.transactions[0])
-
-    t.strictEqual(data.spans.length, 0, 'has no spans')
-
-    const { metricsets } = data
-    t.comment('metricSet - transaction metrics')
-    const metricSet = finders.transaction(metricsets, span)
-    t.ok(metricSet, 'found metricset')
-    assertMetricSetKeys(t, metricSet, [
-      'transaction.duration.count',
-      'transaction.duration.sum.us'
-    ])
-    assertMetricSetData(t, metricSet, expectations.transaction(transaction, span))
-    t.comment('metricSet - span')
-    t.notOk(metricsets.find(metricset => !!metricset.span), 'should not have any span metricsets')
 
     agent.destroy()
     t.end()
@@ -282,16 +184,8 @@ test('only transaction', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 30 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -316,17 +210,9 @@ test('with single sub-span', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets, span),
       transaction_span: finders['transaction span'](metricsets, span),
       span: finders.span(metricsets, span)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 30 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -357,17 +243,9 @@ test('with single app sub-span', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets, span),
       transaction_span: finders['transaction span'](metricsets, span),
       span: finders.span(metricsets, span)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 30 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -408,17 +286,9 @@ test('with parallel sub-spans', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span0)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 30 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -464,17 +334,9 @@ test('with overlapping sub-spans', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span0)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 30 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -507,17 +369,9 @@ test('with sequential sub-spans', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span0)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 30 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -550,17 +404,9 @@ test('with sub-spans returning to app time', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span0)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 30 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -593,17 +439,9 @@ test('with overlapping nested async sub-spans', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span1)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 30 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -637,16 +475,8 @@ test('with app sub-span extending beyond end', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 20 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -673,16 +503,8 @@ test('with other sub-span extending beyond end', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 20 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -709,16 +531,8 @@ test('with other sub-span starting after end', t => {
     t.error(err, 'wait for breakdown metrics did not timeout')
     const metricsets = agent._transport.metricsets
     const found = {
-      transaction: finders.transaction(metricsets),
       transaction_span: finders['transaction span'](metricsets)
     }
-
-    t.ok(found.transaction, 'found transaction metricset')
-    t.deepEqual(found.transaction.samples, {
-      'transaction.duration.count': { value: 1 },
-      'transaction.duration.sum.us': { value: 10 },
-      'transaction.breakdown.count': { value: 1 }
-    }, 'sample values match')
 
     t.ok(found.transaction_span, 'found app span metricset')
     t.deepEqual(found.transaction_span.samples, {
@@ -749,7 +563,7 @@ function assertSpan (t, expected, received) {
 
 function assertMetricSet (t, name, metricsets, { transaction, span } = {}) {
   const metricSet = finders[name](metricsets, span)
-  const keys = metrics[name]
+  const keys = metricKeysFromName[name]
   const expected = expectations[name](transaction, span)
 
   t.comment(`metricSet - ${name} metrics`)
