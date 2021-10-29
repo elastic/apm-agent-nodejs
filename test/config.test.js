@@ -17,6 +17,7 @@ var test = require('tape')
 const Agent = require('../lib/agent')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
+const { safeGetPackageVersion } = require('./_utils')
 var config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
@@ -354,14 +355,66 @@ bytesValues.forEach(function (key) {
   })
 })
 
-var timeValues = [
+var POSITIVE_TIME_OPTS = [
   'abortedErrorThreshold',
   'apiRequestTime',
   'metricsInterval',
   'serverTimeout'
 ]
+// Time options allowing negative values.
+var TIME_OPTS = [
+  'spanFramesMinDuration'
+]
 
-timeValues.forEach(function (key) {
+POSITIVE_TIME_OPTS.forEach(function (key) {
+  test(key + ' should guard against a negative time', function (t) {
+    var agent = new Agent()
+    var logger = new CaptureLogger()
+    agent.start(Object.assign(
+      {},
+      agentOptsNoopTransport,
+      {
+        [key]: '-1s',
+        logger
+      }
+    ))
+
+    t.strictEqual(agent._conf[key], config.secondsFromTimeStr(config.DEFAULTS[key]),
+      'fell back to default value')
+    const warning = logger.calls[0]
+    t.equal(warning.type, 'warn', 'got a log.warn')
+    t.ok(warning.message.indexOf('-1s') !== -1, 'warning message includes the invalid value')
+    t.ok(warning.message.indexOf(key) !== -1, 'warning message includes the invalid key')
+
+    agent.destroy()
+    t.end()
+  })
+
+  test(key + ' should guard against a bogus non-time', function (t) {
+    var agent = new Agent()
+    var logger = new CaptureLogger()
+    agent.start(Object.assign(
+      {},
+      agentOptsNoopTransport,
+      {
+        [key]: 'bogusvalue',
+        logger
+      }
+    ))
+
+    t.strictEqual(agent._conf[key], config.secondsFromTimeStr(config.DEFAULTS[key]),
+      'fell back to default value')
+    const warning = logger.calls[0]
+    t.equal(warning.type, 'warn', 'got a log.warn')
+    t.ok(warning.message.indexOf('bogusvalue') !== -1, 'warning message includes the invalid value')
+    t.ok(warning.message.indexOf(key) !== -1, 'warning message includes the invalid key')
+
+    agent.destroy()
+    t.end()
+  })
+})
+
+POSITIVE_TIME_OPTS.concat(TIME_OPTS).forEach(function (key) {
   test(key + ' should convert minutes to seconds', function (t) {
     var agent = new Agent()
     var opts = {}
@@ -808,7 +861,8 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 
 test('disableInstrumentations', function (t) {
   var expressGraphqlVersion = require('express-graphql/package.json').version
-  var esVersion = require('@elastic/elasticsearch/package.json').version
+  var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
+  const esCanaryVersion = safeGetPackageVersion('@elastic/elasticsearch-canary')
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
   const apolloServerCoreVersion = require('apollo-server-core/package.json').version
@@ -826,6 +880,9 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
     modules.delete('@elastic/elasticsearch')
+  }
+  if (semver.lt(process.version, '10.0.0') && semver.gte(esCanaryVersion, '7.12.0')) {
+    modules.delete('@elastic/elasticsearch-canary')
   }
   // As of mongodb@4 only supports node >=v12.
   const mongodbVersion = require('../node_modules/mongodb/package.json').version
@@ -923,7 +980,7 @@ test('custom transport', function (t) {
   span.end()
   trans.end()
 
-  setTimeout(function () {
+  agent.flush(function () {
     t.equal(myTransport.transactions.length, 1, 'received correct number of transactions')
     assertEncodedTransaction(t, trans, myTransport.transactions[0])
     t.equal(myTransport.spans.length, 1, 'received correct number of spans')
@@ -932,7 +989,7 @@ test('custom transport', function (t) {
     assertEncodedError(t, error, myTransport.errors[0], trans, span)
     agent.destroy()
     t.end()
-  }, 200) // Hack wait for ended span and captured error to be sent to transport.
+  })
 })
 
 test('addPatch', function (t) {
@@ -1271,6 +1328,26 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
   })
 
   suite.end()
+})
+
+// Test User-Agent generation. It would be nice to also test against gherkin
+// specs from apm.git.
+// https://github.com/elastic/apm/blob/master/tests/agents/gherkin-specs/user_agent.feature
+test('userAgentFromConf', t => {
+  t.equal(config.userAgentFromConf({}),
+    `apm-agent-nodejs/${apmVersion}`)
+  t.equal(config.userAgentFromConf({ serviceName: 'foo' }),
+    `apm-agent-nodejs/${apmVersion} (foo)`)
+  t.equal(config.userAgentFromConf({ serviceName: 'foo', serviceVersion: '1.0.0' }),
+    `apm-agent-nodejs/${apmVersion} (foo 1.0.0)`)
+  // ISO-8859-1 characters are generally allowed.
+  t.equal(config.userAgentFromConf({ serviceName: 'fête', serviceVersion: '2021-été' }),
+    `apm-agent-nodejs/${apmVersion} (fête 2021-été)`)
+  // Higher code points are replaced with `_`.
+  t.equal(config.userAgentFromConf({ serviceName: 'myhomeismy🏰', serviceVersion: 'do you want to build a ☃' }),
+    `apm-agent-nodejs/${apmVersion} (myhomeismy__ do you want to build a _)`)
+
+  t.end()
 })
 
 function assertEncodedTransaction (t, trans, result) {

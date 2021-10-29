@@ -25,7 +25,7 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?(?:(module|benchmark)\\W+)?tests(?:\\W+please)?.*')
+    issueCommentTrigger("(${obltGitHubComments()}|^run (module|benchmark) tests)")
   }
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
@@ -398,7 +398,7 @@ def getSmartTAVContext() {
    env.TAV_UPDATED=${env.TAV_UPDATED}""".stripIndent()
 
    if (env.GITHUB_COMMENT) {
-     def modules = getModulesFromCommentTrigger(regex: '(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?module\\W+tests\\W+for\\W+(.+)')
+     def modules = getModulesFromCommentTrigger(regex: 'run module tests for (.+)')
      if (modules.isEmpty()) {
        context.ghDescription = 'TAV Test disabled'
        context.tav = readYaml(text: 'TAV:')
@@ -477,7 +477,9 @@ def generateStepForWindows(Map params = [:]){
               npm --version
               node --version
             '''
-            bat 'npm install'
+            retryWithSleep(retries: 2, sideEffect: { bat 'npm cache clean --force' }) {
+                bat 'npm install'
+            }
             bat 'node test/test.js'
           }
         } catch(e){
@@ -492,6 +494,7 @@ def generateStepForWindows(Map params = [:]){
     sh label: 'Stop services', script: ".ci/scripts/windows/stop-test.sh ${version}"
   }
 }
+
 
 def grabWorkerIP(){
   def linuxIp = ''

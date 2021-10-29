@@ -1,7 +1,6 @@
 'use strict'
 var agent = require('..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-outcome',
   captureExceptions: true,
   metricsInterval: 0,
   centralConfig: false
@@ -223,21 +222,19 @@ suite('agent level setTransactionOutcome tests', function (test) {
 
 suite('agent level setSpanOutcome tests', function (test) {
   test.test('outcome set', function (t) {
-    const transaction = agent.startTransaction('foo', 'type', 'subtype', 'action')
-    const span = transaction.startSpan()
-    const childSpan = transaction.startSpan()
+    const transaction = agent.startTransaction('t0', 'type', 'subtype', 'action')
+    const span = transaction.startSpan('s1')
+    const childSpan = transaction.startSpan('s2')
 
-    // invoke an async context to work around
-    // https://github.com/elastic/apm-agent-nodejs/issues/1889
-    setTimeout(function () {
-      agent.setSpanOutcome(constants.OUTCOME_FAILURE)
-      childSpan.end()
-      span.end()
-      agent.endTransaction()
-      t.equals(childSpan.outcome, constants.OUTCOME_FAILURE, 'outcome set to failure')
-      t.equals(span.outcome, constants.OUTCOME_SUCCESS, 'outcome set to success, not effected by agent.setSpanOutcome call')
-      t.end()
-    }, 1)
+    // This should only impact the current span (s2).
+    agent.setSpanOutcome(constants.OUTCOME_FAILURE)
+
+    childSpan.end()
+    span.end()
+    agent.endTransaction()
+    t.equals(childSpan.outcome, constants.OUTCOME_FAILURE, 'outcome of s2 set to failure')
+    t.equals(span.outcome, constants.OUTCOME_SUCCESS, 'outcome of s1 set to success, not affected by agent.setSpanOutcome call')
+    t.end()
   })
   test.end()
 })

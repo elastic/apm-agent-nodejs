@@ -173,6 +173,8 @@ test('#startSpan()', function (t) {
 })
 
 test('#end() - with result', function (t) {
+  agent._transport.clear()
+
   var trans = new Transaction(agent)
   trans.end('test-result')
   t.strictEqual(trans.ended, true)
@@ -182,11 +184,12 @@ test('#end() - with result', function (t) {
   t.strictEqual(added.id, trans.id)
   t.strictEqual(added.result, 'test-result')
 
-  agent._transport.clear() // clear the CapturingTransport for subsequent tests
   t.end()
 })
 
 test('#duration()', function (t) {
+  agent._transport.clear()
+
   var trans = new Transaction(agent)
   setTimeout(function () {
     trans.end()
@@ -197,7 +200,6 @@ test('#duration()', function (t) {
     // TODO: Figure out why this fails on Jenkins...
     // t.ok(added.duration < 100)
 
-    agent._transport.clear()
     t.end()
   }, 50)
 })
@@ -217,7 +219,6 @@ test('custom start time', function (t) {
   t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
   t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
 
-  agent._transport.clear()
   t.end()
 })
 
@@ -229,7 +230,6 @@ test('#end(time)', function (t) {
 
   t.strictEqual(trans.duration(), 2000.123)
 
-  agent._transport.clear()
   t.end()
 })
 
@@ -266,11 +266,12 @@ test('name - default first, then custom', function (t) {
 })
 
 test('parallel transactions', function (t) {
+  agent._transport.clear()
+
   function finish () {
     t.equal(agent._transport.transactions[0].name, 'second')
     t.equal(agent._transport.transactions[1].name, 'first')
 
-    agent._transport.clear()
     t.end()
   }
 
@@ -290,15 +291,6 @@ test('parallel transactions', function (t) {
   }, 25)
 })
 
-test('sync/async tracking', function (t) {
-  var trans = new Transaction(agent)
-  t.strictEqual(trans.sync, true)
-  setImmediate(() => {
-    t.strictEqual(trans.sync, false)
-    t.end()
-  })
-})
-
 test('#_encode() - un-ended', function (t) {
   var trans = new Transaction(agent)
   t.strictEqual(trans._encode(), null, 'cannot encode un-ended transaction')
@@ -306,11 +298,13 @@ test('#_encode() - un-ended', function (t) {
 })
 
 test('#_encode() - ended', function (t) {
+  agent._transport.clear()
+
   var trans = new Transaction(agent)
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -323,11 +317,12 @@ test('#_encode() - ended', function (t) {
   t.strictEqual(payload.result, 'success')
   t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
 
-  agent._transport.clear()
   t.end()
 })
 
 test('#_encode() - with meta data', function (t) {
+  agent._transport.clear()
+
   var trans = new Transaction(agent, 'foo', 'bar')
   trans.result = 'baz'
   trans.setUserContext({ foo: 1 })
@@ -336,7 +331,7 @@ test('#_encode() - with meta data', function (t) {
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -349,17 +344,18 @@ test('#_encode() - with meta data', function (t) {
   t.strictEqual(payload.result, 'baz')
   t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 } })
 
-  agent._transport.clear()
   t.end()
 })
 
 test('#_encode() - http request meta data', function (t) {
+  agent._transport.clear()
+
   var trans = new Transaction(agent)
   trans.req = mockRequest()
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'sync', 'span_count', 'outcome', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'subtype', 'action', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -386,8 +382,7 @@ test('#_encode() - http request meta data', function (t) {
         full: 'http://example.com/foo?bar=baz'
       },
       socket: {
-        remote_address: '127.0.0.1',
-        encrypted: true
+        remote_address: '127.0.0.1'
       },
       headers: {
         host: 'example.com',
@@ -401,7 +396,6 @@ test('#_encode() - http request meta data', function (t) {
     }
   })
 
-  agent._transport.clear()
   t.end()
 })
 
@@ -413,7 +407,7 @@ test('#_encode() - with spans', function (t) {
   trans.end()
 
   // Wait for span to be encoded and sent.
-  setTimeout(function () {
+  agent.flush(function () {
     const payload = trans._encode()
     t.strictEqual(payload.name, 'single-name')
     t.strictEqual(payload.type, 'type')
@@ -430,9 +424,8 @@ test('#_encode() - with spans', function (t) {
       started: 1
     })
 
-    agent._transport.clear()
     t.end()
-  }, 200)
+  })
 })
 
 test('#_encode() - dropped spans', function (t) {
@@ -450,7 +443,7 @@ test('#_encode() - dropped spans', function (t) {
   span0.end()
   trans.end()
 
-  setTimeout(function () {
+  agent.flush(function () {
     const payload = trans._encode()
     t.strictEqual(payload.name, 'single-name')
     t.strictEqual(payload.type, 'type')
@@ -470,9 +463,8 @@ test('#_encode() - dropped spans', function (t) {
     })
 
     agent._conf.transactionMaxSpans = oldTransactionMaxSpans
-    agent._transport.clear()
     t.end()
-  }, 200)
+  })
 })
 
 test('#_encode() - not sampled', function (t) {
@@ -497,7 +489,6 @@ test('#_encode() - not sampled', function (t) {
   t.notOk(payload.context)
 
   agent._conf.transactionSampleRate = oldTransactionSampleRate
-  agent._transport.clear()
   t.end()
 })
 
@@ -530,7 +521,6 @@ function mockRequest () {
       'x-bar': 'baz'
     },
     socket: {
-      encrypted: true,
       remoteAddress: '127.0.0.1'
     },
     body: {

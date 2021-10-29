@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.21.0",
+  "version": "3.23.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -33,6 +33,7 @@
   },
   "files": [
     "lib",
+    "types",
     "start.js",
     "index.d.ts",
     "start.d.ts"
@@ -42,7 +43,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "^8.6.0 || 10 || 12 || 14 || 15 || 16"
+    "node": "^8.6.0 || 10 || 12 || 14 || 15 || 16 || 17"
   },
   "keywords": [
     "opbeat",
@@ -86,7 +87,7 @@
     "basic-auth": "^2.0.1",
     "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "^10.0.0",
+    "elastic-apm-http-client": "^10.2.0",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",
@@ -117,11 +118,10 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
-    "@elastic/elasticsearch": "^7.14.0",
+    "@elastic/elasticsearch": "^7.15.0",
+    "@elastic/elasticsearch-canary": "^8.0.0-canary.35",
     "@hapi/hapi": "^20.1.2",
     "@koa/router": "^9.0.1",
-    "@types/aws-lambda": "^8.10.77",
-    "@types/connect": "^3.4.34",
     "@types/node": "^13.7.4",
     "@types/pino": "^6.3.8",
     "ajv": "^6.12.6",
@@ -163,6 +163,7 @@
     "memcached": "^2.2.2",
     "mimic-response": "^2.1.0",
     "mkdirp": "^0.5.1",
+    "module-details-from-path": "^1.0.3",
     "mongodb": "^4.1.0",
     "mongodb-core": "^3.2.7",
     "mysql": "^2.18.1",
@@ -172,7 +173,7 @@
     "nyc": "^15.0.0",
     "once": "^1.4.0",
     "p-finally": "^2.0.1",
-    "pg": "^8.1.0",
+    "pg": "^8.7.1",
     "pug": "^2.0.4",
     "redis": "^3.0.2",
     "request": "^2.88.2",

@@ -28,6 +28,125 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* The User-Agent header used for communication with APM Server now includes
+  the `serviceName` and `serviceVersion`. For some users this can be
+  https://github.com/elastic/apm/issues/509[helpful for APM Server log analysis].
+  ({issues}2364[#2364])
+
+[float]
+===== Bug fixes
+
+* Wrap `fs.realpath.native` when configured with `asyncHooks=false`. This
+  fixes using that function (which was undefined before this fix) and a
+  crash when importing fs-extra@10. ({issues}2401[#2401])
+
+* A significant change was made to internal run context tracking (a.k.a. async
+  context tracking). There are no configuration changes or API changes for
+  custom instrumentation. ({pull}2181[#2181])
++
+One behavior change is that multiple spans created synchronously (in the same
+async task) will form parent/child relationships; before this change they would
+all be siblings. This fixes HTTP child spans of Elasticsearch and aws-sdk
+automatic spans to properly be children. ({issues}1889[#1889])
++
+Another behavior change is that a span B started after having ended span A in
+the same async task will *no longer* be a child of span A. ({pull}1964[#1964])
++
+This fixes an issue with context binding of EventEmitters, where
+`removeListener` would fail to actually remove if the same handler function was
+added to multiple events.
+
+
+[[release-notes-3.23.0]]
+==== 3.23.0 2021/10/25
+
+[float]
+===== Breaking changes
+
+* Remove support for instrumenting versions of fastify earlier than 1.0.0.
+  This instrumentation might still work, but is no longer supported.
+  Fastify v1.0.0 was released in 2018. All current users should be using
+  fastify v2 or v3 at least. See https://www.fastify.io/docs/latest/LTS/
+  ({pull}2387[#2387])
+
+[float]
+===== Features
+
+* Add initial support for version 8 of `@elastic/elasticsearch`, which is
+  still in pre-release. ({pull}2385[#2385])
+
+
+[[release-notes-3.22.0]]
+==== 3.22.0 2021/10/21
+
+[float]
+===== Features
+
+* Add support for node v17.
+
+* When an error is captured, the APM agent will only immediately flush it to
+  APM server if it is an "unhandled" error. Unhandled errors are typically those
+  captured via the `uncaughtException` process event. Before this change, a
+  captured error (e.g. for a 4xx or 5xx response from an HTTP server) was
+  always immediately flushed. This could negatively impact performance for
+  a service that was generating *frequent* errors. ({issues}686[#686])
+
+[float]
+===== Bug fixes
+
+* Improve <<apm-flush,`apm.flush([cb])`>> to wait for inflight spans and errors
+  before flushing data to APM server. Before this change, a recently ended span
+  or recently <<apm-capture-error,captured error>> might not yet have completed
+  processing (for example, stacktrace collection is asynchronous) and might
+  not be included in the flush call. ({issues}2294[#2294])
+
+* AWS Lambda changes: Disable metrics collection during the experimental phase
+  of (re)implementing Lambda support ({pull}2363[#2363]). Some fixes for better
+  flushing of data at the end of a Lambda invocation.
+
+* <<span-to-string,`span.toString()`>> and <<transaction-to-string,`transaction.toString()`>>
+  have been *deprecated*. The exact string output may change in v4 of the
+  agent.
+
+* Add `Span.ids` and `Transaction.ids` to TypeScript types. ({pull}2347[#2347])
+
+* Improve `span.sync` determination (fixes {issues}1996[#1996]) and stop
+  reporting `transaction.sync` which was never used ({issues}2292[#2292]).
+  A minor semantic change is that `span.sync` is not set to a final value
+  until `span.end()` is called. Before `span.end()` the value will always
+  by `true`.
+
+* Guard against a negative value of `metricsInterval`, which can lead to
+  high CPU usage as metrics are collected as fast as possible. Also ensure
+  no metrics collection can happen if `metricsInterval="0s"` as intended.
+  Before this change it was possible for some metric collection to still
+  happen, even though none would be reported. ({pull}2330[#2330])
++
+This change also guards against negative and invalid values in the following
+configuration options: `abortedErrorThreshold`, `apiRequestTime`, and
+`serverTimeout`. If an invalid value is given, then will fallback to their
+default value.
+
+
+[[release-notes-3.21.1]]
+==== 3.21.1 2021/09/16
+
+[float]
+===== Bug fixes
+
+* Update types to avoid imports of `@types/...` modules (other than
+  `@types/node`), so that TypeScript users of elastic-apm-node need not
+  manually `npm install @types/connect @types/pino @types/aws-lambda` to
+  compile. ({issues}2331[#2331])
+
 
 ==== Unreleased
 
@@ -46,16 +165,16 @@ Notes:
   Specific transaction/span/error fields (see the list below) will be truncated
   at this number of unicode characters. ({pull}2193[#2193], {issues}1921[#1921])
 +
-  The `errorMessageMaxLength` configuration option is now *deprecated*, but
-  still supported. Users should switch to using `longFieldMaxLength. If
-  `errorMessageMaxLength` is not specified, truncation of error messages will
-  now use the `longFieldMaxLength` value.
+The `errorMessageMaxLength` configuration option is now *deprecated*, but
+still supported. Users should switch to using `longFieldMaxLength`. If
+`errorMessageMaxLength` is not specified, truncation of error messages will
+now use the `longFieldMaxLength` value.
 +
-  Note that ultimately the maximum length of any tracing field is limited by the
-  {apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`]
-  configured for the receiving APM server.
+Note that ultimately the maximum length of any tracing field is limited by the
+{apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`]
+configured for the receiving APM server.
 +
-  The fields affected by `longFieldMaxLength` are:
+The fields affected by `longFieldMaxLength` are:
 +
 ** `transaction.context.request.body`, `error.context.request.body` - Before
    this change these fields were not truncated.
@@ -351,7 +470,7 @@ as they are added over time.
 ===== Features
 
 * feat: add `apm.getServiceName()` {pull}1949[#1949] +
-  This will be used by https://github.com/elastic/ecs-logging-js[ecs-logging packages]
+  This will be used by https://github.com/elastic/ecs-logging-nodejs[ecs-logging packages]
   to integrate with APM.
 
 * feat: support numeric and boolean labels {pull}1909[#1909] +

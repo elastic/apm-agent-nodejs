@@ -109,7 +109,7 @@ test('rejections_handled', function (t) {
   t.on('end', () => {
     process.removeListener('unhandledRejection', onUnhandledRejection)
   })
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(3, function () {
     setTimeout(function () {
       t.notOk(unhandledRejection)
@@ -166,7 +166,7 @@ function done (t) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   agent._transport = mockClient(9, cb)
   agent.captureError = function (err) { throw err }
 }

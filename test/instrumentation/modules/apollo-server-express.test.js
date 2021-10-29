@@ -38,7 +38,7 @@ test('POST /graphql', function (t) {
   var resolvers = {
     Query: {
       hello () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 'Hello world!'
       }
     }
@@ -84,7 +84,7 @@ test('GET /graphql', function (t) {
   var resolvers = {
     Query: {
       hello () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 'Hello world!'
       }
     }
@@ -129,7 +129,7 @@ test('POST /graphql - named query', function (t) {
   var resolvers = {
     Query: {
       hello () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 'Hello world!'
       }
     }
@@ -175,11 +175,11 @@ test('POST /graphql - sort multiple queries', function (t) {
   var resolvers = {
     Query: {
       hello () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 'Hello world!'
       },
       life () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return 42
       }
     }
@@ -244,7 +244,7 @@ test('POST /graphql - sub-query', function (t) {
   var resolvers = {
     Query: {
       books () {
-        t.ok(agent._instrumentation.currentTransaction, 'have active transaction')
+        t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
         return books
       }
     }
@@ -301,7 +301,7 @@ function done (t, query) {
 }
 
 function resetAgent (cb) {
-  agent._instrumentation.currentTransaction = null
+  agent._instrumentation.testReset()
   // Cannot use the 'expected' argument to mockClient, because the way the
   // tests above are structured, there is a race between the mockClient
   // receiving events from the APM agent and the graphql request receiving a
