@@ -36,12 +36,20 @@ Notes:
 [float]
 ===== Features
 
+* The User-Agent header used for communication with APM Server now includes
+  the `serviceName` and `serviceVersion`. For some users this can be
+  https://github.com/elastic/apm/issues/509[helpful for APM Server log analysis].
+  ({issues}2364[#2364])
+
 [float]
 ===== Bug fixes
 
 * Stop collecting transaction breakdown metrics (`transaction.breakdown.count`,
   `transaction.duration.sum.us`, `transaction.duration.count`), as they are not
   being used in APM UI. ({issues}2370[#2370])
+* Wrap `fs.realpath.native` when configured with `asyncHooks=false`. This
+  fixes using that function (which was undefined before this fix) and a
+  crash when importing fs-extra@10. ({issues}2401[#2401])
 
 * A significant change was made to internal run context tracking (a.k.a. async
   context tracking). There are no configuration changes or API changes for
@@ -101,7 +109,7 @@ added to multiple events.
   before flushing data to APM server. Before this change, a recently ended span
   or recently <<apm-capture-error,captured error>> might not yet have completed
   processing (for example, stacktrace collection is asynchronous) and might
-  not be included in the flush call.
+  not be included in the flush call. ({issues}2294[#2294])
 
 * AWS Lambda changes: Disable metrics collection during the experimental phase
   of (re)implementing Lambda support ({pull}2363[#2363]). Some fixes for better

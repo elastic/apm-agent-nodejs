@@ -496,9 +496,7 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
     http_version: httpVersion,
     method: 'GET',
     url: expectedUrl,
-    socket: {
-      encrypted: secure
-    },
+    socket: {},
     headers: expectedReqHeaders
   }, 'trans.context.request is as expected')
 
