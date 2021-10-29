@@ -36,6 +36,11 @@ Notes:
 [float]
 ===== Features
 
+* The User-Agent header used for communication with APM Server now includes
+  the `serviceName` and `serviceVersion`. For some users this can be
+  https://github.com/elastic/apm/issues/509[helpful for APM Server log analysis].
+  ({issues}2364[#2364])
+
 [float]
 ===== Bug fixes
 
@@ -101,7 +106,7 @@ added to multiple events.
   before flushing data to APM server. Before this change, a recently ended span
   or recently <<apm-capture-error,captured error>> might not yet have completed
   processing (for example, stacktrace collection is asynchronous) and might
-  not be included in the flush call.
+  not be included in the flush call. ({issues}2294[#2294])
 
 * AWS Lambda changes: Disable metrics collection during the experimental phase
   of (re)implementing Lambda support ({pull}2363[#2363]). Some fixes for better
