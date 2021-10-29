@@ -30,7 +30,7 @@ test('client.ping with callback', function userLandCode (t) {
   var client = new elasticsearch.Client({ host: host })
 
   client.ping(function (err) {
-    t.error(err)
+    t.error(err, 'no error from client.ping')
     agent.endTransaction()
     agent.flush()
   })
