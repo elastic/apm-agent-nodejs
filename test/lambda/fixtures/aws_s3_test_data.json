@@ -1,0 +1,38 @@
+{
+    "Records": [
+        {
+            "eventVersion": "2.1",
+            "eventSource": "aws:s3",
+            "awsRegion": "us-east-1",
+            "eventTime": "2021-07-22T17:00:56.160Z",
+            "eventName": "ObjectCreated:Put",
+            "userIdentity": {
+                "principalId": "A2RA6A8EUPNS7Q"
+            },
+            "requestParameters": {
+                "sourceIPAddress": "73.3.110.73"
+            },
+            "responseElements": {
+                "x-amz-request-id": "0FM18R15SDX52CT2",
+                "x-amz-id-2": "6XuWW0exU7l4TbWDJmZL3oJgm6g8zgKDzkWM7dcuUKJcvd5mWrBSoPKpPGgINRDiQqwDNQIlVbJ3iWmN/S/e17DkKxT8fuQT"
+            },
+            "s3": {
+                "s3SchemaVersion": "1.0",
+                "configurationId": "2ef153aa-f76e-4c29-9d28-24a5eff172ec",
+                "bucket": {
+                    "name": "basepitestbucket",
+                    "ownerIdentity": {
+                        "principalId": "A2RA6A8EUPNS7Q"
+                    },
+                    "arn": "arn:aws:s3:::basepitestbucket"
+                },
+                "object": {
+                    "key": "requirements.txt",
+                    "size": 106,
+                    "eTag": "467344a84741a3a3e6d92a7acc24ba5e",
+                    "sequencer": "0060F9A455E75DC318"
+                }
+            }
+        }
+    ]
+}

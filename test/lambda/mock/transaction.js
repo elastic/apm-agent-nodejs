@@ -6,7 +6,7 @@ module.exports = class TransactionMock {
     this.type = type
     this.ended = false
     this.customContext = {}
-    this.faas = {}
+    this._faas = {}
     this.outcome = 'success'
     this.opts = opts
   }
@@ -15,8 +15,17 @@ module.exports = class TransactionMock {
     Object.assign(this.customContext, custom)
   }
 
+  setCloudContext(cloud) {
+    Object.assign(this._cloud = cloud)
+  }
+
+  setServiceContext(serviceContext) {
+    if (!serviceContext) return
+    this._service = Object.assign(this._service || {}, serviceContext)
+  }
+
   setFaas (context) {
-    Object.assign(this.faas, context)
+    Object.assign(this._faas, context)
   }
 
   setOutcome (outcome) {
