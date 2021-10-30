@@ -64,6 +64,8 @@ This fixes an issue with context binding of EventEmitters, where
 `removeListener` would fail to actually remove if the same handler function was
 added to multiple events.
 
+* Fix pino's deprecation warning when using a custom logger with pino@6 ({issues}2332[#2332])
+
 
 [[release-notes-3.23.0]]
 ==== 3.23.0 2021/10/25
@@ -147,13 +149,6 @@ default value.
   manually `npm install @types/connect @types/pino @types/aws-lambda` to
   compile. ({issues}2331[#2331])
 
-
-==== Unreleased
-
-[float]
-===== Bug fixes
-
-* Fix pino's deprecation warning when using a custom logger with pino@6 ({issues}2332[#2332])
 
 [[release-notes-3.21.0]]
 ==== 3.21.0 2021/09/15
