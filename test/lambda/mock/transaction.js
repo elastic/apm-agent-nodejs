@@ -15,11 +15,15 @@ module.exports = class TransactionMock {
     Object.assign(this.customContext, custom)
   }
 
-  setCloudContext(cloud) {
+  setCloudContext (cloud) {
     Object.assign(this._cloud = cloud)
   }
 
-  setServiceContext(serviceContext) {
+  setMessageContext (message) {
+    Object.assign(this._message = message)
+  }
+
+  setServiceContext (serviceContext) {
     if (!serviceContext) return
     this._service = Object.assign(this._service || {}, serviceContext)
   }
