@@ -28,6 +28,7 @@ class CapturingTransport {
   }
 
   clear () {
+    this.extraMetadata = null
     this.spans = []
     this.transactions = []
     this.errors = []
@@ -37,6 +38,10 @@ class CapturingTransport {
   config (opts) {}
 
   addMetadataFilter (fn) {}
+
+  setExtraMetadata (metadata) {
+    this.extraMetadata = metadata
+  }
 
   sendSpan (span, cb) {
     this.spans.push(span)

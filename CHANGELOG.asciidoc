@@ -36,6 +36,10 @@ Notes:
 [float]
 ===== Features
 
+* Gather https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md#overwriting-metadata[AWS Lambda-specific metadata]
+  on first function invocation and ensure no intake requests to APM Server are
+  started before that metadata is available. ({issues}2404[#2404])
+
 * The User-Agent header used for communication with APM Server now includes
   the `serviceName` and `serviceVersion`. For some users this can be
   https://github.com/elastic/apm/issues/509[helpful for APM Server log analysis].
