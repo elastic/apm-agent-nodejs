@@ -297,39 +297,87 @@ tape.test('serialize transaction lambda fields', function (t) {
   t.end()
 })
 
-// tape.test('setLambdaTransactionData invalid objects', function (t) {
-//   const mockAgent = new AgentMock()
-//   const wrapLambda = elasticApmAwsLambda(mockAgent)
-//   const wrappedMockLambda = wrapLambda(function () {})
-//   const emptyGatewayEvent = {
-//     requestContext: {
-//       requestId: 'abc123'
-//     }
-//   }
-//   const emptySqsEvent = {
-//     Records: [{
-//       eventSource: 'aws:sqs'
-//     }]
-//   }
-//   const emptySnsEvent = {
-//     Records: [{
-//       eventSource: 'aws:sns'
-//     }]
-//   }
-//   const emptyS3Event = {
-//     Records:[{
-//       eventSource:'aws:s3'
-//     }]
-//   }
-//   const fixtures = [emptyGatewayEvent, emptySqsEvent,
-//     emptySqsEvent, emptySnsEvent,emptyS3Event]
+tape.test('setLambdaTransactionData invalid objects', function (t) {
+  const mockAgent = new AgentMock()
+  const wrapLambda = elasticApmAwsLambda(mockAgent)
+  const wrappedMockLambda = wrapLambda(function () {})
+  const emptyGatewayEvent = {
+    requestContext: {
+      requestId: 'abc123'
+    }
+  }
+  const emptySqsEvent = {
+    Records: [{
+      eventSource: 'aws:sqs'
+    }]
+  }
+  const emptySnsEvent = {
+    Records: [{
+      eventSource: 'aws:sns'
+    }]
+  }
+  const emptyS3Event = {
+    Records: [{
+      eventSource: 'aws:s3'
+    }]
+  }
+  const fixtures = [emptyGatewayEvent, emptySqsEvent,
+    emptySqsEvent, emptySnsEvent, emptyS3Event]
 
-//   for (const [, event] of fixtures.entries()) {
-//     wrappedMockLambda(event, {})
-//   }
+  for (const [, event] of fixtures.entries()) {
+    wrappedMockLambda(event, {})
+    t.pass('no exceptions thrown or crashing errors')
+  }
 
-//   // function isSqsEvent (event) {
-//   // function isSnsEvent (event) {
-//   // function isS3SingleEvent (event) {
-//   t.end()
-// })
+  t.end()
+})
+
+tape.test('transaction.result failure: thrown error', function (t) {
+  const mockAgent = new AgentMock()
+  const wrapLambda = elasticApmAwsLambda(mockAgent)
+  const wrappedMockLambda = wrapLambda(function () {
+    throw new Error('oh no, an error')
+  })
+
+  wrappedMockLambda({}, {}, function (err, result) {
+    t.ok(err)
+    const transaction = mockAgent.transactions.shift()
+    t.equals(transaction.result, 'failure', 'result is failure')
+    t.end()
+  })
+})
+
+tape.test('transaction.result failure: callback error', function (t) {
+  const mockAgent = new AgentMock()
+  const wrapLambda = elasticApmAwsLambda(mockAgent)
+  const wrappedMockLambda = wrapLambda(function (event, context, callback) {
+    const err = new Error('oh no, an error')
+    callback(err, null)
+  })
+
+  wrappedMockLambda({}, {}, function (err, result) {
+    t.ok(err)
+    const transaction = mockAgent.transactions.shift()
+    t.equals(transaction.result, 'failure', 'result is failure')
+    t.end()
+  })
+})
+
+tape.test('transaction.result failure: api gateway failure', function (t) {
+  const mockAgent = new AgentMock()
+  const wrapLambda = elasticApmAwsLambda(mockAgent)
+  const wrappedMockLambda = wrapLambda(function () {
+    throw new Error('oh no, an error')
+  })
+  const emptyGatewayEvent = {
+    requestContext: {
+      requestId: 'abc123'
+    }
+  }
+  wrappedMockLambda(emptyGatewayEvent, {}, function (err, result) {
+    t.ok(err)
+    const transaction = mockAgent.transactions.shift()
+    t.equals(transaction.result, 'HTTP 5xx', 'result is failure')
+    t.end()
+  })
+})
