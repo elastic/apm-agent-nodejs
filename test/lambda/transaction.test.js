@@ -296,3 +296,40 @@ tape.test('serialize transaction lambda fields', function (t) {
 
   t.end()
 })
+
+// tape.test('setLambdaTransactionData invalid objects', function (t) {
+//   const mockAgent = new AgentMock()
+//   const wrapLambda = elasticApmAwsLambda(mockAgent)
+//   const wrappedMockLambda = wrapLambda(function () {})
+//   const emptyGatewayEvent = {
+//     requestContext: {
+//       requestId: 'abc123'
+//     }
+//   }
+//   const emptySqsEvent = {
+//     Records: [{
+//       eventSource: 'aws:sqs'
+//     }]
+//   }
+//   const emptySnsEvent = {
+//     Records: [{
+//       eventSource: 'aws:sns'
+//     }]
+//   }
+//   const emptyS3Event = {
+//     Records:[{
+//       eventSource:'aws:s3'
+//     }]
+//   }
+//   const fixtures = [emptyGatewayEvent, emptySqsEvent,
+//     emptySqsEvent, emptySnsEvent,emptyS3Event]
+
+//   for (const [, event] of fixtures.entries()) {
+//     wrappedMockLambda(event, {})
+//   }
+
+//   // function isSqsEvent (event) {
+//   // function isSnsEvent (event) {
+//   // function isS3SingleEvent (event) {
+//   t.end()
+// })
