@@ -42,8 +42,9 @@ Notes:
   ({issues}2364[#2364])
 
 * In a Lambda enviornment we now collection a number of additional data fields
-  on the Transaction object.  See https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md[spec for more information]
-  on fields collected. ({issues}2156[#2156])
+  on the Transaction object.  See spec for more information on fields collected.
+  https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md
+  ({issues}2156[#2156])
 
 [float]
 ===== Bug fixes
