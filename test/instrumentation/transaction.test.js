@@ -315,7 +315,7 @@ test('#_encode() - ended', function (t) {
   t.ok(payload.duration > 0)
   t.strictEqual(payload.timestamp, trans._timer.start)
   t.strictEqual(payload.result, 'success')
-  t.deepEqual(payload.context, { user: {}, tags: {}, custom: {} })
+  t.deepEqual(payload.context, { user: {}, tags: {}, custom: {}, service: {}, cloud: {}, message: {} })
 
   t.end()
 })
@@ -342,7 +342,7 @@ test('#_encode() - with meta data', function (t) {
   t.ok(payload.duration > 0)
   t.strictEqual(payload.timestamp, trans._timer.start)
   t.strictEqual(payload.result, 'baz')
-  t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 } })
+  t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 }, service: {}, cloud: {}, message: {} })
 
   t.end()
 })
@@ -370,6 +370,9 @@ test('#_encode() - http request meta data', function (t) {
     user: {},
     tags: {},
     custom: {},
+    service: {},
+    cloud: {},
+    message: {},
     request: {
       http_version: '1.1',
       method: 'POST',
@@ -418,7 +421,10 @@ test('#_encode() - with spans', function (t) {
     t.deepEqual(payload.context, {
       user: {},
       tags: {},
-      custom: {}
+      custom: {},
+      service: {},
+      cloud: {},
+      message: {}
     })
     t.deepEqual(payload.span_count, {
       started: 1
@@ -454,7 +460,10 @@ test('#_encode() - dropped spans', function (t) {
     t.deepEqual(payload.context, {
       user: {},
       tags: {},
-      custom: {}
+      custom: {},
+      service: {},
+      cloud: {},
+      message: {}
     })
 
     t.deepEqual(payload.span_count, {
