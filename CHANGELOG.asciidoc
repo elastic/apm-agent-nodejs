@@ -87,6 +87,8 @@ This fixes an issue with context binding of EventEmitters, where
 `removeListener` would fail to actually remove if the same handler function was
 added to multiple events.
 
+* Fix pino's deprecation warning when using a custom logger with pino@6 ({issues}2332[#2332])
+
 
 [[release-notes-3.23.0]]
 ==== 3.23.0 2021/10/25
