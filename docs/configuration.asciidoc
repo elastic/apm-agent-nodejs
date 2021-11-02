@@ -148,6 +148,23 @@ See {kibana-ref}/filters.html#environment-selector[environment selector] in the 
 NOTE: This feature is fully supported in the APM app in Kibana versions >= 7.2.
 You must use the query bar to filter for a specific environment in versions prior to 7.2.
 
+
+[[context-propagation-only]]
+==== `contextPropagationOnly`
+
+* *Type:* Boolean
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_CONTEXT_PROPAGATION_ONLY`
+
+If set to `true`, the agent will reduce its work to the minimum required to
+support automatic https://w3c.github.io/trace-context/[HTTP trace-context]
+propagation (for distributed tracing) and log correlation. The agent will not
+communicate with APM server (no tracing data is forwarded, no central
+configuration is retrieved) and will not collect metrics. This setting allows
+using the APM agent with a service that cannot use APM server. Usage is expected
+to be rare.
+
+
 [[disable-send]]
 ==== `disableSend`
 
@@ -155,14 +172,17 @@ You must use the query bar to filter for a specific environment in versions prio
 * *Default:* `false`
 * *Env:* `ELASTIC_APM_DISABLE_SEND`
 
-If set to `true`, the agent will work as usual, except for any task requiring
-communication with the APM server. Events will be dropped and the agent won't be
-able to receive central configuration, which means that any other configuration
-cannot be changed in this state without restarting the service.  Example uses
-for this setting are: maintaining the ability to create traces and log
-trace/transaction/span IDs through the log correlation feature, and getting
-automatic distributed tracing via the https://w3c.github.io/trace-context/[W3C
-HTTP headers].
+If set to `true`, the agent will work as usual, except that it will not attempt
+to communicate with APM server. Tracing and metrics data will be dropped and the
+agent won't be able to receive central configuration, which means that any other
+configuration cannot be changed in this state without restarting the service.
+
+This setting is similar to <<context-propagation-only,
+`contextPropagationOnly`>> in functionality. However, `disableSend` does not
+attempt to reduce time spent collecting tracing data. A use case for this
+setting is in CI environments, to test agent functionality without requiring a
+configured APM server.
+
 
 [[instrument]]
 ==== `instrument`

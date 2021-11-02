@@ -33,8 +33,27 @@ Notes:
 [float]
 ===== Breaking changes
 
+* Change <<disable-send, `disableSend`>> to no longer skip internal processing
+  work. It now *only* disables communication with APM Server. Use
+  <<context-propagation-only, `contextPropagationOnly`>> if your use case is
+  to limit the APM agent's processing to the minimum to support context
+  propagation and log correlation.
++
+This is listed under "Breaking changes" as a heads-up. The only possible
+negative result of this `disableSend` change is some extra CPU processing time
+by the agent. There is no outward functionality change.
+
 [float]
 ===== Features
+
+* Add <<context-propagation-only, `contextPropagationOnly`>> configuration
+  option. This supports the use case of using the APM agent to propagate HTTP
+  trace-context and to support log-correlation (adding `trace.id` et al fields
+  to log records) **without** an APM server, and to otherwise reduce the
+  processing time of the agent. ({issues}2393[#2393])
++
+This is similar to <<disable-send, `disableSend`>>, but differs in that
+`contextPropagationOnly: true` tells the agent to skip unnecessary work.
 
 * The User-Agent header used for communication with APM Server now includes
   the `serviceName` and `serviceVersion`. For some users this can be
@@ -276,6 +295,7 @@ The fields affected by `longFieldMaxLength` are:
 
 * Add instrumentation of all AWS S3 methods when using the
   https://www.npmjs.com/package/aws-sdk[JavaScript AWS SDK v2] (`aws-sdk`).
+
 * Add <<disable-send, `disableSend`>> configuration option. This supports some
   use cases using the APM agent **without** an APM server. ({issues}2101[#2101])
 
