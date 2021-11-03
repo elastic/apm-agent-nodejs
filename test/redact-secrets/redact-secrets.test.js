@@ -22,6 +22,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+
+// `redact` below assumes there is a configured agent.
+require('../..').start({
+  disableSend: true
+})
+
 var test = require('tape')
 var clone = require('clone')
 var redact = require('../../lib/redact-secrets')

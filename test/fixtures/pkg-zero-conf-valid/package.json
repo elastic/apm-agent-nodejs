@@ -1,0 +1,5 @@
+{
+  "name": "validName",
+  "version": "1.2.3",
+  "description": "a package with valid values for serviceName and serviceVersion inference"
+}

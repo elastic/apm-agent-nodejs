@@ -9,7 +9,6 @@ var util = require('util')
 
 var isRegExp = require('core-util-is').isRegExp
 var mkdirp = require('mkdirp')
-var pFinally = require('p-finally')
 var rimraf = require('rimraf')
 var semver = require('semver')
 var test = require('tape')
@@ -18,7 +17,7 @@ const Agent = require('../lib/agent')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
 const { safeGetPackageVersion } = require('./_utils')
-var config = require('../lib/config')
+const config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
 var apmName = require('../package').name
@@ -538,14 +537,6 @@ test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (
   t.end()
 })
 
-test('should default serviceName to package name', function (t) {
-  var agent = new Agent()
-  agent.start()
-  t.strictEqual(agent._conf.serviceName, 'elastic-apm-node')
-  agent.destroy()
-  t.end()
-})
-
 test('should default to empty request blacklist arrays', function (t) {
   var agent = new Agent()
   agent.start(agentOptsNoopTransport)
@@ -605,9 +596,16 @@ test('should compile wildcards from string', function (t) {
 })
 
 test('invalid serviceName => inactive', function (t) {
+  var logger = new CaptureLogger()
   var agent = new Agent()
-  agent.start(Object.assign({}, agentOptsNoopTransport, { serviceName: 'foo&bar' }))
-  t.strictEqual(agent._conf.active, false)
+  agent.start(Object.assign(
+    {},
+    agentOptsNoopTransport,
+    { serviceName: 'foo&bar', logger }
+  ))
+  t.ok(logger.calls[0].type === 'error' && logger.calls[0].message.indexOf('serviceName') !== -1,
+    'there was a log.error mentioning "serviceName"')
+  t.strictEqual(agent._conf.active, false, 'active is false')
   agent.destroy()
   t.end()
 })
@@ -620,144 +618,105 @@ test('valid serviceName => active', function (t) {
   t.end()
 })
 
-test('serviceName defaults to package name', function (t) {
-  var mkdirpPromise = util.promisify(mkdirp)
-  var rimrafPromise = util.promisify(rimraf)
-  var writeFile = util.promisify(fs.writeFile)
-  var symlink = util.promisify(fs.symlink)
-  var exec = util.promisify(cp.exec)
-
-  function testServiceConfig (pkg, handle) {
-    var tmp = path.join(os.tmpdir(), 'elastic-apm-node-test', String(Date.now()))
-    var files = [
-      {
-        action: 'mkdirp',
-        dir: tmp
-      },
-      {
-        action: 'create',
-        path: path.join(tmp, 'package.json'),
-        contents: JSON.stringify(pkg)
-      },
-      {
-        action: 'create',
-        path: path.join(tmp, 'index.js'),
-        contents: `
-          var apm = require('elastic-apm-node').start({
-            centralConfig: false,
-            metricsInterval: '0s',
-            logLevel: 'off'
-          })
-          console.log(JSON.stringify(apm._conf))
-        `
-      },
-      {
-        action: 'mkdirp',
-        dir: path.join(tmp, 'node_modules')
-      }
-    ]
-
-    if (process.platform === 'win32') {
-      files.push({
-        action: 'npm link',
-        from: path.resolve(__dirname, '..'),
-        to: tmp
-      })
-    } else {
-      files.push({
-        action: 'symlink',
-        from: path.resolve(__dirname, '..'),
-        to: path.join(tmp, 'node_modules/elastic-apm-node')
-      })
-    }
-
-    // NOTE: Reduce the sequence to a promise chain rather
-    // than using Promise.all(), as the tasks are dependent.
-    let promise = files.reduce((p, file) => {
-      return p.then(() => {
-        switch (file.action) {
-          case 'create': {
-            return writeFile(file.path, file.contents)
-          }
-          case 'mkdirp': {
-            return mkdirpPromise(file.dir)
-          }
-          case 'symlink': {
-            return symlink(file.from, file.to)
-          }
-          case 'npm link': {
-            return exec('npm link', {
-              cwd: file.from
-            }).then(() => {
-              return exec('npm link elastic-apm-node', {
-                cwd: file.to
-              })
-            })
-          }
-        }
-      })
-    }, Promise.resolve())
-
-    promise = promise
-      .then(() => {
-        return exec('node index.js', {
-          cwd: tmp
-        })
-      })
-      .then(result => {
-        return JSON.parse(result.stdout)
-      })
-      .catch(err => {
-        t.error(err)
-      })
-
-    return pFinally(promise, () => {
-      return rimrafPromise(tmp)
-    })
-  }
-
-  t.test('should be active when valid', function (t) {
-    var pkg = {
-      name: 'valid'
-    }
-
-    return testServiceConfig(pkg).then(conf => {
-      t.strictEqual(conf.active, true)
-      t.strictEqual(conf.serviceName, pkg.name)
-      t.end()
-    })
+test('serviceName/serviceVersion zero-conf: valid', function (t) {
+  cp.execFile(process.execPath, ['index.js'], {
+    timeout: 1000,
+    cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-valid')
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running index.js')
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const conf = JSON.parse(lines[lines.length - 1])
+    t.equal(conf.serviceName, 'validName', 'serviceName was inferred from package.json')
+    t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
+    t.end()
   })
+})
 
-  t.test('should be inactive when blank', function (t) {
-    var pkg = {
-      name: ''
-    }
-
-    return testServiceConfig(pkg).then(conf => {
-      t.strictEqual(conf.active, false)
-      t.strictEqual(conf.serviceName, pkg.name)
-      t.end()
-    })
+test('serviceName/serviceVersion zero-conf: no package.json to find', function (t) {
+  const indexJs = path.join(__dirname, 'fixtures', 'pkg-zero-conf-valid', 'index.js')
+  cp.execFile(process.execPath, [indexJs], {
+    timeout: 1000,
+    // Set CWD to top-level to ensure the agent cannot find a package.json file.
+    cwd: '/'
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running index.js')
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const conf = JSON.parse(lines[lines.length - 1])
+    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
+    t.end()
   })
+})
 
-  t.test('should be inactive when missing', function (t) {
-    var pkg = {}
-
-    return testServiceConfig(pkg).then(conf => {
-      t.strictEqual(conf.active, false)
-      t.end()
-    })
+test('serviceName/serviceVersion zero-conf: no "name" in package.json', function (t) {
+  cp.execFile(process.execPath, ['index.js'], {
+    timeout: 1000,
+    cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-noname')
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running index.js')
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const conf = JSON.parse(lines[lines.length - 1])
+    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
+    t.end()
   })
+})
 
-  t.test('serviceVersion should default to package version', function (t) {
-    var pkg = {
-      version: '1.2.3'
-    }
+// A package.json#name that uses a scoped npm name, e.g. @ns/name, should get
+// a normalized serviceName='ns-name'.
+test('serviceName/serviceVersion zero-conf: namespaced package name', function (t) {
+  cp.execFile(process.execPath, ['index.js'], {
+    timeout: 1000,
+    cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-nsname')
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running index.js')
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const conf = JSON.parse(lines[lines.length - 1])
+    t.equal(conf.serviceName, 'ns-name', 'serviceName was inferred and normalized from package.json')
+    t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
+    t.end()
+  })
+})
 
-    return testServiceConfig(pkg).then(conf => {
-      t.strictEqual(conf.serviceVersion, pkg.version)
-      t.end()
-    })
+test('serviceName/serviceVersion zero-conf: a package name that requires sanitization', function (t) {
+  cp.execFile(process.execPath, ['index.js'], {
+    timeout: 1000,
+    cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-sanitize')
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running index.js')
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const conf = JSON.parse(lines[lines.length - 1])
+    // serviceName sanitization changes any disallowed char to an underscore.
+    // The pkg-zero-conf-sanitize/package.json has a name starting with the
+    // 7 characters that an npm package name can have, but a serviceName
+    // cannot.
+    //    "name": "~*.!'()validNpmName"
+    t.equal(conf.serviceName, '_______validNpmName', 'serviceName was inferred and sanitized from package.json')
+    t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
+    t.end()
+  })
+})
+
+test('serviceName/serviceVersion zero-conf: weird "name" in package.json', function (t) {
+  cp.execFile(process.execPath, ['index.js'], {
+    timeout: 1000,
+    cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-weird')
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running index.js')
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const logWarn = JSON.parse(lines[0])
+    t.ok(logWarn['log.level'] === 'warn' && logWarn.message.indexOf('serviceName') !== -1,
+      'there is a log.warn about "serviceName"')
+    const conf = JSON.parse(lines[lines.length - 1])
+    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
+    t.end()
   })
 })
 
@@ -1125,7 +1084,7 @@ test('parsing of ARRAY and KEY_VALUE opts', function (t) {
       if (env) {
         process.env = Object.assign({}, origEnv, env)
       }
-      var cfg = config(opts)
+      var cfg = config.createConfig(opts)
       for (var field in expect) {
         t.deepEqual(cfg[field], expect[field],
           util.format('opts=%j env=%j -> %j', opts, env, expect))
@@ -1184,7 +1143,7 @@ test('transactionSampleRate precision', function (t) {
       if (env) {
         process.env = Object.assign({}, origEnv, env)
       }
-      var cfg = config(opts)
+      var cfg = config.createConfig(opts)
       for (var field in expect) {
         t.deepEqual(cfg[field], expect[field],
           util.format('opts=%j env=%j -> %j', opts, env, expect))
