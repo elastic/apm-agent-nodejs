@@ -14,7 +14,7 @@ var PassThrough = require('stream').PassThrough
 var mimicResponse = require('mimic-response')
 var test = require('tape')
 
-var echoServer = require('./_echo_server_util').echoServer
+var echoServer = require('../http/_echo_server_util').echoServer
 
 test('https://github.com/opbeat/opbeat-node/issues/179', function (t) {
   echoServer(function (cp, port) {
