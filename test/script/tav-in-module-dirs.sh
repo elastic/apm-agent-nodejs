@@ -10,8 +10,8 @@ fi
 set -o errexit
 set -o pipefail
 
-TAV=$(pwd)/node_modules/.bin/tav
+TAV_EXEC=$(pwd)/node_modules/.bin/tav
 find ./test/instrumentation/modules -name .tav.yml | while read f; do
     echo "-- $f"
-    (cd $(dirname $f) && $TAV)
+    (cd $(dirname $f) && $TAV_EXEC --quiet)
 done

@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
