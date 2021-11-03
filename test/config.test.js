@@ -620,10 +620,10 @@ test('valid serviceName => active', function (t) {
 
 test('serviceName/serviceVersion zero-conf: valid', function (t) {
   cp.execFile(process.execPath, ['index.js'], {
-    timeout: 1000,
+    timeout: 3000,
     cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-valid')
   }, function (err, stdout, stderr) {
-    t.error(err, 'no error running index.js')
+    t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
@@ -636,11 +636,11 @@ test('serviceName/serviceVersion zero-conf: valid', function (t) {
 test('serviceName/serviceVersion zero-conf: no package.json to find', function (t) {
   const indexJs = path.join(__dirname, 'fixtures', 'pkg-zero-conf-valid', 'index.js')
   cp.execFile(process.execPath, [indexJs], {
-    timeout: 1000,
+    timeout: 3000,
     // Set CWD to top-level to ensure the agent cannot find a package.json file.
     cwd: '/'
   }, function (err, stdout, stderr) {
-    t.error(err, 'no error running index.js')
+    t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
@@ -652,10 +652,10 @@ test('serviceName/serviceVersion zero-conf: no package.json to find', function (
 
 test('serviceName/serviceVersion zero-conf: no "name" in package.json', function (t) {
   cp.execFile(process.execPath, ['index.js'], {
-    timeout: 1000,
+    timeout: 3000,
     cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-noname')
   }, function (err, stdout, stderr) {
-    t.error(err, 'no error running index.js')
+    t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
@@ -669,10 +669,10 @@ test('serviceName/serviceVersion zero-conf: no "name" in package.json', function
 // a normalized serviceName='ns-name'.
 test('serviceName/serviceVersion zero-conf: namespaced package name', function (t) {
   cp.execFile(process.execPath, ['index.js'], {
-    timeout: 1000,
+    timeout: 3000,
     cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-nsname')
   }, function (err, stdout, stderr) {
-    t.error(err, 'no error running index.js')
+    t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
@@ -684,10 +684,10 @@ test('serviceName/serviceVersion zero-conf: namespaced package name', function (
 
 test('serviceName/serviceVersion zero-conf: a package name that requires sanitization', function (t) {
   cp.execFile(process.execPath, ['index.js'], {
-    timeout: 1000,
+    timeout: 3000,
     cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-sanitize')
   }, function (err, stdout, stderr) {
-    t.error(err, 'no error running index.js')
+    t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
@@ -704,10 +704,10 @@ test('serviceName/serviceVersion zero-conf: a package name that requires sanitiz
 
 test('serviceName/serviceVersion zero-conf: weird "name" in package.json', function (t) {
   cp.execFile(process.execPath, ['index.js'], {
-    timeout: 1000,
+    timeout: 3000,
     cwd: path.join(__dirname, 'fixtures', 'pkg-zero-conf-weird')
   }, function (err, stdout, stderr) {
-    t.error(err, 'no error running index.js')
+    t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const logWarn = JSON.parse(lines[0])
