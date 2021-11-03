@@ -860,82 +860,41 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 })
 
 test('disableInstrumentations', function (t) {
-  var expressGraphqlVersion = require('express-graphql/package.json').version
-  var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
-  const esCanaryVersion = safeGetPackageVersion('@elastic/elasticsearch-canary')
+  // The set of "all" modules that have instrumentations and that can be
+  // require'd, given what is in "dependencies" in package.json.
+  const allModules = new Set(['http', 'https', 'http2'])
 
-  // require('apollo-server-core') is a hard crash on nodes < 12.0.0
-  const apolloServerCoreVersion = require('apollo-server-core/package.json').version
+  function testADisableInstrumentationsValue (configValue) {
+    var modulesToDisable = new Set(typeof configValue === 'string'
+      ? configValue.split(',')
+      : configValue)
 
-  var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
-  var modules = new Set(flattenedModules)
-  if (isHapiIncompat('hapi')) {
-    modules.delete('hapi')
-  }
-  if (isHapiIncompat('@hapi/hapi')) {
-    modules.delete('@hapi/hapi')
-  }
-  if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
-    modules.delete('express-graphql')
-  }
-  if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
-    modules.delete('@elastic/elasticsearch')
-  }
-  if (semver.lt(process.version, '10.0.0') && semver.gte(esCanaryVersion, '7.12.0')) {
-    modules.delete('@elastic/elasticsearch-canary')
-  }
-  // As of mongodb@4 only supports node >=v12.
-  const mongodbVersion = require('../node_modules/mongodb/package.json').version
-  if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
-    modules.delete('mongodb')
-  }
+    var agent = new Agent()
+    agent.start(Object.assign(
+      {},
+      agentOptsNoopTransport,
+      { disableInstrumentations: configValue }
+    ))
 
-  if (semver.gte(apolloServerCoreVersion, '3.0.0') && semver.lt(process.version, '12.0.0')) {
-    modules.delete('apollo-server-core')
-  }
-
-  function testSlice (t, name, selector) {
-    var selection = selector(modules)
-    var selectionSet = new Set(typeof selection === 'string' ? selection.split(',') : selection)
-
-    t.test(name + ' -> ' + Array.from(selectionSet).join(','), function (t) {
-      var agent = new Agent()
-      agent.start(Object.assign(
-        {},
-        agentOptsNoopTransport,
-        { disableInstrumentations: selection }
-      ))
-
-      var found = new Set()
-
-      agent._instrumentation._patchModule = function (exports, name, version, enabled) {
-        if (!enabled) found.add(name)
-        return exports
+    var found = new Set()
+    agent._instrumentation._patchModule = function (exports, name, version, enabled) {
+      if (!enabled) {
+        found.add(name)
       }
+      return exports
+    }
 
-      for (const mod of modules) {
-        require(mod)
-      }
+    for (const mod of allModules) {
+      require(mod)
+    }
+    t.deepEqual(modulesToDisable, found, 'disabled all selected modules: ' + JSON.stringify(configValue))
 
-      t.deepEqual(selectionSet, found, 'disabled all selected modules')
-
-      agent.destroy()
-      t.end()
-    })
+    agent.destroy()
   }
 
-  for (const mod of modules) {
-    testSlice(t, 'individual modules', () => new Set([mod]))
-  }
-
-  testSlice(t, 'multiple modules by array', modules => {
-    return Array.from(modules).filter((value, index) => index % 2)
-  })
-
-  testSlice(t, 'multiple modules by csv string', modules => {
-    return Array.from(modules).filter((value, index) => !(index % 2))
-  })
-
+  testADisableInstrumentationsValue('http2') // single value
+  testADisableInstrumentationsValue(['http2', 'http']) // array of values
+  testADisableInstrumentationsValue('https,http2') // comma-sep array of values
   t.end()
 })
 
