@@ -1,0 +1,5 @@
+mysql:
+  versions: ^2.0.0
+  commands:
+    - node mysql.test.js
+    - node pool-release-1.test.js

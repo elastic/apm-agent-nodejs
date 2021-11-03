@@ -1,8 +1,3 @@
-mysql:
-  versions: ^2.0.0
-  commands:
-    - node test/instrumentation/modules/mysql/mysql.test.js
-    - node test/instrumentation/modules/mysql/pool-release-1.test.js
 mysql2-old:
   name: mysql2
   versions: '>=1.0.0 <1.6.0'
