@@ -1,0 +1,5 @@
+mimic-response:
+  versions: ^1.0.0
+  commands:
+    - node mimic-response.test.js
+    - node github-179.test.js
