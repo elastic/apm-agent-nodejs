@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -11,8 +11,8 @@ var agent = require('../../..').start({
 var redis = require('redis')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
-var findObjInArray = require('../../_utils').findObjInArray
+var mockClient = require('../../../_mock_http_client')
+var findObjInArray = require('../../../_utils').findObjInArray
 
 test(function (t) {
   resetAgent(function (data) {

@@ -1,0 +1,8 @@
+{
+  "name": "test-ioredis",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "ioredis": "^4.16.0"
+  }
+}

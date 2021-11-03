@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -12,7 +12,7 @@ var agent = require('../../..').start({
 var Redis = require('ioredis')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 test('not nested', function (t) {
   resetAgent(done(t))
