@@ -49,6 +49,7 @@ by the agent. There is no outward functionality change.
 * Gather https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md#overwriting-metadata[AWS Lambda-specific metadata]
   on first function invocation and ensure no intake requests to APM Server are
   started before that metadata is available. ({issues}2404[#2404])
+
 * Add <<context-propagation-only, `contextPropagationOnly`>> configuration
   option. This supports the use case of using the APM agent to propagate HTTP
   trace-context and to support log-correlation (adding `trace.id` et al fields
