@@ -85,6 +85,7 @@ tape.test('setLambdaTransactionData aws_api_rest_test_data.json tests', function
 tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) {
   const mockAgent = new AgentMock()
   mockAgent._conf.captureBody = 'all'
+  mockAgent._conf.captureHeaders = 'all'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
@@ -112,7 +113,7 @@ tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) 
   t.strictEquals(transaction._message.queue.name, r.eventSourceARN, 'message queue set correctly')
   t.strictEquals(typeof transaction._message.age.ms, 'number', 'message age is a number')
   t.strictEquals(transaction._message.body, r.body, 'message body set correctly')
-  t.deepEquals(transaction._message.headers, r.attributes, 'message headers set correctly')
+  t.deepEquals(transaction._message.headers, r.messageAttributes, 'message headers set correctly')
 
   t.end()
 })
