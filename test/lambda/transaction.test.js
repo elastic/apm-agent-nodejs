@@ -84,7 +84,7 @@ tape.test('setLambdaTransactionData aws_api_rest_test_data.json tests', function
 
 tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) {
   const mockAgent = new AgentMock()
-  mockAgent._conf.captureBody = true
+  mockAgent._conf.captureBody = 'all'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
@@ -119,7 +119,7 @@ tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) 
 
 tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) {
   const mockAgent = new AgentMock()
-  mockAgent._conf.captureBody = true
+  mockAgent._conf.captureBody = 'transactions'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
@@ -157,7 +157,7 @@ tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) 
 
 tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
   const mockAgent = new AgentMock()
-  mockAgent._conf.captureBody = true
+  mockAgent._conf.captureBody = 'all'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
@@ -185,7 +185,7 @@ tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
 
 tape.test('setLambdaTransactionData generic tests', function (t) {
   const mockAgent = new AgentMock()
-  mockAgent._conf.captureBody = true
+  mockAgent._conf.captureBody = 'transactions'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
