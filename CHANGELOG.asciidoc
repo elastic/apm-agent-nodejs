@@ -60,8 +60,8 @@ This is similar to <<disable-send, `disableSend`>>, but differs in that
   https://github.com/elastic/apm/issues/509[helpful for APM Server log analysis].
   ({issues}2364[#2364])
 
-* In a Lambda enviornment we now collection a number of additional data fields
-  on the Transaction object.  See spec for more information on fields collected.
+* In a Lambda enviornment we now collect a number of additional data fields
+  on the Transaction object.  See the spec for more information on fields collected.
   https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md
   ({issues}2156[#2156])
 
