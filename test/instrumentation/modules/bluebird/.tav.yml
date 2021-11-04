@@ -1,0 +1,5 @@
+bluebird:
+  versions: '>=2 <4'
+  commands:
+    - node bluebird.test.js
+    - node cancel.test.js

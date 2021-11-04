@@ -1,6 +1,6 @@
 'use strict'
 
-const agent = require('../../..').start({
+const agent = require('../../../..').start({
   serviceName: 'test-mongodb',
   captureExceptions: false,
   metricsInterval: 0,
@@ -9,7 +9,7 @@ const agent = require('../../..').start({
 })
 
 // As of mongodb@4 only supports node >=v12.
-const mongodbVersion = require('../../../node_modules/mongodb/package.json').version
+const mongodbVersion = require('../../../../node_modules/mongodb/package.json').version
 const semver = require('semver')
 if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
   console.log(`# SKIP mongodb@${mongodbVersion} does not support node ${process.version}`)
@@ -18,7 +18,7 @@ if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0'))
 const MongoClient = require('mongodb').MongoClient
 const test = require('tape')
 
-const mockClient = require('../../_mock_http_client_states')
+const mockClient = require('../../../_mock_http_client_states')
 
 const host = process.env.MONGODB_HOST || 'localhost'
 const url = `mongodb://${host}:27017`

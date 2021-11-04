@@ -1,26 +1,3 @@
-mongodb:
-  versions: '>=3.3'
-  commands: node test/instrumentation/modules/mongodb.test.js
-bluebird:
-  versions: '>=2 <4'
-  commands:
-    - node test/instrumentation/modules/bluebird/bluebird.test.js
-    - node test/instrumentation/modules/bluebird/cancel.test.js
-knex-old:
-  name: knex
-  # v0.16.4 accidentally dropped support for Node.js 6
-  versions: ^0.16.5 || <0.16.4 >=0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
-  commands: node test/instrumentation/modules/pg/knex.test.js
-knex-new:
-  name: knex
-  node: '>=8.6.0'
-  versions: '>=0.17 <0.21'
-  commands: node test/instrumentation/modules/pg/knex.test.js
-knex-gt-nodev8:
-  name: knex
-  node: '>=10.22.0'
-  versions: '>=0.21 <0.22'
-  commands: node test/instrumentation/modules/pg/knex.test.js
 ws-old:
   name: ws
   versions: '>=1 <7'
