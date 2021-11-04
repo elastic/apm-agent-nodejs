@@ -535,7 +535,19 @@ require('elastic-apm-node').start({
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_CAPTURE_EXCEPTIONS`
 
-Whether or not the agent should monitor for uncaught exceptions and send them to the APM Server automatically.
+Whether or not the agent should monitor for uncaught exceptions
+(https://nodejs.org/docs/latest/api/all.html#process_event-uncaughtexception[`uncaughtException`])
+and send them to the APM Server automatically.
+
+After sending the error information to APM Server, then agent will `process.exit(1)`.
+This is to mimic the default Node.js behavior of exiting when there is an uncaught exception and no `uncaughtException` handler. The agent's process exit can
+interfere with an `uncaughtException` handler from your application. You can
+use <<apm-handle-uncaught-exceptions, `apm.handleUncaughtExceptions([callback])`>>
+to have the APM agent capture error information, then call your handler.
+
+Another side-effect is that the APM agent does not log the uncaught exception
+to stderr by default. Use <<log-uncaught-exceptions, `logUncaughtExceptions: true`>>
+to have the agent print the exception to stderr before exiting.
 
 [[log-uncaught-exceptions]]
 ==== `logUncaughtExceptions`
