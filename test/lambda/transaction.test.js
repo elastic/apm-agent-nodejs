@@ -120,6 +120,7 @@ tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) 
 tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) {
   const mockAgent = new AgentMock()
   mockAgent._conf.captureBody = 'transactions'
+  mockAgent._conf.captureHeaders = true
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
