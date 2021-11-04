@@ -148,8 +148,8 @@ tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) 
   t.strictEquals(transaction._cloud.origin.region, 'us-east-1', 'cloud origin region name set correctly')
   t.strictEquals(transaction._cloud.origin.account.id, accountId, 'cloud origin account id set correctly')
 
-  t.strictEquals(transaction._message.queue, r.Sns.TopicArn, 'message queue set correctly')
-  t.strictEquals(typeof transaction._message.age, 'number', 'message age is a number')
+  t.strictEquals(transaction._message.queue.name, r.Sns.TopicArn, 'message queue set correctly')
+  t.strictEquals(typeof transaction._message.age.ms, 'number', 'message age is a number')
   t.strictEquals(transaction._message.body, r.Sns.Message, 'message body set correctly')
   t.deepEquals(transaction._message.headers, r.Sns.MessageAttributes, 'message headers set correctly')
 
