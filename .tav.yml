@@ -1,6 +1,3 @@
-mongodb-core:
-  versions: '>=1.2.19 <4'
-  commands: node test/instrumentation/modules/mongodb-core.test.js
 mongodb:
   versions: '>=3.3'
   commands: node test/instrumentation/modules/mongodb.test.js

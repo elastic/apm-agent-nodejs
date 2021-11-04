@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -13,7 +13,7 @@ var semver = require('semver')
 var test = require('tape')
 var mongodbCoreVersion = require('mongodb-core/package').version
 
-var mockClient = require('../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 test('instrument simple command', function (t) {
   // Because a variable number of events to the APM server is possible (see
