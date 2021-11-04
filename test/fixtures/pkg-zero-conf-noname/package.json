@@ -1,0 +1,4 @@
+{
+  "version": "1.2.3",
+  "description": "a package without a 'name' field for testing serviceName and serviceVersion inference"
+}
