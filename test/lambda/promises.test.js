@@ -16,7 +16,6 @@ test('resolve', function (t) {
   const name = 'greet.hello'
   const input = { name: 'world' }
   const output = 'Hello, world!'
-  let context
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -25,7 +24,6 @@ test('resolve', function (t) {
     event: input,
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
-        context = _context
         return Promise.resolve(`Hello, ${payload.name}!`)
       })
     },
@@ -41,7 +39,7 @@ test('resolve', function (t) {
       t.strictEqual(agent.errors.length, 0)
 
       t.strictEqual(agent.transactions.length, 1)
-      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      assertTransaction(t, agent.transactions[0], name)
 
       t.end()
     }
@@ -58,7 +56,6 @@ test('resolve with parent id header present', function (t) {
     }
   }
   const output = 'Hello, world!'
-  let context
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -67,7 +64,6 @@ test('resolve with parent id header present', function (t) {
     event: input,
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
-        context = _context
         return Promise.resolve(`Hello, ${payload.name}!`)
       })
     },
@@ -83,7 +79,7 @@ test('resolve with parent id header present', function (t) {
       t.strictEqual(agent.errors.length, 0)
 
       t.strictEqual(agent.transactions.length, 1)
-      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      assertTransaction(t, agent.transactions[0], name)
 
       t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
       t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
@@ -101,8 +97,6 @@ test('resolve with elastic-apm-traceparent present', function (t) {
       tracestate: 'test2'
     }
   }
-  const output = 'Hello, world!'
-  let context
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -111,7 +105,6 @@ test('resolve with elastic-apm-traceparent present', function (t) {
     event: input,
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
-        context = _context
         return Promise.resolve(`Hello, ${payload.name}!`)
       })
     },
@@ -120,7 +113,7 @@ test('resolve with elastic-apm-traceparent present', function (t) {
     verboseLevel: 0,
     callback: function (err, result) {
       t.error(err)
-      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      assertTransaction(t, agent.transactions[0], name)
       t.strictEqual(input.headers['elastic-apm-traceparent'], agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
       t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
       t.end()
@@ -138,8 +131,6 @@ test('resolve with both elastic-apm-traceparent and traceparent present', functi
       tracestate: 'test2'
     }
   }
-  const output = 'Hello, world!'
-  let context
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -148,7 +139,6 @@ test('resolve with both elastic-apm-traceparent and traceparent present', functi
     event: input,
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
-        context = _context
         return Promise.resolve(`Hello, ${payload.name}!`)
       })
     },
@@ -157,7 +147,7 @@ test('resolve with both elastic-apm-traceparent and traceparent present', functi
     verboseLevel: 0,
     callback: function (err, result) {
       t.error(err)
-      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      assertTransaction(t, agent.transactions[0], name)
       t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
       t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
       t.notEquals(input.headers['elastic-apm-traceparent'], agent.transactions[0].opts.childOf, 'prefers traceparent to elastic-apm-traceparent')
@@ -176,8 +166,6 @@ test('resolve with both elastic-apm-traceparent before traceparent present', fun
       tracestate: 'test2'
     }
   }
-  const output = 'Hello, world!'
-  let context
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -186,7 +174,6 @@ test('resolve with both elastic-apm-traceparent before traceparent present', fun
     event: input,
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
-        context = _context
         return Promise.resolve(`Hello, ${payload.name}!`)
       })
     },
@@ -195,7 +182,7 @@ test('resolve with both elastic-apm-traceparent before traceparent present', fun
     verboseLevel: 0,
     callback: function (err, result) {
       t.error(err)
-      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      assertTransaction(t, agent.transactions[0], name)
       t.strictEqual(input.headers.traceparent, agent.transactions[0].opts.childOf, 'context trace id matches parent trace id')
       t.strictEqual(input.headers.tracestate, agent.transactions[0].opts.tracestate, 'input tracestate pased on to transaction ')
       t.notEquals(input.headers['elastic-apm-traceparent'], agent.transactions[0].opts.childOf, 'prefers traceparent to elastic-apm-traceparent')
@@ -208,7 +195,6 @@ test('reject', function (t) {
   const name = 'fn.fail'
   const input = {}
   const error = new Error('fail')
-  let context
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -217,7 +203,6 @@ test('reject', function (t) {
     event: input,
     lambdaFunc: {
       [name]: wrap((payload, _context) => {
-        context = _context
         return Promise.reject(error)
       })
     },
@@ -234,7 +219,7 @@ test('reject', function (t) {
       assertError(t, agent.errors[0], error)
 
       t.strictEqual(agent.transactions.length, 1)
-      assertTransaction(t, agent.transactions[0], name, context, input)
+      assertTransaction(t, agent.transactions[0], name)
 
       t.end()
     }

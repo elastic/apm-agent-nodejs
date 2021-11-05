@@ -1,5 +1,7 @@
 'use strict'
 
+const constants = require('../../../lib/constants')
+
 module.exports = class TransactionMock {
   constructor (name, type, opts) {
     this.name = name
@@ -11,7 +13,7 @@ module.exports = class TransactionMock {
     this._cloud = undefined
     this._message = undefined
     this._service = undefined
-    this.outcome = 'success'
+    this.outcome = constants.OUTCOME_UNKNOWN
     this.opts = opts
   }
 
