@@ -1,0 +1,3 @@
+elasticsearch:
+  versions: '>=8.0.0'
+  commands: node elasticsearch.test.js

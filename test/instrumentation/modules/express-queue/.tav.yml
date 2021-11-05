@@ -1,0 +1,3 @@
+express-queue:
+  versions: '>=0.0.11'
+  commands: node express-queue.test.js

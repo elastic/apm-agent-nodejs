@@ -1,11 +1,11 @@
 'use strict'
 
-const { pathIsAQuery } = require('../../../lib/instrumentation/elasticsearch-shared')
+const { pathIsAQuery } = require('../../../../lib/instrumentation/elasticsearch-shared')
 
 process.env.ELASTIC_APM_TEST = true
 var host = (process.env.ES_HOST || 'localhost') + ':9200'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -19,8 +19,8 @@ var pkg = require('elasticsearch/package.json')
 var semver = require('semver')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
-var findObjInArray = require('../../_utils').findObjInArray
+var mockClient = require('../../../_mock_http_client')
+var findObjInArray = require('../../../_utils').findObjInArray
 
 test('client.ping with callback', function userLandCode (t) {
   resetAgent(done(t, 'HEAD', '/'))

@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -14,8 +14,8 @@ var express = require('express')
 var queue = require('express-queue')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
-var findObjInArray = require('../../_utils').findObjInArray
+var mockClient = require('../../../_mock_http_client')
+var findObjInArray = require('../../../_utils').findObjInArray
 
 test('express-queue', function (t) {
   resetAgent(done(t, 'done'))

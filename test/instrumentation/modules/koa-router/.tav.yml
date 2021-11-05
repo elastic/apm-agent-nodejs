@@ -1,0 +1,10 @@
+koa-router:
+  node: '>=6.0.0'
+  peerDependencies: koa@2
+  versions: '>=5.2.0 <11'
+  commands: node old-name.test.js
+'@koa/router':
+  node: '>=8.0.0'
+  peerDependencies: koa@2
+  versions: '>=8 <11'
+  commands: node new-name.test.js
