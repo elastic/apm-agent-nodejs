@@ -97,7 +97,6 @@ test('resolve with elastic-apm-traceparent present', function (t) {
       tracestate: 'test2'
     }
   }
-  const output = 'Hello, world!'
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -132,7 +131,6 @@ test('resolve with both elastic-apm-traceparent and traceparent present', functi
       tracestate: 'test2'
     }
   }
-  const output = 'Hello, world!'
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -168,7 +166,6 @@ test('resolve with both elastic-apm-traceparent before traceparent present', fun
       tracestate: 'test2'
     }
   }
-  const output = 'Hello, world!'
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
