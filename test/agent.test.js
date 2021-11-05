@@ -91,14 +91,10 @@ function deep (depth, n) {
 test('#getServiceName()', function (t) {
   const agent = new Agent()
 
-  // Before agent.start(), config will have already been loaded once, which
-  // typically means a `serviceName` determined from package.json.
+  // Before agent.start() the agent hasn't configured yet.
   t.ok(!agent.isStarted(), 'agent should not have been started yet')
-  t.strictEqual(agent.getServiceName(), packageJson.name)
-  t.strictEqual(agent.getServiceName(), agent._conf.serviceName)
+  t.strictEqual(agent.getServiceName(), undefined)
 
-  // After agent.start() config will be loaded again, this time with possible
-  // provided config.
   agent.start(Object.assign(
     {},
     agentOptsNoopTransport,

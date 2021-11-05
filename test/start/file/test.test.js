@@ -1,6 +1,8 @@
 'use strict'
 
-var agent = require('../../..')
+var agent = require('../../..').start({
+  disableSend: true
+})
 
 const tape = require('tape')
 

@@ -1,0 +1,5 @@
+{
+  "name": "~~-~~",
+  "version": "1.2.3",
+  "description": "a package with a valid npm name that sanitizes to all non-alphanumeric for testing serviceName inference"
+}

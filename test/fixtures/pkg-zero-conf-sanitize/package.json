@@ -1,0 +1,5 @@
+{
+  "name": "~*.!'()validNpmName",
+  "version": "1.2.3",
+  "description": "a package with a valid npm name, but invalid for serviceName, to test serviceName inference"
+}

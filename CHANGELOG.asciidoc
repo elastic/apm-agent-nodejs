@@ -64,6 +64,23 @@ This is similar to <<disable-send, `disableSend`>>, but differs in that
   https://github.com/elastic/apm/issues/509[helpful for APM Server log analysis].
   ({issues}2364[#2364])
 
+* In a Lambda enviornment we now collect a number of additional data fields
+  on the Transaction object.  See the spec for more information on fields collected.
+  https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md
+  ({issues}2156[#2156])
+
+* Zero configuration support. The only required agent configuration option
+  is <<service-name, `serviceName`>>. Normally the agent will attempt to
+  infer `serviceName` for the "name" field in a package.json file. However,
+  that could fail. With this version, the agent will cope with: a scoped
+  package name (`@scope/name` is normalized to `scope-name`), a "name" that
+  isn't a valid `serviceName`, not being able to find a "package.json" file,
+  etc. Ultimately it will fallback to "nodejs_service". ({issues}1944[#1944])
++
+One consequence of this change is that `apm.getServiceName()` will return
+`undefined` until the agent is started (check with `apm.isStarted()`).
+
+
 [float]
 ===== Bug fixes
 

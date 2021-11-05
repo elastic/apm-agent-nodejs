@@ -23,7 +23,6 @@ function assertError (t, received, expected) {
 
 function assertTransaction (t, trans, name, context, input, output) {
   t.strictEqual(trans.name, name)
-  t.strictEqual(trans.type, 'lambda')
   t.ok(trans.ended)
   assertContext(t, name, trans.customContext, context, input, output)
 }

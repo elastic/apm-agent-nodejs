@@ -22,6 +22,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+
+// `isSecret` below assumes there is a configured agent.
+require('../..').start({
+  disableSend: true
+})
+
 var test = require('tape')
 var isSecret = require('../../lib/redact-secrets/is-secret')
 
