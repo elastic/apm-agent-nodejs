@@ -80,6 +80,7 @@ var directories = [
   'test/instrumentation/modules/bluebird',
   'test/instrumentation/modules/cassandra-driver',
   'test/instrumentation/modules/express',
+  'test/instrumentation/modules/express-graphql',
   'test/instrumentation/modules/fastify',
   'test/instrumentation/modules/generic-pool',
   'test/instrumentation/modules/got',
