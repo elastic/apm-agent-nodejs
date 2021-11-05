@@ -1,0 +1,22 @@
+{
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:us-east-1:268121251715:basepiwstesttopic:4763d52a-56d1-4dc5-99eb-ffb4315587af",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "07b92f2d-7087-5d2a-b807-765ed74eed4d",
+                "TopicArn": "arn:aws:sns:us-east-1:268121251715:basepiwstesttopic",
+                "Subject": null,
+                "Message": "hello world",
+                "Timestamp": "2021-07-22T17:06:17.354Z",
+                "SignatureVersion": "1",
+                "Signature": "YBGjMCe1m0QQ0DIWq4gZLy3/0bEyXhLPZJzeo4JYMa2P9ercshfn9s+x9nqd6HSYfO3RG0ebCmzxddgO8UCmaddXbhhMRWYjsIDv3+OvUitG8+bFqvpH/rQVHdCEWla5l+NDcye6d2cl9zuYFliTIFUsBmFcqbiroyZbIIHOczUpxNKK9oQcAXU6RgIl6y30DBgxYmzdMm4FMXPpden84v0LwVOyfqVm2gmeMnlccEOB0TRMe8sLsv7OfWLA3GBl3b14MOUZfvUz4Btb15ssCq++QVHoTQWZnbJ5dA7P3ljMauQCagub0Zefx7uUmWAlczxe/5kREJt8rEfl+pN7Mg==",
+                "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-010a507c1833636cd94bdb98bd93083a.pem",
+                "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:268121251715:basepiwstesttopic:4763d52a-56d1-4dc5-99eb-ffb4315587af",
+                "MessageAttributes": {}
+            }
+        }
+    ]
+}
