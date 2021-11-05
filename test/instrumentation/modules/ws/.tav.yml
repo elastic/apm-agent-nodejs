@@ -1,0 +1,9 @@
+ws-old:
+  name: ws
+  versions: '>=1 <7'
+  commands: node ws.test.js
+ws-new:
+  name: ws
+  node: '>=8.6.0'
+  versions: '>=7 <8'
+  commands: node ws.test.js

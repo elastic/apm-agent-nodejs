@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -17,7 +17,7 @@ var querystring = require('querystring')
 var graphqlHTTP = require('express-graphql')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 const paths = ['/graphql', '/']
 

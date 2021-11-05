@@ -1,0 +1,5 @@
+graphql:
+  # XXX need this?
+  #preinstall: npm uninstall express-graphql
+  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16.0.0'
+  commands: node graphql.test.js

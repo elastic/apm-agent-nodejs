@@ -1,6 +1,6 @@
 'use strict'
 
-var agent = require('../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -11,7 +11,7 @@ var agent = require('../../..').start({
 var test = require('tape')
 var WebSocket = require('ws')
 
-var mockClient = require('../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 var PORT = 12342
 

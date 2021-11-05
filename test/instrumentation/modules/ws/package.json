@@ -1,0 +1,8 @@
+{
+  "name": "test-ws",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "ws": "^7.2.1"
+  }
+}
