@@ -1,5 +1,11 @@
 'use strict'
 
+// `filterHttpHeaders` below indirectly (*very* indirectly) depends on there
+// being a configured agent, because "is-secret.js" reaches into `agent._conf`.
+require('..').start({
+  disableSend: true
+})
+
 const test = require('tape')
 
 const Filters = require('object-filter-sequence')
