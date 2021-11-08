@@ -30,7 +30,7 @@ tape.test('cold start tests', function (t) {
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_api_http_test_data tests', async function (t) {
+tape.test('setLambdaTransactionData aws_api_http_test_data tests', function (t) {
   const mockAgent = new AgentMock()
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
