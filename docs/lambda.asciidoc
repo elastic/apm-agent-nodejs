@@ -7,9 +7,7 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/lambda.html[elastic.co]
 endif::[]
 
-=== Get started with Lambda (Deprecated)
-
-WARNING: *Lambda functions are no longer supported by the Elastic APM Node.js Agent.*
+=== Get started with Lambda (Beta)
 
 Getting Elastic APM set up for your lambda functions is easy,
 and there are various ways you can tweak it to fit your needs.
@@ -19,6 +17,20 @@ check out the <<api,API Reference>>.
 [float]
 [[lambda-installation]]
 ==== Installation
+Setting up your Lambda function is a two step process. First, you’ll
+need to install https://github.com/elastic/apm-aws-lambda/[the Elastic
+APM Lambda extension] into your Lambda environment. Elastic uses a
+Lambda extension to forward data on to APM Server in a way that does not
+interfere with the execution of your Lambda function. You can
+https://github.com/elastic/apm-aws-lambda/blob/main/apm-lambda-extension/docs/aws-lambda-extension.asciidoc[read
+more about installing and using this extension here].
+
+Once you have the extension installed in your environment, you’ll need
+to configure your Lambda handler to instrument your function.
+
+[float]
+[[lambda-instrumenting]]
+==== Instrumenting your Lambda Handler
 
 Add the `elastic-apm-node` module as a dependency to your application:
 
@@ -37,21 +49,8 @@ Here's a simple lambda example with the Elastic APM agent installed:
 
 [source,js]
 ----
-// Add this to the VERY top of the first file loaded in your app
-const apm = require('elastic-apm-node').start({
-  // Override service name from package.json
-  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
-  serviceName: '',
-
-  // Use if APM Server requires a token
-  secretToken: '',
-
-  // Use if APM Server uses API keys for authentication
-  apiKey: '',
-
-  // Set custom APM Server URL (default: http://localhost:8200)
-  serverUrl: '',
-})
+// Add this to the VERY top of your lambda handler module
+const apm = require('elastic-apm-node').start({})
 
 exports.handler = apm.lambda(function handler (payload, context, callback) {
   callback(null, `Hello, ${payload.name}!`)
@@ -59,6 +58,8 @@ exports.handler = apm.lambda(function handler (payload, context, callback) {
 ----
 
 The agent will now monitor the performance of your lambda function.
+
+*IMPORTANT*: During installation of the Lambda extension you'll have set a number of environmental variables for configuring the agent.  We recommend relying on these environmental variables -- while it's possible to set configuration values via the configuration object passed to `start`, doing so may interfere with the configuration required by the Lambda extension.
 
 [float]
 [[lambda-full-documentation]]
@@ -71,7 +72,7 @@ The agent will now monitor the performance of your lambda function.
 [[lambda-performance-monitoring]]
 ==== Performance monitoring
 
-Elastic APM automatically measures the performance of everything within your lambda function executions.
+Elastic APM automatically measures the performance of your lambda function executions.
 It records traces for database queries,
 external HTTP requests,
 and other slow operations that happen during execution.
