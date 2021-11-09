@@ -1,0 +1,8 @@
+{
+  "name": "test-restify",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "restify": "^8.5.1"
+  }
+}

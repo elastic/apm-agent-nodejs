@@ -1,0 +1,13 @@
+restify-old:
+  name: restify
+  versions: '>=5.2.0 <8.0.0'
+  commands:
+    - node basic.test.js
+    - node set-framework.test.js
+restify-new:
+  name: restify
+  node: '>=8.6.0'
+  versions: '>=8.0.0'
+  commands:
+    - node basic.test.js
+    - node set-framework.test.js

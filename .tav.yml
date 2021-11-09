@@ -1,9 +1,4 @@
 
-
-
-
-
-
 # @elastic/elasticsearch
 # - Version 7.7.0 included a change that broke usage with Node.js < 10.
 #   Fixed in 7.7.1: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_7_7_1
@@ -26,63 +21,6 @@
   node: '>=12'
   commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
 
-# hapi and @hapi/hapi
-# - Package name: Starting with v17.9.0 and v18.2.0 the name changed from
-#   'hapi' to '@hapi/hapi'.
-# - Node version compat:
-#   - hapi@15: supports node >=v4; breaks on node v14 (usage of `os.tmpDir()`)
-#   - hapi@16: supports node >=v4
-#   - hapi@17, @hapi/hapi@17: supports node >=v8.12.0 (per its README);
-#     the instrumentation changed significantly for this version
-#   - hapi@18, @hapi/hapi@18: supports node >=v8.12.0 (per its README)
-#   - @hapi/hapi@19: supports node >=v12 (judging from commit 50d8d7d)
-#   - @hapi/hapi@20: appears (from travis template refs) to support node >=v12
-hapi-v9-v15:
-  name: hapi
-  versions: '>=9.0.1 <16.0.0'
-  node: '>=4 <14'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
-hapi-v16:
-  name: hapi
-  versions: '>=16.0.0 <17.0.0'
-  node: '>=4'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
-hapi-prenodev15:
-  name: hapi
-  versions: '>=17.0.0'
-  node: '>=8.12.0 <15.0.0'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
-hapi:
-  name: hapi
-  # Work around https://github.com/npm/cli/issues/2267 in npm@7.
-  # Note: An alternative might be to just not test the "hapi" package with
-  # node >= 15, given that "hapi" was deprecated before node v16.
-  preinstall: rm -rf node_modules/hapi
-  node: '>=15.0.0'
-  versions: '>=17.0.0'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
-'@hapi/hapi-v17-v18':
-  name: '@hapi/hapi'
-  versions: '>=17.0.0 <19.0.0'
-  node: '>=8.12.0'
-  commands:
-    - node test/instrumentation/modules/hapi/basic.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
-'@hapi/hapi':
-  name: '@hapi/hapi'
-  versions: '>=19.0.0'
-  node: '>=12'
-  commands:
-    - node test/instrumentation/modules/hapi/basic.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
 
 tedious:
   name: tedious
@@ -96,46 +34,7 @@ cassandra-driver:
   versions: '>=3 <3.1.0 || >3.1.0 <5'
   commands: node test/instrumentation/modules/cassandra-driver/index.test.js
 
-restify-old:
-  name: restify
-  versions: '>=5.2.0 <8.0.0'
-  commands:
-    - node test/instrumentation/modules/restify/basic.test.js
-    - node test/instrumentation/modules/restify/set-framework.test.js
-restify-new:
-  name: restify
-  node: '>=8.6.0'
-  versions: '>=8.0.0'
-  commands:
-    - node test/instrumentation/modules/restify/basic.test.js
-    - node test/instrumentation/modules/restify/set-framework.test.js
 
-# https://www.fastify.io/docs/latest/LTS/
-# - #1086 suggests fastify@2.4.0 was a broken release, skip it.
-fastify-v1:
-  name: fastify
-  versions: '1.x'
-  node: '>=6 <12'
-  commands:
-    - node test/instrumentation/modules/fastify/fastify.test.js
-    - node test/instrumentation/modules/fastify/async-await.test.js
-    - node test/instrumentation/modules/fastify/set-framework.test.js
-fastify-v2:
-  name: fastify
-  versions: '>=2.0.0 <2.4.0 || >2.4.0 <3'
-  node: '>=6 <15'
-  commands:
-    - node test/instrumentation/modules/fastify/fastify.test.js
-    - node test/instrumentation/modules/fastify/async-await.test.js
-    - node test/instrumentation/modules/fastify/set-framework.test.js
-fastify:
-  name: fastify
-  versions: '>=3.0.0'
-  node: '>=10'
-  commands:
-    - node test/instrumentation/modules/fastify/fastify.test.js
-    - node test/instrumentation/modules/fastify/async-await.test.js
-    - node test/instrumentation/modules/fastify/set-framework.test.js
 
 finalhandler:
   versions: '*'
