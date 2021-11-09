@@ -25,7 +25,7 @@ if (semver.gte(apolloServerExpressVersion, '3.0.0') && semver.lt(process.version
 var ApolloServer = require('apollo-server-express').ApolloServer
 var gql = require('apollo-server-express').gql
 
-var mockClient = require('../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 test('POST /graphql', function (t) {
   resetAgent(done(t, 'hello'))
