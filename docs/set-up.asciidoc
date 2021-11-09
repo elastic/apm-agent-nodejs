@@ -11,7 +11,7 @@ To get you off the ground, we've prepared guides for setting up the Agent with a
 * <<koa>>
 * <<restify>>
 * <<fastify>>
-// * <<lambda>>
+* <<lambda>>
 // end::web-frameworks-list[]
 
 Alternatively, you can <<custom-stack>>.
