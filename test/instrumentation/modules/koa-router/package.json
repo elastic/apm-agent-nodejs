@@ -1,0 +1,9 @@
+{
+  "name": "test-koa-router",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@koa/router": "^9.0.1",
+    "koa-router": "^9.0.1"
+  }
+}

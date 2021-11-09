@@ -1,0 +1,8 @@
+{
+  "name": "test-mimic-response",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "mimic-response": "^2.1.0"
+  }
+}

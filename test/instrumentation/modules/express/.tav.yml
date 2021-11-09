@@ -1,0 +1,7 @@
+express:
+  versions: '>=4'
+  commands:
+    - node basic.test.js
+    - node capture-exceptions-off.test.js
+    - node capture-exceptions-on.test.js
+    - node set-framework.test.js

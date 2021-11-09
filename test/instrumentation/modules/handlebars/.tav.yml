@@ -1,0 +1,3 @@
+handlebars:
+  versions: '*'
+  commands: node handlebars.test.js

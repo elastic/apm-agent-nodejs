@@ -41,6 +41,12 @@ run_test_suite () {
   standard
   npm run test:deps
 
+  # Automatically prepare for tests if this looks like a first time run of
+  # 'npm test'. Using 'pug/' as a canary dir.
+  if [[ ! -d test/instrumentation/modules/pug/node_modules ]]; then
+    npm run test:prepare
+  fi
+
   if [ -z "$COVERAGE" ]
   then
     node test/test.js

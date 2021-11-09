@@ -1,0 +1,8 @@
+{
+  "name": "test-mysql2",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "mysql2": "^2.1.0"
+  }
+}

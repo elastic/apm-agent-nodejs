@@ -1,0 +1,8 @@
+{
+  "name": "test-bluebird",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "bluebird": "^3.7.2"
+  }
+}

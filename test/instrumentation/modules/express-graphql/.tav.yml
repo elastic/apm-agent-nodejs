@@ -1,0 +1,86 @@
+express-graphql-1:
+  name: express-graphql
+  #XXX
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.8.2
+  versions: '0.6.1'
+  commands: node express-graphql.test.js
+
+express-graphql-2:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.9.0
+  versions: '>=0.6.2 <0.6.6'
+  commands: node express-graphql.test.js
+
+express-graphql-3:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.10.0
+  versions: '>=0.6.6 <0.6.8'
+  commands: node express-graphql.test.js
+
+express-graphql-0.6.11_10:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.10.0
+  versions: '0.6.11'
+  commands: node express-graphql.test.js
+express-graphql-0.6.11_11:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.11.0
+  versions: '0.6.11'
+  commands: node express-graphql.test.js
+
+express-graphql-0.6.12_10:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.10.0
+  versions: '^0.6.12'
+  commands: node express-graphql.test.js
+express-graphql-0.6.12_11:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.11.0
+  versions: '^0.6.12'
+  commands: node express-graphql.test.js
+express-graphql-0.6.12_12:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.12.0
+  versions: '^0.6.12'
+  commands: node express-graphql.test.js
+express-graphql-0.6.12_13:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.13.0
+  versions: '^0.6.12'
+  commands: node express-graphql.test.js
+
+express-graphql-0.7.1_12:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.12.0
+  versions: '>=0.7.1 <0.9.0'
+  commands: node express-graphql.test.js
+express-graphql-0.7.1_13:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^0.13.0
+  versions: '>=0.7.1 <0.9.0'
+  commands: node express-graphql.test.js
+express-graphql-0.7.1_14:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^14.0.0
+  versions: '>=0.7.1 <0.9.0'
+  commands: node express-graphql.test.js
+
+express-graphql-0.9.0:
+  name: express-graphql
+  #preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^14.4.1
+  versions: '>=0.9.0 <0.10.0'
+  node: '>=7.6.0'
+  commands: node express-graphql.test.js

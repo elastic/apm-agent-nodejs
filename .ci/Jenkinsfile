@@ -414,8 +414,10 @@ def getSmartTAVContext() {
      }
    } else if (params.Run_As_Master_Branch) {
      context.ghDescription = 'TAV Test param-triggered'
+     // XXX could change this to look for .tav.yml files under test/instrumentation/modules
      context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
    } else if (env.CHANGE_ID && env.TAV_UPDATED != "false") {
+     // XXX What is this used for?
      context.ghContextName = 'TAV Test Subset'
      context.ghDescription = 'TAV Test changes-triggered'
      sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'

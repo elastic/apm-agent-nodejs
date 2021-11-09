@@ -1,0 +1,8 @@
+{
+  "name": "test-elasticsearch",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "elasticsearch": "^16.5.0"
+  }
+}

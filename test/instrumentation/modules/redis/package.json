@@ -1,0 +1,8 @@
+{
+  "name": "test-redis",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "redis": "^3.0.2"
+  }
+}

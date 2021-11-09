@@ -1,0 +1,8 @@
+{
+  "name": "test-pug",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "pug": "^3.0.2"
+  }
+}

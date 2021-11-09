@@ -1,0 +1,15 @@
+knex-old:
+  name: knex
+  # v0.16.4 accidentally dropped support for Node.js 6
+  versions: ^0.16.5 || <0.16.4 >=0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
+  commands: node ../pg/knex.test.js
+knex-new:
+  name: knex
+  node: '>=8.6.0'
+  versions: '>=0.17 <0.21'
+  commands: node ../pg/knex.test.js
+knex-gt-nodev8:
+  name: knex
+  node: '>=10.22.0'
+  versions: '>=0.21 <0.22'
+  commands: node ../pg/knex.test.js
