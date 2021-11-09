@@ -17,16 +17,28 @@ check out the <<api,API Reference>>.
 [float]
 [[lambda-installation]]
 ==== Installation
-Setting up your Lambda function is a two step process. First, you’ll
-need to install https://github.com/elastic/apm-aws-lambda/[the Elastic
-APM Lambda extension] into your Lambda environment. Elastic uses a
-Lambda extension to forward data to APM Server in a way that does not
-interfere with the execution of your Lambda function. You can
-https://github.com/elastic/apm-aws-lambda/blob/main/apm-lambda-extension/docs/aws-lambda-extension.asciidoc[read
-more about installing and using this extension here].
 
-Once you have the extension installed in your environment, you’ll need
-to configure your Lambda handler to instrument your function.
+Setting up your Lambda function is a two-step process.
+
+1. <<lambda-extension>>
+2. <<lambda-instrumenting>>
+
+First, https://github.com/elastic/apm-aws-lambda/blob/main/apm-lambda-extension/docs/aws-lambda-extension.asciidoc[install the Elastic
+APM Lambda extension] into your Lambda environment. Elastic uses a Lambda
+extension to forward data to APM Server in a way that does not interfere with the
+execution of your Lambda function.
+
+[float]
+[[lambda-extension]]
+==== Install the Elastic APM Lambda extension
+
+Elastic uses a Lambda extension to forward data to APM Server in a way that does not interfere with the
+execution of your Lambda function.
+
+See the https://github.com/elastic/apm-aws-lambda/blob/main/apm-lambda-extension/docs/aws-lambda-extension.asciidoc[installation documentation] to get started.
+
+Once you have the extension installed in your environment, you can
+configure your Lambda handler to instrument your function.
 
 [float]
 [[lambda-instrumenting]]
@@ -59,7 +71,7 @@ exports.handler = apm.lambda(function handler (payload, context, callback) {
 
 The agent will now monitor the performance of your lambda function.
 
-*IMPORTANT*: During installation of the Lambda extension you'll have set a number of environmental variables for configuring the agent.  We recommend relying on these environmental variables -- while it's possible to set configuration values via the configuration object passed to `start`, doing so may interfere with the configuration required by the Lambda extension.
+*IMPORTANT*: During installation of the Lambda extension you'll have set a number of environment variables for configuring the agent.  We recommend relying on these environment variables -- while it's possible to set configuration values via the configuration object passed to `start`, doing so may interfere with the configuration required by the Lambda extension.
 
 [float]
 [[lambda-full-documentation]]
