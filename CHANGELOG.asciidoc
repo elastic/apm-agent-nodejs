@@ -28,7 +28,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
+[[release-notes-3.24.0]]
+==== 3.24.0 2021/11/09
 
 [float]
 ===== Breaking changes
@@ -79,7 +80,6 @@ This is similar to <<disable-send, `disableSend`>>, but differs in that
 +
 One consequence of this change is that `apm.getServiceName()` will return
 `undefined` until the agent is started (check with `apm.isStarted()`).
-
 
 [float]
 ===== Bug fixes
