@@ -146,6 +146,13 @@ test('#setFramework()', function (t) {
 })
 
 test('#startTransaction()', function (t) {
+  t.test('agent not yet started: startTransaction() should not crash', function (t) {
+    const agent = new Agent() // do not start the agent
+    agent.startTransaction('foo')
+    agent.destroy()
+    t.end()
+  })
+
   t.test('name, type, subtype and action', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction('foo', 'type', 'subtype', 'action')

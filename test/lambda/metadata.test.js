@@ -79,7 +79,7 @@ tape.test('lambda metadata', function (suite) {
       timeoutMs: 3000,
       verboseLevel: 0,
       callback: function (err, result) {
-        t.error(err, 'no error from executing the lambda handler')
+        t.error(err, `no error from executing the lambda handler: err=${JSON.stringify(err)}`)
         t.strictEqual(result, output)
 
         var metadata = server.events[0].metadata

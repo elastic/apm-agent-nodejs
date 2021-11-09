@@ -14,7 +14,7 @@
       "x-forwarded-proto": "https"
     },
     "requestContext": {
-      "accountId": "XXXXXXXXXXXX",
+      "accountId": "000000000000",
       "apiId": "21mj4tsk90",
       "domainName": "21mj4tsk90.execute-api.us-west-2.amazonaws.com",
       "domainPrefix": "21mj4tsk90",
