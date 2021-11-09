@@ -215,7 +215,7 @@ tape.test('serialize transaction lambda fields', function (t) {
   const mockAgent = new AgentMock()
   const Transaction = require('../../lib/instrumentation/transaction')
   const transaction = new Transaction(mockAgent)
-  transaction._context.traceparent = { recorded: true }
+  transaction._traceContext.traceparent = { recorded: true }
 
   transaction.name = 'one'
   transaction.type = 'two'

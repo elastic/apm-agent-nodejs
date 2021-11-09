@@ -211,7 +211,7 @@ function echoTest (type, opts, handler) {
         t.ok(req.getHeader('elastic-apm-traceparent'), 'should have elastic-apm-traceparent header')
       }
 
-      var expected = TraceParent.fromString(trans._context.toString())
+      var expected = TraceParent.fromString(trans._traceContext.toString())
       var received = TraceParent.fromString(traceparent)
       t.strictEqual(received.version, expected.version, 'traceparent header has matching version')
       t.strictEqual(received.traceId, expected.traceId, 'traceparent header has matching traceId')
