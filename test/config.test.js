@@ -537,7 +537,7 @@ test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (
   t.end()
 })
 
-test('should default to empty request blacklist arrays', function (t) {
+test('should default to empty request ignore arrays', function (t) {
   var agent = new Agent()
   agent.start(agentOptsNoopTransport)
   t.strictEqual(agent._conf.ignoreUrlStr.length, 0)
@@ -549,7 +549,7 @@ test('should default to empty request blacklist arrays', function (t) {
   t.end()
 })
 
-test('should separate strings and regexes into their own blacklist arrays', function (t) {
+test('should separate strings and regexes into their own ignore arrays', function (t) {
   var agent = new Agent()
   agent.start(Object.assign(
     {},
