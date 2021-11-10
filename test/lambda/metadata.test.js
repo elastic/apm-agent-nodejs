@@ -5,7 +5,7 @@ const tape = require('tape')
 
 const apm = require('../../')
 const { MockAPMServer } = require('../_mock_apm_server')
-const { isLambdaExecutionEnviornment } = require('../../lib/lambda')
+const { isLambdaExecutionEnvironment } = require('../../lib/lambda')
 
 // This impacts both apm.start() and lambdaLocal.execute().
 process.env.AWS_LAMBDA_FUNCTION_NAME = 'fixture-function-name'
@@ -26,14 +26,14 @@ process.env.AWS_LAMBDA_LOG_STREAM_NAME = '2021/11/01/[1.0]lambda/e7b05091b39b4aa
 //    warning Using both auth systems: aws_access_key/id and secret_access_token!
 process.env.AWS_PROFILE = 'fake'
 
-tape.test('isLambdaExecutionEnviornment', function (t) {
+tape.test('isLambdaExecutionEnvironment', function (t) {
   const savedFnName = process.env.AWS_LAMBDA_FUNCTION_NAME
 
   delete process.env.AWS_LAMBDA_FUNCTION_NAME
-  t.strictEquals(isLambdaExecutionEnviornment(), false, 'execution enviornment not detected')
+  t.strictEquals(isLambdaExecutionEnvironment(), false, 'execution enviornment not detected')
 
   process.env.AWS_LAMBDA_FUNCTION_NAME = savedFnName
-  t.strictEquals(isLambdaExecutionEnviornment(), true, 'execution enviornment detected')
+  t.strictEquals(isLambdaExecutionEnvironment(), true, 'execution enviornment detected')
   t.end()
 })
 
