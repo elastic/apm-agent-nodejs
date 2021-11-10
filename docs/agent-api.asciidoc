@@ -507,7 +507,8 @@ NOTE: `apm.middleware.connect` _must_ be added to the middleware stack _before_ 
 [[apm-start-transaction]]
 ==== `apm.startTransaction([name][, type][, subtype][, action][, options])`
 
-[small]#Added in: v0.1.0#
+[small]#Added in: v0.1.0# +
+[small]#Transaction `subtype` and `action` deprecated in: v3.25.0#
 
 * `name` +{type-string}+ The name of the transaction.
 You can always set this later via <<transaction-name,`transaction.name`>> or <<apm-set-transaction-name,`apm.setTransactionName()`>>.
@@ -518,9 +519,13 @@ You can always set this later via <<transaction-type,`transaction.type`>>.
 
 * `subtype` +{type-string}+ The subtype of the transaction.
 You can alternatively set this via <<transaction-subtype,`transaction.subtype`>>.
+The transaction `subtype` field is deprecated: it is not used and will be
+removed in the next major version.
 
 * `action` +{type-string}+ The action of the transaction.
 You can alternatively set this via <<transaction-action,`transaction.action`>>.
+The transaction `action` field is deprecated: it is not used and will be removed
+in the next major version.
 
 * `options` +{type-object}+ The following options are supported:
 
