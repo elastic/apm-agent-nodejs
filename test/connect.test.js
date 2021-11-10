@@ -75,25 +75,6 @@ tape.test('apm.middleware.connect()', function (t) {
         })
       })
     })
-
-    // agent.captureError(
-    //   new Error('foo'),
-    //   { custom: { order: 0 } },
-    //   function (err) {
-    //     t.error(err, 'captureError should not fail')
-    //     t.equal(apmServer.events.length, 2, 'got 2 events')
-    //     t.ok(apmServer.events[0].metadata, 'event 0 is metadata')
-    //     assertMetadata(t, apmServer.events[0].metadata)
-    //     const data = apmServer.events[1].error
-    //     t.ok(data, 'event 1 is an error')
-    //     t.strictEqual(data.exception.message, 'foo')
-    //     t.strictEqual(data.context.custom.order, 2)
-
-    //     apmServer.clear()
-    //     agent.destroy()
-    //     t.end()
-    //   }
-    // )
   })
 
   t.test('teardown mock APM server', function (t) {
