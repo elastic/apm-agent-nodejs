@@ -28,6 +28,25 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+- Deprecate `transaction.subtype` and `transaction.action`. These fields
+  were never used by APM server. This also deprecates the
+  `apm.startTransaction(...)` call signatures that take `subtype` and `action`
+  arguments. In the next major version these two fields will be removed.
+  ({issues}2356[#2356])
+
+
 [[release-notes-3.24.0]]
 ==== 3.24.0 2021/11/09
 
