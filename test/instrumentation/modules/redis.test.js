@@ -31,6 +31,9 @@ test('redis', function (t) {
     t.strictEqual(trans.type, 'bar', 'trans.type')
     t.strictEqual(trans.result, 'success', 'trans.result')
 
+    // Sort by timestamp, because asynchronous-span.end() means they can be
+    // set to APM server out of order.
+    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
     for (var i = 0; i < groups.length; i++) {
       const name = groups[i]
       const span = data.spans[i]
