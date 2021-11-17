@@ -40,6 +40,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Fix 'redis' instrumentation to avoid a rare possible double-instrumentation
+  of redis commands internally-queued before the RedisClient is "ready".
+  ({pull}2446[#2446])
+
 - Avoid setting the `tracestate` header for outgoing HTTP requests to the empty
   string. This can happen for non-trace-root transactions. While the HTTP spec
   allows empty header values, some servers do not. ({issues}2405[#2405])
