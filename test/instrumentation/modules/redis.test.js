@@ -11,10 +11,29 @@ var redis = require('redis')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
 
 test('redis', function (t) {
   resetAgent(function (data) {
-    var groups = [
+    t.strictEqual(data.transactions.length, 2, 'have 2 transactions')
+
+    // We expect a 'transBeforeClient' transaction with a single INFO span.
+    var trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
+    t.ok(trans, 'have "transBeforeClient" transaction')
+    var spans = data.spans.filter(s => s.transaction_id === trans.id)
+    t.equal(spans.length, 1, 'just the one span in "transBeforeClient"')
+    t.equal(spans[0].name, 'INFO', 'that span is the RedisClient INFO command')
+
+    // Sort the remaining spans by timestamp, because asynchronous-span.end()
+    // means they can be set to APM server out of order.
+    spans = data.spans
+      .filter(s => s.transaction_id !== trans.id)
+      .sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
+    trans = findObjInArray(data.transactions, 'name', 'transAfterClient')
+    t.ok(trans, 'have "transAfterClient" transaction')
+    t.strictEqual(trans.result, 'success', 'trans.result')
+
+    var expectedSpanNames = [
       'FLUSHALL',
       'SET',
       'SET',
@@ -22,22 +41,12 @@ test('redis', function (t) {
       'HSET',
       'HKEYS'
     ]
-
-    t.strictEqual(data.transactions.length, 1)
-    t.strictEqual(data.spans.length, groups.length)
-
-    var trans = data.transactions[0]
-    t.strictEqual(trans.name, 'foo', 'trans.name')
-    t.strictEqual(trans.type, 'bar', 'trans.type')
-    t.strictEqual(trans.result, 'success', 'trans.result')
-
-    // Sort by timestamp, because asynchronous-span.end() means they can be
-    // set to APM server out of order.
-    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
-    for (var i = 0; i < groups.length; i++) {
-      const name = groups[i]
-      const span = data.spans[i]
-      t.strictEqual(span.name, name, 'span.name')
+    t.equal(spans.length, expectedSpanNames.length, 'have the expected number of spans')
+    for (var i = 0; i < expectedSpanNames.length; i++) {
+      const expectedName = expectedSpanNames[i]
+      const span = spans[i]
+      t.strictEqual(span.transaction_id, trans.id, 'span.transaction_id')
+      t.strictEqual(span.name, expectedName, 'span.name')
       t.strictEqual(span.type, 'cache', 'span.type')
       t.strictEqual(span.subtype, 'redis', 'span.subtype')
       t.deepEqual(span.context.destination, {
@@ -54,18 +63,28 @@ test('redis', function (t) {
     t.end()
   })
 
+  // If a redis client is not yet "ready" it will queue client commands, and
+  // then send them after "ready". Internally this results in calling
+  // RedisClient.internal_send_command *twice* for each queued command. If the
+  // instrumentation isn't careful, it is easy to instrument both of those
+  // calls. The latter call will only result in a span if there is a
+  // currentTransaction for the async task in which the redis client is created.
+  // That's what `transBeforeClient` is: to make sure we *don't* get
+  // double-spans.
+  var transBeforeClient = agent.startTransaction('transBeforeClient')
+
   var client = redis.createClient('6379', process.env.REDIS_HOST)
 
-  agent.startTransaction('foo', 'bar')
+  var transAfterClient = agent.startTransaction('transAfterClient')
 
   client.flushall(function (err, reply) {
-    t.error(err)
-    t.strictEqual(reply, 'OK')
+    t.error(err, 'no flushall error')
+    t.strictEqual(reply, 'OK', 'reply is OK')
     var done = 0
 
     client.set('string key', 'string val', function (err, reply) {
       t.error(err)
-      t.strictEqual(reply, 'OK')
+      t.strictEqual(reply, 'OK', 'reply is OK')
       done++
     })
 
@@ -73,25 +92,27 @@ test('redis', function (t) {
     client.set('string key', 'string val')
 
     client.hset('hash key', 'hashtest 1', 'some value', function (err, reply) {
-      t.error(err)
-      t.strictEqual(reply, 1)
+      t.error(err, 'no hset error')
+      t.strictEqual(reply, 1, 'hset reply is 1')
       done++
     })
     client.hset(['hash key', 'hashtest 2', 'some other value'], function (err, reply) {
-      t.error(err)
-      t.strictEqual(reply, 1)
+      t.error(err, 'no hset error')
+      t.strictEqual(reply, 1, 'hset reply is 1')
       done++
     })
 
     client.hkeys('hash key', function (err, replies) {
-      t.error(err)
-      t.strictEqual(replies.length, 2)
+      t.error(err, 'no hkeys error')
+      t.strictEqual(replies.length, 2, 'got two replies')
       replies.forEach(function (reply, i) {
-        t.strictEqual(reply, 'hashtest ' + (i + 1))
+        t.strictEqual(reply, 'hashtest ' + (i + 1), `reply ${i} value`)
       })
-      t.strictEqual(done, 3)
+      done++
+      t.strictEqual(done, 4, 'done 4 callbacks')
 
-      agent.endTransaction()
+      transAfterClient.end()
+      transBeforeClient.end()
       client.quit()
       agent.flush()
     })
@@ -100,6 +121,6 @@ test('redis', function (t) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(7, cb)
+  agent._transport = mockClient(cb)
   agent.captureError = function (err) { throw err }
 }
