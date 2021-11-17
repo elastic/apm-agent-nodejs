@@ -1,8 +1,7 @@
 'use strict'
 
 var agent = require('../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-redis',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false
@@ -12,9 +11,8 @@ var redis = require('redis')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
-var findObjInArray = require('../../_utils').findObjInArray
 
-test(function (t) {
+test('redis', function (t) {
   resetAgent(function (data) {
     var groups = [
       'FLUSHALL',
@@ -29,24 +27,29 @@ test(function (t) {
     t.strictEqual(data.spans.length, groups.length)
 
     var trans = data.transactions[0]
+    t.strictEqual(trans.name, 'foo', 'trans.name')
+    t.strictEqual(trans.type, 'bar', 'trans.type')
+    t.strictEqual(trans.result, 'success', 'trans.result')
 
-    t.strictEqual(trans.name, 'foo')
-    t.strictEqual(trans.type, 'bar')
-    t.strictEqual(trans.result, 'success')
-
-    groups.forEach(function (name) {
-      var span = findObjInArray(data.spans, 'name', name)
-      t.strictEqual(span.type, 'cache')
-      t.strictEqual(span.subtype, 'redis')
+    // Sort by timestamp, because asynchronous-span.end() means they can be
+    // set to APM server out of order.
+    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
+    for (var i = 0; i < groups.length; i++) {
+      const name = groups[i]
+      const span = data.spans[i]
+      t.strictEqual(span.name, name, 'span.name')
+      t.strictEqual(span.type, 'cache', 'span.type')
+      t.strictEqual(span.subtype, 'redis', 'span.subtype')
       t.deepEqual(span.context.destination, {
         service: { name: 'redis', resource: 'redis', type: 'cache' },
         address: process.env.REDIS_HOST || '127.0.0.1',
         port: 6379
-      })
+      }, 'span.context.destination')
 
       var offset = span.timestamp - trans.timestamp
-      t.ok(offset + span.duration * 1000 < trans.duration * 1000)
-    })
+      t.ok(offset + span.duration * 1000 < trans.duration * 1000,
+        'span ended before transaction ended')
+    }
 
     t.end()
   })
