@@ -1304,8 +1304,7 @@ test('userAgentFromConf', t => {
   t.equal(config.userAgentFromConf({ serviceName: 'party', serviceVersion: '2021-été' }),
     `apm-agent-nodejs/${apmVersion} (party 2021-été)`)
   // Higher code points are replaced with `_`.
-  t.equal(config.userAgentFromConf({ serviceName: 'freeze', serviceVersion: 'do you want to build a ☃ in my 🏰'
- }),
+  t.equal(config.userAgentFromConf({ serviceName: 'freeze', serviceVersion: 'do you want to build a ☃ in my 🏰' }),
     `apm-agent-nodejs/${apmVersion} (freeze do you want to build a _ in my __)`)
 
   t.end()
