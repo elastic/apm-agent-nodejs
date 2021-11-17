@@ -372,6 +372,8 @@ def generateStep(Map params = [:]){
             // output.
             if (!tav?.trim()) {
               tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
+              archiveArtifacts(allowEmptyArchive: true, artifacts: '*-output.tap')
+              archiveArtifacts(allowEmptyArchive: true, artifacts: '*-junit.xml')
             }
           }
         }
