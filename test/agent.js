@@ -1895,8 +1895,13 @@ test('#registerMetric(name, labels, callback)', function (t) {
 
   agent._metrics = mockMetrics
 
-  const cb = () => { return 12345 }
-  const labels = { abc: 123 }
+function assertStackTrace (t, stacktrace) {
+  t.ok(stacktrace !== undefined, 'should have a stack trace')
+  t.ok(Array.isArray(stacktrace), 'stack trace should be an array')
+  t.ok(stacktrace.length > 0, 'stack trace should have at least one frame')
+  t.strictEqual(stacktrace[0].filename, path.join('test', 'agent.js'))
+}
+assertStackTrace.asserts = 4
 
   // with labels
   agent.registerMetric('custom-metrics', labels, cb)

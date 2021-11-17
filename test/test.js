@@ -6,6 +6,7 @@ var spawn = require('child_process').spawn
 
 var semver = require('semver')
 
+var extname = path.extname
 var join = path.join
 
 var bin = join(process.cwd(), 'node_modules/.bin')
@@ -106,14 +107,14 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
 
   var tests = [
     {
-      file: 'test.test.js',
+      file: 'test.js',
       cwd: 'test/start/env',
       env: {
         ELASTIC_APM_SERVICE_NAME: 'from-env'
       }
     },
     {
-      file: 'test.test.js',
+      file: 'test.js',
       cwd: 'test/start/file'
     }
   ]
@@ -121,7 +122,9 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
   directoryFiles.forEach(function (files, i) {
     var directory = directories[i]
     files.forEach(function (file) {
-      if (!file.endsWith('.test.js')) return
+      if (directory === 'test' && file === 'test.js') return
+      if (extname(file) !== '.js') return
+      if (file[0] === '_') return
 
       tests.push({
         file: join(directory, file)
