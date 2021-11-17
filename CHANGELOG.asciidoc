@@ -40,6 +40,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Avoid setting the `tracestate` header for outgoing HTTP requests to the empty
+  string. This can happen for non-trace-root transactions. While the HTTP spec
+  allows empty header values, some servers do not. ({issues}2405[#2405])
+
 - Deprecate `transaction.subtype` and `transaction.action`. These fields
   were never used by APM server. This also deprecates the
   `apm.startTransaction(...)` call signatures that take `subtype` and `action`
