@@ -849,9 +849,13 @@ test('disableInstrumentations', function (t) {
   if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
     modules.delete('mongodb')
   }
-
   if (semver.gte(apolloServerCoreVersion, '3.0.0') && semver.lt(process.version, '12.0.0')) {
     modules.delete('apollo-server-core')
+  }
+  if (semver.satisfies(process.version, '>17.x', { includePrerelease: true })) {
+    // Restify (as of 8.6.0) is completely broken with latest node v18 nightly.
+    // https://github.com/restify/node-restify/issues/1888
+    modules.delete('restify')
   }
 
   function testSlice (t, name, selector) {
