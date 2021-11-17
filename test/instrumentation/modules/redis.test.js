@@ -17,12 +17,15 @@ test('redis', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 2, 'have 2 transactions')
 
-    // We expect a 'transBeforeClient' transaction with a single INFO span.
+    // We expect a 'transBeforeClient' transaction, and we want to ensure it
+    // does *not* have spans for each of the client commands. It *possibly*
+    // (with asyncHooks=false it doesn't) has an "INFO" span for the internal
+    // INFO command the RedisClient setup does.
     var trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
     t.ok(trans, 'have "transBeforeClient" transaction')
     var spans = data.spans.filter(s => s.transaction_id === trans.id)
-    t.equal(spans.length, 1, 'just the one span in "transBeforeClient"')
-    t.equal(spans[0].name, 'INFO', 'that span is the RedisClient INFO command')
+      .filter(s => s.name !== 'INFO')
+    t.equal(spans.length, 0, 'there are no non-INFO spans in the "transBeforeClient" transaction')
 
     // Sort the remaining spans by timestamp, because asynchronous-span.end()
     // means they can be set to APM server out of order.
