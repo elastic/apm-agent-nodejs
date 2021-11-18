@@ -8,7 +8,7 @@ const agent = require('../../../..').start({
 
 const tape = require('tape')
 
-tape('restify set-framework test', function (t) {
+tape('fastify set-framework test', function (t) {
   let asserts = 0
 
   agent.setFramework = function ({ name, version, overwrite }) {
