@@ -638,6 +638,13 @@ Sub-millisecond precision can be achieved using decimals.
 If not provided,
 the current time will be used
 
+** `exitSpan` +{type-boolean}+ Make an "exit span".
+Exit spans represent outgoing communication. They are used to create a node
+in the {kibana-ref}/service-maps.html[Service Map] and a downstream service
+in the {kibana-ref}/dependencies.html[Dependencies Table]. The provided subtype
+will be used as the downstream service name, unless explicitly set via
+<<span-setdestinationservice,`span.setDestinationService`>>.
+
 Start and return a new custom span associated with the current active transaction.
 This is the same as getting the current transaction with `apm.currentTransaction` and,
 if a transaction was found,

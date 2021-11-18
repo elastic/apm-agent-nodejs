@@ -204,6 +204,7 @@ declare namespace apm {
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
     addLabels (labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
+    setDestinationService(resource: string | null): void;
     end (endTime?: number): void;
   }
 
@@ -335,6 +336,7 @@ declare namespace apm {
   export interface SpanOptions {
     startTime?: number;
     childOf?: Transaction | Span | string;
+    exitSpan?: boolean;
   }
 
   type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';

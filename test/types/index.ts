@@ -106,6 +106,7 @@ apm.startSpan('foo', 'type', { childOf: 'baz' })
 apm.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
 apm.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
 apm.startSpan('foo', 'type', 'subtype', 'action', { startTime: 42 })
+apm.startSpan('foo', 'type', 'subtype', { exitSpan: true })
 
 apm.setLabel('foo', 'bar')
 apm.setLabel('foo', 1)
@@ -180,6 +181,7 @@ apm.logger.fatal('')
     trans.startSpan('foo', 'type', { childOf: 'baz' })
     trans.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
     trans.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
+    trans.startSpan('foo', 'type', 'subtype', { exitSpan: true })
 
     function ensureParentId (id: string) {}
     ensureParentId(trans.ensureParentId())
@@ -204,6 +206,10 @@ apm.logger.fatal('')
       span.setLabel('foo', false)
 
       span.addLabels({ s: 'bar', n: 42, b: false })
+
+      span.setOutcome('failure')
+      span.setDestinationService(null)
+      span.setDestinationService('redis')
 
       span.end()
       span.end(42)

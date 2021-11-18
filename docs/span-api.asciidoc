@@ -215,3 +215,22 @@ However, for exit spans that represent an HTTP request, the `outcome` is based o
 * `outcome` +{type-string}+
 
 The `setOutcome` method allows an end user to override the Node.js agent's default setting of a span's `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific span.
+
+
+[[span-setdestinationservice]]
+==== `span.setDestinationService(resource)`
+
+[small]#Added in: v XXX#
+
+* `resource` +{type-string}+ | +{type-null}+
+The string representation of the downstream service. This value will be used to
+override the value automatically inferred for exit spans.
+
+Provides a way to manually set the `span.destination.service.resource` field,
+which is used for the construction of service maps and the identification of
+downstream services. Any value set through this method will take precedence over
+the automatically inferred one. Setting `null` will force *no* value, removing
+this span from consideration as a downstream service.
+
+Note: This is only relevant for spans that represent outgoing communication
+(exit spans).
