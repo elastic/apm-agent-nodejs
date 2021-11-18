@@ -12,6 +12,7 @@ var redisVersion = require('redis/package.json').version
 var semver = require('semver')
 var test = require('tape')
 
+var findObjInArray = require('../../_utils').findObjInArray
 var mockClient = require('../../_mock_http_client')
 
 test('redis', function (t) {
