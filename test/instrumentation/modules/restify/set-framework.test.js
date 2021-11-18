@@ -1,5 +1,13 @@
 'use strict'
 
+// Restify is broken on latest node v18 nightlies.
+// https://github.com/restify/node-restify/issues/1888
+const semver = require('semver')
+if (semver.satisfies(process.version, '>17.x', { includePrerelease: true })) {
+  console.log(`# SKIP restify does not support node ${process.version}`)
+  process.exit()
+}
+
 const agent = require('../../../..').start({
   captureExceptions: true,
   metricsInterval: 0,
