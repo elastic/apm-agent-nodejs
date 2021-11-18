@@ -8,6 +8,8 @@ var agent = require('../../..').start({
 })
 
 var redis = require('redis')
+var redisVersion = require('redis/package.json').version
+var semver = require('semver')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
@@ -121,6 +123,71 @@ test('redis', function (t) {
     })
   })
 })
+
+test('client.cmd(...) call signatures', function (t) {
+  let nCbCalled = 0
+  function myCb () {
+    nCbCalled++
+  }
+
+  resetAgent(function (data) {
+    t.equal(nCbCalled, 2, 'myCb was called the expected number of times')
+    t.equal(data.transactions.length, 1, 'got 1 transaction')
+    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
+    t.deepEqual(
+      data.spans.map(s => s.name),
+      ['INFO', 'SET', 'GET', 'SET'],
+      'got the expected span names'
+    )
+    t.end()
+  })
+
+  var client = redis.createClient('6379', process.env.REDIS_HOST)
+  client.on('ready', function () {
+    var t0 = agent.startTransaction('t0')
+
+    // Use different call signatures to trigger the different forms of arguments
+    // to the internal RedisClient.send_command that we are wrapping.
+    client.info()
+    client.set('k', 'v')
+    client.get('k', myCb)
+    client.set(['k', 'v'], myCb)
+
+    t0.end()
+    client.quit()
+    agent.flush()
+  })
+})
+
+if (semver.satisfies(redisVersion, '<=2.4.2')) {
+  // Redis <=2.4.2 allowed a callback as the last item in an args array.
+  // Support for this was dropped in commit 60eee34de1.
+  test('client.cmd([args..., myCb]) call signature', function (t) {
+    let nCbCalled = 0
+    function myCb () {
+      nCbCalled++
+    }
+
+    resetAgent(function (data) {
+      t.equal(nCbCalled, 1, 'myCb was called the expected number of times')
+      t.equal(data.transactions.length, 1, 'got 1 transaction')
+      t.equal(data.spans.length, 1, 'got 1 span')
+      t.equal(data.spans[0].name, 'GET', 'span name is GET')
+      t.end()
+    })
+
+    var client = redis.createClient('6379', process.env.REDIS_HOST)
+    client.on('ready', function () {
+      var t0 = agent.startTransaction('t0')
+
+      client.get(['k', myCb])
+
+      t0.end()
+      client.quit()
+      agent.flush()
+    })
+  })
+}
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
