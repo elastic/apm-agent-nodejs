@@ -40,15 +40,20 @@ Notes:
 [float]
 ===== Bug fixes
 
-- Fix 'redis' instrumentation to avoid a rare possible double-instrumentation
-  of redis commands internally-queued before the RedisClient is "ready".
-  ({pull}2446[#2446])
+* Fixes for 'redis' instrumentations:
++
+**  Fix run-context so that a span created in the same tick as a redis client
+    command will no longer be a child of the redis span. ({issues}2430[#2430])
+**  Capture an APM error and correctly set span.outcome to "failure" when
+    a redis client command calls back with an error.
+**  Avoid a rare possible double-instrumentation of redis commands
+    internally-queued before the RedisClient is "ready". ({pull}2446[#2446])
 
-- Avoid setting the `tracestate` header for outgoing HTTP requests to the empty
+* Avoid setting the `tracestate` header for outgoing HTTP requests to the empty
   string. This can happen for non-trace-root transactions. While the HTTP spec
   allows empty header values, some servers do not. ({issues}2405[#2405])
 
-- Deprecate `transaction.subtype` and `transaction.action`. These fields
+* Deprecate `transaction.subtype` and `transaction.action`. These fields
   were never used by APM server. This also deprecates the
   `apm.startTransaction(...)` call signatures that take `subtype` and `action`
   arguments. In the next major version these two fields will be removed.

@@ -12,8 +12,8 @@ var redisVersion = require('redis/package.json').version
 var semver = require('semver')
 var test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
 var findObjInArray = require('../../_utils').findObjInArray
+var mockClient = require('../../_mock_http_client')
 
 test('redis', function (t) {
   resetAgent(function (data) {
@@ -59,6 +59,7 @@ test('redis', function (t) {
         address: process.env.REDIS_HOST || '127.0.0.1',
         port: 6379
       }, 'span.context.destination')
+      t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
 
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000,
@@ -123,6 +124,42 @@ test('redis', function (t) {
     })
   })
 })
+
+// Skip testing error capture with redis 2.x. It works, but there are behaviour
+// differences (e.g. `client.quit()` throws with `enable_offline_queue: false`)
+// such that testing is a pain. Redis 2.x is too old to bother.
+if (semver.satisfies(redisVersion, '>=3.0.0')) {
+  test('redis client error', function (t) {
+    resetAgent(function (data) {
+      t.equal(data.transactions.length, 1, 'got 1 transaction')
+      t.equal(data.spans.length, 1, 'got 1 span')
+      t.equal(data.errors.length, 1, 'got 1 error')
+      t.equal(data.spans[0].name, 'SET', 'span.name')
+      t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+      t.equal(data.spans[0].outcome, 'failure', 'span.outcome')
+      t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id')
+      t.equal(data.errors[0].exception.type, 'AbortError', 'error.exception.type')
+      t.end()
+    })
+
+    // Simulate a redis client error with `enable_offline_queue: false` and a
+    // quick `.set()` before the client connection ready.
+    var client = redis.createClient({
+      host: process.env.REDIS_HOST,
+      port: '6379',
+      enable_offline_queue: false
+    })
+    var t0 = agent.startTransaction('t0')
+    client.set('k', 'v', function (err, reply) {
+      t.ok(err, 'got error from client.set')
+      t.equal(err.name, 'AbortError', 'error.name')
+      t.ok(reply === undefined, 'no reply')
+      t0.end()
+      client.quit()
+      agent.flush()
+    })
+  })
+}
 
 test('client.cmd(...) call signatures', function (t) {
   let nCbCalled = 0
@@ -192,5 +229,4 @@ if (semver.satisfies(redisVersion, '<=2.4.2')) {
 function resetAgent (cb) {
   agent._instrumentation.testReset()
   agent._transport = mockClient(cb)
-  agent.captureError = function (err) { throw err }
 }
