@@ -1,8 +1,7 @@
 'use strict'
 
 var agent = require('../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-ioredis',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
@@ -98,7 +97,7 @@ test('nested', function (t) {
   })
 })
 
-test('rejections_handled', function (t) {
+test('error capture, no unhandledRejection on command error is introduced', function (t) {
   // Make sure there are no unhandled promise rejections
   // introduced by our promise handling. See #1518.
   let unhandledRejection = false
@@ -110,13 +109,16 @@ test('rejections_handled', function (t) {
     process.removeListener('unhandledRejection', onUnhandledRejection)
   })
   agent._instrumentation.testReset()
-  agent._transport = mockClient(3, function () {
+  agent._transport = mockClient(4, function (data) {
+    t.equal(data.errors.length, 1, 'captured 1 error')
+    t.equal(data.errors[0].exception.type, 'ReplyError', 'exception.type')
+    t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id')
+
     setTimeout(function () {
       t.notOk(unhandledRejection)
       t.end()
     }, 0)
   })
-  agent.captureError = function (err) { throw err }
 
   var redis = new Redis(process.env.REDIS_HOST)
   const trans = agent.startTransaction('foo', 'bar')
@@ -153,12 +155,15 @@ function done (t) {
 
     groups.forEach(function (name, i) {
       const span = data.spans[i]
-      t.strictEqual(span.name, name)
-      t.strictEqual(span.type, 'cache')
-      t.strictEqual(span.subtype, 'redis')
-
-      var offset = span.timestamp - trans.timestamp
-      t.ok(offset + span.duration * 1000 < trans.duration * 1000)
+      t.strictEqual(span.name, name, 'span.name')
+      t.strictEqual(span.type, 'cache', 'span.type')
+      t.strictEqual(span.subtype, 'redis', 'span.subtype')
+      t.deepEqual(span.context.destination, {
+        service: { name: 'redis', resource: 'redis', type: 'cache' },
+        address: process.env.REDIS_HOST || 'localhost',
+        port: 6379
+      }, 'span.context.destination')
+      t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
     })
 
     t.end()
@@ -168,5 +173,4 @@ function done (t) {
 function resetAgent (cb) {
   agent._instrumentation.testReset()
   agent._transport = mockClient(9, cb)
-  agent.captureError = function (err) { throw err }
 }
