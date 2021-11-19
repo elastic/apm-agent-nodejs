@@ -55,7 +55,7 @@ test('redis', function (t) {
       t.strictEqual(span.type, 'cache', 'span.type')
       t.strictEqual(span.subtype, 'redis', 'span.subtype')
       t.deepEqual(span.context.destination, {
-        service: { name: 'redis', resource: 'redis', type: 'cache' },
+        service: { resource: 'redis', name: '', type: '' },
         address: process.env.REDIS_HOST || '127.0.0.1',
         port: 6379
       }, 'span.context.destination')
