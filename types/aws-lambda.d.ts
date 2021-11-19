@@ -43,7 +43,7 @@ export declare namespace AwsLambda {
     functionName: string;
     functionVersion: string;
     invokedFunctionArn: string;
-    memoryLimitInMB: number;
+    memoryLimitInMB: string;
     awsRequestId: string;
     logGroupName: string;
     logStreamName: string;

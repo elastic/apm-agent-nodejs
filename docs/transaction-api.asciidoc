@@ -44,22 +44,28 @@ The type of the transaction.
 There's a special type called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
 
 [[transaction-subtype]]
-==== `transaction.subtype`
+==== `transaction.subtype` deprecated:[v3.25.0]
 
-[small]#Added in: v3.0.0#
+[small]#Added in: v3.0.0# +
+[small]#Deprecated in: v3.25.0#
 
 * +{type-string}+ *Default:* `custom`
 
 The subtype of the transaction.
+The transaction `subtype` field is deprecated: it is not used and will be
+removed in the next major version.
 
 [[transaction-action]]
-==== `transaction.action`
+==== `transaction.action` deprecated:[v3.25.0]
 
-[small]#Added in: v3.0.0#
+[small]#Added in: v3.0.0# +
+[small]#Deprecated in: v3.25.0#
 
 * +{type-string}+ *Default:* `custom`
 
 The action of the transaction.
+The transaction `action` field is deprecated: it is not used and will be removed
+in the next major version.
 
 [[transaction-traceparent]]
 ==== `transaction.traceparent`

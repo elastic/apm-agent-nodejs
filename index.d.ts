@@ -61,12 +61,18 @@ declare namespace apm {
       type: string | null,
       options?: TransactionOptions
     ): Transaction | null;
+    /**
+     * @deprecated Transaction 'subtype' is not used.
+     */
     startTransaction(
       name: string | null,
       type: string | null,
       subtype: string | null,
       options?: TransactionOptions
     ): Transaction | null;
+    /**
+     * @deprecated Transaction 'subtype' and 'action' are not used.
+     */
     startTransaction(
       name: string | null,
       type: string | null,
@@ -140,7 +146,13 @@ declare namespace apm {
 
     name: string;
     type: string | null;
+    /**
+     * @deprecated Transaction 'subtype' is not used.
+     */
     subtype: string | null;
+    /**
+     * @deprecated Transaction 'action' is not used.
+     */
     action: string | null;
     traceparent: string;
     outcome: Outcome;

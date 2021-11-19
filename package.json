@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.23.0",
+  "version": "3.24.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -12,7 +12,6 @@
     "lint:fix": "standard --fix",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
     "test": "./test/script/run_tests.sh",
-    "test:cli": "node test/script/cli.js",
     "test:deps": "dependency-check start.js index.js 'lib/**/*.js' 'test/**/*.js' --no-dev -i async_hooks -i perf_hooks -i parseurl",
     "test:tav": "tav --quiet",
     "test:docs": "./test/script/docker/run_docs.sh",
@@ -87,7 +86,7 @@
     "basic-auth": "^2.0.1",
     "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "^10.2.0",
+    "elastic-apm-http-client": "^10.3.0",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",
@@ -152,7 +151,6 @@
     "handlebars": "^4.7.3",
     "hapi": "^18.1.0",
     "https-pem": "^2.0.0",
-    "inquirer": "^0.12.0",
     "ioredis": "^4.16.0",
     "jade": "^1.11.0",
     "knex": "^0.21.2",
@@ -174,10 +172,9 @@
     "once": "^1.4.0",
     "pg": "^8.7.1",
     "pug": "^2.0.4",
-    "redis": "^3.0.2",
+    "redis": "^3.1.2",
     "request": "^2.88.2",
     "restify": "^8.5.1",
-    "restify-clients": "^2.6.9",
     "rimraf": "^3.0.2",
     "send": "^0.17.1",
     "standard": "^14.3.3",
@@ -186,15 +183,9 @@
     "test-all-versions": "^4.1.1",
     "thunky": "^1.1.0",
     "typescript": "^3.7.5",
-    "untildify": "^4.0.0",
     "vasync": "^2.2.0",
     "wait-on": "^3.3.0",
     "ws": "^7.2.1"
-  },
-  "greenkeeper": {
-    "ignore": [
-      "inquirer"
-    ]
   },
   "standard": {
     "ignore": [

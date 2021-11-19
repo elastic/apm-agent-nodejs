@@ -46,31 +46,31 @@ const agentOptsNoopTransport = Object.assign(
 // ---- internal support functions
 
 function assertMetadata (t, payload) {
-  t.strictEqual(payload.service.name, 'test-agent')
-  t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node })
-  t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version })
+  t.strictEqual(payload.service.name, 'test-agent', 'metadata: service.name')
+  t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node }, 'metadata: service.runtime')
+  t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version }, 'metadata: service.agent')
 
   const expectedSystemKeys = ['hostname', 'architecture', 'platform']
   if (inContainer) expectedSystemKeys.push('container')
 
-  t.deepEqual(Object.keys(payload.system), expectedSystemKeys)
-  t.strictEqual(payload.system.hostname, os.hostname())
-  t.strictEqual(payload.system.architecture, process.arch)
-  t.strictEqual(payload.system.platform, process.platform)
+  t.deepEqual(Object.keys(payload.system), expectedSystemKeys, 'metadata: system')
+  t.strictEqual(payload.system.hostname, os.hostname(), 'metadata: system.hostname')
+  t.strictEqual(payload.system.architecture, process.arch, 'metadata: system.architecture')
+  t.strictEqual(payload.system.platform, process.platform, 'metadata: system.platform')
 
   if (inContainer) {
-    t.deepEqual(Object.keys(payload.system.container), ['id'])
-    t.strictEqual(typeof payload.system.container.id, 'string')
-    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id))
+    t.deepEqual(Object.keys(payload.system.container), ['id'], 'metadata: system.container')
+    t.strictEqual(typeof payload.system.container.id, 'string', 'metadata: system.container.id is a string')
+    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id), 'metadata: system.container.id')
   }
 
-  t.ok(payload.process)
-  t.strictEqual(payload.process.pid, process.pid)
-  t.ok(payload.process.pid > 0, 'should have a pid greater than 0')
-  t.ok(payload.process.title, 'should have a process title')
-  t.strictEqual(payload.process.title, process.title)
-  t.deepEqual(payload.process.argv, process.argv)
-  t.ok(payload.process.argv.length >= 2, 'should have at least two process arguments')
+  t.ok(payload.process, 'metadata: process')
+  t.strictEqual(payload.process.pid, process.pid, 'metadata: process.pid')
+  t.ok(payload.process.pid > 0, 'metadata: process.pid > 0')
+  t.ok(payload.process.title, 'metadata: has a process.title')
+  t.strictEqual(payload.process.title, process.title, 'metadata: process.title matches')
+  t.deepEqual(payload.process.argv, process.argv, 'metadata: has process.argv')
+  t.ok(payload.process.argv.length >= 2, 'metadata: process.argv has at least two args')
 }
 
 function assertStackTrace (t, stacktrace) {
@@ -146,6 +146,13 @@ test('#setFramework()', function (t) {
 })
 
 test('#startTransaction()', function (t) {
+  t.test('agent not yet started: startTransaction() should not crash', function (t) {
+    const agent = new Agent() // do not start the agent
+    agent.startTransaction('foo')
+    agent.destroy()
+    t.end()
+  })
+
   t.test('name, type, subtype and action', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     var trans = agent.startTransaction('foo', 'type', 'subtype', 'action')

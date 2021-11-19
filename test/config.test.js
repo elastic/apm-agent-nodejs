@@ -537,7 +537,7 @@ test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (
   t.end()
 })
 
-test('should default to empty request blacklist arrays', function (t) {
+test('should default to empty request ignore arrays', function (t) {
   var agent = new Agent()
   agent.start(agentOptsNoopTransport)
   t.strictEqual(agent._conf.ignoreUrlStr.length, 0)
@@ -549,7 +549,7 @@ test('should default to empty request blacklist arrays', function (t) {
   t.end()
 })
 
-test('should separate strings and regexes into their own blacklist arrays', function (t) {
+test('should separate strings and regexes into their own ignore arrays', function (t) {
   var agent = new Agent()
   agent.start(Object.assign(
     {},
@@ -849,9 +849,13 @@ test('disableInstrumentations', function (t) {
   if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
     modules.delete('mongodb')
   }
-
   if (semver.gte(apolloServerCoreVersion, '3.0.0') && semver.lt(process.version, '12.0.0')) {
     modules.delete('apollo-server-core')
+  }
+  if (semver.satisfies(process.version, '>17.x', { includePrerelease: true })) {
+    // Restify (as of 8.6.0) is completely broken with latest node v18 nightly.
+    // https://github.com/restify/node-restify/issues/1888
+    modules.delete('restify')
   }
 
   function testSlice (t, name, selector) {
@@ -1301,11 +1305,11 @@ test('userAgentFromConf', t => {
   t.equal(config.userAgentFromConf({ serviceName: 'foo', serviceVersion: '1.0.0' }),
     `apm-agent-nodejs/${apmVersion} (foo 1.0.0)`)
   // ISO-8859-1 characters are generally allowed.
-  t.equal(config.userAgentFromConf({ serviceName: 'fête', serviceVersion: '2021-été' }),
-    `apm-agent-nodejs/${apmVersion} (fête 2021-été)`)
+  t.equal(config.userAgentFromConf({ serviceName: 'party', serviceVersion: '2021-été' }),
+    `apm-agent-nodejs/${apmVersion} (party 2021-été)`)
   // Higher code points are replaced with `_`.
-  t.equal(config.userAgentFromConf({ serviceName: 'myhomeismy🏰', serviceVersion: 'do you want to build a ☃' }),
-    `apm-agent-nodejs/${apmVersion} (myhomeismy__ do you want to build a _)`)
+  t.equal(config.userAgentFromConf({ serviceName: 'freeze', serviceVersion: 'do you want to build a ☃ in my 🏰' }),
+    `apm-agent-nodejs/${apmVersion} (freeze do you want to build a _ in my __)`)
 
   t.end()
 })

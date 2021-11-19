@@ -551,22 +551,3 @@ tape('aws metadata unified IMDS: if server is not there', function (t) {
     t.ok(err, 'expected unreachable server error')
   })
 })
-
-tape('aws lambda metadata', function (t) {
-  // inject values into env.
-  process.env.AWS_REGION = 'us-west-2'
-  process.env.AWS_LAMBDA_FUNCTION_NAME = 'fixture-function-name'
-
-  const cloudMetadata = new CloudMetadata('none', logger, 'service name')
-  cloudMetadata.getCloudMetadata(
-    providerUrls,
-    function (err, metadata) {
-      t.error(err, 'no errors expected')
-      t.ok(metadata, 'returned data')
-      t.equals(metadata.provider, 'aws', 'cloud metadata provider set')
-      t.equals(metadata.region, 'us-west-2', 'cloud metadata region set')
-      t.equals(metadata.service.name, 'service name', 'cloud metadata service name set')
-      t.end()
-    }
-  )
-})

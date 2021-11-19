@@ -16,7 +16,6 @@ test('success', function (t) {
   const name = 'greet.hello'
   const input = { name: 'world' }
   const output = 'Hello, world!'
-  let context
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -24,9 +23,8 @@ test('success', function (t) {
   lambdaLocal.execute({
     event: input,
     lambdaFunc: {
-      [name]: wrap((payload, _context, callback) => {
-        context = _context
-        callback(null, `Hello, ${payload.name}!`)
+      [name]: wrap((_event, _context, callback) => {
+        callback(null, `Hello, ${_event.name}!`)
       })
     },
     lambdaHandler: name,
@@ -41,7 +39,7 @@ test('success', function (t) {
       t.strictEqual(agent.errors.length, 0)
 
       t.strictEqual(agent.transactions.length, 1)
-      assertTransaction(t, agent.transactions[0], name, context, input, output)
+      assertTransaction(t, agent.transactions[0], name)
 
       t.end()
     }
@@ -52,7 +50,6 @@ test('failure', function (t) {
   const name = 'fn.fail'
   const input = {}
   const error = new Error('fail')
-  let context
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
@@ -60,8 +57,7 @@ test('failure', function (t) {
   lambdaLocal.execute({
     event: input,
     lambdaFunc: {
-      [name]: wrap((payload, _context, callback) => {
-        context = _context
+      [name]: wrap((_event, _context, callback) => {
         callback(error)
       })
     },
@@ -78,7 +74,7 @@ test('failure', function (t) {
       assertError(t, agent.errors[0], error)
 
       t.strictEqual(agent.transactions.length, 1)
-      assertTransaction(t, agent.transactions[0], name, context, input)
+      assertTransaction(t, agent.transactions[0], name)
 
       t.end()
     }

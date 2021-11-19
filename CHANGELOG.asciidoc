@@ -28,7 +28,40 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
 ==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fixes for 'redis' instrumentations:
++
+**  Fix run-context so that a span created in the same tick as a redis client
+    command will no longer be a child of the redis span. ({issues}2430[#2430])
+**  Capture an APM error and correctly set span.outcome to "failure" when
+    a redis client command calls back with an error.
+**  Avoid a rare possible double-instrumentation of redis commands
+    internally-queued before the RedisClient is "ready". ({pull}2446[#2446])
+
+* Avoid setting the `tracestate` header for outgoing HTTP requests to the empty
+  string. This can happen for non-trace-root transactions. While the HTTP spec
+  allows empty header values, some servers do not. ({issues}2405[#2405])
+
+* Deprecate `transaction.subtype` and `transaction.action`. These fields
+  were never used by APM server. This also deprecates the
+  `apm.startTransaction(...)` call signatures that take `subtype` and `action`
+  arguments. In the next major version these two fields will be removed.
+  ({issues}2356[#2356])
+
+
+[[release-notes-3.24.0]]
+==== 3.24.0 2021/11/09
 
 [float]
 ===== Breaking changes
@@ -46,6 +79,10 @@ by the agent. There is no outward functionality change.
 [float]
 ===== Features
 
+* Gather https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md#overwriting-metadata[AWS Lambda-specific metadata]
+  on first function invocation and ensure no intake requests to APM Server are
+  started before that metadata is available. ({issues}2404[#2404])
+
 * Add <<context-propagation-only, `contextPropagationOnly`>> configuration
   option. This supports the use case of using the APM agent to propagate HTTP
   trace-context and to support log-correlation (adding `trace.id` et al fields
@@ -59,6 +96,11 @@ This is similar to <<disable-send, `disableSend`>>, but differs in that
   the `serviceName` and `serviceVersion`. For some users this can be
   https://github.com/elastic/apm/issues/509[helpful for APM Server log analysis].
   ({issues}2364[#2364])
+
+* In a Lambda enviornment we now collect a number of additional data fields
+  on the Transaction object.  See the spec for more information on fields collected.
+  https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md
+  ({issues}2156[#2156])
 
 * Zero configuration support. The only required agent configuration option
   is <<service-name, `serviceName`>>. Normally the agent will attempt to
