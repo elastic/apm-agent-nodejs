@@ -11,6 +11,7 @@ var agent = require('../../..').start({
 var Redis = require('ioredis')
 var test = require('tape')
 
+var findObjInArray = require('../../_utils').findObjInArray
 var mockClient = require('../../_mock_http_client')
 
 test('not nested', function (t) {
@@ -110,9 +111,11 @@ test('error capture, no unhandledRejection on command error is introduced', func
   })
   agent._instrumentation.testReset()
   agent._transport = mockClient(4, function (data) {
+    const getSpan = findObjInArray(data.spans, 'name', 'GET')
     t.equal(data.errors.length, 1, 'captured 1 error')
     t.equal(data.errors[0].exception.type, 'ReplyError', 'exception.type')
     t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id')
+    t.equal(data.errors[0].parent_id, getSpan.id, 'error.parent_id, the error is a child of the erroring span')
 
     setTimeout(function () {
       t.notOk(unhandledRejection)
