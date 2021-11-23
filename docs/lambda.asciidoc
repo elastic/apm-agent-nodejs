@@ -25,7 +25,7 @@ Setting up your Lambda function is a two-step process.
 1. <<lambda-extension>>
 2. <<lambda-instrumenting>>
 
-First, https://github.com/elastic/apm-aws-lambda/blob/main/apm-lambda-extension/docs/aws-lambda-extension.asciidoc[install the Elastic
+First, https://github.com/elastic/apm-aws-lambda/blob/main/docs/aws-lambda-extension.asciidoc[install the Elastic
 APM Lambda extension] into your Lambda environment. Elastic uses a Lambda
 extension to forward data to APM Server in a way that does not interfere with the
 execution of your Lambda function.
@@ -37,7 +37,7 @@ execution of your Lambda function.
 Elastic uses a Lambda extension to forward data to APM Server in a way that does not interfere with the
 execution of your Lambda function.
 
-See the https://github.com/elastic/apm-aws-lambda/blob/main/apm-lambda-extension/docs/aws-lambda-extension.asciidoc[installation documentation] to get started.
+See the https://github.com/elastic/apm-aws-lambda/blob/main/docs/aws-lambda-extension.asciidoc[installation documentation] to get started.
 
 Once you have the extension installed in your environment, you can
 configure your Lambda handler to instrument your function.

@@ -138,6 +138,7 @@ if (semver.satisfies(redisVersion, '>=3.0.0')) {
       t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
       t.equal(data.spans[0].outcome, 'failure', 'span.outcome')
       t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id')
+      t.equal(data.errors[0].parent_id, data.spans[0].id, 'error.parent_id, error is a child of the failing span')
       t.equal(data.errors[0].exception.type, 'AbortError', 'error.exception.type')
       t.end()
     })
