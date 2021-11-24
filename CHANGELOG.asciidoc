@@ -70,6 +70,10 @@ Notes:
   arguments. In the next major version these two fields will be removed.
   ({issues}2356[#2356])
 
+* Fix run-context handling for 'mysql' instrumentation to avoid accidental
+  creation of *child* spans of the automatic 'mysql' spans.
+  ({issues}2430[#2430]})
+
 
 [[release-notes-3.24.0]]
 ==== 3.24.0 2021/11/09
