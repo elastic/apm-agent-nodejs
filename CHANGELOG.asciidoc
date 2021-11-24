@@ -28,9 +28,13 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
 
-[[release-notes-3.25.0]]
-==== 3.25.0 2021/11/24
+[float]
+===== Breaking changes
+
+[float]
+===== Features
 
 [float]
 ===== Bug fixes
@@ -45,6 +49,12 @@ Notes:
     internally-queued before the RedisClient is "ready". ({issues}2459[#2459])
 **  Add destination context so Redis shows up on the Service Map.
 
+
+[[release-notes-3.25.0]]
+==== 3.25.0 2021/11/24
+
+[float]
+===== Bug fixes
 
 * Fixes for 'redis' instrumentation:
 +
