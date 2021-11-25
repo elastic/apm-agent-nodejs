@@ -209,10 +209,12 @@ if (semver.gte(process.version, '10.0.0')) {
       sort: 'myField:asc'
     }
     let statement
-    // ES client version 8 merges options for *most* APIs into a single body
-    // object, instead of separate query params and body.
+    // ES client version 8 merges options into `body` differently from earlier
+    // versions.
     if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-      statement = '{"query":{"match":{"request":"bar"}},"size":2,"sort":"myField:asc"}'
+      statement = `sort=myField%3Aasc
+
+{"query":{"match":{"request":"bar"}},"size":2}`
     } else {
       statement = `size=2&sort=myField%3Aasc
 
