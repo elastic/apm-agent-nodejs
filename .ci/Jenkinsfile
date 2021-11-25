@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('apm@current') _
+@Library('apm@feature/tap-with-multiple-entries-for-nodejs-specific') _
 
 pipeline {
   agent { label 'linux && immutable' }
