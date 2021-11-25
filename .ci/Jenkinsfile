@@ -371,7 +371,7 @@ def generateStep(Map params = [:]){
             // TAV tests run 'npm run test:tav' which does *not* produce TAP
             // output.
             if (!tav?.trim()) {
-              tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
+              tap2JunitExt(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
             }
           }
         }
