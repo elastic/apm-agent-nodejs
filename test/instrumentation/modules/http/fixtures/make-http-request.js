@@ -17,9 +17,9 @@ if (Number(process.versions.node.split('.')[0]) > 8) {
 }
 const http = require('http')
 
-function makeARequest (url, opts, cb) {
-  const clientReq = http.request(url, opts, function (clientRes) {
-    console.log('client response: %s %s', clientRes.statusCode, clientRes.headers)
+function makeARequest (opts, cb) {
+  const clientReq = http.request(opts, function (clientRes) {
+    console.log('client response: %s %o', clientRes.statusCode, clientRes.headers)
     assert(apm.currentSpan === null)
     apm.startSpan('span-in-http.request-callback').end()
 
@@ -62,8 +62,12 @@ function makeARequest (url, opts, cb) {
 
 const t0 = apm.startTransaction('t0')
 makeARequest(
-  'http://httpstat.us/200',
-  { headers: { accept: '*/*' } },
+  {
+    // 'http://httpstat.us/200'
+    host: 'httpstat.us',
+    path: '/200',
+    headers: { accept: '*/*' }
+  },
   function () {
     t0.end()
   })
