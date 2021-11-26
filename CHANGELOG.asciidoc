@@ -39,6 +39,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix run-context handling for 'memcached' instrumentation so that the
+  automatically created Memcached span is never the `currentSpan` in user
+  code.
+
 * Fixes for 'ioredis' instrumentation ({pull}2460[#2460]):
 +
 **  Fix run-context so that a span created in the same tick as an ioredis
