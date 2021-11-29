@@ -135,7 +135,7 @@ try {
 
 // Use `parser.help()` for formatted options help.
 if (opts.help) {
-  var help = parser.help().trimRight();
+  var help = parser.help().trimRight()
   console.log('usage: node test/test.js [OPTIONS]\n' +
               'options:\n' +
               help)
