@@ -25,7 +25,7 @@
             ignore-tags-newer-than: -1
         - regular-branches: true
         - change-request:
-            ignore-target-only-changes: false
+            ignore-target-only-changes: true
         clean:
           after: true
           before: true
