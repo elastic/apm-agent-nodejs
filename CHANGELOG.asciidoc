@@ -39,6 +39,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix 'http2' instrumentation for outgoing requests to not have the created
+  HTTP span context be active in user code.
+
 * Fixes for 'ioredis' instrumentation ({pull}2460[#2460]):
 +
 **  Fix run-context so that a span created in the same tick as an ioredis
