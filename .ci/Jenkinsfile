@@ -369,6 +369,7 @@ def generateStep(Map params = [:]){
             error(e.toString())
           } finally {
             junit(testResults: "test_output/*.junit.xml", allowEmptyResults: true, keepLongStdio: true)
+            archiveArtifacts(artifacts: "test_output/*.tap", allowEmptyArchive: true)
           }
         }
       }
