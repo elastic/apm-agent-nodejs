@@ -39,6 +39,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix a possible crash when serializing a Transaction if the incoming
+  `req.socket` is null (possible if the socket has been destroyed).
+  {issues}2479[#2479]}
+
 * Fixes for 'ioredis' instrumentation ({pull}2460[#2460]):
 +
 **  Fix run-context so that a span created in the same tick as an ioredis
