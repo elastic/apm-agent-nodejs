@@ -49,7 +49,13 @@ function run (test, cb) {
         outFile.close(function onClose (closeErr) {
           if (closeErr) {
             cb(closeErr)
-          } else if (code !== 0) {
+            return
+          }
+
+          // Dump the TAP content to stdout so it is in CI logs for debugging.
+          process.stdout.write('\n' + fs.readFileSync(outFileName) + '\n')
+
+          if (code !== 0) {
             const err = new Error('non-zero error code')
             err.code = 'ENONZERO'
             err.exitCode = code
