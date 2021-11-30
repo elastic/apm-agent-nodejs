@@ -40,7 +40,7 @@ Notes:
 ===== Bug fixes
 
 * Fix 'http' and 'https' instrumentation for outgoing requests to not have the
-  'http' span context be active in user code. ({pull}2470[#2470]):
+  'http' span context be active in user code. ({pull}2470[#2470])
 
 * Fixes for 'ioredis' instrumentation ({pull}2460[#2460]):
 +
