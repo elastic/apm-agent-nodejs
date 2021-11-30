@@ -39,6 +39,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix run-context handling in 'ws' instrumentation so that the span created
+  for a `ws.send(...)` isn't the "current span" in subsequent code in the
+  same tick. ({pull}2481[#2481])
+
 * Fixes for 'ioredis' instrumentation ({pull}2460[#2460]):
 +
 **  Fix run-context so that a span created in the same tick as an ioredis
