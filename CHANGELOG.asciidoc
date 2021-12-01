@@ -52,6 +52,9 @@ Notes:
     internally-queued before the RedisClient is "ready". ({issues}2459[#2459])
 **  Add destination context so Redis shows up on the Service Map.
 
+* Fix run-context handling for 'mysql2' instrumentation to avoid accidental
+  creation of *child* spans of the automatic mysql spans.
+  ({issues}2430[#2430]})
 
 [[release-notes-3.25.0]]
 ==== 3.25.0 2021/11/24
