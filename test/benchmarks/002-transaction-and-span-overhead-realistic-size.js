@@ -6,7 +6,8 @@ const bench = require('./utils/bench')
 
 bench('transaction-and-span-overhead-realistic-size', {
   agentConf: {
-    captureSpanStackTraces: true
+    captureSpanStackTraces: true,
+    spanFramesMinDuration: '-1ms'
   },
   setup () {
     var agent = this.benchmark.agent
