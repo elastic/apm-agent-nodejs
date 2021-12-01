@@ -44,6 +44,7 @@ Notes:
   the command callback, or promise) is not a child of the automatic AWS
   span. This change also ensures captured errors from failing client commands
   are a child of the AWS span.
+
 * Fix 'http' and 'https' instrumentation for outgoing requests to not have the
   'http' span context be active in user code. ({pull}2470[#2470])
 
