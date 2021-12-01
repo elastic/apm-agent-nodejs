@@ -42,6 +42,7 @@ Notes:
 * Fix run-context handling for 'memcached' instrumentation so that the
   automatically created Memcached span is never the `currentSpan` in user
   code.
+
 * Fix 'http' and 'https' instrumentation for outgoing requests to not have the
   'http' span context be active in user code. ({pull}2470[#2470])
 
