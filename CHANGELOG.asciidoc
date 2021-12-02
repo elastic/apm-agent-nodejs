@@ -39,10 +39,13 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix run-context handling for 'memcached' instrumentation so that the
+  automatically created Memcached span is never the `currentSpan` in user
+  code.
 
 * Fix a possible crash when serializing a Transaction if the incoming
   `req.socket` is null (possible if the socket has been destroyed).
-  {issues}2479[#2479]}
+  ({issues}2479[#2479])
 
 * Fixes for run context handling for 'aws-sdk' instrumentation (S3, SQS, SNS)
   so that a span created after an AWS client command (in the same tick, in

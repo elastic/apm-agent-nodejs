@@ -1,43 +1,46 @@
 #!/usr/bin/env node
 
-// A small example showing Elastic APM tracing of a script using `memcached`.
+// A small example showing Elastic APM tracing the 'memcached' package.
 //
-// By default this will use a Memcached on localhost. You can use:
-//    npm run docker:start
-// to start a Memcached container (and other containers used for testing of
-// this project).
+// This assumes a Memcached server running on localhost. You can use:
+//    npm run docker:start memcached
+// to start a Memcached container. Then `npm run docker:stop` to stop it.
 
 const apm = require('../').start({ // elastic-apm-node
   serviceName: 'example-trace-memcached'
 })
 
 const Memcached = require('memcached')
-
-const HOST = process.env.MEMCACHED_HOST || '127.0.0.1'
-const PORT = 11211
-const client = new Memcached(`${HOST}:${PORT}`, { timeout: 500 })
+const memcached = new Memcached('localhost:11211', { timeout: 500 })
 
 // For tracing spans to be created, there must be an active transaction.
 // Typically, a transaction is automatically started for incoming HTTP
 // requests to a Node.js server. However, because this script is not running
 // an HTTP server, we manually start a transaction. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-apm.startTransaction('t0')
+const t1 = apm.startTransaction('t1')
 
-client.version(function (err, data) {
-  console.log('Version: data=%j (err=%s)', data, err)
+memcached.touch('foo', 10, function (err, res) {
+  console.log('touch foo: err=%s res=%j', err && err.message, res)
+})
+memcached.set('foo', 'bar', 10, function (err, res) {
+  console.log('set foo: err=%s res=%j', err && err.message, res)
 
-  client.set('foo', 'bar', 10, function (err) {
-    console.log('Set: foo (err=%s)', err)
+  memcached.get('foo', function (err, res) {
+    console.log('get foo: err=%s res=%j', err && err.message, res)
+  })
 
-    client.get('foo', function (err, data) {
-      console.log('Get foo: %s (err=%s)', data, err)
+  memcached.gets('foo', function (err, res) {
+    console.log('gets foo: err=%s res=%j', err && err.message, res)
 
-      client.get('foo', function (err, data) {
-        console.log('Get foo (again): %s (err=%s)', data, err)
+    memcached.cas('foo', 'baz', res.cas, 10, function (casErr, casRes) {
+      console.log('cas foo: err=%s res=%j', casErr && casErr.message, casRes)
 
-        apm.endTransaction()
-        client.end()
+      memcached.get('foo', function (err, res) {
+        console.log('get foo: err=%s res=%j', err && err.message, res)
+
+        t1.end()
+        memcached.end()
       })
     })
   })
