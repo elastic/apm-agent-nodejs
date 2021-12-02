@@ -39,6 +39,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix run-context handling in 'ws' instrumentation so that the span created
+  for a `ws.send(...)` isn't the "current span" in subsequent code in the
+  same tick. ({pull}2481[#2481])
+
 * Fix run-context handling for 'memcached' instrumentation so that the
   automatically created Memcached span is never the `currentSpan` in user
   code.
