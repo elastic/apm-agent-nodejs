@@ -41,6 +41,25 @@ Notes:
 
 * Fix 'http2' instrumentation for outgoing requests to not have the created
   HTTP span context be active in user code.
+
+* Fix run-context handling in 'ws' instrumentation so that the span created
+  for a `ws.send(...)` isn't the "current span" in subsequent code in the
+  same tick. ({pull}2481[#2481])
+
+* Fix run-context handling for 'memcached' instrumentation so that the
+  automatically created Memcached span is never the `currentSpan` in user
+  code.
+
+* Fix a possible crash when serializing a Transaction if the incoming
+  `req.socket` is null (possible if the socket has been destroyed).
+  ({issues}2479[#2479])
+
+* Fixes for run context handling for 'aws-sdk' instrumentation (S3, SQS, SNS)
+  so that a span created after an AWS client command (in the same tick, in
+  the command callback, or promise) is not a child of the automatic AWS
+  span. This change also ensures captured errors from failing client commands
+  are a child of the AWS span.
+
 * Fix 'http' and 'https' instrumentation for outgoing requests to not have the
   'http' span context be active in user code. ({pull}2470[#2470])
 

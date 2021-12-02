@@ -326,11 +326,20 @@ elasticsearch:
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.test.js
+# jade is a dead package. It was renamed to 'pug' in 2015 and hasn't had a
+# release since. Testing all 144 releases that match '>0.5.5' (the first
+# release APM supported) is a waste of time. Instead we will test the first
+# supported and the last released versions.
 jade:
-  versions: '>0.5.5'
+  versions: '0.5.6 || 1.11.0 || >1.11.0'
   commands: node test/instrumentation/modules/jade.test.js
+# Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
+pug-v2:
+  versions: '0.1.0 || >2.0.0 <3.0.0'
+  commands: node test/instrumentation/modules/pug.test.js
 pug:
-  versions: '0.1.0 || >2.0.0'
+  versions: '>=3.0.0'
+  node: '>8'
   commands: node test/instrumentation/modules/pug.test.js
 
 # hapi and @hapi/hapi
