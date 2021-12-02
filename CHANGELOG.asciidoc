@@ -39,9 +39,16 @@ Notes:
 [float]
 ===== Bug fixes
 
+
 * Fix a possible crash when serializing a Transaction if the incoming
   `req.socket` is null (possible if the socket has been destroyed).
   {issues}2479[#2479]}
+
+* Fixes for run context handling for 'aws-sdk' instrumentation (S3, SQS, SNS)
+  so that a span created after an AWS client command (in the same tick, in
+  the command callback, or promise) is not a child of the automatic AWS
+  span. This change also ensures captured errors from failing client commands
+  are a child of the AWS span.
 
 * Fix 'http' and 'https' instrumentation for outgoing requests to not have the
   'http' span context be active in user code. ({pull}2470[#2470])

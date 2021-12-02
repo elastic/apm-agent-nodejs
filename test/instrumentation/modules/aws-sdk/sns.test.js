@@ -1,3 +1,5 @@
+'use strict'
+
 const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -226,7 +228,7 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
 })
 
 tape.test('AWS SNS: End to End Test', function (test) {
-  test.test('API: publish', function (t) {
+  test.test('API: publish (using promise)', function (t) {
     const params = {
       Message: 'this is my test, there are many like it but this one is mine', /* required */
       TopicArn: 'arn:aws:sns:us-west-2:111111111111:topic-name'
@@ -260,16 +262,62 @@ tape.test('AWS SNS: End to End Test', function (test) {
       agent.startTransaction('myTransaction')
       const publishTextPromise = new AWS.SNS({ apiVersion: '2010-03-31' })
         .publish(params).promise()
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after sns.publish(...).promise()')
 
       // Handle promise's fulfilled/rejected states
       publishTextPromise.then(function (data) {
+        t.ok(agent.currentSpan === null, 'no currentSpan in SNS promise resolve')
         agent.endTransaction()
         listener.close()
       }).catch(function (err) {
+        t.ok(agent.currentSpan === null, 'no currentSpan in SNS promise catch')
         t.error(err)
         agent.endTransaction()
         listener.close()
       })
+    })
+  })
+
+  test.test('API: publish (using callback)', function (t) {
+    const params = {
+      Message: 'this is my test, there are many like it but this one is mine', /* required */
+      TopicArn: 'arn:aws:sns:us-west-2:111111111111:topic-name'
+    }
+
+    const app = createMockServer(
+      fixtures.publish
+    )
+    const listener = app.listen(0, function () {
+      const port = listener.address().port
+      resetAgent(function (data) {
+        const span = data.spans.filter((span) => span.type === 'messaging').pop()
+        t.equals(span.name, 'SNS PUBLISH to topic-name', 'span named correctly')
+        t.equals(span.type, 'messaging', 'span type correctly set')
+        t.equals(span.subtype, 'sns', 'span subtype set correctly')
+        t.equals(span.action, 'publish', 'span action set correctly')
+        t.equals(span.sync, false, 'span.sync is false')
+        t.equals(span.context.message.queue.name, 'topic-name')
+        t.equals(span.context.destination.service.resource, 'sns/topic-name')
+        t.equals(span.context.destination.service.type, 'messaging')
+        t.equals(span.context.destination.service.name, 'sns')
+        t.equals(span.context.destination.address, 'localhost')
+        t.equals(span.context.destination.port, port)
+        t.equals(span.context.destination.cloud.region, 'us-west-2')
+        t.end()
+      })
+
+      AWS.config.update({
+        endpoint: `http://localhost:${port}`
+      })
+      agent.startTransaction('myTransaction')
+      const sns = new AWS.SNS({ apiVersion: '2010-03-31' })
+      sns.publish(params, function (err, _data) {
+        t.error(err)
+        t.ok(agent.currentSpan === null, 'no currentSpan in sns.promise callback')
+        agent.endTransaction()
+        listener.close()
+      })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after sns.publish(...)')
     })
   })
 
@@ -319,6 +367,10 @@ tape.test('AWS SNS: End to End Test', function (test) {
       resetAgent(function (data) {
         const span = data.spans.filter((span) => span.type === 'messaging').pop()
         t.equals(span.outcome, 'failure', 'error produces outcome=failure span')
+        t.equal(data.errors.length, 1, 'got 1 error')
+        const error = data.errors[0]
+        t.equal(error.parent_id, span.id, 'error is a child of the failing span')
+        t.equal(error.exception.type, 'NotFound', 'error.exception.type')
         t.end()
       })
       const port = listener.address().port
