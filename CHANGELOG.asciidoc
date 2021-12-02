@@ -39,6 +39,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix 'http2' instrumentation for outgoing requests to not have the created
+  HTTP span context be active in user code.
+
 * Fix run-context handling in 'ws' instrumentation so that the span created
   for a `ws.send(...)` isn't the "current span" in subsequent code in the
   same tick. ({pull}2481[#2481])
