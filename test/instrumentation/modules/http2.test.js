@@ -490,13 +490,12 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
     t.ok(trans.context.request.socket.remote_address === '::ffff:127.0.0.1' || trans.context.request.socket.remote_address === '::1',
       'transaction.context.request.socket.remote_address is as expected: ' + trans.context.request.socket.remote_address)
   }
-  delete trans.context.request.socket.remote_address
+  delete trans.context.request.socket
 
   t.deepEqual(trans.context.request, {
     http_version: httpVersion,
     method: 'GET',
     url: expectedUrl,
-    socket: {},
     headers: expectedReqHeaders
   }, 'trans.context.request is as expected')
 
