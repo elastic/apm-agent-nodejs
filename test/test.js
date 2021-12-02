@@ -1,6 +1,6 @@
 'use strict'
 
-// Run all "test/**/test.js" files, each in a separate process.
+// Run all "test/**/*.test.js" files, each in a separate process.
 //
 // If the `-o DIR` option is provided, then the TAP output from each test file
 // will be written to "$DIR/*.tap".
