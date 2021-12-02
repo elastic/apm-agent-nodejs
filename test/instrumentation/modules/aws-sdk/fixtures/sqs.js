@@ -55,7 +55,7 @@ module.exports = {
         MessageBody: 'Information about current NY Times fiction bestseller for week of 12/11/2016.'
       }]
     },
-    respnse: `<?xml version="1.0"?>
+    response: `<?xml version="1.0"?>
       <SendMessageBatchResponse xmlns="http://queue.amazonaws.com/doc/2012-11-05/">
         <SendMessageBatchResult>
           <SendMessageBatchResultEntry>

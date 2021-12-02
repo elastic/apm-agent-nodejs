@@ -59,25 +59,25 @@ tape.test('simple S3 usage scenario', function (t) {
         // First the transaction.
         t.ok(events[0].transaction, 'got the transaction')
         const tx = events.shift().transaction
-        t.equal(events.filter(e => e.span).length, events.length,
-          'all remaining events are spans')
+        const errors = events.filter(e => e.error).map(e => e.error)
 
         // Currently HTTP spans under each S3 span are included. Eventually
         // those will be excluded. Filter those out for now.
         // https://github.com/elastic/apm-agent-nodejs/issues/2125
-        const spans = events.map(e => e.span).filter(e => e.subtype !== 'http')
+        const spans = events.filter(e => e.span)
+          .map(e => e.span)
+          .filter(e => e.subtype !== 'http')
 
         // Compare some common fields across all spans.
         t.equal(spans.filter(s => s.trace_id === tx.trace_id).length,
           spans.length, 'all spans have the same trace_id')
         t.equal(spans.filter(s => s.transaction_id === tx.id).length,
           spans.length, 'all spans have the same transaction_id')
-        t.equal(spans.filter(s => s.outcome === 'success').length,
-          spans.length, 'all spans have outcome="success"')
         t.equal(spans.filter(s => s.sync === false).length,
           spans.length, 'all spans have sync=false')
         t.equal(spans.filter(s => s.sample_rate === 1).length,
           spans.length, 'all spans have sample_rate=1')
+        const failingSpanId = spans[8].id // index of `getObjNonExistantObject`
         spans.forEach(s => {
           // Remove variable and common fields to facilitate t.deepEqual below.
           delete s.id
@@ -86,7 +86,6 @@ tape.test('simple S3 usage scenario', function (t) {
           delete s.trace_id
           delete s.timestamp
           delete s.duration
-          delete s.outcome
           delete s.sync
           delete s.sample_rate
         })
@@ -105,7 +104,8 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { name: 's3', type: 'storage' },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'listAllBuckets produced expected span')
 
         t.deepEqual(spans.shift(), {
@@ -124,7 +124,8 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'createTheBucketIfNecessary produced expected span')
 
         t.deepEqual(spans.shift(), {
@@ -143,7 +144,8 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'waitForBucketToExist produced expected span')
 
         t.deepEqual(spans.shift(), {
@@ -162,7 +164,8 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'createObj produced expected span')
 
         t.deepEqual(spans.shift(), {
@@ -181,7 +184,8 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'waitForObjectToExist produced expected span')
 
         t.deepEqual(spans.shift(), {
@@ -200,7 +204,8 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'getObj produced expected span')
 
         t.deepEqual(spans.shift(), {
@@ -219,7 +224,8 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'getObjConditionalGet produced expected span')
 
         t.deepEqual(spans.shift(), {
@@ -238,8 +244,34 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'getObjUsingPromise produced expected span')
+
+        // This is the GetObject to a non-existant-key, so we expect a failure.
+        t.deepEqual(spans.shift(), {
+          name: 'S3 GetObject elasticapmtest-bucket-1',
+          type: 'storage',
+          subtype: 's3',
+          action: 'GetObject',
+          context: {
+            destination: {
+              address: LOCALSTACK_HOST,
+              port: 4566,
+              service: {
+                name: 's3',
+                type: 'storage',
+                resource: 'elasticapmtest-bucket-1'
+              },
+              cloud: { region: 'us-east-2' }
+            }
+          },
+          outcome: 'failure'
+        }, 'getObjNonExistantObject produced expected span')
+        t.equal(errors.length, 1, 'got 1 error')
+        t.equal(errors[0].parent_id, failingSpanId, 'error is a child of the failing span from getObjNonExistantObject')
+        t.equal(errors[0].transaction_id, tx.id, 'error.transaction_id')
+        t.equal(errors[0].exception.type, 'NoSuchKey', 'error.exception.type')
 
         t.deepEqual(spans.shift(), {
           name: 'S3 DeleteObject elasticapmtest-bucket-1',
@@ -257,7 +289,8 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'deleteTheObj produced expected span')
 
         t.deepEqual(spans.shift(), {
@@ -276,7 +309,8 @@ tape.test('simple S3 usage scenario', function (t) {
               },
               cloud: { region: 'us-east-2' }
             }
-          }
+          },
+          outcome: 'success'
         }, 'deleteTheBucketIfCreatedIt produced expected span')
 
         t.equal(spans.length, 0, 'all spans accounted for')
