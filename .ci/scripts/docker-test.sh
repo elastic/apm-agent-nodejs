@@ -58,7 +58,7 @@ npm_install
 # and other features like flaky-test reporting.
 if [[ -n ${TAV} ]]; then
   npm run test:tav
-  # Currently the TAV tests do not support TAP or xunit-formatted output.
+  # Currently the TAV tests do not support TAP or junit-formatted output.
 else
   rm -rf ./test_output
   mkdir ./test_output
