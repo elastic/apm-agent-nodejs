@@ -54,7 +54,7 @@ node --version
 npm --version
 npm_install
 
-# Attempt to provide xunit-formatted test results, for Jenkins' "Test Results"
+# Attempt to provide junit-formatted test results, for Jenkins' "Test Results"
 # and other features like flaky-test reporting.
 if [[ -n ${TAV} ]]; then
   npm run test:tav
