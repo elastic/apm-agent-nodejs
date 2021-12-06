@@ -1,4 +1,4 @@
-include::{asciidoc-dir}/../../shared/versions/stack/current.asciidoc[]
+include::{asciidoc-dir}/../../shared/versions/stack/7.15.asciidoc[]
 include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 :type-string: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]
