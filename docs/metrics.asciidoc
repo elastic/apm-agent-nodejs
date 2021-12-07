@@ -155,7 +155,8 @@ This is also included in the `nodejs.memory.external.bytes` value.
 * *Type:* Long
 * *Format:* Milliseconds
 
-The sum of all span self-times in milliseconds since the last report (the delta)
+The sum of all span self-times in milliseconds since the last report (the delta).
+The `span.self_time.*` metrics are referred to as "breakdown metrics".
 
 You can filter and group by these dimensions:
 
