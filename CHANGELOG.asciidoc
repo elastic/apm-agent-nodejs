@@ -36,6 +36,11 @@ Notes:
 [float]
 ===== Features
 
+* Add `*auth*` pattern to default value for `sanitizeFieldNames` config var, so
+  that it is more likely to redact authentication/authorization-related HTTP
+  headers and form fields. This pattern replaces the `authorization` pattern
+  in the set of defaults. ({issues}2427[#2427])
+
 [float]
 ===== Bug fixes
 

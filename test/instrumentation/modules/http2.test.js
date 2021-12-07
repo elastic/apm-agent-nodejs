@@ -19,6 +19,7 @@ var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
 var findObjInArray = require('../../_utils').findObjInArray
+const constants = require('../../../lib/constants')
 
 var isSecure = [false, true]
 isSecure.forEach(secure => {
@@ -472,7 +473,11 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
       }
       expectedReqHeaders = {
         ':scheme': secure ? 'https' : 'http',
-        ':authority': `localhost:${port}`,
+        // Until https://github.com/elastic/apm/pull/575 is discussed the
+        // `:authority` pseudo-header will get redacted by the default `*auth*`
+        // pattern in `sanitizeFieldNames`.
+        //   ':authority': `localhost:${port}`,
+        ':authority': constants.REDACTED,
         ':method': 'GET',
         ':path': path
       }
