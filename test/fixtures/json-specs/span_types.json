@@ -20,32 +20,37 @@
           "java"
         ]
       },
+      "internal": {
+        "__description": "Application generic internal span for controller/handler/processing delegation",
+        "__used_by": [
+        ]
+      },
       "controller": {
-        "__description": "Application controller actions",
+        "__description": "Deprecated: use app.internal instead",
         "__used_by": [
           "ruby"
         ]
       },
       "graphql": {
-        "__description": "Incoming GraphQL requests",
+        "__description": "Deprecated: use app.internal instead",
         "__used_by": [
           "ruby"
         ]
       },
       "mailer": {
-        "__description": "Application mailer actions",
+        "__description": "Deprecated: use app.internal instead",
         "__used_by": [
           "ruby"
         ]
       },
       "resource": {
-        "__description": "Application resource actions",
+        "__description": "Deprecated: use app.internal instead",
         "__used_by": [
           "ruby"
         ]
       },
       "handler": {
-        "__description": "Application handler",
+        "__description": "Deprecated: use app.internal instead",
         "__used_by": [
           "java"
         ]
@@ -141,7 +146,8 @@
       "mssql": {
         "__description": "Microsoft SQL Server",
         "__used_by": [
-          "nodejs"
+          "nodejs",
+          "java"
         ]
       },
       "mysql": {
@@ -177,13 +183,13 @@
         ]
       },
       "sqlite3": {
-        "__description": "SQLite 3",
+        "__description": "Deprecated: use db/sqlite",
         "__used_by": [
           "ruby"
         ]
       },
       "sqlserver": {
-        "__description": "Microsoft SQL Server",
+        "__description": "Deprecated: use db/mssql",
         "__used_by": [
           "java"
         ]
@@ -223,7 +229,7 @@
     }
   },
   "json": {
-    "__description": "JSON parsing and generation",
+    "__description": "Deprecated: use app.internal instead",
     "subtypes": {
       "parse": {
         "__description": "JSON parsing"
