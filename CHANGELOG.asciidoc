@@ -28,10 +28,23 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
+
+[[release-notes-3.26.0]]
+==== 3.26.0 2021/12/07
 
 [float]
 ===== Breaking changes
+
+* In earlier versions, the agent would propagate run context in some packages
+  *even if instrumentation for that package was disabled via
+  <<disable-instrumentations, `disableInstrumentations`>>*. Recent versions
+  change the semantics of `disableInstrumentations` to mean the agent should
+  not touch the listed packages at all. This means that an application that
+  uses one of these packages *and* lists that package in
+  `disableInstrumentations` could see changes in the async run-context of
+  callbacks. This affects: `pg` (v3.24.0), `redis` (v3.25.0), `mysql`
+  (v3.25.0), `ioredis` (v3.26.0), `mysql2` (v3.26.0).  See {issues}2498[#2498]
+  for details.
 
 [float]
 ===== Features
@@ -85,6 +98,7 @@ Notes:
 * Fix run-context handling for 'mysql2' instrumentation to avoid accidental
   creation of *child* spans of the automatic mysql spans.
   ({issues}2430[#2430]})
+
 
 [[release-notes-3.25.0]]
 ==== 3.25.0 2021/11/24
