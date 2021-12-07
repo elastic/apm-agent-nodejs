@@ -36,6 +36,11 @@ Notes:
 [float]
 ===== Features
 
+* Add `*auth*` pattern to default value for `sanitizeFieldNames` config var, so
+  that it is more likely to redact authentication/authorization-related HTTP
+  headers and form fields. This pattern replaces the `authorization` pattern
+  in the set of defaults. ({issues}2427[#2427])
+
 [float]
 ===== Bug fixes
 
@@ -77,6 +82,9 @@ Notes:
     internally-queued before the RedisClient is "ready". ({issues}2459[#2459])
 **  Add destination context so Redis shows up on the Service Map.
 
+* Fix run-context handling for 'mysql2' instrumentation to avoid accidental
+  creation of *child* spans of the automatic mysql spans.
+  ({issues}2430[#2430]})
 
 [[release-notes-3.25.0]]
 ==== 3.25.0 2021/11/24
