@@ -28,6 +28,23 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fixes for run context handling for DynamoDB instrumentation ('aws-sdk'
+  package) so that a span created after an AWS client command (in the same
+  tick, in the command callback, or promise) is not a child of the automatic
+  AWS span. This change also ensures captured errors from failing client
+  commands are a child of the AWS span. ({issues}2430[#2430])
+
 
 [[release-notes-3.26.0]]
 ==== 3.26.0 2021/12/07
@@ -56,12 +73,6 @@ Notes:
 
 [float]
 ===== Bug fixes
-
-* Fixes for run context handling for DynamoDB instrumentation ('aws-sdk'
-  package) so that a span created after an AWS client command (in the same
-  tick, in the command callback, or promise) is not a child of the automatic
-  AWS span. This change also ensures captured errors from failing client
-  commands are a child of the AWS span. ({issues}2430[#2430])
 
 * Fix run-context handling for 'tedious' instrumentation so that automatically
   created 'mssql' spans are never the `currentSpan` in user code.
