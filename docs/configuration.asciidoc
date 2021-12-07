@@ -994,7 +994,8 @@ Specify the interval for reporting metrics to APM Server.
 The interval should be in seconds,
 or should include a time suffix.
 
-To disable metrics reporting, set the interval to `"0s"`.
+To disable all metrics reporting, including breakdown metrics, set the interval
+to `"0s"`.
 
 [[metrics-limit]]
 ==== `metricsLimit`
@@ -1066,7 +1067,14 @@ module.exports = {
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_BREAKDOWN_METRICS`
 
-Used to disable reporting of breakdown metrics which records self time spent in each unique type of span.
+Set `breakdownMetrics: false` to disable reporting of breakdown metrics. Note
+that if `metricsInterval: 0`, then breakdown metrics will not be reported.
+
+Breakdown metrics (<<metrics-span.self_time.sum, `span.self_time.*`>>) record
+the self-time spent in each unique type of span. This data drives the
+{kibana-ref}/service-overview.html#service-span-duration[Time spent by span type]
+chart in the APM app.
+
 
 [[cloud-provider]]
 ==== `cloudProvider`
