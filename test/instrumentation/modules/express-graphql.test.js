@@ -14,12 +14,16 @@ var http = require('http')
 var buildSchema = require('graphql').buildSchema
 var express = require('express')
 var querystring = require('querystring')
-var graphqlHTTP = require('express-graphql')
+var expressGraphql = require('express-graphql')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
 
 const paths = ['/graphql', '/']
+
+// In express-graphql@0.10.0, `graphqlHTTP` changed from being the top export
+// to an attribute of the export object.
+const graphqlHTTP = expressGraphql.graphqlHTTP || expressGraphql
 
 paths.forEach(function (path) {
   test(`POST ${path}`, function (t) {
