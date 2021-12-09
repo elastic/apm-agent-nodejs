@@ -1,3 +1,5 @@
+'use strict'
+
 const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -167,10 +169,12 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         }
       }
       ddb.query(params, function (err, data) {
+        t.ok(agent.currentSpan === null, 'no currentSpan in ddb.query callback')
         t.error(err)
         agent.endTransaction()
         listener.close()
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after ddb.query(...)')
     })
   })
 
@@ -196,10 +200,12 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
       agent.startTransaction('myTransaction')
       var ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
       ddb.listTables(function (err, data) {
+        t.ok(agent.currentSpan === null, 'no currentSpan in ddb.listTables callback')
         t.error(err)
         agent.endTransaction()
         listener.close()
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after ddb.listTables(...)')
     })
   })
 
@@ -209,10 +215,12 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        t.equals(data.errors.length, 1, 'expect captured error')
         const span = data.spans.filter((span) => span.type === 'db').pop()
         t.ok(span, 'expect a db span')
         t.equals(span.outcome, 'failure', 'expect db span to have failure outcome')
+        t.equals(data.errors.length, 1, 'expect captured error')
+        const error = data.errors[0]
+        t.equals(error.parent_id, span.id, 'error is a child of the failing span')
         t.end()
       })
       const port = listener.address().port
@@ -229,10 +237,12 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         }
       }
       ddb.query(params, function (err, data) {
+        t.ok(agent.currentSpan === null, 'no currentSpan in ddb.query callback')
         t.ok(err, 'expect error')
         agent.endTransaction()
         listener.close()
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after ddb.query(...)')
     })
   })
 
