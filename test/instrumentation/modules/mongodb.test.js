@@ -34,19 +34,18 @@ test('instrument simple command', function (t) {
     t.end()
   })
 
-  const server = new MongoClient(url, {
+  const client = new MongoClient(url, {
     useUnifiedTopology: true,
     useNewUrlParser: true
   })
 
   agent.startTransaction('foo', 'bar')
 
-  // test example lifted from https://github.com/christkv/mongodb-core/blob/2.0/README.md#connecting-to-mongodb
-  server.connect((err, _server) => {
+  client.connect((err) => {
     t.error(err, 'no connect error')
-    t.ok(_server, 'got a valid server connection')
+    t.ok(client, 'got a valid client connection')
 
-    const db = _server.db('elasticapm')
+    const db = client.db('elasticapm')
     const collection = db.collection('test')
 
     collection.insertMany([{ a: 1 }, { a: 2 }, { a: 3 }], { w: 1 }, function (err, results) {
@@ -57,7 +56,7 @@ test('instrument simple command', function (t) {
       // If records have been inserted, they should be cleaned up
       t.on('end', () => {
         collection.deleteMany({}, { w: 1 }, function () {
-          _server.close()
+          client.close()
         })
       })
 
