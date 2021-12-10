@@ -513,6 +513,8 @@ aws-sdk:
   # Test v2.858.0, every N=31 of 159 releases, and current latest.
   versions: '2.858.0 || 2.889.0 || 2.920.0 || 2.951.0 || 2.982.0 || 2.1013.0 || 2.1016.0 || >2.1016.0 <3'
   commands:
+    - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
+    - node test/instrumentation/modules/aws-sdk/sns.test.js
     - node test/instrumentation/modules/aws-sdk/sqs.test.js
     - node test/instrumentation/modules/aws-sdk/dynamodb.test.js
