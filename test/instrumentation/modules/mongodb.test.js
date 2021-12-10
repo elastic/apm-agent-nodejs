@@ -18,13 +18,142 @@ if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0'))
 const MongoClient = require('mongodb').MongoClient
 const test = require('tape')
 
-const mockClient = require('../../_mock_http_client_states')
+const mockClient = require('../../_mock_http_client')
+const mockClientStates = require('../../_mock_http_client_states')
 
 const host = process.env.MONGODB_HOST || 'localhost'
 const url = `mongodb://${host}:27017`
 
+test('new MongoClient(url); client.connect(callback)', function (t) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 1)
+    t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
+    t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+    t.end()
+  })
+  // Explicitly test with no second argument to `new MongoClient(...)`, because
+  // that was broken at one point.
+  const client = new MongoClient(url)
+  agent.startTransaction('t0')
+  client.connect(err => {
+    t.error(err, 'no connect error')
+    client
+      .db('elasticapm')
+      .collection('test')
+      .findOne({ a: 1 }, function (err, res) {
+        t.error(err, 'no findOne error')
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+      })
+  })
+})
+
+test('new MongoClient(url, {...}); client.connect(callback)', function (t) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 1)
+    t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
+    t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+    t.end()
+  })
+  const client = new MongoClient(url, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+  })
+  agent.startTransaction('t0')
+  client.connect(err => {
+    t.error(err, 'no connect error')
+    client
+      .db('elasticapm')
+      .collection('test')
+      .findOne({ a: 1 }, function (err, res) {
+        t.error(err, 'no findOne error')
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+      })
+  })
+})
+
+test('MongoClient.connect(url, callback)', function (t) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 1)
+    t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
+    t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+    t.end()
+  })
+  agent.startTransaction('t0')
+  MongoClient.connect(url, function (err, client) {
+    t.error(err, 'no connect error')
+    t.ok(client, 'got a connected client')
+    client
+      .db('elasticapm')
+      .collection('test')
+      .findOne({ a: 1 }, function (err, res) {
+        t.error(err, 'no findOne error')
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+      })
+  })
+})
+
+test('await MongoClient.connect(url)', async function (t) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 1)
+    t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
+    t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+    t.end()
+  })
+  const client = await MongoClient.connect(url)
+  agent.startTransaction('t0')
+  await client.db('elasticapm').collection('test').findOne({ a: 1 })
+  agent.endTransaction()
+  agent.flush()
+  client.close()
+})
+
+test('ensure run context', async function (t) {
+  resetAgent(5, function (data) {
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 4)
+    data.spans.forEach(s => {
+      t.equal(s.parent_id, data.transactions[0].id,
+        `span ${s.type}.${s.subtype} "${s.name}" is a child of the transaction`)
+    })
+    t.end()
+  })
+  const client = await MongoClient.connect(url)
+  agent.startTransaction('t0')
+  const collection = client.db('elasticapm').collection('test')
+
+  // There was a time when the spans created for Mongo client commands, while
+  // one command was already inflight, would be a child of the inflight span.
+  // That would be wrong. They should all be a direct child of the transaction.
+  collection.findOne({ a: 1 }, function (err, _res) {
+    t.error(err, 'no findOne error')
+  })
+  agent.startSpan('manual').end()
+  collection.findOne({ b: 2 }, function (err, _res) {
+    t.error(err, 'no findOne error')
+  })
+  await collection.findOne({ c: 3 })
+
+  agent.endTransaction()
+  agent.flush()
+  client.close()
+})
+
 test('instrument simple command', function (t) {
-  resetAgent([
+  resetAgentStates([
     makeSpanTest(t, 'elasticapm.test.insert'),
     makeSpanTest(t, 'elasticapm.test.update'),
     makeSpanTest(t, 'elasticapm.test.delete'),
@@ -35,6 +164,8 @@ test('instrument simple command', function (t) {
   })
 
   const client = new MongoClient(url, {
+    // These two options are to avoid deprecation warnings from some versions
+    // of mongodb@3.
     useUnifiedTopology: true,
     useNewUrlParser: true
   })
@@ -147,8 +278,14 @@ function getDeletedCountFromResults (results) {
   return results.result ? results.result.n : results.deletedCount
 }
 
-function resetAgent (expectations, cb) {
+function resetAgentStates (expectations, cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(expectations, cb)
+  agent._transport = mockClientStates(expectations, cb)
+  agent.captureError = function (err) { throw err }
+}
+
+function resetAgent (numExpected, cb) {
+  agent._instrumentation.testReset()
+  agent._transport = mockClient(numExpected, cb)
   agent.captureError = function (err) { throw err }
 }
