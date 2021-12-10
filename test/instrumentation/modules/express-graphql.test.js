@@ -9,6 +9,16 @@ var agent = require('../../..').start({
   spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
+// There is a known issue where express-graphql instrumentation does not work
+// with express-graphql >=0.10.0 and node <10.4.
+// https://github.com/elastic/apm-agent-nodejs/issues/2516
+const expressGraphqlVersion = require('../../../node_modules/express-graphql/package.json').version
+const semver = require('semver')
+if (semver.gte(expressGraphqlVersion, '0.10.0') && semver.lt(process.version, '10.4.0')) {
+  console.log(`# SKIP express-graphql@${expressGraphqlVersion} testing with node <10.4 (${process.version}) because of a known issue`)
+  process.exit()
+}
+
 var http = require('http')
 
 var buildSchema = require('graphql').buildSchema

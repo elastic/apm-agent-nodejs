@@ -222,21 +222,23 @@ express-graphql-0.9.0_graphql-14:
   node: '>=7.6.0'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
-# Skip express-graphql@0.10.0 because it briefly, accidentally introduced
-# syntax that required ES2020 (node v14).
+# - Skip express-graphql@0.10.0 because it briefly, accidentally introduced
+#   syntax that required ES2020 (node v14).
+# - Limit to node >=10.4 because of a known issue.
+#   https://github.com/elastic/apm-agent-nodejs/issues/2516
 express-graphql-0.10.1_graphql-14:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^14.6.0
   versions: '>=0.10.1 <0.11.0'
-  node: '>=10.x'
+  node: '>=10.4'
   commands: node test/instrumentation/modules/express-graphql.test.js
 express-graphql-0.10.1_graphql-15:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^15.0.0
   versions: '>=0.10.1 <0.11.0'
-  node: '>=10.x'
+  node: '>=10.4'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
 express-graphql-0.11.0_graphql-14:
@@ -244,14 +246,14 @@ express-graphql-0.11.0_graphql-14:
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^14.7.0
   versions: '>=0.11.0 <0.13.0'
-  node: '>=10.x'
+  node: '>=10.4'
   commands: node test/instrumentation/modules/express-graphql.test.js
 express-graphql-0.11.0_graphql-15:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^15.3.0
   versions: '>=0.11.0 <0.13.0'
-  node: '>=10.x'
+  node: '>=10.4'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
 apollo-server-express-2_12:
