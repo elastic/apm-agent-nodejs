@@ -17,7 +17,6 @@ if [ -x "$(command -v docker)" ]; then
       imageName="apm-agent-nodejs"
       registryImageName="docker.elastic.co/observability-ci/${imageName}:${transformedVersion}"
       (retry 2 docker pull "${registryImageName}")
-      docker tag "${registryImageName}" "node:${transformedVersion}"
   done
 fi
 
