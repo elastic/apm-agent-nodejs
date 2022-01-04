@@ -24,7 +24,7 @@ function makeARequest (opts, cb) {
     apm.startSpan('span-in-http.request-callback').end()
 
     const chunks = []
-    clientRes.on('data', function (chunk) {
+    clientRes.once('data', function (chunk) {
       assert(apm.currentSpan === null)
       apm.startSpan('span-in-clientRes-on-data').end()
       chunks.push(chunk)
@@ -34,7 +34,7 @@ function makeARequest (opts, cb) {
       assert(apm.currentSpan === null)
       apm.startSpan('span-in-clientRes-on-end').end()
       const body = chunks.join('')
-      console.log('client response body: %j', body)
+      console.log('start of client response body: %j', body.slice(0, 50))
       cb()
     })
   })
@@ -63,9 +63,9 @@ function makeARequest (opts, cb) {
 const t0 = apm.startTransaction('t0')
 makeARequest(
   {
-    // 'http://httpstat.us/200'
-    host: 'httpstat.us',
-    path: '/200',
+    // 'http://wwww.google.com/'
+    host: 'www.google.com',
+    path: '/',
     headers: { accept: '*/*' }
   },
   function () {
