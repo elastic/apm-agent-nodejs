@@ -142,14 +142,14 @@ test('ensure run context', async function (t) {
   // There was a time when the spans created for Mongo client commands, while
   // one command was already inflight, would be a child of the inflight span.
   // That would be wrong. They should all be a direct child of the transaction.
-  collection.findOne({ a: 1 }, function (err, _res) {
+  const promises = []
+  promises.push(collection.findOne({ a: 1 }).catch(err => {
     t.error(err, 'no findOne error')
-  })
+  }))
   agent.startSpan('manual').end()
-  collection.findOne({ b: 2 }, function (err, _res) {
-    t.error(err, 'no findOne error')
-  })
-  await collection.findOne({ c: 3 })
+  promises.push(collection.findOne({ b: 2 }))
+  promises.push(collection.findOne({ c: 3 }))
+  await Promise.all(promises)
 
   agent.endTransaction()
   await promisify(agent.flush.bind(agent))().then(function (err) {
