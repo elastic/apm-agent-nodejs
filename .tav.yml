@@ -1,26 +1,32 @@
 generic-pool:
   versions: ^2.0.0 || ^3.1.0
   commands: node test/instrumentation/modules/generic-pool.test.js
+
 mimic-response:
   versions: ^1.0.0
   commands:
     - node test/instrumentation/modules/mimic-response.test.js
     - node test/instrumentation/modules/http/github-179.test.js
-got-very-old:
+# Versions of `got` are only tested to check a bug in mimic-response@1.0.0
+# (fixed in mimic-response@1.0.1). Got@11 dropped usage of mimic-response,
+# so testing it no longer has a point. Got@12 is pure ESM, so cannot be tested
+# with the current test script.
+got-4:
   name: got
   versions: '>=4.0.0 <9.0.0'
   node: '>=5'
   commands: node test/instrumentation/modules/http/github-423.test.js
-got-old:
+got-9:
   name: got
   versions: ^9.0.0
   node: '>=8.3'
   commands: node test/instrumentation/modules/http/github-423.test.js
-got-new:
+got-10:
   name: got
-  versions: '>=10.0.0 <10.5.1 || >10.5.1' # v10.5.1 is broken
+  versions: '>=10.0.0 <10.5.1 || >10.5.1 <11' # v10.5.1 is broken
   node: '>=10'
   commands: node test/instrumentation/modules/http/github-423.test.js
+
 mysql:
   versions: ^2.0.0
   commands:
