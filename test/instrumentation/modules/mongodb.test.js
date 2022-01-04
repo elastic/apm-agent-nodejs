@@ -8,6 +8,8 @@ const agent = require('../../..').start({
   cloudProvider: 'none'
 })
 
+const { promisify } = require('util')
+
 // As of mongodb@4 only supports node >=v12.
 const mongodbVersion = require('../../../node_modules/mongodb/package.json').version
 const semver = require('semver')
@@ -105,32 +107,34 @@ test('MongoClient.connect(url, callback)', function (t) {
 })
 
 test('await MongoClient.connect(url)', async function (t) {
-  resetAgent(2, function (data) {
+  // When using an `async function ...`, tape will automatically t.end() when
+  // the function promise resolves. That means we cannot use the
+  // `resetAgent(..., callback)` technique because `callback` may be called
+  // *after* the test async function resolves. Instead we make a Promise for
+  // `agent.flush(cb)`, do all assertions when that is complete, and await that.
+  resetAgent(2, function noop () {})
+
+  const client = await MongoClient.connect(url)
+  agent.startTransaction('t0')
+  await client.db('elasticapm').collection('test').findOne({ a: 1 })
+  agent.endTransaction()
+
+  await promisify(agent.flush.bind(agent))().then(function (err) {
+    t.error(err, 'no error from agent.flush()')
+    const data = agent._transport._writes
     t.equal(data.transactions[0].name, 't0', 'transaction.name')
     t.equal(data.spans.length, 1)
     t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
     t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
     t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
-    t.end()
   })
-  const client = await MongoClient.connect(url)
-  agent.startTransaction('t0')
-  await client.db('elasticapm').collection('test').findOne({ a: 1 })
-  agent.endTransaction()
-  agent.flush()
-  client.close()
+  await client.close()
+  t.end()
 })
 
 test('ensure run context', async function (t) {
-  resetAgent(5, function (data) {
-    t.equal(data.transactions[0].name, 't0', 'transaction.name')
-    t.equal(data.spans.length, 4)
-    data.spans.forEach(s => {
-      t.equal(s.parent_id, data.transactions[0].id,
-        `span ${s.type}.${s.subtype} "${s.name}" is a child of the transaction`)
-    })
-    t.end()
-  })
+  resetAgent(5, function noop () {})
+
   const client = await MongoClient.connect(url)
   agent.startTransaction('t0')
   const collection = client.db('elasticapm').collection('test')
@@ -148,8 +152,18 @@ test('ensure run context', async function (t) {
   await collection.findOne({ c: 3 })
 
   agent.endTransaction()
-  agent.flush()
-  client.close()
+  await promisify(agent.flush.bind(agent))().then(function (err) {
+    t.error(err, 'no error from agent.flush()')
+    const data = agent._transport._writes
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 4)
+    data.spans.forEach(s => {
+      t.equal(s.parent_id, data.transactions[0].id,
+        `span ${s.type}.${s.subtype} "${s.name}" is a child of the transaction`)
+    })
+  })
+  await client.close()
+  t.end()
 })
 
 test('instrument simple command', function (t) {
