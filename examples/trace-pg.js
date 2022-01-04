@@ -3,9 +3,8 @@
 //
 // By default this will use a Postgres on localhost with user 'postgres'.
 // You can use:
-//    npm run docker:start
-// to start a Postgres container (and other containers used for testing of
-// this project).
+//    npm run docker:start postgres
+// to start a Postgres container. Then `npm run docker:stop` to stop it.
 
 const apm = require('../').start({ // elastic-apm-node
   serviceName: 'example-trace-pg'
@@ -27,12 +26,11 @@ client.connect(function (err) {
 // an HTTP server, we manually start a transaction. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 apm.startTransaction('t1')
-client.query('SELECT $1::text as message', ['Hello world!'], (err, res) => {
-  if (err) {
-    console.log('[t1] Failure: err is', err)
-  } else {
-    console.log('[t1] Success: message is %s', res.rows[0].message)
-  }
+client.query('SELECT $1::text as message', ['hi'], (err, res) => {
+  console.log('[t1] err=%s res=%s', err && err.message, !err && res.rows[0].message)
+})
+client.query('SELECT $1::text as message', ['bye'], (err, res) => {
+  console.log('[t1] err=%s res=%s', err && err.message, !err && res.rows[0].message)
   apm.endTransaction()
 })
 
