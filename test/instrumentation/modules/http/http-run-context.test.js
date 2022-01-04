@@ -21,7 +21,7 @@ const cases = [
   {
     // Expect:
     //   transaction "t0"
-    //   `- span "GET httpstat.us"
+    //   `- span "GET www.google.com"
     //   `- span "span-sync-after-http.request"
     //   `- span "span-in-clientReq-on-socket"
     //   `- span "span-in-clientReq-on-finish"
@@ -49,7 +49,7 @@ const cases = [
         t.equal(e.span.parent_id, trans.id, `span ${e.span.name} is a child of the transaction`)
       })
       const spanGet = events.shift().span
-      t.equal(spanGet.name, 'GET httpstat.us')
+      t.equal(spanGet.name, 'GET www.google.com')
     }
   },
   {
