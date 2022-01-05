@@ -39,11 +39,16 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fixes for run context handling for 'graphql' instrumentation.
+  ({issues}2430[#2430])
+
 * Fixes for run context handling for DynamoDB instrumentation ('aws-sdk'
   package) so that a span created after an AWS client command (in the same
   tick, in the command callback, or promise) is not a child of the automatic
   AWS span. This change also ensures captured errors from failing client
   commands are a child of the AWS span. ({issues}2430[#2430])
+
+* Fixes for run context handling for 'pg' instrumentation. ({issues}2430[#2430])
 
 
 [[release-notes-3.26.0]]

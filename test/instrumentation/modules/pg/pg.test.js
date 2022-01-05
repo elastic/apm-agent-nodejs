@@ -42,6 +42,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query(sql, basicQueryCallback(t))
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
         })
       })
 
@@ -54,6 +55,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query(sql, [1], basicQueryCallback(t))
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
         })
       })
 
@@ -66,6 +68,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query({ text: sql }, basicQueryCallback(t))
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
         })
       })
 
@@ -78,6 +81,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query({ text: sql }, [1], basicQueryCallback(t))
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
         })
       })
 
@@ -90,6 +94,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query({ text: sql, values: [1] }, basicQueryCallback(t))
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
         })
       })
 
@@ -102,6 +107,7 @@ factories.forEach(function (f) {
         factory(function () {
           var trans = agent.startTransaction('foo')
           queryable.query(sql)
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           setTimeout(function () {
             trans.end()
           }, 250)
@@ -121,6 +127,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query(new pg.Query(sql))
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
       })
@@ -136,6 +143,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query(sql)
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
       })
@@ -149,6 +157,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query(sql, [1])
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
       })
@@ -162,6 +171,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query({ text: sql })
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
       })
@@ -175,6 +185,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query({ text: sql }, [1])
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
       })
@@ -188,6 +199,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query({ text: sql, values: [1] })
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
       })
@@ -206,6 +218,7 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo')
             var p = queryable.query(sql)
+            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
         })
@@ -219,6 +232,7 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo')
             var p = queryable.query(sql, [1])
+            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
         })
@@ -232,6 +246,7 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo')
             var p = queryable.query({ text: sql })
+            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
         })
@@ -245,6 +260,7 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo')
             var p = queryable.query({ text: sql }, [1])
+            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
         })
@@ -258,6 +274,7 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo')
             var p = queryable.query({ text: sql, values: [1] })
+            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
         })
@@ -275,6 +292,7 @@ factories.forEach(function (f) {
           t.strictEqual(trans.name, 'foo')
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql)
+            t.equal(span.parent_id, trans.id, 'each span is a child of the transaction')
           })
 
           t.end()
@@ -322,6 +340,7 @@ factories.forEach(function (f) {
           const span = findObjInArray(data.spans, 'transaction_id', trans.id)
           t.ok(span, 'transaction should have span')
           assertSpan(t, span, sql)
+          t.equal(span.parent_id, trans.id, 'the span is a child of the transaction')
         })
 
         t.end()
@@ -374,6 +393,7 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
       t.strictEqual(trans.name, 'foo')
       data.spans.forEach(function (span) {
         assertSpan(t, span, sql)
+        t.equal(span.parent_id, trans.id, 'each span is a child of the transaction')
       })
 
       t.end()
@@ -438,6 +458,7 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
         connector(function (err, client, release) {
           t.error(err)
           client.query(sql, basicQueryCallback(t))
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
 
           if (semver.gte(pgVersion, '7.5.0')) {
             release()
@@ -480,7 +501,9 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
             .then(function () {
               t.fail('query should have rejected')
             })
-            .catch(function () {})
+            .catch(function () {
+              t.ok(agent.currentSpan === null, 'no currentSpan in promise catch after pg .query')
+            })
             .then(function () {
               setTimeout(function () {
                 release()
@@ -495,6 +518,7 @@ if (global.Promise || semver.satisfies(pgVersion, '<6')) {
 
 function basicQueryCallback (t) {
   return function queryCallback (err, result, fields) {
+    t.ok(agent.currentSpan === null, 'no currentSpan in pg .query callback')
     t.error(err)
     t.strictEqual(result.rows[0].solution, 2)
     agent.endTransaction()
@@ -504,13 +528,16 @@ function basicQueryCallback (t) {
 function basicQueryStream (stream, t) {
   var results = 0
   stream.on('error', function (err) {
+    t.ok(agent.currentSpan === null, 'pg span should not be active in user code')
     t.error(err)
   })
   stream.on('row', function (row) {
+    t.ok(agent.currentSpan === null, 'pg span should not be active in user code')
     results++
     t.strictEqual(row.solution, 2)
   })
   stream.on('end', function () {
+    t.ok(agent.currentSpan === null, 'pg span should not be active in user code')
     t.strictEqual(results, 1)
     agent.endTransaction()
   })
