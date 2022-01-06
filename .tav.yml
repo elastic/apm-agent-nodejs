@@ -98,9 +98,17 @@ pg-new-node:
 mongodb-core:
   versions: '>=1.2.19 <4'
   commands: node test/instrumentation/modules/mongodb-core.test.js
-mongodb:
-  versions: '>=3.3'
+
+mongodb-3:
+  name: mongodb
+  versions: '>=3.3 <4'
   commands: node test/instrumentation/modules/mongodb.test.js
+mongodb-4:
+  name: mongodb
+  versions: '>=4 <5'
+  node: '>=12'
+  commands: node test/instrumentation/modules/mongodb.test.js
+
 bluebird:
   versions: '>=2 <4'
   commands:
