@@ -36,6 +36,8 @@ Notes:
 [float]
 ===== Features
 
+* Add support for express-graphql 0.10.0 - 0.12.0 inclusive. ({pull}2511[#2511])
+
 [float]
 ===== Bug fixes
 
