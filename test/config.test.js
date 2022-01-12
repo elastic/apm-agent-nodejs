@@ -1321,7 +1321,6 @@ function assertEncodedTransaction (t, trans, result) {
   t.strictEqual(result.parent_id, trans.parentId, 'parent id matches')
   t.strictEqual(result.name, trans.name, 'name matches')
   t.strictEqual(result.type, trans.type || 'custom', 'type matches')
-  t.strictEqual(result.duration, trans._timer.duration, 'duration matches')
   t.strictEqual(result.timestamp, trans.timestamp, 'timestamp matches')
   t.strictEqual(result.result, trans.result, 'result matches')
   t.strictEqual(result.sampled, trans.sampled, 'sampled matches')
@@ -1335,7 +1334,6 @@ function assertEncodedSpan (t, span, result) {
   t.strictEqual(result.parent_id, span.parentId, 'parent id matches')
   t.strictEqual(result.name, span.name, 'name matches')
   t.strictEqual(result.type, span.type || 'custom', 'type matches')
-  t.strictEqual(result.duration, span._timer.duration, 'duration matches')
   t.strictEqual(result.timestamp, span.timestamp, 'timestamp matches')
 }
 
