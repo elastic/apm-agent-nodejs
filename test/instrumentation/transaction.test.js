@@ -153,7 +153,7 @@ test('#startSpan()', function (t) {
     var startTime = Date.now() - 1000
     var span = trans.startSpan(null, null, { startTime })
     span.end()
-    var duration = span.duration()
+    var duration = span.duration
     t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
@@ -187,7 +187,7 @@ test('#end() - with result', function (t) {
   t.end()
 })
 
-test('#duration()', function (t) {
+test('#duration', function (t) {
   agent._transport.clear()
 
   var trans = new Transaction(agent)
@@ -195,7 +195,7 @@ test('#duration()', function (t) {
     trans.end()
 
     const added = agent._transport.transactions[0]
-    t.ok(trans.duration() > 40)
+    t.ok(trans.duration > 40)
     t.ok(added.duration > 40)
     // TODO: Figure out why this fails on Jenkins...
     // t.ok(added.duration < 100)
@@ -204,9 +204,9 @@ test('#duration()', function (t) {
   }, 50)
 })
 
-test('#duration() - un-ended transaction', function (t) {
+test('#duration - un-ended transaction', function (t) {
   var trans = new Transaction(agent)
-  t.strictEqual(trans.duration(), null)
+  t.strictEqual(trans.duration, null)
   t.end()
 })
 
@@ -215,7 +215,7 @@ test('custom start time', function (t) {
   var trans = new Transaction(agent, null, null, { startTime })
   trans.end()
 
-  var duration = trans.duration()
+  var duration = trans.duration
   t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
   t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
 
@@ -228,7 +228,7 @@ test('#end(time)', function (t) {
   var trans = new Transaction(agent, null, null, { startTime })
   trans.end(null, endTime)
 
-  t.strictEqual(trans.duration(), 2000.123)
+  t.strictEqual(trans.duration, 2000.123)
 
   t.end()
 })
@@ -301,6 +301,7 @@ test('#_encode() - ended', function (t) {
   agent._transport.clear()
 
   var trans = new Transaction(agent)
+  var timerStart = trans._timer.start
   trans.end()
 
   const payload = agent._transport.transactions[0]
@@ -313,7 +314,7 @@ test('#_encode() - ended', function (t) {
   t.strictEqual(payload.name, 'unnamed')
   t.strictEqual(payload.type, 'custom')
   t.ok(payload.duration > 0)
-  t.strictEqual(payload.timestamp, trans._timer.start)
+  t.strictEqual(payload.timestamp, timerStart)
   t.strictEqual(payload.result, 'success')
   t.deepEqual(payload.context, { user: {}, tags: {}, custom: {}, service: {}, cloud: {}, message: {} })
 
@@ -324,6 +325,7 @@ test('#_encode() - with meta data', function (t) {
   agent._transport.clear()
 
   var trans = new Transaction(agent, 'foo', 'bar')
+  var timerStart = trans._timer.start
   trans.result = 'baz'
   trans.setUserContext({ foo: 1 })
   trans.setLabel('bar', 1)
@@ -340,7 +342,7 @@ test('#_encode() - with meta data', function (t) {
   t.strictEqual(payload.name, 'foo')
   t.strictEqual(payload.type, 'bar')
   t.ok(payload.duration > 0)
-  t.strictEqual(payload.timestamp, trans._timer.start)
+  t.strictEqual(payload.timestamp, timerStart)
   t.strictEqual(payload.result, 'baz')
   t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 }, service: {}, cloud: {}, message: {} })
 
@@ -351,6 +353,7 @@ test('#_encode() - http request meta data', function (t) {
   agent._transport.clear()
 
   var trans = new Transaction(agent)
+  var timerStart = trans._timer.start
   trans.req = mockRequest()
   trans.end()
 
@@ -364,7 +367,7 @@ test('#_encode() - http request meta data', function (t) {
   t.strictEqual(payload.name, 'POST unknown route')
   t.strictEqual(payload.type, 'custom')
   t.ok(payload.duration > 0)
-  t.strictEqual(payload.timestamp, trans._timer.start)
+  t.strictEqual(payload.timestamp, timerStart)
   t.strictEqual(payload.result, 'success')
   t.deepEqual(payload.context, {
     user: {},
@@ -404,6 +407,7 @@ test('#_encode() - http request meta data', function (t) {
 
 test('#_encode() - with spans', function (t) {
   var trans = new Transaction(agent, 'single-name', 'type')
+  var timerStart = trans._timer.start
   trans.result = 'result'
   var span = trans.startSpan('span')
   span.end()
@@ -415,7 +419,7 @@ test('#_encode() - with spans', function (t) {
     t.strictEqual(payload.name, 'single-name')
     t.strictEqual(payload.type, 'type')
     t.strictEqual(payload.result, 'result')
-    t.strictEqual(payload.timestamp, trans._timer.start)
+    t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0, 'should have a duration >0ms')
     t.ok(payload.duration < 100, 'should have a duration <100ms')
     t.deepEqual(payload.context, {
@@ -439,6 +443,7 @@ test('#_encode() - dropped spans', function (t) {
   agent._conf.transactionMaxSpans = 2
 
   var trans = new Transaction(agent, 'single-name', 'type')
+  var timerStart = trans._timer.start
   trans.result = 'result'
   var span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
@@ -454,7 +459,7 @@ test('#_encode() - dropped spans', function (t) {
     t.strictEqual(payload.name, 'single-name')
     t.strictEqual(payload.type, 'type')
     t.strictEqual(payload.result, 'result')
-    t.strictEqual(payload.timestamp, trans._timer.start)
+    t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0, 'should have a duration >0ms')
     t.ok(payload.duration < 100, 'should have a duration <100ms')
     t.deepEqual(payload.context, {
@@ -481,6 +486,7 @@ test('#_encode() - not sampled', function (t) {
   agent._conf.transactionSampleRate = 0
 
   var trans = new Transaction(agent, 'single-name', 'type')
+  var timerStart = trans._timer.start
   trans.result = 'result'
   trans.req = mockRequest()
   trans.res = mockResponse()
@@ -492,7 +498,7 @@ test('#_encode() - not sampled', function (t) {
   t.strictEqual(payload.name, 'single-name')
   t.strictEqual(payload.type, 'type')
   t.strictEqual(payload.result, 'result')
-  t.strictEqual(payload.timestamp, trans._timer.start)
+  t.strictEqual(payload.timestamp, timerStart)
   t.ok(payload.duration > 0, 'should have a duration >0ms')
   t.ok(payload.duration < 100, 'should have a duration <100ms')
   t.notOk(payload.context)
