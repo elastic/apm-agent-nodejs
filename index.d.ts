@@ -141,7 +141,7 @@ declare namespace apm {
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/transaction-api.html
   export interface Transaction {
     // The following properties and methods are currently not documented as their API isn't considered official:
-    // - timestamp, ended, id, traceId, parentId, sampled, duration()
+    // - timestamp, ended, id, traceId, parentId, sampled, duration
     // - setUserContext(), setCustomContext(), toJSON(), setDefaultName(), setDefaultNameFromRequest()
 
     name: string;
@@ -197,7 +197,7 @@ declare namespace apm {
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/span-api.html
   export interface Span {
     // The following properties and methods are currently not documented as their API isn't considered official:
-    // - timestamp, ended, id, traceId, parentId, sampled, duration()
+    // - timestamp, ended, id, traceId, parentId, sampled, duration
     // - customStackTrace(), setDbContext()
 
     transaction: Transaction;
