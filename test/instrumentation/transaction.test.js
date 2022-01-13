@@ -522,6 +522,59 @@ test('#toString()', function (t) {
   t.end()
 })
 
+test('Transaction API on ended transaction', function (t) {
+  // Enable breakdown metrics to test it below.
+  agent._config({ breakdownMetrics: true, metricsInterval: '30s' })
+
+  const trans = agent.startTransaction('theTransName', 'theTransType')
+  const span = trans.startSpan('theSpanName')
+  const traceparentBefore = trans.traceparent
+  const traceId = trans.traceId
+  const transId = trans.id
+  trans.end()
+
+  // Test that full Transaction API (`interface Transaction` in index.d.ts)
+  // behaves as expected on an ended transaction.
+  t.equal(trans.name, 'theTransName', 'trans.name')
+  t.equal(trans.type, 'theTransType', 'trans.type')
+  t.equal(trans.subtype, null, 'trans.subtype')
+  t.equal(trans.action, null, 'trans.action')
+  t.equal(trans.traceparent, traceparentBefore, `trans.traceparent: ${trans.traceparent}`)
+  t.equal(trans.outcome, 'unknown', 'trans.outcome')
+  t.equal(trans.result, 'success', 'trans.result')
+  t.deepLooseEqual(trans.ids,
+    { 'trace.id': traceId, 'transaction.id': transId },
+    'trans.ids')
+
+  // We just want to ensure that these Transaction API methods don't throw.
+  // Whether they make field changes after the transaction has ended isn't
+  // tested.
+  trans.setType('anotherTransType')
+  t.pass('trans.setType(...) does not blow up')
+  trans.setLabel('aLabelKey', 'aLabelValue')
+  t.pass('trans.setLabel(...) does not blow up')
+  trans.addLabels({ anotherLabelKey: 'anotherLabelValue' })
+  t.pass('trans.addLabels(...) does not blow up')
+  trans.setOutcome('failure')
+  t.pass('trans.setOutcome(...) does not blow up')
+  trans.end('badResult', 42)
+  t.pass('trans.end(...) does not blow up')
+  trans.ensureParentId()
+  t.pass('trans.ensureParentId(...) does not blow up')
+
+  const newSpan = trans.startSpan('aNewSpanName')
+  t.equal(newSpan, null, 'trans.startSpan(...) returns null')
+
+  // Ending a span that is a child of the transaction uses some of the
+  // transaction fields for breakdown metrics calculation. Ensure that works.
+  span.end()
+  t.pass('ending child span after trans is ended does not blow up')
+
+  agent.flush(function () {
+    t.end()
+  })
+})
+
 function mockRequest () {
   return {
     httpVersion: '1.1',

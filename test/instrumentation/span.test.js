@@ -315,3 +315,46 @@ test('#toString()', function (t) {
   t.strictEqual(span.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
   t.end()
 })
+
+test('Span API on ended span', function (t) {
+  const trans = agent.startTransaction('theTransName')
+  const span = trans.startSpan('theSpanName', 'theSpanType', 'theSpanSubtype', 'theSpanAction')
+  const traceId = span.traceId
+  const spanId = span.id
+  const traceparentBefore = span.traceparent
+  span.end()
+
+  // Test that full Span API (`interface Span` in index.d.ts) behaves as
+  // expected on an ended span.
+  t.is(span.transaction, trans, 'span.transaction')
+  t.equal(span.name, 'theSpanName', 'span.name')
+  t.equal(span.type, 'theSpanType', 'span.type')
+  t.equal(span.subtype, 'theSpanSubtype', 'span.subtype')
+  t.equal(span.action, 'theSpanAction', 'span.action')
+  t.equal(span.traceparent, traceparentBefore, `span.traceparent: ${span.traceparent}`)
+  t.equal(span.outcome, 'success', 'span.outcome')
+  t.equal(JSON.stringify(span.ids),
+    JSON.stringify({ 'trace.id': span.traceId, 'span.id': span.id }),
+    'span.ids')
+  t.deepLooseEqual(span.ids,
+    { 'trace.id': traceId, 'span.id': spanId },
+    'span.ids')
+
+  // We just want to ensure that the Span API methods don't throw. Whether
+  // they make span field changes after the span has ended isn't tested.
+  span.setType('anotherSpanType', 'anotherSpanSubtype', 'anotherSpanAction')
+  t.pass('span.setType(...) does not blow up')
+  span.setLabel('aLabelKey', 'aLabelValue')
+  t.pass('span.setLabel(...) does not blow up')
+  span.addLabels({ anotherLabelKey: 'anotherLabelValue' })
+  t.pass('span.addLabels(...) does not blow up')
+  span.setOutcome('failure')
+  t.pass('span.setOutcome(...) does not blow up')
+  span.end(42)
+  t.pass('span.end(...) does not blow up')
+
+  trans.end()
+  agent.flush(function () {
+    t.end()
+  })
+})
