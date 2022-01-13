@@ -545,6 +545,9 @@ test('Transaction API on ended transaction', function (t) {
   t.deepLooseEqual(trans.ids,
     { 'trace.id': traceId, 'transaction.id': transId },
     'trans.ids')
+  t.equal(trans.toString(), // deprecated
+    `trace.id=${traceId} transaction.id=${transId}`,
+    trans.toString())
 
   // We just want to ensure that these Transaction API methods don't throw.
   // Whether they make field changes after the transaction has ended isn't

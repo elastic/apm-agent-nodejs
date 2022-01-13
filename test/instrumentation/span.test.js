@@ -339,6 +339,9 @@ test('Span API on ended span', function (t) {
   t.deepLooseEqual(span.ids,
     { 'trace.id': traceId, 'span.id': spanId },
     'span.ids')
+  t.equal(span.toString(), // deprecated
+    `trace.id=${traceId} span.id=${spanId}`,
+    span.toString())
 
   // We just want to ensure that the Span API methods don't throw. Whether
   // they make span field changes after the span has ended isn't tested.
