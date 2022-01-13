@@ -41,6 +41,23 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix an issue where the agent's async task tracking could cause the user's
+  application to use too much memory. In cases where an application is under
+  sustained load and is running in a memory constrained container, this looked
+  like a memory leak.
++
+This high memory usage could happen when application code starts async tasks
+(e.g. Promises, setTimeouts, async I/O) that outlive the APM Transaction
+(typically an HTTP request handler). The agent's async task tracking keeps a
+reference to the APM Transaction (and any Spans) until the async task completes.
+Before this change the APM Transaction would unintentionally prevent HTTP
+request and response objects from being garbage collected -- leading to high
+memory usage.
++
+With this change, those references are removed when APM Transactions and Spans
+are ended, and agent memory usage is now the same as what it was before
+v3.24.0 when this issue was introduced. ({pull}2528[#2528], {issues}2489[#2489])
+
 * Fixes for run context handling for 'graphql' instrumentation.
   ({issues}2430[#2430])
 
