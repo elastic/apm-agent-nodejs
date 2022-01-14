@@ -57,20 +57,20 @@ test('#end()', function (t) {
   t.end()
 })
 
-test('#duration', function (t) {
+test('#duration()', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
   setTimeout(function () {
     span.end()
-    t.ok(span.duration > 49, span.duration + ' should be larger than 49')
+    t.ok(span.duration() > 49, span.duration() + ' should be larger than 49')
     t.end()
   }, 50)
 })
 
-test('#duration - return null if not ended', function (t) {
+test('#duration() - return null if not ended', function (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
-  t.strictEqual(span.duration, null)
+  t.strictEqual(span.duration(), null)
   t.end()
 })
 
@@ -79,7 +79,7 @@ test('custom start time', function (t) {
   var startTime = Date.now() - 1000
   var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
   span.end()
-  var duration = span.duration
+  var duration = span.duration()
   t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
   t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
   t.end()
@@ -91,7 +91,7 @@ test('#end(time)', function (t) {
   var endTime = startTime + 2000.123
   var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
   span.end(endTime)
-  t.strictEqual(span.duration, 2000.123)
+  t.strictEqual(span.duration(), 2000.123)
   t.end()
 })
 
