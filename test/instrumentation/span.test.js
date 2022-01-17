@@ -195,6 +195,7 @@ test('#_encode() - un-ended', function (t) {
 test('#_encode() - ended unnamed', function myTest1 (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans)
+  var timerStart = span._timer.start
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
@@ -208,7 +209,7 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
     t.strictEqual(payload.transaction_id, trans.id)
     t.strictEqual(payload.name, 'unnamed')
     t.strictEqual(payload.type, 'custom')
-    t.strictEqual(payload.timestamp, span._timer.start)
+    t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0)
     t.strictEqual(payload.context, undefined)
     assert.stacktrace(t, 'myTest1', __filename, payload.stacktrace, agent)
@@ -219,6 +220,7 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
 test('#_encode() - ended named', function myTest2 (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans, 'foo', 'bar')
+  var timerStart = span._timer.start
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
@@ -232,7 +234,7 @@ test('#_encode() - ended named', function myTest2 (t) {
     t.strictEqual(payload.transaction_id, trans.id)
     t.strictEqual(payload.name, 'foo')
     t.strictEqual(payload.type, 'bar')
-    t.strictEqual(payload.timestamp, span._timer.start)
+    t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0)
     t.strictEqual(payload.context, undefined)
     assert.stacktrace(t, 'myTest2', __filename, payload.stacktrace, agent)
@@ -243,6 +245,7 @@ test('#_encode() - ended named', function myTest2 (t) {
 test('#_encode() - with meta data', function myTest2 (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans, 'foo', 'bar')
+  var timerStart = span._timer.start
   span.end()
   span.setDbContext({ statement: 'foo', type: 'bar' })
   span.setLabel('baz', 1)
@@ -258,7 +261,7 @@ test('#_encode() - with meta data', function myTest2 (t) {
     t.strictEqual(payload.transaction_id, trans.id)
     t.strictEqual(payload.name, 'foo')
     t.strictEqual(payload.type, 'bar')
-    t.strictEqual(payload.timestamp, span._timer.start)
+    t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0)
     t.deepEqual(payload.context, { db: { statement: 'foo', type: 'bar' }, http: undefined, tags: { baz: '1' }, destination: undefined, message: undefined })
     assert.stacktrace(t, 'myTest2', __filename, payload.stacktrace, agent)
@@ -272,6 +275,7 @@ test('#_encode() - disabled stack traces', function (t) {
 
   var trans = new Transaction(agent)
   var span = new Span(trans)
+  var timerStart = span._timer.start
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
@@ -285,7 +289,7 @@ test('#_encode() - disabled stack traces', function (t) {
     t.strictEqual(payload.transaction_id, trans.id)
     t.strictEqual(payload.name, 'unnamed')
     t.strictEqual(payload.type, 'custom')
-    t.strictEqual(payload.timestamp, span._timer.start)
+    t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0)
     t.strictEqual(payload.context, undefined)
     t.strictEqual(payload.stacktrace, undefined)
@@ -310,4 +314,50 @@ test('#toString()', function (t) {
   var span = new Span(trans)
   t.strictEqual(span.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
   t.end()
+})
+
+test('Span API on ended span', function (t) {
+  const trans = agent.startTransaction('theTransName')
+  const span = trans.startSpan('theSpanName', 'theSpanType', 'theSpanSubtype', 'theSpanAction')
+  const traceId = span.traceId
+  const spanId = span.id
+  const traceparentBefore = span.traceparent
+  span.end()
+
+  // Test that full Span API (`interface Span` in index.d.ts) behaves as
+  // expected on an ended span.
+  t.is(span.transaction, trans, 'span.transaction')
+  t.equal(span.name, 'theSpanName', 'span.name')
+  t.equal(span.type, 'theSpanType', 'span.type')
+  t.equal(span.subtype, 'theSpanSubtype', 'span.subtype')
+  t.equal(span.action, 'theSpanAction', 'span.action')
+  t.equal(span.traceparent, traceparentBefore, `span.traceparent: ${span.traceparent}`)
+  t.equal(span.outcome, 'success', 'span.outcome')
+  t.equal(JSON.stringify(span.ids),
+    JSON.stringify({ 'trace.id': span.traceId, 'span.id': span.id }),
+    'span.ids')
+  t.deepLooseEqual(span.ids,
+    { 'trace.id': traceId, 'span.id': spanId },
+    'span.ids')
+  t.equal(span.toString(), // deprecated
+    `trace.id=${traceId} span.id=${spanId}`,
+    span.toString())
+
+  // We just want to ensure that the Span API methods don't throw. Whether
+  // they make span field changes after the span has ended isn't tested.
+  span.setType('anotherSpanType', 'anotherSpanSubtype', 'anotherSpanAction')
+  t.pass('span.setType(...) does not blow up')
+  span.setLabel('aLabelKey', 'aLabelValue')
+  t.pass('span.setLabel(...) does not blow up')
+  span.addLabels({ anotherLabelKey: 'anotherLabelValue' })
+  t.pass('span.addLabels(...) does not blow up')
+  span.setOutcome('failure')
+  t.pass('span.setOutcome(...) does not blow up')
+  span.end(42)
+  t.pass('span.end(...) does not blow up')
+
+  trans.end()
+  agent.flush(function () {
+    t.end()
+  })
 })
