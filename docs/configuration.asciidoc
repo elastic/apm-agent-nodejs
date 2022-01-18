@@ -855,13 +855,15 @@ The HTTP request is otherwise ended at regular intervals controlled by the <<api
 * *Default:* `30s`
 * *Env:* `ELASTIC_APM_SERVER_TIMEOUT`
 
-Specify the response timeout when reporting transactions to APM Server.
-The timeout should be in seconds,
-or should include a time suffix.
+Specify a timeout on the socket used for communication between the APM agent
+and APM Server. If no data is sent or received on the socket for this amount of
+time, the request will be aborted. It's not recommended to set a
+`serverTimeout` lower than the <<api-request-time,`apiRequestTime`>> config
+option. That will likely result in healthy requests being aborted prematurely.
 
-The timeout is applied once the agent has sent the entire request body to the APM Server.
-If the response from the server takes longer than allowed by this timeout,
-the HTTP request is terminated and the TCP socket closed.
+The value should include a time suffix ('m' for minutes, 's' for seconds, or
+'ms' for milliseconds), but defaults to seconds if no suffix is given.
+
 
 [[sanitize-field-names]]
 ==== `sanitizeFieldNames`
