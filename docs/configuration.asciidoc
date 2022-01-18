@@ -929,7 +929,7 @@ ELASTIC_APM_DISABLE_INSTRUMENTATIONS=graphql,express-graphql
 ----
 
 For an always up-to-date list of modules for which instrumentation can be disabled,
-see the https://github.com/elastic/apm-agent-nodejs/tree/master/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
+see the https://github.com/elastic/apm-agent-nodejs/tree/main/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
 Note that not all modules represented in this directory will generate spans,
 and adding those to this array has no effect.
 

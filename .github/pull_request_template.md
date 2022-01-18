@@ -17,4 +17,4 @@ https://help.github.com/articles/closing-issues-using-keywords/
 - [ ] Update TypeScript typings
 - [ ] Update documentation
 - [ ] Add CHANGELOG.asciidoc entry
-- [ ] Commit message follows [commit guidelines](https://github.com/elastic/apm-agent-nodejs/blob/master/CONTRIBUTING.md#commit-message-guidelines)
+- [ ] Commit message follows [commit guidelines](https://github.com/elastic/apm-agent-nodejs/blob/main/CONTRIBUTING.md#commit-message-guidelines)
