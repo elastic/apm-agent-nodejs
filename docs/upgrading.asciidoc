@@ -12,6 +12,11 @@ The Elastic APM Node.js Agent uses https://semver.org/[semantic versioning], and
 * Upgrades between minor versions of the agent, like from 1.1 to 1.2 are always backwards compatible.
 * Upgrades that involve a major version bump often come with some backwards incompatible changes.
 
+Before upgrading the agent, be sure to review the:
+
+* <<release-notes,Node.js APM Agent release notes>>
+* {apm-overview-ref-v}/agent-server-compatibility.html[APM Agent and Server compatibility chart]
+
 The following upgrade guides are available:
 
 * <<upgrade-to-v1,Upgrade to v1.x>> - Follow this guide to upgrade from version 0.x to version 1.x of the Elastic APM Node.js agent
