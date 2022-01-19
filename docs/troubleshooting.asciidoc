@@ -20,99 +20,24 @@ so that we can analyze the problem.
 Logs should include everything from when the application starts up until the first request executes.
 See <<debug-mode>> for more information.
 
-* <<no-data-sent>>
-* <<missing-performance-metrics>>
-* <<debug-mode>>
-* <<disable-agent>>
 
 [float]
-[[no-data-sent]]
-=== No data is sent to the APM Server
+[[use-latest-agent]]
+=== Updating to latest agent version
 
-If neither errors nor performance metrics are being sent to the APM Server,
-it's a good idea to first check your log file and look for output just as the app starts.
+The Elastic Node.js APM Agent is updated frequently and releases are not
+strongly tied to other components in the Elastic Stack.  Therefore,
+updating to the most recently released agent version is often the recommended
+first troubleshooting step.
 
-[float]
-[[error-messages]]
-==== Explanation of error messages
+See <<upgrading,upgrading documentation>> for more details.
 
-[float]
-[[message-agent-inactive]]
-===== Agent Inactive
-
-[source,text]
-----
-Elastic APM agent is inactive due to configuration
-----
-
-You've most likely set the `active` option or the `ELASTIC_APM_ACTIVE` environment variable to `false`.
-Ensure that it's set to `true` and try again.
-
-See the API documentation about <<active,`active`>> for details.
-
-[float]
-[[message-missing-service-name]]
-===== Missing `serviceName`
-
-[source,text]
-----
-Elastic APM isn't correctly configured: Missing serviceName
-----
-
-Ensure that the agent is correctly configured with a `serviceName` config option either by passing it to the `start()` function,
-by specifying it in the optional configuration file,
-or by using environment variables.
-
-See the API documentation on <<service-name,`serviceName`>> for details.
-
-[float]
-[[message-invalid-service-name]]
-===== Invalid `serviceName`
-
-[source,text]
-----
-Elastic APM isn't correctly configured: serviceName "..." contains invalid characters! (allowed: a-z, A-Z, 0-9, _, -, <space>)
-----
-
-The `serviceName` you provided contained invalid characters.
-You can only use the letters a-z (both upper and lowercase), numbers, underscore (`_`), hyphen (`-`), and space (` `).
-
-See the API documentation on <<service-name,`serviceName`>> for details.
-
-[float]
-[[missing-performance-metrics]]
-=== No performance metrics sent to APM Server
-
-Errors get tracked just fine,
-but you don't see any performance metrics.
-
-First, make sure you have https://www.npmjs.com/package/elastic-apm-node[the latest version] of the Elastic APM Node.js agent.
-Issues are fixed and support for new metrics are added all the time,
-so make sure you keep your dependency up to date.
-
-If you are using the latest version but still don't see any performance metrics,
-make sure that the agent is *both required and started at the very top of your main app file* (usually the `index.js`, `server.js` or `app.js` file).
-It's important that the agent is started before any other modules are required.
-If not,
-the agent will not be able to hook into any modules and will not be able to measure the performance of your application.
-
-IMPORTANT: If you are using Babel / ES modules in your application,
-make sure you have read about the <<es-modules,Babel / ES Module support>>.
-
-If this is not the issue,
-your app dependencies might be incompatible with the agent.
-Please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM discuss forum] and try to include as much information as possible, such as:
-
-* The dependencies in you `package.json` file
-* Your app's main js file showing how the agent is initialized (usually the `index.js`, `server.js` or `app.js` file)
-* Your server logs with Elastic APM debugging enabled
 
 [float]
 [[debug-mode]]
 === Debug mode
 
-To enable agent debugging and capture enough information for troubleshooting,
-perform these steps:
+To capture enough information for troubleshooting, perform these steps:
 
 1. Start your app with "trace"-level logging. This can be done by setting the
    environment variable `ELASTIC_APM_LOG_LEVEL=trace` or adding `logLevel: 'trace'`
@@ -136,6 +61,64 @@ If you are capturing debugging output for Elastic support, for help on the
 Elastic forums, or for a GitHub issue, *please upload the complete debug
 output* to a service like https://gist.github.com[GitHub Gist] so that
 we can analyze the problem.
+
+
+[float]
+[[common-problems]]
+=== Common problems
+
+[float]
+[[no-data-sent]]
+==== No data is sent to the APM Server
+
+If there is no data for your service in the Kibana APM app, check the log output
+for messages like the following.
+
+The most common source of problems are connection issues between the agent and
+the APM server. Look for a log message of the form `APM Server transport error ...`.
+For example:
+
+[source,text]
+----
+APM Server transport error (ECONNREFUSED): connect ECONNREFUSED 127.0.0.1:8200
+----
+
+These may indicate an issue with the agent configuration (see <<server-url>>,
+<<secret-token>> or <<api-key>>), a network problem between agent and server, or
+that the APM server is down or misconfigured (see
+{apm-server-ref-v}/troubleshooting.html[the APM server troubleshooting docs]).
+
+Also look for error messages starting with `Elastic APM ...`. Some examples:
+
+[source,text]
+----
+Elastic APM agent disabled (`active` is false)
+----
+
+This indicates that you have likely set the `active` option or the `ELASTIC_APM_ACTIVE` environment variable to `false`. See <<active,the `active` configuration variable docs>>.
+
+
+[source,text]
+----
+Elastic APM is incorrectly configured: serverUrl "..." contains an invalid port! (allowed: 1-65535)
+----
+
+
+[float]
+[[missing-performance-metrics]]
+==== No performance metrics sent to APM Server
+
+Errors get tracked just fine, but you don't see any performance metrics or
+trace data.
+
+Make sure that the agent is *both required and started at the very top of your main app file* (usually the `index.js`, `server.js` or `app.js` file).
+It's important that the agent is started before any other modules are
+`require`d.  If not, the agent will not be able to hook into any modules and
+will not be able to measure the performance of your application.
+
+IMPORTANT: If you are using Babel / ES modules in your application,
+make sure you have read about the <<es-modules,Babel / ES Module support>>.
+
 
 [float]
 [[disable-agent]]
