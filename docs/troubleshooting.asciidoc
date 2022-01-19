@@ -26,8 +26,8 @@ See <<debug-mode>> for more information.
 === Updating to latest agent version
 
 The Elastic Node.js APM Agent is updated frequently and releases are not
-strongly tied to other components in the Elastic Stack.  Therefore, trying to
-update to the most recently released agent version is often the recommended
+strongly tied to other components in the Elastic Stack.  Therefore,
+updating to the most recently released agent version is often the recommended
 first troubleshooting step.
 
 See <<upgrading,upgrading documentation>> for more details.
