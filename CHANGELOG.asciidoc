@@ -28,10 +28,9 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
 
-[float]
-===== Breaking changes
+[[release-notes-3.28.0]]
+==== 3.27.0 2022/01/17
 
 [float]
 ===== Features
@@ -40,6 +39,23 @@ Notes:
 
 [float]
 ===== Bug fixes
+
+* Fix an issue where the agent's async task tracking could cause the user's
+  application to use too much memory. In cases where an application is under
+  sustained load and is running in a memory constrained container, this looked
+  like a memory leak.
++
+This high memory usage could happen when application code starts async tasks
+(e.g. Promises, setTimeouts, async I/O) that outlive the APM Transaction
+(typically an HTTP request handler). The agent's async task tracking keeps a
+reference to the APM Transaction (and any APM Spans) until the async task
+ends, thus extending the lifetime of those APM objects and the references
+they hold -- in particular, HTTP request and response objects. This could lead
+to higher memory usage.
++
+With this change, those references are removed when APM Transactions and Spans
+are ended, and agent memory usage is now the same as what it was before
+v3.24.0 when this issue was introduced. ({pull}2528[#2528], {issues}2489[#2489])
 
 * Fixes for run context handling for 'graphql' instrumentation.
   ({issues}2430[#2430])

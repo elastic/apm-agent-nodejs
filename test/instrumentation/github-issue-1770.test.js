@@ -1,8 +1,9 @@
+// https://github.com/elastic/apm-agent-nodejs/issues/1770
 const agent = require('../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-github-issue-1770',
   centralConfig: false,
-  metricsInterval: 0
+  metricsInterval: 0,
+  logUncaughtExceptions: true
 })
 
 const tape = require('tape')
