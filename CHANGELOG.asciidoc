@@ -29,6 +29,25 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* The default <<service-name, `serviceName`>> string (when it is not configured
+  and cannot be inferred from a "package.json" file) has been changed from
+  "nodejs_service" to "unknown-nodejs-service". This is a standardized pattern
+  used across Elastic APM agents to allow the Kibana APM app to recognize when
+  to provide help to the user on configuring the service name.
+  ({issues}2491[#2491])
+
+[float]
+===== Bug fixes
+
+
 [[release-notes-3.28.0]]
 ==== 3.27.0 2022/01/17
 
