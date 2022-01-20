@@ -33,7 +33,7 @@ npm install elastic-apm-node elastic-apm-node-opentracing --save
 [[ot-terminologies]]
 === OpenTracing vs Elastic APM terminologies
 
-Elastic APM differentiates between {apm-overview-ref-v}/transactions.html[transactions] and {apm-overview-ref-v}/transaction-spans.html[spans].
+Elastic APM differentiates between {apm-guide-ref}/transactions.html[transactions] and {apm-guide-ref}/transaction-spans.html[spans].
 In the context of OpenTracing, a transaction can be thought of as a special kind of span.
 
 Because OpenTracing natively only has the concept of spans,
@@ -163,7 +163,7 @@ Baggage items are silently dropped.
 
 Only error logging is supported.
 Logging an Error object on the OpenTracing span will create an Elastic APM
-{apm-overview-ref-v}/errors.html[error].
+{apm-guide-ref}/errors.html[error].
 Example:
 
 [source,js]
