@@ -354,7 +354,7 @@ still supported. Users should switch to using `longFieldMaxLength`. If
 now use the `longFieldMaxLength` value.
 +
 Note that ultimately the maximum length of any tracing field is limited by the
-{apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`]
+{apm-guide-ref}/configuration-process.html#max_event_size[`max_event_size`]
 configured for the receiving APM server.
 +
 The fields affected by `longFieldMaxLength` are:
