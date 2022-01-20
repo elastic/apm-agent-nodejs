@@ -50,7 +50,7 @@ Once your changes are ready to submit for review:
 3. Rebase your changes
 
     Update your local repository with the most recent code from the main repo,
-    and rebase your branch on top of the latest master branch.
+    and rebase your branch on top of the latest main branch.
     We prefer your initial changes to be squashed into a single commit.
     Later, if we ask you to make changes, add them as separate commits.
     This makes them easier to review.
@@ -137,7 +137,7 @@ npm run backport
 
 ### Workflow
 
-All feature development and most bug fixes hit the master branch first.
+All feature development and most bug fixes hit the main branch first.
 Pull requests should be reviewed by someone with commit access.
 Once approved, the author of the pull request,
 or reviewer if the author does not have commit access,
@@ -172,7 +172,7 @@ If you have access to make releases, the process is as follows:
 
 ### Current major
 
-1. Be sure you have checked out the `master` branch and have pulled latest changes
+1. Be sure you have checked out the `main` branch and have pulled latest changes
 1. Update the version in `package.json` according to the scale of the change. (major, minor or patch)
 1. Update `CHANGELOG.asciidoc`:
     - Change the "Unreleased" section title to:
@@ -183,9 +183,9 @@ If you have access to make releases, the process is as follows:
     - Add missing changelog entries, if any. (Typically commits will include changelog entries in the "Unreleased" section.)
 1. If a major or minor release, update the EOL table in `docs/upgrading.asciidoc`. EOL is 18 months after release date.
 1. Make a PR titled `x.y.z` -- where `x.y.z` is the new version in package.json -- with these changes.
-1. Ensure PR checks pass, then merge to master.
-1. Working on the elastic repo now (not a fork), tag the merged-to-master commit with `git tag vx.y.x && git push origin --tags`. For example: `git tag v1.2.3 && git push origin --tags`.
-1. Reset the latest major branch (currently `3.x`) to point to the current master, e.g. `git branch -f 3.x master && git push origin 3.x`
+1. Ensure PR checks pass, then merge to main.
+1. Working on the elastic repo now (not a fork), tag the merged-to-main commit with `git tag vx.y.x && git push origin --tags`. For example: `git tag v1.2.3 && git push origin --tags`.
+1. Reset the latest major branch (currently `3.x`) to point to the current main, e.g. `git branch -f 3.x main && git push origin 3.x`
 1. Publish to npm with `npm publish`
 
 ### Past major
@@ -204,4 +204,4 @@ If you have access to make releases, the process is as follows:
 1. Run tests with `npm test`
 1. Push commits and tags upstream with `git push upstream <major_branch> && git push upstream --tags` (and optionally to your own fork as well)
 1. Publish to npm with `npm publish --tag=2x` (where `2x` is the tag for the past major version being published)
-1. Make a PR against `master` containing the updates to `CHANGELOG.asciidoc` so that `master` always contain information about all releases
+1. Make a PR against `main` containing the updates to `CHANGELOG.asciidoc` so that `main` always contain information about all releases

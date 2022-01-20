@@ -20,17 +20,17 @@ the agent will use the `name` from `package.json` by default if available.
 ==== `serviceName`
 
 * *Type:* String
-* *Default:* `name` field of `package.json`, or "nodejs_service"
+* *Default:* `name` field of `package.json`, or "unknown-nodejs-service"
 * *Env:* `ELASTIC_APM_SERVICE_NAME`
 
 The name to identify this service in Elastic APM. Multiple instances of the
 same service should use the same name.
 Allowed characters: `a-z`, `A-Z`, `0-9`, `-`, `_`, and space.
 
-If serviceName is not provided, the agent will attempt to use the "name" field
+If `serviceName` is not provided, the agent will attempt to use the "name" field
 from "package.json" -- looking up from the current working directory. The name
 will be normalized to the allowed characters. If the name cannot be inferred
-from package.json, then a fallback value of "nodejs_service" is used.
+from package.json, then a fallback value of "unknown-nodejs-service" is used.
 
 
 [float]
@@ -929,7 +929,7 @@ ELASTIC_APM_DISABLE_INSTRUMENTATIONS=graphql,express-graphql
 ----
 
 For an always up-to-date list of modules for which instrumentation can be disabled,
-see the https://github.com/elastic/apm-agent-nodejs/tree/master/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
+see the https://github.com/elastic/apm-agent-nodejs/tree/main/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
 Note that not all modules represented in this directory will generate spans,
 and adding those to this array has no effect.
 
