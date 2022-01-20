@@ -104,7 +104,7 @@ containing the data about to be sent to the APM Server.
 
 The format of the payload depends on the event type being sent.
 For details about the different formats,
-see the {apm-server-ref-v}/intake-api.html[APM Server intake API documentation].
+see the {apm-guide-ref-v}/intake-api.html[APM Server intake API documentation].
 
 The filter function is synchronous and should return the manipulated payload object.
 If a filter function doesn't return any value or returns a falsy value,
@@ -164,7 +164,7 @@ but the `fn` will only be called with span payloads.
 [small]#Added in: v3.14.0#
 
 Use `addMetadataFilter(fn)` to supply a filter function for the
-{apm-server-ref-v}/metadata-api.html[metadata object]
+{apm-guide-ref-v}/metadata-api.html[metadata object]
 sent to the APM Server. This will allow you to manipulate the data being
 sent, for instance to remove possibly sensitive information.
 
@@ -184,7 +184,7 @@ apm.addMetadataFilter(function dropArgv(metadata) {
 
 Warning: It is the responsibility of the author to ensure the returned object
 conforms to the
-{apm-server-ref-v}/metadata-api.html#metadata-schema[metadata schema]
+{apm-guide-ref-v}/metadata-api.html#metadata-schema[metadata schema]
 otherwise all APM data injest will fail. A metadata filter that breaks the
 metadata will result in error logging from the agent, something like:
 
@@ -403,7 +403,7 @@ To ease debugging it's possible to send some extra data with each error you send
 The APM Server intake API supports a lot of different metadata fields,
 most of which are automatically managed by the Elastic APM Node.js Agent.
 But if you wish you can supply some extra details using `user` or `custom`.
-For more details on the properties accepted by the events intake API see the {apm-server-ref-v}/events-api.html[events intake API docs].
+For more details on the properties accepted by the events intake API see the {apm-guide-ref-v}/events-api.html[events intake API docs].
 
 To supply any of these extra fields,
 use the optional options argument when calling `apm.captureError()`.
