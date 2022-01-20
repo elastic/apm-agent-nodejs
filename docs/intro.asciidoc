@@ -30,6 +30,6 @@ You can then use the APM app in Kibana to gain insight into latency issues and e
 [[additional-components]]
 === Additional Components
 
-APM Agents work in conjunction with the {apm-guide-ref-v}/index.html[APM Server], {ref}/index.html[Elasticsearch], and {kibana-ref}/index.html[Kibana].
-The {apm-guide-ref}/index.html[APM Overview] provides details on how these components work together,
+APM Agents work in conjunction with the {apm-guide-ref}/index.html[APM Server], {ref}/index.html[Elasticsearch], and {kibana-ref}/index.html[Kibana].
+The {apm-guide-ref}/index.html[APM Guide] provides details on how these components work together,
 and provides a matrix outlining {apm-guide-ref}/agent-server-compatibility.html[Agent and Server compatibility].
