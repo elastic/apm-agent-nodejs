@@ -752,7 +752,7 @@ number of unicode characters before being sent to APM server:
   value takes precedence for these error message fields.
 
 Note that tracing data is limited at the upstream APM server to
-{apm-guide-ref-v}/configuration-process.html#max_event_size[`max_event_size`],
+{apm-guide-ref}/configuration-process.html#max_event_size[`max_event_size`],
 which defaults to 300kB. If you configure `longFieldMaxLength` too large, it
 could result in transactions, spans, or errors that are rejected by APM server.
 
