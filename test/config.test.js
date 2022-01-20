@@ -1296,7 +1296,7 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
 
 // Test User-Agent generation. It would be nice to also test against gherkin
 // specs from apm.git.
-// https://github.com/elastic/apm/blob/master/tests/agents/gherkin-specs/user_agent.feature
+// https://github.com/elastic/apm/blob/main/tests/agents/gherkin-specs/user_agent.feature
 test('userAgentFromConf', t => {
   t.equal(config.userAgentFromConf({}),
     `apm-agent-nodejs/${apmVersion}`)
