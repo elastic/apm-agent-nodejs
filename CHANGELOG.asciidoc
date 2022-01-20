@@ -210,7 +210,7 @@ by the agent. There is no outward functionality change.
 [float]
 ===== Features
 
-* Gather https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md#overwriting-metadata[AWS Lambda-specific metadata]
+* Gather https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws-lambda.md#overwriting-metadata[AWS Lambda-specific metadata]
   on first function invocation and ensure no intake requests to APM Server are
   started before that metadata is available. ({issues}2404[#2404])
 
@@ -230,7 +230,7 @@ This is similar to <<disable-send, `disableSend`>>, but differs in that
 
 * In a Lambda enviornment we now collect a number of additional data fields
   on the Transaction object.  See the spec for more information on fields collected.
-  https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-aws-lambda.md
+  https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws-lambda.md
   ({issues}2156[#2156])
 
 * Zero configuration support. The only required agent configuration option
@@ -454,7 +454,7 @@ The fields affected by `longFieldMaxLength` are:
 ===== Bug fixes
 
 * Fixed naming for outgoing HTTP spans to comply with the spec.
-  https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-http.md#http-client-spans
+  https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-http.md#http-client-spans
   Span names no longer include the path portion of the URL. ({pull}2161[#2161])
 
 * Fix a header object re-use bug that prevented propagation of trace-context
@@ -557,7 +557,7 @@ The fields affected by `longFieldMaxLength` are:
   server that is unresponsive, the agent will buffer a number of events and
   *drop* them above a certain limit (configurable via <<max-queue-size>>).
   This helps ensure the agent does not overly consume memory and CPU. As well,
-  the agent will now https://github.com/elastic/apm/blob/master/specs/agents/transport.md#transport-errors[backoff]
+  the agent will now https://github.com/elastic/apm/blob/main/specs/agents/transport.md#transport-errors[backoff]
   when the APM server errors. Finally, improved error handling means it will
   terminate failing requests to the APM server more quickly.
 +
@@ -567,7 +567,7 @@ setting (also possibly as the `ELASTIC_APM_MAX_QUEUE_SIZE` environment
 variable), then it should be removed.
 
 * Adds support for Amazon SQS queues via `aws-sdk` instrumentation that
-  partially implements the https://github.com/elastic/apm/blob/master/specs/agents/tracing-instrumentation-messaging.md[APM messaging spec],
+  partially implements the https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-messaging.md[APM messaging spec],
   and adds `queue.latency.min.ms`, `queue.latency.max.ms`, and `queue.latency.avg.ms`
   metrics for SQS queues.
 
@@ -636,7 +636,7 @@ as they are added over time.
 [float]
 ===== Bug fixes
 
-* fix: Update https://github.com/elastic/apm-nodejs-http-client/blob/master/CHANGELOG.md#v951[apm-server client]
+* fix: Update https://github.com/elastic/apm-nodejs-http-client/blob/main/CHANGELOG.md#v951[apm-server client]
   to fix a {issues}1749[possible crash] when polling for central config.
 
 
@@ -653,7 +653,7 @@ as they are added over time.
   adds a top level `setTransactionOutcome` and `setSpanOutcome` to set
   outcome values for the current active transaction or active span.
 * Limit the `transactionSampleRate` value to 4 decimal places of precision
-  according to the shared https://github.com/elastic/apm/blob/master/specs/agents/tracing-sampling.md#transaction_sample_rate-configuration[APM spec]. This ensures that propagated sampling rate
+  according to the shared https://github.com/elastic/apm/blob/main/specs/agents/tracing-sampling.md#transaction_sample_rate-configuration[APM spec]. This ensures that propagated sampling rate
   in the `tracestate` header is short and consistent. {pull}1979[#1979]
 
 [float]
@@ -719,14 +719,14 @@ slightly to commonalize:
   {pull}1912[#1912]
 
 * feat: Add `log_level` central config support. {pull}1908[#1908] +
-  Spec: https://github.com/elastic/apm/blob/master/specs/agents/logging.md
+  Spec: https://github.com/elastic/apm/blob/main/specs/agents/logging.md
 
 * feat: Add `sanitize_field_names` configuration option. +
   Allows users to configure a list of wildcard patterns to _remove_ items
   from the agent's HTTP header and `application/x-www-form-urlencoded` payloads.
   {pull}1898[#1898]
-  ** https://github.com/elastic/apm/blob/master/specs/agents/sanitization.md[spec]
-  ** https://github.com/elastic/apm-agent-nodejs/blob/master/docs/configuration.asciidoc#sanitize-field-names[docs]
+  ** https://github.com/elastic/apm/blob/main/specs/agents/sanitization.md[spec]
+  ** https://github.com/elastic/apm-agent-nodejs/blob/main/docs/configuration.asciidoc#sanitize-field-names[docs]
 
 [float]
 ===== Bug fixes
@@ -783,8 +783,8 @@ Config vars affected are: `disableInstrumentations`, `transactionIgnoreUrls`
   transaction sample rate across a trace's service boundaries.
 * feat: add span and transaction outcome {pull}1824[#1824] +
   This adds an "outcome" field to HTTP(S)
-  https://github.com/elastic/apm/blob/master/specs/agents/tracing-transactions.md#transaction-outcome[transactions]
-  and https://github.com/elastic/apm/blob/master/specs/agents/tracing-spans.md#span-outcome[spans].
+  https://github.com/elastic/apm/blob/main/specs/agents/tracing-transactions.md#transaction-outcome[transactions]
+  and https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans.md#span-outcome[spans].
 
 [float]
 ===== Bug fixes

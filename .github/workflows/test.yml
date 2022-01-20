@@ -15,7 +15,7 @@ name: Test
 on:
   push:
     branches:
-    - master
+    - main
     paths-ignore:
     - '*.md'
     - '*.asciidoc'
@@ -23,7 +23,7 @@ on:
     - 'examples/**'
   pull_request:
     branches:
-    - master
+    - main
     paths-ignore:
     - '*.md'
     - '*.asciidoc'
