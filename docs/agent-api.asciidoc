@@ -250,7 +250,7 @@ the context from the active transaction is used as context for the captured erro
 and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
 
 TIP: Before using custom context, ensure you understand the different types of
-{apm-overview-ref-v}/metadata.html[metadata] that are available.
+{apm-guide-ref}/metadata.html[metadata] that are available.
 
 [[apm-set-label]]
 ==== `apm.setLabel(name, value[, stringify = true])`
@@ -275,7 +275,7 @@ it will also get tagged with the same label.
 TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
 (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 Before using custom labels, ensure you understand the different types of
-{apm-overview-ref-v}/metadata.html[metadata] that are available.
+{apm-guide-ref}/metadata.html[metadata] that are available.
 
 WARNING: Avoid defining too many user-specified labels.
 Defining too many unique fields in an index is a condition that can lead to a
@@ -305,7 +305,7 @@ it will also get tagged with the same labels.
 TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
 (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 Before using custom labels, ensure you understand the different types of
-{apm-overview-ref-v}/metadata.html[metadata] that are available.
+{apm-guide-ref}/metadata.html[metadata] that are available.
 
 WARNING: Avoid defining too many user-specified labels.
 Defining too many unique fields in an index is a condition that can lead to a
