@@ -644,7 +644,8 @@ test('serviceName/serviceVersion zero-conf: no package.json to find', function (
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
     t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
     t.end()
   })
@@ -659,7 +660,8 @@ test('serviceName/serviceVersion zero-conf: no "name" in package.json', function
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
     t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
     t.end()
   })
@@ -714,7 +716,8 @@ test('serviceName/serviceVersion zero-conf: weird "name" in package.json', funct
     t.ok(logWarn['log.level'] === 'warn' && logWarn.message.indexOf('serviceName') !== -1,
       'there is a log.warn about "serviceName"')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
     t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
     t.end()
   })
@@ -1296,7 +1299,7 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
 
 // Test User-Agent generation. It would be nice to also test against gherkin
 // specs from apm.git.
-// https://github.com/elastic/apm/blob/master/tests/agents/gherkin-specs/user_agent.feature
+// https://github.com/elastic/apm/blob/main/tests/agents/gherkin-specs/user_agent.feature
 test('userAgentFromConf', t => {
   t.equal(config.userAgentFromConf({}),
     `apm-agent-nodejs/${apmVersion}`)

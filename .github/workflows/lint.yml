@@ -5,14 +5,14 @@ name: Lint
 on:
   push:
     branches:
-    - master
+    - main
     paths-ignore:
     - '*.md'
     - '*.asciidoc'
     - 'docs/**'
   pull_request:
     branches:
-    - master
+    - main
     paths-ignore:
     - '*.md'
     - '*.asciidoc'
