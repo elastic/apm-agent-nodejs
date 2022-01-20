@@ -63,7 +63,7 @@ The secret token optionally expected by the APM Server.
 
 The API key optionally expected by the APM Server. This is an alternative to `secretToken`.
 
-This base64-encoded string is used to ensure that only your agents can send data to your APM server. You must have created the API key using the APM server command line tool. Please see the {apm-server-ref}/api-key.html[APM server documentation] for details on how to do that.
+This base64-encoded string is used to ensure that only your agents can send data to your APM server. You must have created the API key using the APM server command line tool. Please see the {apm-guide-ref}/api-key.html[APM server documentation] for details on how to do that.
 
 NOTE: This feature is fully supported in the APM Server versions >= 7.6.
 
@@ -752,7 +752,7 @@ number of unicode characters before being sent to APM server:
   value takes precedence for these error message fields.
 
 Note that tracing data is limited at the upstream APM server to
-{apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`],
+{apm-guide-ref-v}/configuration-process.html#max_event_size[`max_event_size`],
 which defaults to 300kB. If you configure `longFieldMaxLength` too large, it
 could result in transactions, spans, or errors that are rejected by APM server.
 
