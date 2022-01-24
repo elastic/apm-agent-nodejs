@@ -78,6 +78,7 @@
     "url": "https://github.com/elastic/apm-agent-nodejs/issues"
   },
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
+  "XXX elastic-apm-http-client": "^10.4.0",
   "dependencies": {
     "@elastic/ecs-pino-format": "^1.2.0",
     "after-all-results": "^2.0.0",
@@ -86,7 +87,7 @@
     "basic-auth": "^2.0.1",
     "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "^10.3.0",
+    "elastic-apm-http-client": "file:../apm-nodejs-http-client4",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",

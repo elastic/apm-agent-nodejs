@@ -934,6 +934,10 @@ test('custom transport', function (t) {
     flush (cb) {
       if (cb) setImmediate(cb)
     }
+
+    supportsKeepingUnsampledTransaction () {
+      return false
+    }
   }
   const myTransport = new MyTransport()
 
