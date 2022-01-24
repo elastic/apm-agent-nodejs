@@ -18,10 +18,5 @@ Using your favorite logging framework, you'd then need to inject this informatio
 
 When your logs contain the appropriate identifiers, the final step is to ingest them into the same
 Elasticsearch instance that contains your APM data. See
-ifeval::["{branch}"=="7.16"]
 {apm-guide-ref}/log-correlation.html#_ingest_your_logs_into_elasticsearch[Ingest your logs into Elasticsearch]
-endif::[]
-ifeval::["{branch}"!="7.16"]
-{apm-guide-ref}/observability-integrations.html#_ingest_your_logs_into_elasticsearch[Ingest your logs into Elasticsearch]
-endif::[]
 for more information.
