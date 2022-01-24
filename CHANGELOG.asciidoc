@@ -44,6 +44,9 @@ Notes:
   to provide help to the user on configuring the service name.
   ({issues}2491[#2491])
 
+* Add `transaction.name` to captured APM errors. This will allow the Kibana APM
+  app to correlate error groups and transaction groups. ({issues}2456[#2456])
+
 [float]
 ===== Bug fixes
 

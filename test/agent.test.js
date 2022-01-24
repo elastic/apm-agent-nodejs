@@ -1523,13 +1523,16 @@ test('#captureError()', function (t) {
         t.equal(apmServer.events.length, 2, 'APM server got 2 events')
         assertMetadata(t, apmServer.events[0].metadata)
         const data = apmServer.events[1].error
-        t.strictEqual(data.exception.message, 'with callback')
-        t.strictEqual(data.id.length, 32, 'id is 32 characters')
-        t.strictEqual(data.parent_id, span.id, 'parent_id matches span id')
-        t.strictEqual(data.trace_id, trans.traceId, 'trace_id matches transaction trace id')
-        t.strictEqual(data.transaction_id, trans.id, 'transaction_id matches transaction id')
-        t.strictEqual(data.transaction.type, trans.type, 'transaction.type matches transaction type')
-        t.strictEqual(data.transaction.sampled, true, 'is sampled')
+        t.strictEqual(data.exception.message, 'with callback', 'error.exception.message')
+        t.strictEqual(data.id.length, 32, 'error.id is 32 characters')
+        t.strictEqual(data.parent_id, span.id, 'error.parent_id matches span id')
+        t.strictEqual(data.trace_id, trans.traceId, 'error.trace_id matches transaction trace id')
+        t.strictEqual(data.transaction_id, trans.id, 'error.transaction_id matches transaction id')
+        t.deepEqual(data.transaction, {
+          name: trans.name,
+          type: trans.type,
+          sampled: true
+        }, 'error.transaction.*')
 
         apmServer.clear()
         agent.destroy()
