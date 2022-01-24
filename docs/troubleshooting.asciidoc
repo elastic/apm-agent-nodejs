@@ -86,7 +86,7 @@ APM Server transport error (ECONNREFUSED): connect ECONNREFUSED 127.0.0.1:8200
 These may indicate an issue with the agent configuration (see <<server-url>>,
 <<secret-token>> or <<api-key>>), a network problem between agent and server, or
 that the APM server is down or misconfigured (see
-{apm-server-ref-v}/troubleshooting.html[the APM server troubleshooting docs]).
+{apm-guide-ref}/troubleshooting.html[the APM server troubleshooting docs]).
 
 Also look for error messages starting with `Elastic APM ...`. Some examples:
 
