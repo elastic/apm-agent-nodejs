@@ -244,6 +244,7 @@ function newAgent (server) {
     serverUrl: 'http://localhost:' + server.address().port,
     captureExceptions: false,
     disableInstrumentations: ['http'],
+    apmServerVersion: '8.0.0',
     metricsInterval: 0,
     centralConfig: false
   })

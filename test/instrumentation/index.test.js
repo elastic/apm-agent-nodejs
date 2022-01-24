@@ -249,6 +249,8 @@ test('captureError should handle opts.captureAttributes', function (t) {
 })
 
 test('unsampled request transactions should have the correct result', function (t) {
+  // This test is relying on `resetAgent` creating an `agent._transaction`
+  // that returns true from `.supportsKeepingUnsampledTransaction()`.
   resetAgent(1, function (data) {
     t.strictEqual(data.transactions.length, 1)
 

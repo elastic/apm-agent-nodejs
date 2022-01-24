@@ -936,7 +936,7 @@ test('custom transport', function (t) {
     }
 
     supportsKeepingUnsampledTransaction () {
-      return false
+      return true
     }
   }
   const myTransport = new MyTransport()
