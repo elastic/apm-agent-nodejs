@@ -69,7 +69,6 @@ async function promiseStyle () {
   // "upgrade" from non-promise connection
   conn.promise().query('select 4 + 4 as solution')
     .then(([rows, _fields]) => {
-      console.warn('XXX in then: %s', apm._instrumentation._runCtxMgr)
       console.log('select 4+4: rows=%o', rows)
     })
     .catch(err => {
