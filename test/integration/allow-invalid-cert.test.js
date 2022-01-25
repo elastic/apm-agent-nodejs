@@ -4,12 +4,12 @@ var getPort = require('get-port')
 
 getPort().then(function (port) {
   var agent = require('../../').start({
-    serviceName: 'test',
+    serviceName: 'test-allow-invalid-cert',
     serverUrl: 'https://localhost:' + port,
     captureExceptions: false,
     metricsInterval: 0,
     centralConfig: false,
-    disableInstrumentations: ['https'], // avoid the agent instrumenting the mock APM Server
+    apmServerVersion: '8.0.0',
     verifyServerCert: false
   })
 
@@ -27,7 +27,7 @@ getPort().then(function (port) {
 
     server.listen(port, function () {
       agent.captureError(new Error('boom!'), function (err) {
-        t.error(err)
+        t.error(err, 'no error in captureError')
         t.pass('agent.captureError callback called')
         server.close()
         agent.destroy()
