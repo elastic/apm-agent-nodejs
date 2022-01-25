@@ -31,9 +31,9 @@ test('instrument simple command', function (t) {
 
     t.strictEqual(data.transactions.length, 1)
     var trans = data.transactions[0]
-    t.strictEqual(trans.name, 'foo')
-    t.strictEqual(trans.type, 'bar')
-    t.strictEqual(trans.result, 'success')
+    t.strictEqual(trans.name, 'foo', 'transaction.name')
+    t.strictEqual(trans.type, 'bar', 'transaction.type')
+    t.strictEqual(trans.result, 'success', 'transaction.result')
 
     // Ensure spans are sorted by start time.
     data.spans = data.spans.sort((a, b) => {
@@ -69,6 +69,7 @@ test('instrument simple command', function (t) {
       t.strictEqual(span.type, 'db', 'span has expected type')
       t.strictEqual(span.subtype, 'mongodb', 'span has expected subtype')
       t.strictEqual(span.action, 'query', 'span has expected action')
+      t.strictEqual(span.parent_id, trans.id, 'span is a direct child of transaction')
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000,
         `span ends (${span.timestamp / 1000 + span.duration}ms) before the transaction (${trans.timestamp / 1000 + trans.duration}ms)`)
@@ -86,33 +87,32 @@ test('instrument simple command', function (t) {
   // test example lifted from https://github.com/christkv/mongodb-core/blob/2.0/README.md#connecting-to-mongodb
   server.on('connect', function (_server) {
     _server.command('system.$cmd', { ismaster: true }, function (err, results) {
-      t.error(err)
-      t.strictEqual(results.result.ismaster, true)
+      t.error(err, 'no error from system.$cmd')
+      t.strictEqual(results.result.ismaster, true, 'result.ismaster')
 
       _server.insert('elasticapm.test', [{ a: 1 }, { a: 2 }, { a: 3 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
-        t.error(err)
+        t.error(err, 'no error from insert')
         t.strictEqual(results.result.n, 3)
 
         _server.update('elasticapm.test', [{ q: { a: 1 }, u: { $set: { b: 1 } } }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
-          t.error(err)
+          t.error(err, 'no error from update')
           t.strictEqual(results.result.n, 1)
 
           _server.remove('elasticapm.test', [{ q: { a: 1 }, limit: 1 }], { writeConcern: { w: 1 }, ordered: true }, function (err, results) {
-            t.error(err)
+            t.error(err, 'no error from remove')
             t.strictEqual(results.result.n, 1)
 
             var cursor = _server.cursor('elasticapm.test', { find: 'elasticapm.test', query: {} })
-
             cursor.next(function (err, doc) {
-              t.error(err)
-              t.strictEqual(doc.a, 2)
+              t.error(err, 'no error from cursor.next')
+              t.strictEqual(doc.a, 2, 'doc.a')
 
               cursor.next(function (err, doc) {
-                t.error(err)
-                t.strictEqual(doc.a, 3)
+                t.error(err, 'no error from cursor.next')
+                t.strictEqual(doc.a, 3, 'doc.a')
 
                 _server.command('system.$cmd', { ismaster: true }, function (err, result) {
-                  t.error(err)
+                  t.error(err, 'no error from system.$cmd')
                   agent.endTransaction()
 
                   // Cleanup
@@ -120,13 +120,21 @@ test('instrument simple command', function (t) {
                     if (err) throw err
                     _server.destroy()
                   })
+                  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after mongodb-core client command')
                 })
+                t.ok(agent.currentSpan === null, 'no currentSpan in sync code after mongodb-core client command')
               })
+              t.ok(agent.currentSpan === null, 'no currentSpan in sync code after mongodb-core client command')
             })
+            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after mongodb-core client command')
           })
+          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after mongodb-core client command')
         })
+        t.ok(agent.currentSpan === null, 'no currentSpan in sync code after mongodb-core client command')
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after mongodb-core client command')
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after mongodb-core client command')
   })
 
   server.connect()

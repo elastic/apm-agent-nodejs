@@ -50,8 +50,11 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fixes for run context handling for 'mongodb-core' instrumentation.
+  ({issues}2430[#2430])
 
-[[release-notes-3.28.0]]
+
+[[release-notes-3.27.0]]
 ==== 3.27.0 2022/01/17
 
 [float]
