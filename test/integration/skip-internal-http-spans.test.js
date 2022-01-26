@@ -10,6 +10,7 @@ getPort().then(port => {
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
     metricsInterval: 0,
+    apmServerVersion: '8.0.0',
     centralConfig: false
   })
 

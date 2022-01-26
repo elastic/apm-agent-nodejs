@@ -46,6 +46,7 @@ const runTestsWithServer = (t, updates, expect) => {
       serviceName: 'test',
       logLevel: 'off', // silence for cleaner test output
       captureExceptions: false,
+      apmServerVersion: '8.0.0',
       metricsInterval: 0,
       centralConfig: true
     })
@@ -159,6 +160,7 @@ test('agent.logger updates for central config `log_level` change', { timeout: 10
       serverUrl: 'http://localhost:' + server.address().port,
       serviceName: 'test',
       captureExceptions: false,
+      apmServerVersion: '8.0.0',
       metricsInterval: 0,
       centralConfig: true,
       logLevel: 'warn'
@@ -207,6 +209,7 @@ test('central config change does not erroneously update cloudProvider', { timeou
       cloudProvider: 'aws',
       // These settings to reduce some agent activity:
       captureExceptions: false,
+      apmServerVersion: '8.0.0',
       metricsInterval: 0
     })
 

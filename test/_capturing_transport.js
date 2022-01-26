@@ -77,6 +77,10 @@ class CapturingTransport {
     }
   }
 
+  supportsKeepingUnsampledTransaction () {
+    return true
+  }
+
   // Inherited from Writable, called in agent.js.
   destroy () {}
 }

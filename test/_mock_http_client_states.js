@@ -35,6 +35,9 @@ module.exports = function (expectations = [], done) {
     },
     flush (cb) {
       if (cb) process.nextTick(cb)
+    },
+    supportsKeepingUnsampledTransaction () {
+      return true
     }
   }
 }

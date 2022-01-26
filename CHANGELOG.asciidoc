@@ -37,6 +37,8 @@ Notes:
 [float]
 ===== Features
 
+* Drop unsampled transactions when sending to APM Server v8.0+. ({issues}2455[#2455])
+
 * The default <<service-name, `serviceName`>> string (when it is not configured
   and cannot be inferred from a "package.json" file) has been changed from
   "nodejs_service" to "unknown-nodejs-service". This is a standardized pattern
