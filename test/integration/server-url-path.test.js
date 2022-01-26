@@ -9,6 +9,7 @@ getPort().then(function (port) {
     captureExceptions: false,
     metricsInterval: 0,
     centralConfig: false,
+    apmServerVersion: '8.0.0',
     disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
   })
 

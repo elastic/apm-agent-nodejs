@@ -1,7 +1,7 @@
 // A mock APM server to use in tests.
 //
 // Usage:
-//    const server = new MockAPMServer()
+//    const server = new MockAPMServer(opts)
 //    server.start(function (serverUrl) {
 //      // Test code using `serverUrl`...
 //      // - Events received on the intake API will be on `server.events`.
@@ -16,9 +16,14 @@ const { URL } = require('url')
 const zlib = require('zlib')
 
 class MockAPMServer {
-  constructor () {
+  // - @param {Object} opts
+  //    - {String} opts.apmServerVersion - The version to report in the
+  //      "GET /" response body. Defaults to "8.0.0".
+  constructor (opts) {
+    opts = opts || {}
     this.clear()
     this.serverUrl = null // set in .start()
+    this.apmServerVersion = opts.apmServerVersion || '8.0.0'
     this._http = http.createServer(this._onRequest.bind(this))
   }
 
@@ -43,7 +48,15 @@ class MockAPMServer {
 
     instream.on('end', () => {
       let resBody = ''
-      if (parsedUrl.pathname === '/config/v1/agents') {
+      if (req.method === 'GET' && parsedUrl.pathname === '/') {
+        // https://www.elastic.co/guide/en/apm/server/current/server-info.html#server-info-endpoint
+        res.writeHead(200)
+        resBody = JSON.stringify({
+          build_date: '2021-09-16T02:05:39Z',
+          build_sha: 'a183f675ecd03fca4a897cbe85fda3511bc3ca43',
+          version: this.apmServerVersion
+        })
+      } else if (parsedUrl.pathname === '/config/v1/agents') {
         // Central config mocking.
         res.writeHead(200)
         resBody = '{}'

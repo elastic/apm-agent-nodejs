@@ -5,11 +5,12 @@ var ndjson = require('ndjson')
 
 getPort().then(function (port) {
   var agent = require('../../').start({
-    serviceName: 'test',
+    serviceName: 'test-no-sampling',
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
     metricsInterval: 0,
     centralConfig: false,
+    apmServerVersion: '8.0.0',
     disableInstrumentations: ['http'], // avoid the agent instrumenting the mock APM Server
     apiRequestTime: '1s'
   })

@@ -553,7 +553,12 @@ test('filters', function (t) {
       filterAgentOpts = Object.assign(
         {},
         agentOpts,
-        { serverUrl }
+        {
+          serverUrl,
+          // Ensure the APM client's `GET /` requests do not get in the way of
+          // the test asserts below.
+          apmServerVersion: '8.0.0'
+        }
       )
       t.end()
     })
