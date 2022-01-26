@@ -4,6 +4,7 @@
 var apm = require('../../').start({ // elastic-apm-node
   serviceName: 'test-do-not-trace-self',
   metricsInterval: 0,
+  apmServerVersion: '8.0.0',
   cloudProvider: 'none',
   centralConfig: false
 })

@@ -70,6 +70,7 @@ function newAgent (server) {
     disableInstrumentations: ['http'],
     sourceLinesSpanAppFrames: 5,
     sourceLinesSpanLibraryFrames: 5,
+    apmServerVersion: '8.0.0',
     metricsInterval: 0,
     centralConfig: false
   })

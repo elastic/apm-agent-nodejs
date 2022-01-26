@@ -12,6 +12,7 @@ getPort().then(function (port) {
     captureExceptions: false,
     metricsInterval: 0,
     centralConfig: false,
+    apmServerVersion: '8.0.0',
     disableInstrumentations: ['https'], // avoid the agent instrumenting the mock APM Server
     serverCaCertFile: path.join(__dirname, 'cert.pem') // self-signed certificate
   })

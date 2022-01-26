@@ -15,9 +15,7 @@ var http = require('http')
 
 var test = require('tape')
 
-const logging = require('../../lib/logging')
 var mockClient = require('../_mock_http_client')
-var Instrumentation = require('../../lib/instrumentation')
 var findObjInArray = require('../_utils').findObjInArray
 
 var origCaptureError = agent.captureError
@@ -250,88 +248,9 @@ test('captureError should handle opts.captureAttributes', function (t) {
   agent.captureError(ex2, { captureAttributes: false })
 })
 
-test('sampling', function (t) {
-  function generateSamples (rate, count) {
-    count = count || 1000
-    var agent = {
-      _conf: {
-        transactionSampleRate: rate
-      },
-      logger: logging.createLogger('off')
-    }
-    var ins = new Instrumentation(agent)
-    agent._instrumentation = ins
-
-    var results = {
-      count: count,
-      sampled: 0,
-      unsampled: 0
-    }
-    for (var i = 0; i < count; i++) {
-      var trans = ins.startTransaction()
-      if (trans && trans.sampled) {
-        results.sampled++
-      } else {
-        results.unsampled++
-      }
-    }
-
-    return results
-  }
-
-  function toRatios (samples) {
-    return {
-      count: samples.count,
-      sampled: samples.sampled / samples.count,
-      unsampled: samples.unsampled / samples.count
-    }
-  }
-
-  var high = generateSamples(1.0)
-  t.ok(high.sampled > high.unsampled)
-
-  var low = generateSamples(0.1)
-  t.ok(low.sampled < low.unsampled)
-
-  var mid = toRatios(generateSamples(0.5))
-  t.ok(mid.sampled > 0.4 && mid.sampled < 0.6)
-  t.ok(mid.unsampled > 0.4 && mid.unsampled < 0.6)
-
-  t.end()
-})
-
-test('unsampled transactions do not include spans', function (t) {
-  resetAgent(1, function (data, cb) {
-    t.strictEqual(data.transactions.length, 1)
-
-    data.transactions.forEach(function (trans) {
-      t.ok(/^[\da-f]{16}$/.test(trans.id))
-      t.ok(/^[\da-f]{32}$/.test(trans.trace_id))
-      t.ok(trans.duration > 0, 'duration should be >0ms')
-      t.ok(trans.duration < 100, 'duration should be <100ms')
-      t.notOk(Number.isNaN((new Date(trans.timestamp)).getTime()))
-      t.strictEqual(trans.sampled, false)
-    })
-
-    t.end()
-  })
-
-  agent._conf.transactionSampleRate = 0.0
-  var ins = agent._instrumentation
-
-  var trans = ins.startTransaction()
-  var span = ins.startSpan('span 0', 'type')
-  process.nextTick(function () {
-    if (span) span.end()
-    span = ins.startSpan('span 1', 'type')
-    process.nextTick(function () {
-      if (span) span.end()
-      trans.end()
-    })
-  })
-})
-
 test('unsampled request transactions should have the correct result', function (t) {
+  // This test is relying on `resetAgent` creating an `agent._transaction`
+  // that returns true from `.supportsKeepingUnsampledTransaction()`.
   resetAgent(1, function (data) {
     t.strictEqual(data.transactions.length, 1)
 
