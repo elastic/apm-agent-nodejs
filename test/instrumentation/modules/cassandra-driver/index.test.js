@@ -34,6 +34,7 @@ test('connect', function (t) {
     agent.startTransaction('foo')
 
     client.connect(assertCallback(t))
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command')
   })
 })
 
@@ -54,6 +55,7 @@ if (hasPromises) {
         t.strictEqual(rows.length, 1, 'number of rows')
         t.strictEqual(rows[0].key, 'local', 'result key')
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command')
     })
   })
 }
@@ -74,6 +76,7 @@ test('execute - callback', function (t) {
       t.strictEqual(rows.length, 1, 'number of rows')
       t.strictEqual(rows[0].key, 'local', 'result key')
     }))
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command')
   })
 })
 
@@ -104,6 +107,7 @@ if (hasPromises) {
       agent.startTransaction('foo')
 
       assertPromise(t, client.batch(queries))
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command')
     })
   })
 }
@@ -136,6 +140,7 @@ test('batch - callback', function (t) {
     client.batch(queries, assertCallback(t, function (err) {
       t.error(err, 'no error')
     }))
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command')
   })
 })
 
@@ -157,6 +162,7 @@ test('eachRow', function (t) {
       t.error(err, 'no error')
       agent.endTransaction()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command')
   })
 })
 
@@ -173,6 +179,7 @@ test('stream', function (t) {
     agent.startTransaction('foo')
 
     const stream = client.stream(sql, [])
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command')
     let rows = 0
 
     stream.on('readable', function () {
