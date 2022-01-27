@@ -125,7 +125,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       }
     ]
 
-    var statement = body.map(JSON.stringify).join('\n')
+    var statement = body.map(JSON.stringify).join('\n') + '\n'
 
     resetAgent(done(t, 'POST', '/_msearch', statement))
 
@@ -157,7 +157,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       }
     ]
 
-    var statement = body.map(JSON.stringify).join('\n')
+    var statement = body.map(JSON.stringify).join('\n') + '\n'
 
     resetAgent(done(t, 'POST', '/_msearch/template', statement))
 

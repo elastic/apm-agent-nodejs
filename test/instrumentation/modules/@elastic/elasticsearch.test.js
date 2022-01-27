@@ -2,8 +2,7 @@
 
 process.env.ELASTIC_APM_TEST = true
 const agent = require('../../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-elasticsearch',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
@@ -13,7 +12,7 @@ const agent = require('../../../..').start({
 const { safeGetPackageVersion } = require('../../../_utils')
 
 // Support running these tests with a different package name -- typically
-// the '@elastic/elasticsearch-canary package that is sometimes used for
+// the '@elastic/elasticsearch-canary' package that is sometimes used for
 // experimental pre-releases.
 const esClientPkgName = process.env.ELASTIC_APM_TEST_ESCLIENT_PACKAGE_NAME || '@elastic/elasticsearch'
 
@@ -686,8 +685,8 @@ function checkSpanOutcomesFailures (t) {
   return function (data) {
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
     if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
-      // Remove leading ES span and HTTP span from product check.
-      data.spans = data.spans.slice(2)
+      // Remove the product check spans for subsequent assertions.
+      data.spans = data.spans.slice(0, 1).concat(data.spans.slice(3))
     }
 
     for (const span of data.spans) {
@@ -701,8 +700,8 @@ function checkSpanOutcomesSuccess (t) {
   return function (data) {
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
     if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
-      // Remove leading ES span and HTTP span from product check.
-      data.spans = data.spans.slice(2)
+      // Remove the product check spans for subsequent assertions.
+      data.spans = data.spans.slice(0, 1).concat(data.spans.slice(3))
     }
 
     for (const span of data.spans) {
@@ -724,14 +723,14 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     // "GET /" product check.
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
     if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
-      const prodCheckEsSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+      const prodCheckEsSpan = data.spans[1]
       t.ok(prodCheckEsSpan, 'have >=7.14.0 product check ES span')
       t.equal(prodCheckEsSpan.name, 'Elasticsearch: GET /', 'product check ES span name')
-      const prodCheckHttpSpan = findObjInArray(data.spans, 'subtype', 'http')
+      const prodCheckHttpSpan = data.spans[2]
       t.ok(prodCheckHttpSpan, 'have >=7.14.0 product check HTTP span')
       t.equal(prodCheckHttpSpan.name, `GET ${host}`, 'product check HTTP span name')
       // Remove the product check spans for subsequent assertions.
-      data.spans = data.spans.slice(2)
+      data.spans = data.spans.slice(0, 1).concat(data.spans.slice(3))
     }
 
     t.equal(data.spans.length, 2, 'should have 2 spans (excluding product check spans in >=7.14.0)')
@@ -759,7 +758,7 @@ function checkDataAndEnd (t, method, path, dbStatement) {
         { type: 'elasticsearch', statement: dbStatement },
         'elasticsearch span has correct .context.db')
     } else {
-      t.notOk(esSpan.context.db, 'elasticsearch span should not have .context.db')
+      t.notOk(esSpan.context && esSpan.context.db, 'elasticsearch span should not have .context.db')
     }
 
     // Ensure "destination" context is set.

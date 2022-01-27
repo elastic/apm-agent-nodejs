@@ -367,7 +367,7 @@ elasticsearch:
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 '@elastic/elasticsearch-canary':
   name: '@elastic/elasticsearch-canary'
-  versions: '^8.0.0-canary.35'
+  versions: '>=8.0.0-canary.35 || >=8.1.0-canary.2'
   node: '>=12'
   commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
 
