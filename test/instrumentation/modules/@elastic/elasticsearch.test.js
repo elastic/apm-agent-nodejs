@@ -63,6 +63,7 @@ test('client.ping with promise', function (t) {
     agent.endTransaction()
     agent.flush()
   }).catch(t.error)
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
 })
 
 // Callback-style was dropped in ES client v8.
@@ -78,6 +79,7 @@ if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
       agent.endTransaction()
       agent.flush()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 }
 
@@ -96,6 +98,7 @@ test('client.search with promise', function (t) {
       agent.flush()
     })
     .catch(t.error)
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
 })
 
 // Tests below this point use `<promise>.finally(...)` for test control.
@@ -118,6 +121,7 @@ if (semver.gte(process.version, '10.0.0')) {
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.search with queryparam', function (t) {
@@ -134,6 +138,7 @@ if (semver.gte(process.version, '10.0.0')) {
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.search with body', function (t) {
@@ -160,6 +165,7 @@ if (semver.gte(process.version, '10.0.0')) {
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   // ES client version 8 no longer requires body fields to be in a "body" param.
@@ -188,6 +194,7 @@ if (semver.gte(process.version, '10.0.0')) {
           agent.endTransaction()
           agent.flush()
         })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
     })
   }
 
@@ -231,6 +238,7 @@ ${JSON.stringify(body)}`
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.searchTemplate', function (t) {
@@ -258,6 +266,7 @@ ${JSON.stringify(body)}`
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.msearch', function (t) {
@@ -292,6 +301,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.msearchTempate', function (t) {
@@ -323,6 +333,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   // Test some error scenarios.
@@ -378,6 +389,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   if (semver.satisfies(esVersion, '<8', { includePrerelease: true })) {
@@ -419,6 +431,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
     })
   }
 
@@ -473,6 +486,7 @@ ${body.map(JSON.stringify).join('\n')}
             client.close()
             esServer.close()
           })
+        t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
       })
     })
   }
@@ -523,6 +537,7 @@ ${body.map(JSON.stringify).join('\n')}
           agent.flush()
           client.close()
         })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
     })
   }
 
@@ -577,6 +592,7 @@ ${body.map(JSON.stringify).join('\n')}
           agent.flush()
         }
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
       setImmediate(function () {
         req.abort()
       })
@@ -620,6 +636,7 @@ ${body.map(JSON.stringify).join('\n')}
       })
       const client = new es.Client(clientOpts)
       const promise = client.search({ body: slowBody })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
       promise
         .then(_result => {})
         .catch(err => {
@@ -646,6 +663,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('outcome=failure on both spans', function (t) {
@@ -664,6 +682,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 }
 
