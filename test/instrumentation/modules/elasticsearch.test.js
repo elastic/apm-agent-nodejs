@@ -11,6 +11,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
+  apmServerVersion: '8.0.0',
   spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
