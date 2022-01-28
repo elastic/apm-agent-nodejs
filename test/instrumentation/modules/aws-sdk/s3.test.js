@@ -93,6 +93,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'ListBuckets',
           context: {
+            http: { status_code: 200, response: { encoded_body_size: 205 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -109,6 +110,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'CreateBucket',
           context: {
+            http: { status_code: 200, response: { encoded_body_size: 177 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -129,6 +131,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'HeadBucket',
           context: {
+            http: { status_code: 200 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -149,6 +152,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'PutObject',
           context: {
+            http: { status_code: 200 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -169,6 +173,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'HeadObject',
           context: {
+            http: { status_code: 200 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -189,6 +194,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'GetObject',
           context: {
+            http: { status_code: 200, response: { encoded_body_size: 8 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -209,6 +215,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'GetObject',
           context: {
+            http: { status_code: 304 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -229,6 +236,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'GetObject',
           context: {
+            http: { status_code: 200, response: { encoded_body_size: 8 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -250,6 +258,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'GetObject',
           context: {
+            http: { status_code: 404, response: { encoded_body_size: 207 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -274,6 +283,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'DeleteObject',
           context: {
+            http: { status_code: 204 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -294,6 +304,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'DeleteBucket',
           context: {
+            http: { status_code: 204 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
