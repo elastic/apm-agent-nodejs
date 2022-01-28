@@ -61,14 +61,9 @@ tape.test('simple S3 usage scenario', function (t) {
         const tx = events.shift().transaction
         const errors = events.filter(e => e.error).map(e => e.error)
 
-        // Currently HTTP spans under each S3 span are included. Eventually
-        // those will be excluded. Filter those out for now.
-        // https://github.com/elastic/apm-agent-nodejs/issues/2125
+        // Compare some common fields across all spans.
         const spans = events.filter(e => e.span)
           .map(e => e.span)
-          .filter(e => e.subtype !== 'http')
-
-        // Compare some common fields across all spans.
         t.equal(spans.filter(s => s.trace_id === tx.trace_id).length,
           spans.length, 'all spans have the same trace_id')
         t.equal(spans.filter(s => s.transaction_id === tx.id).length,
