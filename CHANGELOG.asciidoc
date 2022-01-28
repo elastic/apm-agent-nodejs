@@ -34,6 +34,13 @@ Notes:
 [float]
 ===== Breaking changes
 
+* Change the `redis` and `mysql` instrumentations to not patch at all if
+  they are listed in <<disable-instrumentations, `disableInstrumentations`>>*.
+  This means that an application that uses one of these packages *and* lists
+  that package in `disableInstrumentations` could see changes in the async
+  run-context of callbacks.  See {issues}2498[#2498] and the
+  <<release-notes-3.26.0,v3.26.0 release notes>> which has a similar change.
+
 [float]
 ===== Features
 
