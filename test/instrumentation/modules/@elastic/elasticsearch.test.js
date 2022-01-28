@@ -541,17 +541,11 @@ ${body.map(JSON.stringify).join('\n')}
 
           const err = data.errors
             .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-          if (semver.satisfies(esVersion, '7.14.x')) {
-            // https://github.com/elastic/elasticsearch-js/issues/1517 was fixed
-            // for 7.15 and later.
-            t.ok(!err, 'no APM error reported for abort with v7.14.x of the client because elastic/elasticsearch-js#1517')
-          } else {
-            t.ok(err, 'sent an error to APM server')
-            t.ok(err.id, 'err.id')
-            t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
-            t.equal(err.exception.type, 'RequestAbortedError',
-              'err.exception.type is RequestAbortedError')
-          }
+          t.ok(err, 'sent an error to APM server')
+          t.ok(err.id, 'err.id')
+          t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
+          t.equal(err.exception.type, 'RequestAbortedError',
+            'err.exception.type is RequestAbortedError')
 
           t.end()
         }
@@ -601,17 +595,11 @@ ${body.map(JSON.stringify).join('\n')}
 
           const err = data.errors
             .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-          if (semver.satisfies(esVersion, '7.14.x')) {
-            // https://github.com/elastic/elasticsearch-js/issues/1517 was fixed
-            // for 7.15 and later.
-            t.ok(!err, 'no APM error reported for abort with v7.14.x of the client because elastic/elasticsearch-js#1517')
-          } else {
-            t.ok(err, 'sent an error to APM server')
-            t.ok(err.id, 'err.id')
-            t.ok(err.exception.message, 'err.exception.message')
-            t.equal(err.exception.type, 'RequestAbortedError',
-              'err.exception.type is RequestAbortedError')
-          }
+          t.ok(err, 'sent an error to APM server')
+          t.ok(err.id, 'err.id')
+          t.ok(err.exception.message, 'err.exception.message')
+          t.equal(err.exception.type, 'RequestAbortedError',
+            'err.exception.type is RequestAbortedError')
 
           t.end()
         }
