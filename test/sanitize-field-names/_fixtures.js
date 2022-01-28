@@ -51,6 +51,7 @@ module.exports = [
         SINGcardSONG: 'ten',
         authorization: 'eleven',
         'set-cookie': 'twelve',
+        'X-Authy-Thing': 'thirteen',
         keepmeRequest: 'request'
       },
       responseHeaders: {
@@ -66,6 +67,7 @@ module.exports = [
         SINGcardSONG: 'ten',
         authorization: 'eleven',
         'set-cookie': 'twelve',
+        'X-Authy-Thing': 'thirteen',
         keepmeResponse: 'response'
       },
       formFields: {
@@ -81,6 +83,7 @@ module.exports = [
         SINGcardSONG: 'ten',
         authorization: 'eleven',
         'set-cookie': 'twelve',
+        'X-Authy-Thing': 'thirteen',
         keepmeForm: 'formFields'
       }
     },
@@ -89,7 +92,7 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
+          'authorization', 'set-cookie', 'X-Authy-Thing'
         ],
         defined: { keepmeRequest: 'request' }
       },
@@ -97,7 +100,7 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
+          'authorization', 'set-cookie', 'X-Authy-Thing'
         ],
         defined: { keepmeResponse: 'response' }
       },
@@ -105,7 +108,7 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
+          'authorization', 'set-cookie', 'X-Authy-Thing'
         ],
         defined: { keepmeForm: 'formFields' }
       }
@@ -129,6 +132,7 @@ module.exports = [
         SINGcardSONG: 'ten',
         authorization: 'eleven',
         'set-cookie': 'twelve',
+        'X-Authy-Thing': 'thirteen',
         keepmeRequest: 'request'
       },
       responseHeaders: {
@@ -144,6 +148,7 @@ module.exports = [
         SINGcardSONG: 'ten',
         authorization: 'eleven',
         'set-cookie': 'twelve',
+        'X-Authy-Thing': 'thirteen',
         keepmeResponse: 'response'
       },
       formFields: {
@@ -159,6 +164,7 @@ module.exports = [
         SINGcardSONG: 'ten',
         authorization: 'eleven',
         'set-cookie': 'twelve',
+        'X-Authy-Thing': 'thirteen',
         keepmeForm: 'formFields'
       }
     },
@@ -167,7 +173,7 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
+          'authorization', 'set-cookie', 'X-Authy-Thing'
         ],
         defined: { keepmeRequest: 'request' }
       },
@@ -175,7 +181,7 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
+          'authorization', 'set-cookie', 'X-Authy-Thing'
         ],
         defined: { keepmeResponse: 'response' }
       },
@@ -183,7 +189,7 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie'
+          'authorization', 'set-cookie', 'X-Authy-Thing'
         ],
         defined: { keepmeForm: 'formFields' }
       }

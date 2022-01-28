@@ -8,7 +8,7 @@
 #   ./dev-utils/jenkins-build-slow-steps.sh [JENKINS_BUILD_URL_OR_NUM]
 #
 # Examples:
-#   ./dev-utils/jenkins-build-slow-steps.sh https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/master/1137/
+#   ./dev-utils/jenkins-build-slow-steps.sh https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/main/1137/
 #   ./dev-utils/jenkins-build-slow-steps.sh 1137   # ditto
 #   ./dev-utils/jenkins-build-slow-steps.sh https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/PR-2181/75/
 #
@@ -50,9 +50,9 @@ if [[ -z "$JENKINS_BUILD_URL_OR_NUM" ]]; then
 fi
 
 steps_info_url=
-# If "JENKINS_BUILD_URL_OR_NUM" is a number, default to that master build.
+# If "JENKINS_BUILD_URL_OR_NUM" is a number, default to that main build.
 if [[ "$JENKINS_BUILD_URL_OR_NUM" =~ ^[0-9]+$ ]]; then
-    steps_info_url=https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/master/$JENKINS_BUILD_URL_OR_NUM/artifact/steps-info.json
+    steps_info_url=https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/main/$JENKINS_BUILD_URL_OR_NUM/artifact/steps-info.json
 else
     steps_info_url=$JENKINS_BUILD_URL_OR_NUM/artifact/steps-info.json
 fi

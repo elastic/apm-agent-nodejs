@@ -644,7 +644,8 @@ test('serviceName/serviceVersion zero-conf: no package.json to find', function (
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
     t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
     t.end()
   })
@@ -659,7 +660,8 @@ test('serviceName/serviceVersion zero-conf: no "name" in package.json', function
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
     t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
     t.end()
   })
@@ -714,7 +716,8 @@ test('serviceName/serviceVersion zero-conf: weird "name" in package.json', funct
     t.ok(logWarn['log.level'] === 'warn' && logWarn.message.indexOf('serviceName') !== -1,
       'there is a log.warn about "serviceName"')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'nodejs_service', 'serviceName is the "nodejs_service" zero-conf fallback')
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
     t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
     t.end()
   })
@@ -849,9 +852,13 @@ test('disableInstrumentations', function (t) {
   if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
     modules.delete('mongodb')
   }
-
   if (semver.gte(apolloServerCoreVersion, '3.0.0') && semver.lt(process.version, '12.0.0')) {
     modules.delete('apollo-server-core')
+  }
+  if (semver.satisfies(process.version, '>17.x', { includePrerelease: true })) {
+    // Restify (as of 8.6.0) is completely broken with latest node v18 nightly.
+    // https://github.com/restify/node-restify/issues/1888
+    modules.delete('restify')
   }
 
   function testSlice (t, name, selector) {
@@ -926,6 +933,10 @@ test('custom transport', function (t) {
 
     flush (cb) {
       if (cb) setImmediate(cb)
+    }
+
+    supportsKeepingUnsampledTransaction () {
+      return true
     }
   }
   const myTransport = new MyTransport()
@@ -1292,7 +1303,7 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
 
 // Test User-Agent generation. It would be nice to also test against gherkin
 // specs from apm.git.
-// https://github.com/elastic/apm/blob/master/tests/agents/gherkin-specs/user_agent.feature
+// https://github.com/elastic/apm/blob/main/tests/agents/gherkin-specs/user_agent.feature
 test('userAgentFromConf', t => {
   t.equal(config.userAgentFromConf({}),
     `apm-agent-nodejs/${apmVersion}`)
@@ -1301,11 +1312,11 @@ test('userAgentFromConf', t => {
   t.equal(config.userAgentFromConf({ serviceName: 'foo', serviceVersion: '1.0.0' }),
     `apm-agent-nodejs/${apmVersion} (foo 1.0.0)`)
   // ISO-8859-1 characters are generally allowed.
-  t.equal(config.userAgentFromConf({ serviceName: 'fête', serviceVersion: '2021-été' }),
-    `apm-agent-nodejs/${apmVersion} (fête 2021-été)`)
+  t.equal(config.userAgentFromConf({ serviceName: 'party', serviceVersion: '2021-été' }),
+    `apm-agent-nodejs/${apmVersion} (party 2021-été)`)
   // Higher code points are replaced with `_`.
-  t.equal(config.userAgentFromConf({ serviceName: 'myhomeismy🏰', serviceVersion: 'do you want to build a ☃' }),
-    `apm-agent-nodejs/${apmVersion} (myhomeismy__ do you want to build a _)`)
+  t.equal(config.userAgentFromConf({ serviceName: 'freeze', serviceVersion: 'do you want to build a ☃ in my 🏰' }),
+    `apm-agent-nodejs/${apmVersion} (freeze do you want to build a _ in my __)`)
 
   t.end()
 })
@@ -1317,7 +1328,7 @@ function assertEncodedTransaction (t, trans, result) {
   t.strictEqual(result.parent_id, trans.parentId, 'parent id matches')
   t.strictEqual(result.name, trans.name, 'name matches')
   t.strictEqual(result.type, trans.type || 'custom', 'type matches')
-  t.strictEqual(result.duration, trans._timer.duration, 'duration matches')
+  t.strictEqual(result.duration, trans._duration, 'duration matches')
   t.strictEqual(result.timestamp, trans.timestamp, 'timestamp matches')
   t.strictEqual(result.result, trans.result, 'result matches')
   t.strictEqual(result.sampled, trans.sampled, 'sampled matches')
@@ -1331,7 +1342,7 @@ function assertEncodedSpan (t, span, result) {
   t.strictEqual(result.parent_id, span.parentId, 'parent id matches')
   t.strictEqual(result.name, span.name, 'name matches')
   t.strictEqual(result.type, span.type || 'custom', 'type matches')
-  t.strictEqual(result.duration, span._timer.duration, 'duration matches')
+  t.strictEqual(result.duration, span._duration, 'duration matches')
   t.strictEqual(result.timestamp, span.timestamp, 'timestamp matches')
 }
 

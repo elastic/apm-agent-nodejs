@@ -212,9 +212,11 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       const params = getParams('sendMessage', listener.address().port)
       sqs.sendMessage(params, function (err, data) {
         t.error(err)
+        t.ok(agent.currentSpan === null, 'no currentSpan in sqs.sendMessage callback')
         agent.endTransaction()
         listener.close()
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after sqs.sendMessage')
     })
   })
   test.test('API: sendMessageBatch', function (t) {
@@ -414,12 +416,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
       const params = getParams('sendMessage', listener.address().port)
       const request = sqs.sendMessage(params).promise()
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after sqs.sendMessage(...).promise()')
 
       request.then(
         function (data) {
+          t.ok(agent.currentSpan === null, 'no currentSpan in SQS promise resolve')
           awsPromiseFinally(agent, listener)
         },
         function (err) {
+          t.ok(agent.currentSpan === null, 'no currentSpan in SQS promise reject')
           t.fail(err)
           awsPromiseFinally(agent, listener)
         }

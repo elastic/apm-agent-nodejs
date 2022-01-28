@@ -1,11 +1,7 @@
 'use strict'
 
-// Don't test on travis, there is no mssql service
-if (process.env.TRAVIS) process.exit()
-
 const agent = require('../../../').start({
   serviceName: 'test-tedious',
-  secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false
@@ -85,16 +81,19 @@ test('execSql', (t) => {
     agent.startTransaction('foo')
 
     const request = new tedious.Request(sql, (err, rowCount) => {
+      t.ok(agent.currentSpan === null, 'mssql span should not spill into calling code')
       t.error(err, 'no error')
       t.strictEqual(rowCount, 1, 'row count')
       agent.endTransaction()
     })
 
     request.on('row', (columns) => {
+      t.ok(agent.currentSpan === null, 'mssql span should not spill into calling code')
       t.strictEqual(columns[0].value, 1, 'column value')
     })
 
     connection.execSql(request)
+    t.ok(agent.currentSpan === null, 'mssql span should not spill into calling code')
   }, (err) => {
     t.error(err, 'no error')
     t.fail('unable to connect to mssql')
@@ -113,6 +112,7 @@ test('prepare / execute', (t) => {
     agent.startTransaction('foo')
 
     const request = new tedious.Request(sql, (err, rowCount) => {
+      t.ok(agent.currentSpan === null, 'mssql span should not spill into calling code')
       t.error(err, 'no error')
       t.strictEqual(rowCount, 1, 'row count')
       agent.endTransaction()
@@ -120,16 +120,19 @@ test('prepare / execute', (t) => {
     request.addParameter('value', tedious.TYPES.Int)
 
     request.on('row', (columns) => {
+      t.ok(agent.currentSpan === null, 'mssql span should not spill into calling code')
       t.strictEqual(columns[0].value, 42, 'column value')
     })
 
     request.on('prepared', function () {
+      t.ok(agent.currentSpan === null, 'mssql span should not spill into calling code')
       connection.execute(request, {
         value: 42
       })
     })
 
     connection.prepare(request)
+    t.ok(agent.currentSpan === null, 'mssql span should not spill into calling code')
   }, (err) => {
     t.error(err, 'no error')
     t.fail('unable to connect to mssql')

@@ -1,7 +1,10 @@
 'use strict'
 
 // Memcached isn't supported on Windows
-if (process.platform === 'win32') process.exit()
+if (process.platform === 'win32') {
+  console.log('# SKIP memcached does not support Windows')
+  process.exit()
+}
 
 var agent = require('../../..').start({
   serviceName: 'test-memcached',
@@ -78,6 +81,7 @@ test('memcached', function (t) {
   var cache = new Memcached(`${host}:11211`, { timeout: 500 })
   agent.startTransaction('myTrans')
   cache.set('foo', 'bar', 300, (err) => {
+    t.ok(agent.currentSpan === null, 'memcached span should not be currentSpan in callback')
     t.error(err)
     cache.get('foo', (err, data) => {
       t.error(err)
@@ -96,10 +100,7 @@ test('memcached', function (t) {
                 t.strictEqual(data, undefined)
                 cache.end()
                 agent.endTransaction()
-                setTimeout(function () {
-                  // Wait for spans to encode and be sent, before flush.
-                  agent.flush()
-                }, 200)
+                agent.flush()
               })
             })
           })
@@ -107,6 +108,7 @@ test('memcached', function (t) {
       })
     })
   })
+  t.ok(agent.currentSpan === null, 'memcached span should not be currentSpan in same tick after client method call')
 })
 
 function resetAgent (cb) {

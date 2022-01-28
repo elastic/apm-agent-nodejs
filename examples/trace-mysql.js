@@ -26,14 +26,14 @@ client.connect(function (err) {
 // requests to a Node.js server. However, because this script is not running
 // an HTTP server, we manually start a transaction. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-apm.startTransaction('t1')
+const t1 = apm.startTransaction('t1')
 client.query('SELECT 1 + 1 AS solution', (err, res) => {
   if (err) {
     console.log('[t1] Failure: err is', err)
   } else {
     console.log('[t1] Success: solution is %s', res[0].solution)
   }
-  apm.endTransaction()
+  t1.end()
 })
 
 // 2. Event emitter style

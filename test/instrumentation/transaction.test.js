@@ -301,6 +301,7 @@ test('#_encode() - ended', function (t) {
   agent._transport.clear()
 
   var trans = new Transaction(agent)
+  var timerStart = trans._timer.start
   trans.end()
 
   const payload = agent._transport.transactions[0]
@@ -313,7 +314,7 @@ test('#_encode() - ended', function (t) {
   t.strictEqual(payload.name, 'unnamed')
   t.strictEqual(payload.type, 'custom')
   t.ok(payload.duration > 0)
-  t.strictEqual(payload.timestamp, trans._timer.start)
+  t.strictEqual(payload.timestamp, timerStart)
   t.strictEqual(payload.result, 'success')
   t.deepEqual(payload.context, { user: {}, tags: {}, custom: {}, service: {}, cloud: {}, message: {} })
 
@@ -324,6 +325,7 @@ test('#_encode() - with meta data', function (t) {
   agent._transport.clear()
 
   var trans = new Transaction(agent, 'foo', 'bar')
+  var timerStart = trans._timer.start
   trans.result = 'baz'
   trans.setUserContext({ foo: 1 })
   trans.setLabel('bar', 1)
@@ -340,7 +342,7 @@ test('#_encode() - with meta data', function (t) {
   t.strictEqual(payload.name, 'foo')
   t.strictEqual(payload.type, 'bar')
   t.ok(payload.duration > 0)
-  t.strictEqual(payload.timestamp, trans._timer.start)
+  t.strictEqual(payload.timestamp, timerStart)
   t.strictEqual(payload.result, 'baz')
   t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 }, service: {}, cloud: {}, message: {} })
 
@@ -351,6 +353,7 @@ test('#_encode() - http request meta data', function (t) {
   agent._transport.clear()
 
   var trans = new Transaction(agent)
+  var timerStart = trans._timer.start
   trans.req = mockRequest()
   trans.end()
 
@@ -364,7 +367,7 @@ test('#_encode() - http request meta data', function (t) {
   t.strictEqual(payload.name, 'POST unknown route')
   t.strictEqual(payload.type, 'custom')
   t.ok(payload.duration > 0)
-  t.strictEqual(payload.timestamp, trans._timer.start)
+  t.strictEqual(payload.timestamp, timerStart)
   t.strictEqual(payload.result, 'success')
   t.deepEqual(payload.context, {
     user: {},
@@ -404,6 +407,7 @@ test('#_encode() - http request meta data', function (t) {
 
 test('#_encode() - with spans', function (t) {
   var trans = new Transaction(agent, 'single-name', 'type')
+  var timerStart = trans._timer.start
   trans.result = 'result'
   var span = trans.startSpan('span')
   span.end()
@@ -415,7 +419,7 @@ test('#_encode() - with spans', function (t) {
     t.strictEqual(payload.name, 'single-name')
     t.strictEqual(payload.type, 'type')
     t.strictEqual(payload.result, 'result')
-    t.strictEqual(payload.timestamp, trans._timer.start)
+    t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0, 'should have a duration >0ms')
     t.ok(payload.duration < 100, 'should have a duration <100ms')
     t.deepEqual(payload.context, {
@@ -439,6 +443,7 @@ test('#_encode() - dropped spans', function (t) {
   agent._conf.transactionMaxSpans = 2
 
   var trans = new Transaction(agent, 'single-name', 'type')
+  var timerStart = trans._timer.start
   trans.result = 'result'
   var span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
@@ -454,7 +459,7 @@ test('#_encode() - dropped spans', function (t) {
     t.strictEqual(payload.name, 'single-name')
     t.strictEqual(payload.type, 'type')
     t.strictEqual(payload.result, 'result')
-    t.strictEqual(payload.timestamp, trans._timer.start)
+    t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0, 'should have a duration >0ms')
     t.ok(payload.duration < 100, 'should have a duration <100ms')
     t.deepEqual(payload.context, {
@@ -481,6 +486,7 @@ test('#_encode() - not sampled', function (t) {
   agent._conf.transactionSampleRate = 0
 
   var trans = new Transaction(agent, 'single-name', 'type')
+  var timerStart = trans._timer.start
   trans.result = 'result'
   trans.req = mockRequest()
   trans.res = mockResponse()
@@ -492,7 +498,7 @@ test('#_encode() - not sampled', function (t) {
   t.strictEqual(payload.name, 'single-name')
   t.strictEqual(payload.type, 'type')
   t.strictEqual(payload.result, 'result')
-  t.strictEqual(payload.timestamp, trans._timer.start)
+  t.strictEqual(payload.timestamp, timerStart)
   t.ok(payload.duration > 0, 'should have a duration >0ms')
   t.ok(payload.duration < 100, 'should have a duration <100ms')
   t.notOk(payload.context)
@@ -514,6 +520,62 @@ test('#toString()', function (t) {
   var trans = new Transaction(agent)
   t.strictEqual(trans.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`)
   t.end()
+})
+
+test('Transaction API on ended transaction', function (t) {
+  // Enable breakdown metrics to test it below.
+  agent._config({ breakdownMetrics: true, metricsInterval: '30s' })
+
+  const trans = agent.startTransaction('theTransName', 'theTransType')
+  const span = trans.startSpan('theSpanName')
+  const traceparentBefore = trans.traceparent
+  const traceId = trans.traceId
+  const transId = trans.id
+  trans.end()
+
+  // Test that full Transaction API (`interface Transaction` in index.d.ts)
+  // behaves as expected on an ended transaction.
+  t.equal(trans.name, 'theTransName', 'trans.name')
+  t.equal(trans.type, 'theTransType', 'trans.type')
+  t.equal(trans.subtype, null, 'trans.subtype')
+  t.equal(trans.action, null, 'trans.action')
+  t.equal(trans.traceparent, traceparentBefore, `trans.traceparent: ${trans.traceparent}`)
+  t.equal(trans.outcome, 'unknown', 'trans.outcome')
+  t.equal(trans.result, 'success', 'trans.result')
+  t.deepLooseEqual(trans.ids,
+    { 'trace.id': traceId, 'transaction.id': transId },
+    'trans.ids')
+  t.equal(trans.toString(), // deprecated
+    `trace.id=${traceId} transaction.id=${transId}`,
+    trans.toString())
+
+  // We just want to ensure that these Transaction API methods don't throw.
+  // Whether they make field changes after the transaction has ended isn't
+  // tested.
+  trans.setType('anotherTransType')
+  t.pass('trans.setType(...) does not blow up')
+  trans.setLabel('aLabelKey', 'aLabelValue')
+  t.pass('trans.setLabel(...) does not blow up')
+  trans.addLabels({ anotherLabelKey: 'anotherLabelValue' })
+  t.pass('trans.addLabels(...) does not blow up')
+  trans.setOutcome('failure')
+  t.pass('trans.setOutcome(...) does not blow up')
+  trans.end('badResult', 42)
+  t.pass('trans.end(...) does not blow up')
+  trans.ensureParentId()
+  t.pass('trans.ensureParentId(...) does not blow up')
+
+  const newSpan = trans.startSpan('aNewSpanName')
+  t.equal(newSpan, null, 'trans.startSpan(...) returns null')
+
+  // Ending a span that is a child of the transaction uses some of the
+  // transaction fields for breakdown metrics calculation. Ensure that works.
+  span.end()
+  t.pass('ending child span after trans is ended does not blow up')
+
+  agent.flush(function () {
+    t.end()
+  })
 })
 
 function mockRequest () {

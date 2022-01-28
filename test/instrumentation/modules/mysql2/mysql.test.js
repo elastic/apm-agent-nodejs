@@ -98,6 +98,7 @@ factories.forEach(function (f) {
               factory(function () {
                 agent.startTransaction('foo')
                 queryable[executor].apply(queryable, args)
+                t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code')
               })
             })
           })
@@ -121,6 +122,7 @@ factories.forEach(function (f) {
                 factory(function () {
                   agent.startTransaction('foo')
                   var promise = queryablePromise[executor].apply(queryablePromise, args)
+                  t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code')
                   basicQueryPromise(t, promise)
                 })
               })
@@ -146,6 +148,7 @@ factories.forEach(function (f) {
                 factory(function () {
                   agent.startTransaction('foo')
                   var stream = queryable[executor].apply(queryable, args)
+                  t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code')
                   basicQueryStream(stream, t)
                 })
               })
@@ -167,6 +170,7 @@ factories.forEach(function (f) {
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql)
+            t.equal(span.parent_id, trans.id, 'each mysql2 span is a child of the transaction')
           })
 
           t.end()
@@ -211,6 +215,7 @@ factories.forEach(function (f) {
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql)
+            t.equal(span.parent_id, trans.id, 'each mysql2 span is a child of the transaction')
           })
 
           t.end()
@@ -324,6 +329,7 @@ factories.forEach(function (f) {
             queryable.getConnection(function (err, conn) {
               t.error(err)
               conn.query(sql, basicQueryCallback(t))
+              t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code')
             })
           })
         })
@@ -349,6 +355,7 @@ function basicQueryPromise (t, p) {
 
 function basicQueryCallback (t) {
   return function (err, rows, fields) {
+    t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code')
     t.error(err)
     t.strictEqual(rows[0].solution, 2)
     agent.endTransaction()
@@ -358,13 +365,16 @@ function basicQueryCallback (t) {
 function basicQueryStream (stream, t) {
   var results = 0
   stream.on('error', function (err) {
+    t.ok(agent.currentSpan === null, 'mysql2 span should not be active in user code')
     t.error(err)
   })
   stream.on('result', function (row) {
+    t.ok(agent.currentSpan === null, 'mysql2 span should not be active in user code')
     results++
     t.strictEqual(row.solution, 2)
   })
   stream.on('end', function () {
+    t.ok(agent.currentSpan === null, 'mysql2 span should not be active in user code')
     t.strictEqual(results, 1)
     agent.endTransaction()
   })

@@ -2,6 +2,7 @@
 
 const os = require('os')
 
+const semver = require('semver')
 const test = require('tape')
 
 const Metrics = require('../../lib/metrics')
@@ -73,10 +74,16 @@ test('reports expected metrics', function (t) {
       },
       'system.memory.actual.free': (value) => {
         const free = os.freemem()
-        if (os.type() === 'Linux') {
-          // On Linux we use MemAvailable from /proc/meminfo as the value for this metric
-          // The Node.js API os.freemem() is reporting MemFree from the same file
-          t.ok(value > free, `is larger than os.freemem() (value: ${value}, free: ${free})`)
+        if (os.type() === 'Linux' &&
+          semver.lt(process.version, '18.0.0-nightly20220107') &&
+          semver.lt(process.version, '17.4.0')) {
+          // On Linux we use "MemAvailable" from /proc/meminfo as the value for
+          // this metric. In versions of Node.js before v17.4.0 and v18.0.0,
+          // `os.freemem()` reports "MemFree" from /proc/meminfo. (This changed
+          // in v17.4.0 and v18.0.0-nightly20220107b6b6510187 when node upgraded
+          // to libuv 1.43.0 to include https://github.com/libuv/libuv/pull/3351.)
+          t.ok(value > free, `is larger than os.freemem() (value: ${value},
+          free: ${free})`)
         } else {
           t.ok(isRoughly(value, free, 0.1), `is close to current free memory (value: ${value}, free: ${free})`)
         }

@@ -10,7 +10,7 @@ pipeline {
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
-    ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
+    ITS_PIPELINE = 'apm-integration-tests-selector-mbp/main'
     OPBEANS_REPO = 'opbeans-node'
     GITHUB_CHECK = 'true'
   }
@@ -25,10 +25,10 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    issueCommentTrigger("(${obltGitHubComments()}|^run (module|benchmark) tests)")
+    issueCommentTrigger("(${obltGitHubComments()}|^run (module|benchmark) tests.*)")
   }
   parameters {
-    booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
+    booleanParam(name: 'Run_As_Main_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on main branch.')
     booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
@@ -117,7 +117,7 @@ pipeline {
             branch '^greenkeeper/.*'
           }
           anyOf {
-            expression { return params.Run_As_Master_Branch }
+            expression { return params.Run_As_Main_Branch }
             triggeredBy 'TimerTrigger'
             changeRequest()
             expression { return env.TAV_UPDATED != "false" }
@@ -160,7 +160,7 @@ pipeline {
         beforeAgent true
         allOf {
           anyOf {
-            expression { return params.Run_As_Master_Branch }
+            expression { return params.Run_As_Main_Branch }
             triggeredBy 'TimerTrigger'
           }
           expression { return params.test_edge_ci }
@@ -254,7 +254,7 @@ pipeline {
           expression { return env.ONLY_DOCS == "false" }
           anyOf {
             changeRequest()
-            expression { return !params.Run_As_Master_Branch }
+            expression { return !params.Run_As_Main_Branch }
           }
         }
       }
@@ -282,11 +282,12 @@ pipeline {
           steps {
             deleteDir()
             dir("${OPBEANS_REPO}"){
-              git credentialsId: 'f6c7695a-671e-4f4f-a331-acdce44ff9ba',
-                  url: "git@github.com:elastic/${OPBEANS_REPO}.git"
+              git(credentialsId: 'f6c7695a-671e-4f4f-a331-acdce44ff9ba',
+                  url: "git@github.com:elastic/${OPBEANS_REPO}.git",
+                  branch: 'main')
               // It's required to transform the tag value to the artifact version
               sh script: ".ci/bump-version.sh ${env.BRANCH_NAME.replaceAll('^v', '')}", label: 'Bump version'
-              // The opbeans pipeline will trigger a release for the master branch
+              // The opbeans pipeline will trigger a release for the main branch
               gitPush()
               // The opbeans pipeline will trigger a release for the release tag
               gitCreateTag(tag: "${env.BRANCH_NAME}")
@@ -311,9 +312,9 @@ pipeline {
         beforeAgent true
         allOf {
           anyOf {
-            branch 'master'
+            branch 'main'
             tag pattern: 'v\\d+\\.\\d+\\.\\d+.*', comparator: 'REGEXP'
-            expression { return params.Run_As_Master_Branch }
+            expression { return params.Run_As_Main_Branch }
             expression { return env.GITHUB_COMMENT?.contains('benchmark tests') }
           }
           expression { return params.bench_ci }
@@ -368,11 +369,8 @@ def generateStep(Map params = [:]){
           } catch(e){
             error(e.toString())
           } finally {
-            // TAV tests run 'npm run test:tav' which does *not* produce TAP
-            // output.
-            if (!tav?.trim()) {
-              tap2Junit(pattern: '*-output.tap', suffix: 'junit.xml', package: 'Node.js', failNever: true)
-            }
+            junit(testResults: "test_output/*.junit.xml", allowEmptyResults: true, keepLongStdio: true)
+            archiveArtifacts(artifacts: "test_output/*.tap", allowEmptyArchive: true)
           }
         }
       }
@@ -393,7 +391,7 @@ def getSmartTAVContext() {
    // Hard to debug what's going on as there are a few nested conditions. Let's then add more verbose output
    echo """\
    env.GITHUB_COMMENT=${env.GITHUB_COMMENT}
-   params.Run_As_Master_Branch=${params.Run_As_Master_Branch}
+   params.Run_As_Main_Branch=${params.Run_As_Main_Branch}
    env.CHANGE_ID=${env.CHANGE_ID}
    env.TAV_UPDATED=${env.TAV_UPDATED}""".stripIndent()
 
@@ -412,7 +410,7 @@ def getSmartTAVContext() {
          context.tav = readYaml(text: """TAV:${modules.collect{ it.replaceAll('"', '').replaceAll("'", '') }.collect{ "\n  - '${it}'"}.join("") }""")
        }
      }
-   } else if (params.Run_As_Master_Branch) {
+   } else if (params.Run_As_Main_Branch) {
      context.ghDescription = 'TAV Test param-triggered'
      context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
    } else if (env.CHANGE_ID && env.TAV_UPDATED != "false") {

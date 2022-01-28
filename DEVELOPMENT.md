@@ -65,12 +65,12 @@ index 94376188..571539aa 100644
 
 If the "Integration Tests" check fails for your PR, here are some notes on
 debugging that. (The actual ".ci/Jenkinsfile" and apm-integration-testing.git
-are the authority. See also the [APM integration test troubleshooting guide](https://github.com/elastic/observability-dev/blob/master/docs/apm/apm-integration-test-troubleshooting-guide.md).)
+are the authority. See also the [APM integration test troubleshooting guide](https://github.com/elastic/observability-dev/blob/main/docs/apm/apm-integration-test-troubleshooting-guide.md).)
 
-The Node.js integration tests are ["test\_nodejs.py" in apm-integration-testing](https://github.com/elastic/apm-integration-testing/blob/master/tests/agent/test_nodejs.py). Roughly speaking, the integration tests:
+The Node.js integration tests are ["test\_nodejs.py" in apm-integration-testing](https://github.com/elastic/apm-integration-testing/blob/main/tests/agent/test_nodejs.py). Roughly speaking, the integration tests:
 
-- use that repo's scripts to start ES, kibana, apm-server and an [express test app](https://github.com/elastic/apm-integration-testing/blob/master/docker/nodejs/express/app.js) in Docker;
-- run apm-integration-testing.git itself in a [Docker](https://github.com/elastic/apm-integration-testing/blob/master/Dockerfile) container and call `make test-agent-nodejs`;
+- use that repo's scripts to start ES, kibana, apm-server and an [express test app](https://github.com/elastic/apm-integration-testing/blob/main/docker/nodejs/express/app.js) in Docker;
+- run apm-integration-testing.git itself in a [Docker](https://github.com/elastic/apm-integration-testing/blob/main/Dockerfile) container and call `make test-agent-nodejs`;
 - which runs [`pytest tests/agent/test_nodejs.py ...`](https://github.com/elastic/apm-integration-testing/blob/db7d9a26458832b812577a294e14c365c85001b9/Makefile#L102)
 
 To reproduce the integration test failure on your dev machine mainly involves
@@ -139,7 +139,7 @@ curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/
 For example:
 
 ```
-% curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/master/903/artifact/steps-info.json \
+% curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/main/903/artifact/steps-info.json \
     | json -c 'this.displayName==="Run Tests"' -ga durationInMillis state result displayDescription | sort -n -k1 | tail -10
 1940297 FINISHED SUCCESS .ci/scripts/test.sh "14" "fastify" "false"
 2434461 FINISHED SUCCESS .ci/scripts/test.sh "15" "apollo-server-express" "false"
@@ -161,14 +161,14 @@ For example:
 1. Go to the [apm-ci list of apm-agent-nodejs PRs](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/view/change-requests/) and click on your PR.
 2. Click "Build with Parameters" in the left sidebar. (If you don't have "Build with Parameters" then you aren't logged in.)
 3. Select these options to (mostly) *only* run the ["Benchmarks" step](https://github.com/elastic/apm-agent-nodejs/blob/v3.14.0/.ci/Jenkinsfile#L311-L330):
-    - [x] Run\_As\_Master\_Branch
+    - [x] Run\_As\_Main\_Branch
     - [x] bench\_ci
     - [ ] tav\_ci
     - [ ] tests\_ci
     - [ ] test\_edge\_ci
 
 Limitation: The current dashboard for benchmark results only shows datapoints
-from the "master" branch. It would be useful to have a separate chart that
+from the "main" branch. It would be useful to have a separate chart that
 showed PR values.
 
 (Another way to start the "Benchmarks" step is via a GitHub comment

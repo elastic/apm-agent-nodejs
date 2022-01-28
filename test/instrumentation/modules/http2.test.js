@@ -19,6 +19,7 @@ var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
 var findObjInArray = require('../../_utils').findObjInArray
+const constants = require('../../../lib/constants')
 
 var isSecure = [false, true]
 isSecure.forEach(secure => {
@@ -278,7 +279,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
-    t.plan(36)
+    t.plan(38)
 
     resetAgent(3, (data) => {
       t.strictEqual(data.transactions.length, 2)
@@ -339,7 +340,11 @@ isSecure.forEach(secure => {
         })
 
         var req = client.request({ ':path': '/sub' })
-        req.on('end', () => client.destroy())
+        t.ok(agent.currentSpan === null, 'the http2 span should not spill into user code')
+        req.on('end', () => {
+          t.ok(agent.currentSpan === null, 'the http2 span should *not* be the currentSpan in user event handlers')
+          client.destroy()
+        })
         req.pipe(stream)
       } else {
         stream.respond({
@@ -468,7 +473,11 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
       }
       expectedReqHeaders = {
         ':scheme': secure ? 'https' : 'http',
-        ':authority': `localhost:${port}`,
+        // Until https://github.com/elastic/apm/pull/575 is discussed the
+        // `:authority` pseudo-header will get redacted by the default `*auth*`
+        // pattern in `sanitizeFieldNames`.
+        //   ':authority': `localhost:${port}`,
+        ':authority': constants.REDACTED,
         ':method': 'GET',
         ':path': path
       }
@@ -490,13 +499,12 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
     t.ok(trans.context.request.socket.remote_address === '::ffff:127.0.0.1' || trans.context.request.socket.remote_address === '::1',
       'transaction.context.request.socket.remote_address is as expected: ' + trans.context.request.socket.remote_address)
   }
-  delete trans.context.request.socket.remote_address
+  delete trans.context.request.socket
 
   t.deepEqual(trans.context.request, {
     http_version: httpVersion,
     method: 'GET',
     url: expectedUrl,
-    socket: {},
     headers: expectedReqHeaders
   }, 'trans.context.request is as expected')
 

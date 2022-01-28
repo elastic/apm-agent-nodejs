@@ -50,7 +50,7 @@ function assertFormsWithFixture (transaction, expected, t) {
     t.equals(bodyAsObject[key], value, `key "${key}" has correct value`)
   }
   for (const [, key] of expected.formFields.undefined.entries()) {
-    t.equals(bodyAsObject[key], REDACTED, `key "${key}" is not set`)
+    t.equals(bodyAsObject[key], REDACTED, `key "${key}" is redacted`)
   }
 }
 

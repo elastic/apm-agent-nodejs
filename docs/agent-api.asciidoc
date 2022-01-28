@@ -104,7 +104,7 @@ containing the data about to be sent to the APM Server.
 
 The format of the payload depends on the event type being sent.
 For details about the different formats,
-see the {apm-server-ref-v}/intake-api.html[APM Server intake API documentation].
+see the {apm-guide-ref}/intake-api.html[APM Server intake API documentation].
 
 The filter function is synchronous and should return the manipulated payload object.
 If a filter function doesn't return any value or returns a falsy value,
@@ -164,7 +164,7 @@ but the `fn` will only be called with span payloads.
 [small]#Added in: v3.14.0#
 
 Use `addMetadataFilter(fn)` to supply a filter function for the
-{apm-server-ref-v}/metadata-api.html[metadata object]
+{apm-guide-ref}/metadata-api.html[metadata object]
 sent to the APM Server. This will allow you to manipulate the data being
 sent, for instance to remove possibly sensitive information.
 
@@ -184,7 +184,7 @@ apm.addMetadataFilter(function dropArgv(metadata) {
 
 Warning: It is the responsibility of the author to ensure the returned object
 conforms to the
-{apm-server-ref-v}/metadata-api.html#metadata-schema[metadata schema]
+{apm-guide-ref}/metadata-api.html#metadata-schema[metadata schema]
 otherwise all APM data injest will fail. A metadata filter that breaks the
 metadata will result in error logging from the agent, something like:
 
@@ -250,7 +250,7 @@ the context from the active transaction is used as context for the captured erro
 and any custom context given as the 2nd argument to <<apm-capture-error,`apm.captureError`>> takes precedence and is shallow merged on top.
 
 TIP: Before using custom context, ensure you understand the different types of
-{apm-overview-ref-v}/metadata.html[metadata] that are available.
+{apm-guide-ref}/metadata.html[metadata] that are available.
 
 [[apm-set-label]]
 ==== `apm.setLabel(name, value[, stringify = true])`
@@ -275,7 +275,7 @@ it will also get tagged with the same label.
 TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
 (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 Before using custom labels, ensure you understand the different types of
-{apm-overview-ref-v}/metadata.html[metadata] that are available.
+{apm-guide-ref}/metadata.html[metadata] that are available.
 
 WARNING: Avoid defining too many user-specified labels.
 Defining too many unique fields in an index is a condition that can lead to a
@@ -305,7 +305,7 @@ it will also get tagged with the same labels.
 TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
 (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
 Before using custom labels, ensure you understand the different types of
-{apm-overview-ref-v}/metadata.html[metadata] that are available.
+{apm-guide-ref}/metadata.html[metadata] that are available.
 
 WARNING: Avoid defining too many user-specified labels.
 Defining too many unique fields in an index is a condition that can lead to a
@@ -403,7 +403,7 @@ To ease debugging it's possible to send some extra data with each error you send
 The APM Server intake API supports a lot of different metadata fields,
 most of which are automatically managed by the Elastic APM Node.js Agent.
 But if you wish you can supply some extra details using `user` or `custom`.
-For more details on the properties accepted by the events intake API see the {apm-server-ref-v}/events-api.html[events intake API docs].
+For more details on the properties accepted by the events intake API see the {apm-guide-ref}/events-api.html[events intake API docs].
 
 To supply any of these extra fields,
 use the optional options argument when calling `apm.captureError()`.

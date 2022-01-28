@@ -1,26 +1,32 @@
 generic-pool:
   versions: ^2.0.0 || ^3.1.0
   commands: node test/instrumentation/modules/generic-pool.test.js
+
 mimic-response:
   versions: ^1.0.0
   commands:
     - node test/instrumentation/modules/mimic-response.test.js
     - node test/instrumentation/modules/http/github-179.test.js
-got-very-old:
+# Versions of `got` are only tested to check a bug in mimic-response@1.0.0
+# (fixed in mimic-response@1.0.1). Got@11 dropped usage of mimic-response,
+# so testing it no longer has a point. Got@12 is pure ESM, so cannot be tested
+# with the current test script.
+got-4:
   name: got
   versions: '>=4.0.0 <9.0.0'
   node: '>=5'
   commands: node test/instrumentation/modules/http/github-423.test.js
-got-old:
+got-9:
   name: got
   versions: ^9.0.0
   node: '>=8.3'
   commands: node test/instrumentation/modules/http/github-423.test.js
-got-new:
+got-10:
   name: got
-  versions: '>=10.0.0 <10.5.1 || >10.5.1' # v10.5.1 is broken
+  versions: '>=10.0.0 <10.5.1 || >10.5.1 <11' # v10.5.1 is broken
   node: '>=10'
   commands: node test/instrumentation/modules/http/github-423.test.js
+
 mysql:
   versions: ^2.0.0
   commands:
@@ -42,15 +48,23 @@ mysql2-new:
 redis:
   versions: '>=2.0.0 <4.0.0'
   commands: node test/instrumentation/modules/redis.test.js
+
+# We want these version ranges:
+#   # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
+#   versions: '>=2 <3.1.3 || >3.1.3 <4'
+#   versions: '^4.0.0'
+# However, there are a *lot* of ioredis releases, so we statically list a
+# subset (the first, plus then the latest in each major.minor).
 ioredis-old:
   name: ioredis
-  versions: '>=2 <3.1.3 || >3.1.3 <4' # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
+  versions: '2.0.0 || 2.0.1 || 2.1.0 || 2.2.0 || 2.3.1 || 2.4.3 || 2.5.0 || 3.0.0 || 3.1.4 || 3.2.2 || >3.2.2 <4'
   commands: node test/instrumentation/modules/ioredis.test.js
 ioredis-new:
   name: ioredis
-  versions: '^4.0.0'
+  versions: '4.0.0 || 4.0.2 || 4.1.0 || 4.2.3 || 4.3.1 || 4.4.0 || 4.5.1 || 4.6.3 || 4.7.0 || 4.8.0 || 4.9.0 || 4.9.5 || 4.10.4 || 4.11.2 || 4.12.2 || 4.13.1 || 4.14.4 || 4.15.1 || 4.16.3 || 4.17.3 || 4.18.0 || 4.19.4 || 4.20.0 || 4.21.0 || 4.22.0 || 4.23.1 || 4.24.6 || 4.25.0 || 4.26.0 || 4.27.11 || ^4.28.0'
   node: '>=6'
   commands: node test/instrumentation/modules/ioredis.test.js
+
 pg-old-node:
   name: pg
   # We want this version range:
@@ -84,9 +98,17 @@ pg-new-node:
 mongodb-core:
   versions: '>=1.2.19 <4'
   commands: node test/instrumentation/modules/mongodb-core.test.js
-mongodb:
-  versions: '>=3.3'
+
+mongodb-3:
+  name: mongodb
+  versions: '>=3.3 <4'
   commands: node test/instrumentation/modules/mongodb.test.js
+mongodb-4:
+  name: mongodb
+  versions: '>=4 <5'
+  node: '>=12'
+  commands: node test/instrumentation/modules/mongodb.test.js
+
 bluebird:
   versions: '>=2 <4'
   commands:
@@ -128,90 +150,124 @@ express:
     - node test/instrumentation/modules/express/capture-exceptions-on.test.js
     - node test/instrumentation/modules/express/set-framework.test.js
 
-express-graphql-1:
+express-graphql-0.6.1_graphql-0.8:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.8.2
   versions: '0.6.1'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
-express-graphql-2:
+express-graphql-0.6.2_graphql-0.9:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.9.0
   versions: '>=0.6.2 <0.6.6'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
-express-graphql-3:
+express-graphql-0.6.6_graphql-0.10:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '>=0.6.6 <0.6.8'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
-express-graphql-0.6.11_10:
+express-graphql-0.6.11_graphql-0.10:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '0.6.11'
   commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.6.11_11:
+express-graphql-0.6.11_graphql-0.11:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.11.0
   versions: '0.6.11'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
-express-graphql-0.6.12_10:
+express-graphql-0.6.12_graphql-0.10:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.10.0
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.6.12_11:
+express-graphql-0.6.12_graphql-0.11:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.11.0
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.6.12_12:
+express-graphql-0.6.12_graphql-0.12:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.12.0
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.6.12_13:
+express-graphql-0.6.12_graphql-0.13:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.13.0
   versions: '^0.6.12'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
-express-graphql-0.7.1_12:
+express-graphql-0.7.1_graphql-0.12:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.12.0
   versions: '>=0.7.1 <0.9.0'
   commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.7.1_13:
+express-graphql-0.7.1_graphql-0.13:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^0.13.0
   versions: '>=0.7.1 <0.9.0'
   commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.7.1_14:
+express-graphql-0.7.1_graphql-14:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^14.0.0
   versions: '>=0.7.1 <0.9.0'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
-express-graphql-0.9.0:
+express-graphql-0.9.0_graphql-14:
   name: express-graphql
   preinstall: npm uninstall apollo-server-express
   peerDependencies: graphql@^14.4.1
   versions: '>=0.9.0 <0.10.0'
   node: '>=7.6.0'
+  commands: node test/instrumentation/modules/express-graphql.test.js
+
+# - Skip express-graphql@0.10.0 because it briefly, accidentally introduced
+#   syntax that required ES2020 (node v14).
+# - Limit to node >=10.4 because of a known issue.
+#   https://github.com/elastic/apm-agent-nodejs/issues/2516
+express-graphql-0.10.1_graphql-14:
+  name: express-graphql
+  preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^14.6.0
+  versions: '>=0.10.1 <0.11.0'
+  node: '>=10.4'
+  commands: node test/instrumentation/modules/express-graphql.test.js
+express-graphql-0.10.1_graphql-15:
+  name: express-graphql
+  preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^15.0.0
+  versions: '>=0.10.1 <0.11.0'
+  node: '>=10.4'
+  commands: node test/instrumentation/modules/express-graphql.test.js
+
+express-graphql-0.11.0_graphql-14:
+  name: express-graphql
+  preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^14.7.0
+  versions: '>=0.11.0 <0.13.0'
+  node: '>=10.4'
+  commands: node test/instrumentation/modules/express-graphql.test.js
+express-graphql-0.11.0_graphql-15:
+  name: express-graphql
+  preinstall: npm uninstall apollo-server-express
+  peerDependencies: graphql@^15.3.0
+  versions: '>=0.11.0 <0.13.0'
+  node: '>=10.4'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
 apollo-server-express-2_12:
@@ -318,11 +374,20 @@ elasticsearch:
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.test.js
+# jade is a dead package. It was renamed to 'pug' in 2015 and hasn't had a
+# release since. Testing all 144 releases that match '>0.5.5' (the first
+# release APM supported) is a waste of time. Instead we will test the first
+# supported and the last released versions.
 jade:
-  versions: '>0.5.5'
+  versions: '0.5.6 || 1.11.0 || >1.11.0'
   commands: node test/instrumentation/modules/jade.test.js
+# Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
+pug-v2:
+  versions: '0.1.0 || >2.0.0 <3.0.0'
+  commands: node test/instrumentation/modules/pug.test.js
 pug:
-  versions: '0.1.0 || >2.0.0'
+  versions: '>=3.0.0'
+  node: '>8'
   commands: node test/instrumentation/modules/pug.test.js
 
 # hapi and @hapi/hapi
@@ -462,6 +527,8 @@ aws-sdk:
   # Test v2.858.0, every N=31 of 159 releases, and current latest.
   versions: '2.858.0 || 2.889.0 || 2.920.0 || 2.951.0 || 2.982.0 || 2.1013.0 || 2.1016.0 || >2.1016.0 <3'
   commands:
+    - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
+    - node test/instrumentation/modules/aws-sdk/sns.test.js
     - node test/instrumentation/modules/aws-sdk/sqs.test.js
     - node test/instrumentation/modules/aws-sdk/dynamodb.test.js

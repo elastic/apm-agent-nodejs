@@ -51,6 +51,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query(sql, basicQueryCallback(t))
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
         })
       })
 
@@ -63,6 +64,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query(sql, [1], basicQueryCallback(t))
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
         })
       })
 
@@ -75,6 +77,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query({ sql: sql }, basicQueryCallback(t))
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
         })
       })
 
@@ -87,6 +90,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           queryable.query({ sql: sql }, [1], basicQueryCallback(t))
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
         })
       })
 
@@ -100,6 +104,7 @@ factories.forEach(function (f) {
           agent.startTransaction('foo')
           var query = mysql.createQuery(sql, basicQueryCallback(t))
           queryable.query(query)
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
         })
       })
 
@@ -113,6 +118,7 @@ factories.forEach(function (f) {
           agent.startTransaction('foo')
           var query = mysql.createQuery(sql, [1], basicQueryCallback(t))
           queryable.query(query)
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
         })
       })
 
@@ -127,6 +133,7 @@ factories.forEach(function (f) {
         factory(function () {
           var trans = agent.startTransaction('foo')
           queryable.query(sql)
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
           setTimeout(function () {
             trans.end()
           }, 250)
@@ -146,6 +153,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query(sql)
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
           basicQueryStream(stream, t)
         })
       })
@@ -159,6 +167,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query(sql, [1])
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
           basicQueryStream(stream, t)
         })
       })
@@ -172,6 +181,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query({ sql: sql })
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
           basicQueryStream(stream, t)
         })
       })
@@ -185,6 +195,7 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo')
           var stream = queryable.query({ sql: sql }, [1])
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
           basicQueryStream(stream, t)
         })
       })
@@ -199,6 +210,7 @@ factories.forEach(function (f) {
           agent.startTransaction('foo')
           var query = mysql.createQuery(sql)
           var stream = queryable.query(query)
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
           basicQueryStream(stream, t)
         })
       })
@@ -213,6 +225,7 @@ factories.forEach(function (f) {
           agent.startTransaction('foo')
           var query = mysql.createQuery(sql, [1])
           var stream = queryable.query(query)
+          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code')
           basicQueryStream(stream, t)
         })
       })
@@ -230,6 +243,7 @@ factories.forEach(function (f) {
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql)
+            t.equal(span.parent_id, trans.id, 'each mysql span is a child of the transaction')
           })
 
           t.end()
@@ -274,6 +288,7 @@ factories.forEach(function (f) {
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql)
+            t.equal(span.parent_id, trans.id, 'each mysql span is a child of the transaction')
           })
 
           t.end()
@@ -397,6 +412,7 @@ factories.forEach(function (f) {
 
 function basicQueryCallback (t) {
   return function (err, rows, fields) {
+    t.equal(agent.currentSpan, null, 'mysql span should not bleed into user callback')
     t.error(err)
     t.strictEqual(rows[0].solution, 2)
     agent.endTransaction()
@@ -406,13 +422,16 @@ function basicQueryCallback (t) {
 function basicQueryStream (stream, t) {
   var results = 0
   stream.on('error', function (err) {
+    t.equal(agent.currentSpan, null, 'mysql span should not be active in user code')
     t.error(err)
   })
   stream.on('result', function (row) {
+    t.equal(agent.currentSpan, null, 'mysql span should not be active in user code')
     results++
     t.strictEqual(row.solution, 2)
   })
   stream.on('end', function () {
+    t.equal(agent.currentSpan, null, 'mysql span should not be active in user code')
     t.strictEqual(results, 1)
     agent.endTransaction()
   })

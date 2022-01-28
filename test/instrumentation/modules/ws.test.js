@@ -1,8 +1,7 @@
 'use strict'
 
 var agent = require('../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-ws',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false
@@ -32,8 +31,10 @@ test('ws.send', function (t) {
   ws.on('open', function () {
     agent.startTransaction('foo', 'websocket')
     ws.send('ping', function () {
+      t.ok(agent.currentSpan === null, 'websocket span should not be the currentSpan in user callback')
       agent.endTransaction()
     })
+    t.ok(agent.currentSpan === null, 'websocket span should not spill into user code')
   })
 
   ws.on('message', function (message) {

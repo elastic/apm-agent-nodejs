@@ -175,17 +175,39 @@ function useS3 (s3Client, bucketName, cb) {
           Bucket: bucketName,
           Key: key
         }).promise()
+        assert(apm.currentSpan === null,
+          'S3 span should NOT be the currentSpan after .promise()')
 
         req.then(
           function onResolve (data) {
             log.info({ data }, 'getObject using Promise, resolve')
+            assert(apm.currentSpan === null,
+              'S3 span should NOT be the currentSpan in promise resolve')
             next()
           },
           function onReject (err) {
             log.info({ err }, 'getObject using Promise, reject')
+            assert(apm.currentSpan === null,
+              'S3 span should NOT be the currentSpan in promise reject')
             next(err)
           }
         )
+      },
+
+      // Get a non-existant object to test APM captureError.
+      function getObjNonExistantObject (_, next) {
+        const nonExistantKey = key + '-does-not-exist'
+        s3Client.getObject({
+          Bucket: bucketName,
+          Key: nonExistantKey
+        }, function (err, data) {
+          log.info({ err, data }, 'getObject non-existant key, expect error')
+          if (err) {
+            next()
+          } else {
+            next(new Error(`did not get an error from getObject(${nonExistantKey})`))
+          }
+        })
       },
 
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#deleteObject-property

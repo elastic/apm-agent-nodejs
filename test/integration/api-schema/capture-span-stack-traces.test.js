@@ -69,6 +69,7 @@ function newAgent (server) {
     captureExceptions: false,
     disableInstrumentations: ['http'],
     captureSpanStackTraces: false,
+    apmServerVersion: '8.0.0',
     metricsInterval: 0,
     centralConfig: false
   })

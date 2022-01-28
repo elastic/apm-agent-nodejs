@@ -20,17 +20,17 @@ the agent will use the `name` from `package.json` by default if available.
 ==== `serviceName`
 
 * *Type:* String
-* *Default:* `name` field of `package.json`, or "nodejs_service"
+* *Default:* `name` field of `package.json`, or "unknown-nodejs-service"
 * *Env:* `ELASTIC_APM_SERVICE_NAME`
 
 The name to identify this service in Elastic APM. Multiple instances of the
 same service should use the same name.
 Allowed characters: `a-z`, `A-Z`, `0-9`, `-`, `_`, and space.
 
-If serviceName is not provided, the agent will attempt to use the "name" field
+If `serviceName` is not provided, the agent will attempt to use the "name" field
 from "package.json" -- looking up from the current working directory. The name
 will be normalized to the allowed characters. If the name cannot be inferred
-from package.json, then a fallback value of "nodejs_service" is used.
+from package.json, then a fallback value of "unknown-nodejs-service" is used.
 
 
 [float]
@@ -63,7 +63,7 @@ The secret token optionally expected by the APM Server.
 
 The API key optionally expected by the APM Server. This is an alternative to `secretToken`.
 
-This base64-encoded string is used to ensure that only your agents can send data to your APM server. You must have created the API key using the APM server command line tool. Please see the {apm-server-ref}/api-key.html[APM server documentation] for details on how to do that.
+This base64-encoded string is used to ensure that only your agents can send data to your APM server. You must have created the API key using the APM server command line tool. Please see the {apm-guide-ref}/api-key.html[APM server documentation] for details on how to do that.
 
 NOTE: This feature is fully supported in the APM Server versions >= 7.6.
 
@@ -137,7 +137,7 @@ var options = {
 ----
 
 [[environment]]
-===== `environment`
+==== `environment`
 
 * *Type:* String
 * *Default:* `process.env.NODE_ENV || 'development'`
@@ -752,7 +752,7 @@ number of unicode characters before being sent to APM server:
   value takes precedence for these error message fields.
 
 Note that tracing data is limited at the upstream APM server to
-{apm-server-ref-v}/configuration-process.html#max_event_size[`max_event_size`],
+{apm-guide-ref}/configuration-process.html#max_event_size[`max_event_size`],
 which defaults to 300kB. If you configure `longFieldMaxLength` too large, it
 could result in transactions, spans, or errors that are rejected by APM server.
 
@@ -855,18 +855,20 @@ The HTTP request is otherwise ended at regular intervals controlled by the <<api
 * *Default:* `30s`
 * *Env:* `ELASTIC_APM_SERVER_TIMEOUT`
 
-Specify the response timeout when reporting transactions to APM Server.
-The timeout should be in seconds,
-or should include a time suffix.
+Specify a timeout on the socket used for communication between the APM agent
+and APM Server. If no data is sent or received on the socket for this amount of
+time, the request will be aborted. It's not recommended to set a
+`serverTimeout` lower than the <<api-request-time,`apiRequestTime`>> config
+option. That will likely result in healthy requests being aborted prematurely.
 
-The timeout is applied once the agent has sent the entire request body to the APM Server.
-If the response from the server takes longer than allowed by this timeout,
-the HTTP request is terminated and the TCP socket closed.
+The value should include a time suffix ('m' for minutes, 's' for seconds, or
+'ms' for milliseconds), but defaults to seconds if no suffix is given.
+
 
 [[sanitize-field-names]]
 ==== `sanitizeFieldNames`
 * *Type:* Array
-* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', 'authorization', 'set-cookie', 'pw', 'pass', 'connect.sid']`
+* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', 'pw', 'pass', 'connect.sid']`
 * *Env:* `ELASTIC_SANITIZE_FIELD_NAMES`
 * <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `sanitize_field_names`
 
@@ -929,7 +931,7 @@ ELASTIC_APM_DISABLE_INSTRUMENTATIONS=graphql,express-graphql
 ----
 
 For an always up-to-date list of modules for which instrumentation can be disabled,
-see the https://github.com/elastic/apm-agent-nodejs/tree/master/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
+see the https://github.com/elastic/apm-agent-nodejs/tree/main/lib/instrumentation/modules[lib/instrumentation/modules] folder in the agent repository.
 Note that not all modules represented in this directory will generate spans,
 and adding those to this array has no effect.
 
@@ -994,7 +996,8 @@ Specify the interval for reporting metrics to APM Server.
 The interval should be in seconds,
 or should include a time suffix.
 
-To disable metrics reporting, set the interval to `"0s"`.
+To disable all metrics reporting, including breakdown metrics, set the interval
+to `"0s"`.
 
 [[metrics-limit]]
 ==== `metricsLimit`
@@ -1066,7 +1069,14 @@ module.exports = {
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_BREAKDOWN_METRICS`
 
-Used to disable reporting of breakdown metrics which records self time spent in each unique type of span.
+Set `breakdownMetrics: false` to disable reporting of breakdown metrics. Note
+that if `metricsInterval: 0`, then breakdown metrics will not be reported.
+
+Breakdown metrics (<<metrics-span.self_time.sum, `span.self_time.*`>>) record
+the self-time spent in each unique type of span. This data drives the
+{kibana-ref}/service-overview.html#service-span-duration[Time spent by span type]
+chart in the APM app.
+
 
 [[cloud-provider]]
 ==== `cloudProvider`

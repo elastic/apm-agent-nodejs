@@ -8,6 +8,8 @@ const agent = require('../../..').start({
   cloudProvider: 'none'
 })
 
+const { promisify } = require('util')
+
 // As of mongodb@4 only supports node >=v12.
 const mongodbVersion = require('../../../node_modules/mongodb/package.json').version
 const semver = require('semver')
@@ -18,13 +20,154 @@ if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0'))
 const MongoClient = require('mongodb').MongoClient
 const test = require('tape')
 
-const mockClient = require('../../_mock_http_client_states')
+const mockClient = require('../../_mock_http_client')
+const mockClientStates = require('../../_mock_http_client_states')
 
 const host = process.env.MONGODB_HOST || 'localhost'
 const url = `mongodb://${host}:27017`
 
+test('new MongoClient(url); client.connect(callback)', function (t) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 1)
+    t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
+    t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+    t.end()
+  })
+  // Explicitly test with no second argument to `new MongoClient(...)`, because
+  // that was broken at one point.
+  const client = new MongoClient(url)
+  agent.startTransaction('t0')
+  client.connect(err => {
+    t.error(err, 'no connect error')
+    client
+      .db('elasticapm')
+      .collection('test')
+      .findOne({ a: 1 }, function (err, res) {
+        t.error(err, 'no findOne error')
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+      })
+  })
+})
+
+test('new MongoClient(url, {...}); client.connect(callback)', function (t) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 1)
+    t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
+    t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+    t.end()
+  })
+  const client = new MongoClient(url, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+  })
+  agent.startTransaction('t0')
+  client.connect(err => {
+    t.error(err, 'no connect error')
+    client
+      .db('elasticapm')
+      .collection('test')
+      .findOne({ a: 1 }, function (err, res) {
+        t.error(err, 'no findOne error')
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+      })
+  })
+})
+
+test('MongoClient.connect(url, callback)', function (t) {
+  resetAgent(2, function (data) {
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 1)
+    t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
+    t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+    t.end()
+  })
+  agent.startTransaction('t0')
+  MongoClient.connect(url, function (err, client) {
+    t.error(err, 'no connect error')
+    t.ok(client, 'got a connected client')
+    client
+      .db('elasticapm')
+      .collection('test')
+      .findOne({ a: 1 }, function (err, res) {
+        t.error(err, 'no findOne error')
+        agent.endTransaction()
+        agent.flush()
+        client.close()
+      })
+  })
+})
+
+test('await MongoClient.connect(url)', async function (t) {
+  // When using an `async function ...`, tape will automatically t.end() when
+  // the function promise resolves. That means we cannot use the
+  // `resetAgent(..., callback)` technique because `callback` may be called
+  // *after* the test async function resolves. Instead we make a Promise for
+  // `agent.flush(cb)`, do all assertions when that is complete, and await that.
+  resetAgent(2, function noop () {})
+
+  const client = await MongoClient.connect(url)
+  agent.startTransaction('t0')
+  await client.db('elasticapm').collection('test').findOne({ a: 1 })
+  agent.endTransaction()
+
+  await promisify(agent.flush.bind(agent))().then(function (err) {
+    t.error(err, 'no error from agent.flush()')
+    const data = agent._transport._writes
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 1)
+    t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
+    t.equal(data.spans[0].subtype, 'mongodb', 'span.subtype')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+  })
+  await client.close()
+  t.end()
+})
+
+test('ensure run context', async function (t) {
+  resetAgent(5, function noop () {})
+
+  const client = await MongoClient.connect(url)
+  agent.startTransaction('t0')
+  const collection = client.db('elasticapm').collection('test')
+
+  // There was a time when the spans created for Mongo client commands, while
+  // one command was already inflight, would be a child of the inflight span.
+  // That would be wrong. They should all be a direct child of the transaction.
+  const promises = []
+  promises.push(collection.findOne({ a: 1 }).catch(err => {
+    t.error(err, 'no findOne error')
+  }))
+  agent.startSpan('manual').end()
+  promises.push(collection.findOne({ b: 2 }))
+  promises.push(collection.findOne({ c: 3 }))
+  await Promise.all(promises)
+
+  agent.endTransaction()
+  await promisify(agent.flush.bind(agent))().then(function (err) {
+    t.error(err, 'no error from agent.flush()')
+    const data = agent._transport._writes
+    t.equal(data.transactions[0].name, 't0', 'transaction.name')
+    t.equal(data.spans.length, 4)
+    data.spans.forEach(s => {
+      t.equal(s.parent_id, data.transactions[0].id,
+        `span ${s.type}.${s.subtype} "${s.name}" is a child of the transaction`)
+    })
+  })
+  await client.close()
+  t.end()
+})
+
 test('instrument simple command', function (t) {
-  resetAgent([
+  resetAgentStates([
     makeSpanTest(t, 'elasticapm.test.insert'),
     makeSpanTest(t, 'elasticapm.test.update'),
     makeSpanTest(t, 'elasticapm.test.delete'),
@@ -34,19 +177,20 @@ test('instrument simple command', function (t) {
     t.end()
   })
 
-  const server = new MongoClient(url, {
+  const client = new MongoClient(url, {
+    // These two options are to avoid deprecation warnings from some versions
+    // of mongodb@3.
     useUnifiedTopology: true,
     useNewUrlParser: true
   })
 
   agent.startTransaction('foo', 'bar')
 
-  // test example lifted from https://github.com/christkv/mongodb-core/blob/2.0/README.md#connecting-to-mongodb
-  server.connect((err, _server) => {
+  client.connect((err) => {
     t.error(err, 'no connect error')
-    t.ok(_server, 'got a valid server connection')
+    t.ok(client, 'got a valid client connection')
 
-    const db = _server.db('elasticapm')
+    const db = client.db('elasticapm')
     const collection = db.collection('test')
 
     collection.insertMany([{ a: 1 }, { a: 2 }, { a: 3 }], { w: 1 }, function (err, results) {
@@ -57,7 +201,7 @@ test('instrument simple command', function (t) {
       // If records have been inserted, they should be cleaned up
       t.on('end', () => {
         collection.deleteMany({}, { w: 1 }, function () {
-          _server.close()
+          client.close()
         })
       })
 
@@ -148,8 +292,14 @@ function getDeletedCountFromResults (results) {
   return results.result ? results.result.n : results.deletedCount
 }
 
-function resetAgent (expectations, cb) {
+function resetAgentStates (expectations, cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(expectations, cb)
+  agent._transport = mockClientStates(expectations, cb)
+  agent.captureError = function (err) { throw err }
+}
+
+function resetAgent (numExpected, cb) {
+  agent._instrumentation.testReset()
+  agent._transport = mockClient(numExpected, cb)
   agent.captureError = function (err) { throw err }
 }
