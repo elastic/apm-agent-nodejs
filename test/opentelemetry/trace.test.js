@@ -7,9 +7,6 @@ const agent = require('../..').start({
   metricsInterval: 0,
   centralConfig: false,
   transactionSampleRate: 1,
-  // transport: function() {
-  //   return new NoopTransport
-  // }
 })
 
 const mockClient = require('../_mock_http_client')
@@ -19,6 +16,8 @@ const {trace, context} = require('@opentelemetry/api')
 const { SimpleSpanProcessor } = require('@opentelemetry/sdk-trace-base');
 
 const ElasticNodeTracerProvider = require('../../lib/opentelemetry/elastic-node-tracer-provider')
+const ElasticOtelContextManager = require('../../lib/opentelemetry/elastic-otel-context-manager')
+
 
 function createTestExporter() {
   return {
@@ -29,13 +28,8 @@ function createTestExporter() {
 function initilizeTraceProvider() {
   const provider = new ElasticNodeTracerProvider({});
   provider.setAgent(agent)
-
-  provider.addSpanProcessor(
-    new SimpleSpanProcessor(
-      createTestExporter()
-    )
-  );
   provider.register()
+  context.setGlobalContextManager(new ElasticOtelContextManager)
 }
 
 function resetAgent (expectedWrites, cb) {
@@ -44,52 +38,52 @@ function resetAgent (expectedWrites, cb) {
   agent.captureError = function (err) { throw err }
 }
 
-// tape.test('transaction already started',function(t){
-//   resetAgent(3, function(data) {
-//     const [span1, span2] = data.spans
-//     t.equals(data.transactions.length, 1, 'expected 1 transaction')
-//     t.equals(data.spans.length, 2, 'expected 2 spans')
-//     t.equals(span1.trace_id, span2.trace_id, 'spans part of same trace')
-
-//     t.true(
-//       span1.parent_id == span2.id || span2.parent_id == span1.id,
-//       'one span is child of the other span'
-//     )
-//     t.end()
-//   })
-//   const provider = initilizeTraceProvider(agent)
-
-//   const ctx = context.active()
-//   const tracer = trace.getTracer('foo')
-//   const transaction = agent.startTransaction('starting transaction')
-//   tracer.startActiveSpan('test', {}, ctx, function(span1){
-//     const ctx2 = context.active()
-//     const span2 = tracer.startSpan('test2',{},ctx2)
-//     span2.end()
-//     span1.end()
-//     transaction.end()
-//   })
-// })
-
 tape.test('transaction already started',function(t){
-  const provider = initilizeTraceProvider()
+  resetAgent(3, function(data) {
+    const [span1, span2] = data.spans
+    t.equals(data.transactions.length, 1, 'expected 1 transaction')
+    t.equals(data.spans.length, 2, 'expected 2 spans')
+    t.equals(span1.trace_id, span2.trace_id, 'spans part of same trace')
+
+    t.true(
+      span1.parent_id == span2.id || span2.parent_id == span1.id,
+      'one span is child of the other span'
+    )
+    t.end()
+  })
+  const provider = initilizeTraceProvider(agent)
+
   const ctx = context.active()
   const tracer = trace.getTracer('foo')
+  const transaction = agent.startTransaction('starting transaction')
   tracer.startActiveSpan('test', {}, ctx, function(span1){
     const ctx2 = context.active()
     const span2 = tracer.startSpan('test2',{},ctx2)
     span2.end()
     span1.end()
-    t.end()
+    transaction.end()
   })
 })
 
-// otel_span contains the properties set through the OTel API
-// span_or_transaction = null;
-// if (otel_span.remote_contex != null) {
-//     span_or_transaction = createTransactionWithParent(otel_span.remote_context);
-// } else if (otel_span.parent == null) {
-//     span_or_transaction = createRootTransaction();
-// } else {
-//     span_or_transaction = createSpanWithParent(otel_span.parent);
-// }
+tape.test('transaction already started',function(t){
+  resetAgent(2, function(data) {
+    t.equals(data.transactions.length, 1, 'expected 1 transaction')
+    t.equals(data.spans.length, 1, 'expected 1 spans')
+    const transaction = data.transactions[0]
+    const span = data.spans[0]
+    t.equals(span.trace_id, transaction.trace_id, 'span and transaction part of same trace')
+
+
+    t.true(span.parent_id == transaction.id, 'span is child of transaction')
+    t.end()
+  })
+  const provider = initilizeTraceProvider()
+  const ctx = context.active()
+  const tracer = trace.getTracer('foo')
+  tracer.startActiveSpan('test', {}, ctx, function(transaction){
+    const ctxTransaction = context.active()
+    const span = tracer.startSpan('test2',{},ctxTransaction)
+    span.end()
+    transaction.end()
+  })
+})
