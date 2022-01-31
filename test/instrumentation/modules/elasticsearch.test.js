@@ -35,6 +35,7 @@ test('client.ping with callback', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client.ping with promise', function userLandCode (t) {
@@ -50,6 +51,7 @@ test('client.ping with promise', function userLandCode (t) {
   }, function (err) {
     t.error(err)
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client.search with callback', function userLandCode (t) {
@@ -65,6 +67,7 @@ test('client.search with callback', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client.search with abort', function userLandCode (t) {
@@ -76,6 +79,7 @@ test('client.search with abort', function userLandCode (t) {
   var query = { q: 'pants' }
 
   var req = client.search(query)
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 
   setImmediate(() => {
     req.abort()
@@ -110,6 +114,7 @@ if (semver.satisfies(pkg.version, '>= 10')) {
       agent.endTransaction()
       agent.flush()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
   })
 }
 
@@ -139,6 +144,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       agent.endTransaction()
       agent.flush()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
   })
 
   test('client.msearchTempate with callback', function userLandCode (t) {
@@ -171,6 +177,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       agent.endTransaction()
       agent.flush()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
   })
 }
 
@@ -185,6 +192,7 @@ test('client.count with callback', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client with host=<array of host:port>', function userLandCode (t) {
@@ -196,6 +204,7 @@ test('client with host=<array of host:port>', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client with hosts=<array of host:port>', function userLandCode (t) {
@@ -207,6 +216,7 @@ test('client with hosts=<array of host:port>', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client with hosts="http://host:port"', function userLandCode (t) {
@@ -222,6 +232,7 @@ test('client with hosts="http://host:port"', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 function done (t, method, path, query, abort = false) {
