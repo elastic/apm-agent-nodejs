@@ -29,7 +29,7 @@ function initilizeTraceProvider() {
   const provider = new ElasticNodeTracerProvider({});
   provider.setAgent(agent)
   provider.register()
-  context.setGlobalContextManager(new ElasticOtelContextManager)
+  context.setGlobalContextManager(new ElasticOtelContextManager(agent))
 }
 
 function resetAgent (expectedWrites, cb) {
@@ -54,6 +54,7 @@ tape.test('transaction already started',function(t){
   const provider = initilizeTraceProvider(agent)
 
   const ctx = context.active()
+  console.log(ctx)
   const tracer = trace.getTracer('foo')
   const transaction = agent.startTransaction('starting transaction')
   tracer.startActiveSpan('test', {}, ctx, function(span1){
