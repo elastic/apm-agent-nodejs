@@ -204,7 +204,7 @@ elif [[ -n "${TAV_MODULE}" ]]; then
     cassandra-driver)
       DOCKER_COMPOSE_FILE=docker-compose-cassandra.yml
       ;;
-    elasticsearch|@elastic/elasticsearch)
+    elasticsearch|@elastic/elasticsearch|@elastic/elasticsearch-canary)
       DOCKER_COMPOSE_FILE=docker-compose-elasticsearch.yml
       ;;
     mysql|mysql2)
