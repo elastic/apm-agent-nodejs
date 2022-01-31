@@ -347,6 +347,7 @@ declare namespace apm {
   export interface SpanOptions {
     startTime?: number;
     childOf?: Transaction | Span | string;
+    exitSpan?: boolean;
   }
 
   type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';

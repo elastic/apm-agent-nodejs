@@ -56,6 +56,11 @@ Notes:
 * Add `transaction.name` to captured APM errors. This will allow the Kibana APM
   app to correlate error groups and transaction groups. ({issues}2456[#2456])
 
+* Mark S3 spans (from 'aws-sdk' instrumentation) as exit spans (per
+  https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans.md#exit-spans).
+  The result is that HTTP child spans of S3 spans are no longer captured.
+  ({issues}2125[#2125])
+
 [float]
 ===== Bug fixes
 

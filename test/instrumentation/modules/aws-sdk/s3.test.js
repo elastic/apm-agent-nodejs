@@ -61,14 +61,9 @@ tape.test('simple S3 usage scenario', function (t) {
         const tx = events.shift().transaction
         const errors = events.filter(e => e.error).map(e => e.error)
 
-        // Currently HTTP spans under each S3 span are included. Eventually
-        // those will be excluded. Filter those out for now.
-        // https://github.com/elastic/apm-agent-nodejs/issues/2125
+        // Compare some common fields across all spans.
         const spans = events.filter(e => e.span)
           .map(e => e.span)
-          .filter(e => e.subtype !== 'http')
-
-        // Compare some common fields across all spans.
         t.equal(spans.filter(s => s.trace_id === tx.trace_id).length,
           spans.length, 'all spans have the same trace_id')
         t.equal(spans.filter(s => s.transaction_id === tx.id).length,
@@ -98,6 +93,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'ListBuckets',
           context: {
+            http: { status_code: 200, response: { encoded_body_size: 205 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -114,6 +110,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'CreateBucket',
           context: {
+            http: { status_code: 200, response: { encoded_body_size: 177 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -134,6 +131,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'HeadBucket',
           context: {
+            http: { status_code: 200 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -154,6 +152,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'PutObject',
           context: {
+            http: { status_code: 200 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -174,6 +173,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'HeadObject',
           context: {
+            http: { status_code: 200 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -194,6 +194,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'GetObject',
           context: {
+            http: { status_code: 200, response: { encoded_body_size: 8 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -214,6 +215,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'GetObject',
           context: {
+            http: { status_code: 304 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -234,6 +236,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'GetObject',
           context: {
+            http: { status_code: 200, response: { encoded_body_size: 8 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -255,6 +258,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'GetObject',
           context: {
+            http: { status_code: 404, response: { encoded_body_size: 207 } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -279,6 +283,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'DeleteObject',
           context: {
+            http: { status_code: 204 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
@@ -299,6 +304,7 @@ tape.test('simple S3 usage scenario', function (t) {
           subtype: 's3',
           action: 'DeleteBucket',
           context: {
+            http: { status_code: 204 },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
