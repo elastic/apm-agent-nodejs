@@ -3,68 +3,74 @@
 // A small example showing Elastic APM tracing @elastic/elasticsearch version 8.
 //
 // This assumes an Elasticsearch running on localhost. You can use:
-//    npm run docker:start
-// to start an Elasticsearch docker container (and other containers used for
-// testing of this project). Then `npm run docker:stop` to stop them.
+//    npm run docker:start elasticsearch
+// to start an Elasticsearch docker container. Then the following to stop:
+//    npm run docker:stop
 
 const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-elasticsearch'
+  serviceName: 'example-trace-elasticsearch8',
+  logUncaughtExceptions: true
 })
 
 // Currently, pre-releases of v8 are published as the "...-canary" package name.
-const { Client } = require('@elastic/elasticsearch-canary')
+// eslint-disable-next-line no-unused-vars
+const { Client, HttpConnection } = require('@elastic/elasticsearch-canary')
 
 const client = new Client({
   // With version 8 of the client, you can use `HttpConnection` to use the old
   // HTTP client:
-  //   Connection: HttpConnection,
+  // Connection: HttpConnection,
   node: `http://${process.env.ES_HOST || 'localhost'}:9200`
 })
 
-// For tracing spans to be created, there must be an active transaction.
-// Typically, a transaction is automatically started for incoming HTTP
-// requests to a Node.js server. However, because this script is not running
-// an HTTP server, we manually start a transaction. More details at:
-// https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-apm.startTransaction('t1')
-client.ping()
-  .then((res) => { console.log('[example 1] ping response:', res) })
-  .catch((err) => { console.log('[example 1] ping error:', err) })
-  .finally(() => { apm.endTransaction() })
+async function run () {
+  // For tracing spans to be created, there must be an active transaction.
+  // Typically, a transaction is automatically started for incoming HTTP
+  // requests to a Node.js server. However, because this script is not running
+  // an HTTP server, we manually start a transaction. More details at:
+  // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
+  const t1 = apm.startTransaction('t1')
 
-// Example using async/await style.
-async function awaitStyle () {
-  apm.startTransaction('t2')
+  // Using await.
   try {
     const res = await client.search({ q: 'pants' })
-    console.log('[example 2] search response:', res)
+    console.log('[example 1] search succeeded: hits:', res.hits)
   } catch (err) {
-    console.log('[example 2] search error:', err)
+    console.log('[example 1] search error:', err.message)
   } finally {
-    apm.endTransaction()
+    t1.end()
   }
-}
-awaitStyle()
 
-// Example aborting requests using AbortController.
-async function abortExample () {
-  apm.startTransaction('t3')
-  // eslint-disable-next-line no-undef
-  const ac = new AbortController()
-  setImmediate(() => {
-    ac.abort()
-  })
-  try {
-    const res = await client.search(
-      { query: { match_all: {} } },
-      { signal: ac.signal })
-    console.log('[example 3] search response:', res)
-  } catch (err) {
-    console.log('[example 3] search error:', err)
-  } finally {
-    apm.endTransaction()
+  // Using Promises directly.
+  const t2 = apm.startTransaction('t2')
+  client.ping()
+    .then(_res => { console.log('[example 2] ping succeeded') })
+    .catch(err => { console.log('[example 2] ping error:', err) })
+  // Another request to have two concurrent requests. Also use a bogus index
+  // to trigger an error and see APM error capture.
+  client.search({ index: 'no-such-index', q: 'pants' })
+    .then(_res => { console.log('[example 2] search succeeded') })
+    .catch(err => { console.log('[example 2] search error:', err.message) })
+    .finally(() => { t2.end() })
+
+  // Example aborting requests using AbortController (node v15 and above).
+  if (global.AbortController) {
+    const t3 = apm.startTransaction('t3')
+    const ac = new AbortController() // eslint-disable-line no-undef
+    setImmediate(() => {
+      ac.abort()
+    })
+    try {
+      const res = await client.search(
+        { query: { match_all: {} } },
+        { signal: ac.signal })
+      console.log('[example 3] search response:', res)
+    } catch (err) {
+      console.log('[example 3] search error:', err)
+    } finally {
+      t3.end()
+    }
   }
 }
-if (global.AbortController) {
-  abortExample()
-}
+
+run()

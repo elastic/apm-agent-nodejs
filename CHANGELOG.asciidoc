@@ -59,10 +59,16 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fixes for run context handling for '@elastic/elasticsearch' instrumentation.
+  ({issues}2430[#2430])
+
 * Fixes for run context handling for 'cassandra-driver' instrumentation.
   ({issues}2430[#2430])
 
 * Fixes for run context handling for 'mongodb-core' instrumentation.
+  ({issues}2430[#2430])
+
+* Fixes for run context handling for 'elasticsearch' instrumentation.
   ({issues}2430[#2430])
 
 
