@@ -2,18 +2,18 @@
 
 process.env.ELASTIC_APM_TEST = true
 const agent = require('../../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-elasticsearch',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
+  apmServerVersion: '8.0.0',
   spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
 const { safeGetPackageVersion } = require('../../../_utils')
 
 // Support running these tests with a different package name -- typically
-// the '@elastic/elasticsearch-canary package that is sometimes used for
+// the '@elastic/elasticsearch-canary' package that is sometimes used for
 // experimental pre-releases.
 const esClientPkgName = process.env.ELASTIC_APM_TEST_ESCLIENT_PACKAGE_NAME || '@elastic/elasticsearch'
 
@@ -64,6 +64,7 @@ test('client.ping with promise', function (t) {
     agent.endTransaction()
     agent.flush()
   }).catch(t.error)
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
 })
 
 // Callback-style was dropped in ES client v8.
@@ -79,6 +80,7 @@ if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
       agent.endTransaction()
       agent.flush()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 }
 
@@ -97,6 +99,7 @@ test('client.search with promise', function (t) {
       agent.flush()
     })
     .catch(t.error)
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
 })
 
 // Tests below this point use `<promise>.finally(...)` for test control.
@@ -119,6 +122,7 @@ if (semver.gte(process.version, '10.0.0')) {
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.search with queryparam', function (t) {
@@ -135,6 +139,7 @@ if (semver.gte(process.version, '10.0.0')) {
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.search with body', function (t) {
@@ -161,6 +166,7 @@ if (semver.gte(process.version, '10.0.0')) {
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   // ES client version 8 no longer requires body fields to be in a "body" param.
@@ -189,6 +195,7 @@ if (semver.gte(process.version, '10.0.0')) {
           agent.endTransaction()
           agent.flush()
         })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
     })
   }
 
@@ -232,6 +239,7 @@ ${JSON.stringify(body)}`
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.searchTemplate', function (t) {
@@ -259,6 +267,7 @@ ${JSON.stringify(body)}`
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.msearch', function (t) {
@@ -293,6 +302,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('client.msearchTempate', function (t) {
@@ -324,6 +334,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   // Test some error scenarios.
@@ -379,6 +390,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   if (semver.satisfies(esVersion, '<8', { includePrerelease: true })) {
@@ -420,6 +432,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
     })
   }
 
@@ -474,6 +487,7 @@ ${body.map(JSON.stringify).join('\n')}
             client.close()
             esServer.close()
           })
+        t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
       })
     })
   }
@@ -524,6 +538,7 @@ ${body.map(JSON.stringify).join('\n')}
           agent.flush()
           client.close()
         })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
     })
   }
 
@@ -542,17 +557,11 @@ ${body.map(JSON.stringify).join('\n')}
 
           const err = data.errors
             .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-          if (semver.satisfies(esVersion, '7.14.x')) {
-            // https://github.com/elastic/elasticsearch-js/issues/1517 was fixed
-            // for 7.15 and later.
-            t.ok(!err, 'no APM error reported for abort with v7.14.x of the client because elastic/elasticsearch-js#1517')
-          } else {
-            t.ok(err, 'sent an error to APM server')
-            t.ok(err.id, 'err.id')
-            t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
-            t.equal(err.exception.type, 'RequestAbortedError',
-              'err.exception.type is RequestAbortedError')
-          }
+          t.ok(err, 'sent an error to APM server')
+          t.ok(err.id, 'err.id')
+          t.equal(err.exception.message, 'Request aborted', 'err.exception.message')
+          t.equal(err.exception.type, 'RequestAbortedError',
+            'err.exception.type is RequestAbortedError')
 
           t.end()
         }
@@ -584,6 +593,7 @@ ${body.map(JSON.stringify).join('\n')}
           agent.flush()
         }
       })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
       setImmediate(function () {
         req.abort()
       })
@@ -602,17 +612,11 @@ ${body.map(JSON.stringify).join('\n')}
 
           const err = data.errors
             .filter((e) => e.exception.type === 'RequestAbortedError')[0]
-          if (semver.satisfies(esVersion, '7.14.x')) {
-            // https://github.com/elastic/elasticsearch-js/issues/1517 was fixed
-            // for 7.15 and later.
-            t.ok(!err, 'no APM error reported for abort with v7.14.x of the client because elastic/elasticsearch-js#1517')
-          } else {
-            t.ok(err, 'sent an error to APM server')
-            t.ok(err.id, 'err.id')
-            t.ok(err.exception.message, 'err.exception.message')
-            t.equal(err.exception.type, 'RequestAbortedError',
-              'err.exception.type is RequestAbortedError')
-          }
+          t.ok(err, 'sent an error to APM server')
+          t.ok(err.id, 'err.id')
+          t.ok(err.exception.message, 'err.exception.message')
+          t.equal(err.exception.type, 'RequestAbortedError',
+            'err.exception.type is RequestAbortedError')
 
           t.end()
         }
@@ -633,6 +637,7 @@ ${body.map(JSON.stringify).join('\n')}
       })
       const client = new es.Client(clientOpts)
       const promise = client.search({ body: slowBody })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
       promise
         .then(_result => {})
         .catch(err => {
@@ -659,6 +664,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
   test('outcome=failure on both spans', function (t) {
@@ -677,6 +683,7 @@ ${body.map(JSON.stringify).join('\n')}
         agent.endTransaction()
         agent.flush()
       })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 }
 
@@ -686,8 +693,8 @@ function checkSpanOutcomesFailures (t) {
   return function (data) {
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
     if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
-      // Remove leading ES span and HTTP span from product check.
-      data.spans = data.spans.slice(2)
+      // Remove the product check spans for subsequent assertions.
+      data.spans = data.spans.slice(0, 1).concat(data.spans.slice(3))
     }
 
     for (const span of data.spans) {
@@ -701,8 +708,8 @@ function checkSpanOutcomesSuccess (t) {
   return function (data) {
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
     if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
-      // Remove leading ES span and HTTP span from product check.
-      data.spans = data.spans.slice(2)
+      // Remove the product check spans for subsequent assertions.
+      data.spans = data.spans.slice(0, 1).concat(data.spans.slice(3))
     }
 
     for (const span of data.spans) {
@@ -724,14 +731,14 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     // "GET /" product check.
     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
     if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
-      const prodCheckEsSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+      const prodCheckEsSpan = data.spans[1]
       t.ok(prodCheckEsSpan, 'have >=7.14.0 product check ES span')
       t.equal(prodCheckEsSpan.name, 'Elasticsearch: GET /', 'product check ES span name')
-      const prodCheckHttpSpan = findObjInArray(data.spans, 'subtype', 'http')
+      const prodCheckHttpSpan = data.spans[2]
       t.ok(prodCheckHttpSpan, 'have >=7.14.0 product check HTTP span')
       t.equal(prodCheckHttpSpan.name, `GET ${host}`, 'product check HTTP span name')
       // Remove the product check spans for subsequent assertions.
-      data.spans = data.spans.slice(2)
+      data.spans = data.spans.slice(0, 1).concat(data.spans.slice(3))
     }
 
     t.equal(data.spans.length, 2, 'should have 2 spans (excluding product check spans in >=7.14.0)')
@@ -759,7 +766,7 @@ function checkDataAndEnd (t, method, path, dbStatement) {
         { type: 'elasticsearch', statement: dbStatement },
         'elasticsearch span has correct .context.db')
     } else {
-      t.notOk(esSpan.context.db, 'elasticsearch span should not have .context.db')
+      t.notOk(esSpan.context && esSpan.context.db, 'elasticsearch span should not have .context.db')
     }
 
     // Ensure "destination" context is set.

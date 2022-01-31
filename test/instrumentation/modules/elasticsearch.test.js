@@ -11,6 +11,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
+  apmServerVersion: '8.0.0',
   spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
@@ -125,7 +126,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       }
     ]
 
-    var statement = body.map(JSON.stringify).join('\n')
+    var statement = body.map(JSON.stringify).join('\n') + '\n'
 
     resetAgent(done(t, 'POST', '/_msearch', statement))
 
@@ -157,7 +158,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       }
     ]
 
-    var statement = body.map(JSON.stringify).join('\n')
+    var statement = body.map(JSON.stringify).join('\n') + '\n'
 
     resetAgent(done(t, 'POST', '/_msearch/template', statement))
 

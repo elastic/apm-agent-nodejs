@@ -3,12 +3,13 @@
 // A small example showing Elastic APM tracing @elastic/elasticsearch version 7.
 //
 // This assumes an Elasticsearch running on localhost. You can use:
-//    npm run docker:start
-// to start an Elasticsearch docker container (and other containers used for
-// testing of this project). Then `npm run docker:stop` to stop them.
+//    npm run docker:start elasticsearch
+// to start an Elasticsearch docker container. Then the following to stop:
+//    npm run docker:stop
 
 const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-elasticsearch'
+  serviceName: 'example-trace-elasticsearch7',
+  logUncaughtExceptions: true
 })
 
 const { Client } = require('@elastic/elasticsearch')
@@ -17,27 +18,42 @@ const client = new Client({
   node: `http://${process.env.ES_HOST || 'localhost'}:9200`
 })
 
-// For tracing spans to be created, there must be an active transaction.
-// Typically, a transaction is automatically started for incoming HTTP
-// requests to a Node.js server. However, because this script is not running
-// an HTTP server, we manually start a transaction. More details at:
-// https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-apm.startTransaction('t1')
-client.ping()
-  .then((res) => { console.log('ping response:', res) })
-  .catch((err) => { console.log('ping error:', err) })
-  .finally(() => { apm.endTransaction() })
+async function run () {
+  // For tracing spans to be created, there must be an active transaction.
+  // Typically, a transaction is automatically started for incoming HTTP
+  // requests to a Node.js server. However, because this script is not running
+  // an HTTP server, we manually start a transaction. More details at:
+  // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
+  const t1 = apm.startTransaction('t1')
 
-// Example using async/await style.
-async function awaitStyle () {
-  apm.startTransaction('t2')
+  // Using await.
   try {
     const res = await client.search({ q: 'pants' })
-    console.log('search response:', res)
+    console.log('search succeeded: hits:', res.body.hits)
   } catch (err) {
-    console.log('search error:', err)
+    console.log('search error:', err.message)
   } finally {
-    apm.endTransaction()
+    t1.end()
   }
+
+  // Using Promises directly.
+  const t2 = apm.startTransaction('t2')
+  client.ping()
+    .then(_res => { console.log('ping succeeded') })
+    .catch(err => { console.log('ping error:', err) })
+  // Another request to have two concurrent requests. Also use a bogus index
+  // to trigger an error and see APM error capture.
+  client.search({ index: 'no-such-index', q: 'pants' })
+    .then(_res => { console.log('search succeeded') })
+    .catch(err => { console.log('search error:', err.message) })
+    .finally(() => { t2.end() })
+
+  // Callback style.
+  const t3 = apm.startTransaction('t3')
+  client.ping(function (err, _res) {
+    console.log('ping', err ? `error ${err.name}: ${err.message}` : 'succeeded')
+    t3.end()
+  })
 }
-awaitStyle()
+
+run()
