@@ -280,6 +280,7 @@ declare namespace apm {
     sourceLinesSpanLibraryFrames?: number;
     spanFramesMinDuration?: string;
     stackTraceLimit?: number;
+    traceContinuationStrategy?: TraceContinuationStrategy;
     transactionIgnoreUrls?: Array<string>;
     transactionMaxSpans?: number;
     transactionSampleRate?: number;
@@ -353,6 +354,7 @@ declare namespace apm {
   type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
   type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
   type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'warning' | 'error' | 'fatal' | 'critical' | 'off';
+  type TraceContinuationStrategy = 'continue_always' | 'restart_always';
 
   type CaptureErrorCallback = (err: Error | null, id: string) => void;
   type FilterFn = (payload: Payload) => Payload | boolean | void;

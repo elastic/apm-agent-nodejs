@@ -1124,3 +1124,28 @@ require('elastic-apm-node').start({
   ]
 })
 ----
+
+
+[[trace-continuation-strategy]]
+==== `traceContinuationStrategy`
+* *Type:* String
+* *Default:* `'continue_always'`
+* *Env:* `ELASTIC_APM_TRACE_CONTINUATION_STRATEGY`
+
+Warning: This configuration option is **experimental** and may change in
+non-major versions of the agent.
+
+This option allows some control on how the APM agent handles W3C trace-context
+headers on incoming requests. By default, the `traceparent` and `tracestate`
+headers are used per W3C spec for distributed tracing. However, in certain cases
+(typically where an Elastic-monitored service is receiving requests with
+`traceparent` headers from *unmonitored* services) it can be helpful to *not*
+use the incoming `traceparent` header.
+
+Valid values are:
+
+- `'continue_always'` - The current and default behavior. Every incoming
+  `traceparent` header determines the sampling decision and the trace-id.
+- `'restart_always'` - Always ignores the `traceparent` header of incoming
+  requests. A new trace-id will be generated and the sampling decision will be
+  made based on <<transaction-sample-rate,`transactionSampleRate`>>.
