@@ -686,74 +686,74 @@ ${body.map(JSON.stringify).join('\n')}
       })
     t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
-}
 
-// Ensure that even without HTTP child spans, that trace-context propagation
-// to Elasticsearch still works.
-test('context-propagation works', function (t) {
-  const mockResponses = [
-    {
-      statusCode: 200,
-      headers: {
-        'X-elastic-product': 'Elasticsearch',
-        'content-type': 'application/json'
-      },
-      body: '{"took":0,"timed_out":false,"_shards":{"total":0,"successful":0,"skipped":0,"failed":0},"hits":{"total":{"value":0,"relation":"eq"},"max_score":0,"hits":[]}}'
-    }
-  ]
-  if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
-    // First request will be "GET /" for a product check.
-    mockResponses.unshift({
-      statusCode: 200,
-      headers: {
-        'X-elastic-product': 'Elasticsearch',
-        'content-type': 'application/json'
-      },
-      body: '{"name":"645a066f9b52","cluster_name":"docker-cluster","cluster_uuid":"1pR-cy9dSLWO7TNxI3kodA","version":{"number":"8.0.0-beta1","build_flavor":"default","build_type":"docker","build_hash":"ba1f616138a589f12eb0c6f678aee96377525b8f","build_date":"2021-11-04T12:35:26.989068569Z","build_snapshot":false,"lucene_version":"9.0.0","minimum_wire_compatibility_version":"7.16.0","minimum_index_compatibility_version":"7.0.0"},"tagline":"You Know, for Search"}'
-    })
-  }
-  const esServer = new MockES({ responses: mockResponses })
-  esServer.start(function (esUrl) {
-    resetAgent(
-      function done (data) {
-        // Assert that the ES server request for the `client.search()` is as
-        // expected.
-        const searchSpan = data.spans[data.spans.length - 1]
-        const esServerReq = esServer.requests[esServer.requests.length - 1]
-        const tracestate = esServerReq.headers.tracestate
-        t.equal(tracestate, 'es=s:1', 'esServer request included the expected tracestate header')
-        t.ok(esServerReq.headers.traceparent, 'esServer request included a traceparent header')
-        const traceparent = TraceParent.fromString(esServerReq.headers.traceparent)
-        t.equal(traceparent.traceId, myTrans.traceId, 'traceparent.traceId')
-        // node-traceparent erroneously (IMHO) calls this field `id` instead
-        // of `parentId`.
-        t.equal(traceparent.id, searchSpan.id, 'traceparent.id')
-        t.end()
+  // Ensure that even without HTTP child spans, that trace-context propagation
+  // to Elasticsearch still works.
+  test('context-propagation works', function (t) {
+    const mockResponses = [
+      {
+        statusCode: 200,
+        headers: {
+          'X-elastic-product': 'Elasticsearch',
+          'content-type': 'application/json'
+        },
+        body: '{"took":0,"timed_out":false,"_shards":{"total":0,"successful":0,"skipped":0,"failed":0},"hits":{"total":{"value":0,"relation":"eq"},"max_score":0,"hits":[]}}'
       }
-    )
+    ]
+    if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
+      // First request will be "GET /" for a product check.
+      mockResponses.unshift({
+        statusCode: 200,
+        headers: {
+          'X-elastic-product': 'Elasticsearch',
+          'content-type': 'application/json'
+        },
+        body: '{"name":"645a066f9b52","cluster_name":"docker-cluster","cluster_uuid":"1pR-cy9dSLWO7TNxI3kodA","version":{"number":"8.0.0-beta1","build_flavor":"default","build_type":"docker","build_hash":"ba1f616138a589f12eb0c6f678aee96377525b8f","build_date":"2021-11-04T12:35:26.989068569Z","build_snapshot":false,"lucene_version":"9.0.0","minimum_wire_compatibility_version":"7.16.0","minimum_index_compatibility_version":"7.0.0"},"tagline":"You Know, for Search"}'
+      })
+    }
+    const esServer = new MockES({ responses: mockResponses })
+    esServer.start(function (esUrl) {
+      resetAgent(
+        function done (data) {
+          // Assert that the ES server request for the `client.search()` is as
+          // expected.
+          const searchSpan = data.spans[data.spans.length - 1]
+          const esServerReq = esServer.requests[esServer.requests.length - 1]
+          const tracestate = esServerReq.headers.tracestate
+          t.equal(tracestate, 'es=s:1', 'esServer request included the expected tracestate header')
+          t.ok(esServerReq.headers.traceparent, 'esServer request included a traceparent header')
+          const traceparent = TraceParent.fromString(esServerReq.headers.traceparent)
+          t.equal(traceparent.traceId, myTrans.traceId, 'traceparent.traceId')
+          // node-traceparent erroneously (IMHO) calls this field `id` instead
+          // of `parentId`.
+          t.equal(traceparent.id, searchSpan.id, 'traceparent.id')
+          t.end()
+        }
+      )
 
-    const myTrans = agent.startTransaction('myTrans')
-    const client = new es.Client(Object.assign(
-      {},
-      clientOpts,
-      { node: esUrl }
-    ))
-    client.search({ q: 'pants' })
-      .then(() => {
-        t.ok('client.search succeeded')
-      })
-      .catch((err) => {
-        t.error(err, 'no error from client.search')
-      })
-      .finally(() => {
-        myTrans.end()
-        agent.flush()
-        client.close()
-        esServer.close()
-      })
-    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
+      const myTrans = agent.startTransaction('myTrans')
+      const client = new es.Client(Object.assign(
+        {},
+        clientOpts,
+        { node: esUrl }
+      ))
+      client.search({ q: 'pants' })
+        .then(() => {
+          t.ok('client.search succeeded')
+        })
+        .catch((err) => {
+          t.error(err, 'no error from client.search')
+        })
+        .finally(() => {
+          myTrans.end()
+          agent.flush()
+          client.close()
+          esServer.close()
+        })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
+    })
   })
-})
+}
 
 // Utility functions.
 
