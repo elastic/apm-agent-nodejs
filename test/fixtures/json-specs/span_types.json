@@ -225,7 +225,13 @@
           "ruby",
           "java"
         ]
-      }
+      },
+       "ldap": {
+         "__description": "LDAP client",
+         "__used_by": [
+           "java"
+         ]
+       }
     }
   },
   "json": {
