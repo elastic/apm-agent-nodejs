@@ -11,6 +11,7 @@ const apm = require('../').start({
 })
 
 const http = require('http')
+const semver = require('semver')
 const tape = require('tape')
 
 // Ensure that, by default, an HTTP request with a valid traceparent to an
@@ -53,6 +54,13 @@ tape.test('traceContinuationStrategy=continue_always', t => {
     res.end('pong')
   })
   server.listen(function () {
+    if (semver.satisfies(process.version, '<=8') && apm._conf.asyncHooks === false) {
+      // There is some bug in node v8 and lower and with asyncHooks=false
+      // instrumentation where this listener callback takes the run context of
+      // the preceding test's transaction. Hack it back.
+      apm._instrumentation.supersedeWithEmptyRunContext()
+    }
+
     const url = 'http://localhost:' + server.address().port
     http.get(url, {
       headers: {
@@ -83,6 +91,13 @@ tape.test('traceContinuationStrategy=restart_always', t => {
     res.end('pong')
   })
   server.listen(function () {
+    if (semver.satisfies(process.version, '<=8') && apm._conf.asyncHooks === false) {
+      // There is some bug in node v8 and lower and with asyncHooks=false
+      // instrumentation where this listener callback takes the run context of
+      // the preceding test's transaction. Hack it back.
+      apm._instrumentation.supersedeWithEmptyRunContext()
+    }
+
     const url = 'http://localhost:' + server.address().port
     http.get(url, {
       headers: {
