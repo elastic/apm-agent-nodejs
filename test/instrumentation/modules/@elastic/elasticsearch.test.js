@@ -829,10 +829,17 @@ function checkDataAndEnd (t, method, path, dbStatement, statusCode) {
       'elasticsearch span.context.destination.service.name=="elasticsearch"')
 
     // Iff the test case provided an expected `statusCode`, then we expect
-    // `.context.http`.
+    // `.context.http`. The exception is with @elastic/elasticsearch >=8
+    // and `asyncHooks=false` (see "Limitations" section in the instrumentation
+    // code).
     if (statusCode !== undefined) {
-      t.equal(esSpan.context.http.status_code, statusCode, 'context.http.status_code')
-      t.ok(esSpan.context.http.response.encoded_body_size, 'context.http.response.encoded_body_size is present')
+      if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
+          agent._conf.asyncHooks === false) {
+        t.comment('skip span.context.http check because of asyncHooks=false + esVersion>=8 limitation')
+      } else {
+        t.equal(esSpan.context.http.status_code, statusCode, 'context.http.status_code')
+        t.ok(esSpan.context.http.response.encoded_body_size, 'context.http.response.encoded_body_size is present')
+      }
     }
 
     t.end()
