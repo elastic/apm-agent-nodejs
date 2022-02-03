@@ -47,8 +47,9 @@ Notes:
   to provide awareness in case some users have custom analysis of APM trace
   data that expects those HTTP spans.
 
-  Per https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans.md#exit-spans[the APM Agent spec for exit spans], Elasticsearch spans are now marked as exit spans and as
-  a result, HTTP child spans are suppressed. ({issues}2000[#2000])
+  Per https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans.md#exit-spans[the APM Agent spec for exit spans],
+  Elasticsearch spans are now marked as exit spans and as a result, HTTP child
+  spans are suppressed. ({issues}2000[#2000])
 
   As part of this change, some HTTP context has been added to Elasticsearch
   spans, when available: the HTTP response `status_code`, and the size of the

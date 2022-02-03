@@ -687,8 +687,8 @@ ${body.map(JSON.stringify).join('\n')}
     t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
 
-  // Ensure that even without HTTP child spans, that trace-context propagation
-  // to Elasticsearch still works.
+  // Ensure that even without HTTP child spans, trace-context propagation to
+  // Elasticsearch still works.
   test('context-propagation works', function (t) {
     const mockResponses = [
       {
