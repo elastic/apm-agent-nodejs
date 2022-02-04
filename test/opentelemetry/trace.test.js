@@ -53,13 +53,12 @@ tape.test('transaction already started',function(t){
   })
   const provider = initilizeTraceProvider(agent)
 
-  const ctx = context.active()
-  console.log(ctx)
+  // const ctx = context.active()
   const tracer = trace.getTracer('foo')
   const transaction = agent.startTransaction('starting transaction')
-  tracer.startActiveSpan('test', {}, ctx, function(span1){
-    const ctx2 = context.active()
-    const span2 = tracer.startSpan('test2',{},ctx2)
+  tracer.startActiveSpan('test', {}, undefined, function(span1){
+    // const ctx2 = context.active()
+    const span2 = tracer.startSpan('test2',{},undefined)
     span2.end()
     span1.end()
     transaction.end()
@@ -73,17 +72,13 @@ tape.test('transaction already started',function(t){
     const transaction = data.transactions[0]
     const span = data.spans[0]
     t.equals(span.trace_id, transaction.trace_id, 'span and transaction part of same trace')
-
-
     t.true(span.parent_id == transaction.id, 'span is child of transaction')
     t.end()
   })
   const provider = initilizeTraceProvider()
-  const ctx = context.active()
   const tracer = trace.getTracer('foo')
-  tracer.startActiveSpan('test', {}, ctx, function(transaction){
-    const ctxTransaction = context.active()
-    const span = tracer.startSpan('test2',{},ctxTransaction)
+  tracer.startActiveSpan('test', {}, undefined, function(transaction){
+    const span = tracer.startSpan('test2',{})
     span.end()
     transaction.end()
   })
