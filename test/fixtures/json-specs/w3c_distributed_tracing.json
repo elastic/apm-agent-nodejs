@@ -1,5 +1,5 @@
 //
-// from https://github.com/w3c/distributed-tracing/blob/master/test/test_data.json
+// from https://github.com/w3c/distributed-tracing/blob/main/test/test_data.json
 //
 // NOTE: This file is manually copied from the above link and
 //       there is currently NO automation keeping it in sync with the upstream version.

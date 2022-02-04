@@ -13,6 +13,7 @@
 //    })
 //    server.start(function (serverUrl) {
 //      // - Test code using `serverUrl`.
+//      // - Use `server.requests` to see the requests the ES server received
 //      // - Call `server.close()` when done.
 //    })
 
@@ -26,6 +27,7 @@ class MockES {
     this._responses = opts.responses
     this._reqCount = 0
     this.serverUrl = null // set in .start()
+    this.requests = []
     this._http = http.createServer(this._onRequest.bind(this))
   }
 
@@ -33,6 +35,11 @@ class MockES {
     const response = this._responses[this._reqCount % this._responses.length]
     this._reqCount++
     req.on('end', () => {
+      this.requests.push({
+        method: req.method,
+        url: req.url,
+        headers: req.headers
+      })
       res.writeHead(response.statusCode, response.headers || {})
       res.end(response.body)
     })

@@ -367,7 +367,7 @@ elasticsearch:
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 '@elastic/elasticsearch-canary':
   name: '@elastic/elasticsearch-canary'
-  versions: '^8.0.0-canary.35'
+  versions: '>=8.0.0-canary.36 || >=8.1.0-canary.2'
   node: '>=12'
   commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
 
@@ -524,8 +524,8 @@ aws-sdk:
   # Maintenance note: This should be updated periodically using:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
-  # Test v2.858.0, every N=31 of 159 releases, and current latest.
-  versions: '2.858.0 || 2.889.0 || 2.920.0 || 2.951.0 || 2.982.0 || 2.1013.0 || 2.1016.0 || >2.1016.0 <3'
+  # Test v2.858.0, every N=41 of 209 releases, and current latest.
+  versions: '2.858.0 || 2.899.0 || 2.940.0 || 2.981.0 || 2.1022.0 || 2.1063.0 || 2.1066.0 || >2.1066.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js

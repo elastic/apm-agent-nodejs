@@ -34,6 +34,66 @@ Notes:
 [float]
 ===== Breaking changes
 
+* Change the `redis` and `mysql` instrumentations to not patch at all if
+  they are listed in <<disable-instrumentations, `disableInstrumentations`>>*.
+  This means that an application that uses one of these packages *and* lists
+  that package in `disableInstrumentations` could see changes in the async
+  run-context of callbacks.  See {issues}2498[#2498] and the
+  <<release-notes-3.26.0,v3.26.0 release notes>> which has a similar change.
+
+* Elasticsearch spans (from `elasticsearch`, `@elastic/elasticsearch`, and
+  `@elastic/elasticsearch-canary` instrumentation) will no longer have an HTTP
+  child span(s) for the underlying HTTP request. This is listed in this section
+  to provide awareness in case some users have custom analysis of APM trace
+  data that expects those HTTP spans.
+
+  Per https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans.md#exit-spans[the APM Agent spec for exit spans],
+  Elasticsearch spans are now marked as exit spans and as a result, HTTP child
+  spans are suppressed. ({issues}2000[#2000])
+
+  As part of this change, some HTTP context has been added to Elasticsearch
+  spans, when available: the HTTP response `status_code`, and the size of the
+  response body (`encoded_body_size`). ({issues}2484[#2484])
+
+[float]
+===== Features
+
+* Drop unsampled transactions when sending to APM Server v8.0+. ({issues}2455[#2455])
+
+* The default <<service-name, `serviceName`>> string (when it is not configured
+  and cannot be inferred from a "package.json" file) has been changed from
+  "nodejs_service" to "unknown-nodejs-service". This is a standardized pattern
+  used across Elastic APM agents to allow the Kibana APM app to recognize when
+  to provide help to the user on configuring the service name.
+  ({issues}2491[#2491])
+
+* Add `transaction.name` to captured APM errors. This will allow the Kibana APM
+  app to correlate error groups and transaction groups. ({issues}2456[#2456])
+
+* Mark S3 spans (from 'aws-sdk' instrumentation) as exit spans (per
+  https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans.md#exit-spans).
+  The result is that HTTP child spans of S3 spans are no longer captured.
+  ({issues}2125[#2125])
+
+[float]
+===== Bug fixes
+
+* Fixes for run context handling for '@elastic/elasticsearch' instrumentation.
+  ({issues}2430[#2430])
+
+* Fixes for run context handling for 'cassandra-driver' instrumentation.
+  ({issues}2430[#2430])
+
+* Fixes for run context handling for 'mongodb-core' instrumentation.
+  ({issues}2430[#2430])
+
+* Fixes for run context handling for 'elasticsearch' instrumentation.
+  ({issues}2430[#2430])
+
+
+[[release-notes-3.27.0]]
+==== 3.27.0 2022/01/17
+
 [float]
 ===== Features
 

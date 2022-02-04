@@ -11,6 +11,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
+  apmServerVersion: '8.0.0',
   spanFramesMinDuration: -1 // always capture stack traces with spans
 })
 
@@ -34,6 +35,7 @@ test('client.ping with callback', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client.ping with promise', function userLandCode (t) {
@@ -49,6 +51,7 @@ test('client.ping with promise', function userLandCode (t) {
   }, function (err) {
     t.error(err)
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client.search with callback', function userLandCode (t) {
@@ -64,10 +67,11 @@ test('client.search with callback', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client.search with abort', function userLandCode (t) {
-  resetAgent(3, done(t, 'POST', '/_search', 'q=pants', true))
+  resetAgent(done(t, 'POST', '/_search', 'q=pants'))
 
   agent.startTransaction('foo')
 
@@ -75,6 +79,7 @@ test('client.search with abort', function userLandCode (t) {
   var query = { q: 'pants' }
 
   var req = client.search(query)
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 
   setImmediate(() => {
     req.abort()
@@ -109,6 +114,7 @@ if (semver.satisfies(pkg.version, '>= 10')) {
       agent.endTransaction()
       agent.flush()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
   })
 }
 
@@ -125,7 +131,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       }
     ]
 
-    var statement = body.map(JSON.stringify).join('\n')
+    var statement = body.map(JSON.stringify).join('\n') + '\n'
 
     resetAgent(done(t, 'POST', '/_msearch', statement))
 
@@ -138,6 +144,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       agent.endTransaction()
       agent.flush()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
   })
 
   test('client.msearchTempate with callback', function userLandCode (t) {
@@ -157,7 +164,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       }
     ]
 
-    var statement = body.map(JSON.stringify).join('\n')
+    var statement = body.map(JSON.stringify).join('\n') + '\n'
 
     resetAgent(done(t, 'POST', '/_msearch/template', statement))
 
@@ -170,6 +177,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       agent.endTransaction()
       agent.flush()
     })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
   })
 }
 
@@ -184,6 +192,7 @@ test('client.count with callback', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client with host=<array of host:port>', function userLandCode (t) {
@@ -195,6 +204,7 @@ test('client with host=<array of host:port>', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client with hosts=<array of host:port>', function userLandCode (t) {
@@ -206,6 +216,7 @@ test('client with hosts=<array of host:port>', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
 test('client with hosts="http://host:port"', function userLandCode (t) {
@@ -221,67 +232,48 @@ test('client with hosts="http://host:port"', function userLandCode (t) {
     agent.endTransaction()
     agent.flush()
   })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
-function done (t, method, path, query, abort = false) {
+function done (t, method, path, query) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 1, 'should have 1 transaction')
-    t.strictEqual(data.spans.length, 2, 'should have 2 spans')
+    t.strictEqual(data.spans.length, 1, 'should have 1 span')
 
     var trans = data.transactions[0]
 
     t.strictEqual(trans.name, 'foo', 'transaction name should be "foo"')
     t.strictEqual(trans.type, 'custom', 'transaction type should be "custom"')
 
-    let span1, span2
-    {
-      const type = 'external'
-      const subtype = 'http'
-      const action = method
-      span1 = findObjInArray(data.spans, 'type', type)
-      t.ok(span1, 'should have span with type ' + type)
-      t.strictEqual(span1.type, type)
-      t.strictEqual(span1.subtype, subtype)
-      t.strictEqual(span1.action, action)
-    } {
-      const type = 'db'
-      const subtype = 'elasticsearch'
-      const action = 'request'
-      span2 = findObjInArray(data.spans, 'subtype', subtype)
-      t.ok(span2, 'should have span with subtype ' + subtype)
-      t.strictEqual(span2.type, type)
-      t.strictEqual(span2.subtype, subtype)
-      t.strictEqual(span2.action, action)
-    }
+    const type = 'db'
+    const subtype = 'elasticsearch'
+    const action = 'request'
+    const span = findObjInArray(data.spans, 'subtype', subtype)
+    t.ok(span, 'should have span with subtype ' + subtype)
+    t.strictEqual(span.type, type)
+    t.strictEqual(span.subtype, subtype)
+    t.strictEqual(span.action, action)
 
-    t.strictEqual(span1.name, method + ' ' + host)
-    t.strictEqual(span2.name, 'Elasticsearch: ' + method + ' ' + path)
+    t.strictEqual(span.name, 'Elasticsearch: ' + method + ' ' + path)
 
-    t.ok(span2.stacktrace.some(function (frame) {
+    t.ok(span.stacktrace.some(function (frame) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
 
     if (pathIsAQuery.test(path)) {
-      t.deepEqual(span2.context.db, { statement: query, type: 'elasticsearch' })
+      t.deepEqual(span.context.db, { statement: query, type: 'elasticsearch' })
     } else {
-      t.notOk(span2.context.db, 'span2 should not have "context.db"')
+      t.notOk(span.context.db, 'span should not have "context.db"')
     }
 
     const [address, port] = host.split(':')
-    t.deepEqual(span2.context.destination, {
+    t.deepEqual(span.context.destination, {
       service: {
         name: 'elasticsearch', resource: 'elasticsearch', type: 'db'
       },
       port: Number(port),
       address
     })
-
-    t.ok(span1.timestamp > span2.timestamp, 'http span should start after elasticsearch span')
-    if (abort) {
-      t.ok(span1.timestamp + span1.duration * 1000 > span2.timestamp + span2.duration * 1000, 'http span should end after elasticsearch span when req is aborted')
-    } else {
-      t.ok(span1.timestamp + span1.duration * 1000 < span2.timestamp + span2.duration * 1000, 'http span should end before elasticsearch span')
-    }
 
     t.end()
   }
@@ -290,7 +282,7 @@ function done (t, method, path, query, abort = false) {
 function resetAgent (expected, cb) {
   if (typeof expected === 'function') {
     cb = expected
-    expected = 3
+    expected = 2
   }
   agent._instrumentation.testReset()
   agent._transport = mockClient(expected, cb)
