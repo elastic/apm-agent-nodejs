@@ -7,127 +7,72 @@ endif::[]
 
 == Performance Tuning
 
-There are many options available to tune agent performance.
-Which option to adjust depends on whether you are optimizing for speed,
-memory usage,
-bandwidth,
-or storage.
+The Node.js APM agent offers a variety of <<configuration,configuration options>>,
+some of which can have a significant impact on performance. Areas where APM
+agent overhead might be seen are: CPU, memory, network, latency, and storage.
+This document discusses the options most significant for performance tuning the
+APM agent.
 
 [float]
 [[performance-sampling]]
-=== Sampling
+=== Sample rate
 
-The first knob to reach for when tuning the performance of the agent is <<transaction-sample-rate,`transactionSampleRate`>>.
-Adjusting the sampling rate controls what percent of requests are traced.
-By default,
-the sample rate is set at `1.0`,
-meaning _all_ requests are traced.
+The _sample rate_ is the percentage of incoming requests that are recorded and
+sent to the APM Server. This is controlled by the
+<<transaction-sample-rate,`transactionSampleRate`>> configuration option. By
+default _all_ requests are traced (`transactionSampleRate: 1.0`).
 
-The sample rate will impact all four performance categories,
-so simply turning down the sample rate is an easy way to improve performance.
+The amount of work the APM agent needs to do, generally scales linearly with
+the number of traced requests. Therefore, the sample rate impacts CPU, memory,
+network, and storage overhead.
 
-Here's an example of setting the sample rate to 20%:
+Applications with a high request rate and/or many spans per incoming request
+may want to lower the the sampling rate. For example, see the example below
+to trace 20% of incoming requests. Note that incoming HTTP requests that are
+part of a <<distributed-tracing,distributed trace>> already have the sampling
+decision made -- the `tracestate` header includes a
+https://w3c.github.io/trace-context/#sampled-flag[sampled flag]. In these cases
+the `transactionSampleRate` setting will not apply.
 
 [source,js]
 ----
 require('elastic-apm-node').start({
-  transactionSampleRate: 0.2
+  transactionSampleRate: 0.2 // sample 20% of incoming requests
 })
 ----
 
-[float]
-[[performance-apm-server-communication]]
-=== APM Server communication
-
-The agent uses a persistent outgoing HTTP request to stream data to the APM Server.
-To avoid issues with intermittent proxies and load balancers,
-the HTTP request is ended and a new one created at regular intervals or when the size of the request becomes too big.
-
-There's an overhead involved in each HTTP request:
-Besides sending new HTTP headers,
-the agent needs to re-send certain metadata to the APM Server each time a new HTTP request is made.
-However,
-if allowed by the network,
-the TCP socket is reused between each HTTP request.
-
-[float]
-[[performance-api-request-time]]
-==== Max HTTP request duration
-
-By default, an HTTP request to the APM Server is ended after a maximum of 10 seconds.
-Using the <<api-request-time,`apiRequestTime`>> config option,
-this time limit can be modified.
-
-Lowering the time limit might be necessary if dealing with very aggressive proxies,
-but increasing the time limit means that the combined overhead of these HTTP requests is reduced,
-as headers and metadata don't need to be re-sent that often.
-
-[float]
-[[performance-api-request-size]]
-==== Max HTTP request size
-
-By default, an HTTP request to the APM Server is ended after approximately 1 MiB of gzip compressed data have been written to the body.
-Using the <<api-request-size,`apiRequestSize`>> config option,
-this time limit can be modified.
-
-Lowering the size limit might be necessary if dealing with very aggressive proxies,
-but increasing the size limit means that the combined overhead of these HTTP requests is reduced,
-as headers and metadata don't need to be re-sent that often.
-
-[float]
-[[performance-max-queue-size]]
-==== Max queue size
-
-Events (transactions, spans, and errors) are buffered when the agent can't keep
-up with sending them to the APM Server or if the APM server is down. If the
-buffer exceeds <<max-queue-size>>, then events are dropped to limit memory
-usage of the agent.
-
-A lower value will decrease the heap overhead (and possibly the CPU usage) of
-the agent, while a higher value makes it less likely to lose events in case of
-a temporary spike in throughput.
-
-[float]
-[[performance-server-timeout]]
-==== APM Server Timeout
-
-In the event that the APM Server or the connection to the APM Server is slow or unstable,
-the <<server-timeout,`serverTimeout`>> setting can be set to ensure the agent doesn't wait too long for a response.
-
-The agent only allows for a single TCP socket to be opened to the APM Server at any given time.
-This is to avoid the overhead of opening too many sockets.
-If the agent is stuck waiting for a response from the previous HTTP request,
-it might start dropping new data in order to keep its memory footprint low.
-
-Keeping this timeout low,
-helps alleviate that problem.
 
 [float]
 [[performance-stack-traces]]
 === Stack Traces
 
-Stack traces can be a significant contributor to memory usage.
-There are several settings to adjust how they are used.
+When the APM agent captures an error, it records its stack trace for later
+analysis and viewing. Optionally, the APM agent can also record a stack trace
+for captured *spans*. Stack traces can have a significant impact on CPU and
+memory usage of the agent. There are several settings to adjust how they are
+used.
 
 [float]
 [[performance-span-stack-traces]]
 ==== Span Stack Traces
 
-In a complex application,
-a request may produce many spans.
-Capturing a stack trace for every span can result in significant memory usage.
-To disable capturing stack traces for all spans,
-set <<capture-span-stack-traces,`captureSpanStackTraces`>> to `false`.  You may also use
-the <<span-frames-min-duration,`spanFramesMinDuration`>> to set a duration threshold for
-when stack traces are captured.
+The <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>> configuration
+option controls if stack traces are never captured for spans (the
+default), always captured for spans, or only captured for spans that are longer
+than a given duration. In a complex application, a traced request may capture
+many spans. Capturing and sending a stack trace for every span can result in
+significant CPU and memory usage.
 
-This will mainly impact memory usage,
-but may also have a noticeable impact on speed too.
-The CPU time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
+It is because of the possibility of this CPU overhead that the APM Agent
+disables stack trace collection for _spans_ by default. Unfortunately, even
+the capturing of raw stack trace data at span creation and then throwing that
+away for fast spans can have significant CPU overhead for heavily loaded
+applications. Therefore, care must be taken before using `spanStackTraceMinDuration`.
+
 
 [float]
 [[performance-source-lines]]
-===== Source Lines
+==== Stack Trace Source Lines
 
 If you want to keep span stack traces enabled for context,
 the next thing to try is adjusting how many source lines are reported for each stack trace.
@@ -155,15 +100,15 @@ In memory-constrained environments,
 the source line cache may use more memory than desired.
 Turning the limits down will help prevent excessive memory use.
 
+
 [float]
 [[performance-stack-frame-limit]]
 ==== Stack Frame Limit
 
-The <<stack-trace-limit,`stackTraceLimit`>> controls how many stack frames should be captured when producing an `Error` instance of any kind.
+The <<stack-trace-limit,`stackTraceLimit`>> configuration option controls how
+many stack frames are captured when producing an `Error` instance of any kind.
+A large value may impact CPU and memory overhead of the agent.
 
-This will mainly impact memory usage,
-but may also have a noticeable impact on speed too.
-The CPU time required to capture and convert a stack frame to something JavaScript can understand is not insignificant.
 
 [float]
 [[performance-error-log-stack-traces]]
@@ -178,6 +123,7 @@ it will only capture the stack trace to the reporting point when <<apm-capture-e
 
 Setting this to `always` will increase memory and bandwidth usage,
 so it helps to consider how frequently the app may capture errors.
+
 
 [float]
 [[performance-transaction-max-spans]]
@@ -205,3 +151,19 @@ agent.addSpanFilter(payload => {
 ----
 
 NOTE: Using a span filter does not reduce the load of recording the spans in your application, but merely filters them out before sending them to the APM Server.
+
+
+[float]
+[[performance-max-queue-size]]
+=== Max queue size
+
+The APM agent uses a persistent outgoing HTTP request (periodically refreshed)
+to stream data to the APM Server. If either the APM agent cannot keep up with
+events (transactions, spans, errors, and metricsets) from the application or
+if the APM Server is slow or not responding, then the agent will buffer events.
+If the buffer exceeds <<max-queue-size>>, then events are dropped to limit
+memory usage of the agent.
+
+A lower value for `maxQueueSize` will decrease the heap overhead (and possibly
+the CPU usage) of the agent, while a higher value makes it less likely to lose
+events in case of a temporary spike in throughput.

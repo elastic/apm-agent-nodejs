@@ -8,7 +8,7 @@ const agent = require('../../../').start({
   logLevel: 'off',
   // These tell the APM agent to always include a span stacktrace.
   captureSpanStackTraces: true,
-  spanFramesMinDuration: -1,
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
   // These tell the agent to add source lines of context.
   sourceLinesSpanAppFrames: 5,
   sourceLinesSpanLibraryFrames: 5

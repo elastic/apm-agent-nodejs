@@ -29,7 +29,7 @@ const agentOpts = {
   captureExceptions: false,
   metricsInterval: '0s',
   cloudProvider: 'none',
-  spanFramesMinDuration: -1, // Never discard fast spans.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
   logLevel: 'warn'
 }
 const agentOptsNoopTransport = Object.assign(

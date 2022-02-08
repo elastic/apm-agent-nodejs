@@ -6,7 +6,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanFramesMinDuration: -1 // always capture stack traces with spans
+  spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
 // There is a known issue where express-graphql instrumentation does not work
