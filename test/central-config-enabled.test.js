@@ -63,14 +63,16 @@ test('remote config enabled', function (t) {
     transaction_max_spans: '99',
     capture_body: 'all',
     transaction_ignore_urls: ['foo'],
-    log_level: 'warn'
+    log_level: 'warn',
+    span_stack_trace_min_duration: '50ms'
   }
   const expect = {
     transactionSampleRate: 0.42,
     transactionMaxSpans: 99,
     captureBody: 'all',
     transactionIgnoreUrls: ['foo'],
-    logLevel: 'warn'
+    logLevel: 'warn',
+    spanStackTraceMinDuration: 0.05
   }
 
   runTestsWithServer(t, updates, expect)
@@ -173,7 +175,7 @@ test('agent.logger updates for central config `log_level` change', { timeout: 50
 
 // Ensure that a central config that updates some var other than `cloudProvider`
 // does not result in *cloudProvider* being updated (issue #1976).
-test.only('central config change does not erroneously update cloudProvider', { timeout: 5000 }, function (t) {
+test('central config change does not erroneously update cloudProvider', { timeout: 5000 }, function (t) {
   let agent
 
   const server = http.createServer((req, res) => {
