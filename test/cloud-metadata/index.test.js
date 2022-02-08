@@ -421,7 +421,7 @@ tape('cloud metadata: main function with slow aws server', function (t) {
       providerUrls,
       function (err, metadata) {
         t.ok(err, 'error expected')
-        t.equals(err.message, 'all callbacks failed')
+        t.equals(err.message, 'no response from any callback, no cloud metadata will be set (normal outside of cloud env.)')
         listener.close()
       }
     )

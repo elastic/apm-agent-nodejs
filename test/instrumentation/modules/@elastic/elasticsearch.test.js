@@ -36,6 +36,7 @@ const es = require(esClientPkgName)
 
 const { Readable } = require('stream')
 const test = require('tape')
+const TraceParent = require('traceparent')
 
 const findObjInArray = require('../../../_utils').findObjInArray
 const mockClient = require('../../../_mock_http_client')
@@ -55,7 +56,7 @@ if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
 }
 
 test('client.ping with promise', function (t) {
-  resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
+  resetAgent(checkDataAndEnd(t, 'HEAD', '/', null, 200))
 
   agent.startTransaction('myTrans')
 
@@ -70,7 +71,7 @@ test('client.ping with promise', function (t) {
 // Callback-style was dropped in ES client v8.
 if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
   test('client.ping with callback', function (t) {
-    resetAgent(checkDataAndEnd(t, 'HEAD', '/', null))
+    resetAgent(checkDataAndEnd(t, 'HEAD', '/', null, 200))
 
     agent.startTransaction('myTrans')
 
@@ -87,7 +88,7 @@ if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
 test('client.search with promise', function (t) {
   const searchOpts = { q: 'pants' }
 
-  resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants'))
+  resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants', 200))
 
   agent.startTransaction('myTrans')
 
@@ -108,7 +109,7 @@ if (semver.gte(process.version, '10.0.0')) {
   test('client.child', function (t) {
     const searchOpts = { q: 'pants' }
 
-    resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants'))
+    resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants', 200))
 
     agent.startTransaction('myTrans')
 
@@ -128,7 +129,7 @@ if (semver.gte(process.version, '10.0.0')) {
   test('client.search with queryparam', function (t) {
     const searchOpts = { q: 'pants' }
 
-    resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants'))
+    resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants', 200))
 
     agent.startTransaction('myTrans')
 
@@ -155,7 +156,7 @@ if (semver.gte(process.version, '10.0.0')) {
       body: body
     }
 
-    resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, JSON.stringify(body)))
+    resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, JSON.stringify(body), 200))
 
     agent.startTransaction('myTrans')
 
@@ -184,7 +185,7 @@ if (semver.gte(process.version, '10.0.0')) {
       let expectedDbStatement = Object.assign({}, searchOpts)
       delete expectedDbStatement.index
       expectedDbStatement = JSON.stringify(expectedDbStatement)
-      resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, expectedDbStatement))
+      resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, expectedDbStatement, 200))
 
       agent.startTransaction('myTrans')
 
@@ -228,7 +229,7 @@ if (semver.gte(process.version, '10.0.0')) {
 ${JSON.stringify(body)}`
     }
 
-    resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, statement))
+    resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, statement, 200))
 
     agent.startTransaction('myTrans')
 
@@ -256,7 +257,7 @@ ${JSON.stringify(body)}`
       }
     }
 
-    resetAgent(checkDataAndEnd(t, 'POST', '/_search/template', JSON.stringify(body)))
+    resetAgent(checkDataAndEnd(t, 'POST', '/_search/template', JSON.stringify(body), 200))
 
     agent.startTransaction('myTrans')
 
@@ -291,7 +292,7 @@ ${JSON.stringify(body)}`
 ${body.map(JSON.stringify).join('\n')}
 `
 
-    resetAgent(checkDataAndEnd(t, 'POST', '/_msearch', statement))
+    resetAgent(checkDataAndEnd(t, 'POST', '/_msearch', statement, 200))
 
     agent.startTransaction('myTrans')
 
@@ -323,7 +324,7 @@ ${body.map(JSON.stringify).join('\n')}
     ]
     const statement = body.map(JSON.stringify).join('\n') + '\n'
 
-    resetAgent(checkDataAndEnd(t, 'POST', '/_msearch/template', statement))
+    resetAgent(checkDataAndEnd(t, 'POST', '/_msearch/template', statement, 200))
 
     agent.startTransaction('myTrans')
 
@@ -685,6 +686,73 @@ ${body.map(JSON.stringify).join('\n')}
       })
     t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
+
+  // Ensure that even without HTTP child spans, trace-context propagation to
+  // Elasticsearch still works.
+  test('context-propagation works', function (t) {
+    const mockResponses = [
+      {
+        statusCode: 200,
+        headers: {
+          'X-elastic-product': 'Elasticsearch',
+          'content-type': 'application/json'
+        },
+        body: '{"took":0,"timed_out":false,"_shards":{"total":0,"successful":0,"skipped":0,"failed":0},"hits":{"total":{"value":0,"relation":"eq"},"max_score":0,"hits":[]}}'
+      }
+    ]
+    if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
+      // First request will be "GET /" for a product check.
+      mockResponses.unshift({
+        statusCode: 200,
+        headers: {
+          'X-elastic-product': 'Elasticsearch',
+          'content-type': 'application/json'
+        },
+        body: '{"name":"645a066f9b52","cluster_name":"docker-cluster","cluster_uuid":"1pR-cy9dSLWO7TNxI3kodA","version":{"number":"8.0.0-beta1","build_flavor":"default","build_type":"docker","build_hash":"ba1f616138a589f12eb0c6f678aee96377525b8f","build_date":"2021-11-04T12:35:26.989068569Z","build_snapshot":false,"lucene_version":"9.0.0","minimum_wire_compatibility_version":"7.16.0","minimum_index_compatibility_version":"7.0.0"},"tagline":"You Know, for Search"}'
+      })
+    }
+    const esServer = new MockES({ responses: mockResponses })
+    esServer.start(function (esUrl) {
+      resetAgent(
+        function done (data) {
+          // Assert that the ES server request for the `client.search()` is as
+          // expected.
+          const searchSpan = data.spans[data.spans.length - 1]
+          const esServerReq = esServer.requests[esServer.requests.length - 1]
+          const tracestate = esServerReq.headers.tracestate
+          t.equal(tracestate, 'es=s:1', 'esServer request included the expected tracestate header')
+          t.ok(esServerReq.headers.traceparent, 'esServer request included a traceparent header')
+          const traceparent = TraceParent.fromString(esServerReq.headers.traceparent)
+          t.equal(traceparent.traceId, myTrans.traceId, 'traceparent.traceId')
+          // node-traceparent erroneously (IMHO) calls this field `id` instead
+          // of `parentId`.
+          t.equal(traceparent.id, searchSpan.id, 'traceparent.id')
+          t.end()
+        }
+      )
+
+      const myTrans = agent.startTransaction('myTrans')
+      const client = new es.Client(Object.assign(
+        {},
+        clientOpts,
+        { node: esUrl }
+      ))
+      client.search({ q: 'pants' })
+        .then(() => {
+          t.ok('client.search succeeded')
+        })
+        .catch((err) => {
+          t.error(err, 'no error from client.search')
+        })
+        .finally(() => {
+          myTrans.end()
+          agent.flush()
+          client.close()
+          esServer.close()
+        })
+      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
+    })
+  })
 }
 
 // Utility functions.
@@ -719,7 +787,7 @@ function checkSpanOutcomesSuccess (t) {
   }
 }
 
-function checkDataAndEnd (t, method, path, dbStatement) {
+function checkDataAndEnd (t, method, path, dbStatement, statusCode) {
   return function (data) {
     t.equal(data.transactions.length, 1, 'should have 1 transaction')
     const trans = data.transactions[0]
@@ -734,30 +802,17 @@ function checkDataAndEnd (t, method, path, dbStatement) {
       const prodCheckEsSpan = data.spans[1]
       t.ok(prodCheckEsSpan, 'have >=7.14.0 product check ES span')
       t.equal(prodCheckEsSpan.name, 'Elasticsearch: GET /', 'product check ES span name')
-      const prodCheckHttpSpan = data.spans[2]
-      t.ok(prodCheckHttpSpan, 'have >=7.14.0 product check HTTP span')
-      t.equal(prodCheckHttpSpan.name, `GET ${host}`, 'product check HTTP span name')
-      // Remove the product check spans for subsequent assertions.
-      data.spans = data.spans.slice(0, 1).concat(data.spans.slice(3))
+      // Remove the product check span for subsequent assertions.
+      data.spans = data.spans.slice(0, 1)
     }
 
-    t.equal(data.spans.length, 2, 'should have 2 spans (excluding product check spans in >=7.14.0)')
-
-    const esSpan = findObjInArray(data.spans, 'subtype', 'elasticsearch')
+    t.equal(data.spans.length, 1, 'should have 1 span (excluding product check spans in >=7.14.0)')
+    const esSpan = data.spans[0]
     t.ok(esSpan, 'have an elasticsearch span')
     t.strictEqual(esSpan.type, 'db')
     t.strictEqual(esSpan.subtype, 'elasticsearch')
     t.strictEqual(esSpan.action, 'request')
     t.strictEqual(esSpan.sync, false, 'span.sync=false')
-
-    const httpSpan = findObjInArray(data.spans, 'subtype', 'http')
-    t.ok(httpSpan, 'have an http span')
-    t.strictEqual(httpSpan.type, 'external')
-    t.strictEqual(httpSpan.subtype, 'http')
-    t.strictEqual(httpSpan.action, method)
-    t.strictEqual(httpSpan.sync, false, 'span.sync=false')
-
-    t.equal(httpSpan.name, method + ' ' + host, 'http span should have expected name')
     t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')
 
     // Iff the test case provided a `dbStatement`, then we expect `.context.db`.
@@ -773,10 +828,19 @@ function checkDataAndEnd (t, method, path, dbStatement) {
     t.equal(esSpan.context.destination.service.name, 'elasticsearch',
       'elasticsearch span.context.destination.service.name=="elasticsearch"')
 
-    t.ok(httpSpan.timestamp > esSpan.timestamp,
-      'http span should start after elasticsearch span')
-    t.ok(httpSpan.timestamp + httpSpan.duration * 1000 < esSpan.timestamp + esSpan.duration * 1000,
-      'http span should end before elasticsearch span')
+    // Iff the test case provided an expected `statusCode`, then we expect
+    // `.context.http`. The exception is with @elastic/elasticsearch >=8
+    // and `asyncHooks=false` (see "Limitations" section in the instrumentation
+    // code).
+    if (statusCode !== undefined) {
+      if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
+          agent._conf.asyncHooks === false) {
+        t.comment('skip span.context.http check because of asyncHooks=false + esVersion>=8 limitation')
+      } else {
+        t.equal(esSpan.context.http.status_code, statusCode, 'context.http.status_code')
+        t.ok(esSpan.context.http.response.encoded_body_size, 'context.http.response.encoded_body_size is present')
+      }
+    }
 
     t.end()
   }

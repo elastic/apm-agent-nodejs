@@ -403,6 +403,19 @@ test('#startSpan()', function (t) {
     t.end()
   })
 
+  t.test('startSpan with no name results in span.name="unnamed"', function (t) {
+    const agent = new Agent().start(agentOptsNoopTransport)
+    agent.startTransaction()
+    var span = agent.startSpan()
+    t.ok(span, 'should return a span')
+    t.strictEqual(span.name, 'unnamed')
+    t.strictEqual(span.type, null)
+    t.strictEqual(span.subtype, null)
+    t.strictEqual(span.action, null)
+    agent.destroy()
+    t.end()
+  })
+
   t.test('options.startTime', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
