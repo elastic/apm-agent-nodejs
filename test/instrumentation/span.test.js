@@ -270,8 +270,8 @@ test('#_encode() - with meta data', function myTest2 (t) {
 })
 
 test('#_encode() - disabled stack traces', function (t) {
-  const oldCaptureSpanStackTraces = agent._conf.captureSpanStackTraces
-  agent._conf.captureSpanStackTraces = false
+  const oldValue = agent._conf.spanStackTraceMinDuration
+  agent._conf.spanStackTraceMinDuration = -1
 
   var trans = new Transaction(agent)
   var span = new Span(trans)
@@ -294,7 +294,7 @@ test('#_encode() - disabled stack traces', function (t) {
     t.strictEqual(payload.context, undefined)
     t.strictEqual(payload.stacktrace, undefined)
 
-    agent._conf.captureSpanStackTraces = oldCaptureSpanStackTraces
+    agent._conf.spanStackTraceMinDuration = oldValue
     t.end()
   })
 })

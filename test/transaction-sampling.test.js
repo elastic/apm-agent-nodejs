@@ -12,7 +12,6 @@ const testAgentOpts = {
   cloudProvider: 'none',
   centralConfig: false,
   captureExceptions: false,
-  captureSpanStackTraces: false,
   metricsInterval: '0s',
   logLevel: 'off'
 }
