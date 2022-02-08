@@ -35,7 +35,7 @@ Notes:
 ===== Breaking changes
 
 * Change the `redis` and `mysql` instrumentations to not patch at all if
-  they are listed in <<disable-instrumentations, `disableInstrumentations`>>*.
+  they are listed in <<disable-instrumentations, `disableInstrumentations`>>.
   This means that an application that uses one of these packages *and* lists
   that package in `disableInstrumentations` could see changes in the async
   run-context of callbacks.  See {issues}2498[#2498] and the
@@ -46,14 +46,14 @@ Notes:
   child span(s) for the underlying HTTP request. This is listed in this section
   to provide awareness in case some users have custom analysis of APM trace
   data that expects those HTTP spans.
-
-  Per https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans.md#exit-spans[the APM Agent spec for exit spans],
-  Elasticsearch spans are now marked as exit spans and as a result, HTTP child
-  spans are suppressed. ({issues}2000[#2000])
-
-  As part of this change, some HTTP context has been added to Elasticsearch
-  spans, when available: the HTTP response `status_code`, and the size of the
-  response body (`encoded_body_size`). ({issues}2484[#2484])
++
+Per https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans.md#exit-spans[the APM Agent spec for exit spans],
+Elasticsearch spans are now marked as exit spans and as a result, HTTP child
+spans are suppressed. ({issues}2000[#2000])
++
+As part of this change, some HTTP context has been added to Elasticsearch
+spans, when available: the HTTP response `status_code`, and the size of the
+response body (`encoded_body_size`). ({issues}2484[#2484])
 
 [float]
 ===== Features
