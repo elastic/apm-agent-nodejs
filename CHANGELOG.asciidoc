@@ -29,10 +29,15 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
+[[release-notes-3.28.0]]
+==== 3.28.0 2022/02/08
 
 [float]
 ===== Breaking changes
+
+The following changes are not considered *breaking*. However, they result in
+a change in behavior and trace output that might impact some users, so they
+are highlighted here.
 
 * Change the `redis` and `mysql` instrumentations to not patch at all if
   they are listed in <<disable-instrumentations, `disableInstrumentations`>>.
