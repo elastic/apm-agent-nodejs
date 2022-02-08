@@ -128,7 +128,7 @@ test('remote config enabled: receives non delimited string', function (t) {
 })
 
 // Ensure the logger updates if the central config `log_level` changes.
-test('agent.logger updates for central config `log_level` change', { timeout: 1000 }, function (t) {
+test('agent.logger updates for central config `log_level` change', { timeout: 5000 }, function (t) {
   let agent
 
   const server = http.createServer((req, res) => {
@@ -173,7 +173,7 @@ test('agent.logger updates for central config `log_level` change', { timeout: 10
 
 // Ensure that a central config that updates some var other than `cloudProvider`
 // does not result in *cloudProvider* being updated (issue #1976).
-test('central config change does not erroneously update cloudProvider', { timeout: 1000 }, function (t) {
+test.only('central config change does not erroneously update cloudProvider', { timeout: 5000 }, function (t) {
   let agent
 
   const server = http.createServer((req, res) => {
