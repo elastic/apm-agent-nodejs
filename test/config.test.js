@@ -1444,7 +1444,7 @@ test('spanStackTraceMinDuration', suite => {
     {
       name: 'a given spanStackTraceMinDuration=0s wins over envvars',
       startOpts: {
-        spanStackTraceMinDuration: '0s',
+        spanStackTraceMinDuration: '0s'
       },
       env: {
         ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES: 'false',
@@ -1492,7 +1492,7 @@ test('spanStackTraceMinDuration', suite => {
       name: 'ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES=false results in spanStackTraceMinDuration=-1',
       startOpts: {},
       env: {
-        ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES: 'false',
+        ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES: 'false'
       },
       expectedVal: -1
     },
