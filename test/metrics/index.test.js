@@ -76,15 +76,18 @@ test('reports expected metrics', function (t) {
         const free = os.freemem()
         if (os.type() === 'Linux' &&
           semver.lt(process.version, '18.0.0-nightly20220107') &&
-          semver.lt(process.version, '17.4.0')) {
+          semver.lt(process.version, '17.4.0') &&
+          semver.lt(process.version, '16.14.0')) {
           // On Linux we use "MemAvailable" from /proc/meminfo as the value for
-          // this metric. In versions of Node.js before v17.4.0 and v18.0.0,
-          // `os.freemem()` reports "MemFree" from /proc/meminfo. (This changed
-          // in v17.4.0 and v18.0.0-nightly20220107b6b6510187 when node upgraded
-          // to libuv 1.43.0 to include https://github.com/libuv/libuv/pull/3351.)
+          // this metric. In older versions of Node.js on Linus, `os.freemem()`
+          // reports "MemFree" from /proc/meminfo. This changed when dev-lines
+          // of node upgraded to libuv 1.43.0 to include
+          // https://github.com/libuv/libuv/pull/3351.
           t.ok(value > free, `is larger than os.freemem() (value: ${value},
           free: ${free})`)
         } else {
+          // `isRoughly` because we are comparing free memory queried at
+          // near but separate times, so we expect some variance.
           t.ok(isRoughly(value, free, 0.1), `is close to current free memory (value: ${value}, free: ${free})`)
         }
       },
