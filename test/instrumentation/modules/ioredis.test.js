@@ -4,8 +4,7 @@ var agent = require('../../..').start({
   serviceName: 'test-ioredis',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false,
-  captureSpanStackTraces: false
+  centralConfig: false
 })
 
 var Redis = require('ioredis')

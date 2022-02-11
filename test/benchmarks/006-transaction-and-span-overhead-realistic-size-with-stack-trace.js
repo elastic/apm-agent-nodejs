@@ -1,15 +1,20 @@
 'use strict'
 
 // Benchmark APM agent overhead with (a) a stable simulated number of spans
-// and callstack depth per transaction and (b) the default configuration.
+// and callstack depth per transaction and (b) a configuration that ensures
+// span stacktrace collection.
 //
-// Compare to 'transaction-and-span-overhead-realistic-size-with-stack-trace'.
+// Compare to 'transaction-and-span-overhead-realistic-size' which is the
+// same simulation, but with the default config.
 
 /* eslint-disable no-unused-vars, no-undef */
 
 const bench = require('./utils/bench')
 
-bench('transaction-and-span-overhead-realistic-size', {
+bench('transaction-and-span-overhead-realistic-size-with-stack-trace', {
+  agentConf: {
+    spanStackTraceMinDuration: 0 // ensure span stacktrace collection
+  },
   setup () {
     var agent = this.benchmark.agent
     var callstack = this.benchmark.callstack

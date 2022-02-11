@@ -29,6 +29,35 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+* Added a new config option <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>>
+  that replaces both <<capture-span-stack-traces,`captureSpanStackTraces`>>
+  and <<span-frames-min-duration,`spanFramesMinDuration`>>. The latter two are
+  now deprecated, but still supported. If `spanStackTraceMinDuration` is
+  specified, then any value for the deprecated two options will be ignored.
++
+There is a significant change in _default_ behavior of the APM agent. If none
+of these configuration options is specified, then the default
+(`spanStackTraceMinDuration: -1`) is that stack traces are *not* collected
+and reported for any spans. This change in default behavior was made because
+the CPU performance impact of collecting span stack traces was found to be
+too high in practice for busy and/or complex applications. This is mentioned
+in the "Breaking changes" section to highlight the change, but it is not
+considered breaking in general. The impact is that the "Stack Trace" tab in
+the "Span details" view in the Kibana APM app will be empty. This was already
+the case for some spans based on span duration. ({pull}2565[#2565])
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+
 [[release-notes-3.29.0]]
 ==== 3.29.0 2022/02/10
 

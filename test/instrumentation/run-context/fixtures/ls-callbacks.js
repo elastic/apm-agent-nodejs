@@ -8,7 +8,6 @@
 
 const apm = require('../../../../').start({ // elastic-apm-node
   captureExceptions: false,
-  captureSpanStackTraces: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,

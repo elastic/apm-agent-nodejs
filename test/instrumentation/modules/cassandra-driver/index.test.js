@@ -5,8 +5,7 @@ const agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false,
-  captureSpanStackTraces: false
+  centralConfig: false
 })
 
 const semver = require('semver')

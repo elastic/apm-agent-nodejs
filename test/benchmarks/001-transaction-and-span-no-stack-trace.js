@@ -6,7 +6,7 @@ const bench = require('./utils/bench')
 
 bench('transaction-and-span-no-stack-trace', {
   agentConf: {
-    captureSpanStackTraces: false
+    spanStackTraceMinDuration: -1
   },
   setup () {
     var agent = this.benchmark.agent

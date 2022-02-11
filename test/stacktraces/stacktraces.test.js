@@ -191,7 +191,7 @@ tape.test('span.stacktrace', function (t) {
           firstAppFrame,
           {
             filename: testScript,
-            lineno: 23,
+            lineno: 21,
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'send-a-span.js'),
