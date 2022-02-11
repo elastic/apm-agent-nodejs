@@ -602,7 +602,7 @@ A capture location stack trace is never generated for uncaught exceptions.
 [[span-stack-trace-min-duration]]
 ==== `spanStackTraceMinDuration`
 
-[small]#Added in: v3.29.0, replaces <<capture-span-stack-traces,`captureSpanStackTraces`>> and <<span-frames-min-duration,`spanFramesMinDuration`>>#
+[small]#Added in: v3.30.0, replaces <<capture-span-stack-traces,`captureSpanStackTraces`>> and <<span-frames-min-duration,`spanFramesMinDuration`>>#
 
 * *Type:* Duration
 * *Default:* `'-1s'` (never capture span stack traces)
@@ -633,14 +633,14 @@ has changed to milliseconds.)
 [[capture-span-stack-traces]]
 ==== `captureSpanStackTraces`
 
-[small]#Deprecated in: v3.29.0, use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>>#
+[small]#Deprecated in: v3.30.0, use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>>#
 
 * *Type:* Boolean
 * *Env:* `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES`
 
 This option is *deprecated* -- use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>> instead.
-In versions before v3.29.0 this option was `true` by default. As of version
-v3.29.0 this default has _effectively_ changed to false, because the default is
+In versions before v3.30.0 this option was `true` by default. As of version
+v3.30.0 this default has _effectively_ changed to false, because the default is
 `spanStackTraceMinDuration: '-1s'`.
 
 If `spanStackTraceMinDuration` is specified, then any provided value for this
@@ -657,7 +657,7 @@ option is ignored. Otherwise,
 [[span-frames-min-duration]]
 ==== `spanFramesMinDuration`
 
-[small]#Deprecated in: v3.29.0, use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>>#
+[small]#Deprecated in: v3.30.0, use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>>#
 
 * *Type:* Duration
 * *Env:* `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION`
