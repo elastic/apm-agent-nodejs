@@ -37,7 +37,7 @@ tape.test('isLambdaExecutionEnvironment', function (t) {
   t.end()
 })
 
-tape.test('lambda metadata', function (suite) {
+tape.test('lambda config & metadata tests', function (suite) {
   let server
   let serverUrl
 
@@ -57,7 +57,10 @@ tape.test('lambda metadata', function (suite) {
     })
   })
 
-  suite.test('ignores cloudProvider:auto in lambda environment', function (t) {
+  suite.test('config defaults in lambda environment', function (t) {
+    t.strictEqual(apm._conf.metricsInterval, 0, 'metricsInterval=0')
+    t.strictEqual(apm._conf.centralConfig, false, 'centralConfig=false')
+    t.strictEqual(apm._conf.cloudProvider, 'none', 'cloudProvider="none"')
     t.notOk(apm._transport._conf.cloudMetadataFetcher,
       'no cloudMetadataFetcher is given to the transport in a Lambda env')
     t.end()
@@ -98,6 +101,13 @@ tape.test('lambda metadata', function (suite) {
         t.end()
       }
     })
+  })
+
+  suite.test('should not be a central config request to APM server', function (t) {
+    const centralConfigReqs = server.requests
+      .filter(r => r.method === 'GET' && r.url.startsWith('/config/v1/agents'))
+    t.equal(centralConfigReqs.length, 0, 'no GET /config/v1/agents requests to APM server')
+    t.end()
   })
 
   suite.test('teardown', function (t) {
