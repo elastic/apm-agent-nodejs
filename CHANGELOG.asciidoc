@@ -57,10 +57,19 @@ the case for some spans based on span duration. ({pull}2565[#2565])
 
 [float]
 ===== Bug fixes
+[[release-notes-3.29.0]]
+==== 3.29.0 2022/02/10
+
+* Fix a bug in instrumentation of `@elastic/elasticsearch` that caused a
+  memory leak. ({issues}2569[#2569])
 
 
 [[release-notes-3.28.0]]
 ==== 3.28.0 2022/02/08
+
+Known issue: This release includes a memory leak in instrumentation of the
+`@elastic/elasticsearch` package. If you use that package, you should not
+use v3.28.0 of this APM agent. ({issues}2569[#2569])
 
 [float]
 ===== Breaking changes
