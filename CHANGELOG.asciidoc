@@ -51,12 +51,13 @@ considered breaking in general. The impact is that the "Stack Trace" tab in
 the "Span details" view in the Kibana APM app will be empty. This was already
 the case for some spans based on span duration. ({pull}2565[#2565])
 
-
 [float]
 ===== Features
 
 [float]
 ===== Bug fixes
+
+
 [[release-notes-3.29.0]]
 ==== 3.29.0 2022/02/10
 
