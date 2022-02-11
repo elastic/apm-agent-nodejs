@@ -88,7 +88,6 @@ tape.test('lambda config & metadata tests', function (suite) {
         var metadata = server.events[0].metadata
         t.ok(metadata, 'got metadata')
         t.same(metadata.service.name, process.env.AWS_LAMBDA_FUNCTION_NAME, 'service.name')
-        t.same(metadata.service.id, `arn:aws:lambda:${process.env.AWS_REGION}:${process.env.AWS_ACCOUNT_ID}:function:${process.env.AWS_LAMBDA_FUNCTION_NAME}`, 'service.id')
         t.same(metadata.service.version, '1.0', 'service.version has lambda-local hardcoded "1.0"')
         t.same(metadata.service.framework.name, 'AWS Lambda', 'service.framework.name')
         t.same(metadata.service.runtime.name, process.env.AWS_EXECUTION_ENV, 'service.runtime.name')

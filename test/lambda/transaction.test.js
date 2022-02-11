@@ -16,7 +16,7 @@ tape.test('cold start tests', function (t) {
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(myHandler)
   const mockEvent = {}
-  const mockContext = {}
+  const mockContext = loadFixture('context')
 
   // invoke the mock lambda twice
   wrappedMockLambda(mockEvent, mockContext)
@@ -40,6 +40,7 @@ tape.test('setLambdaTransactionData aws_api_http_test_data tests', function (t) 
   wrappedMockLambda(event, context)
   const transaction = mockAgent.transactions.shift()
 
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
   t.strictEquals(typeof transaction._faas.coldstart, 'boolean', 'coldstart value set')
   t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
   t.strictEquals(transaction._faas.trigger.type, 'http', 'execution value set')
@@ -65,7 +66,8 @@ tape.test('setLambdaTransactionData aws_api_rest_test_data.json tests', function
   wrappedMockLambda(event, context)
   const transaction = mockAgent.transactions.shift()
 
-  t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
   t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
   t.strictEquals(transaction._faas.trigger.type, 'http', 'trigger type set')
   t.strictEquals(transaction._faas.trigger.request_id, event.requestContext.requestId, 'execution value set')
@@ -96,7 +98,8 @@ tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) 
   const arnParts = r.eventSourceARN.split(':')
   const queueName = arnParts.pop()
   const accountId = arnParts.pop()
-  t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
   t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
   t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'trigger type set')
   t.strictEquals(transaction._faas.trigger.request_id, r.messageId, 'trigger request_id')
@@ -133,7 +136,8 @@ tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) 
   const topicName = arnParts.pop()
   const accountId = arnParts.pop()
 
-  t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
   t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'trigger type set')
   t.strictEquals(transaction._faas.trigger.request_id, r.Sns.MessageId, 'trigger request_id set')
   t.strictEquals(transaction.type, 'messaging', 'transaction type set')
@@ -166,7 +170,8 @@ tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
   wrappedMockLambda(event, context)
   const transaction = mockAgent.transactions.shift()
 
-  t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
   t.strictEquals(transaction._faas.trigger.type, 'datasource', 'trigger type set')
   t.strictEquals(transaction._faas.trigger.request_id, '0FM18R15SDX52CT2', 'trigger request id set')
   t.strictEquals(transaction.type, 'request', 'transaction type set')
@@ -196,7 +201,8 @@ tape.test('setLambdaTransactionData generic tests', function (t) {
     wrappedMockLambda(event, context)
     const transaction = mockAgent.transactions.shift()
 
-    t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+    t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+    t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
     t.strictEquals(transaction._faas.trigger.type, 'other', 'trigger type set')
     t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
 
@@ -230,6 +236,7 @@ tape.test('serialize transaction lambda fields', function (t) {
   t.deepEquals(afterBasic.context.message, {}, 'message is not defined yet')
 
   const faas = {
+    id: 'two and a half',
     coldstart: 'three',
     execution: 'four',
     trigger: {
@@ -239,11 +246,11 @@ tape.test('serialize transaction lambda fields', function (t) {
   }
   transaction.setFaas(faas)
   const afterFaas = transaction.toJSON()
-
-  t.strictEquals(afterFaas.faas.coldstart, faas.coldstart, 'coldstart serialized')
-  t.strictEquals(afterFaas.faas.execution, faas.execution, 'execution serialized')
-  t.strictEquals(afterFaas.faas.trigger.type, faas.trigger.type, 'trigger type serialized')
-  t.strictEquals(afterFaas.faas.trigger.request_id, faas.trigger.request_id, 'trigger type serialized')
+  t.strictEquals(afterFaas.faas.id, faas.id, 'faas.id serialized')
+  t.strictEquals(afterFaas.faas.coldstart, faas.coldstart, 'faas.coldstart serialized')
+  t.strictEquals(afterFaas.faas.execution, faas.execution, 'faas.execution serialized')
+  t.strictEquals(afterFaas.faas.trigger.type, faas.trigger.type, 'faas.trigger.type serialized')
+  t.strictEquals(afterFaas.faas.trigger.request_id, faas.trigger.request_id, 'faas.trigger.request_id serialized')
 
   const serviceContext = {
     origin: {
@@ -254,9 +261,7 @@ tape.test('serialize transaction lambda fields', function (t) {
   }
   transaction.setServiceContext(serviceContext)
   const afterService = transaction.toJSON()
-  t.strictEquals(afterService.context.service.name, serviceContext.coldstart, 'service name serialized')
-  t.strictEquals(afterService.context.service.id, serviceContext.id, 'service id serialized')
-  t.strictEquals(afterService.context.service.version, serviceContext.version, 'service version serialized')
+  t.deepEquals(afterService.context.service, serviceContext, 'transaction.context.service serialized')
 
   const cloudContext = {
     origin: {
@@ -272,7 +277,6 @@ tape.test('serialize transaction lambda fields', function (t) {
   }
   transaction.setCloudContext(cloudContext)
   const afterCloud = transaction.toJSON()
-
   t.strictEquals(afterCloud.context.cloud.origin.provider, cloudContext.origin.provider, 'cloud origin provider serialized')
   t.strictEquals(afterCloud.context.cloud.origin.service.name, cloudContext.origin.service.name, 'cloud origin service name serialized')
   t.strictEquals(afterCloud.context.cloud.origin.account.id, cloudContext.origin.account.id, 'cloud origin account id serialized')
@@ -286,7 +290,6 @@ tape.test('serialize transaction lambda fields', function (t) {
   }
   transaction.setMessageContext(messageContext)
   const afterMessage = transaction.toJSON()
-
   t.strictEquals(afterMessage.context.message.queue, messageContext.queue)
   t.strictEquals(afterMessage.context.message.age, messageContext.age)
   t.strictEquals(afterMessage.context.message.body, messageContext.body)
