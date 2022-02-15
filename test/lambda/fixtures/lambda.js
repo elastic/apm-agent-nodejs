@@ -1,3 +1,3 @@
-module.exports.foo = function(event, context) {
+module.exports.foo = function (event, context) {
   return 'fake handler'
 }
