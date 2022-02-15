@@ -1,6 +1,6 @@
 const tape = require('tape')
 const { getLambdaHandler } = require('../../lib/lambda')
-tape.test(function(suite){
+tape.test('unit tesys for getLambdaHandler', function(suite){
   suite.test('returns false-ish in non-lambda places', function(t){
     t.ok(!getLambdaHandler())
     t.end()
@@ -56,4 +56,29 @@ tape.test(function(suite){
 
   suite.end()
   // t.end()
+})
+
+tape.test('integration test', function(t){
+  // fake the enviornment
+  process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
+  process.env.LAMBDA_TASK_ROOT=__dirname + '/fixtures'
+  process.env._HANDLER='lambda.foo'
+
+  // load and start The Real agent
+  const apm = require('../..').start({
+    serviceName: 'lambda test',
+    breakdownMetrics: false,
+    captureExceptions: false,
+    metricsInterval: 0,
+    centralConfig: false,
+    cloudProvider: 'none',
+    spanStackTraceMinDuration: 0, // Always have span stacktraces.
+    transport: function() {}
+  })
+
+  // check that the handler fixture is wrapped
+  const handler = require(__dirname + '/fixtures/lambda').foo
+
+  t.equals(handler.name, 'wrappedLambda','handler function wrapped correctly')
+  t.end()
 })
