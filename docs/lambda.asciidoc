@@ -61,7 +61,7 @@ It's important that the agent is started before you require *any* other modules 
 
 There are two ways to achieve this.  The first is via automatic initialization using the `NODE_OPTIONS` environment variable.  The second is via manual instrumentation.
 
-===== Automatic Initialization
+==== Automatic Initialization
 
 In order to automatically initialize the agent, you'll need to set the following environment variable in your Lambda function's `Configuration -> Environment variables` section.
 
@@ -72,7 +72,7 @@ NODE_OPTIONS=-r elastic-apm-node/start.js
 
 With this value set the agent will initialize prior to AWS loading your Lambda handler. This will allow the agent to automatically instrument your modules including the lambda handler itself.
 
-===== Manual Initialization
+==== Manual Initialization
 
 If you can't use the `NODE_OPTIONS` variable, you'll need to manually initialize the agent and manually instrument your Lambda handler.Here's a simple lambda example with the Elastic APM agent installed:
 
