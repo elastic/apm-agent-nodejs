@@ -90,6 +90,7 @@ cases.forEach(c => {
           })
         },
         function done (err, _stdout, _stderr) {
+          console.log(err)
           t.error(err, `${scriptPath} exited non-zero`)
           if (err) {
             t.comment('skip checks because script errored out')
