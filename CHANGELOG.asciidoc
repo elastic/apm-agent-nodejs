@@ -54,6 +54,8 @@ the case for some spans based on span duration. ({pull}2565[#2565])
 [float]
 ===== Features
 
+* Added automatic wrapping of AWS Lambda handlers ({pull}2577[#2577])
+
 [float]
 ===== Bug fixes
 
