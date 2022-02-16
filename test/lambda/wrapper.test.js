@@ -60,7 +60,7 @@ tape.test('unit tesys for getLambdaHandler', function (suite) {
 })
 
 tape.test('integration test', function (t) {
-  if('win32' === process.platform) {
+  if (process.platform === 'win32') {
     t.pass('skipping for windows')
     t.end()
     return
