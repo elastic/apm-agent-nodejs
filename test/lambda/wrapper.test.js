@@ -60,6 +60,11 @@ tape.test('unit tesys for getLambdaHandler', function (suite) {
 })
 
 tape.test('integration test', function (t) {
+  if('win32' === process.platform) {
+    t.pass('skipping for windows')
+    t.end()
+    return
+  }
   // fake the enviornment
   process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
   process.env.LAMBDA_TASK_ROOT = path.join(__dirname, '/fixtures')
