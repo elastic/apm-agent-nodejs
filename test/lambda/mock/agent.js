@@ -4,15 +4,16 @@ const logging = require('../../../lib/logging')
 const TransactionMock = require('./transaction')
 
 module.exports = class AgentMock {
-  constructor () {
+  constructor (conf) {
     this.flushed = false
     this.transactions = []
     this.errors = []
     this.logger = logging.createLogger('off')
-    this._conf = {
-      // A (very) minimal `agent._conf` to satisfy "lib/lambda.js" usage.
-      active: true
-    }
+    this._conf = Object.assign({
+      // A (very) minimal default `agent._conf` to satisfy "lib/lambda.js" usage.
+      active: true,
+      usePathAsTransactionName: false
+    }, conf)
   }
 
   startTransaction (name, type, opts) {

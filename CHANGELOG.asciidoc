@@ -54,6 +54,13 @@ the case for some spans based on span duration. ({pull}2565[#2565])
 [float]
 ===== Features
 
+* Improvements to AWS Lambda instrumentation: Better `transaction.name` for
+  API Gateway-triggered lambdas. Respect explicitly set `serviceName`,
+  `serviceVersion`, and `usePathAsTransactionName` config settings. Default
+  `cloudProvider: none` and `centralConfig: false` to reduce required
+  environment variables for setting up APM instrumentation of Lambdas.
+  ({issues}2531[#2531])
+
 [float]
 ===== Bug fixes
 

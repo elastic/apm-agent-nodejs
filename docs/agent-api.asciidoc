@@ -716,7 +716,7 @@ The callback is called even if no HTTP request is currently active.
 
 [source,js]
 ----
-exports.hello = apm.lambda(function (payload, context, callback) {
+exports.hello = apm.lambda(function (event, context, callback) {
   callback(null, `Hello, ${payload.name}!`)
 })
 ----

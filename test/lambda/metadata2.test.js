@@ -1,13 +1,13 @@
 'use strict'
 
-// Test that a lambda invocation sends the appropriate "metadata" to APM server.
+// Test that the "metadata" sent to APM server from a lambda invocation
+// respects the `serviceName` and `serviceVersion` config settings.
 
 const lambdaLocal = require('lambda-local')
 const tape = require('tape')
 
 const apm = require('../../')
 const { MockAPMServer } = require('../_mock_apm_server')
-const { isLambdaExecutionEnvironment } = require('../../lib/lambda')
 
 // Setup env for both apm.start() and lambdaLocal.execute().
 process.env.AWS_LAMBDA_FUNCTION_NAME = 'fixture-function-name'
@@ -25,18 +25,7 @@ process.env.AWS_LAMBDA_LOG_STREAM_NAME = '2021/11/01/[1.0]lambda/e7b05091b39b4aa
 //    warning Using both auth systems: aws_access_key/id and secret_access_token!
 process.env.AWS_PROFILE = 'fake'
 
-tape.test('isLambdaExecutionEnvironment', function (t) {
-  const savedFnName = process.env.AWS_LAMBDA_FUNCTION_NAME
-
-  delete process.env.AWS_LAMBDA_FUNCTION_NAME
-  t.strictEquals(isLambdaExecutionEnvironment(), false, 'execution environment not detected')
-
-  process.env.AWS_LAMBDA_FUNCTION_NAME = savedFnName
-  t.strictEquals(isLambdaExecutionEnvironment(), true, 'execution environment detected')
-  t.end()
-})
-
-tape.test('lambda config & metadata tests', function (suite) {
+tape.test('lambda metadata respects config settings', function (suite) {
   let server
   let serverUrl
 
@@ -48,25 +37,17 @@ tape.test('lambda config & metadata tests', function (suite) {
       apm.start({
         serverUrl,
         logLevel: 'off',
-        captureExceptions: false
+        captureExceptions: false,
+        serviceName: 'my-service',
+        serviceVersion: '1.2.3'
       })
       t.comment('APM agent started')
       t.end()
     })
   })
 
-  suite.test('config defaults in lambda environment', function (t) {
-    t.strictEqual(apm._conf.metricsInterval, 0, 'metricsInterval=0')
-    t.strictEqual(apm._conf.centralConfig, false, 'centralConfig=false')
-    t.strictEqual(apm._conf.cloudProvider, 'none', 'cloudProvider="none"')
-    t.notOk(apm._transport._conf.cloudMetadataFetcher,
-      'no cloudMetadataFetcher is given to the transport in a Lambda env')
-    t.end()
-  })
-
   suite.test('metadata includes first fn invocation info', function (t) {
     const input = { name: 'Bob' }
-    const output = 'Hi, Bob!'
     const handler = apm.lambda((event, _context, cb) => {
       cb(null, `Hi, ${event.name}!`)
     })
@@ -81,30 +62,15 @@ tape.test('lambda config & metadata tests', function (suite) {
       verboseLevel: 0,
       callback: function (err, result) {
         t.error(err, `no error from executing the lambda handler: err=${JSON.stringify(err)}`)
-        t.strictEqual(result, output)
 
         var metadata = server.events[0].metadata
         t.ok(metadata, 'got metadata')
-        t.same(metadata.service.name, process.env.AWS_LAMBDA_FUNCTION_NAME, 'service.name')
-        t.same(metadata.service.version, '1.0', 'service.version has lambda-local hardcoded "1.0"')
-        t.same(metadata.service.framework.name, 'AWS Lambda', 'service.framework.name')
-        t.same(metadata.service.runtime.name, process.env.AWS_EXECUTION_ENV, 'service.runtime.name')
-        t.same(metadata.service.node.configured_name, process.env.AWS_LAMBDA_LOG_STREAM_NAME, 'service.node.configured_name')
-        t.same(metadata.cloud.provider, 'aws', 'cloud.provider')
-        t.same(metadata.cloud.region, process.env.AWS_REGION, 'cloud.region')
-        t.same(metadata.cloud.service.name, 'lambda', 'cloud.service.name')
-        t.same(metadata.cloud.account.id, process.env.AWS_ACCOUNT_ID, 'cloud.account.id')
+        t.same(metadata.service.name, 'my-service', 'service.name from serviceName config')
+        t.same(metadata.service.version, '1.2.3', 'service.version from serviceVersion config')
 
         t.end()
       }
     })
-  })
-
-  suite.test('should not be a central config request to APM server', function (t) {
-    const centralConfigReqs = server.requests
-      .filter(r => r.method === 'GET' && r.url.startsWith('/config/v1/agents'))
-    t.equal(centralConfigReqs.length, 0, 'no GET /config/v1/agents requests to APM server')
-    t.end()
   })
 
   suite.test('teardown', function (t) {
