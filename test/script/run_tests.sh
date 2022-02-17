@@ -38,7 +38,7 @@ setup_env () {
 }
 
 run_test_suite () {
-  standard
+  npm run lint
   npm run test:deps
 
   if [ -z "$COVERAGE" ]
