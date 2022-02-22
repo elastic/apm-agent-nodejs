@@ -74,7 +74,7 @@ With this value set the agent will initialize prior to AWS loading your Lambda h
 
 ==== Manual Initialization
 
-If you can't use the `NODE_OPTIONS` variable, you'll need to manually initialize the agent and manually instrument your Lambda handler.Here's a simple lambda example with the Elastic APM agent installed:
+If you can't use the `NODE_OPTIONS` variable, you'll need to manually initialize the agent and manually instrument your Lambda handler. Here's a simple lambda example with the Elastic APM agent installed:
 
 [source,js]
 ----
