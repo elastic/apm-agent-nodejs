@@ -81,8 +81,8 @@ If you can't use the `NODE_OPTIONS` variable, you'll need to manually initialize
 // Add this to the VERY top of your lambda handler module
 const apm = require('elastic-apm-node').start({})
 
-exports.handler = apm.lambda(function handler (payload, context, callback) {
-  callback(null, `Hello, ${payload.name}!`)
+exports.handler = apm.lambda(function handler (event, context, callback) {
+  callback(null, `Hello, ${event.name}!`)
 })
 ----
 
