@@ -43,7 +43,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
       _HANDLER: 'foo'
     })
 
-    t.ok(!handler, 'no value for maleformed handler')
+    t.ok(!handler, 'no value for malformed handler')
     t.end()
   })
 
