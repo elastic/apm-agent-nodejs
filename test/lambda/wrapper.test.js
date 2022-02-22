@@ -15,9 +15,9 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
       _HANDLER: 'foo.bar',
       LAMBDA_TASK_ROOT: '/var/task'
     })
-    t.equals(handler.filePath, '/var/task/foo.js', 'extacted handler file path')
-    t.equals(handler.module, 'foo', 'extacted handler module')
-    t.equals(handler.field, 'bar', 'extacted handler field')
+    t.equals(handler.filePath, '/var/task/foo.js', 'extracted handler file path')
+    t.equals(handler.module, 'foo', 'extracted handler module')
+    t.equals(handler.field, 'bar', 'extracted handler field')
     t.end()
   })
 
