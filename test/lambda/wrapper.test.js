@@ -4,18 +4,18 @@ const path = require('path')
 
 const Instrumentation = require('../../lib/instrumentation')
 
-tape.test('unit tests for getLambdaHandler', function (suite) {
+tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
   // minimal mocked instrumentation object for unit tests
   const instrumentation = new Instrumentation({ logger: { info: function () {} } })
   suite.test('returns false-ish in non-lambda places', function (t) {
-    t.ok(!instrumentation.getLambdaHandler())
+    t.ok(!instrumentation.getLambdaHandlerInfo())
     t.end()
   })
 
   suite.test('extracts info with expected env variables', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
 
-    const handler = instrumentation.getLambdaHandler({
+    const handler = instrumentation.getLambdaHandlerInfo({
       _HANDLER: 'foo.bar',
       LAMBDA_TASK_ROOT: '/var/task'
     })
@@ -27,7 +27,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
 
   suite.test('returns no value if module name conflicts with already instrumented module', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'express'
-    const handler = instrumentation.getLambdaHandler({
+    const handler = instrumentation.getLambdaHandlerInfo({
       _HANDLER: 'express.bar',
       LAMBDA_TASK_ROOT: '/var/task'
     })
@@ -36,7 +36,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
   })
 
   suite.test('no task root', function (t) {
-    const handler = instrumentation.getLambdaHandler({
+    const handler = instrumentation.getLambdaHandlerInfo({
       _HANDLER: 'foo.bar'
     })
     t.ok(!handler, 'no value when task root missing')
@@ -44,7 +44,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
   })
 
   suite.test('no handler', function (t) {
-    const handler = instrumentation.getLambdaHandler({
+    const handler = instrumentation.getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task'
     })
     t.ok(!handler, 'no value when handler missing')
@@ -52,7 +52,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
   })
 
   suite.test('malformed handler: too few', function (t) {
-    const handler = instrumentation.getLambdaHandler({
+    const handler = instrumentation.getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo'
     })
@@ -62,7 +62,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
   })
 
   suite.test('malformed handler: too many', function (t) {
-    const handler = instrumentation.getLambdaHandler({
+    const handler = instrumentation.getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo.baz.bar'
     })
