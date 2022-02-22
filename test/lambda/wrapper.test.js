@@ -52,7 +52,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo.baz.bar'
     })
-    t.ok(!handler, 'no value for maleformed handler')
+    t.ok(!handler, 'no value for malformed handler')
     t.end()
   })
 
