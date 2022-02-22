@@ -39,7 +39,7 @@ setup_env () {
 
 run_test_suite () {
   # Our current eslint requires at least node 8.10.0
-  if [ $(./node_modules/.bin/semver -r '>=8.10.0' $(node --version)) >/dev/null ]; then
+  if $(./node_modules/.bin/semver -r '>=8.10.0' $(node --version) >/dev/null); then
     npm run lint
   else
     echo "# skip lint with old node (node $(node --version))"
