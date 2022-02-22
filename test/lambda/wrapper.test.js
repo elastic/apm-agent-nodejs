@@ -6,7 +6,7 @@ const Instrumentation = require('../../lib/instrumentation')
 
 tape.test('unit tests for getLambdaHandler', function (suite) {
   // minimal mocked instrumentation object for unit tests
-  const instrumentation = new Instrumentation({logger:{info:function(){}}})
+  const instrumentation = new Instrumentation({ logger: { info: function () {} } })
   suite.test('returns false-ish in non-lambda places', function (t) {
     t.ok(!instrumentation.getLambdaHandler())
     t.end()
