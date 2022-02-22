@@ -1,17 +1,21 @@
 'use strict'
 const tape = require('tape')
 const path = require('path')
-const { getLambdaHandler } = require('../../lib/lambda')
+
+const Instrumentation = require('../../lib/instrumentation')
+
 tape.test('unit tests for getLambdaHandler', function (suite) {
+  // minimal mocked instrumentation object for unit tests
+  const instrumentation = new Instrumentation({logger:{info:function(){}}})
   suite.test('returns false-ish in non-lambda places', function (t) {
-    t.ok(!getLambdaHandler())
+    t.ok(!instrumentation.getLambdaHandler())
     t.end()
   })
 
   suite.test('extracts info with expected env variables', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
 
-    const handler = getLambdaHandler({
+    const handler = instrumentation.getLambdaHandler({
       _HANDLER: 'foo.bar',
       LAMBDA_TASK_ROOT: '/var/task'
     })
@@ -21,8 +25,18 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
     t.end()
   })
 
+  suite.test('returns no value if module name conflicts with already instrumented module', function (t) {
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'express'
+    const handler = instrumentation.getLambdaHandler({
+      _HANDLER: 'express.bar',
+      LAMBDA_TASK_ROOT: '/var/task'
+    })
+    t.equals(handler, undefined, 'no handler extracted')
+    t.end()
+  })
+
   suite.test('no task root', function (t) {
-    const handler = getLambdaHandler({
+    const handler = instrumentation.getLambdaHandler({
       _HANDLER: 'foo.bar'
     })
     t.ok(!handler, 'no value when task root missing')
@@ -30,7 +44,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
   })
 
   suite.test('no handler', function (t) {
-    const handler = getLambdaHandler({
+    const handler = instrumentation.getLambdaHandler({
       LAMBDA_TASK_ROOT: '/var/task'
     })
     t.ok(!handler, 'no value when handler missing')
@@ -38,7 +52,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
   })
 
   suite.test('malformed handler: too few', function (t) {
-    const handler = getLambdaHandler({
+    const handler = instrumentation.getLambdaHandler({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo'
     })
@@ -48,7 +62,7 @@ tape.test('unit tests for getLambdaHandler', function (suite) {
   })
 
   suite.test('malformed handler: too many', function (t) {
-    const handler = getLambdaHandler({
+    const handler = instrumentation.getLambdaHandler({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo.baz.bar'
     })
@@ -83,8 +97,14 @@ tape.test('integration test', function (t) {
     transport: function () {}
   })
 
+  // load express after agent (for wrapper checking)
+  const express = require('express')
+
   // check that the handler fixture is wrapped
   const handler = require(path.join(__dirname, '/fixtures/lambda')).foo
   t.equals(handler.name, 'wrappedLambda', 'handler function wrapped correctly')
+
+  // did normal patching/wrapping take place
+  t.equals(express.static.name, 'wrappedStatic', 'handler function wrapped correctly')
   t.end()
 })
