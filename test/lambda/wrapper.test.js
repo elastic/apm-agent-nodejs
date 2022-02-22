@@ -2,7 +2,7 @@
 const tape = require('tape')
 const path = require('path')
 const { getLambdaHandler } = require('../../lib/lambda')
-tape.test('unit tesys for getLambdaHandler', function (suite) {
+tape.test('unit tests for getLambdaHandler', function (suite) {
   suite.test('returns false-ish in non-lambda places', function (t) {
     t.ok(!getLambdaHandler())
     t.end()
