@@ -68,7 +68,7 @@ tape.test('integration test', function (t) {
   }
   // fake the enviornment
   process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
-  process.env.LAMBDA_TASK_ROOT = path.join(__dirname, '/fixtures')
+  process.env.LAMBDA_TASK_ROOT = path.join(__dirname, 'fixtures')
   process.env._HANDLER = 'lambda.foo'
 
   // load and start The Real agent
