@@ -2,70 +2,122 @@
 const tape = require('tape')
 const path = require('path')
 
-const Instrumentation = require('../../lib/instrumentation')
+const { getLambdaHandlerInfo } = require('../../lib/lambda')
 
 tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
+  const logger = {
+    info: function () { }
+  }
+  const MODULES = [
+    ['@elastic/elasticsearch', '@elastic/elasticsearch-canary'],
+    'apollo-server-core',
+    'aws-sdk',
+    'bluebird',
+    'cassandra-driver',
+    'elasticsearch',
+    'express',
+    'express-graphql',
+    'express-queue',
+    'fastify',
+    'finalhandler',
+    'generic-pool',
+    'graphql',
+    'handlebars',
+    ['hapi', '@hapi/hapi'],
+    'http',
+    'https',
+    'http2',
+    'ioredis',
+    'jade',
+    'knex',
+    'koa',
+    ['koa-router', '@koa/router'],
+    'memcached',
+    'mimic-response',
+    'mongodb-core',
+    'mongodb',
+    'mysql',
+    'mysql2',
+    'pg',
+    'pug',
+    'redis',
+    'restify',
+    'tedious',
+    'ws'
+  ]
   // minimal mocked instrumentation object for unit tests
-  const instrumentation = new Instrumentation({ logger: { info: function () {} } })
   suite.test('returns false-ish in non-lambda places', function (t) {
-    t.ok(!instrumentation.getLambdaHandlerInfo())
+    t.ok(!getLambdaHandlerInfo())
     t.end()
   })
 
   suite.test('extracts info with expected env variables', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
 
-    const handler = instrumentation.getLambdaHandlerInfo({
-      _HANDLER: 'foo.bar',
-      LAMBDA_TASK_ROOT: '/var/task'
-    })
-    t.equals(handler.filePath, '/var/task/foo.js', 'extracted handler file path')
-    t.equals(handler.module, 'foo', 'extracted handler module')
+    const handler = getLambdaHandlerInfo({
+      _HANDLER: 'lambda.bar',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures')
+    }, MODULES, logger)
+    t.equals(handler.filePath, path.resolve(__dirname, 'fixtures') + '/lambda.js', 'extracted handler file path')
+    t.equals(handler.module, 'lambda', 'extracted handler module')
+    t.equals(handler.field, 'bar', 'extracted handler field')
+    t.end()
+  })
+
+  suite.test('extracts info with expected env variables, cjs extension', function (t) {
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
+
+    const handler = getLambdaHandlerInfo({
+      _HANDLER: 'lambda.bar',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures')
+    }, MODULES, logger)
+    t.equals(handler.filePath, path.resolve(__dirname, 'fixtures') + '/lambda.js', 'extracted handler file path')
+    t.equals(handler.module, 'lambda', 'extracted handler module')
     t.equals(handler.field, 'bar', 'extracted handler field')
     t.end()
   })
 
   suite.test('returns no value if module name conflicts with already instrumented module', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'express'
-    const handler = instrumentation.getLambdaHandlerInfo({
+    const handler = getLambdaHandlerInfo({
       _HANDLER: 'express.bar',
       LAMBDA_TASK_ROOT: '/var/task'
-    })
+    }, MODULES, logger)
     t.equals(handler, undefined, 'no handler extracted')
     t.end()
   })
 
   suite.test('no task root', function (t) {
-    const handler = instrumentation.getLambdaHandlerInfo({
+    const handler = getLambdaHandlerInfo({
       _HANDLER: 'foo.bar'
-    })
+    }, MODULES, logger)
     t.ok(!handler, 'no value when task root missing')
     t.end()
   })
 
   suite.test('no handler', function (t) {
-    const handler = instrumentation.getLambdaHandlerInfo({
+    const handler = getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task'
-    })
+    }, MODULES, logger)
     t.ok(!handler, 'no value when handler missing')
     t.end()
   })
 
   suite.test('malformed handler: too few', function (t) {
-    const handler = instrumentation.getLambdaHandlerInfo({
+    const handler = getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo'
-    })
+    }, MODULES, logger)
 
     t.ok(!handler, 'no value for malformed handler')
     t.end()
   })
 
   suite.test('malformed handler: too many', function (t) {
-    const handler = instrumentation.getLambdaHandlerInfo({
+    const handler = getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo.baz.bar'
-    })
+    }, MODULES, logger)
     t.ok(!handler, 'no value for malformed handler')
     t.end()
   })
