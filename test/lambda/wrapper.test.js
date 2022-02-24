@@ -58,8 +58,23 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
       _HANDLER: 'lambda.bar',
       LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures')
     }, MODULES, logger)
+
     t.equals(handler.filePath, path.resolve(__dirname, 'fixtures') + '/lambda.js', 'extracted handler file path')
     t.equals(handler.module, 'lambda', 'extracted handler module')
+    t.equals(handler.field, 'bar', 'extracted handler field')
+    t.end()
+  })
+
+  suite.test('extracts info with extended path', function (t) {
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
+
+    const handler = getLambdaHandlerInfo({
+      _HANDLER: 'handlermodule.lambda.bar',
+      LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures')
+    }, MODULES, logger)
+
+    t.equals(handler.filePath, path.resolve(__dirname, 'fixtures', 'handlermodule') + '/lambda.js', 'extracted handler file path')
+    t.equals(handler.module, 'handlermodule', 'extracted handler module')
     t.equals(handler.field, 'bar', 'extracted handler field')
     t.end()
   })
@@ -109,16 +124,21 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
       _HANDLER: 'foo'
     }, MODULES, logger)
 
-    t.ok(!handler, 'no value for malformed handler')
+    t.ok(!handler, 'no value for malformed handler too few')
     t.end()
   })
 
-  suite.test('malformed handler: too many', function (t) {
+  suite.test('longer handler', function (t) {
     const handler = getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo.baz.bar'
     }, MODULES, logger)
-    t.ok(!handler, 'no value for malformed handler')
+
+    t.equals(handler.filePath, '/var/task/foo/baz.cjs', 'extracted handler file path')
+    t.equals(handler.module, 'foo', 'extracted handler module')
+    t.equals(handler.field, 'bar', 'extracted handler field')
+
+    // t.ok(!handler, 'no value for malformed handler')
     t.end()
   })
 
