@@ -73,7 +73,7 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
       LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures')
     }, MODULES, logger)
 
-    t.equals(handler.filePath, path.resolve(__dirname, 'fixtures', 'handlermodule') + '/lambda.js', 'extracted handler file path')
+    t.equals(handler.filePath, path.resolve(__dirname, 'fixtures', 'handlermodule', '/lambda.js'), 'extracted handler file path')
     t.equals(handler.module, 'handlermodule', 'extracted handler module')
     t.equals(handler.field, 'bar', 'extracted handler field')
     t.end()
