@@ -1,5 +1,6 @@
 'use strict'
 
+const { CapturingTransport } = require('../../_capturing_transport')
 const logging = require('../../../lib/logging')
 const TransactionMock = require('./transaction')
 
@@ -14,6 +15,7 @@ module.exports = class AgentMock {
       active: true,
       usePathAsTransactionName: false
     }, conf)
+    this._transport = new CapturingTransport()
   }
 
   startTransaction (name, type, opts) {
@@ -35,14 +37,12 @@ module.exports = class AgentMock {
     }
   }
 
-  flush (opts, cb) {
-    if (typeof opts === 'function') {
-      cb = opts
-      opts = {}
-    } else if (!opts) {
-      opts = {}
-    }
+  _flush (opts, cb) {
     // XXX likely want tests updated to check if this flush included {lambdaEnd:true}
+    this.flush(cb)
+  }
+
+  flush (cb) {
     this.flushed = true
     if (cb) {
       setImmediate(cb)
