@@ -43,6 +43,8 @@ class CapturingTransport {
     this.extraMetadata = metadata
   }
 
+  lambdaStart () {}
+
   sendSpan (span, cb) {
     this.spans.push(span)
     if (cb) {
