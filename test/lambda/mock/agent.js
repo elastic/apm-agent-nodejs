@@ -35,10 +35,17 @@ module.exports = class AgentMock {
     }
   }
 
-  flush (callback) {
+  flush (opts, cb) {
+    if (typeof opts === 'function') {
+      cb = opts
+      opts = {}
+    } else if (!opts) {
+      opts = {}
+    }
+    // XXX likely want tests updated to check if this flush included {lambdaEnd:true}
     this.flushed = true
-    if (callback) {
-      setImmediate(callback)
+    if (cb) {
+      setImmediate(cb)
     }
   }
 }

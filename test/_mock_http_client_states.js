@@ -33,7 +33,13 @@ module.exports = function (expectations = [], done) {
     sendMetricSet (metricset, cb) {
       this._write({ metricset }, cb)
     },
-    flush (cb) {
+    flush (opts, cb) {
+      if (typeof opts === 'function') {
+        cb = opts
+        opts = {}
+      } else if (!opts) {
+        opts = {}
+      }
       if (cb) process.nextTick(cb)
     },
     supportsKeepingUnsampledTransaction () {
