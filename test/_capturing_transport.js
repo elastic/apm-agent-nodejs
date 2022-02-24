@@ -73,7 +73,13 @@ class CapturingTransport {
     }
   }
 
-  flush (cb) {
+  flush (opts, cb) {
+    if (typeof opts === 'function') {
+      cb = opts
+      opts = {}
+    } else if (!opts) {
+      opts = {}
+    }
     if (cb) {
       process.nextTick(cb)
     }
