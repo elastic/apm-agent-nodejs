@@ -306,8 +306,8 @@ pipeline {
               deleteDir()
               unstash 'source'
               withNodeJSEnv(version: 'v14.17.5'){
-                dir("${BASE_DIR}"){
-                  cmd(label: 'aws lambda', script: '.ci/scripts/aws-lambda.sh')
+                dir("${BASE_DIR}/.ci"){
+                  cmd(label: 'make dist', script: 'make dist')
                 }
               }
             }
@@ -318,7 +318,7 @@ pipeline {
             withGithubNotify(context: "Publish") {
               withGoEnv(){
                 withAWSEnv(secret: 'secret/observability-team/ci/service-account/apm-aws-lambda', forceInstallation: true, version: '2.4.10') {
-                  dir("${BASE_DIR}"){
+                  dir("${BASE_DIR}/.ci"){
                     cmd(label: 'make publish-in-all-aws-regions', script: 'make publish-in-all-aws-regions')
                     cmd(label: 'make create-arn-file', script: 'make create-arn-file')
                   }
@@ -337,7 +337,7 @@ pipeline {
         stage('Release Notes') {
           steps {
             withGhEnv(forceInstallation: true, version: '2.4.0') {
-              dir("${BASE_DIR}"){
+              dir("${BASE_DIR}/.ci"){
                 cmd(label: 'make release-notes', script: 'make release-notes')
               }
             }
