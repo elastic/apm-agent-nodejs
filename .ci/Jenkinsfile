@@ -306,8 +306,8 @@ pipeline {
               deleteDir()
               unstash 'source'
               withNodeJSEnv(version: 'v14.17.5'){
-                dir("${BASE_DIR}/.ci"){
-                  cmd(label: 'make dist', script: 'make dist')
+                dir("${BASE_DIR}"){
+                  cmd(label: 'make dist', script: 'make -C .ci dist')
                 }
               }
             }
@@ -318,9 +318,9 @@ pipeline {
             withGithubNotify(context: "Publish") {
               withGoEnv(){
                 withAWSEnv(secret: 'secret/observability-team/ci/service-account/apm-aws-lambda', forceInstallation: true, version: '2.4.10') {
-                  dir("${BASE_DIR}/.ci"){
-                    cmd(label: 'make publish-in-all-aws-regions', script: 'make publish-in-all-aws-regions')
-                    cmd(label: 'make create-arn-file', script: 'make create-arn-file')
+                  dir("${BASE_DIR}"){
+                    cmd(label: 'make publish-in-all-aws-regions', script: 'make -C .ci publish-in-all-aws-regions')
+                    cmd(label: 'make create-arn-file', script: 'make -C .ci create-arn-file')
                   }
                 }
               }
@@ -329,16 +329,16 @@ pipeline {
           post {
             always {
               archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/.regions")
-              archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/*${SUFFIX_ARN_FILE}")
-              archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/.aws")
+              archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/${SUFFIX_ARN_FILE}")
+              archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/aws")
             }
           }
         }
         stage('Release Notes') {
           steps {
             withGhEnv(forceInstallation: true, version: '2.4.0') {
-              dir("${BASE_DIR}/.ci"){
-                cmd(label: 'make release-notes', script: 'make release-notes')
+              dir("${BASE_DIR}"){
+                cmd(label: 'make release-notes', script: 'make -C .ci release-notes')
               }
             }
           }
