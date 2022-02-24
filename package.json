@@ -193,13 +193,5 @@
     "vasync": "^2.2.0",
     "wait-on": "^3.3.0",
     "ws": "^7.2.1"
-  },
-  "eslintConfig": {
-    "extends": "standard",
-    "rules": {}
-  },
-  "eslintIgnore": [
-    "/test/sourcemaps/fixtures/lib",
-    "/test/stacktraces/fixtures/dist"
-  ]
+  }
 }

@@ -1,0 +1,18 @@
+{
+  "root": true,
+  "env": {
+    "node": true
+  },
+  "extends": "standard",
+  "rules": {},
+  "ignorePatterns": [
+    "/.nyc_output",
+    "/build",
+    "/test/babel/out.js",
+    "/test/sourcemaps/fixtures/lib",
+    "/test/stacktraces/fixtures/dist",
+    "/test/types/transpile/index.js",
+    "/test/types/transpile-default/index.js"
+  ]
+}
+
