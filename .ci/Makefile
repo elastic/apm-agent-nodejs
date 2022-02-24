@@ -69,17 +69,18 @@ get-version: validate-aws-default-region
 
 # Generate the file with the ARN entries
 create-arn-file: validate-suffix-arn-file
-	@../.ci/create-arn-table.sh
+	@./scripts/create-arn-table.sh
 
 release-notes: validate-branch-name validate-suffix-arn-file
 	@gh release list
-	cat *-$(SUFFIX_ARN_FILE) > $(SUFFIX_ARN_FILE)
 	@gh \
 		release \
 		create $(BRANCH_NAME) \
 		--title '$(BRANCH_NAME)' \
 		--generate-notes \
 		--notes-file $(SUFFIX_ARN_FILE) \
+		--draft \
+		--repo v1v/apm-agent-nodejs \
 		../$(AWS_FOLDER)/$(BRANCH_NAME).zip
 
 validate-branch-name:
