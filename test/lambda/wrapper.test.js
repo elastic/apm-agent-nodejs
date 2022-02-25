@@ -73,9 +73,9 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
       LAMBDA_TASK_ROOT: path.resolve(__dirname, 'fixtures')
     }, MODULES, logger)
 
-    t.equals(handler.filePath, path.resolve(__dirname, 'fixtures', 'handlermodule', '/lambda.js'), 'extracted handler file path')
+    t.equals(handler.filePath, path.resolve(__dirname, 'fixtures', 'handlermodule.cjs'), 'extracted handler file path')
     t.equals(handler.module, 'handlermodule', 'extracted handler module')
-    t.equals(handler.field, 'bar', 'extracted handler field')
+    t.equals(handler.field, 'lambda.bar', 'extracted handler field')
     t.end()
   })
 
@@ -134,9 +134,9 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
       _HANDLER: 'foo.baz.bar'
     }, MODULES, logger)
 
-    t.equals(handler.filePath, '/var/task/foo/baz.cjs', 'extracted handler file path')
+    t.equals(handler.filePath, '/var/task/foo.cjs', 'extracted handler file path')
     t.equals(handler.module, 'foo', 'extracted handler module')
-    t.equals(handler.field, 'bar', 'extracted handler field')
+    t.equals(handler.field, 'baz.bar', 'extracted handler field')
 
     // t.ok(!handler, 'no value for malformed handler')
     t.end()
