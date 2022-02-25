@@ -137,8 +137,6 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
     t.equals(handler.filePath, path.resolve('/var', 'task', 'foo.cjs'), 'extracted handler file path')
     t.equals(handler.module, 'foo', 'extracted handler module')
     t.equals(handler.field, 'baz.bar', 'extracted handler field')
-
-    // t.ok(!handler, 'no value for malformed handler')
     t.end()
   })
 
