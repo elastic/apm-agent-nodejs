@@ -311,7 +311,7 @@ pipeline {
               unstash 'source'
               withNodeJSEnv(version: 'v14.17.5'){
                 dir("${BASE_DIR}"){
-                  cmd(label: 'make dist', script: 'make -C .ci dist')
+                  cmd(label: 'make dist', script: 'BRANCH_NAME="v3.29.0" make -C .ci dist')
                 }
               }
             }
@@ -323,8 +323,8 @@ pipeline {
               withGoEnv(){
                 withAWSEnv(secret: 'secret/observability-team/ci/service-account/apm-aws-lambda', forceInstallation: true, version: '2.4.10') {
                   dir("${BASE_DIR}"){
-                    cmd(label: 'make publish-in-all-aws-regions', script: 'make -C .ci publish-in-all-aws-regions')
-                    cmd(label: 'make create-arn-file', script: 'make -C .ci create-arn-file')
+                    cmd(label: 'make publish-in-all-aws-regions', script: 'BRANCH_NAME="v3.29.0" make -C .ci publish-in-all-aws-regions')
+                    cmd(label: 'make create-arn-file', script: 'BRANCH_NAME="v3.29.0" make -C .ci create-arn-file')
                   }
                 }
               }
@@ -342,7 +342,7 @@ pipeline {
           steps {
             withGhEnv(forceInstallation: true, version: '2.4.0') {
               dir("${BASE_DIR}"){
-                cmd(label: 'make release-notes', script: 'make -C .ci release-notes')
+                cmd(label: 'make release-notes', script: 'BRANCH_NAME="v3.29.0" make -C .ci release-notes')
               }
             }
           }
@@ -576,8 +576,8 @@ def grabWorkerIP(){
 * -ver-1-2-3.
 */
 def getVersion() {
-  if (env.BRANCH_NAME?.trim() && env.BRANCH_NAME.startsWith('v')) {
-    return env.BRANCH_NAME.replaceAll('v', '-ver-').replaceAll('\\.', '-')
+  if ("v3.29.0".trim() && "v3.29.0".startsWith('v')) {
+    return "v3.29.0".replaceAll('v', '-ver-').replaceAll('\\.', '-')
   }
   return ''
 }
