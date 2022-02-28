@@ -12,7 +12,9 @@
     "/test/sourcemaps/fixtures/lib",
     "/test/stacktraces/fixtures/dist",
     "/test/types/transpile/index.js",
-    "/test/types/transpile-default/index.js"
+    "/test/types/transpile-default/index.js",
+    "/test_output",
+    "/tmp"
   ]
 }
 
