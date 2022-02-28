@@ -73,6 +73,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          expression { return false }
           expression { return env.ONLY_DOCS == "false" }
           expression { return params.tests_ci }
         }
@@ -115,6 +116,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          expression { return false }
           not {
             branch '^greenkeeper/.*'
           }
@@ -161,6 +163,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          expression { return false }
           anyOf {
             expression { return params.Run_As_Main_Branch }
             triggeredBy 'TimerTrigger'
@@ -253,6 +256,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          expression { return false }
           expression { return env.ONLY_DOCS == "false" }
           anyOf {
             changeRequest()
@@ -272,15 +276,15 @@ pipeline {
     }
     stage('Release') {
       options { skipDefaultCheckout() }
-      when {
-        beforeAgent true
-        tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
-      }
       environment {
         SUFFIX_ARN_FILE = 'arn-file.md'
       }
       stages {
         stage('Opbeans') {
+          when {
+            beforeAgent true
+            tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
+          }
           environment {
             REPO_NAME = "${OPBEANS_REPO}"
           }
@@ -360,6 +364,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          expression { return false }
           anyOf {
             branch 'main'
             tag pattern: 'v\\d+\\.\\d+\\.\\d+.*', comparator: 'REGEXP'
