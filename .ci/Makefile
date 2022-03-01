@@ -21,6 +21,7 @@ dist: validate-branch-name build
 
 # List all the AWS regions
 get-all-aws-regions:
+	@mkdir -p $(AWS_FOLDER)
 	@aws \
 		ec2 \
 		describe-regions \
