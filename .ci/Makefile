@@ -35,7 +35,7 @@ publish-in-all-aws-regions: validate-layer-name get-all-aws-regions
 	@mkdir -p $(AWS_FOLDER)
 	@while read AWS_DEFAULT_REGION; do \
 		echo "publish '$(ELASTIC_LAYER_NAME)' in $${AWS_DEFAULT_REGION}"; \
-		AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION}" ELASTIC_LAYER_NAME=$(ELASTIC_LAYER_NAME) $(MAKE) publish > $(AWS_FOLDER)/$${AWS_DEFAULT_REGION}; \
+		AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION}" ELASTIC_LAYER_NAME=$(ELASTIC_LAYER_NAME) $(MAKE) publish > $(AWS_FOLDER)/$${AWS_DEFAULT_REGION}.publish; \
 		AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION}" ELASTIC_LAYER_NAME=$(ELASTIC_LAYER_NAME) $(MAKE) grant-public-layer-access; \
 	done < $(AWS_FOLDER)/.regions
 
@@ -60,7 +60,7 @@ grant-public-layer-access: validate-layer-name validate-aws-default-region
 		--action lambda:GetLayerVersion \
 		--principal '*' \
 		--statement-id "$(ELASTIC_LAYER_NAME)" \
-		--version-number $$($(MAKE) -s --no-print-directory get-version) > $(AWS_FOLDER)/.$(AWS_DEFAULT_REGION)-public
+		--version-number $$($(MAKE) -s --no-print-directory get-version) > $(AWS_FOLDER)/$(AWS_DEFAULT_REGION).public
 
 # Get the ARN Version for the AWS_REGIONS
 # NOTE: jq -r .Version "$(AWS_FOLDER)/$(AWS_DEFAULT_REGION)" fails in the CI

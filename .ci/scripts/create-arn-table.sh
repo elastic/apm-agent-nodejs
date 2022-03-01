@@ -17,10 +17,12 @@ ARN_FILE=${SUFFIX_ARN_FILE}
 	echo '|------|---|'
 } > "${AWS_FOLDER}/${ARN_FILE}"
 
-for f in $(ls "${AWS_FOLDER}"); do
+
+for f in "${AWS_FOLDER}"/*.publish; do
 	LAYER_VERSION_ARN=$(grep '"LayerVersionArn"' "$AWS_FOLDER/${f}" | cut -d":" -f2- | sed 's/ //g' | sed 's/"//g' | cut -d"," -f1)
-	echo "INFO: create-arn-table ARN(${LAYER_VERSION_ARN}):region(${f}))"
-	echo "|${f}|${LAYER_VERSION_ARN}|" >> "${AWS_FOLDER}/${ARN_FILE}"
+	FILENAME=$(basename /"${f}" .publish)
+	echo "INFO: create-arn-table ARN(${LAYER_VERSION_ARN}):region(${FILENAME}))"
+	echo "|${FILENAME}|${LAYER_VERSION_ARN}|" >> "${AWS_FOLDER}/${ARN_FILE}"
 done
 
 echo '' >> "${AWS_FOLDER}/${ARN_FILE}"
