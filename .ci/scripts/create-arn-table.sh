@@ -14,7 +14,7 @@ ARN_FILE=${SUFFIX_ARN_FILE}
 {
 	echo "For more information, please see the [changelog](${RELEASE_NOTES_URL})."
 	echo ''
-	echo "### ARN"
+	echo "### Elastic APM Node.js agent layer ARNs"
 	echo ''
 	echo '|Region|ARN|'
 	echo '|------|---|'
