@@ -66,7 +66,7 @@ grant-public-layer-access: validate-layer-name validate-aws-default-region
 # NOTE: jq -r .Version "$(AWS_FOLDER)/$(AWS_DEFAULT_REGION)" fails in the CI
 #       with 'parse error: Invalid numeric literal at line 1, column 5'
 get-version: validate-aws-default-region
-	@grep '"Version"' "$(AWS_FOLDER)/$(AWS_DEFAULT_REGION)" | cut -d":" -f2 | sed 's/ //g' | cut -d"," -f1
+	@grep '"Version"' "$(AWS_FOLDER)/$(AWS_DEFAULT_REGION).publish" | cut -d":" -f2 | sed 's/ //g' | cut -d"," -f1
 
 # Generate the file with the ARN entries
 create-arn-file: validate-suffix-arn-file validate-release-notes-url
