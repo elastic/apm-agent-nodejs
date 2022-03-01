@@ -78,7 +78,7 @@ release-notes: validate-branch-name validate-suffix-arn-file
 		create $(BRANCH_NAME) \
 		--title '$(BRANCH_NAME)' \
 		--generate-notes \
-		--notes-file $(SUFFIX_ARN_FILE) \
+		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE) \
 		$(AWS_FOLDER)/$(BRANCH_NAME).zip
 
 validate-branch-name:
