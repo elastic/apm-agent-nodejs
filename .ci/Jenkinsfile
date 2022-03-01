@@ -303,6 +303,7 @@ pipeline {
           steps {
             withGithubNotify(context: "Dist") {
               setEnvVar('ELASTIC_LAYER_NAME', "elastic-apm-node${getVersion()}")
+              setEnvVar('RELEASE_NOTES_URL', getReleaseNotesUrl())
               deleteDir()
               unstash 'source'
               withNodeJSEnv(version: 'v14.17.5'){
@@ -573,6 +574,21 @@ def getVersion() {
     return env.BRANCH_NAME.replaceAll('v', '-ver-').replaceAll('\\.', '-')
   }
   return ''
+}
+
+/**
+* Calculate the elastic.co release notes URL given the TAG release. Otherwise
+* it returns the default current URL.
+*/
+def getReleaseNotesUrl() {
+  def baseUrl = 'https://www.elastic.co/guide/en/apm/agent/nodejs/current'
+  if (env.BRANCH_NAME?.trim() && env.BRANCH_NAME.startsWith('v')) {
+    def version = env.BRANCH_NAME.replaceAll('v', '')
+    def parts = version.split('\\.')
+    def major = parts[0]
+    return "${baseUrl}/release-notes-${major}.x.html#release-notes-${version}"
+  }
+  return baseUrl
 }
 
 def notifyStatus(def args = [:]) {

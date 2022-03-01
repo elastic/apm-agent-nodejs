@@ -69,7 +69,7 @@ get-version: validate-aws-default-region
 	@grep '"Version"' "$(AWS_FOLDER)/$(AWS_DEFAULT_REGION)" | cut -d":" -f2 | sed 's/ //g' | cut -d"," -f1
 
 # Generate the file with the ARN entries
-create-arn-file: validate-suffix-arn-file
+create-arn-file: validate-suffix-arn-file validate-release-notes-url
 	@./scripts/create-arn-table.sh
 
 release-notes: validate-branch-name validate-suffix-arn-file
@@ -99,4 +99,9 @@ endif
 validate-aws-default-region:
 ifndef AWS_DEFAULT_REGION
 	$(error AWS_DEFAULT_REGION is undefined)
+endif
+
+validate-release-notes-url:
+ifndef RELEASE_NOTES_URL
+	$(error RELEASE_NOTES_URL is undefined)
 endif
