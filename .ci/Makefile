@@ -1,13 +1,13 @@
 SHELL = /bin/bash -eo pipefail
 
-AWS_FOLDER = aws
+AWS_FOLDER = "../build-aws"
 
 export AWS_FOLDER
 
 build:
-	rm -rf ../$(AWS_FOLDER) || true
-	mkdir -p ../$(AWS_FOLDER)
-	cd ../$(AWS_FOLDER); \
+	rm -rf $(AWS_FOLDER) || true
+	mkdir -p $(AWS_FOLDER)
+	cd $(AWS_FOLDER); \
 		npm init -y; \
 		npm install --global-style https://github.com/elastic/apm-agent-nodejs#$(BRANCH_NAME); \
 		mkdir nodejs; \
@@ -16,7 +16,7 @@ env:
 	env
 dist: validate-branch-name build
 	rm -f $(BRANCH_NAME).zip || true
-	cd ../$(AWS_FOLDER) ; \
+	cd $(AWS_FOLDER) ; \
 		zip -r $(BRANCH_NAME).zip nodejs
 
 # List all the AWS regions
@@ -27,7 +27,7 @@ get-all-aws-regions:
 		--region us-east-1 \
 		--output json \
 		--no-cli-pager \
-		| jq -r '.Regions[].RegionName' > .regions
+		| jq -r '.Regions[].RegionName' > $(AWS_FOLDER)/.regions
 
 # Publish the given LAYER in all the AWS regions
 publish-in-all-aws-regions: validate-layer-name get-all-aws-regions
@@ -36,7 +36,7 @@ publish-in-all-aws-regions: validate-layer-name get-all-aws-regions
 		echo "publish '$(ELASTIC_LAYER_NAME)' in $${AWS_DEFAULT_REGION}"; \
 		AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION}" ELASTIC_LAYER_NAME=$(ELASTIC_LAYER_NAME) $(MAKE) publish > $(AWS_FOLDER)/$${AWS_DEFAULT_REGION}; \
 		AWS_DEFAULT_REGION="$${AWS_DEFAULT_REGION}" ELASTIC_LAYER_NAME=$(ELASTIC_LAYER_NAME) $(MAKE) grant-public-layer-access; \
-	done <.regions
+	done < $(AWS_FOLDER)/.regions
 
 # Publish the given LAYER in the given AWS region
 publish: validate-layer-name validate-aws-default-region
@@ -47,7 +47,7 @@ publish: validate-layer-name validate-aws-default-region
 		--description "AWS Lambda Extension Layer for the Elastic APM Node.js Agent" \
 		--license "Apache-2.0" \
 		--compatible-runtimes nodejs14.x nodejs12.x nodejs10.x \
-		--zip-file "fileb://../$(AWS_FOLDER)/$(BRANCH_NAME).zip"
+		--zip-file "fileb://./$(AWS_FOLDER)/$(BRANCH_NAME).zip"
 
 # Grant public access to the given LAYER in the given AWS region
 grant-public-layer-access: validate-layer-name validate-aws-default-region
@@ -79,7 +79,7 @@ release-notes: validate-branch-name validate-suffix-arn-file
 		--title '$(BRANCH_NAME)' \
 		--generate-notes \
 		--notes-file $(SUFFIX_ARN_FILE) \
-		../$(AWS_FOLDER)/$(BRANCH_NAME).zip
+		$(AWS_FOLDER)/$(BRANCH_NAME).zip
 
 validate-branch-name:
 ifndef BRANCH_NAME
