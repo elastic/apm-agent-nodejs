@@ -587,8 +587,8 @@ def getVersion() {
 */
 def getReleaseNotesUrl() {
   def baseUrl = 'https://www.elastic.co/guide/en/apm/agent/nodejs/current'
-  if (env.BRANCH_NAME?.trim() && env.BRANCH_NAME.startsWith('v')) {
-    def version = env.BRANCH_NAME.replaceAll('v', '')
+  if ("v3.29.0".trim() && "v3.29.0".startsWith('v')) {
+    def version = "v3.29.0".replaceAll('v', '')
     def parts = version.split('\\.')
     def major = parts[0]
     return "${baseUrl}/release-notes-${major}.x.html#release-notes-${version}"
