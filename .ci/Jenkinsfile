@@ -13,7 +13,7 @@ pipeline {
     OPBEANS_REPO = 'opbeans-node'
     GITHUB_CHECK = 'true'
     RELEASE_URL_MESSAGE = "(<https://github.com/elastic/${env.REPO}/releases/tag/${env.TAG_NAME}|${env.TAG_NAME}>)"
-    SLACK_CHANNEL = '#apm-agent-nodejs'
+    SLACK_CHANNEL = '#apm-agent-node'
     NOTIFY_TO = 'build-apm+apm-agent-nodejs@elastic.co'
   }
   options {
