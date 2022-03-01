@@ -28,7 +28,7 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
     t.end()
   })
 
-  suite.test('extracts info with extended path', function (t) {
+  suite.test('extracts info with extended path, cjs extension', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
 
     const handler = getLambdaHandlerInfo({
@@ -42,7 +42,7 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
     t.end()
   })
 
-  suite.test('extracts info with expected env variables, cjs extension', function (t) {
+  suite.test('extracts info with expected env variables', function (t) {
     process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
 
     const handler = getLambdaHandlerInfo({
