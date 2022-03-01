@@ -1,6 +1,6 @@
 SHELL = /bin/bash -eo pipefail
 
-AWS_FOLDER = ../build-aws
+AWS_FOLDER = ../build/aws
 
 export AWS_FOLDER
 
