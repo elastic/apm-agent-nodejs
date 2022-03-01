@@ -1,50 +1,13 @@
 'use strict'
 const tape = require('tape')
 const path = require('path')
-
+const Instrumentation = require('../../lib/instrumentation')
+const logging = require('../../lib/logging')
 const { getLambdaHandlerInfo } = require('../../lib/lambda')
 
+const MODULES = Instrumentation.modules
 tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
-  const logger = {
-    info: function () { }
-  }
-  const MODULES = [
-    ['@elastic/elasticsearch', '@elastic/elasticsearch-canary'],
-    'apollo-server-core',
-    'aws-sdk',
-    'bluebird',
-    'cassandra-driver',
-    'elasticsearch',
-    'express',
-    'express-graphql',
-    'express-queue',
-    'fastify',
-    'finalhandler',
-    'generic-pool',
-    'graphql',
-    'handlebars',
-    ['hapi', '@hapi/hapi'],
-    'http',
-    'https',
-    'http2',
-    'ioredis',
-    'jade',
-    'knex',
-    'koa',
-    ['koa-router', '@koa/router'],
-    'memcached',
-    'mimic-response',
-    'mongodb-core',
-    'mongodb',
-    'mysql',
-    'mysql2',
-    'pg',
-    'pug',
-    'redis',
-    'restify',
-    'tedious',
-    'ws'
-  ]
+  const logger = logging.createLogger('off')
   // minimal mocked instrumentation object for unit tests
   suite.test('returns false-ish in non-lambda places', function (t) {
     t.ok(!getLambdaHandlerInfo())
@@ -93,7 +56,7 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
   })
 
   suite.test('returns no value if module name conflicts with already instrumented module', function (t) {
-    process.env.AWS_LAMBDA_FUNCTION_NAME = 'express'
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
     const handler = getLambdaHandlerInfo({
       _HANDLER: 'express.bar',
       LAMBDA_TASK_ROOT: '/var/task'
@@ -103,6 +66,7 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
   })
 
   suite.test('no task root', function (t) {
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
     const handler = getLambdaHandlerInfo({
       _HANDLER: 'foo.bar'
     }, MODULES, logger)
@@ -111,6 +75,7 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
   })
 
   suite.test('no handler', function (t) {
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
     const handler = getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task'
     }, MODULES, logger)
@@ -119,6 +84,7 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
   })
 
   suite.test('malformed handler: too few', function (t) {
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
     const handler = getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo'
@@ -129,6 +95,7 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
   })
 
   suite.test('longer handler', function (t) {
+    process.env.AWS_LAMBDA_FUNCTION_NAME = 'foo'
     const handler = getLambdaHandlerInfo({
       LAMBDA_TASK_ROOT: '/var/task',
       _HANDLER: 'foo.baz.bar'
@@ -141,7 +108,6 @@ tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
   })
 
   suite.end()
-  // t.end()
 })
 
 tape.test('integration test', function (t) {
@@ -175,6 +141,6 @@ tape.test('integration test', function (t) {
   t.equals(handler.name, 'wrappedLambda', 'handler function wrapped correctly')
 
   // did normal patching/wrapping take place
-  t.equals(express.static.name, 'wrappedStatic', 'handler function wrapped correctly')
+  t.equals(express.static.name, 'wrappedStatic', 'express module was instrumented correctly')
   t.end()
 })
