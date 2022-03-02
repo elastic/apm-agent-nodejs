@@ -3,7 +3,7 @@ const tape = require('tape')
 const path = require('path')
 const Instrumentation = require('../../lib/instrumentation')
 const logging = require('../../lib/logging')
-const { getLambdaHandlerInfo, wrapNestPath, wrapNestedPath } = require('../../lib/lambda')
+const { getLambdaHandlerInfo, wrapNestedPath } = require('../../lib/lambda')
 
 const MODULES = Instrumentation.modules
 tape.test('unit tests for getLambdaHandlerInfo', function (suite) {
@@ -146,30 +146,45 @@ tape.test('integration test', function (t) {
 })
 
 tape.test('wrapper', function (suite) {
-  suite.test('basic case', function(t){
+  suite.test('basic case', function (t) {
     // wrapNestedPath (agent, field, module) {
     const agent = {
-      lambda:function(prop) {
+      lambda: function (prop) {
         t.equals(prop, 'bar', 'expected value passed')
         t.end()
       }
     }
     const module = {
-      foo:'bar',
+      foo: 'bar'
     }
     wrapNestedPath(agent, 'foo', module)
   })
 
-  suite.test('property does not exist', function(t){
+  suite.test('property does not exist', function (t) {
     const agent = {
-      lambda:function(prop) {
+      lambda: function (prop) {
         t.fail()
       }
     }
     const module = {
-      foo:'bar',
+      foo: 'bar'
     }
     wrapNestedPath(agent, 'fooo', module)
+    t.end()
+  })
+
+  suite.test('deep property does not exist', function (t) {
+    const agent = {
+      lambda: function (prop) {
+        t.fail()
+      }
+    }
+    const module = {
+      foo: {
+        bar: 'baz'
+      }
+    }
+    wrapNestedPath(agent, 'foo.bar.bing', module)
     t.end()
   })
   suite.end()
