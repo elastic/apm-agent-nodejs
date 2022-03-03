@@ -333,7 +333,7 @@ pipeline {
           }
           post {
             always {
-              archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/build-aws")
+              archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/build/aws")
             }
           }
         }
