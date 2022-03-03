@@ -12,7 +12,7 @@ pipeline {
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/main'
     OPBEANS_REPO = 'opbeans-node'
     GITHUB_CHECK = 'true'
-    RELEASE_URL_MESSAGE = "(<https://github.com/elastic/${env.REPO}/releases/tag/${env.TAG_NAME}|${env.TAG_NAME}>)"
+    RELEASE_URL_MESSAGE = "(<https://github.com/elastic/${env.REPO}/releases/tag/v3.29.0|v3.29.0>)"
     SLACK_CHANNEL = '#apm-agent-node'
     NOTIFY_TO = 'build-apm+apm-agent-nodejs@elastic.co'
   }
