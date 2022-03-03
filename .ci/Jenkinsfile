@@ -7,12 +7,14 @@ pipeline {
     REPO = 'apm-agent-nodejs'
     BASE_DIR = "src/github.com/elastic/${env.REPO}"
     PIPELINE_LOG_LEVEL='INFO'
-    NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/main'
     OPBEANS_REPO = 'opbeans-node'
     GITHUB_CHECK = 'true'
+    RELEASE_URL_MESSAGE = "(<https://github.com/elastic/${env.REPO}/releases/tag/${env.TAG_NAME}|${env.TAG_NAME}>)"
+    SLACK_CHANNEL = '#apm-agent-node'
+    NOTIFY_TO = 'build-apm+apm-agent-nodejs@elastic.co'
   }
   options {
     timeout(time: 3, unit: 'HOURS')
@@ -274,6 +276,9 @@ pipeline {
         beforeAgent true
         tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
       }
+      environment {
+        SUFFIX_ARN_FILE = 'arn-file.md'
+      }
       stages {
         stage('Opbeans') {
           environment {
@@ -292,6 +297,61 @@ pipeline {
               // The opbeans pipeline will trigger a release for the release tag
               gitCreateTag(tag: "${env.BRANCH_NAME}")
             }
+          }
+        }
+        stage('Dist') {
+          steps {
+            withGithubNotify(context: "Dist") {
+              setEnvVar('ELASTIC_LAYER_NAME', "elastic-apm-node${getVersion()}")
+              setEnvVar('RELEASE_NOTES_URL', getReleaseNotesUrl())
+              deleteDir()
+              unstash 'source'
+              withNodeJSEnv(version: 'v14.17.5'){
+                dir("${BASE_DIR}"){
+                  cmd(label: 'make dist', script: 'make -C .ci dist')
+                }
+              }
+            }
+          }
+        }
+        stage('Publish') {
+          steps {
+            withGithubNotify(context: "Publish") {
+              withGoEnv(){
+                withAWSEnv(secret: 'secret/observability-team/ci/service-account/apm-aws-lambda', forceInstallation: true, version: '2.4.10') {
+                  dir("${BASE_DIR}"){
+                    cmd(label: 'make publish-in-all-aws-regions', script: 'make -C .ci publish-in-all-aws-regions')
+                    cmd(label: 'make create-arn-file', script: 'make -C .ci create-arn-file')
+                  }
+                }
+              }
+            }
+          }
+          post {
+            always {
+              archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/build/aws")
+            }
+          }
+        }
+        stage('Release Notes') {
+          steps {
+            withGhEnv(forceInstallation: true, version: '2.4.0') {
+              dir("${BASE_DIR}"){
+                cmd(label: 'make release-notes', script: 'make -C .ci release-notes')
+              }
+            }
+          }
+        }
+      }
+      post {
+        success {
+          whenTrue(isTag()) {
+            notifyStatus(slackStatus: 'good', subject: "[${env.REPO}] Release *${env.TAG_NAME}* published", body: "Build: (<${env.RUN_DISPLAY_URL}|here>)\nRelease URL: ${env.RELEASE_URL_MESSAGE}")
+          }
+        }
+        failure {
+          whenTrue(isTag()) {
+            notifyStatus(slackStatus: 'warning', subject: "[${env.REPO}] Release *${env.TAG_NAME}* could not be published.", body: "Build: (<${env.RUN_DISPLAY_URL}|here>)")
           }
         }
       }
@@ -504,4 +564,40 @@ def grabWorkerIP(){
     }
   }
   return linuxIp
+}
+
+/**
+* Transform TAG releases from v{major}.{minor}.{patch} to
+* ver-{major}-{minor}-{patch}. e.g: given v1.2.3 then
+* -ver-1-2-3.
+*/
+def getVersion() {
+  if (env.BRANCH_NAME?.trim() && env.BRANCH_NAME.startsWith('v')) {
+    return env.BRANCH_NAME.replaceAll('v', '-ver-').replaceAll('\\.', '-')
+  }
+  return ''
+}
+
+/**
+* Calculate the elastic.co release notes URL given the TAG release. Otherwise
+* it returns the default current URL.
+*/
+def getReleaseNotesUrl() {
+  def baseUrl = 'https://www.elastic.co/guide/en/apm/agent/nodejs/current'
+  if (env.BRANCH_NAME?.trim() && env.BRANCH_NAME.startsWith('v')) {
+    def version = env.BRANCH_NAME.replaceAll('v', '')
+    def parts = version.split('\\.')
+    def major = parts[0]
+    return "${baseUrl}/release-notes-${major}.x.html#release-notes-${version}"
+  }
+  return baseUrl
+}
+
+def notifyStatus(def args = [:]) {
+  releaseNotification(slackChannel: "${env.SLACK_CHANNEL}",
+                      slackColor: args.slackStatus,
+                      slackCredentialsId: 'jenkins-slack-integration-token',
+                      to: "${env.NOTIFY_TO}",
+                      subject: args.subject,
+                      body: args.body)
 }
