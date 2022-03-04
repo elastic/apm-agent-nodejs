@@ -33,7 +33,7 @@ test('success', function (t) {
     timeoutMs: 3000,
     verboseLevel: 0, // set to `3` for debugging output
     callback: function (err, result) {
-      t.ok(agent._transport.lambdaStartCalled,
+      t.ok(lambdaStartCalled,
         '_transport.lambdaStart() had been called before handler code executed')
 
       t.error(err, 'no handler err')
