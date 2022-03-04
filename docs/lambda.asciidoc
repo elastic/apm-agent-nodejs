@@ -39,6 +39,9 @@ execution of your Lambda function.
 
 See the https://github.com/elastic/apm-aws-lambda/blob/main/docs/aws-lambda-extension.asciidoc[installation documentation] to get started.
 
+Compatibility note: If using v3.30.0 or later of the APM Node.js Agent, one
+must use v0.0.4 or later of the APM Lambda extension.
+
 Once you have the extension installed in your environment, you can
 configure your Lambda handler to instrument your function.
 

@@ -59,7 +59,11 @@ the case for some spans based on span duration. ({pull}2565[#2565])
 **  Improve data flushing between the APM agent and the Elastic Lambda
     extension. This fixes cases where some APM events could be dropped, and
     should improve Lambda function latency with the explicit end signaling
-    from agent to extension. ({issues}2485[#2485])
+    from agent to extension. However, because this change triggers a bug
+    in the extension, this version of the APM Node.js Agent must only be used
+    with versions of the
+    https://www.elastic.co/guide/en/apm/guide/current/aws-lambda-extension.html[AWS Lambda Extension]
+    after v0.0.3.  ({issues}2485[#2485])
 **  Better `transaction.name` for API Gateway-triggered lambdas. Respect
     explicitly set `serviceName`, `serviceVersion`, and
     `usePathAsTransactionName` config settings. Default `cloudProvider: none`
