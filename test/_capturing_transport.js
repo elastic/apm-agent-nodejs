@@ -28,6 +28,7 @@ class CapturingTransport {
   }
 
   clear () {
+    this.lambdaStartCalled = false
     this.extraMetadata = null
     this.spans = []
     this.transactions = []
@@ -43,7 +44,9 @@ class CapturingTransport {
     this.extraMetadata = metadata
   }
 
-  lambdaStart () {}
+  lambdaStart () {
+    this.lambdaStartCalled = true
+  }
 
   sendSpan (span, cb) {
     this.spans.push(span)

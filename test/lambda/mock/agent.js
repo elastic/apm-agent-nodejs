@@ -6,7 +6,7 @@ const TransactionMock = require('./transaction')
 
 module.exports = class AgentMock {
   constructor (conf) {
-    this.flushed = false
+    this.flushes = []
     this.transactions = []
     this.errors = []
     this.logger = logging.createLogger('off')
@@ -38,12 +38,11 @@ module.exports = class AgentMock {
   }
 
   _flush (opts, cb) {
-    // XXX likely want tests updated to check if this flush included {lambdaEnd:true}
+    this.flushes.push(opts)
     this.flush(cb)
   }
 
   flush (cb) {
-    this.flushed = true
     if (cb) {
       setImmediate(cb)
     }
