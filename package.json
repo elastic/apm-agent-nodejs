@@ -8,8 +8,8 @@
     "backport": "backport",
     "docs:open": "PREVIEW=1 npm run docs:build",
     "docs:build": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
-    "lint": "standard",
-    "lint:fix": "standard --fix",
+    "lint": "eslint .  # requires node >=8.10",
+    "lint:fix": "eslint --fix .  # requires node >=8.10",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
     "test": "./test/script/run_tests.sh",
     "test:deps": "dependency-check start.js index.js 'lib/**/*.js' 'test/**/*.js' --no-dev -i async_hooks -i perf_hooks -i parseurl",
@@ -141,6 +141,12 @@
     "dashdash": "^2.0.0",
     "dependency-check": "^4.1.0",
     "elasticsearch": "^16.5.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-standard": "^4.1.0",
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "express-queue": "^0.0.12",
@@ -180,7 +186,6 @@
     "restify": "^8.5.1",
     "rimraf": "^3.0.2",
     "send": "^0.17.1",
-    "standard": "^14.3.3",
     "tap-junit": "^5.0.1",
     "tape": "^5.0.0",
     "tedious": "^9.2.1",
@@ -190,11 +195,5 @@
     "vasync": "^2.2.0",
     "wait-on": "^3.3.0",
     "ws": "^7.2.1"
-  },
-  "standard": {
-    "ignore": [
-      "/test/sourcemaps/fixtures/lib",
-      "/test/stacktraces/fixtures/dist"
-    ]
   }
 }

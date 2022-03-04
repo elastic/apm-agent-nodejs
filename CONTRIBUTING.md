@@ -160,10 +160,9 @@ The following is an overview of what's required in order to add support to the a
 1. List the supported versions of the package in [`docs/supported-technologies.asciidoc`](docs/supported-technologies.asciidoc)
 1. We use the [test-all-versions](https://github.com/watson/test-all-versions) module to test the agent against all supported versions of each package we instrument.
    Add the supported versions and required test commands to the [`.tav.yml`](.tav.yml) file
-1. Add the name of the module to one of the TAV groups in both [`.travis.yml`](.travis.yml) and [`test/.jenkins_tav.yml`](test/.jenkins_tav.yml) for all Node.js versions.
+1. Add the name of the module to one of the TAV groups in [`test/.jenkins_tav.yml`](test/.jenkins_tav.yml) for all Node.js versions.
    To better balance the work requried to run each TAV group,
    pick the TAV group that is currently running the fastest.
-   Look at the "Dependencies" stage of one of our latest [Travis cron job builds](https://travis-ci.org/elastic/apm-agent-nodejs/builds) for an overview
 
 
 ## Releasing
