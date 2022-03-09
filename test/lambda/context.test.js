@@ -36,7 +36,8 @@ test('context.succeed', function (t) {
       t.error(err)
       t.strictEqual(result, output)
 
-      t.ok(agent.flushed)
+      t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
+        'agent._flush({lambdaEnd: true}) was called')
 
       t.strictEqual(agent.errors.length, 0)
 
@@ -70,7 +71,8 @@ test('context.done', function (t) {
       t.error(err)
       t.strictEqual(result, output)
 
-      t.ok(agent.flushed)
+      t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
+        'agent._flush({lambdaEnd: true}) was called')
 
       t.strictEqual(agent.errors.length, 0)
 
@@ -104,7 +106,8 @@ test('context.fail', function (t) {
       t.ok(err)
       t.notOk(result)
 
-      t.ok(agent.flushed)
+      t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
+        'agent._flush({lambdaEnd: true}) was called')
 
       t.strictEqual(agent.errors.length, 1)
       assertError(t, agent.errors[0], error)
