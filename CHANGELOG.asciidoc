@@ -65,6 +65,7 @@ after v0.0.3.
 [float]
 ===== Features
 
+* Add `faas.name` and `faas.version` fields to Lambda transactions. ({issues}2587[#2587])
 * Added automatic wrapping of AWS Lambda handlers ({pull}2577[#2577])
 * Improvements to AWS Lambda instrumentation: Better `transaction.name` for
   API Gateway-triggered lambdas. Respect explicitly set `serviceName`,
