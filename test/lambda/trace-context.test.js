@@ -50,7 +50,8 @@ test('API Gateway trigger: traceparent header present', function (t) {
       t.error(err)
       t.strictEqual(result, output)
 
-      t.ok(agent.flushed)
+      t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
+        'agent._flush({lambdaEnd: true}) was called')
 
       t.strictEqual(agent.errors.length, 0)
 
@@ -214,7 +215,8 @@ test('SQS trigger: traceparent header present', function (t) {
       t.error(err)
       t.strictEqual(result, output)
 
-      t.ok(agent.flushed)
+      t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
+        'agent._flush({lambdaEnd: true}) was called')
 
       t.strictEqual(agent.errors.length, 0)
 
@@ -267,7 +269,8 @@ test('SNS trigger: traceparent header present', function (t) {
       t.error(err)
       t.strictEqual(result, output)
 
-      t.ok(agent.flushed)
+      t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
+        'agent._flush({lambdaEnd: true}) was called')
 
       t.strictEqual(agent.errors.length, 0)
 

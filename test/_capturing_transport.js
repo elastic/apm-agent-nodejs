@@ -28,6 +28,7 @@ class CapturingTransport {
   }
 
   clear () {
+    this.lambdaStartCalled = false
     this.extraMetadata = null
     this.spans = []
     this.transactions = []
@@ -41,6 +42,10 @@ class CapturingTransport {
 
   setExtraMetadata (metadata) {
     this.extraMetadata = metadata
+  }
+
+  lambdaStart () {
+    this.lambdaStartCalled = true
   }
 
   sendSpan (span, cb) {
@@ -71,7 +76,13 @@ class CapturingTransport {
     }
   }
 
-  flush (cb) {
+  flush (opts, cb) {
+    if (typeof opts === 'function') {
+      cb = opts
+      opts = {}
+    } else if (!opts) {
+      opts = {}
+    }
     if (cb) {
       process.nextTick(cb)
     }
