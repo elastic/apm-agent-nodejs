@@ -29,9 +29,9 @@ test('success', function (t) {
     },
     lambdaHandler: name,
     timeoutMs: 3000,
-    verboseLevel: 0,
+    verboseLevel: 0, // set to 3 for verbose logging of the execution
     callback: function (err, result) {
-      t.error(err)
+      t.error(err, `no error executing: err=${JSON.stringify(err)}`)
       t.strictEqual(result, output)
 
       t.ok(agent.flushed)
