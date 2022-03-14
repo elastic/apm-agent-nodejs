@@ -13,7 +13,7 @@
         discover-tags: true
         notification-context: 'apm-ci'
         # Run CI builds only on main, PRs, non-EOL version branches, and tags.
-        head-filter-regex: '^(main|PR-.*|3\.x|v3.3[0-9].*|v[4-9].*)$'
+        head-filter-regex: '^(main|PR-.*|3\.x|v3.3[0-9].*|v3.[4-9].*|v[4-9].*)$'
         repo: apm-agent-nodejs
         repo-owner: elastic
         credentials-id: 2a9602aa-ab9f-4e52-baf3-b71ca88469c7-UserAndToken
