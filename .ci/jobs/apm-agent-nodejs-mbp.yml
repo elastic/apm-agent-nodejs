@@ -12,7 +12,7 @@
         discover-pr-origin: merge-current
         discover-tags: true
         notification-context: 'apm-ci'
-        # Run CI builds only on main, PRs, non-EOL version branches, and tags.
+        # Run CI builds only on main, PRs, non-EOL version branches, and release tags after v3.29.0.
         head-filter-regex: '^(main|PR-.*|3\.x|v3.3[0-9].*|v3.[4-9].*|v[4-9].*)$'
         repo: apm-agent-nodejs
         repo-owner: elastic
