@@ -100,9 +100,6 @@ after v0.0.3.
   environment variables for setting up APM instrumentation of Lambdas.
   ({issues}2531[#2531])
 
-[float]
-===== Bug fixes
-
 
 [[release-notes-3.29.0]]
 ==== 3.29.0 2022/02/10
