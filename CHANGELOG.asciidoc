@@ -29,6 +29,26 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* If a SNS or SQS single event trigger to an instrumented Lambda function
+  includes message attributes with the name "traceparent" (and "tracestate"),
+  case-insensitive, then those are used to continue the trace. This was already
+  being done for API Gateway event headers.
+
+[float]
+===== Bug fixes
+
+* Fix a bug in Lambda instrumentation in the capturing of SNS and SQS event
+  message attributes. ({issues}2605[#2605])
+
+
 [[release-notes-3.30.0]]
 ==== 3.30.0 2022/03/10
 
