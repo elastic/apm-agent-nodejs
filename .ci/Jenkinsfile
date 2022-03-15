@@ -73,6 +73,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
           expression { return env.ONLY_DOCS == "false" }
           expression { return params.tests_ci }
         }
@@ -115,9 +116,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
-          not {
-            branch '^greenkeeper/.*'
-          }
+          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
           anyOf {
             expression { return params.Run_As_Main_Branch }
             triggeredBy 'TimerTrigger'
@@ -161,6 +160,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
           anyOf {
             expression { return params.Run_As_Main_Branch }
             triggeredBy 'TimerTrigger'
@@ -253,6 +253,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
           expression { return env.ONLY_DOCS == "false" }
           anyOf {
             changeRequest()
@@ -373,7 +374,6 @@ pipeline {
         allOf {
           anyOf {
             branch 'main'
-            tag pattern: 'v\\d+\\.\\d+\\.\\d+.*', comparator: 'REGEXP'
             expression { return params.Run_As_Main_Branch }
             expression { return env.GITHUB_COMMENT?.contains('benchmark tests') }
           }

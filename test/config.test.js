@@ -878,7 +878,13 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
               sentTrans = trans
               if (cb) process.nextTick(cb)
             },
-            flush (cb) {
+            flush (opts, cb) {
+              if (typeof opts === 'function') {
+                cb = opts
+                opts = {}
+              } else if (!opts) {
+                opts = {}
+              }
               if (cb) process.nextTick(cb)
             }
           }
@@ -1015,7 +1021,13 @@ test('custom transport', function (t) {
 
     config () {}
 
-    flush (cb) {
+    flush (opts, cb) {
+      if (typeof opts === 'function') {
+        cb = opts
+        opts = {}
+      } else if (!opts) {
+        opts = {}
+      }
       if (cb) setImmediate(cb)
     }
 

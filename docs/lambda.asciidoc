@@ -39,6 +39,9 @@ execution of your Lambda function.
 
 See the https://github.com/elastic/apm-aws-lambda/blob/main/docs/aws-lambda-extension.asciidoc[installation documentation] to get started.
 
+Compatibility note: If using v3.30.0 or later of the APM Node.js Agent, one
+must use v0.0.4 or later of the APM Lambda extension.
+
 Once you have the extension installed in your environment, you can
 configure your Lambda handler to instrument your function.
 
@@ -59,7 +62,22 @@ npm install elastic-apm-node --save
 
 It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `http`, etc.
 
-Here's a simple lambda example with the Elastic APM agent installed:
+There are two ways to achieve this.  The first is via automatic initialization using the `NODE_OPTIONS` environment variable.  The second is via manual instrumentation.
+
+==== Automatic Initialization
+
+In order to automatically initialize the agent, you'll need to set the following environment variable in your Lambda function's `Configuration -> Environment variables` section.
+
+[source,bash]
+---
+NODE_OPTIONS=-r elastic-apm-node/start.js
+---
+
+With this value set the agent will initialize prior to AWS loading your Lambda handler. This will allow the agent to automatically instrument your modules including the lambda handler itself.
+
+==== Manual Initialization
+
+If you can't use the `NODE_OPTIONS` variable, you'll need to manually initialize the agent and manually instrument your Lambda handler. Here's a simple lambda example with the Elastic APM agent installed:
 
 [source,js]
 ----
