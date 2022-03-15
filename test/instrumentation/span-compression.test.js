@@ -13,9 +13,9 @@ const mockClient = require('../_mock_http_client')
 
 const tape = require('tape')
 
-tape.test('TODO: name basic integration test(s)',function(suite) {
-  suite.test(function(t){
-    resetAgent(function(data){
+tape.test('TODO: name basic integration test(s)', function (suite) {
+  suite.test(function (t) {
+    resetAgent(function (data) {
       t.equals(data.length, 3)
       t.end()
     })
@@ -31,13 +31,13 @@ tape.test('TODO: name basic integration test(s)',function(suite) {
 })
 
 tape.test('test getCompressionStrategy', function (suite) {
-  suite.test('test invalid', function(t){
+  suite.test('test invalid', function (t) {
     const c = new SpanCompression(agent)
     t.equals(false, c.getCompressionStrategy({}, {}), 'invalid objects return false')
     t.end()
   })
 
-  suite.test('test exact match', function(t){
+  suite.test('test exact match', function (t) {
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name', 'type', 'subtype')
@@ -54,7 +54,7 @@ tape.test('test getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('test same kind', function(t){
+  suite.test('test same kind', function (t) {
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name1', 'type', 'subtype')
@@ -71,7 +71,7 @@ tape.test('test getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('test no strat', function(t){
+  suite.test('test no strat', function (t) {
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name1', 'type2', 'subtype')
@@ -88,22 +88,22 @@ tape.test('test getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('test _isEnabled', function(t){
+  suite.test('test _isEnabled', function (t) {
     const mockedAgentDisabled = {
       _conf: {
-        spanCompressionEnabled:false
+        spanCompressionEnabled: false
       }
     }
     const mockedAgentEnabled = {
       _conf: {
-        spanCompressionEnabled:true
+        spanCompressionEnabled: true
       }
     }
     const cDisabled = new SpanCompression(mockedAgentDisabled)
     t.ok(!cDisabled._isEnabled(), '_isEnabled returns false when feature disabled')
 
     const cEnabled = new SpanCompression(mockedAgentEnabled)
-    t.ok(cEnabled._isEnabled(),'_isEnabled returns true when feature enabled')
+    t.ok(cEnabled._isEnabled(), '_isEnabled returns true when feature enabled')
 
     t.end()
   })
