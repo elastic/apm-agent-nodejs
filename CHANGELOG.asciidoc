@@ -45,6 +45,11 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix a bug with Lambda instrumentation where the APM agent would result in
+  an otherwise working Lambda function to respond with `null` if the Lambda
+  was missing the https://github.com/elastic/apm-aws-lambda[Elastic APM Lambda Extension].
+  ({issues}2598[#2598])
+
 * Fix a bug in Lambda instrumentation in the capturing of SNS and SQS event
   message attributes. ({issues}2605[#2605])
 
