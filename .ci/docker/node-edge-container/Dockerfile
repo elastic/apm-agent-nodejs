@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # - nvm dependencies: build-essential, libssl-dev, curl
 # - git is installed for usage in tests using this image
