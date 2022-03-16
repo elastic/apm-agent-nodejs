@@ -3,7 +3,10 @@ const agent = require('../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  cloudProvider: 'none'
+  cloudProvider: 'none',
+  spanCompressionEnabled: true,
+  spanCompressionExactMatchMaxDuration: '60ms',
+  spanCompressionSameKindMaxDuration: '50ms',
 })
 const Transaction = require('../../lib/instrumentation/transaction')
 const Span = require('../../lib/instrumentation/span')
@@ -30,10 +33,10 @@ tape.test('TODO: name basic integration test(s)', function (suite) {
   suite.end()
 })
 
-tape.test('test getCompressionStrategy', function (suite) {
+tape.test('test _getCompressionStrategy', function (suite) {
   suite.test('test invalid', function (t) {
     const c = new SpanCompression(agent)
-    t.equals(false, c.getCompressionStrategy({}, {}), 'invalid objects return false')
+    t.equals(false, c._getCompressionStrategy({}, {}), 'invalid objects return false')
     t.end()
   })
 
@@ -50,7 +53,7 @@ tape.test('test getCompressionStrategy', function (suite) {
     span1.setDestinationContext(destinationContext)
     span2.setDestinationContext(destinationContext)
 
-    t.equals(constants.STRATEGY_EXACT_MATCH, c.getCompressionStrategy(span1, span2))
+    t.equals(constants.STRATEGY_EXACT_MATCH, c._getCompressionStrategy(span1, span2))
     t.end()
   })
 
@@ -67,7 +70,7 @@ tape.test('test getCompressionStrategy', function (suite) {
     span1.setDestinationContext(destinationContext)
     span2.setDestinationContext(destinationContext)
 
-    t.equals(constants.STRATEGY_SAME_KIND, c.getCompressionStrategy(span1, span2))
+    t.equals(constants.STRATEGY_SAME_KIND, c._getCompressionStrategy(span1, span2))
     t.end()
   })
 
@@ -84,7 +87,7 @@ tape.test('test getCompressionStrategy', function (suite) {
     span1.setDestinationContext(destinationContext)
     span2.setDestinationContext(destinationContext)
 
-    t.equals(false, c.getCompressionStrategy(span1, span2))
+    t.equals(false, c._getCompressionStrategy(span1, span2))
     t.end()
   })
 
@@ -205,6 +208,72 @@ tape.test('test getCompressionStrategy', function (suite) {
     t.equals(c.composite.sum, 9, 'sum stays constant with last value')
     t.end()
   })
+
+  suite.test('tryToCompress exact match, max duration', function (t) {
+    const destinationContext = {
+      service: {
+        resource: 'foo'
+      }
+    }
+
+    const c = new SpanCompression(agent)
+    const trans = new Transaction(agent)
+    const span = new Span(trans, 'name', 'type', 'mysql')
+    span.setDestinationContext(destinationContext)
+    span._duration = 20 // time in milliseconds/ms
+
+    const spanOver = new Span(trans, 'name', 'type', 'mysql')
+    spanOver.setDestinationContext(destinationContext)
+    spanOver._duration = 40 // time in milliseconds/ms
+
+    const spanUnder = new Span(trans, 'name', 'type', 'mysql')
+    spanUnder.setDestinationContext(destinationContext)
+    spanUnder._duration = 39 // time in milliseconds/ms
+
+    const spanBrokeCamelsBack = new Span(trans, 'name', 'type', 'mysql')
+    spanBrokeCamelsBack.setDestinationContext(destinationContext)
+    spanBrokeCamelsBack._duration = 1 // time in milliseconds/ms
+
+    t.ok(!c.tryToCompress(span, spanOver), '60ms is >= spanCompressionExactMatchMaxDuration')
+
+    t.ok(c.tryToCompress(span, spanUnder), '59ms is < spanCompressionExactMatchMaxDuration')
+    t.ok(!c.tryToCompress(span, spanBrokeCamelsBack), '60ms is < spanCompressionExactMatchMaxDuration')
+    t.end()
+  })
+
+  suite.test('tryToCompress same kind, max duration', function (t) {
+    const destinationContext = {
+      service: {
+        resource: 'foo'
+      }
+    }
+
+    const c = new SpanCompression(agent)
+    const trans = new Transaction(agent)
+    const span = new Span(trans, 'name', 'type', 'mysql')
+    span.setDestinationContext(destinationContext)
+    span._duration = 20 // time in milliseconds/ms
+
+    const spanOver = new Span(trans, 'name 2', 'type', 'mysql')
+    spanOver.setDestinationContext(destinationContext)
+    spanOver._duration = 30 // time in milliseconds/ms
+
+    const spanUnder = new Span(trans, 'name 2', 'type', 'mysql')
+    spanUnder.setDestinationContext(destinationContext)
+    spanUnder._duration = 29 // time in milliseconds/ms
+
+    const spanBrokeCamelsBack = new Span(trans, 'name 2', 'type', 'mysql')
+    spanBrokeCamelsBack.setDestinationContext(destinationContext)
+    spanBrokeCamelsBack._duration = 1 // time in milliseconds/ms
+
+    t.ok(!c.tryToCompress(span, spanOver), '50ms is >= spanCompressionSameKindMaxDuration')
+
+    t.ok(c.tryToCompress(span, spanUnder), '49ms is < spanCompressionSameKindMaxDuration')
+    t.ok(!c.tryToCompress(span, spanBrokeCamelsBack), '50ms is < spanCompressionSameKindMaxDuration')
+    t.end()
+  })
+
+
 })
 
 function resetAgent (/* numExpected, */ cb) {
