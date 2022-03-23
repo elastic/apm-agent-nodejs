@@ -77,16 +77,19 @@ module.exports = (moduleName) => {
   })
 
   test('captureBody', function (t) {
-    t.plan(8)
+    t.plan(9)
+
+    const postData = JSON.stringify({ foo: 'bar' })
 
     resetAgent(1, function (data) {
       assert(t, data, { name: 'POST /postSomeData', method: 'POST' })
+      t.equal(data.transactions[0].context.request.body, postData,
+        'body was captured to trans.context.request.body')
       server.stop(noop)
     })
 
     var server = startServer(function (err, port) {
       t.error(err)
-      const postData = JSON.stringify({ foo: 'bar' })
       const cReq = http.request(
         'http://localhost:' + port + '/postSomeData',
         {
