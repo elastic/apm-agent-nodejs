@@ -37,6 +37,8 @@ Notes:
 [float]
 ===== Features
 
+* Add `captureBody` support for Hapi. ({issues}1905[#1905])
+
 * If a SNS or SQS single event trigger to an instrumented Lambda function
   includes message attributes with the name "traceparent" (and "tracestate"),
   case-insensitive, then those are used to continue the trace. This was already
