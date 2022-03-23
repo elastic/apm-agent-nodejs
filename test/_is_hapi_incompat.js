@@ -12,14 +12,16 @@ function isHapiIncompat (moduleName) {
   if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
     return true
   }
-  // hapi 18.1.0 (the last hapi 18.x) was released before node v12 was released,
-  // and tests with hapi@18 and node >=16 is known to hang.  (Also, hapi <20 is
-  // deprecated, https://github.com/hapijs/hapi/issues/4114.)
-  if (semver.gte(process.version, '16.0.0') && semver.lt(hapiVersion, '19.0.0')) {
-    return true
-  }
   // hapi 19+ requires Node.js 12 or higher
   if (semver.lt(process.version, '12.0.0') && semver.gte(hapiVersion, '19.0.0')) {
+    return true
+  }
+  // - hapi 18.1.0 (the last hapi 18.x) was released before node v12 was released,
+  //   and tests with hapi@18 and node >=16 is known to hang.
+  // - @hapi/hapi@20.1.2 fixed an issue (https://github.com/hapijs/hapi/pull/4225)
+  //   need to work with node >=16. Earlier versions of Hapi will crash when
+  //   handling a POST.
+  if (semver.gte(process.version, '16.0.0') && semver.lt(hapiVersion, '20.1.2')) {
     return true
   }
 

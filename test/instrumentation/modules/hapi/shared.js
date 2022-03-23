@@ -14,6 +14,7 @@ module.exports = (moduleName) => {
   var isHapiIncompat = require('../../../_is_hapi_incompat')
   if (isHapiIncompat(moduleName)) {
     // Skip out of this test.
+    console.log(`# SKIP this version of ${moduleName} is incompatible with node ${process.version}`)
     process.exit()
   }
 
