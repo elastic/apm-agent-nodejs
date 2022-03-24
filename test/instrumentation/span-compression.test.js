@@ -176,20 +176,20 @@ tape.test('test _getCompressionStrategy', function (suite) {
 
     t.ok(c.tryToCompress(span1, span2), 'tryToCompress returns true')
     t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH, 'exact match set')
-    t.equals(c.composite.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
+    t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
     t.equals(c.duration, 5000, 'duration is the timestamp difference')
 
     t.equals(c.composite.sum, 5, 'sum is the combined durations')
 
     t.ok(c.tryToCompress(span1, span3), 'tryToCompress returns true')
     t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH, 'exact match set')
-    t.equals(c.composite.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
+    t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
     t.equals(c.duration, 9000, 'duration is the timestamp difference')
     t.equals(c.composite.sum, 9, 'sum is the combined durations')
 
     t.ok(!c.tryToCompress(span1, spanSameKind), 'tryToCompress fails since same is not exact match')
     t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH, 'exact match set')
-    t.equals(c.composite.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
+    t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
     t.equals(c.duration, 9000, 'duration stays constant with last value')
     t.equals(c.composite.sum, 9, 'sum stays constant with last value')
     t.end()
@@ -227,19 +227,19 @@ tape.test('test _getCompressionStrategy', function (suite) {
 
     t.ok(c.tryToCompress(span1, span2), 'tryToCompress returns true')
     t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND, 'same kind set')
-    t.equals(c.composite.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
+    t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
     t.equals(c.duration, 5000, 'duration is the timestamp difference')
     t.equals(c.composite.sum, 5, 'sum is the combined durations')
 
     t.ok(c.tryToCompress(span1, span3), 'tryToCompress returns true')
     t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND, 'same kind set')
-    t.equals(c.composite.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
+    t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
     t.equals(c.duration, 9000, 'duration is the timestamp difference')
     t.equals(c.composite.sum, 9, 'sum is the combined durations')
 
     t.ok(!c.tryToCompress(span1, spanNotSameKind), 'tryToCompress fails since span is not same kind')
     t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND, 'same kind set')
-    t.equals(c.composite.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
+    t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
     t.equals(c.duration, 9000, 'duration stays constant with last value')
     t.equals(c.composite.sum, 9, 'sum stays constant with last value')
     t.end()
