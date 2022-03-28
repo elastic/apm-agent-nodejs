@@ -307,6 +307,8 @@ pipeline {
               setEnvVar('RELEASE_NOTES_URL', getReleaseNotesUrl())
               deleteDir()
               unstash 'source'
+              // This should use a currently supported Node.js version to ensure
+              // and npm version that gets security patches is used.
               withNodeJSEnv(version: 'v14.17.5'){
                 dir("${BASE_DIR}"){
                   cmd(label: 'make dist', script: 'make -C .ci dist')
