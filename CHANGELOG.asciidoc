@@ -29,6 +29,31 @@ Notes:
 === Node.js Agent version 3.x
 
 
+[[release-notes-3.31.0]]
+==== 3.31.0 2022/03/23
+
+[float]
+===== Features
+
+* Add `captureBody` support for Hapi. ({issues}1905[#1905])
+
+* If a SNS or SQS single event trigger to an instrumented Lambda function
+  includes message attributes with the name "traceparent" (and "tracestate"),
+  case-insensitive, then those are used to continue the trace. This was already
+  being done for API Gateway event headers.
+
+[float]
+===== Bug fixes
+
+* Fix a bug with Lambda instrumentation where the APM agent would result in
+  an otherwise working Lambda function to respond with `null` if the Lambda
+  was missing the https://github.com/elastic/apm-aws-lambda[Elastic APM Lambda Extension].
+  ({issues}2598[#2598])
+
+* Fix a bug in Lambda instrumentation in the capturing of SNS and SQS event
+  message attributes. ({issues}2605[#2605])
+
+
 [[release-notes-3.30.0]]
 ==== 3.30.0 2022/03/10
 
@@ -74,9 +99,6 @@ after v0.0.3.
   `cloudProvider: none` and `centralConfig: false` to reduce required
   environment variables for setting up APM instrumentation of Lambdas.
   ({issues}2531[#2531])
-
-[float]
-===== Bug fixes
 
 
 [[release-notes-3.29.0]]

@@ -19,8 +19,8 @@ tape.test('cold start tests', function (t) {
   const mockContext = loadFixture('context')
 
   // invoke the mock lambda twice
-  wrappedMockLambda(mockEvent, mockContext)
-  wrappedMockLambda(mockEvent, mockContext)
+  wrappedMockLambda(mockEvent, mockContext, () => {})
+  wrappedMockLambda(mockEvent, mockContext, () => {})
 
   const cold = mockAgent.transactions.shift()
   const warm = mockAgent.transactions.shift()
@@ -30,14 +30,14 @@ tape.test('cold start tests', function (t) {
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_api_http_test_data tests', function (t) {
+tape.test('transaction data TRIGGER_API_GATEWAY v2', function (t) {
   const mockAgent = new AgentMock()
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
   const event = loadFixture('aws_api_http_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
@@ -58,13 +58,13 @@ tape.test('setLambdaTransactionData aws_api_http_test_data tests', function (t) 
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_apigateway_event_with_template_path, usePathAsTransactionName=false', function (t) {
+tape.test('transaction data TRIGGER_API_GATEWAY, usePathAsTransactionName=false', function (t) {
   const mockAgent = new AgentMock({ usePathAsTransactionName: false })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
   const event = loadFixture('aws_apigateway_event_with_template_path')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   t.strictEquals(transaction.name, 'POST /prod/{proxy+}', 'transaction named correctly')
@@ -72,13 +72,13 @@ tape.test('setLambdaTransactionData aws_apigateway_event_with_template_path, use
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_apigateway_event_with_template_path, usePathAsTransactionName=true', function (t) {
+tape.test('transaction data TRIGGER_API_GATEWAY, usePathAsTransactionName=true', function (t) {
   const mockAgent = new AgentMock({ usePathAsTransactionName: true })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
   const event = loadFixture('aws_apigateway_event_with_template_path')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   t.strictEquals(transaction.name, 'POST /prod/path/to/resource', 'transaction named correctly')
@@ -86,14 +86,14 @@ tape.test('setLambdaTransactionData aws_apigateway_event_with_template_path, use
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_api_rest_test_data.json tests', function (t) {
+tape.test('transaction data TRIGGER_API_GATEWAY v1', function (t) {
   const mockAgent = new AgentMock()
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
   const event = loadFixture('aws_api_rest_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
@@ -114,16 +114,14 @@ tape.test('setLambdaTransactionData aws_api_rest_test_data.json tests', function
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) {
-  const mockAgent = new AgentMock()
-  mockAgent._conf.captureBody = 'all'
-  mockAgent._conf.captureHeaders = 'all'
+tape.test('transaction data TRIGGER_SQS_SINGLE_EVENT', function (t) {
+  const mockAgent = new AgentMock({ captureHeaders: true, captureBody: 'all' })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
   const event = loadFixture('aws_sqs_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   const r = event.Records[0]
@@ -148,21 +146,21 @@ tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) 
   t.strictEquals(transaction._message.queue.name, queueName, 'message queue set correctly')
   t.strictEquals(typeof transaction._message.age.ms, 'number', 'message age is a number')
   t.strictEquals(transaction._message.body, r.body, 'message body set correctly')
-  t.deepEquals(transaction._message.headers, r.messageAttributes, 'message headers set correctly')
+  t.deepEquals(transaction._message.headers,
+    { Population: '1250800', City: 'Any City' },
+    'message headers set correctly')
 
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) {
-  const mockAgent = new AgentMock()
-  mockAgent._conf.captureBody = 'transactions'
-  mockAgent._conf.captureHeaders = true
+tape.test('transaction data TRIGGER_SNS_SINGLE_EVENT', function (t) {
+  const mockAgent = new AgentMock({ captureHeaders: true, captureBody: 'transactions' })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
   const event = loadFixture('aws_sns_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   const r = event.Records[0]
@@ -173,9 +171,9 @@ tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) 
   t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
   t.strictEquals(transaction._faas.name, 'the-function-name', 'faas.name')
   t.strictEquals(transaction._faas.version, '$LATEST', 'faas.version')
-  t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
-  t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'trigger type set')
-  t.strictEquals(transaction._faas.trigger.request_id, r.Sns.MessageId, 'trigger request_id set')
+  t.strictEquals(transaction._faas.coldstart, false, 'faas.coldstart value set')
+  t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'faas.trigger.type set')
+  t.strictEquals(transaction._faas.trigger.request_id, r.Sns.MessageId, 'faas.trigger.request_id set')
   t.strictEquals(transaction.type, 'messaging', 'transaction type set')
   t.strictEquals(transaction.name, `RECEIVE ${topicName}`, 'transaction named correctly')
   t.strictEquals(transaction._service.origin.name, topicName, 'service origin name set correctly')
@@ -190,12 +188,14 @@ tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) 
   t.strictEquals(transaction._message.queue.name, topicName, 'message queue set correctly')
   t.strictEquals(typeof transaction._message.age.ms, 'number', 'message age is a number')
   t.strictEquals(transaction._message.body, r.Sns.Message, 'message body set correctly')
-  t.deepEquals(transaction._message.headers, r.Sns.MessageAttributes, 'message headers set correctly')
+  t.deepEquals(transaction._message.headers,
+    { Population: '1250800', City: 'Any City' },
+    'message headers set correctly')
 
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
+tape.test('transaction data TRIGGER_S3_SINGLE_EVENT', function (t) {
   const mockAgent = new AgentMock()
   mockAgent._conf.captureBody = 'all'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
@@ -203,7 +203,7 @@ tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
 
   const event = loadFixture('aws_s3_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
@@ -226,7 +226,7 @@ tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
   t.end()
 })
 
-tape.test('setLambdaTransactionData generic tests', function (t) {
+tape.test('transaction data TRIGGER_GENERIC', function (t) {
   const mockAgent = new AgentMock()
   mockAgent._conf.captureBody = 'transactions'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
@@ -236,7 +236,7 @@ tape.test('setLambdaTransactionData generic tests', function (t) {
   for (const [, fixture] of fixtures.entries()) {
     const event = loadFixture(fixture)
     const context = loadFixture('context')
-    wrappedMockLambda(event, context)
+    wrappedMockLambda(event, context, () => {})
     const transaction = mockAgent.transactions.shift()
 
     t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
@@ -342,7 +342,7 @@ tape.test('serialize transaction lambda fields', function (t) {
   t.end()
 })
 
-tape.test('setLambdaTransactionData invalid objects', function (t) {
+tape.test('invalid event objects do not crash determining transaction data', function (t) {
   const mockAgent = new AgentMock()
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
@@ -358,7 +358,7 @@ tape.test('setLambdaTransactionData invalid objects', function (t) {
   }
   const emptySnsEvent = {
     Records: [{
-      eventSource: 'aws:sns'
+      EventSource: 'aws:sns'
     }]
   }
   const emptyS3Event = {
@@ -366,11 +366,10 @@ tape.test('setLambdaTransactionData invalid objects', function (t) {
       eventSource: 'aws:s3'
     }]
   }
-  const fixtures = [emptyGatewayEvent, emptySqsEvent,
-    emptySqsEvent, emptySnsEvent, emptyS3Event]
+  const fixtures = [emptyGatewayEvent, emptySqsEvent, emptySnsEvent, emptyS3Event]
 
   for (const [, event] of fixtures.entries()) {
-    wrappedMockLambda(event, {})
+    wrappedMockLambda(event, {}, () => {})
     t.pass('no exceptions thrown or crashing errors')
   }
 

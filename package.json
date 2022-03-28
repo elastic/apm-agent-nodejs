@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.30.0",
+  "version": "3.31.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -86,7 +86,7 @@
     "basic-auth": "^2.0.1",
     "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "11.0.0",
+    "elastic-apm-http-client": "11.0.1",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",

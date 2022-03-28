@@ -36,7 +36,7 @@ test('success', function (t) {
       t.ok(lambdaStartCalled,
         '_transport.lambdaStart() had been called before handler code executed')
 
-      t.error(err, 'no handler err')
+      t.error(err, `no error executing: err=${JSON.stringify(err)}`)
       t.strictEqual(result, output, 'handler result')
 
       t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
