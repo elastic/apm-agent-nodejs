@@ -17,8 +17,8 @@ const mockClient = require('../_mock_http_client')
 
 const tape = require('tape')
 
-tape.test('TODO: name basic integration test(s)', function (suite) {
-  suite.test('TODO: name this test', function (t) {
+tape.test('Integration/End-To-End Tests', function (suite) {
+  suite.test('Exact Match Compression', function (t) {
     resetAgent(function (data) {
       t.equals(data.length, 2, 'one transation, one span (other spans compressed)')
       const span = data.spans.shift()
@@ -65,6 +65,11 @@ tape.test('TODO: name basic integration test(s)', function (suite) {
       }, 10)
     }, 30)
   })
+
+  suite.test('Same Kind Compression', function (t) {
+    t.ok(false, 'implement me')
+    t.end()
+  })
   suite.end()
 })
 
@@ -109,7 +114,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('test no strat', function (t) {
+  suite.test('test no strategy', function (t) {
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name1', 'type2', 'subtype')
@@ -146,7 +151,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('TODO: name tryToCompress exact match', function (t) {
+  suite.test('test tryToCompress exact match', function (t) {
     const destinationContext = {
       service: {
         resource: 'foo'
@@ -195,7 +200,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('TODO: name tryToCompress same kind', function (t) {
+  suite.test('test tryToCompress same kind', function (t) {
     const destinationContext = {
       service: {
         resource: 'foo'
@@ -245,7 +250,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('tryToCompress exact match, max duration', function (t) {
+  suite.test('test tryToCompress exact match max duration', function (t) {
     const destinationContext = {
       service: {
         resource: 'foo'
@@ -277,7 +282,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('tryToCompress same kind, max duration', function (t) {
+  suite.test('test tryToCompress same kind max duration', function (t) {
     const destinationContext = {
       service: {
         resource: 'foo'
