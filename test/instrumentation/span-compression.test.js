@@ -17,10 +17,16 @@ const mockClient = require('../_mock_http_client')
 
 const tape = require('tape')
 
-tape.test('Integration/End-To-End Tests', function (suite) {
-  suite.test('Exact Match Compression', function (t) {
+const destinationContext = {
+  service: {
+    resource: 'foo'
+  }
+}
+
+tape.test('integration/end-to-end span compression tests', function (suite) {
+  suite.test('exact match compression', function (t) {
     resetAgent(function (data) {
-      t.equals(data.length, 2, 'one transation, one span (other spans compressed)')
+      t.equals(data.length, 2)
       const span = data.spans.shift()
       t.equals(span.name, 'name1')
       t.equals(span.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
@@ -29,12 +35,6 @@ tape.test('Integration/End-To-End Tests', function (suite) {
       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
       t.end()
     })
-
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
 
     agent.startTransaction(agent)
 
@@ -66,9 +66,46 @@ tape.test('Integration/End-To-End Tests', function (suite) {
     }, 30)
   })
 
-  suite.test('Same Kind Compression', function (t) {
-    t.ok(false, 'implement me')
-    t.end()
+  suite.test('same kind compression', function (t) {
+    resetAgent(function (data) {
+      t.equals(data.length, 2)
+      const span = data.spans.shift()
+      t.equals(span.name, 'Calls to foo')
+      t.equals(span.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
+      t.equals(span.composite.count, 3)
+      t.true(span.composite.sum > 30)
+      t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
+      t.end()
+    })
+
+    agent.startTransaction(agent)
+
+    let firstSpan, finalSpan
+    setTimeout(function () {
+      firstSpan = agent.startSpan('name1', 'db', 'mysql')
+      firstSpan.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        firstSpan.end()
+      }, 10)
+    }, 10)
+
+    setTimeout(function () {
+      const span = agent.startSpan('name2', 'db', 'mysql')
+      span.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        span.end()
+      }, 10)
+    }, 20)
+
+    setTimeout(function () {
+      finalSpan = agent.startSpan('name3', 'db', 'mysql')
+      finalSpan.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        finalSpan.end()
+        agent.endTransaction()
+        agent.flush()
+      }, 10)
+    }, 30)
   })
   suite.end()
 })
@@ -76,7 +113,7 @@ tape.test('Integration/End-To-End Tests', function (suite) {
 tape.test('test _getCompressionStrategy', function (suite) {
   suite.test('test invalid', function (t) {
     const c = new SpanCompression(agent)
-    t.equals(false, c._getCompressionStrategy({}, {}), 'invalid objects return false')
+    t.equals(false, c._getCompressionStrategy({}, {}))
     t.end()
   })
 
@@ -85,11 +122,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name', 'type', 'subtype')
     const span2 = new Span(trans, 'name', 'type', 'subtype')
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
+
     span1.setDestinationContext(destinationContext)
     span2.setDestinationContext(destinationContext)
 
@@ -102,11 +135,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name1', 'type', 'subtype')
     const span2 = new Span(trans, 'name2', 'type', 'subtype')
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
+
     span1.setDestinationContext(destinationContext)
     span2.setDestinationContext(destinationContext)
 
@@ -119,11 +148,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name1', 'type2', 'subtype')
     const span2 = new Span(trans, 'name2', 'type', 'subtype')
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
+
     span1.setDestinationContext(destinationContext)
     span2.setDestinationContext(destinationContext)
 
@@ -152,12 +177,6 @@ tape.test('test _getCompressionStrategy', function (suite) {
   })
 
   suite.test('test tryToCompress exact match', function (t) {
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
-
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name', 'type', 'mysql')
@@ -179,21 +198,20 @@ tape.test('test _getCompressionStrategy', function (suite) {
     spanSameKind._endTimestamp = span3._endTimestamp + 3000 // time in microseconds/us
     spanSameKind._duration = 2 // time in milliseconds/ms
 
-    t.ok(c.tryToCompress(span1, span2), 'tryToCompress returns true')
-    t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH, 'exact match set')
+    t.ok(c.tryToCompress(span1, span2))
+    t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 5000, 'duration is the timestamp difference')
-
+    t.equals(c.duration, 5000, 'duration is the start/end timestamp difference')
     t.equals(c.composite.sum, 5, 'sum is the combined durations')
 
-    t.ok(c.tryToCompress(span1, span3), 'tryToCompress returns true')
-    t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH, 'exact match set')
+    t.ok(c.tryToCompress(span1, span3))
+    t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 9000, 'duration is the timestamp difference')
+    t.equals(c.duration, 9000, 'duration is the start/end timestamp difference')
     t.equals(c.composite.sum, 9, 'sum is the combined durations')
 
-    t.ok(!c.tryToCompress(span1, spanSameKind), 'tryToCompress fails since same is not exact match')
-    t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH, 'exact match set')
+    t.ok(!c.tryToCompress(span1, spanSameKind), 'tryToCompress fails since span is not exact match')
+    t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
     t.equals(c.duration, 9000, 'duration stays constant with last value')
     t.equals(c.composite.sum, 9, 'sum stays constant with last value')
@@ -201,12 +219,6 @@ tape.test('test _getCompressionStrategy', function (suite) {
   })
 
   suite.test('test tryToCompress same kind', function (t) {
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
-
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name 1', 'type', 'mysql')
@@ -230,20 +242,20 @@ tape.test('test _getCompressionStrategy', function (suite) {
     spanNotSameKind._endTimestamp = span3._endTimestamp + 3000 // time in microseconds/us
     spanNotSameKind._duration = 2 // time in milliseconds/ms
 
-    t.ok(c.tryToCompress(span1, span2), 'tryToCompress returns true')
-    t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND, 'same kind set')
+    t.ok(c.tryToCompress(span1, span2))
+    t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 5000, 'duration is the timestamp difference')
+    t.equals(c.duration, 5000, 'duration is the start/end timestamp difference')
     t.equals(c.composite.sum, 5, 'sum is the combined durations')
 
-    t.ok(c.tryToCompress(span1, span3), 'tryToCompress returns true')
-    t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND, 'same kind set')
+    t.ok(c.tryToCompress(span1, span3))
+    t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 9000, 'duration is the timestamp difference')
+    t.equals(c.duration, 9000, 'duration is the start/end timestamp difference')
     t.equals(c.composite.sum, 9, 'sum is the combined durations')
 
     t.ok(!c.tryToCompress(span1, spanNotSameKind), 'tryToCompress fails since span is not same kind')
-    t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND, 'same kind set')
+    t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
     t.equals(c.duration, 9000, 'duration stays constant with last value')
     t.equals(c.composite.sum, 9, 'sum stays constant with last value')
@@ -251,11 +263,9 @@ tape.test('test _getCompressionStrategy', function (suite) {
   })
 
   suite.test('test tryToCompress exact match max duration', function (t) {
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
+    // presumes agent configuration is
+    // spanCompressionExactMatchMaxDuration: '60ms',
+    // spanCompressionSameKindMaxDuration: '50ms'
 
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
@@ -276,18 +286,15 @@ tape.test('test _getCompressionStrategy', function (suite) {
     spanBrokeCamelsBack._duration = 1 // time in milliseconds/ms
 
     t.ok(!c.tryToCompress(span, spanOver), '60ms is >= spanCompressionExactMatchMaxDuration')
-
     t.ok(c.tryToCompress(span, spanUnder), '59ms is < spanCompressionExactMatchMaxDuration')
     t.ok(!c.tryToCompress(span, spanBrokeCamelsBack), '60ms is < spanCompressionExactMatchMaxDuration')
     t.end()
   })
 
   suite.test('test tryToCompress same kind max duration', function (t) {
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
+    // presumes agent configuration is
+    // spanCompressionExactMatchMaxDuration: '60ms',
+    // spanCompressionSameKindMaxDuration: '50ms'
 
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
@@ -308,7 +315,6 @@ tape.test('test _getCompressionStrategy', function (suite) {
     spanBrokeCamelsBack._duration = 1 // time in milliseconds/ms
 
     t.ok(!c.tryToCompress(span, spanOver), '50ms is >= spanCompressionSameKindMaxDuration')
-
     t.ok(c.tryToCompress(span, spanUnder), '49ms is < spanCompressionSameKindMaxDuration')
     t.ok(!c.tryToCompress(span, spanBrokeCamelsBack), '50ms is < spanCompressionSameKindMaxDuration')
     t.end()
