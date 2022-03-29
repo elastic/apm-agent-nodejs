@@ -28,6 +28,19 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Adds initial implementaion of
+  https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression]. To enable, set the `spanCompressionEnabled` configuration field to `true`.
+
+[float]
+===== Bug fixes
 
 [[release-notes-3.31.0]]
 ==== 3.31.0 2022/03/23
