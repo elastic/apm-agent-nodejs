@@ -420,7 +420,7 @@ def generateStep(Map params = [:]){
   def buildType = params.containsKey('buildType') ? params.buildType : 'release'
   def ELASTIC_APM_ASYNC_HOOKS = String.valueOf(!params.get('disableAsyncHooks', false))
   return {
-    withNode(labels: 'linux && immutable && gobld/image:elastic-apm-ci-ubuntu-1804-lts-20220322223016', forceWorkspace: true, forceWorker: true) {
+    withNode(labels: 'linux && immutable && gobld/image:elastic-apm-ci-ubuntu-1804-lts-docker-20-10-13', forceWorkspace: true, forceWorker: true) {
       withEnv(["VERSION=${version}", "ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS}"]) {
         deleteDir()
         unstash 'source'
@@ -491,7 +491,7 @@ def getSmartTAVContext() {
 
  def linting(){
    return {
-    withNode(labels: 'linux && immutable && gobld/image:elastic-apm-ci-ubuntu-1804-lts-20220322223016', forceWorkspace: true, forceWorker: true) {
+    withNode(labels: 'linux && immutable && gobld/image:elastic-apm-ci-ubuntu-1804-lts-docker-20-10-13', forceWorkspace: true, forceWorker: true) {
       catchError(stageResult: 'UNSTABLE', message: 'Linting failures') {
         withGithubNotify(context: 'Linting') {
           deleteDir()
