@@ -165,6 +165,7 @@ pipeline {
           anyOf {
             expression { return params.Run_As_Main_Branch }
             triggeredBy 'TimerTrigger'
+            changeRequest()
           }
           expression { return params.test_edge_ci }
           expression { return env.ONLY_DOCS == "false" }
@@ -254,6 +255,7 @@ pipeline {
       when {
         beforeAgent true
         allOf {
+          expression { return false }
           not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
           expression { return env.ONLY_DOCS == "false" }
           anyOf {
