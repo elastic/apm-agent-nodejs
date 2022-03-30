@@ -31,7 +31,7 @@ pipeline {
     cron('H */3 * * 1-5')
   }
   parameters {
-    booleanParam(name: 'Run_As_Main_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on main branch.')
+    booleanParam(name: 'Run_As_Main_Branch', defaultValue: true, description: 'Allow to run any steps on a PR, some steps normally only run on main branch.')
     booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
@@ -377,7 +377,7 @@ pipeline {
         allOf {
           anyOf {
             branch 'main'
-            expression { return params.Run_As_Main_Branch }
+            //expression { return params.Run_As_Main_Branch }
             expression { return env.GITHUB_COMMENT?.contains('benchmark tests') }
           }
           expression { return params.bench_ci }
