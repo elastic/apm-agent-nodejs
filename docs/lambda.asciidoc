@@ -69,13 +69,17 @@ Elastic APM automatically measures the performance of your lambda function execu
 It records traces for database queries, external HTTP requests,
 and other slow operations that happen during execution.
 
+By default, the agent will trace <<supported-technologies,the most common modules>>.
+To trace other events,
+you can use custom traces.
+For information about custom traces,
+see the <<custom-spans,Custom Spans section>>.
+
 [float]
 [[aws-lambda-error-monitoring]]
 ==== Error monitoring
 
-Whenever an `Exception` is thrown by your function handler method, the agent will send an error event to the APM Server
-and the corresponding transaction will be recorded as a failed transaction.
-Errors related to traced spans will be sent as well.
+include::./shared-set-up.asciidoc[tag=error-logging]
 
 [float]
 [[aws-lambda-caveats]]
