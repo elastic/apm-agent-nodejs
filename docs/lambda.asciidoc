@@ -5,10 +5,16 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/lambda.html[elastic.co]
 endif::[]
 
-=== Get started with AWS Lambda Node.js Functions
+=== Monitoring AWS Lambda Node.js Functions
 :layer-section-type: with-agent
 
 The Node.js APM Agent can be used with AWS Lambda to monitor the execution of your AWS Lambda functions.
+
+[float]
+[[aws-lambda-nodejs-quick-start]]
+=== Quick Start
+
+To get started with APM for your Node.js AWS Lambda functions follow the steps below.
 
 [float]
 [[aws-lambda-nodejs-prerequisites]]
@@ -17,18 +23,12 @@ The Node.js APM Agent can be used with AWS Lambda to monitor the execution of yo
 You need an APM Server to send APM data to. Follow the {apm-guide-ref}/apm-quick-start.html[APM Quick start] if you have not set one up yet. For the best-possible performance, we recommend setting up APM on {ecloud} in the same AWS region as your AWS Lambda functions.
 
 [float]
-[[aws-lambda-nodejs-quick-start]]
-==== Quick Start
-
-To get started with APM for your Node.js AWS Lambda functions, follow the steps below.
-
-[float]
-===== Step 1: Select the AWS Region and Architecture
+==== Step 1: Select the AWS Region and Architecture
 
 include::{apm-aws-lambda-root}/docs/lambda-selector/lambda-attributes-selector.asciidoc[]
 
 [float]
-===== Step 2: Add the APM Layers to your Lambda function
+==== Step 2: Add the APM Layers to your Lambda function
 
 include::{apm-aws-lambda-root}/docs/lambda-selector/extension-arn-replacement.asciidoc[]
 include::./lambda/nodejs-arn-replacement.asciidoc[]
@@ -38,7 +38,7 @@ Both the {apm-guide-ref}/aws-lambda-arch.html[APM Lambda Extension] and the Node
 include::{apm-aws-lambda-root}/docs/add-extension/add-extension-layer-widget.asciidoc[]
 
 [float]
-===== Step 3: Configure APM on AWS Lambda
+==== Step 3: Configure APM on AWS Lambda
 
 The APM Lambda Extension and the APM Node.js agent are configured through environment variables on the AWS Lambda function.
 
@@ -49,21 +49,21 @@ include::./lambda/configure-lambda-widget.asciidoc[]
 
 You can optionally <<configuration, fine-tune the Node.js agent>> or the {apm-guide-ref}/aws-lambda-config-options.html[configuration of the APM Lambda Extension].
 
-That's it; after following the steps above, you're ready to go!
+That's it. After following the steps above, you're ready to go!
 Your Lambda function invocations should be traced from now on.
 
 Read on to learn more about the features and limitations of the Node.js APM Agent on AWS Lambda Functions.
 
 [float]
 [[aws-lambda-features-and-caveats]]
-==== Features and Caveats
+=== Features and Caveats
 
 The AWS Lambda as a runtime behaves differently from conventional runtimes.
 While most APM and monitoring concepts apply to AWS Lambda, there are a few differences and limitations to be aware of.
 
 [float]
 [[aws-lambda-performance-monitoring]]
-===== Performance monitoring
+==== Performance monitoring
 
 Elastic APM automatically measures the performance of your lambda function executions.
 It records traces for database queries, external HTTP requests,
@@ -71,7 +71,7 @@ and other slow operations that happen during execution.
 
 [float]
 [[aws-lambda-error-monitoring]]
-===== Error monitoring
+==== Error monitoring
 
 Whenever an `Exception` is thrown by your function handler method, the agent will send an error event to the APM Server
 and the corresponding transaction will be recorded as a failed transaction.
@@ -79,7 +79,7 @@ Errors related to traced spans will be sent as well.
 
 [float]
 [[aws-lambda-caveats]]
-===== Caveats
+==== Caveats
 
 * System and custom metrics are not collected for Lambda functions. This is both because most of those are irrelevant
 and because the interval-based event sending model is not suitable for FaaS environments.
