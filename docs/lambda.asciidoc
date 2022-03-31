@@ -1,5 +1,3 @@
-:framework: lambda
-
 [[lambda]]
 
 ifdef::env-github[]
@@ -7,144 +5,82 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/lambda.html[elastic.co]
 endif::[]
 
-=== Get started with Lambda
+=== Get started with AWS Lambda Node.js Functions
+:layer-section-type: with-agent
 
-experimental::[]
-
-Getting Elastic APM set up for your lambda functions is easy,
-and there are various ways you can tweak it to fit your needs.
-Follow the guide below to get started, and for more advanced topics,
-check out the <<api,API Reference>>.
+The Node.js APM Agent can be used with AWS Lambda to monitor the execution of your AWS Lambda functions.
 
 [float]
-[[lambda-installation]]
-==== Installation
+[[aws-lambda-nodejs-prerequisites]]
+==== Prerequisites
 
-Setting up your Lambda function is a two-step process.
-
-1. <<lambda-extension>>
-2. <<lambda-instrumenting>>
-
-First, https://github.com/elastic/apm-aws-lambda/blob/main/docs/aws-lambda-extension.asciidoc[install the Elastic
-APM Lambda extension] into your Lambda environment. Elastic uses a Lambda
-extension to forward data to APM Server in a way that does not interfere with the
-execution of your Lambda function.
+You need an APM Server to send APM data to. Follow the {apm-guide-ref}/apm-quick-start.html[APM Quick start] if you have not set one up yet. For the best-possible performance, we recommend setting up APM on {ecloud} in the same AWS region as your AWS Lambda functions.
 
 [float]
-[[lambda-extension]]
-==== Install the Elastic APM Lambda extension
+[[aws-lambda-nodejs-quick-start]]
+==== Quick Start
 
-Elastic uses a Lambda extension to forward data to APM Server in a way that does not interfere with the
-execution of your Lambda function.
-
-See the https://github.com/elastic/apm-aws-lambda/blob/main/docs/aws-lambda-extension.asciidoc[installation documentation] to get started.
-
-Compatibility note: If using v3.30.0 or later of the APM Node.js Agent, one
-must use v0.0.4 or later of the APM Lambda extension.
-
-Once you have the extension installed in your environment, you can
-configure your Lambda handler to instrument your function.
+To get started with APM for your Node.js AWS Lambda functions, follow the steps below.
 
 [float]
-[[lambda-instrumenting]]
-==== Instrumenting your Lambda Handler
+===== Step 1: Select the AWS Region and Architecture
 
-Add the `elastic-apm-node` module as a dependency to your application:
-
-[source,bash]
-----
-npm install elastic-apm-node --save
-----
+include::{apm-aws-lambda-root}/docs/lambda-selector/lambda-attributes-selector.asciidoc[]
 
 [float]
-[[lambda-initialization]]
-==== Initialization
+===== Step 2: Add the APM Layers to your Lambda function
 
-It's important that the agent is started before you require *any* other modules in your Node.js application - i.e. before `http`, etc.
+include::{apm-aws-lambda-root}/docs/lambda-selector/extension-arn-replacement.asciidoc[]
+include::./lambda/nodejs-arn-replacement.asciidoc[]
 
-There are two ways to achieve this.  The first is via automatic initialization using the `NODE_OPTIONS` environment variable.  The second is via manual instrumentation.
+Both the {apm-guide-ref}/aws-lambda-arch.html[APM Lambda Extension] and the Node.js APM Agent are added to your Lambda function as https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.html[AWS Lambda Layers]. Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
 
-==== Automatic Initialization
-
-In order to automatically initialize the agent, you'll need to set the following environment variable in your Lambda function's `Configuration -> Environment variables` section.
-
-[source,bash]
----
-NODE_OPTIONS=-r elastic-apm-node/start.js
----
-
-With this value set the agent will initialize prior to AWS loading your Lambda handler. This will allow the agent to automatically instrument your modules including the lambda handler itself.
-
-==== Manual Initialization
-
-If you can't use the `NODE_OPTIONS` variable, you'll need to manually initialize the agent and manually instrument your Lambda handler. Here's a simple lambda example with the Elastic APM agent installed:
-
-[source,js]
-----
-// Add this to the VERY top of your lambda handler module
-const apm = require('elastic-apm-node').start({})
-
-exports.handler = apm.lambda(function handler (event, context, callback) {
-  callback(null, `Hello, ${event.name}!`)
-})
-----
-
-The agent will now monitor the performance of your lambda function.
-
-*IMPORTANT*: During installation of the Lambda extension you'll have set a number of environment variables for configuring the agent.  We recommend relying on these environment variables -- while it's possible to set configuration values via the configuration object passed to `start`, doing so may interfere with the configuration required by the Lambda extension.
+include::{apm-aws-lambda-root}/docs/add-extension/add-extension-layer-widget.asciidoc[]
 
 [float]
-[[lambda-full-documentation]]
-===== Full documentation
+===== Step 3: Configure APM on AWS Lambda
 
-* <<advanced-setup,Setup and Configuration>>
-* <<api,API Reference>>
+The APM Lambda Extension and the APM Node.js agent are configured through environment variables on the AWS Lambda function.
+
+For the minimal configuration, you will need the _APM Server URL_ to set the destination for APM data and an _{apm-guide-ref}/secret-token.html[APM Secret Token]_.
+If you prefer to use an {apm-guide-ref}/api-key.html[APM API key] instead of the APM secret token, use the `ELASTIC_APM_API_KEY` environment variable instead of `ELASTIC_APM_SECRET_TOKEN` in the following configuration.
+
+include::./lambda/configure-lambda-widget.asciidoc[]
+
+You can optionally <<configuration, fine-tune the Node.js agent>> or the {apm-guide-ref}/aws-lambda-config-options.html[configuration of the APM Lambda Extension].
+
+That's it; after following the steps above, you're ready to go!
+Your Lambda function invocations should be traced from now on.
+
+Read on to learn more about the features and limitations of the Node.js APM Agent on AWS Lambda Functions.
 
 [float]
-[[lambda-performance-monitoring]]
-==== Performance monitoring
+[[aws-lambda-features-and-caveats]]
+==== Features and Caveats
+
+The AWS Lambda as a runtime behaves differently from conventional runtimes.
+While most APM and monitoring concepts apply to AWS Lambda, there are a few differences and limitations to be aware of.
+
+[float]
+[[aws-lambda-performance-monitoring]]
+===== Performance monitoring
 
 Elastic APM automatically measures the performance of your lambda function executions.
-It records traces for database queries,
-external HTTP requests,
+It records traces for database queries, external HTTP requests,
 and other slow operations that happen during execution.
 
-By default, the agent will trace <<supported-technologies,the most common modules>>.
-To trace other events,
-you can use custom traces.
-For information about custom traces,
-see the <<custom-spans,Custom Spans section>>.
+[float]
+[[aws-lambda-error-monitoring]]
+===== Error monitoring
+
+Whenever an `Exception` is thrown by your function handler method, the agent will send an error event to the APM Server
+and the corresponding transaction will be recorded as a failed transaction.
+Errors related to traced spans will be sent as well.
 
 [float]
-[[lambda-error-logging]]
-==== Error logging
+[[aws-lambda-caveats]]
+===== Caveats
 
-include::./shared-set-up.asciidoc[tag=error-logging]
+* System and custom metrics are not collected for Lambda functions. This is both because most of those are irrelevant
+and because the interval-based event sending model is not suitable for FaaS environments.
 
-[float]
-[[lambda-filter-sensitive-information]]
-==== Filter sensitive information
-
-include::./shared-set-up.asciidoc[tag=filter-sensitive-info]
-
-[float]
-[[lambda-add-your-own-data]]
-==== Add your own data
-
-The Node.js agent will keep track of the active lambda function execution and will link it to errors and recorded transaction metrics when they are sent to the Elastic APM server.
-This allows you to see details about which execution resulted in a particular error or which lambda functions are slow.
-
-But in many cases,
-information about the lambda execution itself isn't enough.
-To add even more metadata to errors and transactions,
-use one of the two functions below:
-
-* <<apm-set-user-context,`apm.setUserContext()`>> - Call this to enrich collected performance data and errors with information about the user/client
-* <<apm-set-custom-context,`apm.setCustomContext()`>> - Call this to enrich collected performance data and errors with any information that you think will help you debug performance issues and errors (this data is only stored, but not indexed in Elasticsearch)
-* <<apm-set-label,`apm.setLabel()`>> - Call this to enrich collected performance data and errors with simple key/value strings that you think will help you debug performance issues and errors (labels are indexed in Elasticsearch)
-
-[float]
-[[lambda-troubleshooting]]
-==== Troubleshooting
-
-include::./shared-set-up.asciidoc[tag=troubleshooting-link]
