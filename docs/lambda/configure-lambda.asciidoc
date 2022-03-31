@@ -14,12 +14,9 @@ ELASTIC_APM_LAMBDA_APM_SERVER = <YOUR-APM-SERVER-URL>     # this is your APM Ser
 ELASTIC_APM_SECRET_TOKEN      = <YOUR-APM-SECRET-TOKEN>   # this is your APM secret token
 ----
 
-////
-XXX
 --
 include::{apm-aws-lambda-root}/docs/images/images.asciidoc[tag=nodejs-env-vars]
 --
-////
 
 // end::console-with-agent[]
 
