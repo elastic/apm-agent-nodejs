@@ -85,7 +85,7 @@ the case for some spans based on span duration. ({pull}2565[#2565])
 +
 However, because this change triggers a bug in the extension, this version of
 the APM Node.js Agent must only be used with versions of the
-https://www.elastic.co/guide/en/apm/guide/current/monitoring-aws-lambda.html[AWS Lambda Extension]
+https://www.elastic.co/guide/en/apm/guide/current/aws-lambda-arch.html[AWS Lambda Extension]
 after v0.0.3.
 
 [float]
