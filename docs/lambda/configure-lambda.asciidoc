@@ -1,0 +1,95 @@
+// tag::console-with-agent[]
+
+To configure APM through the AWS Management Console:
+
+1. Navigate to your function in the AWS Management Console
+2. Click on the _Configuration_ tab
+3. Click on _Environment variables_
+4. Add the following required variables:
+
+[source,bash]
+----
+NODE_OPTIONS                  = -r elastic-apm-node/start # use this exact fixed value
+ELASTIC_APM_LAMBDA_APM_SERVER = <YOUR-APM-SERVER-URL>     # this is your APM Server URL
+ELASTIC_APM_SECRET_TOKEN      = <YOUR-APM-SECRET-TOKEN>   # this is your APM secret token
+----
+
+--
+include::{apm-aws-lambda-root}/docs/images/images.asciidoc[tag=nodejs-env-vars]
+--
+
+// end::console-with-agent[]
+
+// tag::cli-with-agent[]
+
+To configure APM through the AWS command line interface execute the following command:
+
+[source,bash]
+----
+aws lambda update-function-configuration --function-name yourLambdaFunctionName \
+    --environment "Variables={NODE_OPTIONS=-r elastic-apm-node/start,ELASTIC_APM_LAMBDA_APM_SERVER=<YOUR-APM-SERVER-URL>,ELASTIC_APM_SECRET_TOKEN=<YOUR-APM-SECRET-TOKEN>}"
+----
+
+// end::cli-with-agent[]
+
+// tag::sam-with-agent[]
+
+In your SAM `template.yml` file add the Layer ARNs of the APM Extension and the APM Agent as follows:
+
+[source,yml]
+----
+...
+Resources:
+  yourLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      ...
+      Environment:
+          Variables:
+            NODE_OPTIONS: -r elastic-apm-node/start
+            ELASTIC_APM_LAMBDA_APM_SERVER: <YOUR-APM-SERVER-URL>
+            ELASTIC_APM_SECRET_TOKEN: <YOUR-APM-SECRET-TOKEN>
+...
+----
+
+// end::sam-with-agent[]
+
+// tag::serverless-with-agent[]
+
+In your `serverless.yml` file add the Layer ARNs of the APM Extension and the APM Agent to your function as follows:
+
+[source,yml]
+----
+...
+functions:
+  yourLambdaFunction:
+    ...
+    environment:
+      NODE_OPTIONS: -r elastic-apm-node/start
+      ELASTIC_APM_LAMBDA_APM_SERVER: <YOUR-APM-SERVER-URL>
+      ELASTIC_APM_SECRET_TOKEN: <YOUR-APM-SECRET-TOKEN>
+...
+----
+
+// end::serverless-with-agent[]
+
+// tag::terraform-with-agent[]
+To add the APM Extension and the APM Agent to your function add the ARNs to the `layers` property in your Terraform file:
+
+[source,terraform]
+----
+...
+resource "aws_lambda_function" "your_lambda_function" {
+  ...
+  environment {
+    variables = {
+      NODE_OPTIONS                  = "-r elastic-apm-node/start"
+      ELASTIC_APM_LAMBDA_APM_SERVER = "<YOUR-APM-SERVER-URL>"
+      ELASTIC_APM_SECRET_TOKEN      = "<YOUR-APM-SECRET-TOKEN>"
+    }
+  }
+}
+...
+----
+
+// end::terraform-with-agent[]

@@ -17,6 +17,9 @@ else
     echo "$docs_dir already exists. Not cloning."
 fi
 
+if [ ! -d $build_dir/apm-aws-lambda ]; then
+  git clone --depth=1 https://github.com/elastic/apm-aws-lambda.git $build_dir/apm-aws-lambda
+fi
 
 index="${path}/index.asciidoc"
 
@@ -29,4 +32,5 @@ params="--chunk=1"
 if [ "$PREVIEW" = "1" ]; then
   params="$params --open"
 fi
-$docs_dir/build_docs --direct_html $params --doc "$index" --out "$dest_dir"
+$docs_dir/build_docs --direct_html $params --doc "$index" --out "$dest_dir" \
+  --resource "$build_dir/apm-aws-lambda/docs"
