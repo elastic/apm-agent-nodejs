@@ -23,96 +23,96 @@ const destinationContext = {
   }
 }
 
-// tape.test('integration/end-to-end span compression tests', function (suite) {
-//   suite.test('exact match compression', function (t) {
-//     resetAgent(function (data) {
-//       t.equals(data.length, 2)
-//       const span = data.spans.shift()
-//       t.equals(span.name, 'name1')
-//       t.equals(span.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
-//       t.equals(span.composite.count, 3)
-//       if (!(span.composite.sum > 30)) {
-//         console.log(span.composite)
-//         process.exit(1)
-//       }
-//       t.true(span.composite.sum > 30)
-//       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
-//       t.end()
-//     })
+tape.test('integration/end-to-end span compression tests', function (suite) {
+  suite.test('exact match compression', function (t) {
+    resetAgent(function (data) {
+      t.equals(data.length, 2)
+      const span = data.spans.shift()
+      t.equals(span.name, 'name1')
+      t.equals(span.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
+      t.equals(span.composite.count, 3)
+      if (!(span.composite.sum > 30)) {
+        console.log(span.composite)
+        process.exit(1)
+      }
+      t.true(span.composite.sum > 30)
+      t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
+      t.end()
+    })
 
-//     agent.startTransaction(agent)
+    agent.startTransaction(agent)
 
-//     let firstSpan, finalSpan
-//     setTimeout(function () {
-//       firstSpan = agent.startSpan('name1', 'db', 'mysql')
-//       firstSpan.setDestinationContext(destinationContext)
-//       setTimeout(function () {
-//         firstSpan.end()
-//       }, 10)
-//     }, 10)
+    let firstSpan, finalSpan
+    setTimeout(function () {
+      firstSpan = agent.startSpan('name1', 'db', 'mysql')
+      firstSpan.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        firstSpan.end()
+      }, 10)
+    }, 10)
 
-//     setTimeout(function () {
-//       const span = agent.startSpan('name1', 'db', 'mysql')
-//       span.setDestinationContext(destinationContext)
-//       setTimeout(function () {
-//         span.end()
-//       }, 10)
-//     }, 20)
+    setTimeout(function () {
+      const span = agent.startSpan('name1', 'db', 'mysql')
+      span.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        span.end()
+      }, 10)
+    }, 20)
 
-//     setTimeout(function () {
-//       finalSpan = agent.startSpan('name1', 'db', 'mysql')
-//       finalSpan.setDestinationContext(destinationContext)
-//       setTimeout(function () {
-//         finalSpan.end()
-//         agent.endTransaction()
-//         agent.flush()
-//       }, 10)
-//     }, 30)
-//   })
+    setTimeout(function () {
+      finalSpan = agent.startSpan('name1', 'db', 'mysql')
+      finalSpan.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        finalSpan.end()
+        agent.endTransaction()
+        agent.flush()
+      }, 10)
+    }, 30)
+  })
 
-//   suite.test('same kind compression', function (t) {
-//     resetAgent(function (data) {
-//       t.equals(data.length, 2)
-//       const span = data.spans.shift()
-//       t.equals(span.name, 'Calls to foo')
-//       t.equals(span.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
-//       t.equals(span.composite.count, 3)
-//       t.true(span.composite.sum > 30)
-//       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
-//       t.end()
-//     })
+  suite.test('same kind compression', function (t) {
+    resetAgent(function (data) {
+      t.equals(data.length, 2)
+      const span = data.spans.shift()
+      t.equals(span.name, 'Calls to foo')
+      t.equals(span.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
+      t.equals(span.composite.count, 3)
+      t.true(span.composite.sum > 30)
+      t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
+      t.end()
+    })
 
-//     agent.startTransaction(agent)
+    agent.startTransaction(agent)
 
-//     let firstSpan, finalSpan
-//     setTimeout(function () {
-//       firstSpan = agent.startSpan('name1', 'db', 'mysql')
-//       firstSpan.setDestinationContext(destinationContext)
-//       setTimeout(function () {
-//         firstSpan.end()
-//       }, 10)
-//     }, 10)
+    let firstSpan, finalSpan
+    setTimeout(function () {
+      firstSpan = agent.startSpan('name1', 'db', 'mysql')
+      firstSpan.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        firstSpan.end()
+      }, 10)
+    }, 10)
 
-//     setTimeout(function () {
-//       const span = agent.startSpan('name2', 'db', 'mysql')
-//       span.setDestinationContext(destinationContext)
-//       setTimeout(function () {
-//         span.end()
-//       }, 10)
-//     }, 20)
+    setTimeout(function () {
+      const span = agent.startSpan('name2', 'db', 'mysql')
+      span.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        span.end()
+      }, 10)
+    }, 20)
 
-//     setTimeout(function () {
-//       finalSpan = agent.startSpan('name3', 'db', 'mysql')
-//       finalSpan.setDestinationContext(destinationContext)
-//       setTimeout(function () {
-//         finalSpan.end()
-//         agent.endTransaction()
-//         agent.flush()
-//       }, 10)
-//     }, 30)
-//   })
-//   suite.end()
-// })
+    setTimeout(function () {
+      finalSpan = agent.startSpan('name3', 'db', 'mysql')
+      finalSpan.setDestinationContext(destinationContext)
+      setTimeout(function () {
+        finalSpan.end()
+        agent.endTransaction()
+        agent.flush()
+      }, 10)
+    }, 30)
+  })
+  suite.end()
+})
 
 tape.test('unit tests', function (suite) {
   suite.test('test _getCompressionStrategy invalid', function (t) {
