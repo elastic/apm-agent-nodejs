@@ -37,7 +37,7 @@ Notes:
 ===== Features
 
 * Adds initial implementaion of
-  https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression]. To enable, set the `spanCompressionEnabled` configuration field to `true`.
+  https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression]. To enable, set the `spanCompressionEnabled` configuration field to `true`. ({issues}2100[#2100])
 
 [float]
 ===== Bug fixes
