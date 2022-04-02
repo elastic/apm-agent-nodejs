@@ -31,6 +31,10 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       t.equals(span.name, 'name1')
       t.equals(span.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
       t.equals(span.composite.count, 3)
+      if (!(span.composite.sum > 30)) {
+        console.log(span.composite)
+        process.exit(1)
+      }
       t.true(span.composite.sum > 30)
       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
       t.end()
@@ -110,14 +114,14 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
   suite.end()
 })
 
-tape.test('test _getCompressionStrategy', function (suite) {
-  suite.test('test invalid', function (t) {
+tape.test('unit tests', function (suite) {
+  suite.test('test _getCompressionStrategy invalid', function (t) {
     const c = new SpanCompression(agent)
     t.equals(false, c._getCompressionStrategy({}, {}))
     t.end()
   })
 
-  suite.test('test exact match', function (t) {
+  suite.test('test _getCompressionStrategy exact match', function (t) {
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name', 'type', 'subtype')
@@ -130,7 +134,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('test same kind', function (t) {
+  suite.test('test _getCompressionStrategy same kind', function (t) {
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name1', 'type', 'subtype')
@@ -143,7 +147,7 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.end()
   })
 
-  suite.test('test no strategy', function (t) {
+  suite.test('test _getCompressionStrategy no strategy', function (t) {
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
     const span1 = new Span(trans, 'name1', 'type2', 'subtype')
@@ -201,19 +205,19 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.ok(c.tryToCompress(span1, span2))
     t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 5000, 'duration is the start/end timestamp difference')
+    t.equals(c.duration, 5, 'duration is the start/end timestamp difference in miliseconds')
     t.equals(c.composite.sum, 5, 'sum is the combined durations')
 
     t.ok(c.tryToCompress(span1, span3))
     t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 9000, 'duration is the start/end timestamp difference')
+    t.equals(c.duration, 9, 'duration is the start/end timestamp difference in miliseconds')
     t.equals(c.composite.sum, 9, 'sum is the combined durations')
 
     t.ok(!c.tryToCompress(span1, spanSameKind), 'tryToCompress fails since span is not exact match')
     t.equals(c.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 9000, 'duration stays constant with last value')
+    t.equals(c.duration, 9, 'duration stays constant with last value')
     t.equals(c.composite.sum, 9, 'sum stays constant with last value')
     t.end()
   })
@@ -245,19 +249,19 @@ tape.test('test _getCompressionStrategy', function (suite) {
     t.ok(c.tryToCompress(span1, span2))
     t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 5000, 'duration is the start/end timestamp difference')
+    t.equals(c.duration, 5, 'duration is the start/end timestamp difference in miliseconds')
     t.equals(c.composite.sum, 5, 'sum is the combined durations')
 
     t.ok(c.tryToCompress(span1, span3))
     t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 9000, 'duration is the start/end timestamp difference')
+    t.equals(c.duration, 9, 'duration is the start/end timestamp difference in miliseconds')
     t.equals(c.composite.sum, 9, 'sum is the combined durations')
 
     t.ok(!c.tryToCompress(span1, spanNotSameKind), 'tryToCompress fails since span is not same kind')
     t.equals(c.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
     t.equals(c.timestamp, span1.timestamp, 'timestamp is composite span\'s timestamp')
-    t.equals(c.duration, 9000, 'duration stays constant with last value')
+    t.equals(c.duration, 9, 'duration stays constant with last value')
     t.equals(c.composite.sum, 9, 'sum stays constant with last value')
     t.end()
   })
@@ -275,19 +279,15 @@ tape.test('test _getCompressionStrategy', function (suite) {
 
     const spanOver = new Span(trans, 'name', 'type', 'mysql')
     spanOver.setDestinationContext(destinationContext)
-    spanOver._duration = 40 // time in milliseconds/ms
+    spanOver._duration = 61 // time in milliseconds/ms
 
     const spanUnder = new Span(trans, 'name', 'type', 'mysql')
     spanUnder.setDestinationContext(destinationContext)
-    spanUnder._duration = 39 // time in milliseconds/ms
+    spanUnder._duration = 60 // time in milliseconds/ms
 
-    const spanBrokeCamelsBack = new Span(trans, 'name', 'type', 'mysql')
-    spanBrokeCamelsBack.setDestinationContext(destinationContext)
-    spanBrokeCamelsBack._duration = 1 // time in milliseconds/ms
+    t.ok(!c.tryToCompress(span, spanOver), '61ms is > spanCompressionExactMatchMaxDuration')
+    t.ok(c.tryToCompress(span, spanUnder), '60ms is =< spanCompressionExactMatchMaxDuration')
 
-    t.ok(!c.tryToCompress(span, spanOver), '60ms is >= spanCompressionExactMatchMaxDuration')
-    t.ok(c.tryToCompress(span, spanUnder), '59ms is < spanCompressionExactMatchMaxDuration')
-    t.ok(!c.tryToCompress(span, spanBrokeCamelsBack), '60ms is < spanCompressionExactMatchMaxDuration')
     t.end()
   })
 
@@ -304,19 +304,14 @@ tape.test('test _getCompressionStrategy', function (suite) {
 
     const spanOver = new Span(trans, 'name 2', 'type', 'mysql')
     spanOver.setDestinationContext(destinationContext)
-    spanOver._duration = 30 // time in milliseconds/ms
+    spanOver._duration = 51 // time in milliseconds/ms
 
     const spanUnder = new Span(trans, 'name 2', 'type', 'mysql')
     spanUnder.setDestinationContext(destinationContext)
-    spanUnder._duration = 29 // time in milliseconds/ms
+    spanUnder._duration = 50 // time in milliseconds/ms
 
-    const spanBrokeCamelsBack = new Span(trans, 'name 2', 'type', 'mysql')
-    spanBrokeCamelsBack.setDestinationContext(destinationContext)
-    spanBrokeCamelsBack._duration = 1 // time in milliseconds/ms
-
-    t.ok(!c.tryToCompress(span, spanOver), '50ms is >= spanCompressionSameKindMaxDuration')
-    t.ok(c.tryToCompress(span, spanUnder), '49ms is < spanCompressionSameKindMaxDuration')
-    t.ok(!c.tryToCompress(span, spanBrokeCamelsBack), '50ms is < spanCompressionSameKindMaxDuration')
+    t.ok(!c.tryToCompress(span, spanOver), '51ms is > spanCompressionSameKindMaxDuration')
+    t.ok(c.tryToCompress(span, spanUnder), '50ms is =< spanCompressionSameKindMaxDuration')
     t.end()
   })
 })
