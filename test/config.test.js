@@ -103,24 +103,24 @@ class CaptureLogger {
   trace (message) { this._log('trace', message) }
 }
 
-function getEnvTable() {
+function getEnvTable () {
   const data = fs.readFileSync(path.resolve(__dirname, '../lib/config.js')).toString()
   const matches = data.match(/ENV_TABLE.+?\{(.+?)\}/si)
-  if(matches.length !== 2) {
+  if (matches.length !== 2) {
     return []
   }
-  const vars = matches[1].split(',').map(function(item){
+  const vars = matches[1].split(',').map(function (item) {
     const nameVars = item.trim().match(/^(.+?):.*?['"](.+?)['"]/)
-    if(!nameVars || nameVars.length !== 3) {
+    if (!nameVars || nameVars.length !== 3) {
       return null
     }
     return {
-      [nameVars[1]]:nameVars[2]
+      [nameVars[1]]: nameVars[2]
     }
-  }).filter((item)=>item)
+  }).filter((item) => item)
 
   const finalObject = {}
-  for(const pair of vars) {
+  for (const pair of vars) {
     finalObject[Object.keys(pair)[0]] = Object.values(pair)[0]
   }
   console.log(finalObject)
@@ -1623,7 +1623,7 @@ test('spanStackTraceMinDuration', suite => {
 
 test('env variable names', suite => {
   const configToEnv = Object.values(getEnvTable())
-  for(const name of configToEnv) {
+  for (const name of configToEnv) {
     suite.true(name.indexOf('ELASTIC_APM') === 0, `${name} starts with ELASTIC_APM`)
   }
   suite.end()
