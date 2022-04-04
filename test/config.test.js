@@ -104,12 +104,26 @@ class CaptureLogger {
 }
 
 function getEnvTable () {
-  const data = fs.readFileSync(path.resolve(__dirname, '../lib/config.js')).toString()
-  const matches = data.match(/ENV_TABLE.+?\{(.+?)\}/si)
-  if (matches.length !== 2) {
+  const lines = fs.readFileSync(path.resolve(__dirname, '../lib/config.js')).toString().split('\n')
+  const matches = []
+  let state = 0
+  for (const line of lines) {
+    if (line.indexOf('ENV_TABLE = ') !== -1) {
+      state = 1
+      continue
+    }
+    if (state === 1 && line.trim() === '}') {
+      break
+    }
+    if (state === 1) {
+      matches.push(line)
+    }
+  }
+
+  if (matches.length === 0) {
     return []
   }
-  const vars = matches[1].split(',').map(function (item) {
+  const vars = matches.map(function (item) {
     const nameVars = item.trim().match(/^(.+?):.*?['"](.+?)['"]/)
     if (!nameVars || nameVars.length !== 3) {
       return null
