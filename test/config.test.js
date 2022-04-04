@@ -1637,7 +1637,7 @@ test('spanStackTraceMinDuration', suite => {
 
 test('env variable names', suite => {
   const configToEnv = Object.values(getEnvTable())
-  if (Object.keys(configToEnv).length() < 1) {
+  if (Object.keys(configToEnv).length < 1) {
     suite.fail('could not parse ENV_TABLE')
   }
   for (const name of configToEnv) {
