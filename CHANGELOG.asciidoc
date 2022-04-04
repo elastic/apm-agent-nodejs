@@ -39,7 +39,7 @@ Notes:
 [float]
 ===== Bug fixes
 * Updated `sanitizeFieldNames` and `ignoreMessageQueues` enviornment variables
-  to use `ELASTIC_APM_` prefix. (previous variablename  are still recgonized,
+  to use `ELASTIC_APM_` prefix. (previous variable names are still recgonized,
   but not documented) ({issues}2636[#2636])
 
 [[release-notes-3.31.0]]
