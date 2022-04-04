@@ -348,6 +348,7 @@ tape.test('unit tests', function (suite) {
     t.ok(c.tryToCompress(span, spanUnder), '50ms is =< spanCompressionSameKindMaxDuration')
     t.end()
   })
+  suite.end()
 })
 
 function resetAgent (/* numExpected, */ cb) {
