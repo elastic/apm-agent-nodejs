@@ -1637,6 +1637,9 @@ test('spanStackTraceMinDuration', suite => {
 
 test('env variable names', suite => {
   const configToEnv = Object.values(getEnvTable())
+  if(Object.keys(configToEnv).length() < 1) {
+    t.fail('could not parse ENV_TABLE')
+  }
   for (const name of configToEnv) {
     suite.true(name.indexOf('ELASTIC_APM') === 0, `${name} starts with ELASTIC_APM`)
   }
