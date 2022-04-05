@@ -82,7 +82,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       t.end()
     })
 
-    agent.startTransaction(agent)
+    agent.startTransaction('trans')
 
     let firstSpan, finalSpan
     setTimeout(function () {
