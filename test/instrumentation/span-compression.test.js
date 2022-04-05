@@ -111,6 +111,33 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       }, 10)
     }, 30)
   })
+
+  suite.test('create two sibling mysql spans ...', function (t) {
+    resetAgent(function (data) {
+      t.equals(data.length, 2)
+      t.equals(data.spans.length, 1)
+      t.equals(data.transactions.length, 1)
+
+      const span = data.spans[0]
+      t.equals(span.name, 'Calls to mysql')
+      t.end()
+    })
+
+    var t0 = agent.startTransaction('t0')
+    setImmediate(() => {
+      var s1 = t0.startSpan('s1', 'db', 'mysql')
+      s1.setDestinationContext({ service: { name: 'mysql', resource: 'mysql', type: 'db' } })
+      setTimeout(() => {
+        s1.end()
+        var s2 = t0.startSpan('s2', 'db', 'mysql')
+        s2.setDestinationContext({ service: { name: 'mysql', resource: 'mysql', type: 'db' } })
+        setTimeout(() => {
+          s2.end()
+          t0.end()
+        }, 10)
+      }, 10)
+    })
+  })
   suite.end()
 })
 
