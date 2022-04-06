@@ -108,7 +108,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
     }, 30)
   })
 
-  suite.test('create two sibling mysql spans ...', function (t) {
+  suite.test('create two sibling mysql spans', function (t) {
     resetAgent(function (data) {
       t.equals(data.length, 2)
       t.equals(data.spans.length, 1)
@@ -133,6 +133,31 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
         }, 10)
       }, 10)
     })
+  })
+
+  suite.test('ensure ended parent results in sent span', function (t) {
+    resetAgent(function (data) {
+      t.equals(data.length, 3)
+      t.end()
+    })
+    const t0 = agent.startTransaction('t0')
+
+    const s1 = agent.startSpan('SELECT FROM a', 'db', 'mysql', { exitSpan: true })
+    s1.setDestinationContext({ service: { name: 'mysql', resource: 'mysql', type: 'db' } })
+
+    setTimeout(() => {
+      s1.end()
+    }, 100)
+
+    setTimeout(() => {
+      const s2 = agent.startSpan('SELECT FROM b', 'db', 'mysql', { exitSpan: true })
+      s2.setDestinationContext({ service: { name: 'mysql', resource: 'mysql', type: 'db' } })
+      s2.end()
+    }, 200)
+
+    setTimeout(() => {
+      t0.end()
+    }, 300)
   })
   suite.end()
 })
