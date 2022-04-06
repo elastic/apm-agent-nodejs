@@ -31,10 +31,6 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       t.equals(span.name, 'name1')
       t.equals(span.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
       t.equals(span.composite.count, 3)
-      if (!(span.composite.sum > 30)) {
-        console.log(span.composite)
-        process.exit(1)
-      }
       t.true(span.composite.sum > 30)
       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
       t.end()
