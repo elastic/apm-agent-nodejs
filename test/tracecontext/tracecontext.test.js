@@ -17,7 +17,17 @@ tape.test('trace context tests', function (suite) {
     const headers = {}
 
     t.true(!context.hasPropagatedTraceContextHeaders())
-    const newHeaders = context.propagateTraceContextHeaders(headers, fromContext)
+    const newHeaders = Object.assign({}, headers)
+    context.propagateTraceContextHeaders(
+      newHeaders,
+      fromContext,
+      function (carrier, name, value) {
+        if (!value) {
+          return
+        }
+        carrier[name] = value
+      }
+    )
     t.equals(traceParentString, newHeaders.traceparent)
     t.equals(traceStateString, newHeaders.tracestate)
     t.true(context.hasPropagatedTraceContextHeaders())
