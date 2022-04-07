@@ -1,0 +1,30 @@
+// Based on https://github.com/open-telemetry/opentelemetry-js/blob/main/examples/http/tracer.js
+
+'use strict'
+
+const opentelemetry = require('@opentelemetry/api')
+opentelemetry.diag.setLogger({
+  verbose () { console.log('diag VERBOSE:', ...arguments) },
+  debug () { console.log('diag DEBUG:', ...arguments) },
+  info () { console.log('diag INFO:', ...arguments) },
+  warn () { console.log('diag WARN:', ...arguments) },
+  error () { console.log('diag ERROR:', ...arguments) }
+}, opentelemetry.DiagLogLevel.ALL)
+
+const { registerInstrumentations } = require('@opentelemetry/instrumentation')
+const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node')
+const { SimpleSpanProcessor, ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-base')
+const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
+
+module.exports = (() => {
+  const provider = new NodeTracerProvider()
+  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()))
+  provider.register()
+  registerInstrumentations({
+    instrumentations: [
+      new HttpInstrumentation()
+    ]
+  })
+
+  return opentelemetry.trace.getTracer('example-http-request')
+})()

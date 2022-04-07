@@ -80,6 +80,7 @@
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
   "dependencies": {
     "@elastic/ecs-pino-format": "^1.2.0",
+    "@opentelemetry/api": "^1.0.4",
     "after-all-results": "^2.0.0",
     "async-cache": "^1.1.0",
     "async-value-promise": "^1.1.1",
