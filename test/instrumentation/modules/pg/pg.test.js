@@ -5,7 +5,8 @@ var agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  cloudProvider: 'none'
+  cloudProvider: 'none',
+  spanCompressionEnabled: false
 })
 
 var semver = require('semver')

@@ -1,0 +1,7 @@
+++++
+<script>
+window.addEventListener("DOMContentLoaded", async () => {
+  addArnGenerator('agent', 'apm-agent-nodejs', 'arn:aws:lambda:${region}:267093732750:layer:elastic-apm-node-${version}');
+});
+</script>
+++++

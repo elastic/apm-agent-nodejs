@@ -12,7 +12,8 @@ var agent = require('../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   apmServerVersion: '8.0.0',
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
+  spanCompressionEnabled: false
 })
 
 var elasticsearch = require('elasticsearch')

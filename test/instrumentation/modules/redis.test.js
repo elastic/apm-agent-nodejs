@@ -4,7 +4,8 @@ var agent = require('../../..').start({
   serviceName: 'test-redis',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  spanCompressionEnabled: false
 })
 
 var redis = require('redis')

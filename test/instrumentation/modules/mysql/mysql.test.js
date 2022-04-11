@@ -5,7 +5,8 @@ var agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  spanCompressionEnabled: false
 })
 
 var mysql = require('mysql')
