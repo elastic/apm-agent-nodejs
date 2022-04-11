@@ -1,8 +1,15 @@
-// Based on https://github.com/open-telemetry/opentelemetry-js/blob/main/examples/http/tracer.js
-
 'use strict'
 
+// Start a simply-configured OpenTelemetry SDK for Node.js tracing for demo
+// purposes.
+//
+// Based on https://github.com/open-telemetry/opentelemetry-js/blob/main/examples/http/tracer.js
+//
+// Usage:
+//    node -r ./otel-sdk.js MY-SCRIPT.js
+
 const opentelemetry = require('@opentelemetry/api')
+// XXX
 opentelemetry.diag.setLogger({
   verbose () { console.log('diag VERBOSE:', ...arguments) },
   debug () { console.log('diag DEBUG:', ...arguments) },
@@ -26,5 +33,5 @@ module.exports = (() => {
     ]
   })
 
-  return opentelemetry.trace.getTracer('example-http-request')
+  return opentelemetry.trace.getTracer('otel-examples')
 })()

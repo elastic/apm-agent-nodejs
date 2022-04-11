@@ -1,11 +1,11 @@
 {
-  "name": "otelbridge1",
+  "name": "otel-examples",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
   "main": "example-http-request.js",
   "scripts": {
-    "otel": "node -r ./otel-tracing.js example-http-request.js",
-    "elastic": "node -r elastic-apm-node/opentelemetry.js example-http-request.js"
+    "otel": "node -r ./otel-sdk.js trace-http-request.js",
+    "elastic": "node -r elastic-apm-node/opentelemetry-sdk trace-http-request.js"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.0.4",

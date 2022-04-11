@@ -1,7 +1,7 @@
 // Based on https://github.com/open-telemetry/opentelemetry-js/blob/main/examples/http/client.js
 'use strict'
 const otel = require('@opentelemetry/api')
-const tracer = otel.trace.getTracer('example-http-request')
+const tracer = otel.trace.getTracer('trace-http-request')
 
 const http = require('http')
 
