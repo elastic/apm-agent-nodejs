@@ -281,6 +281,9 @@ declare namespace apm {
     sourceLinesErrorLibraryFrames?: number;
     sourceLinesSpanAppFrames?: number;
     sourceLinesSpanLibraryFrames?: number;
+    spanCompressionEnabled?: boolean;
+    spanCompressionExactMatchMaxDuration?: string;
+    spanCompressionSameKindMaxDuration?: string;
     /**
      * @deprecated Use `spanStackTraceMinDuration`.
      */
