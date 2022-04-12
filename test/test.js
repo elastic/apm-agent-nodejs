@@ -172,6 +172,7 @@ var directories = [
   'test/integration/api-schema',
   'test/lambda',
   'test/metrics',
+  'test/opentelemetry-sdk',
   'test/redact-secrets',
   'test/sanitize-field-names',
   'test/sourcemaps',
