@@ -77,4 +77,50 @@ tape.test('propagateTraceContextHeaders tests', function (suite) {
     t.pass('propagateTraceContextHeaders handles null cases without crashing')
     t.end()
   })
+
+  suite.test('TraceContext missing state', function (t) {
+    const context = new TraceContext()
+    const carrier = {}
+
+    const mockContext = {
+      toTraceParentString: function () {
+        return 'test-parent'
+      },
+      toTraceStateString: function () {
+        return null
+      }
+    }
+
+    context.propagateTraceContextHeaders(
+      carrier, mockContext, function (carrier, name, value) {
+        carrier[name] = value
+      }
+    )
+    t.equals(carrier.traceparent, 'test-parent')
+    t.equals(carrier.tracestate, undefined)
+    t.end()
+  })
+
+  suite.test('TraceContext missing parent', function (t) {
+    const context = new TraceContext()
+    const carrier = {}
+
+    const mockContext = {
+      toTraceParentString: function () {
+        return null
+      },
+      toTraceStateString: function () {
+        return 'test-state'
+      }
+    }
+
+    context.propagateTraceContextHeaders(
+      carrier, mockContext, function (carrier, name, value) {
+        carrier[name] = value
+      }
+    )
+    t.equals(carrier.traceparent, undefined)
+    t.equals(carrier.tracestate, 'test-state')
+    t.end()
+  })
 })
