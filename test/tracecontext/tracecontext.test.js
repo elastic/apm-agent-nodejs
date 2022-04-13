@@ -25,6 +25,7 @@ tape.test('propagateTraceContextHeaders tests', function (suite) {
     })
 
     const span = transaction.startSpan('test-span')
+    t.true(!span._hasPropagatedTraceContext)
     const newHeaders = {}
     span.propagateTraceContextHeaders(newHeaders, function (carrier, name, value) {
       carrier[name] = value
@@ -36,6 +37,7 @@ tape.test('propagateTraceContextHeaders tests', function (suite) {
     t.equals(span._context.traceparent.toString(), newHeaders.traceparent)
     t.equals(traceStateString, newHeaders.tracestate)
     t.equals(span._context.traceparent.toString(), newHeaders['elastic-apm-traceparent'])
+    t.true(span._hasPropagatedTraceContext)
     t.end()
   })
 
