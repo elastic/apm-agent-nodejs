@@ -10,7 +10,7 @@ const agent = require('../..').start({
 })
 
 const tape = require('tape')
-const { TraceContext } = require('../../lib/tracecontext')
+const TraceContext = require('../../lib/tracecontext')
 const TraceState = require('../../lib/tracecontext/tracestate')
 const TraceParent = require('traceparent')
 
