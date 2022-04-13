@@ -11,7 +11,8 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: '0s',
   centralConfig: false,
-  cloudProvider: 'none'
+  cloudProvider: 'none',
+  spanCompressionEnabled: false
 })
 
 var test = require('tape')

@@ -5,7 +5,8 @@ const agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  cloudProvider: 'none'
+  cloudProvider: 'none',
+  spanCompressionEnabled: false
 })
 
 const { promisify } = require('util')

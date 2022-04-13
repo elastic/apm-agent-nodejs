@@ -36,7 +36,7 @@ jobs:
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/community-label.yml
-        enable-versioned-regex: 0    
+        enable-versioned-regex: 0
     - name: Assign new internal pull requests to project
       uses: elastic/assign-one-project-github-action@1.2.2
       if: (steps.checkUserMember.outputs.isTeamMember == 'true' || steps.checkUserMember.outputs.isExcluded == 'true') && github.event.pull_request
