@@ -7,7 +7,7 @@ if (Number(process.versions.node.split('.')[0]) > 8) {
   assert = assert.strict
 }
 const otel = require('@opentelemetry/api')
-const tracer = otel.trace.getTracer('test-simple')
+const tracer = otel.trace.getTracer('test-start-span')
 
 const s = tracer.startSpan('mySpan')
 
