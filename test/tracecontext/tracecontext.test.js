@@ -49,17 +49,12 @@ tape.test('propagateTraceContextHeaders tests', function (suite) {
       TraceParent.fromString(traceParentString),
       TraceState.fromStringFormatString(traceStateString)
     )
-    const context = new TraceContext()
     const headers = {}
 
     const newHeaders = Object.assign({}, headers)
-    context.propagateTraceContextHeaders(
+    fromContext.propagateTraceContextHeaders(
       newHeaders,
-      fromContext,
       function (carrier, name, value) {
-        if (!value) {
-          return
-        }
         carrier[name] = value
       }
     )
@@ -72,7 +67,7 @@ tape.test('propagateTraceContextHeaders tests', function (suite) {
   suite.test('TraceContext null test', function (t) {
     const context = new TraceContext()
     context.propagateTraceContextHeaders(
-      null, null, null
+      null, null
     )
     t.pass('propagateTraceContextHeaders handles null cases without crashing')
     t.end()
@@ -82,17 +77,16 @@ tape.test('propagateTraceContextHeaders tests', function (suite) {
     const context = new TraceContext()
     const carrier = {}
 
-    const mockContext = {
-      toTraceParentString: function () {
-        return 'test-parent'
-      },
-      toTraceStateString: function () {
-        return null
-      }
+    // mock out methods
+    context.toTraceParentString = function () {
+      return 'test-parent'
+    }
+    context.toTraceStateString = function () {
+      return null
     }
 
     context.propagateTraceContextHeaders(
-      carrier, mockContext, function (carrier, name, value) {
+      carrier, function (carrier, name, value) {
         carrier[name] = value
       }
     )
@@ -104,18 +98,14 @@ tape.test('propagateTraceContextHeaders tests', function (suite) {
   suite.test('TraceContext missing parent', function (t) {
     const context = new TraceContext()
     const carrier = {}
-
-    const mockContext = {
-      toTraceParentString: function () {
-        return null
-      },
-      toTraceStateString: function () {
-        return 'test-state'
-      }
+    context.toTraceParentString = function () {
+      return null
     }
-
+    context.toTraceStateString = function () {
+      return 'test-state'
+    }
     context.propagateTraceContextHeaders(
-      carrier, mockContext, function (carrier, name, value) {
+      carrier, function (carrier, name, value) {
         carrier[name] = value
       }
     )
