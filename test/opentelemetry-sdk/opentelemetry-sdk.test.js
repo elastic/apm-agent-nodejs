@@ -25,8 +25,8 @@ const cases = [
     //   transaction "mySpan"
     script: 'start-span.js',
     check: (t, events) => {
-      t.ok(events[0].metadata, 'APM server got event metadata object')
       t.equal(events.length, 2, 'exactly 2 events')
+      t.ok(events[0].metadata, 'APM server got event metadata object')
       const mySpan = findObjInArray(events, 'transaction.name', 'mySpan').transaction
       t.ok(mySpan, 'transaction.name')
       // XXX what else to assert here? outcome? type? OTel attributes?
@@ -37,8 +37,21 @@ const cases = [
     //   transaction "s2" (trace_id=d4cda95b652f4a1592b449dd92ffda3b, parent_id=6e0c63ffe4e34c42)
     script: 'nonrecordingspan-parent.js',
     check: (t, events) => {
-      t.ok(events[0].metadata, 'APM server got event metadata object')
       t.equal(events.length, 2, 'exactly 2 events')
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      const s2 = findObjInArray(events, 'transaction.name', 's2').transaction
+      t.ok(s2, 'transaction.name')
+      t.equal(s2.trace_id, 'd4cda95b652f4a1592b449dd92ffda3b', 'transaction.trace_id')
+      t.ok(s2.parent_id, '6e0c63ffe4e34c42', 'transaction.parent_id')
+    }
+  },
+  {
+    // Expect:
+    //   transaction "s2" (trace_id=d4cda95b652f4a1592b449dd92ffda3b, parent_id=6e0c63ffe4e34c42)
+    script: 'using-root-context.js',
+    check: (t, events) => {
+      t.equal(events.length, 2, 'exactly 2 events')
+      t.ok(events[0].metadata, 'APM server got event metadata object')
       const s2 = findObjInArray(events, 'transaction.name', 's2').transaction
       t.ok(s2, 'transaction.name')
       t.equal(s2.trace_id, 'd4cda95b652f4a1592b449dd92ffda3b', 'transaction.trace_id')
