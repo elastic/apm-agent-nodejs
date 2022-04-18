@@ -27,12 +27,12 @@ ctx = otel.trace.setSpan(otel.ROOT_CONTEXT, s1) // -> BaseContext
 
 // Also set an arbitrary value on the Context to test that it is properly
 // propagated.
-const fooKey = otel.createContextKey('foo')
-ctx = ctx.setValue(fooKey, 'bar')
+const FOO_KEY = otel.createContextKey('foo')
+ctx = ctx.setValue(FOO_KEY, 'bar')
 
 otel.context.with(ctx, () => {
-  assert.strictEqual(otel.context.active().getValue(fooKey), 'bar',
-    'the active context has our fooKey value')
+  assert.strictEqual(otel.context.active().getValue(FOO_KEY), 'bar',
+    'the active context has our FOO_KEY value')
 
   const s2 = tracer.startSpan('s2')
   assert(s2.isRecording() === true, 's2 is recording')
