@@ -7,10 +7,12 @@
 //
 //    node -r ../../opentelemetry-sdk.js fixtures/start-span.js
 //
-// and assert that (a) the exits successfully (passing internal `assert(...)`s),
-// and (b) the mock APM server got the expected trace.
+// and assert that (a) it exits successfully (passing internal `assert(...)`s),
+// and (b) the mock APM server got the expected trace data.
 //
-// The scripts can be run independent of the test suite.
+// The scripts can be run independent of the test suite. Also, they can be
+// run using the *OpenTelemetry SDK* for comparison. E.g.:
+//    node -r ../../examples/otel/otel-sdk.js fixtures/start-span.js
 
 const { execFile } = require('child_process')
 const path = require('path')
@@ -56,6 +58,44 @@ const cases = [
       t.ok(s2, 'transaction.name')
       t.equal(s2.trace_id, 'd4cda95b652f4a1592b449dd92ffda3b', 'transaction.trace_id')
       t.ok(s2.parent_id, '6e0c63ffe4e34c42', 'transaction.parent_id')
+    }
+  },
+  {
+    // Expect:
+    //    transaction "callServiceA"
+    //    `- span "GET localhost:$portA" (context.http.url=http://localhost:$portA/a-ping)
+    //      `- transaction "GET unknown route" (context.request.headers.{traceparent,tracestate})
+    //         `- span "GET localhost:$portB" (context.http.url=http://localhost:$portB/b-ping)
+    //           `- transaction "GET unknown route" (context.request.headers.{traceparent,tracestate})
+    script: 'distributed-trace.js',
+    check: (t, events) => {
+      t.equal(events.length, 6, 'exactly 6 events')
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      // All the transactions and spans, in timestamp order.
+      const tas = events.slice(1)
+        .sort((a, b) => (a.transaction || a.span).timestamp - (b.transaction || b.span).timestamp)
+      //  transaction "callServiceA"
+      t.equal(tas[0].transaction.name, 'callServiceA')
+      //  `- span "GET localhost:$portA" (context.http.url=http://localhost:$portA/a-ping)
+      const portA = tas[1].span.context.destination.port
+      t.equal(tas[1].span.parent_id, tas[0].transaction.id)
+      t.equal(tas[1].span.name, `GET localhost:${portA}`)
+      t.ok(tas[1].span.context.http.url, `http://localhost:${portA}/a-ping`)
+      //    `- transaction "GET unknown route" (context.request.headers.{traceparent,tracestate})
+      t.equal(tas[2].transaction.parent_id, tas[1].span.id)
+      t.equal(tas[2].transaction.name, 'GET unknown route')
+      t.ok(tas[2].transaction.context.request.headers.traceparent)
+      t.equal(tas[2].transaction.context.request.headers.tracestate, 'es=s:1')
+      //       `- span "GET localhost:$portB" (context.http.url=http://localhost:$portB/b-ping)
+      const portB = tas[3].span.context.destination.port
+      t.equal(tas[3].span.parent_id, tas[2].transaction.id)
+      t.equal(tas[3].span.name, `GET localhost:${portB}`)
+      t.ok(tas[3].span.context.http.url, `http://localhost:${portB}/b-ping`)
+      //         `- transaction "GET unknown route" (context.request.headers.{traceparent,tracestate})
+      t.equal(tas[4].transaction.parent_id, tas[3].span.id)
+      t.equal(tas[4].transaction.name, 'GET unknown route')
+      t.ok(tas[4].transaction.context.request.headers.traceparent)
+      t.equal(tas[4].transaction.context.request.headers.tracestate, 'es=s:1')
     }
   }
 ]
