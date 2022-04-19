@@ -8,7 +8,8 @@ var agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
+  spanCompressionEnabled: false
 })
 
 var knexVersion = require('knex/package').version
