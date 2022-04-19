@@ -97,6 +97,41 @@ const cases = [
       t.ok(tas[4].transaction.context.request.headers.traceparent)
       t.equal(tas[4].transaction.context.request.headers.tracestate, 'es=s:1')
     }
+  },
+  {
+    // Expect:
+    //   trace
+    //   `- transaction "s1"
+    //     `- span "s3"
+    //       `- span "s5"
+    //     `- transaction "s4"
+    //     `- transaction "s6"
+    //   trace
+    //   `- transaction "s2"
+    script: 'start-span-with-context.js',
+    check: (t, events) => {
+      t.equal(events.length, 7, 'exactly 7 events')
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      // All the transactions and spans, in order of creation.
+      // (Because of https://github.com/elastic/apm-agent-nodejs/issues/2180
+      // we cannot use "timestamp" for sorting.)
+      const tas = events.slice(1)
+        .sort((a, b) => (a.transaction || a.span).name > (b.transaction || b.span).name ? 1 : -1)
+      t.equal(tas[0].transaction.name, 's1', 's1.name')
+      t.equal(tas[0].transaction.parent_id, undefined, 's1 has no parent')
+      const traceId = tas[0].transaction.trace_id
+      t.equal(tas[1].transaction.name, 's2', 's2.name')
+      t.equal(tas[1].transaction.parent_id, undefined, 's2 has no parent')
+      t.notEqual(tas[1].transaction.trace_id, traceId, 's2 has a separate trace id')
+      t.equal(tas[2].span.name, 's3', 's3.name')
+      t.equal(tas[2].span.parent_id, tas[0].transaction.id, 's3 is a child of s1')
+      t.equal(tas[3].transaction.name, 's4', 's4.name')
+      t.equal(tas[3].transaction.parent_id, tas[0].transaction.id, 's4 is a child of s1')
+      t.equal(tas[4].span.name, 's5', 's5.name')
+      t.equal(tas[4].span.parent_id, tas[2].span.id, 's5 is a child of s3')
+      t.equal(tas[5].transaction.name, 's6', 's6.name')
+      t.equal(tas[5].transaction.parent_id, tas[0].transaction.id, 's4 is a child of s1')
+    }
   }
 ]
 
