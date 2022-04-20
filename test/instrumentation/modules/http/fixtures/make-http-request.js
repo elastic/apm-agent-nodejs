@@ -23,7 +23,7 @@ function makeARequest (opts, cb) {
     apm.startSpan('span-in-http.request-callback').end()
 
     const chunks = []
-    clientRes.once('data', function (chunk) {
+    clientRes.once('data', function (chunk) { // Just get the first chunk
       assert(apm.currentSpan === null)
       apm.startSpan('span-in-clientRes-on-data').end()
       chunks.push(chunk)
@@ -62,7 +62,7 @@ function makeARequest (opts, cb) {
 const t0 = apm.startTransaction('t0')
 makeARequest(
   {
-    // 'http://wwww.google.com/'
+    // 'http://www.google.com/'
     host: 'www.google.com',
     path: '/',
     headers: { accept: '*/*' }
