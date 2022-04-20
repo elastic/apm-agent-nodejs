@@ -103,44 +103,6 @@ class CaptureLogger {
   trace (message) { this._log('trace', message) }
 }
 
-function getEnvTable () {
-  const lines = fs.readFileSync(path.resolve(__dirname, '../lib/config.js')).toString().split('\n')
-  const matches = []
-  let state = 0
-  for (const line of lines) {
-    if (line.indexOf('ENV_TABLE = ') !== -1) {
-      state = 1
-      continue
-    }
-    if (state === 1 && line.trim() === '}') {
-      break
-    }
-    if (state === 1) {
-      matches.push(line)
-    }
-  }
-
-  if (matches.length === 0) {
-    return []
-  }
-  const vars = matches.map(function (item) {
-    const nameVars = item.trim().match(/^(.+?):.*?['"](.+?)['"]/)
-    if (!nameVars || nameVars.length !== 3) {
-      return null
-    }
-    return {
-      [nameVars[1]]: nameVars[2]
-    }
-  }).filter((item) => item)
-
-  const finalObject = {}
-  for (const pair of vars) {
-    finalObject[Object.keys(pair)[0]] = Object.values(pair)[0]
-  }
-  console.log(finalObject)
-  return finalObject
-}
-
 // ---- tests
 
 var optionFixtures = [
@@ -1640,6 +1602,7 @@ test('env variable names', suite => {
   if (Object.keys(configToEnv).length < 1) {
     suite.fail('could not parse ENV_TABLE')
   }
+
   for (const name of configToEnv) {
     suite.true(name.indexOf('ELASTIC_APM') === 0, `${name} starts with ELASTIC_APM`)
   }
