@@ -1598,12 +1598,18 @@ test('spanStackTraceMinDuration', suite => {
 })
 
 test('env variable names', suite => {
-  const configToEnv = Object.values(getEnvTable())
-  if (Object.keys(configToEnv).length < 1) {
-    suite.fail('could not parse ENV_TABLE')
-  }
+  // flatten
+  const names = [].concat(...Object.values(config.ENV_TABLE))
 
-  for (const name of configToEnv) {
+  // list of names we keep around for backwards compatability
+  // but that don't conform to the ELASTIC_APM name
+  const legacy = ['ELASTIC_SANITIZE_FIELD_NAMES','KUBERNETES_POD_UID',
+    'KUBERNETES_POD_NAME','KUBERNETES_NODE_NAME','KUBERNETES_NAMESPACE',
+    'ELASTIC_IGNORE_MESSAGE_QUEUES']
+  for (const name of names) {
+    if(legacy.indexOf(name) !== -1) {
+      continue
+    }
     suite.true(name.indexOf('ELASTIC_APM') === 0, `${name} starts with ELASTIC_APM`)
   }
   suite.end()
