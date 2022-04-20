@@ -6,7 +6,7 @@
 //     `- span "s3"
 //       `- span "s5"
 //     `- transaction "s4"
-//     `- transaction "s6"
+//     `- span "s6"
 //   trace
 //   `- transaction "s2"
 

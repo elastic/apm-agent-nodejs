@@ -105,7 +105,7 @@ const cases = [
     //     `- span "s3"
     //       `- span "s5"
     //     `- transaction "s4"
-    //     `- transaction "s6"
+    //     `- span "s6"
     //   trace
     //   `- transaction "s2"
     script: 'start-span-with-context.js',
@@ -129,8 +129,8 @@ const cases = [
       t.equal(tas[3].transaction.parent_id, tas[0].transaction.id, 's4 is a child of s1')
       t.equal(tas[4].span.name, 's5', 's5.name')
       t.equal(tas[4].span.parent_id, tas[2].span.id, 's5 is a child of s3')
-      t.equal(tas[5].transaction.name, 's6', 's6.name')
-      t.equal(tas[5].transaction.parent_id, tas[0].transaction.id, 's4 is a child of s1')
+      t.equal(tas[5].span.name, 's6', 's6.name')
+      t.equal(tas[5].span.parent_id, tas[0].transaction.id, 's4 is a child of s1')
     }
   }
 ]
