@@ -108,7 +108,7 @@ const cases = [
     //     `- span "s3"
     //       `- span "s5"
     //     `- transaction "s4"
-    //     `- transaction "s6"
+    //     `- span "s6"
     //   trace
     //   `- transaction "s2"
     script: 'start-span-with-context.js',
@@ -193,6 +193,15 @@ const cases = [
         t.ok(transTimestampIsRecent('sStartTimePerformanceNow'), 'sStartTimePerformanceNow')
       }
       t.ok(transTimestampIsRecent('sStartTimeDate'), 'sStartTimeDate')
+
+      // SpanOptions.root
+      const sParent = findObjInArray(events, 'transaction.name', 'sParent').transaction
+      const sRootNotSpecified = findObjInArray(events, 'span.name', 'sRootNotSpecified').span
+      t.equal(sRootNotSpecified.trace_id, sParent.trace_id, 'sRootNotSpecified.trace_id')
+      t.equal(sRootNotSpecified.parent_id, sParent.id, 'sRootNotSpecified.parent_id')
+      const sRoot = findObjInArray(events, 'transaction.name', 'sRoot').transaction
+      t.notEqual(sRoot.trace_id, sParent.trace_id, 'sRoot.trace_id')
+      t.strictEqual(sRoot.parent_id, undefined, 'sRoot.parent_id')
     }
   }
 ]

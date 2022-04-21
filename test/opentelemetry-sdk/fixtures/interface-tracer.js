@@ -1,0 +1,102 @@
+'use strict'
+
+// Exercise the full `interface Tracer`.
+
+const performance = require('perf_hooks').performance
+const semver = require('semver')
+
+const otel = require('@opentelemetry/api')
+const tracer = otel.trace.getTracer('test-interface-tracer')
+
+const haveUsablePerformanceNow = semver.satisfies(process.version, '>=8.12.0')
+
+// function parentIdFromSpan (span) {
+//   return (
+//     span.parentSpanId || // OTel SDK
+//     (span._span && span._span.parentId) || // Elastic APM
+//     undefined
+//   )
+// }
+// function idFromSpan (span) {
+//   return span.spanContext().spanId
+// }
+
+// SpanOptions.kind
+// https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#span-kind
+tracer.startSpan('sKindDefault').end()
+tracer.startSpan('sKindInternal', { kind: otel.SpanKind.INTERNAL }).end()
+tracer.startSpan('sKindServer', { kind: otel.SpanKind.SERVER }).end()
+tracer.startSpan('sKindClient', { kind: otel.SpanKind.CLIENT }).end()
+tracer.startSpan('sKindProducer', { kind: otel.SpanKind.PRODUCER }).end()
+tracer.startSpan('sKindConsumer', { kind: otel.SpanKind.CONSUMER }).end()
+
+// SpanOptions.attributes
+// https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/common/README.md#attribute
+tracer.startSpan('sAttributesNone').end()
+const myArray = ['hello', 'bob']
+tracer.startSpan('sAttributesLots', {
+  attributes: {
+    'a.string': 'hi',
+    'a.number': 42,
+    'a.boolean': true,
+    'an.array.of.strings': ['one', 'two', 'three'],
+    'an.array.of.numbers': [1, 2, 3],
+    'an.array.of.booleans': [true, false],
+    'an.array.that.will.be.modified': myArray,
+    // Empty/falsey values:
+    'a.zero': 0,
+    'a.false': false,
+    'an.empty.string': '',
+    'an.empty.array': [],
+    // From the OTel spec:
+    // > `null` values SHOULD NOT be allowed in arrays. However, ...
+    // The OTel JS SDK allows nulls and undefineds.
+    'an.array.with.nulls': ['one', null, 'three'],
+    'an.array.with.undefineds': ['one', undefined, 'three'],
+    // These are *not* allowed by the OTel API:
+    'an.array.of.mixed.types': [1, true, 'three', undefined, null],
+    'an.object': { foo: 'bar' },
+    'a.null': null,
+    'a.undefined': undefined,
+    '': 'empty string key'
+  }
+}).end()
+myArray[0] = 'goodbye'
+
+// SpanOptions.links
+const s = tracer.startSpan('sLinksNone')
+s.end()
+tracer.startSpan('sLinksEmptyArray', { links: [] }).end()
+tracer.startSpan('sLinksInvalid', { links: [{}] }).end()
+tracer.startSpan('sLinks', { links: [{ context: s.spanContext() }] }).end()
+tracer.startSpan('sLinksWithAttrs', {
+  links: [{ context: s.spanContext(), attributes: { 'a.string': 'hi', 'a.number': 42 } }]
+}).end()
+
+// SpanOptions.startTime
+// Specify approximately "now" in each of the supported TimeInput formats.
+// OTel HrTime is `[<seconds since epoch>, <nanoseconds>]`.
+tracer.startSpan('sStartTimeHrTime', { startTime: [Math.floor(Date.now() / 1e3), 123000] }).end()
+tracer.startSpan('sStartTimeEpochMs', { startTime: Date.now() }).end()
+if (haveUsablePerformanceNow) {
+  tracer.startSpan('sStartTimePerformanceNow', { startTime: performance.now() }).end()
+}
+tracer.startSpan('sStartTimeDate', { startTime: new Date() }).end()
+
+// SpanOptions.root
+const sParent = tracer.startSpan('sParent')
+const parentCtx = otel.trace.setSpan(otel.context.active(), sParent)
+otel.context.with(parentCtx, () => {
+  tracer.startSpan('sRootNotSpecified').end()
+  // This one should *not* have sParent as a parent. It should be a separate trace.
+  tracer.startSpan('sRoot', { root: true }).end()
+})
+sParent.end()
+
+// const s = tracer.startSpan('mySpan')
+// const spanContext = s.spanContext()
+// assert.ok(otel.trace.isSpanContextValid(spanContext), 'spanContext is valid')
+// assert.strictEqual(spanContext.traceFlags, otel.TraceFlags.SAMPLED, 'spanContext.traceFlags')
+// XXX test traceState on spanContext
+
+// s.end()
