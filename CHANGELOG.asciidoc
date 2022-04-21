@@ -39,6 +39,13 @@ Notes:
 * Adds initial implementaion of
   https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression]. To enable, set the `spanCompressionEnabled` configuration field to `true`.  ({issues}2100[#2100])
 
+* Marks spans as "exit spans" across all instrumentations, preventing additional
+  child spans from being added to the exit spans.  See issue for a full list of
+  spans types that will be treated as exit spans. ({issues}2601[#2601])
+
+* Allow a new span to be created/started even if its transaction has ended.
+  This is expected to be a very rare use case. ({pull}2653[#2653])
+
 [float]
 ===== Bug fixes
 

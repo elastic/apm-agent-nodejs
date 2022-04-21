@@ -177,6 +177,7 @@ var directories = [
   'test/sanitize-field-names',
   'test/sourcemaps',
   'test/stacktraces',
+  'test/tracecontext',
   'test/uncaught-exceptions'
 ]
 
