@@ -74,7 +74,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       t.equals(span.name, 'Calls to foo')
       t.equals(span.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
       t.equals(span.composite.count, 3)
-      t.true(span.composite.sum > 25, `span.composite.sum >= 25: ${span.composite.sum}`)
+      t.true(span.composite.sum > 25, `span.composite.sum > 25: ${span.composite.sum}`)
       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
       t.end()
     })
