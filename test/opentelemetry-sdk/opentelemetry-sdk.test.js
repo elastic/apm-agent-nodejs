@@ -16,10 +16,13 @@
 
 const { execFile } = require('child_process')
 const path = require('path')
+const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../_mock_apm_server')
 const { findObjInArray } = require('../_utils')
+
+const haveUsablePerformanceNow = semver.satisfies(process.version, '>=8.12.0')
 
 const cases = [
   {
@@ -105,7 +108,7 @@ const cases = [
     //     `- span "s3"
     //       `- span "s5"
     //     `- transaction "s4"
-    //     `- span "s6"
+    //     `- transaction "s6"
     //   trace
     //   `- transaction "s2"
     script: 'start-span-with-context.js',
@@ -131,6 +134,65 @@ const cases = [
       t.equal(tas[4].span.parent_id, tas[2].span.id, 's5 is a child of s3')
       t.equal(tas[5].span.name, 's6', 's6.name')
       t.equal(tas[5].span.parent_id, tas[0].transaction.id, 's4 is a child of s1')
+    }
+  },
+
+  {
+    script: 'interface-span.js',
+    check: (t, events) => {
+      // XXX
+    }
+  },
+  // XXX attr mapping in separate test file
+  //    https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#attributes-mapping
+  {
+    script: 'interface-tracer.js',
+    check: (t, events) => {
+      // SpanOptions.kind
+      t.equal(findObjInArray(events, 'transaction.name', 'sKindDefault').transaction.otel.span_kind, 'INTERNAL', 'sKindDefault')
+      t.equal(findObjInArray(events, 'transaction.name', 'sKindInternal').transaction.otel.span_kind, 'INTERNAL', 'sKindInternal')
+      t.equal(findObjInArray(events, 'transaction.name', 'sKindServer').transaction.otel.span_kind, 'SERVER', 'sKindServer')
+      t.equal(findObjInArray(events, 'transaction.name', 'sKindClient').transaction.otel.span_kind, 'CLIENT', 'sKindClient')
+      t.equal(findObjInArray(events, 'transaction.name', 'sKindProducer').transaction.otel.span_kind, 'PRODUCER', 'sKindProducer')
+      t.equal(findObjInArray(events, 'transaction.name', 'sKindConsumer').transaction.otel.span_kind, 'CONSUMER', 'sKindConsumer')
+
+      // SpanOptions.attributes
+      t.equal(findObjInArray(events, 'transaction.name', 'sAttributesNone').transaction.otel.attributes, undefined, 'sAttributesNone')
+      t.deepEqual(findObjInArray(events, 'transaction.name', 'sAttributesLots').transaction.otel.attributes, {
+        'a.string': 'hi',
+        'a.number': 42,
+        'a.boolean': true,
+        'an.array.of.strings': ['one', 'two', 'three'],
+        'an.array.of.numbers': [1, 2, 3],
+        'an.array.of.booleans': [true, false],
+        'an.array.that.will.be.modified': ['hello', 'bob'],
+        'a.zero': 0,
+        'a.false': false,
+        'an.empty.string': '',
+        'an.empty.array': [],
+        'an.array.with.nulls': ['one', null, 'three'],
+        'an.array.with.undefineds': ['one', null, 'three']
+      }, 'sAttributesLots')
+
+      // SpanOptions.links (not yet supported)
+      t.equal(findObjInArray(events, 'transaction.name', 'sLinksNone').transaction.links, undefined, 'sLinksNone')
+      t.equal(findObjInArray(events, 'transaction.name', 'sLinksEmptyArray').transaction.links, undefined, 'sLinksEmptyArray')
+      t.equal(findObjInArray(events, 'transaction.name', 'sLinksInvalid').transaction.links, undefined, 'sLinksInvalid')
+      t.equal(findObjInArray(events, 'transaction.name', 'sLinks').transaction.links, undefined, 'sLinks')
+      t.equal(findObjInArray(events, 'transaction.name', 'sLinksWithAttrs').transaction.links, undefined, 'sLinksWithAttrs')
+
+      // SpanOptions.startTime
+      function transTimestampIsRecent (name) {
+        const trans = findObjInArray(events, 'transaction.name', name).transaction
+        const msFromNow = Math.abs(Date.now() - trans.timestamp / 1000)
+        return msFromNow < 30 * 1000 // within 30s
+      }
+      t.ok(transTimestampIsRecent('sStartTimeHrTime'), 'sStartTimeHrTime')
+      t.ok(transTimestampIsRecent('sStartTimeEpochMs'), 'sStartTimeEpochMs')
+      if (haveUsablePerformanceNow) {
+        t.ok(transTimestampIsRecent('sStartTimePerformanceNow'), 'sStartTimePerformanceNow')
+      }
+      t.ok(transTimestampIsRecent('sStartTimeDate'), 'sStartTimeDate')
     }
   }
 ]

@@ -110,6 +110,15 @@ THE SOFTWARE.
 Parts of "lib/instrumentation/run-context" have been adapted from or influenced
 by TypeScript code in `@opentelemetry/context-async-hooks`.
 
+- **path:** [lib/opentelemetry-sdk/otelutils.js](lib/opentelemetry-sdk/otelutils.js)
+- **author:** OpenTelemetry Authors
+- **project url:** https://github.com/open-telemetry/opentelemetry-js
+- **original file:** https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-core/src/common/time.ts
+- **license:** Apache License 2.0, https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-core/LICENSE
+
+Parts of "lib/opentelemetry-sdk/otelutils.js" have been adapted from TypeScript
+code in `@opentelemetry/core`.
+
 ## load-source-map
 
 - **path:** [lib/load-source-map.js](lib/load-source-map.js)
