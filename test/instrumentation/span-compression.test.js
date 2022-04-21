@@ -12,6 +12,7 @@ const agent = require('../..').start({
 const Transaction = require('../../lib/instrumentation/transaction')
 const Span = require('../../lib/instrumentation/span')
 const { SpanCompression, constants } = require('../../lib/instrumentation/span-compression')
+const constantsGlobal = require('../../lib/constants')
 
 const mockClient = require('../_mock_http_client')
 
@@ -40,7 +41,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
 
     let firstSpan, finalSpan
     setTimeout(function () {
-      firstSpan = agent.startSpan('name1', 'db', 'mysql')
+      firstSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
       firstSpan.setDestinationContext(destinationContext)
       setTimeout(function () {
         firstSpan.end()
@@ -48,7 +49,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
     }, 10)
 
     setTimeout(function () {
-      const span = agent.startSpan('name1', 'db', 'mysql')
+      const span = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
       span.setDestinationContext(destinationContext)
       setTimeout(function () {
         span.end()
@@ -56,7 +57,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
     }, 20)
 
     setTimeout(function () {
-      finalSpan = agent.startSpan('name1', 'db', 'mysql')
+      finalSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
       finalSpan.setDestinationContext(destinationContext)
       setTimeout(function () {
         finalSpan.end()
@@ -73,7 +74,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       t.equals(span.name, 'Calls to foo')
       t.equals(span.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
       t.equals(span.composite.count, 3)
-      t.true(span.composite.sum > 30, `span.composite.sum > 30: ${span.composite.sum}`)
+      t.true(span.composite.sum > 25, `span.composite.sum >= 25: ${span.composite.sum}`)
       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
       t.end()
     })
@@ -82,7 +83,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
 
     let firstSpan, finalSpan
     setTimeout(function () {
-      firstSpan = agent.startSpan('name1', 'db', 'mysql')
+      firstSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
       firstSpan.setDestinationContext(destinationContext)
       setTimeout(function () {
         firstSpan.end()
@@ -90,7 +91,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
     }, 10)
 
     setTimeout(function () {
-      const span = agent.startSpan('name2', 'db', 'mysql')
+      const span = agent.startSpan('name2', 'db', 'mysql', { exitSpan: true })
       span.setDestinationContext(destinationContext)
       setTimeout(function () {
         span.end()
@@ -98,7 +99,7 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
     }, 20)
 
     setTimeout(function () {
-      finalSpan = agent.startSpan('name3', 'db', 'mysql')
+      finalSpan = agent.startSpan('name3', 'db', 'mysql', { exitSpan: true })
       finalSpan.setDestinationContext(destinationContext)
       setTimeout(function () {
         finalSpan.end()
@@ -121,11 +122,11 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
 
     var t0 = agent.startTransaction('t0')
     setImmediate(() => {
-      var s1 = t0.startSpan('s1', 'db', 'mysql')
+      var s1 = t0.startSpan('s1', 'db', 'mysql', { exitSpan: true })
       s1.setDestinationContext({ service: { name: 'mysql', resource: 'mysql', type: 'db' } })
       setTimeout(() => {
         s1.end()
-        var s2 = t0.startSpan('s2', 'db', 'mysql')
+        var s2 = t0.startSpan('s2', 'db', 'mysql', { exitSpan: true })
         s2.setDestinationContext({ service: { name: 'mysql', resource: 'mysql', type: 'db' } })
         setTimeout(() => {
           s2.end()
@@ -396,6 +397,48 @@ tape.test('unit tests', function (suite) {
     t.ok(c.tryToCompress(span, spanUnder), '50ms is =< spanCompressionSameKindMaxDuration')
     t.end()
   })
+
+  suite.test('isCompressionEligible exitSpan', function (t) {
+    const trans = new Transaction(agent)
+
+    // test exit span logic
+    const spanExit = new Span(trans, 'foo', 'baz', 'bar', { exitSpan: true })
+    t.true(spanExit.isCompressionEligible())
+
+    const spanNotExit = new Span(trans, 'foo', 'baz', 'bar', { exitSpan: false })
+    t.true(!spanNotExit.isCompressionEligible())
+    t.end()
+  })
+
+  suite.test('isCompressionEligible outcome', function (t) {
+    const trans = new Transaction(agent)
+    // test outcome logic
+    const span = new Span(trans, 'foo', 'baz', 'bar', { exitSpan: true })
+    span.setOutcome(constantsGlobal.OUTCOME_UNKNOWN)
+    t.true(span.isCompressionEligible())
+
+    span.setOutcome(constantsGlobal.OUTCOME_SUCCESS)
+    t.true(span.isCompressionEligible())
+
+    span.setOutcome(constantsGlobal.OUTCOME_FAILURE)
+    t.true(!span.isCompressionEligible())
+
+    t.end()
+  })
+
+  suite.test('isCompressionEligible _hasPropagated', function (t) {
+    const trans = new Transaction(agent)
+    // test outcome logic
+    const span = new Span(trans, 'foo', 'baz', 'bar', { exitSpan: true })
+    span._hasPropagatedTraceContext = false
+    t.true(span.isCompressionEligible())
+
+    span._hasPropagatedTraceContext = true
+    t.true(!span.isCompressionEligible())
+
+    t.end()
+  })
+
   suite.end()
 })
 
