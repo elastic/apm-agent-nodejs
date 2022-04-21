@@ -23,6 +23,11 @@ const destinationContext = {
   }
 }
 
+// `setTimeout` precision is ~1ms. It can fire its callback up to a millisecond
+// early. Comparisons on the minimum time for an action using setTimeout should
+// allow for this.
+const SET_TIMEOUT_EPSILON_MS = 1
+
 tape.test('integration/end-to-end span compression tests', function (suite) {
   suite.test('exact match compression', function (t) {
     resetAgent(function (data) {
@@ -31,7 +36,8 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       t.equals(span.name, 'name1')
       t.equals(span.composite.compression_strategy, constants.STRATEGY_EXACT_MATCH)
       t.equals(span.composite.count, 3)
-      t.true(span.composite.sum > 30)
+      t.true(span.composite.sum > 30 - (3 * SET_TIMEOUT_EPSILON_MS),
+        `span.composite.sum > ~30: ${span.composite.sum}`)
       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
       t.end()
     })
@@ -73,7 +79,8 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       t.equals(span.name, 'Calls to foo')
       t.equals(span.composite.compression_strategy, constants.STRATEGY_SAME_KIND)
       t.equals(span.composite.count, 3)
-      t.true(span.composite.sum > 30, `span.composite.sum > 30: ${span.composite.sum}`)
+      t.true(span.composite.sum > 30 - (3 * SET_TIMEOUT_EPSILON_MS),
+        `span.composite.sum > ~30: ${span.composite.sum}`)
       t.equals(span.duration, (finalSpan._endTimestamp - firstSpan.timestamp) / 1000)
       t.end()
     })
