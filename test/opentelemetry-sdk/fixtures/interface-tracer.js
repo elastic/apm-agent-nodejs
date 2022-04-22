@@ -10,17 +10,6 @@ const tracer = otel.trace.getTracer('test-interface-tracer')
 
 const haveUsablePerformanceNow = semver.satisfies(process.version, '>=8.12.0')
 
-// function parentIdFromSpan (span) {
-//   return (
-//     span.parentSpanId || // OTel SDK
-//     (span._span && span._span.parentId) || // Elastic APM
-//     undefined
-//   )
-// }
-// function idFromSpan (span) {
-//   return span.spanContext().spanId
-// }
-
 // SpanOptions.kind
 // https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#span-kind
 tracer.startSpan('sKindDefault').end()
@@ -92,11 +81,3 @@ otel.context.with(parentCtx, () => {
   tracer.startSpan('sRoot', { root: true }).end()
 })
 sParent.end()
-
-// const s = tracer.startSpan('mySpan')
-// const spanContext = s.spanContext()
-// assert.ok(otel.trace.isSpanContextValid(spanContext), 'spanContext is valid')
-// assert.strictEqual(spanContext.traceFlags, otel.TraceFlags.SAMPLED, 'spanContext.traceFlags')
-// XXX test traceState on spanContext
-
-// s.end()

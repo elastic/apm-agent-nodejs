@@ -18,11 +18,9 @@ const tracer = otel.trace.getTracer('test-interface-span')
 //   return span.spanContext().spanId
 // }
 
-// const s = tracer.startSpan('mySpan')
-
-// const spanContext = s.spanContext()
-// assert.ok(otel.trace.isSpanContextValid(spanContext), 'spanContext is valid')
-// assert.strictEqual(spanContext.traceFlags, otel.TraceFlags.SAMPLED, 'spanContext.traceFlags')
+const sSpanContext = tracer.startSpan('sSpanContext')
+const spanContext = sSpanContext.spanContext()
+assert.ok(otel.trace.isSpanContextValid(spanContext), 'spanContext is valid')
+assert.strictEqual(spanContext.traceFlags, otel.TraceFlags.SAMPLED, 'spanContext.traceFlags')
 // XXX test traceState on spanContext
-
-// s.end()
+sSpanContext.end()
