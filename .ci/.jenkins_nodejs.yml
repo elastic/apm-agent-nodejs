@@ -1,5 +1,7 @@
 NODEJS_VERSION:
-  - "17"
+  # - "19" # Uncomment this when there are v19.x releases at https://nodejs.org/download/release/
+  - "18"
+  # - "18.0"  # Uncomment this when "18" is 18.1 or greater.
   - "16"
   - "16.0"
   - "14"
