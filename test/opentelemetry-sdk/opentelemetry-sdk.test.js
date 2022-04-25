@@ -202,6 +202,15 @@ const cases = [
       const sRoot = findObjInArray(events, 'transaction.name', 'sRoot').transaction
       t.notEqual(sRoot.trace_id, sParent.trace_id, 'sRoot.trace_id')
       t.strictEqual(sRoot.parent_id, undefined, 'sRoot.parent_id')
+
+      // tracer.startActiveSpan()
+      t.ok(findObjInArray(events, 'transaction.name', 'sActiveRetval').transaction, 'sActiveRetval')
+      t.ok(findObjInArray(events, 'transaction.name', 'sActiveThrows').transaction, 'sActiveThrows')
+      t.ok(findObjInArray(events, 'transaction.name', 'sActiveAsync').transaction, 'sActiveAsync')
+      const sActiveWithOptions = findObjInArray(events, 'transaction.name', 'sActiveWithOptions').transaction
+      t.strictEqual(sActiveWithOptions.otel.span_kind, 'CLIENT', 'sActiveWithOptions span_kind')
+      t.deepEqual(sActiveWithOptions.otel.attributes, { 'a.string': 'hi' }, 'sActiveWithOptions attributes')
+      t.ok(findObjInArray(events, 'transaction.name', 'sActiveWithContext').transaction, 'sActiveWithContext')
     }
   }
 ]

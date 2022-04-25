@@ -2,6 +2,7 @@
 
 // Exercise the full `interface Tracer`.
 
+const assert = require('assert')
 const performance = require('perf_hooks').performance
 const semver = require('semver')
 
@@ -81,3 +82,68 @@ otel.context.with(parentCtx, () => {
   tracer.startSpan('sRoot', { root: true }).end()
 })
 sParent.end()
+
+// tracer.startActiveSpan()
+// - retval comes back
+const retval = tracer.startActiveSpan('sActiveRetval', sActiveRetval => {
+  try {
+    return 42
+  } finally {
+    sActiveRetval.end()
+  }
+})
+assert.strictEqual(retval, 42, 'sActiveRetval')
+
+// - thrown error passes through
+let thrownErr
+try {
+  tracer.startActiveSpan('sActiveThrows', sActiveThrows => {
+    try {
+      throw new Error('inside sActiveThrows')
+    } finally {
+      sActiveThrows.end()
+    }
+  })
+} catch (err) {
+  thrownErr = err
+}
+assert.ok(thrownErr && thrownErr.message === 'inside sActiveThrows', 'sActiveThrows')
+
+// - async function
+tracer.startActiveSpan('sActiveAsync', async (sActiveAsync) => {
+  await Promise.resolve()
+  sActiveAsync.end()
+  return 42
+}).then(rv => {
+  assert.strictEqual(rv, 42, 'sActiveAsync retval')
+})
+
+// - with options arg
+tracer.startActiveSpan(
+  'sActiveWithOptions',
+  {
+    kind: otel.SpanKind.CLIENT,
+    attributes: {
+      'a.string': 'hi'
+    }
+  },
+  sActiveWithOptions => {
+    try {
+      // ...
+    } finally {
+      sActiveWithOptions.end()
+    }
+  })
+
+// - with context arg
+const FOO_KEY = otel.createContextKey('foo')
+const ctx = otel.context.active().setValue(FOO_KEY, 'bar')
+tracer.startActiveSpan(
+  'sActiveWithContext',
+  undefined,
+  ctx,
+  sActiveWithContext => {
+    assert.strictEqual(otel.context.active().getValue(FOO_KEY), 'bar',
+      'FOO_KEY was passed through with context')
+    sActiveWithContext.end()
+  })
