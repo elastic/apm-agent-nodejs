@@ -46,7 +46,7 @@ Notes:
 * Allow a new span to be created/started even if its transaction has ended.
   This is expected to be a very rare use case. ({pull}2653[#2653])
 
-* The Trace Context headers are now propagated for http2 requests.
+* The Trace Context headers are now propagated for http2 requests. ({pull}2656[#2656])
 
 [float]
 ===== Bug fixes
