@@ -212,6 +212,28 @@ const cases = [
   {
     script: 'interface-span.js',
     check: (t, events) => {
+      const expectedAttributes = {
+        'a.string': 'hi',
+        'a.number': 42,
+        'a.boolean': true,
+        'an.array.of.strings': ['one', 'two', 'three'],
+        'an.array.of.numbers': [1, 2, 3],
+        'an.array.of.booleans': [true, false],
+        'an.array.that.will.be.modified': ['hello', 'bob'],
+        'a.zero': 0,
+        'a.false': false,
+        'an.empty.string': '',
+        'an.empty.array': [],
+        'an.array.with.nulls': ['one', null, 'three'],
+        'an.array.with.undefineds': ['one', null, 'three']
+      }
+      t.deepEqual(findObjInArray(events, 'transaction.name', 'sSetAttribute').transaction.otel.attributes,
+        expectedAttributes, 'sSetAttribute')
+      t.deepEqual(findObjInArray(events, 'transaction.name', 'sSetAttributes').transaction.otel.attributes,
+        expectedAttributes, 'sSetAttributes')
+
+      t.ok(findObjInArray(events, 'transaction.name', 'sAddEvent').transaction, 'sAddEvent')
+
       // XXX
     }
   },
@@ -288,6 +310,8 @@ const cases = [
 ]
 
 cases.forEach(c => {
+  // if (c.script.indexOf('interface') === -1) return // XXX filter
+
   tape.test(`opentelemetry-sdk/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()
     const scriptPath = path.join('fixtures', c.script)
