@@ -28,18 +28,26 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.32.0]]
+==== 3.32.0 2022/04/27
 
 [float]
 ===== Features
 
 * Add support for node v18. ({pull}2652[#2652])
 
-* Adds initial implementaion of
-  https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression]. To disable, set the `spanCompressionEnabled` configuration field to `false`.  ({issues}2100[#2100], {issues}2604[#2604])
+* Add support for https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression].
+  ({issues}2100[#2100], {issues}2604[#2604])
++
+By default, consecutive (sibling) exit spans of the same name, type, subtype,
+and destination with a duration of less than 50ms will be compressed into
+a single composite span. A possible case is the
+https://duckduckgo.com/?q=N%252B1+query+problem[N+1 query problem].
+Traces with many consecutive matching spans will be represented -- both in data
+and the APM UI -- more efficiently.
++
+Span compression can be disabled or matching behavior configured with the
+<<span-compression-enabled,`spanCompression* configuration options`>>.
 
 * Marks spans as "exit spans" across all instrumentations, preventing additional
   child spans from being added to the exit spans.  See issue for a full list of
@@ -50,8 +58,6 @@ Notes:
 
 * The Trace Context headers are now propagated for http2 requests. ({pull}2656[#2656])
 
-[float]
-===== Bug fixes
 
 [[release-notes-3.31.0]]
 ==== 3.31.0 2022/03/23
