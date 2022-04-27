@@ -4,7 +4,8 @@ const agent = require('../../../').start({
   serviceName: 'test-tedious',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  spanCompressionEnabled: false
 })
 
 const semver = require('semver')
