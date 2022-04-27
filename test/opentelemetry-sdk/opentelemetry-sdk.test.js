@@ -155,9 +155,11 @@ const cases = [
     //     `- transaction "GET unknown route"
     script: 'hit-transaction-max-spans.js',
     testOpts: {
-      // This test fails with node.js [10.0, 10.4) due to an async context
-      // issue. See https://github.com/nodejs/node/issues/20274
-      skip: semver.satisfies(process.version, '>=10.0.0 <10.4')
+      // - This fixture fails with node.js [10.0, 10.4) due to an async context
+      //   issue. See https://github.com/nodejs/node/issues/20274
+      // - This fixture hits a limitation/bug with asyncHooks=false. See XXX.
+      skip: (semver.satisfies(process.version, '>=10.0.0 <10.4') ||
+        process.env.ELASTIC_APM_ASYNC_HOOKS === 'false')
     },
     env: {
       ELASTIC_APM_TRANSACTION_MAX_SPANS: '3'
