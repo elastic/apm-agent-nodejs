@@ -39,7 +39,7 @@ Notes:
 * Add support for node v18. ({pull}2652[#2652])
 
 * Adds initial implementaion of
-  https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression]. To enable, set the `spanCompressionEnabled` configuration field to `true`.  ({issues}2100[#2100])
+  https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression]. To disable, set the `spanCompressionEnabled` configuration field to `false`.  ({issues}2100[#2100], {issues}2604[#2604])
 
 * Marks spans as "exit spans" across all instrumentations, preventing additional
   child spans from being added to the exit spans.  See issue for a full list of
@@ -47,6 +47,8 @@ Notes:
 
 * Allow a new span to be created/started even if its transaction has ended.
   This is expected to be a very rare use case. ({pull}2653[#2653])
+
+* The Trace Context headers are now propagated for http2 requests. ({pull}2656[#2656])
 
 [float]
 ===== Bug fixes
