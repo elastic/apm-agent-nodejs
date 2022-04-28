@@ -3,9 +3,13 @@
 // Exercise the full `interface Span`.
 
 const assert = require('assert')
+const performance = require('perf_hooks').performance
 
 const otel = require('@opentelemetry/api')
 const tracer = otel.trace.getTracer('test-interface-span')
+const semver = require('semver')
+
+const haveUsablePerformanceNow = semver.satisfies(process.version, '>=8.12.0')
 
 function parentIdFromSpan (span) {
   return (
@@ -74,6 +78,7 @@ sSetAttribute.setAttribute() // null key
 sSetAttribute.setAttribute(42) // non-string key
 sSetAttribute.end()
 sSetAttributes.end()
+// XXX after ended
 
 // Span#addEvent (currently not supported, so this should no-op)
 const sAddEvent = tracer.startSpan('sAddEvent')
@@ -83,27 +88,43 @@ assert.strictEqual(sAddEvent.addEvent('myEventName', { 'a.string': 'hi' }), sAdd
 assert.strictEqual(sAddEvent.addEvent('myEventName', Date.now()), sAddEvent)
 assert.strictEqual(sAddEvent.addEvent('myEventName', { 'a.string': 'hi' }, Date.now()), sAddEvent)
 sAddEvent.end()
+// XXX after ended
 
-//   /**
-//    * Sets a status to the span. If used, this will override the default Span
-//    * status. Default is {@link SpanStatusCode.UNSET}. SetStatus overrides the value
-//    * of previous calls to SetStatus on the Span.
-//    *
-//    * @param status the SpanStatus to set.
-//    */
-//   setStatus(status: SpanStatus): this;
+// Span#setStatus
+tracer.startSpan('sSetStatusDoNotSet').end()
+tracer.startSpan('sSetStatusUNSET').setStatus(otel.SpanStatusCode.UNSET).end()
+tracer.startSpan('sSetStatusOK').setStatus(otel.SpanStatusCode.OK).end()
+tracer.startSpan('sSetStatusERROR').setStatus(otel.SpanStatusCode.ERROR).end()
+const sSetStatusMulti = tracer.startSpan('sSetStatusMulti')
+assert.strictEqual(sSetStatusMulti.setStatus(otel.SpanStatusCode.ERROR), sSetStatusMulti, 'setStatus retval is the span')
+assert.strictEqual(sSetStatusMulti.setStatus(otel.SpanStatusCode.OK), sSetStatusMulti, 'setStatus retval is the span')
+sSetStatusMulti.end()
+sSetStatusMulti.setStatus(otel.SpanStatusCode.UNSET) // setStatus after end should not take
 
-//   /**
-//    * Updates the Span name.
-//    *
-//    * This will override the name provided via {@link Tracer.startSpan}.
-//    *
-//    * Upon this update, any sampling behavior based on Span name will depend on
-//    * the implementation.
-//    *
-//    * @param name the Span name.
-//    */
-//   updateName(name: string): this;
+// Span#updateName
+const sUpdateName = tracer.startSpan('one')
+sUpdateName.setAttribute('testId', 'sUpdateName') // so test code can find this span
+assert.strictEqual(sUpdateName.updateName('two'), sUpdateName, 'updateName retval is the span')
+sUpdateName.updateName('three')
+sUpdateName.end()
+sUpdateName.updateName('four') // updateName after end should *not* take
+
+// Span#end
+// Specify approximately "now" in each of the supported TimeInput formats.
+// OTel HrTime is `[<seconds since epoch>, <nanoseconds>]`.
+rv = tracer.startSpan('sEndTimeNotSpecified').end()
+assert.strictEqual(rv, undefined, 'Span .end() retval is undefined')
+tracer.startSpan('sEndTimeHrTime').end([Math.floor(Date.now() / 1e3), 123000])
+tracer.startSpan('sEndTimeEpochMs').end(Date.now())
+if (haveUsablePerformanceNow) {
+  tracer.startSpan('sEndTimePerformanceNow').end(performance.now())
+}
+tracer.startSpan('sEndTimeDate').end(new Date())
+// Specify past and future endTime. Make the duration one hour for testing.
+const t = Date.now()
+const HOUR = 1 * 60 * 60 * 1000
+tracer.startSpan('sEndOneHourAgo', { startTime: new Date(t - 2 * HOUR) }).end(new Date(t - HOUR))
+tracer.startSpan('sEndOneHourFromNow', { startTime: t }).end(new Date(t + HOUR))
 
 //   /**
 //    * Marks the end of Span execution.

@@ -18,6 +18,7 @@ const { execFile } = require('child_process')
 const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
+const { RESULT_SUCCESS, OUTCOME_UNKNOWN, OUTCOME_SUCCESS, RESULT_FAILURE, OUTCOME_FAILURE } = require('../../lib/constants')
 
 const { MockAPMServer } = require('../_mock_apm_server')
 const { findObjInArray } = require('../_utils')
@@ -234,11 +235,65 @@ const cases = [
 
       t.ok(findObjInArray(events, 'transaction.name', 'sAddEvent').transaction, 'sAddEvent')
 
-      // XXX
+      const sSetStatusDoNotSet = findObjInArray(events, 'transaction.name', 'sSetStatusDoNotSet').transaction
+      t.equal(sSetStatusDoNotSet.result, RESULT_SUCCESS, 'sSetStatusDoNotSet.result')
+      t.equal(sSetStatusDoNotSet.outcome, OUTCOME_UNKNOWN, 'sSetStatusDoNotSet.outcome')
+      const sSetStatusUNSET = findObjInArray(events, 'transaction.name', 'sSetStatusUNSET').transaction
+      t.equal(sSetStatusUNSET.result, RESULT_SUCCESS, 'sSetStatusUNSET.result')
+      t.equal(sSetStatusUNSET.outcome, OUTCOME_UNKNOWN, 'sSetStatusUNSET.outcome')
+      const sSetStatusOK = findObjInArray(events, 'transaction.name', 'sSetStatusOK').transaction
+      t.equal(sSetStatusOK.result, RESULT_SUCCESS, 'sSetStatusOK.result')
+      t.equal(sSetStatusOK.outcome, OUTCOME_SUCCESS, 'sSetStatusOK.outcome')
+      const sSetStatusERROR = findObjInArray(events, 'transaction.name', 'sSetStatusERROR').transaction
+      t.equal(sSetStatusERROR.result, RESULT_FAILURE, 'sSetStatusERROR.result')
+      t.equal(sSetStatusERROR.outcome, OUTCOME_FAILURE, 'sSetStatusERROR.outcome')
+      const sSetStatusMulti = findObjInArray(events, 'transaction.name', 'sSetStatusMulti').transaction
+      t.equal(sSetStatusMulti.result, RESULT_SUCCESS, 'sSetStatusMulti.result')
+      t.equal(sSetStatusMulti.outcome, OUTCOME_SUCCESS, 'sSetStatusMulti.outcome')
+
+      t.deepEqual(findObjInArray(events, 'transaction.otel.attributes.testId', 'sUpdateName').transaction.name,
+        'three', 'sUpdateName')
+
+      // Span#end
+      // XXX cope with negative durations! Because these cannot be correct:
+      // trace d9b90c
+      // `- transaction d6f7f7 "sEndTimeNotSpecified" (0.185ms, outcome=unknown)
+      // trace 933a98
+      // `- transaction 02ff15 "sEndTimeHrTime" (-502.878ms, outcome=unknown)
+      // trace 6d0fa4
+      // `- transaction 2fafb6 "sEndTimeEpochMs" (-0.001ms, outcome=unknown)
+      // trace c5b58d
+      // `- transaction 96d7b2 "sEndTimePerformanceNow" (0.96825ms, outcome=unknown)
+      // trace 852f85
+      // `- transaction a6c9c8 "sEndOneHourFromNow" (3600000ms, outcome=unknown)
+      // trace 653c48
+      // `- transaction ce23dc "sEndTimeDate" (-0.001ms, outcome=unknown)
+      function transEndTimeIsApprox (name, t = Date.now()) {
+        const trans = findObjInArray(events, 'transaction.name', name).transaction
+        const endTimeMs = trans.timestamp / 1000 + trans.duration
+        const msFromT = Math.abs(t - endTimeMs)
+        return msFromT < 30 * 1000 // within 30s
+      }
+      t.ok(transEndTimeIsApprox('sEndTimeNotSpecified'), 'sEndTimeNotSpecified')
+      t.ok(transEndTimeIsApprox('sEndTimeHrTime'), 'sEndTimeHrTime')
+      t.ok(transEndTimeIsApprox('sEndTimeEpochMs'), 'sEndTimeEpochMs')
+      if (haveUsablePerformanceNow) {
+        t.ok(transEndTimeIsApprox('sEndTimePerformanceNow'), 'sEndTimePerformanceNow')
+      }
+      t.ok(transEndTimeIsApprox('sEndTimeDate'), 'sEndTimeDate')
+      const HOUR = 1 * 60 * 60 * 1000 // an hour in milliseconds
+      t.ok(transEndTimeIsApprox('sEndOneHourAgo', Date.now() - HOUR), 'sEndOneHourAgo end time is 1h ago')
+      const sEndOneHourAgo = findObjInArray(events, 'transaction.name', 'sEndOneHourAgo').transaction
+      t.equal(sEndOneHourAgo.duration, HOUR, `sEndOneHourAgo duration is 1h: ${sEndOneHourAgo.duration}`)
+      t.ok(transEndTimeIsApprox('sEndOneHourFromNow', Date.now() + HOUR), 'sEndOneHourFromNow end time is 1h from now')
+      const sEndOneHourFromNow = findObjInArray(events, 'transaction.name', 'sEndOneHourFromNow').transaction
+      t.equal(sEndOneHourFromNow.duration, HOUR, `sEndOneHourFromNow duration is 1h: ${sEndOneHourFromNow.duration}`)
     }
   },
+
   // XXX attr mapping in separate test file
   //    https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#attributes-mapping
+
   {
     script: 'interface-tracer.js',
     check: (t, events) => {
@@ -310,7 +365,7 @@ const cases = [
 ]
 
 cases.forEach(c => {
-  // if (c.script.indexOf('interface') === -1) return // XXX filter
+  if (c.script.indexOf('interface') === -1) return // XXX filter
 
   tape.test(`opentelemetry-sdk/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()
