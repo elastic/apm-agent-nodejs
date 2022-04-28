@@ -255,19 +255,6 @@ const cases = [
         'three', 'sUpdateName')
 
       // Span#end
-      // XXX cope with negative durations! Because these cannot be correct:
-      // trace d9b90c
-      // `- transaction d6f7f7 "sEndTimeNotSpecified" (0.185ms, outcome=unknown)
-      // trace 933a98
-      // `- transaction 02ff15 "sEndTimeHrTime" (-502.878ms, outcome=unknown)
-      // trace 6d0fa4
-      // `- transaction 2fafb6 "sEndTimeEpochMs" (-0.001ms, outcome=unknown)
-      // trace c5b58d
-      // `- transaction 96d7b2 "sEndTimePerformanceNow" (0.96825ms, outcome=unknown)
-      // trace 852f85
-      // `- transaction a6c9c8 "sEndOneHourFromNow" (3600000ms, outcome=unknown)
-      // trace 653c48
-      // `- transaction ce23dc "sEndTimeDate" (-0.001ms, outcome=unknown)
       function transEndTimeIsApprox (name, t = Date.now()) {
         const trans = findObjInArray(events, 'transaction.name', name).transaction
         const endTimeMs = trans.timestamp / 1000 + trans.duration

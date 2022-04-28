@@ -66,7 +66,8 @@ tracer.startSpan('sLinksWithAttrs', {
 // SpanOptions.startTime
 // Specify approximately "now" in each of the supported TimeInput formats.
 // OTel HrTime is `[<seconds since epoch>, <nanoseconds>]`.
-tracer.startSpan('sStartTimeHrTime', { startTime: [Math.floor(Date.now() / 1e3), 123000] }).end()
+const now = Date.now()
+tracer.startSpan('sStartTimeHrTime', { startTime: [Math.floor(now / 1e3), (now % 1e3) * 1e6] }).end()
 tracer.startSpan('sStartTimeEpochMs', { startTime: Date.now() }).end()
 if (haveUsablePerformanceNow) {
   tracer.startSpan('sStartTimePerformanceNow', { startTime: performance.now() }).end()

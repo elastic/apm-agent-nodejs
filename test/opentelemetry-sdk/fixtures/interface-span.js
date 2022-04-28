@@ -114,7 +114,8 @@ sUpdateName.updateName('four') // updateName after end should *not* take
 // OTel HrTime is `[<seconds since epoch>, <nanoseconds>]`.
 rv = tracer.startSpan('sEndTimeNotSpecified').end()
 assert.strictEqual(rv, undefined, 'Span .end() retval is undefined')
-tracer.startSpan('sEndTimeHrTime').end([Math.floor(Date.now() / 1e3), 123000])
+const now = Date.now()
+tracer.startSpan('sEndTimeHrTime').end([Math.floor(now / 1e3), (now % 1e3) * 1e6])
 tracer.startSpan('sEndTimeEpochMs').end(Date.now())
 if (haveUsablePerformanceNow) {
   tracer.startSpan('sEndTimePerformanceNow').end(performance.now())
@@ -125,20 +126,6 @@ const t = Date.now()
 const HOUR = 1 * 60 * 60 * 1000
 tracer.startSpan('sEndOneHourAgo', { startTime: new Date(t - 2 * HOUR) }).end(new Date(t - HOUR))
 tracer.startSpan('sEndOneHourFromNow', { startTime: t }).end(new Date(t + HOUR))
-
-//   /**
-//    * Marks the end of Span execution.
-//    *
-//    * Call to End of a Span MUST not have any effects on child spans. Those may
-//    * still be running and can be ended later.
-//    *
-//    * Do not return `this`. The Span generally should not be used after it
-//    * is ended so chaining is not desired in this context.
-//    *
-//    * @param [endTime] the time to set as Span's end time. If not provided,
-//    *     use the current time as the span's end time.
-//    */
-//   end(endTime?: TimeInput): void;
 
 //   /**
 //    * Returns the flag whether this span will be recorded.
