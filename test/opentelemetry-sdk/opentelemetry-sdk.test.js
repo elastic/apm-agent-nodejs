@@ -3,7 +3,7 @@
 // Test the OpenTelemetry SDK (aka OpenTelemetry API Bridge) functionality
 // of the APM agent.
 //
-// Most of the tests below execute a script from "fixtures/" something like:
+// Thes tests below execute a script from "fixtures/" something like:
 //
 //    node -r ../../opentelemetry-sdk.js fixtures/start-span.js
 //
@@ -257,7 +257,7 @@ const cases = [
       const sSetStatusChildERROR = findObjInArray(events, 'span.name', 'sSetStatusChildERROR').span
       t.equal(sSetStatusChildERROR.outcome, OUTCOME_FAILURE, 'sSetStatusChildERROR.outcome')
 
-      t.deepEqual(findObjInArray(events, 'transaction.otel.attributes.testId', 'sUpdateName').transaction.name,
+      t.strictEqual(findObjInArray(events, 'transaction.otel.attributes.testId', 'sUpdateName').transaction.name,
         'three', 'sUpdateName')
 
       // Span#end
@@ -285,6 +285,37 @@ const cases = [
       t.ok(spanEndTimeIsApprox('sEndOneHourFromNow', Date.now() + HOUR), 'sEndOneHourFromNow end time is 1h from now')
       const sEndOneHourFromNow = findObjInArray(events, 'transaction.name', 'sEndOneHourFromNow').transaction
       t.equal(sEndOneHourFromNow.duration, HOUR, `sEndOneHourFromNow duration is 1h: ${sEndOneHourFromNow.duration}`)
+
+      // Span#isRecording()
+      t.ok(findObjInArray(events, 'transaction.name', 'sIsRecordingSampled'), 'sIsRecordingSampled')
+
+      // Span#recordException()
+      function errorTimestampIsApprox (error, t = Date.now()) {
+        const msFromT = Math.abs(t - error.timestamp / 1e3)
+        return msFromT < 30 * 1000 // within 30s
+      }
+      const now = Date.now()
+      const sRecordException = findObjInArray(events, 'transaction.name', 'sRecordException').transaction
+      // - new Error('an Error')
+      const eAnError = findObjInArray(events, 'error.exception.message', 'an Error').error
+      t.strictEqual(eAnError.parent_id, sRecordException.id, 'eAnError.parent_id')
+      t.ok(errorTimestampIsApprox(eAnError, now), 'eAnError.timestamp')
+      // - fsErr
+      const eFsErr = findObjInArray(events, 'error.exception.code', 'ENOENT').error
+      t.strictEqual(eFsErr.parent_id, sRecordException.id, 'eFsErr.parent_id')
+      t.ok(errorTimestampIsApprox(eFsErr, now), 'eFsErr.timestamp')
+      // - 'a string'
+      const eAString = findObjInArray(events, 'error.log.message', 'a string').error
+      t.strictEqual(eAString.parent_id, sRecordException.id, 'eAString.parent_id')
+      t.ok(errorTimestampIsApprox(eAString, now), 'eAString.timestamp')
+      // - new Error('one hour ago')
+      const eOneHourAgo = findObjInArray(events, 'error.exception.message', 'one hour ago').error
+      t.strictEqual(eOneHourAgo.parent_id, sRecordException.id, 'eOneHourAgo.parent_id')
+      t.ok(errorTimestampIsApprox(eOneHourAgo, now - HOUR), 'eOneHourAgo.timestamp')
+      // - new Error('after span end works')
+      const aAfterEnd = findObjInArray(events, 'error.exception.message', 'after span end works').error
+      t.strictEqual(aAfterEnd.parent_id, sRecordException.id, 'aAfterEnd.parent_id')
+      t.ok(errorTimestampIsApprox(aAfterEnd, now), 'aAfterEnd.timestamp')
     }
   },
 

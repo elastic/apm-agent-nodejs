@@ -7,6 +7,7 @@
 //  node -r ../../../opentelemetry-sdk.js interface-span.js       # with APM agent
 
 const assert = require('assert')
+const fs = require('fs')
 const performance = require('perf_hooks').performance
 
 const otel = require('@opentelemetry/api')
@@ -160,6 +161,29 @@ assert.strictEqual(sIsRecordingNotSampled.spanContext().traceFlags & otel.TraceF
 assert.strictEqual(sIsRecordingNotSampled.isRecording(), false, 'sIsRecordingNotSampled isRecording is false')
 sIsRecordingNotSampled.end()
 assert.strictEqual(sIsRecordingNotSampled.isRecording(), false, 'sIsRecordingNotSampled isRecording is false after end')
+
+// Span#recordException
+const sRecordException = tracer.startSpan('sRecordException')
+tracer.startActiveSpan('sRecordExceptionCurrTrans', sRecordExceptionCurrTrans => {
+  tracer.startActiveSpan('sRecordExceptionCurrSpan', sRecordExceptionCurrSpan => {
+    // The following errors should be children of `sRecordException` even
+    // though it is not the current span.
+    rv = sRecordException.recordException(new Error('an Error'))
+    assert.strictEqual(rv, undefined, 'recordException retval is undefined')
+    try {
+      fs.readFileSync('no-such-file')
+    } catch (fsErr) {
+      sRecordException.recordException(fsErr) // expect to get error.exception.code === 'ENOENT'
+    }
+    sRecordException.recordException('a string')
+    sRecordException.recordException(new Error('one hour ago'), new Date(Date.now() - HOUR))
+    sRecordException.end()
+    sRecordException.recordException(new Error('after span end works'))
+
+    sRecordExceptionCurrSpan.end()
+    sRecordExceptionCurrTrans.end()
+  })
+})
 
 //   /**
 //    * Sets exception as a span event
