@@ -35,7 +35,8 @@ const cases = [
       t.ok(events[0].metadata, 'APM server got event metadata object')
       const mySpan = findObjInArray(events, 'transaction.name', 'mySpan').transaction
       t.ok(mySpan, 'transaction.name')
-      // XXX what else to assert here? outcome? type? OTel attributes?
+      t.strictEqual(mySpan.outcome, OUTCOME_UNKNOWN, 'transaction.outcome')
+      t.strictEqual(mySpan.otel.span_kind, 'INTERNAL', 'transaction.otel.span_kind')
     }
   },
 
@@ -361,7 +362,7 @@ const cases = [
 ]
 
 cases.forEach(c => {
-  if (c.script.indexOf('interface') === -1) return // XXX filter
+  // if (c.script.indexOf('interface') === -1) return // XXX filter
 
   tape.test(`opentelemetry-sdk/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()

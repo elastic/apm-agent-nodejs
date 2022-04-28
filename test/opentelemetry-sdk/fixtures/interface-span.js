@@ -140,14 +140,26 @@ tracer.startSpan('sEndOneHourAgo', { startTime: new Date(t - 2 * HOUR) }).end(ne
 tracer.startSpan('sEndOneHourFromNow', { startTime: t }).end(new Date(t + HOUR))
 
 // Span#isRecording
-
-//   /**
-//    * Returns the flag whether this span will be recorded.
-//    *
-//    * @returns true if this Span is active and recording information like events
-//    *     with the `AddEvent` operation and attributes using `setAttributes`.
-//    */
-//   isRecording(): boolean;
+const sIsRecordingSampled = tracer.startSpan('sIsRecordingSampled')
+assert.ok(sIsRecordingSampled.spanContext().traceFlags & otel.TraceFlags.SAMPLED, 'sIsRecordingSampled is sampled')
+assert.ok(sIsRecordingSampled.isRecording(), 'sIsRecordingSampled isRecording')
+sIsRecordingSampled.end()
+assert.ok(sIsRecordingSampled.isRecording() === false, 'sIsRecordingSampled isRecording is false after end')
+// - Create an OTelSpan holding a Transaction that is not sampled, by creating
+//   a transaction in the context of a traceparent with the sampled flag false.
+const ctxUnsampled = otel.trace.setSpan(
+  otel.context.active(),
+  otel.trace.wrapSpanContext({
+    traceId: 'd4cda95b652f4a1592b449dd92ffda3b',
+    spanId: '6e0c63ffe4e34c42',
+    traceFlags: otel.TraceFlags.NONE
+  })
+)
+const sIsRecordingNotSampled = tracer.startSpan('sIsRecordingNotSampled', {}, ctxUnsampled)
+assert.strictEqual(sIsRecordingNotSampled.spanContext().traceFlags & otel.TraceFlags.SAMPLED, 0, 'sIsRecordingNotSampled is not sampled')
+assert.strictEqual(sIsRecordingNotSampled.isRecording(), false, 'sIsRecordingNotSampled isRecording is false')
+sIsRecordingNotSampled.end()
+assert.strictEqual(sIsRecordingNotSampled.isRecording(), false, 'sIsRecordingNotSampled isRecording is false after end')
 
 //   /**
 //    * Sets exception as a span event
