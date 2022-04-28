@@ -213,6 +213,7 @@ const cases = [
   {
     script: 'interface-span.js',
     check: (t, events) => {
+      // Span#setAttribute, Span#setAttributes
       const expectedAttributes = {
         'a.string': 'hi',
         'a.number': 42,
@@ -233,8 +234,10 @@ const cases = [
       t.deepEqual(findObjInArray(events, 'transaction.name', 'sSetAttributes').transaction.otel.attributes,
         expectedAttributes, 'sSetAttributes')
 
+      // Span#addEvent
       t.ok(findObjInArray(events, 'transaction.name', 'sAddEvent').transaction, 'sAddEvent')
 
+      // Span#setStatus
       const sSetStatusDoNotSet = findObjInArray(events, 'transaction.name', 'sSetStatusDoNotSet').transaction
       t.equal(sSetStatusDoNotSet.result, RESULT_SUCCESS, 'sSetStatusDoNotSet.result')
       t.equal(sSetStatusDoNotSet.outcome, OUTCOME_UNKNOWN, 'sSetStatusDoNotSet.outcome')
@@ -250,29 +253,35 @@ const cases = [
       const sSetStatusMulti = findObjInArray(events, 'transaction.name', 'sSetStatusMulti').transaction
       t.equal(sSetStatusMulti.result, RESULT_SUCCESS, 'sSetStatusMulti.result')
       t.equal(sSetStatusMulti.outcome, OUTCOME_SUCCESS, 'sSetStatusMulti.outcome')
+      const sSetStatusChildERROR = findObjInArray(events, 'span.name', 'sSetStatusChildERROR').span
+      t.equal(sSetStatusChildERROR.outcome, OUTCOME_FAILURE, 'sSetStatusChildERROR.outcome')
 
       t.deepEqual(findObjInArray(events, 'transaction.otel.attributes.testId', 'sUpdateName').transaction.name,
         'three', 'sUpdateName')
 
       // Span#end
-      function transEndTimeIsApprox (name, t = Date.now()) {
-        const trans = findObjInArray(events, 'transaction.name', name).transaction
-        const endTimeMs = trans.timestamp / 1000 + trans.duration
+      function spanEndTimeIsApprox (transOrSpanName, t = Date.now()) {
+        const foundTrans = findObjInArray(events, 'transaction.name', transOrSpanName)
+        const genericSpan = (foundTrans
+          ? foundTrans.transaction
+          : findObjInArray(events, 'span.name', transOrSpanName).span)
+        const endTimeMs = genericSpan.timestamp / 1000 + genericSpan.duration
         const msFromT = Math.abs(t - endTimeMs)
         return msFromT < 30 * 1000 // within 30s
       }
-      t.ok(transEndTimeIsApprox('sEndTimeNotSpecified'), 'sEndTimeNotSpecified')
-      t.ok(transEndTimeIsApprox('sEndTimeHrTime'), 'sEndTimeHrTime')
-      t.ok(transEndTimeIsApprox('sEndTimeEpochMs'), 'sEndTimeEpochMs')
+      t.ok(spanEndTimeIsApprox('sEndTimeNotSpecified'), 'sEndTimeNotSpecified')
+      t.ok(spanEndTimeIsApprox('sEndTimeHrTime'), 'sEndTimeHrTime')
+      t.ok(spanEndTimeIsApprox('sEndTimeEpochMs'), 'sEndTimeEpochMs')
       if (haveUsablePerformanceNow) {
-        t.ok(transEndTimeIsApprox('sEndTimePerformanceNow'), 'sEndTimePerformanceNow')
+        t.ok(spanEndTimeIsApprox('sEndTimePerformanceNow'), 'sEndTimePerformanceNow')
       }
-      t.ok(transEndTimeIsApprox('sEndTimeDate'), 'sEndTimeDate')
+      t.ok(spanEndTimeIsApprox('sEndTimeDate'), 'sEndTimeDate')
+      t.ok(spanEndTimeIsApprox('sEndChildTimeDate'), 'sEndChildTimeDate')
       const HOUR = 1 * 60 * 60 * 1000 // an hour in milliseconds
-      t.ok(transEndTimeIsApprox('sEndOneHourAgo', Date.now() - HOUR), 'sEndOneHourAgo end time is 1h ago')
+      t.ok(spanEndTimeIsApprox('sEndOneHourAgo', Date.now() - HOUR), 'sEndOneHourAgo end time is 1h ago')
       const sEndOneHourAgo = findObjInArray(events, 'transaction.name', 'sEndOneHourAgo').transaction
       t.equal(sEndOneHourAgo.duration, HOUR, `sEndOneHourAgo duration is 1h: ${sEndOneHourAgo.duration}`)
-      t.ok(transEndTimeIsApprox('sEndOneHourFromNow', Date.now() + HOUR), 'sEndOneHourFromNow end time is 1h from now')
+      t.ok(spanEndTimeIsApprox('sEndOneHourFromNow', Date.now() + HOUR), 'sEndOneHourFromNow end time is 1h from now')
       const sEndOneHourFromNow = findObjInArray(events, 'transaction.name', 'sEndOneHourFromNow').transaction
       t.equal(sEndOneHourFromNow.duration, HOUR, `sEndOneHourFromNow duration is 1h: ${sEndOneHourFromNow.duration}`)
     }

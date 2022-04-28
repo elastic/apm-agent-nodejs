@@ -1,6 +1,10 @@
 'use strict'
 
 // Exercise the full `interface Span`.
+//
+// Usage:
+//  node -r ../../../examples/otel/otel-sdk.js interface-span.js  # with OTel SDK
+//  node -r ../../../opentelemetry-sdk.js interface-span.js       # with APM agent
 
 const assert = require('assert')
 const performance = require('perf_hooks').performance
@@ -23,6 +27,12 @@ function idFromSpan (span) {
 }
 
 let rv
+
+// A parent OTel Span (i.e. a Transaction) to act as a parent for child spans
+// so that we test the OTel Span API on both Elastic `Transaction`s and `Span`s.
+const sParent = tracer.startSpan('sParent')
+const ctxParent = otel.trace.setSpan(otel.context.active(), sParent)
+sParent.end()
 
 // Span#spanContext()
 const sSpanContext = tracer.startSpan('sSpanContext')
@@ -78,7 +88,8 @@ sSetAttribute.setAttribute() // null key
 sSetAttribute.setAttribute(42) // non-string key
 sSetAttribute.end()
 sSetAttributes.end()
-// XXX after ended
+sSetAttribute.setAttribute('a.string', 'after-end') // setAttribute after end should not take
+sSetAttributes.setAttributes({ 'a.string': 'after-end' }) // setAttributes after end should not take
 
 // Span#addEvent (currently not supported, so this should no-op)
 const sAddEvent = tracer.startSpan('sAddEvent')
@@ -88,7 +99,6 @@ assert.strictEqual(sAddEvent.addEvent('myEventName', { 'a.string': 'hi' }), sAdd
 assert.strictEqual(sAddEvent.addEvent('myEventName', Date.now()), sAddEvent)
 assert.strictEqual(sAddEvent.addEvent('myEventName', { 'a.string': 'hi' }, Date.now()), sAddEvent)
 sAddEvent.end()
-// XXX after ended
 
 // Span#setStatus
 tracer.startSpan('sSetStatusDoNotSet').end()
@@ -100,6 +110,7 @@ assert.strictEqual(sSetStatusMulti.setStatus(otel.SpanStatusCode.ERROR), sSetSta
 assert.strictEqual(sSetStatusMulti.setStatus(otel.SpanStatusCode.OK), sSetStatusMulti, 'setStatus retval is the span')
 sSetStatusMulti.end()
 sSetStatusMulti.setStatus(otel.SpanStatusCode.UNSET) // setStatus after end should not take
+tracer.startSpan('sSetStatusChildERROR', {}, ctxParent).setStatus(otel.SpanStatusCode.ERROR).end()
 
 // Span#updateName
 const sUpdateName = tracer.startSpan('one')
@@ -121,11 +132,14 @@ if (haveUsablePerformanceNow) {
   tracer.startSpan('sEndTimePerformanceNow').end(performance.now())
 }
 tracer.startSpan('sEndTimeDate').end(new Date())
+tracer.startSpan('sEndChildTimeDate', {}, ctxParent).end(new Date())
 // Specify past and future endTime. Make the duration one hour for testing.
 const t = Date.now()
 const HOUR = 1 * 60 * 60 * 1000
 tracer.startSpan('sEndOneHourAgo', { startTime: new Date(t - 2 * HOUR) }).end(new Date(t - HOUR))
 tracer.startSpan('sEndOneHourFromNow', { startTime: t }).end(new Date(t + HOUR))
+
+// Span#isRecording
 
 //   /**
 //    * Returns the flag whether this span will be recorded.
