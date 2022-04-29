@@ -41,7 +41,10 @@ const spanContext = sSpanContext.spanContext()
 sSpanContext.end()
 assert.ok(otel.trace.isSpanContextValid(spanContext), 'spanContext is valid')
 assert.strictEqual(spanContext.traceFlags, otel.TraceFlags.SAMPLED, 'spanContext.traceFlags')
-assert.strictEqual(spanContext.traceState, undefined, 'no spanContext.traceState')
+assert.ok(
+  spanContext.traceState === undefined || /* OTel SDK */
+    spanContext.traceState.serialize() === 'es=s:1', /* Elastic APM */
+  'spanContext.traceState')
 
 const ctx = otel.trace.setSpanContext(otel.context.active(), spanContext)
 const sSpanContextChild = tracer.startSpan('sSpanContextChild', {}, ctx)
