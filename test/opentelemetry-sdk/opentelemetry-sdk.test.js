@@ -170,7 +170,14 @@ const cases = [
       t.equal(events.length, 10, 'exactly 10 events')
       t.ok(events[0].metadata, 'APM server got event metadata object')
 
-      // XXX test that tracestate header is also getting through.
+      function assertIncomingHttpTrans (trans, parentId) {
+        t.equal(trans.name, 'GET unknown route', 'incoming http transaction.name')
+        t.equal(trans.parent_id, parentId, 'incoming http transaction.parent_id')
+        t.ok(trans.context.request.headers.traceparent, 'incoming http "traceparent" header')
+        t.ok(trans.context.request.headers['elastic-apm-traceparent'], 'incoming http "elastic-apm-traceparent" header')
+        t.ok((trans.context.request.headers.tracestate || '').indexOf('es=s:1') !== -1,
+          'incoming http "tracestate" header has expected "es=" section')
+      }
 
       // All the transactions and spans, in order of creation.
       const tas = events.slice(1)
@@ -192,21 +199,18 @@ const cases = [
       t.equal(tas[2].span.subtype, 'http', 'http span.subtype')
       t.equal(tas[2].span.parent_id, s0.id, 'http span.parent_id')
       //         `- transaction "GET unknown route"
-      t.equal(tas[3].transaction.name, 'GET unknown route', 'incoming http transaction.name')
-      t.equal(tas[3].transaction.parent_id, tas[2].span.id, 'incoming http transaction.parent_id')
+      assertIncomingHttpTrans(tas[3].transaction, tas[2].span.id)
       //     `- span "s1"                           // This is the 3rd (max) span.
       const s1 = tas[4].span
       t.equal(s1.name, 's1', 's1')
       t.equal(s1.parent_id, myTrans.id, 's1.parent_id')
       //       `- transaction "GET unknown route"
-      t.equal(tas[5].transaction.name, 'GET unknown route', 'incoming http transaction.name')
-      t.equal(tas[5].transaction.parent_id, tas[4].span.id, 'incoming http transaction.parent_id')
+      assertIncomingHttpTrans(tas[5].transaction, tas[4].span.id)
       //     `- transaction "GET unknown route"
       //     `- transaction "GET unknown route"
       //     `- transaction "GET unknown route"
       for (let i = 6; i < 9; i++) {
-        t.equal(tas[i].transaction.name, 'GET unknown route', 'incoming http transaction.name')
-        t.equal(tas[i].transaction.parent_id, myTrans.id, 'incoming http transaction.parent_id')
+        assertIncomingHttpTrans(tas[i].transaction, myTrans.id)
       }
     }
   },
@@ -393,7 +397,7 @@ const cases = [
 ]
 
 cases.forEach(c => {
-  // if (c.script.indexOf('interface') === -1) return // XXX filter
+  // if (c.script.indexOf('hit-') === -1) return // XXX filter
 
   tape.test(`opentelemetry-sdk/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()

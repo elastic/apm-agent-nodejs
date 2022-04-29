@@ -116,8 +116,15 @@ by TypeScript code in `@opentelemetry/context-async-hooks`.
 - **original file:** https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-core/src/common/time.ts
 - **license:** Apache License 2.0, https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-core/LICENSE
 
-Parts of "lib/opentelemetry-sdk/otelutils.js" have been adapted from TypeScript
+"lib/opentelemetry-sdk/opentelemetry-core-mini/" includes files adapted from
 code in `@opentelemetry/core`.
+
+- **path:** [lib/opentelemetry-sdk/opentelemetry-core-mini/](lib/opentelemetry-sdk/opentelemetry-core-mini/)
+- **author:** OpenTelemetry Authors
+- **project url:** https://github.com/open-telemetry/opentelemetry-js
+- **original file:** https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-core/src/
+- **license:** Apache License 2.0, https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-core/LICENSE
+
 
 ## load-source-map
 
