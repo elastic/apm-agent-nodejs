@@ -28,6 +28,25 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Add a `parent` option to `agent.captureError(err[, options][, cb])` to allow
+  passing in a Transaction or Span to use as the parent for the error. Before
+  this change the *current* span or transaction, if any, was always used.
++
+This option is not documented in the user docs, nor added to the TypeScript
+types, because it is only expected to be useful for coming OTel Bridge work.
+
+[float]
+===== Bug fixes
+
+
 [[release-notes-3.32.0]]
 ==== 3.32.0 2022/04/27
 
