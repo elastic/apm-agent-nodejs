@@ -36,6 +36,8 @@ Notes:
 [float]
 ===== Features
 
+- Pulled `traceparent` NPM module into local class file.
+
 - Add a `parent` option to `agent.captureError(err[, options][, cb])` to allow
   passing in a Transaction or Span to use as the parent for the error. Before
   this change the *current* span or transaction, if any, was always used.
