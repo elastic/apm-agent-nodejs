@@ -444,6 +444,7 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
   let expectedUrl
   let expectedReqHeaders
   let expectedResHeaders
+
   switch (httpVersion) {
     case '1.1':
       expectedUrl = {
@@ -486,6 +487,12 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
         ':status': 200
       }
       break
+  }
+
+  if (trans.context.request.headers.traceparent) {
+    expectedReqHeaders.traceparent = trans.context.request.headers.traceparent
+    expectedReqHeaders.tracestate = trans.context.request.headers.tracestate
+    expectedReqHeaders['elastic-apm-traceparent'] = trans.context.request.headers['elastic-apm-traceparent']
   }
 
   // What is "expected" for transaction.context.request.socket.remote_address

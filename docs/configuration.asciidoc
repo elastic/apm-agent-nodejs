@@ -1185,10 +1185,10 @@ require('elastic-apm-node').start({
 [[span-compression-enabled]]
 ==== `spanCompressionEnabled`
 * *Type:* Boolean
-* *Default:* `false`
+* *Default:* `true`
 * *Env:* `ELASTIC_APM_SPAN_COMPRESSION_ENABLED`
 
-Setting this option to true will enable span compression feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information such as DB statements of all the compressed spans will not be collected.
+Setting this option to false will disable the span compression feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information, such as DB statements of all the compressed spans, will not be collected.
 
 Example usage:
 

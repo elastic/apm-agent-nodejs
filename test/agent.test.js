@@ -1721,6 +1721,7 @@ test('#captureError()', function (t) {
     agent.captureError(new Error('no parent specified'))
     agent.captureError(new Error('t0 parent'), { parent: t0 })
     agent.captureError(new Error('s1 parent'), { parent: s1 })
+    agent.captureError(new Error('null parent'), { parent: null }) // to explicitly say there is no parent
     s2.end()
     s1.end()
     t0.end()
@@ -1732,6 +1733,8 @@ test('#captureError()', function (t) {
       t.strictEqual(errT0Parent.parent_id, t0.id, 'errT0Parent parent_id')
       const errS1Parent = findObjInArray(apmServer.events, 'error.exception.message', 's1 parent').error
       t.strictEqual(errS1Parent.parent_id, s1.id, 'errS1Parent parent_id')
+      const errNullParent = findObjInArray(apmServer.events, 'error.exception.message', 'null parent').error
+      t.strictEqual(errNullParent.parent_id, undefined, 'errNullParent parent_id')
 
       apmServer.clear()
       agent.destroy()
