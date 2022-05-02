@@ -37,7 +37,7 @@ const es = require(esClientPkgName)
 
 const { Readable } = require('stream')
 const test = require('tape')
-const TraceParent = require('traceparent')
+const { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 const findObjInArray = require('../../../_utils').findObjInArray
 const mockClient = require('../../../_mock_http_client')
