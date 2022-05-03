@@ -46,6 +46,13 @@ types, because it is only expected to be useful for coming OTel Bridge work.
 [float]
 ===== Bug fixes
 
+- Fix a possible crash in the instrumentation of an incoming HTTP/2 request: if
+  the underlying Http2Session was destroyed before the APM transaction was
+  ended (on Http2Stream end). This resulted in the instrumentation using the
+  [`stream.session.socket`](https://nodejs.org/api/http2.html#http2sessionsocket)
+  proxy, which can throw `ERR_HTTP2_SOCKET_UNBOUND` after the session is
+  destroyed. ({issues}2670[#2670])
+
 
 [[release-notes-3.32.0]]
 ==== 3.32.0 2022/04/27
