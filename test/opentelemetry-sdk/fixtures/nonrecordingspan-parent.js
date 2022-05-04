@@ -13,8 +13,9 @@
 
 const assert = require('assert')
 const otel = require('@opentelemetry/api')
-const tracer = otel.trace.getTracer('test-nonrecordingspan-parent')
 const { TraceState } = require('../../../lib/opentelemetry-sdk/opentelemetry-core-mini/trace/TraceState')
+
+const tracer = otel.trace.getTracer('test-nonrecordingspan-parent')
 
 // This creates a span `s1` that is a `NonRecordingSpan` -- an internal class
 // in `@opentelemetry/api`. Notably, it isn't an `OTelSpan` instance created

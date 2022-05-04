@@ -37,6 +37,24 @@ const cases = [
       t.ok(mySpan, 'transaction.name')
       t.strictEqual(mySpan.outcome, OUTCOME_UNKNOWN, 'transaction.outcome')
       t.strictEqual(mySpan.otel.span_kind, 'INTERNAL', 'transaction.otel.span_kind')
+      t.strictEqual(mySpan.parent_id, undefined, 'transaction.parent_id')
+    }
+  },
+
+  {
+    // Expect:
+    //   transaction "s1" (outcome=unknown)
+    //   `- span "s2" (outcome=unknown)
+    script: 'start-active-span.js',
+    check: (t, events) => {
+      t.equal(events.length, 3, 'exactly 3 events')
+      const s1 = findObjInArray(events, 'transaction.name', 's1').transaction
+      t.ok(s1, 'transaction.name')
+      t.strictEqual(s1.outcome, OUTCOME_UNKNOWN, 'transaction.outcome')
+      const s2 = findObjInArray(events, 'span.name', 's2').span
+      t.ok(s2, 'span.name')
+      t.strictEqual(s2.outcome, OUTCOME_UNKNOWN, 'span.outcome')
+      t.strictEqual(s2.parent_id, s1.id, 'span.parent_id')
     }
   },
 
@@ -323,9 +341,6 @@ const cases = [
     }
   },
 
-  // XXX attr mapping in separate test file
-  //    https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#attributes-mapping
-
   {
     script: 'interface-tracer.js',
     check: (t, events) => {
@@ -397,7 +412,7 @@ const cases = [
 ]
 
 cases.forEach(c => {
-  // if (c.script.indexOf('hit-') === -1) return // XXX filter
+  // if (c.script.indexOf('otel-bridge-') === -1) return // XXX filter
 
   tape.test(`opentelemetry-sdk/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()

@@ -12,6 +12,7 @@
 module.exports = require('./').start({
   opentelemetrySdk: true,
 
+  // XXX If/when I removed these, do test break or get noisy?
   // XXX During dev of the OTel Bridge, turn off some agent bells & whistles.
   centralConfig: false,
   cloudProvider: 'none',
