@@ -36,6 +36,10 @@ Notes:
 [float]
 ===== Features
 
+- Pulled the `traceparent` NPM module into a local module and replaced the
+  `random-poly-fill` module with the built in `require('crypto').randomFillSync`
+  function call ({pull}2669[#2669])
+
 - Add a `parent` option to `agent.captureError(err[, options][, cb])` to allow
   passing in a Transaction or Span to use as the parent for the error. Before
   this change the *current* span or transaction, if any, was always used.
@@ -45,6 +49,13 @@ types, because it is only expected to be useful for coming OTel Bridge work.
 
 [float]
 ===== Bug fixes
+
+- Fix a possible crash in the instrumentation of an incoming HTTP/2 request: if
+  the underlying Http2Session was destroyed before the APM transaction was
+  ended (on Http2Stream end). This resulted in the instrumentation using the
+  [`stream.session.socket`](https://nodejs.org/api/http2.html#http2sessionsocket)
+  proxy, which can throw `ERR_HTTP2_SOCKET_UNBOUND` after the session is
+  destroyed. ({issues}2670[#2670])
 
 
 [[release-notes-3.32.0]]
