@@ -4,8 +4,6 @@
 // the OTel API. Cases are described here:
 // https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#active-spans-and-context
 
-// XXX move to tape test
-
 const apm = require('../..').start({
   opentelemetrySdk: true,
   // Make the agent quiet.
