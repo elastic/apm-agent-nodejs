@@ -184,41 +184,17 @@ If you have access to make releases, the process is as follows:
     - the EOL table in `docs/upgrading.asciidoc`, if this is a major or minor
       release. EOL is 18 months after release date.
 1. Ensure PR checks pass, then merge to main.
-1. Publish to npm with `npm publish`.
-   This must be done *before* the release tag is pushed, because the automated
-   release process is triggered by the tag push and (the opbeans
-   bump-version.sh release step) depends on the new version having been
-   published to npm.
 1. Working on the elastic repo now (not a fork), tag the merged-to-main commit
    with `git tag vx.y.x && git push origin vx.y.z`. For example: `git tag
    v1.2.3 && git push origin v1.2.3`.
+   (The Jenkins CI "Release" stage will handle `npm publish ...`ing the new
+   package version. See the appropriate [apm-ci tag build for this repo](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/view/tags/).)
 1. Reset the latest major branch (currently `3.x`) to point to the current
    main, e.g. `git branch -f 3.x main && git push origin 3.x`
 
 ### Past major
 
-1. Be sure you have checked out the branch associated with the major you wish
-   to release and have pulled latest changes, e.g. `2.x`.
-1. Make a PR titled "x.y.z" (the new version) which updates:
-    - the version in `package.json`,
-    - "CHANGELOG.asciidoc": Add missing changelog entries, if any. Then change
-      the "Unreleased" section title to:
-        ```
-        [[release-notes-x.y.z]]
-        ==== x.y.z - YYYY/MM/DD
-        ```
-    - the EOL table in `docs/upgrading.asciidoc`, if this is a major or minor
-      release. EOL is 18 months after release date.
-1. Ensure PR checks pass, then merge to main.
-1. Publish to npm with `npm publish --tag=2x`.
-   **It is important to include that `--tag=2x`.**
-   This must be done *before* the release tag is pushed, because the automated
-   release process is triggered by the tag push and (the opbeans
-   bump-version.sh release step) depends on the new version having been
-   published to npm.
-1. Working on the elastic repo now (not a fork), tag the merged-to-main commit
-   with `git tag vx.y.x && git push origin vx.y.z`. For example: `git tag
-   v1.2.3 && git push origin v1.2.3`.
-1. Make a PR against `main` containing the updates to `CHANGELOG.asciidoc` so
-   that `main` always contain information about all releases
+This is not currently supported. Until [this issue](#2668) is resolved one
+**must not** push a "vX.Y.Z" version tag to the repository on GitHub that is
+for a version other than the current major.
 
