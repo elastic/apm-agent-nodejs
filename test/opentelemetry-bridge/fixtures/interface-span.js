@@ -3,8 +3,9 @@
 // Exercise the full `interface Span`.
 //
 // Usage:
+//  ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true \
+//    node -r ../../../start.js interface-span.js                 # with APM agent
 //  node -r ../../../examples/otel/otel-sdk.js interface-span.js  # with OTel SDK
-//  node -r ../../../opentelemetry-sdk.js interface-span.js       # with APM agent
 
 const assert = require('assert')
 const fs = require('fs')

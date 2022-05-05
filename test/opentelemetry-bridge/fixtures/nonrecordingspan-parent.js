@@ -13,7 +13,7 @@
 
 const assert = require('assert')
 const otel = require('@opentelemetry/api')
-const { TraceState } = require('../../../lib/opentelemetry-sdk/opentelemetry-core-mini/trace/TraceState')
+const { TraceState } = require('../../../lib/opentelemetry-bridge/opentelemetry-core-mini/trace/TraceState')
 
 const tracer = otel.trace.getTracer('test-nonrecordingspan-parent')
 

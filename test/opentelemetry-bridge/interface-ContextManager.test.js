@@ -3,8 +3,9 @@
 // Exercise the full `interface ContextManager`.
 
 require('../..').start({
-  opentelemetrySdk: true,
+  opentelemetryBridgeEnabled: true,
   // Make the agent quiet.
+  disableSend: true,
   centralConfig: false,
   cloudProvider: 'none',
   metricsInterval: '0s',

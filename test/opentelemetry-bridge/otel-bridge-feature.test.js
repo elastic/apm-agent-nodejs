@@ -28,7 +28,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       agent = new Agent().start({
         serviceName: 'test-otel_bridge-feature',
         serverUrl,
-        opentelemetrySdk: true,
+        opentelemetryBridgeEnabled: true,
         // The following options to silence some unneed features from the agent.
         cloudProvider: 'none',
         centralConfig: false,

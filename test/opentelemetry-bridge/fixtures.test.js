@@ -1,11 +1,9 @@
 'use strict'
 
-// Test the OpenTelemetry SDK (aka OpenTelemetry API Bridge) functionality
-// of the APM agent.
-//
 // Thes tests below execute a script from "fixtures/" something like:
 //
-//    node -r ../../opentelemetry-sdk.js fixtures/start-span.js
+//    ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true \
+//        node -r ../../start.js fixtures/start-span.js
 //
 // and assert that (a) it exits successfully (passing internal `assert(...)`s),
 // and (b) the mock APM server got the expected trace data.
@@ -412,15 +410,15 @@ const cases = [
 ]
 
 cases.forEach(c => {
-  // if (c.script.indexOf('otel-bridge-') === -1) return // XXX filter
+  // if (c.script.indexOf('using-root-') === -1) return // XXX filter
 
-  tape.test(`opentelemetry-sdk/fixtures/${c.script}`, c.testOpts || {}, t => {
+  tape.test(`opentelemetry-bridge/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()
     const scriptPath = path.join('fixtures', c.script)
     server.start(function (serverUrl) {
       execFile(
         process.execPath,
-        ['-r', '../../opentelemetry-sdk.js', scriptPath],
+        ['-r', '../../start.js', scriptPath],
         {
           cwd: __dirname,
           timeout: 10000, // guard on hang, 3s is sometimes too short for CI
@@ -428,7 +426,17 @@ cases.forEach(c => {
             {},
             process.env,
             c.env,
-            { ELASTIC_APM_SERVER_URL: serverUrl }
+            {
+              ELASTIC_APM_SERVER_URL: serverUrl,
+              ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED: 'true',
+              // Silence optional features of the agent. Removing metrics
+              // allows some of the above tests to make assumptions about
+              // which events the APM server receives.
+              ELASTIC_APM_CENTRAL_CONFIG: 'false',
+              ELASTIC_APM_CLOUD_PROVIDER: 'none',
+              ELASTIC_APM_METRICS_INTERVAL: '0s',
+              ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true'
+            }
           )
         },
         function done (err, _stdout, _stderr) {

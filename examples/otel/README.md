@@ -9,11 +9,13 @@ Setup dependencies via:
 
 To run a script using the *Elastic APM Agent* use:
 
-    node -r elastic-apm-node/opentelemetry-sdk THE-SCRIPT.js
+    export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
+    node -r elastic-apm-node/start.js THE-SCRIPT.js
 
 For example:
 
-    node -r elastic-apm-node/opentelemetry-sdk trace-http-request.js
+    export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
+    node -r elastic-apm-node/start.js trace-http-request.js
 
 
 ## Compare to using the OpenTelemetry JS SDK

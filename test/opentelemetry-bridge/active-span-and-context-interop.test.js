@@ -5,8 +5,9 @@
 // https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#active-spans-and-context
 
 const apm = require('../..').start({
-  opentelemetrySdk: true,
+  opentelemetryBridgeEnabled: true,
   // Make the agent quiet.
+  disableSend: true,
   centralConfig: false,
   cloudProvider: 'none',
   metricsInterval: '0s',

@@ -7,7 +7,9 @@
 // to propagate W3C trace-context for outgoing HTTP requests.
 //
 // Usage:
-//    ELASTIC_APM_TRANSACTION_MAX_SPANS=3 node -r ../../../opentelemetry-sdk.js hit-transaction-max-spans.js
+//    ELASTIC_APM_TRANSACTION_MAX_SPANS=3 \
+//      ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true \
+//      node -r ../../../start.js hit-transaction-max-spans.js
 //
 // Expected trace:
 //   trace $traceId
