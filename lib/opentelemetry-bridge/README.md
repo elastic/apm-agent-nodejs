@@ -33,4 +33,19 @@ XXX
   compatible.
 
 
+## Design Overview
+
+XXX
+
+This bridge does *not* currently [set a global propagator](https://github.com/open-telemetry/opentelemetry-js-api/blob/v1.1.0/src/api/propagation.ts#L65).
+This means that the `otel.propagation.*` API gets the default (no-op)
+implementation. AFAIK this only impacts Baggage usage, which isn't supported by
+the bridge, and `otel.propagation.{inject,extract}()` usage by some
+OpenTelemetry packages that we do not use (e.g.
+`@opentelemetry/instrumentation-http`, `@opentelemetry/instrumentation-fetch`).
+
+## Limitations
+
+XXX
+
 
