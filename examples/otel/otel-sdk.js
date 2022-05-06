@@ -8,14 +8,15 @@
 // Usage:
 //    node -r ./otel-sdk.js MY-SCRIPT.js
 
-const opentelemetry = require('@opentelemetry/api')
-opentelemetry.diag.setLogger({
-  verbose () { console.log('diag VERBOSE:', ...arguments) },
-  debug () { console.log('diag DEBUG:', ...arguments) },
-  info () { console.log('diag INFO:', ...arguments) },
-  warn () { console.log('diag WARN:', ...arguments) },
-  error () { console.log('diag ERROR:', ...arguments) }
-}, opentelemetry.DiagLogLevel.ALL)
+// Uncomment this to get OpenTelemetry internal diagnostic messages.
+// const otel = require('@opentelemetry/api')
+// otel.diag.setLogger({
+//   verbose () { console.log('diag VERBOSE:', ...arguments) },
+//   debug () { console.log('diag DEBUG:', ...arguments) },
+//   info () { console.log('diag INFO:', ...arguments) },
+//   warn () { console.log('diag WARN:', ...arguments) },
+//   error () { console.log('diag ERROR:', ...arguments) }
+// }, opentelemetry.DiagLogLevel.ALL)
 
 const { registerInstrumentations } = require('@opentelemetry/instrumentation')
 const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node')
@@ -31,6 +32,4 @@ module.exports = (() => {
       new HttpInstrumentation()
     ]
   })
-
-  return opentelemetry.trace.getTracer('otel-examples')
 })()

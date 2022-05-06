@@ -1,8 +1,11 @@
 {
-  "name": "otel-examples",
+  "name": "elastic-apm-node-opentelemetry-bridge-examples",
   "version": "1.0.0",
   "private": true,
-  "main": "example-http-request.js",
+  "scripts": {
+    "trace-hello-world": "ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true node -r elastic-apm-node/start.js trace-hello-world.js",
+    "trace-http-request": "ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true node -r elastic-apm-node/start.js trace-http-request.js"
+  },
   "dependencies": {
     "@opentelemetry/api": "^1.1.0",
     "@opentelemetry/core": "^1.2.0",
