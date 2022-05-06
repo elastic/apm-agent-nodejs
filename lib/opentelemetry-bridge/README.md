@@ -32,6 +32,13 @@ XXX
   decides that using a v1.1.x Tracer with a v1.2.0 Tracer API is not
   compatible.
 
+## Development / Debugging
+
+XXX
+
+oblog
+
+hooking up otel.diag when tracing is enabled
 
 ## Design Overview
 
@@ -44,12 +51,16 @@ the bridge, and `otel.propagation.{inject,extract}()` usage by some
 OpenTelemetry packages that we do not use (e.g.
 `@opentelemetry/instrumentation-http`, `@opentelemetry/instrumentation-fetch`).
 
-## Limitations / Differences with OTel SDK
+## Limitations / Differences with OpenTelemetry SDK
 
 - The OpenTelemetry SDK defines [SpanLimits](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#span-limits).
   This OpenTelemetry Bridge differs as follows:
   - Attribute count is not limited. The OTel SDK defaults to a limit of 128.
     (To implement this, start at `maybeSetOTelAttr` in "OTelSpan.js".)
+  - Attribute value strings are truncated at 1024 bytes. The OpenTelemetry SDK
+    uses `AttributeValueLengthLimit (Default=Infinity)`.
+    (We could consider using the configurable `longFieldMaxLength` for the
+    attribute value truncation limit, if there is a need.)
   - Span links and events are not current supported by this bridge.
 
 - The OpenTelemetry Bridge spec says APM agents
