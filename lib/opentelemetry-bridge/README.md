@@ -46,6 +46,14 @@ OpenTelemetry packages that we do not use (e.g.
 
 ## Limitations
 
+- The OpenTelemetry Bridge spec says APM agents
+  ["MAY"](https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#attributes-mapping)
+  report OTel span attributes as spad and transaction *labels* if the upstream
+  APM Server is less than version 7.16. This implementation opts *not* to do
+  that. The OTel spec allows a larger range of types for span attributes values
+  than is allowed for "tags" (aka labels) in the APM Server intake API, so some
+  further filtering of attributes would be required.
+
 XXX
 
 
