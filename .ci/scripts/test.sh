@@ -242,13 +242,13 @@ docker-compose \
   build >docker-compose.log 2>docker-compose.err
 
 if [ $? -gt 0 ] ; then
-  echo "Docker compose failed, see the below log output"
+  echo "error: 'docker-compose build ...' failed, see the below log output"
   cat docker-compose.log && rm docker-compose.log
   cat docker-compose.err && rm docker-compose.err
   exit 1
 fi
 
-set -e
+set +e
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
 NODE_VERSION=${NODE_VERSION} \
@@ -265,6 +265,14 @@ docker-compose \
   --abort-on-container-exit \
   node_tests
 
+if [ $? -gt 0 ] ; then
+  echo "error: 'docker-compose up ...' failed"
+  # Dump inspect details on all containers. The "State.Healthcheck" key may
+  # contain helpful info on unhealthy containers.
+  docker inspect $(docker ps -q)
+  exit 1
+fi
+
 if ! NODE_VERSION=${NODE_VERSION} docker-compose \
     --no-ansi \
     --log-level ERROR \
@@ -272,7 +280,7 @@ if ! NODE_VERSION=${NODE_VERSION} docker-compose \
     down -v --remove-orphans; then
   # Workaround for this commonly seen error:
   #   error while removing network: network docker_default id $id has active endpoints
-  echo "Unexpected error in 'docker-compose down ...'. Forcing removal of unused networks."
+  echo "error: Unexpected error in 'docker-compose down ...'. Forcing removal of unused networks."
   docker network inspect docker_default || true
   docker network inspect -f '{{range .Containers}}{{ .Name }} {{end}}' docker_default || true
   docker network prune --force || true
