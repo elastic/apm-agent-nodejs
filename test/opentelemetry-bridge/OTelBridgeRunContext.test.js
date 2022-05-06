@@ -1,6 +1,6 @@
 'use strict'
 
-const apm = require('../..').start({
+require('../..').start({
   opentelemetryBridgeEnabled: true,
   // Make the agent quiet.
   // disableSend: true,
