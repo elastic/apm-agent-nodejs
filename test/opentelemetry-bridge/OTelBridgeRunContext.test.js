@@ -3,7 +3,7 @@
 require('../..').start({
   opentelemetryBridgeEnabled: true,
   // Make the agent quiet.
-  // disableSend: true,
+  disableSend: true,
   centralConfig: false,
   cloudProvider: 'none',
   metricsInterval: '0s',
