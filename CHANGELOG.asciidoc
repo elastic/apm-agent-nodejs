@@ -28,10 +28,9 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
 
-[float]
-===== Breaking changes
+[[release-notes-3.33.0]]
+==== 3.33.0 2022/05/05
 
 [float]
 ===== Features
@@ -56,6 +55,16 @@ types, because it is only expected to be useful for coming OTel Bridge work.
   [`stream.session.socket`](https://nodejs.org/api/http2.html#http2sessionsocket)
   proxy, which can throw `ERR_HTTP2_SOCKET_UNBOUND` after the session is
   destroyed. ({issues}2670[#2670])
+
+[float]
+===== Chores
+
+- The release process is slightly changed. CI (Jenkins) now handles `npm
+  publish ...` when a tag is pushed. ({pull}2667[#2667])
+
+- Pulled the `traceparent` NPM module into a local module and replaced the
+  `random-poly-fill` module with the built in `require('crypto').randomFillSync`
+  function call ({pull}2669[#2669])
 
 
 [[release-notes-3.32.0]]
