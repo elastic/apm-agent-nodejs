@@ -175,7 +175,8 @@ const cases = [
     testOpts: {
       // - This fixture fails with node.js [10.0, 10.4) due to an async context
       //   issue. See https://github.com/nodejs/node/issues/20274
-      // - This fixture hits a limitation/bug with asyncHooks=false. See XXX.
+      // - This fixture hits a limitation/bug with asyncHooks=false.
+      //   See https://github.com/elastic/apm-agent-nodejs/issues/2679
       skip: (semver.satisfies(process.version, '>=10.0.0 <10.4') ||
         process.env.ELASTIC_APM_ASYNC_HOOKS === 'false')
     },
@@ -410,8 +411,6 @@ const cases = [
 ]
 
 cases.forEach(c => {
-  // if (c.script.indexOf('using-root-') === -1) return // XXX filter
-
   tape.test(`opentelemetry-bridge/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()
     const scriptPath = path.join('fixtures', c.script)
