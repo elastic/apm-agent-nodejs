@@ -90,7 +90,7 @@ The OpenTelemetry API is, currently, [these four interfaces](https://github.com/
   `W3CTraceContextPropagator`. The APM agent implements its own internally.
 
 In `Agent#start()`, if the `opentelemetryBridgeEnabled` config is true, then
-a global [`ContextManager`](./OTelContextManager.js) and a global [`TracerProvider`](./OTelTracerProvider.js).
+a global [`ContextManager`](./OTelContextManager.js) and a global [`TracerProvider`](./OTelTracerProvider.js) are registered, which "enables" the bridge.
 
 From the OTel Bridge spec:
 
@@ -101,14 +101,17 @@ From the OTel Bridge spec:
 For this bridge, the agent's `RunContext` class was extended to support the
 small [`interface Context`](https://github.com/open-telemetry/opentelemetry-js-api/blob/v1.1.0/src/context/types.ts#L17-L41)
 API and the agent's run context managers were updated to allow passing in a
-subclass of `RunContext` to use: [`OTelBridgeRunContext`](./OTelBridgeRunContext.js).
+subclass of `RunContext` to use. So the "single active context storage" is
+instances of [`OTelBridgeRunContext`](./OTelBridgeRunContext.js) in the agent's
+usual run context managers.
+
 The way the "active span" is tracked by the OTel API is to call
 `context.setValue(SPAN_KEY, span)`. The `OTelBridgeRunContext` class translates
-calls using `SPAN_KEY` into the API that the agents RunContext class uses.
+calls using `SPAN_KEY` into the API that the agent's RunContext class uses.
 Roughly this:
 
-- `otelContext.setValue(SPAN_KEY, span)` -> `runContext.enterSpan(span)`
-- `otelContext.getValue(SPAN_KEY)` -> `return new OTelSpan(this.currSpan())`
+- `context.setValue(SPAN_KEY, span)` -> `this.enterSpan(span)`
+- `context.getValue(SPAN_KEY)` -> `return new OTelSpan(this.currSpan())`
 
 Otherwise the `*RunContextManager` classes in the agent map very well to the
 OpenTelemetry `ContextManager` interface: the [`OTelContextManager`](./OTelContextManager.js)
@@ -117,14 +120,15 @@ implementation is very straightforward.
 The `@opentelemetry/api` supports two ways to create objects that are internally
 implemented and do not call the registered global providers.
 
-1. `otel.trace.wrapSpanContext(...)` supports creating a `NonRecordingSpan`
-   instance that implements `interface Span`. [This test fixture](../../test/opentelemetry-bridge/fixtures/nonrecordingspan-parent.js) shows a use case. The bridge wraps this
-   in an `OTelBridgeNonRecordingSpan` that implements the agent's Transaction
-   API.
-2. `otel.ROOT_CONTEXT` is a singleton object that implements `interface Context`
-   but is not created via any bridge API that would prefer to provide a
-   `OTelBridgeRunContext` instance. That means bridge code cannot rely on
-   a given `context` argument being its `OTelBridgeRunContext` instance.
+1. `otel.trace.wrapSpanContext(...)` supports creating a `NonRecordingSpan` (a
+   class that isn't exported) instance that implements `interface Span`. [This
+   test fixture](../../test/opentelemetry-bridge/fixtures/nonrecordingspan-parent.js)
+   shows a use case. The bridge wraps this in an `OTelBridgeNonRecordingSpan`
+   that implements both OTel `interface Span` and the agent's Transaction API.
+2. `otel.ROOT_CONTEXT` is a singleton object (an internal `BaseContext` class
+   instance) that implements `interface Context` but is not created via any
+   bridge API. That means bridge code cannot rely on a given `context` argument
+   being an instance of its `OTelBridgeRunContext` class.
    [This test fixtures](../../test/opentelemetry-bridge/fixtures/using-root-context.js)
    shows an example.
 
