@@ -13,12 +13,12 @@ Spec: https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md
   that the OTel Bridge which uses version "1.x", e.g. "1.1.0" or lower, does
   not work.
 
-  The reason is that the OTel Bridge registers global
-  providers (e.g. `otel.trace.setGlobalTracerProvider` with its version of the OTel API. When user code attempts to *get*
-  a tracer with its version of the OTel API, the [OTel API compatibility
-  logic](https://github.com/open-telemetry/opentelemetry-js-api/blob/v1.1.0/src/internal/semver.ts#L24-L33)
-  decides that using a v1.1.x Tracer with a v1.2.0 Tracer API is not
-  compatible.
+  The reason is that the OTel Bridge registers global providers (e.g.
+  `otel.trace.setGlobalTracerProvider`) with its version of the OTel API. When
+  user code attempts to *get* a tracer with **its version** of the OTel API, the
+  [OTel API compatibility logic](https://github.com/open-telemetry/opentelemetry-js-api/blob/v1.1.0/src/internal/semver.ts#L24-L33)
+  decides that using a v1.1.x Tracer with a v1.2.0 Tracer API is not compatible
+  and falls back to a noop implementation.
 
 
 ## Development / Debugging
