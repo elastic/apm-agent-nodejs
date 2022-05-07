@@ -53,28 +53,6 @@ is working.
 ```
 
 
-## Files
-
-- "lib/opentelemetry-bridge/" - The whole implementation is here. However,
-  because the design involves having the `OTelBridgeRunContext` class be
-  used as the core run context object, there was some work in
-  "lib/instrumentation/run-context/" to support that.
-
-  - "lib/opentelemetry-bridge/opentelemetry-core-mini" - This holds a very
-    small subset of the `@opentelemetry/core` package, instead of having a
-    dependency on it. "Very small" here is just the `TraceState` class, as
-    opposed to a ~2.6M dependency.
-
-- "test/opentelemetry-bridge/"
-
-  - "test/opentelemetry-bridge/fixtures/" includes a number of scripts that
-    can be run with either the OTel Bridge or with the OTel SDK for comparison.
-    They include asserts that might be illustrative for how context propagation
-    works.
-
-- "examples/opentelemetry-bridge/"
-
-
 ## Naming
 
 In general, the following variable/class/file naming is used:
