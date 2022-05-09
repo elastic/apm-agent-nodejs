@@ -17,7 +17,7 @@ pipeline {
     NOTIFY_TO = 'build-apm+apm-agent-nodejs@elastic.co'
     NPMRC_SECRET = 'secret/jenkins-ci/npmjs/elasticmachine'
     TOTP_SECRET = 'totp/code/npmjs-elasticmachine'
-    NODE_VERSION = 'v14.17.5'
+    BUILD_NODE_VERSION = 'v16.15.0'
   }
   options {
     timeout(time: 3, unit: 'HOURS')
@@ -291,7 +291,7 @@ pipeline {
               setEnvVar('RELEASE_NOTES_URL', getReleaseNotesUrl())
               deleteDir()
               unstash 'source'
-              withNodeJSEnv(version: "${env.NODE_VERSION}"){
+              withNodeJSEnv(version: "${env.BUILD_NODE_VERSION}"){
                 dir("${BASE_DIR}"){
                   cmd(label: 'make dist', script: 'make -C .ci dist')
                 }
@@ -329,7 +329,7 @@ pipeline {
         }
         stage('Publish to npm') {
           steps {
-            withNodeJSEnv(version: "${env.NODE_VERSION}") {
+            withNodeJSEnv(version: "${env.BUILD_NODE_VERSION}") {
               withNpmrc(secret: "${env.NPMRC_SECRET}", path: "${env.WORKSPACE}/${env.BASE_DIR}") {
                 withTotpVault(secret: "${env.TOTP_SECRET}", code_var_name: 'TOTP_CODE') {
                   dir("${BASE_DIR}") {
@@ -383,7 +383,7 @@ pipeline {
       environment {
         HOME = "${env.WORKSPACE}"
         RESULT_FILE = 'apm-agent-benchmark-results.json'
-        NODE_VERSION = '14'
+        BENCH_NODE_VERSION = '14'
       }
       when {
         beforeAgent true
@@ -402,7 +402,7 @@ pipeline {
             deleteDir()
             unstash 'source'
             dir(BASE_DIR){
-              sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}" "${NODE_VERSION}"'
+              sh '.ci/scripts/run-benchmarks.sh "${RESULT_FILE}" "${BENCH_NODE_VERSION}"'
             }
           }
         }
