@@ -19,6 +19,9 @@ Notes:
         [float]
         ===== Bug fixes
 
+        [float]
+        ===== Chores
+
 2. When making a release, change the "==== Unreleased" section header to:
 
         [[release-notes-x.x.x]]
@@ -27,6 +30,24 @@ Notes:
 
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
+
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+- Add a package-lock.json file to ensure repeatable builds of the AWS Lambda
+  layer and to assist with security issue auditing. ({issue}2626[#2626])
 
 
 [[release-notes-3.33.0]]
