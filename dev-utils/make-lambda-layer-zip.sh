@@ -25,6 +25,11 @@ function fatal {
 TOP=$(cd $(dirname $0)/../ >/dev/null; pwd)
 BUILD_DIR="$TOP/build/lambda-layer-zip"
 
+# Guard against accidentally using this script with a too-old npm.
+if [[ $(npm --version | cut -d. -f1) -lt 8 ]]; then
+    fatal "npm version is too old for 'npm ci --omit=dev': $(npm --version)"
+fi
+
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
@@ -35,9 +40,11 @@ mkdir -p nodejs/node_modules/elastic-apm-node
     npm --loglevel=warn pack "$TOP"; # creates "elastic-apm-node-$ver.tgz"
     tar --strip-components=1 -xf elastic-apm-node-*.tgz;
     rm elastic-apm-node-*.tgz;
-    # Then install the "package-lock.json"-dictated dependencies (excluding devDependencies).
     cp $TOP/package-lock.json ./;
-    npm ci --omit=dev;
+    # Then install the "package-lock.json"-dictated dependencies (excluding
+    # devDependencies).  Use '--ignore-scripts' to have confidence no code but
+    # ours and npm's is running.
+    npm ci --omit=dev --ignore-scripts;
     rm package-lock.json)
 
 echo ""
@@ -46,4 +53,4 @@ echo "Created build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip"
 
 echo
 echo "The lambda layer can be published as follows for dev work:"
-echo "    aws lambda --output json publish-layer-version --layer-name '$USER-dev-elastic-apm-nodejs' --description '$USER dev Elastic APM Node.js agent lambda layer' --zip-file 'fileb://build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip'"
+echo "    aws lambda --output json publish-layer-version --layer-name '$USER-dev-elastic-apm-node' --description '$USER dev Elastic APM Node.js agent lambda layer' --zip-file 'fileb://build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip'"
