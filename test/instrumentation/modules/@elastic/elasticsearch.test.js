@@ -7,7 +7,8 @@ const agent = require('../../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   apmServerVersion: '8.0.0',
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
+  spanCompressionEnabled: false
 })
 
 const { safeGetPackageVersion } = require('../../../_utils')
@@ -36,7 +37,7 @@ const es = require(esClientPkgName)
 
 const { Readable } = require('stream')
 const test = require('tape')
-const TraceParent = require('traceparent')
+const { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 const findObjInArray = require('../../../_utils').findObjInArray
 const mockClient = require('../../../_mock_http_client')

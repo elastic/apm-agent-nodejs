@@ -16,6 +16,27 @@ var semver = require('semver')
 var bin = path.join(process.cwd(), 'node_modules/.bin')
 var PATH = process.env.PATH + ':' + bin
 
+// gets list of directory names in ./test that contain a
+// .test.js file.
+function getDirectoriesWithTests (path = './test', results = [], exclude = []) {
+  const result = fs.readdirSync(path)
+  for (const file of result) {
+    const pathToTest = `${path}/${file}`
+    if (
+      file.indexOf('.test.js') !== -1 && // is a test file
+      results.indexOf(path) === -1 && // has not been found yet
+      exclude.indexOf(path) === -1 // is not something we're excluding
+    ) {
+      results.push(path)
+    }
+    if (fs.lstatSync(pathToTest).isDirectory()) {
+      getDirectoriesWithTests(pathToTest, results, exclude)
+    }
+  }
+
+  return results.map((item) => item.replace('./', ''))
+}
+
 function slugifyPath (f) {
   const illegalChars = /[^\w.-]/g
   return f.replace(illegalChars, '-')
@@ -148,36 +169,12 @@ if (opts.help) {
   process.exit(0)
 }
 
-var directories = [
-  'test',
-  'test/cloud-metadata',
-  'test/instrumentation',
-  'test/instrumentation/modules',
-  'test/instrumentation/modules/@elastic',
-  'test/instrumentation/modules/bluebird',
-  'test/instrumentation/modules/cassandra-driver',
-  'test/instrumentation/modules/express',
-  'test/instrumentation/modules/fastify',
-  'test/instrumentation/modules/hapi',
-  'test/instrumentation/modules/http',
-  'test/instrumentation/modules/koa',
-  'test/instrumentation/modules/koa-router',
-  'test/instrumentation/modules/mysql',
-  'test/instrumentation/modules/mysql2',
-  'test/instrumentation/modules/pg',
-  'test/instrumentation/modules/restify',
-  'test/instrumentation/modules/aws-sdk',
-  'test/instrumentation/run-context',
-  'test/integration',
-  'test/integration/api-schema',
-  'test/lambda',
-  'test/metrics',
-  'test/redact-secrets',
-  'test/sanitize-field-names',
-  'test/sourcemaps',
-  'test/stacktraces',
-  'test/uncaught-exceptions'
-]
+// scan ./test for folders with *.test.js file, excluding
+// './test/start/env', './test/start/file' which are special
+// cases
+var directories = getDirectoriesWithTests(
+  './test', [], ['./test/start/env', './test/start/file']
+)
 
 mapSeries(directories, readdir, function (err, directoryFiles) {
   if (err) throw err

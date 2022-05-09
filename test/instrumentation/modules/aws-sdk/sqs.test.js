@@ -195,7 +195,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS SEND to our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -204,7 +205,6 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
-        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
         t.end()
       })
       agent.startTransaction('myTransaction')
@@ -225,9 +225,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
-
-        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS SEND_BATCH to our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -255,7 +254,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS DELETE from our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -263,8 +263,6 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.action, 'delete', 'span action matches API method called')
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-
-        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
 
         t.end()
       })
@@ -285,9 +283,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
-
-        t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS DELETE_BATCH from our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -315,9 +312,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
-
-        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS POLL from our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -400,7 +396,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS SEND to our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -409,7 +406,6 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
-        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
         t.end()
       })
       agent.startTransaction('myTransaction')
@@ -438,9 +434,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
-
-        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS SEND_BATCH to our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -472,7 +467,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS DELETE from our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -480,8 +476,6 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.action, 'delete', 'span action matches API method called')
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-
-        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
 
         t.end()
       })
@@ -507,9 +501,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
-
-        t.equals(spanHttp.type, 'external', 'second span is for HTTP request')
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS DELETE_BATCH from our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -542,9 +535,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     )
     const listener = app.listen(0, function () {
       resetAgent(function (data) {
-        const [spanSqs, spanHttp] = getSqsAndOtherSpanFromData(data, t)
-
-        t.equals(spanHttp.type, 'external', 'other span is for HTTP request')
+        t.equals(data.spans.length, 1, 'generated one span')
+        const spanSqs = data.spans[0]
 
         t.equals(spanSqs.name, 'SQS POLL from our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
@@ -628,24 +620,6 @@ function initializeAwsSdk () {
   // credentials as though it was on an EC2 instance
   process.env.AWS_ACCESS_KEY_ID = 'fake-1'
   process.env.AWS_SECRET_ACCESS_KEY = 'fake-2'
-}
-
-// extracts the SQS and "other" (so far just HTTP) span
-// from resetAgent's data. The order the agent will
-// write spans is not deterministic and is subject to
-// network latency in the mock server.
-function getSqsAndOtherSpanFromData (data, t) {
-  t.equals(data.spans.length, 2, 'generated two spans')
-  const values = []
-  if (data.spans[0].name.indexOf('SQS') === 0) {
-    values.push(data.spans[0])
-    values.push(data.spans[1])
-  } else {
-    values.push(data.spans[1])
-    values.push(data.spans[0])
-  }
-
-  return values
 }
 
 function resetAgent (cb) {

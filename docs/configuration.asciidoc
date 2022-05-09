@@ -1181,3 +1181,57 @@ require('elastic-apm-node').start({
   ]
 })
 ----
+
+[[span-compression-enabled]]
+==== `spanCompressionEnabled`
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_SPAN_COMPRESSION_ENABLED`
+
+Setting this option to false will disable the span compression feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information, such as DB statements of all the compressed spans, will not be collected.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  spanCompressionEnabled: true
+})
+----
+
+[[span-compression-exact-match-max-duration]]
+==== `spanCompressionExactMatchMaxDuration`
+* *Type:* String
+* *Default:* `50ms`
+* *Env:* `ELASTIC_APM_SPAN_COMPRESSION_EXACT_MATCH_MAX_DURATION`
+
+Consecutive spans that are exact match and that are under this threshold will be compressed into a single composite span. This option does not apply to composite spans. This reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that the DB statements of all the compressed spans will not be collected.
+
+Supports the duration suffixes ms (milliseconds), s (seconds) and m (minutes).
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  spanCompressionExactMatchMaxDuration:'100ms'
+})
+----
+
+[[span-compression-same-kind-max-duration]]
+==== `spanCompressionSameKindMaxDuration`
+* *Type:* String
+* *Default:* `0ms`
+* *Env:* `ELASTIC_APM_SPAN_COMPRESSION_SAME_KIND_MAX_DURATION`
+
+Consecutive spans to the same destination that are under this threshold will be compressed into a single composite span. This option does not apply to composite spans. This reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that the DB statements of all the compressed spans will not be collected.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  spanCompressionSameKindMaxDuration:'0ms'
+})
+----
+

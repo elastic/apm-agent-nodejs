@@ -114,6 +114,56 @@ isSecure.forEach(secure => {
     })
   })
 
+  test(`http2.${method} stream end after session destroy`, t => {
+    t.plan(16)
+
+    resetAgent((data) => {
+      assert(t, data, secure, port)
+      server.close()
+    })
+
+    var port
+    var server = secure
+      ? http2.createSecureServer(pem)
+      : http2.createServer()
+
+    var onError = err => t.error(err)
+    server.on('error', onError)
+    server.on('socketError', onError)
+
+    server.on('stream', function (stream, headers) {
+      var trans = ins.currTransaction()
+      t.ok(trans, 'have current transaction')
+      t.strictEqual(trans.type, 'request')
+
+      stream.respond({
+        'content-type': 'text/plain',
+        ':status': 200
+      })
+
+      // Destroying the Http2Session results in any usage of the
+      // `stream.session.socket` proxy possibly throwing
+      // `ERR_HTTP2_SOCKET_UNBOUND`. This test case ensures the APM agent
+      // doesn't blow up on this.
+      stream.session.destroy()
+
+      stream.end('foo')
+    })
+
+    server.listen(() => {
+      port = server.address().port
+      var client = connect(secure, port)
+      client.on('error', onError)
+      client.on('socketError', onError)
+
+      var req = client.request({ ':path': '/' })
+      assertResponse(t, req, '') // Do not expect 'foo' to get through.
+      req.resume()
+      req.on('end', () => client.destroy())
+      req.end()
+    })
+  })
+
   test(`http2.${method} stream respondWithFD`, t => {
     t.plan(17)
 
@@ -444,6 +494,7 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
   let expectedUrl
   let expectedReqHeaders
   let expectedResHeaders
+
   switch (httpVersion) {
     case '1.1':
       expectedUrl = {
@@ -486,6 +537,12 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
         ':status': 200
       }
       break
+  }
+
+  if (trans.context.request.headers.traceparent) {
+    expectedReqHeaders.traceparent = trans.context.request.headers.traceparent
+    expectedReqHeaders.tracestate = trans.context.request.headers.tracestate
+    expectedReqHeaders['elastic-apm-traceparent'] = trans.context.request.headers['elastic-apm-traceparent']
   }
 
   // What is "expected" for transaction.context.request.socket.remote_address

@@ -16,7 +16,7 @@ var test = require('tape')
 
 var assert = require('./_assert')
 var mockClient = require('../../../_mock_http_client')
-var TraceParent = require('traceparent')
+var { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 test('http.createServer', function (t) {
   t.test('direct callback', function (t) {

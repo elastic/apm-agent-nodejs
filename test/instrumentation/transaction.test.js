@@ -17,6 +17,7 @@ const agent = require('../..').start({
 var test = require('tape')
 
 var Transaction = require('../../lib/instrumentation/transaction')
+const Span = require('../../lib/instrumentation/span')
 
 test('init', function (t) {
   t.test('name and type', function (t) {
@@ -565,8 +566,10 @@ test('Transaction API on ended transaction', function (t) {
   trans.ensureParentId()
   t.pass('trans.ensureParentId(...) does not blow up')
 
-  const newSpan = trans.startSpan('aNewSpanName')
-  t.equal(newSpan, null, 'trans.startSpan(...) returns null')
+  // Starting a span after the transaction has ended is allowed.
+  const spanStartedAfterTransEnd = trans.startSpan('aNewSpanName')
+  t.ok(spanStartedAfterTransEnd instanceof Span, 'trans.startSpan(...) works')
+  spanStartedAfterTransEnd.end()
 
   // Ending a span that is a child of the transaction uses some of the
   // transaction fields for breakdown metrics calculation. Ensure that works.
