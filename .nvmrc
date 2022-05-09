@@ -1,1 +1,3 @@
+# This is a sugggested version of node for local dev. Using at least node v16
+# ensures npm v8 so that lockfileVersion:2 is used for package-lock.json.
 16.15.0
