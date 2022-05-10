@@ -70,14 +70,13 @@ get-version: validate-aws-default-region
 create-arn-file: validate-suffix-arn-file validate-release-notes-url
 	@./scripts/create-arn-table.sh
 
-release-notes: validate-branch-name validate-suffix-arn-file
+github-release: validate-branch-name validate-suffix-arn-file
 	@gh release list
 	@gh \
 		release \
 		create $(BRANCH_NAME) \
 		--title '$(BRANCH_NAME)' \
-		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE) \
-		$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip
+		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
 
 validate-branch-name:
 ifndef BRANCH_NAME
