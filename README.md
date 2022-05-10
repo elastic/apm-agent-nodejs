@@ -44,7 +44,7 @@ npm install elastic-apm-node --save
 - [Metrics](https://www.elastic.co/guide/en/apm/agent/nodejs/current/metrics.html)
 - [Performance Tuning](https://www.elastic.co/guide/en/apm/agent/nodejs/current/performance-tuning.html)
 - [Source Map Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/source-maps.html)
-- [OpenTracing Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentracing.html)
+- [OpenTracing Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentracing.html) XXX
 - [Supported Technologies](https://www.elastic.co/guide/en/apm/agent/nodejs/current/supported-technologies.html)
 - [Upgrading](https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrading.html)
 - [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)

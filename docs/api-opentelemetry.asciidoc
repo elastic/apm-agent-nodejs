@@ -1,0 +1,147 @@
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html[elastic.co]
+endif::[]
+
+[[opentelemetry-bridge]]
+== OpenTelemetry bridge
+
+NOTE: Added as experimental in v3.34.0.
+To enable it, set <<opentelemetry-bridge-enabled, `opentelemetryBridgeEnabled`>> to `true`.
+
+The Elastic APM OpenTelemetry bridge allows one to use the vendor-neutral
+https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing API]
+(https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`]) to
+manually instrument your code, and have the Elastic Node.js APM agent handle
+those API calls. This allows one to use the Elastic APM agent for tracing,
+without any vendor lock-in from adding manual tracing using the APM agent's own
+<<api,public API>>.
+
+
+[float]
+[[otel-getting-started]]
+=== Getting started
+
+The goal of the OpenTelemetry bridge is to allow using the OpenTelemetry API
+with the APM agent. ① First, you will need to add those dependencies to your
+project. The minimum required OpenTelemetry API version is 1.0.0. For example:
+
+[source,bash]
+----
+npm install --save elastic-apm-node @opentelemetry/api
+----
+
+② Second, you will need to configure and start the APM agent. This can be done
+completely with environment variables (so that there is no need to touch
+your application code):
+
+[source,bash]
+----
+export ELASTIC_APM_SERVER_URL='<url of your APM server>'
+export ELASTIC_APM_SECRET_TOKEN='<secret token for your APM server>'  # or ELASTIC_APM_API_KEY=...
+export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
+export NODE_OPTIONS='-r elastic-apm-node/start.js'  # Tell node to preload and start the APM agent
+node my-app.js
+----
+
+Or, alternatively, you can configure and start the APM agent at the top of your
+application code as follows. (Note: For automatic instrumentations to function
+properly, this must be executed before other `require` statements and
+application code.)
+
+[source,js]
+----
+require('elastic-apm-node').start({
+    serverUrl: '<url of your APM server>',
+    secretToken: '<secret token for your APM server>', // or, apiKey: '<your API key>'
+    opentelemetryBridgeEnabled: true
+});
+
+// Application code ...
+----
+
+NOTE: These examples show the minimal configuration. See <<configuration,the full APM agent configuration reference>> for other configuration options.
+
+③ Finally, you can use the OpenTelemetry API for any manual tracing in your code.
+For example, the following script uses
+https://open-telemetry.github.io/opentelemetry-js-api/interfaces/tracer.html#startactivespan[Tracer#startActiveSpan()]
+to trace an outgoing HTTPS request:
+
+[source,js]
+----
+const https = require('https')
+const otel = require('@opentelemetry/api')
+const tracer = otel.trace.getTracer('trace-https-request')
+
+tracer.startActiveSpan('makeRequest', span => {
+  https.get('https://httpstat.us/200', (response) => {
+    console.log('STATUS:', response.statusCode)
+    const body = []
+    response.on('data', (chunk) => body.push(chunk))
+    response.on('end', () => {
+      console.log('BODY:', body.toString())
+      span.end()
+    })
+  })
+})
+----
+
+The APM agent source code repository includes
+https://github.com/elastic/apm-agent-nodejs/tree/main/examples/opentelemetry-bridge[some examples using the OpenTelemetry bridge].
+
+
+[float]
+[[otel-architecture]]
+=== Bridge architecture
+
+The OpenTelemetry bridge works similarly to the
+https://github.com/open-telemetry/opentelemetry-js[OpenTelemetry JS SDK]. It
+registers Tracer and ContextManager providers with the OpenTelemetry API.
+Subsequent `@opentelemetry/api` calls in user code will call into those
+providers. The APM agent translates from OpenTelemetry to Elastic APM semantics
+and sends tracing data to your APM server for full support in
+https://www.elastic.co/apm[Elastic Observability's APM app].
+
+Here are a couple examples of semantic translations: The first entry span of a
+service (e.g. an incoming HTTP request) will be converted to an
+{apm-guide-ref}/data-model-transactions.html[Elasic APM `Transaction`],
+subsequent spans are mapped to
+{apm-guide-ref}/data-model-spans.html[Elastic APM `Span`]. OpenTelemetry Span
+attributes are translated into the appropriate fields in Elastic APM's data
+model.
+
+The only difference, from the user's point of view, is in the setup of tracing.
+Instead of setting up the OpenTelemetry JS SDK, one sets up the APM agent
+as <<otel-getting-started,described above>>.
+
+
+[float]
+[[otel-caveats]]
+=== Caveats
+Not all features of the OpenTelemetry API are supported.
+
+[float]
+[[otel-metrics]]
+===== Metrics
+This bridge only supports the tracing API.
+The Metrics API is currently not supported.
+
+[float]
+[[otel-span-links]]
+===== Span Links
+Adding links when
+https://open-telemetry.github.io/opentelemetry-js-api/interfaces/tracer.html[starting a span]
+are not currently supported. Any given links will be silently dropped.
+
+[float]
+[[otel-span-events]]
+===== Span Events
+Span events (https://open-telemetry.github.io/opentelemetry-js-api/interfaces/span.html#addevent[`Span#addEvent()`])
+is not currently supported. Events will be silently dropped.
+
+[float]
+[[otel-baggage]]
+===== Baggage
+https://open-telemetry.github.io/opentelemetry-js-api/classes/propagationapi.html[Propagating baggage]
+within or outside the process is not supported. Baggage items are silently
+dropped.

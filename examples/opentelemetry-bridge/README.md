@@ -14,7 +14,7 @@ To run a script using the **Elastic Node.js APM Agent** use:
 For example:
 
     export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
-    node -r elastic-apm-node/start.js trace-http-request.js
+    node -r elastic-apm-node/start.js trace-https-request.js
 
 While these examples are written to use the `node -r elastic-apm-node/start.js ...`
 mechanism to start the APM agent. That isn't required. One can still load and
@@ -33,7 +33,7 @@ require('elastic-apm-node').start({
 
 For comparison, these scripts be instrumented with the OpenTelemetry JS SDK.
 
-    node -r ./otel-sdk.js trace-http-request.js
+    node -r ./otel-sdk.js trace-https-request.js
 
 The "otel-sdk.js" is a simplified tracing setup of the OpenTelemetry SDK. For
 the sake of simpler demonstration it writes tracing spans to the console rather

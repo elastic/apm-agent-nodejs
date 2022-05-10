@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "trace-hello-world": "ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true node -r elastic-apm-node/start.js trace-hello-world.js",
-    "trace-http-request": "ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true node -r elastic-apm-node/start.js trace-http-request.js"
+    "trace-https-request": "ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true node -r elastic-apm-node/start.js trace-https-request.js"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.1.0",
