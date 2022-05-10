@@ -717,20 +717,20 @@ test('serviceName/serviceVersion zero-conf: valid', function (t) {
   })
 })
 
-test('serviceName/serviceVersion zero-conf: no package.json to find', function (t) {
+test('serviceName/serviceVersion zero-conf: cwd is outside package tree', function (t) {
   const indexJs = path.join(__dirname, 'fixtures', 'pkg-zero-conf-valid', 'index.js')
   cp.execFile(process.execPath, [indexJs], {
     timeout: 3000,
-    // Set CWD to top-level to ensure the agent cannot find a package.json file.
+    // Set CWD to outside of the package tree to test whether the agent
+    // package.json searching uses `require.main`.
     cwd: '/'
   }, function (err, stdout, stderr) {
     t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'unknown-nodejs-service',
-      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
-    t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
+    t.equal(conf.serviceName, 'validName', 'serviceName was inferred from package.json')
+    t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
     t.end()
   })
 })
@@ -803,6 +803,44 @@ test('serviceName/serviceVersion zero-conf: weird "name" in package.json', funct
     t.equal(conf.serviceName, 'unknown-nodejs-service',
       'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
     t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
+    t.end()
+  })
+})
+
+test('serviceName/serviceVersion zero-conf: no package.json to find', function (t) {
+  // To test the APM agent's fallback serviceName, we need to execute
+  // a script in a dir that has no package.json in its dir, or any dir up
+  // from it (we assume/hope that `os.tmpdir()` works for that).
+  const dir = os.tmpdir()
+  const script = path.resolve(dir, 'elastic-apm-node-zero-conf-test-script.js')
+  const agentDir = path.resolve(__dirname, '..')
+  function setupPkgEnv () {
+    fs.writeFileSync(script, `
+      const apm = require('${agentDir}').start({
+        disableSend: true
+      })
+      console.log(JSON.stringify(apm._conf))
+      `)
+    t.comment(`created ${script}`)
+  }
+  function teardownPkgEnv () {
+    fs.unlinkSync(script)
+    t.comment(`removed ${script}`)
+  }
+
+  setupPkgEnv()
+  cp.execFile(process.execPath, [script], {
+    timeout: 3000,
+    cwd: dir
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running index.js: ' + err)
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const conf = JSON.parse(lines[lines.length - 1])
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
+    t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
+    teardownPkgEnv()
     t.end()
   })
 })
