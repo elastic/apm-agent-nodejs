@@ -31,7 +31,8 @@ require('elastic-apm-node').start({
 
 ## Compare to using the OpenTelemetry JS SDK
 
-For comparison, these scripts be instrumented with the OpenTelemetry JS SDK.
+For comparison, these scripts can be instrumented with the OpenTelemetry JS SDK
+with something like the following:
 
     node -r ./otel-sdk.js trace-https-request.js
 
