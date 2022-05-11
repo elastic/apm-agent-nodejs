@@ -1238,6 +1238,9 @@ require('elastic-apm-node').start({
 
 [[opentelemetry-bridge-enabled]]
 ==== `opentelemetryBridgeEnabled`
+
+[small]#Added in: v3.34.0 as experimental#
+
 * *Type:* Boolean
 * *Default:* `false`
 * *Env:* `ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED`
