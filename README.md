@@ -39,12 +39,12 @@ npm install elastic-apm-node --save
 - [Get started with a custom Node.js stack](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-stack.html)
 - [Advanced Setup and Configuration](https://www.elastic.co/guide/en/apm/agent/nodejs/current/advanced-setup.html)
 - [API Reference](https://www.elastic.co/guide/en/apm/agent/nodejs/current/api.html)
+- [OpenTelemetry Bridge](https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html)
 - [Custom Transactions](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html)
 - [Custom Spans](https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-spans.html)
 - [Metrics](https://www.elastic.co/guide/en/apm/agent/nodejs/current/metrics.html)
 - [Performance Tuning](https://www.elastic.co/guide/en/apm/agent/nodejs/current/performance-tuning.html)
 - [Source Map Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/source-maps.html)
-- [OpenTracing Support](https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentracing.html) XXX
 - [Supported Technologies](https://www.elastic.co/guide/en/apm/agent/nodejs/current/supported-technologies.html)
 - [Upgrading](https://www.elastic.co/guide/en/apm/agent/nodejs/current/upgrading.html)
 - [Troubleshooting](https://www.elastic.co/guide/en/apm/agent/nodejs/current/troubleshooting.html)
