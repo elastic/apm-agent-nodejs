@@ -248,7 +248,7 @@ if [ $? -gt 0 ] ; then
   exit 1
 fi
 
-set +e
+set -e
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS} \
 NODE_VERSION=${NODE_VERSION} \
@@ -264,14 +264,6 @@ docker-compose \
   --remove-orphans \
   --abort-on-container-exit \
   node_tests
-
-if [ $? -gt 0 ] ; then
-  echo "error: 'docker-compose up ...' failed"
-  # Dump inspect details on all containers. The "State.Healthcheck" key may
-  # contain helpful info on unhealthy containers.
-  docker inspect $(docker ps -q)
-  exit 1
-fi
 
 if ! NODE_VERSION=${NODE_VERSION} docker-compose \
     --no-ansi \
