@@ -356,9 +356,11 @@ elasticsearch:
 # - Version 7.12.0 dropped support for node v8.
 # - Version 8.0.0 dropped node v10 support.
 # - Version 8.2.0 dropped node v12 support.
-#   Note that we are using "8.2" in ranges to attempt to include versions like
-#   "8.2.0-patch.1" which the ES client team uses for patch releases, but are
-#   considered prereleases by semver.
+#   - Skip "8.2.0" because https://github.com/elastic/elasticsearch-js/pull/1688
+#   - The ES client team uses "8.2.0-patch.N" for patch releases *after*
+#     "8.2.0" because they are stuck with stack version numbers. However,
+#     semver (and TAV) consider "-patch.N" to be a *prereleases*. This
+#     leads to some tortured "versions:" ranges below.
 '@elastic/elasticsearch-v7.0-v7.12':
   name: '@elastic/elasticsearch'
   versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
@@ -370,7 +372,7 @@ elasticsearch:
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 '@elastic/elasticsearch-v8.2-':
   name: '@elastic/elasticsearch'
-  versions: '>=8.2'
+  versions: '>=8.2.0-patch.1 <8.2.0 || >8.2.0'
   node: '>=14.0.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
