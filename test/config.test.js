@@ -813,7 +813,9 @@ test('serviceName/serviceVersion zero-conf: no package.json to find', function (
   // from it (we assume/hope that `os.tmpdir()` works for that).
   const dir = os.tmpdir()
   const script = path.resolve(dir, 'elastic-apm-node-zero-conf-test-script.js')
-  const agentDir = path.resolve(__dirname, '..')
+  // Avoid Windows '\' path separators that are interpreted as escapes when
+  // interpolated into the script content below.
+  const agentDir = path.resolve(__dirname, '..').replaceAll(path.win32.sep, path.posix.sep)
   function setupPkgEnv () {
     fs.writeFileSync(script, `
       const apm = require('${agentDir}').start({
