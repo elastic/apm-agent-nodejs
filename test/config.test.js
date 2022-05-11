@@ -836,7 +836,7 @@ test('serviceName/serviceVersion zero-conf: no package.json to find', function (
     timeout: 3000,
     cwd: dir
   }, function (err, stdout, stderr) {
-    t.error(err, 'no error running index.js: ' + err)
+    t.error(err, 'no error running script: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
