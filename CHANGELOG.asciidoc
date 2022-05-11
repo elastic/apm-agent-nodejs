@@ -31,6 +31,24 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Add an experimental <<opentelemetry-bridge>>.  Briefly, the OpenTelemetry
+  Bridge allows one to use the vendor-neutral
+  https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing
+  API] (https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`])
+  to manually instrument your code, and have the Elastic Node.js APM agent
+  handle those API calls. ({pull}2641[#2641])
+
+[float]
+===== Bug fixes
+
 
 ==== Unreleased
 

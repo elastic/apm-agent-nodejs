@@ -1235,3 +1235,27 @@ require('elastic-apm-node').start({
 })
 ----
 
+
+[[opentelemetry-bridge-enabled]]
+==== `opentelemetryBridgeEnabled`
+
+[small]#Added in: v3.34.0 as experimental#
+
+* *Type:* Boolean
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED`
+
+Setting this option to true will enable the <<opentelemetry-bridge,OpenTelemetry Bridge>>. Briefly, the OpenTelemetry Bridge allows one to use the vendor-neutral
+https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing API]
+(https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`]) to
+manually instrument your code, and have the Elastic Node.js APM agent handle
+those API calls.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  opentelemetryBridgeEnabled: true
+})
+----
