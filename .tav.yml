@@ -354,21 +354,34 @@ elasticsearch:
 #   Fixed in 7.7.1: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_7_7_1
 #   Note: When this repo drops Node.js v8 support, `versions` can be simplified.
 # - Version 7.12.0 dropped support for node v8.
-# - Version 8's min node is v12. We only support the latest canary release (at
-#   time of writing). The published '8.0.0-alpha.2' is *not* supported.
+# - Version 8.0.0 dropped node v10 support.
+# - Version 8.2.0 dropped node v12 support.
+#   Note that we are using "8.2" in ranges to attempt to include versions like
+#   "8.2.0-patch.1" which the ES client team uses for patch releases, but are
+#   considered prereleases by semver.
 '@elastic/elasticsearch-v7.0-v7.12':
   name: '@elastic/elasticsearch'
   versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
-'@elastic/elasticsearch-v7.12-v8':
+'@elastic/elasticsearch-v7.12-v8.2':
   name: '@elastic/elasticsearch'
-  versions: '>=7.12.0 <8.0.0'
-  node: '>=10.0.0'
+  versions: '>=7.12.0 <8.2'
+  node: '>=12.0.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+'@elastic/elasticsearch-v8.2-':
+  name: '@elastic/elasticsearch'
+  versions: '>=8.2'
+  node: '>=14.0.0'
+  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+
+# @elastic/elasticsearch-canary *sometimes* gets releases in advance of
+# '@elastic/elasticsearch'. It is only the latest such release that
+# might matter. The point in testing it is to try to make sure the agent is
+# updated for coming changes to the non-canary package.
 '@elastic/elasticsearch-canary':
   name: '@elastic/elasticsearch-canary'
-  versions: '>=8.0.0-canary.36 || >=8.1.0-canary.2'
-  node: '>=12'
+  versions: '>=8.2.0-canary.2'
+  node: '>=14'
   commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
 
 handlebars:

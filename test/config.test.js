@@ -932,9 +932,15 @@ test('disableInstrumentations', function (t) {
     modules.delete('express-graphql')
   }
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
-    modules.delete('@elastic/elasticsearch')
+    modules.delete('@elastic/elasticsearch') // - Version 7.12.0 dropped support for node v8.
   }
-  if (semver.lt(process.version, '10.0.0') && semver.gte(esCanaryVersion, '7.12.0')) {
+  if (semver.lt(process.version, '12.0.0') && semver.gte(esVersion, '8.0.0')) {
+    modules.delete('@elastic/elasticsearch') // - Version 8.0.0 dropped node v10 support.
+  }
+  if (semver.lt(process.version, '14.0.0') && semver.gte(esVersion, '8.2.0')) {
+    modules.delete('@elastic/elasticsearch') // - Version 8.2.0 dropped node v12 support.
+  }
+  if (semver.lt(process.version, '14.0.0')) {
     modules.delete('@elastic/elasticsearch-canary')
   }
   // As of mongodb@4 only supports node >=v12.
