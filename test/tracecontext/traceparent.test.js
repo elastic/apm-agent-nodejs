@@ -176,3 +176,17 @@ test('ensureParentId', t => {
 
   t.end()
 })
+
+test('setRecorded', t => {
+  const traceParent = TraceParent.fromString(header)
+
+  t.ok(traceParent.recorded)
+
+  traceParent.setRecorded(false)
+  t.ok(!traceParent.recorded)
+
+  traceParent.setRecorded(true)
+  t.ok(traceParent.recorded)
+
+  t.end()
+})
