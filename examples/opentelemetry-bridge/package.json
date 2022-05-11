@@ -1,0 +1,18 @@
+{
+  "name": "elastic-apm-node-opentelemetry-bridge-examples",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "trace-hello-world": "ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true node -r elastic-apm-node/start.js trace-hello-world.js",
+    "trace-https-request": "ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true node -r elastic-apm-node/start.js trace-https-request.js"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.1.0",
+    "@opentelemetry/core": "^1.2.0",
+    "@opentelemetry/instrumentation": "^0.28.0",
+    "@opentelemetry/instrumentation-http": "^0.28.0",
+    "@opentelemetry/sdk-trace-base": "^1.2.0",
+    "@opentelemetry/sdk-trace-node": "^1.2.0",
+    "elastic-apm-node": "file:../.."
+  }
+}
