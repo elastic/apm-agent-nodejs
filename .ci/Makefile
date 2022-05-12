@@ -1,23 +1,21 @@
 SHELL = /bin/bash -eo pipefail
 
 AWS_FOLDER = ../build/aws
+LAMBDA_LAYER_ZIP_FILE = ../build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip
 
 export AWS_FOLDER
 
-build:
-	rm -rf $(AWS_FOLDER) || true
-	mkdir -p $(AWS_FOLDER)
-	cd $(AWS_FOLDER); \
-		npm init -y; \
-		npm install --global-style https://github.com/elastic/apm-agent-nodejs#$(BRANCH_NAME); \
-		mkdir nodejs; \
-		mv node_modules nodejs
+.PHONY: dist
+dist: validate-branch-name
+	../dev-utils/make-lambda-layer-zip.sh
+	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip
+
+.PHONY: clean
+clean:
+	rm -rf $(AWS_FOLDER)
+
 env:
 	env
-dist: validate-branch-name build
-	rm -f $(BRANCH_NAME).zip || true
-	cd $(AWS_FOLDER) ; \
-		zip -r $(BRANCH_NAME).zip nodejs
 
 # List all the AWS regions
 get-all-aws-regions:
@@ -48,7 +46,7 @@ publish: validate-layer-name validate-aws-default-region
 		--description "AWS Lambda Extension Layer for the Elastic APM Node.js Agent" \
 		--license "Apache-2.0" \
 		--compatible-runtimes nodejs14.x nodejs12.x nodejs10.x \
-		--zip-file "fileb://./$(AWS_FOLDER)/$(BRANCH_NAME).zip"
+		--zip-file "fileb://./$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip"
 
 # Grant public access to the given LAYER in the given AWS region
 grant-public-layer-access: validate-layer-name validate-aws-default-region
@@ -72,14 +70,13 @@ get-version: validate-aws-default-region
 create-arn-file: validate-suffix-arn-file validate-release-notes-url
 	@./scripts/create-arn-table.sh
 
-release-notes: validate-branch-name validate-suffix-arn-file
+github-release: validate-branch-name validate-suffix-arn-file
 	@gh release list
 	@gh \
 		release \
 		create $(BRANCH_NAME) \
 		--title '$(BRANCH_NAME)' \
-		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE) \
-		$(AWS_FOLDER)/$(BRANCH_NAME).zip
+		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
 
 validate-branch-name:
 ifndef BRANCH_NAME

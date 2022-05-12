@@ -8,6 +8,8 @@
   "ignorePatterns": [
     "/.nyc_output",
     "/build",
+    "node_modules",
+    "/lib/opentelemetry-bridge/opentelemetry-core-mini",
     "/test/babel/out.js",
     "/test/sourcemaps/fixtures/lib",
     "/test/stacktraces/fixtures/dist",

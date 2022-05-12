@@ -31,6 +31,8 @@ include::./api.asciidoc[]
 
 include::./metrics.asciidoc[]
 
+include::./api-opentelemetry.asciidoc[]
+
 include::./opentracing.asciidoc[]
 
 include::./log-correlation.asciidoc[]

@@ -19,6 +19,9 @@ Notes:
         [float]
         ===== Bug fixes
 
+        [float]
+        ===== Chores
+
 2. When making a release, change the "==== Unreleased" section header to:
 
         [[release-notes-x.x.x]]
@@ -27,6 +30,36 @@ Notes:
 
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- When automatically determining <<service-name>> and <<service-version>> by
+  looking for a "package.json", the agent will now prefer to start looking
+  from the directory of the script being executed, rather than the current
+  working directory. ({issues}2420[#2420])
+
+- Add an experimental <<opentelemetry-bridge>>.  Briefly, the OpenTelemetry
+  Bridge allows one to use the vendor-neutral
+  https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing
+  API] (https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`])
+  to manually instrument your code, and have the Elastic Node.js APM agent
+  handle those API calls. ({pull}2641[#2641])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+- Add a package-lock.json file to ensure repeatable builds of the AWS Lambda
+  layer and to assist with security issue auditing. ({issue}2626[#2626])
+
 
 [[release-notes-3.33.0]]
 ==== 3.33.0 2022/05/05
