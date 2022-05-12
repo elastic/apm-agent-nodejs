@@ -28,19 +28,6 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
-
-- Added a `setRecorded` method to the TraceParent class. ({pull}2687[#2687])
-
-[float]
-===== Bug fixes
-
 [[release-notes-3.33.0]]
 ==== 3.33.0 2022/05/05
 
