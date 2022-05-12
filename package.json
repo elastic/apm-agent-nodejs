@@ -102,7 +102,6 @@
     "object-identity-map": "^1.0.2",
     "original-url": "^1.2.3",
     "pino": "^6.11.2",
-    "read-pkg-up": "^7.0.1",
     "relative-microtime": "^2.0.0",
     "require-in-the-middle": "^5.0.3",
     "semver": "^6.3.0",

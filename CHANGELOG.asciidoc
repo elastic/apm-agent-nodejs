@@ -39,6 +39,11 @@ Notes:
 [float]
 ===== Features
 
+- When automatically determining <<service-name>> and <<service-version>> by
+  looking for a "package.json", the agent will now prefer to start looking
+  from the directory of the script being executed, rather than the current
+  working directory. ({issues}2420[#2420])
+
 - Add an experimental <<opentelemetry-bridge>>.  Briefly, the OpenTelemetry
   Bridge allows one to use the vendor-neutral
   https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing
