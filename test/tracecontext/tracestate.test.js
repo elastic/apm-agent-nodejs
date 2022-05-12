@@ -237,8 +237,24 @@ test('TraceState delimiter edge cases', function (t) {
     'foo=34f067aa0ba902b7,bar=0.25,es=a:b;cee:de,es=xxxy'
   ]
   for (const [, format] of stringFormats.entries()) {
-    this.ok(TraceState.fromStringFormatString(format))
+    t.ok(TraceState.fromStringFormatString(format))
   }
+
+  t.end()
+})
+
+test('TraceState examples', function (t) {
+  const examples = [
+    {
+      // Whitespace (OWS) handling
+      s: '\tacme=foo:bar;spam:eggs , es=k:v ,, ,\t',
+      expect: { acme: 'foo:bar;spam:eggs', es: 'k:v' }
+    }
+  ]
+  examples.forEach(ex => {
+    const ts = TraceState.fromStringFormatString(ex.s)
+    t.deepEqual(ts.toObject(), ex.expect)
+  })
 
   t.end()
 })
