@@ -42,8 +42,7 @@ if (cluster.isMaster) {
 
     t.test('incoming enabled + outgoing enabled', makeTest({
       disableInstrumentations: '',
-      instrumentIncomingHTTPRequests: true,
-      captureSpanStackTraces: false
+      instrumentIncomingHTTPRequests: true
     }, (t, data) => {
       t.strictEqual(data.transactions.length, 2, 'transaction count')
       t.strictEqual(data.spans.length, 1, 'span count')
@@ -70,8 +69,7 @@ if (cluster.isMaster) {
 
     t.test('incoming disabled + outgoing enabled', makeTest({
       disableInstrumentations: '',
-      instrumentIncomingHTTPRequests: false,
-      captureSpanStackTraces: false
+      instrumentIncomingHTTPRequests: false
     }, (t, data) => {
       t.strictEqual(data.transactions.length, 1, 'transaction count')
       t.strictEqual(data.spans.length, 1, 'span count')

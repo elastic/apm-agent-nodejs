@@ -4,7 +4,7 @@
 # The node.js project *sometimes* produces "rc" builds leading up to a new
 # release. They get uploaded to: https://nodejs.org/download/rc/
 NODEJS_VERSION:
-  - "17"
+  - "18"
   - "16"
   - "14"
   - "12"

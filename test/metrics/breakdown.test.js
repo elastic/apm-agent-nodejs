@@ -88,7 +88,6 @@ const testAgentOpts = {
   cloudProvider: 'none',
   centralConfig: false,
   captureExceptions: false,
-  captureSpanStackTraces: false,
   // Create a transport that captures all sent events for later asserts.
   transport () {
     return new CapturingTransport()

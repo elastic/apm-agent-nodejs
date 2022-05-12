@@ -1,0 +1,22 @@
+{
+  "root": true,
+  "env": {
+    "node": true
+  },
+  "extends": "standard",
+  "rules": {},
+  "ignorePatterns": [
+    "/.nyc_output",
+    "/build",
+    "node_modules",
+    "/lib/opentelemetry-bridge/opentelemetry-core-mini",
+    "/test/babel/out.js",
+    "/test/sourcemaps/fixtures/lib",
+    "/test/stacktraces/fixtures/dist",
+    "/test/types/transpile/index.js",
+    "/test/types/transpile-default/index.js",
+    "/test_output",
+    "/tmp"
+  ]
+}
+

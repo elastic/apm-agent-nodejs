@@ -7,7 +7,7 @@ const agent = require('../../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  spanFramesMinDuration: -1 // always capture stack traces with spans
+  spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
 var http = require('http')
@@ -20,7 +20,7 @@ var test = require('tape')
 
 var echoServer = require('./_echo_server_util').echoServer
 var mockClient = require('../../../_mock_http_client')
-var TraceParent = require('traceparent')
+var { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 var methods = ['request', 'get']
 

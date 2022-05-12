@@ -9,4 +9,4 @@
 # made, these will stop and there will be no value in testing v17 nightlies.
 #
 NODEJS_VERSION:
-  - "18"
+  - "19"

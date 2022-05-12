@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.27.0",
+  "version": "3.33.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -8,8 +8,8 @@
     "backport": "backport",
     "docs:open": "PREVIEW=1 npm run docs:build",
     "docs:build": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
-    "lint": "standard",
-    "lint:fix": "standard --fix",
+    "lint": "eslint .  # requires node >=8.10",
+    "lint:fix": "eslint --fix .  # requires node >=8.10",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
     "test": "./test/script/run_tests.sh",
     "test:deps": "dependency-check start.js index.js 'lib/**/*.js' 'test/**/*.js' --no-dev -i async_hooks -i perf_hooks -i parseurl",
@@ -42,7 +42,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "^8.6.0 || 10 || 12 || 14 || 15 || 16 || 17"
+    "node": "^8.6.0 || 10 || 12 || 14 || 16 || 17 || 18"
   },
   "keywords": [
     "opbeat",
@@ -80,13 +80,14 @@
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
   "dependencies": {
     "@elastic/ecs-pino-format": "^1.2.0",
+    "@opentelemetry/api": "^1.1.0",
     "after-all-results": "^2.0.0",
     "async-cache": "^1.1.0",
     "async-value-promise": "^1.1.1",
     "basic-auth": "^2.0.1",
     "cookie": "^0.4.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "^10.4.0",
+    "elastic-apm-http-client": "11.0.1",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",
@@ -94,7 +95,6 @@
     "fast-safe-stringify": "^2.0.7",
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
-    "load-source-map": "^2.0.0",
     "lru-cache": "^6.0.0",
     "measured-reporting": "^1.51.1",
     "monitor-event-loop-delay": "^1.0.0",
@@ -102,14 +102,13 @@
     "object-identity-map": "^1.0.2",
     "original-url": "^1.2.3",
     "pino": "^6.11.2",
-    "read-pkg-up": "^7.0.1",
     "relative-microtime": "^2.0.0",
     "require-in-the-middle": "^5.0.3",
     "semver": "^6.3.0",
     "set-cookie-serde": "^1.0.0",
     "shallow-clone-shim": "^2.0.0",
+    "source-map": "^0.8.0-beta.0",
     "sql-summary": "^1.0.1",
-    "traceparent": "^1.0.0",
     "traverse": "^0.6.6",
     "unicode-byte-truncate": "^1.0.0"
   },
@@ -117,8 +116,8 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
-    "@elastic/elasticsearch": "^7.15.0",
-    "@elastic/elasticsearch-canary": "^8.1.0-canary.2",
+    "@elastic/elasticsearch": "^8.2.0-patch.1",
+    "@elastic/elasticsearch-canary": "^8.2.0-canary.2",
     "@hapi/hapi": "^20.1.2",
     "@koa/router": "^9.0.1",
     "@types/node": "^13.7.4",
@@ -138,7 +137,13 @@
     "container-info": "^1.0.1",
     "dashdash": "^2.0.0",
     "dependency-check": "^4.1.0",
-    "elasticsearch": "^16.5.0",
+    "elasticsearch": "^16.7.3",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-standard": "^4.1.0",
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "express-queue": "^0.0.12",
@@ -178,7 +183,6 @@
     "restify": "^8.5.1",
     "rimraf": "^3.0.2",
     "send": "^0.17.1",
-    "standard": "^14.3.3",
     "tap-junit": "^5.0.1",
     "tape": "^5.0.0",
     "tedious": "^9.2.1",
@@ -188,11 +192,5 @@
     "vasync": "^2.2.0",
     "wait-on": "^3.3.0",
     "ws": "^7.2.1"
-  },
-  "standard": {
-    "ignore": [
-      "/test/sourcemaps/fixtures/lib",
-      "/test/stacktraces/fixtures/dist"
-    ]
   }
 }

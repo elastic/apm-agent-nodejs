@@ -16,11 +16,11 @@ tape.test('cold start tests', function (t) {
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(myHandler)
   const mockEvent = {}
-  const mockContext = {}
+  const mockContext = loadFixture('context')
 
   // invoke the mock lambda twice
-  wrappedMockLambda(mockEvent, mockContext)
-  wrappedMockLambda(mockEvent, mockContext)
+  wrappedMockLambda(mockEvent, mockContext, () => {})
+  wrappedMockLambda(mockEvent, mockContext, () => {})
 
   const cold = mockAgent.transactions.shift()
   const warm = mockAgent.transactions.shift()
@@ -30,24 +30,27 @@ tape.test('cold start tests', function (t) {
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_api_http_test_data tests', function (t) {
+tape.test('transaction data TRIGGER_API_GATEWAY v2', function (t) {
   const mockAgent = new AgentMock()
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
   const event = loadFixture('aws_api_http_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.name, 'the-function-name', 'faas.name')
+  t.strictEquals(transaction._faas.version, '$LATEST', 'faas.version')
   t.strictEquals(typeof transaction._faas.coldstart, 'boolean', 'coldstart value set')
   t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
   t.strictEquals(transaction._faas.trigger.type, 'http', 'execution value set')
   t.strictEquals(transaction._faas.trigger.request_id, event.requestContext.requestId, 'execution value set')
   t.strictEquals(transaction.type, 'request', 'transaction type set')
-  t.strictEquals(transaction.name, 'GET the-function-name', 'transaction named correctly')
+  t.strictEquals(transaction.name, 'GET /default/the-function-name', 'transaction named correctly')
   t.strictEquals(transaction._cloud.origin.provider, 'aws', 'cloud origin provider set correctly')
-  t.strictEquals(transaction._service.origin.name, 'GET /default/the-function-name', 'service origin name set correctly')
+  t.strictEquals(transaction._service.origin.name, '21mj4tsk90.execute-api.us-west-2.amazonaws.com', 'service origin name set correctly')
   t.strictEquals(transaction._service.origin.id, '21mj4tsk90', 'service origin id set correctly')
   t.strictEquals(transaction._service.origin.version, '2.0', 'service origin version set correctly')
   t.strictEquals(transaction._cloud.origin.service.name, 'api gateway', 'cloud origin service name set correctly')
@@ -55,23 +58,54 @@ tape.test('setLambdaTransactionData aws_api_http_test_data tests', function (t) 
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_api_rest_test_data.json tests', function (t) {
+tape.test('transaction data TRIGGER_API_GATEWAY, usePathAsTransactionName=false', function (t) {
+  const mockAgent = new AgentMock({ usePathAsTransactionName: false })
+  const wrapLambda = elasticApmAwsLambda(mockAgent)
+  const wrappedMockLambda = wrapLambda(function () {})
+  const event = loadFixture('aws_apigateway_event_with_template_path')
+  const context = loadFixture('context')
+  wrappedMockLambda(event, context, () => {})
+  const transaction = mockAgent.transactions.shift()
+
+  t.strictEquals(transaction.name, 'POST /prod/{proxy+}', 'transaction named correctly')
+
+  t.end()
+})
+
+tape.test('transaction data TRIGGER_API_GATEWAY, usePathAsTransactionName=true', function (t) {
+  const mockAgent = new AgentMock({ usePathAsTransactionName: true })
+  const wrapLambda = elasticApmAwsLambda(mockAgent)
+  const wrappedMockLambda = wrapLambda(function () {})
+  const event = loadFixture('aws_apigateway_event_with_template_path')
+  const context = loadFixture('context')
+  wrappedMockLambda(event, context, () => {})
+  const transaction = mockAgent.transactions.shift()
+
+  t.strictEquals(transaction.name, 'POST /prod/path/to/resource', 'transaction named correctly')
+
+  t.end()
+})
+
+tape.test('transaction data TRIGGER_API_GATEWAY v1', function (t) {
   const mockAgent = new AgentMock()
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
   const event = loadFixture('aws_api_rest_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
-  t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.name, 'the-function-name', 'faas.name')
+  t.strictEquals(transaction._faas.version, '$LATEST', 'faas.version')
+  t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
   t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
   t.strictEquals(transaction._faas.trigger.type, 'http', 'trigger type set')
   t.strictEquals(transaction._faas.trigger.request_id, event.requestContext.requestId, 'execution value set')
   t.strictEquals(transaction.type, 'request', 'transaction type set')
-  t.strictEquals(transaction.name, 'GET the-function-name', 'transaction named correctly')
-  t.strictEquals(transaction._service.origin.name, 'GET /dev/fetch_all', 'service origin name set correctly')
+  t.strictEquals(transaction.name, 'GET /dev/fetch_all', 'transaction named correctly')
+  t.strictEquals(transaction._service.origin.name, '02plqthge2.execute-api.us-east-1.amazonaws.com', 'service origin name set correctly')
   t.strictEquals(transaction._service.origin.id, '02plqthge2', 'service origin id set correctly')
   t.strictEquals(transaction._service.origin.version, '1.0', 'service origin version set correctly')
   t.strictEquals(transaction._cloud.origin.provider, 'aws', 'cloud origin provider set correctly')
@@ -80,23 +114,24 @@ tape.test('setLambdaTransactionData aws_api_rest_test_data.json tests', function
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) {
-  const mockAgent = new AgentMock()
-  mockAgent._conf.captureBody = 'all'
-  mockAgent._conf.captureHeaders = 'all'
+tape.test('transaction data TRIGGER_SQS_SINGLE_EVENT', function (t) {
+  const mockAgent = new AgentMock({ captureHeaders: true, captureBody: 'all' })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
   const event = loadFixture('aws_sqs_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   const r = event.Records[0]
   const arnParts = r.eventSourceARN.split(':')
   const queueName = arnParts.pop()
   const accountId = arnParts.pop()
-  t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.name, 'the-function-name', 'faas.name')
+  t.strictEquals(transaction._faas.version, '$LATEST', 'faas.version')
+  t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
   t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
   t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'trigger type set')
   t.strictEquals(transaction._faas.trigger.request_id, r.messageId, 'trigger request_id')
@@ -111,21 +146,21 @@ tape.test('setLambdaTransactionData aws_sqs_test_data.json tests', function (t) 
   t.strictEquals(transaction._message.queue.name, queueName, 'message queue set correctly')
   t.strictEquals(typeof transaction._message.age.ms, 'number', 'message age is a number')
   t.strictEquals(transaction._message.body, r.body, 'message body set correctly')
-  t.deepEquals(transaction._message.headers, r.messageAttributes, 'message headers set correctly')
+  t.deepEquals(transaction._message.headers,
+    { Population: '1250800', City: 'Any City' },
+    'message headers set correctly')
 
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) {
-  const mockAgent = new AgentMock()
-  mockAgent._conf.captureBody = 'transactions'
-  mockAgent._conf.captureHeaders = true
+tape.test('transaction data TRIGGER_SNS_SINGLE_EVENT', function (t) {
+  const mockAgent = new AgentMock({ captureHeaders: true, captureBody: 'transactions' })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
 
   const event = loadFixture('aws_sns_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
   const r = event.Records[0]
@@ -133,9 +168,12 @@ tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) 
   const topicName = arnParts.pop()
   const accountId = arnParts.pop()
 
-  t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
-  t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'trigger type set')
-  t.strictEquals(transaction._faas.trigger.request_id, r.Sns.MessageId, 'trigger request_id set')
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.name, 'the-function-name', 'faas.name')
+  t.strictEquals(transaction._faas.version, '$LATEST', 'faas.version')
+  t.strictEquals(transaction._faas.coldstart, false, 'faas.coldstart value set')
+  t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'faas.trigger.type set')
+  t.strictEquals(transaction._faas.trigger.request_id, r.Sns.MessageId, 'faas.trigger.request_id set')
   t.strictEquals(transaction.type, 'messaging', 'transaction type set')
   t.strictEquals(transaction.name, `RECEIVE ${topicName}`, 'transaction named correctly')
   t.strictEquals(transaction._service.origin.name, topicName, 'service origin name set correctly')
@@ -150,12 +188,14 @@ tape.test('setLambdaTransactionData aws_sns_test_data.json tests', function (t) 
   t.strictEquals(transaction._message.queue.name, topicName, 'message queue set correctly')
   t.strictEquals(typeof transaction._message.age.ms, 'number', 'message age is a number')
   t.strictEquals(transaction._message.body, r.Sns.Message, 'message body set correctly')
-  t.deepEquals(transaction._message.headers, r.Sns.MessageAttributes, 'message headers set correctly')
+  t.deepEquals(transaction._message.headers,
+    { Population: '1250800', City: 'Any City' },
+    'message headers set correctly')
 
   t.end()
 })
 
-tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
+tape.test('transaction data TRIGGER_S3_SINGLE_EVENT', function (t) {
   const mockAgent = new AgentMock()
   mockAgent._conf.captureBody = 'all'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
@@ -163,10 +203,13 @@ tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
 
   const event = loadFixture('aws_s3_test_data')
   const context = loadFixture('context')
-  wrappedMockLambda(event, context)
+  wrappedMockLambda(event, context, () => {})
   const transaction = mockAgent.transactions.shift()
 
-  t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+  t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+  t.strictEquals(transaction._faas.name, 'the-function-name', 'faas.name')
+  t.strictEquals(transaction._faas.version, '$LATEST', 'faas.version')
+  t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
   t.strictEquals(transaction._faas.trigger.type, 'datasource', 'trigger type set')
   t.strictEquals(transaction._faas.trigger.request_id, '0FM18R15SDX52CT2', 'trigger request id set')
   t.strictEquals(transaction.type, 'request', 'transaction type set')
@@ -183,7 +226,7 @@ tape.test('setLambdaTransactionData aws_s3_test_data.json tests', function (t) {
   t.end()
 })
 
-tape.test('setLambdaTransactionData generic tests', function (t) {
+tape.test('transaction data TRIGGER_GENERIC', function (t) {
   const mockAgent = new AgentMock()
   mockAgent._conf.captureBody = 'transactions'
   const wrapLambda = elasticApmAwsLambda(mockAgent)
@@ -193,10 +236,13 @@ tape.test('setLambdaTransactionData generic tests', function (t) {
   for (const [, fixture] of fixtures.entries()) {
     const event = loadFixture(fixture)
     const context = loadFixture('context')
-    wrappedMockLambda(event, context)
+    wrappedMockLambda(event, context, () => {})
     const transaction = mockAgent.transactions.shift()
 
-    t.strictEquals(transaction._faas.coldstart, false, 'colstart value set')
+    t.strictEquals(transaction._faas.id, 'arn:aws:lambda:us-west-2:000000000000:function:the-function-name', 'faas.id')
+    t.strictEquals(transaction._faas.name, 'the-function-name', 'faas.name')
+    t.strictEquals(transaction._faas.version, '$LATEST', 'faas.version')
+    t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
     t.strictEquals(transaction._faas.trigger.type, 'other', 'trigger type set')
     t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
 
@@ -230,6 +276,9 @@ tape.test('serialize transaction lambda fields', function (t) {
   t.deepEquals(afterBasic.context.message, {}, 'message is not defined yet')
 
   const faas = {
+    id: 'two and a half',
+    name: 'two and three quarters',
+    version: 'two and seven eighths',
     coldstart: 'three',
     execution: 'four',
     trigger: {
@@ -239,11 +288,13 @@ tape.test('serialize transaction lambda fields', function (t) {
   }
   transaction.setFaas(faas)
   const afterFaas = transaction.toJSON()
-
-  t.strictEquals(afterFaas.faas.coldstart, faas.coldstart, 'coldstart serialized')
-  t.strictEquals(afterFaas.faas.execution, faas.execution, 'execution serialized')
-  t.strictEquals(afterFaas.faas.trigger.type, faas.trigger.type, 'trigger type serialized')
-  t.strictEquals(afterFaas.faas.trigger.request_id, faas.trigger.request_id, 'trigger type serialized')
+  t.strictEquals(afterFaas.faas.id, faas.id, 'faas.id serialized')
+  t.strictEquals(afterFaas.faas.name, faas.name, 'faas.name')
+  t.strictEquals(afterFaas.faas.version, faas.version, 'faas.version')
+  t.strictEquals(afterFaas.faas.coldstart, faas.coldstart, 'faas.coldstart serialized')
+  t.strictEquals(afterFaas.faas.execution, faas.execution, 'faas.execution serialized')
+  t.strictEquals(afterFaas.faas.trigger.type, faas.trigger.type, 'faas.trigger.type serialized')
+  t.strictEquals(afterFaas.faas.trigger.request_id, faas.trigger.request_id, 'faas.trigger.request_id serialized')
 
   const serviceContext = {
     origin: {
@@ -254,9 +305,7 @@ tape.test('serialize transaction lambda fields', function (t) {
   }
   transaction.setServiceContext(serviceContext)
   const afterService = transaction.toJSON()
-  t.strictEquals(afterService.context.service.name, serviceContext.coldstart, 'service name serialized')
-  t.strictEquals(afterService.context.service.id, serviceContext.id, 'service id serialized')
-  t.strictEquals(afterService.context.service.version, serviceContext.version, 'service version serialized')
+  t.deepEquals(afterService.context.service, serviceContext, 'transaction.context.service serialized')
 
   const cloudContext = {
     origin: {
@@ -272,7 +321,6 @@ tape.test('serialize transaction lambda fields', function (t) {
   }
   transaction.setCloudContext(cloudContext)
   const afterCloud = transaction.toJSON()
-
   t.strictEquals(afterCloud.context.cloud.origin.provider, cloudContext.origin.provider, 'cloud origin provider serialized')
   t.strictEquals(afterCloud.context.cloud.origin.service.name, cloudContext.origin.service.name, 'cloud origin service name serialized')
   t.strictEquals(afterCloud.context.cloud.origin.account.id, cloudContext.origin.account.id, 'cloud origin account id serialized')
@@ -286,7 +334,6 @@ tape.test('serialize transaction lambda fields', function (t) {
   }
   transaction.setMessageContext(messageContext)
   const afterMessage = transaction.toJSON()
-
   t.strictEquals(afterMessage.context.message.queue, messageContext.queue)
   t.strictEquals(afterMessage.context.message.age, messageContext.age)
   t.strictEquals(afterMessage.context.message.body, messageContext.body)
@@ -295,7 +342,7 @@ tape.test('serialize transaction lambda fields', function (t) {
   t.end()
 })
 
-tape.test('setLambdaTransactionData invalid objects', function (t) {
+tape.test('invalid event objects do not crash determining transaction data', function (t) {
   const mockAgent = new AgentMock()
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
@@ -311,7 +358,7 @@ tape.test('setLambdaTransactionData invalid objects', function (t) {
   }
   const emptySnsEvent = {
     Records: [{
-      eventSource: 'aws:sns'
+      EventSource: 'aws:sns'
     }]
   }
   const emptyS3Event = {
@@ -319,11 +366,10 @@ tape.test('setLambdaTransactionData invalid objects', function (t) {
       eventSource: 'aws:s3'
     }]
   }
-  const fixtures = [emptyGatewayEvent, emptySqsEvent,
-    emptySqsEvent, emptySnsEvent, emptyS3Event]
+  const fixtures = [emptyGatewayEvent, emptySqsEvent, emptySnsEvent, emptyS3Event]
 
   for (const [, event] of fixtures.entries()) {
-    wrappedMockLambda(event, {})
+    wrappedMockLambda(event, {}, () => {})
     t.pass('no exceptions thrown or crashing errors')
   }
 

@@ -1,0 +1,99 @@
+++++
+<div class="tabs" data-tab-group="os">
+  <div role="tablist" aria-label="dependency">
+    <button role="tab"
+            aria-selected="true"
+            aria-controls="console-tab-lambda-nodejs-config"
+            id="console-lambda-nodejs-config">
+      AWS Web Console
+    </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="cli-tab-lambda-nodejs-config"
+            id="cli-lambda-nodejs-config"
+            tabindex="-1">
+      AWS CLI
+    </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="sam-tab-lambda-nodejs-config"
+            id="sam-lambda-nodejs-config"
+            tabindex="-1">
+      SAM
+    </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="serverless-tab-lambda-nodejs-config"
+            id="serverless-lambda-nodejs-config"
+            tabindex="-1">
+      Serverless
+    </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="terraform-tab-lambda-nodejs-config"
+            id="terraform-lambda-nodejs-config"
+            tabindex="-1">
+      Terraform
+    </button>
+  </div>
+  <div tabindex="0"
+      role="tabpanel"
+      id="console-tab-lambda-nodejs-config"
+      name="lambda-tabpanel"
+      aria-labelledby="console-lambda-nodejs-config">
+++++
+
+include::configure-lambda.asciidoc[tag=console-{layer-section-type}]
+
+++++
+  </div>
+  <div tabindex="0"
+      role="tabpanel"
+      id="cli-tab-lambda-nodejs-config"
+      name="lambda-tabpanel"
+      aria-labelledby="cli-lambda-nodejs-config"
+      hidden="">
+++++
+
+include::configure-lambda.asciidoc[tag=cli-{layer-section-type}]
+
+++++
+  </div>
+  <div tabindex="0"
+      role="tabpanel"
+      id="sam-tab-lambda-nodejs-config"
+      name="lambda-tabpanel"
+      aria-labelledby="sam-lambda-nodejs-config"
+      hidden="">
+++++
+
+include::configure-lambda.asciidoc[tag=sam-{layer-section-type}]
+
+++++
+  </div>
+  <div tabindex="0"
+      role="tabpanel"
+      id="serverless-tab-lambda-nodejs-config"
+      name="lambda-tabpanel"
+      aria-labelledby="serverless-lambda-nodejs-config"
+      hidden="">
+++++
+
+include::configure-lambda.asciidoc[tag=serverless-{layer-section-type}]
+
+++++
+  </div>
+  <div tabindex="0"
+      role="tabpanel"
+      id="terraform-tab-lambda-nodejs-config"
+      name="lambda-tabpanel"
+      aria-labelledby="terraform-lambda-nodejs-config"
+      hidden="">
+++++
+
+include::configure-lambda.asciidoc[tag=terraform-{layer-section-type}]
+
+++++
+  </div>
+</div>
+++++

@@ -16,7 +16,7 @@ var test = require('tape')
 const Agent = require('../lib/agent')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
-const { safeGetPackageVersion } = require('./_utils')
+const { safeGetPackageVersion, findObjInArray } = require('./_utils')
 const config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
@@ -30,7 +30,6 @@ const agentOpts = {
   captureExceptions: false,
   metricsInterval: '0s',
   cloudProvider: 'none',
-  spanFramesMinDuration: -1, // Never discard fast spans.
   logLevel: 'warn'
 }
 const agentOptsNoopTransport = Object.assign(
@@ -44,6 +43,68 @@ const agentOptsNoopTransport = Object.assign(
   }
 )
 
+// ---- support functions
+
+function assertEncodedTransaction (t, trans, result) {
+  t.comment('transaction')
+  t.strictEqual(result.id, trans.id, 'id matches')
+  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
+  t.strictEqual(result.parent_id, trans.parentId, 'parent id matches')
+  t.strictEqual(result.name, trans.name, 'name matches')
+  t.strictEqual(result.type, trans.type || 'custom', 'type matches')
+  t.strictEqual(result.duration, trans._duration, 'duration matches')
+  t.strictEqual(result.timestamp, trans.timestamp, 'timestamp matches')
+  t.strictEqual(result.result, trans.result, 'result matches')
+  t.strictEqual(result.sampled, trans.sampled, 'sampled matches')
+}
+
+function assertEncodedSpan (t, span, result) {
+  t.comment('span')
+  t.strictEqual(result.id, span.id, 'id matches')
+  t.strictEqual(result.transaction_id, span.transaction.id, 'transaction id matches')
+  t.strictEqual(result.trace_id, span.traceId, 'trace id matches')
+  t.strictEqual(result.parent_id, span.parentId, 'parent id matches')
+  t.strictEqual(result.name, span.name, 'name matches')
+  t.strictEqual(result.type, span.type || 'custom', 'type matches')
+  t.strictEqual(result.duration, span._duration, 'duration matches')
+  t.strictEqual(result.timestamp, span.timestamp, 'timestamp matches')
+}
+
+function assertEncodedError (t, error, result, trans, parent) {
+  t.comment('error')
+  t.ok(result.id, 'has a valid id')
+  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
+  t.strictEqual(result.transaction_id, trans.id, 'transaction id matches')
+  t.strictEqual(result.parent_id, parent.id, 'parent id matches')
+  t.ok(result.exception, 'has an exception object')
+  t.strictEqual(result.exception.message, error.message, 'exception message matches')
+  t.strictEqual(result.exception.type, error.constructor.name, 'exception type matches')
+  t.ok(result.culprit, 'has a valid culprit')
+  t.ok(result.timestamp, 'has a valid timestamp')
+}
+
+class CaptureLogger {
+  constructor () {
+    this.calls = []
+  }
+
+  _log (type, message) {
+    this.calls.push({
+      type,
+      message
+    })
+  }
+
+  fatal (message) { this._log('fatal', message) }
+  error (message) { this._log('error', message) }
+  warn (message) { this._log('warn', message) }
+  info (message) { this._log('info', message) }
+  debug (message) { this._log('debug', message) }
+  trace (message) { this._log('trace', message) }
+}
+
+// ---- tests
+
 var optionFixtures = [
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
   ['active', 'ACTIVE', true],
@@ -54,7 +115,6 @@ var optionFixtures = [
   ['captureBody', 'CAPTURE_BODY', 'off'],
   ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
-  ['captureSpanStackTraces', 'CAPTURE_SPAN_STACK_TRACES', true],
   ['centralConfig', 'CENTRAL_CONFIG', true],
   ['containerId', 'CONTAINER_ID'],
   ['contextPropagationOnly', 'CONTEXT_PROPAGATION_ONLY', false],
@@ -320,12 +380,10 @@ test('should log invalid booleans', function (t) {
     }
   ))
 
-  t.strictEqual(logger.calls.length, 2)
-
-  var warning = logger.calls.shift()
+  var warning = findObjInArray(logger.calls, 'type', 'warn')
   t.strictEqual(warning.message, 'unrecognized boolean value "nope" for "active"')
 
-  var debug = logger.calls.shift()
+  var debug = findObjInArray(logger.calls, 'type', 'debug')
   t.strictEqual(debug.message, 'Elastic APM agent disabled (`active` is false)')
 
   agent.destroy()
@@ -365,40 +423,54 @@ bytesValues.forEach(function (key) {
   })
 })
 
-var POSITIVE_TIME_OPTS = [
-  'abortedErrorThreshold',
-  'apiRequestTime',
-  'metricsInterval',
-  'serverTimeout'
-]
-// Time options allowing negative values.
-var TIME_OPTS = [
-  'spanFramesMinDuration'
-]
+config.DURATION_OPTS.forEach(function (optSpec) {
+  const key = optSpec.name
 
-POSITIVE_TIME_OPTS.forEach(function (key) {
-  test(key + ' should guard against a negative time', function (t) {
-    var agent = new Agent()
-    var logger = new CaptureLogger()
-    agent.start(Object.assign(
-      {},
-      agentOptsNoopTransport,
-      {
-        [key]: '-1s',
-        logger
+  // Skip the deprecated `spanFramesMinDuration` because config normalization
+  // converts it to `spanStackTraceMinDuration` and then removes it.
+  if (key === 'spanFramesMinDuration') {
+    return
+  }
+
+  let def
+  if (key in config.DEFAULTS) {
+    def = config.secondsFromDuration(config.DEFAULTS[key],
+      optSpec.defaultUnit, optSpec.allowedUnits, optSpec.allowNegative)
+  } else if (key === 'spanStackTraceMinDuration') {
+    // Because of special handling in normalizeSpanStackTraceMinDuration()
+    // `spanStackTraceMinDuration` is not listed in `config.DEFAULTS`.
+    def = -1
+  } else {
+    def = undefined
+  }
+
+  if (!optSpec.allowNegative) {
+    test(key + ' should guard against a negative time', function (t) {
+      var agent = new Agent()
+      var logger = new CaptureLogger()
+      agent.start(Object.assign(
+        {},
+        agentOptsNoopTransport,
+        {
+          [key]: '-3s',
+          logger
+        }
+      ))
+
+      if (def === undefined) {
+        t.strictEqual(agent._conf[key], undefined, 'config opt was removed from agent._conf')
+      } else {
+        t.strictEqual(agent._conf[key], def, 'fell back to default value')
       }
-    ))
+      const warning = logger.calls[0]
+      t.equal(warning.type, 'warn', 'got a log.warn')
+      t.ok(warning.message.indexOf('-3s') !== -1, 'warning message includes the invalid value')
+      t.ok(warning.message.indexOf(key) !== -1, 'warning message includes the invalid key')
 
-    t.strictEqual(agent._conf[key], config.secondsFromTimeStr(config.DEFAULTS[key]),
-      'fell back to default value')
-    const warning = logger.calls[0]
-    t.equal(warning.type, 'warn', 'got a log.warn')
-    t.ok(warning.message.indexOf('-1s') !== -1, 'warning message includes the invalid value')
-    t.ok(warning.message.indexOf(key) !== -1, 'warning message includes the invalid key')
-
-    agent.destroy()
-    t.end()
-  })
+      agent.destroy()
+      t.end()
+    })
+  }
 
   test(key + ' should guard against a bogus non-time', function (t) {
     var agent = new Agent()
@@ -412,8 +484,11 @@ POSITIVE_TIME_OPTS.forEach(function (key) {
       }
     ))
 
-    t.strictEqual(agent._conf[key], config.secondsFromTimeStr(config.DEFAULTS[key]),
-      'fell back to default value')
+    if (def === undefined) {
+      t.strictEqual(agent._conf[key], undefined, 'config opt was removed from agent._conf')
+    } else {
+      t.strictEqual(agent._conf[key], def, 'fell back to default value')
+    }
     const warning = logger.calls[0]
     t.equal(warning.type, 'warn', 'got a log.warn')
     t.ok(warning.message.indexOf('bogusvalue') !== -1, 'warning message includes the invalid value')
@@ -422,9 +497,7 @@ POSITIVE_TIME_OPTS.forEach(function (key) {
     agent.destroy()
     t.end()
   })
-})
 
-POSITIVE_TIME_OPTS.concat(TIME_OPTS).forEach(function (key) {
   test(key + ' should convert minutes to seconds', function (t) {
     var agent = new Agent()
     var opts = {}
@@ -460,7 +533,18 @@ POSITIVE_TIME_OPTS.concat(TIME_OPTS).forEach(function (key) {
     var opts = {}
     opts[key] = 10
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
-    t.strictEqual(agent._conf[key], 10)
+    var expectedVal
+    switch (optSpec.defaultUnit) {
+      case 's':
+        expectedVal = 10
+        break
+      case 'ms':
+        expectedVal = 10 / 1e3
+        break
+      default:
+        throw new Error(`unexpected defaultUnit: ${optSpec.defaultUnit}`)
+    }
+    t.strictEqual(agent._conf[key], expectedVal)
     agent.destroy()
     t.end()
   })
@@ -643,20 +727,20 @@ test('serviceName/serviceVersion zero-conf: valid', function (t) {
   })
 })
 
-test('serviceName/serviceVersion zero-conf: no package.json to find', function (t) {
+test('serviceName/serviceVersion zero-conf: cwd is outside package tree', function (t) {
   const indexJs = path.join(__dirname, 'fixtures', 'pkg-zero-conf-valid', 'index.js')
   cp.execFile(process.execPath, [indexJs], {
     timeout: 3000,
-    // Set CWD to top-level to ensure the agent cannot find a package.json file.
+    // Set CWD to outside of the package tree to test whether the agent
+    // package.json searching uses `require.main`.
     cwd: '/'
   }, function (err, stdout, stderr) {
     t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'unknown-nodejs-service',
-      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
-    t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
+    t.equal(conf.serviceName, 'validName', 'serviceName was inferred from package.json')
+    t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
     t.end()
   })
 })
@@ -733,6 +817,47 @@ test('serviceName/serviceVersion zero-conf: weird "name" in package.json', funct
   })
 })
 
+test('serviceName/serviceVersion zero-conf: no package.json to find', function (t) {
+  // To test the APM agent's fallback serviceName, we need to execute
+  // a script in a dir that has no package.json in its dir, or any dir up
+  // from it (we assume/hope that `os.tmpdir()` works for that).
+  const dir = os.tmpdir()
+  const script = path.resolve(dir, 'elastic-apm-node-zero-conf-test-script.js')
+  // Avoid Windows '\' path separators that are interpreted as escapes when
+  // interpolated into the script content below.
+  const agentDir = path.resolve(__dirname, '..')
+    .replace(new RegExp('\\' + path.win32.sep, 'g'), path.posix.sep)
+  function setupPkgEnv () {
+    fs.writeFileSync(script, `
+      const apm = require('${agentDir}').start({
+        disableSend: true
+      })
+      console.log(JSON.stringify(apm._conf))
+      `)
+    t.comment(`created ${script}`)
+  }
+  function teardownPkgEnv () {
+    fs.unlinkSync(script)
+    t.comment(`removed ${script}`)
+  }
+
+  setupPkgEnv()
+  cp.execFile(process.execPath, [script], {
+    timeout: 3000,
+    cwd: dir
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running script: ' + err)
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const conf = JSON.parse(lines[lines.length - 1])
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
+    t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
+    teardownPkgEnv()
+    t.end()
+  })
+})
+
 var captureBodyTests = [
   { value: 'off', errors: '[REDACTED]', transactions: '[REDACTED]' },
   { value: 'transactions', errors: '[REDACTED]', transactions: 'test' },
@@ -804,7 +929,13 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
               sentTrans = trans
               if (cb) process.nextTick(cb)
             },
-            flush (cb) {
+            flush (opts, cb) {
+              if (typeof opts === 'function') {
+                cb = opts
+                opts = {}
+              } else if (!opts) {
+                opts = {}
+              }
               if (cb) process.nextTick(cb)
             }
           }
@@ -835,7 +966,6 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 test('disableInstrumentations', function (t) {
   var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
-  const esCanaryVersion = safeGetPackageVersion('@elastic/elasticsearch-canary')
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
   const apolloServerCoreVersion = require('apollo-server-core/package.json').version
@@ -852,9 +982,15 @@ test('disableInstrumentations', function (t) {
     modules.delete('express-graphql')
   }
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
-    modules.delete('@elastic/elasticsearch')
+    modules.delete('@elastic/elasticsearch') // - Version 7.12.0 dropped support for node v8.
   }
-  if (semver.lt(process.version, '10.0.0') && semver.gte(esCanaryVersion, '7.12.0')) {
+  if (semver.lt(process.version, '12.0.0') && semver.gte(esVersion, '8.0.0')) {
+    modules.delete('@elastic/elasticsearch') // - Version 8.0.0 dropped node v10 support.
+  }
+  if (semver.lt(process.version, '14.0.0') && semver.gte(esVersion, '8.2.0')) {
+    modules.delete('@elastic/elasticsearch') // - Version 8.2.0 dropped node v12 support.
+  }
+  if (semver.lt(process.version, '14.0.0')) {
     modules.delete('@elastic/elasticsearch-canary')
   }
   // As of mongodb@4 only supports node >=v12.
@@ -941,7 +1077,13 @@ test('custom transport', function (t) {
 
     config () {}
 
-    flush (cb) {
+    flush (opts, cb) {
+      if (typeof opts === 'function') {
+        cb = opts
+        opts = {}
+      } else if (!opts) {
+        opts = {}
+      }
       if (cb) setImmediate(cb)
     }
 
@@ -1331,60 +1473,182 @@ test('userAgentFromConf', t => {
   t.end()
 })
 
-function assertEncodedTransaction (t, trans, result) {
-  t.comment('transaction')
-  t.strictEqual(result.id, trans.id, 'id matches')
-  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
-  t.strictEqual(result.parent_id, trans.parentId, 'parent id matches')
-  t.strictEqual(result.name, trans.name, 'name matches')
-  t.strictEqual(result.type, trans.type || 'custom', 'type matches')
-  t.strictEqual(result.duration, trans._duration, 'duration matches')
-  t.strictEqual(result.timestamp, trans.timestamp, 'timestamp matches')
-  t.strictEqual(result.result, trans.result, 'result matches')
-  t.strictEqual(result.sampled, trans.sampled, 'sampled matches')
-}
+// `spanStackTraceMinDuration` is synthesized from itself and two deprecated
+// config vars (`captureSpanStackTraces` and `spanFramesMinDuration`).
+test('spanStackTraceMinDuration', suite => {
+  const spanStackTraceMinDurationTestScenarios = [
+    {
+      name: 'spanStackTraceMinDuration defaults to -1',
+      startOpts: {},
+      env: {},
+      expectedVal: -1
+    },
+    {
+      name: 'spanStackTraceMinDuration defaults to milliseconds',
+      startOpts: {
+        spanStackTraceMinDuration: 40
+      },
+      env: {},
+      expectedVal: 0.04
+    },
+    {
+      name: 'ELASTIC_APM_SPAN_STACK_TRACE_MIN_DURATION defaults to milliseconds',
+      startOpts: {},
+      env: {
+        ELASTIC_APM_SPAN_STACK_TRACE_MIN_DURATION: '30'
+      },
+      expectedVal: 0.03
+    },
+    {
+      name: 'a given spanStackTraceMinDuration=0s wins',
+      startOpts: {
+        spanStackTraceMinDuration: '0s',
+        captureSpanStackTraces: false,
+        spanFramesMinDuration: '500ms'
+      },
+      env: {},
+      expectedVal: 0
+    },
+    {
+      name: 'a given spanStackTraceMinDuration=0s wins over envvars',
+      startOpts: {
+        spanStackTraceMinDuration: '0s'
+      },
+      env: {
+        ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES: 'false',
+        ELASTIC_APM_SPAN_FRAMES_MIN_DURATION: '500ms'
+      },
+      expectedVal: 0
+    },
+    {
+      name: 'a given spanStackTraceMinDuration=-1s wins',
+      startOpts: {
+        spanStackTraceMinDuration: '-1s',
+        captureSpanStackTraces: true
+      },
+      env: {},
+      expectedVal: -1
+    },
+    {
+      name: 'a given spanStackTraceMinDuration=50ms wins',
+      startOpts: {
+        spanStackTraceMinDuration: '50ms',
+        captureSpanStackTraces: false,
+        spanFramesMinDuration: '300ms'
+      },
+      env: {},
+      expectedVal: 0.05
+    },
+    {
+      name: 'captureSpanStackTraces=true alone results in spanStackTraceMinDuration=10ms',
+      startOpts: {
+        captureSpanStackTraces: true
+      },
+      env: {},
+      expectedVal: 0.01
+    },
+    {
+      name: 'captureSpanStackTraces=false results in spanStackTraceMinDuration=-1',
+      startOpts: {
+        captureSpanStackTraces: false,
+        spanFramesMinDuration: '50ms' // this value is ignored
+      },
+      env: {},
+      expectedVal: -1
+    },
+    {
+      name: 'ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES=false results in spanStackTraceMinDuration=-1',
+      startOpts: {},
+      env: {
+        ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES: 'false'
+      },
+      expectedVal: -1
+    },
+    {
+      name: 'spanFramesMinDuration=0s results in spanStackTraceMinDuration=-1',
+      startOpts: {
+        spanFramesMinDuration: '0s'
+      },
+      env: {},
+      expectedVal: -1
+    },
+    {
+      name: 'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION=0s results in spanStackTraceMinDuration=-1',
+      startOpts: {},
+      env: {
+        ELASTIC_APM_SPAN_FRAMES_MIN_DURATION: '0s'
+      },
+      expectedVal: -1
+    },
+    {
+      name: 'spanFramesMinDuration value takes if captureSpanStackTraces=true',
+      startOpts: {
+        spanFramesMinDuration: '55ms',
+        captureSpanStackTraces: 'true'
+      },
+      env: {},
+      expectedVal: 0.055
+    },
+    {
+      name: 'spanFramesMinDuration value takes if ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES=true',
+      startOpts: {
+        spanFramesMinDuration: '56ms'
+      },
+      env: {
+        ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES: 'true'
+      },
+      expectedVal: 0.056
+    },
+    {
+      name: 'spanFramesMinDuration value takes if captureSpanStackTraces unspecified',
+      startOpts: {
+        spanFramesMinDuration: '57ms'
+      },
+      env: {},
+      expectedVal: 0.057
+    },
+    {
+      name: 'spanFramesMinDuration<0 is translated',
+      startOpts: {
+        spanFramesMinDuration: '-3'
+      },
+      env: {},
+      expectedVal: 0
+    },
+    {
+      name: 'spanFramesMinDuration==0 is translated',
+      startOpts: {},
+      env: {
+        ELASTIC_APM_SPAN_FRAMES_MIN_DURATION: '0m'
+      },
+      expectedVal: -1
+    }
+  ]
 
-function assertEncodedSpan (t, span, result) {
-  t.comment('span')
-  t.strictEqual(result.id, span.id, 'id matches')
-  t.strictEqual(result.transaction_id, span.transaction.id, 'transaction id matches')
-  t.strictEqual(result.trace_id, span.traceId, 'trace id matches')
-  t.strictEqual(result.parent_id, span.parentId, 'parent id matches')
-  t.strictEqual(result.name, span.name, 'name matches')
-  t.strictEqual(result.type, span.type || 'custom', 'type matches')
-  t.strictEqual(result.duration, span._duration, 'duration matches')
-  t.strictEqual(result.timestamp, span.timestamp, 'timestamp matches')
-}
+  spanStackTraceMinDurationTestScenarios.forEach(scenario => {
+    suite.test(scenario.name, t => {
+      const preEnv = Object.assign({}, process.env)
+      for (const [k, v] of Object.entries(scenario.env)) {
+        process.env[k] = v
+      }
+      const agent = new Agent()
+      agent.start(Object.assign({}, agentOptsNoopTransport, scenario.startOpts))
 
-function assertEncodedError (t, error, result, trans, parent) {
-  t.comment('error')
-  t.ok(result.id, 'has a valid id')
-  t.strictEqual(result.trace_id, trans.traceId, 'trace id matches')
-  t.strictEqual(result.transaction_id, trans.id, 'transaction id matches')
-  t.strictEqual(result.parent_id, parent.id, 'parent id matches')
-  t.ok(result.exception, 'has an exception object')
-  t.strictEqual(result.exception.message, error.message, 'exception message matches')
-  t.strictEqual(result.exception.type, error.constructor.name, 'exception type matches')
-  t.ok(result.culprit, 'has a valid culprit')
-  t.ok(result.timestamp, 'has a valid timestamp')
-}
+      t.notOk(agent._conf.captureSpanStackTraces, 'captureSpanStackTraces is not set on agent._conf')
+      t.notOk(agent._conf.spanFramesMinDuration, 'spanFramesMinDuration is not set on agent._conf')
+      t.strictEqual(agent._conf.spanStackTraceMinDuration, scenario.expectedVal, `spanStackTraceMinDuration=${scenario.expectedVal}`)
 
-class CaptureLogger {
-  constructor () {
-    this.calls = []
-  }
-
-  _log (type, message) {
-    this.calls.push({
-      type,
-      message
+      agent.destroy()
+      for (const k of Object.keys(scenario.env)) {
+        if (k in preEnv) {
+          process.env[k] = preEnv[k]
+        } else {
+          delete process.env[k]
+        }
+      }
+      t.end()
     })
-  }
+  })
 
-  fatal (message) { this._log('fatal', message) }
-  error (message) { this._log('error', message) }
-  warn (message) { this._log('warn', message) }
-  info (message) { this._log('info', message) }
-  debug (message) { this._log('debug', message) }
-  trace (message) { this._log('trace', message) }
-}
+  suite.end()
+})

@@ -6,7 +6,7 @@ const agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  captureSpanStackTraces: false
+  spanCompressionEnabled: false
 })
 
 const semver = require('semver')

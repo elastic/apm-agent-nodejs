@@ -19,27 +19,33 @@ test('success', function (t) {
 
   const agent = new AgentMock()
   const wrap = elasticApmAwsLambda(agent)
+  let lambdaStartCalled = null
 
   lambdaLocal.execute({
     event: input,
     lambdaFunc: {
       [name]: wrap((_event, _context, callback) => {
+        lambdaStartCalled = agent._transport.lambdaStartCalled
         callback(null, `Hello, ${_event.name}!`)
       })
     },
     lambdaHandler: name,
     timeoutMs: 3000,
-    verboseLevel: 0,
+    verboseLevel: 0, // set to `3` for debugging output
     callback: function (err, result) {
-      t.error(err)
-      t.strictEqual(result, output)
+      t.ok(lambdaStartCalled,
+        '_transport.lambdaStart() had been called before handler code executed')
 
-      t.ok(agent.flushed)
+      t.error(err, `no error executing: err=${JSON.stringify(err)}`)
+      t.strictEqual(result, output, 'handler result')
 
-      t.strictEqual(agent.errors.length, 0)
+      t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
+        'agent._flush({lambdaEnd: true}) was called')
 
-      t.strictEqual(agent.transactions.length, 1)
-      assertTransaction(t, agent.transactions[0], name)
+      t.strictEqual(agent.errors.length, 0, 'no errors captured')
+
+      t.strictEqual(agent.transactions.length, 1, 'one transaction was started')
+      assertTransaction(t, agent.transactions[0], name, 'transaction.name')
 
       t.end()
     }
@@ -63,12 +69,13 @@ test('failure', function (t) {
     },
     lambdaHandler: name,
     timeoutMs: 3000,
-    verboseLevel: 0,
+    verboseLevel: 0, // set to `3` for debugging output
     callback: function (err, result) {
       t.ok(err)
       t.notOk(result)
 
-      t.ok(agent.flushed)
+      t.ok(agent.flushes.length && agent.flushes[agent.flushes.length - 1].lambdaEnd,
+        'agent._flush({lambdaEnd: true}) was called')
 
       t.strictEqual(agent.errors.length, 1)
       assertError(t, agent.errors[0], error)

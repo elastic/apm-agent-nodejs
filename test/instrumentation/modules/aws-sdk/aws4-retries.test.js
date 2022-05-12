@@ -9,7 +9,6 @@ const apm = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  captureSpanStackTraces: false,
   disableSend: true
 })
 

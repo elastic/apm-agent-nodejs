@@ -599,29 +599,86 @@ Set this config option to `never` to never record a capture location stack trace
 
 A capture location stack trace is never generated for uncaught exceptions.
 
+[[span-stack-trace-min-duration]]
+==== `spanStackTraceMinDuration`
+
+[small]#Added in: v3.30.0, replaces <<capture-span-stack-traces,`captureSpanStackTraces`>> and <<span-frames-min-duration,`spanFramesMinDuration`>>#
+
+* *Type:* Duration
+* *Default:* `'-1s'` (never capture span stack traces)
+* *Env:* `ELASTIC_APM_STACK_TRACE_MIN_DURATION`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `span_stack_trace_min_duration`
+
+Use this option to control if stack traces are never captured for spans (the
+default), always captured for spans, or only captured for spans that are longer
+than a given duration. If you choose to enable span stack traces, even if only
+for slower spans, please read the
+<<performance-stack-traces,possible performance implications>>.
+
+* a negative value, e.g. `'-1ms'` or `-1`, means _never_ capture stack traces for spans;
+* a zero value, e.g. `'0ms'` or `0`, means _always_ capture stack traces for spans, regardless of the span's duration; and
+* any positive value, e.g. `'50ms'`, means to capture stack traces for spans longer than that duration.
+
+The duration value should be a string of the form `'<integer><unit>'`. The
+allowed units are `ms` for milliseconds, `s` for seconds, and `m` for minutes
+and are case-sensitive. The '<unit>' is optional and defaults to _milliseconds_. A
+Number value of milliseconds may also be provided. For example, `'10ms'` and
+`10` are 10 milliseconds, `'2s'` is 2 seconds.
+
+(Note: If you are migrating from the deprecated `spanFramesMinDuration` option,
+the meaning for negative and zero values has changed _and_ the default unit
+has changed to milliseconds.)
+
+
 [[capture-span-stack-traces]]
 ==== `captureSpanStackTraces`
 
+[small]#Deprecated in: v3.30.0, use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>>#
+
 * *Type:* Boolean
-* *Default:* `true`
 * *Env:* `ELASTIC_APM_CAPTURE_SPAN_STACK_TRACES`
 
-Set this option to `false` to disable capture of stack traces.
+This option is *deprecated* -- use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>> instead.
+In versions before v3.30.0 this option was `true` by default. As of version
+v3.30.0 this default has _effectively_ changed to false, because the default is
+`spanStackTraceMinDuration: '-1s'`.
 
-When set to `true` the agent will capture stack traces for spans whose duration falls within the <<span-frames-min-duration, `spanFramesMinDuration`>> threshold.
+If `spanStackTraceMinDuration` is specified, then any provided value for this
+option is ignored. Otherwise,
+
+* setting `captureSpanStackTraces: false` is equivalent to setting
+  `spanStackTraceMinDuration: '-1s'` (stack traces will never be captured for
+  spans), and
+* setting `captureSpanStackTraces: true` will enable capture of stack traces for
+  spans that are longer than <<span-frames-min-duration,`spanFramesMinDuration`>>,
+  or 10ms if `spanFramesMinDuration` is not specified.
+
 
 [[span-frames-min-duration]]
 ==== `spanFramesMinDuration`
 
-* *Type:* String
-* *Default:* `10ms`
+[small]#Deprecated in: v3.30.0, use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>>#
+
+* *Type:* Duration
 * *Env:* `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION`
 
-A time value to control whether the agent will report stack traces for measured spans. If a span's duration reaches this threshold, the agent will report stack traces. If <<capture-span-stack-traces, `captureSpanStackTraces`>> is set to `false` the agent will ignore the `spanFramesMinDuration` value.
+This option is *deprecated* -- use <<span-stack-trace-min-duration,`spanStackTraceMinDuration`>> instead.
+Note that the sense of a _negative_ value and a _zero_ value has switched in the
+new option. Also note that the default unit has changed from `s` to `ms` in the
+new option.
 
-When set to `0` the agent will not record stack traces for any spans.
+If `spanStackTraceMinDuration` is specified, then any provided value for this
+option is ignored. Otherwise,
 
-When set to a negative value (like `-1ms`) the agent will always record stack traces for spans.
+* a zero value, e.g. `0ms`, is equivalent to `spanStackTraceMinDuration: '-1s'` (never capture span stack traces);
+* a negative value, e.g. `-1ms`, is equivalent to `spanStackTraceMinDuration: 0` (always capture span stack traces); and
+* any positive value, e.g. `'50ms'`, is equivalent to setting `spanStackTraceMinDuration` to the same value.
+
+The duration value should be a string of the form `'<integer><unit>'`. The
+allowed units are `ms` for milliseconds, `s` for seconds, and `m` for minutes
+and are case-sensitive. The '<unit>' is optional and defaults to seconds. A
+Number value of seconds may also be provided. For example, `'10ms'` is 10
+milliseconds, `'5'` and `5` (number) are 5 seconds.
 
 [[use-path-as-transaction-name]]
 ==== `usePathAsTransactionName`
@@ -1132,9 +1189,6 @@ require('elastic-apm-node').start({
 * *Default:* `'continue_always'`
 * *Env:* `ELASTIC_APM_TRACE_CONTINUATION_STRATEGY`
 
-Warning: This configuration option is **experimental** and may change in
-non-major versions of the agent.
-
 This option allows some control on how the APM agent handles W3C trace-context
 headers on incoming requests. By default, the `traceparent` and `tracestate`
 headers are used per W3C spec for distributed tracing. However, in certain cases
@@ -1149,3 +1203,82 @@ Valid values are:
 - `'restart_always'` - Always ignores the `traceparent` header of incoming
   requests. A new trace-id will be generated and the sampling decision will be
   made based on <<transaction-sample-rate,`transactionSampleRate`>>.
+
+
+[[span-compression-enabled]]
+==== `spanCompressionEnabled`
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_SPAN_COMPRESSION_ENABLED`
+
+Setting this option to false will disable the span compression feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information, such as DB statements of all the compressed spans, will not be collected.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  spanCompressionEnabled: true
+})
+----
+
+[[span-compression-exact-match-max-duration]]
+==== `spanCompressionExactMatchMaxDuration`
+* *Type:* String
+* *Default:* `50ms`
+* *Env:* `ELASTIC_APM_SPAN_COMPRESSION_EXACT_MATCH_MAX_DURATION`
+
+Consecutive spans that are exact match and that are under this threshold will be compressed into a single composite span. This option does not apply to composite spans. This reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that the DB statements of all the compressed spans will not be collected.
+
+Supports the duration suffixes ms (milliseconds), s (seconds) and m (minutes).
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  spanCompressionExactMatchMaxDuration:'100ms'
+})
+----
+
+[[span-compression-same-kind-max-duration]]
+==== `spanCompressionSameKindMaxDuration`
+* *Type:* String
+* *Default:* `0ms`
+* *Env:* `ELASTIC_APM_SPAN_COMPRESSION_SAME_KIND_MAX_DURATION`
+
+Consecutive spans to the same destination that are under this threshold will be compressed into a single composite span. This option does not apply to composite spans. This reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that the DB statements of all the compressed spans will not be collected.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  spanCompressionSameKindMaxDuration:'0ms'
+})
+----
+
+
+[[opentelemetry-bridge-enabled]]
+==== `opentelemetryBridgeEnabled`
+
+[small]#Added in: v3.34.0 as experimental#
+
+* *Type:* Boolean
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED`
+
+Setting this option to true will enable the <<opentelemetry-bridge,OpenTelemetry Bridge>>. Briefly, the OpenTelemetry Bridge allows one to use the vendor-neutral
+https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing API]
+(https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`]) to
+manually instrument your code, and have the Elastic Node.js APM agent handle
+those API calls.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  opentelemetryBridgeEnabled: true
+})
+----

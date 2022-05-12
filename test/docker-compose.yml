@@ -89,7 +89,10 @@ services:
       retries: 5
 
   cassandra:
-    image: cassandra:3
+    # Avoid the latest cassandra:3 until
+    # https://issues.apache.org/jira/browse/CASSANDRA-17581 is resolved and
+    # released to https://hub.docker.com/_/cassandra?tab=tags
+    image: cassandra:3.11.11
     environment:
       MAX_HEAP_SIZE: "1G"
       HEAP_NEWSIZE: 400m

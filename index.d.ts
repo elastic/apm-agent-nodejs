@@ -233,6 +233,9 @@ declare namespace apm {
     captureErrorLogStackTraces?: CaptureErrorLogStackTraces;
     captureExceptions?: boolean;
     captureHeaders?: boolean;
+    /**
+     * @deprecated Use `spanStackTraceMinDuration`.
+     */
     captureSpanStackTraces?: boolean;
     cloudProvider?: string;
     configFile?: string;
@@ -278,7 +281,14 @@ declare namespace apm {
     sourceLinesErrorLibraryFrames?: number;
     sourceLinesSpanAppFrames?: number;
     sourceLinesSpanLibraryFrames?: number;
+    spanCompressionEnabled?: boolean;
+    spanCompressionExactMatchMaxDuration?: string;
+    spanCompressionSameKindMaxDuration?: string;
+    /**
+     * @deprecated Use `spanStackTraceMinDuration`.
+     */
     spanFramesMinDuration?: string;
+    spanStackTraceMinDuration?: string;
     stackTraceLimit?: number;
     traceContinuationStrategy?: TraceContinuationStrategy;
     transactionIgnoreUrls?: Array<string>;

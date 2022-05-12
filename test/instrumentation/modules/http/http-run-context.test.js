@@ -69,7 +69,7 @@ const cases = [
         t.equal(e.span.parent_id, trans.id, `span ${e.span.name} is a child of the transaction`)
       })
       const spanGet = events.shift().span
-      t.equal(spanGet.name, 'GET httpstat.us', 'first span.name is "GET httpstat.us"')
+      t.equal(spanGet.name, 'GET www.google.com', 'first span.name is "GET www.google.com"')
     }
   }
 ]

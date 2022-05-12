@@ -1,7 +1,6 @@
 # Files to ignore
 .DS_Store
 /.vscode
-/package-lock.json
 /test/babel/out.js
 /test/types/transpile/index.js
 /test/types/transpile-default/index.js
@@ -11,6 +10,6 @@
 /.nyc_output
 /test_output
 /build
-/node_modules
+node_modules
 /test/benchmarks/.tmp
 /tmp

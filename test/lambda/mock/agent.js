@@ -1,18 +1,21 @@
 'use strict'
 
+const { CapturingTransport } = require('../../_capturing_transport')
 const logging = require('../../../lib/logging')
 const TransactionMock = require('./transaction')
 
 module.exports = class AgentMock {
-  constructor () {
-    this.flushed = false
+  constructor (conf) {
+    this.flushes = []
     this.transactions = []
     this.errors = []
     this.logger = logging.createLogger('off')
-    this._conf = {
-      // A (very) minimal `agent._conf` to satisfy "lib/lambda.js" usage.
-      active: true
-    }
+    this._conf = Object.assign({
+      // A (very) minimal default `agent._conf` to satisfy "lib/lambda.js" usage.
+      active: true,
+      usePathAsTransactionName: false
+    }, conf)
+    this._transport = new CapturingTransport()
   }
 
   startTransaction (name, type, opts) {
@@ -34,10 +37,14 @@ module.exports = class AgentMock {
     }
   }
 
-  flush (callback) {
-    this.flushed = true
-    if (callback) {
-      setImmediate(callback)
+  _flush (opts, cb) {
+    this.flushes.push(opts)
+    this.flush(cb)
+  }
+
+  flush (cb) {
+    if (cb) {
+      setImmediate(cb)
     }
   }
 }

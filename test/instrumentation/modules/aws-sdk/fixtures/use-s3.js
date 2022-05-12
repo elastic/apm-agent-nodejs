@@ -40,7 +40,6 @@ const apm = require('../../../../..').start({
   centralConfig: false,
   metricsInterval: 0,
   cloudProvider: 'none',
-  captureSpanStackTraces: false,
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info'
 })

@@ -2,18 +2,19 @@
 
 module.exports = (moduleName) => {
   var agent = require('../../../..').start({
-    serviceName: 'test',
-    secretToken: 'test',
+    serviceName: 'test-hapi',
     captureExceptions: false,
-    logLevel: 'fatal',
+    logLevel: 'off',
     metricsInterval: 0,
     centralConfig: false,
-    cloudProvider: 'none'
+    cloudProvider: 'none',
+    captureBody: 'all'
   })
 
   var isHapiIncompat = require('../../../_is_hapi_incompat')
   if (isHapiIncompat(moduleName)) {
     // Skip out of this test.
+    console.log(`# SKIP this version of ${moduleName} is incompatible with node ${process.version}`)
     process.exit()
   }
 
@@ -72,6 +73,46 @@ module.exports = (moduleName) => {
           agent.flush()
         })
       })
+    })
+  })
+
+  test('captureBody', function (t) {
+    t.plan(9)
+
+    const postData = JSON.stringify({ foo: 'bar' })
+
+    resetAgent(1, function (data) {
+      assert(t, data, { name: 'POST /postSomeData', method: 'POST' })
+      t.equal(data.transactions[0].context.request.body, postData,
+        'body was captured to trans.context.request.body')
+      server.stop(noop)
+    })
+
+    var server = startServer(function (err, port) {
+      t.error(err)
+      const cReq = http.request(
+        'http://localhost:' + port + '/postSomeData',
+        {
+          method: 'POST',
+          hostname: 'localhost',
+          port,
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+          }
+        },
+        function (res) {
+          t.strictEqual(res.statusCode, 200)
+          res.on('data', function (chunk) {
+            t.strictEqual(chunk.toString(), 'your data has been posted')
+          })
+          res.on('end', function () {
+            agent.flush()
+          })
+        }
+      )
+      cReq.write(postData)
+      cReq.end()
     })
   })
 
@@ -589,6 +630,13 @@ module.exports = (moduleName) => {
       })
     })
     server.route({
+      method: 'POST',
+      path: '/postSomeData',
+      handler: handler(function (request) {
+        return 'your data has been posted'
+      })
+    })
+    server.route({
       method: 'GET',
       path: '/error',
       handler: handler(function (request) {
@@ -610,6 +658,7 @@ module.exports = (moduleName) => {
     if (!results) results = {}
     results.status = results.status || 'HTTP 2xx'
     results.name = results.name || 'GET /hello'
+    results.method = results.method || 'GET'
 
     t.strictEqual(data.transactions.length, 1)
 
@@ -618,7 +667,7 @@ module.exports = (moduleName) => {
     t.strictEqual(trans.name, results.name)
     t.strictEqual(trans.type, 'request')
     t.strictEqual(trans.result, results.status)
-    t.strictEqual(trans.context.request.method, 'GET')
+    t.strictEqual(trans.context.request.method, results.method)
   }
 
   function resetAgent (expected, cb) {
