@@ -52,6 +52,9 @@ Notes:
   handle those API calls. ({pull}2641[#2641])
 
 [float]
+===== Bug fixes
+
+[float]
 ===== Chores
 
 - Add a package-lock.json file to ensure repeatable builds of the AWS Lambda
