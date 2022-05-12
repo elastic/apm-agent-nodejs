@@ -16,7 +16,7 @@ const tape = require('tape')
 
 // Ensure that, by default, an HTTP request with a valid traceparent to an
 // instrumented HTTP server *uses* that traceparent.
-tape.test('traceContinuationStrategy default is continue_always', t => {
+tape.test('traceContinuationStrategy default is continue', t => {
   const server = http.createServer(function (_req, res) {
     const currTrans = apm.currentTransaction
     t.ok(currTrans, 'have a currentTransaction')
@@ -41,10 +41,10 @@ tape.test('traceContinuationStrategy default is continue_always', t => {
   })
 })
 
-tape.test('traceContinuationStrategy=continue_always', t => {
+tape.test('traceContinuationStrategy=continue', t => {
   // Hack in the traceContinuationStrategy value. This is equiv to having
   // started the agent with this setting.
-  apm._conf.traceContinuationStrategy = 'continue_always'
+  apm._conf.traceContinuationStrategy = 'continue'
 
   const server = http.createServer(function (_req, res) {
     const currTrans = apm.currentTransaction
@@ -77,11 +77,11 @@ tape.test('traceContinuationStrategy=continue_always', t => {
   })
 })
 
-// With restart_always the incoming traceparent should be ignored.
-tape.test('traceContinuationStrategy=restart_always', t => {
+// With 'restart' the incoming traceparent should be ignored.
+tape.test('traceContinuationStrategy=restart', t => {
   // Hack in the traceContinuationStrategy value. This is equiv to having
   // started the agent with this setting.
-  apm._conf.traceContinuationStrategy = 'restart_always'
+  apm._conf.traceContinuationStrategy = 'restart'
 
   const server = http.createServer(function (_req, res) {
     const currTrans = apm.currentTransaction
@@ -113,3 +113,5 @@ tape.test('traceContinuationStrategy=restart_always', t => {
     })
   })
 })
+
+// XXX 'restart_external'

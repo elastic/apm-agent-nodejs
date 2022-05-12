@@ -51,6 +51,8 @@ Notes:
   to manually instrument your code, and have the Elastic Node.js APM agent
   handle those API calls. ({pull}2641[#2641])
 
+- XXX
+
 [float]
 ===== Bug fixes
 

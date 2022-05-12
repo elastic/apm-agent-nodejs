@@ -1185,24 +1185,40 @@ require('elastic-apm-node').start({
 
 [[trace-continuation-strategy]]
 ==== `traceContinuationStrategy`
+
+[small]#Added in: v3.34.0#
+
 * *Type:* String
-* *Default:* `'continue_always'`
+* *Default:* `'continue'`
 * *Env:* `ELASTIC_APM_TRACE_CONTINUATION_STRATEGY`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `trace_continuation_strategy`
 
 This option allows some control on how the APM agent handles W3C trace-context
 headers on incoming requests. By default, the `traceparent` and `tracestate`
 headers are used per W3C spec for distributed tracing. However, in certain cases
-(typically where an Elastic-monitored service is receiving requests with
-`traceparent` headers from *unmonitored* services) it can be helpful to *not*
-use the incoming `traceparent` header.
+it can be helpful to *not* use the incoming `traceparent` header. Some example
+use cases:
+
+- An Elastic-monitored service is receiving requests with `traceparent` headers
+  from *unmonitored* services.
+- An Elastic-monitored service is publicly exposed, and does not want tracing
+  data (trace-ids, sampling decisions) to possibly be spoofed by user requests.
 
 Valid values are:
 
-- `'continue_always'` - The current and default behavior. Every incoming
-  `traceparent` header determines the sampling decision and the trace-id.
-- `'restart_always'` - Always ignores the `traceparent` header of incoming
+- `'continue'` - The default behavior. An incoming `traceparent` value is used
+  to continue the trace and determine the sampling decision.
+- `'restart'` - Always ignores the `traceparent` header of incoming
   requests. A new trace-id will be generated and the sampling decision will be
-  made based on <<transaction-sample-rate,`transactionSampleRate`>>.
+  made based on <<transaction-sample-rate,`transactionSampleRate`>>. A *span
+  link* will be made to the incoming traceparent.
+- `'restart_external'` - If an incoming request includes the `es` vendor flag
+  in `tracestate`, then any 'traceparent' will be considered internal and
+  will be handled as described for 'continue' above. Otherwise, any 'traceparent'
+  is considered external and will be handled as described for 'restart' above.
+
+Starting with Elastic Observability 8.2, span links will be visible in trace
+views.
 
 
 [[span-compression-enabled]]

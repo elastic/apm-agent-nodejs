@@ -364,7 +364,7 @@ declare namespace apm {
   type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
   type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
   type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'warning' | 'error' | 'fatal' | 'critical' | 'off';
-  type TraceContinuationStrategy = 'continue_always' | 'restart_always';
+  type TraceContinuationStrategy = 'continue' | 'restart' | 'restart_external';
 
   type CaptureErrorCallback = (err: Error | null, id: string) => void;
   type FilterFn = (payload: Payload) => Payload | boolean | void;
