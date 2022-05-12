@@ -42,6 +42,57 @@ test('init', function (t) {
     t.strictEqual(trans._context.traceparent.flags, '01')
     t.end()
   })
+
+  t.test('options.links', function (t) {
+    agent._transport.clear()
+    agent.startTransaction('theTransName', { links: [] }).end()
+    t.deepEqual(agent._transport.transactions[0].links, undefined, 'no links')
+
+    agent._transport.clear()
+    agent.startTransaction('theTransName', { links: [42] }).end()
+    t.deepEqual(agent._transport.transactions[0].links, undefined, 'no spans link from an invalid link')
+
+    agent._transport.clear()
+    const aTraceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    agent.startTransaction('theTransName', {
+      links: [
+        { context: aTraceparent }
+      ]
+    }).end()
+    t.deepEqual(agent._transport.transactions[0].links, [{
+      trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
+      span_id: '00f067aa0ba902b7'
+    }], 'a span link from a traceparent')
+
+    const aTrans = agent.startTransaction('aTrans')
+    const aSpan = aTrans.startSpan('aSpan')
+    aSpan.end()
+    aTrans.end()
+
+    agent._transport.clear()
+    agent.startTransaction('theTransName', {
+      links: [
+        { context: aTrans }
+      ]
+    }).end()
+    t.deepEqual(agent._transport.transactions[0].links, [{
+      trace_id: aTrans.traceId,
+      span_id: aTrans.id
+    }], 'a span link from a Transaction')
+
+    agent._transport.clear()
+    agent.startTransaction('theTransName', {
+      links: [
+        { context: aSpan }
+      ]
+    }).end()
+    t.deepEqual(agent._transport.transactions[0].links, [{
+      trace_id: aSpan.traceId,
+      span_id: aSpan.id
+    }], 'a span link from a Span')
+
+    t.end()
+  })
 })
 
 test('#setUserContext', function (t) {

@@ -51,7 +51,9 @@ Notes:
   to manually instrument your code, and have the Elastic Node.js APM agent
   handle those API calls. ({pull}2641[#2641])
 
-- XXX
+- XXX "links" opts to startTransaction, startSpan
+- XXX span links support for OTel Bridge
+- XXX traceContinuationStrategy (and span link for 'restart' cases)
 
 [float]
 ===== Bug fixes

@@ -125,6 +125,10 @@ tape.test('traceContinuationStrategy=restart_external (no tracestate)', t => {
     t.ok(currTrans, 'have a currentTransaction')
     t.not(currTrans.traceId, '12345678901234567890123456789012', `currentTransaction.traceId (${currTrans.traceId})`)
     t.not(currTrans.parentId, '1234567890123456', `currentTransaction.parentId (${currTrans.parentId})`)
+    const serialized = currTrans.toJSON()
+    t.deepEqual(serialized.links,
+      [{ trace_id: '12345678901234567890123456789012', span_id: '1234567890123456' }],
+      'serialized transaction has the correct span link')
     res.end('pong')
   })
   server.listen(function () {
@@ -161,6 +165,10 @@ tape.test('traceContinuationStrategy=restart_external (tracestate without "es")'
     t.ok(currTrans, 'have a currentTransaction')
     t.not(currTrans.traceId, '12345678901234567890123456789012', `currentTransaction.traceId (${currTrans.traceId})`)
     t.not(currTrans.parentId, '1234567890123456', `currentTransaction.parentId (${currTrans.parentId})`)
+    const serialized = currTrans.toJSON()
+    t.deepEqual(serialized.links,
+      [{ trace_id: '12345678901234567890123456789012', span_id: '1234567890123456' }],
+      'serialized transaction has the correct span link')
     res.end('pong')
   })
   server.listen(function () {
@@ -198,6 +206,8 @@ tape.test('traceContinuationStrategy=restart_external (tracestate with "es")', t
     t.ok(currTrans, 'have a currentTransaction')
     t.equal(currTrans.traceId, '12345678901234567890123456789012', `currentTransaction.traceId (${currTrans.traceId})`)
     t.equal(currTrans.parentId, '1234567890123456', `currentTransaction.parentId (${currTrans.parentId})`)
+    const serialized = currTrans.toJSON()
+    t.notOk(serialized.links, 'serialized transaction does *not* have a span link for this traceparent')
     res.end('pong')
   })
   server.listen(function () {
