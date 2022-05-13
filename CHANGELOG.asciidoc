@@ -51,9 +51,17 @@ Notes:
   to manually instrument your code, and have the Elastic Node.js APM agent
   handle those API calls. ({pull}2641[#2641])
 
-- XXX "links" opts to startTransaction, startSpan
-- XXX span links support for OTel Bridge
-- XXX traceContinuationStrategy (and span link for 'restart' cases)
+- Add [Span Links](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md#links-between-spans) support. ({issues}2673[#2673])
+
+  The <<transaction-start-span,`transaction.startSpan()`>> and
+  <<apm-start-transaction,`apm.startTransaction()`>> public APIs now accept
+  a `links` option for specify links. The OpenTelemetry Bridge also supports
+  specifying links during span creation (with the limitation that span link
+  *attributes* are not supported).
+
+- Add a <<trace-continuation-strategy>> configuration option to allow some
+  control over how the APM Agent uses incoming trace-context headers for context
+  propagation. ({issues}2592[#2592])
 
 [float]
 ===== Bug fixes
