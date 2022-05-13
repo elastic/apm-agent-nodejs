@@ -449,7 +449,7 @@ test('#_encode() - dropped spans', function (t) {
   var span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
   var span2 = trans.startSpan()
-  if (span2) {
+  if (span2.isRecorded()) {
     t.fail('should have dropped the span')
   }
   span0.end()
