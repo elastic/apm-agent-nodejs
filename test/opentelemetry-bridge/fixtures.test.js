@@ -195,7 +195,6 @@ const cases = [
       // All the transactions and spans, in order of creation.
       const tas = events.slice(1)
         .sort((a, b) => (a.transaction || a.span).timestamp > (b.transaction || b.span).timestamp ? 1 : -1)
-
       //   trace $traceId
       const traceId = tas[0].transaction.trace_id
       tas.forEach(s => {
