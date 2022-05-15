@@ -162,15 +162,11 @@ const cases = [
   {
     // Expected trace:
     //   trace $traceId
-    //   `- transaction $myTransId "myTrans"
-    //     `- span "s0"
+    // `- transaction $myTransId "GET unknown route"
+    //   `- span "s0"
     //       `- span "GET localhost:$port" (http)
-    //         `- transaction "GET unknown route"
-    //     `- span "s1"                           // This is the 3rd (max) span.
-    //       `- transaction "GET unknown route"
-    //     `- transaction "GET unknown route"
-    //     `- transaction "GET unknown route"
-    //     `- transaction "GET unknown route"
+    //           `- transaction "myTrans"
+    //   `- span "s1" // This is the 3rd (max) span.
     script: 'hit-transaction-max-spans.js',
     testOpts: {
       // - This fixture fails with node.js [10.0, 10.4) due to an async context
@@ -184,7 +180,7 @@ const cases = [
       ELASTIC_APM_TRANSACTION_MAX_SPANS: '3'
     },
     check: (t, events) => {
-      t.equal(events.length, 10, 'exactly 10 events')
+      t.equal(events.length, 6, 'exactly 6 events')
       t.ok(events[0].metadata, 'APM server got event metadata object')
 
       function assertIncomingHttpTrans (trans, parentId) {
@@ -199,6 +195,7 @@ const cases = [
       // All the transactions and spans, in order of creation.
       const tas = events.slice(1)
         .sort((a, b) => (a.transaction || a.span).timestamp > (b.transaction || b.span).timestamp ? 1 : -1)
+
       //   trace $traceId
       const traceId = tas[0].transaction.trace_id
       tas.forEach(s => {
@@ -207,28 +204,20 @@ const cases = [
       //   `- transaction $myTransId "myTrans"
       const myTrans = tas[0].transaction
       t.equal(myTrans.name, 'myTrans', 'myTrans.name')
-      t.deepEqual(myTrans.span_count, { started: 3, dropped: 4 }, 'myTrans.span_count')
-      //     `- span "s0"
+      t.deepEqual(myTrans.span_count, { started: 3, dropped: 7 }, 'myTrans.span_count')
+      // //     `- span "s0"
       const s0 = tas[1].span
       t.equal(s0.name, 's0', 's0')
       t.equal(s0.parent_id, myTrans.id, 's0.parent_id')
-      //       `- span "GET localhost:$port" (http)
+      // //       `- span "GET localhost:$port" (http)
       t.equal(tas[2].span.subtype, 'http', 'http span.subtype')
       t.equal(tas[2].span.parent_id, s0.id, 'http span.parent_id')
-      //         `- transaction "GET unknown route"
+      // //         `- transaction "GET unknown route"
       assertIncomingHttpTrans(tas[3].transaction, tas[2].span.id)
       //     `- span "s1"                           // This is the 3rd (max) span.
       const s1 = tas[4].span
       t.equal(s1.name, 's1', 's1')
       t.equal(s1.parent_id, myTrans.id, 's1.parent_id')
-      //       `- transaction "GET unknown route"
-      assertIncomingHttpTrans(tas[5].transaction, tas[4].span.id)
-      //     `- transaction "GET unknown route"
-      //     `- transaction "GET unknown route"
-      //     `- transaction "GET unknown route"
-      for (let i = 6; i < 9; i++) {
-        assertIncomingHttpTrans(tas[i].transaction, myTrans.id)
-      }
     }
   },
 
