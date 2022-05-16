@@ -537,6 +537,13 @@ the current time will be used
 
 ** `childOf` +{type-string}+ The traceparent header received from a remote service.
 
+** `links` +{type-array}+ Span links.
+A transaction can refer to zero or more other transactions or spans (separate
+from its parent). Span links will be shown in the Kibana APM app trace view.
+The `links` argument is an array of objects with a single "context" field
+that is a `Transaction`, `Span`, or W3C trace-context 'traceparent' string.
+For example: `apm.startTransaction('aName', { links: [{ context: anotherSpan }] })`.
+
 Start a new transaction.
 
 Use this function to create a custom transaction.
@@ -648,6 +655,13 @@ Exit spans represent outgoing communication. They are used to create a node
 in the {kibana-ref}/service-maps.html[Service Map] and a downstream service
 in the {kibana-ref}/dependencies.html[Dependencies Table]. The provided subtype
 will be used as the downstream service name.
+
+** `links` +{type-array}+ Span links.
+A span can refer to zero or more other transactions or spans (separate from
+its parent). Span links will be shown in the Kibana APM app trace view. The
+`links` argument is an array of objects with a single "context" field that is a
+`Transaction`, `Span`, or W3C trace-context 'traceparent' string.  For example:
+`apm.startSpan('aName', { links: [{ context: anotherSpan }] })`.
 
 Start and return a new custom span associated with the current active transaction.
 This is the same as getting the current transaction with `apm.currentTransaction` and,

@@ -91,6 +91,7 @@ apm.startTransaction('foo', { startTime: 1 })
 apm.startTransaction('foo', 'type', { startTime: 1 })
 apm.startTransaction('foo', 'type', 'subtype', { startTime: 1 })
 apm.startTransaction('foo', 'type', 'subtype', 'action', { startTime: 1 })
+apm.startTransaction('foo', { links: [{ context: '00-12345678901234567890123456789012-1234567890123456-01' }] })
 
 apm.setTransactionName('foo')
 
@@ -182,6 +183,7 @@ apm.logger.fatal('')
     trans.startSpan('foo', 'type', 'subtype', { childOf: 'baz' })
     trans.startSpan('foo', 'type', 'subtype', 'action', { childOf: 'baz' })
     trans.startSpan('foo', 'type', 'subtype', { exitSpan: true })
+    trans.startSpan('foo', { links: [{ context: '00-12345678901234567890123456789012-1234567890123456-01' }] })
 
     function ensureParentId (id: string) {}
     ensureParentId(trans.ensureParentId())

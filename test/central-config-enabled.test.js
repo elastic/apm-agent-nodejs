@@ -64,7 +64,8 @@ test('remote config enabled', function (t) {
     capture_body: 'all',
     transaction_ignore_urls: ['foo'],
     log_level: 'warn',
-    span_stack_trace_min_duration: '50ms'
+    span_stack_trace_min_duration: '50ms',
+    trace_continuation_strategy: 'restart_external'
   }
   const expect = {
     transactionSampleRate: 0.42,
@@ -72,7 +73,8 @@ test('remote config enabled', function (t) {
     captureBody: 'all',
     transactionIgnoreUrls: ['foo'],
     logLevel: 'warn',
-    spanStackTraceMinDuration: 0.05
+    spanStackTraceMinDuration: 0.05,
+    traceContinuationStrategy: 'restart_external'
   }
 
   runTestsWithServer(t, updates, expect)

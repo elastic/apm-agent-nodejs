@@ -46,6 +46,78 @@ test('init', function (t) {
     t.strictEqual(span._context.traceparent.flags, '01')
     t.end()
   })
+
+  t.test('options.links (no links)', function (t) {
+    const theTrans = agent.startTransaction('theTransName')
+    agent._transport.clear()
+    theTrans.startSpan('theSpanName', { links: [] }).end()
+    agent.flush(() => {
+      t.deepEqual(agent._transport.spans[0].links, undefined, 'no links')
+      theTrans.end()
+      t.end()
+    })
+  })
+
+  t.test('options.links (from invalid link)', function (t) {
+    const theTrans = agent.startTransaction('theTransName')
+    agent._transport.clear()
+    theTrans.startSpan('theSpanName', { links: [42] }).end()
+    agent.flush(() => {
+      t.deepEqual(agent._transport.spans[0].links, undefined, 'no span link from an invalid link')
+      theTrans.end()
+      t.end()
+    })
+  })
+
+  t.test('options.links (from traceparent)', function (t) {
+    const theTrans = agent.startTransaction('theTransName')
+    agent._transport.clear()
+    const aTraceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    theTrans.startSpan('theSpanName', {
+      links: [
+        { context: aTraceparent }
+      ]
+    }).end()
+    agent.flush(() => {
+      t.deepEqual(agent._transport.spans[0].links, [{
+        trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
+        span_id: '00f067aa0ba902b7'
+      }], 'a span link from a traceparent')
+      theTrans.end()
+      t.end()
+    })
+  })
+
+  t.test('options.links (from Transaction and Span)', function (t) {
+    const aTrans = agent.startTransaction('aTrans')
+    const aSpan = aTrans.startSpan('aSpan')
+
+    const theTrans = agent.startTransaction('theTransName')
+    agent._transport.clear()
+    theTrans.startSpan('theSpanName', {
+      links: [
+        { context: aTrans },
+        { context: aSpan }
+      ]
+    }).end()
+    agent.flush(() => {
+      t.deepEqual(agent._transport.spans[0].links, [
+        {
+          trace_id: aTrans.traceId,
+          span_id: aTrans.id
+        },
+        {
+          trace_id: aSpan.traceId,
+          span_id: aSpan.id
+        }
+      ], 'a span link from a Transaction and a Span')
+
+      aSpan.end()
+      aTrans.end()
+      theTrans.end()
+      t.end()
+    })
+  })
 })
 
 test('#end()', function (t) {

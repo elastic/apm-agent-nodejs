@@ -370,11 +370,22 @@ const cases = [
       }, 'sAttributesLots')
 
       // SpanOptions.links (not yet supported)
-      t.equal(findObjInArray(events, 'transaction.name', 'sLinksNone').transaction.links, undefined, 'sLinksNone')
+      const sLinksNone = findObjInArray(events, 'transaction.name', 'sLinksNone').transaction
+      t.equal(sLinksNone.links, undefined, 'sLinksNone')
       t.equal(findObjInArray(events, 'transaction.name', 'sLinksEmptyArray').transaction.links, undefined, 'sLinksEmptyArray')
       t.equal(findObjInArray(events, 'transaction.name', 'sLinksInvalid').transaction.links, undefined, 'sLinksInvalid')
-      t.equal(findObjInArray(events, 'transaction.name', 'sLinks').transaction.links, undefined, 'sLinks')
-      t.equal(findObjInArray(events, 'transaction.name', 'sLinksWithAttrs').transaction.links, undefined, 'sLinksWithAttrs')
+      t.deepEqual(findObjInArray(events, 'transaction.name', 'sLinks').transaction.links, [
+        {
+          trace_id: sLinksNone.trace_id,
+          span_id: sLinksNone.id
+        }
+      ], 'sLinks')
+      t.deepEqual(findObjInArray(events, 'transaction.name', 'sLinksWithAttrs').transaction.links, [
+        {
+          trace_id: sLinksNone.trace_id,
+          span_id: sLinksNone.id
+        }
+      ], 'sLinksWithAttrs')
 
       // SpanOptions.startTime
       function transTimestampIsRecent (name) {
@@ -411,7 +422,7 @@ const cases = [
 ]
 
 cases.forEach(c => {
-  tape.test(`opentelemetry-bridge/fixtures/${c.script}`, c.testOpts || {}, t => {
+  tape.test(`test/opentelemetry-bridge/fixtures/${c.script}`, c.testOpts || {}, t => {
     const server = new MockAPMServer()
     const scriptPath = path.join('fixtures', c.script)
     server.start(function (serverUrl) {

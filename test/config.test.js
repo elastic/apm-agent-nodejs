@@ -151,6 +151,7 @@ var optionFixtures = [
   ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 0],
   ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
+  ['traceContinuationStrategy', 'TRACE_CONTINUATION_STRATEGY', 'continue'],
   ['transactionMaxSpans', 'TRANSACTION_MAX_SPANS', 500],
   ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
   ['usePathAsTransactionName', 'USE_PATH_AS_TRANSACTION_NAME', false],
@@ -171,6 +172,8 @@ optionFixtures.forEach(function (fixture) {
     } else if (fixture[0] === 'serverCaCertFile') {
       // special case for files, so a temp file can be written
       type = 'file'
+    } else if (fixture[0] === 'traceContinuationStrategy') {
+      type = 'traceContinuationStrategy'
     } else if (typeof fixture[2] === 'number' || fixture[0] === 'errorMessageMaxLength') {
       type = 'number'
     } else if (Array.isArray(fixture[2])) {
@@ -203,6 +206,9 @@ optionFixtures.forEach(function (fixture) {
           mkdirp.sync(tmpdir)
           fs.writeFileSync(tmpfile, tmpfile)
           value = tmpfile
+          break
+        case 'traceContinuationStrategy':
+          value = 'restart' // a valid non-default value
           break
         case 'array':
           value = ['custom-value']
@@ -270,6 +276,10 @@ optionFixtures.forEach(function (fixture) {
         case 'array':
           value1 = ['overwriting-value']
           value2 = ['custom-value']
+          break
+        case 'traceContinuationStrategy':
+          value1 = 'restart'
+          value2 = 'continue'
           break
         case 'string':
           value1 = 'overwriting-value'
