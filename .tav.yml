@@ -32,6 +32,11 @@ mysql:
   commands:
     - node test/instrumentation/modules/mysql/mysql.test.js
     - node test/instrumentation/modules/mysql/pool-release-1.test.js
+
+# mysql2
+# - v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
+# - v2.2.3 has a github dep ("@types/mysql": "types/mysql") that hits
+#   npm v6 install issue https://github.com/npm/cli/issues/4896
 mysql2-old:
   name: mysql2
   versions: '>=1.0.0 <1.6.0'
@@ -40,11 +45,12 @@ mysql2-old:
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 mysql2-new:
   name: mysql2
-  versions: '1.6.0 || 1.6.1 || >=1.6.3 <3' # v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
+  versions: '>=1.6.0 <1.6.2 || >=1.6.3 <2.2.3 || >=2.2.4 <3'
   node: '>=6.0.0'
   commands:
     - node test/instrumentation/modules/mysql2/mysql.test.js
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
+
 redis:
   versions: '>=2.0.0 <4.0.0'
   commands: node test/instrumentation/modules/redis.test.js
