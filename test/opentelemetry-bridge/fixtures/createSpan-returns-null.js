@@ -69,9 +69,8 @@ server.listen(async () => {
     // 3. Attempt to create a child span of that exit span. This triggers the
     //    code path where `Transaction#createSpan()` returns null.
     await tracer.startActiveSpan('theSpan', async (theSpan) => {
-      assert.equal(theSpan.isRecording(), false, 'theSpan is not recording')
-      assert.equal(theSpan.spanContext().spanId, anExitSpan.id, 'theSpan is carrying the trace-context of its parent (anExitSpan)')
-      console.log('XXX theSpan: ', theSpan, theSpan.spanContext(), anExitSpan.id)
+      assert.strictEqual(theSpan.isRecording(), false, 'theSpan is not recording')
+      assert.strictEqual(theSpan.spanContext().spanId, anExitSpan.id, 'theSpan is carrying the trace-context of its parent (anExitSpan)')
       await makeAClientRequest(port)
       theSpan.end()
     })
