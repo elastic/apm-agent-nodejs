@@ -161,62 +161,38 @@ const cases = [
 
   {
     // Expected trace:
-    //   trace $traceId
-    // `- transaction $myTransId "myTrans"
-    //   `- span "s0"
-    //       `- span "GET localhost:$port" (http)
-    //           `- transaction  "GET unknown route"
-    //   `- span "s1" // This is the 3rd (max) span.
-    script: 'hit-transaction-max-spans.js',
-    testOpts: {
-      // - This fixture fails with node.js [10.0, 10.4) due to an async context
-      //   issue. See https://github.com/nodejs/node/issues/20274
-      // - This fixture hits a limitation/bug with asyncHooks=false.
-      //   See https://github.com/elastic/apm-agent-nodejs/issues/2679
-      skip: (semver.satisfies(process.version, '>=10.0.0 <10.4') ||
-        process.env.ELASTIC_APM_ASYNC_HOOKS === 'false')
-    },
-    env: {
-      ELASTIC_APM_TRANSACTION_MAX_SPANS: '3'
-    },
+    //    trace $traceId
+    //    `- transaction "aTrans"
+    //       `- span "anExitSpan"
+    //         `- transaction "GET unknown route"
+    script: 'createSpan-returns-null.js',
     check: (t, events) => {
-      t.equal(events.length, 6, 'exactly 6 events')
+      t.equal(events.length, 4, 'exactly 4 events')
       t.ok(events[0].metadata, 'APM server got event metadata object')
-
-      function assertIncomingHttpTrans (trans, parentId) {
-        t.equal(trans.name, 'GET unknown route', 'incoming http transaction.name')
-        t.equal(trans.parent_id, parentId, 'incoming http transaction.parent_id')
-        t.ok(trans.context.request.headers.traceparent, 'incoming http "traceparent" header')
-        t.ok(trans.context.request.headers['elastic-apm-traceparent'], 'incoming http "elastic-apm-traceparent" header')
-        t.ok((trans.context.request.headers.tracestate || '').indexOf('es=s:1') !== -1,
-          'incoming http "tracestate" header has expected "es=" section')
-      }
 
       // All the transactions and spans, in order of creation.
       const tas = events.slice(1)
         .sort((a, b) => (a.transaction || a.span).timestamp > (b.transaction || b.span).timestamp ? 1 : -1)
-      //   trace $traceId
+      //    trace $traceId
       const traceId = tas[0].transaction.trace_id
       tas.forEach(s => {
         t.equal((s.transaction || s.span).trace_id, traceId, 'traceId')
       })
-      //   `- transaction $myTransId "myTrans"
-      const myTrans = tas[0].transaction
-      t.equal(myTrans.name, 'myTrans', 'myTrans.name')
-      t.deepEqual(myTrans.span_count, { started: 3, dropped: 7 }, 'myTrans.span_count')
-      //     `- span "s0"
-      const s0 = tas[1].span
-      t.equal(s0.name, 's0', 's0')
-      t.equal(s0.parent_id, myTrans.id, 's0.parent_id')
-      //       `- span "GET localhost:$port" (http)
-      t.equal(tas[2].span.subtype, 'http', 'http span.subtype')
-      t.equal(tas[2].span.parent_id, s0.id, 'http span.parent_id')
+      //    `- transaction "aTrans"
+      const aTrans = tas[0].transaction
+      t.equal(aTrans.name, 'aTrans', 'aTrans.name')
+      //       `- span "anExitSpan"
+      const anExitSpan = tas[1].span
+      t.equal(anExitSpan.name, 'anExitSpan', 'anExitSpan')
+      t.equal(anExitSpan.parent_id, aTrans.id, 'anExitSpan.parent_id')
       //         `- transaction "GET unknown route"
-      assertIncomingHttpTrans(tas[3].transaction, tas[2].span.id)
-      //     `- span "s1"                           // This is the 3rd (max) span.
-      const s1 = tas[4].span
-      t.equal(s1.name, 's1', 's1')
-      t.equal(s1.parent_id, myTrans.id, 's1.parent_id')
+      const trans = tas[2].transaction
+      t.equal(trans.name, 'GET unknown route', 'incoming http transaction.name')
+      t.equal(trans.parent_id, anExitSpan.id, 'incoming http transaction.parent_id')
+      t.ok(trans.context.request.headers.traceparent, 'incoming http "traceparent" header')
+      t.ok(trans.context.request.headers['elastic-apm-traceparent'], 'incoming http "elastic-apm-traceparent" header')
+      t.ok((trans.context.request.headers.tracestate || '').indexOf('es=s:1') !== -1,
+        'incoming http "tracestate" header has expected "es=" section')
     }
   },
 
