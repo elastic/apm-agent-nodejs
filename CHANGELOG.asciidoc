@@ -76,6 +76,11 @@ Notes:
 - Add a package-lock.json file to ensure repeatable builds of the AWS Lambda
   layer and to assist with security issue auditing. ({issue}2626[#2626])
 
+- Deprecate instrumentation for the legacy "hapi" package. While the APM agent
+  still supports it, that instrumentation is no longer tested and support
+  will be dropped in the next major version of the agent. Note that the
+  "@hapi/hapi" package is still fully supported. ({pull}2698[#2698])
+
 
 [[release-notes-3.33.0]]
 ==== 3.33.0 2022/05/05

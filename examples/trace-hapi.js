@@ -57,7 +57,7 @@ const init = async () => {
   })
 
   await server.start()
-  console.log('Server running on %s', server.info.uri)
+  console.log('Server running. Run "curl -i http://localhost:3000/" to call it.', server.info.uri)
 }
 
 init()
