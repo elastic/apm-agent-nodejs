@@ -79,7 +79,7 @@ Notes:
 - Deprecate instrumentation for the legacy "hapi" package. While the APM agent
   still supports it, that instrumentation is no longer tested and support
   will be dropped in the next major version of the agent. Note that the
-  "@hapi/hapi" package is still fully supported. ({pull}XXX[#XXX])
+  "@hapi/hapi" package is still fully supported. ({pull}2698[#2698])
 
 
 [[release-notes-3.33.0]]
