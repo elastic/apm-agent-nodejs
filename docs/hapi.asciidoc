@@ -50,24 +50,24 @@ const apm = require('elastic-apm-node').start({
   serverUrl: '',
 })
 
-const Hapi = require('hapi')
+const Hapi = require('@hapi/hapi')
 
-const server = new Hapi.Server()
+const init = async () => {
+  const server = Hapi.server({ port: 3000, host: 'localhost' })
 
-server.connection({
-  host: 'localhost',
-  port: 8000
-})
+  server.route({
+    method: 'GET',
+    path: '/',
+    handler: (request, h) => {
+      return 'hello world'
+    }
+  })
 
-server.route({
-  method: 'GET',
-  path: '/hello',
-  handler: function (request, reply) {
-    return reply('hello world')
-  }
-})
+  await server.start()
+  console.log('Server running on %s', server.info.uri)
+}
 
-server.start()
+init()
 ----
 
 The agent will now monitor the performance of your hapi application and record any uncaught exceptions.

@@ -972,9 +972,7 @@ test('disableInstrumentations', function (t) {
 
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
-  if (isHapiIncompat('hapi')) {
-    modules.delete('hapi')
-  }
+  modules.delete('hapi') // Deprecated, we no longer test this instrumentation.
   if (isHapiIncompat('@hapi/hapi')) {
     modules.delete('@hapi/hapi')
   }
