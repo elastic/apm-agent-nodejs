@@ -39,7 +39,7 @@ Notes:
 [float]
 ===== Features
 
-- Add support for tedious version v10 to v14 ({issues}2517[#2517])
+- Add support for 'tedious' version v10 to v14 ({issues}2517[#2517])
 
 - When automatically determining <<service-name>> and <<service-version>> by
   looking for a "package.json", the agent will now prefer to start looking
