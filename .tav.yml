@@ -437,7 +437,7 @@ tedious:
   name: tedious
   # - tedious@4.0.0 was broken, fixed in 4.0.1 by
   #   https://github.com/tediousjs/tedious/commit/4eceb48
-  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x'
+  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x || 10.x || 11.x || 12.x || 13.x || 14.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:

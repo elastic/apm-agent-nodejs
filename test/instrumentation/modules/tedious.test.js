@@ -48,7 +48,7 @@ function withConnection (t) {
     const conn = new tedious.Connection(connOpts)
     const onConnect = (err) => {
       if (err) return reject(err)
-      resolve(conn)
+      return resolve(conn)
     }
 
     if (typeof tedious.connect === 'function') {

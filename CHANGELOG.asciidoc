@@ -33,6 +33,8 @@ Notes:
 
 ==== Unreleased
 
+- Add support for tedious version v10 to v14 ({issues}2517[#2517])
+
 [float]
 ===== Breaking changes
 
