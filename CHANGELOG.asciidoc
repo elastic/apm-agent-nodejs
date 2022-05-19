@@ -63,6 +63,10 @@ Notes:
   control over how the APM Agent uses incoming trace-context headers for context
   propagation. ({issues}2592[#2592])
 
+- Add span links to AWS SQS messaging spans on 'ReceiveMessage', one for each
+  message (up to 1000) which has a 'traceparent' message attribute.
+  ({issues}2593[#2593])
+
 - Add "nodejs16.x" as one of the compatible runtimes for the Node.js APM agent
   Lambda layers now that
   https://aws.amazon.com/blogs/compute/node-js-16-x-runtime-now-available-in-aws-lambda/[this runtime is available on AWS].

@@ -145,6 +145,13 @@ module.exports = {
                 <DataType>Number</DataType>
               </Value>
             </MessageAttribute>
+            <MessageAttribute>
+              <Name>TrAcEpArEnT</Name>
+              <Value>
+                <StringValue>00-460d51b6ed3ab96be45f2580b8016509-8ba4419207a1f2f8-01</StringValue>
+                <DataType>String</DataType>
+              </Value>
+            </MessageAttribute>
           </Message>
         </ReceiveMessageResult>
         <ResponseMetadata>
