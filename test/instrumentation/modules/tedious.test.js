@@ -8,10 +8,10 @@ const agent = require('../../../').start({
   spanCompressionEnabled: false
 })
 
-// tedious >=12 only supports node >=12, tedious 11 only supports node >=10
+// tedious >=12 only supports node >=12.3.0, tedious 11 only supports node >=10
 const tediousVer = require('../../../node_modules/tedious/package.json').version
 const semver = require('semver')
-if ((semver.gte(tediousVer, '12.0.0') && semver.lt(process.version, '12.0.0')) ||
+if ((semver.gte(tediousVer, '12.0.0') && semver.lt(process.version, '12.3.0')) ||
     (semver.gte(tediousVer, '11.0.0') && semver.lt(process.version, '10.0.0'))) {
   console.log(`# SKIP tedious@${tediousVer} does not support node ${process.version}`)
   process.exit()
