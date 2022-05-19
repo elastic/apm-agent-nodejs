@@ -1,3 +1,6 @@
+# This file is used by tool TAV - Test All Versions.
+# See: https://github.com/watson/test-all-versions
+
 generic-pool:
   versions: ^2.0.0 || ^3.1.0
   commands: node test/instrumentation/modules/generic-pool.test.js
