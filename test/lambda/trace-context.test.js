@@ -193,6 +193,19 @@ test('SQS trigger: traceparent header present', function (t) {
         eventSource: 'aws:sqs',
         eventSourceARN: 'arn:aws:sqs:us-east-1:268121251715:testqueue'
         // ...
+      },
+      {
+        messageAttributes: {
+          TrAcEpArEnT: {
+            stringValue: 'test-traceparent2',
+            stringListValues: [],
+            binaryListValues: [],
+            dataType: 'String'
+          }
+        },
+        eventSource: 'aws:sqs',
+        eventSourceARN: 'arn:aws:sqs:us-east-1:268121251715:testqueue'
+        // ...
       }
     ]
   }
@@ -222,7 +235,8 @@ test('SQS trigger: traceparent header present', function (t) {
 
       t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], 'RECEIVE testqueue')
-      t.deepEqual(agent.transactions[0]._links, [{ context: 'test-traceparent' }],
+      t.deepEqual(agent.transactions[0]._links,
+        [{ context: 'test-traceparent' }, { context: 'test-traceparent2' }],
         'transaction has a span link for the message traceparent')
       t.end()
     }
