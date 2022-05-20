@@ -357,7 +357,7 @@ test('#_encode() - ended', function (t) {
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'dropped_spans_stats', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -385,7 +385,7 @@ test('#_encode() - with meta data', function (t) {
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'dropped_spans_stats', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -410,7 +410,7 @@ test('#_encode() - http request meta data', function (t) {
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'dropped_spans_stats', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
