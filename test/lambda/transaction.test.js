@@ -149,8 +149,7 @@ tape.test('transaction data TRIGGER_SQS', function (t) {
   t.end()
 })
 
-// XXX
-tape.test.only('transaction data TRIGGER_SNS', function (t) {
+tape.test('transaction data TRIGGER_SNS', function (t) {
   const mockAgent = new AgentMock({ captureHeaders: true, captureBody: 'transactions' })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
