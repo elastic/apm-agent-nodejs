@@ -63,6 +63,14 @@ Notes:
   control over how the APM Agent uses incoming trace-context headers for context
   propagation. ({issues}2592[#2592])
 
+- Change the instrumentation of SQS- and SNS-triggered AWS Lambda invocations:
+  The special-casing of triggers with a *single* message/record has been
+  removed.  That means that instead of a possible continued distributed trace
+  (if a single received message has a 'traceparent'), a *span link* will be
+  added to the APM transaction for each message with a 'traceparent'.
+  `transaction.context.message.` fields are no longer collected.
+  ({pull}2708[#2708])
+
 - Add "nodejs16.x" as one of the compatible runtimes for the Node.js APM agent
   Lambda layers now that
   https://aws.amazon.com/blogs/compute/node-js-16-x-runtime-now-available-in-aws-lambda/[this runtime is available on AWS].
