@@ -157,7 +157,6 @@
     "handlebars": "^4.7.3",
     "https-pem": "^2.0.0",
     "ioredis": "^4.28.0",
-    "jade": "^1.11.0",
     "knex": "^0.21.2",
     "koa": "^2.11.0",
     "koa-bodyparser": "^3.2.0",
