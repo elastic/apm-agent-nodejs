@@ -184,7 +184,7 @@
     "send": "^0.17.1",
     "tap-junit": "^5.0.1",
     "tape": "^5.0.0",
-    "tedious": "^9.2.1",
+    "tedious": "^14.5.0",
     "test-all-versions": "^4.1.1",
     "thunky": "^1.1.0",
     "typescript": "^3.7.5",
