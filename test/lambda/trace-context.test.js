@@ -222,11 +222,8 @@ test('SQS trigger: traceparent header present', function (t) {
 
       t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], 'RECEIVE testqueue')
-
-      t.strictEqual(agent.transactions[0].opts.childOf, 'test-traceparent',
-        'startTransaction() childOf opt matches "traceparent" SQS message attribute')
-      t.strictEqual(agent.transactions[0].opts.tracestate, 'test-tracestate',
-        'startTransaction() childOf opt matches "tracestate" SQS message attribute')
+      t.deepEqual(agent.transactions[0]._links, [{ context: 'test-traceparent' }],
+        'transaction has a span link for the message traceparent')
       t.end()
     }
   })
@@ -276,11 +273,8 @@ test('SNS trigger: traceparent header present', function (t) {
 
       t.strictEqual(agent.transactions.length, 1)
       assertTransaction(t, agent.transactions[0], 'RECEIVE testtopic')
-
-      t.strictEqual(agent.transactions[0].opts.childOf, 'test-traceparent',
-        'startTransaction() childOf opt matches "traceparent" SNS message attribute')
-      t.strictEqual(agent.transactions[0].opts.tracestate, 'test-tracestate',
-        'startTransaction() childOf opt matches "tracestate" SNS message attribute')
+      t.deepEqual(agent.transactions[0]._links, [{ context: 'test-traceparent' }],
+        'transaction has a span link for the message traceparent')
       t.end()
     }
   })
