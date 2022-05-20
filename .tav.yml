@@ -445,7 +445,7 @@ tedious-v1-v11:
 
 tedious-v11-v12:
   name: tedious
-  node: '>=10'
+  node: '>=10.17.0'
   versions: '11.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
