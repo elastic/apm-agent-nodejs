@@ -14,6 +14,7 @@ module.exports = class TransactionMock {
     this._message = undefined
     this._service = undefined
     this.outcome = constants.OUTCOME_UNKNOWN
+    this._links = []
     this.opts = opts
   }
 
@@ -54,6 +55,10 @@ module.exports = class TransactionMock {
 
   setOutcome (outcome) {
     this.outcome = outcome
+  }
+
+  _addLinks (links) {
+    this._links = this._links.concat(links)
   }
 
   end () {
