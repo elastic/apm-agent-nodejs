@@ -12,7 +12,7 @@ const mockClient = require('../_mock_http_client')
 const tape = require('tape')
 tape.test(function (suite) {
   suite.test(function (t) {
-    resetAgent(function (data) {
+    resetAgent(2, function (data) {
       t.equals(data.length, 2)
       t.equals(data.spans.length, 1)
       const span = data.spans.pop()
@@ -45,8 +45,8 @@ tape.test(function (suite) {
   suite.end()
 })
 
-function resetAgent (/* numExpected, */ cb) {
+function resetAgent (numExpected, cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(/* numExpected, */ cb)
+  agent._transport = mockClient(numExpected, cb)
   agent.captureError = function (err) { throw err }
 }
