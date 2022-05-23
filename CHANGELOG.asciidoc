@@ -72,6 +72,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Fixes a bug where the the agent would not serialize the database context of
+  a span. ({issues}2715[#2715])
+
 [float]
 ===== Chores
 
