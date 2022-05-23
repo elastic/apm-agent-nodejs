@@ -81,7 +81,7 @@ The Node.js agent will automatically instrument the following modules to give yo
 |https://www.npmjs.com/package/handlebars[handlebars] |* |Will instrument compile and render calls
 |https://www.npmjs.com/package/jade[jade] |>=0.5.6 |Will instrument compile and render calls; Deprecated. No longer tested. Use pug.
 |https://www.npmjs.com/package/pug[pug] |'>=0.1.0' |Will instrument compile and render calls
-|https://www.npmjs.com/package/ioredis[ioredis] |>=2.0.0 <5.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/ioredis[ioredis] |>=2.0.0 <6.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/memcached[memcached] |>=2.2.0  |Will instrument all commands.
 |https://www.npmjs.com/package/mongodb-core[mongodb-core] |>=1.2.19 <4 |Will instrument all queries.
 A lot of higher level MongoDB modules use mongodb-core,
