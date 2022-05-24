@@ -146,7 +146,9 @@ the top of `startSpan` in [`OTelTracer`](./OTelTracer.js)
     uses `AttributeValueLengthLimit (Default=Infinity)`.
     (We could consider using the configurable `longFieldMaxLength` for the
     attribute value truncation limit, if there is a need.)
-  - Span links and events are not current supported by this bridge.
+  - Span events are not currently supported by this bridge.
+  - Span link *attributes* are not supported by the bridge (Elastic APM
+    supports span links, but not span link attributes).
 
 - The OpenTelemetry Bridge spec says APM agents
   ["MAY"](https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#attributes-mapping)
