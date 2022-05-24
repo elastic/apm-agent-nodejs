@@ -1,3 +1,6 @@
+# This file is used by tool TAV - Test All Versions.
+# See: https://github.com/watson/test-all-versions
+
 generic-pool:
   versions: ^2.0.0 || ^3.1.0
   commands: node test/instrumentation/modules/generic-pool.test.js
@@ -395,13 +398,6 @@ elasticsearch:
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.test.js
-# jade is a dead package. It was renamed to 'pug' in 2015 and hasn't had a
-# release since. Testing all 144 releases that match '>0.5.5' (the first
-# release APM supported) is a waste of time. Instead we will test the first
-# supported and the last released versions.
-jade:
-  versions: '0.5.6 || 1.11.0 || >1.11.0'
-  commands: node test/instrumentation/modules/jade.test.js
 # Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
 pug-v2:
   versions: '0.1.0 || >2.0.0 <3.0.0'
@@ -433,11 +429,23 @@ pug:
     - node test/instrumentation/modules/hapi/basic.test.js
     - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
 
+tedious-v1-v11:
+  name: tedious
+  node: '>=6'
+  # - tedious@4.0.0 was broken, fixed in 4.0.1 by https://github.com/tediousjs/tedious/commit/4eceb48
+  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x || 10.x'
+  commands: node test/instrumentation/modules/tedious.test.js
+
+tedious-v11-v12:
+  name: tedious
+  node: '>=10.17.0'
+  versions: '11.x'
+  commands: node test/instrumentation/modules/tedious.test.js
+
 tedious:
   name: tedious
-  # - tedious@4.0.0 was broken, fixed in 4.0.1 by
-  #   https://github.com/tediousjs/tedious/commit/4eceb48
-  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x'
+  node: '>=12.3.0'
+  versions: '12.x || 13.x || 14.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:

@@ -17,9 +17,7 @@ TAV:
   - got
   - graphql
   - handlebars
-  - hapi
   - ioredis
-  - jade
   - knex
   - koa-router
   - memcached

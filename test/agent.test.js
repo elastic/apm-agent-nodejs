@@ -440,6 +440,7 @@ test('#startSpan()', function (t) {
     t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7')
     t.strictEqual(span._context.traceparent.parentId, '00f067aa0ba902b7')
     t.strictEqual(span._context.traceparent.flags, '01')
+    span.end()
     agent.destroy()
     t.end()
   })

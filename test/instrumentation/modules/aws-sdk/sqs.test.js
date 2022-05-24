@@ -544,6 +544,10 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.action, 'poll', 'span action matches API method called')
         t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+        t.deepEqual(spanSqs.links, [{
+          trace_id: '460d51b6ed3ab96be45f2580b8016509',
+          span_id: '8ba4419207a1f2f8'
+        }], 'span.links')
 
         t.end()
       })

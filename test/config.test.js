@@ -973,6 +973,7 @@ test('disableInstrumentations', function (t) {
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
   modules.delete('hapi') // Deprecated, we no longer test this instrumentation.
+  modules.delete('jade') // Deprecated, we no longer test this instrumentation.
   if (isHapiIncompat('@hapi/hapi')) {
     modules.delete('@hapi/hapi')
   }
@@ -1003,6 +1004,9 @@ test('disableInstrumentations', function (t) {
     // Restify (as of 8.6.0) is completely broken with latest node v18 nightly.
     // https://github.com/restify/node-restify/issues/1888
     modules.delete('restify')
+  }
+  if (semver.lt(process.version, '12.3.0')) {
+    modules.delete('tedious')
   }
 
   function testSlice (t, name, selector) {
