@@ -163,7 +163,7 @@
     "koa-router": "^9.0.1",
     "lambda-local": "^1.7.1",
     "memcached": "^2.2.2",
-    "mimic-response": "^2.1.0",
+    "mimic-response": "^4.0.0",
     "mkdirp": "^0.5.1",
     "module-details-from-path": "^1.0.3",
     "mongodb": "^4.2.1",
