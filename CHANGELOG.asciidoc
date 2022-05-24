@@ -72,6 +72,7 @@ specifying links during span creation (with the limitation that span link
   added to the APM transaction for each message with a 'traceparent'.
   `transaction.context.message.` fields are no longer collected.
   ({pull}2708[#2708])
+
 - Add span links to AWS SQS messaging spans on 'ReceiveMessage', one for each
   message (up to 1000) which has a 'traceparent' message attribute.
   ({issues}2593[#2593])
