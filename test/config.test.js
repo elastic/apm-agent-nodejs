@@ -1004,6 +1004,9 @@ test('disableInstrumentations', function (t) {
     // https://github.com/restify/node-restify/issues/1888
     modules.delete('restify')
   }
+  if (semver.lt(process.version, '12.3.0')) {
+    modules.delete('tedious')
+  }
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)
