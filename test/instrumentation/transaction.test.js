@@ -357,7 +357,7 @@ test('#_encode() - ended', function (t) {
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'dropped_spans_stats', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -385,7 +385,7 @@ test('#_encode() - with meta data', function (t) {
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'dropped_spans_stats', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -410,7 +410,7 @@ test('#_encode() - http request meta data', function (t) {
   trans.end()
 
   const payload = agent._transport.transactions[0]
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'dropped_spans_stats', 'sample_rate'])
+  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
   t.strictEqual(payload.id, trans.id)
@@ -500,10 +500,16 @@ test('#_encode() - dropped spans', function (t) {
   var span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
   var span2 = trans.startSpan()
+  span2.setDestinationContext({
+    service: {
+      resource: 'foo'
+    }
+  })
   if (span2.isRecorded()) {
     t.fail('should have dropped the span')
   }
   span0.end()
+  span2.end()
   trans.end()
 
   agent.flush(function () {
@@ -527,7 +533,7 @@ test('#_encode() - dropped spans', function (t) {
       started: 2,
       dropped: 1
     })
-
+    t.equals(payload.dropped_spans_stats.length, 1)
     agent._conf.transactionMaxSpans = oldTransactionMaxSpans
     t.end()
   })
