@@ -53,13 +53,13 @@ Notes:
   to manually instrument your code, and have the Elastic Node.js APM agent
   handle those API calls. ({pull}2641[#2641])
 
-- Add [Span Links](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md#links-between-spans) support. ({issues}2673[#2673])
-
-  The <<transaction-start-span,`transaction.startSpan()`>> and
-  <<apm-start-transaction,`apm.startTransaction()`>> public APIs now accept
-  a `links` option for specify links. The OpenTelemetry Bridge also supports
-  specifying links during span creation (with the limitation that span link
-  *attributes* are not supported).
+- Add https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md#links-between-spans)[Span Links] support. ({issues}2673[#2673])
++
+The <<transaction-start-span,`transaction.startSpan()`>> and
+<<apm-start-transaction,`apm.startTransaction()`>> public APIs now accept
+a `links` option for specify links. The OpenTelemetry Bridge also supports
+specifying links during span creation (with the limitation that span link
+*attributes* are not supported).
 
 - Add a <<trace-continuation-strategy>> configuration option to allow some
   control over how the APM Agent uses incoming trace-context headers for context
@@ -82,6 +82,10 @@ Notes:
   still supports it, that instrumentation is no longer tested and support
   will be dropped in the next major version of the agent. Note that the
   "@hapi/hapi" package is still fully supported. ({pull}2698[#2698])
+
+- Deprecate instrumentation for the obsolete "jade" package. "jade" was renamed
+  to "pug" in 2015.  While the APM agent still supports "jade", that
+  instrumentation is no longer tested. ({pull}2711[#2711])
 
 
 [[release-notes-3.33.0]]
