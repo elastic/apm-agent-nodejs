@@ -8,6 +8,7 @@ export AWS_FOLDER
 .PHONY: dist
 dist: validate-branch-name
 	../dev-utils/make-lambda-layer-zip.sh
+	@mkdir -p $(AWS_FOLDER)
 	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip
 
 .PHONY: clean
