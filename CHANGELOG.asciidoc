@@ -42,8 +42,8 @@ Notes:
 [float]
 ===== Bug fixes
 
-- Fixes automatic Lambda wrapping handler to work with handler that point to
-  subfolders (`_HANDLER=path/to/folder.methodName`)
+- Fixes automatic Lambda handler wrapping to work with handlers that point to
+  subfolders (ex. `_HANDLER=path/to/folder.methodName`) ({issues}2725[#2725])
 
 [float]
 ===== Chores

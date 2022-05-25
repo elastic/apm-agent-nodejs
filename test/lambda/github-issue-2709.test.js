@@ -21,7 +21,6 @@ tape.test('test _HANDLER=fixture/lambda.foo form', function (t) {
     centralConfig: false,
     cloudProvider: 'none',
     spanStackTraceMinDuration: 0, // Always have span stacktraces.
-    logLevel: 'trace',
     transport: function () {}
   })
 
