@@ -31,10 +31,9 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
 
-[float]
-===== Breaking changes
+[[release-notes-3.34.0]]
+==== 3.34.0 2022/05/26
 
 [float]
 ===== Features
@@ -83,6 +82,13 @@ specifying links during span creation (with the limitation that span link
 
 [float]
 ===== Bug fixes
+
+- Fixes a bug where the the agent would not serialize the database context of
+  a span. ({issues}2715[#2715])
+
+- Fix a possible crash in span compression handling on a span that was manually
+  created without a parent span (e.g. if created with a custom `childOf`
+  option). ({pull}2701[#2701])
 
 [float]
 ===== Chores

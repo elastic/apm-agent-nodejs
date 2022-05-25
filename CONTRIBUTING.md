@@ -175,7 +175,7 @@ If you have access to make releases, the process is as follows:
    changes.
 1. Make a PR titled "x.y.z" (the new version) which updates:
     - the version in `package.json`,
-    - the version in `package-lock.json`,
+    - the version in `package-lock.json` (by running `npm install`),
     - "CHANGELOG.asciidoc": Add missing changelog entries, if any. Then change
       the "Unreleased" section title to:
         ```

@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.33.0",
+  "version": "3.34.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -159,7 +159,7 @@
     "ioredis": "^4.28.0",
     "knex": "^0.21.2",
     "koa": "^2.11.0",
-    "koa-bodyparser": "^3.2.0",
+    "koa-bodyparser": "^4.3.0",
     "koa-router": "^9.0.1",
     "lambda-local": "^1.7.1",
     "memcached": "^2.2.2",
