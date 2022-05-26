@@ -39,24 +39,6 @@ Notes:
 [float]
 ===== Features
 
-[float]
-===== Bug fixes
-
-* Updated `sanitizeFieldNames` and `ignoreMessageQueues` environment variables
-  to use `ELASTIC_APM_` prefix. (previous variable names are still recgonized,
-  but not documented) ({issues}2636[#2636])
-
-[float]
-===== Chores
-
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
-
 - Change the instrumentation of SQS- and SNS-triggered AWS Lambda invocations:
   The special-casing of triggers with a *single* message/record has been
   removed.  That means that instead of a possible continued distributed trace
@@ -69,6 +51,10 @@ Notes:
 
 [float]
 ===== Bug fixes
+
+- Updated `sanitizeFieldNames` and `ignoreMessageQueues` environment variables
+  to use `ELASTIC_APM_` prefix. (previous variable names are still recgonized,
+  but not documented) ({issues}2636[#2636])
 
 [float]
 ===== Chores
