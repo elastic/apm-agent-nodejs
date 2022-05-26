@@ -49,6 +49,31 @@ Notes:
 [float]
 ===== Chores
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Change the instrumentation of SQS- and SNS-triggered AWS Lambda invocations:
+  The special-casing of triggers with a *single* message/record has been
+  removed.  That means that instead of a possible continued distributed trace
+  (if a single received message has a 'traceparent'), a *span link* will be
+  added to the APM transaction for each message with a 'traceparent'.
+  `transaction.context.message.` fields are no longer collected.
+  ({pull}2708[#2708])
+
+- Enable support for ioredis v5 ({pull}2714[#2714])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
 [[release-notes-3.34.0]]
 ==== 3.34.0 2022/05/26
 
@@ -103,7 +128,7 @@ specifying links during span creation (with the limitation that span link
 ===== Chores
 
 - Add a package-lock.json file to ensure repeatable builds of the AWS Lambda
-  layer and to assist with security issue auditing. ({issue}2626[#2626])
+  layer and to assist with security issue auditing. ({issues}2626[#2626])
 
 - Deprecate instrumentation for the legacy "hapi" package. While the APM agent
   still supports it, that instrumentation is no longer tested and support

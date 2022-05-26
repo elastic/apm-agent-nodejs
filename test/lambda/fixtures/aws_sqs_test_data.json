@@ -23,6 +23,18 @@
                     "binaryListValues": [],
                     "dataType": "Number"
                 },
+                "TraceParent": {
+                    "stringValue": "42",
+                    "stringListValues": [],
+                    "binaryListValues": [],
+                    "dataType": "Number"
+                },
+                "Traceparent": {
+                    "stringValue": "00-460d51b6ed3ab96be45f2580b8016509-8ba4419207a1f2f8-01",
+                    "stringListValues": [],
+                    "binaryListValues": [],
+                    "dataType": "String"
+                },
                 "City": {
                     "stringValue": "Any City",
                     "stringListValues": [],
