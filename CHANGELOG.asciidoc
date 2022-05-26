@@ -31,6 +31,20 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+- Enable support for ioredis v5
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
 
 [[release-notes-3.34.0]]
 ==== 3.34.0 2022/05/26

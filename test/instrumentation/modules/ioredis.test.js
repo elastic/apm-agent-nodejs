@@ -8,6 +8,13 @@ var agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
+var ioredisVer = require('ioredis/package.json').version
+var semver = require('semver')
+if (semver.gte(ioredisVer, '5.0.0') && semver.lt(process.version, '12.22.0')) {
+  console.log(`# SKIP ioredis@${ioredisVer} does not support node ${process.version}`)
+  process.exit()
+}
+
 var Redis = require('ioredis')
 var test = require('tape')
 
