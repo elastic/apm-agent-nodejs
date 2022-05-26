@@ -31,20 +31,6 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
-- Enable support for ioredis v5
-
-[float]
-===== Bug fixes
-
-[float]
-===== Chores
 
 ==== Unreleased
 
@@ -61,6 +47,8 @@ Notes:
   added to the APM transaction for each message with a 'traceparent'.
   `transaction.context.message.` fields are no longer collected.
   ({pull}2708[#2708])
+
+- Enable support for ioredis v5 ({pull}2714[#2714])
 
 [float]
 ===== Bug fixes
