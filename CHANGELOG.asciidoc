@@ -31,6 +31,22 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+- Fixes automatic Lambda handler wrapping to work with handlers that point to
+  subfolders (ex. `_HANDLER=path/to/folder.methodName`) ({issues}2709[#2709])
+
+[float]
+===== Chores
 
 ==== Unreleased
 
