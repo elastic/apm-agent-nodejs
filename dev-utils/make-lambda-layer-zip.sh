@@ -1,10 +1,9 @@
 #!/bin/bash
 #
-# Make an APM Node.js agent lambda layer zip file with local repo changes
-# that could be published to AWS and used for a dev/test lambda.
+# Make a Node.js APM Agent lambda layer zip file that can be published to AWS.
+# https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html
 #
-# Note: This is for development-only, the blessed path for building and
-# publishing Lambda layers for this agent is in ".ci/Makefile".
+# Note: This has the side-effect of modifying "./node_modules/...".
 #
 
 if [ "$TRACE" != "" ]; then
@@ -25,21 +24,33 @@ function fatal {
 
 TOP=$(cd $(dirname $0)/../ >/dev/null; pwd)
 BUILD_DIR="$TOP/build/lambda-layer-zip"
-TIMESTAMP=$(date -u '+%Y%m%dT%H%M%S')
+
+# Guard against accidentally using this script with a too-old npm.
+if [[ $(npm --version | cut -d. -f1) -lt 8 ]]; then
+    fatal "npm version is too old for 'npm ci --omit=dev': $(npm --version)"
+fi
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
-npm --loglevel=warn pack "$TOP" # creates "elastic-apm-node-$ver.tgz"
-npm init -y
-npm install --global-style elastic-apm-node-*.tgz
+mkdir -p nodejs/node_modules/elastic-apm-node
+(cd nodejs/node_modules/elastic-apm-node;
+    # Use 'npm pack' to get the published files as a start.
+    npm --loglevel=warn pack "$TOP"; # creates "elastic-apm-node-$ver.tgz"
+    tar --strip-components=1 -xf elastic-apm-node-*.tgz;
+    rm elastic-apm-node-*.tgz;
+    cp $TOP/package-lock.json ./;
+    # Then install the "package-lock.json"-dictated dependencies (excluding
+    # devDependencies).  Use '--ignore-scripts' to have confidence no code but
+    # ours and npm's is running.
+    npm ci --omit=dev --ignore-scripts;
+    rm package-lock.json)
 
-mkdir nodejs
-mv node_modules nodejs
-zip -q -r elastic-apm-node-lambda-layer-dev-$TIMESTAMP.zip nodejs
-echo "Created build/lambda-layer-zip/elastic-apm-node-lambda-layer-dev-$TIMESTAMP.zip"
+echo ""
+zip -q -r elastic-apm-node-lambda-layer.zip nodejs
+echo "Created build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip"
 
 echo
-echo "Note: You can use the following command to publish this layer for dev work:"
-echo "  aws lambda --output json publish-layer-version --layer-name '$USER-play-elastic-apm-nodejs' --description '$USER dev Elastic APM Node.js agent lambda layer' --zip-file 'fileb://build/lambda-layer-zip/elastic-apm-node-lambda-layer-dev-$TIMESTAMP.zip'"
+echo "The lambda layer can be published as follows for dev work:"
+echo "    aws lambda --output json publish-layer-version --layer-name '$USER-dev-elastic-apm-node' --description '$USER dev Elastic APM Node.js agent lambda layer' --zip-file 'fileb://build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip'"

@@ -19,6 +19,9 @@ Notes:
         [float]
         ===== Bug fixes
 
+        [float]
+        ===== Chores
+
 2. When making a release, change the "==== Unreleased" section header to:
 
         [[release-notes-x.x.x]]
@@ -28,10 +31,113 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
+
+[[release-notes-3.34.0]]
+==== 3.34.0 2022/05/26
 
 [float]
-===== Breaking changes
+===== Features
+
+- Add support for 'tedious' version v10 to v14 ({issues}2517[#2517])
+
+- When automatically determining <<service-name>> and <<service-version>> by
+  looking for a "package.json", the agent will now prefer to start looking
+  from the directory of the script being executed, rather than the current
+  working directory. ({issues}2420[#2420])
+
+- Add an experimental <<opentelemetry-bridge>>.  Briefly, the OpenTelemetry
+  Bridge allows one to use the vendor-neutral
+  https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing
+  API] (https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`])
+  to manually instrument your code, and have the Elastic Node.js APM agent
+  handle those API calls. ({pull}2641[#2641])
+
+- Add https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md#links-between-spans)[Span Links] support. ({issues}2673[#2673])
++
+The <<transaction-start-span,`transaction.startSpan()`>> and
+<<apm-start-transaction,`apm.startTransaction()`>> public APIs now accept
+a `links` option for specify links. The OpenTelemetry Bridge also supports
+specifying links during span creation (with the limitation that span link
+*attributes* are not supported).
+
+- Add a <<trace-continuation-strategy>> configuration option to allow some
+  control over how the APM Agent uses incoming trace-context headers for context
+  propagation. ({issues}2592[#2592])
+
+- Add span links to AWS SQS messaging spans on 'ReceiveMessage', one for each
+  message (up to 1000) which has a 'traceparent' message attribute.
+  ({issues}2593[#2593])
+
+- Add "nodejs16.x" as one of the compatible runtimes for the Node.js APM agent
+  Lambda layers now that
+  https://aws.amazon.com/blogs/compute/node-js-16-x-runtime-now-available-in-aws-lambda/[this runtime is available on AWS].
+
+[float]
+===== Bug fixes
+
+- Fixes a bug where the the agent would not serialize the database context of
+  a span. ({issues}2715[#2715])
+
+- Fix a possible crash in span compression handling on a span that was manually
+  created without a parent span (e.g. if created with a custom `childOf`
+  option). ({pull}2701[#2701])
+
+[float]
+===== Chores
+
+- Add a package-lock.json file to ensure repeatable builds of the AWS Lambda
+  layer and to assist with security issue auditing. ({issue}2626[#2626])
+
+- Deprecate instrumentation for the legacy "hapi" package. While the APM agent
+  still supports it, that instrumentation is no longer tested and support
+  will be dropped in the next major version of the agent. Note that the
+  "@hapi/hapi" package is still fully supported. ({pull}2698[#2698])
+
+- Deprecate instrumentation for the obsolete "jade" package. "jade" was renamed
+  to "pug" in 2015.  While the APM agent still supports "jade", that
+  instrumentation is no longer tested. ({pull}2711[#2711])
+
+
+[[release-notes-3.33.0]]
+==== 3.33.0 2022/05/05
+
+[float]
+===== Features
+
+- Pulled the `traceparent` NPM module into a local module and replaced the
+  `random-poly-fill` module with the built in `require('crypto').randomFillSync`
+  function call ({pull}2669[#2669])
+
+- Add a `parent` option to `agent.captureError(err[, options][, cb])` to allow
+  passing in a Transaction or Span to use as the parent for the error. Before
+  this change the *current* span or transaction, if any, was always used.
++
+This option is not documented in the user docs, nor added to the TypeScript
+types, because it is only expected to be useful for coming OTel Bridge work.
+
+[float]
+===== Bug fixes
+
+- Fix a possible crash in the instrumentation of an incoming HTTP/2 request: if
+  the underlying Http2Session was destroyed before the APM transaction was
+  ended (on Http2Stream end). This resulted in the instrumentation using the
+  [`stream.session.socket`](https://nodejs.org/api/http2.html#http2sessionsocket)
+  proxy, which can throw `ERR_HTTP2_SOCKET_UNBOUND` after the session is
+  destroyed. ({issues}2670[#2670])
+
+[float]
+===== Chores
+
+- The release process is slightly changed. CI (Jenkins) now handles `npm
+  publish ...` when a tag is pushed. ({pull}2667[#2667])
+
+- Pulled the `traceparent` NPM module into a local module and replaced the
+  `random-poly-fill` module with the built in `require('crypto').randomFillSync`
+  function call ({pull}2669[#2669])
+
+
+[[release-notes-3.32.0]]
+==== 3.32.0 2022/04/27
 
 [float]
 ===== Features
@@ -43,8 +149,18 @@ Notes:
   but not documented) ({issues}2636[#2636])
 * Add support for node v18. ({pull}2652[#2652])
 
-* Adds initial implementaion of
-  https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression]. To disable, set the `spanCompressionEnabled` configuration field to `false`.  ({issues}2100[#2100], {issues}2604[#2604])
+* Add support for https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression].
+  ({issues}2100[#2100], {issues}2604[#2604])
++
+By default, consecutive (sibling) exit spans of the same name, type, subtype,
+and destination with a duration of less than 50ms will be compressed into
+a single composite span. A possible case is the
+https://duckduckgo.com/?q=N%252B1+query+problem[N+1 query problem].
+Traces with many consecutive matching spans will be represented -- both in data
+and the APM UI -- more efficiently.
++
+Span compression can be disabled or matching behavior configured with the
+<<span-compression-enabled,`spanCompression* configuration options`>>.
 
 * Marks spans as "exit spans" across all instrumentations, preventing additional
   child spans from being added to the exit spans.  See issue for a full list of
@@ -55,8 +171,6 @@ Notes:
 
 * The Trace Context headers are now propagated for http2 requests. ({pull}2656[#2656])
 
-[float]
-===== Bug fixes
 
 [[release-notes-3.31.0]]
 ==== 3.31.0 2022/03/23

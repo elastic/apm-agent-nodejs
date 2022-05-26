@@ -20,7 +20,7 @@ var test = require('tape')
 
 var echoServer = require('./_echo_server_util').echoServer
 var mockClient = require('../../../_mock_http_client')
-var TraceParent = require('traceparent')
+var { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 var methods = ['request', 'get']
 

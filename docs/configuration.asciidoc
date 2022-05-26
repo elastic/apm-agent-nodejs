@@ -1182,13 +1182,52 @@ require('elastic-apm-node').start({
 })
 ----
 
+
+[[trace-continuation-strategy]]
+==== `traceContinuationStrategy`
+
+[small]#Added in: v3.34.0#
+
+* *Type:* String
+* *Default:* `'continue'`
+* *Env:* `ELASTIC_APM_TRACE_CONTINUATION_STRATEGY`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `trace_continuation_strategy`
+
+This option allows some control on how the APM agent handles W3C trace-context
+headers on incoming requests. By default, the `traceparent` and `tracestate`
+headers are used per W3C spec for distributed tracing. However, in certain cases
+it can be helpful to *not* use the incoming `traceparent` header. Some example
+use cases:
+
+- An Elastic-monitored service is receiving requests with `traceparent` headers
+  from *unmonitored* services.
+- An Elastic-monitored service is publicly exposed, and does not want tracing
+  data (trace-ids, sampling decisions) to possibly be spoofed by user requests.
+
+Valid values are:
+
+- `'continue'` - The default behavior. An incoming `traceparent` value is used
+  to continue the trace and determine the sampling decision.
+- `'restart'` - Always ignores the `traceparent` header of incoming
+  requests. A new trace-id will be generated and the sampling decision will be
+  made based on <<transaction-sample-rate,`transactionSampleRate`>>. A *span
+  link* will be made to the incoming traceparent.
+- `'restart_external'` - If an incoming request includes the `es` vendor flag
+  in `tracestate`, then any 'traceparent' will be considered internal and
+  will be handled as described for 'continue' above. Otherwise, any 'traceparent'
+  is considered external and will be handled as described for 'restart' above.
+
+Starting with Elastic Observability 8.2, span links will be visible in trace
+views.
+
+
 [[span-compression-enabled]]
 ==== `spanCompressionEnabled`
 * *Type:* Boolean
-* *Default:* `false`
+* *Default:* `true`
 * *Env:* `ELASTIC_APM_SPAN_COMPRESSION_ENABLED`
 
-Setting this option to true will enable span compression feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information such as DB statements of all the compressed spans will not be collected.
+Setting this option to false will disable the span compression feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information, such as DB statements of all the compressed spans, will not be collected.
 
 Example usage:
 
@@ -1235,3 +1274,27 @@ require('elastic-apm-node').start({
 })
 ----
 
+
+[[opentelemetry-bridge-enabled]]
+==== `opentelemetryBridgeEnabled`
+
+[small]#Added in: v3.34.0 as experimental#
+
+* *Type:* Boolean
+* *Default:* `false`
+* *Env:* `ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED`
+
+Setting this option to true will enable the <<opentelemetry-bridge,OpenTelemetry Bridge>>. Briefly, the OpenTelemetry Bridge allows one to use the vendor-neutral
+https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing API]
+(https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`]) to
+manually instrument your code, and have the Elastic Node.js APM agent handle
+those API calls.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  opentelemetryBridgeEnabled: true
+})
+----

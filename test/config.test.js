@@ -151,6 +151,7 @@ var optionFixtures = [
   ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 0],
   ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0],
   ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
+  ['traceContinuationStrategy', 'TRACE_CONTINUATION_STRATEGY', 'continue'],
   ['transactionMaxSpans', 'TRANSACTION_MAX_SPANS', 500],
   ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
   ['usePathAsTransactionName', 'USE_PATH_AS_TRANSACTION_NAME', false],
@@ -171,6 +172,8 @@ optionFixtures.forEach(function (fixture) {
     } else if (fixture[0] === 'serverCaCertFile') {
       // special case for files, so a temp file can be written
       type = 'file'
+    } else if (fixture[0] === 'traceContinuationStrategy') {
+      type = 'traceContinuationStrategy'
     } else if (typeof fixture[2] === 'number' || fixture[0] === 'errorMessageMaxLength') {
       type = 'number'
     } else if (Array.isArray(fixture[2])) {
@@ -203,6 +206,9 @@ optionFixtures.forEach(function (fixture) {
           mkdirp.sync(tmpdir)
           fs.writeFileSync(tmpfile, tmpfile)
           value = tmpfile
+          break
+        case 'traceContinuationStrategy':
+          value = 'restart' // a valid non-default value
           break
         case 'array':
           value = ['custom-value']
@@ -270,6 +276,10 @@ optionFixtures.forEach(function (fixture) {
         case 'array':
           value1 = ['overwriting-value']
           value2 = ['custom-value']
+          break
+        case 'traceContinuationStrategy':
+          value1 = 'restart'
+          value2 = 'continue'
           break
         case 'string':
           value1 = 'overwriting-value'
@@ -717,20 +727,20 @@ test('serviceName/serviceVersion zero-conf: valid', function (t) {
   })
 })
 
-test('serviceName/serviceVersion zero-conf: no package.json to find', function (t) {
+test('serviceName/serviceVersion zero-conf: cwd is outside package tree', function (t) {
   const indexJs = path.join(__dirname, 'fixtures', 'pkg-zero-conf-valid', 'index.js')
   cp.execFile(process.execPath, [indexJs], {
     timeout: 3000,
-    // Set CWD to top-level to ensure the agent cannot find a package.json file.
+    // Set CWD to outside of the package tree to test whether the agent
+    // package.json searching uses `require.main`.
     cwd: '/'
   }, function (err, stdout, stderr) {
     t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
     const conf = JSON.parse(lines[lines.length - 1])
-    t.equal(conf.serviceName, 'unknown-nodejs-service',
-      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
-    t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
+    t.equal(conf.serviceName, 'validName', 'serviceName was inferred from package.json')
+    t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
     t.end()
   })
 })
@@ -803,6 +813,47 @@ test('serviceName/serviceVersion zero-conf: weird "name" in package.json', funct
     t.equal(conf.serviceName, 'unknown-nodejs-service',
       'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
     t.equal(conf.serviceVersion, '1.2.3', 'serviceVersion was inferred from package.json')
+    t.end()
+  })
+})
+
+test('serviceName/serviceVersion zero-conf: no package.json to find', function (t) {
+  // To test the APM agent's fallback serviceName, we need to execute
+  // a script in a dir that has no package.json in its dir, or any dir up
+  // from it (we assume/hope that `os.tmpdir()` works for that).
+  const dir = os.tmpdir()
+  const script = path.resolve(dir, 'elastic-apm-node-zero-conf-test-script.js')
+  // Avoid Windows '\' path separators that are interpreted as escapes when
+  // interpolated into the script content below.
+  const agentDir = path.resolve(__dirname, '..')
+    .replace(new RegExp('\\' + path.win32.sep, 'g'), path.posix.sep)
+  function setupPkgEnv () {
+    fs.writeFileSync(script, `
+      const apm = require('${agentDir}').start({
+        disableSend: true
+      })
+      console.log(JSON.stringify(apm._conf))
+      `)
+    t.comment(`created ${script}`)
+  }
+  function teardownPkgEnv () {
+    fs.unlinkSync(script)
+    t.comment(`removed ${script}`)
+  }
+
+  setupPkgEnv()
+  cp.execFile(process.execPath, [script], {
+    timeout: 3000,
+    cwd: dir
+  }, function (err, stdout, stderr) {
+    t.error(err, 'no error running script: ' + err)
+    t.equal(stderr, '', 'no stderr')
+    const lines = stdout.trim().split('\n')
+    const conf = JSON.parse(lines[lines.length - 1])
+    t.equal(conf.serviceName, 'unknown-nodejs-service',
+      'serviceName is the `unknown-{service.agent.name}-service` zero-conf fallback')
+    t.equal(conf.serviceVersion, undefined, 'serviceVersion is undefined')
+    teardownPkgEnv()
     t.end()
   })
 })
@@ -915,16 +966,14 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 test('disableInstrumentations', function (t) {
   var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
-  const esCanaryVersion = safeGetPackageVersion('@elastic/elasticsearch-canary')
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
   const apolloServerCoreVersion = require('apollo-server-core/package.json').version
 
   var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
   var modules = new Set(flattenedModules)
-  if (isHapiIncompat('hapi')) {
-    modules.delete('hapi')
-  }
+  modules.delete('hapi') // Deprecated, we no longer test this instrumentation.
+  modules.delete('jade') // Deprecated, we no longer test this instrumentation.
   if (isHapiIncompat('@hapi/hapi')) {
     modules.delete('@hapi/hapi')
   }
@@ -932,9 +981,15 @@ test('disableInstrumentations', function (t) {
     modules.delete('express-graphql')
   }
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
-    modules.delete('@elastic/elasticsearch')
+    modules.delete('@elastic/elasticsearch') // - Version 7.12.0 dropped support for node v8.
   }
-  if (semver.lt(process.version, '10.0.0') && semver.gte(esCanaryVersion, '7.12.0')) {
+  if (semver.lt(process.version, '12.0.0') && semver.gte(esVersion, '8.0.0')) {
+    modules.delete('@elastic/elasticsearch') // - Version 8.0.0 dropped node v10 support.
+  }
+  if (semver.lt(process.version, '14.0.0') && semver.gte(esVersion, '8.2.0')) {
+    modules.delete('@elastic/elasticsearch') // - Version 8.2.0 dropped node v12 support.
+  }
+  if (semver.lt(process.version, '14.0.0')) {
     modules.delete('@elastic/elasticsearch-canary')
   }
   // As of mongodb@4 only supports node >=v12.
@@ -949,6 +1004,9 @@ test('disableInstrumentations', function (t) {
     // Restify (as of 8.6.0) is completely broken with latest node v18 nightly.
     // https://github.com/restify/node-restify/issues/1888
     modules.delete('restify')
+  }
+  if (semver.lt(process.version, '12.3.0')) {
+    modules.delete('tedious')
   }
 
   function testSlice (t, name, selector) {

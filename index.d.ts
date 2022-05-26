@@ -290,6 +290,7 @@ declare namespace apm {
     spanFramesMinDuration?: string;
     spanStackTraceMinDuration?: string;
     stackTraceLimit?: number;
+    traceContinuationStrategy?: TraceContinuationStrategy;
     transactionIgnoreUrls?: Array<string>;
     transactionMaxSpans?: number;
     transactionSampleRate?: number;
@@ -349,20 +350,31 @@ declare namespace apm {
     [propName: string]: any;
   }
 
+  // Link and `links` are intended to be compatible with OTel's
+  // equivalent APIs in "opentelemetry-js-api/src/trace/link.ts". Currently
+  // span link attributes are not supported.
+  export interface Link {
+    /** A W3C trace-context 'traceparent' string, Transaction, or Span. */
+    context: Transaction | Span | string; // This is a SpanContext in OTel.
+  }
+
   export interface TransactionOptions {
     startTime?: number;
     childOf?: Transaction | Span | string;
+    links?: Link[];
   }
 
   export interface SpanOptions {
     startTime?: number;
     childOf?: Transaction | Span | string;
     exitSpan?: boolean;
+    links?: Link[];
   }
 
   type CaptureBody = 'off' | 'errors' | 'transactions' | 'all';
   type CaptureErrorLogStackTraces = 'never' | 'messages' | 'always';
   type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'warning' | 'error' | 'fatal' | 'critical' | 'off';
+  type TraceContinuationStrategy = 'continue' | 'restart' | 'restart_external';
 
   type CaptureErrorCallback = (err: Error | null, id: string) => void;
   type FilterFn = (payload: Payload) => Payload | boolean | void;

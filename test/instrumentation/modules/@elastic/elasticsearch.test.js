@@ -22,10 +22,15 @@ const esClientPkgName = process.env.ELASTIC_APM_TEST_ESCLIENT_PACKAGE_NAME || '@
 // of node.
 const esVersion = safeGetPackageVersion(esClientPkgName)
 const semver = require('semver')
-if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
-  console.log(`# SKIP ${esClientPkgName}@${esVersion} does not support node ${process.version}`)
-  process.exit()
-} else if (semver.lt(process.version, '12.0.0') && semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
+if (
+  (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) ||
+  (semver.lt(process.version, '12.0.0') && semver.satisfies(esVersion, '>=8', { includePrerelease: true })) ||
+  // Surprise: Cannot use ">=8.2.0" here because the ES client uses prerelease
+  // tags, e.g. "8.2.0-patch.1", to mean "a patch release after 8.2.0" because
+  // it has rules about its version numbers. However semver orders that
+  // "-patch.1" *before* "8.2.0".
+  (semver.lt(process.version, '14.0.0') && semver.satisfies(esVersion, '>=8.2', { includePrerelease: true }))
+) {
   console.log(`# SKIP ${esClientPkgName}@${esVersion} does not support node ${process.version}`)
   process.exit()
 }
@@ -37,7 +42,7 @@ const es = require(esClientPkgName)
 
 const { Readable } = require('stream')
 const test = require('tape')
-const TraceParent = require('traceparent')
+const { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 const findObjInArray = require('../../../_utils').findObjInArray
 const mockClient = require('../../../_mock_http_client')

@@ -1,3 +1,6 @@
+# This file is used by tool TAV - Test All Versions.
+# See: https://github.com/watson/test-all-versions
+
 generic-pool:
   versions: ^2.0.0 || ^3.1.0
   commands: node test/instrumentation/modules/generic-pool.test.js
@@ -32,6 +35,11 @@ mysql:
   commands:
     - node test/instrumentation/modules/mysql/mysql.test.js
     - node test/instrumentation/modules/mysql/pool-release-1.test.js
+
+# mysql2
+# - v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
+# - v2.2.3 has a github dep ("@types/mysql": "types/mysql") that hits
+#   npm v6 install issue https://github.com/npm/cli/issues/4896
 mysql2-old:
   name: mysql2
   versions: '>=1.0.0 <1.6.0'
@@ -40,11 +48,12 @@ mysql2-old:
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 mysql2-new:
   name: mysql2
-  versions: '1.6.0 || 1.6.1 || >=1.6.3 <3' # v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
+  versions: '>=1.6.0 <1.6.2 || >=1.6.3 <2.2.3 || >=2.2.4 <3'
   node: '>=6.0.0'
   commands:
     - node test/instrumentation/modules/mysql2/mysql.test.js
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
+
 redis:
   versions: '>=2.0.0 <4.0.0'
   commands: node test/instrumentation/modules/redis.test.js
@@ -354,33 +363,41 @@ elasticsearch:
 #   Fixed in 7.7.1: https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/changelog-client.html#_7_7_1
 #   Note: When this repo drops Node.js v8 support, `versions` can be simplified.
 # - Version 7.12.0 dropped support for node v8.
-# - Version 8's min node is v12. We only support the latest canary release (at
-#   time of writing). The published '8.0.0-alpha.2' is *not* supported.
+# - Version 8.0.0 dropped node v10 support.
+# - Version 8.2.0 dropped node v12 support.
+#   - Skip "8.2.0" because https://github.com/elastic/elasticsearch-js/pull/1688
+#   - The ES client team uses "8.2.0-patch.N" for patch releases *after*
+#     "8.2.0" because they are stuck with stack version numbers. However,
+#     semver (and TAV) consider "-patch.N" to be a *prereleases*. This
+#     leads to some tortured "versions:" ranges below.
 '@elastic/elasticsearch-v7.0-v7.12':
   name: '@elastic/elasticsearch'
   versions: '>=7.0.0 <7.7.0 || >7.7.0 <7.12.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
-'@elastic/elasticsearch-v7.12-v8':
+'@elastic/elasticsearch-v7.12-v8.2':
   name: '@elastic/elasticsearch'
-  versions: '>=7.12.0 <8.0.0'
-  node: '>=10.0.0'
+  versions: '>=7.12.0 <8.2'
+  node: '>=12.0.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+'@elastic/elasticsearch-v8.2-':
+  name: '@elastic/elasticsearch'
+  versions: '>=8.2.0-patch.1 <8.2.0 || >8.2.0'
+  node: '>=14.0.0'
+  commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
+
+# @elastic/elasticsearch-canary *sometimes* gets releases in advance of
+# '@elastic/elasticsearch'. It is only the latest such release that
+# might matter. The point in testing it is to try to make sure the agent is
+# updated for coming changes to the non-canary package.
 '@elastic/elasticsearch-canary':
   name: '@elastic/elasticsearch-canary'
-  versions: '>=8.0.0-canary.36 || >=8.1.0-canary.2'
-  node: '>=12'
+  versions: '>=8.2.0-canary.2'
+  node: '>=14'
   commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
 
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.test.js
-# jade is a dead package. It was renamed to 'pug' in 2015 and hasn't had a
-# release since. Testing all 144 releases that match '>0.5.5' (the first
-# release APM supported) is a waste of time. Instead we will test the first
-# supported and the last released versions.
-jade:
-  versions: '0.5.6 || 1.11.0 || >1.11.0'
-  commands: node test/instrumentation/modules/jade.test.js
 # Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
 pug-v2:
   versions: '0.1.0 || >2.0.0 <3.0.0'
@@ -390,49 +407,13 @@ pug:
   node: '>8'
   commands: node test/instrumentation/modules/pug.test.js
 
-# hapi and @hapi/hapi
+# @hapi/hapi
 # - Package name: Starting with v17.9.0 and v18.2.0 the name changed from
-#   'hapi' to '@hapi/hapi'.
+#   'hapi' to '@hapi/hapi'. Instrumentation for the old 'hapi' is now deprecated
+#   and untested; it will be dropped in the next major version of the agent.
 # - Node version compat:
-#   - hapi@15: supports node >=v4; breaks on node v14 (usage of `os.tmpDir()`)
-#   - hapi@16: supports node >=v4
-#   - hapi@17, @hapi/hapi@17: supports node >=v8.12.0 (per its README);
-#     the instrumentation changed significantly for this version
-#   - hapi@18, @hapi/hapi@18: supports node >=v8.12.0 (per its README)
 #   - @hapi/hapi@19: supports node >=v12 (judging from commit 50d8d7d)
 #   - @hapi/hapi@20: appears (from travis template refs) to support node >=v12
-hapi-v9-v15:
-  name: hapi
-  versions: '>=9.0.1 <16.0.0'
-  node: '>=4 <14'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
-hapi-v16:
-  name: hapi
-  versions: '>=16.0.0 <17.0.0'
-  node: '>=4'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
-hapi-prenodev15:
-  name: hapi
-  versions: '>=17.0.0'
-  node: '>=8.12.0 <15.0.0'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
-hapi:
-  name: hapi
-  # Work around https://github.com/npm/cli/issues/2267 in npm@7.
-  # Note: An alternative might be to just not test the "hapi" package with
-  # node >= 15, given that "hapi" was deprecated before node v16.
-  preinstall: rm -rf node_modules/hapi
-  node: '>=15.0.0'
-  versions: '>=17.0.0'
-  commands:
-    - node test/instrumentation/modules/hapi/basic-legacy-path.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapi.test.js
 '@hapi/hapi-v17-v18':
   name: '@hapi/hapi'
   versions: '>=17.0.0 <19.0.0'
@@ -448,11 +429,23 @@ hapi:
     - node test/instrumentation/modules/hapi/basic.test.js
     - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
 
+tedious-v1-v11:
+  name: tedious
+  node: '>=6'
+  # - tedious@4.0.0 was broken, fixed in 4.0.1 by https://github.com/tediousjs/tedious/commit/4eceb48
+  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x || 10.x'
+  commands: node test/instrumentation/modules/tedious.test.js
+
+tedious-v11-v12:
+  name: tedious
+  node: '>=10.17.0'
+  versions: '11.x'
+  commands: node test/instrumentation/modules/tedious.test.js
+
 tedious:
   name: tedious
-  # - tedious@4.0.0 was broken, fixed in 4.0.1 by
-  #   https://github.com/tediousjs/tedious/commit/4eceb48
-  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x'
+  node: '>=12.3.0'
+  versions: '12.x || 13.x || 14.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:
@@ -524,8 +517,8 @@ aws-sdk:
   # Maintenance note: This should be updated periodically using:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
-  # Test v2.858.0, every N=41 of 209 releases, and current latest.
-  versions: '2.858.0 || 2.899.0 || 2.940.0 || 2.981.0 || 2.1022.0 || 2.1063.0 || 2.1066.0 || >2.1066.0 <3'
+  # Test v2.858.0, every N=54 of 275 releases, and current latest.
+  versions: '2.858.0 || 2.912.0 || 2.966.0 || 2.1020.0 || 2.1074.0 || 2.1128.0 || 2.1132.0 || >2.1132.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js

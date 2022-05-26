@@ -3,6 +3,7 @@ include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 :type-string: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string>]
 :type-string-array: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type[<string[]>]
+:type-array: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array[<Array>]
 :type-boolean: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type[<boolean>]
 :type-object: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object[<Object>]
 :type-number: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type[<number>]
@@ -30,6 +31,8 @@ include::./setup.asciidoc[]
 include::./api.asciidoc[]
 
 include::./metrics.asciidoc[]
+
+include::./api-opentelemetry.asciidoc[]
 
 include::./opentracing.asciidoc[]
 
