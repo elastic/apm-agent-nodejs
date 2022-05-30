@@ -11,6 +11,7 @@ const { isLambdaExecutionEnvironment } = require('../../lib/lambda')
 
 // Setup env for both apm.start() and lambdaLocal.execute().
 process.env.AWS_LAMBDA_FUNCTION_NAME = 'fixture-function-name'
+process.env.AWS_LAMBDA_FUNCTION_VERSION = '42'
 // Set these values to have stable data from lambdaLocal.execute().
 process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs14.x'
 process.env.AWS_REGION = 'us-east-1'
@@ -86,7 +87,7 @@ tape.test('lambda config & metadata tests', function (suite) {
         var metadata = server.events[0].metadata
         t.ok(metadata, 'got metadata')
         t.same(metadata.service.name, process.env.AWS_LAMBDA_FUNCTION_NAME, 'service.name')
-        t.same(metadata.service.version, '1.0', 'service.version has lambda-local hardcoded "1.0"')
+        t.same(metadata.service.version, '42', 'service.version')
         t.same(metadata.service.framework.name, 'AWS Lambda', 'service.framework.name')
         t.same(metadata.service.runtime.name, process.env.AWS_EXECUTION_ENV, 'service.runtime.name')
         t.same(metadata.service.node.configured_name, process.env.AWS_LAMBDA_LOG_STREAM_NAME, 'service.node.configured_name')
