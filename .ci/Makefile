@@ -1,13 +1,16 @@
 SHELL = /bin/bash -eo pipefail
 
 AWS_FOLDER = ../build/aws
-LAMBDA_LAYER_ZIP_FILE = ../build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip
+DIST_DIR = /build/dist/nodejs
+LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
+DOCKER_IMAGE_NAME = observability/apm-agent-nodejs
+DOCKER_REGISTRY = docker.elastic.co
 
 export AWS_FOLDER
 
 .PHONY: dist
 dist: validate-branch-name
-	../dev-utils/make-lambda-layer-zip.sh
+	../dev-utils/make-distribution.sh
 	@mkdir -p $(AWS_FOLDER)
 	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip
 
@@ -17,6 +20,14 @@ clean:
 
 env:
 	env
+
+# Create Docker image
+build-docker: validate-branch-name
+	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(BRANCH_NAME) \
+  --build-arg AGENT_DIR=$(DIST_DIR) ..
+
+push-docker: build-docker
+	../dev-utils/push-docker.sh $(DOCKER_REGISTRY) $(DOCKER_IMAGE_NAME) $(BRANCH_NAME)
 
 # List all the AWS regions
 get-all-aws-regions:
