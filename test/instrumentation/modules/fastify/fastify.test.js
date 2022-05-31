@@ -7,9 +7,11 @@
 'use strict'
 
 const agent = require('../../../..').start({
+  serviceName: 'test-fastify',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  captureBody: 'all'
 })
 
 const isFastifyIncompat = require('../../../_is_fastify_incompat')()
@@ -64,8 +66,74 @@ test('transaction name', function (t) {
   })
 })
 
+test('captureBody', function (t) {
+  t.plan(9)
+
+  const postData = JSON.stringify({ foo: 'bar' })
+
+  resetAgent(data => {
+    assert(t, data, { name: 'POST /postSomeData', method: 'POST' })
+    t.equal(data.transactions[0].context.request.body, postData,
+      'body was captured to trans.context.request.body')
+    fastify.close()
+  })
+
+  var fastify = Fastify()
+
+  fastify.post('/postSomeData', (request, reply) => {
+    reply.send('your data has been posted')
+  })
+
+  fastify.listen(0, function (err) {
+    t.error(err)
+
+    // build the URL manually as older versions of fastify doesn't supply it as
+    // an argument to the callback
+    const port = fastify.server.address().port
+    const cReq = http.request(
+      'http://localhost:' + port + '/postSomeData',
+      {
+        method: 'POST',
+        hostname: 'localhost',
+        port,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      },
+      function (res) {
+        t.strictEqual(res.statusCode, 200)
+        res.on('data', function (chunk) {
+          t.strictEqual(chunk.toString(), 'your data has been posted')
+        })
+        res.on('end', function () {
+          agent.flush()
+        })
+      }
+    )
+    cReq.write(postData)
+    cReq.end()
+  })
+})
+
 function resetAgent (cb) {
   agent._instrumentation.testReset()
   agent._transport = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
+}
+
+function assert (t, data, results) {
+  if (!results) results = {}
+  results.status = results.status || 'HTTP 2xx'
+  results.name = results.name || 'GET /hello/world'
+  results.method = results.method || 'GET'
+
+  t.strictEqual(data.transactions.length, 1)
+
+  var trans = data.transactions[0]
+
+  t.strictEqual(trans.name, results.name)
+  t.strictEqual(trans.type, 'request')
+  t.strictEqual(trans.result, results.status)
+  t.strictEqual(trans.context.request.method, results.method)
 }
