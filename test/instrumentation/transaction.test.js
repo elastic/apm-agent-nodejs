@@ -499,7 +499,7 @@ test('#_encode() - dropped spans', function (t) {
   trans.result = 'result'
   var span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
-  var span2 = trans.startSpan()
+  var span2 = trans.startSpan('s2', { exitSpan: true })
   span2.setDestinationContext({
     service: {
       resource: 'foo'
