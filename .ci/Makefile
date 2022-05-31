@@ -5,6 +5,7 @@ DIST_DIR = /build/dist/nodejs
 LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
 DOCKER_IMAGE_NAME = observability/apm-agent-nodejs
 DOCKER_REGISTRY = docker.elastic.co
+AGENT_VERSION = $(shell echo $${BRANCH_NAME} | cut -f 2 -d 'v')
 
 export AWS_FOLDER
 
@@ -22,12 +23,12 @@ env:
 	env
 
 # Create Docker image
-build-docker: validate-branch-name
-	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(BRANCH_NAME) \
+build-docker: validate-version
+	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(AGENT_VERSION) \
   --build-arg AGENT_DIR=$(DIST_DIR) ..
 
 push-docker: build-docker
-	../dev-utils/push-docker.sh $(DOCKER_REGISTRY) $(DOCKER_IMAGE_NAME) $(BRANCH_NAME)
+	../dev-utils/push-docker.sh $(DOCKER_REGISTRY) $(DOCKER_IMAGE_NAME) $(AGENT_VERSION)
 
 # List all the AWS regions
 get-all-aws-regions:
@@ -89,6 +90,11 @@ github-release: validate-branch-name validate-suffix-arn-file
 		create $(BRANCH_NAME) \
 		--title '$(BRANCH_NAME)' \
 		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
+
+validate-version:
+ifndef AGENT_VERSION
+	$(error AGENT_VERSION is undefined)
+endif
 
 validate-branch-name:
 ifndef BRANCH_NAME
