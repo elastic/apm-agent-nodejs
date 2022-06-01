@@ -30,9 +30,6 @@ tape.test(function (suite) {
 
     test.ok(!transaction.captureDroppedSpan(null))
 
-    span.outcome = null
-    test.ok(!transaction.captureDroppedSpan(span))
-
     span.setOutcome(OUTCOME_SUCCESS)
     span.setDestinationContext({
       service: {}
@@ -122,8 +119,19 @@ tape.test(function (suite) {
     span.setDestinationContext(destinationContext)
     span.setOutcome(OUTCOME_FAILURE)
     span.end()
-
     test.ok(!transaction.captureDroppedSpan(span))
+
+    // and we're still able to increment spans that fit the previous profile
+    const span2 = agent.startSpan('foo', 'baz', 'bar', { exitSpan: true })
+    span2.setDestinationContext({
+      service: {
+        resource: 'foo0'
+      }
+    })
+    span2.setOutcome(OUTCOME_FAILURE)
+    span2.end()
+    test.ok(transaction.captureDroppedSpan(span2))
+
     transaction.end()
     test.equals(transaction._droppedSpanStats.statsMap.size, 128)
     test.end()
