@@ -114,7 +114,7 @@ tape.test('transaction data TRIGGER_API_GATEWAY v1', function (t) {
   t.end()
 })
 
-tape.test('transaction data TRIGGER_SQS_SINGLE_EVENT', function (t) {
+tape.test('transaction data TRIGGER_SQS', function (t) {
   const mockAgent = new AgentMock({ captureHeaders: true, captureBody: 'all' })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
@@ -134,7 +134,6 @@ tape.test('transaction data TRIGGER_SQS_SINGLE_EVENT', function (t) {
   t.strictEquals(transaction._faas.coldstart, false, 'coldstart value set')
   t.strictEquals(transaction._faas.execution, context.awsRequestId, 'execution value set')
   t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'trigger type set')
-  t.strictEquals(transaction._faas.trigger.request_id, r.messageId, 'trigger request_id')
   t.strictEquals(transaction.type, 'messaging', 'transaction type set')
   t.strictEquals(transaction.name, `RECEIVE ${queueName}`, 'transaction named correctly')
   t.strictEquals(transaction._service.origin.name, queueName, 'service origin name set correctly')
@@ -143,17 +142,14 @@ tape.test('transaction data TRIGGER_SQS_SINGLE_EVENT', function (t) {
   t.strictEquals(transaction._cloud.origin.service.name, 'sqs', 'cloud origin service name set correctly')
   t.strictEquals(transaction._cloud.origin.region, 'us-east-1', 'cloud origin region name set correctly')
   t.strictEquals(transaction._cloud.origin.account.id, accountId, 'cloud origin account id set correctly')
-  t.strictEquals(transaction._message.queue.name, queueName, 'message queue set correctly')
-  t.strictEquals(typeof transaction._message.age.ms, 'number', 'message age is a number')
-  t.strictEquals(transaction._message.body, r.body, 'message body set correctly')
-  t.deepEquals(transaction._message.headers,
-    { Population: '1250800', City: 'Any City' },
-    'message headers set correctly')
+  t.deepEquals(transaction._links,
+    [{ context: '00-460d51b6ed3ab96be45f2580b8016509-8ba4419207a1f2f8-01' }],
+    'transaction._links')
 
   t.end()
 })
 
-tape.test('transaction data TRIGGER_SNS_SINGLE_EVENT', function (t) {
+tape.test('transaction data TRIGGER_SNS', function (t) {
   const mockAgent = new AgentMock({ captureHeaders: true, captureBody: 'transactions' })
   const wrapLambda = elasticApmAwsLambda(mockAgent)
   const wrappedMockLambda = wrapLambda(function () {})
@@ -173,24 +169,19 @@ tape.test('transaction data TRIGGER_SNS_SINGLE_EVENT', function (t) {
   t.strictEquals(transaction._faas.version, '$LATEST', 'faas.version')
   t.strictEquals(transaction._faas.coldstart, false, 'faas.coldstart value set')
   t.strictEquals(transaction._faas.trigger.type, 'pubsub', 'faas.trigger.type set')
-  t.strictEquals(transaction._faas.trigger.request_id, r.Sns.MessageId, 'faas.trigger.request_id set')
   t.strictEquals(transaction.type, 'messaging', 'transaction type set')
   t.strictEquals(transaction.name, `RECEIVE ${topicName}`, 'transaction named correctly')
   t.strictEquals(transaction._service.origin.name, topicName, 'service origin name set correctly')
   t.strictEquals(transaction._service.origin.id, r.Sns.TopicArn, 'service origin id set correctly')
-  t.strictEquals(transaction._service.origin.version, r.EventVersion, 'service origin version set correctly')
 
   t.strictEquals(transaction._cloud.origin.provider, 'aws', 'cloud origin provider set correctly')
   t.strictEquals(transaction._cloud.origin.service.name, 'sns', 'cloud origin service name set correctly')
   t.strictEquals(transaction._cloud.origin.region, 'us-east-1', 'cloud origin region name set correctly')
   t.strictEquals(transaction._cloud.origin.account.id, accountId, 'cloud origin account id set correctly')
 
-  t.strictEquals(transaction._message.queue.name, topicName, 'message queue set correctly')
-  t.strictEquals(typeof transaction._message.age.ms, 'number', 'message age is a number')
-  t.strictEquals(transaction._message.body, r.Sns.Message, 'message body set correctly')
-  t.deepEquals(transaction._message.headers,
-    { Population: '1250800', City: 'Any City' },
-    'message headers set correctly')
+  t.deepEquals(transaction._links,
+    [{ context: '00-460d51b6ed3ab96be45f2580b8016509-8ba4419207a1f2f8-01' }],
+    'transaction._links')
 
   t.end()
 })

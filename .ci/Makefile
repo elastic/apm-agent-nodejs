@@ -1,13 +1,18 @@
 SHELL = /bin/bash -eo pipefail
 
 AWS_FOLDER = ../build/aws
-LAMBDA_LAYER_ZIP_FILE = ../build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip
+DIST_DIR = /build/dist/nodejs
+LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
+DOCKER_IMAGE_NAME = observability/apm-agent-nodejs
+DOCKER_REGISTRY = docker.elastic.co
+AGENT_VERSION = $(shell echo $${BRANCH_NAME} | cut -f 2 -d 'v')
 
 export AWS_FOLDER
 
 .PHONY: dist
 dist: validate-branch-name
-	../dev-utils/make-lambda-layer-zip.sh
+	../dev-utils/make-distribution.sh
+	@mkdir -p $(AWS_FOLDER)
 	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip
 
 .PHONY: clean
@@ -16,6 +21,14 @@ clean:
 
 env:
 	env
+
+# Create Docker image
+build-docker: validate-version
+	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(AGENT_VERSION) \
+  --build-arg AGENT_DIR=$(DIST_DIR) ..
+
+push-docker: build-docker
+	../dev-utils/push-docker.sh $(DOCKER_REGISTRY) $(DOCKER_IMAGE_NAME) $(AGENT_VERSION)
 
 # List all the AWS regions
 get-all-aws-regions:
@@ -77,6 +90,11 @@ github-release: validate-branch-name validate-suffix-arn-file
 		create $(BRANCH_NAME) \
 		--title '$(BRANCH_NAME)' \
 		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
+
+validate-version:
+ifndef AGENT_VERSION
+	$(error AGENT_VERSION is undefined)
+endif
 
 validate-branch-name:
 ifndef BRANCH_NAME

@@ -39,6 +39,46 @@ Notes:
 [float]
 ===== Features
 
+[float]
+===== Bug fixes
+
+- Fixes automatic Lambda handler wrapping to work with handlers that point to
+  subfolders (ex. `_HANDLER=path/to/folder.methodName`) ({issues}2709[#2709])
+
+[float]
+===== Chores
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Change the instrumentation of SQS- and SNS-triggered AWS Lambda invocations:
+  The special-casing of triggers with a *single* message/record has been
+  removed.  That means that instead of a possible continued distributed trace
+  (if a single received message has a 'traceparent'), a *span link* will be
+  added to the APM transaction for each message with a 'traceparent'.
+  `transaction.context.message.` fields are no longer collected.
+  ({pull}2708[#2708])
+
+- Enable support for ioredis v5 ({pull}2714[#2714])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
+[[release-notes-3.34.0]]
+==== 3.34.0 2022/05/26
+
+[float]
+===== Features
+
 - Add support for 'tedious' version v10 to v14 ({issues}2517[#2517])
 
 - When automatically determining <<service-name>> and <<service-version>> by
@@ -53,17 +93,21 @@ Notes:
   to manually instrument your code, and have the Elastic Node.js APM agent
   handle those API calls. ({pull}2641[#2641])
 
-- Add [Span Links](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md#links-between-spans) support. ({issues}2673[#2673])
-
-  The <<transaction-start-span,`transaction.startSpan()`>> and
-  <<apm-start-transaction,`apm.startTransaction()`>> public APIs now accept
-  a `links` option for specify links. The OpenTelemetry Bridge also supports
-  specifying links during span creation (with the limitation that span link
-  *attributes* are not supported).
+- Add https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/overview.md#links-between-spans)[Span Links] support. ({issues}2673[#2673])
++
+The <<transaction-start-span,`transaction.startSpan()`>> and
+<<apm-start-transaction,`apm.startTransaction()`>> public APIs now accept
+a `links` option for specify links. The OpenTelemetry Bridge also supports
+specifying links during span creation (with the limitation that span link
+*attributes* are not supported).
 
 - Add a <<trace-continuation-strategy>> configuration option to allow some
   control over how the APM Agent uses incoming trace-context headers for context
   propagation. ({issues}2592[#2592])
+
+- Add span links to AWS SQS messaging spans on 'ReceiveMessage', one for each
+  message (up to 1000) which has a 'traceparent' message attribute.
+  ({issues}2593[#2593])
 
 - Add "nodejs16.x" as one of the compatible runtimes for the Node.js APM agent
   Lambda layers now that
@@ -74,16 +118,27 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Fixes a bug where the the agent would not serialize the database context of
+  a span. ({issues}2715[#2715])
+
+- Fix a possible crash in span compression handling on a span that was manually
+  created without a parent span (e.g. if created with a custom `childOf`
+  option). ({pull}2701[#2701])
+
 [float]
 ===== Chores
 
 - Add a package-lock.json file to ensure repeatable builds of the AWS Lambda
-  layer and to assist with security issue auditing. ({issue}2626[#2626])
+  layer and to assist with security issue auditing. ({issues}2626[#2626])
 
 - Deprecate instrumentation for the legacy "hapi" package. While the APM agent
   still supports it, that instrumentation is no longer tested and support
   will be dropped in the next major version of the agent. Note that the
   "@hapi/hapi" package is still fully supported. ({pull}2698[#2698])
+
+- Deprecate instrumentation for the obsolete "jade" package. "jade" was renamed
+  to "pug" in 2015.  While the APM agent still supports "jade", that
+  instrumentation is no longer tested. ({pull}2711[#2711])
 
 
 [[release-notes-3.33.0]]
