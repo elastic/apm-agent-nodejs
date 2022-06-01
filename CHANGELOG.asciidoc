@@ -48,6 +48,10 @@ Notes:
 
 - Enable support for ioredis v5 ({pull}2714[#2714])
 
+- A Docker image with the APM agent will be published for each release to
+  `docker.elastic.co/observability/apm-agent-nodejs:VERSION`, for example:
+  `docker.elastic.co/observability/apm-agent-nodejs:3.35.0`. ({pull}2742[#2742])
+
 [float]
 ===== Bug fixes
 
