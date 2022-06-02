@@ -6,7 +6,6 @@ pipeline {
   environment {
     REPO = 'apm-agent-nodejs'
     BASE_DIR = "src/github.com/elastic/${env.REPO}"
-    HOME = "${env.WORKSPACE}" // required by "bash_standard_lib.sh" for "Push Docker Image" step
     PIPELINE_LOG_LEVEL='INFO'
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
@@ -284,6 +283,7 @@ pipeline {
         tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
       }
       environment {
+        HOME = "${env.WORKSPACE}" // required by "bash_standard_lib.sh" for "Push Docker Image" step
         SUFFIX_ARN_FILE = 'arn-file.md'
       }
       stages {
