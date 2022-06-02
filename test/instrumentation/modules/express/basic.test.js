@@ -324,6 +324,114 @@ test('sub-routers throw exception', function (t) {
   })
 })
 
+test('sub-router handler calls next(exception)', function (t) {
+  t.plan(4)
+
+  resetAgent(function (data) {
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
+    var trans = data.transactions[0]
+    t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
+  })
+
+  // Ignore captureError handling for this test.
+  var captureError = agent.captureError
+  agent.captureError = function () {}
+  t.on('end', function () {
+    agent.captureError = captureError
+  })
+
+  var router = express.Router()
+  router.get('/:name', (_req, _res, next) => {
+    next(new Error('boom'))
+  })
+  var app = express()
+  app.set('env', 'production')
+  app.use('/api', router)
+
+  var server = app.listen(function () {
+    get(server, { path: '/api/foo' }, (err, body) => {
+      t.error(err)
+      server.close()
+      agent.flush()
+    })
+  })
+})
+
+// Express's route dispatching considers any value passed to `next(...)` to
+// be an error case, except for the literal strings 'route' and 'router'.
+test('sub-router handler calls next(non-exception)', function (t) {
+  t.plan(4)
+
+  resetAgent(function (data) {
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
+    var trans = data.transactions[0]
+    t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
+  })
+
+  // Ignore captureError handling for this test.
+  var captureError = agent.captureError
+  agent.captureError = function () {}
+  t.on('end', function () {
+    agent.captureError = captureError
+  })
+
+  var router = express.Router()
+  router.get('/:name', (_req, _res, next) => {
+    next('this is some truthy value that is not "route" or "router"')
+  })
+  var app = express()
+  app.set('env', 'production')
+  app.use('/api', router)
+
+  var server = app.listen(function () {
+    get(server, { path: '/api/foo' }, (err, body) => {
+      t.error(err)
+      server.close()
+      agent.flush()
+    })
+  })
+})
+
+test('sub-router handler calls next("route")', function (t) {
+  t.plan(5)
+
+  resetAgent(function (data) {
+    t.strictEqual(data.transactions.length, 1, 'has a transaction')
+    var trans = data.transactions[0]
+    t.strictEqual(trans.name, 'GET /api/other-endpoint', 'transaction name is GET /api/other-endpoint')
+    t.strictEqual(trans.type, 'request', 'transaction type is request')
+  })
+
+  // Ignore captureError handling for this test.
+  var captureError = agent.captureError
+  agent.captureError = function () {}
+  t.on('end', function () {
+    agent.captureError = captureError
+  })
+
+  var router = express.Router()
+  router.get('/:name', (_req, _res, next) => {
+    next('route')
+  })
+  router.get('/other-endpoint', (_req, res) => {
+    res.end('hi from other-endpoint')
+  })
+  var app = express()
+  app.set('env', 'production')
+  app.use('/api', router)
+
+  var server = app.listen(function () {
+    get(server, { path: '/api/other-endpoint' }, (err, body) => {
+      t.error(err)
+      t.strictEqual(body, 'hi from other-endpoint', 'got correct body')
+      server.close()
+      agent.flush()
+    })
+  })
+})
+
 // The `express-slash` module expects that it can access the `stack` property
 // on app.use sub-route handles.
 test('expose app.use handle properties', function (t) {
