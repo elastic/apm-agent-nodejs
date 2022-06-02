@@ -305,7 +305,7 @@ pipeline {
           steps {
             withGithubNotify(context: "Push-Docker-Image") {
               dir("${BASE_DIR}"){
-                dockerLogin(secret: "${env.DOCKER_SECRET}", registry: "${env.DOCKER_REGISTRY}", role_id: 'apm-vault-role-id', secret_id: 'apm-vault-secret-id')
+                dockerLogin(secret: "${env.DOCKER_SECRET}", registry: "${env.DOCKER_REGISTRY}")
                 cmd(label: 'make push-docker', script: 'make -C .ci push-docker')
               }
             }
