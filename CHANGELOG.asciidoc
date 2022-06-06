@@ -55,6 +55,12 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Fix Express route tracking (used for `transaction.name`) when an argument
+  is passed to the `next(arg)` callback of a request handler. Before this
+  change passing `next(<some object not an instance of Error>)` would be
+  considered an error by Express, but not by the APM agent's route
+  tracking. ({pull}2750[#2750])
+
 - Fixes automatic Lambda handler wrapping to work with handlers that point to
   subfolders (ex. `_HANDLER=path/to/folder.methodName`) ({issues}2709[#2709])
 
