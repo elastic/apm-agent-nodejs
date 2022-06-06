@@ -123,7 +123,7 @@
     "@koa/router": "^9.0.1",
     "@types/node": "^13.7.4",
     "@types/pino": "^6.3.8",
-    "ajv": "^6.12.6",
+    "ajv": "^8.11.0",
     "apollo-server-core": "^3.0.0",
     "apollo-server-express": "^3.0.0",
     "aws-sdk": "^2.622.0",
