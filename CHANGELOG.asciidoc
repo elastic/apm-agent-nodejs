@@ -101,6 +101,8 @@ specifying links during span creation (with the limitation that span link
   Lambda layers now that
   https://aws.amazon.com/blogs/compute/node-js-16-x-runtime-now-available-in-aws-lambda/[this runtime is available on AWS].
 
+- Adds [dropped span statistics](https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-dropped-stats.md) to transaction payloads allowing APM Server to calculate more accurate throughput metrics.
+
 [float]
 ===== Bug fixes
 

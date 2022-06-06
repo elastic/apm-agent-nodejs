@@ -499,11 +499,17 @@ test('#_encode() - dropped spans', function (t) {
   trans.result = 'result'
   var span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
-  var span2 = trans.startSpan()
+  var span2 = trans.startSpan('s2', { exitSpan: true })
+  span2.setDestinationContext({
+    service: {
+      resource: 'foo'
+    }
+  })
   if (span2.isRecorded()) {
     t.fail('should have dropped the span')
   }
   span0.end()
+  span2.end()
   trans.end()
 
   agent.flush(function () {
@@ -527,7 +533,7 @@ test('#_encode() - dropped spans', function (t) {
       started: 2,
       dropped: 1
     })
-
+    t.equals(payload.dropped_spans_stats.length, 1)
     agent._conf.transactionMaxSpans = oldTransactionMaxSpans
     t.end()
   })
