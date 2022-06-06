@@ -38,6 +38,8 @@ Notes:
 [float]
 ===== Features
 
+- Add support for 'knex' version v0.21 to v1 ({issues}2699[#2699])
+
 - Change the instrumentation of SQS- and SNS-triggered AWS Lambda invocations:
   The special-casing of triggers with a *single* message/record has been
   removed.  That means that instead of a possible continued distributed trace
@@ -104,6 +106,8 @@ specifying links during span creation (with the limitation that span link
 - Add "nodejs16.x" as one of the compatible runtimes for the Node.js APM agent
   Lambda layers now that
   https://aws.amazon.com/blogs/compute/node-js-16-x-runtime-now-available-in-aws-lambda/[this runtime is available on AWS].
+
+- Adds [dropped span statistics](https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-dropped-stats.md) to transaction payloads allowing APM Server to calculate more accurate throughput metrics.
 
 [float]
 ===== Bug fixes
