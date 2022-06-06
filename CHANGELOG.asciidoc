@@ -32,6 +32,31 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Adds https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-dropped-stats.md[dropped span statistics]
+  to transaction payloads allowing APM Server to calculate more accurate
+  throughput metrics. ({issues}2302[#2302])
+
+[float]
+===== Bug fixes
+
+- Fix Express route tracking (used for `transaction.name`) when an argument
+  is passed to the `next(arg)` callback of a request handler. Before this
+  change passing `next(<some object not an instance of Error>)` would be
+  considered an error by Express, but not by the APM agent's route
+  tracking. ({pull}2750[#2750])
+
+[float]
+===== Chores
+
+
 [[release-notes-3.35.0]]
 ==== 3.35.0 2022/06/01
 
@@ -100,8 +125,6 @@ specifying links during span creation (with the limitation that span link
 - Add "nodejs16.x" as one of the compatible runtimes for the Node.js APM agent
   Lambda layers now that
   https://aws.amazon.com/blogs/compute/node-js-16-x-runtime-now-available-in-aws-lambda/[this runtime is available on AWS].
-
-- Adds [dropped span statistics](https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-dropped-stats.md) to transaction payloads allowing APM Server to calculate more accurate throughput metrics.
 
 [float]
 ===== Bug fixes
