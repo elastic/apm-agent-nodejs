@@ -1,5 +1,5 @@
 apm-agent-nodejs
-Copyright 2011-2021 Elasticsearch B.V.
+Copyright 2011-2022 Elasticsearch B.V.
 
 # Notice
 
