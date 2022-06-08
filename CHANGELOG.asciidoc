@@ -201,8 +201,6 @@ types, because it is only expected to be useful for coming OTel Bridge work.
 [float]
 ===== Features
 
-[float]
-===== Bug fixes
 * Add support for node v18. ({pull}2652[#2652])
 
 * Add support for https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md[span compression].
