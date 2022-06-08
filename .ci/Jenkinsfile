@@ -18,6 +18,8 @@ pipeline {
     NPMRC_SECRET = 'secret/jenkins-ci/npmjs/elasticmachine'
     TOTP_SECRET = 'totp/code/npmjs-elasticmachine'
     BUILD_NODE_VERSION = 'v16.15.0'
+    DOCKER_REGISTRY = 'docker.elastic.co'
+    DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
   }
   options {
     timeout(time: 3, unit: 'HOURS')
@@ -281,6 +283,7 @@ pipeline {
         tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
       }
       environment {
+        HOME = "${env.WORKSPACE}" // required by "bash_standard_lib.sh" for "Push Docker Image" step
         SUFFIX_ARN_FILE = 'arn-file.md'
       }
       stages {
@@ -295,6 +298,16 @@ pipeline {
                 dir("${BASE_DIR}"){
                   cmd(label: 'make dist', script: 'make -C .ci dist')
                 }
+              }
+            }
+          }
+        }
+        stage('Push Docker Image') {
+          steps {
+            withGithubNotify(context: "Push-Docker-Image") {
+              dir("${BASE_DIR}"){
+                dockerLogin(secret: "${env.DOCKER_SECRET}", registry: "${env.DOCKER_REGISTRY}")
+                cmd(label: 'make push-docker', script: 'make -C .ci push-docker')
               }
             }
           }

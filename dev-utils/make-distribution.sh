@@ -23,7 +23,7 @@ function fatal {
 # ---- mainline
 
 TOP=$(cd $(dirname $0)/../ >/dev/null; pwd)
-BUILD_DIR="$TOP/build/lambda-layer-zip"
+BUILD_DIR="$TOP/build/dist"
 
 # Guard against accidentally using this script with a too-old npm.
 if [[ $(npm --version | cut -d. -f1) -lt 8 ]]; then
@@ -49,8 +49,8 @@ mkdir -p nodejs/node_modules/elastic-apm-node
 
 echo ""
 zip -q -r elastic-apm-node-lambda-layer.zip nodejs
-echo "Created build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip"
+echo "Created build/dist/elastic-apm-node-lambda-layer.zip"
 
 echo
 echo "The lambda layer can be published as follows for dev work:"
-echo "    aws lambda --output json publish-layer-version --layer-name '$USER-dev-elastic-apm-node' --description '$USER dev Elastic APM Node.js agent lambda layer' --zip-file 'fileb://build/lambda-layer-zip/elastic-apm-node-lambda-layer.zip'"
+echo "    aws lambda --output json publish-layer-version --layer-name '$USER-dev-elastic-apm-node' --description '$USER dev Elastic APM Node.js agent lambda layer' --zip-file 'fileb://build/dist/elastic-apm-node-lambda-layer.zip'"

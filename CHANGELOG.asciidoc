@@ -39,6 +39,31 @@ Notes:
 [float]
 ===== Features
 
+- Adds https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-dropped-stats.md[dropped span statistics]
+  to transaction payloads allowing APM Server to calculate more accurate
+  throughput metrics. ({issues}2302[#2302])
+
+[float]
+===== Bug fixes
+
+- Fix Express route tracking (used for `transaction.name`) when an argument
+  is passed to the `next(arg)` callback of a request handler. Before this
+  change passing `next(<some object not an instance of Error>)` would be
+  considered an error by Express, but not by the APM agent's route
+  tracking. ({pull}2750[#2750])
+
+[float]
+===== Chores
+
+
+[[release-notes-3.35.0]]
+==== 3.35.0 2022/06/01
+
+[float]
+===== Features
+
+- Add support for 'knex' version v0.21 to v1 ({issues}2699[#2699])
+
 - Change the instrumentation of SQS- and SNS-triggered AWS Lambda invocations:
   The special-casing of triggers with a *single* message/record has been
   removed.  That means that instead of a possible continued distributed trace
@@ -49,6 +74,10 @@ Notes:
 
 - Enable support for ioredis v5 ({pull}2714[#2714])
 
+- A Docker image with the APM agent will be published for each release to
+  `docker.elastic.co/observability/apm-agent-nodejs:VERSION`, for example:
+  `docker.elastic.co/observability/apm-agent-nodejs:3.35.0`. ({pull}2742[#2742])
+
 [float]
 ===== Bug fixes
 
@@ -58,6 +87,8 @@ Notes:
 
 [float]
 ===== Chores
+- Fixes automatic Lambda handler wrapping to work with handlers that point to
+  subfolders (ex. `_HANDLER=path/to/folder.methodName`) ({issues}2709[#2709])
 
 
 [[release-notes-3.34.0]]

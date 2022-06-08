@@ -1,6 +1,15 @@
 'use strict'
 const { createAgentConfig } = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
+
+// fastify >=3 only supports node >=10.
+const fastifyVer = require('../../node_modules/fastify/package.json').version
+const semver = require('semver')
+if (semver.gte(fastifyVer, '3.0.0') && semver.lt(process.version, '10.0.0')) {
+  console.log(`# SKIP fastify@${fastifyVer} does not support node ${process.version}`)
+  process.exit()
+}
+
 const {
   resetAgent,
   assertRequestHeadersWithFixture,
@@ -9,7 +18,7 @@ const {
 const test = require('tape')
 const request = require('request')
 const fastify = require('fastify')
-const fastifyFormbody = require('fastify-formbody')
+const fastifyFormbody = require('@fastify/formbody')
 const fixtures = require('./_fixtures')
 
 function runTest (
