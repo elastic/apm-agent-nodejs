@@ -47,6 +47,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Fix the automatic wrapping of Lambda handlers to support handler modules
+  created by `esbuild` bundling -- as is done in some Serverless Framework
+  functions that use TypeScript. ({issues}2753[#2753])
+
 - Fix Express route tracking (used for `transaction.name`) when an argument
   is passed to the `next(arg)` callback of a request handler. Before this
   change passing `next(<some object not an instance of Error>)` would be
