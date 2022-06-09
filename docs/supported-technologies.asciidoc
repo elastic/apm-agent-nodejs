@@ -46,7 +46,7 @@ These are the frameworks that we officially support:
 router information for full support. We currently support the most popular Koa router called
 https://github.com/alexmingoia/koa-router[koa-router].
 |<<restify,Restify>> |>=5.2.0
-|<<fastify,Fastify>> |>=1.0.0; see also https://www.fastify.io/docs/latest/LTS/[Fastify's own LTS documentation]
+|<<fastify,Fastify>> |>=1.0.0; see also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
 |<<lambda,AWS Lambda>> |N/A
 |=======================================================================
 
