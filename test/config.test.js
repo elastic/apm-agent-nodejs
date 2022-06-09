@@ -22,6 +22,7 @@ var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
 var apmName = require('../package').name
 var isHapiIncompat = require('./_is_hapi_incompat')
+const isFastifyIncompat = require('./_is_fastify_incompat')()
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
@@ -991,6 +992,9 @@ test('disableInstrumentations', function (t) {
   }
   if (semver.lt(process.version, '14.0.0')) {
     modules.delete('@elastic/elasticsearch-canary')
+  }
+  if (isFastifyIncompat) {
+    modules.delete('fastify')
   }
   // As of mongodb@4 only supports node >=v12.
   const mongodbVersion = require('../node_modules/mongodb/package.json').version
