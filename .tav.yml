@@ -505,7 +505,7 @@ fastify-v3:
 fastify:
   name: fastify
   versions: '>=4'
-  node: '>=14'
+  node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js

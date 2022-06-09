@@ -32,7 +32,7 @@ function isFastifyIncompat () {
   if (semver.satisfies(fastifyVer, '3.x') && !semver.satisfies(nodeVer, '>=10')) {
     return msg
   }
-  if (semver.satisfies(fastifyVer, '4.x') && !semver.satisfies(nodeVer, '>=14')) {
+  if (semver.satisfies(fastifyVer, '4.x') && !semver.satisfies(nodeVer, '>=14.6.0')) {
     return msg
   }
 
