@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Make a Node.js APM Agent lambda layer zip file that can be published to AWS.
-# https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html
-#
-# Note: This has the side-effect of modifying "./node_modules/...".
+# Make a Node.js APM agent distribution that is used as follows:
+# - "build/dist/elastic-apm-node-lambda-layer.zip" is published to AWS as a
+#   Lambda layer (https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
+# - "build/dist/nodejs/..." is used to build a Docker image of the APM agent
 #
 
 if [ "$TRACE" != "" ]; then
@@ -46,6 +46,10 @@ mkdir -p nodejs/node_modules/elastic-apm-node
     # ours and npm's is running.
     npm ci --omit=dev --ignore-scripts;
     rm package-lock.json)
+
+# Generate a NOTICE file including the licenses of all included deps.
+NOTICE=nodejs/node_modules/elastic-apm-node/NOTICE.md
+$TOP/dev-utils/gen-notice.sh nodejs/node_modules/elastic-apm-node >$NOTICE
 
 echo ""
 zip -q -r elastic-apm-node-lambda-layer.zip nodejs
