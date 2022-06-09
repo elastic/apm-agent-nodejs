@@ -28,7 +28,7 @@ test('transaction name', function (t) {
     return { hello: request.params.name }
   })
 
-  fastify.listen(0, function (err, address) {
+  fastify.listen({ port: 0 }, function (err, address) {
     t.error(err)
     address = 'http://localhost:' + fastify.server.address().port
     http.get(`${address}/hello/world`, function (res) {
@@ -79,7 +79,7 @@ if (semver.gte(fastifyVersion, '2.0.0-rc')) {
       throw error
     })
 
-    fastify.listen(0, function (err, address) {
+    fastify.listen({ port: 0 }, function (err, address) {
       t.error(err)
       http.get(`http://localhost:${fastify.server.address().port}/hello/world`, function (res) {
         const chunks = []
