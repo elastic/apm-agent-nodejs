@@ -8,9 +8,14 @@ var agent = require('../../..').start({
   centralConfig: false
 })
 
-var graphql = require('graphql')
+const semver = require('semver')
 const graphqlVer = require('graphql/package.json').version
-var semver = require('semver')
+if (semver.satisfies(graphqlVer, '>=16') && !semver.satisfies(process.version, '>=12')) {
+  console.log(`# SKIP graphql@${graphqlVer} is incompatible with node ${process.version}`)
+  process.exit()
+}
+
+var graphql = require('graphql')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
