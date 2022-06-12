@@ -19,6 +19,13 @@ if (semver.gte(expressGraphqlVersion, '0.10.0') && semver.lt(process.version, '1
   process.exit()
 }
 
+// graphql@16 crashes with node <12.
+const graphqlVer = require('graphql/package.json').version
+if (semver.satisfies(graphqlVer, '>=16') && !semver.satisfies(process.version, '>=12')) {
+  console.log(`# SKIP graphql@${graphqlVer} is incompatible with node ${process.version}`)
+  process.exit()
+}
+
 var http = require('http')
 
 var buildSchema = require('graphql').buildSchema
