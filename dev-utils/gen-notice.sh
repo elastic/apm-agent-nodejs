@@ -34,6 +34,9 @@ DIST_DIR="$1"
 [[ -n "$DIST_DIR" ]] || fatal "missing DIST_DIR argument"
 [[ -f "$DIST_DIR/package.json" ]] || fatal "invalid DIST_DIR: $DIST_DIR/package.json does not exist"
 
+# Directory holding some "license.*.txt" files for inclusion below.
+export LIC_DIR=$(cd $(dirname $0)/ >/dev/null; pwd)
+
 cat $TOP/NOTICE.md
 
 # Emit a Markdown section listing the license for each non-dev dependency
@@ -59,16 +62,20 @@ npm ls --omit=dev --all --parseable \
             "LICENSE-MIT",
             "LICENSE-MIT.txt"
         ]
-        const allowNoLicFile = [ // Some packages that do not ship their license text.
-            "async-value",
-            "async-value-promise",
-            "binary-search",
-            "breadth-filter",
-            "mapcap",
-            "measured-core",
-            "measured-reporting",
-            "object-identity-map",
-            "set-cookie-serde",
+        // We handle getting the license text for a few specific deps that
+        // do not include one in their install.
+        const licFileFromPkgName = {
+            "async-value": "license.MIT.txt",
+            "async-value-promise": "license.MIT.txt",
+            "breadth-filter": "license.MIT.txt",
+            "mapcap": "license.MIT.txt",
+            "measured-core": "license.node-measured.txt",
+            "measured-reporting": "license.node-measured.txt",
+            "object-identity-map": "license.MIT.txt",
+            "set-cookie-serde": "license.MIT.txt",
+        }
+        const allowNoLicFile = [
+            "binary-search" // CC is a public domain dedication, no need for license text.
         ]
         const chunks = []
         process.stdin.on("data", chunk => chunks.push(chunk))
@@ -98,6 +105,9 @@ npm ls --omit=dev --all --parseable \
                         licPath = p
                         break
                     }
+                }
+                if (!licPath && licFileFromPkgName[pj.name]) {
+                    licPath = path.join(process.env.LIC_DIR, licFileFromPkgName[pj.name])
                 }
                 if (!licPath && !allowNoLicFile.includes(path.basename(depDir))) {
                     throw new Error(`cannot find license file for ${pj.name}@${pj.version} in ${depDir}`)
