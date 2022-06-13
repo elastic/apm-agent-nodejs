@@ -56,6 +56,7 @@ Notes:
   change passing `next(<some object not an instance of Error>)` would be
   considered an error by Express, but not by the APM agent's route
   tracking. ({pull}2750[#2750])
+- Fix Graphql v16 support ({issues}2508[#2508])
 
 - Updated `sanitizeFieldNames` and `ignoreMessageQueues` environment variables
   to use `ELASTIC_APM_` prefix. (previous variable names are still recgonized,
