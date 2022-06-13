@@ -348,7 +348,7 @@ ${body.map(JSON.stringify).join('\n')}
 
   // 'ResponseError' is the client's way of passing back an Elasticsearch API
   // error. Some interesting parts of that error response body should be
-  // included in `err.context.custom`.
+  // included in `err.context.custom` and `err.exception.type`.
   test('ResponseError', function (t) {
     resetAgent(
       function done (data) {
@@ -356,7 +356,7 @@ ${body.map(JSON.stringify).join('\n')}
         t.ok(err, 'sent an error to APM server')
         t.ok(err.id, 'err.id')
         t.ok(err.exception.message, 'err.exception.message')
-        t.equal(err.exception.type, 'ResponseError',
+        t.equal(err.exception.type, 'ResponseError (number_format_exception)',
           'err.exception.type is ResponseError')
         if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
           t.equal(err.exception.module, '@elastic/transport')
