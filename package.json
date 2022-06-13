@@ -91,7 +91,7 @@
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",
-    "escape-string-regexp": "^4.0.0",
+    "escape-string-regexp": "^5.0.0",
     "fast-safe-stringify": "^2.0.7",
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
