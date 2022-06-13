@@ -356,8 +356,11 @@ ${body.map(JSON.stringify).join('\n')}
         t.ok(err, 'sent an error to APM server')
         t.ok(err.id, 'err.id')
         t.ok(err.exception.message, 'err.exception.message')
-        t.equal(err.exception.type, 'ResponseError (number_format_exception)',
-          'err.exception.type is ResponseError')
+        if (semver.gte(esVersion, '8')) {
+          t.equal(err.exception.type, 'ResponseError (number_format_exception)', 'err.exception.type')
+        } else {
+          t.equal(err.exception.type, 'ResponseError (illegal_argument_exception)', 'err.exception.type')
+        }
         if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
           t.equal(err.exception.module, '@elastic/transport')
           t.deepEqual(err.context.custom, {
