@@ -356,7 +356,7 @@ ${body.map(JSON.stringify).join('\n')}
         t.ok(err, 'sent an error to APM server')
         t.ok(err.id, 'err.id')
         t.ok(err.exception.message, 'err.exception.message')
-        if (semver.gte(esVersion, '8')) {
+        if (semver.satisfies(esVersion, '>=8')) {
           t.equal(err.exception.type, 'ResponseError (number_format_exception)', 'err.exception.type')
         } else {
           t.equal(err.exception.type, 'ResponseError (illegal_argument_exception)', 'err.exception.type')
