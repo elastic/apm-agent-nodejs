@@ -1,5 +1,11 @@
 #!/usr/bin/env node --unhandled-rejections=strict
 
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // A small example showing Elastic APM tracing of a script the `mysql2` package.
 //
 // By default this will use a MySQL on localhost with user 'root'. You can use:

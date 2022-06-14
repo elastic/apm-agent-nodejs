@@ -1,3 +1,9 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // This test case shows that `span.end()` impacts the current run context's
 // span stack, even if the ended span is not the current one. When s3 and s2
 // are ended below, they are not the current span.
