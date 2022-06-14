@@ -23,7 +23,7 @@ set -o pipefail
 # ---- support functions
 
 function fatal {
-    echo "$(basename $0): error: $*"
+    echo "$(basename $0): error: $*" >&2
     exit 1
 }
 
@@ -35,7 +35,7 @@ DIST_DIR="$1"
 [[ -f "$DIST_DIR/package.json" ]] || fatal "invalid DIST_DIR: $DIST_DIR/package.json does not exist"
 
 # Directory holding some "license.*.txt" files for inclusion below.
-export LIC_DIR=$(cd $(dirname $0)/ >/dev/null; pwd)
+export MANUAL_LIC_DIR=$(cd $(dirname $0)/ >/dev/null; pwd)
 
 cat $TOP/NOTICE.md
 
@@ -55,13 +55,6 @@ npm ls --omit=dev --all --parseable \
             "MIT": true,
             "WTFPL OR ISC": true // oddball from is-integer package
         }
-        const licFileNames = [
-            "LICENSE",
-            "LICENSE.txt",
-            "license.md",
-            "LICENSE-MIT",
-            "LICENSE-MIT.txt"
-        ]
         // We handle getting the license text for a few specific deps that
         // do not include one in their install.
         const licFileFromPkgName = {
@@ -99,15 +92,20 @@ npm ls --omit=dev --all --parseable \
                 console.log(`\n## ${pj.name}@${pj.version} (${licType})`)
 
                 let licPath
-                for (let i = 0; i < licFileNames.length; i++) {
-                    const p = `${depDir}/${licFileNames[i]}`
-                    if (fs.existsSync(p)) {
-                        licPath = p
+                // npm-packlist always includes any file matching "licen[cs]e.*"
+                // (case-insensitive) as a license file. However some of our
+                // deps use "LICENSE-MIT.*", which we need to allow as well.
+                const dir = fs.opendirSync(depDir)
+                let dirent
+                while (dirent = dir.readSync()) {
+                    if (dirent.isFile() && /^licen[cs]e(-\w+)?(\..*)?$/i.test(dirent.name)) {
+                        licPath = path.join(depDir, dirent.name)
                         break
                     }
                 }
+                dir.close()
                 if (!licPath && licFileFromPkgName[pj.name]) {
-                    licPath = path.join(process.env.LIC_DIR, licFileFromPkgName[pj.name])
+                    licPath = path.join(process.env.MANUAL_LIC_DIR, licFileFromPkgName[pj.name])
                 }
                 if (!licPath && !allowNoLicFile.includes(path.basename(depDir))) {
                     throw new Error(`cannot find license file for ${pj.name}@${pj.version} in ${depDir}`)
