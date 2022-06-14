@@ -35,6 +35,13 @@
             tabindex="-1">
       Terraform
     </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="container-tab-lambda-nodejs-config"
+            id="container-lambda-nodejs-config"
+            tabindex="-1">
+      Container Image
+    </button>
   </div>
   <div tabindex="0"
       role="tabpanel"
@@ -92,6 +99,18 @@ include::configure-lambda.asciidoc[tag=serverless-{layer-section-type}]
 ++++
 
 include::configure-lambda.asciidoc[tag=terraform-{layer-section-type}]
+
+++++
+  </div>
+  <div tabindex="0"
+      role="tabpanel"
+      id="container-tab-lambda-nodejs-config"
+      name="lambda-tabpanel"
+      aria-labelledby="container-lambda-nodejs-config"
+      hidden="">
+++++
+
+include::configure-lambda.asciidoc[tag=container-{layer-section-type}]
 
 ++++
   </div>
