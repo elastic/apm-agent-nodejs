@@ -11,7 +11,7 @@
     "lint": "npm run lint:eslint && npm run lint:license-files",
     "lint:eslint": "eslint .  # requires node >=8.10",
     "lint:fix": "eslint --fix .  # requires node >=8.10",
-    "lint:license-files": "./dev-utils/gen-notice.sh . >./lint-license-files.out",
+    "lint:license-files": "./dev-utils/gen-notice.sh . >./lint-license-files.out  # requires node >=16",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
     "test": "./test/script/run_tests.sh",
     "test:deps": "dependency-check start.js index.js 'lib/**/*.js' 'test/**/*.js' --no-dev -i async_hooks -i perf_hooks -i parseurl",

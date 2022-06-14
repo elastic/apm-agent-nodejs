@@ -34,6 +34,11 @@ DIST_DIR="$1"
 [[ -n "$DIST_DIR" ]] || fatal "missing DIST_DIR argument"
 [[ -f "$DIST_DIR/package.json" ]] || fatal "invalid DIST_DIR: $DIST_DIR/package.json does not exist"
 
+# Guard against accidentally using this script with a too-old npm.
+if [[ $(npm --version | cut -d. -f1) -lt 8 ]]; then
+    fatal "npm version is too old for 'npm ci --omit=dev': $(npm --version)"
+fi
+
 # Directory holding some "license.*.txt" files for inclusion below.
 export MANUAL_LIC_DIR=$(cd $(dirname $0)/ >/dev/null; pwd)
 

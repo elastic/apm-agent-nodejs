@@ -502,7 +502,7 @@ def getSmartTAVContext() {
         withGithubNotify(context: 'Linting') {
           deleteDir()
           unstash 'source'
-          docker.image('node:12').inside("-v ${WORKSPACE}/${BASE_DIR}:/app -v /var/lib/jenkins/.git-references/:/var/lib/jenkins/.git-references"){
+          docker.image('node:16').inside("-v ${WORKSPACE}/${BASE_DIR}:/app -v /var/lib/jenkins/.git-references/:/var/lib/jenkins/.git-references"){
             withEnv(["HOME=/app"]) {
               sh(label: 'Basic tests I', script: 'cd /app && .ci/scripts/test_basic.sh')
               sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
