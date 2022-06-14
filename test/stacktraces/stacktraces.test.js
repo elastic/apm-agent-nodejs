@@ -46,7 +46,7 @@ tape.test('error.exception.stacktrace', function (t) {
           stacktrace[0],
           {
             filename: path.join('fixtures', 'throw-an-error.js'),
-            lineno: 15,
+            lineno: 21,
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'throw-an-error.js'),
@@ -96,7 +96,7 @@ tape.test('error.exception.stacktrace does not have "[Circular]" frames', functi
               frame,
               {
                 filename: path.join('fixtures', 'circular-stack.js'),
-                lineno: 19,
+                lineno: 25,
                 function: 'boomOnZero',
                 library_frame: false,
                 abs_path: path.join(__dirname, 'fixtures', 'circular-stack.js'),
@@ -136,7 +136,7 @@ tape.test('error.log.stacktrace', function (t) {
           server.events[1].error.log.stacktrace[0],
           {
             filename: path.join('fixtures', 'capture-error-string.js'),
-            lineno: 15,
+            lineno: 21,
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'capture-error-string.js'),
@@ -150,7 +150,7 @@ tape.test('error.log.stacktrace', function (t) {
           server.events[2].error.log.stacktrace[0],
           {
             filename: path.join('fixtures', 'capture-error-string.js'),
-            lineno: 16,
+            lineno: 22,
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'capture-error-string.js'),
@@ -197,7 +197,7 @@ tape.test('span.stacktrace', function (t) {
           firstAppFrame,
           {
             filename: testScript,
-            lineno: 21,
+            lineno: 27,
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'send-a-span.js'),
@@ -251,7 +251,7 @@ tape.test('error.exception.stacktrace with sourcemap', function (t) {
           stacktrace[0],
           {
             filename: path.join('fixtures', 'dist', 'no-such-dir', 'throw-an-error-with-sourcemap.ts'),
-            lineno: 16,
+            lineno: 22,
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'dist', 'no-such-dir', 'throw-an-error-with-sourcemap.ts'),
