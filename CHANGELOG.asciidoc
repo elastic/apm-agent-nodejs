@@ -47,11 +47,16 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Fix the automatic wrapping of Lambda handlers to support handler modules
+  created by `esbuild` bundling -- as is done in some Serverless Framework
+  functions that use TypeScript. ({issues}2753[#2753])
+
 - Fix Express route tracking (used for `transaction.name`) when an argument
   is passed to the `next(arg)` callback of a request handler. Before this
   change passing `next(<some object not an instance of Error>)` would be
   considered an error by Express, but not by the APM agent's route
   tracking. ({pull}2750[#2750])
+- Fix Graphql v16 support ({issues}2508[#2508])
 
 - Updated `sanitizeFieldNames` and `ignoreMessageQueues` environment variables
   to use `ELASTIC_APM_` prefix. (previous variable names are still recgonized,
