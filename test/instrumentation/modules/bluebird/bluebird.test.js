@@ -933,8 +933,8 @@ test('Promise.promisify', function (t) {
 
     readFile(__filename, 'utf8').then(function (contents) {
       var firstLine = contents.split('\n')[0]
-      t.ok(/use strict/.test(firstLine))
-      t.strictEqual(ins.currTransaction().id, trans.id)
+      t.strictEqual(firstLine, '/*', 'firstLine')
+      t.strictEqual(ins.currTransaction().id, trans.id, 'currentTransaction().id')
     })
   })
 })
