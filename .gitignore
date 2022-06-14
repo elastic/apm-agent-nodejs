@@ -5,7 +5,6 @@
 /test/types/transpile/index.js
 /test/types/transpile-default/index.js
 /test-suite-output.tap
-/lint-license-files.out
 
 # Folders to ignore
 /.nyc_output

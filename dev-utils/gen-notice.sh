@@ -8,9 +8,16 @@
 #
 # Usage:
 #   ./dev-utils/gen-notice.sh DIST_DIR
+#   ./dev-utils/gen-notice.sh --lint DIST_DIR   # lint mode
 #
 # where DIST_DIR is the distribution directory (the dir that holds the
 # "package.json" and "node_modules/" dir).
+#
+# When the '--lint' option is given, this will run in "lint mode":
+# - the NOTICE content is not emitted to stdout
+# - if the version of 'npm' is too old it will *warn*, and exit successfully
+#   (this is to support using this for linting in CI in the same was as
+#   eslint, which requires a newer node))
 #
 
 if [ "$TRACE" != "" ]; then
@@ -22,6 +29,10 @@ set -o pipefail
 
 # ---- support functions
 
+function warn {
+    echo "$(basename $0): warn: $*" >&2
+}
+
 function fatal {
     echo "$(basename $0): error: $*" >&2
     exit 1
@@ -30,19 +41,31 @@ function fatal {
 # ---- mainline
 
 TOP=$(cd $(dirname $0)/../ >/dev/null; pwd)
+if [[ "$1" == "--lint" ]]; then
+    LINT_MODE=true
+    OUTFILE=/dev/null
+    shift
+else
+    LINT_MODE=false
+    OUTFILE=/dev/stdout
+fi
 DIST_DIR="$1"
 [[ -n "$DIST_DIR" ]] || fatal "missing DIST_DIR argument"
 [[ -f "$DIST_DIR/package.json" ]] || fatal "invalid DIST_DIR: $DIST_DIR/package.json does not exist"
 
 # Guard against accidentally using this script with a too-old npm.
 if [[ $(npm --version | cut -d. -f1) -lt 8 ]]; then
+    if [[ "$LINT_MODE" == "true" ]]; then
+        warn "npm version is too old for 'npm ci --omit=dev': $(npm --version)"
+        exit 0
+    fi
     fatal "npm version is too old for 'npm ci --omit=dev': $(npm --version)"
 fi
 
 # Directory holding some "license.*.txt" files for inclusion below.
 export MANUAL_LIC_DIR=$(cd $(dirname $0)/ >/dev/null; pwd)
 
-cat $TOP/NOTICE.md
+cat $TOP/NOTICE.md >$OUTFILE
 
 # Emit a Markdown section listing the license for each non-dev dependency
 # in the DIST_DIR. This errors out if a license cannot be found or isn't known.
@@ -120,4 +143,4 @@ npm ls --omit=dev --all --parseable \
                 }
             })
         })
-    '
+    ' >$OUTFILE
