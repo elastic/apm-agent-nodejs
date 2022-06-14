@@ -19,3 +19,22 @@ fmt:
 .PHONY: test
 test:
 	npm run test
+
+# List the license types of all runtime (non-dev) dependencies
+.PHONY: list-dep-licenses
+list-dep-licenses:
+	@(npm ls --omit=dev --all --parseable \
+		| while read subdir; do node -e "console.log(require('$$subdir/package.json').license)"; done \
+		| sort | uniq -c | sort -n)
+
+# Include devDependencies in this listing of licenses.
+.PHONY: list-all-dep-licenses
+list-all-dep-licenses:
+	@(npm ls --all --parseable \
+		| while read subdir; do node -e "console.log(require('$$subdir/package.json').license)"; done \
+		| sort | uniq -c | sort -n)
+
+.PHONY: list-deps-without-license-field
+list-deps-without-license-field:
+	@(npm ls --all --parseable \
+		| while read subdir; do if [[ $$(node -e "console.log(require('$$subdir/package.json').license)") == "undefined" ]]; then echo $$subdir; fi ; done)
