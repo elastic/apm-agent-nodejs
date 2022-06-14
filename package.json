@@ -92,6 +92,7 @@
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",
     "escape-string-regexp": "^4.0.0",
+    "eslint-plugin-license-header": "^0.4.0",
     "fast-safe-stringify": "^2.0.7",
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",

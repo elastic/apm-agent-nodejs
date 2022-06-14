@@ -4,7 +4,12 @@
     "node": true
   },
   "extends": "standard",
-  "rules": {},
+  "plugins": [
+    "license-header"
+  ],
+  "rules": {
+    "license-header/header": [ "error", "./dev-utils/license-header.js" ]
+  },
   "ignorePatterns": [
     "/.nyc_output",
     "/build",
