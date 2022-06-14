@@ -12,6 +12,12 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
+const isFastifyIncompat = require('../../../_is_fastify_incompat')()
+if (isFastifyIncompat) {
+  console.log(`# SKIP ${isFastifyIncompat}`)
+  process.exit()
+}
+
 const http = require('http')
 
 const Fastify = require('fastify')
@@ -36,7 +42,7 @@ test('transaction name', function (t) {
     reply.send({ hello: request.params.name })
   })
 
-  fastify.listen(0, function (err) {
+  fastify.listen({ port: 0 }, function (err) {
     t.error(err)
 
     // build the URL manually as older versions of fastify doesn't supply it as

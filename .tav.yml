@@ -156,10 +156,17 @@ ws-new:
   node: '>=8.6.0'
   versions: '>=7 <8'
   commands: node test/instrumentation/modules/ws.test.js
+
+graphql-v0.7-v16:
+  preinstall: npm uninstall express-graphql
+  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16'
+  commands: node test/instrumentation/modules/graphql.test.js
 graphql:
   preinstall: npm uninstall express-graphql
-  versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16.0.0'
+  node: '>=12'
+  versions: '>=16.0.0 <17'
   commands: node test/instrumentation/modules/graphql.test.js
+
 express:
   versions: '>=4'
   commands:
@@ -478,6 +485,7 @@ restify-new:
 
 # https://www.fastify.io/docs/latest/LTS/
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
+# - fastify@4.0.1 is broken: https://github.com/fastify/fastify/issues/3998#issuecomment-1153662513
 fastify-v1:
   name: fastify
   versions: '1.x'
@@ -494,10 +502,18 @@ fastify-v2:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js
     - node test/instrumentation/modules/fastify/set-framework.test.js
+fastify-v3:
+  name: fastify
+  versions: '>=3.0.0 <4'
+  node: '>=10'
+  commands:
+    - node test/instrumentation/modules/fastify/fastify.test.js
+    - node test/instrumentation/modules/fastify/async-await.test.js
+    - node test/instrumentation/modules/fastify/set-framework.test.js
 fastify:
   name: fastify
-  versions: '>=3.0.0'
-  node: '>=10'
+  versions: '>=4 <4.0.1 || >4.0.1'
+  node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js

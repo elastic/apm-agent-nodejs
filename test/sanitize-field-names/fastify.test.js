@@ -8,11 +8,9 @@
 const { createAgentConfig } = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
 
-// fastify >=3 only supports node >=10.
-const fastifyVer = require('../../node_modules/fastify/package.json').version
-const semver = require('semver')
-if (semver.gte(fastifyVer, '3.0.0') && semver.lt(process.version, '10.0.0')) {
-  console.log(`# SKIP fastify@${fastifyVer} does not support node ${process.version}`)
+const isFastifyIncompat = require('../_is_fastify_incompat')()
+if (isFastifyIncompat) {
+  console.log(`# SKIP ${isFastifyIncompat}`)
   process.exit()
 }
 
@@ -56,7 +54,7 @@ function runTest (
     reply.send('Hello World')
   })
 
-  app.listen(0, '0.0.0.0', (err, address) => {
+  app.listen({ port: 0, host: '0.0.0.0' }, (err, address) => {
     if (err) {
       throw err
     }

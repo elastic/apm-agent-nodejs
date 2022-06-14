@@ -28,6 +28,7 @@ var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
 var apmName = require('../package').name
 var isHapiIncompat = require('./_is_hapi_incompat')
+const isFastifyIncompat = require('./_is_fastify_incompat')()
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
@@ -998,6 +999,9 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '14.0.0')) {
     modules.delete('@elastic/elasticsearch-canary')
   }
+  if (isFastifyIncompat) {
+    modules.delete('fastify')
+  }
   // As of mongodb@4 only supports node >=v12.
   const mongodbVersion = require('../node_modules/mongodb/package.json').version
   if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
@@ -1658,5 +1662,23 @@ test('spanStackTraceMinDuration', suite => {
     })
   })
 
+  suite.end()
+})
+
+test('env variable names', suite => {
+  // flatten
+  const names = [].concat(...Object.values(config.ENV_TABLE))
+
+  // list of names we keep around for backwards compatability
+  // but that don't conform to the ELASTIC_APM name
+  const legacy = ['ELASTIC_SANITIZE_FIELD_NAMES', 'KUBERNETES_POD_UID',
+    'KUBERNETES_POD_NAME', 'KUBERNETES_NODE_NAME', 'KUBERNETES_NAMESPACE',
+    'ELASTIC_IGNORE_MESSAGE_QUEUES']
+  for (const name of names) {
+    if (legacy.indexOf(name) !== -1) {
+      continue
+    }
+    suite.true(name.indexOf('ELASTIC_APM') === 0, `${name} starts with ELASTIC_APM`)
+  }
   suite.end()
 })

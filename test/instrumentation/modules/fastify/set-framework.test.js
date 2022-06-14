@@ -12,6 +12,12 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
+const isFastifyIncompat = require('../../../_is_fastify_incompat')()
+if (isFastifyIncompat) {
+  console.log(`# SKIP ${isFastifyIncompat}`)
+  process.exit()
+}
+
 const tape = require('tape')
 
 tape('fastify set-framework test', function (t) {

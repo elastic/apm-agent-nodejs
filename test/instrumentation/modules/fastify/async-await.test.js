@@ -12,4 +12,10 @@ require('../../../..').start({
   centralConfig: false
 })
 
+const isFastifyIncompat = require('../../../_is_fastify_incompat')()
+if (isFastifyIncompat) {
+  console.log(`# SKIP ${isFastifyIncompat}`)
+  process.exit()
+}
+
 require('./_async-await')
