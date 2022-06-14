@@ -153,7 +153,7 @@
     "generic-pool": "^3.7.1",
     "get-port": "^5.1.1",
     "got": "^9.6.0",
-    "graphql": "^16.5.0",
+    "graphql": "^15.8.0",
     "handlebars": "^4.7.3",
     "https-pem": "^3.0.0",
     "ioredis": "^4.28.0",
