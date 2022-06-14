@@ -485,6 +485,7 @@ restify-new:
 
 # https://www.fastify.io/docs/latest/LTS/
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
+# - fastify@4.0.1 is broken: https://github.com/fastify/fastify/issues/3998#issuecomment-1153662513
 fastify-v1:
   name: fastify
   versions: '1.x'
@@ -511,7 +512,7 @@ fastify-v3:
     - node test/instrumentation/modules/fastify/set-framework.test.js
 fastify:
   name: fastify
-  versions: '>=4'
+  versions: '>=4 <4.0.1 || >4.0.1'
   node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
