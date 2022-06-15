@@ -44,6 +44,14 @@ Notes:
   to transaction payloads allowing APM Server to calculate more accurate
   throughput metrics. ({issues}2302[#2302])
 
+- Improve the grouping of captured API errors from `@elastic/elasticsearch`
+  instrumentation. When an Elasticsearch client API error is captured, if
+  the response body includes a `error.type`, e.g. `illegal_argument_exception`,
+  the captured `error.exception.type` will be `ResponseError (illegal_argument_exception)`
+  rather than `ResponseError`. This means that API errors will be grouped
+  separately in the Kibana APM app based on their client API error type.
+  ({issues}2770[#2770])
+
 [float]
 ===== Bug fixes
 
