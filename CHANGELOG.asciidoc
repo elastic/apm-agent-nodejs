@@ -32,10 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.36.0]]
+==== 3.36.0 2022/06/15
 
 [float]
 ===== Features
@@ -52,6 +50,9 @@ Notes:
   separately in the Kibana APM app based on their client API error type.
   ({issues}2770[#2770])
 
+- Graphql v16 support ({issues}2508[#2508])
+
+
 [float]
 ===== Bug fixes
 
@@ -64,14 +65,10 @@ Notes:
   change passing `next(<some object not an instance of Error>)` would be
   considered an error by Express, but not by the APM agent's route
   tracking. ({pull}2750[#2750])
-- Fix Graphql v16 support ({issues}2508[#2508])
 
 - Updated `sanitizeFieldNames` and `ignoreMessageQueues` environment variables
   to use `ELASTIC_APM_` prefix. (previous variable names are still recgonized,
   but not documented) ({issues}2636[#2636])
-
-[float]
-===== Chores
 
 
 [[release-notes-3.35.0]]
