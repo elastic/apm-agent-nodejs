@@ -32,10 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.36.0]]
+==== 3.36.0 2022/06/15
 
 [float]
 ===== Features
@@ -69,9 +67,6 @@ Notes:
 - Updated `sanitizeFieldNames` and `ignoreMessageQueues` environment variables
   to use `ELASTIC_APM_` prefix. (previous variable names are still recgonized,
   but not documented) ({issues}2636[#2636])
-
-[float]
-===== Chores
 
 
 [[release-notes-3.35.0]]
