@@ -37,7 +37,7 @@ test('https://github.com/elastic/apm-agent-nodejs/issues/423', function (t) {
     var server = http.createServer(function (req, res) {
       got(url).then(function (response) {
         t.strictEqual(response.body.length, fileSize, 'body should be expected size')
-        t.strictEqual(response.body.slice(0, 12), '\'use strict\'', 'body should be uncompressed')
+        t.strictEqual(response.body.slice(0, 12), '/*\n * Copyri', 'body should be uncompressed')
         res.end()
       })
     })

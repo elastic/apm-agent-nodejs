@@ -18,6 +18,7 @@
     "/test/babel/out.js",
     "/test/lambda/fixtures/esbuild-bundled-handler/hello.js",
     "/test/sourcemaps/fixtures/lib",
+    "/test/sourcemaps/fixtures/src",
     "/test/stacktraces/fixtures/dist",
     "/test/types/transpile/index.js",
     "/test/types/transpile-default/index.js",
