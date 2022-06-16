@@ -1,3 +1,9 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // An example creating custom spans via `apm.startSpan()` all in the same
 // event loop task -- i.e. any active async-hook has no impact.
 //

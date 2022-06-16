@@ -1,5 +1,11 @@
 #!/usr/bin/env node --unhandled-rejections=strict
 
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // A small example showing Elastic APM tracing outgoing HTTP requests using
 // `http.request` (or `http.get`, `https.request`, `https.get`) from Node.js
 // core.

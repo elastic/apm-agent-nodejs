@@ -1,3 +1,9 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // Capture an error whose stack has duplicate frames, then capture the same
 // error again. The goal is to try to trigger a bug in serialization of
 // cached `error.exception.stacktrace` frames where duplicate frames are

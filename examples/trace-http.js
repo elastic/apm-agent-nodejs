@@ -1,5 +1,11 @@
 #!/usr/bin/env node --unhandled-rejections=strict
 
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // A small example showing Elastic APM tracing of the core 'http' module.
 //
 // 1. This creates an HTTP server listening at http://localhost:3000

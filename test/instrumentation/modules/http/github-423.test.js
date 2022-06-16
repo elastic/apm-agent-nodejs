@@ -1,3 +1,9 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 'use strict'
 
 require('../../../..').start({
@@ -31,7 +37,7 @@ test('https://github.com/elastic/apm-agent-nodejs/issues/423', function (t) {
     var server = http.createServer(function (req, res) {
       got(url).then(function (response) {
         t.strictEqual(response.body.length, fileSize, 'body should be expected size')
-        t.strictEqual(response.body.slice(0, 12), '\'use strict\'', 'body should be uncompressed')
+        t.strictEqual(response.body.slice(0, 12), '/*\n * Copyri', 'body should be uncompressed')
         res.end()
       })
     })

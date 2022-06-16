@@ -1,3 +1,9 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // https://github.com/elastic/apm-agent-nodejs/issues/1770
 const agent = require('../..').start({
   serviceName: 'test-github-issue-1770',
