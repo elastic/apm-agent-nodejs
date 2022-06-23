@@ -45,7 +45,7 @@ The APM Lambda Extension and the APM Node.js agent are configured through enviro
 For the minimal configuration, you will need the _APM Server URL_ to set the destination for APM data and an _{apm-guide-ref}/secret-token.html[APM Secret Token]_.
 If you prefer to use an {apm-guide-ref}/api-key.html[APM API key] instead of the APM secret token, use the `ELASTIC_APM_API_KEY` environment variable instead of `ELASTIC_APM_SECRET_TOKEN` in the following configuration.
 
-Alternatively, you can {apm-guide-ref}/aws-lambda-secrets-manager.html[use the AWS Secrets Manager to store your APM authentication key] (i.e. the _APM Secret Token_ or the _APM API key_) instead of providing the secret value as plaintext in the environment variables.
+For production environments, we recommend {apm-guide-ref}/aws-lambda-secrets-manager.html[using the AWS Secrets Manager to store your APM authentication key] instead of providing the secret value as plaintext in the environment variables.
 
 include::./lambda/configure-lambda-widget.asciidoc[]
 
