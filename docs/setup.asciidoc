@@ -18,9 +18,9 @@ Use the following pages to configure the APM Agent.
 [[configuring-the-agent]]
 === Configuring the agent
 
-There are multiple ways to configure the Node.js agent. In order of precedence (higher overwrites lower):
+There are multiple ways to configure the Node.js agent. In order of precedence:
 
-1. APM Agent Configuration via Kibana.
+1. APM Agent Central Configuration via Kibana.
 (supported options are marked with <<dynamic-configuration, image:./images/dynamic-config.svg[] >>)
 
 2. Environment variables.
