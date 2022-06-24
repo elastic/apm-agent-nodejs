@@ -4,5 +4,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # Lock at current got@10. See comment in .tav.yml.
+      - dependency-name: "got"
     reviewers:
       - "elastic/apm-agent-node-js"
