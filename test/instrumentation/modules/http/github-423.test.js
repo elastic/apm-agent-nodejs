@@ -7,11 +7,20 @@
 'use strict'
 
 require('../../../..').start({
-  serviceName: 'test',
+  serviceName: 'test-mimic-response',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false
 })
+
+var gotVer = require('got/package.json').version
+var semver = require('semver')
+if (semver.gte(gotVer, '10.0.0') && semver.lt(process.version, '10.16.0')) {
+  // got@10 requires node v10 for JS syntax, and v10.16.0 for the added
+  // zlib.brotliCompress.
+  console.log(`# SKIP got@${gotVer} does not support node ${process.version}`)
+  process.exit()
+}
 
 var http = require('http')
 var zlib = require('zlib')
