@@ -27,7 +27,7 @@ got-9:
 got-10:
   name: got
   versions: '>=10.0.0 <10.5.1 || >10.5.1 <11' # v10.5.1 is broken
-  node: '>=10'
+  node: '>=10.16.0'
   commands: node test/instrumentation/modules/http/github-423.test.js
 
 mysql:

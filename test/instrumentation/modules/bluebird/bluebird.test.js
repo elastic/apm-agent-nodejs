@@ -1,3 +1,9 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 'use strict'
 
 // The unhandledRejection will be fired by our bluebird tests, which is to be
@@ -927,8 +933,8 @@ test('Promise.promisify', function (t) {
 
     readFile(__filename, 'utf8').then(function (contents) {
       var firstLine = contents.split('\n')[0]
-      t.ok(/use strict/.test(firstLine))
-      t.strictEqual(ins.currTransaction().id, trans.id)
+      t.strictEqual(firstLine, '/*', 'firstLine')
+      t.strictEqual(ins.currTransaction().id, trans.id, 'currentTransaction().id')
     })
   })
 })
