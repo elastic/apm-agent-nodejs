@@ -156,7 +156,7 @@
     "finalhandler": "^1.1.2",
     "generic-pool": "^3.7.1",
     "get-port": "^5.1.1",
-    "got": "^10.7.0",
+    "got": "^11.8.5",
     "graphql": "^15.8.0",
     "handlebars": "^4.7.3",
     "https-pem": "^3.0.0",
