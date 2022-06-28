@@ -165,7 +165,7 @@
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^9.0.1",
-    "lambda-local": "^1.7.1",
+    "lambda-local": "^2.0.2",
     "memcached": "^2.2.2",
     "mimic-response": "^2.1.0",
     "mkdirp": "^0.5.1",
@@ -190,7 +190,7 @@
     "tedious": "^14.5.0",
     "test-all-versions": "^4.1.1",
     "thunky": "^1.1.0",
-    "typescript": "^3.7.5",
+    "typescript": "^4.7.4",
     "vasync": "^2.2.0",
     "wait-on": "^6.0.1",
     "ws": "^7.2.1"
