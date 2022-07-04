@@ -18,6 +18,8 @@ fi
 
 echo $(pwd)
 
+# Share this 'setUp' implementation with
+# https://github.com/elastic/apm-agent-java/blob/main/scripts/jenkins/run-benchmarks.sh
 function setUp() {
     echo "Setting CPU frequency to base frequency"
 
