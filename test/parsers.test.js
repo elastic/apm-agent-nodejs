@@ -239,6 +239,7 @@ function onRequest (cb) {
 
   server.listen(function () {
     var opts = {
+      agent: new http.Agent(),
       port: server.address().port
     }
     var req = http.request(opts, function (res) {
