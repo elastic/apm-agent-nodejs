@@ -455,6 +455,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
 
     // Make an HTTP/1.1 request.
     var getOpts = {
+      agent: new https.Agent(),
       protocol: 'https:',
       host: 'localhost',
       port: port,
