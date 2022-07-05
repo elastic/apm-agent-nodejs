@@ -226,12 +226,28 @@ If set to `true`, the client will poll the APM Server regularly for new agent co
 NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
 More information is available in {kibana-ref}/agent-configuration.html[APM Agent configuration].
 
+[[context-manager]]
+==== `contextManager`
+
+[small]#Added in: v3.37.0#
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_CONTEXT_MANAGER`
+
+This configuration option provides a way to override the APM agent's default technique for tracking Node.js async tasks, sometimes referred to as "run context" or just context. Most users should not need to use this setting.
+
+XXX finish documenting this
+
+
 [[async-hooks]]
 ==== `asyncHooks`
 
+[small]#Deprecated in: v3.37.0#
+
 * *Type:* Boolean
-* *Default:* `true`
 * *Env:* `ELASTIC_APM_ASYNC_HOOKS`
+
+This option is *deprecated* -- use <<context-manager,`contextManager`>> instead. The equivalent to `asyncHooks: false` is `contextManager: 'patch'`.
 
 A boolean specifying if the agent should use the experimental https://nodejs.org/api/async_hooks.html[Async Hooks] API found in Node.js version 8.2.0 and above.
 This setting has no effect when running a Node.js version older than 8.2.0.

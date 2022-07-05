@@ -118,7 +118,6 @@ var optionFixtures = [
   ['apiKey', 'API_KEY'],
   ['apiRequestSize', 'API_REQUEST_SIZE', 768 * 1024],
   ['apiRequestTime', 'API_REQUEST_TIME', 10],
-  ['asyncHooks', 'ASYNC_HOOKS', true],
   ['captureBody', 'CAPTURE_BODY', 'off'],
   ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
@@ -1649,6 +1648,118 @@ test('spanStackTraceMinDuration', suite => {
       t.notOk(agent._conf.captureSpanStackTraces, 'captureSpanStackTraces is not set on agent._conf')
       t.notOk(agent._conf.spanFramesMinDuration, 'spanFramesMinDuration is not set on agent._conf')
       t.strictEqual(agent._conf.spanStackTraceMinDuration, scenario.expectedVal, `spanStackTraceMinDuration=${scenario.expectedVal}`)
+
+      agent.destroy()
+      for (const k of Object.keys(scenario.env)) {
+        if (k in preEnv) {
+          process.env[k] = preEnv[k]
+        } else {
+          delete process.env[k]
+        }
+      }
+      t.end()
+    })
+  })
+
+  suite.end()
+})
+
+// `contextManager` is synthesized from itself and `asyncHooks`.
+// XXX
+test.only('contextManager', suite => {
+  const contextManagerTestScenarios = [
+    {
+      name: 'contextManager defaults to empty',
+      startOpts: {},
+      env: {},
+      expectedVal: undefined
+    },
+    {
+      name: 'contextManager=patch is valid',
+      startOpts: {
+        contextManager: 'patch'
+      },
+      env: {},
+      expectedVal: 'patch'
+    },
+    {
+      name: 'contextManager=asynchooks is valid',
+      startOpts: {
+        contextManager: 'asynchooks'
+      },
+      env: {},
+      expectedVal: 'asynchooks'
+    },
+    {
+      name: 'contextManager=asynclocalstorage is valid',
+      startOpts: {
+        contextManager: 'asynclocalstorage'
+      },
+      env: {},
+      expectedVal: 'asynclocalstorage'
+    },
+    {
+      name: 'ELASTIC_APM_CONTEXT_MANAGER works',
+      startOpts: {},
+      env: {
+        ELASTIC_APM_CONTEXT_MANAGER: 'asynchooks'
+      },
+      expectedVal: 'asynchooks'
+    },
+    {
+      name: 'contextManager=bogus',
+      startOpts: {
+        contextManager: 'bogus'
+      },
+      env: {},
+      expectedVal: undefined
+    },
+    {
+      name: 'both asyncHooks and contextManager ignores the former',
+      startOpts: {
+        asyncHooks: false,
+        contextManager: 'asynchooks'
+      },
+      env: {},
+      expectedVal: 'asynchooks'
+    },
+    {
+      name: 'asyncHooks=false sets contextManager="patch"',
+      startOpts: {
+        asyncHooks: false
+      },
+      env: {},
+      expectedVal: 'patch'
+    },
+    {
+      name: 'asyncHooks=true sets contextManager=undefined',
+      startOpts: {
+        asyncHooks: true
+      },
+      env: {},
+      expectedVal: undefined
+    },
+    {
+      name: 'asyncHooks=bogus sets contextManager=undefined',
+      startOpts: {
+        asyncHooks: 'bogus'
+      },
+      env: {},
+      expectedVal: undefined
+    }
+  ]
+
+  contextManagerTestScenarios.forEach(scenario => {
+    suite.test(scenario.name, t => {
+      const preEnv = Object.assign({}, process.env)
+      for (const [k, v] of Object.entries(scenario.env)) {
+        process.env[k] = v
+      }
+      const agent = new Agent()
+      agent.start(Object.assign({}, agentOptsNoopTransport, scenario.startOpts))
+
+      t.notOk('asyncHooks' in agent._conf, 'asyncHooks is not set on agent._conf')
+      t.strictEqual(agent._conf.contextManager, scenario.expectedVal, `contextManager=${scenario.expectedVal}`)
 
       agent.destroy()
       for (const k of Object.keys(scenario.env)) {
