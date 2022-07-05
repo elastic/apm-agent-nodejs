@@ -1751,9 +1751,9 @@ test('contextManager', suite => {
   contextManagerTestScenarios.forEach(scenario => {
     suite.test(scenario.name, t => {
       const preEnv = Object.assign({}, process.env)
-      // Tests run in Jenkins CI often set `ELASTIC_APM_ASYNC_HOOKS`, which
-      // interferes these this test.
-      delete process.env.ELASTIC_APM_ASYNC_HOOKS
+      // Tests run in Jenkins CI sets `ELASTIC_APM_CONTEXT_MANAGER`, which
+      // interferes with these tests.
+      delete process.env.ELASTIC_APM_CONTEXT_MANAGER
       for (const [k, v] of Object.entries(scenario.env)) {
         process.env[k] = v
       }

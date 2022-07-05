@@ -42,8 +42,8 @@ Notes:
 
 - The agent will now use https://nodejs.org/api/async_context.html#class-asynclocalstorage[`AsyncLocalStorage`]
   for run-context tracking in new enough versions of Node.js (versions >=14.5
-  and >=12.19). This can significantly reduce overhead of using the APM agent,
-  especially in Promise-heavy applications. ({pull}2786[#2786])
+  and >=12.19). This can reduce overhead from using the APM agent, especially in
+  Promise-heavy applications. ({pull}2786[#2786])
 +
 This also adds a new <<context-manager,`contextManager`>> configuration option
 to control which mechanism the agent uses for run-context tracking. It replaces

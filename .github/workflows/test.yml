@@ -6,7 +6,7 @@
 # - the "TAV" tests that run against all supported versions of instrumented
 #   modules
 # - the integration tests that run with an apm-server
-# - testing with ELASTIC_APM_ASYNC_HOOKS=false
+# - testing with ELASTIC_APM_CONTEXT_MANAGER=patch (i.e. without using async_hooks)
 # - code coverage (npm run coverage)
 
 name: Test

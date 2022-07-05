@@ -158,7 +158,7 @@ the top of `startSpan` in [`OTelTracer`](./OTelTracer.js)
   than is allowed for "tags" (aka labels) in the APM Server intake API, so some
   further filtering of attributes would be required.
 
-- There is a known issue with the `asyncHooks: false` config option and
+- There is a known issue with the `contextManager: "patch"` config option and
   `tracer.startActiveSpan(name, async function fn () { ... })` where run
   context is lost after the first `await ...` usage in that given `fn`.
   See https://github.com/elastic/apm-agent-nodejs/issues/2679.
