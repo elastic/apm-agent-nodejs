@@ -2,6 +2,7 @@ name: OpenTelemetry Export Trace
 
 on:
   workflow_run:
+    workflows: [Test]
     types: [completed]
 
 jobs:
