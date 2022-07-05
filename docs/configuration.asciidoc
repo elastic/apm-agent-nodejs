@@ -234,28 +234,45 @@ More information is available in {kibana-ref}/agent-configuration.html[APM Agent
 * *Type:* String
 * *Env:* `ELASTIC_APM_CONTEXT_MANAGER`
 
-This configuration option provides a way to override the APM agent's default technique for tracking Node.js async tasks, sometimes referred to as "run context" or just context. Most users should not need to use this setting.
+This configuration option provides a way to override the APM agent's default
+technique for tracking Node.js asynchronous tasks; sometimes referred to as "run
+context", "async context", or just "context". Most users should not need to
+change this setting. This setting replaces the older
+<<async-hooks,`asyncHooks`>> configuration option.
 
-XXX finish documenting this
+To effectively trace an application, the APM agent needs to track the logical
+thread of control through asynchronous tasks. The preferred mechanism for this
+is https://nodejs.org/api/async_context.html#class-asynclocalstorage[`AsyncLocalStorage`],
+usable in Node.js versions >=14.5 and >=12.19. In older versions of Node, the APM
+agent will fallback to using
+https://nodejs.org/api/async_hooks.html[`async_hooks`], which can have a higher
+performance overhead, especially in Promise-heavy applications. Finally, the APM
+agent supports a limited tracking mechanism (named "patch") that monkey-patches
+much of the core Node.js API to attempt to follow asynchronous calls. The
+"patch" mechanism is limited in usage and coverage (for example, it cannot
+track `async/await` usage), is not recommended, and may be deprecated and
+removed in a future version.
+
+Supported values for `contextManager` are:
+
+- `"asynclocalstorage"` - Use the `AsyncLocalStorage` mechanism, if able. Otherwise it will fallback to using `async_hooks`.
+- `"asynchooks"` - Use the `async_hooks` mechanism. (Using this value will restore the agent behavior from before v3.37.0.)
+- `"patch"` - Use the limited monkey-patching mechanism. (Using this value is the equivalent of using `asyncHooks: false` in agent versions before v3.37.0.)
 
 
 [[async-hooks]]
 ==== `asyncHooks`
 
-[small]#Deprecated in: v3.37.0#
+[small]#Deprecated in: v3.37.0, use <<context-manager,`contextManager`>>#
 
 * *Type:* Boolean
 * *Env:* `ELASTIC_APM_ASYNC_HOOKS`
 
-This option is *deprecated* -- use <<context-manager,`contextManager`>> instead. The equivalent to `asyncHooks: false` is `contextManager: 'patch'`.
+This option is *deprecated* -- use <<context-manager,`contextManager`>> instead.
 
-A boolean specifying if the agent should use the experimental https://nodejs.org/api/async_hooks.html[Async Hooks] API found in Node.js version 8.2.0 and above.
-This setting has no effect when running a Node.js version older than 8.2.0.
+The equivalent to `asyncHooks: false` is `contextManager: 'patch'`.
+The equivalent to `asyncHooks: true` is to leave both `asyncHooks` and `contextManager` empty, for the default behavior.
 
-If you experience any issues related to using Async Hooks,
-please https://github.com/elastic/apm-agent-nodejs/issues[open an issue].
-
-Note that not all core Node.js API's can be instrumented without the use of Async Hooks if running Node.js 8 or above.
 
 [[transaction-ignore-urls]]
 ==== `transactionIgnoreUrls`
