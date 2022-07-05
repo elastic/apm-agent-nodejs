@@ -141,7 +141,7 @@ jobs:
     - run: npm install
     - run: npm ls --all || true
     - name: npm test
-      run: npm test
+      run: nyc node test/test.js -o ./test_output
     - name: debug test_output
       run: ls test_output/*.tap || true # ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
     - uses: inception-health/otel-upload-test-artifact-action@latest
