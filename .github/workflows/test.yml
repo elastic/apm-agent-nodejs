@@ -142,6 +142,8 @@ jobs:
     - run: npm ls --all || true
     - name: npm test
       run: npm test
+    - name: debug test_output
+      run: ls test_output/*.* || true
     - uses: inception-health/otel-upload-test-artifact-action@latest
       if: always()
       with:
