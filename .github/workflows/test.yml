@@ -147,8 +147,8 @@ jobs:
     - uses: inception-health/otel-upload-test-artifact-action@latest
       if: always()
       with:
-        jobName: "test-vers"
-        stepName: "npm test (${{ matrix.node }})"
+        jobName: "test-vers (${{ matrix.node }})"
+        stepName: "npm test"
         path: "test_output/*.junit.xml"
         type: "junit"
         githubToken: ${{ secrets.GITHUB_TOKEN }}
