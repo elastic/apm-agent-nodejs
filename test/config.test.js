@@ -1665,8 +1665,7 @@ test('spanStackTraceMinDuration', suite => {
 })
 
 // `contextManager` is synthesized from itself and `asyncHooks`.
-// XXX
-test.only('contextManager', suite => {
+test('contextManager', suite => {
   const contextManagerTestScenarios = [
     {
       name: 'contextManager defaults to empty',
@@ -1752,6 +1751,9 @@ test.only('contextManager', suite => {
   contextManagerTestScenarios.forEach(scenario => {
     suite.test(scenario.name, t => {
       const preEnv = Object.assign({}, process.env)
+      // Tests run in Jenkins CI often set `ELASTIC_APM_ASYNC_HOOKS`, which
+      // interferes these this test.
+      delete process.env.ELASTIC_APM_ASYNC_HOOKS
       for (const [k, v] of Object.entries(scenario.env)) {
         process.env[k] = v
       }
@@ -1762,11 +1764,11 @@ test.only('contextManager', suite => {
       t.strictEqual(agent._conf.contextManager, scenario.expectedVal, `contextManager=${scenario.expectedVal}`)
 
       agent.destroy()
-      for (const k of Object.keys(scenario.env)) {
-        if (k in preEnv) {
-          process.env[k] = preEnv[k]
-        } else {
+      for (const k of Object.keys(process.env)) {
+        if (!(k in preEnv)) {
           delete process.env[k]
+        } else if (process.env[k] !== preEnv[k]) {
+          process.env[k] = preEnv[k]
         }
       }
       t.end()
