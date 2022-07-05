@@ -37,10 +37,6 @@ function setUp() {
     then
         CORE_INDEX=7
         BASE_FREQ="3.6GHz"
-    elif [ "${CPU_MODEL}" == "Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz " ]
-    then
-        CORE_INDEX=7
-        BASE_FREQ="1.9GHz"
     elif [ "${CPU_MODEL}" == "Intel(R) Core(TM) i9-8950HK CPU @ 2.90GHz " ]
     then
         CORE_INDEX=9
