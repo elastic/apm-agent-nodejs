@@ -51,7 +51,10 @@ run_test_suite () {
   then
     node test/test.js
   else
-    nyc node test/test.js
+    rm -rf ./test_output
+    mkdir ./test_output
+    nyc node test/test.js -o ./test_output
+    ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
   fi
 
   npm run test:types
