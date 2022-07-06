@@ -47,15 +47,10 @@ run_test_suite () {
 
   npm run test:deps
 
-  if [ -z "$COVERAGE" ]
-  then
-    node test/test.js
-  else
-    rm -rf ./test_output
-    mkdir ./test_output
-    nyc node test/test.js -o ./test_output
-    ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
-  fi
+  rm -rf ./test_output
+  mkdir ./test_output
+  nyc node test/test.js -o ./test_output
+  ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
 
   npm run test:types
   if [[ $major_node_version -ne 13 ]] || [[ $minor_node_version -gt 1 ]]; then
