@@ -155,7 +155,7 @@
     "fastify": "^4.0.2",
     "finalhandler": "^1.1.2",
     "generic-pool": "^3.7.1",
-    "get-port": "^5.1.1",
+    "get-port": "^6.1.2",
     "got": "^11.8.5",
     "graphql": "^15.8.0",
     "handlebars": "^4.7.3",
