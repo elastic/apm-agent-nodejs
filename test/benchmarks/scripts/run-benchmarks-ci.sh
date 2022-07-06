@@ -18,6 +18,8 @@ fi
 
 echo $(pwd)
 
+# Share this 'setUp' implementation with
+# https://github.com/elastic/apm-agent-java/blob/main/scripts/jenkins/run-benchmarks.sh
 function setUp() {
     echo "Setting CPU frequency to base frequency"
 
@@ -39,6 +41,10 @@ function setUp() {
     then
         CORE_INDEX=9
         BASE_FREQ="2.90GHz"
+    elif [ "${CPU_MODEL}" == "12th Gen Intel(R) Core(TM) i5-12500 " ]
+    then
+        CORE_INDEX=11
+        BASE_FREQ="3.0GHz"
     else
         >&2 echo "Cannot determine base frequency for CPU model [${CPU_MODEL}]. Please adjust the build script."
         exit 1
