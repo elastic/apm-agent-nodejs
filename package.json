@@ -107,7 +107,7 @@
     "pino": "^6.11.2",
     "relative-microtime": "^2.0.0",
     "require-in-the-middle": "^5.0.3",
-    "semver": "^6.3.0",
+    "semver": "^7.3.7",
     "set-cookie-serde": "^1.0.0",
     "shallow-clone-shim": "^2.0.0",
     "source-map": "^0.8.0-beta.0",
