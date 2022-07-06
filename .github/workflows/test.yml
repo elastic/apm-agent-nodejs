@@ -144,7 +144,7 @@ jobs:
       run: npm test
     - name: debug test_output
       run: ls test_output/*.* || true
-    - uses: inception-health/otel-upload-test-artifact-action@latest
+    - uses: v1v/otel-upload-test-artifact-action@v2
       if: always()
       with:
         jobName: "test-vers (${{ matrix.node }})"
