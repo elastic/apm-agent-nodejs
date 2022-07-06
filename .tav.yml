@@ -10,23 +10,24 @@ mimic-response:
   commands:
     - node test/instrumentation/modules/mimic-response.test.js
     - node test/instrumentation/modules/http/github-179.test.js
-# Versions of `got` are only tested to check a bug in mimic-response@1.0.0
-# (fixed in mimic-response@1.0.1). Got@11 dropped usage of mimic-response,
-# so testing it no longer has a point. Got@12 is pure ESM, so cannot be tested
-# with the current test script.
-got-4:
+
+# Testing 'got' was initially added to test an issue in its usage of
+# mimic-response@1.0.0. However, this test case serves to sanity test 'got'
+# usage with the agent. Got@12 is pure ESM, so cannot currently be tested with
+# the current test script.
+got-v4-v9:
   name: got
   versions: '>=4.0.0 <9.0.0'
   node: '>=5'
   commands: node test/instrumentation/modules/http/github-423.test.js
-got-9:
+got-v9:
   name: got
   versions: ^9.0.0
   node: '>=8.3'
   commands: node test/instrumentation/modules/http/github-423.test.js
-got-10:
+got-v10-v12:
   name: got
-  versions: '>=10.0.0 <10.5.1 || >10.5.1 <11' # v10.5.1 is broken
+  versions: '>=10.0.0 <10.5.1 || >10.5.1 <12' # v10.5.1 is broken
   node: '>=10.16.0'
   commands: node test/instrumentation/modules/http/github-423.test.js
 

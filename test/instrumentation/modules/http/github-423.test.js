@@ -21,6 +21,14 @@ if (semver.gte(gotVer, '10.0.0') && semver.lt(process.version, '10.16.0')) {
   console.log(`# SKIP got@${gotVer} does not support node ${process.version}`)
   process.exit()
 }
+if (semver.gte(gotVer, '11.0.0') && semver.satisfies(process.version, '>=14.0.0 <14.2.0')) {
+  // The "issues/423" test below fails with got@11 and node v14.0-v14.1. At
+  // a guess this is due to Duplex stream fixes in v14.2 (see
+  // https://nodejs.org/en/blog/release/v14.2.0/). This isn't worth working
+  // around.
+  console.log(`# SKIP tests below fail with old node v14 (${process.version}) and got@${gotVer}`)
+  process.exit()
+}
 
 var http = require('http')
 var zlib = require('zlib')
