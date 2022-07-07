@@ -27,8 +27,10 @@ const apm = require('../../../..').start({
   }
 })
 
-if (Number(process.versions.node.split('.')[0]) <= 8 && !apm._conf.asyncHooks) {
-  // With node v8 and asyncHooks=false, i.e. relying on patch-async.js, we
+const config = require('../../../../lib/config')
+if (Number(process.versions.node.split('.')[0]) <= 8 &&
+    apm._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+  // With node v8 and contextManager="patch", i.e. relying on patch-async.js, we
   // do not support this test as written. Given node v8 support *and* arguably
   // patch-async.js support are near EOL, it isn't worth rewriting this test
   // case.
@@ -41,7 +43,7 @@ if (Number(process.versions.node.split('.')[0]) <= 8 && !apm._conf.asyncHooks) {
   // instead of `process.nextTick`. patch-async.js is only able to patch the
   // latter. This means a missed patch of "emitListeningNT" used to emit
   // the server "listening" event, and context loss for `onListen()` below.
-  console.log('# SKIP node <=8 and asyncHooks=false loses run context for server.listen callback')
+  console.log('# SKIP node <=8 and contextManager="patch" loses run context for server.listen callback')
   process.exit()
 }
 

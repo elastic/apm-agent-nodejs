@@ -28,8 +28,8 @@ test('redis', function (t) {
 
     // We expect a 'transBeforeClient' transaction, and we want to ensure it
     // does *not* have spans for each of the client commands. It *possibly*
-    // (with asyncHooks=false it doesn't) has an "INFO" span for the internal
-    // INFO command the RedisClient setup does.
+    // (with contextManager="patch" it doesn't) has an "INFO" span for the
+    // internal INFO command the RedisClient setup does.
     var trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
     t.ok(trans, 'have "transBeforeClient" transaction')
     var spans = data.spans.filter(s => s.transaction_id === trans.id)

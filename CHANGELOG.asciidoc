@@ -32,6 +32,37 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- The agent will now use https://nodejs.org/api/async_context.html#class-asynclocalstorage[`AsyncLocalStorage`]
+  for run-context tracking in new enough versions of Node.js (versions >=14.5
+  and >=12.19). This can reduce overhead from using the APM agent, especially in
+  Promise-heavy applications. ({pull}2786[#2786])
++
+This also adds a new <<context-manager,`contextManager`>> configuration option
+to control which mechanism the agent uses for run-context tracking. It replaces
+the, now deprecated, <<async-hooks,`asyncHooks`>> configuration option. If
+you experience problems with the new AsyncLocalStorage-based tracking, you can
+restore the older behavior with `contextManager: "asynchooks"`.
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+- The old "patch" mechanism that the APM agent uses for run-context tracking
+  (enabled via <<context-manager,`contextManager: "patch"`>>, or previously
+  enabled via `asyncHooks: false`) is now *deprecated*. It will be removed in a
+  future major version (after an 18 month deprecation period).
+
+
 [[release-notes-3.36.0]]
 ==== 3.36.0 2022/06/15
 
