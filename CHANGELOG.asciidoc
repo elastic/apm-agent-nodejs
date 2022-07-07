@@ -58,7 +58,7 @@ restore the older behavior with `contextManager: "asynchooks"`.
 ===== Chores
 
 - The old "patch" mechanism that the APM agent uses for run-context tracking
-  (enabled via <<contextManager,`contextManager: "patch"`>>, or previously
+  (enabled via <<context-manager,`contextManager: "patch"`>>, or previously
   enabled via `asyncHooks: false`) is now *deprecated*. It will be removed in a
   future major version (after an 18 month deprecation period).
 
