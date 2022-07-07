@@ -250,14 +250,14 @@ performance overhead, especially in Promise-heavy applications. Finally, the APM
 agent supports a limited tracking mechanism (named "patch") that monkey-patches
 much of the core Node.js API to attempt to follow asynchronous calls. The
 "patch" mechanism is limited in usage and coverage (for example, it cannot
-track `async/await` usage), is not recommended, and may be deprecated and
-removed in a future version.
+track `async/await` usage), is *deprecated* and will be removed in a future
+major version.
 
 Supported values for `contextManager` are:
 
 - `"asynclocalstorage"` - Use the `AsyncLocalStorage` mechanism, if able. Otherwise it will fallback to using `async_hooks`.
 - `"asynchooks"` - Use the `async_hooks` mechanism. (Using this value will restore the agent behavior from before v3.37.0.)
-- `"patch"` - Use the limited monkey-patching mechanism. (Using this value is the equivalent of using `asyncHooks: false` in agent versions before v3.37.0.)
+- `"patch"` - Use the limited monkey-patching mechanism. Note that this mechanism is now *deprecated*. (Using this value is the equivalent of using `asyncHooks: false` in agent versions before v3.37.0.)
 
 
 [[async-hooks]]
