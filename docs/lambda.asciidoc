@@ -33,14 +33,14 @@ include::{apm-aws-lambda-root}/docs/lambda-selector/lambda-attributes-selector.a
 include::{apm-aws-lambda-root}/docs/lambda-selector/extension-arn-replacement.asciidoc[]
 include::./lambda/nodejs-arn-replacement.asciidoc[]
 
-Both the {apm-guide-ref}/aws-lambda-arch.html[APM Lambda Extension] and the Node.js APM Agent are added to your Lambda function as https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.html[AWS Lambda Layers]. Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
+Both the {apm-guide-ref}/aws-lambda-arch.html[{apm-lambda-ext}] and the Node.js APM Agent are added to your Lambda function as https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.html[AWS Lambda Layers]. Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
 
 include::{apm-aws-lambda-root}/docs/add-extension/add-extension-layer-widget.asciidoc[]
 
 [float]
 ==== Step 3: Configure APM on AWS Lambda
 
-The APM Lambda Extension and the APM Node.js agent are configured through environment variables on the AWS Lambda function.
+The {apm-lambda-ext} and the APM Node.js agent are configured through environment variables on the AWS Lambda function.
 
 For the minimal configuration, you will need the _APM Server URL_ to set the destination for APM data and an _{apm-guide-ref}/secret-token.html[APM Secret Token]_.
 If you prefer to use an {apm-guide-ref}/api-key.html[APM API key] instead of the APM secret token, use the `ELASTIC_APM_API_KEY` environment variable instead of `ELASTIC_APM_SECRET_TOKEN` in the following configuration.
@@ -49,7 +49,7 @@ For production environments, we recommend {apm-guide-ref}/aws-lambda-secrets-man
 
 include::./lambda/configure-lambda-widget.asciidoc[]
 
-You can optionally <<configuration, fine-tune the Node.js agent>> or the {apm-guide-ref}/aws-lambda-config-options.html[configuration of the APM Lambda Extension].
+You can optionally <<configuration, fine-tune the Node.js agent>> or the {apm-guide-ref}/aws-lambda-config-options.html[configuration of the {apm-lambda-ext}].
 
 That's it. After following the steps above, you're ready to go!
 Your Lambda function invocations should be traced from now on.
@@ -89,4 +89,3 @@ include::./shared-set-up.asciidoc[tag=error-logging]
 
 * System and custom metrics are not collected for Lambda functions. This is both because most of those are irrelevant
 and because the interval-based event sending model is not suitable for FaaS environments.
-
