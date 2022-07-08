@@ -7,19 +7,81 @@ endif::[]
 
 == Supported technologies
 
-Support for the Elastic APM Node.js agent follows the support schedule of Node.js itself to the end-of-life period of each version after its maintenance term.
-Versions of Node.js past their end-of-life date are not supported.
+The Elastic APM Node.js Agent automatically instruments various APIs in Node.js core and third-party frameworks and packages. This page lists all supported technologies and version ranges.
+
+
+[float]
+[[compatibility-node]]
+=== Node.js versions
+
+Support for the Elastic APM Node.js agent follows the https://nodejs.org/en/about/releases/[support schedule of Node.js itself]
+to the end-of-life period of each version after its maintenance term. Versions
+of Node.js past their end-of-life date are not supported.
 
 image::./images/node_release_schedule.svg[Node.js release schedule]
+
+// XXX This is misleading as we do *still* support back to 8.6 currently, tho all of 8, 10, and 12 are EOL'd by Node core. Do we also add mention of the breaking changes, major ver bump to drop node version support, and 18 month warning?
+
+[float]
+[[compatibility-esm]]
+=== ES Modules
+
+The Elastic APM Node.js agent currently only supports automatic instrumentation
+of https://nodejs.org/api/modules.html#modules-commonjs-modules[CommonJS modules]
+-- modules that are imported via `require(...)` statements. It does not yet support
+automatically instrumenting https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript modules (ESM)]
+-- modules that are imported via `import ...` statements.
+
+For example, in the following code the `http` module *is* instrumented:
+
+[source,js]
+----
+require('elastic-apm-node').start(/* ... */);
+
+const http = require('http');
+const server = http.createServer((req, res) => {
+    res.statusCode = 200;
+    res.end('pong');
+});
+server.listen(3000);
+----
+
+However, in the following code the `http` module *is not* instrumented:
+
+[source,js]
+----
+import apm from 'elastic-apm-node';
+apm.start(/* ... */);
+
+import http from 'http';
+const server = http.createServer((req, res) => {
+    res.statusCode = 200;
+    res.end('pong');
+});
+server.listen(3000);
+----
+
+If you use TypeScript, Babel, or another compiler that generates JavaScript,
+you can ensure full compatibility with the APM agent by ensuring that it
+targets CommonJS modules. For TypeScript this is accomplished with
+https://www.typescriptlang.org/tsconfig#module[`"module": "commonjs"` in your "tsconfig.json"]
+(a https://github.com/tsconfig/bases/blob/main/bases/node16.json[complete tsconfig.json example]).
+For Babel this is accomplished with https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config].
+
+This limitation only affects the agent's automatic instrumentation. Other
+functionality, such as metrics collection and manual instrumentation, still
+works when using ES modules. Support for ES modules is planned for a future
+version of the APM agent.
 
 
 [float]
 [[elastic-stack-compatibility]]
 === Elastic Stack Compatibility
 
-This agent is compatible with {apm-guide-ref}[APM Server] v6.5 and above.
-For support for previous releases of the APM Server,
-use version {apm-node-ref-1x}[1.x] of the agent.
+// See the APM agent compatibility table: https://www.elastic.co/guide/en/apm/guide/current/agent-server-compatibility.html
+
+This agent is compatible with {apm-guide-ref}[APM Server] v6.6 and above.
+
 
 [float]
 [[compatibility-frameworks]]
