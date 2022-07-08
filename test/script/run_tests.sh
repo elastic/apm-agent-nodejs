@@ -47,10 +47,24 @@ run_test_suite () {
 
   npm run test:deps
 
-  rm -rf ./test_output
-  mkdir ./test_output
-  nyc node test/test.js -o ./test_output
-  ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
+  # If running in CI, then output .tap files and covert them to JUnit
+  # format for test reporting.
+  local testArgs=""
+  if [[ -n "$CI" ]]; then
+    rm -rf ./test_output
+    mkdir ./test_output
+    testArgs="-o ./test_output"
+  fi
+
+  if [[ -n "$COVERAGE" ]]; then
+    nyc node test/test.js $testArgs
+  else
+    node test/test.js $testArgs
+  fi
+
+  if [[ -n "$CI" ]]; then
+    ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
+  fi
 
   npm run test:types
   if [[ $major_node_version -ne 13 ]] || [[ $minor_node_version -gt 1 ]]; then
