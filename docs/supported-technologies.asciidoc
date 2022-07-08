@@ -51,7 +51,7 @@ However, in the following code the `http` module *is not* instrumented:
 [source,js]
 ----
 import apm from 'elastic-apm-node';
-apm.start(/* ... */);
+apm.start(/* ... */); // This starts too late, after all imports.
 
 import http from 'http';
 const server = http.createServer((req, res) => {
@@ -63,7 +63,7 @@ server.listen(3000);
 
 If you use TypeScript, Babel, or another compiler that generates JavaScript,
 you can ensure full compatibility with the APM agent by ensuring that it
-targets CommonJS modules. For TypeScript this is accomplished with
+generates code using CommonJS modules. For TypeScript this is accomplished with
 https://www.typescriptlang.org/tsconfig#module[`"module": "commonjs"` in your "tsconfig.json"]
 (a https://github.com/tsconfig/bases/blob/main/bases/node16.json[complete tsconfig.json example]).
 For Babel this is accomplished with https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config].

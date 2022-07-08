@@ -42,29 +42,140 @@ include::./lambda.asciidoc[]
 [[starting-the-agent]]
 === Starting the agent
 
-IMPORTANT: The Elastic APM agent for Node.js needs to be started as the first thing in your application - *before any other module is required/imported*.
-This means that you should probably require and start it in your applications main file (usually `index.js`, `server.js`, or `app.js`).
+There are a few ways to start the Node.js APM agent. Choose the one that works best for you. The most important considerations for selecting a method are:
 
-There are two ways to start the Elastic APM agent for Node.js:
+- ensuring the APM agent starts early enough, and
+- having a convenient way to configure the agent.
 
-* Require the `elastic-apm-node` module and call the <<apm-start,`start`>> function on the returned agent:
-+
+For the Node.js APM agent to be able to fully function, it *must be started before `require(...)` statements for other modules*. The APM agent automatically instruments modules by interposing itself in the import process. If a given module is imported before the APM agent has started, then it won't be able to instrument that module.
+
+// XXX Perhaps a note here about the ESM limitation, if/when have a good doc link with ESM coverage. "Only currently support CommonJS modules...". This could be in "supported-tech" page.
+
+
+==== Start methods
+
+[[start-option-1]]
+===== `require('elastic-apm-node').start(...)`
+
+The most common way to start the APM agent, is to require the `elastic-apm-node` module and call the <<apm-start,`start`>> function at the top of your main module. This allows you to use any of the methods to <<configuring-the-agent,configure the agent>>.
+
 [source,js]
 ----
-var apm = require('elastic-apm-node').start({
-  // add configuration options here
-})
+const apm = require('elastic-apm-node').start({
+  // Add configuration options here.
+});
+
+// Application main code goes here.
 ----
-* Require the `elastic-apm-node/start` script:
-+
+
+[[start-option-2]]
+===== `require('elastic-apm-node/start')`
+
+Another way to start the agent is with the `elastic-apm-node/start` module that imports and _starts_ the agent. This method is rarely used, but is necessary
+when using Babel (see <<start-gotchas,below>>). A limitation of this approach is that you cannot configure the agent with an options object, but instead have to rely on  <<configuring-the-agent,one of the other methods of configuration>>.
+
 [source,js]
 ----
-var apm = require('elastic-apm-node/start')
-----
-+
-If using this approach,
-you can't configure the agent by passing in an options object,
-but instead have to rely on <<configuring-the-agent,one of the other methods of configuration>>.
+const apm = require('elastic-apm-node/start');
 
-NOTE: If you are using Babel, you need to use the `elastic-apm-node/start` approach.
-<<es-modules,Read more>>.
+// Application main code goes here.
+----
+
+
+[[start-option-3]]
+===== `node -r elastic-apm-node/start ...`
+
+Another way to start the agent is with the `-r elastic-apm-node/start` https://nodejs.org/api/cli.html#-r---require-module[command line option to node]. This will import and start the APM agent before your application code starts. This method allows you to enable the agent without touching any code. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>>.
+
+[source,bash]
+----
+node -r elastic-apm-node/start app.js
+----
+
+The `-r, --require` option can also be specified via the https://nodejs.org/api/cli.html#node_optionsoptions[`NODE_OPTIONS` environment variable]:
+
+[source,bash]
+----
+export NODE_OPTIONS='-r elastic-apm-node/start'
+node app.js
+----
+
+[[start-gotchas]]
+==== Start Gotchas
+
+This section shows some sometimes subtle surprises starting the APM agent with some technologies.
+
+
+===== Babel
+
+https://babeljs.io/docs/en/[Babel] is a tool that compiles JavaScript using modern features down to JavaScript that will run in environments that don't yet support those features. One relatively common use of Babel has been to support ES module `import ...` statements and translate to CommonJS `require(...)` statements. There is a possible surprise here for starting the Elastic Node.js APM agent. Running Babel on the following produces code that does *not* work as expected:
+
+[source,js]
+----
+import apm from 'elastic-apm-node';
+apm.start() // This does not work.
+
+import http from 'http';
+// ...
+----
+
+Babel translates this to the equivalent of:
+
+[source,js]
+----
+var apm = require('elastic-apm-node');
+var http = require('http');
+apm.start() // This is started too late.
+// ...
+----
+
+All imports are done first, properly following ES module semantics.  The `apm.start()` is now too late: *after* the `http` module has been imported.  This is why <<start-option-2,the `elastic-apm-node/start` module>> was added as an option. The following will work with Babel:
+
+[source,js]
+----
+import 'elastic-apm-node/start'; // This works.
+import http from 'http';
+// ...
+----
+
+A more complete example is https://github.com/elastic/apm-agent-nodejs/blob/main/test/babel/src.js[here].
+
+
+===== TypeScript
+
+TypeScript will https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-imports-being-elided-in-my-emit[elide the following import] if the `apm` variable is not used:
+
+[source,js]
+----
+import apm from 'elastic-apm-node/start';
+----
+
+One can avoid that elision with:
+
+[source,js]
+----
+import 'elastic-apm-node/start';
+----
+
+or with something like this:
+
+[source,js]
+----
+import apm from 'elastic-apm-node/start'; apm; // Ensure import is kept for its side-effect.
+----
+
+
+===== Bundlers
+
+Bundlers ...
+
+TODO: write this section. Perhaps rename to "Webpack and Bundlers" because we are really only showing a workaround for Webpack.
+
+XXX Include a blurb about the limited need for bundlers? But implicit with some tooling like Next.js?
+
+XXX webpack, esbuild, swc (swc.rs), rollup (https://rollupjs.org/guide/en/), parcel (https://parceljs.org/), vite (https://vitejs.dev/),
+
+An intro to many of these:
+https://dev.to/underscorecode/javascript-bundlers-an-in-depth-comparative-is-webpack-still-the-best-bundler-in-2021-59jk
+
+

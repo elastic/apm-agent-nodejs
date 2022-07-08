@@ -31,7 +31,7 @@ server.listen(4321, () => {
     })
     res.on('end', () => {
       assert(apm._transport.transactions && apm._transport.transactions.length === 1,
-        'got the expected transaction')
+        'got the expected APM transaction')
       server.close()
     })
   })
