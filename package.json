@@ -4,6 +4,10 @@
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": "./index.js",
+    "./start": "./start.js"
+  },
   "scripts": {
     "backport": "backport",
     "docs:open": "PREVIEW=1 npm run docs:build",
