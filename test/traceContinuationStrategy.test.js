@@ -20,6 +20,8 @@ const http = require('http')
 const semver = require('semver')
 const tape = require('tape')
 
+const config = require('../lib/config')
+
 // Ensure that, by default, an HTTP request with a valid traceparent to an
 // instrumented HTTP server *uses* that traceparent.
 tape.test('traceContinuationStrategy default is continue', t => {
@@ -60,8 +62,9 @@ tape.test('traceContinuationStrategy=continue', t => {
     res.end('pong')
   })
   server.listen(function () {
-    if (semver.satisfies(process.version, '<=8') && apm._conf.asyncHooks === false) {
-      // There is some bug in node v8 and lower and with asyncHooks=false
+    if (semver.satisfies(process.version, '<=8') &&
+        apm._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+      // There is some bug in node v8 and lower and with contextManager="patch"
       // instrumentation where this listener callback takes the run context of
       // the preceding test's transaction. Hack it back.
       apm._instrumentation.supersedeWithEmptyRunContext()
@@ -97,8 +100,9 @@ tape.test('traceContinuationStrategy=restart', t => {
     res.end('pong')
   })
   server.listen(function () {
-    if (semver.satisfies(process.version, '<=8') && apm._conf.asyncHooks === false) {
-      // There is some bug in node v8 and lower and with asyncHooks=false
+    if (semver.satisfies(process.version, '<=8') &&
+        apm._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+      // There is some bug in node v8 and lower and with contextManager="patch"
       // instrumentation where this listener callback takes the run context of
       // the preceding test's transaction. Hack it back.
       apm._instrumentation.supersedeWithEmptyRunContext()
@@ -138,8 +142,9 @@ tape.test('traceContinuationStrategy=restart_external (no tracestate)', t => {
     res.end('pong')
   })
   server.listen(function () {
-    if (semver.satisfies(process.version, '<=8') && apm._conf.asyncHooks === false) {
-      // There is some bug in node v8 and lower and with asyncHooks=false
+    if (semver.satisfies(process.version, '<=8') &&
+        apm._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+      // There is some bug in node v8 and lower and with contextManager="patch"
       // instrumentation where this listener callback takes the run context of
       // the preceding test's transaction. Hack it back.
       apm._instrumentation.supersedeWithEmptyRunContext()
@@ -178,8 +183,9 @@ tape.test('traceContinuationStrategy=restart_external (tracestate without "es")'
     res.end('pong')
   })
   server.listen(function () {
-    if (semver.satisfies(process.version, '<=8') && apm._conf.asyncHooks === false) {
-      // There is some bug in node v8 and lower and with asyncHooks=false
+    if (semver.satisfies(process.version, '<=8') &&
+        apm._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+      // There is some bug in node v8 and lower and with contextManager="patch"
       // instrumentation where this listener callback takes the run context of
       // the preceding test's transaction. Hack it back.
       apm._instrumentation.supersedeWithEmptyRunContext()
@@ -217,8 +223,9 @@ tape.test('traceContinuationStrategy=restart_external (tracestate with "es")', t
     res.end('pong')
   })
   server.listen(function () {
-    if (semver.satisfies(process.version, '<=8') && apm._conf.asyncHooks === false) {
-      // There is some bug in node v8 and lower and with asyncHooks=false
+    if (semver.satisfies(process.version, '<=8') &&
+        apm._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+      // There is some bug in node v8 and lower and with contextManager="patch"
       // instrumentation where this listener callback takes the run context of
       // the preceding test's transaction. Hack it back.
       apm._instrumentation.supersedeWithEmptyRunContext()

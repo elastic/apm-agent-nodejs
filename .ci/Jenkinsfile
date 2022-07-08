@@ -92,7 +92,7 @@ pipeline {
               def parallelTasks = [:]
               node['NODEJS_VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                parallelTasks["Node.js-${version}-async-hooks-false"] = generateStep(version: version, disableAsyncHooks: true)
+                parallelTasks["Node.js-${version}-noasynchooks"] = generateStep(version: version, disableAsyncHooks: true)
                 // TODO: to be enabled if required.
                 // parallelTasks["Windows-Node.js-${version}"] = generateStepForWindows(version: version)
               }
@@ -193,10 +193,10 @@ pipeline {
             }
           }
         }
-        stage('Nightly Test - No async hooks') {
+        stage('Nightly Test - noasynchooks') {
           agent { label 'linux && immutable' }
           steps {
-            withGithubNotify(context: 'Nightly No Async Hooks Test', tab: 'tests') {
+            withGithubNotify(context: 'Nightly noasynchooks Test', tab: 'tests') {
               deleteDir()
               unstash 'source'
               dir("${BASE_DIR}"){
@@ -204,7 +204,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-nightly-no-async-hooks"] = generateStep(version: version, buildType: 'nightly', disableAsyncHooks: true)
+                    parallelTasks["Node.js-${version}-nightly-noasynchooks"] = generateStep(version: version, buildType: 'nightly', disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -231,10 +231,10 @@ pipeline {
             }
           }
         }
-        stage('RC Test - No async hooks') {
+        stage('RC Test - noasynchooks') {
           agent { label 'linux && immutable' }
           steps {
-            withGithubNotify(context: 'RC No Async Hooks Test', tab: 'tests') {
+            withGithubNotify(context: 'RC noasynchooks Test', tab: 'tests') {
               deleteDir()
               unstash 'source'
               dir("${BASE_DIR}"){
@@ -242,7 +242,7 @@ pipeline {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
                   node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-rc-no-async-hooks"] = generateStep(version: version, buildType: 'rc', disableAsyncHooks: true)
+                    parallelTasks["Node.js-${version}-rc-noasynchooks"] = generateStep(version: version, buildType: 'rc', disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
                 }
@@ -371,7 +371,7 @@ pipeline {
       The result JSON files are also archive into Jenkins.
     */
     stage('Benchmarks') {
-      agent { label 'metal' }
+      agent { label 'microbenchmarks-pool' }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
@@ -424,10 +424,10 @@ def generateStep(Map params = [:]){
   def version = params?.version
   def tav = params.containsKey('tav') ? params.tav : ''
   def buildType = params.containsKey('buildType') ? params.buildType : 'release'
-  def ELASTIC_APM_ASYNC_HOOKS = String.valueOf(!params.get('disableAsyncHooks', false))
+  def contextManager = params.get('disableAsyncHooks', false) ? 'patch' : ''
   return {
     withNode(labels: 'linux && immutable', forceWorkspace: true, forceWorker: true) {
-      withEnv(["VERSION=${version}", "ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS}"]) {
+      withEnv(["VERSION=${version}", "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}"]) {
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
@@ -516,7 +516,7 @@ def getSmartTAVContext() {
 
 def generateStepForWindows(Map params = [:]){
   def version = params?.version
-  def ELASTIC_APM_ASYNC_HOOKS = String.valueOf(!params.get('disableAsyncHooks', false))
+  def contextManager = params.get('disableAsyncHooks', false) ? 'patch' : ''
   return {
     sh label: 'Prepare services', script: ".ci/scripts/windows/prepare-test.sh ${version}"
     def linuxIp = grabWorkerIP()
@@ -524,7 +524,7 @@ def generateStepForWindows(Map params = [:]){
       // When installing with choco the PATH might not be updated within the already connected worker.
       withEnv(["PATH=${PATH};C:\\Program Files\\nodejs",
                "VERSION=${version}",
-               "ELASTIC_APM_ASYNC_HOOKS=${ELASTIC_APM_ASYNC_HOOKS}",
+               "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}",
                "CASSANDRA_HOST=${linuxIp}",
                "ES_HOST=${linuxIp}",
                "LOCALSTACK_HOST=${linuxIp}",

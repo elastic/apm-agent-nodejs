@@ -6,14 +6,10 @@
 
 'use strict'
 
-var flag = process.env.ELASTIC_APM_ASYNC_HOOKS
-delete process.env.ELASTIC_APM_ASYNC_HOOKS
 var agent = require('../..').start({
-  serviceName: 'test',
-  captureExceptions: false,
-  asyncHooks: true
+  serviceName: 'test-core-async-apis',
+  captureExceptions: false
 })
-process.env.ELASTIC_APM_ASYNC_HOOKS = flag
 
 var test = require('tape')
 

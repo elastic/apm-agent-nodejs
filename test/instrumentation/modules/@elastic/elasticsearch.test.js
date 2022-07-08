@@ -17,6 +17,7 @@ const agent = require('../../../..').start({
   spanCompressionEnabled: false
 })
 
+const config = require('../../../../lib/config')
 const { safeGetPackageVersion } = require('../../../_utils')
 
 // Support running these tests with a different package name -- typically
@@ -845,12 +846,12 @@ function checkDataAndEnd (t, method, path, dbStatement, statusCode) {
 
     // Iff the test case provided an expected `statusCode`, then we expect
     // `.context.http`. The exception is with @elastic/elasticsearch >=8
-    // and `asyncHooks=false` (see "Limitations" section in the instrumentation
-    // code).
+    // and `contextManager="patch"` (see "Limitations" section in the
+    // instrumentation code).
     if (statusCode !== undefined) {
       if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
-          agent._conf.asyncHooks === false) {
-        t.comment('skip span.context.http check because of asyncHooks=false + esVersion>=8 limitation')
+          agent._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+        t.comment('skip span.context.http check because of contextManager="patch" + esVersion>=8 limitation')
       } else {
         t.equal(esSpan.context.http.status_code, statusCode, 'context.http.status_code')
         t.ok(esSpan.context.http.response.encoded_body_size, 'context.http.response.encoded_body_size is present')

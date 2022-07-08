@@ -9,8 +9,7 @@
 var agent = require('../..').start({
   serviceName: 'test',
   captureExceptions: false,
-  metricsInterval: 0,
-  asyncHooks: true
+  metricsInterval: 0
 })
 
 var http = require('http')
