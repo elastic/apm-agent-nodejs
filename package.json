@@ -143,7 +143,7 @@
     "dependency-check": "^4.1.0",
     "elasticsearch": "^16.7.3",
     "eslint": "^6.8.0",
-    "eslint-config-standard": "^14.1.1",
+    "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-license-header": "^0.4.0",
     "eslint-plugin-node": "^11.1.0",
