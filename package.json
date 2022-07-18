@@ -123,7 +123,7 @@
     "@elastic/elasticsearch-canary": "^8.2.0-canary.2",
     "@fastify/formbody": "^7.0.1",
     "@hapi/hapi": "^20.1.2",
-    "@koa/router": "^9.0.1",
+    "@koa/router": "^10.1.1",
     "@types/node": "^18.0.1",
     "@types/pino": "^6.3.8",
     "ajv": "^6.12.6",
