@@ -16,7 +16,7 @@ pipeline {
     NOTIFY_TO = 'build-apm+apm-agent-nodejs@elastic.co'
     NPMRC_SECRET = 'secret/jenkins-ci/npmjs/elasticmachine'
     TOTP_SECRET = 'totp/code/npmjs-elasticmachine'
-    BUILD_NODE_VERSION = 'v16.15.0'
+    BUILD_NODE_VERSION = 'v16.15.1'
     DOCKER_REGISTRY = 'docker.elastic.co'
     DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
   }
