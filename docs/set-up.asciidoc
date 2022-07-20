@@ -225,14 +225,48 @@ module.exports = {
 [[start-esbuild]]
 ====== esbuild
 
-XXX `--external` ?
+Esbuild supports marking modules/files as https://esbuild.github.io/api/#external["external"] to the bundle. At the least, the 'elastic-apm-agent' module must be made external for the APM agent to work. In addition, any modules that you want the APM agent to instrument (e.g. a database client) must also be made external.
 
+Here is an example build script for "package.json" to bundle a Node.js application (with "src/index.js" as the entry point, targetting node v14.x, and ensuring that the `pg` PostgreSQL module is instrumented):
 
+[source,json]
+----
+{
+  "scripts": {
+    "build": "esbuild src/index.js --outdir=dist --bundle --sourcemap --minify --platform=node --target=node14 --external:elastic-apm-node --external:pg"
+  }
+}
+----
 
+This can be invoked via:
 
-XXX others at https://2021.stateofjs.com/en-US/libraries/build-tools ? WMR? Snowpack? Rome?
+[source,bash]
+----
+npm run build
+----
 
-An intro to many of these:
-https://dev.to/underscorecode/javascript-bundlers-an-in-depth-comparative-is-webpack-still-the-best-bundler-in-2021-59jk
-incl getting started with esbuild.config.js
+Or the esbuild configuration can be put into https://esbuild.github.io/getting-started/#build-scripts[a build script] and invoked via `node esbuild.build.js`.
 
+[source,js]
+----
+// esbuild.build.js
+require('esbuild').build({
+    entryPoints: ['./src/index.js'],
+    outdir: 'dist',
+    bundle: true,
+    platform: 'node',
+    target: 'node14',
+    sourcemap: true,
+    minify: true,
+    external: ['elastic-apm-node', 'pg']
+}).catch(() => process.exit(1))
+----
+
+An alternative to manually listing specific dependencies as "external" is to use the following esbuild option to exclude *all* dependencies:
+
+[source,bash]
+----
+esbuild ... --external:'./node_modules/*'
+----
+
+A more complete example using esbuild and the APM agent is https://github.com/elastic/apm-agent-nodejs/tree/main/examples/esbuild/[here].

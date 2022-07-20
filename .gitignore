@@ -13,3 +13,4 @@
 node_modules
 /test/benchmarks/.tmp
 /tmp
+/examples/esbuild/dist
