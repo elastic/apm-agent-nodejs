@@ -20,17 +20,13 @@ of Node.js past their end-of-life date are not supported.
 
 image::./images/node_release_schedule.svg[Node.js release schedule]
 
-// XXX This is misleading as we do *still* support back to 8.6 currently, tho all of 8, 10, and 12 are EOL'd by Node core. Do we also add mention of the breaking changes, major ver bump to drop node version support, and 18 month warning?
+Having said that, the current APM agent version (3.x) should work with Node.js versions back to v8.6. We will only break support for older Node.js versions with a *major version release* of the APM agent.
 
 [float]
 [[compatibility-esm]]
 === ES Modules
 
-The Elastic APM Node.js agent currently only supports automatic instrumentation
-of https://nodejs.org/api/modules.html#modules-commonjs-modules[CommonJS modules]
--- modules that are imported via `require(...)` statements. It does not yet support
-automatically instrumenting https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript modules (ESM)]
--- modules that are imported via `import ...` statements.
+The Elastic APM Node.js agent currently only supports automatic instrumentation of https://nodejs.org/api/modules.html#modules-commonjs-modules[CommonJS modules] -- modules that are imported via `require(...)` statements. It does _not yet support automatically instrumenting https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript modules (ESM)]_ -- modules that are imported via `import ...` statements.
 
 For example, in the following code the `http` module *is* instrumented:
 
@@ -61,17 +57,14 @@ const server = http.createServer((req, res) => {
 server.listen(3000);
 ----
 
-If you use TypeScript, Babel, or another compiler that generates JavaScript,
-you can ensure full compatibility with the APM agent by ensuring that it
-generates code using CommonJS modules. For TypeScript this is accomplished with
-https://www.typescriptlang.org/tsconfig#module[`"module": "commonjs"` in your "tsconfig.json"]
-(a https://github.com/tsconfig/bases/blob/main/bases/node16.json[complete tsconfig.json example]).
-For Babel this is accomplished with https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config].
+If you use TypeScript, Babel, Webpack, esbuild or another compiler that generates JavaScript, you can ensure full compatibility with the APM agent by ensuring that it generates code using CommonJS modules.
 
-This limitation only affects the agent's automatic instrumentation. Other
-functionality, such as metrics collection and manual instrumentation, still
-works when using ES modules. Support for ES modules is planned for a future
-version of the APM agent.
+- For TypeScript this is accomplished with https://www.typescriptlang.org/tsconfig#module[`"module": "commonjs"` in your "tsconfig.json"] (a https://github.com/tsconfig/bases/blob/main/bases/node16.json[complete tsconfig.json example]).
+- For Babel this is accomplished with https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config].
+- For Webpack this is accomplished with `target: 'node', externalsPresets: { node: true }` in your "webpack.config.js".
+- For esbuild this is accomplished with the `--platform=node --target=node...` options to `esbuild`.
+
+This limitation only affects the agent's automatic instrumentation. Other functionality, such as metrics collection and manual instrumentation, still works when using ES modules. Support for ES modules is planned for a future version of the APM agent.
 
 
 [float]
