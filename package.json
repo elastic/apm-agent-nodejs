@@ -4,7 +4,7 @@
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
-  "exports": {
+  "XXX exports": {
     ".": "./index.js",
     "./start": "./start.js"
   },
