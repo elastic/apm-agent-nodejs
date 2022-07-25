@@ -1331,3 +1331,28 @@ require('elastic-apm-node').start({
   opentelemetryBridgeEnabled: true
 })
 ----
+
+[[span-compression-same-kind-max-duration]]
+==== `exitSpanMinDuration`
+* *Type:* String
+* *Default:* `0ms`
+* *Env:* `ELASTIC_APM_EXIT_SPAN_MIN_DURATION`
+
+Sets the minimum duration of exit spans. If an exit span's duration is less than
+this threshold the agent will attempt to drop the span and not send it.
+
+In some cases exit spans will not be discarded. Spans that propagate the trace
+context to downstream services, such as outgoing HTTP requests, will not be
+discarded. However, external calls that don't propagate context, such as calls
+to a database, can be discarded using this threshold.
+
+Additionally, spans that lead to an error will not be discarded.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  exitSpanMinDuraction:'10ms'
+})
+----
