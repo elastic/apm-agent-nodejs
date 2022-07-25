@@ -56,7 +56,7 @@ tape.test('end to end test', function (t) {
 
   agent.startTransaction('test')
   const span1 = agent.startSpan('short span', 'type', 'subtype', 'action', { exitSpan: true })
-  span1.end() // almost immediate, shorter than exitSpanMinDuraction
+  span1.end() // almost immediate, shorter than exitSpanMinDuration
 
   const span2 = agent.startSpan('long span', 'type', 'subtype', 'action', { exitSpan: true })
   setTimeout(function () {
