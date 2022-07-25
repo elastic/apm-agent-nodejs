@@ -252,7 +252,7 @@ declare namespace apm {
     environment?: string;
     errorMessageMaxLength?: string; // DEPRECATED: use `longFieldMaxLength`.
     errorOnAbortedRequests?: boolean;
-    exitSpanMinDuration: string;
+    exitSpanMinDuration?: string;
     filterHttpHeaders?: boolean;
     frameworkName?: string;
     frameworkVersion?: string;
