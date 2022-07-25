@@ -32,10 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.37.0]]
+==== 3.37.0 2022/07/18
 
 [float]
 ===== Features
@@ -50,9 +48,6 @@ to control which mechanism the agent uses for run-context tracking. It replaces
 the, now deprecated, <<async-hooks,`asyncHooks`>> configuration option. If
 you experience problems with the new AsyncLocalStorage-based tracking, you can
 restore the older behavior with `contextManager: "asynchooks"`.
-
-[float]
-===== Bug fixes
 
 [float]
 ===== Chores
