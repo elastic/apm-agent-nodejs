@@ -26,7 +26,8 @@ Having said that, the current APM agent version (3.x) works with Node.js version
 [[compatibility-esm]]
 === ES Modules
 
-The Elastic APM Node.js agent currently only supports automatic instrumentation of https://nodejs.org/api/modules.html#modules-commonjs-modules[CommonJS modules] -- modules that are imported via `require(...)` statements. It does _not yet support automatically instrumenting https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript modules (ESM)]_ -- modules that are imported via `import ...` statements.
+The Elastic APM Node.js agent does _not yet support automatically instrumenting
+https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript module imports (ESM)]_, i.e. modules that are loaded via `import ...` statements. It currently only instruments https://nodejs.org/api/modules.html#modules-commonjs-modules[CommonJS module imports], i.e. modules loaded via `require(...)`.
 
 For example, in the following code the `http` module *is* instrumented:
 
@@ -34,7 +35,7 @@ For example, in the following code the `http` module *is* instrumented:
 ----
 require('elastic-apm-node').start(/* ... */);
 
-const http = require('http');
+const http = require('http'); // CommonJS require
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
     res.end('pong');
@@ -42,14 +43,13 @@ const server = http.createServer((req, res) => {
 server.listen(3000);
 ----
 
-However, in the following code the `http` module *is not* instrumented:
+But in the following code the `http` module *is not* instrumented:
 
 [source,js]
 ----
-import apm from 'elastic-apm-node';
-apm.start(/* ... */); // This starts too late, after all imports.
+import apm from 'elastic-apm-node/start';
 
-import http from 'http';
+import http from 'http'; // ESM import
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
     res.end('pong');
@@ -57,12 +57,12 @@ const server = http.createServer((req, res) => {
 server.listen(3000);
 ----
 
-If you use TypeScript, Babel, Webpack, esbuild or another compiler that generates JavaScript, you can ensure full compatibility with the APM agent by ensuring that it generates code using CommonJS modules.
+However, if you are using TypeScript or JavaScript that is _compiled/translated/transpiled to CommonJS-using JavaScript_ via tools like Babel, Webpack, esbuild, etc., then using `import ...` is fine because node will be executing `require(...)`, which the APM agent supports. To ensure your compiler is generating JS that uses CommonJS imports, use the following settings:
 
-- For TypeScript this is accomplished with https://www.typescriptlang.org/tsconfig#module[`"module": "commonjs"` in your "tsconfig.json"] (a https://github.com/tsconfig/bases/blob/main/bases/node16.json[complete tsconfig.json example]).
-- For Babel this is accomplished with https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config].
-- For Webpack this is accomplished with `target: 'node', externalsPresets: { node: true }` in your "webpack.config.js".
-- For esbuild this is accomplished with the `--platform=node --target=node...` options to `esbuild`.
+- For TypeScript, use https://www.typescriptlang.org/tsconfig#module[`"module": "commonjs"` in your "tsconfig.json"] (a https://github.com/tsconfig/bases/blob/main/bases/node16.json[complete tsconfig.json example]).
+- For Babel, use https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config]. Here is a [full babel config example](https://github.com/elastic/apm-agent-nodejs/blob/main/test/babel/.babelrc).
+- For Webpack, use `target: 'node', externalsPresets: { node: true }` in your "webpack.config.js".
+- For esbuild, use `--platform=node --target=node...` options to `esbuild` ([for example](https://github.com/elastic/apm-agent-nodejs/blob/main/examples/esbuild/package.json#L7)).
 
 This limitation only affects the agent's automatic instrumentation. Other functionality, such as metrics collection and manual instrumentation, still works when using ES modules. Support for ES modules is planned for a future version of the APM agent.
 

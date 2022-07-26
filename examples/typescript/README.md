@@ -28,6 +28,6 @@ Configure the APM agent with values from [your Elastic Stack](https://www.elasti
     export ELASTIC_APM_USE_PATH_AS_TRANSACTION_NAME=true
     node dist/index.js
 
-This simple scripts creates an HTTP server and makes a single request to it.
-If things work properly, you should see a simple trace with a single HTTP
-transaction named "GET /ping".
+This simple script creates an HTTP server and makes a single request to it.
+If things work properly, you should see a trace with a single HTTP transaction
+named "GET /ping".
