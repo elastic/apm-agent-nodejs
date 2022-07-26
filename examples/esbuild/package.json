@@ -1,5 +1,5 @@
 {
-  "name": "elastic-apm-node-opentelemetry-bridge-examples",
+  "name": "elastic-apm-node-esbuild-example",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.js",

@@ -1,7 +1,7 @@
 [[set-up]]
 == Set up the Agent
 
-To get you off the ground, we've prepared guides for setting up the Agent with a few different popular web frameworks:
+To get you off the ground, we've prepared guides for setting up the Agent with a few different popular web frameworks and technologies:
 
 // This tagged region is used throughout the documentation to link to the framework guides
 // Updates made here will be applied elsewhere as well.
@@ -12,6 +12,7 @@ To get you off the ground, we've prepared guides for setting up the Agent with a
 * <<restify>>
 * <<fastify>>
 * <<lambda>>
+* <<typescript>>
 // end::web-frameworks-list[]
 
 Alternatively, you can <<custom-stack>>.
@@ -39,6 +40,8 @@ include::./custom-stack.asciidoc[]
 
 include::./lambda.asciidoc[]
 
+include::./typescript.asciidoc[]
+
 [[starting-the-agent]]
 === Starting the agent
 
@@ -52,7 +55,7 @@ For the Node.js APM agent to be able to fully function, it *must be started befo
 
 ==== Start methods
 
-[[start-option-1]]
+[[start-option-require-and-start]]
 ===== `require('elastic-apm-node').start(...)`
 
 The most common way to start the APM agent, is to require the `elastic-apm-node` module and call the <<apm-start,`start`>> function at the top of your main module. This allows you to use any of the methods to <<configuring-the-agent,configure the agent>>.
@@ -67,7 +70,7 @@ const apm = require('elastic-apm-node').start({
 ----
 
 
-[[start-option-2]]
+[[start-option-require-start-module]]
 ===== `require('elastic-apm-node/start')`
 
 Another way to start the agent is with the `elastic-apm-node/start` module that imports and _starts_ the agent.
@@ -91,10 +94,10 @@ import 'elastic-apm-node/start';
 A limitation of this approach is that you cannot configure the agent with an options object, but instead have to rely on <<configuring-the-agent,one of the other methods of configuration>>, such as setting `ELASTIC_APM_...` environment variables.
 
 
-[[start-option-3]]
+[[start-option-node-require-opt]]
 ===== `node -r elastic-apm-node/start ...`
 
-Another way to start the agent is with the `-r elastic-apm-node/start` https://nodejs.org/api/cli.html#-r---require-module[command line option to node]. This will import and start the APM agent before your application code starts. This method allows you to enable the agent without touching any code. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>>.
+Another way to start the agent is with the `-r elastic-apm-node/start` https://nodejs.org/api/cli.html#-r---require-module[command line option to node]. This will import and start the APM agent before your application code starts. This method allows you to enable the agent _without touching any code_. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>>.
 
 [source,bash]
 ----
@@ -105,8 +108,34 @@ The `-r, --require` option can also be specified via the https://nodejs.org/api/
 
 [source,bash]
 ----
+# export ELASTIC_APM_...  # Configure the agent with envvars.
 export NODE_OPTIONS='-r elastic-apm-node/start'
 node app.js
+----
+
+
+[[start-option-separate-init-module]]
+===== separate APM init module
+
+If you want to avoid <<start-esm-imports,the gotcha with hoisted ES modules>> but still want the flexibility of passing a config object to the <<apm-start,agent start method>>, then a good option is to write a separate JavaScript or TypeScript module that starts the agent, and import *that* init module at the top of your main file. For example:
+
+[source,ts]
+----
+// initapm.ts
+import apm from 'elastic-apm-node';
+apm.start({
+  serverUrl: 'https://...',
+  secretToken: '...',
+  // ...
+})
+----
+
+[source,ts]
+----
+// main.ts
+import 'initapm'
+
+// Application code starts here.
 ----
 
 
@@ -139,7 +168,7 @@ apm.start() // This is started too late.
 // ...
 ----
 
-All imports are "hoisted" to the top of a module, properly following ECMAScript module (ESM) semantics. However, the `apm.start()` is now too late: *after* the `http` module has been imported. This is why <<start-option-2,the `elastic-apm-node/start` module>> was added as a start option. The following will work:
+All imports are "hoisted" to the top of a module, properly following ECMAScript module (ESM) semantics. However, the `apm.start()` is now too late: *after* the `http` module has been imported. This is why <<start-option-require-start-module,the `elastic-apm-node/start` module>> was added as a start option. The following will work:
 
 [source,js]
 ----
@@ -152,15 +181,17 @@ A more complete example is https://github.com/elastic/apm-agent-nodejs/tree/main
 
 The same is true for ES module usage translated by esbuild (as explained well in https://esbuild.github.io/content-types/#real-esm-imports[the esbuild docs here]). Notably, TypeScript does _not_ following ECMAScript module semantics in this regard.
 
+Another good option is <<start-option-separate-init-module,to use a separate APM init module>> and import that first.
+
 
 [[start-typescript]]
-===== TypeScript
+===== TypeScript gotcha
 
 TypeScript is a language that compiles to JavaScript, via the `tsc` TypeScript compiler, and is then executed via `node` (or some other JavaScript interpreter). Sometimes the produced JavaScript has a gotcha for using this APM agent. TypeScript assumes that module imports do not have side-effects, so it will https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-imports-being-elided-in-my-emit[elide the following import] if the `apm` variable is not used:
 
 [source,js]
 ----
-import apm from 'elastic-apm-node/start';
+import apm from 'elastic-apm-node/start'; // Be careful
 ----
 
 One can avoid that elision with:
@@ -179,7 +210,7 @@ import apm from 'elastic-apm-node/start'; apm; // Ensure import is kept for its 
 
 
 [[start-bundlers]]
-===== Bundlers
+===== Bundlers and APM
 
 JavaScript Bundlers are tools that bundle up a number of JavaScript files into one, or a few, JavaScript files to be executed. Often they also include other features such as compilation (from newer to older JavaScript syntax, from TypeScript), tree-shaking (removing sections of code that are unused), minifying, bundling of CSS/images, etc. There are many bundler tools, including: https://webpack.js.org/[Webpack], https://esbuild.github.io/[esbuild], https://rollupjs.org/[Rollup], https://parceljs.org/[Parcel].
 
@@ -190,14 +221,14 @@ Unfortunately, *using a bundler typically breaks the APM agent*. Bundling multip
 1. exclude the `elastic-apm-node` APM agent module from the bundle; and
 2. optionally exclude other modules from the bundle that you would like the APM agent to instrument.
 
-"Excluding" a module 'foo' from the bundle (Webpack calls these "externals") means that a `require('foo')` expects "node_modules/foo/..." to exist. This means that you need to deploy both your bundle file(s) _and_ the excluded modules. This may or may not defeat your reasons for using a bundler.
+"Excluding" a module 'foo' from the bundle (Webpack calls these "externals") means that a `require('foo')` expects "node_modules/foo/..." to exist at runtime. This means that you need to deploy both your bundle file(s) _and_ the excluded modules. This may or may not defeat your reasons for using a bundler.
 
 The rest of this section shows how to configure externals with various bundlers. If you know of a mechanism for a bundler that we haven't documented, please https://github.com/elastic/apm-agent-nodejs/blob/main/CONTRIBUTING.md#contributing-to-the-apm-agent[let us know.]
 
 [[start-webpack]]
 ===== Webpack
 
-Webpack supports https://webpack.js.org/configuration/externals/["externals"] configuration options to exclude specific modules from its bundle. At the least, the 'elastic-apm-agent' module must be made external. In addition, any modules that you want the APM agent to instrument (e.g. a database client) must also be made external. The easiest way to do this is to *use the https://github.com/liady/webpack-node-externals['webpack-node-externals'] module to make all of "node_modules/..." external*.
+Webpack supports https://webpack.js.org/configuration/externals/["externals"] configuration options to exclude specific modules from its bundle. At a minimum, the 'elastic-apm-agent' module must be made external. In addition, any modules that you want the APM agent to instrument (e.g. a database client) must also be made external. The easiest way to do this is to *use the https://github.com/liady/webpack-node-externals['webpack-node-externals'] module to make all of "node_modules/..." external*.
 
 For webpack@5 ensure your "webpack.config.js" has the following:
 
@@ -239,7 +270,7 @@ module.exports = {
 [[start-esbuild]]
 ===== esbuild
 
-Esbuild supports marking modules/files as https://esbuild.github.io/api/#external["external"] to the bundle. At the least, the 'elastic-apm-agent' module must be made external for the APM agent to work. In addition, any modules that you want the APM agent to instrument (e.g. a database client) must also be made external.
+Esbuild supports marking modules/files as https://esbuild.github.io/api/#external["external"] to the bundle. At a minimum, the 'elastic-apm-agent' module must be made external for the APM agent to work. In addition, any modules that you want the APM agent to instrument (e.g. a database client) must also be made external.
 
 Here is an example build script for "package.json" to bundle a Node.js application (with "src/index.js" as the entry point, targetting node v14.x, and ensuring that the `pg` PostgreSQL module is instrumented):
 
