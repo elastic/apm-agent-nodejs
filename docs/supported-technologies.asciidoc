@@ -60,11 +60,11 @@ server.listen(3000);
 However, if you are using TypeScript or JavaScript that is _compiled/translated/transpiled to CommonJS-using JavaScript_ via tools like Babel, Webpack, esbuild, etc., then using `import ...` in your source code is fine. To ensure your compiler is generating JS that uses CommonJS imports, use the following settings:
 
 - For TypeScript, use https://www.typescriptlang.org/tsconfig#module[`"module": "commonjs"` in your "tsconfig.json"] (a https://github.com/tsconfig/bases/blob/main/bases/node16.json[complete tsconfig.json example]).
-- For Babel, use https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config]. Here is a [full babel config example](https://github.com/elastic/apm-agent-nodejs/blob/main/test/babel/.babelrc).
+- For Babel, use https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config] (https://github.com/elastic/apm-agent-nodejs/blob/main/test/babel/.babelrc[for example]).
 - For Webpack, use `target: 'node', externalsPresets: { node: true }` in your "webpack.config.js".
-- For esbuild, use `--platform=node --target=node...` options to `esbuild` ([for example](https://github.com/elastic/apm-agent-nodejs/blob/main/examples/esbuild/package.json#L7)).
+- For esbuild, use `--platform=node --target=node...` options to `esbuild` (https://github.com/elastic/apm-agent-nodejs/blob/main/examples/esbuild/package.json#L7[for example]).
 
-This limitation only affects the agent's automatic instrumentation. Other functionality, such as metrics collection and manual instrumentation, still works when using ES modules. Support for ES modules is planned for a future version of the APM agent.
+The ESM limitation only affects the agent's automatic instrumentation. Other functionality -- such as metrics collection, manual instrumentation and error capture -- still works when using ES modules. Support for ES modules is planned for a future version of the APM agent.
 
 
 [float]
