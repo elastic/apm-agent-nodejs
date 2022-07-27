@@ -1354,6 +1354,6 @@ Example usage:
 [source,js]
 ----
 require('elastic-apm-node').start({
-  exitSpanMinDuraction:'10ms'
+  exitSpanMinDuration: '10ms'
 })
 ----
