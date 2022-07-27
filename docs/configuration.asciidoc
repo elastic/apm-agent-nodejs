@@ -1337,6 +1337,7 @@ require('elastic-apm-node').start({
 * *Type:* String
 * *Default:* `0ms`
 * *Env:* `ELASTIC_APM_EXIT_SPAN_MIN_DURATION`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `exit_span_min_duration`
 
 Sets the minimum duration of exit spans. If an exit span's duration is less than
 this threshold the agent will attempt to drop the span and not send it.
