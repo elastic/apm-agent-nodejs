@@ -72,7 +72,7 @@ test('remote config enabled', function (t) {
     log_level: 'warn',
     span_stack_trace_min_duration: '50ms',
     trace_continuation_strategy: 'restart_external',
-    exit_span_min_duration: '25ms',
+    exit_span_min_duration: '25ms'
   }
   const expect = {
     transactionSampleRate: 0.42,
@@ -82,7 +82,7 @@ test('remote config enabled', function (t) {
     logLevel: 'warn',
     spanStackTraceMinDuration: 0.05,
     traceContinuationStrategy: 'restart_external',
-    exitSpanMinDuration: .025
+    exitSpanMinDuration: 0.025
   }
 
   runTestsWithServer(t, updates, expect)
