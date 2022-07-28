@@ -201,7 +201,7 @@ One can avoid that elision with:
 import 'elastic-apm-node/start';
 ----
 
-or with something like this:
+Or with something like this:
 
 [source,js]
 ----
