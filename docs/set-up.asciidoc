@@ -115,7 +115,7 @@ node app.js
 
 
 [[start-option-separate-init-module]]
-===== separate APM init module
+===== Separate APM init module
 
 If you want to avoid <<start-esm-imports,the gotcha with hoisted ES modules>> but still want the flexibility of passing a config object to the <<apm-start,agent start method>>, then a good option is to write a separate JavaScript or TypeScript module that starts the agent, and import *that* init module at the top of your main file. For example:
 
