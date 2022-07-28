@@ -66,6 +66,48 @@ tape.test('end to end test', function (t) {
   }, 20) // longer than exitSpanMinDuration
 })
 
+tape.test('end to end test with compression', function (t) {
+  resetAgent(function (data) {
+    // would normally be a single compressed span, but here there's
+    // no spans because min duration was not hit
+    t.equals(data.spans.length, 0)
+    t.end()
+  })
+
+  agent.startTransaction('test')
+  const destinationContext = {
+    service: {
+      resource: 'foo'
+    }
+  }
+  let firstSpan, finalSpan
+  setTimeout(function () {
+    firstSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
+    firstSpan.setDestinationContext(destinationContext)
+    setTimeout(function () {
+      firstSpan.end()
+    }, 1)
+  }, 1)
+
+  setTimeout(function () {
+    const span = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
+    span.setDestinationContext(destinationContext)
+    setTimeout(function () {
+      span.end()
+    }, 1)
+  }, 2)
+
+  setTimeout(function () {
+    finalSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
+    finalSpan.setDestinationContext(destinationContext)
+    setTimeout(function () {
+      finalSpan.end()
+      agent.endTransaction()
+      agent.flush()
+    }, 1)
+  }, 3)
+})
+
 function resetAgent (/* numExpected, */ cb) {
   agent._instrumentation.testReset()
   agent._transport = mockClient(/* numExpected, */ cb)
