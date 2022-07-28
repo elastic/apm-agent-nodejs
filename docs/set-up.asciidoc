@@ -168,7 +168,7 @@ apm.start() // This is started too late.
 // ...
 ----
 
-All imports are "hoisted" to the top of a module, properly following ECMAScript module (ESM) semantics. However, the `apm.start()` is now too late: *after* the `http` module has been imported. This is why <<start-option-require-start-module,the `elastic-apm-node/start` module>> was added as a start option. The following will work:
+All imports are "hoisted" to the top of a module, properly following ECMAScript module (ESM) semantics. However, the `apm.start()` is now too late—*after* the `http` module has been imported. This is why <<start-option-require-start-module,the `elastic-apm-node/start` module>> was added as a start option. The following will work:
 
 [source,js]
 ----
