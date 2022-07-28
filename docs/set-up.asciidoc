@@ -140,7 +140,7 @@ import 'initapm'
 
 
 [[start-gotchas]]
-==== Start Gotchas
+==== Start gotchas
 
 This section shows some sometimes subtle surprises starting the APM agent with some technologies. A general troubleshooting tip for using the Elastic Node.js APM agent with any build tool/system that produces compiled JavaScript is to **look at the compiled JavaScript** to see what is actually being executed by `node`.
 
