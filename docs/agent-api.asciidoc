@@ -7,9 +7,6 @@ endif::[]
 
 === `Agent` API
 
-NOTE: This is API reference documentation for the Elastic APM Node.js Agent.
-For getting started, we recommend that you <<set-up,start here>>.
-
 The Elastic APM Node.js agent is a singleton. You get the agent instance by requiring either `elastic-apm-node` or `elastic-apm-node/start`. The agent is also returned by the <<apm-start,`.start()`>> method, which allows you to require and start the agent on the same line:
 
 [source,js]

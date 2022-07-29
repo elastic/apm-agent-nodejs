@@ -74,8 +74,8 @@ Pay special attention to <<start-typescript,the possible surprise gotcha>> where
 
 
 [float]
-[[typescript-full-documentation]]
-==== Full documentation
+[[typescript-next-steps]]
+==== Next steps
 
 The APM agent will now trace your application, monitor performance, and record any uncaught exceptions. Refer to the following documentation to configure and use the APM agent.
 
