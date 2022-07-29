@@ -142,7 +142,7 @@ import 'initapm'
 [[start-gotchas]]
 ==== Start gotchas
 
-You may run into a few subtle surprises when starting the Elastic Node.js APM agent with certain technologies. A general troubleshooting tip for using the agent with any build tool/system that produces compiled JavaScript is to look at the compiled JavaScript to see what is actually being executed by `node`.
+This section shows some sometimes subtle surprises starting the APM agent with some technologies. A general troubleshooting tip for using the agent with any build tool/system that produces compiled JavaScript is to look at the compiled JavaScript to see what is actually being executed by `node`.
 
 [[start-esm-imports]]
 ===== Hoisted ES module imports
