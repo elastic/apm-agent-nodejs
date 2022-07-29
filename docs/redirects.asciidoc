@@ -42,3 +42,11 @@ This endpoint has moved. Please see <<transaction-add-labels>>.
 === Get started
 
 This page has moved. Please see <<set-up>>.
+
+[role="exclude",id="es-modules"]
+=== ES Modules support
+
+This page has moved.
+
+- For details on ES Modules (ESM) support, see <<compatibility-esm>>.
+- For information on using the APM agent with TypeScript, see <<typescript>>.

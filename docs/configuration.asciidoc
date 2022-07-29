@@ -33,7 +33,6 @@ will be normalized to the allowed characters. If the name cannot be inferred
 from package.json, then a fallback value of "unknown-nodejs-service" is used.
 
 
-[float]
 [[service-node-name]]
 ==== `serviceNodeName`
 
