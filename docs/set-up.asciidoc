@@ -58,7 +58,7 @@ For the Node.js APM agent to be able to fully function, it *must be started befo
 [[start-option-require-and-start]]
 ===== `require('elastic-apm-node').start(...)`
 
-The most common way to start the APM agent is to require the `elastic-apm-node` module and call the <<apm-start,`start`>> function at the top of your main module. This allows you to use any of the methods to <<configuring-the-agent,configure the agent>>.
+The most common way to start the APM agent is to require the `elastic-apm-node` module and call the <<apm-start,`.start()`>> function at the top of your main module. This allows you to use any of the methods to <<configuring-the-agent,configure the agent>>.
 
 [source,js]
 ----
