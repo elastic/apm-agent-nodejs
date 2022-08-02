@@ -638,7 +638,7 @@ A capture location stack trace is never generated for uncaught exceptions.
 
 * *Type:* Duration
 * *Default:* `'-1s'` (never capture span stack traces)
-* *Env:* `ELASTIC_APM_STACK_TRACE_MIN_DURATION`
+* *Env:* `ELASTIC_APM_SPAN_STACK_TRACE_MIN_DURATION`
 * <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `span_stack_trace_min_duration`
 
 Use this option to control if stack traces are never captured for spans (the
