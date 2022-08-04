@@ -85,7 +85,6 @@ test('fetch', async t => {
 
   const url = origin + '/ping'
   const res = await fetch(url)
-  console.log('XXX res: ', res)
   t.equal(res.status, 200, 'res.status')
   const text = await res.text()
   t.equal(text, 'pong', 'response body')

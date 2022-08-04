@@ -90,7 +90,7 @@ so those should be supported as well.
 |https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/redis[redis] |>=2.0.0 <4.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/tedious[tedious] |>=1.9 <15.0.0 | (Excluding v4.0.0.) Will instrument all queries
-|https://www.npmjs.com/package/undici[undici] | >=4.7.0 <6 | Will instrument undici HTTP requests, except HTTP CONNECT. Requires node v14.17.0 or later.
+|https://www.npmjs.com/package/undici[undici] | >=4.7.0 <6 | Will instrument undici HTTP requests, except HTTP CONNECT. Requires node v14.17.0 or later, or the user to have installed the https://www.npmjs.com/package/diagnostics_channel['diagnostics_channel' polyfill].
 |https://www.npmjs.com/package/ws[ws] |>=1.0.0 <8.0.0 |Will instrument outgoing WebSocket messages
 |=======================================================================
 

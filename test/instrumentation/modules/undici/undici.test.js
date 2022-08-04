@@ -18,7 +18,7 @@ const apm = require('../../../..').start({
   transport () { return new CapturingTransport() }
 })
 
-// Skip (exit the process) if this undici instrumentation isn't supported with this node.
+// Skip (exit the process) if this undici instrumentation isn't supported.
 try {
   require('diagnostics_channel')
 } catch (_noModErr) {
