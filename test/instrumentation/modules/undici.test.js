@@ -26,6 +26,7 @@ if (semver.lt(process.version, '14.7.0')) {
 }
 
 const http = require('http')
+const { Writable } = require('stream')
 const { promisify } = require('util')
 const test = require('tape')
 const undici = require('undici')
@@ -34,6 +35,20 @@ const promisyApmFlush = promisify(apm.flush.bind(apm))
 let server
 let origin
 let lastServerReq
+
+// Undici docs (https://github.com/nodejs/undici#garbage-collection) suggest
+// that an undici response body should always be consumed.
+async function consumeResponseBody (body) {
+  return new Promise(resolve => {
+    const devNull = new Writable({
+      write (_chunk, _encoding, cb) {
+        setImmediate(cb)
+      }
+    })
+    body.pipe(devNull)
+    body.on('end', resolve)
+  })
+}
 
 test('setup', t => {
   server = http.createServer((req, res) => {
@@ -54,18 +69,16 @@ test('undici.request', async t => {
   const aTrans = apm.startTransaction('aTransName')
 
   const url = origin + '/ping'
-  const u = new URL(url)
   const { statusCode, body } = await undici.request(url)
-  console.log('response received', statusCode)
   t.equal(statusCode, 200, 'statusCode')
-  // Consume req body, because https://github.com/nodejs/undici#garbage-collection
-  for await (const _chunk of body) { } // eslint-disable-line no-unused-vars
+  await consumeResponseBody(body)
 
   aTrans.end()
   t.error(await promisyApmFlush())
 
   t.equal(apm._transport.spans.length, 1)
   const span = apm._transport.spans[0]
+  const u = new URL(url)
   t.equal(span.name, `GET ${u.host}`, 'span.name')
   t.equal(span.type, 'external', 'span.type')
   t.equal(span.subtype, 'http', 'span.subtype')
