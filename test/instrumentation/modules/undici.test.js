@@ -147,25 +147,27 @@ test('undici.stream', async t => {
   t.end()
 })
 
-test('undici.fetch', async t => {
-  apm._transport.clear()
-  const aTrans = apm.startTransaction('aTransName')
+if (undici.fetch) {
+  test('undici.fetch', async t => {
+    apm._transport.clear()
+    const aTrans = apm.startTransaction('aTransName')
 
-  const url = origin + '/ping'
-  const res = await undici.fetch(url)
-  t.equal(res.status, 200, 'res.status')
-  const text = await res.text()
-  t.equal(text, 'pong', 'response body')
+    const url = origin + '/ping'
+    const res = await undici.fetch(url)
+    t.equal(res.status, 200, 'res.status')
+    const text = await res.text()
+    t.equal(text, 'pong', 'response body')
 
-  aTrans.end()
-  t.error(await promisyApmFlush(), 'no apm.flush() error')
+    aTrans.end()
+    t.error(await promisyApmFlush(), 'no apm.flush() error')
 
-  t.equal(apm._transport.spans.length, 1)
-  const span = apm._transport.spans[0]
-  assertUndiciSpan(t, span, url)
+    t.equal(apm._transport.spans.length, 1)
+    const span = apm._transport.spans[0]
+    assertUndiciSpan(t, span, url)
 
-  t.end()
-})
+    t.end()
+  })
+}
 
 if (global.AbortController) {
   test('undici.request AbortSignal', async t => {
