@@ -9,6 +9,8 @@
 // This example shows use of Node v18's core `fetch()`. The Node.js APM agent
 // will automatically instrument it.
 
+/* global fetch */ // for eslint
+
 const apm = require('../').start({
   serviceName: 'example-trace-fetch'
 })
@@ -23,14 +25,12 @@ async function main () {
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
   const trans = apm.startTransaction('trans')
   try {
-
     const res = await fetch(url)
-    for (let [k, v] of res.headers) {
+    for (const [k, v] of res.headers) {
       console.log(`${k}: ${v}`)
     }
     const body = await res.text()
     console.log('\n' + body)
-
   } catch (err) {
     console.error('fetch error:', err)
   } finally {
