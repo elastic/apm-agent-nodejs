@@ -715,7 +715,6 @@ ${body.map(JSON.stringify).join('\n')}
   if (haveDiagCh) {
     clientOptsToTry.UndiciConnection = clientOpts
   }
-
   Object.keys(clientOptsToTry).forEach(clientOptsName => {
     test(`context-propagation works (${clientOptsName})`, function (t) {
       const mockResponses = [
