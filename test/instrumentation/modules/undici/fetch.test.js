@@ -6,7 +6,11 @@
 
 'use strict'
 
-// Test node v18's `fetch` implementation. This is based on undici.
+// Test node v18's `fetch` implementation (based on undici).
+//
+// Importantly, this test must not `require('undici')` because part of the
+// test is whether the APM agent knows to enable undici instrumentation even
+// without the import.
 
 if (!global.fetch) {
   console.log('# SKIP there is no fetch()')
@@ -27,10 +31,8 @@ const apm = require('../../../..').start({
 })
 
 const http = require('http')
-const { Writable } = require('stream')
 const { promisify } = require('util')
 const test = require('tape')
-const undici = require('undici')
 
 const promisyApmFlush = promisify(apm.flush.bind(apm))
 let server
@@ -38,20 +40,6 @@ let origin
 let lastServerReq
 
 // ---- support functions
-
-// Undici docs (https://github.com/nodejs/undici#garbage-collection) suggest
-// that an undici response body should always be consumed.
-async function consumeResponseBody (body) {
-  return new Promise(resolve => {
-    const devNull = new Writable({
-      write (_chunk, _encoding, cb) {
-        setImmediate(cb)
-      }
-    })
-    body.pipe(devNull)
-    body.on('end', resolve)
-  })
-}
 
 function assertUndiciSpan (t, span, url, reqFailed) {
   const u = new URL(url)
@@ -96,7 +84,8 @@ test('fetch', async t => {
   const aTrans = apm.startTransaction('aTransName')
 
   const url = origin + '/ping'
-  const res = await undici.fetch(url)
+  const res = await fetch(url)
+  console.log('XXX res: ', res)
   t.equal(res.status, 200, 'res.status')
   const text = await res.text()
   t.equal(text, 'pong', 'response body')
@@ -118,7 +107,10 @@ test('fetch', async t => {
 })
 
 test('teardown', t => {
-  undici.getGlobalDispatcher().close() // Close kept-alive sockets.
   server.close()
   t.end()
+
+  // Note that this test file will now hang for ~4s until Node's bundled
+  // undici (used to implement `fetch()`) Keep-Alive timeout ends. I don't
+  // know of a way to avoid that.
 })
