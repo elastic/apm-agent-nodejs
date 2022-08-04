@@ -56,6 +56,14 @@ const mockClient = require('../../../_mock_http_client')
 const shimmer = require('../../../../lib/instrumentation/shimmer')
 const { MockES } = require('./_mock_es')
 
+let haveDiagCh = false
+try {
+  require('diagnostics_channel')
+  haveDiagCh = true
+} catch (_noModErr) {
+  // pass
+}
+
 const host = (process.env.ES_HOST || 'localhost') + ':9200'
 const clientOpts = {
   node: 'http://' + host
@@ -699,12 +707,15 @@ ${body.map(JSON.stringify).join('\n')}
   // Ensure that even without HTTP child spans, trace-context propagation to
   // Elasticsearch still works.
   const clientOptsToTry = {
-    UndiciConnection: clientOpts,
-    // Test the ES client is configured to use HttpConnection rather than its
+    // Test the ES client configured to use HttpConnection rather than its
     // default UndiciConnection. This is relevant for Kibana that, currently,
     // uses HttpConnection.
     HttpConnection: Object.assign({}, clientOpts, { Connection: es.HttpConnection })
   }
+  if (haveDiagCh) {
+    clientOptsToTry.UndiciConnection = clientOpts
+  }
+
   Object.keys(clientOptsToTry).forEach(clientOptsName => {
     test(`context-propagation works (${clientOptsName})`, function (t) {
       const mockResponses = [
