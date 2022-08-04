@@ -25,6 +25,11 @@ try {
   console.log('# SKIP undici instrumention is not supported (no "diagnostics_channel" module)')
   process.exit()
 }
+const semver = require('semver')
+if (semver.lt(process.version, '12.18.0')) {
+  console.log('# SKIP undici instrumention does not support node %s', process.version)
+  process.exit()
+}
 
 const http = require('http')
 const { Writable } = require('stream')

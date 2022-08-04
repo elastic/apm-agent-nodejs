@@ -556,4 +556,5 @@ aws-sdk:
 undici:
   versions: '>=4.7.0 <6'
   commands: node test/instrumentation/modules/undici.test.js
+  node: '>=12.18'
 
