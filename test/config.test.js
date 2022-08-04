@@ -1017,6 +1017,9 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '12.3.0')) {
     modules.delete('tedious')
   }
+  if (semver.lt(process.version, '12.18.0')) {
+    modules.delete('undici') // undici@5 supports node >=12.18
+  }
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)

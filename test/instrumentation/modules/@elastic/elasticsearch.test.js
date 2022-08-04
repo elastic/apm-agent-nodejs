@@ -60,6 +60,7 @@ const host = (process.env.ES_HOST || 'localhost') + ':9200'
 const clientOpts = {
   node: 'http://' + host
 }
+// XXX
 // Limitation: For v8 of the ES client, these tests assume the non-default
 // `HttpConnection` is used rather than the default usage of undici, because
 // the tests check for an HTTP span for each ES request and currently the
