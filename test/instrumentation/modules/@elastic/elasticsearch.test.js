@@ -60,14 +60,6 @@ const host = (process.env.ES_HOST || 'localhost') + ':9200'
 const clientOpts = {
   node: 'http://' + host
 }
-// XXX
-// Limitation: For v8 of the ES client, these tests assume the non-default
-// `HttpConnection` is used rather than the default usage of undici, because
-// the tests check for an HTTP span for each ES request and currently the
-// undici HTTP client is not instrumented.
-if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-  clientOpts.Connection = es.HttpConnection
-}
 
 test('client.ping with promise', function (t) {
   resetAgent(checkDataAndEnd(t, 'HEAD', '/', null, 200))
@@ -706,68 +698,77 @@ ${body.map(JSON.stringify).join('\n')}
 
   // Ensure that even without HTTP child spans, trace-context propagation to
   // Elasticsearch still works.
-  test('context-propagation works', function (t) {
-    const mockResponses = [
-      {
-        statusCode: 200,
-        headers: {
-          'X-elastic-product': 'Elasticsearch',
-          'content-type': 'application/json'
-        },
-        body: '{"took":0,"timed_out":false,"_shards":{"total":0,"successful":0,"skipped":0,"failed":0},"hits":{"total":{"value":0,"relation":"eq"},"max_score":0,"hits":[]}}'
-      }
-    ]
-    if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
+  const clientOptsToTry = {
+    UndiciConnection: clientOpts,
+    // Test the ES client is configured to use HttpConnection rather than its
+    // default UndiciConnection. This is relevant for Kibana that, currently,
+    // uses HttpConnection.
+    HttpConnection: Object.assign({}, clientOpts, { Connection: es.HttpConnection })
+  }
+  Object.keys(clientOptsToTry).forEach(clientOptsName => {
+    test(`context-propagation works (${clientOptsName})`, function (t) {
+      const mockResponses = [
+        {
+          statusCode: 200,
+          headers: {
+            'X-elastic-product': 'Elasticsearch',
+            'content-type': 'application/json'
+          },
+          body: '{"took":0,"timed_out":false,"_shards":{"total":0,"successful":0,"skipped":0,"failed":0},"hits":{"total":{"value":0,"relation":"eq"},"max_score":0,"hits":[]}}'
+        }
+      ]
+      if (semver.gte(esVersion, '7.14.0') && semver.satisfies(esVersion, '7.x')) {
       // First request will be "GET /" for a product check.
-      mockResponses.unshift({
-        statusCode: 200,
-        headers: {
-          'X-elastic-product': 'Elasticsearch',
-          'content-type': 'application/json'
-        },
-        body: '{"name":"645a066f9b52","cluster_name":"docker-cluster","cluster_uuid":"1pR-cy9dSLWO7TNxI3kodA","version":{"number":"8.0.0-beta1","build_flavor":"default","build_type":"docker","build_hash":"ba1f616138a589f12eb0c6f678aee96377525b8f","build_date":"2021-11-04T12:35:26.989068569Z","build_snapshot":false,"lucene_version":"9.0.0","minimum_wire_compatibility_version":"7.16.0","minimum_index_compatibility_version":"7.0.0"},"tagline":"You Know, for Search"}'
-      })
-    }
-    const esServer = new MockES({ responses: mockResponses })
-    esServer.start(function (esUrl) {
-      resetAgent(
-        function done (data) {
+        mockResponses.unshift({
+          statusCode: 200,
+          headers: {
+            'X-elastic-product': 'Elasticsearch',
+            'content-type': 'application/json'
+          },
+          body: '{"name":"645a066f9b52","cluster_name":"docker-cluster","cluster_uuid":"1pR-cy9dSLWO7TNxI3kodA","version":{"number":"8.0.0-beta1","build_flavor":"default","build_type":"docker","build_hash":"ba1f616138a589f12eb0c6f678aee96377525b8f","build_date":"2021-11-04T12:35:26.989068569Z","build_snapshot":false,"lucene_version":"9.0.0","minimum_wire_compatibility_version":"7.16.0","minimum_index_compatibility_version":"7.0.0"},"tagline":"You Know, for Search"}'
+        })
+      }
+      const esServer = new MockES({ responses: mockResponses })
+      esServer.start(function (esUrl) {
+        resetAgent(
+          function done (data) {
           // Assert that the ES server request for the `client.search()` is as
           // expected.
-          const searchSpan = data.spans[data.spans.length - 1]
-          const esServerReq = esServer.requests[esServer.requests.length - 1]
-          const tracestate = esServerReq.headers.tracestate
-          t.equal(tracestate, 'es=s:1', 'esServer request included the expected tracestate header')
-          t.ok(esServerReq.headers.traceparent, 'esServer request included a traceparent header')
-          const traceparent = TraceParent.fromString(esServerReq.headers.traceparent)
-          t.equal(traceparent.traceId, myTrans.traceId, 'traceparent.traceId')
-          // node-traceparent erroneously (IMHO) calls this field `id` instead
-          // of `parentId`.
-          t.equal(traceparent.id, searchSpan.id, 'traceparent.id')
-          t.end()
-        }
-      )
+            const searchSpan = data.spans[data.spans.length - 1]
+            const esServerReq = esServer.requests[esServer.requests.length - 1]
+            const tracestate = esServerReq.headers.tracestate
+            t.equal(tracestate, 'es=s:1', 'esServer request included the expected tracestate header')
+            t.ok(esServerReq.headers.traceparent, 'esServer request included a traceparent header')
+            const traceparent = TraceParent.fromString(esServerReq.headers.traceparent)
+            t.equal(traceparent.traceId, myTrans.traceId, 'traceparent.traceId')
+            // node-traceparent erroneously (IMHO) calls this field `id` instead
+            // of `parentId`.
+            t.equal(traceparent.id, searchSpan.id, 'traceparent.id')
+            t.end()
+          }
+        )
 
-      const myTrans = agent.startTransaction('myTrans')
-      const client = new es.Client(Object.assign(
-        {},
-        clientOpts,
-        { node: esUrl }
-      ))
-      client.search({ q: 'pants' })
-        .then(() => {
-          t.ok('client.search succeeded')
-        })
-        .catch((err) => {
-          t.error(err, 'no error from client.search')
-        })
-        .finally(() => {
-          myTrans.end()
-          agent.flush()
-          client.close()
-          esServer.close()
-        })
-      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
+        const myTrans = agent.startTransaction('myTrans')
+        const client = new es.Client(Object.assign(
+          {},
+          clientOptsToTry[clientOptsName],
+          { node: esUrl }
+        ))
+        client.search({ q: 'pants' })
+          .then(() => {
+            t.ok('client.search succeeded')
+          })
+          .catch((err) => {
+            t.error(err, 'no error from client.search')
+          })
+          .finally(() => {
+            myTrans.end()
+            agent.flush()
+            client.close()
+            esServer.close()
+          })
+        t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
+      })
     })
   })
 }
