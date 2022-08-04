@@ -7,8 +7,8 @@
 'use strict'
 
 process.env.ELASTIC_APM_TEST = true
-const { CapturingTransport } = require('../../_capturing_transport')
-const apm = require('../../..').start({
+const { CapturingTransport } = require('../../../_capturing_transport')
+const apm = require('../../../..').start({
   serviceName: 'test-undici',
   captureExceptions: false,
   metricsInterval: 0,
@@ -18,10 +18,11 @@ const apm = require('../../..').start({
   transport () { return new CapturingTransport() }
 })
 
-// Skip (exit the process) if this undici doesn't support this node version.
-const semver = require('semver')
-if (semver.lt(process.version, '14.7.0')) {
-  console.log(`# SKIP undici instrumention does not support node ${process.version}`)
+// Skip (exit the process) if this undici instrumentation isn't supported with this node.
+try {
+  require('diagnostics_channel')
+} catch (_noModErr) {
+  console.log('# SKIP undici instrumention is not supported (no "diagnostics_channel" module)')
   process.exit()
 }
 
