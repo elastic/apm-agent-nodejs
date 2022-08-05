@@ -555,6 +555,5 @@ aws-sdk:
 # undici@4.7.0 added its diagnostics_channel support.
 undici:
   versions: '>=4.7.0 <6'
-  commands: node test/instrumentation/modules/undici.test.js
+  commands: node test/instrumentation/modules/undici/undici.test.js
   node: '>=12.18'
-
