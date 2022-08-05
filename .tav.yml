@@ -552,8 +552,10 @@ aws-sdk:
     - node test/instrumentation/modules/aws-sdk/sqs.test.js
     - node test/instrumentation/modules/aws-sdk/dynamodb.test.js
 
-# undici@4.7.0 added its diagnostics_channel support.
+# - undici@4.7.0 added its diagnostics_channel support.
+# - In undici@4.7.1 the `request.origin` property was added, which we need
+#   in the 'undici:request:create' diagnostic message.
 undici:
-  versions: '>=4.7.0 <6'
+  versions: '>=4.7.1 <6'
   commands: node test/instrumentation/modules/undici/undici.test.js
   node: '>=12.18'
