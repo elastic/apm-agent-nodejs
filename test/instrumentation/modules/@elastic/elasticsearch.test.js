@@ -706,17 +706,21 @@ ${body.map(JSON.stringify).join('\n')}
 
   // Ensure that even without HTTP child spans, trace-context propagation to
   // Elasticsearch still works.
-  const clientOptsToTry = {
-    // Test the ES client configured to use HttpConnection rather than its
+  const clientOptsToTry = {} // <name> -> <clientOpts object>
+  if (!es.HttpConnection) {
+    // This is pre-v8 of the ES client. Just test the default client options.
+    clientOptsToTry.default = clientOpts
+  } else {
+    if (haveDiagCh) {
+      clientOptsToTry.UndiciConnection = clientOpts
+    }
+    // Also test the ES client configured to use HttpConnection rather than its
     // default UndiciConnection. This is relevant for Kibana that, currently,
     // uses HttpConnection.
-    HttpConnection: Object.assign({}, clientOpts, { Connection: es.HttpConnection })
-  }
-  if (haveDiagCh) {
-    clientOptsToTry.UndiciConnection = clientOpts
+    clientOptsToTry.HttpConnection = Object.assign({}, clientOpts, { Connection: es.HttpConnection })
   }
   Object.keys(clientOptsToTry).forEach(clientOptsName => {
-    test(`context-propagation works (${clientOptsName})`, function (t) {
+    test(`context-propagation works (${clientOptsName} client options)`, function (t) {
       const mockResponses = [
         {
           statusCode: 200,
