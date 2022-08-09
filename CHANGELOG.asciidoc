@@ -46,7 +46,7 @@ Notes:
 ===== Bug fixes
 
 - Fix the span for an instrumented S3 ListBuckets API call to not be invalid
-  for APM server intake.
+  for APM server intake. ({pull}2866[#2866])
 
 [float]
 ===== Chores
