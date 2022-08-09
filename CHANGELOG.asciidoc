@@ -45,6 +45,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Fix the span for an instrumented S3 ListBuckets API call to not be invalid
+  for APM server intake.
+
 [float]
 ===== Chores
 
