@@ -24,6 +24,10 @@ module.exports = class TransactionMock {
     this.opts = opts
   }
 
+  setDefaultName (name) {
+    this.name = name
+  }
+
   setCustomContext (custom) {
     if (!custom) {
       return
