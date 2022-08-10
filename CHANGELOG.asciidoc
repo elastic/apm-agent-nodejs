@@ -39,6 +39,11 @@ Notes:
 [float]
 ===== Features
 
+- Support instrumenting core modules when require'd with the optional
+  https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
+  For example `require('node:http')` will now be instrumented.
+  ({issues}2816[#2816])
+
 - Added `exitSpanMinDuration` configuration field, allowing end users to
   set a time threshold for dropping exit spans. ({pull}2843[#2843])
 
