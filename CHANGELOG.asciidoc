@@ -47,6 +47,9 @@ Notes:
 
 - Fix the span for an instrumented S3 ListBuckets API call to not be invalid
   for APM server intake. ({pull}2866[#2866])
+- Fix an issue where the transaction `name` for a trace of a Lambda function
+  implementing a GraphQL server (e.g. via https://www.apollographql.com/docs/apollo-server/deployment/lambda/[apollo-server-lambda])
+  would not get the GraphQL-specific naming. ({issues}2832[#2832])
 
 [float]
 ===== Chores
