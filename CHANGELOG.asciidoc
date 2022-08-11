@@ -53,6 +53,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+- Capturing an error would fail if the Error instance had an attribute that
+  was an invalid date. ({issues}2030[#2030])
+
 - Fix the span for an instrumented S3 ListBuckets API call to not be invalid
   for APM server intake. ({pull}2866[#2866])
 
