@@ -141,6 +141,7 @@
     "container-info": "^1.0.1",
     "dashdash": "^2.0.0",
     "dependency-check": "^4.1.0",
+    "diagnostics_channel": "^1.1.0",
     "elasticsearch": "^16.7.3",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
@@ -191,6 +192,7 @@
     "test-all-versions": "^4.1.1",
     "thunky": "^1.1.0",
     "typescript": "^4.7.4",
+    "undici": "^5.8.0",
     "vasync": "^2.2.0",
     "wait-on": "^6.0.1",
     "ws": "^7.2.1"

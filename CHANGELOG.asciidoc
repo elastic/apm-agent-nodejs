@@ -39,6 +39,14 @@ Notes:
 [float]
 ===== Features
 
+- Add instrumentation for the https://undici.nodejs.org[undici] HTTP client
+  library. This also adds instrumentation of Node.js v18's
+  https://nodejs.org/api/all.html#all_globals_fetch[`fetch()`], which uses
+  undici under the hood. For the instrumentation to work one must be using
+  node v14.17.0 or later, or have installed the
+  https://www.npmjs.com/package/diagnostics_channel['diagnostics_channel' polyfill].
+  ({issues}2383[#2383])
+
 - Added `exitSpanMinDuration` configuration field, allowing end users to
   set a time threshold for dropping exit spans. ({pull}2843[#2843])
 
