@@ -1,0 +1,17 @@
+{
+  "name": "elastic-apm-node-esbuild-example",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "build": "esbuild ./src/index* --outdir=dist --bundle --platform=node --target=node8.6 --external:elastic-apm-node --external:pug --sourcemap",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "elastic-apm-node": "^3.37.0",
+    "pug": "^3.0.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.49"
+  }
+}

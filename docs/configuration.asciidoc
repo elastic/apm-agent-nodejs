@@ -33,7 +33,6 @@ will be normalized to the allowed characters. If the name cannot be inferred
 from package.json, then a fallback value of "unknown-nodejs-service" is used.
 
 
-[float]
 [[service-node-name]]
 ==== `serviceNodeName`
 
@@ -639,7 +638,7 @@ A capture location stack trace is never generated for uncaught exceptions.
 
 * *Type:* Duration
 * *Default:* `'-1s'` (never capture span stack traces)
-* *Env:* `ELASTIC_APM_STACK_TRACE_MIN_DURATION`
+* *Env:* `ELASTIC_APM_SPAN_STACK_TRACE_MIN_DURATION`
 * <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `span_stack_trace_min_duration`
 
 Use this option to control if stack traces are never captured for spans (the
@@ -1329,5 +1328,31 @@ Example usage:
 ----
 require('elastic-apm-node').start({
   opentelemetryBridgeEnabled: true
+})
+----
+
+[[exit-span-min-duration]]
+==== `exitSpanMinDuration`
+* *Type:* String
+* *Default:* `0ms`
+* *Env:* `ELASTIC_APM_EXIT_SPAN_MIN_DURATION`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `exit_span_min_duration`
+
+Sets the minimum duration of exit spans. If an exit span's duration is less than
+this threshold the agent will attempt to drop the span and not send it.
+
+In some cases exit spans will not be discarded. Spans that propagate the trace
+context to downstream services, such as outgoing HTTP requests, will not be
+discarded. However, external calls that don't propagate context, such as calls
+to a database, can be discarded using this threshold.
+
+Additionally, spans that lead to an error will not be discarded.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  exitSpanMinDuration: '10ms'
 })
 ----

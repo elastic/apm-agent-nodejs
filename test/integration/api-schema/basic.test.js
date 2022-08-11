@@ -75,17 +75,17 @@ const next = afterAll(function (err, validators) {
     t.strictEqual(validateError({ id: 'foo', exception: {} }), false)
     validateFieldMessages(t, validateError.errors, [
       {
-        dataPath: '.exception',
+        dataPath: '/exception',
         params: { missingProperty: 'message' },
         message: 'should have required property \'message\''
       },
       {
-        dataPath: '.exception',
+        dataPath: '/exception',
         params: { missingProperty: 'type' },
         message: 'should have required property \'type\''
       },
       {
-        dataPath: '.exception',
+        dataPath: '/exception',
         params: {},
         message: 'should match some schema in anyOf'
       }
@@ -94,7 +94,7 @@ const next = afterAll(function (err, validators) {
     t.strictEqual(validateError({ id: 'foo', log: {} }), false)
     validateFieldMessages(t, validateError.errors, [
       {
-        dataPath: '.log',
+        dataPath: '/log',
         params: { missingProperty: 'message' },
         message: 'should have required property \'message\''
       }
