@@ -162,7 +162,7 @@
     "handlebars": "^4.7.3",
     "https-pem": "^3.0.0",
     "ioredis": "^5.1.0",
-    "knex": "^0.21.2",
+    "knex": "^0.95.15",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^9.0.1",
