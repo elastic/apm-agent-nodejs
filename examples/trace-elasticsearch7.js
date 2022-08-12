@@ -18,10 +18,9 @@ const apm = require('../').start({ // elastic-apm-node
   logUncaughtExceptions: true
 })
 
-// This is a non-standard package name. We've installed it with an alias to
-// allow installing it alongside version 8 of the same package:
-//    "@elastic/elasticsearch7": "npm:@elastic/elasticsearch@^7.17.0",
-const { Client } = require('@elastic/elasticsearch7')
+// Note that version *8* is installed by default. To use v7 you'll need to:
+//    npm install @elastic/elasticsearch@7
+const { Client } = require('@elastic/elasticsearch')
 
 const client = new Client({
   node: `http://${process.env.ES_HOST || 'localhost'}:9200`
