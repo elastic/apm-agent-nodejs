@@ -31,6 +31,27 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+- Support instrumenting core modules when require'd with the optional
+  https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
+  For example `require('node:http')` will now be instrumented.
+  ({issues}2816[#2816])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
 [[release-notes-3.38.0]]
 ==== 3.38.0 2022/08/11
 
