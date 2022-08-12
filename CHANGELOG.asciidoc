@@ -31,8 +31,11 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-[[release-notes-3.38.0]]
-==== 3.38.0 2022/08/11
+
+==== Unreleased
+
+[float]
+===== Breaking changes
 
 [float]
 ===== Features
@@ -41,6 +44,20 @@ Notes:
   https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
   For example `require('node:http')` will now be instrumented.
   ({issues}2816[#2816])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
+[[release-notes-3.38.0]]
+==== 3.38.0 2022/08/11
+
+[float]
+===== Features
+
 - Add instrumentation for the https://undici.nodejs.org[undici] HTTP client
   library. This also adds instrumentation of Node.js v18's
   https://nodejs.org/api/all.html#all_globals_fetch[`fetch()`], which uses
