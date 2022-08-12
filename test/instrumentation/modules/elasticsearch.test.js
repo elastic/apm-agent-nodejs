@@ -28,7 +28,7 @@ var mockClient = require('../../_mock_http_client')
 var findObjInArray = require('../../_utils').findObjInArray
 
 test('client.ping with callback', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'HEAD /', 'http://localhost:9200/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
 
   agent.startTransaction('foo')
 
@@ -43,7 +43,7 @@ test('client.ping with callback', function userLandCode (t) {
 })
 
 test('client.ping with promise', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'HEAD /', 'http://localhost:9200/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
 
   agent.startTransaction('foo')
 
@@ -59,7 +59,7 @@ test('client.ping with promise', function userLandCode (t) {
 })
 
 test('client.search with callback', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'POST /_search', 'http://localhost:9200/_search?q=pants'))
+  resetAgent(assertApmDataAndEnd(t, 'POST /_search', `http://${host}/_search?q=pants`))
 
   agent.startTransaction('foo')
 
@@ -75,7 +75,7 @@ test('client.search with callback', function userLandCode (t) {
 })
 
 test('client.search with abort', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'POST /_search', 'http://localhost:9200/_search?q=pants'))
+  resetAgent(assertApmDataAndEnd(t, 'POST /_search', `http://${host}/_search?q=pants`))
 
   agent.startTransaction('foo')
 
@@ -107,7 +107,12 @@ if (semver.satisfies(pkg.version, '>= 10')) {
       }
     }
 
-    resetAgent(assertApmDataAndEnd(t, 'POST /_search/template', 'http://localhost:9200/_search/template', JSON.stringify(body)))
+    resetAgent(assertApmDataAndEnd(
+      t,
+      'POST /_search/template',
+      `http://${host}/_search/template`,
+      JSON.stringify(body)
+    ))
 
     agent.startTransaction('foo')
 
@@ -137,7 +142,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 
     var statement = body.map(JSON.stringify).join('\n') + '\n'
 
-    resetAgent(assertApmDataAndEnd(t, 'POST /_msearch', 'http://localhost:9200/_msearch', statement))
+    resetAgent(assertApmDataAndEnd(t, 'POST /_msearch', `http://${host}/_msearch`, statement))
 
     agent.startTransaction('foo')
 
@@ -170,7 +175,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 
     var statement = body.map(JSON.stringify).join('\n') + '\n'
 
-    resetAgent(assertApmDataAndEnd(t, 'POST /_msearch/template', 'http://localhost:9200/_msearch/template', statement))
+    resetAgent(assertApmDataAndEnd(t, 'POST /_msearch/template', `http://${host}/_msearch/template`, statement))
 
     agent.startTransaction('foo')
 
@@ -186,7 +191,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 }
 
 test('client.count with callback', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'POST /_count', 'http://localhost:9200/_count'))
+  resetAgent(assertApmDataAndEnd(t, 'POST /_count', `http://${host}/_count`))
 
   agent.startTransaction('foo')
 
@@ -200,7 +205,7 @@ test('client.count with callback', function userLandCode (t) {
 })
 
 test('client with host=<array of host:port>', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'HEAD /', 'http://localhost:9200/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
   var client = new elasticsearch.Client({ host: [host] })
   client.ping(function (err) {
@@ -212,7 +217,7 @@ test('client with host=<array of host:port>', function userLandCode (t) {
 })
 
 test('client with hosts=<array of host:port>', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'HEAD /', 'http://localhost:9200/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
   var client = new elasticsearch.Client({ hosts: [host, host] })
   client.ping(function (err) {
@@ -224,7 +229,7 @@ test('client with hosts=<array of host:port>', function userLandCode (t) {
 })
 
 test('client with hosts="http://host:port"', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'HEAD /', 'http://localhost:9200/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
   let hostWithProto = host
   if (!hostWithProto.startsWith('http')) {
@@ -240,7 +245,7 @@ test('client with hosts="http://host:port"', function userLandCode (t) {
 })
 
 test('client with host=<array of object>', function userLandCode (t) {
-  resetAgent(assertApmDataAndEnd(t, 'HEAD /', 'http://localhost:9200/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
   const [hostname, port] = host.split(':')
   var client = new elasticsearch.Client({

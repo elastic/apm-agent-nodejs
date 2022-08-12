@@ -70,7 +70,7 @@ const clientOpts = {
 }
 
 test('client.ping with promise', function (t) {
-  resetAgent(checkDataAndEnd(t, 'HEAD /', 'http://localhost:9200/', 200))
+  resetAgent(checkDataAndEnd(t, 'HEAD /', `http://${host}/`, 200))
 
   agent.startTransaction('myTrans')
 
@@ -85,7 +85,7 @@ test('client.ping with promise', function (t) {
 // Callback-style was dropped in ES client v8.
 if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
   test('client.ping with callback', function (t) {
-    resetAgent(checkDataAndEnd(t, 'HEAD /', 'http://localhost:9200/', 200))
+    resetAgent(checkDataAndEnd(t, 'HEAD /', `http://${host}/`, 200))
 
     agent.startTransaction('myTrans')
 
@@ -102,7 +102,7 @@ if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
 test('client.search with promise', function (t) {
   const searchOpts = { q: 'pants' }
 
-  resetAgent(checkDataAndEnd(t, 'GET /_search', 'http://localhost:9200/_search?q=pants', 200))
+  resetAgent(checkDataAndEnd(t, 'GET /_search', `http://${host}/_search?q=pants`, 200))
 
   agent.startTransaction('myTrans')
 
@@ -123,7 +123,7 @@ if (semver.gte(process.version, '10.0.0')) {
   test('client.child', function (t) {
     const searchOpts = { q: 'pants' }
 
-    resetAgent(checkDataAndEnd(t, 'GET /_search', 'http://localhost:9200/_search?q=pants', 200))
+    resetAgent(checkDataAndEnd(t, 'GET /_search', `http://${host}/_search?q=pants`, 200))
 
     agent.startTransaction('myTrans')
 
@@ -143,7 +143,7 @@ if (semver.gte(process.version, '10.0.0')) {
   test('client.search with queryparam', function (t) {
     const searchOpts = { q: 'pants' }
 
-    resetAgent(checkDataAndEnd(t, 'GET /_search', 'http://localhost:9200/_search?q=pants', 200))
+    resetAgent(checkDataAndEnd(t, 'GET /_search', `http://${host}/_search?q=pants`, 200))
 
     agent.startTransaction('myTrans')
 
@@ -170,7 +170,13 @@ if (semver.gte(process.version, '10.0.0')) {
       body: body
     }
 
-    resetAgent(checkDataAndEnd(t, `POST /${searchOpts.index}/_search`, `http://localhost:9200/${searchOpts.index}/_search`, 200, JSON.stringify(body)))
+    resetAgent(checkDataAndEnd(
+      t,
+      `POST /${searchOpts.index}/_search`,
+      `http://${host}/${searchOpts.index}/_search`,
+      200,
+      JSON.stringify(body)
+    ))
 
     agent.startTransaction('myTrans')
 
@@ -202,7 +208,7 @@ if (semver.gte(process.version, '10.0.0')) {
       resetAgent(checkDataAndEnd(
         t,
         `POST /${searchOpts.index}/_search`,
-        `http://localhost:9200/${searchOpts.index}/_search`,
+        `http://${host}/${searchOpts.index}/_search`,
         200,
         expectedDbStatement
       ))
@@ -250,7 +256,7 @@ if (semver.gte(process.version, '10.0.0')) {
     resetAgent(checkDataAndEnd(
       t,
       `POST /${searchOpts.index}/_search`,
-      `http://localhost:9200/${searchOpts.index}/_search?${query}`,
+      `http://${host}/${searchOpts.index}/_search?${query}`,
       200,
       statement
     ))
@@ -281,7 +287,13 @@ if (semver.gte(process.version, '10.0.0')) {
       }
     }
 
-    resetAgent(checkDataAndEnd(t, 'POST /_search/template', 'http://localhost:9200/_search/template', 200, JSON.stringify(body)))
+    resetAgent(checkDataAndEnd(
+      t,
+      'POST /_search/template',
+      `http://${host}/_search/template`,
+      200,
+      JSON.stringify(body)
+    ))
 
     agent.startTransaction('myTrans')
 
@@ -317,7 +329,7 @@ if (semver.gte(process.version, '10.0.0')) {
     resetAgent(checkDataAndEnd(
       t,
       'POST /_msearch',
-      `http://localhost:9200/_msearch?${query}`,
+      `http://${host}/_msearch?${query}`,
       200,
       statement
     ))
@@ -352,7 +364,13 @@ if (semver.gte(process.version, '10.0.0')) {
     ]
     const statement = body.map(JSON.stringify).join('\n') + '\n'
 
-    resetAgent(checkDataAndEnd(t, 'POST /_msearch/template', 'http://localhost:9200/_msearch/template', 200, statement))
+    resetAgent(checkDataAndEnd(
+      t,
+      'POST /_msearch/template',
+      `http://${host}/_msearch/template`,
+      200,
+      statement
+    ))
 
     agent.startTransaction('myTrans')
 
