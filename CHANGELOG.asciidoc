@@ -31,10 +31,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.38.0]]
+==== 3.38.0 2022/08/11
 
 [float]
 ===== Features
@@ -63,8 +61,6 @@ Notes:
   implementing a GraphQL server (e.g. via https://www.apollographql.com/docs/apollo-server/deployment/lambda/[apollo-server-lambda])
   would not get the GraphQL-specific naming. ({issues}2832[#2832])
 
-[float]
-===== Chores
 
 [[release-notes-3.37.0]]
 ==== 3.37.0 2022/07/18
