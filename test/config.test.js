@@ -675,22 +675,26 @@ test('should separate strings and regexes into their own ignore arrays', functio
   t.end()
 })
 
-// XXX elasticsearchCaptureBodyUrls tests
-
-test('should compile wildcards from string', function (t) {
+test('should prepare WildcardMatcher array config vars', function (t) {
   var agent = new Agent()
   agent.start(Object.assign(
     {},
     agentOptsNoopTransport,
     {
-      transactionIgnoreUrls: ['foo', '/str1', '/wil*card']
+      transactionIgnoreUrls: ['foo', 'bar', '/wil*card'],
+      elasticsearchCaptureBodyUrls: ['*/_search', '*/_eql/search']
     }
   ))
 
-  t.strictEqual(
-    agent._conf.transactionIgnoreUrlRegExp.length,
-    3,
-    'was everything added?'
+  t.equal(
+    agent._conf.transactionIgnoreUrlRegExp.toString(),
+    '/^foo$/i,/^bar$/i,/^\\/wil.*card$/i',
+    'transactionIgnoreUrlRegExp'
+  )
+  t.equal(
+    agent._conf.elasticsearchCaptureBodyUrlsRegExp.toString(),
+    '/^.*\\/_search$/i,/^.*\\/_eql\\/search$/i',
+    'elasticsearchCaptureBodyUrlsRegExp'
   )
 
   agent.destroy()
@@ -1231,6 +1235,11 @@ test('parsing of ARRAY and KEY_VALUE opts', function (t) {
     {
       opts: { transactionIgnoreUrls: 'foo, bar bling' },
       expect: { transactionIgnoreUrls: ['foo', 'bar bling'] }
+    },
+
+    {
+      opts: { elasticsearchCaptureBodyUrls: '*/_search, */_msearch/template ' },
+      expect: { elasticsearchCaptureBodyUrls: ['*/_search', '*/_msearch/template'] }
     },
 
     {
