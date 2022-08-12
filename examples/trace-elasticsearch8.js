@@ -18,15 +18,15 @@ const apm = require('../').start({ // elastic-apm-node
   logUncaughtExceptions: true
 })
 
-// Currently, pre-releases of v8 are published as the "...-canary" package name.
 // eslint-disable-next-line no-unused-vars
-const { Client, HttpConnection } = require('@elastic/elasticsearch-canary')
+const { Client, HttpConnection } = require('@elastic/elasticsearch')
 
 const client = new Client({
-  // With version 8 of the client, you can use `HttpConnection` to use the old
-  // HTTP client:
+  // By default version 8 uses the new undici HTTP client lib. You can specify
+  // `HttpConnection` to use the older HTTP client.
   // Connection: HttpConnection,
-  node: `http://${process.env.ES_HOST || 'localhost'}:9200`
+  node: `http://${process.env.ES_HOST || 'localhost'}:9200`,
+  maxRetries: 1
 })
 
 async function run () {

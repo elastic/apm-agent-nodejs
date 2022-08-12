@@ -31,10 +31,8 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.38.0]]
+==== 3.38.0 2022/08/11
 
 [float]
 ===== Features
@@ -43,12 +41,22 @@ Notes:
   https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
   For example `require('node:http')` will now be instrumented.
   ({issues}2816[#2816])
+- Add instrumentation for the https://undici.nodejs.org[undici] HTTP client
+  library. This also adds instrumentation of Node.js v18's
+  https://nodejs.org/api/all.html#all_globals_fetch[`fetch()`], which uses
+  undici under the hood. For the instrumentation to work one must be using
+  node v14.17.0 or later, or have installed the
+  https://www.npmjs.com/package/diagnostics_channel['diagnostics_channel' polyfill].
+  ({issues}2383[#2383])
 
 - Added `exitSpanMinDuration` configuration field, allowing end users to
   set a time threshold for dropping exit spans. ({pull}2843[#2843])
 
 [float]
 ===== Bug fixes
+
+- Capturing an error would fail if the Error instance had an attribute that
+  was an invalid date. ({issues}2030[#2030])
 
 - Fix the span for an instrumented S3 ListBuckets API call to not be invalid
   for APM server intake. ({pull}2866[#2866])
@@ -57,8 +65,6 @@ Notes:
   implementing a GraphQL server (e.g. via https://www.apollographql.com/docs/apollo-server/deployment/lambda/[apollo-server-lambda])
   would not get the GraphQL-specific naming. ({issues}2832[#2832])
 
-[float]
-===== Chores
 
 [[release-notes-3.37.0]]
 ==== 3.37.0 2022/07/18

@@ -37,19 +37,20 @@ Steps to reproduce the behavior: <!-- replace example steps below -->
 
 <!-- Add any other context about the problem here. -->
 
-- Agent config options <!-- be careful not to post sensitive information -->
-  <details>
-    <summary>Click to expand</summary>
+Agent config options: <!-- be careful not to post sensitive information -->
+<details>
+  <summary>Click to expand</summary>
 
-    ```
-    replace this line with your agent config options
-    ```
-  </details>
-- `package.json` dependencies:
-  <details>
-    <summary>Click to expand</summary>
+```
+replace this line with your agent config options
+```
+</details>
 
-    ```
-    replace this line with your dependencies section from package.json
-    ```
-  </details>
+`package.json` dependencies:
+<details>
+  <summary>Click to expand</summary>
+
+```
+replace this line with your dependencies section from package.json
+```
+</details>
