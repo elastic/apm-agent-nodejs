@@ -119,7 +119,9 @@ restore the older behavior with `contextManager: "asynchooks"`.
 [float]
 ===== Features
 
-- Add support for 'knex' version v0.21 to v1 ({issues}2699[#2699])
+- Add support for 'knex' version v0.21 to v1 ({issues}2699[#2699]).
+  Note that instrumentation of knex >=0.95.0 is not support when using the
+  deprecated <<context-manager,`contextManager=patch`>> configuration option.
 
 - Change the instrumentation of SQS- and SNS-triggered AWS Lambda invocations:
   The special-casing of triggers with a *single* message/record has been
