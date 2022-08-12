@@ -879,24 +879,16 @@ function checkDataAndEnd (t, expectedName, expectedHttpUrl, expectedStatusCode, 
       t.notOk(esSpan.context.http && esSpan.context.http.url, 'should not have span.context.http.url')
     }
 
-    // XXX
-    // Iff the test case provided an expected `statusCode`, then we expect
-    // `.context.http`. The exception is with @elastic/elasticsearch >=8
-    // and `contextManager="patch"` (see "Limitations" section in the
-    // instrumentation code).
-    if (!expectedStatusCode) {
-      console.log('XXX wtf? no statusCode')
-      XXX
+    // With @elastic/elasticsearch >=8 and `contextManager="patch"` there is
+    // a limitation such that some HTTP context fields cannot be captured.
+    // (See "Limitations" section in the instrumentation code.)
+    if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
+          agent._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+      t.comment('skip span.context.http.{status_code,response} check because of contextManager="patch" + esVersion>=8 limitation')
+    } else {
+      t.equal(esSpan.context.http.status_code, expectedStatusCode, 'context.http.status_code')
+      t.ok(esSpan.context.http.response.encoded_body_size, 'context.http.response.encoded_body_size is present')
     }
-    // if (statusCode !== undefined) {
-    //   if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
-    //       agent._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
-    //     t.comment('skip span.context.http check because of contextManager="patch" + esVersion>=8 limitation')
-    //   } else {
-    //     t.equal(esSpan.context.http.status_code, statusCode, 'context.http.status_code')
-    //     t.ok(esSpan.context.http.response.encoded_body_size, 'context.http.response.encoded_body_size is present')
-    //   }
-    // }
 
     t.end()
   }
