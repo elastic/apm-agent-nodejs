@@ -70,7 +70,7 @@ const clientOpts = {
 }
 
 test('client.ping with promise', function (t) {
-  resetAgent(checkDataAndEnd(t, 'HEAD', '/', null, 200))
+  resetAgent(checkDataAndEnd(t, 'HEAD /', 'http://localhost:9200/', 200))
 
   agent.startTransaction('myTrans')
 
@@ -85,7 +85,7 @@ test('client.ping with promise', function (t) {
 // Callback-style was dropped in ES client v8.
 if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
   test('client.ping with callback', function (t) {
-    resetAgent(checkDataAndEnd(t, 'HEAD', '/', null, 200))
+    resetAgent(checkDataAndEnd(t, 'HEAD /', 'http://localhost:9200/', 200))
 
     agent.startTransaction('myTrans')
 
@@ -102,7 +102,7 @@ if (!semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
 test('client.search with promise', function (t) {
   const searchOpts = { q: 'pants' }
 
-  resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants', 200))
+  resetAgent(checkDataAndEnd(t, 'GET /_search', 'http://localhost:9200/_search?q=pants', 200))
 
   agent.startTransaction('myTrans')
 
@@ -123,7 +123,7 @@ if (semver.gte(process.version, '10.0.0')) {
   test('client.child', function (t) {
     const searchOpts = { q: 'pants' }
 
-    resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants', 200))
+    resetAgent(checkDataAndEnd(t, 'GET /_search', 'http://localhost:9200/_search?q=pants', 200))
 
     agent.startTransaction('myTrans')
 
@@ -143,7 +143,7 @@ if (semver.gte(process.version, '10.0.0')) {
   test('client.search with queryparam', function (t) {
     const searchOpts = { q: 'pants' }
 
-    resetAgent(checkDataAndEnd(t, 'GET', '/_search', 'q=pants', 200))
+    resetAgent(checkDataAndEnd(t, 'GET /_search', 'http://localhost:9200/_search?q=pants', 200))
 
     agent.startTransaction('myTrans')
 
@@ -170,7 +170,7 @@ if (semver.gte(process.version, '10.0.0')) {
       body: body
     }
 
-    resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, JSON.stringify(body), 200))
+    resetAgent(checkDataAndEnd(t, `POST /${searchOpts.index}/_search`, `http://localhost:9200/${searchOpts.index}/_search`, 200, JSON.stringify(body)))
 
     agent.startTransaction('myTrans')
 
@@ -199,7 +199,13 @@ if (semver.gte(process.version, '10.0.0')) {
       let expectedDbStatement = Object.assign({}, searchOpts)
       delete expectedDbStatement.index
       expectedDbStatement = JSON.stringify(expectedDbStatement)
-      resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, expectedDbStatement, 200))
+      resetAgent(checkDataAndEnd(
+        t,
+        `POST /${searchOpts.index}/_search`,
+        `http://localhost:9200/${searchOpts.index}/_search`,
+        200,
+        expectedDbStatement
+      ))
 
       agent.startTransaction('myTrans')
 
@@ -230,20 +236,24 @@ if (semver.gte(process.version, '10.0.0')) {
       size: 2,
       sort: 'myField:asc'
     }
-    let statement
+    let query, statement
     // ES client version 8 merges options into `body` differently from earlier
     // versions.
     if (semver.satisfies(esVersion, '>=8', { includePrerelease: true })) {
-      statement = `sort=myField%3Aasc
-
-{"query":{"match":{"request":"bar"}},"size":2}`
+      query = 'sort=myField%3Aasc'
+      statement = '{"query":{"match":{"request":"bar"}},"size":2}'
     } else {
-      statement = `size=2&sort=myField%3Aasc
-
-${JSON.stringify(body)}`
+      query = 'size=2&sort=myField%3Aasc'
+      statement = JSON.stringify(body)
     }
 
-    resetAgent(checkDataAndEnd(t, 'POST', `/${searchOpts.index}/_search`, statement, 200))
+    resetAgent(checkDataAndEnd(
+      t,
+      `POST /${searchOpts.index}/_search`,
+      `http://localhost:9200/${searchOpts.index}/_search?${query}`,
+      200,
+      statement
+    ))
 
     agent.startTransaction('myTrans')
 
@@ -271,7 +281,7 @@ ${JSON.stringify(body)}`
       }
     }
 
-    resetAgent(checkDataAndEnd(t, 'POST', '/_search/template', JSON.stringify(body), 200))
+    resetAgent(checkDataAndEnd(t, 'POST /_search/template', 'http://localhost:9200/_search/template', 200, JSON.stringify(body)))
 
     agent.startTransaction('myTrans')
 
@@ -301,12 +311,16 @@ ${JSON.stringify(body)}`
       typed_keys: false,
       body: body
     }
-    const statement = `search_type=query_then_fetch&typed_keys=false
+    const query = 'search_type=query_then_fetch&typed_keys=false'
+    const statement = body.map(JSON.stringify).join('\n') + '\n'
 
-${body.map(JSON.stringify).join('\n')}
-`
-
-    resetAgent(checkDataAndEnd(t, 'POST', '/_msearch', statement, 200))
+    resetAgent(checkDataAndEnd(
+      t,
+      'POST /_msearch',
+      `http://localhost:9200/_msearch?${query}`,
+      200,
+      statement
+    ))
 
     agent.startTransaction('myTrans')
 
@@ -338,7 +352,7 @@ ${body.map(JSON.stringify).join('\n')}
     ]
     const statement = body.map(JSON.stringify).join('\n') + '\n'
 
-    resetAgent(checkDataAndEnd(t, 'POST', '/_msearch/template', statement, 200))
+    resetAgent(checkDataAndEnd(t, 'POST /_msearch/template', 'http://localhost:9200/_msearch/template', 200, statement))
 
     agent.startTransaction('myTrans')
 
@@ -819,7 +833,7 @@ function checkSpanOutcomesSuccess (t) {
   }
 }
 
-function checkDataAndEnd (t, method, path, dbStatement, statusCode) {
+function checkDataAndEnd (t, expectedName, expectedHttpUrl, expectedStatusCode, expectedDbStatement) {
   return function (data) {
     t.equal(data.transactions.length, 1, 'should have 1 transaction')
     const trans = data.transactions[0]
@@ -845,34 +859,44 @@ function checkDataAndEnd (t, method, path, dbStatement, statusCode) {
     t.strictEqual(esSpan.subtype, 'elasticsearch')
     t.strictEqual(esSpan.action, 'request')
     t.strictEqual(esSpan.sync, false, 'span.sync=false')
-    t.equal(esSpan.name, 'Elasticsearch: ' + method + ' ' + path, 'elasticsearch span should have expected name')
+    t.equal(esSpan.name, 'Elasticsearch: ' + expectedName, 'elasticsearch span should have expected name')
 
-    // Iff the test case provided a `dbStatement`, then we expect `.context.db`.
-    if (typeof dbStatement === 'string') {
+    if (expectedDbStatement) {
       t.deepEqual(esSpan.context.db,
-        { type: 'elasticsearch', statement: dbStatement },
-        'elasticsearch span has correct .context.db')
+        { type: 'elasticsearch', statement: expectedDbStatement },
+        'span.context.db')
     } else {
-      t.notOk(esSpan.context && esSpan.context.db, 'elasticsearch span should not have .context.db')
+      t.deepEqual(esSpan.context.db, { type: 'elasticsearch' }, 'span.context.db')
     }
 
     // Ensure "destination" context is set.
     t.equal(esSpan.context.destination.service.name, 'elasticsearch',
       'elasticsearch span.context.destination.service.name=="elasticsearch"')
 
+    if (expectedHttpUrl) {
+      t.equal(esSpan.context.http.url, expectedHttpUrl, 'span.context.http.url')
+    } else {
+      t.notOk(esSpan.context.http && esSpan.context.http.url, 'should not have span.context.http.url')
+    }
+
+    // XXX
     // Iff the test case provided an expected `statusCode`, then we expect
     // `.context.http`. The exception is with @elastic/elasticsearch >=8
     // and `contextManager="patch"` (see "Limitations" section in the
     // instrumentation code).
-    if (statusCode !== undefined) {
-      if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
-          agent._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
-        t.comment('skip span.context.http check because of contextManager="patch" + esVersion>=8 limitation')
-      } else {
-        t.equal(esSpan.context.http.status_code, statusCode, 'context.http.status_code')
-        t.ok(esSpan.context.http.response.encoded_body_size, 'context.http.response.encoded_body_size is present')
-      }
+    if (!expectedStatusCode) {
+      console.log('XXX wtf? no statusCode')
+      XXX
     }
+    // if (statusCode !== undefined) {
+    //   if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
+    //       agent._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+    //     t.comment('skip span.context.http check because of contextManager="patch" + esVersion>=8 limitation')
+    //   } else {
+    //     t.equal(esSpan.context.http.status_code, statusCode, 'context.http.status_code')
+    //     t.ok(esSpan.context.http.response.encoded_body_size, 'context.http.response.encoded_body_size is present')
+    //   }
+    // }
 
     t.end()
   }

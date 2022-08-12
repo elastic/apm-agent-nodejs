@@ -1356,3 +1356,6 @@ require('elastic-apm-node').start({
   exitSpanMinDuration: '10ms'
 })
 ----
+
+
+XXX elasticsearchCaptureBodyUrls

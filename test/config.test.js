@@ -675,6 +675,8 @@ test('should separate strings and regexes into their own ignore arrays', functio
   t.end()
 })
 
+// XXX elasticsearchCaptureBodyUrls tests
+
 test('should compile wildcards from string', function (t) {
   var agent = new Agent()
   agent.start(Object.assign(
