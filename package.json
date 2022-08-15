@@ -148,7 +148,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-license-header": "^0.6.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-standard": "^4.1.0",
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
