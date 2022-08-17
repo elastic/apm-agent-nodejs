@@ -416,7 +416,7 @@ test('#startSpan()', function (t) {
     var span = agent.startSpan()
     t.ok(span, 'should return a span')
     t.strictEqual(span.name, 'unnamed')
-    t.strictEqual(span.type, null)
+    t.strictEqual(span.type, 'custom')
     t.strictEqual(span.subtype, null)
     t.strictEqual(span.action, null)
     agent.destroy()

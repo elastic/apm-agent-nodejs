@@ -97,23 +97,12 @@ test('#getHTTPDestination', function (t) {
 })
 
 test('#getDBDestination', function (t) {
-  const span = { type: 'db', subtype: 'memcached' }
+  const span = { }
   const host = 'localhost'
   const port = '8080'
-  const service = {
-    name: span.subtype,
-    resource: span.subtype,
-    type: span.type
-  }
-
-  t.test('service fields', (t) => {
-    t.deepEqual(getDBDestination(span), { service })
-    t.end()
-  })
 
   t.test('host when present', (t) => {
     t.deepEqual(getDBDestination(span, host), {
-      service,
       address: host
     })
     t.end()
@@ -121,7 +110,6 @@ test('#getDBDestination', function (t) {
 
   t.test('port when present', (t) => {
     t.deepEqual(getDBDestination(span, null, port), {
-      service,
       port: 8080
     })
     t.end()
