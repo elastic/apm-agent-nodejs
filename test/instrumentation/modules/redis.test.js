@@ -59,13 +59,16 @@ test('redis', function (t) {
       const span = spans[i]
       t.strictEqual(span.transaction_id, trans.id, 'span.transaction_id')
       t.strictEqual(span.name, expectedName, 'span.name')
-      t.strictEqual(span.type, 'cache', 'span.type')
+      t.strictEqual(span.type, 'db', 'span.type')
       t.strictEqual(span.subtype, 'redis', 'span.subtype')
+      t.strictEqual(span.action, 'query', 'span.action')
+      t.deepEqual(span.context.service.target, { type: 'redis' }, 'span.context.service.target')
       t.deepEqual(span.context.destination, {
-        service: { name: 'redis', resource: 'redis', type: 'cache' },
         address: process.env.REDIS_HOST || '127.0.0.1',
-        port: 6379
+        port: 6379,
+        service: { name: '', type: '', resource: 'redis' }
       }, 'span.context.destination')
+      t.deepEqual(span.context.db, { type: 'redis' }, 'span.context.db')
       t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
 
       var offset = span.timestamp - trans.timestamp
