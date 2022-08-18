@@ -18,7 +18,7 @@ const apm = require('../').start({ // elastic-apm-node
   logUncaughtExceptions: true
 })
 
-// Note that version *8* is installed by default. To use v7 you'll need to:
+// Note that version 7 is *not* installed by default. To use v7 you'll need to:
 //    npm install @elastic/elasticsearch@7
 const { Client } = require('@elastic/elasticsearch')
 
