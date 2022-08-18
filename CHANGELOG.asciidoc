@@ -40,6 +40,19 @@ Notes:
 [float]
 ===== Features
 
+- Improve the captured information for Elasticsearch client instrumentation.
+  For all outgoing Elasticsearch client requests, the full HTTP url is
+  now captured (stored in the "url.original" field). For Elasticsearch requests
+  that do a search the outgoing request body is captured (to the
+  "span.db.statement" field), as before, but the format has changed to only
+  hold the request body. Before this change the "span.db.statement" would
+  also hold any HTTP query parameters. These are now more naturally captured
+  with "url.origin". ({issues}2019[#2019])
++
+This change also introduces the <<elasticsearch-capture-body-urls>>
+configuration option to enable controlling which Elasticsearch REST API
+paths are considered for body capture. ({pull}2873[#2873])
+
 - Support instrumenting core modules when require'd with the optional
   https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
   For example `require('node:http')` will now be instrumented.
