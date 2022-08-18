@@ -25,12 +25,6 @@ const mockClient = require('../_mock_http_client')
 const tape = require('tape')
 const { NoopTransport } = require('../../lib/noop-transport')
 
-const destinationContext = {
-  service: {
-    resource: 'foo'
-  }
-}
-
 // `setTimeout` precision is ~1ms. It can fire its callback up to a millisecond
 // early. Comparisons on the minimum time for an action using setTimeout should
 // allow for this.
@@ -184,9 +178,9 @@ tape.test('unit tests', function (suite) {
   suite.test('test _getCompressionStrategy exact match', function (t) {
     const c = new SpanCompression(agent)
     const trans = new Transaction(agent)
-    const span1 = new Span(trans, 'name', 'type', 'subtype', { exitSpan: true})
+    const span1 = new Span(trans, 'name', 'type', 'subtype', { exitSpan: true })
     span1.end()
-    const span2 = new Span(trans, 'name', 'type', 'subtype', { exitSpan: true})
+    const span2 = new Span(trans, 'name', 'type', 'subtype', { exitSpan: true })
     span2.end()
 
     t.equals(c._getCompressionStrategy(span1, span2), constants.STRATEGY_EXACT_MATCH)
