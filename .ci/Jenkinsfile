@@ -10,7 +10,7 @@ pipeline {
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/main'
-    GITHUB_CHECK = 'true'
+    GITHUB_CHECK = 'false'
     RELEASE_URL_MESSAGE = "(<https://github.com/elastic/${env.REPO}/releases/tag/${env.TAG_NAME}|${env.TAG_NAME}>)"
     SLACK_CHANNEL = '#apm-agent-node'
     NOTIFY_TO = 'build-apm+apm-agent-nodejs@elastic.co'
