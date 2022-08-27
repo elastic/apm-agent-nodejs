@@ -205,6 +205,7 @@ test('client.cmd(...) call signatures', function (t) {
   })
 
   var client = redis.createClient('6379', process.env.REDIS_HOST)
+
   client.on('ready', function () {
     var t0 = agent.startTransaction('t0')
 
