@@ -40,6 +40,8 @@ Notes:
 [float]
 ===== Features
 
+- Support instrumentation of tedious@15. ({pull}2897[#2897])
+
 - Improve the captured information for Elasticsearch client instrumentation.
   For all outgoing Elasticsearch client requests, the full HTTP url is
   now captured (stored in the "url.original" field). For Elasticsearch requests

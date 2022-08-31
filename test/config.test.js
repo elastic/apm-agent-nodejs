@@ -1020,7 +1020,7 @@ test('disableInstrumentations', function (t) {
     // https://github.com/restify/node-restify/issues/1888
     modules.delete('restify')
   }
-  if (semver.lt(process.version, '12.3.0')) {
+  if (semver.lt(process.version, '14.0.0')) {
     modules.delete('tedious')
   }
   if (semver.lt(process.version, '12.18.0')) {
