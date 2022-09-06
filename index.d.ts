@@ -249,6 +249,7 @@ declare namespace apm {
     contextPropagationOnly?: boolean;
     disableInstrumentations?: string | string[];
     disableSend?: boolean;
+    elasticsearchCaptureBodyUrls?: Array<string>;
     environment?: string;
     errorMessageMaxLength?: string; // DEPRECATED: use `longFieldMaxLength`.
     errorOnAbortedRequests?: boolean;

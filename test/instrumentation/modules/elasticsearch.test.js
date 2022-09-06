@@ -6,14 +6,11 @@
 
 'use strict'
 
-const { pathIsAQuery } = require('../../../lib/instrumentation/elasticsearch-shared')
-
 process.env.ELASTIC_APM_TEST = true
 var host = (process.env.ES_HOST || 'localhost') + ':9200'
 
 var agent = require('../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-elasticsearch-legacy-client',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
@@ -31,7 +28,7 @@ var mockClient = require('../../_mock_http_client')
 var findObjInArray = require('../../_utils').findObjInArray
 
 test('client.ping with callback', function userLandCode (t) {
-  resetAgent(done(t, 'HEAD', '/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
 
   agent.startTransaction('foo')
 
@@ -46,7 +43,7 @@ test('client.ping with callback', function userLandCode (t) {
 })
 
 test('client.ping with promise', function userLandCode (t) {
-  resetAgent(done(t, 'HEAD', '/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
 
   agent.startTransaction('foo')
 
@@ -62,7 +59,7 @@ test('client.ping with promise', function userLandCode (t) {
 })
 
 test('client.search with callback', function userLandCode (t) {
-  resetAgent(done(t, 'POST', '/_search', 'q=pants'))
+  resetAgent(assertApmDataAndEnd(t, 'POST /_search', `http://${host}/_search?q=pants`))
 
   agent.startTransaction('foo')
 
@@ -78,7 +75,7 @@ test('client.search with callback', function userLandCode (t) {
 })
 
 test('client.search with abort', function userLandCode (t) {
-  resetAgent(done(t, 'POST', '/_search', 'q=pants'))
+  resetAgent(assertApmDataAndEnd(t, 'POST /_search', `http://${host}/_search?q=pants`))
 
   agent.startTransaction('foo')
 
@@ -110,7 +107,12 @@ if (semver.satisfies(pkg.version, '>= 10')) {
       }
     }
 
-    resetAgent(done(t, 'POST', '/_search/template', JSON.stringify(body)))
+    resetAgent(assertApmDataAndEnd(
+      t,
+      'POST /_search/template',
+      `http://${host}/_search/template`,
+      JSON.stringify(body)
+    ))
 
     agent.startTransaction('foo')
 
@@ -140,7 +142,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 
     var statement = body.map(JSON.stringify).join('\n') + '\n'
 
-    resetAgent(done(t, 'POST', '/_msearch', statement))
+    resetAgent(assertApmDataAndEnd(t, 'POST /_msearch', `http://${host}/_msearch`, statement))
 
     agent.startTransaction('foo')
 
@@ -173,7 +175,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 
     var statement = body.map(JSON.stringify).join('\n') + '\n'
 
-    resetAgent(done(t, 'POST', '/_msearch/template', statement))
+    resetAgent(assertApmDataAndEnd(t, 'POST /_msearch/template', `http://${host}/_msearch/template`, statement))
 
     agent.startTransaction('foo')
 
@@ -189,7 +191,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 }
 
 test('client.count with callback', function userLandCode (t) {
-  resetAgent(done(t, 'POST', '/_count', ''))
+  resetAgent(assertApmDataAndEnd(t, 'POST /_count', `http://${host}/_count`))
 
   agent.startTransaction('foo')
 
@@ -203,7 +205,7 @@ test('client.count with callback', function userLandCode (t) {
 })
 
 test('client with host=<array of host:port>', function userLandCode (t) {
-  resetAgent(done(t, 'HEAD', '/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
   var client = new elasticsearch.Client({ host: [host] })
   client.ping(function (err) {
@@ -215,7 +217,7 @@ test('client with host=<array of host:port>', function userLandCode (t) {
 })
 
 test('client with hosts=<array of host:port>', function userLandCode (t) {
-  resetAgent(done(t, 'HEAD', '/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
   var client = new elasticsearch.Client({ hosts: [host, host] })
   client.ping(function (err) {
@@ -227,7 +229,7 @@ test('client with hosts=<array of host:port>', function userLandCode (t) {
 })
 
 test('client with hosts="http://host:port"', function userLandCode (t) {
-  resetAgent(done(t, 'HEAD', '/'))
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
   let hostWithProto = host
   if (!hostWithProto.startsWith('http')) {
@@ -242,7 +244,22 @@ test('client with hosts="http://host:port"', function userLandCode (t) {
   t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 })
 
-function done (t, method, path, query) {
+test('client with host=<array of object>', function userLandCode (t) {
+  resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
+  agent.startTransaction('foo')
+  const [hostname, port] = host.split(':')
+  var client = new elasticsearch.Client({
+    host: [{ host: hostname, port: port }]
+  })
+  client.ping(function (err) {
+    t.error(err)
+    agent.endTransaction()
+    agent.flush()
+  })
+  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
+})
+
+function assertApmDataAndEnd (t, expectedName, expectedHttpUrl, expectedDbStatement) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 1, 'should have 1 transaction')
     t.strictEqual(data.spans.length, 1, 'should have 1 span')
@@ -261,16 +278,22 @@ function done (t, method, path, query) {
     t.strictEqual(span.subtype, subtype)
     t.strictEqual(span.action, action)
 
-    t.strictEqual(span.name, 'Elasticsearch: ' + method + ' ' + path)
+    t.strictEqual(span.name, 'Elasticsearch: ' + expectedName)
 
     t.ok(span.stacktrace.some(function (frame) {
       return frame.function === 'userLandCode'
     }), 'include user-land code frame')
 
-    if (pathIsAQuery.test(path)) {
-      t.deepEqual(span.context.db, { statement: query, type: 'elasticsearch' })
+    if (expectedDbStatement) {
+      t.deepEqual(span.context.db, { type: 'elasticsearch', statement: expectedDbStatement }, 'span.context.db')
     } else {
-      t.notOk(span.context.db, 'span should not have "context.db"')
+      t.deepEqual(span.context.db, { type: 'elasticsearch' }, 'span.context.db')
+    }
+
+    if (expectedHttpUrl) {
+      t.equal(span.context.http.url, expectedHttpUrl, 'span.context.http.url')
+    } else {
+      t.notOk(span.context.http && span.context.http.url, 'should not have span.context.http.url')
     }
 
     const [address, port] = host.split(':')

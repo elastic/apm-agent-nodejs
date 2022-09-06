@@ -31,7 +31,7 @@ npm_install() {
   local retries=2
   local count=0
 
-  until npm install; do
+  until npm install --no-save; do
     exit=$?
     wait=$((2 ** $count))
     count=$(($count + 1))

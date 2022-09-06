@@ -144,7 +144,7 @@ so those should be supported as well.
 |https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <3.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/redis[redis] |>=2.0.0 <4.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/tedious[tedious] |>=1.9 <15.0.0 | (Excluding v4.0.0.) Will instrument all queries
+|https://www.npmjs.com/package/tedious[tedious] |>=1.9 <16.0.0 | (Excluding v4.0.0.) Will instrument all queries
 |https://www.npmjs.com/package/undici[undici] | >=4.7.1 <6 | Will instrument undici HTTP requests, except HTTP CONNECT. Requires node v14.17.0 or later, or the user to have installed the https://www.npmjs.com/package/diagnostics_channel['diagnostics_channel' polyfill].
 |https://www.npmjs.com/package/ws[ws] |>=1.0.0 <8.0.0 |Will instrument outgoing WebSocket messages
 |=======================================================================
@@ -153,19 +153,18 @@ so those should be supported as well.
 [[compatibility-better-stack-traces]]
 ==== Better Stack Traces
 
-When viewing a span in Elastic APM,
-you'll see where in your code you initiated the span (e.g. a database query).
+The APM agent <<span-stack-trace-min-duration,can be configured>> to capture
+span stack traces, to show where in your code a span (e.g. for a database query)
+was initiated.
 
-Given the async nature of Node.js,
-it's not possible for us to see further back than the last async boundary.
-We therefore make sure to monitor as close to your code as possible.
-But some modules will interfere with this monitoring by injecting an async call between your code and the actual monitored function.
+Given the async nature of Node.js, it's not possible for the APM agent to see
+further back than the last async boundary. Modules that happen to have an async
+boundary between a call from your application code and the action that leads
+to an APM span will limit the utility of these span stack traces.
 
-We monitor these "offending" modules directly to give you a better experience.
-
-The modules and versions listed below are the ones we support.
-If you use an unsupported version you might not be able to see your own code in the spans.
-This does not impact the stability of your application in any way - only the collected metrics.
+The modules listed below are those that the APM agent instruments to provide
+more useful span stack traces -- ones that point to your application code --
+when enabled.
 
 If you don't see your own code in spans,
 please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM discuss forum] and include information about your dependencies.
@@ -173,7 +172,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 [options="header"]
 |=================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/knex[knex] |>=0.9.0 <1.0.0 | Instrumentation of Knex >=0.95.0 is not supported when using the deprecated <<context-manager,`contextManager=patch`>> configuration option.
+|https://www.npmjs.com/package/knex[knex] |>=0.9.0 <1.0.0 | Provides better span stack traces for 'pg' and 'mysql' spans. Instrumentation of Knex >=0.95.0 is not supported when using the deprecated <<context-manager,`contextManager=patch`>> configuration option.
 |=================================================
 
 [float]

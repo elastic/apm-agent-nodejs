@@ -459,10 +459,16 @@ tedious-v11-v12:
   versions: '11.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
-tedious:
+tedious-v12-v15:
   name: tedious
   node: '>=12.3.0'
   versions: '12.x || 13.x || 14.x'
+  commands: node test/instrumentation/modules/tedious.test.js
+
+tedious:
+  name: tedious
+  node: '>=14'
+  versions: '15.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:

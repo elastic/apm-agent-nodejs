@@ -1356,3 +1356,15 @@ require('elastic-apm-node').start({
   exitSpanMinDuration: '10ms'
 })
 ----
+
+[[elasticsearch-capture-body-urls]]
+==== `elasticsearchCaptureBodyUrls`
+
+* *Type:* Array of wildcard patterns
+* *Default:* `['*/_search', '*/_search/template', '*/_msearch', '*/_msearch/template', '*/_async_search', '*/_count', '*/_sql', '*/_eql/search' ]`
+* *Env:* `ELASTIC_APM_ELASTICSEARCH_CAPTURE_BODY_URLS`
+// Spec name: elasticsearch_capture_body_urls
+
+The URL path patterns for which the APM agent will capture the request body of outgoing requests to Elasticsearch made with the `@elastic/elasticsearch` module (or the legacy `elasticsearch` module). The default setting captures the body for https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html[Elasticsearch REST APIs] making a search.
+
+The captured request body (if any) is stored on the `span.db.statement` field. Captured request bodies are truncated to a maximum length defined by <<long-field-max-length>>.

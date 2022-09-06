@@ -40,6 +40,21 @@ Notes:
 [float]
 ===== Features
 
+- Support instrumentation of tedious@15. ({pull}2897[#2897])
+
+- Improve the captured information for Elasticsearch client instrumentation.
+  For all outgoing Elasticsearch client requests, the full HTTP url is
+  now captured (stored in the "url.original" field). For Elasticsearch requests
+  that do a search the outgoing request body is captured (to the
+  "span.db.statement" field), as before, but the format has changed to only
+  hold the request body. Before this change the "span.db.statement" would
+  also hold any HTTP query parameters. These are now more naturally captured
+  with "url.origin". ({issues}2019[#2019])
++
+This change also introduces the <<elasticsearch-capture-body-urls>>
+configuration option to enable controlling which Elasticsearch REST API
+paths are considered for body capture. ({pull}2873[#2873])
+
 - Support instrumenting core modules when require'd with the optional
   https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
   For example `require('node:http')` will now be instrumented.
@@ -50,6 +65,10 @@ Notes:
 
 [float]
 ===== Chores
+
+- Disable knex instrumentation when not collecting span stack traces
+  (because there is no point). This is a performance improvement for
+  Knex usage in the default configuration. ({pull}2879[#2879])
 
 
 [[release-notes-3.38.0]]
