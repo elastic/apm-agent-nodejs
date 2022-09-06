@@ -16,7 +16,7 @@ const tape = require('tape')
 
 const logging = require('../../lib/logging')
 const { MockAPMServer } = require('../_mock_apm_server')
-const { gatherStackTrace, stackTraceFromErrStackString } = require('../../lib/stacktraces')
+const { gatherStackTrace, initStackTraceCollection, stackTraceFromErrStackString } = require('../../lib/stacktraces')
 
 const log = logging.createLogger('off')
 
@@ -304,6 +304,7 @@ tape.test('stackTraceFromErrStackString()', function (t) {
 })
 
 tape.test('gatherStackTrace()', function (suite) {
+  initStackTraceCollection()
   function thisIsMyFunction () {
     // before 2
     // before 1
@@ -396,28 +397,6 @@ tape.test('gatherStackTrace()', function (suite) {
         t.end()
       })
     })
-  })
-
-  tape.test('delayed error-callsite loading', function (t) {
-    // const server = new MockAPMServer()
-    // server.start(function (serverUrl) {
-    execFile(
-      process.execPath,
-      ['fixtures/throw-an-error-no-agent.js'],
-      {
-        cwd: __dirname,
-        timeout: 10000 // sanity stop, 3s is sometimes too short for CI
-      },
-      function done (err, _stdout, _stderr) {
-        t.ok(err, 'throw-an-error-no-agent.js errored out')
-        t.ok(/Error: boom/.test(err.message),
-          'err.message includes /Error: boom/: ' + JSON.stringify(err.message))
-        t.end()
-        console.log('----------')
-        console.log(_stderr)
-        console.log('----------')
-      }
-    )
   })
 
   suite.end()
