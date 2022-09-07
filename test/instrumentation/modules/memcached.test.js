@@ -71,11 +71,13 @@ test('memcached', function (t) {
     t.strictEqual(spans[6].action, 'get')
     t.strictEqual(spans[6].context.db.statement, 'get foo')
     spans.forEach(span => {
+      t.deepEqual(span.context.service.target, { type: 'memcached' },
+        'span.context.service.target')
       t.deepEqual(span.context.destination, {
-        service: { name: 'memcached', resource: 'memcached', type: 'db' },
+        service: { type: '', name: '', resource: 'memcached' },
         address: host,
         port: 11211
-      })
+      }, 'span.context.destination')
     })
     spans.forEach(span => {
       t.equal(span.parent_id, data.transactions[0].id,
