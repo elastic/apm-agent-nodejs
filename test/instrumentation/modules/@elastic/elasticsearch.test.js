@@ -64,7 +64,8 @@ try {
   // pass
 }
 
-const host = (process.env.ES_HOST || 'localhost') + ':9200'
+const port = 9200
+const host = `${process.env.ES_HOST || 'localhost'}:${port}`
 const clientOpts = {
   node: 'http://' + host
 }
@@ -383,6 +384,69 @@ if (semver.gte(process.version, '10.0.0')) {
       })
     t.ok(agent.currentSpan === null, 'no currentSpan in sync code after @elastic/elasticsearch client command')
   })
+
+  // Test the determination of the Elasticsearch cluster name from the
+  // "x-found-handling-cluster" header included in Elastic Cloud.  (Only test
+  // with client versions >=8 to avoid the product-check complications in 7.x
+  // clients.)
+  if (semver.satisfies(esVersion, '>=8')) {
+    test('cluster name from "x-found-handling-cluster"', function (t) {
+      // Create a mock Elasticsearch server that mimics a search response from
+      // a cloud instance.
+      const esServer = new MockES({
+        responses: [
+          {
+            statusCode: 200,
+            headers: {
+              'content-length': '162',
+              'content-type': 'application/json',
+              'x-cloud-request-id': 'quf1Yfx0SyOSIytmwkYMrw',
+              'x-elastic-product': 'Elasticsearch',
+              'x-found-handling-cluster': 'eb2cefb2bb97bb0e9179d92f79eceb1b',
+              'x-found-handling-instance': 'instance-0000000000',
+              date: 'Wed, 07 Sep 2022 16:32:45 GMT'
+            },
+            body: '{"took":5,"timed_out":false,"_shards":{"total":25,"successful":25,"skipped":0,"failed":0},"hits":{"total":{"value":0,"relation":"eq"},"max_score":null,"hits":[]}}'
+          }
+        ]
+      })
+      esServer.start(function (esUrl) {
+        resetAgent(
+          function done (data) {
+            // Drop the transaction captured for the request received by the
+            // mock ES server, so we can use `checkDataAndEnd()`.
+            data.transactions.shift()
+            checkDataAndEnd(
+              t,
+              'GET /_search',
+              `${esUrl}/_search?q=pants`,
+              200,
+              null,
+              'eb2cefb2bb97bb0e9179d92f79eceb1b'
+            )(data)
+          }
+        )
+
+        agent.startTransaction('myTrans')
+        const client = new es.Client(Object.assign(
+          {},
+          clientOpts,
+          { node: esUrl }
+        ))
+        client.search({ q: 'pants' })
+          .catch(err => {
+            t.fail('should not have gotten here')
+            t.error(err)
+          })
+          .finally(() => {
+            agent.endTransaction()
+            agent.flush()
+            client.close()
+            esServer.close()
+          })
+      })
+    })
+  }
 
   // Test some error scenarios.
 
@@ -851,7 +915,7 @@ function checkSpanOutcomesSuccess (t) {
   }
 }
 
-function checkDataAndEnd (t, expectedName, expectedHttpUrl, expectedStatusCode, expectedDbStatement) {
+function checkDataAndEnd (t, expectedName, expectedHttpUrl, expectedStatusCode, expectedDbStatement, expectedClusterName) {
   return function (data) {
     t.equal(data.transactions.length, 1, 'should have 1 transaction')
     const trans = data.transactions[0]
@@ -879,17 +943,29 @@ function checkDataAndEnd (t, expectedName, expectedHttpUrl, expectedStatusCode, 
     t.strictEqual(esSpan.sync, false, 'span.sync=false')
     t.equal(esSpan.name, 'Elasticsearch: ' + expectedName, 'elasticsearch span should have expected name')
 
-    if (expectedDbStatement) {
-      t.deepEqual(esSpan.context.db,
-        { type: 'elasticsearch', statement: expectedDbStatement },
-        'span.context.db')
-    } else {
-      t.deepEqual(esSpan.context.db, { type: 'elasticsearch' }, 'span.context.db')
-    }
+    const expectedDb = { type: 'elasticsearch' }
+    if (expectedDbStatement) { expectedDb.statement = expectedDbStatement }
+    if (expectedClusterName) { expectedDb.instance = expectedClusterName }
+    t.deepEqual(esSpan.context.db, expectedDb, 'span.context.db')
 
-    // Ensure "destination" context is set.
-    t.equal(esSpan.context.destination.service.name, 'elasticsearch',
-      'elasticsearch span.context.destination.service.name=="elasticsearch"')
+    const expectedServiceTarget = { type: 'elasticsearch' }
+    if (expectedClusterName) { expectedServiceTarget.name = expectedClusterName }
+    t.deepEqual(esSpan.context.service.target, expectedServiceTarget, 'span.context.service.target')
+
+    const expectedDestination = {
+      address: host.split(':')[0],
+      port: port,
+      service: { type: '', name: '', resource: 'elasticsearch' }
+    }
+    if (expectedHttpUrl) {
+      const parsed = new URL(expectedHttpUrl)
+      expectedDestination.address = parsed.hostname
+      expectedDestination.port = Number(parsed.port)
+    }
+    if (expectedClusterName) {
+      expectedDestination.service.resource += '/' + expectedClusterName
+    }
+    t.deepEqual(esSpan.context.destination, expectedDestination, 'span.context.destination')
 
     if (expectedHttpUrl) {
       t.equal(esSpan.context.http.url, expectedHttpUrl, 'span.context.http.url')
