@@ -42,6 +42,7 @@ Notes:
 
 - Support instrumentation of `@koa/router` (and `koa-router`) versions 11 and 12.
   Contributed by @sibelius. ({issues}2811[#2811])
+- Support instrumentation of tedious@15. ({pull}2897[#2897])
 
 - Improve the captured information for Elasticsearch client instrumentation.
   For all outgoing Elasticsearch client requests, the full HTTP url is
@@ -66,6 +67,10 @@ paths are considered for body capture. ({pull}2873[#2873])
 
 [float]
 ===== Chores
+
+- Disable knex instrumentation when not collecting span stack traces
+  (because there is no point). This is a performance improvement for
+  Knex usage in the default configuration. ({pull}2879[#2879])
 
 
 [[release-notes-3.38.0]]
