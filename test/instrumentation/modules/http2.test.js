@@ -335,7 +335,7 @@ isSecure.forEach(secure => {
   })
 
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
-    t.plan(38)
+    t.plan(39)
 
     resetAgent(3, (data) => {
       t.strictEqual(data.transactions.length, 2)
@@ -357,16 +357,20 @@ isSecure.forEach(secure => {
         method: 'GET',
         status_code: 200,
         url: `http${secure ? 's' : ''}://localhost:${port}/sub`
-      })
+      }, 'span.context.http')
       t.deepEqual(span.context.destination, {
         service: {
-          name: `http${secure ? 's' : ''}://localhost:${port}`,
-          resource: `localhost:${port}`,
-          type: span.type
+          type: '',
+          name: '',
+          resource: `localhost:${port}`
         },
         address: 'localhost',
         port
-      })
+      }, 'span.context.destination')
+      t.deepEqual(span.context.service.target, {
+        type: 'http',
+        name: `localhost:${port}`
+      }, 'span.context.service.target')
 
       server.close()
     })

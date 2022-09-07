@@ -17,6 +17,8 @@ const agent = require('../../../..').start({
   spanCompressionEnabled: false
 })
 
+const { URL } = require('url')
+
 const config = require('../../../../lib/config')
 const { safeGetPackageVersion } = require('../../../_utils')
 
