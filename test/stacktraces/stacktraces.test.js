@@ -399,5 +399,51 @@ tape.test('gatherStackTrace()', function (suite) {
     })
   })
 
+  tape.test('Error.prepareStackTrace is set', function (t) {
+    const server = new MockAPMServer()
+    server.start(function (serverUrl) {
+      execFile(
+        process.execPath,
+        ['fixtures/get-prepare-stacktrace.js'],
+        {
+          cwd: __dirname,
+          timeout: 3000,
+          env: Object.assign({}, process.env, {
+            ELASTIC_APM_ACTIVE: true
+          })
+        },
+        function done (err, _stdout, _stderr) {
+          t.ok(!err)
+          t.equals(_stdout.trim(), 'csPrepareStackTrace', 'Error.prepareStackTrace is set')
+          server.close()
+          t.end()
+        }
+      )
+    })
+  })
+
+  tape.test('Error.prepareStackTrace is not set', function (t) {
+    const server = new MockAPMServer()
+    server.start(function (serverUrl) {
+      execFile(
+        process.execPath,
+        ['fixtures/get-prepare-stacktrace.js'],
+        {
+          cwd: __dirname,
+          timeout: 3000,
+          env: Object.assign({}, process.env, {
+            ELASTIC_APM_ACTIVE: false
+          })
+        },
+        function done (err, _stdout, _stderr) {
+          t.ok(!err)
+          t.equals(_stdout.trim(), 'undefined', 'Error.prepareStackTrace is set')
+          server.close()
+          t.end()
+        }
+      )
+    })
+  })
+
   suite.end()
 })
