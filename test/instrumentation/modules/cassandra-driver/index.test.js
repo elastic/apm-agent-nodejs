@@ -19,7 +19,7 @@ const semver = require('semver')
 const test = require('tape')
 const version = require('cassandra-driver/package.json').version
 
-const makeClient = require('./_utils')
+const { makeClient } = require('./_utils')
 const mockClient = require('../../../_mock_http_client')
 
 const hasPromises = semver.satisfies(version, '>=3.2')
@@ -88,7 +88,9 @@ test('execute - callback', function (t) {
 
 if (hasPromises) {
   test('batch - promise', function (t) {
-    const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
+    const keyspace = 'mykeyspace'
+    const table = 'myTable'
+    const sql = `INSERT INTO ${table} (id, text) VALUES (uuid(), ?)`
     const summary = 'Cassandra: Batch query'
 
     resetAgent(3, function (data) {
@@ -97,9 +99,9 @@ if (hasPromises) {
 
       const trans = data.transactions[0]
       t.strictEqual(trans.name, 'foo', 'transaction name')
-      assertConnectSpan(t, data.spans[0])
+      assertConnectSpan(t, data.spans[0], keyspace)
       const joined = `${sql};\n${sql}`
-      assertSpan(t, joined, summary, data.spans[1])
+      assertSpan(t, data.spans[1], joined, summary, keyspace)
 
       t.end()
     })
@@ -109,7 +111,7 @@ if (hasPromises) {
       { query: sql, params: ['bar'] }
     ]
 
-    makeClient(t, { keyspace: 'test' }).then(client => {
+    makeClient(t, { keyspace, table }).then(client => {
       agent.startTransaction('foo')
 
       assertPromise(t, client.batch(queries))
@@ -119,7 +121,9 @@ if (hasPromises) {
 }
 
 test('batch - callback', function (t) {
-  const sql = 'INSERT INTO test (id, text) VALUES (uuid(), ?)'
+  const keyspace = 'mykeyspace'
+  const table = 'myTable'
+  const sql = `INSERT INTO ${table} (id, text) VALUES (uuid(), ?)`
   const summary = 'Cassandra: Batch query'
 
   resetAgent(3, function (data) {
@@ -128,9 +132,9 @@ test('batch - callback', function (t) {
 
     const trans = data.transactions[0]
     t.strictEqual(trans.name, 'foo', 'transaction name')
-    assertConnectSpan(t, data.spans[0])
+    assertConnectSpan(t, data.spans[0], keyspace)
     const joined = `${sql};\n${sql}`
-    assertSpan(t, joined, summary, data.spans[1])
+    assertSpan(t, data.spans[1], joined, summary, keyspace)
 
     t.end()
   })
@@ -140,7 +144,7 @@ test('batch - callback', function (t) {
     { query: sql, params: ['bar'] }
   ]
 
-  makeClient(t, { keyspace: 'test' }).then(client => {
+  makeClient(t, { keyspace, table }).then(client => {
     agent.startTransaction('foo')
 
     client.batch(queries, assertCallback(t, function (err) {
@@ -228,25 +232,56 @@ function assertBasicQuery (t, sql, summary, data) {
   t.strictEqual(trans.name, 'foo', 'transaction name')
 
   assertConnectSpan(t, data.spans[0])
-  assertSpan(t, sql, summary, data.spans[1])
+  assertSpan(t, data.spans[1], sql, summary)
 }
 
-function assertConnectSpan (t, span) {
+function assertConnectSpan (t, span, keyspace) {
   t.strictEqual(span.name, 'Cassandra: Connect', 'span name')
   t.strictEqual(span.type, 'db', 'span type')
   t.strictEqual(span.subtype, 'cassandra', 'span subtype')
   t.strictEqual(span.action, 'connect', 'span action')
+  if (keyspace) {
+    t.deepEqual(span.context.db, { type: 'cassandra', instance: keyspace }, 'span.context.db')
+    t.deepEqual(span.context.service.target, { type: 'cassandra', name: keyspace }, 'span.context.service.target')
+    t.deepEqual(span.context.destination, {
+      service: { type: '', name: '', resource: `cassandra/${keyspace}` }
+    }, 'span.context.destination')
+  } else {
+    t.deepEqual(span.context.db, { type: 'cassandra' }, 'span.context.db')
+    t.deepEqual(span.context.service.target, { type: 'cassandra' }, 'span.context.service.target')
+    t.deepEqual(span.context.destination, {
+      service: { type: '', name: '', resource: 'cassandra' }
+    }, 'span.context.destination')
+  }
 }
 
-function assertSpan (t, sql, summary, span) {
+function assertSpan (t, span, sql, summary, keyspace) {
   t.strictEqual(span.name, summary, 'span name')
   t.strictEqual(span.type, 'db', 'span type')
   t.strictEqual(span.subtype, 'cassandra', 'span subtype')
   t.strictEqual(span.action, 'query', 'span action')
-  t.deepEqual(span.context.db, {
-    statement: sql,
-    type: 'cassandra'
-  }, 'database context')
+  if (keyspace) {
+    t.deepEqual(span.context.db, {
+      type: 'cassandra',
+      statement: sql,
+      instance: keyspace
+    }, 'span.context.db')
+    t.deepEqual(span.context.service.target,
+      { type: 'cassandra', name: keyspace },
+      'span.context.service.target')
+    t.deepEqual(span.context.destination, {
+      service: { type: '', name: '', resource: `cassandra/${keyspace}` }
+    }, 'span.context.destination')
+  } else {
+    t.deepEqual(span.context.db, {
+      type: 'cassandra',
+      statement: sql
+    }, 'span.context.db')
+    t.deepEqual(span.context.service.target, { type: 'cassandra' }, 'span.context.service.target')
+    t.deepEqual(span.context.destination, {
+      service: { type: '', name: '', resource: 'cassandra' }
+    }, 'span.context.destination')
+  }
 }
 
 function resetAgent (expected, cb) {
