@@ -13,7 +13,7 @@
 // without the import.
 
 if (!global.fetch) {
-  console.log('# SKIP there is no fetch()')
+  console.log(`# SKIP there is no global fetch() in node ${process.version}`)
   process.exit()
 }
 /* global fetch */ // for eslint
@@ -54,11 +54,14 @@ function assertUndiciSpan (t, span, url, reqFailed) {
     t.equal(span.context.http.status_code, 200, 'span.context.http.status_code')
     t.equal(span.context.http.response.encoded_body_size, 4, 'span.context.http.response.encoded_body_size')
   }
-  t.equal(span.context.destination.service.name, '', 'span.context.destination.service.name')
-  t.equal(span.context.destination.service.type, '', 'span.context.destination.service.type')
-  t.equal(span.context.destination.service.resource, u.host, 'span.context.destination.service.resource')
-  t.equal(span.context.destination.address, u.hostname, 'span.context.destination.address')
-  t.equal(span.context.destination.port, Number(u.port), 'span.context.destination.port')
+  t.deepEqual(span.context.service.target,
+    { type: 'http', name: u.host },
+    'span.context.service.target')
+  t.deepEqual(span.context.destination, {
+    address: u.hostname,
+    port: Number(u.port),
+    service: { type: '', name: '', resource: u.host }
+  }, 'span.context.destination')
 }
 
 // ---- tests
@@ -107,9 +110,11 @@ test('fetch', async t => {
 
 test('teardown', t => {
   server.close()
-  t.end()
 
   // Note that this test file will now hang for ~4s until Node's bundled
   // undici (used to implement `fetch()`) Keep-Alive timeout ends. I don't
   // know of a way to avoid that.
+  t.comment('expected 4s hang for fetch() internal Keep-Alive timeout')
+
+  t.end()
 })
