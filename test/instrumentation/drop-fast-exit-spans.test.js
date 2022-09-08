@@ -76,15 +76,9 @@ tape.test('end to end test with compression', function (t) {
   })
 
   agent.startTransaction('test')
-  const destinationContext = {
-    service: {
-      resource: 'foo'
-    }
-  }
   let firstSpan, finalSpan
   setTimeout(function () {
     firstSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
-    firstSpan.setDestinationContext(destinationContext)
     setTimeout(function () {
       firstSpan.end()
     }, 1)
@@ -92,7 +86,6 @@ tape.test('end to end test with compression', function (t) {
 
   setTimeout(function () {
     const span = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
-    span.setDestinationContext(destinationContext)
     setTimeout(function () {
       span.end()
     }, 1)
@@ -100,7 +93,6 @@ tape.test('end to end test with compression', function (t) {
 
   setTimeout(function () {
     finalSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
-    finalSpan.setDestinationContext(destinationContext)
     setTimeout(function () {
       finalSpan.end()
       agent.endTransaction()
