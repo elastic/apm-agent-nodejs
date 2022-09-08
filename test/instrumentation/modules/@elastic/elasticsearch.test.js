@@ -390,8 +390,10 @@ if (semver.gte(process.version, '10.0.0')) {
   // Test the determination of the Elasticsearch cluster name from the
   // "x-found-handling-cluster" header included in Elastic Cloud.  (Only test
   // with client versions >=8 to avoid the product-check complications in 7.x
-  // clients.)
-  if (semver.satisfies(esVersion, '>=8')) {
+  // clients. Also cannot test with contextManager="patch", because of the
+  // limitation described in "modules/@elastic/elasticsearch.js".)
+  if (semver.satisfies(esVersion, '>=8') &&
+      agent._conf.contextManager !== config.CONTEXT_MANAGER_PATCH) {
     test('cluster name from "x-found-handling-cluster"', function (t) {
       // Create a mock Elasticsearch server that mimics a search response from
       // a cloud instance.
