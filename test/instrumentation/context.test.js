@@ -66,19 +66,18 @@ test('#getHTTPDestination', function (t) {
 })
 
 test('#getDBDestination', function (t) {
-  const span = { }
   const host = 'localhost'
   const port = '8080'
 
   t.test('host when present', (t) => {
-    t.deepEqual(getDBDestination(span, host), {
+    t.deepEqual(getDBDestination(host), {
       address: host
     })
     t.end()
   })
 
   t.test('port when present', (t) => {
-    t.deepEqual(getDBDestination(span, null, port), {
+    t.deepEqual(getDBDestination(null, port), {
       port: 8080
     })
     t.end()
