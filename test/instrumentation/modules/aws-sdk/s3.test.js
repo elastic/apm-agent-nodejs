@@ -111,7 +111,6 @@ tape.test('simple S3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 's3' }
             },
-            db: { type: 's3' },
             http: { status_code: 200, response: { encoded_body_size: 205 } }
           },
           outcome: 'success'
@@ -128,11 +127,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              // XXX https://github.com/elastic/apm/pull/674 Q7: should 'resource' be spec'd to have 's3/' prefix now? I think so.
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            // XXX https://github.com/elastic/apm/pull/674 Q7: shouldn't db.instance be the *bucket resource* rather than the region for S3? I think so.
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 200, response: { encoded_body_size: 177 } }
           },
           outcome: 'success'
@@ -149,9 +145,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 200 }
           },
           outcome: 'success'
@@ -168,9 +163,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 200 }
           },
           outcome: 'success'
@@ -187,9 +181,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 200 }
           },
           outcome: 'success'
@@ -206,9 +199,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
           outcome: 'success'
@@ -225,9 +217,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 304 }
           },
           outcome: 'success'
@@ -244,9 +235,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
           outcome: 'success'
@@ -264,9 +254,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 404, response: { encoded_body_size: 207 } }
           },
           outcome: 'failure'
@@ -287,9 +276,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 204 }
           },
           outcome: 'success'
@@ -306,9 +294,8 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            db: { type: 's3', instance: 'elasticapmtest-bucket-1' },
             http: { status_code: 204 }
           },
           outcome: 'success'
