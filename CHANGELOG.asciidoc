@@ -63,6 +63,11 @@ paths are considered for body capture. ({pull}2873[#2873])
   For example `require('node:http')` will now be instrumented.
   ({issues}2816[#2816])
 
+- Agent will delay loading of the `error-callsites` module until agent start time,
+  and will not load the module if the agent is disabled/inactive. This prevents the
+  setting of an `Error.prepareStackTrace` handler until necessary for stacktrace
+  collection. ({issues}2833[#2833] {pull}2906[#2906])
+  
 [float]
 ===== Bug fixes
 

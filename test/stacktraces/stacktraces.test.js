@@ -16,7 +16,7 @@ const tape = require('tape')
 
 const logging = require('../../lib/logging')
 const { MockAPMServer } = require('../_mock_apm_server')
-const { gatherStackTrace, stackTraceFromErrStackString } = require('../../lib/stacktraces')
+const { gatherStackTrace, initStackTraceCollection, stackTraceFromErrStackString } = require('../../lib/stacktraces')
 
 const log = logging.createLogger('off')
 
@@ -304,6 +304,7 @@ tape.test('stackTraceFromErrStackString()', function (t) {
 })
 
 tape.test('gatherStackTrace()', function (suite) {
+  initStackTraceCollection()
   function thisIsMyFunction () {
     // before 2
     // before 1
@@ -395,6 +396,52 @@ tape.test('gatherStackTrace()', function (suite) {
         t.deepEqual(stacktrace[0], expectedTopFrame, 'top frame is as expected')
         t.end()
       })
+    })
+  })
+
+  tape.test('Error.prepareStackTrace is set', function (t) {
+    const server = new MockAPMServer()
+    server.start(function (serverUrl) {
+      execFile(
+        process.execPath,
+        ['fixtures/get-prepare-stacktrace.js'],
+        {
+          cwd: __dirname,
+          timeout: 3000,
+          env: Object.assign({}, process.env, {
+            ELASTIC_APM_ACTIVE: true
+          })
+        },
+        function done (err, _stdout, _stderr) {
+          t.ok(!err)
+          t.equals(_stdout.trim(), 'csPrepareStackTrace', 'Error.prepareStackTrace is set')
+          server.close()
+          t.end()
+        }
+      )
+    })
+  })
+
+  tape.test('Error.prepareStackTrace is not set', function (t) {
+    const server = new MockAPMServer()
+    server.start(function (serverUrl) {
+      execFile(
+        process.execPath,
+        ['fixtures/get-prepare-stacktrace.js'],
+        {
+          cwd: __dirname,
+          timeout: 3000,
+          env: Object.assign({}, process.env, {
+            ELASTIC_APM_ACTIVE: false
+          })
+        },
+        function done (err, _stdout, _stderr) {
+          t.ok(!err)
+          t.equals(_stdout.trim(), 'undefined', 'Error.prepareStackTrace is set')
+          server.close()
+          t.end()
+        }
+      )
     })
   })
 
