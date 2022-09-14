@@ -54,6 +54,10 @@ been updated to set appropriate service target values. If necessary, e.g. for ma
 instrumentation, a new public <<span-setservicetarget>> API has been added to specify these values.
 ({pull}2882[#2882])
 +
+The never-public-but-available `span.setDestinationContext()` has been marked
+for removal (using it will `process.emitWarning()`). Users of this internal
+method should switch to the public <<span-setservicetarget>>.
++
 As part of this change, improvements have been made to some module instrumentations:
 +
   ** `redis` and `ioredis`: `span.type` has changed from "cache" to "db" per https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-db.md#redis[spec]
