@@ -506,11 +506,6 @@ test('#_encode() - dropped spans', function (t) {
   var span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
   var span2 = trans.startSpan('s2', { exitSpan: true })
-  span2.setDestinationContext({
-    service: {
-      resource: 'foo'
-    }
-  })
   if (span2.isRecorded()) {
     t.fail('should have dropped the span')
   }

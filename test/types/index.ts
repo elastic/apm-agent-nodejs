@@ -219,6 +219,11 @@ apm.logger.fatal('')
 
       span.setOutcome('failure')
 
+      span.setServiceTarget('myServiceTargetType')
+      span.setServiceTarget('myServiceTargetType', 'myServiceTargetName')
+      span.setServiceTarget(null, null)
+      span.setServiceTarget()
+
       span.end()
       span.end(42)
     }

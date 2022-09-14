@@ -25,7 +25,12 @@ const client = new Client({
   // By default version 8 uses the new undici HTTP client lib. You can specify
   // `HttpConnection` to use the older HTTP client.
   // Connection: HttpConnection,
-  node: `http://${process.env.ES_HOST || 'localhost'}:9200`,
+
+  node: process.env.ES_URL || 'http://localhost:9200',
+  auth: {
+    username: process.env.ES_USERNAME || undefined,
+    password: process.env.ES_PASSWORD || undefined
+  },
   maxRetries: 1
 })
 
