@@ -9,9 +9,9 @@
 // A small example showing Elastic APM tracing the 'redis' package.
 //
 // This assumes a Redis server running on localhost. You can use:
-//    npm run docker:start
-// to start an Redis docker container (and other containers used for
-// testing of this project). Then `npm run docker:stop` to stop them.
+//    npm run docker:start redis
+// to start an Redis docker container. Then, later, `npm run docker:stop` to
+// stop it.
 
 const apm = require('../').start({ // elastic-apm-node
   serviceName: 'example-trace-redis'

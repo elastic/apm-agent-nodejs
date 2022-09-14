@@ -168,6 +168,10 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
       service: {
         config: {
           region: 'region-name'
+        },
+        endpoint: {
+          hostname: 'example.com',
+          port: 1234
         }
       },
       params: {
@@ -179,11 +183,8 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.equals(getQueueNameFromRequest(request), 'bing')
 
     t.deepEquals(getMessageDestinationContextFromRequest(request), {
-      service: {
-        name: 'sqs',
-        resource: 'sqs/bing',
-        type: 'messaging'
-      },
+      address: 'example.com',
+      port: 1234,
       cloud: {
         region: 'region-name'
       }
@@ -208,7 +209,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -238,7 +247,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -267,7 +284,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -296,7 +321,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -325,7 +358,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'poll', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -409,7 +450,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -447,7 +496,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -480,7 +537,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -514,7 +579,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -548,7 +621,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'poll', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
         t.deepEqual(spanSqs.links, [{
           trace_id: '460d51b6ed3ab96be45f2580b8016509',

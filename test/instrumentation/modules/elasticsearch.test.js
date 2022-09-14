@@ -296,14 +296,14 @@ function assertApmDataAndEnd (t, expectedName, expectedHttpUrl, expectedDbStatem
       t.notOk(span.context.http && span.context.http.url, 'should not have span.context.http.url')
     }
 
+    t.deepEqual(span.context.service.target, { type: 'elasticsearch' }, 'span.context.service.target')
+
     const [address, port] = host.split(':')
     t.deepEqual(span.context.destination, {
-      service: {
-        name: 'elasticsearch', resource: 'elasticsearch', type: 'db'
-      },
+      address,
       port: Number(port),
-      address
-    })
+      service: { type: '', name: '', resource: 'elasticsearch' }
+    }, 'span.context.destination')
 
     t.end()
   }

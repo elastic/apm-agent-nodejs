@@ -7,8 +7,7 @@
 'use strict'
 
 const agent = require('../../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-dynamodb',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: 'none',
@@ -28,14 +27,15 @@ const {
   getStatementFromRequest,
   getAddressFromRequest,
   getMethodFromRequest
-} =
-  require('../../../../lib/instrumentation/modules/aws-sdk/dynamodb')
+} = require('../../../../lib/instrumentation/modules/aws-sdk/dynamodb')
+
+const AWS_REGION = 'us-west-2'
 
 initializeAwsSdk()
 
 function initializeAwsSdk () {
   // SDk requires a region to be set
-  AWS.config.update({ region: 'us-west-2' })
+  AWS.config.update({ region: AWS_REGION })
 
   // without fake credentials the aws-sdk will attempt to fetch
   // credentials as though it was on an EC2 instance
@@ -64,11 +64,11 @@ tape.test('AWS DynamoDB: Unit Test Functions', function (test) {
     const request = {
       service: {
         config: {
-          region: 'us-west-2'
+          region: AWS_REGION
         }
       }
     }
-    t.equals(getRegionFromRequest(request), 'us-west-2')
+    t.equals(getRegionFromRequest(request), AWS_REGION)
     t.equals(getRegionFromRequest({}), undefined)
     t.equals(getRegionFromRequest({ service: null }), null)
     t.equals(getRegionFromRequest({ service: { config: null } }), null)
@@ -157,10 +157,21 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         t.equals(span.type, 'db', 'span type correctly set')
         t.equals(span.subtype, 'dynamodb', 'span subtype set correctly')
         t.equals(span.action, 'query', 'query set correctly')
-        t.equals(span.context.db.statement, 'id = :foo', 'statment set in context correctly')
-        t.equals(span.context.destination.service.name, 'dynamodb', 'service name in destination context')
+        t.deepEqual(span.context.service.target, { type: 'dynamodb', name: AWS_REGION }, 'span.context.service.target')
+        t.deepEqual(span.context.destination, {
+          address: 'localhost',
+          port: port,
+          cloud: { region: AWS_REGION },
+          service: { type: '', name: '', resource: `dynamodb/${AWS_REGION}` }
+        }, 'span.context.destination')
+        t.deepEqual(span.context.db, {
+          instance: AWS_REGION,
+          statement: params.KeyConditionExpression,
+          type: 'dynamodb'
+        }, 'span.context.db')
         t.end()
       })
+
       const port = listener.address().port
       AWS.config.update({
         endpoint: `http://localhost:${port}`
@@ -195,10 +206,20 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         t.equals(span.type, 'db', 'span type correctly set')
         t.equals(span.subtype, 'dynamodb', 'span subtype set correctly')
         t.equals(span.action, 'query', 'query set correctly')
-        t.equals(span.context.destination.service.name, 'dynamodb', 'service name in destination context')
-
+        t.deepEqual(span.context.service.target, { type: 'dynamodb', name: AWS_REGION }, 'span.context.service.target')
+        t.deepEqual(span.context.destination, {
+          address: 'localhost',
+          port: port,
+          cloud: { region: AWS_REGION },
+          service: { type: '', name: '', resource: `dynamodb/${AWS_REGION}` }
+        }, 'span.context.destination')
+        t.deepEqual(span.context.db, {
+          instance: AWS_REGION,
+          type: 'dynamodb'
+        }, 'span.context.db')
         t.end()
       })
+
       const port = listener.address().port
       AWS.config.update({
         endpoint: `http://localhost:${port}`

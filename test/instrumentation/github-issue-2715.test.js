@@ -27,21 +27,14 @@ tape.test(function (suite) {
       console.log()
       t.end()
     })
-    const destinationContext = {
-      service: {
-        resource: 'foo'
-      }
-    }
+
     const dbContext = { statement: 'SELECT foo from bar', type: 'sql' }
     agent.startTransaction('test')
     const span1 = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
-
-    span1.setDestinationContext(destinationContext)
     span1.setDbContext(dbContext)
     span1.end()
 
     const span2 = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
-    span2.setDestinationContext(destinationContext)
     span2.setDbContext(dbContext)
     span2.end()
 

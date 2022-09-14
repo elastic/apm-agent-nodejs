@@ -11,6 +11,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
+  apmServerVersion: '8.0.0',
   spanCompressionEnabled: false
 })
 
@@ -172,12 +173,14 @@ function done (t) {
     groups.forEach(function (name, i) {
       const span = data.spans[i]
       t.strictEqual(span.name, name, 'span.name')
-      t.strictEqual(span.type, 'cache', 'span.type')
+      t.strictEqual(span.type, 'db', 'span.type')
       t.strictEqual(span.subtype, 'redis', 'span.subtype')
+      t.strictEqual(span.action, 'query', 'span.action')
+      t.deepEqual(span.context.service.target, { type: 'redis' }, 'span.context.service.target')
       t.deepEqual(span.context.destination, {
-        service: { name: 'redis', resource: 'redis', type: 'cache' },
         address: process.env.REDIS_HOST || 'localhost',
-        port: 6379
+        port: 6379,
+        service: { name: '', type: '', resource: 'redis' }
       }, 'span.context.destination')
       t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
     })
