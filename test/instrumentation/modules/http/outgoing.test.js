@@ -188,15 +188,19 @@ function echoTest (type, opts, handler) {
           status_code: 200,
           url: `${type}://localhost:${port}/`
         })
+        t.deepEqual(data.spans[0].context.service.target, {
+          type: 'http',
+          name: `localhost:${port}`
+        }, 'span.context.service.target')
         t.deepEqual(data.spans[0].context.destination, {
           service: {
-            name: `${type}://localhost:${port}`,
-            resource: `localhost:${port}`,
-            type: data.spans[0].type
+            type: '',
+            name: '',
+            resource: `localhost:${port}`
           },
           address: 'localhost',
           port: Number(port)
-        })
+        }, 'span.context.destination')
         t.end()
         cp.kill()
       })
@@ -253,15 +257,19 @@ function abortTest (type, handler) {
 
         t.deepEqual(data.spans[0].context.http, httpContext)
         if (httpContext.url) {
+          t.deepEqual(data.spans[0].context.service.target, {
+            type: 'http',
+            name: `localhost:${port}`
+          }, 'span.context.service.target')
           t.deepEqual(data.spans[0].context.destination, {
             service: {
-              name: `${type}://localhost:${port}`,
-              resource: `localhost:${port}`,
-              type: data.spans[0].type
+              type: '',
+              name: '',
+              resource: `localhost:${port}`
             },
             address: 'localhost',
             port: Number(port)
-          })
+          }, 'span.context.destination')
         }
         t.end()
         cp.kill()

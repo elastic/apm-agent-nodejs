@@ -175,10 +175,10 @@ test('ensure run context', async function (t) {
 
 test('instrument simple command', function (t) {
   resetAgentStates([
-    makeSpanTest(t, 'elasticapm.test.insert'),
-    makeSpanTest(t, 'elasticapm.test.update'),
-    makeSpanTest(t, 'elasticapm.test.delete'),
-    makeSpanTest(t, 'elasticapm.test.find'),
+    makeSpanTest(t, 'elasticapm.test.insert', 'insert'),
+    makeSpanTest(t, 'elasticapm.test.update', 'update'),
+    makeSpanTest(t, 'elasticapm.test.delete', 'delete'),
+    makeSpanTest(t, 'elasticapm.test.find', 'find'),
     makeTransactionTest(t)
   ], function () {
     t.end()
@@ -255,17 +255,20 @@ function makeTransactionTest (t) {
   }
 }
 
-function makeSpanTest (t, name) {
+function makeSpanTest (t, name, action) {
   return {
     find (type, span) {
       return type === 'span' && span.name === name
     },
     test (span) {
       t.ok(span, 'found valid span')
-      t.strictEqual(span.name, name, `span name is "${name}"`)
-      t.strictEqual(span.type, 'db', 'span type is "db"')
-      t.strictEqual(span.subtype, 'mongodb', 'span subtype is "mongodb"')
-      t.strictEqual(span.action, 'query', 'span action is "query"')
+      t.strictEqual(span.name, name, 'span.name')
+      t.strictEqual(span.type, 'db', 'span.type')
+      t.strictEqual(span.subtype, 'mongodb', 'span.subtype')
+      t.strictEqual(span.action, action, 'span.action')
+
+      t.deepEqual(span.context.db, { type: 'mongodb', instance: 'elasticapm' }, 'span.context.db')
+      t.deepEqual(span.context.service.target, { type: 'mongodb', name: 'elasticapm' }, 'span.context.service.target')
 
       // We can't easily assert destination.address because mongodb >3.5.0
       // returns a resolved IP for the given connection hostname. In our CI
@@ -273,13 +276,9 @@ function makeSpanTest (t, name) {
       // some IP. We could `dns.resolve4()` here, but that's overkill I think.
       t.ok(span.context.destination.address, 'context.destination.address is defined')
       t.deepEqual(span.context.destination, {
-        service: {
-          name: 'mongodb',
-          resource: 'mongodb',
-          type: 'db'
-        },
         address: span.context.destination.address,
-        port: 27017
+        port: 27017,
+        service: { type: '', name: '', resource: 'mongodb/elasticapm' }
       }, 'span.context.destination')
     }
   }

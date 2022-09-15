@@ -40,16 +40,73 @@ Notes:
 [float]
 ===== Features
 
-- Support instrumenting core modules when require'd with the optional
+* Improve the granularity of data captured about downstream services, e.g.
+  databases, for spans that represent an external call (known as "exit spans").
+  This data is used for
+  https://www.elastic.co/guide/en/kibana/current/service-maps.html[Service Maps]
+  and
+  https://www.elastic.co/guide/en/kibana/current/dependencies.html[Dependencies]
+  in the Kibana APM app.
++
+This is handled via the new span `service.target.*` fields that replace the
+deprecated `destination.service.resource` field (https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans-service-target.md[spec]). All instrumentations have
+been updated to set appropriate service target values. If necessary, e.g. for manual
+instrumentation, a new public <<span-setservicetarget>> API has been added to specify these values.
+({pull}2882[#2882])
++
+The never-public-but-available `span.setDestinationContext()` has been marked
+for removal (using it will `process.emitWarning()`). Users of this internal
+method should switch to the public <<span-setservicetarget>>.
++
+As part of this change, improvements have been made to some module instrumentations:
++
+  ** `redis` and `ioredis`: `span.type` has changed from "cache" to "db" per https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-db.md#redis[spec]
+  ** `mongodb`: `span.action` used to be "query", now it will be the mongodb command name, e.g. "find", "insert".
+  ** `mongodb` and `mongodb-core`: `span.db.instance` is now set to the database name ({issues}1494[#1494])
+  ** `mysql` and `mysql2`: `span.db.{instance,user}` are now populated.
+  ** `@elastic/elasticsearch`: The cluster name is heuristically determined for Elastic Cloud deployments and used for the service target name.
+  ** `sqs`: `span.destination.{address,port}` are now populated.
+  ** `pg`: `span.db.{instance,user}` are now populated.
+  ** `cassandra-driver`: the Cassandra keyspace is captured for service target data, if available.
+  ** OpenTelemetry Bridge: OTel spans with kind PRODUCER and CLIENT are now handled as exit spans (e.g. span compression could apply).
+
+* Support instrumentation of `@koa/router` (and `koa-router`) versions 11 and 12.
+  Contributed by @sibelius. ({issues}2811[#2811])
+
+* Support instrumentation of tedious@15. ({pull}2897[#2897])
+
+* Improve the captured information for Elasticsearch client instrumentation.
+  For all outgoing Elasticsearch client requests, the full HTTP url is
+  now captured (stored in the "url.original" field). For Elasticsearch requests
+  that do a search the outgoing request body is captured (to the
+  "span.db.statement" field), as before, but the format has changed to only
+  hold the request body. Before this change the "span.db.statement" would
+  also hold any HTTP query parameters. These are now more naturally captured
+  with "url.origin". ({issues}2019[#2019])
++
+This change also introduces the <<elasticsearch-capture-body-urls>>
+configuration option to enable controlling which Elasticsearch REST API
+paths are considered for body capture. ({pull}2873[#2873])
+
+* Support instrumenting core modules when require'd with the optional
   https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
   For example `require('node:http')` will now be instrumented.
   ({issues}2816[#2816])
 
+- Agent will delay loading of the `error-callsites` module until agent start time,
+  and will not load the module if the agent is disabled/inactive. This prevents the
+  setting of an `Error.prepareStackTrace` handler until necessary for stacktrace
+  collection. ({issues}2833[#2833] {pull}2906[#2906])
+  
 [float]
 ===== Bug fixes
 
 [float]
 ===== Chores
+
+- Disable knex instrumentation when not collecting span stack traces
+  (because there is no point). This is a performance improvement for
+  Knex usage in the default configuration. ({pull}2879[#2879])
 
 
 [[release-notes-3.38.0]]

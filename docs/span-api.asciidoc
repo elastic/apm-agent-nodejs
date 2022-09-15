@@ -215,3 +215,19 @@ However, for exit spans that represent an HTTP request, the `outcome` is based o
 * `outcome` +{type-string}+
 
 The `setOutcome` method allows an end user to override the Node.js agent's default setting of a span's `outcome` property.  The `setOutcome` method accepts a string of either `success`, `failure`, or `unknown`, and will force the agent to report this value for a specific span.
+
+[[span-setservicetarget]]
+==== `span.setServiceTarget(type, name)`
+
+[small]#Added in: v3.39.0#
+
+* `type` +{type-string}+ | null The target service type, usually the same value as `span.subtype`, e.g. "mysql".
+* `name` +{type-string}+ | null The target service name, an optional scoping of the service. For databases it is typically the database name.
+
+Manually set the `service.target.type` and `service.target.name` fields that identify a downstream service. They are used for https://www.elastic.co/guide/en/kibana/current/service-maps.html[Service Maps] and https://www.elastic.co/guide/en/kibana/current/dependencies.html[Dependencies] in the Kibana APM app.  The values are only used for "exit" spans -- spans representing outgoing communication, marked with `exitSpan: true` at span creation.
+
+If false-y values (e.g. `null`) are given for both `type` and `name`, then `service.target` will explicitly be excluded from this span. This may impact Service Maps and other Kibana APM app reporting for this service.
+
+If this method is not called, the service target values are inferred from other span fields (https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans-service-target.md#field-values[spec]).
+
+`service.target.*` fields are ignored for APM Server before v8.3.

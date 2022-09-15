@@ -4,5 +4,25 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 10
     reviewers:
       - "elastic/apm-agent-node-js"
+    ignore:
+      - dependency-name: @babel/core
+      - dependency-name: @babel/preset-env
+      - dependency-name: @types/node
+      - dependency-name: aws-sdk
+
+  # Some dev-deps are frequently updated and not that important to be on latest.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "elastic/apm-agent-node-js"
+    allow:
+      - dependency-name: @babel/core
+      - dependency-name: @babel/preset-env
+      - dependency-name: @types/node
+      - dependency-name: aws-sdk

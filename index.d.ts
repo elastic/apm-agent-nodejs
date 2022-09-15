@@ -222,6 +222,7 @@ declare namespace apm {
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
     addLabels (labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
+    setServiceTarget(type?: string | null, name?: string | null): void;
     end (endTime?: number): void;
   }
 
@@ -249,6 +250,7 @@ declare namespace apm {
     contextPropagationOnly?: boolean;
     disableInstrumentations?: string | string[];
     disableSend?: boolean;
+    elasticsearchCaptureBodyUrls?: Array<string>;
     environment?: string;
     errorMessageMaxLength?: string; // DEPRECATED: use `longFieldMaxLength`.
     errorOnAbortedRequests?: boolean;
