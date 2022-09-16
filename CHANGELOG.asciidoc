@@ -105,6 +105,8 @@ paths are considered for body capture. ({pull}2873[#2873])
   Instrumentation of these older graphql versions was broken in v3.36.0.
   ({pull}2927[#2927])
 
+* Fix a possible Maximum call stack size exceeded error when looking for parent timers.
+
 [float]
 ===== Chores
 
