@@ -68,7 +68,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: 'trust'
 
       mongodb:
-        image: mongo
+        image: mongo:5
         ports:
           - 27017:27017
         volumes:
