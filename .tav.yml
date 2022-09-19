@@ -57,6 +57,11 @@ mysql2-new:
 
 redis:
   versions: '>=2.0.0 <4.0.0'
+  commands: node test/instrumentation/modules/redis-2-3.test.js
+
+redis-4:
+  name: redis
+  versions: '>=4.0.0'
   commands: node test/instrumentation/modules/redis.test.js
 
 # We want these version ranges:

@@ -63,9 +63,9 @@ test('redis', function (t) {
         t.strictEqual(span.type, 'db', 'span.type')
         t.strictEqual(span.subtype, 'redis', 'span.subtype')
         t.deepEqual(span.context.destination, {
+          service: { name: 'redis', resource: 'redis', type: 'db' },
           address: process.env.REDIS_HOST || 'localhost',
-          port: 6379,
-          service: { name: '', type: '', resource: 'redis' }
+          port: 6379
         }, 'span.context.destination')
         t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
 
