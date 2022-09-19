@@ -171,15 +171,16 @@ function assertQuery (t, sql, span, name) {
     statement: sql,
     type: 'sql'
   }, 'span db context')
+  t.deepEqual(span.context.service.target, { type: 'mssql' }, 'span.context.service.target')
   t.deepEqual(span.context.destination, {
     service: {
-      name: 'mssql',
-      resource: 'mssql',
-      type: 'db'
+      type: '',
+      name: '',
+      resource: 'mssql'
     },
     address: hostname,
     port: 1433
-  }, 'span destination context')
+  }, 'span.context.destination')
 }
 
 function assertBasicQuery (t, sql, data) {

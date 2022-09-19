@@ -6,6 +6,7 @@
 
 'use strict'
 
+const assert = require('assert')
 const cassandra = require('cassandra-driver')
 
 const defaultOptions = {
@@ -14,9 +15,11 @@ const defaultOptions = {
 }
 
 function maybeInitialize (options) {
+  options = options || {}
   if (!options.keyspace) {
     return Promise.resolve()
   }
+  assert(options.table, 'makeClient options must include "table" if "keyspace" is provided')
 
   const keyspace = options.keyspace
   const query1 = `
@@ -26,7 +29,7 @@ function maybeInitialize (options) {
     };
   `
   const query2 = `
-    CREATE TABLE IF NOT EXISTS ${keyspace}.${keyspace}(id uuid,text varchar,PRIMARY KEY(id));
+    CREATE TABLE IF NOT EXISTS ${keyspace}.${options.table}(id uuid,text varchar,PRIMARY KEY(id));
   `
 
   const client = new cassandra.Client(defaultOptions)
@@ -42,11 +45,18 @@ function maybeInitialize (options) {
   })
 }
 
-module.exports = function makeClient (t, opts) {
-  const options = Object.assign({}, defaultOptions, opts)
+/**
+ * Return a promise for a Cassandra client.
+ *
+ * Optionally `opts.keyspace` and `opts.table` can be provided to initialize a
+ * keyspace and table for testing. The caller should provide neither option, or
+ * both.
+ */
+function makeClient (t, opts) {
+  const cassOpts = Object.assign({}, defaultOptions, { keyspace: opts && opts.keyspace })
 
-  return maybeInitialize(options).then(() => {
-    const client = new cassandra.Client(options)
+  return maybeInitialize(opts).then(() => {
+    const client = new cassandra.Client(cassOpts)
 
     t.on('end', () => {
       client.shutdown()
@@ -54,4 +64,8 @@ module.exports = function makeClient (t, opts) {
 
     return client
   })
+}
+
+module.exports = {
+  makeClient
 }

@@ -191,11 +191,6 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
       {
         address: 'example.com',
         port: 1234,
-        service: {
-          resource: 'sns/topic-name',
-          type: 'messaging',
-          name: 'sns'
-        },
         cloud: { region: 'us-west-2' }
       }
     )
@@ -205,11 +200,6 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
       {
         address: null,
         port: null,
-        service: {
-          resource: 'sns/undefined',
-          type: 'messaging',
-          name: 'sns'
-        },
         cloud: { region: null }
       }
     )
@@ -219,11 +209,6 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
       {
         address: undefined,
         port: undefined,
-        service: {
-          resource: 'sns/undefined',
-          type: 'messaging',
-          name: 'sns'
-        },
         cloud: { region: undefined }
       }
     )
@@ -253,12 +238,15 @@ tape.test('AWS SNS: End to End Test', function (test) {
         t.equals(span.action, 'publish', 'span action set correctly')
         t.equals(span.sync, false, 'span.sync is false')
         t.equals(span.context.message.queue.name, 'topic-name')
-        t.equals(span.context.destination.service.resource, 'sns/topic-name')
-        t.equals(span.context.destination.service.type, 'messaging')
-        t.equals(span.context.destination.service.name, 'sns')
-        t.equals(span.context.destination.address, 'localhost')
-        t.equals(span.context.destination.port, port)
-        t.equals(span.context.destination.cloud.region, 'us-west-2')
+        t.deepEquals(span.context.service.target,
+          { type: 'sns', name: 'topic-name' },
+          'span.context.service.target')
+        t.deepEquals(span.context.destination, {
+          address: 'localhost',
+          port: port,
+          cloud: { region: 'us-west-2' },
+          service: { type: '', name: '', resource: 'sns/topic-name' }
+        }, 'span.context.destination')
         t.end()
       })
 
@@ -303,12 +291,15 @@ tape.test('AWS SNS: End to End Test', function (test) {
         t.equals(span.action, 'publish', 'span action set correctly')
         t.equals(span.sync, false, 'span.sync is false')
         t.equals(span.context.message.queue.name, 'topic-name')
-        t.equals(span.context.destination.service.resource, 'sns/topic-name')
-        t.equals(span.context.destination.service.type, 'messaging')
-        t.equals(span.context.destination.service.name, 'sns')
-        t.equals(span.context.destination.address, 'localhost')
-        t.equals(span.context.destination.port, port)
-        t.equals(span.context.destination.cloud.region, 'us-west-2')
+        t.deepEquals(span.context.service.target,
+          { type: 'sns', name: 'topic-name' },
+          'span.context.service.target')
+        t.deepEquals(span.context.destination, {
+          address: 'localhost',
+          port: port,
+          cloud: { region: 'us-west-2' },
+          service: { type: '', name: '', resource: 'sns/topic-name' }
+        }, 'span.context.destination')
         t.end()
       })
 
