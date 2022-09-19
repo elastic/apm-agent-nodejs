@@ -26,7 +26,11 @@ var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
 
-if (semver.lt(graphqlVer, '16.0.0')) {
+// See explanation of these in "lib/instrumentation/modules/graphql.js".
+const onlySupportsPositionalArgs = semver.lt(graphqlVer, '0.10.0')
+const onlySupportsSingleArg = semver.gte(graphqlVer, '16.0.0')
+
+if (!onlySupportsSingleArg) {
   // graphql@16 dropped support for positional arguments.
   test('graphql.graphql(...) - positional args', function (t) {
     resetAgent(done(t))
@@ -51,27 +55,29 @@ if (semver.lt(graphqlVer, '16.0.0')) {
   })
 }
 
-test('graphql.graphql(...) - single GraphQLArgs arg', function (t) {
-  resetAgent(done(t))
+if (!onlySupportsPositionalArgs) {
+  test('graphql.graphql(...) - single GraphQLArgs arg', function (t) {
+    resetAgent(done(t))
 
-  var schema = graphql.buildSchema('type Query { hello: String }')
-  var rootValue = {
-    hello () {
-      return 'Hello world!'
+    var schema = graphql.buildSchema('type Query { hello: String }')
+    var rootValue = {
+      hello () {
+        return 'Hello world!'
+      }
     }
-  }
-  var query = '{ hello }'
+    var query = '{ hello }'
 
-  agent.startTransaction('foo')
+    agent.startTransaction('foo')
 
-  graphql.graphql({ schema, source: query, rootValue }).then(function (response) {
-    t.ok(agent.currentSpan === null, 'no currentSpan .graphql().then(...)')
-    agent.endTransaction()
-    t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
-    agent.flush()
+    graphql.graphql({ schema, source: query, rootValue }).then(function (response) {
+      t.ok(agent.currentSpan === null, 'no currentSpan .graphql().then(...)')
+      agent.endTransaction()
+      t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
+      agent.flush()
+    })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after .graphql(...)')
   })
-  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after .graphql(...)')
-})
+}
 
 test('graphql.graphql - invalid query', function (t) {
   resetAgent(done(t, 'Unknown Query'))
@@ -86,7 +92,7 @@ test('graphql.graphql - invalid query', function (t) {
 
   agent.startTransaction('foo')
 
-  graphql.graphql({ schema, source: query, rootValue }).then(function (response) {
+  graphql.graphql(...buildGraphqlArgs({ schema, source: query, rootValue })).then(function (response) {
     t.ok(agent.currentSpan === null, 'no currentSpan .graphql().then(...)')
     agent.endTransaction()
     t.deepEqual(Object.keys(response), ['errors'])
@@ -120,14 +126,14 @@ test('graphql.graphql - transaction ended', function (t) {
 
   agent.startTransaction('foo').end()
 
-  graphql.graphql({ schema, source: query, rootValue }).then(function (response) {
+  graphql.graphql(...buildGraphqlArgs({ schema, source: query, rootValue })).then(function (response) {
     t.ok(agent.currentSpan === null, 'no currentSpan .graphql().then(...)')
     t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
   })
   t.ok(agent.currentSpan === null, 'no currentSpan in sync code after .graphql(...)')
 })
 
-if (semver.lt(graphqlVer, '16.0.0')) {
+if (!onlySupportsSingleArg) {
   // graphql@16 dropped support for positional arguments.
   test('graphql.execute(...) - positional args', function (t) {
     resetAgent(done(t))
@@ -179,41 +185,43 @@ test('graphql.execute - transaction ended', function (t) {
 
   agent.startTransaction('foo').end()
 
-  graphql.execute({ schema, document, rootValue }).then(function (response) {
+  graphql.execute(...buildExecuteArgs({ schema, document, rootValue })).then(function (response) {
     t.ok(agent.currentSpan === null, 'no currentSpan .execute().then(...)')
     t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
   })
   t.ok(agent.currentSpan === null, 'no currentSpan in sync code after .execute(...)')
 })
 
-test('graphql.execute(...) - single ExecutionArgs arg', function (t) {
-  resetAgent(done(t))
+if (!onlySupportsPositionalArgs) {
+  test('graphql.execute(...) - single ExecutionArgs arg', function (t) {
+    resetAgent(done(t))
 
-  var schema = graphql.buildSchema('type Query { hello: String }')
-  var rootValue = {
-    hello () {
-      return Promise.resolve('Hello world!')
+    var schema = graphql.buildSchema('type Query { hello: String }')
+    var rootValue = {
+      hello () {
+        return Promise.resolve('Hello world!')
+      }
     }
-  }
-  var query = '{ hello }'
-  var source = new graphql.Source(query)
-  var documentAST = graphql.parse(source)
-  var args = {
-    schema: schema,
-    document: documentAST,
-    rootValue: rootValue
-  }
+    var query = '{ hello }'
+    var source = new graphql.Source(query)
+    var documentAST = graphql.parse(source)
+    var args = {
+      schema: schema,
+      document: documentAST,
+      rootValue: rootValue
+    }
 
-  agent.startTransaction('foo')
+    agent.startTransaction('foo')
 
-  graphql.execute(args).then(function (response) {
-    t.ok(agent.currentSpan === null, 'no currentSpan .execute().then(...)')
-    agent.endTransaction()
-    t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
-    agent.flush()
+    graphql.execute(args).then(function (response) {
+      t.ok(agent.currentSpan === null, 'no currentSpan .execute().then(...)')
+      agent.endTransaction()
+      t.deepLooseEqual(response, { data: { hello: 'Hello world!' } })
+      agent.flush()
+    })
+    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after .execute(...)')
   })
-  t.ok(agent.currentSpan === null, 'no currentSpan in sync code after .execute(...)')
-})
+}
 
 if (semver.satisfies(graphqlVer, '>=0.12')) {
   test('graphql.execute sync', function (t) {
@@ -231,7 +239,7 @@ if (semver.satisfies(graphqlVer, '>=0.12')) {
 
     agent.startTransaction('foo')
 
-    var response = graphql.execute({ schema, document, rootValue })
+    var response = graphql.execute(...buildExecuteArgs({ schema, document, rootValue }))
     t.ok(agent.currentSpan === null, 'no currentSpan in sync code after .execute(...)')
 
     agent.endTransaction()
@@ -261,6 +269,41 @@ function done (t, spanNameSuffix) {
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()
+  }
+}
+
+// Take the modern (single object argument) calling signature for
+// `graphql.graphql()` and return an arguments array that can be used to
+// call it with whatever the appropriate call signature is for the current
+// graphql version.
+function buildGraphqlArgs (args) {
+  if (onlySupportsPositionalArgs) {
+    const {
+      schema,
+      source,
+      rootValue,
+      contextValue,
+      variableValues,
+      operationName,
+      fieldResolver,
+      typeResolver
+    } = args
+    return [schema, source, rootValue, contextValue, variableValues, operationName, fieldResolver, typeResolver].filter(a => a !== undefined)
+  } else {
+    return [args]
+  }
+}
+
+// Take the modern (single object argument) calling signature for
+// `graphql.execute()` and return an arguments array that can be used to
+// call it with whatever the appropriate call signature is for the current
+// graphql version.
+function buildExecuteArgs (args) {
+  if (onlySupportsPositionalArgs) {
+    const { schema, document, variableValues, rootValue } = args
+    return [schema, document, variableValues, rootValue].filter(a => a !== undefined)
+  } else {
+    return [args]
   }
 }
 

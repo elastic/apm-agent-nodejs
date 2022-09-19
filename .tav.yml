@@ -159,10 +159,12 @@ ws-new:
   commands: node test/instrumentation/modules/ws.test.js
 
 graphql-v0.7-v16:
+  name: graphql
   preinstall: npm uninstall express-graphql
   versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16'
   commands: node test/instrumentation/modules/graphql.test.js
 graphql:
+  name: graphql
   preinstall: npm uninstall express-graphql
   node: '>=12'
   versions: '>=16.0.0 <17'
