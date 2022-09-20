@@ -153,6 +153,54 @@ For example:
 6626799 FINISHED SUCCESS .ci/scripts/test.sh "8" "apollo-server-express" "false"
 ```
 
+# Maintenance tips
+
+## How to check for outdated instrumentation modules
+
+The APM agent instruments a number of npm modules. Typically, each such
+instrumentation supports an explicit version range of the module. This supported
+version range is expressed in three places:
+
+1. Version guard code at the top of the instrumentation module. For example this
+   at the top of "lib/instrumentation/modules/redis.js" for the `redis` npm
+   package:
+
+    ```js
+    if (!semver.satisfies(version, '>=2.0.0 <4.0.0')) {
+      agent.logger.debug('redis version %s not supported - aborting...', version)
+      return redis
+    }
+    ```
+
+2. One or more config blocks in ".tav.yml" that are used to define all versions
+   of the module that are tested regularly in CI. For example,
+
+    ```yaml
+    redis:
+      versions: '>=2.0.0 <4.0.0'
+      commands: node test/instrumentation/modules/redis.test.js
+    ```
+
+3. The "docs/supported-technologies.asciidoc" document. For example,
+
+    ```
+    |https://www.npmjs.com/package/redis[redis] |>=2.0.0 <4.0.0 |Will instrument all queries
+    ```
+
+Two maintenance tasks are (a) to keep these three places in sync and (b) to
+know when support for newer versions of module needs to be added. The latter
+is partially handled by automated dependabot PRs (see ".github/dependabot.yml").
+Both tasks are also partially supported by the **`./dev-utils/bitrot.js`** tool.
+It will list inconsistences between ".tav.yaml" and
+"supported-technologies.asciidoc", and will note newer releases of a module
+that isn't covered. For example, redis@5 is not covered by the ranges above,
+so the tool looks like this:
+
+```
+% ./dev-utils/bitrot.js
+redis bitrot: latest redis@4.3.1 (released 2022-09-06): is not in .tav.yml ranges (>=2.0.0 <4.0.0), is not in supported-technologies.asciidoc ranges (>=2.0.0 <4.0.0)
+```
+
 
 # Other tips
 
