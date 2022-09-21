@@ -186,46 +186,46 @@ test('redis', function (t) {
 //   })
 // }
 
-test('client.cmd(...) call signatures', function (t) {
-  let nCbCalled = 0
-  function myCb () {
-    nCbCalled++
-  }
+// test('client.cmd(...) call signatures', function (t) {
+//   let nCbCalled = 0
+//   function myCb () {
+//     nCbCalled++
+//   }
 
-  resetAgent(function (data) {
-    t.equal(nCbCalled, 2, 'myCb was called the expected number of times')
-    t.equal(data.transactions.length, 1, 'got 1 transaction')
-    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
-    t.deepEqual(
-      data.spans.map(s => s.name),
-      ['INFO', 'SET', 'GET', 'SET'],
-      'got the expected span names'
-    )
-    t.end()
-    client.disconnect()
-  })
+//   resetAgent(function (data) {
+//     t.equal(nCbCalled, 2, 'myCb was called the expected number of times')
+//     t.equal(data.transactions.length, 1, 'got 1 transaction')
+//     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
+//     t.deepEqual(
+//       data.spans.map(s => s.name),
+//       ['INFO', 'SET', 'GET', 'SET'],
+//       'got the expected span names'
+//     )
+//     t.end()
+//   })
 
-  var client = redis.createClient({
-    port: '6379',
-    host: process.env.REDIS_HOST,
-    legacyMode: true
-  })
-  client.connect()
+//   var client = redis.createClient({
+//     port: '6379',
+//     host: process.env.REDIS_HOST,
+//     legacyMode: true
+//   })
+//   client.connect()
 
-  client.on('ready', function () {
-    var t0 = agent.startTransaction('t0')
+//   client.on('ready', function () {
+//     var t0 = agent.startTransaction('t0')
 
-    // Use different call signatures to trigger the different forms of arguments
-    // to the internal RedisClient.send_command that we are wrapping.
-    client.info()
-    client.set('k', 'v')
-    client.get('k', myCb)
-    client.set(['k', 'v'], myCb)
+//     // Use different call signatures to trigger the different forms of arguments
+//     // to the internal RedisClient.send_command that we are wrapping.
+//     client.info()
+//     client.set('k', 'v')
+//     client.get('k', myCb)
+//     client.set(['k', 'v'], myCb)
 
-    t0.end()
-    agent.flush()
-  })
-})
+//     t0.end()
+//     client.quit()
+//     agent.flush()
+//   })
+// })
 
 
 function resetAgent (cb) {
