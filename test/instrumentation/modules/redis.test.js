@@ -57,7 +57,7 @@ test('redis', function (t) {
     for (var i = 0; i < expectedSpanNames.length; i++) {
       const expectedName = expectedSpanNames[i]
       const span = spans[i]
-      if(span) {
+      if (span) {
         t.strictEqual(span.transaction_id, trans.id, 'span.transaction_id')
         t.strictEqual(span.name, expectedName, 'span.name')
         t.strictEqual(span.type, 'db', 'span.type')
@@ -96,7 +96,6 @@ test('redis', function (t) {
 
   var transAfterClient = agent.startTransaction('transAfterClient')
 
-
   client.flushAll().then(function (reply) {
     t.strictEqual(reply, 'OK', 'reply is OK')
     var done = 0
@@ -104,9 +103,9 @@ test('redis', function (t) {
     client.set('string key', 'string val').then(function (reply) {
       t.strictEqual(reply, 'OK', 'reply is OK')
       done++
-    }).catch(function(err){
+    }).catch(function (err) {
       t.error(err)
-    });
+    })
 
     // callback is optional
     client.set('string key', 'string val')
@@ -114,7 +113,7 @@ test('redis', function (t) {
     client.hSet('hash key', 'hashtest 1', 'some value').then(function (reply) {
       t.strictEqual(reply, 1, 'hset reply is 1')
       done++
-    }).catch(function(err){
+    }).catch(function (err) {
       t.error(err, 'no hset error')
     })
 
@@ -123,9 +122,9 @@ test('redis', function (t) {
     // client.hSet('hash key', 'hashtest 2', 'some other value').then(function (reply) {
       t.strictEqual(reply, 1, 'hset reply is 1')
       done++
-    }).catch(function(err){
+    }).catch(function (err) {
       t.error(err, 'no hset error')
-    });
+    })
 
     client.hKeys('hash key').then(function (replies) {
       t.strictEqual(replies.length, 2, 'got two replies')
@@ -139,10 +138,10 @@ test('redis', function (t) {
       transBeforeClient.end()
       client.quit()
       agent.flush()
-    }).catch(function(err){
+    }).catch(function (err) {
       t.error(err, 'no hkeys error')
     })
-  }).catch(function(err){
+  }).catch(function (err) {
     t.error(err, 'no flushall error')
   })
 })

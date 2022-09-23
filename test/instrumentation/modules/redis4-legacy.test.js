@@ -15,8 +15,7 @@ var agent = require('../../..').start({
 })
 
 var redis = require('redis')
-var redisVersion = require('redis/package.json').version
-var semver = require('semver')
+// var redisVersion = require('redis/package.json').version
 var test = require('tape')
 
 var findObjInArray = require('../../_utils').findObjInArray
@@ -95,7 +94,7 @@ test('redis', function (t) {
     legacyMode: true
   })
 
-  client.on('error', err => console.log('client error', err));
+  client.on('error', err => console.log('client error', err))
   // client.on('connect', () => console.log('client is connect'));
   // client.on('reconnecting', () => console.log('client is reconnecting'));
   // client.on('ready', () => console.log('client is ready'));
@@ -226,7 +225,6 @@ test('redis', function (t) {
 //     agent.flush()
 //   })
 // })
-
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
