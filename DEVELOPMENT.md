@@ -61,68 +61,6 @@ index 94376188..571539aa 100644
 
 # Testing tips
 
-## Integration tests fail
-
-If the "Integration Tests" check fails for your PR, here are some notes on
-debugging that. (The actual ".ci/Jenkinsfile" and apm-integration-testing.git
-are the authority. See also the [APM integration test troubleshooting guide](https://github.com/elastic/observability-dev/blob/main/docs/apm/apm-integration-test-troubleshooting-guide.md).)
-
-The Node.js integration tests are ["test\_nodejs.py" in apm-integration-testing](https://github.com/elastic/apm-integration-testing/blob/main/tests/agent/test_nodejs.py). Roughly speaking, the integration tests:
-
-- use that repo's scripts to start ES, kibana, apm-server and an [express test app](https://github.com/elastic/apm-integration-testing/blob/main/docker/nodejs/express/app.js) in Docker;
-- run apm-integration-testing.git itself in a [Docker](https://github.com/elastic/apm-integration-testing/blob/main/Dockerfile) container and call `make test-agent-nodejs`;
-- which runs [`pytest tests/agent/test_nodejs.py ...`](https://github.com/elastic/apm-integration-testing/blob/db7d9a26458832b812577a294e14c365c85001b9/Makefile#L102)
-
-To reproduce the integration test failure on your dev machine mainly involves
-getting the correct settings for that "express test app", in particular
-using your PR commit sha. The following boilerplate *should* get you going.
-Note that it might likely get out of date:
-
-1. Create and active a Python virtual env for the Python bits that are used:
-
-        python3 -m venv ./venv
-        source ./venv/bin/activate
-
-2. Set the apm-agent-nodejs.git commit you want to use:
-
-        export MYCOMMIT=... # e.g. 3554f05fad6798f229f75eebc07bb66cee918385
-
-3. Start the docker containers:
-
-        export BUILD_OPTS="--nodejs-agent-package elastic/apm-agent-nodejs#$MYCOMMIT --opbeans-node-agent-branch $MYCOMMIT --build-parallel"
-        export ELASTIC_STACK_VERSION=8.0.0
-        export COMPOSE_ARGS="${ELASTIC_STACK_VERSION} ${BUILD_OPTS} \
-          --with-agent-nodejs-express \
-          --no-apm-server-dashboards \
-          --no-apm-server-self-instrument \
-          --force-build --no-xpack-secure \
-          --apm-log-level=trace"
-        make start-env
-
-        # OR: replace all this with a suitable call to
-        #     'python3 scripts/compose.py start ...'
-
-    Note: There is an easier way with "ELASTIC_STACK_VERSION=...
-    APM_AGENT_NODEJS_VERSION=... make start-env" I believe. See the README.
-
-4. Run the test suite:
-
-        pytest tests/agent/test_nodejs.py -v
-
-5. (Optional) In a separate terminal, watch the log output from Node.js agent:
-
-        docker logs -f expressapp | ecslog
-
-6. When done, stop the docker containers via:
-
-        make stop-env
-        # OR: python3 scripts/compose.py stop
-
-   Also, optionally, turn off the Python virtual env:
-
-        deactivate
-
-
 ## How to show the slowest TAV tests from a Jenkins build
 
 Jenkins builds of the agent produce a "steps-info.json" artifact that gives
