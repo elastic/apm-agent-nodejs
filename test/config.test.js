@@ -1030,6 +1030,11 @@ test('disableInstrumentations', function (t) {
     modules.delete('koa-router') // koa-router@11 supports node >=12
     modules.delete('@koa/router') // koa-router@11 supports node >=12
   }
+  if (semver.lt(process.version, '14.0.0')) {
+    modules.delete('redis') // redis@4 supports node >=14
+    modules.delete('@redis/client/dist/lib/client') // redis@4 supports node >=14
+    modules.delete('@redis/client/dist/lib/client/commands-queue') // redis@4 supports node >=14
+  }
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)

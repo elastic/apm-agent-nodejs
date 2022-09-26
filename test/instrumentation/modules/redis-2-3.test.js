@@ -6,6 +6,13 @@
 
 'use strict'
 
+var redisVersion = require('redis/package.json').version
+var semver = require('semver')
+if (semver.gte(redisVersion, '4.0.0')) {
+  console.log('# SKIP: skipping redis-2-3.test.js tests')
+  process.exit(0)
+}
+
 var agent = require('../../..').start({
   serviceName: 'test-redis',
   captureExceptions: false,
@@ -15,8 +22,7 @@ var agent = require('../../..').start({
 })
 
 var redis = require('redis')
-var redisVersion = require('redis/package.json').version
-var semver = require('semver')
+
 var test = require('tape')
 
 var findObjInArray = require('../../_utils').findObjInArray
