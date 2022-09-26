@@ -9,7 +9,7 @@
 var redisVersion = require('redis/package.json').version
 var semver = require('semver')
 if (semver.gte(redisVersion, '4.0.0')) {
-  console.log('# SKIP: skipping redis-2-3.test.js tests')
+  console.log('# SKIP: skipping redis-2-3.test.js tests >=4.0.0')
   process.exit(0)
 }
 

@@ -9,8 +9,8 @@
 var redisVersion = require('redis/package.json').version
 var semver = require('semver')
 
-if (semver.gte(redisVersion, '4.0.0')) {
-  console.log('# SKIP: skipping redis-2-3.test.js tests')
+if (semver.lt(redisVersion, '4.0.0')) {
+  console.log('# SKIP: skipping redis.test.js tests <4.0.0')
   process.exit(0)
 }
 
@@ -97,7 +97,12 @@ test('redis', function (t) {
   // double-spans.
   var transBeforeClient = agent.startTransaction('transBeforeClient')
 
-  var client = redis.createClient('6379', process.env.REDIS_HOST)
+  var client = redis.createClient({
+    socket: {
+      port: '6379',
+      host: process.env.REDIS_HOST
+    }
+  })
   client.connect()
 
   var transAfterClient = agent.startTransaction('transAfterClient')
@@ -152,46 +157,6 @@ test('redis', function (t) {
   })
 })
 
-// Skip testing error capture with redis 2.x. It works, but there are behaviour
-// differences (e.g. `client.quit()` throws with `enable_offline_queue: false`)
-// such that testing is a pain. Redis 2.x is too old to bother.
-// if (semver.satisfies(redisVersion, '>=3.0.0')) {
-//   test('redis client error', function (t) {
-//     resetAgent(function (data) {
-//       t.equal(data.transactions.length, 1, 'got 1 transaction')
-//       t.equal(data.spans.length, 1, 'got 1 span')
-//       t.equal(data.errors.length, 1, 'got 1 error')
-//       t.equal(data.spans[0].name, 'SET', 'span.name')
-//       t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
-//       t.equal(data.spans[0].outcome, 'failure', 'span.outcome')
-//       t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id')
-//       t.equal(data.errors[0].parent_id, data.spans[0].id, 'error.parent_id, error is a child of the failing span')
-//       t.equal(data.errors[0].exception.type, 'AbortError', 'error.exception.type')
-//       t.end()
-//     })
-
-//     // Simulate a redis client error with `enable_offline_queue: false` and a
-//     // quick `.set()` without connecting the client
-//     var client = redis.createClient({
-//       host: process.env.REDIS_HOST,
-//       port: '6379',
-//       enable_offline_queue: false
-//     })
-
-//     var t0 = agent.startTransaction('t0')
-//     client.set('k', 'v').catch(function (err) {
-//       console.log(err)
-//       t.ok(err, 'got error from client.set')
-//       t.equal(err.name, 'Error', 'error.name')
-//       t0.end()
-//       client.quit()
-//       agent.flush()
-//     }).then(function(reply){
-//       // t.fail('expected error')
-//     });
-//   })
-// }
-
 if (semver.satisfies(redisVersion, '<=2.4.2')) {
   // Redis <=2.4.2 allowed a callback as the last item in an args array.
   // Support for this was dropped in commit 60eee34de1.
@@ -209,7 +174,13 @@ if (semver.satisfies(redisVersion, '<=2.4.2')) {
       t.end()
     })
 
-    var client = redis.createClient('6379', process.env.REDIS_HOST)
+    var client = redis.createClient({
+      socket: {
+        port: '6379',
+        host: process.env.REDIS_HOST
+      }
+    })
+
     client.on('ready', function () {
       var t0 = agent.startTransaction('t0')
 
