@@ -402,19 +402,19 @@ def generateStep(Map params = [:]){
   def contextManager = params.get('disableAsyncHooks', false) ? 'patch' : ''
   return {
     withNode(labels: 'linux && immutable', forceWorkspace: true, forceWorker: true) {
-      withEnv(["VERSION=${version}", "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}"]) {
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          try {
-            retryWithSleep(retries: 2, seconds: 5, backoff: true) {
-              sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" -t "${tav}" "${version}" """)
+      filebeat(output: "docker-${version}-${buildType}.log", archiveOnlyOnFail: true){
+        withEnv(["VERSION=${version}", "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}"]) {
+          deleteDir()
+          unstash 'source'
+          dir("${BASE_DIR}"){
+            try {
+              retryWithSleep(retries: 2, seconds: 5, backoff: true) {
+                sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" -t "${tav}" "${version}" """)
+              }
+            } finally {
+              junit(testResults: "test_output/*.junit.xml", allowEmptyResults: true, keepLongStdio: true)
+              archiveArtifacts(artifacts: "test_output/*.tap", allowEmptyArchive: true)
             }
-          } catch(e){
-            error(e.toString())
-          } finally {
-            junit(testResults: "test_output/*.junit.xml", allowEmptyResults: true, keepLongStdio: true)
-            archiveArtifacts(artifacts: "test_output/*.tap", allowEmptyArchive: true)
           }
         }
       }
