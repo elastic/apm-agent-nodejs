@@ -6,14 +6,14 @@
 
 'use strict'
 
-var redisVersion = require('redis/package.json').version
-var semver = require('semver')
+const redisVersion = require('redis/package.json').version
+const semver = require('semver')
 if (semver.lt(redisVersion, '4.0.0')) {
   console.log('# SKIP: skipping redis-2-3.test.js tests')
   process.exit(0)
 }
 
-var agent = require('../../..').start({
+const agent = require('../../..').start({
   serviceName: 'test-redis',
   captureExceptions: false,
   metricsInterval: 0,
@@ -21,11 +21,11 @@ var agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
-var redis = require('redis')
-var test = require('tape')
+const redis = require('redis')
+const test = require('tape')
 
-var findObjInArray = require('../../_utils').findObjInArray
-var mockClient = require('../../_mock_http_client')
+const findObjInArray = require('../../_utils').findObjInArray
+const mockClient = require('../../_mock_http_client')
 
 test('redis', function (t) {
   resetAgent(function (data) {
@@ -35,9 +35,9 @@ test('redis', function (t) {
     // does *not* have spans for each of the client commands. It *possibly*
     // (with contextManager="patch" it doesn't) has an "INFO" span for the
     // internal INFO command the RedisClient setup does.
-    var trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
+    let trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
     t.ok(trans, 'have "transBeforeClient" transaction')
-    var spans = data.spans.filter(s => s.transaction_id === trans.id)
+    let spans = data.spans.filter(s => s.transaction_id === trans.id)
       .filter(s => s.name !== 'INFO')
     t.equal(spans.length, 0, 'there are no non-INFO spans in the "transBeforeClient" transaction')
 
@@ -50,7 +50,7 @@ test('redis', function (t) {
     t.ok(trans, 'have "transAfterClient" transaction')
     t.strictEqual(trans.result, 'success', 'trans.result')
 
-    var expectedSpanNames = [
+    let expectedSpanNames = [
       'FLUSHALL',
       'SET',
       'SET',
@@ -59,7 +59,7 @@ test('redis', function (t) {
       'HKEYS'
     ]
     t.equal(spans.length, expectedSpanNames.length, 'have the expected number of spans')
-    for (var i = 0; i < expectedSpanNames.length; i++) {
+    for (let i = 0; i < expectedSpanNames.length; i++) {
       const expectedName = expectedSpanNames[i]
       const span = spans[i]
       t.strictEqual(span.transaction_id, trans.id, 'span.transaction_id')
@@ -76,7 +76,7 @@ test('redis', function (t) {
       t.deepEqual(span.context.db, { type: 'redis' }, 'span.context.db')
       t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
 
-      var offset = span.timestamp - trans.timestamp
+      const offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000,
         'span ended before transaction ended')
     }
@@ -92,9 +92,9 @@ test('redis', function (t) {
   // currentTransaction for the async task in which the redis client is created.
   // That's what `transBeforeClient` is: to make sure we *don't* get
   // double-spans.
-  var transBeforeClient = agent.startTransaction('transBeforeClient')
+  const transBeforeClient = agent.startTransaction('transBeforeClient')
 
-  var client = redis.createClient({
+  const client = redis.createClient({
     port: '6379',
     host: process.env.REDIS_HOST,
     legacyMode: true
@@ -106,12 +106,12 @@ test('redis', function (t) {
   // client.on('ready', () => console.log('client is ready'));
 
   client.connect()
-  var transAfterClient = agent.startTransaction('transAfterClient')
+  const transAfterClient = agent.startTransaction('transAfterClient')
 
   client.flushall(function (err, reply) {
     t.error(err, 'no flushall error')
     t.strictEqual(reply, 'OK', 'reply is OK')
-    var done = 0
+    let done = 0
 
     client.set('string key', 'string val', function (err, reply) {
       t.error(err)
@@ -144,93 +144,10 @@ test('redis', function (t) {
 
       transAfterClient.end()
       transBeforeClient.end()
-      // setTimeout(function(){
-      //   client.quit()
-      // }, 5000)
       agent.flush()
     })
   })
 })
-
-// Skip testing error capture with redis 2.x. It works, but there are behaviour
-// differences (e.g. `client.quit()` throws with `enable_offline_queue: false`)
-// such that testing is a pain. Redis 2.x is too old to bother.
-// if (semver.satisfies(redisVersion, '>=3.0.0')) {
-//   test('redis client error', function (t) {
-//     resetAgent(function (data) {
-//       t.equal(data.transactions.length, 1, 'got 1 transaction')
-//       t.equal(data.spans.length, 1, 'got 1 span')
-//       t.equal(data.errors.length, 1, 'got 1 error')
-//       t.equal(data.spans[0].name, 'SET', 'span.name')
-//       t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
-//       t.equal(data.spans[0].outcome, 'failure', 'span.outcome')
-//       t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id')
-//       t.equal(data.errors[0].parent_id, data.spans[0].id, 'error.parent_id, error is a child of the failing span')
-//       t.equal(data.errors[0].exception.type, 'AbortError', 'error.exception.type')
-//       t.end()
-//     })
-
-//     // Simulate a redis client error with `enable_offline_queue: false` and a
-//     // quick `.set()` before the client connection ready.
-//     var client = redis.createClient({
-//       host: process.env.REDIS_HOST,
-//       port: '6379',
-//       enable_offline_queue: false,
-//       legacyMode: true
-//     })
-//     client.connect()
-//     var t0 = agent.startTransaction('t0')
-//     client.set('k', 'v', function (err, reply) {
-//       t.ok(err, 'got error from client.set')
-//       t.equal(err.name, 'AbortError', 'error.name')
-//       t.ok(reply === undefined, 'no reply')
-//       t0.end()
-//       client.quit()
-//       agent.flush()
-//     })
-//   })
-// }
-
-// test('client.cmd(...) call signatures', function (t) {
-//   let nCbCalled = 0
-//   function myCb () {
-//     nCbCalled++
-//   }
-
-//   resetAgent(function (data) {
-//     t.equal(nCbCalled, 2, 'myCb was called the expected number of times')
-//     t.equal(data.transactions.length, 1, 'got 1 transaction')
-//     data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1 })
-//     t.deepEqual(
-//       data.spans.map(s => s.name),
-//       ['INFO', 'SET', 'GET', 'SET'],
-//       'got the expected span names'
-//     )
-//     t.end()
-//   })
-
-//   var client = redis.createClient({
-//     port: '6379',
-//     host: process.env.REDIS_HOST,
-//     legacyMode: true
-//   })
-//   client.connect()
-
-//   client.on('ready', function () {
-//     var t0 = agent.startTransaction('t0')
-
-//     // Use different call signatures to trigger the different forms of arguments
-//     // to the internal RedisClient.send_command that we are wrapping.
-//     client.info()
-//     client.set('k', 'v')
-//     client.get('k', myCb)
-//     client.set(['k', 'v'], myCb)
-
-//     t0.end()
-//     client.quit()
-//     agent.flush()
-//   })
-// })
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()

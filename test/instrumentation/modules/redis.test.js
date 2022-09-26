@@ -6,8 +6,8 @@
 
 'use strict'
 
-var redisVersion = require('redis/package.json').version
-var semver = require('semver')
+const redisVersion = require('redis/package.json').version
+const semver = require('semver')
 
 if (semver.lt(redisVersion, '4.0.0')) {
   console.log('# SKIP: skipping redis.test.js tests <4.0.0')
@@ -22,11 +22,11 @@ const agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
-var redis = require('redis')
-var test = require('tape')
+const redis = require('redis')
+const test = require('tape')
 
-var findObjInArray = require('../../_utils').findObjInArray
-var mockClient = require('../../_mock_http_client')
+const findObjInArray = require('../../_utils').findObjInArray
+const mockClient = require('../../_mock_http_client')
 
 test('redis', function (t) {
   resetAgent(function (data) {
@@ -36,9 +36,9 @@ test('redis', function (t) {
     // does *not* have spans for each of the client commands. It *possibly*
     // (with contextManager="patch" it doesn't) has an "INFO" span for the
     // internal INFO command the RedisClient setup does.
-    var trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
+    let trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
     t.ok(trans, 'have "transBeforeClient" transaction')
-    var spans = data.spans.filter(s => s.transaction_id === trans.id)
+    let spans = data.spans.filter(s => s.transaction_id === trans.id)
       .filter(s => s.name !== 'INFO')
     t.equal(spans.length, 0, 'there are no non-INFO spans in the "transBeforeClient" transaction')
 
@@ -51,7 +51,7 @@ test('redis', function (t) {
     t.ok(trans, 'have "transAfterClient" transaction')
     t.strictEqual(trans.result, 'success', 'trans.result')
 
-    var expectedSpanNames = [
+    const expectedSpanNames = [
       'FLUSHALL',
       'SET',
       'SET',
@@ -60,7 +60,7 @@ test('redis', function (t) {
       'HKEYS'
     ]
     t.equal(spans.length, expectedSpanNames.length, 'have the expected number of spans')
-    for (var i = 0; i < expectedSpanNames.length; i++) {
+    for (let i = 0; i < expectedSpanNames.length; i++) {
       const expectedName = expectedSpanNames[i]
       const span = spans[i]
       if (span) {
@@ -76,7 +76,7 @@ test('redis', function (t) {
         t.deepEqual(span.context.db, { type: 'redis' }, 'span.context.db')
         t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
 
-        var offset = span.timestamp - trans.timestamp
+        const offset = span.timestamp - trans.timestamp
         t.ok(offset + span.duration * 1000 < trans.duration * 1000,
           'span ended before transaction ended')
       } else {
@@ -95,9 +95,9 @@ test('redis', function (t) {
   // currentTransaction for the async task in which the redis client is created.
   // That's what `transBeforeClient` is: to make sure we *don't* get
   // double-spans.
-  var transBeforeClient = agent.startTransaction('transBeforeClient')
+  const transBeforeClient = agent.startTransaction('transBeforeClient')
 
-  var client = redis.createClient({
+  const client = redis.createClient({
     socket: {
       port: '6379',
       host: process.env.REDIS_HOST
@@ -105,11 +105,11 @@ test('redis', function (t) {
   })
   client.connect()
 
-  var transAfterClient = agent.startTransaction('transAfterClient')
+  const transAfterClient = agent.startTransaction('transAfterClient')
 
   client.flushAll().then(function (reply) {
     t.strictEqual(reply, 'OK', 'reply is OK')
-    var done = 0
+    let done = 0
 
     client.set('string key', 'string val').then(function (reply) {
       t.strictEqual(reply, 'OK', 'reply is OK')
@@ -174,7 +174,7 @@ if (semver.satisfies(redisVersion, '<=2.4.2')) {
       t.end()
     })
 
-    var client = redis.createClient({
+    const client = redis.createClient({
       socket: {
         port: '6379',
         host: process.env.REDIS_HOST
@@ -182,7 +182,7 @@ if (semver.satisfies(redisVersion, '<=2.4.2')) {
     })
 
     client.on('ready', function () {
-      var t0 = agent.startTransaction('t0')
+      const t0 = agent.startTransaction('t0')
 
       client.get(['k', myCb])
 
