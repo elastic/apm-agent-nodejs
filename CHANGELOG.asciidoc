@@ -40,6 +40,8 @@ Notes:
 [float]
 ===== Features
 
+* Enable support for redis v4 ({pull}2945[#2945])
+
 * Improve the granularity of data captured about downstream services, e.g.
   databases, for spans that represent an external call (known as "exit spans").
   This data is used for
