@@ -87,16 +87,13 @@ These are the frameworks that we officially support:
 
 [options="header"]
 |=======================================================================
-|Framework |Version
+|Framework |Version |Note
 |<<express,Express>> |^4.0.0
-|<<hapi,hapi>> |>=9.0.0 <19.0.0; Deprecated. No longer tested.
+|<<hapi,hapi>> |>=9.0.0 <19.0.0 | Deprecated. No longer tested.
 |<<hapi,@hapi/hapi>> |>=17.9.0 <21.0.0
-|<<koa,Koa>> via koa-router or @koa/router |>=5.2.0 <13.0.0
-2+|Koa doesn't have a built in router, so we can't support Koa directly since we rely on
-router information for full support. We currently support the most popular Koa router called
-https://github.com/alexmingoia/koa-router[koa-router].
+|<<koa,Koa>> via koa-router or @koa/router | >=5.2.0 <13.0.0 | Koa doesn't have a built in router, so we can't support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router].
 |<<restify,Restify>> |>=5.2.0
-|<<fastify,Fastify>> |>=1.0.0; see also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
+|<<fastify,Fastify>> |>=1.0.0 | See also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
 |<<lambda,AWS Lambda>> |N/A
 |=======================================================================
 
@@ -111,7 +108,7 @@ These modules override that behavior to give better insights into specialized HT
 |=======================================================================
 |Module |Version |Note
 |https://www.npmjs.com/package/express-graphql[express-graphql] |>=0.6.1 <0.13.0 |Will name all transactions by the GraphQL query name. (There is https://github.com/elastic/apm-agent-nodejs/issues/2516[known issue with node <10.4].)
-|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |^2.0.4 <4|Will name all transactions by the GraphQL query name
+|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |>=2.0.4 <4|Will name all transactions by the GraphQL query name
 |=======================================================================
 
 [float]
@@ -130,23 +127,23 @@ The Node.js agent will automatically instrument the following modules to give yo
 |https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 <17 |Will instrument all queries
 |https://www.npmjs.com/package/handlebars[handlebars] |* |Will instrument compile and render calls
 |https://www.npmjs.com/package/jade[jade] |>=0.5.6 |Will instrument compile and render calls; Deprecated. No longer tested. Use pug.
-|https://www.npmjs.com/package/pug[pug] |'>=0.1.0' |Will instrument compile and render calls
-|https://www.npmjs.com/package/ioredis[ioredis] |>=2.0.0 <6.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/memcached[memcached] |>=2.2.0  |Will instrument all commands.
-|https://www.npmjs.com/package/mongodb-core[mongodb-core] |>=1.2.19 <4 |Will instrument all queries.
+|https://www.npmjs.com/package/pug[pug] |>=0.1.0 |Will instrument compile and render calls
+|https://www.npmjs.com/package/ioredis[ioredis] |>=2.0.0 <6.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/memcached[memcached] |>=2.2.0 |Will instrument all commands.
+|https://www.npmjs.com/package/mongodb-core[mongodb-core] |>=1.2.19 <4 |Will instrument all queries.
 A lot of higher level MongoDB modules use mongodb-core,
 so those should be supported as well.
 |https://www.npmjs.com/package/mongodb[mongodb] |>=2.0.0 <3.3.0 |Supported via mongodb-core
-|https://www.npmjs.com/package/mongodb[mongodb] |^3.3.0 <5 |Will instrument all queries
+|https://www.npmjs.com/package/mongodb[mongodb] |>=3.3.0 <5 |Will instrument all queries
 |https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 <2.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 <5.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <3.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/redis[redis] |>=2.0.0 <4.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/tedious[tedious] |>=1.9 <16.0.0 | (Excluding v4.0.0.) Will instrument all queries
 |https://www.npmjs.com/package/undici[undici] | >=4.7.1 <6 | Will instrument undici HTTP requests, except HTTP CONNECT. Requires node v14.17.0 or later, or the user to have installed the https://www.npmjs.com/package/diagnostics_channel['diagnostics_channel' polyfill].
-|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <8.0.0 |Will instrument outgoing WebSocket messages
+|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <8.0.0 |Will instrument outgoing WebSocket messages
 |=======================================================================
 
 [float]
@@ -193,8 +190,8 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 [options="header"]
 |=======================================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/bluebird[bluebird] |>=2.0.0 <4.0.0 |
+|https://www.npmjs.com/package/bluebird[bluebird] |>=2.0.0 <4.0.0 |
 |https://www.npmjs.com/package/generic-pool[generic-pool] | ^2.0.0 \|\| ^3.1.0 |Used
 by a lot of database modules like for instance "pg"
-|https://www.npmjs.com/package/express-queue[express-queue] |>=0.0.11 <1.0.0 |
+|https://www.npmjs.com/package/express-queue[express-queue] |>=0.0.11 <1.0.0 |
 |=======================================================================

@@ -164,10 +164,12 @@ ws-new:
   commands: node test/instrumentation/modules/ws.test.js
 
 graphql-v0.7-v16:
+  name: graphql
   preinstall: npm uninstall express-graphql
   versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16'
   commands: node test/instrumentation/modules/graphql.test.js
 graphql:
+  name: graphql
   preinstall: npm uninstall express-graphql
   node: '>=12'
   versions: '>=16.0.0 <17'
@@ -379,13 +381,13 @@ koa-router:
   commands: node test/instrumentation/modules/koa-router/old-name.test.js
 
 '@koa/router-v8-v11':
-  name: '@koa-router'
+  name: '@koa/router'
   versions: '>=8 <11'
   node: '>=8.0.0'
   peerDependencies: koa@2
   commands: node test/instrumentation/modules/koa-router/new-name.test.js
 '@koa/router':
-  name: '@koa-router'
+  name: '@koa/router'
   versions: '>=11 <13'
   node: '>=12.0.0'
   peerDependencies: koa@2
@@ -437,9 +439,11 @@ handlebars:
   commands: node test/instrumentation/modules/handlebars.test.js
 # Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
 pug-v2:
+  name: 'pug'
   versions: '0.1.0 || >2.0.0 <3.0.0'
   commands: node test/instrumentation/modules/pug.test.js
 pug:
+  name: 'pug'
   versions: '>=3.0.0'
   node: '>8'
   commands: node test/instrumentation/modules/pug.test.js
@@ -569,8 +573,8 @@ aws-sdk:
   # Maintenance note: This should be updated periodically using:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
-  # Test v2.858.0, every N=54 of 275 releases, and current latest.
-  versions: '2.858.0 || 2.912.0 || 2.966.0 || 2.1020.0 || 2.1074.0 || 2.1128.0 || 2.1132.0 || >2.1132.0 <3'
+  # Test v2.858.0, every N=72 of 365 releases, and current latest.
+  versions: '2.858.0 || 2.930.0 || 2.1002.0 || 2.1074.0 || 2.1146.0 || 2.1218.0 || 2.1222.0 || >2.1222.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
