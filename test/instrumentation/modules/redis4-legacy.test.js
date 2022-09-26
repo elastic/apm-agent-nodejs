@@ -50,7 +50,7 @@ test('redis', function (t) {
     t.ok(trans, 'have "transAfterClient" transaction')
     t.strictEqual(trans.result, 'success', 'trans.result')
 
-    let expectedSpanNames = [
+    const expectedSpanNames = [
       'FLUSHALL',
       'SET',
       'SET',
