@@ -101,8 +101,10 @@ test('redis', function (t) {
   const transBeforeClient = agent.startTransaction('transBeforeClient')
 
   const client = redis.createClient({
-    port: '6379',
-    host: process.env.REDIS_HOST,
+    socket: {
+      host: process.env.REDIS_HOST,
+      port: '6379',
+    },
     legacyMode: true
   })
 
