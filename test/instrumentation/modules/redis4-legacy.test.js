@@ -13,7 +13,8 @@ if (semver.lt(redisVersion, '4.0.0')) {
   process.exit(0)
 }
 
-if (semver.lt(process.version, '14.0.0')) {
+// if (semver.lt(process.version, '14.0.0')) {
+if (semver.lt(process.version, '20.0.0')) {
   console.log('# SKIP: skipping redis4-legacy.test.js tests node node <14 ')
   process.exit(0)
 }
