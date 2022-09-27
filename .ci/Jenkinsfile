@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('apm@current') _
+@Library('apm@test/metricbeat') _
 
 pipeline {
   agent { label 'linux && immutable' }
@@ -405,7 +405,8 @@ def generateStep(Map params = [:]){
       withEnv(["VERSION=${version}", "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}"]) {
         deleteDir()
         unstash 'source'
-        filebeat(output: "docker-${version}-${buildType}.log", archiveOnlyOnFail: true){
+        // Grab the current docker context for helping to troubleshoot the docker containers using filebeat and metricbeat
+        dockerContext(filebeatOutput: "docker-${version}-${buildType}.log", metricbeatOutput: "docker-${version}-${buildType}-metricbeat.log", archiveOnlyOnFail: true){
           dir("${BASE_DIR}"){
             try {
               retryWithSleep(retries: 2, seconds: 5, backoff: true) {
