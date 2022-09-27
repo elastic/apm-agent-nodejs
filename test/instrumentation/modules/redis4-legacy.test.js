@@ -103,7 +103,7 @@ test('redis', function (t) {
   const client = redis.createClient({
     socket: {
       host: process.env.REDIS_HOST,
-      port: '6379',
+      port: '6379'
     },
     legacyMode: true
   })
