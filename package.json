@@ -14,7 +14,7 @@
     "lint:license-files": "./dev-utils/gen-notice.sh --lint .  # requires node >=16",
     "coverage": "COVERAGE=true ./test/script/run_tests.sh",
     "test": "./test/script/run_tests.sh",
-    "test:deps": "dependency-check start.js index.js 'lib/**/*.js' 'test/**/*.js' --no-dev -i async_hooks -i perf_hooks -i parseurl -i node:http",
+    "test:deps": "dependency-check start.js index.js 'lib/**/*.js' 'test/**/*.js' '!test/nextjs/a-nextjs-app' --no-dev -i async_hooks -i perf_hooks -i parseurl -i node:http",
     "test:tav": "tav --quiet",
     "test:docs": "./test/script/docker/run_docs.sh",
     "test:types": "tsc --project test/types/tsconfig.json && tsc --project test/types/transpile/tsconfig.json && node test/types/transpile/index.js && tsc --project test/types/transpile-default/tsconfig.json && node test/types/transpile-default/index.js",
