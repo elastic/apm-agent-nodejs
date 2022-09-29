@@ -1,9 +1,15 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // A server-side rendered page.
 
-import Header from "../components/Header"
+import Header from '../components/Header'
 
 // Gets called on every request.
-export async function getServerSideProps() {
+export async function getServerSideProps () {
   return {
     props: {
       currTime: Date.now()
@@ -11,7 +17,7 @@ export async function getServerSideProps() {
   }
 }
 
-function AnSSRPage({ currTime }) {
+function AnSSRPage ({ currTime }) {
   throw new Error('XXX boom')
   return (
     <>

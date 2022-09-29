@@ -1,7 +1,13 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // A dynamic API endpoint.
 
 // Always executed server-side.
-export default function aDynamicApiEndpoint(req, res) {
+export default function aDynamicApiEndpoint (req, res) {
   const { num } = req.query
   const n = Number(num)
   if (isNaN(n)) {
@@ -18,4 +24,3 @@ export default function aDynamicApiEndpoint(req, res) {
     })
   }
 }
-

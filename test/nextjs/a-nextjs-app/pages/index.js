@@ -1,7 +1,13 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 import Link from 'next/link'
 import Header from '../components/Header'
 
-function Home() {
+function Home () {
   return (
     <>
       <Header/>
@@ -65,4 +71,3 @@ function Home() {
 }
 
 export default Home
-

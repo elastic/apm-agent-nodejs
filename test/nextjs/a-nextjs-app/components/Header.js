@@ -1,9 +1,15 @@
-import Head from "next/head"
-import Link from "next/link"
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
+import Head from 'next/head'
+import Link from 'next/link'
 
 // XXX v demo app inits @elastic/apm-rum here
 
-function Header() {
+function Header () {
   return (
     <>
       <Head>
