@@ -2,6 +2,6 @@
 
 // Always executed server-side.
 export default function anApiEndpointThatThrows(req, res) {
-  throw new Error('boom')
+  throw new Error('An error thrown in anApiEndpointThatThrows handler')
 }
 
