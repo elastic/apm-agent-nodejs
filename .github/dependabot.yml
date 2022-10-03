@@ -8,10 +8,10 @@ updates:
     reviewers:
       - "elastic/apm-agent-node-js"
     ignore:
-      - dependency-name: @babel/core
-      - dependency-name: @babel/preset-env
-      - dependency-name: @types/node
-      - dependency-name: aws-sdk
+      - dependency-name: "@babel/core"
+      - dependency-name: "@babel/preset-env"
+      - dependency-name: "@types/node"
+      - dependency-name: "aws-sdk"
 
   # Some dev-deps are frequently updated and not that important to be on latest.
   - package-ecosystem: "npm"
@@ -22,7 +22,7 @@ updates:
     reviewers:
       - "elastic/apm-agent-node-js"
     allow:
-      - dependency-name: @babel/core
-      - dependency-name: @babel/preset-env
-      - dependency-name: @types/node
-      - dependency-name: aws-sdk
+      - dependency-name: "@babel/core"
+      - dependency-name: "@babel/preset-env"
+      - dependency-name: "@types/node"
+      - dependency-name: "aws-sdk"
