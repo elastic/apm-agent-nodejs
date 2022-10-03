@@ -91,6 +91,68 @@ For example:
 6626799 FINISHED SUCCESS .ci/scripts/test.sh "8" "apollo-server-express" "false"
 ```
 
+## How to troubleshoot `Container "$containerId" is unhealthy.` errors
+
+Each "Test" step of a Jenkins CI build uses `docker-compose` to start services
+for testing, and then runs tests in a `node_tests` container. Starting those
+services can fail with the following unhelpful message in the logs:
+
+```
+[2022-09-19T05:55:43.897Z] .ci/scripts/test.sh:250: main(): docker-compose --no-ansi --log-level ERROR -f .ci/docker/docker-compose-all.yml up --exit-code-from node_tests --remove-orphans --abort-on-container-exit node_tests
+...
+[2022-09-19T05:56:23.776Z] ERROR: for node_tests  Container "2d979b0c797d" is unhealthy.
+```
+
+That container ID does not identify *which* of the many service containers is
+the one to fail. Two ways to troubleshoot this are as follows.
+
+First, the Jenkins build will include log files of both Docker container logs
+and Docker events as Jenkins build artifacts, if the "Test" step failed. These
+are collected by filebeat and metricbeat (as configured by the `dockerContext()`
+block in ".ci/Jenkinsfile"). Here is an example querying the metricbeat log of
+docker events for containers that are failing their healthcheck. This uses
+[ecslog](https://github.com/trentm/go-ecslog) to filter and format the log file.
+
+```
+$ ecslog -k 'docker.healthcheck.failingstreak > 0' -i container.image.name,docker.healthcheck  docker-16-release-metricbeat.log-20220927.ndjson
+...
+[2022-09-27T14:55:53.857Z]  (on apm-ci-immutable-ubuntu-1804-1664290081867003348):
+    container: {
+        "image": {
+            "name": "mongo:6"
+        }
+    }
+    docker: {
+        "healthcheck": {
+            "status": "unhealthy",
+            "failingstreak": 49,
+            "event": {
+                "start_date": "2022-09-27T14:55:53.012Z",
+                "end_date": "2022-09-27T14:55:53.153Z",
+                "exit_code": -1,
+                "output": "OCI runtime exec failed: exec failed: unable to start container process: exec: \"mongo\": executable file not found in $PATH: unknown"
+            }
+        }
+    }
+```
+
+Second, most of the time you should be able to reproduce a "Test" step failure
+locally. Sometimes this requires forcing an update to the latest Docker image
+for some services.
+
+```
+$ docker system prune --all --force --volumes   # heavy-handed purge of all local Docker data
+...
+
+$ .ci/scripts/test.sh -b "release" -t "" "16"   # or a different value for "16" depending which stage failed
+...
+```
+
+Once the failure is reproduced, you should be able to use `docker ps -a`,
+`docker inspect $containerId` and other regular Docker commands and tooling to
+dig into the issue.
+
+
 # Maintenance tips
 
 ## How to check for outdated instrumentation modules
