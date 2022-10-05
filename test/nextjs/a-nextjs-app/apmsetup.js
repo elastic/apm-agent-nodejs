@@ -14,6 +14,6 @@ require('elastic-apm-node').start({
   // captureExceptions: false, // XXX
   logUncaughtExceptions: true,
   // usePathAsTransactionName: true,
-  apiRequestTime: '5s'
+  apiRequestTime: '3s'
   // logLevel: 'debug'
 })

@@ -10,6 +10,7 @@ import Header from '../components/Header'
 
 // Gets called on every request.
 export async function getServerSideProps () {
+  console.log('XXX AnSSRPage.getServerSideProps')
   return {
     props: {
       currTime: Date.now()
@@ -18,7 +19,7 @@ export async function getServerSideProps () {
 }
 
 function AnSSRPage ({ currTime }) {
-  throw new Error('XXX boom')
+  console.log('XXX AnSSRPage')
   return (
     <>
       <Header/>

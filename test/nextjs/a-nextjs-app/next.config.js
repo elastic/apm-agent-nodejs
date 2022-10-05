@@ -18,12 +18,42 @@ const nextConfig = {
     ]
   },
   async rewrites () {
-    return [
-      {
-        source: '/a-page-rewrite',
-        destination: '/a-page'
-      }
-    ]
+    return {
+      beforeFiles: [
+        {
+          source: '/rewrite-with-a-has-condition',
+          destination: '/a-page',
+          has: [{ type: 'query', key: 'overrideMe' }],
+        }
+      ],
+      afterFiles: [
+        {
+          source: '/rewrite-to-a-page',
+          destination: '/a-page'
+        },
+        {
+          // XXX improve this to have dynamic value in params
+          source: '/rewrite-to-a-dynamic-page',
+          destination: '/a-dynamic-page/3.14'
+        },
+        {
+          source: '/rewrite-to-a-public-file',
+          destination: '/favicon.ico'
+        },
+        {
+          source: '/rewrite-to-a-404',
+          destination: '/no-such-page'
+        }
+      ],
+      fallback: [
+        // These rewrites are checked after both pages/public files
+        // and dynamic routes are checked
+        {
+          source: '/rewrite-external/:path*',
+          destination: `https://old.example.com/:path*`,
+        },
+      ],
+    }
   }
 }
 
