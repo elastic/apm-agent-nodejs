@@ -13,7 +13,7 @@
   "ignorePatterns": [
     "/.nyc_output",
     "/build",
-    "node_modules",
+    "node_modules*",
     "/examples/esbuild/dist",
     "/examples/typescript/dist",
     "/lib/opentelemetry-bridge/opentelemetry-core-mini",
