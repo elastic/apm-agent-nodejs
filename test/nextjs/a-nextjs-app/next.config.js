@@ -11,7 +11,7 @@ const nextConfig = {
   async redirects () {
     return [
       {
-        source: '/a-page-redirect',
+        source: '/redirect-to-a-page',
         destination: '/a-page',
         permanent: false
       }
@@ -23,7 +23,7 @@ const nextConfig = {
         {
           source: '/rewrite-with-a-has-condition',
           destination: '/a-page',
-          has: [{ type: 'query', key: 'overrideMe' }],
+          has: [{ type: 'query', key: 'overrideMe' }]
         }
       ],
       afterFiles: [
@@ -46,13 +46,11 @@ const nextConfig = {
         }
       ],
       fallback: [
-        // These rewrites are checked after both pages/public files
-        // and dynamic routes are checked
         {
           source: '/rewrite-external/:path*',
-          destination: `https://old.example.com/:path*`,
-        },
-      ],
+          destination: 'https://old.example.com/:path*'
+        }
+      ]
     }
   }
 }

@@ -11,18 +11,18 @@ import Header from '../components/Header'
 
 // Gets called on every request.
 export async function getServerSideProps () {
-  throw new Error('AnSSRErrorPage thrown error')
+  throw new Error('thrown error in getServerSideProps')
 }
 
-function AnSSRErrorPage ({ currTime }) {
+function AThrowInGetServerSideProps () {
   return (
     <>
       <Header/>
       <main>
-        <div>AnSSRErrorPage (currTime is {new Date(currTime).toISOString()})</div>
+        <div>This is AThrowInGetServerSideProps.</div>
       </main>
     </>
   )
 }
 
-export default AnSSRErrorPage
+export default AThrowInGetServerSideProps

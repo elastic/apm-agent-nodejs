@@ -25,7 +25,7 @@ function APage ({ buildTime }) {
     <>
       <Header/>
       <main>
-        <div>A Page (built at {new Date(buildTime).toISOString()})</div>
+        <div>This is APage (built at {new Date(buildTime).toISOString()})</div>
         <Image src={img} width="300" alt="Elastic logo" />
       </main>
     </>

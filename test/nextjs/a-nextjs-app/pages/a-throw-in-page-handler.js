@@ -4,10 +4,6 @@
  * compliance with the BSD 2-Clause License.
  */
 
-// A server-side rendered page.
-
-import Header from '../components/Header'
-
 // Gets called on every request.
 export async function getServerSideProps () {
   return {
@@ -17,15 +13,8 @@ export async function getServerSideProps () {
   }
 }
 
-function AnSSRPage ({ currTime }) {
-  return (
-    <>
-      <Header/>
-      <main>
-        <div>This is AnSSRPage (currTime is {new Date(currTime).toISOString()})</div>
-      </main>
-    </>
-  )
+function AThrowInPageHandler ({ currTime }) {
+  throw new Error('throw in page handler')
 }
 
-export default AnSSRPage
+export default AThrowInPageHandler

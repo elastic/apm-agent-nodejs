@@ -39,7 +39,7 @@ const ADynamicPage = ({ doubleThat }) => {
     <>
       <Header/>
       <main>
-        <div>ADynamicPage {num} - doubleThat is {doubleThat}</div>
+        <div>This is ADynamicPage {num} - doubleThat is {doubleThat}</div>
       </main>
     </>
   )
