@@ -1030,8 +1030,9 @@ test('disableInstrumentations', function (t) {
     modules.delete('koa-router') // koa-router@11 supports node >=12
     modules.delete('@koa/router') // koa-router@11 supports node >=12
   }
-  modules.delete('next/dist/server/next-server')
   modules.delete('next/dist/server/api-utils/node')
+  modules.delete('next/dist/server/dev/next-dev-server')
+  modules.delete('next/dist/server/next-server')
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)
