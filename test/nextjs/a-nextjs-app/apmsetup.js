@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-const apm = require('elastic-apm-node').start({
+const apm = require('../../../').start({ // elastic-apm-node
   // XXX most of these for dev/debugging
   // apmServerVersion: '8.4.1',
   cloudProvider: 'none',

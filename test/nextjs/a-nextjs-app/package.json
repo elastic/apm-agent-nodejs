@@ -2,6 +2,7 @@
   "name": "a-nextjs-app",
   "version": "1.0.0",
   "description": "a Next.js-usage app to test elastic-apm-node instrumentation",
+  "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS='-r ./apmsetup.js' next dev",
     "build": "next build",
@@ -10,7 +11,6 @@
   "keywords": [],
   "license": "BSD-2-Clause",
   "dependencies": {
-    "elastic-apm-node": "../../..",
     "next": "^12.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
