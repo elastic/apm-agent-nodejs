@@ -28,7 +28,6 @@ const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../../_mock_apm_server')
-const { dottedLookup } = require('../../_utils')
 
 if (semver.lt(process.version, '12.22.0')) {
   console.log(`# SKIP next does not support node ${process.version}`)
