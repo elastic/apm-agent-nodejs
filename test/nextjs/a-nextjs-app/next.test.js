@@ -21,6 +21,7 @@
 //    - `npm run dev`
 //    - (Same as above.)
 
+const assert = require('assert')
 const { exec, spawn } = require('child_process')
 const http = require('http')
 const semver = require('semver')
@@ -38,6 +39,7 @@ let apmServer
 let serverUrl
 
 let TEST_REQUESTS = [
+  // Redirects.
   {
     testName: 'trailing slash redirect',
     req: { method: 'GET', path: '/a-page/' },
@@ -45,12 +47,12 @@ let TEST_REQUESTS = [
       statusCode: 308,
       headers: { location: '/a-page' }
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'Next.js Redirect route /:path+/',
-        'transaction.context.response.status_code': 308
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'Next.js Redirect route /:path+/', 'transaction.name')
+      t.equal(trans.context.response.status_code, 308, 'transaction.context.response.status_code')
+    }
   },
   {
     testName: 'configured (in next.config.js) redirect',
@@ -59,12 +61,12 @@ let TEST_REQUESTS = [
       statusCode: 307,
       headers: { location: '/a-page' }
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'Next.js Redirect route /redirect-to-a-page',
-        'transaction.context.response.status_code': 307
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'Next.js Redirect route /redirect-to-a-page', 'transaction.name')
+      t.equal(trans.context.response.status_code, 307, 'transaction.context.response.status_code')
+    }
   },
 
   // Rewrites are configured in "next.config.js".
@@ -77,12 +79,12 @@ let TEST_REQUESTS = [
       // This shows that we got the content from "pages/a-page.js".
       body: /This is APage/
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'Next.js Rewrite route /rewrite-to-a-page -> /a-page',
-        'transaction.context.response.status_code': 200
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-page -> /a-page', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
   },
   {
     testName: 'rewrite to a dynamic page',
@@ -93,12 +95,12 @@ let TEST_REQUESTS = [
       headers: { 'content-type': /text\/html/ },
       body: /This is ADynamicPage/
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'Next.js Rewrite route /rewrite-to-a-dynamic-page -> /a-dynamic-page/3.14',
-        'transaction.context.response.status_code': 200
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-dynamic-page -> /a-dynamic-page/3.14', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
   },
   {
     testName: 'rewrite to a /public/... folder file',
@@ -107,12 +109,12 @@ let TEST_REQUESTS = [
       statusCode: 200,
       headers: { 'content-type': 'image/x-icon' }
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'Next.js Rewrite route /rewrite-to-a-public-file -> /favicon.ico',
-        'transaction.context.response.status_code': 200
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-public-file -> /favicon.ico', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
   },
   {
     testName: 'rewrite to a 404',
@@ -120,29 +122,41 @@ let TEST_REQUESTS = [
     expectedRes: {
       statusCode: 404
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'Next.js Rewrite route /rewrite-to-a-404 -> /no-such-page',
-        'transaction.context.response.status_code': 404
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-404 -> /no-such-page', 'transaction.name')
+      t.equal(trans.context.response.status_code, 404, 'transaction.context.response.status_code')
+    }
   },
   {
     testName: 'rewrite to a external site',
     req: { method: 'GET', path: '/rewrite-external/foo' },
     expectedRes: {
       // This is a 500 because the configured `old.example.com` doesn't resolve.
-      // Currently we don't capture an error for that, which is a limitation.
       statusCode: 500
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'Next.js Rewrite route /rewrite-external/:path* -> https://old.example.com/:path*',
-        'transaction.context.response.status_code': 500
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.ok(apmEventsForReq.length === 1 || apmEventsForReq.length === 2, 'expected number of APM events')
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'Next.js Rewrite route /rewrite-external/:path* -> https://old.example.com/:path*', 'transaction.name')
+      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code')
+      // Limitation: Currently the instrumentation only captures an error with
+      // the DevServer, because Next.js special cases dev-mode and calls
+      // `renderErrorToResponse`. To capture the error with NextNodeServer we
+      // would need to shim `Server.run()` in base-server.js.
+      if (apmEventsForReq.length === 2) {
+        const error = apmEventsForReq[1].error
+        t.equal(trans.trace_id, error.trace_id, 'transaction and error are in same trace')
+        t.equal(error.parent_id, trans.id, 'error is a child of the transaction')
+        t.equal(error.transaction.type, 'request', 'error.transaction.type')
+        t.equal(error.transaction.name, trans.name, 'error.transaction.name')
+        t.equal(error.exception.message, 'getaddrinfo ENOTFOUND old.example.com', 'error.exception.message')
       }
-    ]
+    }
   },
 
+  // The different kinds of pages.
   {
     testName: 'index page',
     req: { method: 'GET', path: '/' },
@@ -151,12 +165,12 @@ let TEST_REQUESTS = [
       headers: { 'content-type': /text\/html/ },
       body: /This is IndexPage/
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'GET /',
-        'transaction.context.response.status_code': 200
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
   },
   {
     testName: 'a page (Server-Side Generated, SSG)',
@@ -166,12 +180,12 @@ let TEST_REQUESTS = [
       headers: { 'content-type': /text\/html/ },
       body: /This is APage/
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'GET /a-page',
-        'transaction.context.response.status_code': 200
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /a-page', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
   },
   {
     testName: 'a dynamic page',
@@ -181,12 +195,12 @@ let TEST_REQUESTS = [
       headers: { 'content-type': /text\/html/ },
       body: /This is ADynamicPage/
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'GET /a-dynamic-page/[num]',
-        'transaction.context.response.status_code': 200
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /a-dynamic-page/[num]', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
   },
   {
     testName: 'a server-side rendered (SSR) page',
@@ -196,27 +210,98 @@ let TEST_REQUESTS = [
       headers: { 'content-type': /text\/html/ },
       body: /This is AnSSRPage/
     },
-    expectedApmEvents: [
-      {
-        'transaction.name': 'GET /an-ssr-page',
-        'transaction.context.response.status_code': 200
-      }
-    ]
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /an-ssr-page', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
+  },
+
+  // API endpoint pages
+  {
+    testName: 'an API endpoint page',
+    req: { method: 'GET', path: '/api/an-api-endpoint' },
+    expectedRes: {
+      statusCode: 200,
+      headers: { 'content-type': /application\/json/ },
+      body: '{"ping":"pong"}'
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /api/an-api-endpoint', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
+  },
+  {
+    testName: 'a dynamic API endpoint page',
+    req: { method: 'GET', path: '/api/a-dynamic-api-endpoint/123' },
+    expectedRes: {
+      statusCode: 200,
+      headers: { 'content-type': /application\/json/ },
+      body: '{"num":"123","n":123,"double":246,"floor":123}'
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /api/a-dynamic-api-endpoint/[num]', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
+  },
+
+  // Error capture cases
+  {
+    testName: 'an API endpoint that throws',
+    req: { method: 'GET', path: '/api/an-api-endpoint-that-throws' },
+    expectedRes: {
+      statusCode: 500
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 2)
+      const trans = apmEventsForReq[0].transaction
+      const error = apmEventsForReq[1].error
+      t.equal(trans.name, 'GET /api/an-api-endpoint-that-throws', 'transaction.name')
+      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code')
+      t.ok(error, 'captured an APM error')
+      t.equal(trans.trace_id, error.trace_id, 'transaction and error are in same trace')
+      t.equal(error.parent_id, trans.id, 'error is a child of the transaction')
+      t.equal(error.transaction.type, 'request', 'error.transaction.type')
+      t.equal(error.transaction.name, trans.name, 'error.transaction.name')
+      t.equal(error.exception.message, 'An error thrown in anApiEndpointThatThrows handler', 'error.exception.message')
+    }
+  },
+  {
+    testName: 'a throw in a page handler',
+    req: { method: 'GET', path: '/a-throw-in-page-handler' },
+    expectedRes: {
+      statusCode: 500
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 2)
+      const trans = apmEventsForReq[0].transaction
+      const error = apmEventsForReq[1].error
+      t.equal(trans.name, 'GET /a-throw-in-page-handler', 'transaction.name')
+      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code')
+      t.ok(error, 'captured an APM error')
+      t.equal(trans.trace_id, error.trace_id, 'transaction and error are in same trace')
+      t.equal(error.parent_id, trans.id, 'error is a child of the transaction')
+      t.equal(error.transaction.type, 'request', 'error.transaction.type')
+      t.equal(error.transaction.name, trans.name, 'error.transaction.name')
+      t.equal(error.exception.message, 'throw in page handler', 'error.exception.message')
+    }
   }
 ]
-process.env.XXX_TEST_FILTER = ''
+// XXX
+// process.env.XXX_TEST_FILTER = 'slash'
 if (process.env.XXX_TEST_FILTER) {
   TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(process.env.XXX_TEST_FILTER))
 }
 
 // XXX HERE TODO:
-// - api endpoints:
-// curl -i localhost:3000/api/an-api-endpoint
-// curl -i localhost:3000/api/a-dynamic-api-endpoint/123
-//
 // - error endpoints (grok the "bugs" in NOTES)
 // curl -i localhost:3000/api/an-api-endpoint-that-throws
-// ... the other two /throw-in-... pages
+// ... the other two /throw-in-... pages      XXX one more!
 
 // ---- utility functions
 
@@ -311,8 +396,10 @@ async function makeTestRequest (t, testReq) {
           if (testReq.expectedRes.body) {
             if (testReq.expectedRes.body instanceof RegExp) {
               t.ok(testReq.expectedRes.body.test(body), `body =~ ${testReq.expectedRes.body}`)
+            } else if (typeof testReq.expectedRes.body === 'string') {
+              t.equal(body.toString(), testReq.expectedRes.body, 'body')
             } else {
-              t.equal(body, testReq.expectedRes.body, 'body')
+              t.fail(`unsupported type for TEST_REQUESTS[].expectedRes.body: ${typeof testReq.expectedRes.body}`)
             }
           }
           resolve()
@@ -341,27 +428,28 @@ function checkExpectedApmEvents (t, apmEvents) {
   t.equal(evt.transaction.outcome, 'success', 'transaction.outcome')
 
   // Expected APM events from all TEST_REQUESTS.
+  apmEvents.sort((a, b) => {
+    return (a.transaction || a.error).timestamp < (b.transaction || b.error).timestamp ? -1 : 1
+  })
   TEST_REQUESTS.forEach(testReq => {
     t.comment(`check APM events for "${testReq.testName}"`)
-    testReq.expectedApmEvents.forEach(expectedApmEvent => {
-      console.log('XXX expectedApmEvent: ', expectedApmEvent)
-      evt = apmEvents.shift()
-      console.log('XXX evt:'); console.dir(evt, { depth: 5 })
-      for (const [k, v] of Object.entries(expectedApmEvent)) {
-        t.equal(dottedLookup(evt, k), v, `${k} === ${JSON.stringify(v)}`)
-      }
-    })
+    // Collect all events until the next transaction.
+    assert(apmEvents.length > 0 && apmEvents[0].transaction, 'next APM event is a transaction')
+    const apmEventsForReq = [apmEvents.shift()]
+    while (apmEvents.length > 0 && !apmEvents[0].transaction) {
+      apmEventsForReq.push(apmEvents.shift())
+    }
+    testReq.checkApmEvents(t, apmEventsForReq)
   })
 
-  // console.log('XXX remaining apmEvents:', apmEvents)
-  t.equal(apmEvents.length, 0, 'no additional APM server events: ' + JSON.stringify(apmEvents))
+  t.equal(apmEvents.length, 0, 'no additional unexpected APM server events: ' + JSON.stringify(apmEvents))
 }
 
 // ---- tests
 
-const SKIP_NPM_CI_FOR_DEV = process.env.USER === 'trentm' // XXX
+const SKIP_NPM_CI_FOR_DEV = false // process.env.USER === 'trentm' // XXX
 if (!SKIP_NPM_CI_FOR_DEV) {
-  tape.test('setup: npm ci', t => {
+  tape.test(`setup: npm ci (in ${__dirname})`, t => {
     const startTime = Date.now()
     exec(
       'npm ci',
@@ -493,7 +581,7 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
 })
 
 // Test the Next "dev" server. I.e. `npm run dev`.
-tape.test('-- dev server tests --', suite => {
+tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
   let nextServerProc
 
   suite.test('setup: start Next.js dev server (npm run dev)', t => {
