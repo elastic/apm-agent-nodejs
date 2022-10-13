@@ -55,6 +55,9 @@ if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
   process.exit()
 }
 
+/* eslint-disable-next-line no-control-regex */
+const ansiRe = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g
+
 let apmServer
 let serverUrl
 
@@ -634,10 +637,15 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
       t.error(err, 'no error from "next dev"')
     })
     nextServerProc.stdout.on('data', data => {
-      t.comment(`[Next.js server stdout] ${data}`)
+      // Drop ANSI escape characters, because those include control chars that
+      // are illegal in XML. When we convert TAP output to JUnit XML for
+      // Jenkins, then Jenkins complains about invalid XML. `FORCE_COLOR=0`
+      // can be used to disable ANSI escapes in `next dev`'s usage of chalk,
+      // but not in its coloured exception output.
+      t.comment(`[Next.js server stdout] ${data.replace(ansiRe, '')}`)
     })
     nextServerProc.stderr.on('data', data => {
-      t.comment(`[Next.js server stderr] ${data}`)
+      t.comment(`[Next.js server stderr] ${data.replace(ansiRe, '')}`)
     })
 
     // Allow some time for an early fail of `next dev`, e.g. if there is
