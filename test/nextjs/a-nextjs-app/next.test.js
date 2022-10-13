@@ -32,6 +32,13 @@ const { MockAPMServer } = require('../../_mock_apm_server')
 if (semver.lt(process.version, '12.22.0')) {
   console.log(`# SKIP next does not support node ${process.version}`)
   process.exit()
+} else if (semver.satisfies(process.version, '>=14.0.0 <14.5.0')) {
+  // The handling of SSR pages, e.g. `GET /an-ssr-page` in the test a-nextjs-app,
+  // in next@12.3.1 (I'm not sure of the full `next` version range) relies on
+  // https://github.com/nodejs/node/pull/33155 which landed in v14.5.0 and
+  // v12.19.0.
+  console.log(`# SKIP next does not support fully node ${process.version}`)
+  process.exit()
 }
 if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
   console.log('# SKIP Next.js instrumentation does not work with contextManager="patch"')
@@ -296,7 +303,7 @@ let TEST_REQUESTS = [
   }
 ]
 // XXX
-// process.env.XXX_TEST_FILTER = 'slash'
+// process.env.XXX_TEST_FILTER = 'SSR'
 if (process.env.XXX_TEST_FILTER) {
   TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(process.env.XXX_TEST_FILTER))
 }
@@ -457,7 +464,7 @@ function checkExpectedApmEvents (t, apmEvents) {
 
 // ---- tests
 
-const SKIP_NPM_CI_FOR_DEV = process.env.USER === 'trentm' // XXX
+const SKIP_NPM_CI_FOR_DEV = false // process.env.USER === 'trentm' // XXX
 if (!SKIP_NPM_CI_FOR_DEV) {
   tape.test(`setup: npm ci (in ${__dirname})`, t => {
     const startTime = Date.now()
@@ -510,8 +517,8 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
   suite.test('setup: start Next.js prod server (next start)', t => {
     // XXX warning using `npm run start` directly with Docker.
     nextServerProc = spawn(
-      process.execPath,
-      ['./node_modules/.bin/next', 'start'],
+      './node_modules/.bin/next',
+      ['start'],
       {
         cwd: __dirname,
         env: Object.assign({}, process.env, {
@@ -602,8 +609,8 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
   suite.test('setup: start Next.js dev server (next dev)', t => {
     // XXX warning using `npm run dev` directly with Docker.
     nextServerProc = spawn(
-      process.execPath,
-      ['./node_modules/.bin/next', 'dev'],
+      './node_modules/.bin/next',
+      ['dev'],
       {
         cwd: __dirname,
         env: Object.assign({}, process.env, {
