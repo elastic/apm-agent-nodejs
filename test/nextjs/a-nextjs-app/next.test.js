@@ -30,10 +30,11 @@ const tape = require('tape')
 
 const { MockAPMServer } = require('../../_mock_apm_server')
 
-if (os.platform() === 'win32') {
-  console.log('# SKIP Next.js testing currently is not supported on windows')
-  process.exit()
-}
+// XXX
+// if (os.platform() === 'win32') {
+//   console.log('# SKIP Next.js testing currently is not supported on windows')
+//   process.exit()
+// }
 if (semver.lt(process.version, '12.22.0')) {
   console.log(`# SKIP next does not support node ${process.version}`)
   process.exit()
@@ -525,6 +526,7 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
       './node_modules/.bin/next',
       ['start'],
       {
+        shell: os.platform() === 'win32',
         cwd: __dirname,
         env: Object.assign({}, process.env, {
           NODE_OPTIONS: '-r ./apmsetup.js',
@@ -617,6 +619,7 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
       './node_modules/.bin/next',
       ['dev'],
       {
+        shell: os.platform() === 'win32',
         cwd: __dirname,
         env: Object.assign({}, process.env, {
           NODE_OPTIONS: '-r ./apmsetup.js',
