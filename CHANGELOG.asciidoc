@@ -98,6 +98,10 @@ paths are considered for body capture. ({pull}2873[#2873])
   setting of an `Error.prepareStackTrace` handler until necessary for stacktrace
   collection. ({issues}2833[#2833] {pull}2906[#2906])
 
+* Add `*principal*` pattern to default value for `sanitizeFieldNames` config
+  var, so that it is more likely to redact authentication-related HTTP headers,
+  e.g. on Azure. ({issues}2938[#2938])
+
 [float]
 ===== Bug fixes
 
@@ -279,10 +283,6 @@ specifying links during span creation (with the limitation that span link
 - Add "nodejs16.x" as one of the compatible runtimes for the Node.js APM agent
   Lambda layers now that
   https://aws.amazon.com/blogs/compute/node-js-16-x-runtime-now-available-in-aws-lambda/[this runtime is available on AWS].
-
-- Add `*principal*` pattern to default value for `sanitizeFieldNames` config
-  var, so that it is more likely to redact authentication-related HTTP headers,
-  e.g. on Azure. ({issues}2938[#2938])
 
 [float]
 ===== Bug fixes
