@@ -332,7 +332,7 @@ if (process.env.XXX_TEST_FILTER) {
  *    success.
  */
 function waitForServerReady (t, cb) {
-  let sentinel = 20
+  let sentinel = 10
 
   const pollForServerReady = () => {
     const req = http.get(
@@ -524,7 +524,7 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
     // XXX warning using `npm run start` directly with Docker.
     nextServerProc = spawn(
       './node_modules/.bin/next',
-      ['start'],
+      ['start', '-H', 'localhost'],
       {
         shell: os.platform() === 'win32',
         cwd: __dirname,
@@ -617,7 +617,7 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
     // XXX warning using `npm run dev` directly with Docker.
     nextServerProc = spawn(
       './node_modules/.bin/next',
-      ['dev'],
+      ['dev', '-H', 'localhost'],
       {
         shell: os.platform() === 'win32',
         cwd: __dirname,
