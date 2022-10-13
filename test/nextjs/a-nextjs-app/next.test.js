@@ -440,11 +440,12 @@ function checkExpectedApmEvents (t, apmEvents) {
     .sort((a, b) => {
       return getEventField(a, 'timestamp') < getEventField(b, 'timestamp') ? -1 : 1
     })
+  console.log('XXX filtered and sorted apmEvents:', apmEvents)
   TEST_REQUESTS.forEach(testReq => {
     t.comment(`check APM events for "${testReq.testName}"`)
     // Collect all events for this transaction's trace_id, and pass that to
     // the `checkApmEvents` function for this request.
-    assert(apmEvents.length > 0 && apmEvents[0].transaction, 'next APM event is a transaction')
+    assert(apmEvents.length > 0 && apmEvents[0].transaction, `next APM event is a transaction: ${JSON.stringify(apmEvents[0])}`)
     const traceId = apmEvents[0].transaction.trace_id
     const apmEventsForReq = apmEvents.filter(e => getEventField(e, 'trace_id') === traceId)
     apmEvents = apmEvents.filter(e => getEventField(e, 'trace_id') !== traceId)
