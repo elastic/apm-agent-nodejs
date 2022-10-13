@@ -24,11 +24,16 @@
 const assert = require('assert')
 const { exec, spawn } = require('child_process')
 const http = require('http')
+const os = require('os')
 const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../../_mock_apm_server')
 
+if (os.platform() === 'win32') {
+  console.log('# SKIP Next.js testing currently is not supported on windows')
+  process.exit()
+}
 if (semver.lt(process.version, '12.22.0')) {
   console.log(`# SKIP next does not support node ${process.version}`)
   process.exit()
@@ -326,7 +331,7 @@ if (process.env.XXX_TEST_FILTER) {
  *    success.
  */
 function waitForServerReady (t, cb) {
-  let sentinel = 10
+  let sentinel = 20
 
   const pollForServerReady = () => {
     const req = http.get(
@@ -362,7 +367,7 @@ function waitForServerReady (t, cb) {
   }
 
   const scheduleNextPoll = (msg) => {
-    t.comment(`[sentinel=${sentinel}] wait another 1s for server ready: ${msg}`)
+    t.comment(`[sentinel=${sentinel} ${new Date().toISOString()}] wait another 1s for server ready: ${msg}`)
     sentinel--
     if (sentinel <= 0) {
       cb(new Error('timed out'))
