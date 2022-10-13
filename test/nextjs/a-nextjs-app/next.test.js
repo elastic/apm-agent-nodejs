@@ -33,6 +33,10 @@ if (semver.lt(process.version, '12.22.0')) {
   console.log(`# SKIP next does not support node ${process.version}`)
   process.exit()
 }
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Next.js instrumentation does not work with contextManager="patch"')
+  process.exit()
+}
 
 let apmServer
 let serverUrl
