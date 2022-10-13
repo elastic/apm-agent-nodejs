@@ -12,13 +12,13 @@
 // - Start a MockAPMServer to capture intake requests.
 // - `npm ci` to build the "a-nextjs-app" project.
 // - Test instrumentation when using the Next.js production server.
-//    - `npm run build && npm run start` configured to send to our MockAPMServer.
+//    - `next build && next start` configured to send to our MockAPMServer.
 //    - Make every request in `TEST_REQUESTS` to the Next.js app.
 //    - Stop the Next.js app ("apmsetup.js" will flush the APM agent on SIGTERM).
 //    - Check all the received APM trace data matches the expected values in
 //      `TEST_REQUESTS`.
 // - Test instrumentation when using the Next.js dev server.
-//    - `npm run dev`
+//    - `next dev`
 //    - (Same as above.)
 
 const assert = require('assert')
@@ -377,9 +377,9 @@ async function makeTestRequest (t, testReq) {
         res.on('data', chunk => { chunks.push(chunk) })
         res.on('end', () => {
           const body = Buffer.concat(chunks)
-          console.log('XXX res:', res.statusCode, res.headers,
-            res.headers['content-type'] && ~res.headers['content-type'].indexOf('text') && body.toString(),
-            '\n--')
+          // console.log('XXX res:', res.statusCode, res.headers,
+          //   res.headers['content-type'] && ~res.headers['content-type'].indexOf('text') && body.toString(),
+          //   '\n--')
           if (testReq.expectedRes.statusCode) {
             t.equal(res.statusCode, testReq.expectedRes.statusCode, `res.statusCode === ${testReq.expectedRes.statusCode}`)
           }
@@ -410,6 +410,10 @@ async function makeTestRequest (t, testReq) {
   })
 }
 
+function getEventField (e, fieldName) {
+  return (e.transaction || e.error || e.span)[fieldName]
+}
+
 /**
  * Assert that the given `apmEvents` (events that the mock APM server received)
  * match all the expected APM events in `TEST_REQUESTS`.
@@ -427,17 +431,19 @@ function checkExpectedApmEvents (t, apmEvents) {
   t.equal(evt.transaction.outcome, 'success', 'transaction.outcome')
 
   // Expected APM events from all TEST_REQUESTS.
-  apmEvents.sort((a, b) => {
-    return (a.transaction || a.error).timestamp < (b.transaction || b.error).timestamp ? -1 : 1
-  })
+  apmEvents = apmEvents
+    .filter(e => !e.metadata)
+    .sort((a, b) => {
+      return getEventField(a, 'timestamp') < getEventField(b, 'timestamp') ? -1 : 1
+    })
   TEST_REQUESTS.forEach(testReq => {
     t.comment(`check APM events for "${testReq.testName}"`)
-    // Collect all events until the next transaction.
+    // Collect all events for this transaction's trace_id, and pass that to
+    // the `checkApmEvents` function for this request.
     assert(apmEvents.length > 0 && apmEvents[0].transaction, 'next APM event is a transaction')
-    const apmEventsForReq = [apmEvents.shift()]
-    while (apmEvents.length > 0 && !apmEvents[0].transaction) {
-      apmEventsForReq.push(apmEvents.shift())
-    }
+    const traceId = apmEvents[0].transaction.trace_id
+    const apmEventsForReq = apmEvents.filter(e => getEventField(e, 'trace_id') === traceId)
+    apmEvents = apmEvents.filter(e => getEventField(e, 'trace_id') !== traceId)
     testReq.checkApmEvents(t, apmEventsForReq)
   })
 
@@ -446,7 +452,7 @@ function checkExpectedApmEvents (t, apmEvents) {
 
 // ---- tests
 
-const SKIP_NPM_CI_FOR_DEV = false // process.env.USER === 'trentm' // XXX
+const SKIP_NPM_CI_FOR_DEV = process.env.USER === 'trentm' // XXX
 if (!SKIP_NPM_CI_FOR_DEV) {
   tape.test(`setup: npm ci (in ${__dirname})`, t => {
     const startTime = Date.now()
@@ -475,7 +481,7 @@ tape.test('setup: mock APM server', t => {
   })
 })
 
-// Test the Next "prod" server. I.e. `npm run build && npm run start`.
+// Test the Next "prod" server. I.e. `next build && next start`.
 tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
   let nextServerProc
 
@@ -496,19 +502,21 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
     )
   })
 
-  suite.test('setup: start Next.js prod server (npm run start)', t => {
+  suite.test('setup: start Next.js prod server (next start)', t => {
+    // XXX warning using `npm run start` directly with Docker.
     nextServerProc = spawn(
-      'npm',
-      ['run', 'start'],
+      process.execPath,
+      ['./node_modules/.bin/next', 'start'],
       {
         cwd: __dirname,
         env: Object.assign({}, process.env, {
+          NODE_OPTIONS: '-r ./apmsetup.js',
           ELASTIC_APM_SERVER_URL: serverUrl
         })
       }
     )
     nextServerProc.on('error', err => {
-      t.error(err, 'no error from "npm run start"')
+      t.error(err, 'no error from "next start"')
     })
     nextServerProc.stdout.on('data', data => {
       t.comment(`[Next.js server stdout] ${data}`)
@@ -517,10 +525,10 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
       t.comment(`[Next.js server stderr] ${data}`)
     })
 
-    // Allow some time for an early fail of `npm run start`, e.g. if there is
+    // Allow some time for an early fail of `next start`, e.g. if there is
     // already a user of port 3000...
     const onEarlyClose = code => {
-      t.fail(`"npm run start" failed early: code=${code}`)
+      t.fail(`"next start" failed early: code=${code}`)
       nextServerProc = null
       clearTimeout(earlyCloseTimer)
       t.end()
@@ -573,29 +581,34 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
       checkExpectedApmEvents(t, apmServer.events)
       t.end()
     })
+    console.log('XXX before: pid %s is killed? %s', nextServerProc.pid, nextServerProc.killed)
     nextServerProc.kill('SIGTERM')
+    console.log('XXX sent SIGTERM to pid', nextServerProc.pid)
+    console.log('XXX sync after: pid %s is killed? %s', nextServerProc.pid, nextServerProc.killed)
   })
 
   suite.end()
 })
 
-// Test the Next "dev" server. I.e. `npm run dev`.
+// Test the Next "dev" server. I.e. `next dev`.
 tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
   let nextServerProc
 
-  suite.test('setup: start Next.js dev server (npm run dev)', t => {
+  suite.test('setup: start Next.js dev server (next dev)', t => {
+    // XXX warning using `npm run dev` directly with Docker.
     nextServerProc = spawn(
-      'npm',
-      ['run', 'dev'],
+      process.execPath,
+      ['./node_modules/.bin/next', 'dev'],
       {
         cwd: __dirname,
         env: Object.assign({}, process.env, {
+          NODE_OPTIONS: '-r ./apmsetup.js',
           ELASTIC_APM_SERVER_URL: serverUrl
         })
       }
     )
     nextServerProc.on('error', err => {
-      t.error(err, 'no error from "npm run dev"')
+      t.error(err, 'no error from "next dev"')
     })
     nextServerProc.stdout.on('data', data => {
       t.comment(`[Next.js server stdout] ${data}`)
@@ -604,10 +617,10 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
       t.comment(`[Next.js server stderr] ${data}`)
     })
 
-    // Allow some time for an early fail of `npm run dev`, e.g. if there is
+    // Allow some time for an early fail of `next dev`, e.g. if there is
     // already a user of port 3000...
     const onEarlyClose = code => {
-      t.fail(`"npm run dev" failed early: code=${code}`)
+      t.fail(`"next dev" failed early: code=${code}`)
       nextServerProc = null
       clearTimeout(earlyCloseTimer)
       t.end()

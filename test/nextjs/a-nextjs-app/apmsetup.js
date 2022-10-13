@@ -7,6 +7,7 @@
 const apm = require('../../../').start({ // elastic-apm-node
   // XXX most of these for dev/debugging
   // apmServerVersion: '8.4.1',
+  stackTraceLimit: 10,
   cloudProvider: 'none',
   centralConfig: false,
   metricsInterval: '0s',
@@ -25,7 +26,9 @@ const apm = require('../../../').start({ // elastic-apm-node
 // https://github.com/vercel/next.js/discussions/19693
 process.env.NEXT_MANUAL_SIG_HANDLE = 1
 function flushApmAndExit () {
+  console.log('XXX apmsetup: received signal, calling flush')
   apm.flush(() => {
+    console.log('XXX flush cb, calling process.exit(0)')
     process.exit(0)
   })
 }
