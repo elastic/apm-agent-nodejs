@@ -55,8 +55,8 @@ if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
   process.exit()
 }
 
-/* eslint-disable-next-line no-control-regex */
-const ansiRe = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g
+// Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
+const ansiRe = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
 
 let apmServer
 let serverUrl
@@ -642,10 +642,10 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
       // Jenkins, then Jenkins complains about invalid XML. `FORCE_COLOR=0`
       // can be used to disable ANSI escapes in `next dev`'s usage of chalk,
       // but not in its coloured exception output.
-      t.comment(`[Next.js server stdout] ${data.replace(ansiRe, '')}`)
+      t.comment(`[Next.js server stdout] ${data.toString().replace(ansiRe, '')}`)
     })
     nextServerProc.stderr.on('data', data => {
-      t.comment(`[Next.js server stderr] ${data.replace(ansiRe, '')}`)
+      t.comment(`[Next.js server stderr] ${data.toString().replace(ansiRe, '')}`)
     })
 
     // Allow some time for an early fail of `next dev`, e.g. if there is
