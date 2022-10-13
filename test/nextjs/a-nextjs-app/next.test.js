@@ -31,11 +31,14 @@ const tape = require('tape')
 
 const { MockAPMServer } = require('../../_mock_apm_server')
 
-// XXX
-// if (os.platform() === 'win32') {
-//   console.log('# SKIP Next.js testing currently is not supported on windows')
-//   process.exit()
-// }
+if (os.platform() === 'win32') {
+  // The current mechanism using shell=true to spawn on Windows *and* attempting
+  // to use SIGTERM to terminal the Next.js server doesn't work because cmd.exe
+  // does an interactive prompt. Lovely.
+  //      Terminate batch job (Y/N)?
+  console.log('# SKIP Next.js testing currently is not supported on windows')
+  process.exit()
+}
 if (semver.lt(process.version, '12.22.0')) {
   console.log(`# SKIP next does not support node ${process.version}`)
   process.exit()
@@ -105,8 +108,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'rewrite to a dynamic page',
-    // XXX improve this with 'num' query param
-    req: { method: 'GET', path: '/rewrite-to-a-dynamic-page' },
+    req: { method: 'GET', path: '/rewrite-to-a-dynamic-page/3.14159' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
@@ -115,7 +117,7 @@ let TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-dynamic-page -> /a-dynamic-page/3.14', 'transaction.name')
+      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-dynamic-page/:num -> /a-dynamic-page/:num', 'transaction.name')
       t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
     }
   },

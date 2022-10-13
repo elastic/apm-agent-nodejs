@@ -33,8 +33,8 @@ const nextConfig = {
         },
         {
           // XXX improve this to have dynamic value in params
-          source: '/rewrite-to-a-dynamic-page',
-          destination: '/a-dynamic-page/3.14'
+          source: '/rewrite-to-a-dynamic-page/:num',
+          destination: '/a-dynamic-page/:num'
         },
         {
           source: '/rewrite-to-a-public-file',
