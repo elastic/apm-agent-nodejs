@@ -25,6 +25,7 @@ const assert = require('assert')
 const { exec, spawn } = require('child_process')
 const http = require('http')
 const os = require('os')
+const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
 
@@ -523,7 +524,7 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
   suite.test('setup: start Next.js prod server (next start)', t => {
     // XXX warning using `npm run start` directly with Docker.
     nextServerProc = spawn(
-      './node_modules/.bin/next',
+      path.normalize('./node_modules/.bin/next'),
       ['start', '-H', 'localhost'],
       {
         shell: os.platform() === 'win32',
@@ -616,7 +617,7 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
   suite.test('setup: start Next.js dev server (next dev)', t => {
     // XXX warning using `npm run dev` directly with Docker.
     nextServerProc = spawn(
-      './node_modules/.bin/next',
+      path.normalize('./node_modules/.bin/next'),
       ['dev', '-H', 'localhost'],
       {
         shell: os.platform() === 'win32',
