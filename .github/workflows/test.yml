@@ -120,18 +120,17 @@ jobs:
     strategy:
       matrix:
         node:
-          # XXX just v16 for now while we get tests basically running
-          # - '18'
+          - '18'
           - '16'
-          # - '16.0'
-          # - '14'
-          # - '14.0'
-          # - '12'
-          # - '12.0'
-          # - '10'
-          # - '10.0'
-          # - '8'
-          # - '8.6'
+          - '16.0'
+          - '14'
+          - '14.0'
+          - '12'
+          - '12.0'
+          - '10'
+          - '10.0'
+          - '8'
+          - '8.6'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

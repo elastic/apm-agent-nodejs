@@ -181,8 +181,6 @@ if (opts.help) {
 var directories = getDirectoriesWithTests(
   './test', [], ['./test/start/env', './test/start/file']
 )
-console.log('XXX directories: ', directories)
-directories = ['test/nextjs/a-nextjs-app'] // XXX
 
 mapSeries(directories, readdir, function (err, directoryFiles) {
   if (err) throw err
@@ -202,7 +200,6 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
       outDir: opts.output_dir
     }
   ]
-  tests = [] // XXX
 
   directoryFiles.forEach(function (files, i) {
     var directory = directories[i]

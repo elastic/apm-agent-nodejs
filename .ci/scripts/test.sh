@@ -226,9 +226,6 @@ else
   DOCKER_COMPOSE_FILE=docker-compose-all.yml
 fi
 
-# XXX no services
-DOCKER_COMPOSE_FILE=docker-compose-node-test.yml #XXX
-
 set +e
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_CONTEXT_MANAGER=${ELASTIC_APM_CONTEXT_MANAGER} \
