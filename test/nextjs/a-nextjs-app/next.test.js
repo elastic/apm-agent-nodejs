@@ -23,6 +23,7 @@
 
 const assert = require('assert')
 const { exec, spawn } = require('child_process')
+const fs = require('fs')
 const http = require('http')
 const os = require('os')
 const path = require('path')
@@ -62,11 +63,25 @@ const ansiRe = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZc
 let apmServer
 let serverUrl
 
+// TEST_REQUESTS is an array of requests to test against both a prod-server and
+// dev-server run of the 'a-nextjs-app' test app. Each entry is:
+//
+//   {
+//     testName: '<some short string name>',
+//     // An object with request options, or a `(buildId) => { ... }` that
+//     // returns request options.
+//     reqOpts: Object | Function,
+//     // An object with expectations of the server response.
+//     expectedRes: { ... },
+//     // Make test assertions of the APM events received for the request.
+//     checkApmEvents: (t, apmEventsForReq) => { ... },
+//   }
+//
 let TEST_REQUESTS = [
   // Redirects.
   {
     testName: 'trailing slash redirect',
-    req: { method: 'GET', path: '/a-page/' },
+    reqOpts: { method: 'GET', path: '/a-page/' },
     expectedRes: {
       statusCode: 308,
       headers: { location: '/a-page' }
@@ -80,7 +95,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'configured (in next.config.js) redirect',
-    req: { method: 'GET', path: '/redirect-to-a-page' },
+    reqOpts: { method: 'GET', path: '/redirect-to-a-page' },
     expectedRes: {
       statusCode: 307,
       headers: { location: '/a-page' }
@@ -96,7 +111,7 @@ let TEST_REQUESTS = [
   // Rewrites are configured in "next.config.js".
   {
     testName: 'rewrite to a page',
-    req: { method: 'GET', path: '/rewrite-to-a-page' },
+    reqOpts: { method: 'GET', path: '/rewrite-to-a-page' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
@@ -112,7 +127,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'rewrite to a dynamic page',
-    req: { method: 'GET', path: '/rewrite-to-a-dynamic-page/3.14159' },
+    reqOpts: { method: 'GET', path: '/rewrite-to-a-dynamic-page/3.14159' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
@@ -127,7 +142,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'rewrite to a /public/... folder file',
-    req: { method: 'GET', path: '/rewrite-to-a-public-file' },
+    reqOpts: { method: 'GET', path: '/rewrite-to-a-public-file' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': 'image/x-icon' }
@@ -141,7 +156,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'rewrite to a 404',
-    req: { method: 'GET', path: '/rewrite-to-a-404' },
+    reqOpts: { method: 'GET', path: '/rewrite-to-a-404' },
     expectedRes: {
       statusCode: 404
     },
@@ -154,7 +169,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'rewrite to a external site',
-    req: { method: 'GET', path: '/rewrite-external/foo' },
+    reqOpts: { method: 'GET', path: '/rewrite-external/foo' },
     expectedRes: {
       // This is a 500 because the configured `old.example.com` doesn't resolve.
       statusCode: 500
@@ -182,7 +197,7 @@ let TEST_REQUESTS = [
   // The different kinds of pages.
   {
     testName: 'index page',
-    req: { method: 'GET', path: '/' },
+    reqOpts: { method: 'GET', path: '/' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
@@ -197,7 +212,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'a page (Server-Side Generated, SSG)',
-    req: { method: 'GET', path: '/a-page' },
+    reqOpts: { method: 'GET', path: '/a-page' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
@@ -212,7 +227,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'a dynamic page',
-    req: { method: 'GET', path: '/a-dynamic-page/42' },
+    reqOpts: { method: 'GET', path: '/a-dynamic-page/42' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
@@ -227,7 +242,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'a server-side rendered (SSR) page',
-    req: { method: 'GET', path: '/an-ssr-page' },
+    reqOpts: { method: 'GET', path: '/an-ssr-page' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
@@ -244,7 +259,7 @@ let TEST_REQUESTS = [
   // API endpoint pages
   {
     testName: 'an API endpoint page',
-    req: { method: 'GET', path: '/api/an-api-endpoint' },
+    reqOpts: { method: 'GET', path: '/api/an-api-endpoint' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /application\/json/ },
@@ -259,7 +274,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'a dynamic API endpoint page',
-    req: { method: 'GET', path: '/api/a-dynamic-api-endpoint/123' },
+    reqOpts: { method: 'GET', path: '/api/a-dynamic-api-endpoint/123' },
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /application\/json/ },
@@ -273,10 +288,30 @@ let TEST_REQUESTS = [
     }
   },
 
+  // Various internal Next.js routes.
+  // The other routes that our instrumentation covers are listed in
+  // `wrapFsRoute` in "next-server.js" and "next-dev-server.js".
+  {
+    testName: '"_next/data catchall" route',
+    reqOpts: buildId => {
+      return { method: 'GET', path: `/_next/data/${buildId}/a-page.json` }
+    },
+    expectedRes: {
+      statusCode: 200,
+      headers: { 'content-type': /application\/json/ }
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'Next.js _next/data route /a-page', 'transaction.name')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
+  },
+
   // Error capture cases
   {
     testName: 'an API endpoint that throws',
-    req: { method: 'GET', path: '/api/an-api-endpoint-that-throws' },
+    reqOpts: { method: 'GET', path: '/api/an-api-endpoint-that-throws' },
     expectedRes: {
       statusCode: 500
     },
@@ -296,7 +331,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'a throw in a page handler',
-    req: { method: 'GET', path: '/a-throw-in-page-handler' },
+    reqOpts: { method: 'GET', path: '/a-throw-in-page-handler' },
     expectedRes: {
       statusCode: 500
     },
@@ -316,7 +351,7 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'a throw in getServerSideProps',
-    req: { method: 'GET', path: '/a-throw-in-getServerSideProps' },
+    reqOpts: { method: 'GET', path: '/a-throw-in-getServerSideProps' },
     expectedRes: {
       statusCode: 500
     },
@@ -338,7 +373,7 @@ let TEST_REQUESTS = [
 // Dev Note: To limit a test run to a particular test request, provide a
 // string value to DEV_TEST_FILTER that matches `testName`.
 var DEV_TEST_FILTER = null
-// DEV_TEST_FILTER = 'getServerSideProps' // XXX
+DEV_TEST_FILTER = '_next/data' // XXX
 if (DEV_TEST_FILTER) {
   TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(DEV_TEST_FILTER))
   assert(TEST_REQUESTS.length > 0, 'DEV_TEST_FILTER should not result in an *empty* TEST_REQUESTS')
@@ -405,14 +440,19 @@ function waitForServerReady (t, cb) {
   pollForServerReady()
 }
 
-async function makeTestRequest (t, testReq) {
+async function makeTestRequest (t, testReq, buildId) {
   return new Promise((resolve, reject) => {
-    const url = `http://localhost:3000${testReq.req.path}`
-    t.comment(`makeTestRequest: ${testReq.testName} (${testReq.req.method} ${url})`)
+    let reqOpts = testReq.reqOpts
+    if (typeof reqOpts === 'function') {
+      reqOpts = reqOpts(buildId)
+      console.log('XXX reqOpts: ', reqOpts)
+    }
+    const url = `http://localhost:3000${reqOpts.path}`
+    t.comment(`makeTestRequest: ${testReq.testName} (${reqOpts.method} ${url})`)
     const req = http.request(
       url,
       {
-        method: testReq.req.method
+        method: reqOpts.method
       },
       res => {
         const chunks = []
@@ -454,6 +494,15 @@ async function makeTestRequest (t, testReq) {
 
 function getEventField (e, fieldName) {
   return (e.transaction || e.error || e.span)[fieldName]
+}
+
+/**
+ * Return the buildId for this Next.js prod server. The buildId is stored
+ * in ".next/BUILD_ID" by `next build`.
+ */
+function getNextProdServerBuildId () {
+  const buildIdPath = path.join(__dirname, '.next', 'BUILD_ID')
+  return fs.readFileSync(buildIdPath, 'utf8').trim()
 }
 
 /**
@@ -601,12 +650,12 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
       t.end()
       return
     }
+
+    const buildId = getNextProdServerBuildId()
     apmServer.clear()
-
     for (let i = 0; i < TEST_REQUESTS.length; i++) {
-      await makeTestRequest(t, TEST_REQUESTS[i])
+      await makeTestRequest(t, TEST_REQUESTS[i], buildId)
     }
-
     t.end()
   })
 
@@ -702,7 +751,7 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
     apmServer.clear()
 
     for (let i = 0; i < TEST_REQUESTS.length; i++) {
-      await makeTestRequest(t, TEST_REQUESTS[i])
+      await makeTestRequest(t, TEST_REQUESTS[i], 'development')
     }
 
     t.end()
