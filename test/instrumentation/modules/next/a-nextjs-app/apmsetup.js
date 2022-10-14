@@ -4,11 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-const apm = require('../../../').start({ // elastic-apm-node
-  // trentm-play7, 8.4.1
-  serverUrl: 'https://my-deployment-31a70c.apm.us-west2.gcp.elastic-cloud.com',
-  secretToken: '45g9zaO5n6dp2b5EPN',
-
+const apm = require('../../../../../').start({ // elastic-apm-node
   // XXX most of these for dev/debugging
   // apmServerVersion: '8.4.1',
   // stackTraceLimit: 10,

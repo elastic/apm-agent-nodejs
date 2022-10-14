@@ -30,7 +30,7 @@ const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
 
-const { MockAPMServer } = require('../../_mock_apm_server')
+const { MockAPMServer } = require('../../../_mock_apm_server')
 
 if (os.platform() === 'win32') {
   // Limitation: currently don't support testing on Windows.
@@ -57,7 +57,8 @@ if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
   process.exit()
 }
 
-const nextPj = require(path.join(__dirname, 'node_modules/next/package.json'))
+const testAppDir = path.join(__dirname, 'a-nextjs-app')
+const nextPj = require(path.join(testAppDir, 'node_modules/next/package.json'))
 
 // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
 const ansiRe = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
@@ -447,7 +448,6 @@ async function makeTestRequest (t, testReq, buildId) {
     let reqOpts = testReq.reqOpts
     if (typeof reqOpts === 'function') {
       reqOpts = reqOpts(buildId)
-      console.log('XXX reqOpts: ', reqOpts)
     }
     const url = `http://localhost:3000${reqOpts.path}`
     t.comment(`makeTestRequest: ${testReq.testName} (${reqOpts.method} ${url})`)
@@ -503,7 +503,7 @@ function getEventField (e, fieldName) {
  * in ".next/BUILD_ID" by `next build`.
  */
 function getNextProdServerBuildId () {
-  const buildIdPath = path.join(__dirname, '.next', 'BUILD_ID')
+  const buildIdPath = path.join(testAppDir, '.next', 'BUILD_ID')
   return fs.readFileSync(buildIdPath, 'utf8').trim()
 }
 
@@ -515,19 +515,23 @@ function checkExpectedApmEvents (t, apmEvents) {
   // metadata
   let evt = apmEvents.shift()
   t.ok(evt.metadata, 'metadata is first event')
-  console.dir(evt.metadata, { depth: 5 }) // XXX
   t.equal(evt.metadata.service.name, 'a-nextjs-app', 'metadata.service.name')
   t.equal(evt.metadata.service.framework.name, 'Next.js', 'metadata.service.framework.name')
   t.equal(evt.metadata.service.framework.version, nextPj.version, 'metadata.service.framework.version')
+
+  // Filter out any metadata from separate requests, and metricsets which we
+  // aren't testing.
+  apmEvents = apmEvents
+    .filter(e => !e.metadata)
+    .filter(e => !e.metricset)
 
   // One `GET /api/an-api-endpoint` from waitForServerReady.
   evt = apmEvents.shift()
   t.equal(evt.transaction.name, 'GET /api/an-api-endpoint', 'waitForServerReady request')
   t.equal(evt.transaction.outcome, 'success', 'transaction.outcome')
 
-  // Expected APM events from all TEST_REQUESTS.
+  // Sort all the remaining APM events and check expectations from TEST_REQUESTS.
   apmEvents = apmEvents
-    .filter(e => !e.metadata)
     .sort((a, b) => {
       return getEventField(a, 'timestamp') < getEventField(b, 'timestamp') ? -1 : 1
     })
@@ -550,12 +554,12 @@ function checkExpectedApmEvents (t, apmEvents) {
 
 const SKIP_NPM_CI_FOR_DEV = false // process.env.USER === 'trentm' // XXX
 if (!SKIP_NPM_CI_FOR_DEV) {
-  tape.test(`setup: npm ci (in ${__dirname})`, t => {
+  tape.test(`setup: npm ci (in ${testAppDir})`, t => {
     const startTime = Date.now()
     exec(
       'npm ci',
       {
-        cwd: __dirname
+        cwd: testAppDir
       },
       function (err, stdout, stderr) {
         t.error(err, `"npm ci" succeeded (took ${(Date.now() - startTime) / 1000}s)`)
@@ -586,7 +590,7 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
     exec(
       'npm run build',
       {
-        cwd: __dirname
+        cwd: testAppDir
       },
       function (err, stdout, stderr) {
         t.error(err, `"npm run build" succeeded (took ${(Date.now() - startTime) / 1000}s)`)
@@ -605,7 +609,7 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
       ['start', '-H', 'localhost'],
       {
         shell: os.platform() === 'win32',
-        cwd: __dirname,
+        cwd: testAppDir,
         env: Object.assign({}, process.env, {
           NODE_OPTIONS: '-r ./apmsetup.js',
           ELASTIC_APM_SERVER_URL: serverUrl
@@ -698,7 +702,7 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
       ['dev', '-H', 'localhost'],
       {
         shell: os.platform() === 'win32',
-        cwd: __dirname,
+        cwd: testAppDir,
         env: Object.assign({}, process.env, {
           NODE_OPTIONS: '-r ./apmsetup.js',
           ELASTIC_APM_SERVER_URL: serverUrl
