@@ -5,12 +5,16 @@
  */
 
 const apm = require('../../../').start({ // elastic-apm-node
+  // trentm-play7, 8.4.1
+  serverUrl: 'https://my-deployment-31a70c.apm.us-west2.gcp.elastic-cloud.com',
+  secretToken: '45g9zaO5n6dp2b5EPN',
+
   // XXX most of these for dev/debugging
   // apmServerVersion: '8.4.1',
   // stackTraceLimit: 10,
   cloudProvider: 'none',
   centralConfig: false,
-  metricsInterval: '0s',
+  // metricsInterval: '0s',
   useElasticTraceparentHeader: false, // XXX
   // captureExceptions: false, // XXX
   logUncaughtExceptions: true,

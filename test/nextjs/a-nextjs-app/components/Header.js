@@ -23,8 +23,6 @@ function Header () {
           &nbsp;|&nbsp;
           <Link href="/an-ssr-page"><a>AnSSRPage</a></Link>
           &nbsp;|&nbsp;
-          <Link href="/an-ssr-error-page"><a>AnSSRErrorPage</a></Link>
-          &nbsp;|&nbsp;
           <Link href="/a-dynamic-page/42"><a>ADynamicPage/42</a></Link>
         </div>
       </header>

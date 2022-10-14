@@ -30,8 +30,6 @@ const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
 
-const nextPj = require(path.join(__dirname, 'node_modules/next/package.json'))
-
 const { MockAPMServer } = require('../../_mock_apm_server')
 
 if (os.platform() === 'win32') {
@@ -58,6 +56,8 @@ if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
   console.log('# SKIP Next.js instrumentation does not work with contextManager="patch"')
   process.exit()
 }
+
+const nextPj = require(path.join(__dirname, 'node_modules/next/package.json'))
 
 // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
 const ansiRe = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
