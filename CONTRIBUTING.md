@@ -182,8 +182,6 @@ If you have access to make releases, the process is as follows:
         [[release-notes-x.y.z]]
         ==== x.y.z - YYYY/MM/DD
         ```
-    - the EOL table in `docs/upgrading.asciidoc`, if this is a major or minor
-      release. EOL is 18 months after release date.
 1. Ensure PR checks pass, then merge to main.
 1. Working on the elastic repo now (not a fork), tag the merged-to-main commit
    with `git tag vx.y.x && git push origin vx.y.z`. For example: `git tag
