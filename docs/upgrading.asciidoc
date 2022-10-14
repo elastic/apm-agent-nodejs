@@ -31,7 +31,6 @@ We love all our products, but sometimes we must say goodbye to a release so that
 forward on future development and innovation.
 Our https://www.elastic.co/support/eol[End of life policy] defines how long a given release is considered supported,
 as well as how long a release is considered still in active development or maintenance.
-The table below is a simplified description of this policy.
 
 include::./upgrade-to-v1.asciidoc[Upgrade to v1.x]
 
