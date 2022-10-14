@@ -32,6 +32,7 @@ const tape = require('tape')
 const { MockAPMServer } = require('../../_mock_apm_server')
 
 if (os.platform() === 'win32') {
+  // Limitation: currently don't support testing on Windows.
   // The current mechanism using shell=true to spawn on Windows *and* attempting
   // to use SIGTERM to terminal the Next.js server doesn't work because cmd.exe
   // does an interactive prompt. Lovely.
@@ -45,7 +46,7 @@ if (semver.lt(process.version, '12.22.0')) {
 } else if (semver.satisfies(process.version, '>=14.0.0 <14.5.0')) {
   // The handling of SSR pages, e.g. `GET /an-ssr-page` in the test a-nextjs-app,
   // in next@12.3.1 (I'm not sure of the full `next` version range) relies on
-  // https://github.com/nodejs/node/pull/33155 which landed in v14.5.0 and
+  // https://github.com/nodejs/node/pull/33155 which landed in node v14.5.0 and
   // v12.19.0.
   console.log(`# SKIP next does not support fully node ${process.version}`)
   process.exit()
@@ -312,18 +313,36 @@ let TEST_REQUESTS = [
       t.equal(error.transaction.name, trans.name, 'error.transaction.name')
       t.equal(error.exception.message, 'throw in page handler', 'error.exception.message')
     }
+  },
+  {
+    testName: 'a throw in getServerSideProps',
+    req: { method: 'GET', path: '/a-throw-in-getServerSideProps' },
+    expectedRes: {
+      statusCode: 500
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 2)
+      const trans = apmEventsForReq[0].transaction
+      const error = apmEventsForReq[1].error
+      t.equal(trans.name, 'GET /a-throw-in-getServerSideProps', 'transaction.name')
+      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code')
+      t.ok(error, 'captured an APM error')
+      t.equal(trans.trace_id, error.trace_id, 'transaction and error are in same trace')
+      t.equal(error.parent_id, trans.id, 'error is a child of the transaction')
+      t.equal(error.transaction.type, 'request', 'error.transaction.type')
+      t.equal(error.transaction.name, trans.name, 'error.transaction.name')
+      t.equal(error.exception.message, 'thrown error in getServerSideProps', 'error.exception.message')
+    }
   }
 ]
-// XXX
-// process.env.XXX_TEST_FILTER = 'SSR'
-if (process.env.XXX_TEST_FILTER) {
-  TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(process.env.XXX_TEST_FILTER))
+// Dev Note: To limit a test run to a particular test request, provide a
+// string value to DEV_TEST_FILTER that matches `testName`.
+var DEV_TEST_FILTER = null
+// DEV_TEST_FILTER = 'getServerSideProps' // XXX
+if (DEV_TEST_FILTER) {
+  TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(DEV_TEST_FILTER))
+  assert(TEST_REQUESTS.length > 0, 'DEV_TEST_FILTER should not result in an *empty* TEST_REQUESTS')
 }
-
-// XXX HERE TODO:
-// - error endpoints (grok the "bugs" in NOTES)
-// curl -i localhost:3000/api/an-api-endpoint-that-throws
-// ... the other two /throw-in-... pages      XXX one more!
 
 // ---- utility functions
 
