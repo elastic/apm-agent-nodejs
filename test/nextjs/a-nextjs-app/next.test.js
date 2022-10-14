@@ -30,6 +30,8 @@ const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
 
+const nextPj = require(path.join(__dirname, 'node_modules/next/package.json'))
+
 const { MockAPMServer } = require('../../_mock_apm_server')
 
 if (os.platform() === 'win32') {
@@ -373,7 +375,7 @@ let TEST_REQUESTS = [
 // Dev Note: To limit a test run to a particular test request, provide a
 // string value to DEV_TEST_FILTER that matches `testName`.
 var DEV_TEST_FILTER = null
-DEV_TEST_FILTER = '_next/data' // XXX
+// DEV_TEST_FILTER = 'throw in a page handler' // XXX
 if (DEV_TEST_FILTER) {
   TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(DEV_TEST_FILTER))
   assert(TEST_REQUESTS.length > 0, 'DEV_TEST_FILTER should not result in an *empty* TEST_REQUESTS')
@@ -513,8 +515,10 @@ function checkExpectedApmEvents (t, apmEvents) {
   // metadata
   let evt = apmEvents.shift()
   t.ok(evt.metadata, 'metadata is first event')
+  console.dir(evt.metadata, { depth: 5 }) // XXX
   t.equal(evt.metadata.service.name, 'a-nextjs-app', 'metadata.service.name')
-  // XXX assert framework is "next" or "nextjs" or some value we pick
+  t.equal(evt.metadata.service.framework.name, 'Next.js', 'metadata.service.framework.name')
+  t.equal(evt.metadata.service.framework.version, nextPj.version, 'metadata.service.framework.version')
 
   // One `GET /api/an-api-endpoint` from waitForServerReady.
   evt = apmEvents.shift()
