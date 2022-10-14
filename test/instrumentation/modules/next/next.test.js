@@ -58,12 +58,12 @@ if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
 }
 
 const testAppDir = path.join(__dirname, 'a-nextjs-app')
-const nextPj = require(path.join(testAppDir, 'node_modules/next/package.json'))
 
 // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
 const ansiRe = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
 
 let apmServer
+let nextJsVersion // Determined after `npm ci` is run.
 let serverUrl
 
 // TEST_REQUESTS is an array of requests to test against both a prod-server and
@@ -517,7 +517,7 @@ function checkExpectedApmEvents (t, apmEvents) {
   t.ok(evt.metadata, 'metadata is first event')
   t.equal(evt.metadata.service.name, 'a-nextjs-app', 'metadata.service.name')
   t.equal(evt.metadata.service.framework.name, 'Next.js', 'metadata.service.framework.name')
-  t.equal(evt.metadata.service.framework.version, nextPj.version, 'metadata.service.framework.version')
+  t.equal(evt.metadata.service.framework.version, nextJsVersion, 'metadata.service.framework.version')
 
   // Filter out any metadata from separate requests, and metricsets which we
   // aren't testing.
@@ -573,6 +573,8 @@ if (!SKIP_NPM_CI_FOR_DEV) {
 }
 
 tape.test('setup: mock APM server', t => {
+  nextJsVersion = require(path.join(testAppDir, 'node_modules/next/package.json')).version
+
   apmServer = new MockAPMServer({ apmServerVersion: '7.15.0' })
   apmServer.start(function (serverUrl_) {
     serverUrl = serverUrl_
