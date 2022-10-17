@@ -82,7 +82,6 @@ This agent is compatible with {apm-guide-ref}[APM Server] v6.6 and above.
 
 Though you can use Elastic APM <<custom-stack,with any Node.js framework>>,
 we automate a few things for the most popular Node.js modules.
-
 These are the frameworks that we officially support:
 
 [options="header"]
@@ -95,6 +94,7 @@ These are the frameworks that we officially support:
 |<<restify,Restify>> |>=5.2.0
 |<<fastify,Fastify>> |>=1.0.0 | See also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
 |<<lambda,AWS Lambda>> |N/A
+| <<nextjs,Next.js>>    | >=11.1.0 <13.0.0 | (Experimental) Names incoming HTTP transactions based on Next.js routing and reports errors in user pages. Supports the Next.js production server (`next start`) and development server (`next dev`). See the <<nextjs,Getting Started doc>>.
 |=======================================================================
 
 [float]

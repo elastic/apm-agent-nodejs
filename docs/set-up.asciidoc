@@ -13,6 +13,7 @@ To get you off the ground, we've prepared guides for setting up the Agent with a
 * <<fastify>>
 * <<typescript>>
 * <<lambda>>
+* <<nextjs>>
 // end::web-frameworks-list[]
 
 Alternatively, you can <<custom-stack>>.
@@ -41,6 +42,8 @@ include::./typescript.asciidoc[]
 include::./custom-stack.asciidoc[]
 
 include::./lambda.asciidoc[]
+
+include::./nextjs.asciidoc[]
 
 [[starting-the-agent]]
 === Starting the agent
@@ -97,7 +100,7 @@ A limitation of this approach is that you cannot configure the agent with an opt
 [[start-option-node-require-opt]]
 ===== `node -r elastic-apm-node/start ...`
 
-Another way to start the agent is with the `-r elastic-apm-node/start` https://nodejs.org/api/cli.html#-r---require-module[command line option to `node`]. This will import and start the APM agent before your application code starts. This method allows you to enable the agent _without touching any code_. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>>.
+Another way to start the agent is with the `-r elastic-apm-node/start` https://nodejs.org/api/cli.html#-r---require-module[command line option to `node`]. This will import and start the APM agent before your application code starts. This method allows you to enable the agent _without touching any code_. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>> and for tracing <<nextjs,a Next.js server>>.
 
 [source,bash]
 ----
