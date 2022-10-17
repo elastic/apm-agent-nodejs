@@ -87,14 +87,14 @@ These are the frameworks that we officially support:
 
 [options="header"]
 |=======================================================================
-|Framework |Version |Note
-|<<express,Express>> |^4.0.0
-|<<hapi,hapi>> |>=9.0.0 <19.0.0 | Deprecated. No longer tested.
-|<<hapi,@hapi/hapi>> |>=17.9.0 <21.0.0
-|<<koa,Koa>> via koa-router or @koa/router | >=5.2.0 <13.0.0 | Koa doesn't have a built in router, so we can't support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router].
-|<<restify,Restify>> |>=5.2.0
-|<<fastify,Fastify>> |>=1.0.0 | See also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
-|<<lambda,AWS Lambda>> |N/A
+| Framework             | Version | Note
+| <<lambda,AWS Lambda>> | N/A |
+| <<express,Express>>   | ^4.0.0 |
+| <<fastify,Fastify>>   | >=1.0.0 | See also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
+| <<hapi,@hapi/hapi>>   | >=17.9.0 <21.0.0 |
+| <<hapi,hapi>>         | >=9.0.0 <19.0.0 | Deprecated. No longer tested.
+| <<koa,Koa>> via koa-router or @koa/router | >=5.2.0 <13.0.0 | Koa doesn't have a built in router, so we can't support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called https://github.com/koajs/koa-router[koa-router].
+| <<restify,Restify>>   | >=5.2.0 |
 |=======================================================================
 
 [float]

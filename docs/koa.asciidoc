@@ -13,7 +13,7 @@ include::./shared-set-up.asciidoc[tag=introduction]
 
 Koa doesn't have a built-in router,
 so we can't support Koa directly since we rely on router information for full support.
-We currently support the most popular Koa router called https://github.com/alexmingoia/koa-router[koa-router].
+We currently support the most popular Koa router called https://github.com/koajs/koa-router[koa-router].
 
 If you use another router with your Koa application,
 please https://github.com/elastic/apm-agent-nodejs/issues[open an issue] so we can make sure to support your stack.
