@@ -12,6 +12,7 @@ To configure APM through the AWS Management Console:
 NODE_OPTIONS                  = -r elastic-apm-node/start # use this exact fixed value
 ELASTIC_APM_LAMBDA_APM_SERVER = <YOUR-APM-SERVER-URL>     # this is your APM Server URL
 ELASTIC_APM_SECRET_TOKEN      = <YOUR-APM-SECRET-TOKEN>   # this is your APM secret token
+ELASTIC_APM_SEND_STRATEGY     = background                # recommended for steady load scenarios
 ----
 
 --
@@ -49,6 +50,7 @@ Resources:
             NODE_OPTIONS: -r elastic-apm-node/start
             ELASTIC_APM_LAMBDA_APM_SERVER: <YOUR-APM-SERVER-URL>
             ELASTIC_APM_SECRET_TOKEN: <YOUR-APM-SECRET-TOKEN>
+            ELASTIC_APM_SEND_STRATEGY: background
 ...
 ----
 
@@ -68,6 +70,7 @@ functions:
       NODE_OPTIONS: -r elastic-apm-node/start
       ELASTIC_APM_LAMBDA_APM_SERVER: <YOUR-APM-SERVER-URL>
       ELASTIC_APM_SECRET_TOKEN: <YOUR-APM-SECRET-TOKEN>
+      ELASTIC_APM_SEND_STRATEGY: background
 ...
 ----
 
@@ -86,6 +89,7 @@ resource "aws_lambda_function" "your_lambda_function" {
       NODE_OPTIONS                  = "-r elastic-apm-node/start"
       ELASTIC_APM_LAMBDA_APM_SERVER = "<YOUR-APM-SERVER-URL>"
       ELASTIC_APM_SECRET_TOKEN      = "<YOUR-APM-SECRET-TOKEN>"
+      ELASTIC_APM_SEND_STRATEGY     = "background"
     }
   }
 }
@@ -103,6 +107,7 @@ You can use one of the other options (through AWS Web Console, AWS CLI, etc.) to
 NODE_OPTIONS                  = -r elastic-apm-node/start # use this exact fixed value
 ELASTIC_APM_LAMBDA_APM_SERVER = <YOUR-APM-SERVER-URL>     # this is your APM Server URL
 ELASTIC_APM_SECRET_TOKEN      = <YOUR-APM-SECRET-TOKEN>   # this is your APM secret token
+ELASTIC_APM_SEND_STRATEGY     = background
 ----
 
 // end::container-with-agent[]
