@@ -1,6 +1,10 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [Next.js](https://nextjs.org/) project
+1. bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app), and then
+2. lightly modified to use Elastic APM to monitor the Next server.
 
 ## Getting Started
+
+XXX clear this mostly out, relevant docs for learning Next and for getting started with APM
 
 First, run the development server:
 
