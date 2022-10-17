@@ -105,6 +105,9 @@ paths are considered for body capture. ({pull}2873[#2873])
 [float]
 ===== Bug fixes
 
+* Avoid a possible `RangeError: Maximum call stack size exceeded` in
+  Span timer handler for exceedingly deep Span trees. ({pull}2939[#2939])
+
 * Fix instrumentation of (very old) 'graphql' module versions <=0.9.6.
   Instrumentation of these older graphql versions was broken in v3.36.0.
   ({pull}2927[#2927])
