@@ -1,0 +1,217 @@
+:framework: Next.js
+
+[[nextjs]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/nextjs.html[elastic.co]
+endif::[]
+
+=== Get started with Next.js
+
+The Elastic APM Node.js agent can be used to trace the Next.js server (`next
+start` or `next dev`) that runs your application without the need for code
+changes to your app. APM transactions for incoming HTTP requests to the server
+will be named for the https://nextjs.org/docs/routing/introduction[pages] and
+https://nextjs.org/docs/api-routes/introduction[API endpoints] in your
+application, as well as for internal routes used by Next.js. Errors in
+application code run on the server will be reported for viewing in the Kibana
+APM app.
+
+[float]
+[[nextjs-status]]
+==== Current status
+
+The Next.js instrumentation is *experimental* while we solicit feedback from
+Next.js users. How the instrumentation works might change significantly in
+future versions of the agent.
+
+If you are a Next.js user, please help us provide a better Next.js observability
+experience with your feedback on our
+https://discuss.elastic.co/tags/c/apm/nodejs[Discuss forum].
+
+
+[float]
+[[nextjs-prerequisites]]
+==== Prerequisites
+
+You need an APM Server to send APM data to. Follow the {apm-guide-ref}/apm-quick-start.html[APM Quick start] if you have not set one up yet. You will need your *APM server url* and an APM server *secret token* (or *API key*) for configuring the APM agent below.
+
+You will also need a Next.js application to monitor. If you do not have an existing one to use, you can use the following to create a starter app (see https://nextjs.org/docs/getting-started[Next.js Getting Started docs] for more):
+
+[source,bash]
+----
+npx create-next-app@latest  # use the defaults
+cd my-app
+----
+
+// XXX update link
+
+You can also take a look at and use this https://github.com/elastic/apm-agent-nodejs/tree/trentm/feat-nextjs/examples/nextjs/[Next.js + Elastic APM example].
+
+
+[float]
+[[nextjs-setup]]
+==== Step 1: Add the APM agent dependency
+
+Add the `elastic-apm-node` module as a dependency to your application:
+
+[source,bash]
+----
+npm install elastic-apm-node --save  # or 'yarn add elastic-apm-node'
+----
+
+NOTE: XXX Until this is in a release use `npm install "elastic-apm-node@elastic/apm-agent-nodejs#trentm/feat-nextjs"`.
+
+
+[float]
+==== Step 2: Start the APM agent
+
+For the APM agent to instrument the Next.js server, it needs to be started before the Next.js server code is loaded. The best way to do so is by using Node's https://nodejs.org/api/cli.html#-r---require-module[`--require`] option. We could use <<start-option-node-require-opt,`--require elastic-apm-node/start`>> to start the APM agent. However, to integrate a little better with Next.js, we will create a separate "apmsetup.js" file which does a little more than just start the agent.
+
+Edit the "dev" and "start" scripts in your "package.json" to tell Node to require the "apmsetup.js" module on startup. Like this:
+
+[source,diff]
+----
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -3,9 +3,9 @@
+   "version": "0.1.0",
+   "private": true,
+   "scripts": {
+-    "dev": "next dev",
++    "dev": "NODE_OPTIONS=--require=./apmsetup.js next dev",
+     "build": "next build",
+-    "start": "next start",
++    "start": "NODE_OPTIONS=--require=./apmsetup.js next start",
+     "lint": "next lint"
+   },
+   "dependencies": {
+----
+
+Then save the following as "apmsetup.js":
+
+[source,javascript]
+----
+'use strict'
+
+// Use this script with Node's `--require` flag to monitor a Next.js app with
+// Elastic APM.
+
+// Support `ELASTIC_APM_...` envvars in ".env*" files as Next.js supports them.
+// https://nextjs.org/docs/basic-features/environment-variables
+try {
+  const { loadEnvConfig } = require('@next/env')
+  const isDev = process.argv[process.argv.length - 1] === 'dev'
+  loadEnvConfig(__dirname, isDev) // <1>
+} catch (envErr) {
+  console.error('apmsetup: warning: failed to load @next/env to read possible .env files')
+}
+
+if (!process.env.ELASTIC_APM_SERVER_URL) {
+  console.log('apmsetup: ELASTIC_APM_SERVER_URL is not set, disabling APM')
+} else {
+  // APM agent configuration can be passed to `.start()` or specified as
+  // environment variables.
+  // https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html
+  const apm = require('elastic-apm-node').start() // <2>
+
+  // Flush APM data on server process termination.
+  // https://nextjs.org/docs/deployment#manual-graceful-shutdowns
+  process.env.NEXT_MANUAL_SIG_HANDLE = 1 // <3>
+  function flushApmAndExit () {
+    apm.flush(() => {
+      process.exit(0)
+    })
+  }
+  process.on('SIGTERM', flushApmAndExit)
+  process.on('SIGINT', flushApmAndExit)
+}
+----
+<1> Read environment variables from ".env*" files https://nextjs.org/docs/basic-features/environment-variables[in the same way as the Next.js server].
+<2> If an Elastic APM server URL is configured, then start the APM agent.
+<3> Handle flushing any final APM tracing data on https://nextjs.org/docs/deployment#manual-graceful-shutdowns[graceful termination of the server].
+
+
+[float]
+==== Step 3: Configure the APM agent
+
+The "apmsetup.js" module supports ".env*" files, so a natural way to configure the APM agent is using those. Create a ".env.local" file with the APM server url and secret token from the <<nextjs-prerequisites>> section above:
+
+[source,bash]
+----
+# .env.local
+ELASTIC_APM_SERVER_URL=https://...  # E.g. https://my-deployment-name.apm.us-west2.gcp.elastic-cloud.com
+ELASTIC_APM_SECRET_TOKEN='...'
+----
+
+See https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html[the APM configuration guide] for supported configuration variables. See https://nextjs.org/docs/basic-features/environment-variables[the Next.js docs] for more on its support for ".env" files.
+
+
+[float]
+==== Step 4: Start your Next.js app and verify monitoring is working
+
+[source,bash]
+----
+npm run dev  # or 'npm run build && npm start' for the production server
+----
+
+Open <http://localhost:3000> in your browser to load your Next.js app. If you used the `create-next-app` tool above, it creates a [http://localhost:3000/api/hello]/api/hello API endpoint. You can provide some artificial load by running the following in a separate terminal:
+
+[source,bash]
+----
+while true; do sleep 1; curl -i http://localhost:3000/api/hello; done
+----
+
+Visit your Kibana APM app and, after a few seconds, you should see a service entry for your Next.js app. (The service name will be pulled from the "name" field in "package.json". It can be overriden with https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuration.html#service-name[`ELASTIC_APM_SERVICE_NAME`].)
+
+XXX screenshot (can we add screenshots to docs, or too brittle for UI changes?)
+
+
+[float]
+[[nextjs-limitations]]
+==== Next.js instrumentation limitations
+
+XXX limitations
+
+XXX feedback request
+
+[float]
+[[nextjs-performance-monitoring]]
+==== Performance monitoring
+
+include::./shared-set-up.asciidoc[tag=performance-monitoring]
+
+[float]
+[[nextjs-unknown-routes]]
+===== Unknown routes
+
+include::./shared-set-up.asciidoc[tag=unknown-roots]
+
+XXX Note the limitation on the Next.js catchall route.
+
+
+[float]
+[[nextjs-error-logging]]
+==== Error logging
+
+include::./shared-set-up.asciidoc[tag=error-logging]
+
+[float]
+[[nextjs-filter-sensitive-information]]
+==== Filter sensitive information
+
+include::./shared-set-up.asciidoc[tag=filter-sensitive-info]
+
+[float]
+[[nextjs-compatibility]]
+==== Compatibility
+
+include::./shared-set-up.asciidoc[tag=compatibility-link]
+
+[float]
+[[nextjs-troubleshooting]]
+==== Troubleshooting
+
+include::./shared-set-up.asciidoc[tag=troubleshooting-link]
