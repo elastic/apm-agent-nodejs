@@ -48,6 +48,7 @@ If you prefer to use an {apm-guide-ref}/api-key.html[APM API key] instead of the
 For production environments, we recommend {apm-lambda-ref}/aws-lambda-secrets-manager.html[using the AWS Secrets Manager to store your APM authentication key] instead of providing the secret value as plaintext in the environment variables.
 
 include::./lambda/configure-lambda-widget.asciidoc[]
+<1> The {apm-lambda-ref}/aws-lambda-config-options.html#_elastic_apm_send_strategy[`ELASTIC_APM_SEND_STRATEGY`] defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the `background` strategy in production environments with steady load scenarios.
 
 You can optionally <<configuration, fine-tune the Node.js agent>> or the {apm-lambda-ref}/aws-lambda-config-options.html[configuration of the {apm-lambda-ext}].
 
