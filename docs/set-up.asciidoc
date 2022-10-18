@@ -6,13 +6,14 @@ To get you off the ground, we've prepared guides for setting up the Agent with a
 // This tagged region is used throughout the documentation to link to the framework guides
 // Updates made here will be applied elsewhere as well.
 // tag::web-frameworks-list[]
+* <<lambda>>
 * <<express>>
+* <<fastify>>
 * <<hapi>>
 * <<koa>>
+* <<nextjs>>
 * <<restify>>
-* <<fastify>>
 * <<typescript>>
-* <<lambda>>
 * <<nextjs>>
 // end::web-frameworks-list[]
 
@@ -27,23 +28,24 @@ Other useful documentation includes:
 * <<api>>
 * <<troubleshooting>>
 
+include::./lambda.asciidoc[]
+
 include::./express.asciidoc[]
+
+include::./fastify.asciidoc[]
 
 include::./hapi.asciidoc[]
 
 include::./koa.asciidoc[]
 
-include::./restify.asciidoc[]
+include::./nextjs.asciidoc[]
 
-include::./fastify.asciidoc[]
+include::./restify.asciidoc[]
 
 include::./typescript.asciidoc[]
 
 include::./custom-stack.asciidoc[]
 
-include::./lambda.asciidoc[]
-
-include::./nextjs.asciidoc[]
 
 [[starting-the-agent]]
 === Starting the agent

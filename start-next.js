@@ -21,3 +21,5 @@ function flushApmAndExit () {
 }
 process.on('SIGTERM', flushApmAndExit)
 process.on('SIGINT', flushApmAndExit)
+
+module.exports = apm
