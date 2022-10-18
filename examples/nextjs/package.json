@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS=--require=./apmsetup.js next dev",
+    "dev": "NODE_OPTIONS=--require=elastic-apm-node/start-next.js next dev",
     "build": "next build",
-    "start": "NODE_OPTIONS=--require=./apmsetup.js next start",
+    "start": "NODE_OPTIONS=--require=elastic-apm-node/start-next.js next start",
     "lint": "next lint"
   },
   "dependencies": {
