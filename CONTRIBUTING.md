@@ -182,8 +182,6 @@ If you have access to make releases, the process is as follows:
         [[release-notes-x.y.z]]
         ==== x.y.z - YYYY/MM/DD
         ```
-    - the EOL table in `docs/upgrading.asciidoc`, if this is a major or minor
-      release. EOL is 18 months after release date.
 1. Ensure PR checks pass, then merge to main.
 1. Working on the elastic repo now (not a fork), tag the merged-to-main commit
    with `git tag vx.y.x && git push origin vx.y.z`. For example: `git tag
@@ -192,6 +190,7 @@ If you have access to make releases, the process is as follows:
    package version. See the appropriate [apm-ci tag build for this repo](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/view/tags/).)
 1. Reset the latest major branch (currently `3.x`) to point to the current
    main, e.g. `git branch -f 3.x main && git push origin 3.x`
+1. For major releases, [create an issue](https://github.com/elastic/website-requests/issues/new) to request an update of the [EOL table](https://www.elastic.co/support/eol).
 
 ### Past major
 
