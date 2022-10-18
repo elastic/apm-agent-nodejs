@@ -613,7 +613,7 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
         shell: os.platform() === 'win32',
         cwd: testAppDir,
         env: Object.assign({}, process.env, {
-          NODE_OPTIONS: '-r ./apmsetup.js',
+          NODE_OPTIONS: '-r ../../../../../start-next.js',
           ELASTIC_APM_SERVER_URL: serverUrl
         })
       }
@@ -706,7 +706,7 @@ tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
         shell: os.platform() === 'win32',
         cwd: testAppDir,
         env: Object.assign({}, process.env, {
-          NODE_OPTIONS: '-r ./apmsetup.js',
+          NODE_OPTIONS: '-r ../../../../../start-next.js',
           ELASTIC_APM_SERVER_URL: serverUrl
         })
       }
