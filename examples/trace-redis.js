@@ -74,8 +74,7 @@ async function main () {
 
   Promise
     .all([
-      useRedis(),
-      useRedis4321()
+      useRedis()
     ])
     .then(() => {
       trans.end()
