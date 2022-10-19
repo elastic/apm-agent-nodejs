@@ -156,8 +156,10 @@ test('redis client error', function (t) {
     agent.flush()
   }
   const client = redis.createClient({
-    host: process.env.REDIS_HOST,
-    port: '6379'
+    socket: {
+      port: '6379',
+      host: process.env.REDIS_HOST
+    }
   })
   client.connect()
   const t0 = agent.startTransaction('t0')

@@ -12,7 +12,6 @@ if (semver.gte(redisVersion, '4.0.0')) {
   console.log('# SKIP: skipping redis-2-3.test.js tests >=4.0.0')
   process.exit(0)
 }
-console.log(`redis ${redisVersion} version`)
 
 var agent = require('../../..').start({
   serviceName: 'test-redis-2-3',
