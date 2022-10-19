@@ -134,6 +134,42 @@ test('redis', function (t) {
   })
 })
 
+test('redis client error', function (t) {
+  resetAgent(function (data) {
+    t.equal(data.transactions.length, 1, 'got 1 transaction')
+    t.equal(data.spans.length, 1, 'got 1 span')
+    t.equal(data.errors.length, 1, 'got 1 error')
+    t.equal(data.spans[0].name, 'SET', 'span.name')
+    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
+    t.equal(data.spans[0].outcome, 'failure', 'span.outcome')
+    t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id')
+    t.equal(data.errors[0].parent_id, data.spans[0].id, 'error.parent_id, error is a child of the failing span')
+    t.equal(data.errors[0].exception.type, 'TypeError', 'error.exception.type')
+    t.end()
+  })
+
+  // no .finally in Node 8, endPromise performs
+  // actions we'd normally perform there
+  function endProimse(t0, client, agent) {
+    t0.end()
+    client.quit()
+    agent.flush()
+  }
+  const client = redis.createClient({
+    host: process.env.REDIS_HOST,
+    port: '6379',
+  })
+  client.connect()
+  const t0 = agent.startTransaction('t0')
+    const res = client.set('foo').then(function(response){
+      t.fail('no response expected')
+      endProimse(t0, client, agent)
+    }).catch(function(error){
+      t.ok(error, 'expected error')
+      endProimse(t0, client, agent)
+    })
+})
+
 function resetAgent (cb) {
   agent._instrumentation.testReset()
   agent._transport = mockClient(cb)

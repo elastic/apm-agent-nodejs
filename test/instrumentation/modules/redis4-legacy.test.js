@@ -88,10 +88,6 @@ test('redis', function (t) {
   })
 
   client.on('error', err => console.log('client error', err))
-  // client.on('connect', () => console.log('client is connect'));
-  // client.on('reconnecting', () => console.log('client is reconnecting'));
-  // client.on('ready', () => console.log('client is ready'));
-
   client.connect()
   const trans = agent.startTransaction('aTrans')
 
