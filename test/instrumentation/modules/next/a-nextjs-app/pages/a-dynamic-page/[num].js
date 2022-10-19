@@ -10,7 +10,6 @@ import Header from '../../components/Header'
 // Run at build time to determine a set of dynamic paths to prerender at build time.
 // https://nextjs.org/docs/basic-features/data-fetching/get-static-paths
 export async function getStaticPaths () {
-  console.log('XXX ADynamicPage.getStaticPaths')
   return {
     paths: [
       { params: { num: '41' } },
@@ -22,7 +21,6 @@ export async function getStaticPaths () {
 }
 
 export async function getStaticProps ({ params }) {
-  console.log('XXX ADynamicPage.getStaticProps')
   return {
     props: {
       doubleThat: Number(params.num) * 2
@@ -31,7 +29,6 @@ export async function getStaticProps ({ params }) {
 }
 
 const ADynamicPage = ({ doubleThat }) => {
-  console.log('XXX ADynamicPage')
   const router = useRouter()
   const { num } = router.query
 

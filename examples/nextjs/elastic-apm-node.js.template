@@ -1,0 +1,5 @@
+module.exports = {
+  // Configure the APM server URL and token that the APM agent should use.
+  // serverUrl: 'https://...', // e.g.: http://my-deployment-name.apm.us-west2.gcp.elastic-cloud.com',
+  // secretToken: '...'
+}

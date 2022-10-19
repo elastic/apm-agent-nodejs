@@ -32,7 +32,6 @@ const nextConfig = {
           destination: '/a-page'
         },
         {
-          // XXX improve this to have dynamic value in params
           source: '/rewrite-to-a-dynamic-page/:num',
           destination: '/a-dynamic-page/:num'
         },

@@ -7,8 +7,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
 
-// XXX v demo app inits @elastic/apm-rum here
-
 function Header () {
   return (
     <>

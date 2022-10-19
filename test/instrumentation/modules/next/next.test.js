@@ -376,7 +376,6 @@ let TEST_REQUESTS = [
 // Dev Note: To limit a test run to a particular test request, provide a
 // string value to DEV_TEST_FILTER that matches `testName`.
 var DEV_TEST_FILTER = null
-// DEV_TEST_FILTER = 'throw in a page handler' // XXX
 if (DEV_TEST_FILTER) {
   TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(DEV_TEST_FILTER))
   assert(TEST_REQUESTS.length > 0, 'DEV_TEST_FILTER should not result in an *empty* TEST_REQUESTS')
@@ -461,9 +460,6 @@ async function makeTestRequest (t, testReq, buildId) {
         res.on('data', chunk => { chunks.push(chunk) })
         res.on('end', () => {
           const body = Buffer.concat(chunks)
-          // console.log('XXX res:', res.statusCode, res.headers,
-          //   res.headers['content-type'] && ~res.headers['content-type'].indexOf('text') && body.toString(),
-          //   '\n--')
           if (testReq.expectedRes.statusCode) {
             t.equal(res.statusCode, testReq.expectedRes.statusCode, `res.statusCode === ${testReq.expectedRes.statusCode}`)
           }
@@ -535,7 +531,6 @@ function checkExpectedApmEvents (t, apmEvents) {
     .sort((a, b) => {
       return getEventField(a, 'timestamp') < getEventField(b, 'timestamp') ? -1 : 1
     })
-  console.log('XXX filtered and sorted apmEvents:', apmEvents)
   TEST_REQUESTS.forEach(testReq => {
     t.comment(`check APM events for "${testReq.testName}"`)
     // Collect all events for this transaction's trace_id, and pass that to
@@ -552,25 +547,22 @@ function checkExpectedApmEvents (t, apmEvents) {
 
 // ---- tests
 
-const SKIP_NPM_CI_FOR_DEV = false // process.env.USER === 'trentm' // XXX
-if (!SKIP_NPM_CI_FOR_DEV) {
-  tape.test(`setup: npm ci (in ${testAppDir})`, t => {
-    const startTime = Date.now()
-    exec(
-      'npm ci',
-      {
-        cwd: testAppDir
-      },
-      function (err, stdout, stderr) {
-        t.error(err, `"npm ci" succeeded (took ${(Date.now() - startTime) / 1000}s)`)
-        if (err) {
-          t.comment(`$ npm ci\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`)
-        }
-        t.end()
+tape.test(`setup: npm ci (in ${testAppDir})`, t => {
+  const startTime = Date.now()
+  exec(
+    'npm ci',
+    {
+      cwd: testAppDir
+    },
+    function (err, stdout, stderr) {
+      t.error(err, `"npm ci" succeeded (took ${(Date.now() - startTime) / 1000}s)`)
+      if (err) {
+        t.comment(`$ npm ci\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`)
       }
-    )
-  })
-}
+      t.end()
+    }
+  )
+})
 
 tape.test('setup: mock APM server', t => {
   nextJsVersion = require(path.join(testAppDir, 'node_modules/next/package.json')).version
@@ -584,7 +576,7 @@ tape.test('setup: mock APM server', t => {
 })
 
 // Test the Next "prod" server. I.e. `next build && next start`.
-tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
+tape.test('-- prod server tests --', suite => {
   let nextServerProc
 
   suite.test('setup: npm run build', t => {
@@ -605,9 +597,21 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
   })
 
   suite.test('setup: start Next.js prod server (next start)', t => {
-    // XXX warning using `npm run start` directly with Docker.
+    // Ideally we would simply spawn `npm run start` -- which handles setting
+    // NODE_OPTIONS. However, that results in a process tree:
+    //    <PID 0>
+    //    `- npm
+    //       `- /tmp/.../tmp-$hash.sh
+    //          `- node ./node_modules/.bin/next start
+    // that, in Docker, will reduce to:
+    //    <PID 0>
+    //    `- node ./node_modules/.bin/next start
+    // And our attempts to signal, `nextServerProc.kill()`, will fail to signal
+    // the actual server because the `npm` process is gone.
     nextServerProc = spawn(
       path.normalize('./node_modules/.bin/next'),
+      // Be explicit about "localhost" here, otherwise with node v18 we can
+      // get the server listening on IPv6 and the client connecting on IPv4.
       ['start', '-H', 'localhost'],
       {
         shell: os.platform() === 'win32',
@@ -684,21 +688,18 @@ tape.test('-- prod server tests --', { skip: false /* XXX */ }, suite => {
       checkExpectedApmEvents(t, apmServer.events)
       t.end()
     })
-    console.log('XXX before: pid %s is killed? %s', nextServerProc.pid, nextServerProc.killed)
     nextServerProc.kill('SIGTERM')
-    console.log('XXX sent SIGTERM to pid', nextServerProc.pid)
-    console.log('XXX sync after: pid %s is killed? %s', nextServerProc.pid, nextServerProc.killed)
   })
 
   suite.end()
 })
 
 // Test the Next "dev" server. I.e. `next dev`.
-tape.test('-- dev server tests --', { skip: false /* XXX */ }, suite => {
+tape.test('-- dev server tests --', suite => {
   let nextServerProc
 
   suite.test('setup: start Next.js dev server (next dev)', t => {
-    // XXX warning using `npm run dev` directly with Docker.
+    // See the warning notes for `spawn()` above. The same apply here.
     nextServerProc = spawn(
       path.normalize('./node_modules/.bin/next'),
       ['dev', '-H', 'localhost'],
