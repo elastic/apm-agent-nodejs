@@ -32,10 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.39.0]]
+==== 3.39.0 2022/10/17
 
 [float]
 ===== Features
@@ -80,15 +78,15 @@ As part of this change, improvements have been made to some module instrumentati
 * Improve the captured information for Elasticsearch client instrumentation.
   For all outgoing Elasticsearch client requests, the full HTTP url is
   now captured (stored in the "url.original" field). For Elasticsearch requests
-  that do a search the outgoing request body is captured (to the
-  "span.db.statement" field), as before, but the format has changed to only
+  that do a search, the outgoing request body is captured (to the
+  "span.db.statement" field) as before, but the format has changed to only
   hold the request body. Before this change the "span.db.statement" would
   also hold any HTTP query parameters. These are now more naturally captured
-  with "url.origin". ({issues}2019[#2019])
+  in "url.original". ({issues}2019[#2019])
 +
 This change also introduces the <<elasticsearch-capture-body-urls>>
 configuration option to enable controlling which Elasticsearch REST API
-paths are considered for body capture. ({pull}2873[#2873])
+paths are considered for request body capture. ({pull}2873[#2873])
 
 * Support instrumenting core modules when require'd with the optional
   https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
@@ -100,8 +98,15 @@ paths are considered for body capture. ({pull}2873[#2873])
   setting of an `Error.prepareStackTrace` handler until necessary for stacktrace
   collection. ({issues}2833[#2833] {pull}2906[#2906])
 
+* Add `*principal*` pattern to default value for `sanitizeFieldNames` config
+  var, so that it is more likely to redact authentication-related HTTP headers,
+  e.g. on Azure. ({issues}2938[#2938])
+
 [float]
 ===== Bug fixes
+
+* Avoid a possible `RangeError: Maximum call stack size exceeded` in
+  Span timer handler for exceedingly deep Span trees. ({pull}2939[#2939])
 
 * Fix instrumentation of (very old) 'graphql' module versions <=0.9.6.
   Instrumentation of these older graphql versions was broken in v3.36.0.
@@ -113,6 +118,9 @@ paths are considered for body capture. ({pull}2873[#2873])
 * Disable knex instrumentation when not collecting span stack traces
   (because there is no point). This is a performance improvement for
   Knex usage in the default configuration. ({pull}2879[#2879])
+
+* Document and add types for `parent` option to
+  <<apm-capture-error,`apm.captureError()`>>. ({issues}2977[#2977])
 
 
 [[release-notes-3.38.0]]

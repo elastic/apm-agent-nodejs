@@ -320,6 +320,12 @@ declare namespace apm {
     message?: string;
     captureAttributes?: boolean;
     skipOutcome?: boolean;
+    /**
+     * A Transaction or Span instance to make the parent of this error. If not
+     * given (undefined), then the current span or transaction will be used. If
+     * `null` is given, then no span or transaction will be used.
+     */
+    parent?: Transaction | Span | null;
   }
 
   interface Labels {

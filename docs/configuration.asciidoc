@@ -957,7 +957,7 @@ The value should include a time suffix ('m' for minutes, 's' for seconds, or
 [[sanitize-field-names]]
 ==== `sanitizeFieldNames`
 * *Type:* Array
-* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', 'pw', 'pass', 'connect.sid']`
+* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', '*principal*', 'pw', 'pass', 'connect.sid']`
 * *Env:* `ELASTIC_APM_SANITIZE_FIELD_NAMES`
 * <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `sanitize_field_names`
 

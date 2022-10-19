@@ -335,6 +335,8 @@ See the <<apm-add-labels,`apm.addLabels()`>> method for details about the format
 
 ** `skipOutcome` +{type-boolean}+ Whether to skip setting the outcome value for the current span to `failure`.  See <<span-outcome,Span outcome>> for more information. *Default:* `false`.
 
+** `parent` <<transaction-api,Transaction>> | <<span-api,Span>> | `null` - A Transaction or Span instance to make the parent of this error. If not given (or `undefined`), then the current span or transaction will be used. If `null` is given, then no span or transaction will be used. [small]#(Added in v3.33.0.)#
+
 * `callback` - Will be called after the error has been sent to the APM Server.
 It will receive an `Error` instance if the agent failed to send the error,
 and the id of the captured error.
