@@ -150,24 +150,24 @@ test('redis client error', function (t) {
 
   // no .finally in Node 8, endPromise performs
   // actions we'd normally perform there
-  function endProimse(t0, client, agent) {
+  function endProimse (t0, client, agent) {
     t0.end()
     client.quit()
     agent.flush()
   }
   const client = redis.createClient({
     host: process.env.REDIS_HOST,
-    port: '6379',
+    port: '6379'
   })
   client.connect()
   const t0 = agent.startTransaction('t0')
-    const res = client.set('foo').then(function(response){
-      t.fail('no response expected')
-      endProimse(t0, client, agent)
-    }).catch(function(error){
-      t.ok(error, 'expected error')
-      endProimse(t0, client, agent)
-    })
+  client.set('foo').then(function (response) {
+    t.fail('no response expected')
+    endProimse(t0, client, agent)
+  }).catch(function (error) {
+    t.ok(error, 'expected error')
+    endProimse(t0, client, agent)
+  })
 })
 
 function resetAgent (cb) {
