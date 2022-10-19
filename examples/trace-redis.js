@@ -28,9 +28,6 @@ async function useRedis () {
     database: 1 // This results in early `SELECT` sent in RedisClient.#initiateSocket()
   })
 
-  // XXX how to capture these without impacting. Wrap .emit() on the RedisClient?
-  // client.on('error', (err) => console.log('Redis Client Error', err));
-
   await client.connect()
 
   try {
@@ -63,11 +60,6 @@ async function useRedis () {
   } catch (err) {
     console.log('MULTI err: ', err)
   }
-
-  // XXX example error capture?
-  // XXX example AbortSignal usage?
-  // XXX example using legacy mode? https://github.com/redis/node-redis/blob/master/docs/v3-to-v4.md#legacy-mode
-  // XXX example using isolated execution? https://github.com/redis/node-redis/blob/master/docs/isolated-execution.md
 
   await client.quit()
 }
