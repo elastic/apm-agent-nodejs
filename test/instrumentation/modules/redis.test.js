@@ -130,9 +130,7 @@ test('redis', function (t) {
       t.error(err, 'no hset error')
     })
 
-    // TODO: other signatures?
     client.hSet('hash key', ['hashtest 2', 'some other value']).then(function (reply) {
-    // client.hSet('hash key', 'hashtest 2', 'some other value').then(function (reply) {
       t.strictEqual(reply, 1, 'hset reply is 1')
       done++
     }).catch(function (err) {
