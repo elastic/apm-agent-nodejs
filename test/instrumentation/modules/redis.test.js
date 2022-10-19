@@ -68,25 +68,22 @@ test('redis', function (t) {
     for (let i = 0; i < expectedSpanNames.length; i++) {
       const expectedName = expectedSpanNames[i]
       const span = spans[i]
-      if (span) {
-        t.strictEqual(span.transaction_id, trans.id, 'span.transaction_id')
-        t.strictEqual(span.name, expectedName, 'span.name')
-        t.strictEqual(span.type, 'db', 'span.type')
-        t.strictEqual(span.subtype, 'redis', 'span.subtype')
-        t.deepEqual(span.context.destination, {
-          address: process.env.REDIS_HOST || 'localhost',
-          port: 6379,
-          service: { name: '', type: '', resource: 'redis' }
-        }, 'span.context.destination')
-        t.deepEqual(span.context.db, { type: 'redis' }, 'span.context.db')
-        t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
 
-        const offset = span.timestamp - trans.timestamp
-        t.ok(offset + span.duration * 1000 < trans.duration * 1000,
-          'span ended before transaction ended')
-      } else {
-        t.fail('no spans generated')
-      }
+      t.strictEqual(span.transaction_id, trans.id, 'span.transaction_id')
+      t.strictEqual(span.name, expectedName, 'span.name')
+      t.strictEqual(span.type, 'db', 'span.type')
+      t.strictEqual(span.subtype, 'redis', 'span.subtype')
+      t.deepEqual(span.context.destination, {
+        address: process.env.REDIS_HOST || 'localhost',
+        port: 6379,
+        service: { name: '', type: '', resource: 'redis' }
+      }, 'span.context.destination')
+      t.deepEqual(span.context.db, { type: 'redis' }, 'span.context.db')
+      t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
+
+      const offset = span.timestamp - trans.timestamp
+      t.ok(offset + span.duration * 1000 < trans.duration * 1000,
+        'span ended before transaction ended')
     }
 
     t.end()
