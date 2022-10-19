@@ -55,7 +55,7 @@ mysql2-new:
     - node test/instrumentation/modules/mysql2/mysql.test.js
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 
-redis-old:
+redis-v2-v4:
   name: redis
   versions: '>=2.0.0 <4.0.0'
   commands: node test/instrumentation/modules/redis-2-3.test.js
