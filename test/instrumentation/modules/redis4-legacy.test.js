@@ -7,7 +7,7 @@
 'use strict'
 
 // this test file is about testing `legacyMode`
-
+// https://github.com/redis/node-redis/blob/HEAD/docs/v3-to-v4.md#legacy-mode
 const redisVersion = require('redis/package.json').version
 const semver = require('semver')
 if (semver.lt(redisVersion, '4.0.0')) {
