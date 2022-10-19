@@ -64,30 +64,6 @@ async function useRedis () {
   await client.quit()
 }
 
-async function useRedis4321 () {
-  let res
-  const client = redis.createClient({
-    socket: {
-      port: 4321
-    }
-  })
-  try {
-    await client.connect()
-  } catch (err) {
-    console.log('CONNECT err: ', err)
-    return
-  }
-
-  try {
-    res = await client.ping()
-    console.log('PING res: ', res)
-  } catch (err) {
-    console.log('PING err: ', err)
-  }
-
-  await client.quit()
-}
-
 async function main () {
   // For tracing spans to be created, there must be an active transaction.
   // Typically, a transaction is automatically started for incoming HTTP
