@@ -14,7 +14,7 @@ if (semver.gte(redisVersion, '4.0.0')) {
 }
 
 var agent = require('../../..').start({
-  serviceName: 'test-redis',
+  serviceName: 'test-redis-2-3',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
