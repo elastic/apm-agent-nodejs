@@ -682,7 +682,7 @@ tape.test('-- prod server tests --', suite => {
 
     // To ensure we get all the trace data from the instrumented Next.js
     // server, we SIGTERM it and rely on the graceful-exit apm.flush() in
-    // "apmsetup.js" to flush it.
+    // "start-next.js" to flush it.
     nextServerProc.on('close', code => {
       t.equal(code, 0, 'Next.js server exit status was 0')
       checkExpectedApmEvents(t, apmServer.events)
@@ -777,7 +777,7 @@ tape.test('-- dev server tests --', suite => {
 
     // To ensure we get all the trace data from the instrumented Next.js
     // server, we SIGTERM it and rely on the graceful-exit apm.flush() in
-    // "apmsetup.js" to flush it.
+    // "start-next.js" to flush it.
     nextServerProc.on('close', code => {
       t.equal(code, 0, 'Next.js server exit status was 0')
       checkExpectedApmEvents(t, apmServer.events)

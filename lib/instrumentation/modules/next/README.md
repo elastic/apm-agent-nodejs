@@ -9,7 +9,9 @@ or the result".
 
 There are a number of ways to deploy (https://nextjs.org/docs/deployment) a
 Next.js app. This instrumentation works with "Self-Hosting", and using Next.js's
-built-in server. There is a Next.js "server" class hierarchy:
+built-in server.
+
+Here is the Next.js "server" class hierarchy:
 
     class Server (in base-server.ts)
         class NextNodeServer (in next-server.ts, used for `next start`)

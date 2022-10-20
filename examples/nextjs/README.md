@@ -20,7 +20,7 @@ This is a [Next.js](https://nextjs.org/) application
     npm run build && npm start  # or the production server
     ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 An [API route](https://nextjs.org/docs/api-routes/introduction) can be accessed at <http://localhost:3000/api/hello>.
 
 ## Learn More
