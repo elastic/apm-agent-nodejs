@@ -6,16 +6,17 @@
 
 'use strict'
 
+// this test file is about testing `legacyMode`
+// https://github.com/redis/node-redis/blob/HEAD/docs/v3-to-v4.md#legacy-mode
 const redisVersion = require('redis/package.json').version
 const semver = require('semver')
-
 if (semver.lt(redisVersion, '4.0.0')) {
-  console.log('# SKIP: skipping redis.test.js tests <4.0.0')
+  console.log('# SKIP: skipping redis4-legacy.test.js tests')
   process.exit(0)
 }
 
 if (semver.lt(process.version, '14.0.0')) {
-  console.log('# SKIP: skipping redis.test.js tests node node <14 ')
+  console.log('# SKIP: skipping redis4-legacy.test.js tests node node <14 ')
   process.exit(0)
 }
 
@@ -56,11 +57,12 @@ test('redis', function (t) {
     for (let i = 0; i < expectedSpanNames.length; i++) {
       const expectedName = expectedSpanNames[i]
       const span = spans[i]
-
       t.strictEqual(span.transaction_id, trans.id, 'span.transaction_id')
       t.strictEqual(span.name, expectedName, 'span.name')
       t.strictEqual(span.type, 'db', 'span.type')
       t.strictEqual(span.subtype, 'redis', 'span.subtype')
+      t.strictEqual(span.action, 'query', 'span.action')
+      t.deepEqual(span.context.service.target, { type: 'redis' }, 'span.context.service.target')
       t.deepEqual(span.context.destination, {
         address: process.env.REDIS_HOST || 'localhost',
         port: 6379,
@@ -73,49 +75,49 @@ test('redis', function (t) {
       t.ok(offset + span.duration * 1000 < trans.duration * 1000,
         'span ended before transaction ended')
     }
-
     t.end()
+    client.disconnect()
   })
 
   const client = redis.createClient({
     socket: {
-      port: '6379',
-      host: process.env.REDIS_HOST
-    }
+      host: process.env.REDIS_HOST,
+      port: '6379'
+    },
+    legacyMode: true
   })
-  client.connect()
 
+  client.on('error', err => console.log('client error', err))
+  client.connect()
   const trans = agent.startTransaction('aTrans')
 
-  client.flushAll().then(function (reply) {
+  client.flushall(function (err, reply) {
+    t.error(err, 'no flushall error')
     t.strictEqual(reply, 'OK', 'reply is OK')
     let done = 0
 
-    client.set('string key', 'string val').then(function (reply) {
+    client.set('string key', 'string val', function (err, reply) {
+      t.error(err)
       t.strictEqual(reply, 'OK', 'reply is OK')
       done++
-    }).catch(function (err) {
-      t.error(err)
     })
 
     // callback is optional
     client.set('string key', 'string val')
 
-    client.hSet('hash key', 'hashtest 1', 'some value').then(function (reply) {
+    client.hset('hash key', 'hashtest 1', 'some value', function (err, reply) {
+      t.error(err, 'no hset error')
       t.strictEqual(reply, 1, 'hset reply is 1')
       done++
-    }).catch(function (err) {
-      t.error(err, 'no hset error')
     })
-
-    client.hSet('hash key', ['hashtest 2', 'some other value']).then(function (reply) {
+    client.hset(['hash key', 'hashtest 2', 'some other value'], function (err, reply) {
+      t.error(err, 'no hset error')
       t.strictEqual(reply, 1, 'hset reply is 1')
       done++
-    }).catch(function (err) {
-      t.error(err, 'no hset error')
     })
 
-    client.hKeys('hash key').then(function (replies) {
+    client.hkeys('hash key', function (err, replies) {
+      t.error(err, 'no hkeys error')
       t.strictEqual(replies.length, 2, 'got two replies')
       replies.forEach(function (reply, i) {
         t.strictEqual(reply, 'hashtest ' + (i + 1), `reply ${i} value`)
@@ -124,51 +126,8 @@ test('redis', function (t) {
       t.strictEqual(done, 4, 'done 4 callbacks')
 
       trans.end()
-      client.quit()
       agent.flush()
-    }).catch(function (err) {
-      t.error(err, 'no hkeys error')
     })
-  }).catch(function (err) {
-    t.error(err, 'no flushall error')
-  })
-})
-
-test('redis client error', function (t) {
-  resetAgent(function (data) {
-    t.equal(data.transactions.length, 1, 'got 1 transaction')
-    t.equal(data.spans.length, 1, 'got 1 span')
-    t.equal(data.errors.length, 1, 'got 1 error')
-    t.equal(data.spans[0].name, 'SET', 'span.name')
-    t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id')
-    t.equal(data.spans[0].outcome, 'failure', 'span.outcome')
-    t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id')
-    t.equal(data.errors[0].parent_id, data.spans[0].id, 'error.parent_id, error is a child of the failing span')
-    t.equal(data.errors[0].exception.type, 'TypeError', 'error.exception.type')
-    t.end()
-  })
-
-  // no .finally in Node 8, endPromise performs
-  // actions we'd normally perform there
-  function endProimse (t0, client, agent) {
-    t0.end()
-    client.quit()
-    agent.flush()
-  }
-  const client = redis.createClient({
-    socket: {
-      port: '6379',
-      host: process.env.REDIS_HOST
-    }
-  })
-  client.connect()
-  const t0 = agent.startTransaction('t0')
-  client.set('foo').then(function (response) {
-    t.fail('no response expected')
-    endProimse(t0, client, agent)
-  }).catch(function (error) {
-    t.ok(error, 'expected error')
-    endProimse(t0, client, agent)
   })
 })
 
