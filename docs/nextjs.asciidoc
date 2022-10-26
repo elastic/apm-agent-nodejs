@@ -93,7 +93,7 @@ Edit the "dev" and "start" scripts in your "package.json" as follows:
 ==== Step 3: Configure the APM agent
 
 The APM agent can be
-https://www.elastic.co/guide/en/apm/agent/nodejs/current/configuring-the-agent.html[configured]
+<<configuring-the-agent,configured>>
 with environment variables or with an "elastic-apm-node.js" module in the
 current working directory. Note that because the APM agent is being loaded
 before the Next.js server, the
