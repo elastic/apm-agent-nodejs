@@ -102,7 +102,7 @@ https://nextjs.org/docs/basic-features/environment-variables[Next.js-supported
 "elastic-apm-node.js" file here.
 
 Create an "elastic-apm-node.js" file in the application root with the APM server
-url and secret token values from the <<nextjs-prerequisites>> section above:
+URL and secret token values from the <<nextjs-prerequisites>> section above:
 
 [source,javascript]
 ----
