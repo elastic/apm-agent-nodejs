@@ -25,6 +25,6 @@ An [API route](https://nextjs.org/docs/api-routes/introduction) can be accessed 
 
 ## Learn More
 
-- [Get started with Next.js and Elastic APM](https://www.elastic.co/guide/en/apm/agent/nodejs/master/nextjs.html)
+- [Get started with Next.js and Elastic APM](https://www.elastic.co/guide/en/apm/agent/nodejs/master/nextjs.html) - official Elastic documentation.
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
