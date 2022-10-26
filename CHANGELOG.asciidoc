@@ -42,7 +42,7 @@ Notes:
 
 * Enable support for redis v4 ({pull}2945[#2945])
 
-* (Technical Preview) Next.js server-side instrumentation. See the <<nextjs>> document.
+* preview:[] Next.js server-side instrumentation. See the <<nextjs>> document.
 +
 This adds instrumentation of the Next.js dev server (`next dev`) and prod
 server (`next start`). The APM transactions for incoming HTTP requests to the

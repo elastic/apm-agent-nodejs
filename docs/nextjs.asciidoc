@@ -21,9 +21,10 @@ Note that the Node.js APM agent can only instrument _server-side_ code. To
 monitor the client-side parts of a Next.js application, see the
 {apm-rum-ref}/intro.html[Elastic RUM agent].
 
-NOTE: This Next.js instrumentation is a _technical preview_ while we solicit feedback
-from Next.js users. That means that how the instrumentation works might change
-in future versions of the agent.  If you are a Next.js user, please help us provide a better Next.js observability experience with your feedback on our https://discuss.elastic.co/tags/c/apm/nodejs[Discuss forum].
+NOTE: preview:[] This Next.js instrumentation is a _technical preview_ while we
+solicit feedback from Next.js users. If you are a Next.js user, please help us
+provide a better Next.js observability experience with your feedback on our
+https://discuss.elastic.co/tags/c/apm/nodejs[Discuss forum].
 
 
 [float]
@@ -143,7 +144,7 @@ while true; do sleep 1; curl -i http://localhost:3000/api/hello; done
 ----
 
 Visit your Kibana APM app and, after a few seconds, you should see a service
-entry for your Next.js app. (The service name will be pulled from the "name"
+entry for your Next.js app. The service name will be pulled from the "name"
 field in "package.json". It can be overriden with
 <<service-name,`serviceName`>>. Here is an example:
 
