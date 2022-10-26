@@ -19,7 +19,7 @@ on the server will be reported for viewing in the Kibana APM app.
 
 Note that the Node.js APM agent can only instrument _server-side_ code. To
 monitor the client-side parts of a Next.js application, see the
-https://www.elastic.co/guide/en/apm/agent/rum-js/current/intro.html[Elastic RUM agent].
+{apm-rum-ref}/intro.html[Elastic RUM agent].
 
 NOTE: This Next.js instrumentation is a _technical preview_ while we solicit feedback
 from Next.js users. That means that how the instrumentation works might change
