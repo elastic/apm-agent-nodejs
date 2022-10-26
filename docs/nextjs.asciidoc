@@ -32,7 +32,7 @@ in future versions of the agent.  If you are a Next.js user, please help us prov
 
 You need an APM Server to send APM data to. Follow the
 {apm-guide-ref}/apm-quick-start.html[APM Quick start] if you have not set one up
-yet. You will need your *APM server url* and an APM server *secret token* (or
+yet. You will need your *APM server URL* and an APM server *secret token* (or
 *API key*) for configuring the APM agent below.
 
 You will also need a Next.js application to monitor. If you do not have an
