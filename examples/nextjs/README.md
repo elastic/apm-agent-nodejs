@@ -6,7 +6,7 @@ This is a [Next.js](https://nextjs.org/) application
 
 1. `npm install`
 
-2. Configure an APM server URL and token for the APM agent. See the [APM Quick start](https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html) for setting up an Elastic Stack.
+2. Configure an APM server URL and token for the APM agent. See the [APM Quick start](https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html) for help setting up the Elastic Stack.
 
     ```bash
     cp elastic-apm-node.js.template elastic-apm-node.js
