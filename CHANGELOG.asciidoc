@@ -33,19 +33,27 @@ Notes:
 
 ==== Unreleased
 
-* Enable support for redis v4 ({pull}2945[#2945])
-
 [float]
 ===== Breaking changes
 
 [float]
 ===== Features
 
+* Enable support for redis v4 ({pull}2945[#2945])
+
+* Improve container-info gathering to support AWS ECS/Fargate environments.
+  ({issues}2914[#2914])
+
 [float]
 ===== Bug fixes
 
 [float]
 ===== Chores
+
+* Add guards to ensure that a crazy `Cache-Control: max-age=...` response
+  header cannot accidentally result in inappropriate intervals for fetching
+  central config. The re-fetch delay is clamped to `[5 seconds, 1 day]`.
+  ({issues}2941[#2941])
 
 [[release-notes-3.39.0]]
 ==== 3.39.0 2022/10/17
