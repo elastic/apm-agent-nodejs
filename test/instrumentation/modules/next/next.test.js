@@ -407,8 +407,8 @@ if (DEV_TEST_FILTER) {
  */
 function formatForTComment (data) {
   return data.toString('utf8')
-      .replace(ANSI_RE, '')
-      .trimRight().replace(/\n/g, '\n|') + '\n'
+    .replace(ANSI_RE, '')
+    .trimRight().replace(/\n/g, '\n|') + '\n'
 }
 
 /**
@@ -575,6 +575,9 @@ function checkExpectedApmEvents (t, apmEvents) {
 
 // ---- tests
 
+// We need to `npm ci` for a first test run. However, *only* for a first test
+// run, otherwise this will override any possible `npm install --no-save ...`
+// changes made by a TAV runner.
 const haveNodeModules = fs.existsSync(path.join(testAppDir, 'node_modules'))
 tape.test(`setup: npm ci (in ${testAppDir})`, { skip: haveNodeModules }, t => {
   const startTime = Date.now()
@@ -609,7 +612,6 @@ tape.test('setup: filter TEST_REQUESTS', t => {
 
   t.end()
 })
-
 
 tape.test('setup: mock APM server', t => {
   apmServer = new MockAPMServer({ apmServerVersion: '7.15.0' })
