@@ -16,7 +16,6 @@ var http = require('http')
 var path = require('path')
 var os = require('os')
 
-var { sync: containerInfo } = require('container-info')
 var test = require('tape')
 
 const Agent = require('../lib/agent')
@@ -25,8 +24,6 @@ const { findObjInArray } = require('./_utils')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
 var packageJson = require('../package.json')
-
-var inContainer = 'containerId' in (containerInfo() || {})
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
@@ -57,19 +54,20 @@ function assertMetadata (t, payload) {
   t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node }, 'metadata: service.runtime')
   t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version }, 'metadata: service.agent')
 
-  const expectedSystemKeys = ['hostname', 'architecture', 'platform']
-  if (inContainer) expectedSystemKeys.push('container')
-
-  t.deepEqual(Object.keys(payload.system), expectedSystemKeys, 'metadata: system')
-  t.strictEqual(payload.system.hostname, os.hostname(), 'metadata: system.hostname')
-  t.strictEqual(payload.system.architecture, process.arch, 'metadata: system.architecture')
-  t.strictEqual(payload.system.platform, process.platform, 'metadata: system.platform')
-
-  if (inContainer) {
-    t.deepEqual(Object.keys(payload.system.container), ['id'], 'metadata: system.container')
-    t.strictEqual(typeof payload.system.container.id, 'string', 'metadata: system.container.id is a string')
-    t.ok(/^[\da-f]{64}$/.test(payload.system.container.id), 'metadata: system.container.id')
+  const system = Object.assign({}, payload.system)
+  t.strictEqual(system.hostname, os.hostname(), 'metadata: system.hostname')
+  delete system.hostname
+  t.strictEqual(system.architecture, process.arch, 'metadata: system.architecture')
+  delete system.architecture
+  t.strictEqual(system.platform, process.platform, 'metadata: system.platform')
+  delete system.platform
+  if (system.container) {
+    t.deepEqual(Object.keys(system.container), ['id'], 'metadata: system.container')
+    t.strictEqual(typeof system.container.id, 'string', 'metadata: system.container.id is a string')
+    t.ok(/^[\da-f]{64}$/.test(system.container.id), 'metadata: system.container.id')
+    delete system.container
   }
+  t.equal(Object.keys(system).length, 0, 'metadata: system, no unexpected keys: ' + JSON.stringify(system))
 
   t.ok(payload.process, 'metadata: process')
   t.strictEqual(payload.process.pid, process.pid, 'metadata: process.pid')
