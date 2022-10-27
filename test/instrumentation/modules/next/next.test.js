@@ -10,7 +10,7 @@
 //
 // This test roughly does the following:
 // - Start a MockAPMServer to capture intake requests.
-// - `npm ci` to build the "a-nextjs-app" project.
+// - `npm ci` to build the "a-nextjs-app" project, if necessary.
 // - Test instrumentation when using the Next.js production server.
 //    - `next build && next start` configured to send to our MockAPMServer.
 //    - Make every request in `TEST_REQUESTS` to the Next.js app.
@@ -60,7 +60,7 @@ if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
 const testAppDir = path.join(__dirname, 'a-nextjs-app')
 
 // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
-const ansiRe = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
+const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
 
 let apmServer
 let nextJsVersion // Determined after `npm ci` is run.
@@ -314,6 +314,12 @@ let TEST_REQUESTS = [
   // Error capture cases
   {
     testName: 'an API endpoint that throws',
+    // Limitation: In Next.js commit 6bc7c4d9c (included in 12.0.11-canary.14),
+    // the `apiResolver()` method that we instrument was moved from
+    // next/dist/server/api-utils.js to next/dist/server/api-utils/node.js.
+    // We instrument the latter. To support error capture in API endpoint
+    // handlers in early versions we'd need to instrument the former path as well.
+    nextVersionRange: '>=12.0.11-canary.14',
     reqOpts: { method: 'GET', path: '/api/an-api-endpoint-that-throws' },
     expectedRes: {
       statusCode: 500
@@ -354,6 +360,11 @@ let TEST_REQUESTS = [
   },
   {
     testName: 'a throw in getServerSideProps',
+    // Limitation: There was a bug in v11.1.0 where the error handling flow in
+    // the *dev* server was incomplete. This was fixed in
+    // https://github.com/vercel/next.js/pull/28520, included in version
+    // 11.1.1-canary.18.
+    nextVersionRange: '>=11.1.1-canary.18',
     reqOpts: { method: 'GET', path: '/a-throw-in-getServerSideProps' },
     expectedRes: {
       statusCode: 500
@@ -382,6 +393,23 @@ if (DEV_TEST_FILTER) {
 }
 
 // ---- utility functions
+
+/**
+ * Format the given data for passing to `t.comment()`.
+ *
+ * - t.comment() wipes leading whitespace. Prefix lines with '|' to avoid
+ *   that, and to visually group a multi-line write.
+ * - Drop ANSI escape characters, because those include control chars that
+ *   are illegal in XML. When we convert TAP output to JUnit XML for
+ *   Jenkins, then Jenkins complains about invalid XML. `FORCE_COLOR=0`
+ *   can be used to disable ANSI escapes in `next dev`'s usage of chalk,
+ *   but not in its coloured exception output.
+ */
+function formatForTComment (data) {
+  return data.toString('utf8')
+      .replace(ANSI_RE, '')
+      .trimRight().replace(/\n/g, '\n|') + '\n'
+}
 
 /**
  * Wait for the test a-nextjs-app server to be ready.
@@ -547,7 +575,8 @@ function checkExpectedApmEvents (t, apmEvents) {
 
 // ---- tests
 
-tape.test(`setup: npm ci (in ${testAppDir})`, t => {
+const haveNodeModules = fs.existsSync(path.join(testAppDir, 'node_modules'))
+tape.test(`setup: npm ci (in ${testAppDir})`, { skip: haveNodeModules }, t => {
   const startTime = Date.now()
   exec(
     'npm ci',
@@ -564,9 +593,25 @@ tape.test(`setup: npm ci (in ${testAppDir})`, t => {
   )
 })
 
-tape.test('setup: mock APM server', t => {
+tape.test('setup: filter TEST_REQUESTS', t => {
+  // This version can only be fetched after the above `npm ci`.
   nextJsVersion = require(path.join(testAppDir, 'node_modules/next/package.json')).version
 
+  // Some entries in TEST_REQUESTS are only run for newer versions of Next.js.
+  TEST_REQUESTS = TEST_REQUESTS.filter(testReq => {
+    if (testReq.nextVersionRange && !semver.satisfies(nextJsVersion, testReq.nextVersionRange, { includePrerelease: true })) {
+      t.comment(`skip "${testReq.testName}" because next@${nextJsVersion} does not satisfy "${testReq.nextVersionRange}"`)
+      return false
+    } else {
+      return true
+    }
+  })
+
+  t.end()
+})
+
+
+tape.test('setup: mock APM server', t => {
   apmServer = new MockAPMServer({ apmServerVersion: '7.15.0' })
   apmServer.start(function (serverUrl_) {
     serverUrl = serverUrl_
@@ -618,7 +663,8 @@ tape.test('-- prod server tests --', suite => {
         cwd: testAppDir,
         env: Object.assign({}, process.env, {
           NODE_OPTIONS: '-r ../../../../../start-next.js',
-          ELASTIC_APM_SERVER_URL: serverUrl
+          ELASTIC_APM_SERVER_URL: serverUrl,
+          ELASTIC_APM_API_REQUEST_TIME: '2s'
         })
       }
     )
@@ -626,10 +672,10 @@ tape.test('-- prod server tests --', suite => {
       t.error(err, 'no error from "next start"')
     })
     nextServerProc.stdout.on('data', data => {
-      t.comment(`[Next.js server stdout] ${data}`)
+      t.comment(`[Next.js server stdout] ${formatForTComment(data)}`)
     })
     nextServerProc.stderr.on('data', data => {
-      t.comment(`[Next.js server stderr] ${data}`)
+      t.comment(`[Next.js server stderr] ${formatForTComment(data)}`)
     })
 
     // Allow some time for an early fail of `next start`, e.g. if there is
@@ -681,14 +727,15 @@ tape.test('-- prod server tests --', suite => {
     }
 
     // To ensure we get all the trace data from the instrumented Next.js
-    // server, we SIGTERM it and rely on the graceful-exit apm.flush() in
-    // "start-next.js" to flush it.
+    // server, we wait 2x the `apiRequestTime` (set above) before stopping it.
     nextServerProc.on('close', code => {
       t.equal(code, 0, 'Next.js server exit status was 0')
       checkExpectedApmEvents(t, apmServer.events)
       t.end()
     })
-    nextServerProc.kill('SIGTERM')
+    setTimeout(() => {
+      nextServerProc.kill('SIGTERM')
+    }, 4000) // 2x ELASTIC_APM_API_REQUEST_SIZE set above
   })
 
   suite.end()
@@ -708,7 +755,8 @@ tape.test('-- dev server tests --', suite => {
         cwd: testAppDir,
         env: Object.assign({}, process.env, {
           NODE_OPTIONS: '-r ../../../../../start-next.js',
-          ELASTIC_APM_SERVER_URL: serverUrl
+          ELASTIC_APM_SERVER_URL: serverUrl,
+          ELASTIC_APM_API_REQUEST_TIME: '2s'
         })
       }
     )
@@ -716,15 +764,10 @@ tape.test('-- dev server tests --', suite => {
       t.error(err, 'no error from "next dev"')
     })
     nextServerProc.stdout.on('data', data => {
-      // Drop ANSI escape characters, because those include control chars that
-      // are illegal in XML. When we convert TAP output to JUnit XML for
-      // Jenkins, then Jenkins complains about invalid XML. `FORCE_COLOR=0`
-      // can be used to disable ANSI escapes in `next dev`'s usage of chalk,
-      // but not in its coloured exception output.
-      t.comment(`[Next.js server stdout] ${data.toString().replace(ansiRe, '')}`)
+      t.comment(`[Next.js server stdout] ${formatForTComment(data)}`)
     })
     nextServerProc.stderr.on('data', data => {
-      t.comment(`[Next.js server stderr] ${data.toString().replace(ansiRe, '')}`)
+      t.comment(`[Next.js server stderr] ${formatForTComment(data)}`)
     })
 
     // Allow some time for an early fail of `next dev`, e.g. if there is
@@ -776,14 +819,15 @@ tape.test('-- dev server tests --', suite => {
     }
 
     // To ensure we get all the trace data from the instrumented Next.js
-    // server, we SIGTERM it and rely on the graceful-exit apm.flush() in
-    // "start-next.js" to flush it.
+    // server, we wait 2x the `apiRequestTime` (set above) before stopping it.
     nextServerProc.on('close', code => {
       t.equal(code, 0, 'Next.js server exit status was 0')
       checkExpectedApmEvents(t, apmServer.events)
       t.end()
     })
-    nextServerProc.kill('SIGTERM')
+    setTimeout(() => {
+      nextServerProc.kill('SIGTERM')
+    }, 4000) // 2x ELASTIC_APM_API_REQUEST_SIZE set above
   })
 
   suite.end()

@@ -15,13 +15,13 @@ function Header () {
       </Head>
       <header>
         <div style={{ marginBottom: '20px' }}>
-          <Link href="/"><a>Home</a></Link>
+          <Link href="/">Home</Link>
           &nbsp;|&nbsp;
-          <Link href="/a-page"><a>APage</a></Link>
+          <Link href="/a-page">APage</Link>
           &nbsp;|&nbsp;
-          <Link href="/an-ssr-page"><a>AnSSRPage</a></Link>
+          <Link href="/an-ssr-page">AnSSRPage</Link>
           &nbsp;|&nbsp;
-          <Link href="/a-dynamic-page/42"><a>ADynamicPage/42</a></Link>
+          <Link href="/a-dynamic-page/42">ADynamicPage/42</Link>
         </div>
       </header>
     </>

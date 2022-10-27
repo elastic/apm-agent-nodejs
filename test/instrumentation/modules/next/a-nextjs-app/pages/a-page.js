@@ -6,7 +6,7 @@
 
 // A static page.
 
-import Image from 'next/future/image'
+import Image from 'next/image'
 import Header from '../components/Header'
 
 import img from '../public/elastic-logo.png'

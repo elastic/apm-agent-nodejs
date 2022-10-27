@@ -18,6 +18,14 @@ Here is the Next.js "server" class hierarchy:
             class DevServer (in dev/next-dev-server.js, used for `next dev`)
 
 
+## dist/server/next.js
+
+This is the first module imported for `require('next')`. It is used solely
+to `agent.setFramework(...)`. Doing so in "next-server.js" can be too late
+because it is lazily imported when creating the Next server -- by which point
+metadata may have already been sent on the first APM agent intake request.
+
+
 ## dist/server/next-server.js
 
 This file in the "next" package implements the `NextNodeServer`, the Next.js

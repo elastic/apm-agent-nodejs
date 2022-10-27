@@ -1032,6 +1032,7 @@ test('disableInstrumentations', function (t) {
   }
   modules.delete('next/dist/server/api-utils/node')
   modules.delete('next/dist/server/dev/next-dev-server')
+  modules.delete('next/dist/server/next')
   modules.delete('next/dist/server/next-server')
   if (semver.lt(process.version, '14.0.0')) {
     modules.delete('redis') // redis@4 supports node >=14

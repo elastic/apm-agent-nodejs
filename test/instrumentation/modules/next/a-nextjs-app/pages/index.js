@@ -16,55 +16,55 @@ function IndexPage () {
         <ul>
           <li>
             <Link href="/a-page">
-              <a>Go to APage (it is static in a prod build because it only implements getStaticProps)</a>
+              Go to APage (it is static in a prod build because it only implements getStaticProps)
             </Link>
           </li>
           <li>
             <Link href="/an-ssr-page">
-              <a>Go to AnSSRPage (its getServerSideProps is called on the server every time)</a>
+              Go to AnSSRPage (its getServerSideProps is called on the server every time)
             </Link>
           </li>
           <li>
             <Link href="/a-dynamic-page/42">
-              <a>Go to ADynamicPage/42 (it supports other numbers; 41, 42, and 43 are pre-generated)</a>
+              Go to ADynamicPage/42 (it supports other numbers; 41, 42, and 43 are pre-generated)
             </Link>
           </li>
 
           <li style={{ marginTop: '10px' }}>
             <Link href="/redirect-to-a-page">
-              <a>Go to a page that redirects to APage</a>
+              Go to a page that redirects to APage
             </Link>
           </li>
           <li>
             <Link href="/rewrite-to-a-page">
-              <a>Go to a page that rewrites to APage</a>
+              Go to a page that rewrites to APage
             </Link>
           </li>
 
           <li style={{ marginTop: '10px' }}>
             <Link href="/api/an-api-endpoint">
-              <a>Go to AnApiEndpoint</a>
+              Go to AnApiEndpoint
             </Link>
           </li>
           <li>
             <Link href="/api/a-dynamic-api-endpoint/3.14159">
-              <a>Go to ADynamicApiEndpoint/3.14159</a>
+              Go to ADynamicApiEndpoint/3.14159
             </Link>
           </li>
 
           <li style={{ marginTop: '10px' }}>
             <Link href="/a-throw-in-page-handler">
-              <a>Go to AThrowInPageHandler</a>
+              Go to AThrowInPageHandler
             </Link>
           </li>
           <li>
             <Link href="/a-throw-in-getServerSideProps">
-              <a>Go to AThrowInGetServerSideProps</a>
+              Go to AThrowInGetServerSideProps
             </Link>
           </li>
           <li>
             <Link href="/api/an-api-endpoint-that-throws">
-              <a>Go to AnApiEndpointThatThrows</a>
+              Go to AnApiEndpointThatThrows
             </Link>
           </li>
         </ul>
