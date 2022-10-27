@@ -41,15 +41,12 @@ if (os.platform() === 'win32') {
   console.log('# SKIP Next.js testing currently is not supported on windows')
   process.exit()
 }
-if (semver.lt(process.version, '12.22.0')) {
-  console.log(`# SKIP next does not support node ${process.version}`)
-  process.exit()
-} else if (semver.satisfies(process.version, '>=14.0.0 <14.5.0')) {
-  // The handling of SSR pages, e.g. `GET /an-ssr-page` in the test a-nextjs-app,
-  // in next@12.3.1 (I'm not sure of the full `next` version range) relies on
-  // https://github.com/nodejs/node/pull/33155 which landed in node v14.5.0 and
-  // v12.19.0.
-  console.log(`# SKIP next does not support fully node ${process.version}`)
+if (semver.lt(process.version, '14.6.0')) {
+  // While some earlier supported versions of Next.js work with node v12,
+  // next@13 cannot even be imported with node v12 (newer JS syntax is used).
+  // To simplify, and because node v12 is EOL, we skip any testing with
+  // node <=14.6.0 (next@13's min supported node version).
+  console.log(`# SKIP test next with node <14.6.0 (node ${process.version})`)
   process.exit()
 }
 if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
