@@ -134,7 +134,9 @@ test('redis', function (t) {
   })
 })
 
-test('redis client error', function (t) {
+// The `redis.set('foo')` we are using to trigger a client error case only
+// causes an error in redis >=4.1.0.
+test('redis client error', { skip: semver.lt(redisVersion, '4.1.0') }, function (t) {
   resetAgent(function (data) {
     t.equal(data.transactions.length, 1, 'got 1 transaction')
     t.equal(data.spans.length, 1, 'got 1 span')
