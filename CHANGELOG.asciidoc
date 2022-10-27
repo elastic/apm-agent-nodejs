@@ -55,6 +55,7 @@ be reported. ({pull}2959[#2959])
 +
 This is a technical preview to get feedback from Next.js users. The details on
 how exactly the instrumentation works may change in future versions.
+
 * Improve container-info gathering to support AWS ECS/Fargate environments.
   ({issues}2914[#2914])
 
@@ -73,6 +74,7 @@ how exactly the instrumentation works may change in future versions.
   header cannot accidentally result in inappropriate intervals for fetching
   central config. The re-fetch delay is clamped to `[5 seconds, 1 day]`.
   ({issues}2941[#2941])
+
 
 [[release-notes-3.39.0]]
 ==== 3.39.0 2022/10/17
