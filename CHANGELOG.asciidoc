@@ -31,6 +31,7 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
 ==== Unreleased
 
 [float]
@@ -41,11 +42,30 @@ Notes:
 
 * Enable support for redis v4 ({pull}2945[#2945])
 
+* preview:[] Next.js server-side instrumentation. See the <<nextjs>> document.
++
+This adds instrumentation of the Next.js dev server (`next dev`) and prod
+server (`next start`). The APM transactions for incoming HTTP requests to the
+server will be named appropriately based on Next.js's routing -- both for
+user page routes (e.g. `GET /a-dynamic-page/[id]`) and for internal Next.js
+routes (e.g. `Next.js _next/data route my-page`,
+`Next.js Rewrite route /foo -> /bar`). As well, exceptions in server-side code
+(e.g. `getServerSideProps`, server-side run page handlers, API handlers) will
+be reported. ({pull}2959[#2959])
++
+This is a technical preview to get feedback from Next.js users. The details on
+how exactly the instrumentation works may change in future versions.
+
 * Improve container-info gathering to support AWS ECS/Fargate environments.
   ({issues}2914[#2914])
 
 [float]
 ===== Bug fixes
+
+* Source lines of context in stacktraces is *no longer reported* for "*.min.js"
+  files that do not have source-map information. These files are assumed to
+  be minimized files, for which source line context won't be useful. This
+  change is to guard against excessively large stacktrace data.
 
 [float]
 ===== Chores
@@ -54,6 +74,7 @@ Notes:
   header cannot accidentally result in inappropriate intervals for fetching
   central config. The re-fetch delay is clamped to `[5 seconds, 1 day]`.
   ({issues}2941[#2941])
+
 
 [[release-notes-3.39.0]]
 ==== 3.39.0 2022/10/17

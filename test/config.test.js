@@ -1030,6 +1030,10 @@ test('disableInstrumentations', function (t) {
     modules.delete('koa-router') // koa-router@11 supports node >=12
     modules.delete('@koa/router') // koa-router@11 supports node >=12
   }
+  modules.delete('next/dist/server/api-utils/node')
+  modules.delete('next/dist/server/dev/next-dev-server')
+  modules.delete('next/dist/server/next')
+  modules.delete('next/dist/server/next-server')
   if (semver.lt(process.version, '14.0.0')) {
     modules.delete('redis') // redis@4 supports node >=14
     modules.delete('@redis/client/dist/lib/client') // redis@4 supports node >=14
