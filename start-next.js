@@ -6,8 +6,8 @@
 
 'use strict'
 
-// Use this module via `node --require=elastic-apm-node/start-next ...`
-// monitor a Next.js app with Elastic APM.
+// Use this module via `node --require=elastic-apm-node/start-next.js ...`
+// to monitor a Next.js app with Elastic APM.
 
 const apm = require('./').start()
 
