@@ -8,9 +8,8 @@
     "start": "NODE_OPTIONS=--require=elastic-apm-node/start-next.js next start",
     "lint": "next lint"
   },
-  "XXX": "change to 'main' branch for merge, and issue to update this on release",
   "dependencies": {
-    "elastic-apm-node": "elastic/apm-agent-nodejs#trentm/feat-nextjs",
+    "elastic-apm-node": "elastic/apm-agent-nodejs#main",
     "next": "12.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"

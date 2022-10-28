@@ -48,8 +48,6 @@ cd my-app
 
 You can also take a look at and use this https://github.com/elastic/apm-agent-nodejs/tree/main/examples/nextjs/[Next.js + Elastic APM example app].
 
-NOTE: XXX Until this is merged, the example is at: <https://github.com/elastic/apm-agent-nodejs/tree/trentm/feat-nextjs/examples/nextjs/>
-
 [float]
 [[nextjs-setup]]
 ==== Step 1: Add the APM agent dependency
@@ -60,8 +58,6 @@ Add the `elastic-apm-node` module as a dependency to your application:
 ----
 npm install elastic-apm-node --save  # or 'yarn add elastic-apm-node'
 ----
-
-NOTE: XXX Until this is in a release use `npm install "elastic-apm-node@elastic/apm-agent-nodejs#trentm/feat-nextjs"`.
 
 
 [float]
