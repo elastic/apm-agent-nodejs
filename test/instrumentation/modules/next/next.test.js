@@ -663,7 +663,11 @@ tape.test('-- prod server tests --', suite => {
         env: Object.assign({}, process.env, {
           NODE_OPTIONS: '-r ../../../../../start-next.js',
           ELASTIC_APM_SERVER_URL: serverUrl,
-          ELASTIC_APM_API_REQUEST_TIME: '2s'
+          ELASTIC_APM_API_REQUEST_TIME: '2s',
+          // Disable Next.js telemetry (https://nextjs.org/telemetry),
+          // otherwise get additional `POST telemetry.nextjs.org` spans that
+          // break assertions.
+          NEXT_TELEMETRY_DISABLED: '1'
         })
       }
     )
@@ -755,7 +759,11 @@ tape.test('-- dev server tests --', suite => {
         env: Object.assign({}, process.env, {
           NODE_OPTIONS: '-r ../../../../../start-next.js',
           ELASTIC_APM_SERVER_URL: serverUrl,
-          ELASTIC_APM_API_REQUEST_TIME: '2s'
+          ELASTIC_APM_API_REQUEST_TIME: '2s',
+          // Disable Next.js telemetry (https://nextjs.org/telemetry),
+          // otherwise get additional `POST telemetry.nextjs.org` spans that
+          // break assertions.
+          NEXT_TELEMETRY_DISABLED: '1'
         })
       }
     )
