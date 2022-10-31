@@ -33,7 +33,7 @@ include::{apm-aws-lambda-root}/docs/lambda-selector/lambda-attributes-selector.a
 include::{apm-aws-lambda-root}/docs/lambda-selector/extension-arn-replacement.asciidoc[]
 include::./lambda/nodejs-arn-replacement.asciidoc[]
 
-Both the {apm-guide-ref}/aws-lambda-arch.html[{apm-lambda-ext}] and the Node.js APM Agent are added to your Lambda function as https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.html[AWS Lambda Layers]. Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
+Both the {apm-lambda-ref}/aws-lambda-arch.html[{apm-lambda-ext}] and the Node.js APM Agent are added to your Lambda function as https://docs.aws.amazon.com/lambda/latest/dg/invocation-layers.html[AWS Lambda Layers]. Therefore, you need to add the corresponding Layer ARNs (identifiers) to your Lambda function.
 
 include::{apm-aws-lambda-root}/docs/add-extension/add-extension-layer-widget.asciidoc[]
 
@@ -45,11 +45,12 @@ The {apm-lambda-ext} and the APM Node.js agent are configured through environmen
 For the minimal configuration, you will need the _APM Server URL_ to set the destination for APM data and an _{apm-guide-ref}/secret-token.html[APM Secret Token]_.
 If you prefer to use an {apm-guide-ref}/api-key.html[APM API key] instead of the APM secret token, use the `ELASTIC_APM_API_KEY` environment variable instead of `ELASTIC_APM_SECRET_TOKEN` in the following configuration.
 
-For production environments, we recommend {apm-guide-ref}/aws-lambda-secrets-manager.html[using the AWS Secrets Manager to store your APM authentication key] instead of providing the secret value as plaintext in the environment variables.
+For production environments, we recommend {apm-lambda-ref}/aws-lambda-secrets-manager.html[using the AWS Secrets Manager to store your APM authentication key] instead of providing the secret value as plaintext in the environment variables.
 
 include::./lambda/configure-lambda-widget.asciidoc[]
+<1> The {apm-lambda-ref}/aws-lambda-config-options.html#_elastic_apm_send_strategy[`ELASTIC_APM_SEND_STRATEGY`] defines when APM data is sent to your Elastic APM backend. To reduce the execution time of your lambda functions, we recommend to use the `background` strategy in production environments with steady load scenarios.
 
-You can optionally <<configuration, fine-tune the Node.js agent>> or the {apm-guide-ref}/aws-lambda-config-options.html[configuration of the {apm-lambda-ext}].
+You can optionally <<configuration, fine-tune the Node.js agent>> or the {apm-lambda-ref}/aws-lambda-config-options.html[configuration of the {apm-lambda-ext}].
 
 That's it. After following the steps above, you're ready to go!
 Your Lambda function invocations should be traced from now on.

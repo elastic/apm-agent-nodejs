@@ -23,7 +23,7 @@ const dashdash = require('dashdash')
 const ecsFormat = require('@elastic/ecs-pino-format')
 const pino = require('pino')
 const semver = require('semver')
-const yaml = require('js-yaml') // Cheating getting this from indirect tav dependency.
+const yaml = require('js-yaml')
 
 let log = null
 let rotCount = 0
@@ -183,8 +183,8 @@ function loadSupportedDoc () {
   rows.forEach(function (row) {
     if (row[1] === 'N/A') {
 
-    } else if (row[0].startsWith('<<')) {
-      match = /^<<(\w+),(.*?)>>/.exec(row[0])
+    } else if (row[0].includes('<<')) {
+      match = /^\s*<<(\w+),(.*?)>>/.exec(row[0])
       if (!match) {
         throw new Error(`could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(row[0])}`)
       }
@@ -239,7 +239,7 @@ function getNpmInfo (name) {
 
 function bitrot (moduleNames) {
   log.debug({ moduleNames }, 'bitrot')
-  var tavYml = yaml.safeLoad(fs.readFileSync('.tav.yml', 'utf8'))
+  var tavYml = yaml.load(fs.readFileSync('.tav.yml', 'utf8'))
   var supported = loadSupportedDoc()
 
   // Merge into one data structure we can iterate through.

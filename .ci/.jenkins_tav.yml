@@ -26,6 +26,7 @@ TAV:
   - mongodb-core
   - mysql
   - mysql2
+  - next
   - pg
   - pug
   - redis

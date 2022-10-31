@@ -82,7 +82,6 @@ This agent is compatible with {apm-guide-ref}[APM Server] v6.6 and above.
 
 Though you can use Elastic APM <<custom-stack,with any Node.js framework>>,
 we automate a few things for the most popular Node.js modules.
-
 These are the frameworks that we officially support:
 
 [options="header"]
@@ -94,6 +93,7 @@ These are the frameworks that we officially support:
 | <<hapi,@hapi/hapi>>   | >=17.9.0 <21.0.0 |
 | <<hapi,hapi>>         | >=9.0.0 <19.0.0 | Deprecated. No longer tested.
 | <<koa,Koa>> via koa-router or @koa/router | >=5.2.0 <13.0.0 | Koa doesn't have a built in router, so we can't support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called https://github.com/koajs/koa-router[koa-router].
+| <<nextjs,Next.js>>    | >=11.1.0 <14.0.0 | (Technical Preview) This instruments Next.js routing to name transactions for incoming HTTP transactions; and reports errors in user pages. It supports the Next.js production server (`next start`) and development server (`next dev`). See the <<nextjs,Getting Started document>>.
 | <<restify,Restify>>   | >=5.2.0 |
 |=======================================================================
 
@@ -140,7 +140,7 @@ so those should be supported as well.
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <3.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/redis[redis] |>=2.0.0 <4.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/redis[redis] |>=2.0.0 <5.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/tedious[tedious] |>=1.9 <16.0.0 | (Excluding v4.0.0.) Will instrument all queries
 |https://www.npmjs.com/package/undici[undici] | >=4.7.1 <6 | Will instrument undici HTTP requests, except HTTP CONNECT. Requires node v14.17.0 or later, or the user to have installed the https://www.npmjs.com/package/diagnostics_channel['diagnostics_channel' polyfill].
 |https://www.npmjs.com/package/ws[ws] |>=1.0.0 <8.0.0 |Will instrument outgoing WebSocket messages
