@@ -124,7 +124,7 @@ tape.test(function (t) {
     })
     runTest(t, function(client, server) {
       client.UnaryMethod({num:100},function(err, response) {
-        console.log(response)
+        t.equals(response.num, 100, 'call worked as expected')
         server.tryShutdown(function(){
           agent.flush()
         })
