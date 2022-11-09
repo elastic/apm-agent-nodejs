@@ -30,8 +30,8 @@ function isHapiIncompat (moduleName) {
   if (semver.gte(process.version, '16.0.0') && semver.lt(hapiVersion, '20.1.2')) {
     return true
   }
-  // hapi 21+ requires Node.js 14 or higher.
-  if (semver.lt(process.version, '14.0.0') && semver.gte(hapiVersion, '21.0.0')) {
+  // hapi 21+ requires Node.js 14.10.0 or higher.
+  if (semver.lt(process.version, '14.10.0') && semver.gte(hapiVersion, '21.0.0')) {
     return true
   }
 
