@@ -69,16 +69,3 @@ jobs:
           - VERSION: ${{ matrix.node }}
           - ELASTIC_APM_CONTEXT_MANAGER:  ${{ matrix.contextManager }}
 
-  test-tav:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: [filter]
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.filter.outputs.matrix-main) }}
-    steps:
-      - uses: actions/checkout@v3
-      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.framework }}" "${{ matrix.version }}"
-        env:
-          - VERSION: ${{ matrix.version }}
-          - ELASTIC_APM_CONTEXT_MANAGER: ''
