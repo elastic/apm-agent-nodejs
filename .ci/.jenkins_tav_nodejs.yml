@@ -1,4 +1,4 @@
-NODEJS_VERSION:
+VERSION:
   - "19"
   - "18"
   - "16"

@@ -88,7 +88,7 @@ pipeline {
             script {
               def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
-              node['NODEJS_VERSION'].each{ version ->
+              node['VERSION'].each{ version ->
                 parallelTasks["Node.js-${version}"] = generateStep(version: version)
                 parallelTasks["Node.js-${version}-noasynchooks"] = generateStep(version: version, disableAsyncHooks: true)
                 // TODO: to be enabled if required.
@@ -137,8 +137,8 @@ pipeline {
             def tavContext = getSmartTAVContext()
             withGithubNotify(context: tavContext.ghContextName, description: tavContext.ghDescription, tab: 'tests') {
               def parallelTasks = [:]
-              tavContext.node['NODEJS_VERSION'].each{ version ->
-                tavContext.tav['TAV'].each{ tav_item ->
+              tavContext.node['VERSION'].each{ version ->
+                tavContext.tav['FRAMEWORK'].each{ tav_item ->
                   parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version: version, tav: tav_item)
                 }
               }
@@ -182,7 +182,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
+                  node['VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, buildType: 'nightly')
                   }
                   parallel(parallelTasks)
@@ -201,7 +201,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
+                  node['VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-nightly-noasynchooks"] = generateStep(version: version, buildType: 'nightly', disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
@@ -220,7 +220,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
+                  node['VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, buildType: 'rc')
                   }
                   parallel(parallelTasks)
@@ -239,7 +239,7 @@ pipeline {
                 script {
                   def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
                   def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
+                  node['VERSION'].each { version ->
                     parallelTasks["Node.js-${version}-rc-noasynchooks"] = generateStep(version: version, buildType: 'rc', disableAsyncHooks: true)
                   }
                   parallel(parallelTasks)
@@ -444,15 +444,15 @@ def getSmartTAVContext() {
      def modules = getModulesFromCommentTrigger(regex: 'run module tests for (.+)')
      if (modules.isEmpty()) {
        context.ghDescription = 'TAV Test disabled'
-       context.tav = readYaml(text: 'TAV:')
-       context.node = readYaml(text: 'NODEJS_VERSION:')
+       context.tav = readYaml(text: 'FRAMEWORK:')
+       context.node = readYaml(text: 'VERSION:')
      } else {
        if (modules.find{ it == 'ALL' }) {
          context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
        } else {
          context.ghContextName = 'TAV Test Subset'
          context.ghDescription = 'TAV Test comment-triggered'
-         context.tav = readYaml(text: """TAV:${modules.collect{ it.replaceAll('"', '').replaceAll("'", '') }.collect{ "\n  - '${it}'"}.join("") }""")
+         context.tav = readYaml(text: """FRAMEWORK:${modules.collect{ it.replaceAll('"', '').replaceAll("'", '') }.collect{ "\n  - '${it}'"}.join("") }""")
        }
      }
    } else if (params.Run_As_Main_Branch) {
@@ -465,8 +465,8 @@ def getSmartTAVContext() {
      context.tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
    } else {
      context.ghDescription = 'TAV Test disabled'
-     context.tav = readYaml(text: 'TAV:')
-     context.node = readYaml(text: 'NODEJS_VERSION:')
+     context.tav = readYaml(text: 'FRAMEWORK:')
+     context.node = readYaml(text: 'VERSION:')
    }
    return context
  }

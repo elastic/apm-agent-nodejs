@@ -55,7 +55,7 @@ cleanup() {
 trap cleanup EXIT
 
 ## Generate the file with the content
-echo 'TAV:' > "${OUTPUT}"
+echo 'FRAMEWORK:' > "${OUTPUT}"
 
 if [[ -n "${CHANGE_TARGET}" ]] && [[ -n "${GIT_SHA}" ]] ; then
 

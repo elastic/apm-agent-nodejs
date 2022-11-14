@@ -8,5 +8,5 @@
 # "v17.0.0-nightly*" builds are being created. Once a v17.0.0 release has been
 # made, these will stop and there will be no value in testing v17 nightlies.
 #
-NODEJS_VERSION:
+VERSION:
   - "20"
