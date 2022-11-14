@@ -42,8 +42,8 @@ jobs:
       - uses: actions/checkout@v3
       - run: .ci/scripts/test.sh -b "nightly" "${{ matrix.node }}"
         env:
-          - VERSION: ${{ matrix.node }}
-          - ELASTIC_APM_CONTEXT_MANAGER:  ${{ matrix.contextManager }}
+          VERSION: ${{ matrix.node }}
+          ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
 
 # This should list all active Node.js major versions listed at:
 # https://nodejs.org/en/about/releases/
@@ -66,6 +66,6 @@ jobs:
       - uses: actions/checkout@v3
       - run: .ci/scripts/test.sh -b "rc" "${{ matrix.node }}"
         env:
-          - VERSION: ${{ matrix.node }}
-          - ELASTIC_APM_CONTEXT_MANAGER:  ${{ matrix.contextManager }}
+          VERSION: ${{ matrix.node }}
+          ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
 
