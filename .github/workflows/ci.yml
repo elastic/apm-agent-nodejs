@@ -26,7 +26,7 @@ jobs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
       - id: generate
-        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@test-current
         with:
           versionsFile: .ci/.jenkins_tav_nodejs.yml
           frameworksFile: .ci/.jenkins_tav.yml
