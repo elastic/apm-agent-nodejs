@@ -31,6 +31,14 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+[[release-notes-3.40.1]]
+==== 3.40.1 2022/11/15
+
+[float]
+===== Bug fixes
+
+* Prevent a possible tight loop in central config fetching. ({issues}3029[#3029])
+
 
 [[release-notes-3.40.0]]
 ==== 3.40.0 2022/10/31
