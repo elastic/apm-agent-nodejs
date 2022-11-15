@@ -65,7 +65,7 @@ jobs:
     needs: [filter]
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.filter.outputs.matrix-main) }}
+      matrix: ${{ fromJson(needs.filter.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
       - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.framework }}" "${{ matrix.version }}"
