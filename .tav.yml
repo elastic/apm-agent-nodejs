@@ -405,16 +405,28 @@ cassandra-driver:
   versions: '>=3 <3.1.0 || >3.1.0 <5'
   commands: node test/instrumentation/modules/cassandra-driver/index.test.js
 
-restify-old:
+# Restify
+# - restify <v10 doesn't work with node v18+ (https://github.com/restify/node-restify/issues/1888)
+# - restify v9 used `require('node:...')` that requires node >v14.18.0
+#   (https://nodejs.org/api/modules.html#core-modules)
+restify-v5-v8:
   name: restify
   versions: '>=5.2.0 <8.0.0'
+  node: '<18.0.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
-restify-new:
+restify-v8-v9:
   name: restify
-  node: '>=8.6.0'
-  versions: '>=8.0.0'
+  versions: '>=8.0.0 <9.0.0'
+  node: '>=8.6.0 <18.0.0'
+  commands:
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
+restify:
+  name: restify
+  versions: '>=9.0.0'
+  node: '>=14.18.0 <18.0.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
