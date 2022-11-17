@@ -95,9 +95,11 @@ cases.forEach(c => {
             ELASTIC_APM_SERVER_URL: serverUrl
           })
         },
-        function done (err, _stdout, _stderr) {
+        function done (err, stdout, stderr) {
           t.error(err, `${scriptPath} exited non-zero`)
           if (err) {
+            t.comment(`${scriptPath} stdout:\n${stdout}\n`)
+            t.comment(`${scriptPath} stderr:\n${stderr}\n`)
             t.comment('skip checks because script errored out')
           } else {
             c.check(t, server.events)
