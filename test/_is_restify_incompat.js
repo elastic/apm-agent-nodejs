@@ -29,7 +29,7 @@ function isRestifyIncompat () {
   const restifyVer = require('restify/package.json').version
   const msg = `restify@${restifyVer} is incompatible with node@${nodeVer}`
 
-  if (semver.satisfies(restifyVer, '<10.0.0') && semver.satisfies(nodeVer, '>=18.0.0')) {
+  if (semver.satisfies(restifyVer, '<10.0.0') && semver.satisfies(nodeVer, '>=18.0.0', { includePrerelease: true })) {
     return msg
   }
   if (semver.satisfies(restifyVer, '>=9.0.0') && semver.satisfies(nodeVer, '<14.18.0')) {
