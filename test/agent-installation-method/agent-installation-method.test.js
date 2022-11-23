@@ -100,7 +100,7 @@ tape.test('agent.installation.method fixtures', function (suite) {
       expectedMethod: 'env-attach'
     },
     {
-      nodeVerRange: '>=10.0.0', // when `--require=...` support was added
+      nodeVerRange: '>=10.10.0', // when `--require=...` support was added
       script: 'hi.js',
       env: {
         NODE_OPTIONS: '--require=elastic-apm-node/start'
