@@ -52,7 +52,9 @@ const agentOptsNoopTransport = Object.assign(
 function assertMetadata (t, payload) {
   t.strictEqual(payload.service.name, 'test-agent', 'metadata: service.name')
   t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node }, 'metadata: service.runtime')
-  t.deepEqual(payload.service.agent, { name: 'nodejs', version: packageJson.version }, 'metadata: service.agent')
+  t.deepEqual(payload.service.agent,
+    { name: 'nodejs', version: packageJson.version, installation: { method: 'require' } },
+    'metadata: service.agent')
 
   const system = Object.assign({}, payload.system)
   t.strictEqual(system.hostname, os.hostname(), 'metadata: system.hostname')
