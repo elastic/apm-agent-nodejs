@@ -12,6 +12,7 @@
 const { exec, execFile } = require('child_process')
 const fs = require('fs')
 const path = require('path')
+const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../_mock_apm_server')
@@ -56,35 +57,6 @@ tape.test(`setup: npm install (in ${fixturesDir})`, { skip: haveNodeModules }, t
   )
 })
 
-// tape.test('require1', function (t) {
-//   const script = 'require1.js'
-//   const server = new MockAPMServer()
-//   server.start(function (serverUrl) {
-//     execFile(
-//       process.execPath,
-//       [script],
-//       {
-//         cwd: fixturesDir,
-//         timeout: 10000, // sanity stop, 3s is sometimes too short for CI
-//         env: Object.assign({}, process.env, {
-//           ELASTIC_APM_SERVER_URL: serverUrl
-//         })
-//       },
-//       function done (err, stdout, stderr) {
-//         t.error(err, `fixtures/${script} errored out`)
-//         if (err) {
-//           t.comment(`$ node ${script}\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`)
-//         }
-//         // console.dir(server.events, { depth: 10 }) // XXX
-//         const metadata = server.events[0].metadata
-//         t.equal(metadata.service.agent.installation.method, 'require', 'agent.installation.method')
-//         server.close()
-//         t.end()
-//       }
-//     )
-//   })
-// })
-
 tape.test('agent.installation.method fixtures', function (suite) {
   // Note: We do not test the "aws-lambda-layer" and "k8s-attacher" cases.
   // Testing these would require simulating an agent install to the special
@@ -99,10 +71,12 @@ tape.test('agent.installation.method fixtures', function (suite) {
       expectedMethod: 'require'
     },
     {
+      nodeVerRange: '>=v12.17.0', // when `--experimental-modules` flag was removed
       script: 'import1.mjs',
       expectedMethod: 'import'
     },
     {
+      nodeVerRange: '>=v12.17.0', // when `--experimental-modules` flag was removed
       script: 'import2.mjs',
       expectedMethod: 'import'
     },
@@ -126,6 +100,7 @@ tape.test('agent.installation.method fixtures', function (suite) {
       expectedMethod: 'env-attach'
     },
     {
+      nodeVerRange: '>=10.0.0', // when `--require=...` support was added
       script: 'hi.js',
       env: {
         NODE_OPTIONS: '--require=elastic-apm-node/start'
@@ -135,6 +110,10 @@ tape.test('agent.installation.method fixtures', function (suite) {
   ]
 
   cases.forEach(c => {
+    if (c.nodeVerRange && !semver.satisfies(process.version, c.nodeVerRange, { includePrerelease: true })) {
+      return
+    }
+
     const envStr = c.env ? Object.keys(c.env).map(k => `${k}="${c.env[k]}"`).join(' ') : ''
     suite.test(`${envStr} node ${(c.nodeOpts || []).join(' ')} ${c.script}`, t => {
       const server = new MockAPMServer()
@@ -158,7 +137,6 @@ tape.test('agent.installation.method fixtures', function (suite) {
           },
           function done (err, stdout, stderr) {
             t.error(err, 'ran successfully')
-            // console.log('XXX stdout: ', stdout)
             if (err) {
               t.comment(`$ node ${c.script}\n-- stdout --\n${formatForTComment(stdout)}\n-- stderr --\n${formatForTComment(stderr)}\n--`)
             }
