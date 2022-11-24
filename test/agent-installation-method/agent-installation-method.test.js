@@ -137,7 +137,6 @@ tape.test('agent.installation.method fixtures', function (suite) {
           },
           function done (err, stdout, stderr) {
             t.error(err, 'ran successfully')
-            console.log('XXX stdout: ', stdout)
             if (err) {
               t.comment(`$ node ${c.script}\n-- stdout --\n${formatForTComment(stdout)}\n-- stderr --\n${formatForTComment(stderr)}\n--`)
             }

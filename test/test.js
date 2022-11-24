@@ -206,8 +206,6 @@ mapSeries(directories, readdir, function (err, directoryFiles) {
     files.forEach(function (file) {
       if (!file.endsWith('.test.js')) return
 
-      if (!file.endsWith('agent-installation-method.test.js')) return // XXX
-
       tests.push({
         file: path.join(directory, file),
         cwd: '.',
