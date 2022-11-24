@@ -100,10 +100,13 @@ tape.test('lambda transactions', function (suite) {
           },
           socket: { remote_address: '76.76.241.57' }
         }, 'transaction.context.request')
+        t.deepEqual(trans.context.response, {
+          status_code: 202,
+          headers: { Foo: 'bar' }
+        }, 'transaction.context.response')
       }
     },
     {
-      // skip: true, // XXX
       name: 'API Gateway (payload format version 2.0)',
       event: loadFixture('aws_api_http_test_data.json'),
       checkApmEvents: (t, events) => {
@@ -134,6 +137,24 @@ tape.test('lambda transactions', function (suite) {
           socket: { remote_address: '67.171.184.49' },
           body: '{"foo":"bar"}'
         }, 'transaction.context.request')
+        t.deepEqual(trans.context.response, {
+          status_code: 202,
+          headers: { Foo: 'bar' }
+        }, 'transaction.context.response')
+      }
+    },
+    {
+      name: 'API Gateway 2.0 event with inferred response data',
+      event: loadFixture('aws_api_http_test_data.json'),
+      handler: (_event, _context, cb) => {
+        cb(null, 'hi')
+      },
+      checkApmEvents: (t, events) => {
+        const trans = events[1].transaction
+        t.deepEqual(trans.context.response, {
+          status_code: 200,
+          headers: { 'content-type': 'application/json' }
+        }, 'transaction.context.response')
       }
     },
     {
@@ -148,6 +169,7 @@ tape.test('lambda transactions', function (suite) {
         t.equal(trans.outcome, 'failure', 'transaction.outcome')
         t.equal(error.transaction_id, trans.id, 'error.transaction_id')
         t.ok(error.context.request, 'has error.context.request')
+        t.equal(error.context.response.status_code, 500, 'error.context.response.status_code')
       }
     }
   ]
@@ -155,7 +177,13 @@ tape.test('lambda transactions', function (suite) {
     suite.test(c.name, { skip: c.skip || false }, function (t) {
       const handler = c.handler || (
         (_event, _context, cb) => {
-          cb(null, 'hi')
+          cb(null, {
+            statusCode: 202,
+            headers: {
+              Foo: 'bar'
+            },
+            body: 'hi'
+          })
         }
       )
       const wrappedHandler = apm.lambda(handler)
