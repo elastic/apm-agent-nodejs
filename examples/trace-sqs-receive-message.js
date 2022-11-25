@@ -17,6 +17,8 @@
 // - AWS credentials are setup. E.g. if using the `aws` CLI
 //   (https://aws.amazon.com/cli/) works, then you should be good.
 // - You have a test queue to use to receive messages from.
+// - You have a test queue from which to receive messages. Use
+//   `aws sqs list-queues` to list current queues in the configured region.
 // - Your queue has some messages on it to receive. See the related
 //   "trace-sqs-send-message.js" script.
 //
@@ -27,21 +29,26 @@
 //    node trace-sqs-receive-message.js us-west-2 my-play-queue
 
 const apm = require('../').start({
-  serviceName: 'example-trace-sqs'
+  serviceName: 'example-trace-sqs',
+  logUncaughtExceptions: true
 })
 
+const path = require('path')
 const AWS = require('aws-sdk')
 
-function errExit (err) {
-  console.error(`${process.argv[1]}: error: ${err.toString()}`)
-  process.exit(1)
+const NAME = path.basename(process.argv[1])
+
+function fail (err) {
+  console.error(`${NAME}: error: ${err.toString()}`)
+  process.exitCode = 1
 }
 
 const region = process.argv[2]
 const queueName = process.argv[3]
 if (!region || !queueName) {
-  console.error(`usage: node ${process.argv[1]} AWS-REGION SQS-QUEUE-NAME`)
-  errExit('missing arguments')
+  console.error(`usage: node ${NAME} AWS-REGION SQS-QUEUE-NAME`)
+  fail('missing arguments')
+  process.exit()
 }
 console.log('SQS ReceiveMessage from region=%s queueName=%s', region, queueName)
 
@@ -58,7 +65,8 @@ const trans = apm.startTransaction('receive-message')
 // 1. Get the URL for this queue.
 sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
   if (err) {
-    errExit(err)
+    fail(err)
+    return
   }
   const queueUrl = data.QueueUrl
   console.log('queueUrl:', queueUrl)
@@ -74,8 +82,11 @@ sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
   }
   sqs.receiveMessage(params, function (err, data) {
     if (err) {
-      errExit(err)
+      fail(err)
+      trans.end()
+      return
     }
+
     process.stdout.write('receiveMessage response data: ')
     console.dir(data, { depth: 5 })
 
