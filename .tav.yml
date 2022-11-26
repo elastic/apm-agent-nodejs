@@ -156,6 +156,11 @@ knex-v0.21-v1:
   node: '>=10.22.0'
   versions: '>=0.21 <1' # Use '<1' to catch a 0.96.x release if there ever is one.
   commands: node test/instrumentation/modules/pg/knex.test.js
+knex-v1-v2:
+  name: knex
+  node: '>=12.0.0'
+  versions: '>=1.0.6 <2'
+  commands: node test/instrumentation/modules/pg/knex.test.js
 ws-old:
   name: ws
   versions: '>=1 <7'
