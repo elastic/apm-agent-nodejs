@@ -250,6 +250,37 @@ pipeline {
         }
       }
     }
+
+    /**
+    Daily snapshots.
+    */
+    stage('Daily snapshots') {
+      options { skipDefaultCheckout() }
+      environment {
+        DOCKER_REGISTRY = 'docker.elastic.co'
+        DOCKER_REGISTRY_SECRET = 'secret/observability-team/ci/docker-registry/prod'
+        GCS_ACCOUNT_SECRET = 'secret/observability-team/ci/snapshoty'
+      }
+      when { branch 'main' }
+      steps {
+        withGithubNotify(context: 'Publish snapshot packages') {
+          deleteDir()
+          unstash name: 'source'
+          withNodeJSEnv(version: readFile(file: "${BASE_DIR}/.nvmrc")?.trim()) {
+            dir(env.BASE_DIR) {
+              sh(label: 'generate tarball', script: 'npm run package:tarball')
+              snapshoty(
+                bucket: 'obtl-artifacts',
+                gcsAccountSecret: env.GCS_ACCOUNT_SECRET,
+                dockerRegistry: env.DOCKER_REGISTRY,
+                dockerSecret: env.DOCKER_REGISTRY_SECRET
+              )
+            }
+          }
+        }
+      }
+    }
+
     stage('Release') {
       options { skipDefaultCheckout() }
       when {
