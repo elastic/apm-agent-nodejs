@@ -50,6 +50,9 @@ Notes:
 [float]
 ===== Chores
 
+* Mark the published Lambda layer as supporting the recently released
+  "nodejs18.x" Lambda Runtime (`--compatible-runtimes`).
+
 
 [[release-notes-3.40.1]]
 ==== 3.40.1 2022/11/15
