@@ -423,10 +423,17 @@ restify-v8-v9:
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
-restify:
+restify-v9-v10:
   name: restify
   versions: '>=9.0.0'
   node: '>=14.18.0 <18.0.0'
+  commands:
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
+restify:
+  name: restify
+  versions: '>=10.0.0'
+  node: '>=14.18.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js

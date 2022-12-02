@@ -44,6 +44,8 @@ Notes:
   captured errors) for Lambda functions triggered by API Gateway.
   ({issues}2419[#2419])
 
+* Support instrumentation for restify@10.
+
 [float]
 ===== Bug fixes
 
