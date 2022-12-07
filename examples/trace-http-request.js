@@ -17,8 +17,6 @@ const apm = require('../').start({ // elastic-apm-node
   useElasticTraceparentHeader: false
 })
 
-console.log('XXX ', apm._conf.serverUrl)
-
 const http = require('http')
 
 function makeARequest (url, opts, cb) {
