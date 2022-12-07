@@ -252,11 +252,13 @@ pipeline {
     }
 
     /**
-    Daily snapshots.
+    Publish a snapshot. A "snapshot" is a packaging of the latest *unreleased* APM agent,
+    published to a known GCS bucket for use in edge demo/test environments.
     */
-    stage('Daily snapshots') {
+    stage('Publish snapshot') {
       options { skipDefaultCheckout() }
       environment {
+        BUCKET_NAME = 'oblt-artifacts'
         DOCKER_REGISTRY = 'docker.elastic.co'
         DOCKER_REGISTRY_SECRET = 'secret/observability-team/ci/docker-registry/prod'
         GCS_ACCOUNT_SECRET = 'secret/observability-team/ci/snapshoty'
@@ -266,11 +268,11 @@ pipeline {
         withGithubNotify(context: 'Publish snapshot packages') {
           deleteDir()
           unstash name: 'source'
-          withNodeJSEnv(version: readFile(file: "${BASE_DIR}/.nvmrc")?.trim()) {
+          withNodeJSEnv(version: env.BUILD_NODE_VERSION) {
             dir(env.BASE_DIR) {
-              sh(label: 'generate tarball', script: 'npm run package:tarball')
+              sh(label: 'package snapshot', script: 'npm run package:snapshot')
               snapshoty(
-                bucket: 'obtl-artifacts',
+                bucket: env.BUCKET_NAME,
                 gcsAccountSecret: env.GCS_ACCOUNT_SECRET,
                 dockerRegistry: env.DOCKER_REGISTRY,
                 dockerSecret: env.DOCKER_REGISTRY_SECRET

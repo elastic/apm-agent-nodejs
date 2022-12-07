@@ -19,7 +19,7 @@ account:
 # List of artifacts
 artifacts:
   # Path to use for artifacts discovery 
-  - path: './build/dist'
+  - path: './build/snapshot'
     # Files pattern to match
     files_pattern: 'elastic-apm-node-(?P<app_version>\d+\.\d+\.\d+)\.tgz'
     # File layout on GCS bucket
