@@ -49,6 +49,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Add `tracestate` to the `TransactionOptions` TypeScript type for
+  `apm.startTransaction(..., options)`. ({issues}3061[#3061])
+
 [float]
 ===== Chores
 
