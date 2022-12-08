@@ -375,7 +375,9 @@ declare namespace apm {
 
   export interface TransactionOptions {
     startTime?: number;
-    childOf?: Transaction | Span | string | null;
+    // `childOf` is a W3C trace-context 'traceparent' string. Passing a
+    // Transaction or Span is deprecated.
+    childOf?: Transaction | Span | string;
     tracestate?: string; // A W3C trace-context 'tracestate' string.
     links?: Link[];
   }
