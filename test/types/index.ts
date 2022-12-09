@@ -100,6 +100,8 @@ apm.startTransaction('foo', { startTime: 1 })
 apm.startTransaction('foo', 'type', { startTime: 1 })
 apm.startTransaction('foo', 'type', 'subtype', { startTime: 1 })
 apm.startTransaction('foo', 'type', 'subtype', 'action', { startTime: 1 })
+apm.startTransaction('foo', { childOf: '00-12345678901234567890123456789012-1234567890123456-01' })
+apm.startTransaction('foo', { tracestate: 'foo=42,bar=43' })
 apm.startTransaction('foo', { links: [{ context: '00-12345678901234567890123456789012-1234567890123456-01' }] })
 
 apm.setTransactionName('foo')
