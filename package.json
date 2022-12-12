@@ -28,7 +28,8 @@
     "docker:start": "docker-compose -f ./test/docker-compose.yml up -d",
     "docker:stop": "docker-compose -f ./test/docker-compose.yml down",
     "docker:clean": "./test/script/docker/cleanup.sh",
-    "docker:dev": "docker-compose -f ./dev-utils/docker-compose.yml run --workdir=/agent nodejs-agent"
+    "docker:dev": "docker-compose -f ./dev-utils/docker-compose.yml run --workdir=/agent nodejs-agent",
+    "package:snapshot": "rm -rf ./build/snapshot && mkdir -p ./build/snapshot && npm pack --pack-destination ./build/snapshot"
   },
   "directories": {
     "test": "test"
