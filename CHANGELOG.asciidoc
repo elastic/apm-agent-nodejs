@@ -32,10 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.41.0]]
+==== 3.41.0 2022/12/12
 
 [float]
 ===== Features
@@ -48,6 +46,14 @@ Notes:
 
 [float]
 ===== Bug fixes
+
+* Change default `serverUrl` from `http://localhost:8200` to `http://127.0.0.1:8200`
+  to avoid ambiguity between possible IPv4 and IPv6 DNS-resolved values for "localhost".
+  APM server only listens on IPv4 by default, so this avoids a possible surprising
+  mismatch. ({issues}3045[#3045])
+
+* Add `tracestate` to the `TransactionOptions` TypeScript type for
+  `apm.startTransaction(..., options)`. ({issues}3061[#3061])
 
 [float]
 ===== Chores

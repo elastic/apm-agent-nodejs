@@ -72,7 +72,7 @@ WARNING: The API key is sent as plain-text in every request to the server, so yo
 ==== `serverUrl`
 
 * *Type:* String
-* *Default:* `http://localhost:8200`
+* *Default:* `http://127.0.0.1:8200`
 * *Env:* `ELASTIC_APM_SERVER_URL`
 
 The URL to where the APM Server is deployed.
@@ -1146,7 +1146,7 @@ module.exports = {
   // Use if APM Server requires a token
   secretToken: '',
 
-  // Set custom APM Server URL (default: http://localhost:8200)
+  // Set custom APM Server URL (default: http://127.0.0.1:8200)
   serverUrl: ''
 }
 ----
