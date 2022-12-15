@@ -142,11 +142,18 @@ function getEventField (e, fieldName) {
 function checkExpectedApmEvents (t, apmEvents) {
   // metadata
   const evt = apmEvents.shift()
-  t.ok(evt.metadata, 'metadata is first event')
-  t.equal(evt.metadata.service.name, 'AJsAzureFnApp', 'metadata.service.name')
-  t.equal(evt.metadata.service.framework.name, 'Azure Functions', 'metadata.service.framework.name')
-  t.equal(evt.metadata.service.framework.version, '~4', 'metadata.service.framework.version')
-  t.equal(evt.metadata.service.runtime.name, 'node', 'metadata.service.runtime.name')
+  const metadata = evt.metadata
+  t.ok(metadata, 'metadata is first event')
+  console.log('XXX metadata:'); console.dir(metadata, { depth: 5 })
+  t.equal(metadata.service.name, 'AJsAzureFnApp', 'metadata.service.name')
+  t.equal(metadata.service.framework.name, 'Azure Functions', 'metadata.service.framework.name')
+  t.equal(metadata.service.framework.version, '~4', 'metadata.service.framework.version')
+  t.equal(metadata.service.runtime.name, 'node', 'metadata.service.runtime.name')
+  t.equal(metadata.service.node.configured_name, 'test-website-instance-id', 'metadata.service.node.configured_name')
+  t.equal(metadata.cloud.provider, 'azure', 'metadata.cloud.provider')
+  t.equal(metadata.cloud.region, 'test-region-name', 'metadata.cloud.region')
+  t.equal(metadata.cloud.service.name, 'azure functions', 'metadata.cloud.service.name')
+  t.equal(metadata.cloud.account.id, '2491fc8e-f7c1-4020-b9c6-78509919fd16', 'metadata.cloud.account.id')
 
   // Filter out any metadata from separate requests, and metricsets which we
   // aren't testing.
@@ -190,6 +197,7 @@ const TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
+      console.log('XXX trans:'); console.dir(trans, { depth: 5 })
       t.equal(trans.name, 'GET /api/HttpFn1', 'transaction.name')
       t.equal(trans.type, 'request', 'transaction.type')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
