@@ -32,6 +32,26 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix Next.js instrumentation to honour the <<use-path-as-transaction-name>>
+  config setting. When set to true the APM transaction name for a request to a
+  Next.js Dynamic Route will use the request path, e.g. `GET /about-us`, rather
+  than the dynamic route name, e.g. `GET /[...page]`. ({issues}3072[#3072])
+
+[float]
+===== Chores
+
+
 [[release-notes-3.41.0]]
 ==== 3.41.0 2022/12/12
 
