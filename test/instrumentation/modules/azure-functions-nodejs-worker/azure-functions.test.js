@@ -184,7 +184,6 @@ function checkExpectedApmEvents (t, apmEvents) {
 
 const UUID_RE = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i
 
-// XXX 'splain
 const TEST_REQUESTS = [
   {
     testName: 'GET HttpFn1',
