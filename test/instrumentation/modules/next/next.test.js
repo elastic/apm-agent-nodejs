@@ -738,7 +738,7 @@ tape.test('-- prod server tests --', suite => {
     })
     setTimeout(() => {
       nextServerProc.kill('SIGTERM')
-    }, 4000) // 2x ELASTIC_APM_API_REQUEST_SIZE set above
+    }, 4000) // 2x ELASTIC_APM_API_REQUEST_TIME set above
   })
 
   suite.end()
@@ -834,7 +834,7 @@ tape.test('-- dev server tests --', suite => {
     })
     setTimeout(() => {
       nextServerProc.kill('SIGTERM')
-    }, 4000) // 2x ELASTIC_APM_API_REQUEST_SIZE set above
+    }, 4000) // 2x ELASTIC_APM_API_REQUEST_TIME set above
   })
 
   suite.end()

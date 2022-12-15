@@ -85,6 +85,7 @@
     "url": "https://github.com/elastic/apm-agent-nodejs/issues"
   },
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
+  "XXX elastic-apm-http-client": "11.1.0",
   "dependencies": {
     "@elastic/ecs-pino-format": "^1.2.0",
     "@opentelemetry/api": "^1.1.0",
@@ -95,7 +96,7 @@
     "cookie": "^0.5.0",
     "core-util-is": "^1.0.2",
     "debug": "^4.1.1",
-    "elastic-apm-http-client": "11.0.4",
+    "elastic-apm-http-client": "elastic/apm-nodejs-http-client#7b1cb500a89aad9758a3107b33e145c894220529",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",
@@ -135,6 +136,7 @@
     "apollo-server-core": "^3.0.0",
     "apollo-server-express": "^3.0.0",
     "aws-sdk": "^2.622.0",
+    "azure-functions-core-tools": "^4.0.4915",
     "backport": "^5.1.2",
     "benchmark": "^2.1.4",
     "bluebird": "^3.7.2",
@@ -195,6 +197,7 @@
     "tedious": "^15.1.0",
     "test-all-versions": "^4.1.1",
     "thunky": "^1.1.0",
+    "tree-kill": "^1.2.2",
     "typescript": "^4.7.4",
     "undici": "^5.8.0",
     "vasync": "^2.2.0",
