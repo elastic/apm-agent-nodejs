@@ -85,8 +85,6 @@
     "url": "https://github.com/elastic/apm-agent-nodejs/issues"
   },
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
-  "XXX elastic-apm-http-client": "11.1.0",
-  "XXX2 elastic-apm-http-client": "github:elastic/apm-nodejs-http-client#trentm/azure-functions",
   "dependencies": {
     "@elastic/ecs-pino-format": "^1.2.0",
     "@opentelemetry/api": "^1.1.0",
@@ -97,7 +95,7 @@
     "cookie": "^0.5.0",
     "core-util-is": "^1.0.2",
     "debug": "^4.1.1",
-    "elastic-apm-http-client": "git+https://github.com/elastic/apm-nodejs-http-client.git#trentm/azure-functions",
+    "elastic-apm-http-client": "11.1.0",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",
