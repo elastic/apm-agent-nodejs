@@ -101,6 +101,8 @@ async function makeTestRequest (t, testReq) {
         res.on('data', chunk => { chunks.push(chunk) })
         res.on('end', () => {
           const body = Buffer.concat(chunks)
+          console.log('XXX res: ', res.statusCode, res.headers)
+          console.log('XXX res body: ', body.toString())
           if (testReq.expectedRes.statusCode) {
             t.equal(res.statusCode, testReq.expectedRes.statusCode, `res.statusCode === ${testReq.expectedRes.statusCode}`)
           }
@@ -144,7 +146,6 @@ function checkExpectedApmEvents (t, apmEvents) {
   const evt = apmEvents.shift()
   const metadata = evt.metadata
   t.ok(metadata, 'metadata is first event')
-  console.log('XXX metadata:'); console.dir(metadata, { depth: 5 })
   t.equal(metadata.service.name, 'AJsAzureFnApp', 'metadata.service.name')
   t.equal(metadata.service.framework.name, 'Azure Functions', 'metadata.service.framework.name')
   t.equal(metadata.service.framework.version, '~4', 'metadata.service.framework.version')
@@ -184,9 +185,9 @@ function checkExpectedApmEvents (t, apmEvents) {
 
 const UUID_RE = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i
 
-const TEST_REQUESTS = [
+var TEST_REQUESTS = [
   {
-    testName: 'GET HttpFn1',
+    testName: 'HttpFn1',
     reqOpts: { method: 'GET', path: '/api/HttpFn1' },
     expectedRes: {
       statusCode: 200,
@@ -196,11 +197,10 @@ const TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      console.log('XXX trans:'); console.dir(trans, { depth: 5 })
       t.equal(trans.name, 'GET /api/HttpFn1', 'transaction.name')
       t.equal(trans.type, 'request', 'transaction.type')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
-      t.equal(trans.result, 'success', 'transaction.result') // XXX HTTP 2xx ???
+      t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFn1', 'transaction.faas.name')
       t.equal(trans.faas.id,
         '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFn1',
@@ -208,9 +208,43 @@ const TEST_REQUESTS = [
       t.equal(trans.faas.trigger.type, 'http', 'transaction.faas.trigger.type')
       t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution ' + trans.faas.execution)
       t.equal(trans.faas.coldstart, true, 'transaction.faas.coldstart')
+      t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
+      t.equal(trans.context.request.url.full, 'http://localhost:7071/api/HttpFn1', 'transaction.context.request.url.full')
+      t.ok(trans.context.request.headers, 'transaction.context.request.headers')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+      t.equal(trans.context.response.headers.MyFnName, 'HttpFn1', 'transaction.context.response.headers.MyFnName')
+    }
+  },
+  {
+    testName: 'HttpFn2 throws an error',
+    reqOpts: { method: 'GET', path: '/api/HttpFn2' },
+    expectedRes: {
+      statusCode: 500
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 2)
+      const trans = apmEventsForReq[0].transaction
+      // Only a test a subset of fields to not be redundant with previous cases.
+      t.equal(trans.name, 'GET /api/HttpFn2', 'transaction.name')
+      t.equal(trans.outcome, 'failure', 'transaction.outcome')
+      t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
+      t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFn2', 'transaction.faas.name')
+      t.equal(trans.faas.coldstart, false, 'transaction.faas.coldstart')
+      t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
+      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code')
 
-      // XXX http context?
-      // t.equal(trans.context.response.status_code, 308, 'transaction.context.response.status_code')
+      const error = apmEventsForReq[1].error
+      t.equal(error.parent_id, trans.id, 'error.parent_id')
+      t.deepEqual(error.transaction,
+        { name: trans.name, type: trans.type, sampled: trans.sampled },
+        'error.transaction')
+      t.equal(error.exception.message, 'thrown error in HttpFn2', 'error.exception.message')
+      t.equal(error.exception.type, 'Error', 'error.exception.type')
+      t.equal(error.exception.handled, true, 'error.exception.handled')
+      const topFrame = error.exception.stacktrace[0]
+      t.equal(topFrame.filename, 'HttpFn2/index.js', 'topFrame.filename')
+      t.equal(topFrame.lineno, 8, 'topFrame.lineno')
+      t.equal(topFrame.function, 'ThrowErrorHandler', 'topFrame.function')
     }
   }
   // XXX TOTEST:
@@ -221,6 +255,7 @@ const TEST_REQUESTS = [
   //   (i.e. don't rely on the URL path for case normalization)
   // - all faas.trigger.type values: other, http, pubsub, datasource, timer
 ]
+// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFn2')) // XXX
 
 tape.test('azure functions', function (suite) {
   let apmServer
