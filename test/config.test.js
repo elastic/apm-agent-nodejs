@@ -1043,6 +1043,7 @@ test('disableInstrumentations', function (t) {
     modules.delete('@redis/client/dist/lib/client/commands-queue') // redis@4 supports node >=14
   }
   modules.delete('azure-functions-nodejs-worker/dist/src/worker-bundle')
+  modules.delete('azure-functions-core-tools/bin/workers/node/dist/src/worker-bundle')
 
   // @node-redis only present for redis >4 <4.1 --
   modules.delete('@node-redis/client/dist/lib/client') // redis@4 supports node >=14
