@@ -4,11 +4,6 @@
  * compliance with the BSD 2-Clause License.
  */
 
-module.exports = async function (context, _req) {
-  context.res = {
-    headers: {
-      MyHeaderName: 'MyHeaderValue'
-    },
-    body: 'HttpFn1 body'
-  }
+module.exports = async function ThrowErrorHandler (context, req) {
+  throw new Error('thrown error in HttpFnError')
 }

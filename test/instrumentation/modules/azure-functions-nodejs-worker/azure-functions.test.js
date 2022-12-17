@@ -196,9 +196,9 @@ var TEST_REQUESTS = [
     testName: 'HttpFn1',
     reqOpts: { method: 'GET', path: '/api/HttpFn1' },
     expectedRes: {
-      statusCode: 200,
-      headers: { myfnname: 'HttpFn1' },
-      body: 'this is HttpFn1'
+      statusCode: 200, // the Azure Functions default
+      headers: { myheadername: 'MyHeaderValue' },
+      body: 'HttpFn1 body'
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
@@ -218,23 +218,23 @@ var TEST_REQUESTS = [
       t.equal(trans.context.request.url.full, 'http://localhost:7071/api/HttpFn1', 'transaction.context.request.url.full')
       t.ok(trans.context.request.headers, 'transaction.context.request.headers')
       t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
-      t.equal(trans.context.response.headers.MyFnName, 'HttpFn1', 'transaction.context.response.headers.MyFnName')
+      t.equal(trans.context.response.headers.MyHeaderName, 'MyHeaderValue', 'transaction.context.response.headers.MyHeaderName')
     }
   },
+  // Only a test a subset of fields to not be redundant with previous cases.
   {
-    testName: 'HttpFn2 throws an error',
-    reqOpts: { method: 'GET', path: '/api/HttpFn2' },
+    testName: 'HttpFnError throws an error',
+    reqOpts: { method: 'GET', path: '/api/HttpFnError' },
     expectedRes: {
       statusCode: 500
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 2)
       const trans = apmEventsForReq[0].transaction
-      // Only a test a subset of fields to not be redundant with previous cases.
-      t.equal(trans.name, 'GET /api/HttpFn2', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFnError', 'transaction.name')
       t.equal(trans.outcome, 'failure', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
-      t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFn2', 'transaction.faas.name')
+      t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFnError', 'transaction.faas.name')
       t.equal(trans.faas.coldstart, false, 'transaction.faas.coldstart')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
       t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code')
@@ -244,24 +244,124 @@ var TEST_REQUESTS = [
       t.deepEqual(error.transaction,
         { name: trans.name, type: trans.type, sampled: trans.sampled },
         'error.transaction')
-      t.equal(error.exception.message, 'thrown error in HttpFn2', 'error.exception.message')
+      t.equal(error.exception.message, 'thrown error in HttpFnError', 'error.exception.message')
       t.equal(error.exception.type, 'Error', 'error.exception.type')
       t.equal(error.exception.handled, true, 'error.exception.handled')
       const topFrame = error.exception.stacktrace[0]
-      t.equal(topFrame.filename, 'HttpFn2/index.js', 'topFrame.filename')
+      t.equal(topFrame.filename, 'HttpFnError/index.js', 'topFrame.filename')
       t.equal(topFrame.lineno, 8, 'topFrame.lineno')
       t.equal(topFrame.function, 'ThrowErrorHandler', 'topFrame.function')
     }
+  },
+  {
+    testName: 'HttpFnBindingsRes',
+    reqOpts: { method: 'GET', path: '/api/HttpFnBindingsRes' },
+    expectedRes: {
+      statusCode: 202,
+      body: 'HttpFnBindingsRes body'
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /api/HttpFnBindingsRes', 'transaction.name')
+      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+      t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
+      t.equal(trans.context.response.status_code, 202, 'transaction.context.response.status_code')
+    }
+  },
+  {
+    testName: 'HttpFnContextDone',
+    reqOpts: { method: 'GET', path: '/api/HttpFnContextDone' },
+    expectedRes: {
+      statusCode: 202,
+      body: 'HttpFnContextDone body'
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /api/HttpFnContextDone', 'transaction.name')
+      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+      t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
+      t.equal(trans.context.response.status_code, 202, 'transaction.context.response.status_code')
+    }
+  },
+  {
+    testName: 'HttpFnReturnContext',
+    reqOpts: { method: 'GET', path: '/api/HttpFnReturnContext' },
+    expectedRes: {
+      statusCode: 202,
+      body: 'HttpFnReturnContext body'
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /api/HttpFnReturnContext', 'transaction.name')
+      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+      t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
+      t.equal(trans.context.response.status_code, 202, 'transaction.context.response.status_code')
+    }
+  },
+  {
+    testName: 'HttpFnReturnResponseData',
+    reqOpts: { method: 'GET', path: '/api/HttpFnReturnResponseData' },
+    expectedRes: {
+      statusCode: 202,
+      body: 'HttpFnReturnResponseData body'
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /api/HttpFnReturnResponseData', 'transaction.name')
+      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+      t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
+      t.equal(trans.context.response.status_code, 202, 'transaction.context.response.status_code')
+    }
+  },
+  {
+    testName: 'HttpFnReturnObject',
+    reqOpts: { method: 'GET', path: '/api/HttpFnReturnObject' },
+    expectedRes: {
+      statusCode: 200
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /api/HttpFnReturnObject', 'transaction.name')
+      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+      t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
+      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
+    }
+  },
+  {
+    testName: 'HttpFnReturnString',
+    reqOpts: { method: 'GET', path: '/api/HttpFnReturnString' },
+    expectedRes: {
+      statusCode: 500
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET /api/HttpFnReturnString', 'transaction.name')
+      t.equal(trans.outcome, 'failure', 'transaction.outcome')
+      t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
+      t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
+      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code')
+    }
   }
+
   // XXX TOTEST:
-  // - failing Http trigger response for .outcome and .result
   // - Http path with *template/params* -> trans.name
   // - test 'PUT /api/HttpFn1'. What happens?
   // - test that `GET /api/httpfn1` still results in `HttpFn1` usage in fields
   //   (i.e. don't rely on the URL path for case normalization)
   // - all faas.trigger.type values: other, http, pubsub, datasource, timer
 ]
-// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFn2')) // XXX
+// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFnError')) // XXX
 
 tape.test('azure functions', function (suite) {
   let apmServer

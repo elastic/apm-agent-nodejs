@@ -4,11 +4,10 @@
  * compliance with the BSD 2-Clause License.
  */
 
-module.exports = async function (context, _req) {
-  context.res = {
-    headers: {
-      MyHeaderName: 'MyHeaderValue'
-    },
-    body: 'HttpFn1 body'
+module.exports = async function (context) {
+  // Using this wins over possible `context.res` usage.
+  context.bindings.res = {
+    status: 202,
+    body: 'HttpFnBindingsRes body'
   }
 }
