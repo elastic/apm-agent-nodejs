@@ -17,7 +17,7 @@ const treekill = require('tree-kill')
 
 const { MockAPMServer } = require('../../../_mock_apm_server')
 
-if (!semver.satisfies(process.version, '>=14 <20')) {
+if (!semver.satisfies(process.version, '>=14 <19')) {
   console.log(`# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`)
   process.exit()
 }
@@ -149,18 +149,19 @@ function getEventField (e, fieldName) {
  */
 function checkExpectedApmEvents (t, apmEvents) {
   // metadata
-  const evt = apmEvents.shift()
-  const metadata = evt.metadata
-  t.ok(metadata, 'metadata is first event')
-  t.equal(metadata.service.name, 'AJsAzureFnApp', 'metadata.service.name')
-  t.equal(metadata.service.framework.name, 'Azure Functions', 'metadata.service.framework.name')
-  t.equal(metadata.service.framework.version, '~4', 'metadata.service.framework.version')
-  t.equal(metadata.service.runtime.name, 'node', 'metadata.service.runtime.name')
-  t.equal(metadata.service.node.configured_name, 'test-website-instance-id', 'metadata.service.node.configured_name')
-  t.equal(metadata.cloud.provider, 'azure', 'metadata.cloud.provider')
-  t.equal(metadata.cloud.region, 'test-region-name', 'metadata.cloud.region')
-  t.equal(metadata.cloud.service.name, 'azure functions', 'metadata.cloud.service.name')
-  t.equal(metadata.cloud.account.id, '2491fc8e-f7c1-4020-b9c6-78509919fd16', 'metadata.cloud.account.id')
+  if (apmEvents.length > 0) {
+    const metadata = apmEvents.shift().metadata
+    t.ok(metadata, 'metadata is first event')
+    t.equal(metadata.service.name, 'AJsAzureFnApp', 'metadata.service.name')
+    t.equal(metadata.service.framework.name, 'Azure Functions', 'metadata.service.framework.name')
+    t.equal(metadata.service.framework.version, '~4', 'metadata.service.framework.version')
+    t.equal(metadata.service.runtime.name, 'node', 'metadata.service.runtime.name')
+    t.equal(metadata.service.node.configured_name, 'test-website-instance-id', 'metadata.service.node.configured_name')
+    t.equal(metadata.cloud.provider, 'azure', 'metadata.cloud.provider')
+    t.equal(metadata.cloud.region, 'test-region-name', 'metadata.cloud.region')
+    t.equal(metadata.cloud.service.name, 'azure functions', 'metadata.cloud.service.name')
+    t.equal(metadata.cloud.account.id, '2491fc8e-f7c1-4020-b9c6-78509919fd16', 'metadata.cloud.account.id')
+  }
 
   // Filter out any metadata from separate requests, and metricsets which we
   // aren't testing.
@@ -177,10 +178,13 @@ function checkExpectedApmEvents (t, apmEvents) {
     t.comment(`check APM events for "${testReq.testName}"`)
     // Collect all events for this transaction's trace_id, and pass that to
     // the `checkApmEvents` function for this request.
-    assert(apmEvents.length > 0 && apmEvents[0].transaction, `next APM event is a transaction: ${JSON.stringify(apmEvents[0])}`)
-    const traceId = apmEvents[0].transaction.trace_id
-    const apmEventsForReq = apmEvents.filter(e => getEventField(e, 'trace_id') === traceId)
-    apmEvents = apmEvents.filter(e => getEventField(e, 'trace_id') !== traceId)
+    let apmEventsForReq = []
+    if (apmEvents.length > 0) {
+      assert(apmEvents[0].transaction, `next APM event is a transaction: ${JSON.stringify(apmEvents[0])}`)
+      const traceId = apmEvents[0].transaction.trace_id
+      apmEventsForReq = apmEvents.filter(e => getEventField(e, 'trace_id') === traceId)
+      apmEvents = apmEvents.filter(e => getEventField(e, 'trace_id') !== traceId)
+    }
     testReq.checkApmEvents(t, apmEventsForReq)
   })
 
@@ -352,16 +356,46 @@ var TEST_REQUESTS = [
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
       t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code')
     }
+  },
+  {
+    testName: 'PUT HttpFn1',
+    reqOpts: { method: 'PUT', path: '/api/HttpFn1' },
+    expectedRes: {
+      statusCode: 404
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 0)
+    }
   }
+  // XXX HERE
+  // {
+  //   testName: 'GET httpfn1 (lower-case in URL path)',
+  //   reqOpts: { method: 'GET', path: '/api/httpfn1' },
+  //   expectedRes: {
+  //     statusCode: 200, // the Azure Functions default
+  //     headers: { myheadername: 'MyHeaderValue' },
+  //     body: 'HttpFn1 body'
+  //   },
+  //   checkApmEvents: (t, apmEventsForReq) => {
+  //     t.equal(apmEventsForReq.length, 1)
+  //     const trans = apmEventsForReq[0].transaction
+  //     t.equal(trans.name, 'GET /api/HttpFn1', 'transaction.name')
+  //     t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+  //     t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFn1', 'transaction.faas.name')
+  //     t.equal(trans.faas.id,
+  //       '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFn1',
+  //       'transaction.faas.id')
+  //     t.equal(trans.context.request.url.full, 'http://localhost:7071/api/httpfn1', 'transaction.context.request.url.full')
+  //   }
+  // }
 
   // XXX TOTEST:
   // - Http path with *template/params* -> trans.name
-  // - test 'PUT /api/HttpFn1'. What happens?
   // - test that `GET /api/httpfn1` still results in `HttpFn1` usage in fields
   //   (i.e. don't rely on the URL path for case normalization)
   // - all faas.trigger.type values: other, http, pubsub, datasource, timer
 ]
-// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFnError')) // XXX
+// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('lower-case')) // XXX
 
 tape.test('azure functions', function (suite) {
   let apmServer
@@ -379,7 +413,7 @@ tape.test('azure functions', function (suite) {
   let fnAppProc
   const funcExe = path.resolve(__dirname, '../../../../node_modules/.bin/func')
   const startJs = path.resolve(__dirname, '../../../../start.js')
-  const fnAppDir = path.join(__dirname, 'fixtures', 'AJsAzureFnApp') // XXX just the one fn app fixture for now
+  const fnAppDir = path.join(__dirname, 'fixtures', 'AJsAzureFnApp')
   suite.test('setup: "func start" for AJsAzureFnApp fixture', t => {
     fnAppProc = spawn(
       funcExe,
