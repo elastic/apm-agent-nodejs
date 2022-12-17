@@ -10,11 +10,17 @@ const assert = require('assert')
 const { spawn } = require('child_process')
 const http = require('http')
 const path = require('path')
-const tape = require('tape')
 
+const semver = require('semver')
+const tape = require('tape')
 const treekill = require('tree-kill')
 
 const { MockAPMServer } = require('../../../_mock_apm_server')
+
+if (!semver.satisfies(process.version, '>=14 <20')) {
+  console.log(`# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`)
+  process.exit()
+}
 
 // XXX move these to shared util (with next.test.js)
 // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
