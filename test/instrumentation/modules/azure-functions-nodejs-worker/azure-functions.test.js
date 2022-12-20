@@ -109,8 +109,6 @@ async function makeTestRequest (t, testReq) {
         res.on('data', chunk => { chunks.push(chunk) })
         res.on('end', () => {
           const body = Buffer.concat(chunks)
-          console.log('XXX res: ', res.statusCode, res.headers)
-          console.log('XXX res body: ', body.toString())
           if (testReq.expectedRes.statusCode) {
             t.equal(res.statusCode, testReq.expectedRes.statusCode, `res.statusCode === ${testReq.expectedRes.statusCode}`)
           }
@@ -254,7 +252,7 @@ var TEST_REQUESTS = [
       t.equal(error.exception.type, 'Error', 'error.exception.type')
       t.equal(error.exception.handled, true, 'error.exception.handled')
       const topFrame = error.exception.stacktrace[0]
-      t.equal(topFrame.filename, 'HttpFnError/index.js', 'topFrame.filename')
+      t.equal(topFrame.filename, path.join('HttpFnError', 'index.js'), 'topFrame.filename')
       t.equal(topFrame.lineno, 8, 'topFrame.lineno')
       t.equal(topFrame.function, 'ThrowErrorHandler', 'topFrame.function')
     }
@@ -360,7 +358,6 @@ var TEST_REQUESTS = [
     }
   },
   {
-    // XXX
     testName: 'GET httpfn1 (lower-case in URL path)',
     reqOpts: { method: 'GET', path: '/api/httpfn1' },
     expectedRes: {
@@ -400,14 +397,8 @@ var TEST_REQUESTS = [
       t.equal(trans.context.request.url.full, 'http://127.0.0.1:7071/api/products/electronics/42', 'transaction.context.request.url.full')
     }
   }
-
-  // XXX TOTEST:
-  // - Http path with *template/params* -> trans.name
-  // - test that `GET /api/httpfn1` still results in `HttpFn1` usage in fields
-  //   (i.e. don't rely on the URL path for case normalization)
-  // - all faas.trigger.type values: other, http, pubsub, datasource, timer
 ]
-// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFnRouteTemplate')) // XXX
+// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFnRouteTemplate')) // Use this for dev work.
 
 tape.test('azure functions', function (suite) {
   let apmServer
