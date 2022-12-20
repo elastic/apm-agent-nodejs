@@ -40,22 +40,23 @@ const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZ
 function formatForTComment (data) {
   return data.toString('utf8')
     .replace(ANSI_RE, '')
-    .trimRight().replace(/\n/g, '\n|') + '\n'
+    .trimRight().replace(/\r?\n/g, '\n|') + '\n'
 }
 
 /**
  * Wait for the test "func start" to be ready.
  *
  * This polls the <http://127.0.0.1:7071/admin/functions> admin endpoint until
- * it gets a 200 response -- assuming the server is ready by then.
- * It times out after ~30s.
+ * it gets a 200 response, assuming the server is ready by then.
+ * It times out after ~60s -- so long because startup on Windows CI has been
+ * found to take a long time (it is downloading 250MB+ in "ExtensionBundle"s).
  *
  * @param {Test} t - This is only used to `t.comment(...)` with progress.
  * @param {Function} cb - Calls `cb(err)` if there was a timeout, `cb()` on
  *    success.
  */
 function waitForServerReady (t, cb) {
-  let sentinel = 15
+  let sentinel = 30
   const INTERVAL_MS = 2000
 
   const pollForServerReady = () => {
