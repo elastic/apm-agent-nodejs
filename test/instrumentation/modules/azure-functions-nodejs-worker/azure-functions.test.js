@@ -47,14 +47,15 @@ function formatForTComment (data) {
  *
  * This polls the <http://localhost:7071/admin/functions> admin endpoint until
  * it gets a 200 response -- assuming the server is ready by then.
- * It times out after ~30s.
+ * It times out after ~60s (high because slow CI).
  *
  * @param {Test} t - This is only used to `t.comment(...)` with progress.
  * @param {Function} cb - Calls `cb(err)` if there was a timeout, `cb()` on
  *    success.
  */
 function waitForServerReady (t, cb) {
-  let sentinel = 15
+  let sentinel = 30
+  const INTERVAL_MS = 2000
 
   const pollForServerReady = () => {
     const req = http.get(
@@ -85,7 +86,7 @@ function waitForServerReady (t, cb) {
     if (sentinel <= 0) {
       cb(new Error('timed out'))
     } else {
-      setTimeout(pollForServerReady, 2000)
+      setTimeout(pollForServerReady, INTERVAL_MS)
     }
   }
 
@@ -438,7 +439,7 @@ tape.test('azure functions', function (suite) {
       }
     )
     fnAppProc.on('error', err => {
-      t.error(err, 'no error from "next start"')
+      t.error(err, 'no error from "func start"')
     })
     fnAppProc.stdout.on('data', data => {
       t.comment(`["func start" stdout] ${formatForTComment(data)}`)
