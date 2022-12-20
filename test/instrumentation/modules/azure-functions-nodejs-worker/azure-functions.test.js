@@ -207,7 +207,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET /api/HttpFn1', 'transaction.name')
+      t.equal(trans.name, 'GET HttpFn1', 'transaction.name')
       t.equal(trans.type, 'request', 'transaction.type')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
@@ -235,7 +235,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 2)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET /api/HttpFnError', 'transaction.name')
+      t.equal(trans.name, 'GET HttpFnError', 'transaction.name')
       t.equal(trans.outcome, 'failure', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
       t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFnError', 'transaction.faas.name')
@@ -267,7 +267,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET /api/HttpFnBindingsRes', 'transaction.name')
+      t.equal(trans.name, 'GET HttpFnBindingsRes', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -284,7 +284,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET /api/HttpFnContextDone', 'transaction.name')
+      t.equal(trans.name, 'GET HttpFnContextDone', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -301,7 +301,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET /api/HttpFnReturnContext', 'transaction.name')
+      t.equal(trans.name, 'GET HttpFnReturnContext', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -318,7 +318,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET /api/HttpFnReturnResponseData', 'transaction.name')
+      t.equal(trans.name, 'GET HttpFnReturnResponseData', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -334,7 +334,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET /api/HttpFnReturnObject', 'transaction.name')
+      t.equal(trans.name, 'GET HttpFnReturnObject', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -350,7 +350,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET /api/HttpFnReturnString', 'transaction.name')
+      t.equal(trans.name, 'GET HttpFnReturnString', 'transaction.name')
       t.equal(trans.outcome, 'failure', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -358,36 +358,46 @@ var TEST_REQUESTS = [
     }
   },
   {
-    testName: 'PUT HttpFn1',
-    reqOpts: { method: 'PUT', path: '/api/HttpFn1' },
+    // XXX
+    testName: 'GET httpfn1 (lower-case in URL path)',
+    reqOpts: { method: 'GET', path: '/api/httpfn1' },
     expectedRes: {
-      statusCode: 404
+      statusCode: 200, // the Azure Functions default
+      headers: { myheadername: 'MyHeaderValue' },
+      body: 'HttpFn1 body'
     },
     checkApmEvents: (t, apmEventsForReq) => {
-      t.equal(apmEventsForReq.length, 0)
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET HttpFn1', 'transaction.name')
+      t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+      t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFn1', 'transaction.faas.name')
+      t.equal(trans.faas.id,
+        '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFn1',
+        'transaction.faas.id')
+      t.equal(trans.context.request.url.full, 'http://localhost:7071/api/httpfn1', 'transaction.context.request.url.full')
+    }
+  },
+  {
+    // https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-http-webhook-trigger#customize-the-http-endpoint
+    testName: 'HttpFnRouteTemplate',
+    reqOpts: { method: 'GET', path: '/api/products/electronics/42' },
+    expectedRes: {
+      statusCode: 202,
+      body: 'HttpFnRouteTemplate body: category=electronics id=42'
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      t.equal(apmEventsForReq.length, 1)
+      const trans = apmEventsForReq[0].transaction
+      t.equal(trans.name, 'GET products/{category:alpha}/{id:int?}', 'transaction.name')
+      t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+      t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFnRouteTemplate', 'transaction.faas.name')
+      t.equal(trans.faas.id,
+        '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFnRouteTemplate',
+        'transaction.faas.id')
+      t.equal(trans.context.request.url.full, 'http://localhost:7071/api/products/electronics/42', 'transaction.context.request.url.full')
     }
   }
-  // XXX HERE
-  // {
-  //   testName: 'GET httpfn1 (lower-case in URL path)',
-  //   reqOpts: { method: 'GET', path: '/api/httpfn1' },
-  //   expectedRes: {
-  //     statusCode: 200, // the Azure Functions default
-  //     headers: { myheadername: 'MyHeaderValue' },
-  //     body: 'HttpFn1 body'
-  //   },
-  //   checkApmEvents: (t, apmEventsForReq) => {
-  //     t.equal(apmEventsForReq.length, 1)
-  //     const trans = apmEventsForReq[0].transaction
-  //     t.equal(trans.name, 'GET /api/HttpFn1', 'transaction.name')
-  //     t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
-  //     t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFn1', 'transaction.faas.name')
-  //     t.equal(trans.faas.id,
-  //       '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFn1',
-  //       'transaction.faas.id')
-  //     t.equal(trans.context.request.url.full, 'http://localhost:7071/api/httpfn1', 'transaction.context.request.url.full')
-  //   }
-  // }
 
   // XXX TOTEST:
   // - Http path with *template/params* -> trans.name
@@ -395,7 +405,7 @@ var TEST_REQUESTS = [
   //   (i.e. don't rely on the URL path for case normalization)
   // - all faas.trigger.type values: other, http, pubsub, datasource, timer
 ]
-// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('lower-case')) // XXX
+// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFnRouteTemplate')) // XXX
 
 tape.test('azure functions', function (suite) {
   let apmServer
