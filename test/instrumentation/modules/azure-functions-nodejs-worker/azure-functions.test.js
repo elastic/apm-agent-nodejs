@@ -9,6 +9,7 @@
 const assert = require('assert')
 const { spawn } = require('child_process')
 const http = require('http')
+const os = require('os')
 const path = require('path')
 
 const semver = require('semver')
@@ -422,7 +423,8 @@ tape.test('azure functions', function (suite) {
   })
 
   let fnAppProc
-  const funcExe = path.resolve(__dirname, '../../../../node_modules/.bin/func')
+  const funcExe = path.resolve(__dirname, '../../../../node_modules/.bin/func') + (
+    os.platform() === 'win32' ? '.cmd' : '')
   const startJs = path.resolve(__dirname, '../../../../start.js')
   const fnAppDir = path.join(__dirname, 'fixtures', 'AJsAzureFnApp')
   suite.test('setup: "func start" for AJsAzureFnApp fixture', t => {
