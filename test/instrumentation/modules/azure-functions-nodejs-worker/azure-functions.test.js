@@ -397,9 +397,41 @@ var TEST_REQUESTS = [
         'transaction.faas.id')
       t.equal(trans.context.request.url.full, 'http://127.0.0.1:7071/api/products/electronics/42', 'transaction.context.request.url.full')
     }
+  },
+  {
+    testName: 'HttpFnDistTrace',
+    reqOpts: { method: 'GET', path: '/api/HttpFnDistTraceA' },
+    expectedRes: {
+      statusCode: 200,
+      body: 'HttpFnDistTraceA body'
+    },
+    checkApmEvents: (t, apmEventsForReq) => {
+      // Expect:
+      //  trans "GET HttpFnDistTraceA"
+      //  `- span "spanA"
+      //     `- span "GET $HOST:$PORT"
+      //        `- trans "GET HttpFnDistTraceB"
+      t.equal(apmEventsForReq.length, 4)
+      const t1 = apmEventsForReq[0].transaction
+      t.equal(t1.name, 'GET HttpFnDistTraceA', 't1.name')
+      t.equal(t1.faas.name, 'AJsAzureFnApp/HttpFnDistTraceA', 't1.faas.name')
+      const s1 = apmEventsForReq[1].span
+      t.equal(s1.name, 'spanA', 's1.name')
+      t.equal(s1.parent_id, t1.id, 's1 is a child of t1')
+      const s2 = apmEventsForReq[2].span
+      t.equal(s2.name, `GET ${s2.context.service.target.name}`, 's2.name')
+      t.equal(s2.type, 'external', 's2.type')
+      t.equal(s2.parent_id, s1.id, 's2 is a child of s1')
+      const t2 = apmEventsForReq[3].transaction
+      t.equal(t2.name, 'GET HttpFnDistTraceB', 't2.name')
+      t.equal(t2.faas.name, 'AJsAzureFnApp/HttpFnDistTraceB', 't2.faas.name')
+      t.equal(t2.parent_id, s2.id, 't2 is a child of s2')
+      t.equal(t2.context.request.headers.traceparent, `00-${t1.trace_id}-${s2.id}-01`, 't2 traceparent header')
+      t.equal(t2.context.request.headers.tracestate, 'es=s:1', 't2 tracestate header')
+    }
   }
 ]
-// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFnRouteTemplate')) // Use this for dev work.
+// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFnDistTrace')) // Use this for dev work.
 
 tape.test('azure functions', function (suite) {
   let apmServer
