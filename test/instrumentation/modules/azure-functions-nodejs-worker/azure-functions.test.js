@@ -46,21 +46,21 @@ function formatForTComment (data) {
 /**
  * Wait for the test "func start" to be ready.
  *
- * This polls the <http://localhost:7071/admin/functions> admin endpoint until
+ * This polls the <http://127.0.0.1:7071/admin/functions> admin endpoint until
  * it gets a 200 response -- assuming the server is ready by then.
- * It times out after ~60s (high because slow CI).
+ * It times out after ~30s.
  *
  * @param {Test} t - This is only used to `t.comment(...)` with progress.
  * @param {Function} cb - Calls `cb(err)` if there was a timeout, `cb()` on
  *    success.
  */
 function waitForServerReady (t, cb) {
-  let sentinel = 30
+  let sentinel = 15
   const INTERVAL_MS = 2000
 
   const pollForServerReady = () => {
     const req = http.get(
-      'http://localhost:7071/admin/functions',
+      'http://127.0.0.1:7071/admin/functions',
       {
         agent: false,
         timeout: 500
@@ -97,7 +97,7 @@ function waitForServerReady (t, cb) {
 async function makeTestRequest (t, testReq) {
   return new Promise((resolve, reject) => {
     const reqOpts = testReq.reqOpts
-    const url = `http://localhost:7071${reqOpts.path}`
+    const url = `http://127.0.0.1:7071${reqOpts.path}`
     t.comment(`makeTestRequest: "${testReq.testName}" (${reqOpts.method} ${url})`)
     const req = http.request(
       url,
@@ -221,7 +221,7 @@ var TEST_REQUESTS = [
       t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution ' + trans.faas.execution)
       t.equal(trans.faas.coldstart, true, 'transaction.faas.coldstart')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
-      t.equal(trans.context.request.url.full, 'http://localhost:7071/api/HttpFn1', 'transaction.context.request.url.full')
+      t.equal(trans.context.request.url.full, 'http://127.0.0.1:7071/api/HttpFn1', 'transaction.context.request.url.full')
       t.ok(trans.context.request.headers, 'transaction.context.request.headers')
       t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code')
       t.equal(trans.context.response.headers.MyHeaderName, 'MyHeaderValue', 'transaction.context.response.headers.MyHeaderName')
@@ -377,7 +377,7 @@ var TEST_REQUESTS = [
       t.equal(trans.faas.id,
         '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFn1',
         'transaction.faas.id')
-      t.equal(trans.context.request.url.full, 'http://localhost:7071/api/httpfn1', 'transaction.context.request.url.full')
+      t.equal(trans.context.request.url.full, 'http://127.0.0.1:7071/api/httpfn1', 'transaction.context.request.url.full')
     }
   },
   {
@@ -397,7 +397,7 @@ var TEST_REQUESTS = [
       t.equal(trans.faas.id,
         '/subscriptions/2491fc8e-f7c1-4020-b9c6-78509919fd16/resourceGroups/my-resource-group/providers/Microsoft.Web/sites/AJsAzureFnApp/functions/HttpFnRouteTemplate',
         'transaction.faas.id')
-      t.equal(trans.context.request.url.full, 'http://localhost:7071/api/products/electronics/42', 'transaction.context.request.url.full')
+      t.equal(trans.context.request.url.full, 'http://127.0.0.1:7071/api/products/electronics/42', 'transaction.context.request.url.full')
     }
   }
 
