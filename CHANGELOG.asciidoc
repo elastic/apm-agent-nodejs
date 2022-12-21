@@ -32,23 +32,15 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
+[[release-notes-3.41.1]]
+==== 3.41.1 2022/12/21
 
 [float]
 ===== Bug fixes
 
 * Fix a bug in span compression with sending spans that were buffered for
-  possible compression. Before this fix a compressible span could be sent
-  *twice* or not sent at all. ({pull}3076[#3076])
-
-[float]
-===== Chores
+  possible compression. Before this fix, in some cases a compressible span could
+  be sent *twice* or not sent at all. ({pull}3076[#3076])
 
 
 [[release-notes-3.41.0]]
