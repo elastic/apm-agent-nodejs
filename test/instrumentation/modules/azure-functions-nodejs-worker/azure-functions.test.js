@@ -208,7 +208,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFn1', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFn1', 'transaction.name')
       t.equal(trans.type, 'request', 'transaction.type')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
@@ -236,7 +236,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 2)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFnError', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFnError', 'transaction.name')
       t.equal(trans.outcome, 'failure', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
       t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFnError', 'transaction.faas.name')
@@ -268,7 +268,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFnBindingsRes', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFnBindingsRes', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -285,7 +285,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFnContextDone', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFnContextDone', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -302,7 +302,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFnReturnContext', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFnReturnContext', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -319,7 +319,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFnReturnResponseData', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFnReturnResponseData', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -335,7 +335,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFnReturnObject', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFnReturnObject', 'transaction.name')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -351,7 +351,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFnReturnString', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFnReturnString', 'transaction.name')
       t.equal(trans.outcome, 'failure', 'transaction.outcome')
       t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
       t.equal(trans.context.request.method, 'GET', 'transaction.context.request.method')
@@ -369,7 +369,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET HttpFn1', 'transaction.name')
+      t.equal(trans.name, 'GET /api/HttpFn1', 'transaction.name')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFn1', 'transaction.faas.name')
       t.equal(trans.faas.id,
@@ -389,7 +389,7 @@ var TEST_REQUESTS = [
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1)
       const trans = apmEventsForReq[0].transaction
-      t.equal(trans.name, 'GET products/{category:alpha}/{id:int?}', 'transaction.name')
+      t.equal(trans.name, 'GET /api/products/{category:alpha}/{id:int?}', 'transaction.name')
       t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
       t.equal(trans.faas.name, 'AJsAzureFnApp/HttpFnRouteTemplate', 'transaction.faas.name')
       t.equal(trans.faas.id,
@@ -413,7 +413,7 @@ var TEST_REQUESTS = [
       //        `- trans "GET HttpFnDistTraceB"
       t.equal(apmEventsForReq.length, 4)
       const t1 = apmEventsForReq[0].transaction
-      t.equal(t1.name, 'GET HttpFnDistTraceA', 't1.name')
+      t.equal(t1.name, 'GET /api/HttpFnDistTraceA', 't1.name')
       t.equal(t1.faas.name, 'AJsAzureFnApp/HttpFnDistTraceA', 't1.faas.name')
       const s1 = apmEventsForReq[1].span
       t.equal(s1.name, 'spanA', 's1.name')
@@ -423,7 +423,7 @@ var TEST_REQUESTS = [
       t.equal(s2.type, 'external', 's2.type')
       t.equal(s2.parent_id, s1.id, 's2 is a child of s1')
       const t2 = apmEventsForReq[3].transaction
-      t.equal(t2.name, 'GET HttpFnDistTraceB', 't2.name')
+      t.equal(t2.name, 'GET /api/HttpFnDistTraceB', 't2.name')
       t.equal(t2.faas.name, 'AJsAzureFnApp/HttpFnDistTraceB', 't2.faas.name')
       t.equal(t2.parent_id, s2.id, 't2 is a child of s2')
       t.equal(t2.context.request.headers.traceparent, `00-${t1.trace_id}-${s2.id}-01`, 't2 traceparent header')
