@@ -449,7 +449,7 @@ tape.test('azure functions', function (suite) {
   let fnAppProc
   const funcExe = path.resolve(__dirname, '../../../../node_modules/.bin/func') + (
     os.platform() === 'win32' ? '.cmd' : '')
-  const startJs = path.resolve(__dirname, '../../../../start.js')
+  // const startJs = path.resolve(__dirname, '../../../../start.js')
   const fnAppDir = path.join(__dirname, 'fixtures', 'AJsAzureFnApp')
   suite.test('setup: "func start" for AJsAzureFnApp fixture', t => {
     fnAppProc = spawn(
@@ -458,7 +458,6 @@ tape.test('azure functions', function (suite) {
       {
         cwd: fnAppDir,
         env: Object.assign({}, process.env, {
-          NODE_OPTIONS: '-r ' + startJs,
           ELASTIC_APM_SERVER_URL: apmServerUrl,
           ELASTIC_APM_API_REQUEST_TIME: '2s'
         })
