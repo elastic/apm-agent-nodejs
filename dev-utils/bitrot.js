@@ -173,11 +173,10 @@ function loadSupportedDoc () {
   //      [ '<<restify,Restify>>', '>=5.2.0' ],
   //      [ '<<lambda,AWS Lambda>>', 'N/A' ],
   //      ['https://www.npmjs.com/package/jade[jade]', '>=0.5.6']
-  // That first set from the "Frameworks" table we'll special case:
-  // - 'N/A' -> skip it
-  // - '<<hapi,@hapi/hapi>>' -> '@hapi/hapi', but take the first token
-  //   as the, module name for the others
-  // - '<<koa,...' -> two entries: 'koa-router' and '@koa/router'
+  //
+  // The entries in the "Frameworks" table use the names of internal links in
+  // these docs. The anchor name is *sometimes* the same name as the npm
+  // module, but sometimes not.
   var results = []
   let match
   rows.forEach(function (row) {
@@ -188,11 +187,15 @@ function loadSupportedDoc () {
       if (!match) {
         throw new Error(`could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(row[0])}`)
       }
-      var moduleNames = [match[1]]
-      if (match[2] === '@hapi/hapi') {
+      var moduleNames
+      if (match[1] === 'nextjs') {
+        moduleNames = ['next']
+      } else if (match[2] === '@hapi/hapi') {
         moduleNames = [match[2]]
       } else if (match[1] === 'koa') {
         moduleNames = ['koa-router', '@koa/router']
+      } else {
+        moduleNames = [match[1]]
       }
       moduleNames.forEach(n => {
         results.push({ name: n, versions: row[1] })
@@ -205,6 +208,7 @@ function loadSupportedDoc () {
       results.push({ name: match[1], versions: row[1] })
     }
   })
+  console.log('XXX results: ', results)
   return results
 }
 
@@ -239,7 +243,10 @@ function getNpmInfo (name) {
 
 function bitrot (moduleNames) {
   log.debug({ moduleNames }, 'bitrot')
-  var tavYml = yaml.load(fs.readFileSync('.tav.yml', 'utf8'))
+  var tavYmls = [
+    yaml.load(fs.readFileSync('.tav.yml', 'utf8')),
+    yaml.load(fs.readFileSync('test/instrumentation/modules/next/a-nextjs-app/.tav.yml', 'utf8'))
+  ]
   var supported = loadSupportedDoc()
 
   // Merge into one data structure we can iterate through.
@@ -249,11 +256,13 @@ function bitrot (moduleNames) {
       rangesFromName[name] = { tavRanges: [], supRanges: [] }
     }
   }
-  for (const [label, tavInfo] of Object.entries(tavYml)) {
-    var name = tavInfo.name || label
-    ensureKey(name)
-    rangesFromName[name].tavRanges.push(tavInfo.versions)
-  }
+  tavYmls.forEach(tavYml => {
+    for (const [label, tavInfo] of Object.entries(tavYml)) {
+      var name = tavInfo.name || label
+      ensureKey(name)
+      rangesFromName[name].tavRanges.push(tavInfo.versions)
+    }
+  })
   for (const supInfo of supported) {
     ensureKey(supInfo.name)
     rangesFromName[supInfo.name].supRanges.push(supInfo.versions)
