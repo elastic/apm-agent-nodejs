@@ -16,7 +16,7 @@ const semver = require('semver')
 const tape = require('tape')
 const treekill = require('tree-kill')
 
-const { MockAPMServer } = require('../../../_mock_apm_server')
+const { MockAPMServer } = require('../../_mock_apm_server')
 
 if (!semver.satisfies(process.version, '>=14 <19')) {
   console.log(`# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`)
@@ -447,9 +447,8 @@ tape.test('azure functions', function (suite) {
   })
 
   let fnAppProc
-  const funcExe = path.resolve(__dirname, '../../../../node_modules/.bin/func') + (
+  const funcExe = path.resolve(__dirname, '../../../node_modules/.bin/func') + (
     os.platform() === 'win32' ? '.cmd' : '')
-  // const startJs = path.resolve(__dirname, '../../../../start.js')
   const fnAppDir = path.join(__dirname, 'fixtures', 'AJsAzureFnApp')
   suite.test('setup: "func start" for AJsAzureFnApp fixture', t => {
     fnAppProc = spawn(

@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-const apm = require('../../../../../../../') // elastic-apm-node
+const apm = require('../../../../../../') // elastic-apm-node
 
 const http = require('http')
 const https = require('https')

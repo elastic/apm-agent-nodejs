@@ -20,6 +20,7 @@ project.lock.json
 /data
 .secrets
 appsettings.json
+# Explicitly allow local.settings.json for local testing.
 # local.settings.json
 
 node_modules
