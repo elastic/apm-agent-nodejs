@@ -208,7 +208,6 @@ function loadSupportedDoc () {
       results.push({ name: match[1], versions: row[1] })
     }
   })
-  console.log('XXX results: ', results)
   return results
 }
 
