@@ -159,6 +159,57 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
     }, 300)
   })
 
+  // The scenario is as follows:
+  //   trans t0
+  //     span s1: _bufferdSpan=s2
+  //       span s2: ended, compressible -> buffered on s1
+  //       span s3: incompressible, _bufferdSpan=s4
+  //         span s4: ended, compressible -> buffered on s3
+  //
+  // What happens when s3 ends? We expect:
+  // - s4 is encoded and sent
+  // - s2 is encoded and sent
+  // - s3 is encoded and sent
+  //
+  // This tests the following from https://github.com/elastic/apm/blob/main/specs/agents/handling-huge-traces/tracing-spans-compress.md#span-buffering
+  // > A buffered span gets reported when
+  // >  1. its parent ends
+  // >  2. a non-compressible sibling ends
+  suite.test('ensure a span buffered on parent is sent when incompressible span ends', function (t) {
+    resetAgent(function (data) {
+      // We expect sent spans for: s4, s2, and s3; in that order.
+      t.equals(data.length, 3, '3 events sent')
+      t.equals(data.spans.length, 3, '3 spans sent')
+      t.equals(data.spans.map(s => s.name).join(','), 's4,s2,s3',
+        'sent spans are s4,s2,s3; in that order')
+      t.end()
+    })
+
+    const t0 = agent.startTransaction('t0')
+    setImmediate(() => {
+      const s1 = agent.startSpan('s1', 'manual')
+
+      setImmediate(() => {
+        const s2 = agent.startSpan('s2', 'db', 'mysql', { exitSpan: true })
+        t.equal(s2.getParentSpan().name, 's1', 's2 is a child of s1')
+        s2.end()
+        t.equal(s1.getBufferedSpan().name, 's2', 's2 is buffered on s1')
+
+        const s3 = t0.startSpan('s3', 'manual') // incompressible (because exitSpan=false)
+        t.equal(s3.getParentSpan().name, 's1', 's3 is a child of s1')
+
+        setImmediate(() => {
+          const s4 = agent.startSpan('s4', 'db', 'mysql', { exitSpan: true })
+          t.equal(s4.getParentSpan().name, 's3', 's4 is a child of s3')
+          s4.end()
+          t.equal(s3.getBufferedSpan().name, 's4', 's4 is buffered on s3')
+
+          s3.end()
+        })
+      })
+    })
+  })
+
   suite.end()
 })
 

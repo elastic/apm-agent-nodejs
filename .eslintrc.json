@@ -11,6 +11,7 @@
     "license-header/header": [ "error", "./dev-utils/license-header.js" ]
   },
   "ignorePatterns": [
+    "/*.example.js", // a pattern for uncommited local dev files to avoid linting
     "/.nyc_output",
     "/build",
     "node_modules",

@@ -43,12 +43,17 @@ Notes:
 * Support for tracing/monitoring https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions].
   See the <<azure-functions>> document.
   ({pull}3071[#3071], https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-azure-functions.md[spec])
+[[release-notes-3.41.1]]
+==== 3.41.1 2022/12/21
 
 [float]
 ===== Bug fixes
 
 [float]
 ===== Chores
+* Fix a bug in span compression with sending spans that were buffered for
+  possible compression. Before this fix, in some cases a compressible span could
+  be sent *twice* or not sent at all. ({pull}3076[#3076])
 
 
 [[release-notes-3.41.0]]
