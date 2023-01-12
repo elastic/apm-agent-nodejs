@@ -11,17 +11,16 @@ module.exports = async function (context, req) {
       res.resume()
       res.on('error', reject)
       res.on('end', () => {
-
         // ... then respond.
-        const body = JSON.stringify({hi: 'there'});
+        const body = JSON.stringify({ hi: 'there' })
         context.res = {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(body)
-            },
-            body
-        };
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(body)
+          },
+          body
+        }
         resolve()
       })
     })
