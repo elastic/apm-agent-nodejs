@@ -31,7 +31,7 @@ const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../../../_mock_apm_server')
-const { formatForTComment } = require('../../_utils')
+const { formatForTComment } = require('../../../_utils')
 
 if (os.platform() === 'win32') {
   // Limitation: currently don't support testing on Windows.
