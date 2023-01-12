@@ -32,6 +32,25 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Support for tracing/monitoring https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions].
+  See the <<azure-functions>> document.
+  ({pull}3071[#3071], https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-azure-functions.md[spec])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
 [[release-notes-3.41.0]]
 ==== 3.41.0 2022/12/12
 
