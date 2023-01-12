@@ -4,6 +4,7 @@
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "AzureWebJobsStorage": "",
 
-    "WEBSITE_SITE_NAME": "an-azure-function-app"
+    "WEBSITE_SITE_NAME": "an-azure-function-app",
+    "WEBSITE_INSTANCE_ID": "test-website-instance-id"
   }
 }
