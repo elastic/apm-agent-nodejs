@@ -431,7 +431,7 @@ var TEST_REQUESTS = [
     }
   }
 ]
-// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFnError throws an error')) // Use this for dev work.
+// TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFn1')) // Use this for dev work.
 
 tape.test('azure functions', function (suite) {
   let apmServer
