@@ -17,30 +17,11 @@ const tape = require('tape')
 const treekill = require('tree-kill')
 
 const { MockAPMServer } = require('../../_mock_apm_server')
+const { formatForTComment } = require('../../_utils')
 
 if (!semver.satisfies(process.version, '>=14 <19')) {
   console.log(`# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`)
   process.exit()
-}
-
-// XXX move these to shared util (with next.test.js)
-// Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
-const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
-/**
- * Format the given data for passing to `t.comment()`.
- *
- * - t.comment() wipes leading whitespace. Prefix lines with '|' to avoid
- *   that, and to visually group a multi-line write.
- * - Drop ANSI escape characters, because those include control chars that
- *   are illegal in XML. When we convert TAP output to JUnit XML for
- *   Jenkins, then Jenkins complains about invalid XML. `FORCE_COLOR=0`
- *   can be used to disable ANSI escapes in `next dev`'s usage of chalk,
- *   but not in its coloured exception output.
- */
-function formatForTComment (data) {
-  return data.toString('utf8')
-    .replace(ANSI_RE, '')
-    .trimRight().replace(/\r?\n/g, '\n|') + '\n'
 }
 
 /**
