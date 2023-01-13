@@ -95,8 +95,8 @@ and set:
 
 [source,yaml]
 ----
-ELASTIC_APM_SERVER_URL: <your APM server URL from step 1>
-ELASTIC_APM_SECRET_TOKEN: <your APM secret token from step 1>
+ELASTIC_APM_SERVER_URL: <your APM server URL from the prerequisites step>
+ELASTIC_APM_SECRET_TOKEN: <your APM secret token from the prerequisites step>
 ----
 
 For example:
