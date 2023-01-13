@@ -33,7 +33,7 @@ dependency by running `npm uninstall azure-functions-core-tools` and
 https://github.com/Azure/azure-functions-core-tools#installing[install it separately].
 Having `azure-functions-core-tools` as a "devDependency" in your package.json
 will result in unreasonably large deployments that will be very slow to publish
-and will run your Azure Function app VM out of disk space.)
+and will run your Azure Function app VM out of disk space.
 ====
 
 You can also take a look at and use this https://github.com/elastic/apm-agent-nodejs/tree/main/examples/an-azure-function-app/[Azure Functions example app with Elastic APM already integrated].
