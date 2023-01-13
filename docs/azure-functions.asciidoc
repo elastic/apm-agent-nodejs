@@ -9,7 +9,7 @@ endif::[]
 
 === Monitoring Node.js Azure Functions
 
-The Node.js APM Agent can be used trace function invocations in an https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions] app.
+The Node.js APM Agent can trace function invocations in an https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions] app.
 
 
 [float]
