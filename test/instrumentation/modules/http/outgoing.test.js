@@ -33,19 +33,19 @@ var methods = ['request', 'get']
 //
 // http
 //
-test('http.request(options)', echoTest('http', (port, cb) => {
+test('http.request(options)', echoTest('http', {}, 2, (port, cb) => {
   var options = { port }
   var req = http.request(options)
   req.on('response', cb)
   return req
 }))
 
-test('http.request(options, callback)', echoTest('http', (port, cb) => {
+test('http.request(options, callback)', echoTest('http', {}, 2, (port, cb) => {
   var options = { port }
   return http.request(options, cb)
 }))
 
-test('http: consider useElasticTraceparentHeader config option', echoTest('http', { useElasticTraceparentHeader: false }, (port, cb) => {
+test('http: consider useElasticTraceparentHeader config option', echoTest('http', { useElasticTraceparentHeader: false }, 2, (port, cb) => {
   var options = { port }
   return http.request(options, cb)
 }))
@@ -85,20 +85,20 @@ test('http.request(options, callback) - aborted on data', abortTest('http', (por
 }))
 
 methods.forEach(function (name) {
-  test(`http.${name}(urlString)`, echoTest('http', (port, cb) => {
+  test(`http.${name}(urlString)`, echoTest('http', {}, 2, (port, cb) => {
     var urlString = `http://localhost:${port}`
     var req = http[name](urlString)
     req.on('response', cb)
     return req
   }))
 
-  test(`http.${name}(urlString, callback)`, echoTest('http', (port, cb) => {
-    var urlString = `http://localhost:${port}`
+  test(`http.${name}(urlString, callback)`, echoTest('http', {}, 2, (port, cb) => {
+    var urlString = `http://user:pass@localhost:${port}`
     return http[name](urlString, cb)
   }))
 
   if (url.URL) {
-    test(`http.${name}(urlObject)`, echoTest('http', (port, cb) => {
+    test(`http.${name}(urlObject)`, echoTest('http', {}, 2, (port, cb) => {
       var urlString = `http://localhost:${port}`
       var urlObject = new url.URL(urlString)
       var req = http[name](urlObject)
@@ -106,7 +106,7 @@ methods.forEach(function (name) {
       return req
     }))
 
-    test(`http.${name}(urlObject, callback)`, echoTest('http', (port, cb) => {
+    test(`http.${name}(urlObject, callback)`, echoTest('http', {}, 2, (port, cb) => {
       var urlString = `http://localhost:${port}`
       var urlObject = new url.URL(urlString)
       return http[name](urlObject, cb)
@@ -114,28 +114,65 @@ methods.forEach(function (name) {
   }
 })
 
+// Test that an outgoing HTTP request with basic auth in the URL or URL string
+// gets through in the "authorization" header to the server.
+test('http.request(urlStringWithAuth, cb)', t => {
+  const username = 'user'
+  const password = 'pass'
+  let serverReceivedHeaders
+
+  resetAgent({}, 3, data => {
+    // The `user:pass` auth information must get through.
+    const authz = serverReceivedHeaders.authorization
+    t.strictEqual(authz, `Basic ${Buffer.from(username + ':' + password).toString('base64')}`, 'authorization header')
+    t.end()
+  })
+
+  const server = http.createServer((req, res) => {
+    serverReceivedHeaders = req.headers
+    req.resume()
+    req.on('end', function () {
+      res.writeHead(200)
+      res.end()
+    })
+  })
+  server.listen(() => {
+    const port = server.address().port
+    const urlString = `http://${username}:${password}@localhost:${port}`
+    const tx = agent.startTransaction('tx')
+    const cReq = http.request(urlString, cRes => {
+      cRes.resume()
+      cRes.on('end', () => {
+        tx.end()
+        server.close()
+      })
+    })
+    cReq.end()
+  })
+})
+
 //
 // https
 //
-test('https.request(options)', echoTest('https', (port, cb) => {
+test('https.request(options)', echoTest('https', {}, 2, (port, cb) => {
   var options = { port, rejectUnauthorized: false }
   var req = https.request(options)
   req.on('response', cb)
   return req
 }))
 
-test('https.request(options, callback)', echoTest('https', (port, cb) => {
+test('https.request(options, callback)', echoTest('https', {}, 2, (port, cb) => {
   var options = { port, rejectUnauthorized: false }
   return https.request(options, cb)
 }))
 
-test('https: consider useElasticTraceparentHeader config option', echoTest('https', { useElasticTraceparentHeader: false }, (port, cb) => {
+test('https: consider useElasticTraceparentHeader config option', echoTest('https', { useElasticTraceparentHeader: false }, 2, (port, cb) => {
   var options = { port, rejectUnauthorized: false }
   return https.request(options, cb)
 }))
 
 methods.forEach(function (name) {
-  test(`https.${name}(urlString, options)`, echoTest('https', (port, cb) => {
+  test(`https.${name}(urlString, options)`, echoTest('https', {}, 2, (port, cb) => {
     var urlString = `https://localhost:${port}`
     var options = { rejectUnauthorized: false }
     var req = https[name](urlString, options)
@@ -144,7 +181,7 @@ methods.forEach(function (name) {
   }))
 
   if (semver.satisfies(process.version, '>=10.9')) {
-    test(`https.${name}(urlString, options, callback)`, echoTest('https', (port, cb) => {
+    test(`https.${name}(urlString, options, callback)`, echoTest('https', {}, 2, (port, cb) => {
       var urlString = `https://localhost:${port}`
       var options = { rejectUnauthorized: false }
       return https[name](urlString, options, cb)
@@ -152,7 +189,7 @@ methods.forEach(function (name) {
   }
 
   if (url.URL && semver.satisfies(process.version, '>=10.9')) {
-    test(`https.${name}(urlObject, options)`, echoTest('https', (port, cb) => {
+    test(`https.${name}(urlObject, options)`, echoTest('https', {}, 2, (port, cb) => {
       var urlString = `https://localhost:${port}`
       var urlObject = new url.URL(urlString)
       var options = { rejectUnauthorized: false }
@@ -161,7 +198,7 @@ methods.forEach(function (name) {
       return req
     }))
 
-    test(`https.${name}(urlObject, options, callback)`, echoTest('https', (port, cb) => {
+    test(`https.${name}(urlObject, options, callback)`, echoTest('https', {}, 2, (port, cb) => {
       var urlString = `https://localhost:${port}`
       var urlObject = new url.URL(urlString)
       var options = { rejectUnauthorized: false }
@@ -170,7 +207,7 @@ methods.forEach(function (name) {
   }
 })
 
-function echoTest (type, opts, handler) {
+function echoTest (type, opts, numExpected, handler) {
   if (arguments.length === 2) {
     handler = opts
     opts = undefined
@@ -178,7 +215,7 @@ function echoTest (type, opts, handler) {
 
   return function (t) {
     echoServer(type, (cp, port) => {
-      resetAgent(opts, data => {
+      resetAgent(opts, 2, data => {
         t.strictEqual(data.transactions.length, 1, 'has one transaction')
         t.strictEqual(data.spans.length, 1, 'has one span')
         t.strictEqual(data.spans[0].name, 'GET localhost:' + port, 'has expected span name')
@@ -245,7 +282,7 @@ function abortTest (type, handler) {
         url: `http://localhost:${port}/`
       }
 
-      resetAgent({}, data => {
+      resetAgent({}, 2, data => {
         t.equal(data.transactions.length, 1, 'has one transaction')
         t.equal(data.spans.length, 1, 'has one span')
         t.equal(data.spans[0].name, `${req.method} localhost:${port}`, 'has expected span name')
@@ -297,8 +334,8 @@ function abortTest (type, handler) {
   }
 }
 
-function resetAgent (opts, cb) {
+function resetAgent (opts, numExpected, cb) {
   agent._instrumentation.testReset()
   agent._config(opts)
-  agent._transport = mockClient(2, cb)
+  agent._transport = mockClient(numExpected, cb)
 }
