@@ -40,6 +40,10 @@ Notes:
 [float]
 ===== Features
 
+* Support for tracing/monitoring https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions].
+  See the <<azure-functions>> document.
+  ({pull}3071[#3071], https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-azure-functions.md[spec])
+
 [float]
 ===== Bug fixes
 
@@ -48,13 +52,6 @@ Notes:
   if the first arg was a URL or string with `username` and/or `password`
   values, e.g. `https://user:pass@...`, then the auth fields were not
   included in the actual HTTP request.  ({issues}2044[#2044])
-
-* Support for tracing/monitoring https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions].
-  See the <<azure-functions>> document.
-  ({pull}3071[#3071], https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-azure-functions.md[spec])
-
-[float]
-===== Bug fixes
 
 [float]
 ===== Chores
