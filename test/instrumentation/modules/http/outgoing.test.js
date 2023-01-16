@@ -18,7 +18,7 @@ const agent = require('../../../..').start({
 
 var http = require('http')
 var https = require('https')
-var url = require('url')
+const { URL } = require('url')
 
 var endOfStream = require('end-of-stream')
 var semver = require('semver')
@@ -29,6 +29,7 @@ var mockClient = require('../../../_mock_http_client')
 var { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 var methods = ['request', 'get']
+const nodeHttpRequestSupportsSeparateUrlArg = semver.gte(process.version, '10.9.0')
 
 //
 // http
@@ -93,25 +94,23 @@ methods.forEach(function (name) {
   }))
 
   test(`http.${name}(urlString, callback)`, echoTest('http', {}, 2, (port, cb) => {
-    var urlString = `http://user:pass@localhost:${port}`
+    var urlString = `http://localhost:${port}`
     return http[name](urlString, cb)
   }))
 
-  if (url.URL) {
-    test(`http.${name}(urlObject)`, echoTest('http', {}, 2, (port, cb) => {
-      var urlString = `http://localhost:${port}`
-      var urlObject = new url.URL(urlString)
-      var req = http[name](urlObject)
-      req.on('response', cb)
-      return req
-    }))
+  test(`http.${name}(urlObject)`, echoTest('http', {}, 2, (port, cb) => {
+    var urlString = `http://localhost:${port}`
+    var urlObject = new URL(urlString)
+    var req = http[name](urlObject)
+    req.on('response', cb)
+    return req
+  }))
 
-    test(`http.${name}(urlObject, callback)`, echoTest('http', {}, 2, (port, cb) => {
-      var urlString = `http://localhost:${port}`
-      var urlObject = new url.URL(urlString)
-      return http[name](urlObject, cb)
-    }))
-  }
+  test(`http.${name}(urlObject, callback)`, echoTest('http', {}, 2, (port, cb) => {
+    var urlString = `http://localhost:${port}`
+    var urlObject = new URL(urlString)
+    return http[name](urlObject, cb)
+  }))
 })
 
 // Test that an outgoing HTTP request with basic auth in the URL or URL string
@@ -151,6 +150,44 @@ test('http.request(urlStringWithAuth, cb)', t => {
   })
 })
 
+// Test that incorrect call signature usage results in the expected error.
+test('http.request(..., bogusCb) errors on the bogusCb', { timeout: 5000 }, t => {
+  resetAgent({}, 1, data => {
+    const trans = data.transactions[0]
+    t.equal(trans.name, 'tx', 'trans.name')
+    t.end()
+  })
+
+  const server = http.createServer((req, res) => {
+    req.resume()
+    req.on('end', function () {
+      res.writeHead(200)
+      res.end()
+    })
+  })
+  server.listen(() => {
+    const port = server.address().port
+    const urlString = `http://@localhost:${port}/a-path`
+    const tx = agent.startTransaction('tx')
+    try {
+      if (nodeHttpRequestSupportsSeparateUrlArg) {
+        http.request(urlString, {}, 'this-is-not-a-cb-function')
+      } else {
+        http.request(urlString, 'this-is-not-a-cb-function')
+      }
+    } catch (err) {
+      t.comment(`err.message: ${JSON.stringify(err.message)}`)
+      t.ok(err.message.indexOf('"listener" argument must be') !== -1, 'error message mentions listener argument')
+      t.ok(err.name.indexOf('TypeError') !== -1, 'error name includes "TypeError"')
+      if (err.code) {
+        t.equal(err.code, 'ERR_INVALID_ARG_TYPE', 'err.code')
+      }
+      tx.end()
+      server.close()
+    }
+  })
+})
+
 //
 // https
 //
@@ -172,26 +209,24 @@ test('https: consider useElasticTraceparentHeader config option', echoTest('http
 }))
 
 methods.forEach(function (name) {
-  test(`https.${name}(urlString, options)`, echoTest('https', {}, 2, (port, cb) => {
-    var urlString = `https://localhost:${port}`
-    var options = { rejectUnauthorized: false }
-    var req = https[name](urlString, options)
-    req.on('response', cb)
-    return req
-  }))
+  if (nodeHttpRequestSupportsSeparateUrlArg) {
+    test(`https.${name}(urlString, options)`, echoTest('https', {}, 2, (port, cb) => {
+      var urlString = `https://localhost:${port}`
+      var options = { rejectUnauthorized: false }
+      var req = https[name](urlString, options)
+      req.on('response', cb)
+      return req
+    }))
 
-  if (semver.satisfies(process.version, '>=10.9')) {
     test(`https.${name}(urlString, options, callback)`, echoTest('https', {}, 2, (port, cb) => {
       var urlString = `https://localhost:${port}`
       var options = { rejectUnauthorized: false }
       return https[name](urlString, options, cb)
     }))
-  }
 
-  if (url.URL && semver.satisfies(process.version, '>=10.9')) {
     test(`https.${name}(urlObject, options)`, echoTest('https', {}, 2, (port, cb) => {
       var urlString = `https://localhost:${port}`
-      var urlObject = new url.URL(urlString)
+      var urlObject = new URL(urlString)
       var options = { rejectUnauthorized: false }
       var req = https[name](urlObject, options)
       req.on('response', cb)
@@ -200,7 +235,7 @@ methods.forEach(function (name) {
 
     test(`https.${name}(urlObject, options, callback)`, echoTest('https', {}, 2, (port, cb) => {
       var urlString = `https://localhost:${port}`
-      var urlObject = new url.URL(urlString)
+      var urlObject = new URL(urlString)
       var options = { rejectUnauthorized: false }
       return https[name](urlObject, options, cb)
     }))
