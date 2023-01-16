@@ -96,7 +96,7 @@
     "cookie": "^0.5.0",
     "core-util-is": "^1.0.2",
     "debug": "^4.1.1",
-    "elastic-apm-http-client": "elastic/apm-nodejs-http-client#trentm/agent.installation.method",
+    "elastic-apm-http-client": "github:elastic/apm-nodejs-http-client#trentm/agent.installation.method",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",

@@ -15,27 +15,10 @@ const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
 
+const { formatForTComment } = require('../_utils')
 const { MockAPMServer } = require('../_mock_apm_server')
 
 const fixturesDir = path.join(__dirname, 'fixtures')
-
-/**
- * Format the given data for passing to `t.comment()`.
- *
- * - t.comment() wipes leading whitespace. Prefix lines with '|' to avoid
- *   that, and to visually group a multi-line write.
- * - Drop ANSI escape characters, because those include control chars that
- *   are illegal in XML. When we convert TAP output to JUnit XML for
- *   Jenkins, then Jenkins complains about invalid XML.
- */
-// XXX get shared after merge
-function formatForTComment (data) {
-  // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
-  const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
-  return '|' + data.toString('utf8')
-    .replace(ANSI_RE, '')
-    .trimRight().replace(/\n/g, '\n|')
-}
 
 // ---- tests
 
@@ -139,7 +122,7 @@ tape.test('metadata.system.agent.activation_method fixtures', function (suite) {
           function done (err, stdout, stderr) {
             t.error(err, 'ran successfully')
             if (err) {
-              t.comment(`$ node ${c.script}\n-- stdout --\n${formatForTComment(stdout)}\n-- stderr --\n${formatForTComment(stderr)}\n--`)
+              t.comment(`$ node ${c.script}\n-- stdout --\n|${formatForTComment(stdout)}\n-- stderr --\n|${formatForTComment(stderr)}\n--`)
             }
             const metadata = server.events[0].metadata
             t.equal(metadata.service.agent.activation_method, c.expectedMethod,
