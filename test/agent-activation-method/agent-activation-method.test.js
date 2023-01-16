@@ -7,7 +7,7 @@
 'use strict'
 
 // Test determination of the Agent install/start method used for the
-// 'agent.installation.method' metadatum.
+// 'system.agent.activation_method' metadatum.
 
 const { exec, execFile } = require('child_process')
 const fs = require('fs')
@@ -28,6 +28,7 @@ const fixturesDir = path.join(__dirname, 'fixtures')
  *   are illegal in XML. When we convert TAP output to JUnit XML for
  *   Jenkins, then Jenkins complains about invalid XML.
  */
+// XXX get shared after merge
 function formatForTComment (data) {
   // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
   const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
@@ -57,7 +58,7 @@ tape.test(`setup: npm install (in ${fixturesDir})`, { skip: haveNodeModules }, t
   )
 })
 
-tape.test('agent.installation.method fixtures', function (suite) {
+tape.test('metadata.system.agent.activation_method fixtures', function (suite) {
   // Note: We do not test the "aws-lambda-layer" and "k8s-attacher" cases.
   // Testing these would require simulating an agent install to the special
   // paths used in those cases.
@@ -141,8 +142,8 @@ tape.test('agent.installation.method fixtures', function (suite) {
               t.comment(`$ node ${c.script}\n-- stdout --\n${formatForTComment(stdout)}\n-- stderr --\n${formatForTComment(stderr)}\n--`)
             }
             const metadata = server.events[0].metadata
-            t.equal(metadata.service.agent.installation.method, c.expectedMethod,
-              `agent.installation.method === ${c.expectedMethod}`)
+            t.equal(metadata.service.agent.activation_method, c.expectedMethod,
+              `metadata.service.agent.activation_method === ${c.expectedMethod}`)
             server.close()
             t.end()
           }
