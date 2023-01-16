@@ -23,7 +23,7 @@ services:
       LOCALSTACK_HOST: 'localstack'
       NODE_VERSION: ${NODE_VERSION}
       TAV: ${TAV_MODULE}
-      ELASTIC_APM_ASYNC_HOOKS: ${ELASTIC_APM_ASYNC_HOOKS}
+      ELASTIC_APM_CONTEXT_MANAGER: ${ELASTIC_APM_CONTEXT_MANAGER}
       HOME: /tmp
       PATH: /app/node_modules/.bin:./node_modules/.bin:/app/node_modules:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
     volumes:

@@ -7,22 +7,7 @@ endif::[]
 
 === `Agent` API
 
-NOTE: This is the API documentation for the Elastic APM Node.js Agent.
-For getting started,
-we recommend that you take a look at our framework specific documentation for either <<express,Express>>,
-<<hapi,hapi>>,
-<<koa,Koa>>,
-<<restify,Restify>>,
-<<fastify,Fastify>>,
-or <<custom-stack,custom frameworks>>.
-
-The Elastic APM agent for Node.js is a singleton.
-You get the agent instance by either requiring `elastic-apm-node` or `elastic-apm-node/start`.
-For details on the two approaches,
-see the <<advanced-setup,Setup and Configuration>> guide.
-
-The agent is also returned by the `start()` function,
-which allows you to require and start the agent on the same line:
+The Elastic APM Node.js agent is a singleton. You get the agent instance by requiring either `elastic-apm-node` or `elastic-apm-node/start`. The agent is also returned by the <<apm-start,`.start()`>> method, which allows you to require and start the agent on the same line:
 
 [source,js]
 ----
@@ -33,6 +18,7 @@ If you need to access the `Agent` in any part of your codebase,
 you can simply require `elastic-apm-node` to access the already started singleton.
 You therefore don't need to manage or pass around the started `Agent` yourself.
 
+
 [[apm-start]]
 ==== `apm.start([options])`
 
@@ -40,13 +26,7 @@ Starts the Elastic APM agent for Node.js and returns itself.
 
 [IMPORTANT]
 ====
-Put the call to this function at the very top of your main app file - before requiring any other modules.
-
-If you are using Babel calling this function will not have the desired effect.
-See the <<es-modules,Babel / ES Modules support documentation>> for details.
-
-If you are using Typescript the import statement may be removed if it is not used.
-It is recommended to use `-r elastic-apm-node/start` when starting the app to avoid this.
+For the APM agent to automatically instrument Node.js modules, it must be started before those modules are loaded. See <<starting-the-agent>> for details and possible surprises with compilers/transpilers/bundlers.
 ====
 
 See the <<configuration,Configuration documentation>> for available options.
@@ -355,6 +335,8 @@ See the <<apm-add-labels,`apm.addLabels()`>> method for details about the format
 
 ** `skipOutcome` +{type-boolean}+ Whether to skip setting the outcome value for the current span to `failure`.  See <<span-outcome,Span outcome>> for more information. *Default:* `false`.
 
+** `parent` <<transaction-api,Transaction>> | <<span-api,Span>> | `null` - A Transaction or Span instance to make the parent of this error. If not given (or `undefined`), then the current span or transaction will be used. If `null` is given, then no span or transaction will be used. [small]#(Added in v3.33.0.)#
+
 * `callback` - Will be called after the error has been sent to the APM Server.
 It will receive an `Error` instance if the agent failed to send the error,
 and the id of the captured error.
@@ -535,7 +517,9 @@ Sub-millisecond precision can be achieved using decimals.
 If not provided,
 the current time will be used
 
-** `childOf` +{type-string}+ The traceparent header received from a remote service.
+** `childOf` +{type-string}+ A W3C trace-context "traceparent" string, typically received from a remote service call.
+
+** `tracestate` +{type-string}+ A W3C trace-context "tracestate" string.
 
 ** `links` +{type-array}+ Span links.
 A transaction can refer to zero or more other transactions or spans (separate

@@ -106,7 +106,7 @@ Elastic APM is incorrectly configured: serverUrl "..." contains an invalid port!
 
 [float]
 [[missing-performance-metrics]]
-==== No performance metrics sent to APM Server
+==== No metrics or trace data is sent to APM Server
 
 Errors get tracked just fine, but you don't see any performance metrics or
 trace data.
@@ -115,9 +115,7 @@ Make sure that the agent is *both required and started at the very top of your m
 It's important that the agent is started before any other modules are
 `require`d.  If not, the agent will not be able to hook into any modules and
 will not be able to measure the performance of your application.
-
-IMPORTANT: If you are using Babel / ES modules in your application,
-make sure you have read about the <<es-modules,Babel / ES Module support>>.
+See <<start-gotchas>> for a number of possible surprises in correctly starting the APM agent when used with some compilers or bundlers.
 
 
 [float]

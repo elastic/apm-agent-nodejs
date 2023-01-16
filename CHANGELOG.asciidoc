@@ -32,6 +32,244 @@ Notes:
 === Node.js Agent version 3.x
 
 
+[[release-notes-3.41.1]]
+==== 3.41.1 2022/12/21
+
+[float]
+===== Bug fixes
+
+* Fix a bug in span compression with sending spans that were buffered for
+  possible compression. Before this fix, in some cases a compressible span could
+  be sent *twice* or not sent at all. ({pull}3076[#3076])
+
+
+[[release-notes-3.41.0]]
+==== 3.41.0 2022/12/12
+
+[float]
+===== Features
+
+* Capture HTTP context (status code, headers, etc.) on transactions (and
+  captured errors) for Lambda functions triggered by API Gateway.
+  ({issues}2419[#2419])
+
+* Support instrumentation for restify@10.
+
+[float]
+===== Bug fixes
+
+* Change default `serverUrl` from `http://localhost:8200` to `http://127.0.0.1:8200`
+  to avoid ambiguity between possible IPv4 and IPv6 DNS-resolved values for "localhost".
+  APM server only listens on IPv4 by default, so this avoids a possible surprising
+  mismatch. ({issues}3045[#3045])
+
+* Add `tracestate` to the `TransactionOptions` TypeScript type for
+  `apm.startTransaction(..., options)`. ({issues}3061[#3061])
+
+[float]
+===== Chores
+
+* Mark the published Lambda layer as supporting the recently released
+  "nodejs18.x" Lambda Runtime (`--compatible-runtimes`).
+
+
+[[release-notes-3.40.1]]
+==== 3.40.1 2022/11/15
+
+[float]
+===== Bug fixes
+
+* Prevent a possible tight loop in central config fetching. ({issues}3029[#3029])
+
+
+[[release-notes-3.40.0]]
+==== 3.40.0 2022/10/31
+
+[float]
+===== Features
+
+* Enable support for redis v4 ({pull}2945[#2945])
+
+* preview:[] Next.js server-side instrumentation. See the <<nextjs>> document.
++
+This adds instrumentation of the Next.js dev server (`next dev`) and prod
+server (`next start`). The APM transactions for incoming HTTP requests to the
+server will be named appropriately based on Next.js's routing -- both for
+user page routes (e.g. `GET /a-dynamic-page/[id]`) and for internal Next.js
+routes (e.g. `Next.js _next/data route my-page`,
+`Next.js Rewrite route /foo -> /bar`). As well, exceptions in server-side code
+(e.g. `getServerSideProps`, server-side run page handlers, API handlers) will
+be reported. ({pull}2959[#2959])
++
+This is a technical preview to get feedback from Next.js users. The details on
+how exactly the instrumentation works may change in future versions.
+
+* Improve container-info gathering to support AWS ECS/Fargate environments.
+  ({issues}2914[#2914])
+
+[float]
+===== Bug fixes
+
+* Source lines of context in stacktraces is *no longer reported* for "*.min.js"
+  files that do not have source-map information. These files are assumed to
+  be minimized files, for which source line context won't be useful. This
+  change is to guard against excessively large stacktrace data.
+
+[float]
+===== Chores
+
+* Add guards to ensure that a crazy `Cache-Control: max-age=...` response
+  header cannot accidentally result in inappropriate intervals for fetching
+  central config. The re-fetch delay is clamped to `[5 seconds, 1 day]`.
+  ({issues}2941[#2941])
+
+
+[[release-notes-3.39.0]]
+==== 3.39.0 2022/10/17
+
+[float]
+===== Features
+
+* Improve the granularity of data captured about downstream services, e.g.
+  databases, for spans that represent an external call (known as "exit spans").
+  This data is used for
+  https://www.elastic.co/guide/en/kibana/current/service-maps.html[Service Maps]
+  and
+  https://www.elastic.co/guide/en/kibana/current/dependencies.html[Dependencies]
+  in the Kibana APM app.
++
+This is handled via the new span `service.target.*` fields that replace the
+deprecated `destination.service.resource` field (https://github.com/elastic/apm/blob/main/specs/agents/tracing-spans-service-target.md[spec]). All instrumentations have
+been updated to set appropriate service target values. If necessary, e.g. for manual
+instrumentation, a new public <<span-setservicetarget>> API has been added to specify these values.
+({pull}2882[#2882])
++
+The never-public-but-available `span.setDestinationContext()` has been marked
+for removal (using it will `process.emitWarning()`). Users of this internal
+method should switch to the public <<span-setservicetarget>>.
++
+As part of this change, improvements have been made to some module instrumentations:
++
+  ** `redis` and `ioredis`: `span.type` has changed from "cache" to "db" per https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-db.md#redis[spec]
+  ** `mongodb`: `span.action` used to be "query", now it will be the mongodb command name, e.g. "find", "insert".
+  ** `mongodb` and `mongodb-core`: `span.db.instance` is now set to the database name ({issues}1494[#1494])
+  ** `mysql` and `mysql2`: `span.db.{instance,user}` are now populated.
+  ** `@elastic/elasticsearch`: The cluster name is heuristically determined for Elastic Cloud deployments and used for the service target name.
+  ** `sqs`: `span.destination.{address,port}` are now populated.
+  ** `pg`: `span.db.{instance,user}` are now populated.
+  ** `cassandra-driver`: the Cassandra keyspace is captured for service target data, if available.
+  ** OpenTelemetry Bridge: OTel spans with kind PRODUCER and CLIENT are now handled as exit spans (e.g. span compression could apply).
+
+* Support instrumentation of `@koa/router` (and `koa-router`) versions 11 and 12.
+  Contributed by @sibelius. ({issues}2811[#2811])
+
+* Support instrumentation of tedious@15. ({pull}2897[#2897])
+
+* Improve the captured information for Elasticsearch client instrumentation.
+  For all outgoing Elasticsearch client requests, the full HTTP url is
+  now captured (stored in the "url.original" field). For Elasticsearch requests
+  that do a search, the outgoing request body is captured (to the
+  "span.db.statement" field) as before, but the format has changed to only
+  hold the request body. Before this change the "span.db.statement" would
+  also hold any HTTP query parameters. These are now more naturally captured
+  in "url.original". ({issues}2019[#2019])
++
+This change also introduces the <<elasticsearch-capture-body-urls>>
+configuration option to enable controlling which Elasticsearch REST API
+paths are considered for request body capture. ({pull}2873[#2873])
+
+* Support instrumenting core modules when require'd with the optional
+  https://nodejs.org/api/modules.html#core-modules['node:'-prefix].
+  For example `require('node:http')` will now be instrumented.
+  ({issues}2816[#2816])
+
+* Agent will delay loading of the `error-callsites` module until agent start time,
+  and will not load the module if the agent is disabled/inactive. This prevents the
+  setting of an `Error.prepareStackTrace` handler until necessary for stacktrace
+  collection. ({issues}2833[#2833] {pull}2906[#2906])
+
+* Add `*principal*` pattern to default value for `sanitizeFieldNames` config
+  var, so that it is more likely to redact authentication-related HTTP headers,
+  e.g. on Azure. ({issues}2938[#2938])
+
+[float]
+===== Bug fixes
+
+* Avoid a possible `RangeError: Maximum call stack size exceeded` in
+  Span timer handler for exceedingly deep Span trees. ({pull}2939[#2939])
+
+* Fix instrumentation of (very old) 'graphql' module versions <=0.9.6.
+  Instrumentation of these older graphql versions was broken in v3.36.0.
+  ({pull}2927[#2927])
+
+[float]
+===== Chores
+
+* Disable knex instrumentation when not collecting span stack traces
+  (because there is no point). This is a performance improvement for
+  Knex usage in the default configuration. ({pull}2879[#2879])
+
+* Document and add types for `parent` option to
+  <<apm-capture-error,`apm.captureError()`>>. ({issues}2977[#2977])
+
+
+[[release-notes-3.38.0]]
+==== 3.38.0 2022/08/11
+
+[float]
+===== Features
+
+- Add instrumentation for the https://undici.nodejs.org[undici] HTTP client
+  library. This also adds instrumentation of Node.js v18's
+  https://nodejs.org/api/all.html#all_globals_fetch[`fetch()`], which uses
+  undici under the hood. For the instrumentation to work one must be using
+  node v14.17.0 or later, or have installed the
+  https://www.npmjs.com/package/diagnostics_channel['diagnostics_channel' polyfill].
+  ({issues}2383[#2383])
+
+- Added `exitSpanMinDuration` configuration field, allowing end users to
+  set a time threshold for dropping exit spans. ({pull}2843[#2843])
+
+[float]
+===== Bug fixes
+
+- Capturing an error would fail if the Error instance had an attribute that
+  was an invalid date. ({issues}2030[#2030])
+
+- Fix the span for an instrumented S3 ListBuckets API call to not be invalid
+  for APM server intake. ({pull}2866[#2866])
+
+- Fix an issue where the transaction `name` for a trace of a Lambda function
+  implementing a GraphQL server (e.g. via https://www.apollographql.com/docs/apollo-server/deployment/lambda/[apollo-server-lambda])
+  would not get the GraphQL-specific naming. ({issues}2832[#2832])
+
+
+[[release-notes-3.37.0]]
+==== 3.37.0 2022/07/18
+
+[float]
+===== Features
+
+- The agent will now use https://nodejs.org/api/async_context.html#class-asynclocalstorage[`AsyncLocalStorage`]
+  for run-context tracking in new enough versions of Node.js (versions >=14.5
+  and >=12.19). This can reduce overhead from using the APM agent, especially in
+  Promise-heavy applications. ({pull}2786[#2786])
++
+This also adds a new <<context-manager,`contextManager`>> configuration option
+to control which mechanism the agent uses for run-context tracking. It replaces
+the, now deprecated, <<async-hooks,`asyncHooks`>> configuration option. If
+you experience problems with the new AsyncLocalStorage-based tracking, you can
+restore the older behavior with `contextManager: "asynchooks"`.
+
+[float]
+===== Chores
+
+- The old "patch" mechanism that the APM agent uses for run-context tracking
+  (enabled via <<context-manager,`contextManager: "patch"`>>, or previously
+  enabled via `asyncHooks: false`) is now *deprecated*. It will be removed in a
+  future major version (after an 18 month deprecation period).
+
+
 [[release-notes-3.36.0]]
 ==== 3.36.0 2022/06/15
 
@@ -77,7 +315,9 @@ Notes:
 [float]
 ===== Features
 
-- Add support for 'knex' version v0.21 to v1 ({issues}2699[#2699])
+- Add support for 'knex' version v0.21 to v1 ({issues}2699[#2699]).
+  Note that instrumentation of knex >=0.95.0 is not support when using the
+  deprecated <<context-manager,`contextManager=patch`>> configuration option.
 
 - Change the instrumentation of SQS- and SNS-triggered AWS Lambda invocations:
   The special-casing of triggers with a *single* message/record has been
@@ -171,10 +411,6 @@ specifying links during span creation (with the limitation that span link
 
 [float]
 ===== Features
-
-- Pulled the `traceparent` NPM module into a local module and replaced the
-  `random-poly-fill` module with the built in `require('crypto').randomFillSync`
-  function call ({pull}2669[#2669])
 
 - Add a `parent` option to `agent.captureError(err[, options][, cb])` to allow
   passing in a Transaction or Span to use as the parent for the error. Before

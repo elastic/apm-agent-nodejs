@@ -53,13 +53,16 @@ DIST_DIR="$1"
 [[ -n "$DIST_DIR" ]] || fatal "missing DIST_DIR argument"
 [[ -f "$DIST_DIR/package.json" ]] || fatal "invalid DIST_DIR: $DIST_DIR/package.json does not exist"
 
-# Guard against accidentally using this script with a too-old npm.
-if [[ $(npm --version | cut -d. -f1) -lt 8 ]]; then
+# Guard against accidentally using this script with a too-old npm (<v8.7.0).
+npmVer=$(npm --version)
+npmMajorVer=$(echo "$npmVer" | cut -d. -f1)
+npmMinorVer=$(echo "$npmVer" | cut -d. -f2)
+if [[ $npmMajorVer -lt 8 || ($npmMajorVer -eq 8 && $npmMinorVer -lt 7) ]]; then
     if [[ "$LINT_MODE" == "true" ]]; then
-        warn "npm version is too old for 'npm ci --omit=dev': $(npm --version)"
+        warn "npm version is too old for 'npm ci --omit=dev': $npmVer"
         exit 0
     fi
-    fatal "npm version is too old for 'npm ci --omit=dev': $(npm --version)"
+    fatal "npm version is too old for 'npm ci --omit=dev': $npmVer"
 fi
 
 # Directory holding some "license.*.txt" files for inclusion below.

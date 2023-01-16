@@ -87,6 +87,9 @@ apm.captureError({ message: 'hello %s', params: ['world'] }, { tags: { foo: 'bar
 apm.captureError(new Error('foo'), () => {})
 apm.captureError('foo', () => {})
 apm.captureError({ message: 'hello %s', params: ['world'] }, () => {})
+apm.captureError(new Error('an error on the transaction'), { parent: trans })
+apm.captureError(new Error('an error on the span'), { parent: span })
+apm.captureError(new Error('an error with explicitly no parent'), { parent: null })
 
 apm.startTransaction()
 apm.startTransaction('foo')
@@ -97,6 +100,8 @@ apm.startTransaction('foo', { startTime: 1 })
 apm.startTransaction('foo', 'type', { startTime: 1 })
 apm.startTransaction('foo', 'type', 'subtype', { startTime: 1 })
 apm.startTransaction('foo', 'type', 'subtype', 'action', { startTime: 1 })
+apm.startTransaction('foo', { childOf: '00-12345678901234567890123456789012-1234567890123456-01' })
+apm.startTransaction('foo', { tracestate: 'foo=42,bar=43' })
 apm.startTransaction('foo', { links: [{ context: '00-12345678901234567890123456789012-1234567890123456-01' }] })
 
 apm.setTransactionName('foo')
@@ -218,6 +223,11 @@ apm.logger.fatal('')
       span.addLabels({ s: 'bar', n: 42, b: false })
 
       span.setOutcome('failure')
+
+      span.setServiceTarget('myServiceTargetType')
+      span.setServiceTarget('myServiceTargetType', 'myServiceTargetName')
+      span.setServiceTarget(null, null)
+      span.setServiceTarget()
 
       span.end()
       span.end(42)

@@ -7,11 +7,12 @@
 'use strict'
 
 var agent = require('../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-mongodb-core',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
+  cloudProvider: 'none',
+  spanCompressionEnabled: false
 })
 
 var Server = require('mongodb-core').Server
@@ -52,7 +53,7 @@ test('instrument simple command', function (t) {
     // - mongodb-core@1.x always does a `admin.$cmd.ismaster` or
     //   `system.$cmd.ismaster` (the latter in for mongodb-core@<=1.2.22)
     //   command on initial connection. The APM agent captures this if
-    //   asyncHooks=true.
+    //   `contextManager != "patch"`.
     // - mongodb-core@1.x includes `elasticapm.$cmd.command` spans after the
     //   insert, update, and remove commands.
     for (var i = 0; i < data.spans.length; i++) {
@@ -79,6 +80,24 @@ test('instrument simple command', function (t) {
       var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000,
         `span ends (${span.timestamp / 1000 + span.duration}ms) before the transaction (${trans.timestamp / 1000 + trans.duration}ms)`)
+      const dbInstance = expectedSpanNamesInOrder[0].slice(0, expectedSpanNamesInOrder[0].lastIndexOf('.'))
+      t.deepEqual(span.context.db, { type: 'mongodb', instance: dbInstance }, 'span.context.db')
+      t.deepEqual(span.context.service.target, { type: 'mongodb', name: dbInstance }, 'span.context.service.target')
+
+      // A current limitation of the mongodb-core instrumentation is that
+      // it does not set destination.{address,port} for cursor operations like
+      // "find".
+      if (span.context.destination.address) {
+        t.deepEqual(span.context.destination, {
+          address: span.context.destination.address,
+          port: 27017,
+          service: { type: '', name: '', resource: `mongodb/${dbInstance}` }
+        }, 'span.context.destination')
+      } else {
+        t.deepEqual(span.context.destination, {
+          service: { type: '', name: '', resource: `mongodb/${dbInstance}` }
+        }, 'span.context.destination')
+      }
 
       expectedSpanNamesInOrder.shift()
     }

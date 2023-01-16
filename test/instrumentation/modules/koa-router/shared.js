@@ -15,12 +15,19 @@ module.exports = (moduleName) => {
     centralConfig: false
   })
 
-  var routerVersion = require(`${moduleName}/package`).version
+  const semver = require('semver')
+  const routerVersion = require(`${moduleName}/package`).version
+
+  // koa-router >=11 requires Node.js >=12.
+  if (semver.lt(process.version, '12.0.0') && semver.gte(routerVersion, '11.0.0')) {
+    // Skip out of this test.
+    console.log(`# SKIP cannot test ${moduleName}@${routerVersion} with node ${process.version}`)
+    process.exit()
+  }
 
   var http = require('http')
 
   var Koa = require('koa')
-  var semver = require('semver')
   var test = require('tape')
 
   var Router = require(moduleName)

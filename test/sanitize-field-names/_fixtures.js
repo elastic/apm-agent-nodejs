@@ -58,6 +58,7 @@ module.exports = [
         authorization: 'eleven',
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
+        'X-Ms-Client-Principal': 'fourteen',
         keepmeRequest: 'request'
       },
       responseHeaders: {
@@ -74,6 +75,7 @@ module.exports = [
         authorization: 'eleven',
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
+        'X-Ms-Client-Principal': 'fourteen',
         keepmeResponse: 'response'
       },
       formFields: {
@@ -90,6 +92,7 @@ module.exports = [
         authorization: 'eleven',
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
+        'X-Ms-Client-Principal': 'fourteen',
         keepmeForm: 'formFields'
       }
     },
@@ -98,7 +101,8 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing'
+          'authorization', 'set-cookie', 'X-Authy-Thing',
+          'X-Ms-Client-Principal'
         ],
         defined: { keepmeRequest: 'request' }
       },
@@ -106,7 +110,8 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing'
+          'authorization', 'set-cookie', 'X-Authy-Thing',
+          'X-Ms-Client-Principal'
         ],
         defined: { keepmeResponse: 'response' }
       },
@@ -114,7 +119,8 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing'
+          'authorization', 'set-cookie', 'X-Authy-Thing',
+          'X-Ms-Client-Principal'
         ],
         defined: { keepmeForm: 'formFields' }
       }
@@ -139,6 +145,7 @@ module.exports = [
         authorization: 'eleven',
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
+        'X-Ms-Client-Principal': 'fourteen',
         keepmeRequest: 'request'
       },
       responseHeaders: {
@@ -155,6 +162,7 @@ module.exports = [
         authorization: 'eleven',
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
+        'X-Ms-Client-Principal': 'fourteen',
         keepmeResponse: 'response'
       },
       formFields: {
@@ -171,6 +179,7 @@ module.exports = [
         authorization: 'eleven',
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
+        'X-Ms-Client-Principal': 'fourteen',
         keepmeForm: 'formFields'
       }
     },
@@ -179,7 +188,8 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing'
+          'authorization', 'set-cookie', 'X-Authy-Thing',
+          'X-Ms-Client-Principal'
         ],
         defined: { keepmeRequest: 'request' }
       },
@@ -187,7 +197,8 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing'
+          'authorization', 'set-cookie', 'X-Authy-Thing',
+          'X-Ms-Client-Principal'
         ],
         defined: { keepmeResponse: 'response' }
       },
@@ -195,7 +206,8 @@ module.exports = [
         undefined: [
           'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
           'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing'
+          'authorization', 'set-cookie', 'X-Authy-Thing',
+          'X-Ms-Client-Principal'
         ],
         defined: { keepmeForm: 'formFields' }
       }

@@ -4,5 +4,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "elastic/apm-agent-node-js"
+
+  - package-ecosystem: "npm"
+    directory: "/test/instrumentation/modules/next/a-nextjs-app"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
     reviewers:
       - "elastic/apm-agent-node-js"

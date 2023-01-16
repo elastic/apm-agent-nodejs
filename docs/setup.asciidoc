@@ -12,7 +12,6 @@ Use the following pages to configure the APM Agent.
 * <<configuring-the-agent>>
 ** <<agent-configuration-object>>
 ** <<agent-configuration-file>>
-* <<es-modules>>
 * <<configuration>>
 
 [[configuring-the-agent]]
@@ -71,7 +70,7 @@ require('elastic-apm-node').start({
   // Use if APM Server uses API keys for authentication
   apiKey: '',
 
-  // Set custom APM Server URL (default: http://localhost:8200)
+  // Set custom APM Server URL (default: http://127.0.0.1:8200)
   serverUrl: '',
 
   // Only activate the agent if it's running in production
@@ -85,51 +84,6 @@ require('elastic-apm-node').start({
 
 The Node.js agent looks for a file named `elastic-apm-node.js` in the current working directory.
 You can specify a custom path for this file with the <<config-file,`configFile`>> configuration option.
-
-[[es-modules]]
-=== ES Modules support
-
-If you are using ES Modules,
-for instance with the help of Babel,
-TypeScript,
-or the `--experimental-modules` flag for Node.js,
-all import statements are evaluated prior to calling any functions.
-**In this case, you can't configure the agent by passing a configuration object to the `start` function,
-as this call will happen after all of the modules have been loaded.**
-Instead you need to import the `elastic-apm-node/start` module:
-
-[source,js]
-----
-import apm from 'elastic-apm-node/start'
-----
-
-Now, configure the agent using the environment variables associated with each <<configuration,configuration option>>,
-or use the optional <<agent-configuration-file,agent configuration file>>.
-
-To explicitly start the agent, import `elastic-apm-node` and call the `apm.start()` method with the
-<<agent-configuration-object, agent configuration object>>.
-
-[float]
-[[esm-typescript]]
-==== TypeScript
-
-If you're using TypeScript,
-the default import will not work unless you use the `esModuleInterop` https://www.typescriptlang.org/docs/handbook/compiler-options.html[compiler option].
-If you don't want to switch on `esModuleInterop`,
-you instead have to import the agent like so:
-
-[source,js]
-----
-import * as apm from 'elastic-apm-node/start'
-----
-
-
-If your "tsconfig.json" sets https://www.typescriptlang.org/tsconfig#skipLibCheck[`skipLibCheck`] false (or excludes it), then you will need to install `@types/node` to avoid compile errors:
-
-[source,bash]
-----
-npm install --save-dev @types/node
-----
 
 
 include::./configuration.asciidoc[]

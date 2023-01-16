@@ -14,33 +14,71 @@
 // testing of this project). Then `npm run docker:stop` to stop them.
 
 const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-redis'
+  serviceName: 'example-trace-redis4',
+  spanCompressionEnabled: false
 })
 
 const redis = require('redis')
 
-const client = redis.createClient()
+async function useRedis () {
+  let res
 
-// For tracing spans to be created, there must be an active transaction.
-// Typically, a transaction is automatically started for incoming HTTP
-// requests to a Node.js server. However, because this script is not running
-// an HTTP server, we manually start a transaction. More details at:
-// https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-const t1 = apm.startTransaction('t1')
+  const client = redis.createClient({
+    name: 'example-trace-redis4', // This results in early `CLIENT SETNAME` sent in RedisClient.#initiateSocket()
+    database: 1 // This results in early `SELECT` sent in RedisClient.#initiateSocket()
+  })
 
-client.set('key1', 'val1')
-client.get('key1', function (err, reply) {
-  console.log('GET key1: %s', err ? `${err.name}: ${err.message}` : reply)
-  t1.end()
-  client.quit()
-})
+  await client.connect()
 
-// Simulate a redis client error with `enable_offline_queue: false` and a
-// quick `.set()` before the client connection ready.
-const clientSimErr = redis.createClient({ enable_offline_queue: false })
-const t2 = apm.startTransaction('t2')
-clientSimErr.set('key2', 'val2', function (err, reply) {
-  console.log('SET key2: %s', err ? `${err.name}: ${err.message}` : reply)
-  t2.end()
-  clientSimErr.quit()
-})
+  try {
+    res = await client.ping()
+    console.log('PING res: ', res)
+  } catch (err) {
+    console.log('PING err: ', err)
+  }
+
+  try {
+    res = await client.set('foo', 'bar')
+    console.log('SET res: ', res)
+  } catch (err) {
+    console.log('SET err: ', err)
+  }
+
+  try {
+    res = await client.get('foo')
+    console.log('GET res: ', res)
+  } catch (err) {
+    console.log('GET err: ', err)
+  }
+
+  try {
+    res = await client.multi()
+      .set('spam', 'eggs')
+      .get('spam')
+      .exec()
+    console.log('MULTI res: ', res)
+  } catch (err) {
+    console.log('MULTI err: ', err)
+  }
+
+  await client.quit()
+}
+
+async function main () {
+  // For tracing spans to be created, there must be an active transaction.
+  // Typically, a transaction is automatically started for incoming HTTP
+  // requests to a Node.js server. However, because this script is not running
+  // an HTTP server, we manually start a transaction. More details at:
+  // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
+  const trans = apm.startTransaction('trans')
+
+  Promise
+    .all([
+      useRedis()
+    ])
+    .then(() => {
+      trans.end()
+    })
+}
+
+main()

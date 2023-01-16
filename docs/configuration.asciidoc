@@ -33,7 +33,6 @@ will be normalized to the allowed characters. If the name cannot be inferred
 from package.json, then a fallback value of "unknown-nodejs-service" is used.
 
 
-[float]
 [[service-node-name]]
 ==== `serviceNodeName`
 
@@ -73,7 +72,7 @@ WARNING: The API key is sent as plain-text in every request to the server, so yo
 ==== `serverUrl`
 
 * *Type:* String
-* *Default:* `http://localhost:8200`
+* *Default:* `http://127.0.0.1:8200`
 * *Env:* `ELASTIC_APM_SERVER_URL`
 
 The URL to where the APM Server is deployed.
@@ -226,20 +225,53 @@ If set to `true`, the client will poll the APM Server regularly for new agent co
 NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
 More information is available in {kibana-ref}/agent-configuration.html[APM Agent configuration].
 
+[[context-manager]]
+==== `contextManager`
+
+[small]#Added in: v3.37.0#
+
+* *Type:* String
+* *Env:* `ELASTIC_APM_CONTEXT_MANAGER`
+
+This configuration option provides a way to override the APM agent's default
+technique for tracking Node.js asynchronous tasks; sometimes referred to as "run
+context", "async context", or just "context". Most users should not need to
+change this setting. This setting replaces the older
+<<async-hooks,`asyncHooks`>> configuration option.
+
+To effectively trace an application, the APM agent needs to track the logical
+thread of control through asynchronous tasks. The preferred mechanism for this
+is https://nodejs.org/api/async_context.html#class-asynclocalstorage[`AsyncLocalStorage`],
+usable in Node.js versions >=14.5 and >=12.19. In older versions of Node, the APM
+agent will fallback to using
+https://nodejs.org/api/async_hooks.html[`async_hooks`], which can have a higher
+performance overhead, especially in Promise-heavy applications. Finally, the APM
+agent supports a limited tracking mechanism (named "patch") that monkey-patches
+much of the core Node.js API to attempt to follow asynchronous calls. The
+"patch" mechanism is limited in usage and coverage (for example, it cannot
+track `async/await` usage), is *deprecated* and will be removed in a future
+major version.
+
+Supported values for `contextManager` are:
+
+- `"asynclocalstorage"` - Use the `AsyncLocalStorage` mechanism, if able. Otherwise it will fallback to using `async_hooks`.
+- `"asynchooks"` - Use the `async_hooks` mechanism. (Using this value will restore the agent behavior from before v3.37.0.)
+- `"patch"` - Use the limited monkey-patching mechanism. Note that this mechanism is now *deprecated*. (Using this value is the equivalent of using `asyncHooks: false` in agent versions before v3.37.0.)
+
+
 [[async-hooks]]
 ==== `asyncHooks`
 
+[small]#Deprecated in: v3.37.0, use <<context-manager,`contextManager`>>#
+
 * *Type:* Boolean
-* *Default:* `true`
 * *Env:* `ELASTIC_APM_ASYNC_HOOKS`
 
-A boolean specifying if the agent should use the experimental https://nodejs.org/api/async_hooks.html[Async Hooks] API found in Node.js version 8.2.0 and above.
-This setting has no effect when running a Node.js version older than 8.2.0.
+This option is *deprecated* -- use <<context-manager,`contextManager`>> instead.
 
-If you experience any issues related to using Async Hooks,
-please https://github.com/elastic/apm-agent-nodejs/issues[open an issue].
+The equivalent to `asyncHooks: false` is `contextManager: 'patch'`.
+The equivalent to `asyncHooks: true` is to leave both `asyncHooks` and `contextManager` empty, for the default behavior.
 
-Note that not all core Node.js API's can be instrumented without the use of Async Hooks if running Node.js 8 or above.
 
 [[transaction-ignore-urls]]
 ==== `transactionIgnoreUrls`
@@ -606,7 +638,7 @@ A capture location stack trace is never generated for uncaught exceptions.
 
 * *Type:* Duration
 * *Default:* `'-1s'` (never capture span stack traces)
-* *Env:* `ELASTIC_APM_STACK_TRACE_MIN_DURATION`
+* *Env:* `ELASTIC_APM_SPAN_STACK_TRACE_MIN_DURATION`
 * <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `span_stack_trace_min_duration`
 
 Use this option to control if stack traces are never captured for spans (the
@@ -925,7 +957,7 @@ The value should include a time suffix ('m' for minutes, 's' for seconds, or
 [[sanitize-field-names]]
 ==== `sanitizeFieldNames`
 * *Type:* Array
-* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', 'pw', 'pass', 'connect.sid']`
+* *Default:* `['password', 'passwd', 'pwd', 'secret', '*key', '*token*', '*session*', '*credit*', '*card*', '*auth*', 'set-cookie', '*principal*', 'pw', 'pass', 'connect.sid']`
 * *Env:* `ELASTIC_APM_SANITIZE_FIELD_NAMES`
 * <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `sanitize_field_names`
 
@@ -1114,7 +1146,7 @@ module.exports = {
   // Use if APM Server requires a token
   secretToken: '',
 
-  // Set custom APM Server URL (default: http://localhost:8200)
+  // Set custom APM Server URL (default: http://127.0.0.1:8200)
   serverUrl: ''
 }
 ----
@@ -1227,7 +1259,7 @@ views.
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_SPAN_COMPRESSION_ENABLED`
 
-Setting this option to false will disable the span compression feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information, such as DB statements of all the compressed spans, will not be collected.
+Setting this option to false will disable the https://www.elastic.co/guide/en/apm/guide/current/span-compression.html[Span compression] feature. Span compression reduces the collection, processing, and storage overhead, and removes clutter from the UI. The tradeoff is that some information, such as DB statements of all the compressed spans, will not be collected.
 
 Example usage:
 
@@ -1298,3 +1330,41 @@ require('elastic-apm-node').start({
   opentelemetryBridgeEnabled: true
 })
 ----
+
+[[exit-span-min-duration]]
+==== `exitSpanMinDuration`
+* *Type:* String
+* *Default:* `0ms`
+* *Env:* `ELASTIC_APM_EXIT_SPAN_MIN_DURATION`
+* <<dynamic-configuration, image:./images/dynamic-config.svg[] >> *Central config name:* `exit_span_min_duration`
+
+Sets the minimum duration of exit spans. If an exit span's duration is less than
+this threshold the agent will attempt to drop the span and not send it.
+
+In some cases exit spans will not be discarded. Spans that propagate the trace
+context to downstream services, such as outgoing HTTP requests, will not be
+discarded. However, external calls that don't propagate context, such as calls
+to a database, can be discarded using this threshold.
+
+Additionally, spans that lead to an error will not be discarded.
+
+Example usage:
+
+[source,js]
+----
+require('elastic-apm-node').start({
+  exitSpanMinDuration: '10ms'
+})
+----
+
+[[elasticsearch-capture-body-urls]]
+==== `elasticsearchCaptureBodyUrls`
+
+* *Type:* Array of wildcard patterns
+* *Default:* `['*/_search', '*/_search/template', '*/_msearch', '*/_msearch/template', '*/_async_search', '*/_count', '*/_sql', '*/_eql/search' ]`
+* *Env:* `ELASTIC_APM_ELASTICSEARCH_CAPTURE_BODY_URLS`
+// Spec name: elasticsearch_capture_body_urls
+
+The URL path patterns for which the APM agent will capture the request body of outgoing requests to Elasticsearch made with the `@elastic/elasticsearch` module (or the legacy `elasticsearch` module). The default setting captures the body for https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html[Elasticsearch REST APIs] making a search.
+
+The captured request body (if any) is stored on the `span.db.statement` field. Captured request bodies are truncated to a maximum length defined by <<long-field-max-length>>.

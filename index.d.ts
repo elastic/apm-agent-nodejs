@@ -222,6 +222,7 @@ declare namespace apm {
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
     addLabels (labels: Labels, stringify?: boolean): boolean;
     setOutcome(outcome: Outcome): void;
+    setServiceTarget(type?: string | null, name?: string | null): void;
     end (endTime?: number): void;
   }
 
@@ -249,9 +250,11 @@ declare namespace apm {
     contextPropagationOnly?: boolean;
     disableInstrumentations?: string | string[];
     disableSend?: boolean;
+    elasticsearchCaptureBodyUrls?: Array<string>;
     environment?: string;
     errorMessageMaxLength?: string; // DEPRECATED: use `longFieldMaxLength`.
     errorOnAbortedRequests?: boolean;
+    exitSpanMinDuration?: string;
     filterHttpHeaders?: boolean;
     frameworkName?: string;
     frameworkVersion?: string;
@@ -317,6 +320,12 @@ declare namespace apm {
     message?: string;
     captureAttributes?: boolean;
     skipOutcome?: boolean;
+    /**
+     * A Transaction or Span instance to make the parent of this error. If not
+     * given (undefined), then the current span or transaction will be used. If
+     * `null` is given, then no span or transaction will be used.
+     */
+    parent?: Transaction | Span | null;
   }
 
   interface Labels {
@@ -366,7 +375,10 @@ declare namespace apm {
 
   export interface TransactionOptions {
     startTime?: number;
+    // `childOf` is a W3C trace-context 'traceparent' string. Passing a
+    // Transaction or Span is deprecated.
     childOf?: Transaction | Span | string;
+    tracestate?: string; // A W3C trace-context 'tracestate' string.
     links?: Link[];
   }
 
