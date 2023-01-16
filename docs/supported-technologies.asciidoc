@@ -88,6 +88,7 @@ These are the frameworks that we officially support:
 |=======================================================================
 | Framework             | Version | Note
 | <<lambda,AWS Lambda>> | N/A |
+| <<azure-functions,Azure Functions>> | ~4 | See https://learn.microsoft.com/en-ca/azure/azure-functions/set-runtime-version[the guide on Azure Functions runtime versions].
 | <<express,Express>>   | ^4.0.0 |
 | <<fastify,Fastify>>   | >=1.0.0 | See also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
 | <<hapi,@hapi/hapi>>   | >=17.9.0 <22.0.0 |
