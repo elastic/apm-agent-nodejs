@@ -6,7 +6,7 @@
 
 'use strict'
 
-// Test determination of the Agent install/start method used for the
+// Test determination of the Agent activation method used for the
 // 'system.agent.activation_method' metadatum.
 
 const { exec, execFile } = require('child_process')
