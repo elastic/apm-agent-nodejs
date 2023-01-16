@@ -139,10 +139,12 @@ function checkExpectedApmEvents (t, apmEvents) {
     t.equal(metadata.service.framework.version, '~4', 'metadata.service.framework.version')
     t.equal(metadata.service.runtime.name, 'node', 'metadata.service.runtime.name')
     t.equal(metadata.service.node.configured_name, 'test-website-instance-id', 'metadata.service.node.configured_name')
+    t.equal(metadata.cloud.account.id, '2491fc8e-f7c1-4020-b9c6-78509919fd16', 'metadata.cloud.account.id')
+    t.equal(metadata.cloud.instance.name, 'AJsAzureFnApp', 'metadata.cloud.instance.name')
+    t.equal(metadata.cloud.project.name, 'my-resource-group', 'metadata.cloud.project.name')
     t.equal(metadata.cloud.provider, 'azure', 'metadata.cloud.provider')
     t.equal(metadata.cloud.region, 'test-region-name', 'metadata.cloud.region')
     t.equal(metadata.cloud.service.name, 'functions', 'metadata.cloud.service.name')
-    t.equal(metadata.cloud.account.id, '2491fc8e-f7c1-4020-b9c6-78509919fd16', 'metadata.cloud.account.id')
   }
 
   // Filter out any metadata from separate requests, and metricsets which we

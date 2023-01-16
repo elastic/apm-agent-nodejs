@@ -19,7 +19,8 @@ and setup to be traced by the Elastic APM agent. The App has two "functions":
         npm install -g azure-functions-core-tools@4
 
     It is recommended that you **not** install it in the local `./node_modules`
-    folder, but they will get in the way of publishing to Azure.
+    folder, because its large install size will get in the way of publishing to
+    Azure.
 
 3. Set environment variable to configure the APM agent, for example:
 
@@ -40,7 +41,8 @@ and setup to be traced by the Elastic APM agent. The App has two "functions":
 # Testing on Azure
 
 1. To run this Azure Function App on Azure itself you will need to have an Azure
-   account and create some supporting resources. For [this Azure guide](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-node#create-supporting-azure-resources-for-your-function).
+   account and create some supporting resources.
+   See [this Azure guide](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-node#create-supporting-azure-resources-for-your-function).
 
 2. Deploy the function app via `func azure functionapp publish <APP_NAME>`.
 
