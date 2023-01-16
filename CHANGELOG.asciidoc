@@ -31,6 +31,67 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Support for tracing/monitoring https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions].
+  See the <<azure-functions>> document.
+  ({pull}3071[#3071], https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-azure-functions.md[spec])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
+[[release-notes-3.41.1]]
+==== 3.41.1 2022/12/21
+
+[float]
+===== Bug fixes
+
+* Fix a bug in span compression with sending spans that were buffered for
+  possible compression. Before this fix, in some cases a compressible span could
+  be sent *twice* or not sent at all. ({pull}3076[#3076])
+
+
+[[release-notes-3.41.0]]
+==== 3.41.0 2022/12/12
+
+[float]
+===== Features
+
+* Capture HTTP context (status code, headers, etc.) on transactions (and
+  captured errors) for Lambda functions triggered by API Gateway.
+  ({issues}2419[#2419])
+
+* Support instrumentation for restify@10.
+
+[float]
+===== Bug fixes
+
+* Change default `serverUrl` from `http://localhost:8200` to `http://127.0.0.1:8200`
+  to avoid ambiguity between possible IPv4 and IPv6 DNS-resolved values for "localhost".
+  APM server only listens on IPv4 by default, so this avoids a possible surprising
+  mismatch. ({issues}3045[#3045])
+
+* Add `tracestate` to the `TransactionOptions` TypeScript type for
+  `apm.startTransaction(..., options)`. ({issues}3061[#3061])
+
+[float]
+===== Chores
+
+* Mark the published Lambda layer as supporting the recently released
+  "nodejs18.x" Lambda Runtime (`--compatible-runtimes`).
+
+
 [[release-notes-3.40.1]]
 ==== 3.40.1 2022/11/15
 

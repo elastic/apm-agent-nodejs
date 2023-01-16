@@ -6,6 +6,8 @@
 
 'use strict'
 
+// A dumping ground for testing utility functions.
+
 const fs = require('fs')
 
 const moduleDetailsFromPath = require('module-details-from-path')
@@ -68,8 +70,29 @@ function safeGetPackageVersion (packageName) {
   }
 }
 
+// Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
+const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
+
+/**
+ * Format the given data for passing to `t.comment()`.
+ *
+ * - t.comment() wipes leading whitespace. Prefix lines with '|' to avoid
+ *   that, and to visually group a multi-line write.
+ * - Drop ANSI escape characters, because those include control chars that
+ *   are illegal in XML. When we convert TAP output to JUnit XML for
+ *   Jenkins, then Jenkins complains about invalid XML. `FORCE_COLOR=0`
+ *   can be used to disable ANSI escapes in `next dev`'s usage of chalk,
+ *   but not in its coloured exception output.
+ */
+function formatForTComment (data) {
+  return data.toString('utf8')
+    .replace(ANSI_RE, '')
+    .trimRight().replace(/\r?\n/g, '\n|') + '\n'
+}
+
 module.exports = {
   dottedLookup,
   findObjInArray,
+  formatForTComment,
   safeGetPackageVersion
 }

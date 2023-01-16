@@ -70,7 +70,7 @@ require('elastic-apm-node').start({
   // Use if APM Server uses API keys for authentication
   apiKey: '',
 
-  // Set custom APM Server URL (default: http://localhost:8200)
+  // Set custom APM Server URL (default: http://127.0.0.1:8200)
   serverUrl: '',
 
   // Only activate the agent if it's running in production
