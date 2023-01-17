@@ -64,7 +64,7 @@ tape.test('test DroppedSpanStats objects', function (test) {
     span.setOutcome(OUTCOME_SUCCESS)
     span.setServiceTarget('aTargType', 'aTargName')
     span.end()
-    span._duration = 1000 // override duration so we can test the sum
+    span._duration = 1000.0001 // override duration so we can test the sum
     test.ok(
       transaction.captureDroppedSpan(span)
     )
@@ -90,7 +90,8 @@ tape.test('test DroppedSpanStats objects', function (test) {
 
   test.equals(stats[2].duration.count, 4)
   test.equals(stats[2].destination_service_resource, 'aTargType/aTargName')
-  test.equals(stats[2].duration.sum.us, 4000000)
+  test.ok(Number.isInteger(stats[2].duration.sum.us), 'duration.sum.us is an integer (as required by intake API)')
+  test.equals(stats[2].duration.sum.us, 4000000, 'dropped_span_stats[2].duration.sum.us')
   test.equals(stats[2].service_target_type, 'aTargType', 'dropped_span_stats[2].service_target_type')
   test.equals(stats[2].service_target_name, 'aTargName', 'dropped_span_stats[2].service_target_name')
   test.equals(stats[2].outcome, OUTCOME_SUCCESS, 'dropped_span_stats[2].outcome')
