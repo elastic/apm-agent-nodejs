@@ -142,4 +142,14 @@ jobs:
     - run: docker ps  # show the services against which we'll be testing
     - run: npm install
     - run: npm ls --all || true
-    - run: npm test
+    - name: npm test
+      run: npm test
+    - uses: inception-health/otel-upload-test-artifact-action@v1
+      if: always()
+      continue-on-error: true
+      with:
+        jobName: "test-vers (${{ matrix.node }})"
+        stepName: "npm test"
+        path: "test_output/*.junit.xml"
+        type: "junit"
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
