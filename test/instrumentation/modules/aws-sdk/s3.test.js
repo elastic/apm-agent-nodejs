@@ -127,7 +127,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200, response: { encoded_body_size: 177 } }
           },
@@ -145,7 +145,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
           },
@@ -163,7 +163,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
           },
@@ -181,7 +181,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
           },
@@ -199,7 +199,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
@@ -217,7 +217,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 304 }
           },
@@ -235,7 +235,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
@@ -254,7 +254,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 404, response: { encoded_body_size: 207 } }
           },
@@ -276,7 +276,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 204 }
           },
@@ -294,7 +294,7 @@ tape.test('simple S3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 204 }
           },

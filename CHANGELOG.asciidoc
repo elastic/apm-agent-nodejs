@@ -51,6 +51,17 @@ Notes:
   values, e.g. `https://user:pass@...`, then the auth fields were not
   included in the actual HTTP request.  ({issues}2044[#2044])
 
+* Fix `span.context.destination.service.resource` for S3 spans to have an
+  "s3/" prefix.
++
+*Note*: While this is considered a bugfix, but it can potentially be a breaking
+change in the Kibana APM app: It can break the history of the S3-Spans / metrics
+for users relying on `context.destination.service.resource`. If users happen to
+run agents both with and without this fix (for same or different languages), the
+same S3-buckets can appear twice in the service map (with and without
+s3-prefix).
+
+
 [float]
 ===== Chores
 
