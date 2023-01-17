@@ -56,6 +56,10 @@ Notes:
 [float]
 ===== Chores
 
+* Add `service.agent.activation_method` metadatum.
+  Spec: https://github.com/elastic/apm/blob/main/specs/agents/metadata.md#activation-method
+  ({issues}3039[#3039])
+
 
 [[release-notes-3.41.1]]
 ==== 3.41.1 2022/12/21
