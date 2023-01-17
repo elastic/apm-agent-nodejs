@@ -47,6 +47,12 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix instrumentation of `http.request()` and `http.get()` (and the same
+  for `https.`) so that Basic auth fields are not lost. Before this change
+  if the first arg was a URL or string with `username` and/or `password`
+  values, e.g. `https://user:pass@...`, then the auth fields were not
+  included in the actual HTTP request.  ({issues}2044[#2044])
+
 [float]
 ===== Chores
 
