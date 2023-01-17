@@ -18,18 +18,17 @@ permissions:
   contents: read
 
 jobs:
-
-# The node.js project produces "nightly" builds of the tip of *some*
-# development branches. They get uploaded to:
-# https://nodejs.org/download/nightly/
-#
-# My observation is that nightly builds are only made for the next major
-# version *up to the point there is a release of that version*.  For example,
-# at time of writing, there is not yet a v17 release of node, and
-# "v17.0.0-nightly*" builds are being created. Once a v17.0.0 release has been
-# made, these will stop and there will be no value in testing v17 nightlies.
-#
-  test-edge:
+  # The node.js project produces "nightly" builds of the tip of *some*
+  # development branches. They get uploaded to:
+  # https://nodejs.org/download/nightly/
+  #
+  # My observation is that nightly builds are only made for the next major
+  # version *up to the point there is a release of that version*.  For example,
+  # at time of writing, there is not yet a v17 release of node, and
+  # "v17.0.0-nightly*" builds are being created. Once a v17.0.0 release has been
+  # made, these will stop and there will be no value in testing v17 nightlies.
+  #
+  test-nightly:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -44,11 +43,11 @@ jobs:
           VERSION: ${{ matrix.node }}
           ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
 
-# This should list all active Node.js major versions listed at:
-# https://nodejs.org/en/about/releases/
-#
-# The node.js project *sometimes* produces "rc" builds leading up to a new
-# release. They get uploaded to: https://nodejs.org/download/rc/
+  # This should list all active Node.js major versions listed at:
+  # https://nodejs.org/en/about/releases/
+  #
+  # The node.js project *sometimes* produces "rc" builds leading up to a new
+  # release. They get uploaded to: https://nodejs.org/download/rc/
   test-rc:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -67,4 +66,3 @@ jobs:
         env:
           VERSION: ${{ matrix.node }}
           ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
-

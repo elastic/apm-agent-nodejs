@@ -56,7 +56,7 @@ npm_install
 
 # Attempt to provide junit-formatted test results, for Jenkins' "Test Results"
 # and other features like flaky-test reporting.
-if [[ -n ${FRAMEWORK} ]]; then
+if [[ -n ${TAV} ]]; then
   npm run test:tav
   # Currently the TAV tests do not support TAP or junit-formatted output.
 else
