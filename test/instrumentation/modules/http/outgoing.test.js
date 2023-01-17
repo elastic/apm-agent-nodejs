@@ -167,7 +167,7 @@ test('http.request(..., bogusCb) errors on the bogusCb', { timeout: 5000 }, t =>
   })
   server.listen(() => {
     const port = server.address().port
-    const urlString = `http://@localhost:${port}/a-path`
+    const urlString = `http://localhost:${port}/a-path`
     const tx = agent.startTransaction('tx')
     try {
       if (nodeHttpRequestSupportsSeparateUrlArg) {
