@@ -61,6 +61,11 @@ run agents both with and without this fix (for same or different languages), the
 same S3-buckets can appear twice in the service map (with and without
 s3-prefix).
 
+* Ensure collected dropped spans stats follow the intake API type requirements.
+  Before this change `transaction.dropped_spans_stats[*].duration.sum.us` could
+  have been a floating-point value, but the intake API requires an int. The
+  result was dropped transactions and errors in the agent log.
+  ({issues}3104[#3104])
 
 [float]
 ===== Chores
