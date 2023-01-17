@@ -56,7 +56,7 @@ Notes:
 [float]
 ===== Chores
 
-* Add `system.agent.activation_method` metadatum.
+* Add `service.agent.activation_method` metadatum.
   Spec: https://github.com/elastic/apm/blob/main/specs/agents/metadata.md#activation-method
   ({issues}3039[#3039])
 
