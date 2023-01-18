@@ -44,6 +44,8 @@ Notes:
   See the <<azure-functions>> document.
   ({pull}3071[#3071], https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-azure-functions.md[spec])
 
+* Support `restify@11`.
+
 [float]
 ===== Bug fixes
 
