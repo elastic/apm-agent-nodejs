@@ -6,7 +6,7 @@
 
 'use strict'
 const agent = require('../..').start({
-  serviceName: 'test-dropped-span-stats',
+  serviceName: 'test-dropped-spans-stats',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
@@ -18,9 +18,9 @@ const agent = require('../..').start({
 
 const tape = require('tape')
 const { OUTCOME_FAILURE, OUTCOME_SUCCESS } = require('../../lib/constants')
-const { MAX_DROPPED_SPAN_STATS } = require('../../lib/instrumentation/dropped-span-stats')
+const { MAX_DROPPED_SPANS_STATS } = require('../../lib/instrumentation/dropped-spans-stats')
 
-tape.test('test DroppedSpanStats invalid cases', function (test) {
+tape.test('test DroppedSpansStats invalid cases', function (test) {
   const transaction = agent.startTransaction('trans')
 
   const span = agent.startSpan('foo', 'baz', 'bar', { exitSpan: true })
@@ -39,7 +39,7 @@ tape.test('test DroppedSpanStats invalid cases', function (test) {
   test.end()
 })
 
-tape.test('test DroppedSpanStats objects', function (test) {
+tape.test('test DroppedSpansStats objects', function (test) {
   const transaction = agent.startTransaction('trans')
   for (let i = 0; i < 2; i++) {
     const span = agent.startSpan('aSpanName', 'aSpanType', 'aSpanSubtype', { exitSpan: true })
@@ -72,36 +72,36 @@ tape.test('test DroppedSpanStats objects', function (test) {
   transaction.end()
 
   // three distinct resource/outcome pairs captured
-  test.equals(transaction._droppedSpanStats.statsMap.size, 3)
+  test.equals(transaction._droppedSpansStats.statsMap.size, 3)
 
   const payload = transaction._encode()
   const stats = payload.dropped_spans_stats
   test.equals(stats[0].duration.count, 2)
   test.equals(stats[0].destination_service_resource, 'aSpanSubtype')
-  test.equals(stats[0].service_target_type, 'aSpanSubtype', 'dropped_span_stats[0].service_target_type')
-  test.equals(stats[0].service_target_name, undefined, 'dropped_span_stats[0].service_target_name')
-  test.equals(stats[0].outcome, OUTCOME_SUCCESS, 'dropped_span_stats[0].outcome')
+  test.equals(stats[0].service_target_type, 'aSpanSubtype', 'dropped_spans_stats[0].service_target_type')
+  test.equals(stats[0].service_target_name, undefined, 'dropped_spans_stats[0].service_target_name')
+  test.equals(stats[0].outcome, OUTCOME_SUCCESS, 'dropped_spans_stats[0].outcome')
 
   test.equals(stats[1].duration.count, 3)
   test.equals(stats[1].destination_service_resource, 'aSpanSubtype')
-  test.equals(stats[1].service_target_type, 'aSpanSubtype', 'dropped_span_stats[1].service_target_type')
-  test.equals(stats[1].service_target_name, undefined, 'dropped_span_stats[1].service_target_name')
-  test.equals(stats[1].outcome, OUTCOME_FAILURE, 'dropped_span_stats[1].outcome')
+  test.equals(stats[1].service_target_type, 'aSpanSubtype', 'dropped_spans_stats[1].service_target_type')
+  test.equals(stats[1].service_target_name, undefined, 'dropped_spans_stats[1].service_target_name')
+  test.equals(stats[1].outcome, OUTCOME_FAILURE, 'dropped_spans_stats[1].outcome')
 
   test.equals(stats[2].duration.count, 4)
   test.equals(stats[2].destination_service_resource, 'aTargType/aTargName')
   test.ok(Number.isInteger(stats[2].duration.sum.us), 'duration.sum.us is an integer (as required by intake API)')
-  test.equals(stats[2].duration.sum.us, 4000000, 'dropped_span_stats[2].duration.sum.us')
-  test.equals(stats[2].service_target_type, 'aTargType', 'dropped_span_stats[2].service_target_type')
-  test.equals(stats[2].service_target_name, 'aTargName', 'dropped_span_stats[2].service_target_name')
-  test.equals(stats[2].outcome, OUTCOME_SUCCESS, 'dropped_span_stats[2].outcome')
+  test.equals(stats[2].duration.sum.us, 4000000, 'dropped_spans_stats[2].duration.sum.us')
+  test.equals(stats[2].service_target_type, 'aTargType', 'dropped_spans_stats[2].service_target_type')
+  test.equals(stats[2].service_target_name, 'aTargName', 'dropped_spans_stats[2].service_target_name')
+  test.equals(stats[2].outcome, OUTCOME_SUCCESS, 'dropped_spans_stats[2].outcome')
 
   test.end()
 })
 
-tape.test('test DroppedSpanStats max items', function (test) {
+tape.test('test DroppedSpansStats max items', function (test) {
   const transaction = agent.startTransaction('trans')
-  for (let i = 0; i < MAX_DROPPED_SPAN_STATS; i++) {
+  for (let i = 0; i < MAX_DROPPED_SPANS_STATS; i++) {
     const span = agent.startSpan('foo', 'baz', 'bar', { exitSpan: true })
     span.setServiceTarget('aTargType', 'aTargName-' + i)
     span.setOutcome(OUTCOME_FAILURE)
@@ -114,7 +114,7 @@ tape.test('test DroppedSpanStats max items', function (test) {
   span.setServiceTarget('aTargType', 'aTargName')
   span.setOutcome(OUTCOME_FAILURE)
   span.end()
-  test.ok(!transaction.captureDroppedSpan(span), 'did not capture stats for this dropped span (hit MAX_DROPPED_SPAN_STATS)')
+  test.ok(!transaction.captureDroppedSpan(span), 'did not capture stats for this dropped span (hit MAX_DROPPED_SPANS_STATS)')
 
   // and we're still able to increment spans that fit the previous profile
   const span2 = agent.startSpan('foo', 'baz', 'bar', { exitSpan: true })
@@ -124,6 +124,6 @@ tape.test('test DroppedSpanStats max items', function (test) {
   test.ok(transaction.captureDroppedSpan(span2), 'DID capture stats for this previously seen span stats key')
 
   transaction.end()
-  test.equals(transaction._droppedSpanStats.statsMap.size, MAX_DROPPED_SPAN_STATS)
+  test.equals(transaction._droppedSpansStats.statsMap.size, MAX_DROPPED_SPANS_STATS)
   test.end()
 })
