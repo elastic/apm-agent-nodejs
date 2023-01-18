@@ -183,7 +183,7 @@ function loadSupportedDoc () {
     if (row[1] === 'N/A') {
 
     } else if (row[0].includes('<<')) {
-      match = /^\s*<<(\w+),(.*?)>>/.exec(row[0])
+      match = /^\s*<<([\w-]+),(.*?)>>/.exec(row[0])
       if (!match) {
         throw new Error(`could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(row[0])}`)
       }
@@ -194,6 +194,8 @@ function loadSupportedDoc () {
         moduleNames = [match[2]]
       } else if (match[1] === 'koa') {
         moduleNames = ['koa-router', '@koa/router']
+      } else if (match[1] === 'azure-functions') {
+        moduleNames = [] // Azure Functions compat isn't about an NPM package version.
       } else {
         moduleNames = [match[1]]
       }
