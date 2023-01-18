@@ -97,11 +97,11 @@ module.exports = (moduleName) => {
     var server = startServer(function (err, port) {
       t.error(err)
       const cReq = http.request(
-        'http://localhost:' + port + '/postSomeData',
         {
           method: 'POST',
           hostname: 'localhost',
           port,
+          path: '/postSomeData',
           headers: {
             'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(postData)
