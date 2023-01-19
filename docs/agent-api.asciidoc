@@ -517,7 +517,9 @@ Sub-millisecond precision can be achieved using decimals.
 If not provided,
 the current time will be used
 
-** `childOf` +{type-string}+ The traceparent header received from a remote service.
+** `childOf` +{type-string}+ A W3C trace-context "traceparent" string, typically received from a remote service call.
+
+** `tracestate` +{type-string}+ A W3C trace-context "tracestate" string.
 
 ** `links` +{type-array}+ Span links.
 A transaction can refer to zero or more other transactions or spans (separate

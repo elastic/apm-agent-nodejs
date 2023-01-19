@@ -33,12 +33,16 @@ tape.test('traceContinuationStrategy default is continue', t => {
     res.end('pong')
   })
   server.listen(function () {
-    const url = 'http://localhost:' + server.address().port
-    http.get(url, {
+    const getOpts = {
+      protocol: 'http:',
+      hostname: 'localhost',
+      port: server.address().port,
+      pathname: '/',
       headers: {
         traceparent: '00-12345678901234567890123456789012-1234567890123456-01'
       }
-    }, function (res) {
+    }
+    http.get(getOpts, function (res) {
       t.equal(res.statusCode, 200, 'client got HTTP 200 response')
       res.resume()
       res.on('end', function () {
@@ -70,12 +74,16 @@ tape.test('traceContinuationStrategy=continue', t => {
       apm._instrumentation.supersedeWithEmptyRunContext()
     }
 
-    const url = 'http://localhost:' + server.address().port
-    http.get(url, {
+    const getOpts = {
+      protocol: 'http:',
+      hostname: 'localhost',
+      port: server.address().port,
+      pathname: '/',
       headers: {
         traceparent: '00-12345678901234567890123456789012-1234567890123456-01'
       }
-    }, function (res) {
+    }
+    http.get(getOpts, function (res) {
       t.equal(res.statusCode, 200, 'client got HTTP 200 response')
       res.resume()
       res.on('end', function () {
@@ -108,12 +116,16 @@ tape.test('traceContinuationStrategy=restart', t => {
       apm._instrumentation.supersedeWithEmptyRunContext()
     }
 
-    const url = 'http://localhost:' + server.address().port
-    http.get(url, {
+    const getOpts = {
+      protocol: 'http:',
+      hostname: 'localhost',
+      port: server.address().port,
+      pathname: '/',
       headers: {
         traceparent: '00-12345678901234567890123456789012-1234567890123456-01'
       }
-    }, function (res) {
+    }
+    http.get(getOpts, function (res) {
       t.equal(res.statusCode, 200, 'client got HTTP 200 response')
       res.resume()
       res.on('end', function () {
@@ -150,12 +162,16 @@ tape.test('traceContinuationStrategy=restart_external (no tracestate)', t => {
       apm._instrumentation.supersedeWithEmptyRunContext()
     }
 
-    const url = 'http://localhost:' + server.address().port
-    http.get(url, {
+    const getOpts = {
+      protocol: 'http:',
+      hostname: 'localhost',
+      port: server.address().port,
+      pathname: '/',
       headers: {
         traceparent: '00-12345678901234567890123456789012-1234567890123456-01'
       }
-    }, function (res) {
+    }
+    http.get(getOpts, function (res) {
       t.equal(res.statusCode, 200, 'client got HTTP 200 response')
       res.resume()
       res.on('end', function () {
@@ -191,13 +207,17 @@ tape.test('traceContinuationStrategy=restart_external (tracestate without "es")'
       apm._instrumentation.supersedeWithEmptyRunContext()
     }
 
-    const url = 'http://localhost:' + server.address().port
-    http.get(url, {
+    const getOpts = {
+      protocol: 'http:',
+      hostname: 'localhost',
+      port: server.address().port,
+      pathname: '/',
       headers: {
         traceparent: '00-12345678901234567890123456789012-1234567890123456-01',
         tracestate: 'notes=k:v,esnope=k:v,acme=foo:bar;spam:eggs'
       }
-    }, function (res) {
+    }
+    http.get(getOpts, function (res) {
       t.equal(res.statusCode, 200, 'client got HTTP 200 response')
       res.resume()
       res.on('end', function () {
@@ -231,13 +251,17 @@ tape.test('traceContinuationStrategy=restart_external (tracestate with "es")', t
       apm._instrumentation.supersedeWithEmptyRunContext()
     }
 
-    const url = 'http://localhost:' + server.address().port
-    http.get(url, {
+    const getOpts = {
+      protocol: 'http:',
+      hostname: 'localhost',
+      port: server.address().port,
+      pathname: '/',
       headers: {
         traceparent: '00-12345678901234567890123456789012-1234567890123456-01',
         tracestate: 'acme=foo:bar;spam:eggs , es=k:v'
       }
-    }, function (res) {
+    }
+    http.get(getOpts, function (res) {
       t.equal(res.statusCode, 200, 'client got HTTP 200 response')
       res.resume()
       res.on('end', function () {

@@ -7,6 +7,7 @@ To get you off the ground, we've prepared guides for setting up the Agent with a
 // Updates made here will be applied elsewhere as well.
 // tag::web-frameworks-list[]
 * <<lambda>>
+* <<azure-functions>>
 * <<express>>
 * <<fastify>>
 * <<hapi>>
@@ -14,7 +15,6 @@ To get you off the ground, we've prepared guides for setting up the Agent with a
 * <<nextjs>>
 * <<restify>>
 * <<typescript>>
-* <<nextjs>>
 // end::web-frameworks-list[]
 
 Alternatively, you can <<custom-stack>>.
@@ -29,6 +29,8 @@ Other useful documentation includes:
 * <<troubleshooting>>
 
 include::./lambda.asciidoc[]
+
+include::./azure-functions.asciidoc[]
 
 include::./express.asciidoc[]
 
