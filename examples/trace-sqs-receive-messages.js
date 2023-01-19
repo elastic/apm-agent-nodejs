@@ -16,7 +16,6 @@
 // Prerequisites:
 // - AWS credentials are setup. E.g. if using the `aws` CLI
 //   (https://aws.amazon.com/cli/) works, then you should be good.
-// - You have a test queue to use to receive messages from.
 // - You have a test queue from which to receive messages. Use
 //   `aws sqs list-queues` to list current queues in the configured region.
 // - Your queue has some messages on it to receive. See the related
