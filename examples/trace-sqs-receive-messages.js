@@ -68,7 +68,7 @@ sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
     return
   }
   const queueUrl = data.QueueUrl
-  console.log('queueUrl:', queueUrl)
+  // console.log('queueUrl:', queueUrl)
 
   // 2. Doing a long poll (up to 5s) for up to two messages.
   const params = {
