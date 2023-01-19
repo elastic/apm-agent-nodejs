@@ -556,7 +556,7 @@ function checkExpectedApmEvents (t, apmEvents) {
 // We need to `npm ci` for a first test run. However, *only* for a first test
 // run, otherwise this will override any possible `npm install --no-save ...`
 // changes made by a TAV runner.
-const haveNodeModules = fs.existsSync(path.join(testAppDir, 'node_modules'))
+const haveNodeModules = fs.existsSync(path.join(testAppDir, 'node_modules', '.bin', 'next'))
 tape.test(`setup: npm ci (in ${testAppDir})`, { skip: haveNodeModules }, t => {
   const startTime = Date.now()
   exec(
