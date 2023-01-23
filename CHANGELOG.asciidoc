@@ -32,6 +32,28 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Propagate trace-context in message attributes for SQS (SendMessage and
+  SendMessageBatch) and SNS (Publish), provided the maximum 10 message
+  attributes limit is not passed. SQS message reception (ReceiveMessage) and
+  SQS- and SNS-triggered Lambda functions already produce _span links_ for
+  incoming messages with trace-context. This allows linking between
+  producer and consumer in the Kibana APM app. ({pull}3044[#3044])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
 [[release-notes-3.42.0]]
 ==== 3.42.0 2023/01/18
 
