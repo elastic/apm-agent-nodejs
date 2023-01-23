@@ -50,6 +50,12 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix `metadata.service.agent.activation_method=k8s-attach` handling to
+  (a) use an explicit marker from the k8s apm attacher
+  (`ELASTIC_APM_ACTIVATION_METHOD`) and (b) use the specified "k8s-attach"
+  value, rather than the incorrect "k8s-attacher".
+  ({issue}3119[#3119])
+
 [float]
 ===== Chores
 
