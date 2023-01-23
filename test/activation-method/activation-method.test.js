@@ -42,9 +42,8 @@ tape.test(`setup: npm install (in ${fixturesDir})`, { skip: haveNodeModules }, t
 })
 
 tape.test('metadata.system.agent.activation_method fixtures', function (suite) {
-  // Note: We do not test the "aws-lambda-layer" and "k8s-attacher" cases.
-  // Testing these would require simulating an agent install to the special
-  // paths used in those cases.
+  // Note: We do not test the "aws-lambda-layer" case, because this would
+  // require simulating an agent install to the special path used in that case.
   var cases = [
     {
       script: 'require1.js',
@@ -68,6 +67,14 @@ tape.test('metadata.system.agent.activation_method fixtures', function (suite) {
       script: 'hi.js',
       nodeOpts: ['-r', 'elastic-apm-node/start'],
       expectedMethod: 'preload'
+    },
+    {
+      script: 'hi.js',
+      env: {
+        NODE_OPTIONS: '-r elastic-apm-node/start',
+        ELASTIC_APM_ACTIVATION_METHOD: 'K8S'
+      },
+      expectedMethod: 'k8s-attach'
     },
     {
       script: 'hi.js',
