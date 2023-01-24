@@ -7,7 +7,8 @@
 'use strict'
 
 const assert = require('assert')
-const { spawn } = require('child_process')
+const { exec, spawn } = require('child_process')
+const fs = require('fs')
 const http = require('http')
 const os = require('os')
 const path = require('path')
@@ -21,6 +22,9 @@ const { formatForTComment } = require('../../_utils')
 
 if (!semver.satisfies(process.version, '>=14 <19')) {
   console.log(`# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`)
+  process.exit()
+} else if (os.platform() === 'win32') {
+  console.log('# SKIP Azure Functions tests on Windows because of flaky azure-functions-core-tools install (see https://github.com/elastic/apm-agent-nodejs/issues/3107)')
   process.exit()
 }
 
@@ -178,6 +182,10 @@ function checkExpectedApmEvents (t, apmEvents) {
 // ---- tests
 
 const UUID_RE = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i
+
+const fnAppDir = path.join(__dirname, 'fixtures', 'AJsAzureFnApp')
+const funcExe = path.resolve(fnAppDir, 'node_modules/.bin/func') + (
+  os.platform() === 'win32' ? '.cmd' : '')
 
 var TEST_REQUESTS = [
   {
@@ -416,6 +424,24 @@ var TEST_REQUESTS = [
 ]
 // TEST_REQUESTS = TEST_REQUESTS.filter(r => ~r.testName.indexOf('HttpFn1')) // Use this for dev work.
 
+// We need to `npm ci` for a first test run.
+tape.test(`setup: npm ci (in ${fnAppDir})`, { skip: fs.existsSync(funcExe) }, t => {
+  const startTime = Date.now()
+  exec(
+    'npm ci',
+    {
+      cwd: fnAppDir
+    },
+    function (err, stdout, stderr) {
+      t.error(err, `"npm ci" succeeded (took ${(Date.now() - startTime) / 1000}s)`)
+      if (err) {
+        t.comment(`$ npm ci\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`)
+      }
+      t.end()
+    }
+  )
+})
+
 tape.test('azure functions', function (suite) {
   let apmServer
   let apmServerUrl
@@ -430,9 +456,6 @@ tape.test('azure functions', function (suite) {
   })
 
   let fnAppProc
-  const funcExe = path.resolve(__dirname, '../../../node_modules/.bin/func') + (
-    os.platform() === 'win32' ? '.cmd' : '')
-  const fnAppDir = path.join(__dirname, 'fixtures', 'AJsAzureFnApp')
   suite.test('setup: "func start" for AJsAzureFnApp fixture', t => {
     fnAppProc = spawn(
       funcExe,

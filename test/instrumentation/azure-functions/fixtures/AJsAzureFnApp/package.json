@@ -8,5 +8,7 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "azure-functions-core-tools": "^4.0.4915"
+  }
 }
