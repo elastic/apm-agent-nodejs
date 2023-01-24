@@ -136,7 +136,6 @@
     "apollo-server-core": "^3.0.0",
     "apollo-server-express": "^3.0.0",
     "aws-sdk": "^2.622.0",
-    "azure-functions-core-tools": "^4.0.4915",
     "backport": "^5.1.2",
     "benchmark": "^2.1.4",
     "bluebird": "^3.7.2",
