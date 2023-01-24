@@ -276,6 +276,7 @@ declare namespace apm {
     maxQueueSize?: number;
     metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
     metricsLimit?: number;
+    opentelemetryBridgeEnabled?: boolean;
     payloadLogFile?: string;
     centralConfig?: boolean;
     sanitizeFieldNames?: Array<string>;
