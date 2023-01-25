@@ -56,6 +56,9 @@ Notes:
   value, rather than the incorrect "k8s-attacher".
   ({issue}3119[#3119])
 
+* Add missing <<opentelemetry-bridge-enabled>> ({pull}3121[#3121]) and
+  <<context-manager>> Agent configuration options to the TypeScript types.
+
 [float]
 ===== Chores
 
