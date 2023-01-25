@@ -1,0 +1,16 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsStorage": "",
+    "WEBSITE_RUN_FROM_PACKAGE": "1",
+    "WEBSITE_NODE_DEFAULT_VERSION": "~16",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
+
+    "WEBSITE_SITE_NAME": "AJsAzureFnApp",
+    "WEBSITE_OWNER_NAME": "2491fc8e-f7c1-4020-b9c6-78509919fd16+my-resource-group-ARegionShortNamewebspace",
+    "WEBSITE_RESOURCE_GROUP": "my-resource-group",
+    "WEBSITE_INSTANCE_ID": "test-website-instance-id",
+    "REGION_NAME": "test-region-name"
+  }
+}

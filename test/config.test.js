@@ -148,7 +148,7 @@ var optionFixtures = [
   ['secretToken', 'SECRET_TOKEN'],
   ['serverCaCertFile', 'SERVER_CA_CERT_FILE'],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['serverUrl', 'SERVER_URL'],
+  ['serverUrl', 'SERVER_URL', 'http://127.0.0.1:8200'],
   ['serviceName', 'SERVICE_NAME', apmName],
   ['serviceNodeName', 'SERVICE_NODE_NAME'],
   ['serviceVersion', 'SERVICE_VERSION', apmVersion],
@@ -1029,6 +1029,9 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '12.0.0')) {
     modules.delete('koa-router') // koa-router@11 supports node >=12
     modules.delete('@koa/router') // koa-router@11 supports node >=12
+  }
+  if (semver.lt(process.version, '14.8.0')) {
+    modules.delete('restify')
   }
   modules.delete('next/dist/server/api-utils/node')
   modules.delete('next/dist/server/dev/next-dev-server')

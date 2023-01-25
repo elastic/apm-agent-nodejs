@@ -87,6 +87,7 @@ tape.test('lambda instrumentation does not break trans.setDefaultName', function
         cb(null, 'hi')
       })
 
+      server.clear()
       lambdaLocal.execute({
         event: eventCase.event,
         lambdaFunc: {

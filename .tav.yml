@@ -351,17 +351,36 @@ pug:
 # - Node version compat:
 #   - @hapi/hapi@19: supports node >=v12 (judging from commit 50d8d7d)
 #   - @hapi/hapi@20: appears (from travis template refs) to support node >=v12
-'@hapi/hapi-v17-v18':
+#   - @hapi/hapi@20.1.2 fixed an issue (https://github.com/hapijs/hapi/pull/4225)
+#     needed to work with node >=16. Earlier versions of Hapi will crash when
+#     handling a POST.
+#   - @hapi/hapi@21: dropped support for node v12, and requires v14.10.0
+#     for 'performance.eventLoopUtilization'
+'@hapi/hapi-v17-v19':
   name: '@hapi/hapi'
   versions: '>=17.0.0 <19.0.0'
-  node: '>=8.12.0'
+  node: '>=8.12.0 <16.0.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.test.js
     - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
-'@hapi/hapi':
+'@hapi/hapi-v19-v20.1.2':
   name: '@hapi/hapi'
-  versions: '>=19.0.0'
-  node: '>=12'
+  versions: '>=19.0.0 <20.1.2'
+  node: '>=12.0.0 <16.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+'@hapi/hapi-v20.1.2-v21':
+  name: '@hapi/hapi'
+  versions: '>=20.1.2 <21.0.0'
+  node: '>=12.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+'@hapi/hapi-v21-':
+  name: '@hapi/hapi'
+  versions: '>=21.0.0'
+  node: '>=14.10.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.test.js
     - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
@@ -396,16 +415,35 @@ cassandra-driver:
   versions: '>=3 <3.1.0 || >3.1.0 <5'
   commands: node test/instrumentation/modules/cassandra-driver/index.test.js
 
-restify-old:
+# Restify
+# - restify <v10 doesn't work with node v18+ (https://github.com/restify/node-restify/issues/1888)
+# - restify v9 used `require('node:...')` that requires node >v14.18.0
+#   (https://nodejs.org/api/modules.html#core-modules)
+restify-v5-v8:
   name: restify
   versions: '>=5.2.0 <8.0.0'
+  node: '<18.0.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
-restify-new:
+restify-v8-v9:
   name: restify
-  node: '>=8.6.0'
-  versions: '>=8.0.0'
+  versions: '>=8.0.0 <9.0.0'
+  node: '>=8.6.0 <18.0.0'
+  commands:
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
+restify-v9-v10:
+  name: restify
+  versions: '>=9.0.0 <10.0.0'
+  node: '>=14.18.0 <18.0.0'
+  commands:
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
+restify-v10-v12:
+  name: restify
+  versions: '>=10.0.0 <12.0.0'
+  node: '>=14.18.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js

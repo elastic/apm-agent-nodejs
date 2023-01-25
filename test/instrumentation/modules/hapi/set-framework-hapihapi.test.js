@@ -14,6 +14,7 @@ const agent = require('../../../..').start({
 var isHapiIncompat = require('../../../_is_hapi_incompat')
 if (isHapiIncompat('@hapi/hapi')) {
   // Skip out of this test.
+  console.log(`# SKIP this version of '@hapi/hapi' is incompatible with node ${process.version}`)
   process.exit()
 }
 const tape = require('tape')

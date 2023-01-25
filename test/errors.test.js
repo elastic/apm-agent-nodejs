@@ -285,9 +285,31 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
       expected: '@elastic/elasticsearch'
     },
     {
+      name: 'deep package',
+      frames: [
+        {
+          library_frame: true,
+          filename: 'node_modules/foo/node_modules/bar/lib/baz.js'
+        }
+        // More frames... Only top frame is used by _moduleNameFromFrames.
+      ],
+      expected: 'bar'
+    },
+    {
+      name: 'namespaced package missing name',
+      frames: [
+        {
+          library_frame: true,
+          filename: 'node_modules/@ns/'
+        }
+        // More frames... Only top frame is used by _moduleNameFromFrames.
+      ],
+      expected: null
+    },
+    {
       name: 'empty frames',
       frames: [],
-      expected: undefined
+      expected: null
     },
     {
       name: 'not library_frame',
@@ -297,7 +319,7 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
           filename: 'node:_http_common'
         }
       ],
-      expected: undefined
+      expected: null
     },
     {
       name: 'frame in node lib',
@@ -310,7 +332,7 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
           abs_path: 'timers.js'
         }
       ],
-      expected: undefined
+      expected: null
     }
 
   ]
