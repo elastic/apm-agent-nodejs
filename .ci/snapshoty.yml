@@ -18,12 +18,12 @@ account:
 
 # List of artifacts
 artifacts:
-  # Path to use for artifacts discovery 
+  # Path to use for artifacts discovery
   - path: './build/snapshot'
     # Files pattern to match
     files_pattern: 'elastic-apm-node-(?P<app_version>\d+\.\d+\.\d+)\.tgz'
     # File layout on GCS bucket
-    output_pattern: '{project}/{jenkins_branch_name}/elastic-apm-node-{app_version}-{jenkins_git_commit_short}.tgz'
+    output_pattern: '{project}/{github_branch_name}/elastic-apm-node-{app_version}-{github_sha_short}.tgz'
     # List of metadata processors to use.
     metadata:
       # Define static custom metadata
@@ -32,5 +32,5 @@ artifacts:
           project: 'apm-agent-nodejs'
       # Add git metadata
       - name: 'git'
-      # Add jenkins metadata
-      - name: 'jenkins'
+      # Add github_actions metadata
+      - name: 'github_actions'
