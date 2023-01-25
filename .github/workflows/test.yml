@@ -34,7 +34,7 @@ jobs:
   test-vers:
 
     # These services and their configuration should match test/docker-compose.yml.
-    services:
+    services: &services
 
       redis:
         image: redis
@@ -139,6 +139,32 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node }}
+    - run: docker ps  # show the services against which we'll be testing
+    - run: npm install
+    - run: npm ls --all || true
+    - name: npm test
+      run: npm test
+    - uses: inception-health/otel-upload-test-artifact-action@v1
+      if: always()
+      continue-on-error: true
+      with:
+        jobName: "test-vers (${{ matrix.node }})"
+        stepName: "npm test"
+        path: "test_output/*.junit.xml"
+        type: "junit"
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  test-windows:
+
+    services:
+      <<: *services
+
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 14
     - run: docker ps  # show the services against which we'll be testing
     - run: npm install
     - run: npm ls --all || true
