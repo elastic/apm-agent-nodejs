@@ -132,6 +132,7 @@ jobs:
           - '10.0'
           - '8'
           - '8.6'
+        context: [ 'patch', '' ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -143,10 +144,8 @@ jobs:
     - run: npm ls --all || true
     - name: npm test
       run: npm test
-    - name: npm test ELASTIC_APM_CONTEXT_MANAGER=patch
-      run: npm test
       env:
-        ELASTIC_APM_CONTEXT_MANAGER: patch
+        ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.context }}
     - uses: inception-health/otel-upload-test-artifact-action@v1
       if: always()
       continue-on-error: true
