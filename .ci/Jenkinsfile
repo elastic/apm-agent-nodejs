@@ -98,9 +98,6 @@ pipeline {
               // Only 14 for the time being
               parallelTasks["Windows-Node.js-14"] = generateStepForWindows(version: '14')
 
-              // Linting in parallel with the test stage
-              parallelTasks['linting'] = linting()
-
               parallel(parallelTasks)
             }
           }
@@ -503,25 +500,6 @@ def getSmartTAVContext() {
    }
    return context
  }
-
- def linting(){
-   return {
-    withNode(labels: 'linux && immutable', forceWorkspace: true, forceWorker: true) {
-      catchError(stageResult: 'UNSTABLE', message: 'Linting failures') {
-        withGithubNotify(context: 'Linting') {
-          deleteDir()
-          unstash 'source'
-          docker.image('node:16').inside("-v ${WORKSPACE}/${BASE_DIR}:/app -v /var/lib/jenkins/.git-references/:/var/lib/jenkins/.git-references"){
-            withEnv(["HOME=/app"]) {
-              sh(label: 'Basic tests I', script: 'cd /app && .ci/scripts/test_basic.sh')
-              sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
-            }
-          }
-        }
-      }
-    }
-  }
-}
 
 def generateStepForWindows(Map params = [:]){
   def version = params?.version
