@@ -13,10 +13,6 @@ on:
     paths-ignore:
       - '**.md'
       - '**.asciidoc'
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - '**.asciidoc'
   issue_comment:
     types: [created]
 
