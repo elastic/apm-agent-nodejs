@@ -86,18 +86,9 @@ pipeline {
           unstash 'source'
           dir("${BASE_DIR}"){
             script {
-              def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
-              node['NODEJS_VERSION'].each{ version ->
-                parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                parallelTasks["Node.js-${version}-noasynchooks"] = generateStep(version: version, disableAsyncHooks: true)
-                // TODO: to be enabled if required.
-                // parallelTasks["Windows-Node.js-${version}"] = generateStepForWindows(version: version)
-              }
-
               // Only 14 for the time being
               parallelTasks["Windows-Node.js-14"] = generateStepForWindows(version: '14')
-
               parallel(parallelTasks)
             }
           }
