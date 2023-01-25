@@ -244,9 +244,11 @@ declare namespace apm {
      * @deprecated Use `spanStackTraceMinDuration`.
      */
     captureSpanStackTraces?: boolean;
+    centralConfig?: boolean;
     cloudProvider?: string;
     configFile?: string;
     containerId?: string;
+    contextManager?: string;
     contextPropagationOnly?: boolean;
     disableInstrumentations?: string | string[];
     disableSend?: boolean;
@@ -278,7 +280,6 @@ declare namespace apm {
     metricsLimit?: number;
     opentelemetryBridgeEnabled?: boolean;
     payloadLogFile?: string;
-    centralConfig?: boolean;
     sanitizeFieldNames?: Array<string>;
     secretToken?: string;
     serverCaCertFile?: string;
