@@ -17,7 +17,8 @@ on:
     paths-ignore:
       - '**.md'
       - '**.asciidoc'
-    types: [ labeled ]
+  issue_comment:
+    types: [created]
 
 # limit the access of the generated GITHUB_TOKEN
 permissions:
@@ -35,8 +36,8 @@ jobs:
   # made, these will stop and there will be no value in testing v17 nightlies.
   #
   test-nightly:
-    # PRs labelled with ci:test-nightly or builds running on main
-    if: contains(github.event.pull_request.labels.*.name, 'ci:test-nightly') || ${{ github.ref == 'refs/heads/main' }}
+    # Builds running on main or comment with /test-nightly
+    if: ${{ github.ref == 'refs/heads/main' }} || ( contains(github.event.comment.html_url, '/pull/') && contains(github.event.comment.body, '/test-nightly') )
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -57,8 +58,8 @@ jobs:
   # The node.js project *sometimes* produces "rc" builds leading up to a new
   # release. They get uploaded to: https://nodejs.org/download/rc/
   test-rc:
-    # PRs labelled with ci:test-rc or builds running on main
-    if: contains(github.event.pull_request.labels.*.name, 'ci:test-rc') || ${{ github.ref == 'refs/heads/main' }}
+    # Builds running on main or comment with /test-rc
+    if: ${{ github.ref == 'refs/heads/main' }} || ( contains(github.event.comment.html_url, '/pull/') && contains(github.event.comment.body, '/test-rc') )
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
