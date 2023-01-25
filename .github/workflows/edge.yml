@@ -33,7 +33,9 @@ jobs:
   #
   test-nightly:
     # Builds running on main or comment with /test-nightly
-    if: ${{ github.ref == 'refs/heads/main' }} || ( ${{ github.event.issue.pull_request }} && contains(github.event.comment.body, '/test-nightly') )
+    if: |
+      github.event.issue.pull_request
+      && startsWith(github.event.comment.body, '/test-rc')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -43,7 +45,7 @@ jobs:
         contextManager: [ 'patch', '' ]
     steps:
       - id: sha-for-pr
-        if: ${{ github.event.issue.pull_request }}
+        if: github.event.issue.pull_request
         uses: actions/github-script@v4
         with:
           result-encoding: string
@@ -56,7 +58,7 @@ jobs:
             });
             return pr.data.head.sha
       - uses: actions/checkout@v3
-        if: ${{ github.event.issue.pull_request }}
+        if: github.event.issue.pull_request
         with:
           ref: ${{ steps.sha-for-pr.outputs.result }}
       - uses: actions/checkout@v3
@@ -73,7 +75,9 @@ jobs:
   # release. They get uploaded to: https://nodejs.org/download/rc/
   test-rc:
     # Builds running on main or comment with /test-rc
-    if: ${{ github.ref == 'refs/heads/main' }} || ( ${{ github.event.issue.pull_request }} && && contains(github.event.comment.body, '/test-rc') )
+    if: |
+      github.event.issue.pull_request
+      && startsWith(github.event.comment.body, '/test-rc')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -87,7 +91,7 @@ jobs:
         contextManager: [ 'patch', '' ]
     steps:
       - id: sha-for-pr
-        if: ${{ github.event.issue.pull_request }}
+        if: github.event.issue.pull_request
         uses: actions/github-script@v4
         with:
           result-encoding: string
@@ -100,7 +104,7 @@ jobs:
             });
             return pr.data.head.sha
       - uses: actions/checkout@v3
-        if: ${{ github.event.issue.pull_request }}
+        if: github.event.issue.pull_request
         with:
           ref: ${{ steps.sha-for-pr.outputs.result }}
       - uses: actions/checkout@v3
