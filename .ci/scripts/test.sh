@@ -255,6 +255,14 @@ else
 fi
 
 set +e
+echo "info: docker-compose pull images to avoid issues with the docker registry"
+retry 5 docker-compose \
+  --no-ansi \
+  --log-level ERROR \
+  -f .ci/docker/${DOCKER_COMPOSE_FILE} \
+  pull
+
+echo "info: docker-compose build"
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_CONTEXT_MANAGER=${ELASTIC_APM_CONTEXT_MANAGER} \
 NODE_VERSION=${NODE_VERSION} \
@@ -275,15 +283,6 @@ if [ $? -gt 0 ] ; then
 fi
 
 set -e
-
-echo "info: docker-compose pull images to avoid issues with the docker registry"
-retry 5 NODE_VERSION=${NODE_VERSION} \
-NODE_FULL_VERSION=${NODE_FULL_VERSION} \
-docker-compose \
-  --no-ansi \
-  --log-level ERROR \
-  -f .ci/docker/${DOCKER_COMPOSE_FILE} \
-  pull
 
 echo "info: docker-compose up"
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
