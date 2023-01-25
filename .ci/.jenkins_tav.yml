@@ -1,4 +1,4 @@
-TAV:
+FRAMEWORK:
   - '@elastic/elasticsearch'
   - '@elastic/elasticsearch-canary'
   - '@hapi/hapi'
