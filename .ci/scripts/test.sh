@@ -61,6 +61,34 @@ function usage {
 }
 
 
+# retry function
+# -------------------------------------
+# Retry a command for a specified number of times until the command exits successfully.
+# Retry wait period backs off exponentially after each retry.
+#
+# The first argument should be the number of retries.
+# Remainder is treated as the command to execute.
+# -------------------------------------
+retry() {
+  local retries=$1
+  shift
+
+  local count=0
+  until "$@"; do
+    exit=$?
+    wait=$((2 ** $count))
+    count=$(($count + 1))
+    if [ $count -lt $retries ]; then
+      printf "Retry %s/%s exited %s, retrying in %s seconds...\n" "$count" "$retries" "$exit" "$wait" >&2
+      sleep $wait
+    else
+      printf "Retry %s/%s exited %s, no more retries left.\n" "$count" "$retries" "$exit" >&2
+      return $exit
+    fi
+  done
+  return 0
+}
+
 function skip {
   local reason="$1"
   echo "$reason"
@@ -247,6 +275,17 @@ if [ $? -gt 0 ] ; then
 fi
 
 set -e
+
+echo "info: docker-compose pull images to avoid issues with the docker registry"
+retry 5 NODE_VERSION=${NODE_VERSION} \
+NODE_FULL_VERSION=${NODE_FULL_VERSION} \
+docker-compose \
+  --no-ansi \
+  --log-level ERROR \
+  -f .ci/docker/${DOCKER_COMPOSE_FILE} \
+  pull
+
+echo "info: docker-compose up"
 NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR} \
 ELASTIC_APM_CONTEXT_MANAGER=${ELASTIC_APM_CONTEXT_MANAGER} \
 NODE_VERSION=${NODE_VERSION} \
