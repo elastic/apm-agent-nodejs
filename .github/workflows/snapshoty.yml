@@ -1,0 +1,33 @@
+---
+# Publish a snapshot. A "snapshot" is a packaging of the latest *unreleased* APM agent,
+# published to a known GCS bucket for use in edge demo/test environments.
+name: Snapshoty
+
+on:
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - '*.md'
+    - '*.asciidoc'
+    - 'docs/**'
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - run: npm run package:snapshot
+
+      - name: Publish snaphosts
+        uses: elastic/apm-pipeline-library/.github/actions/snapshoty-simple@current
+        with:
+          config: '.ci/snapshoty.yml'
+          vaultUrl: ${{ secrets.VAULT_ADDR }}
+          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
+          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
