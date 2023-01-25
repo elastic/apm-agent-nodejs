@@ -58,11 +58,9 @@ tape.test('lambda transactions', function (suite) {
     })
   })
 
-  // Test HTTP context -- `transaction.context.{request,response}` -- for
-  // some event types.
-  const httpContextCases = [
+  const testCases = [
     {
-      name: 'API Gateway (payload format version 1.0)',
+      name: 'transaction.context.{request,response} for API Gateway payload format version 1.0',
       event: loadFixture('aws_api_rest_test_data.json'),
       checkApmEvents: (t, events) => {
         const trans = events[1].transaction
@@ -107,7 +105,7 @@ tape.test('lambda transactions', function (suite) {
       }
     },
     {
-      name: 'API Gateway (payload format version 2.0)',
+      name: 'transaction.context.{request,response} for API Gateway payload format version 2.0',
       event: loadFixture('aws_api_http_test_data.json'),
       checkApmEvents: (t, events) => {
         const trans = events[1].transaction
@@ -144,7 +142,7 @@ tape.test('lambda transactions', function (suite) {
       }
     },
     {
-      name: 'API Gateway 2.0 event with inferred response data',
+      name: 'transaction.context.response for API Gateway payload format version 2.0 with inferred response data',
       event: loadFixture('aws_api_http_test_data.json'),
       handler: (_event, _context, cb) => {
         cb(null, 'hi')
@@ -171,9 +169,58 @@ tape.test('lambda transactions', function (suite) {
         t.ok(error.context.request, 'has error.context.request')
         t.equal(error.context.response.status_code, 500, 'error.context.response.status_code')
       }
+    },
+    {
+      name: 'ALB (ELB) event',
+      event: loadFixture('aws_elb_test_data.json'),
+      checkApmEvents: (t, events) => {
+        const trans = events[1].transaction
+        t.equal(trans.trace_id, '12345678901234567890123456789012', 'transaction.trace_id')
+        t.equal(trans.parent_id, '1234567890123456', 'transaction.parent_id')
+        t.equal(trans.type, 'request', 'transaction.type')
+        // XXX update spec for this:
+        // `name` | e.g. `GET /prod/proxy/{proxy+}` | Transaction name: Http method followed by a whitespace and the (resource) path. See section below. | -
+        t.equal(trans.name, 'POST unknown route', 'transaction.name')
+        // XXX update spec for no statusCode cases
+        t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+        t.equal(trans.faas.trigger.type, 'http', 'transaction.faas.trigger.type')
+        // XXX other faas.*?
+        t.equal(trans.context.service.origin.name, 'my-target-group-1', 'transaction.context.service.origin.name')
+        t.equal(trans.context.service.origin.id, 'arn:aws:elasticloadbalancing:us-west-2:919493274929:targetgroup/my-target-group-1/e88598a9d8909e9f', 'transaction.context.service.origin.id')
+        t.equal(trans.context.cloud.origin.service.name, 'elb', 'transaction.context.cloud.origin.service.name')
+        t.equal(trans.context.cloud.origin.account.id, '919493274929', 'transaction.context.cloud.origin.account.id')
+        t.equal(trans.context.cloud.origin.region, 'us-west-2', 'transaction.context.cloud.origin.region')
+        t.equal(trans.context.cloud.origin.provider, 'aws', 'transaction.context.cloud.origin.provider')
+        t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
+        t.equal(trans.context.request.url.full, 'http://my-alb-598237592.us-west-2.elb.amazonaws.com:80/foo/', 'transaction.context.request.url.full')
+        // This shows (a) base64-decoding of the body and (b) redaction of the
+        // form field matching '*token*' in `sanitizeFieldNames`.
+        t.equal(trans.context.request.body, 'ham=eggs&myToken=%5BREDACTED%5D', 'transaction.context.request.body')
+        t.deepEqual(trans.context.response, { status_code: 202, headers: { Foo: 'bar' } }, 'transaction.context.response')
+      }
+    },
+    {
+      // ELB defaults to 502 Bad Gateway if the response doesn't have "statusCode".
+      name: 'ALB (ELB) event with missing "statusCode" field',
+      event: loadFixture('aws_elb_test_data.json'),
+      handler: async (_event, _context, cb) => {
+        return {
+          // Missing 'statusCode' field that ELB expects.
+          hi: 'there'
+        }
+      },
+      checkApmEvents: (t, events) => {
+        const trans = events[1].transaction
+        t.equal(trans.name, 'POST unknown route', 'transaction.name')
+        t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
+        t.equal(trans.outcome, 'failure', 'transaction.outcome')
+        t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
+        t.deepEqual(trans.context.response, { status_code: 502, headers: {} }, 'transaction.context.response')
+      }
     }
   ]
-  httpContextCases.forEach(c => {
+  testCases.forEach(c => {
     suite.test(c.name, { skip: c.skip || false }, function (t) {
       const handler = c.handler || (
         (_event, _context, cb) => {
