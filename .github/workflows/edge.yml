@@ -13,8 +13,6 @@ on:
     paths-ignore:
       - '**.md'
       - '**.asciidoc'
-  issue_comment:
-    types: [created]
 
 # limit the access of the generated GITHUB_TOKEN
 permissions:
@@ -32,10 +30,6 @@ jobs:
   # made, these will stop and there will be no value in testing v17 nightlies.
   #
   test-nightly:
-    # Builds running on main or comment with /test-nightly
-    if: |
-      github.event.issue.pull_request
-      && startsWith(github.event.comment.body, '/test-rc')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -44,25 +38,7 @@ jobs:
         node: [ "20" ]
         contextManager: [ 'patch', '' ]
     steps:
-      - id: sha-for-pr
-        if: github.event.issue.pull_request
-        uses: actions/github-script@v4
-        with:
-          result-encoding: string
-          script: |
-            const { owner, repo, number } = context.issue;
-            const pr = await github.pulls.get({
-              owner,
-              repo,
-              pull_number: number,
-            });
-            return pr.data.head.sha
       - uses: actions/checkout@v3
-        if: github.event.issue.pull_request
-        with:
-          ref: ${{ steps.sha-for-pr.outputs.result }}
-      - uses: actions/checkout@v3
-        if: ${{ github.ref == 'refs/heads/main' }}
       - run: .ci/scripts/test.sh -b "nightly" "${{ matrix.node }}"
         env:
           VERSION: ${{ matrix.node }}
@@ -74,10 +50,6 @@ jobs:
   # The node.js project *sometimes* produces "rc" builds leading up to a new
   # release. They get uploaded to: https://nodejs.org/download/rc/
   test-rc:
-    # Builds running on main or comment with /test-rc
-    if: |
-      github.event.issue.pull_request
-      && startsWith(github.event.comment.body, '/test-rc')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -90,25 +62,7 @@ jobs:
           - "14"
         contextManager: [ 'patch', '' ]
     steps:
-      - id: sha-for-pr
-        if: github.event.issue.pull_request
-        uses: actions/github-script@v4
-        with:
-          result-encoding: string
-          script: |
-            const { owner, repo, number } = context.issue;
-            const pr = await github.pulls.get({
-              owner,
-              repo,
-              pull_number: number,
-            });
-            return pr.data.head.sha
       - uses: actions/checkout@v3
-        if: github.event.issue.pull_request
-        with:
-          ref: ${{ steps.sha-for-pr.outputs.result }}
-      - uses: actions/checkout@v3
-        if: ${{ github.ref == 'refs/heads/main' }}
       - run: .ci/scripts/test.sh -b "rc" "${{ matrix.node }}"
         env:
           VERSION: ${{ matrix.node }}
