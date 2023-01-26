@@ -13,6 +13,8 @@ on:
     paths-ignore:
       - '**.md'
       - '**.asciidoc'
+      - 'docs/**'
+      - 'examples/**'
 
 # limit the access of the generated GITHUB_TOKEN
 permissions:
