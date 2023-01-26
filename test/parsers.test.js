@@ -12,6 +12,8 @@ var test = require('tape')
 
 var parsers = require('../lib/parsers')
 
+var url = require('url')
+
 test('#getContextFromResponse()', function (t) {
   t.test('for error (before headers)', function (t) {
     onRequest(function (req, res) {
@@ -233,6 +235,118 @@ test('#getContextFromRequest()', function (t) {
     }
   }
 })
+
+test('#parseUrl()', function (t) {
+  t.test('should parse a string URL', function (t) {
+    var url = parsers.parseUrl('http://localhost:8888/foo/bar')
+    t.equals(url.host, 'localhost:8888')
+    t.equals(url.hostname, 'localhost')
+    t.equals(url.href, 'http://localhost:8888/foo/bar')
+    t.equals(url.pathname, '/foo/bar')
+    t.equals(url.port, '8888')
+    t.equals(url.search, '')
+    t.end()
+  })
+
+  t.test('should parse a request with path', function (t) {
+    var req = createRequest('/foo/bar')
+    var url = parsers.parseUrl(req)
+    t.equals(url.host, '')
+    t.equals(url.hostname, '')
+    t.equals(url.href, 'relative:///foo/bar')
+    t.equals(url.pathname, '/foo/bar')
+    t.equals(url.port, '')
+    t.equals(url.search, '')
+    t.end()
+  })
+
+  t.test('should parse a request with query string', function (t) {
+    var req = createRequest('/foo/bar?fizz=buzz')
+    var url = parsers.parseUrl(req)
+    t.equals(url.host, '')
+    t.equals(url.hostname, '')
+    t.equals(url.href, 'relative:///foo/bar?fizz=buzz')
+    t.equals(url.pathname, '/foo/bar')
+    t.equals(url.port, '')
+    t.equals(url.search, '?fizz=buzz')
+    t.end()
+  })
+
+  t.test('should parse a request with full URL', function (t) {
+    var req = createRequest('http://localhost:8888/foo/bar')
+    var url = parsers.parseUrl(req)
+    t.equals(url.host, 'localhost:8888')
+    t.equals(url.hostname, 'localhost')
+    t.equals(url.href, 'http://localhost:8888/foo/bar')
+    t.equals(url.pathname, '/foo/bar')
+    t.equals(url.port, '8888')
+    t.equals(url.search, '')
+    t.end()
+  })
+
+  // TODO: parseurl and URL have different APIs here
+  // parseurl resolves it as a path
+  // URL resolves it as absolute
+  t.test('should not choke on auth-looking URL', function (t) {
+    var req = createRequest('//todo@txt')
+    var url = parsers.parseUrl(req)
+    console.log(url)
+    t.equals(url.pathname, '//todo@txt')
+    t.end()
+  })
+
+  // URL returns an empty URL
+  t.test('should return undefined if request has no url', function (t) {
+    var req = createRequest()
+    var url = parsers.parseUrl(req)
+    t.equals(url, undefined)
+    t.end()
+  })
+
+  t.test('should return undefined no param is set', function (t) {
+    var url = parsers.parseUrl()
+    t.equals(url, undefined)
+    t.end()
+  })
+
+  t.test('should reflect url changes in the request', function (t) {
+    var req = createRequest('/foo/bar')
+    var url = parsers.parseUrl(req)
+    var val = Math.random()
+
+    url._token = val
+    t.equals(url._token, val)
+    t.equals(url.pathname, '/foo/bar')
+
+    req.url = '/bar/baz'
+    url = parsers.parseUrl(req)
+    t.equals(url._token, undefined)
+    t.equals(url.pathname, '/bar/baz')
+    t.end()
+  })
+
+  t.test('should cache parsing', function (t) {
+    var req = createRequest('/foo/bar')
+    var url = parsers.parseUrl(req)
+    var val = Math.random()
+
+    url._token = val
+    t.equals(url._token, val)
+    t.equals(url.pathname, '/foo/bar')
+
+    url = parsers.parseUrl(req)
+    t.equals(url._token, val)
+    t.equals(url.pathname, '/foo/bar')
+    t.end()
+  })
+})
+
+function createRequest (url, originalUrl) {
+  return {
+    originalUrl: originalUrl,
+    url: url
+  }
+}
 
 function onRequest (cb) {
   var server = http.createServer(cb)
