@@ -28,5 +28,3 @@ jobs:
         node-version: '16'
     - run: npm install
     - run: npm run lint
-    - run: .ci/scripts/test_basic.sh
-    - run: .ci/scripts/test_types_babel_esm.sh
