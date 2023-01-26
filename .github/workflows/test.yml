@@ -6,7 +6,6 @@
 # - the "TAV" tests that run against all supported versions of instrumented
 #   modules
 # - the integration tests that run with an apm-server
-# - testing with ELASTIC_APM_CONTEXT_MANAGER=patch (i.e. without using async_hooks)
 # - code coverage (npm run coverage)
 
 name: Test
@@ -133,6 +132,7 @@ jobs:
           - '10.0'
           - '8'
           - '8.6'
+        contextManager: [ 'patch', '' ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -144,6 +144,8 @@ jobs:
     - run: npm ls --all || true
     - name: npm test
       run: npm test
+      env:
+        ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
     - uses: inception-health/otel-upload-test-artifact-action@v1
       if: always()
       continue-on-error: true
