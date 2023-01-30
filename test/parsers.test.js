@@ -12,8 +12,6 @@ var test = require('tape')
 
 var parsers = require('../lib/parsers')
 
-var url = require('url')
-
 test('#getContextFromResponse()', function (t) {
   t.test('for error (before headers)', function (t) {
     onRequest(function (req, res) {
@@ -284,18 +282,13 @@ test('#parseUrl()', function (t) {
     t.end()
   })
 
-  // TODO: parseurl and URL have different APIs here
-  // parseurl resolves it as a path
-  // URL resolves it as absolute
   t.test('should not choke on auth-looking URL', function (t) {
     var req = createRequest('//todo@txt')
     var url = parsers.parseUrl(req)
-    console.log(url)
     t.equals(url.pathname, '//todo@txt')
     t.end()
   })
 
-  // URL returns an empty URL
   t.test('should return undefined if request has no url', function (t) {
     var req = createRequest()
     var url = parsers.parseUrl(req)
