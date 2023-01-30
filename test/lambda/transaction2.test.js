@@ -178,14 +178,11 @@ tape.test('lambda transactions', function (suite) {
         t.equal(trans.trace_id, '12345678901234567890123456789012', 'transaction.trace_id')
         t.equal(trans.parent_id, '1234567890123456', 'transaction.parent_id')
         t.equal(trans.type, 'request', 'transaction.type')
-        // XXX update spec for this:
-        // `name` | e.g. `GET /prod/proxy/{proxy+}` | Transaction name: Http method followed by a whitespace and the (resource) path. See section below. | -
         t.equal(trans.name, 'POST unknown route', 'transaction.name')
-        // XXX update spec for no statusCode cases
         t.equal(trans.result, 'HTTP 2xx', 'transaction.result')
         t.equal(trans.outcome, 'success', 'transaction.outcome')
         t.equal(trans.faas.trigger.type, 'http', 'transaction.faas.trigger.type')
-        // XXX other faas.*?
+        t.equal(trans.faas.trigger.request_id, undefined, 'no transaction.faas.trigger.request_id for ELB')
         t.equal(trans.context.service.origin.name, 'my-target-group-1', 'transaction.context.service.origin.name')
         t.equal(trans.context.service.origin.id, 'arn:aws:elasticloadbalancing:us-west-2:919493274929:targetgroup/my-target-group-1/e88598a9d8909e9f', 'transaction.context.service.origin.id')
         t.equal(trans.context.cloud.origin.service.name, 'elb', 'transaction.context.cloud.origin.service.name')
