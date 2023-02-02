@@ -67,6 +67,14 @@ module.exports = class TransactionMock {
     this.outcome = outcome
   }
 
+  _setOutcomeFromHttpStatusCode (statusCode) {
+    if (statusCode && statusCode >= 500) {
+      this.outcome = constants.OUTCOME_FAILURE
+    } else {
+      this.outcome = constants.OUTCOME_SUCCESS
+    }
+  }
+
   _addLinks (links) {
     this._links = this._links.concat(links)
   }

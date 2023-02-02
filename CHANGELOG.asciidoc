@@ -47,6 +47,9 @@ Notes:
   incoming messages with trace-context. This allows linking between
   producer and consumer in the Kibana APM app. ({pull}3044[#3044])
 
+* Extend Lambda instrumentation to capture details for Lambda function URL
+  and ELB-triggered Lambdas. ({issues}2901[#2901])
+
 [float]
 ===== Bug fixes
 
