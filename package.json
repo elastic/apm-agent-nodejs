@@ -176,7 +176,7 @@
     "memcached": "^2.2.2",
     "mimic-response": "^2.1.0",
     "mkdirp": "^0.5.1",
-    "mongodb": "^4.2.1",
+    "mongodb": "^5.0.0",
     "mongodb-core": "^3.2.7",
     "mysql": "^2.18.1",
     "mysql2": "^2.1.0",
