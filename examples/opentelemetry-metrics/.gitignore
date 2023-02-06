@@ -1,0 +1,4 @@
+/log
+/data
+/prometheus-*
+/elastic-apm-node.js

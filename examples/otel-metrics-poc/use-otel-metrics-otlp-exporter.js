@@ -4,6 +4,8 @@
  * compliance with the BSD 2-Clause License.
  */
 
+/* eslint-disable */
+
 'use strict'
 
 
@@ -27,7 +29,7 @@ const metricExporter = new OTLPMetricExporter({ url: SERVER_URL })
 
 const meterProvider = new MeterProvider({
   resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: 'otel-metrics-poc',
+    [SemanticResourceAttributes.SERVICE_NAME]: 'use-otel-metrics-otlp-exporter',
     [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: 'development'
   })
 })

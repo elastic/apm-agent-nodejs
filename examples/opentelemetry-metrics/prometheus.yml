@@ -1,0 +1,23 @@
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'codelab-monitor'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'caseA-otel-prom'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:3001']
+
+  - job_name: 'caseC-prom'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:3003']

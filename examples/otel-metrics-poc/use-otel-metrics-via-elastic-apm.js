@@ -4,17 +4,19 @@
  * compliance with the BSD 2-Clause License.
  */
 
+/* eslint-disable */
+
 'use strict'
 
 const apm = require('elastic-apm-node').start({
   // serverUrl: '...'
   // secretToken: '...',
-  metricsInterval: '10s'
+  serviceName: 'use-otel-metrics-via-elastic-apm',
+  metricsInterval: '3s'
 })
 
 const otel = require('@opentelemetry/api')
 // otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // get some OTel debug logging
-
 
 
 
