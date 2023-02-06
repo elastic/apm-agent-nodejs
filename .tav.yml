@@ -351,23 +351,33 @@ pug:
 # - Node version compat:
 #   - @hapi/hapi@19: supports node >=v12 (judging from commit 50d8d7d)
 #   - @hapi/hapi@20: appears (from travis template refs) to support node >=v12
+#   - @hapi/hapi@20.1.2 fixed an issue (https://github.com/hapijs/hapi/pull/4225)
+#     needed to work with node >=16. Earlier versions of Hapi will crash when
+#     handling a POST.
 #   - @hapi/hapi@21: dropped support for node v12, and requires v14.10.0
 #     for 'performance.eventLoopUtilization'
-'@hapi/hapi-v17-v18':
+'@hapi/hapi-v17-v19':
   name: '@hapi/hapi'
   versions: '>=17.0.0 <19.0.0'
-  node: '>=8.12.0'
+  node: '>=8.12.0 <16.0.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.test.js
     - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
-'@hapi/hapi-v19-v20':
+'@hapi/hapi-v19-v20.1.2':
   name: '@hapi/hapi'
-  versions: '>=19.0.0 <21.0.0'
-  node: '>=12'
+  versions: '>=19.0.0 <20.1.2'
+  node: '>=12.0.0 <16.0.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.test.js
     - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
-'@hapi/hapi':
+'@hapi/hapi-v20.1.2-v21':
+  name: '@hapi/hapi'
+  versions: '>=20.1.2 <21.0.0'
+  node: '>=12.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+'@hapi/hapi-v21-':
   name: '@hapi/hapi'
   versions: '>=21.0.0'
   node: '>=14.10.0'
@@ -423,10 +433,17 @@ restify-v8-v9:
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
-restify:
+restify-v9-v10:
   name: restify
-  versions: '>=9.0.0'
+  versions: '>=9.0.0 <10.0.0'
   node: '>=14.18.0 <18.0.0'
+  commands:
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
+restify-v10-v12:
+  name: restify
+  versions: '>=10.0.0 <12.0.0'
+  node: '>=14.18.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
@@ -490,8 +507,8 @@ aws-sdk:
   # Maintenance note: This should be updated periodically using:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
-  # Test v2.858.0, every N=72 of 365 releases, and current latest.
-  versions: '2.858.0 || 2.930.0 || 2.1002.0 || 2.1074.0 || 2.1146.0 || 2.1218.0 || 2.1222.0 || >2.1222.0 <3'
+  # Test v2.858.0, every N=88 of 445 releases, and current latest.
+  versions: '2.858.0 || 2.946.0 || 2.1034.0 || 2.1122.0 || 2.1210.0 || 2.1298.0 || 2.1302.0 || >2.1302.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js

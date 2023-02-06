@@ -1,0 +1,13 @@
+{
+  "name": "an-azure-function-app",
+  "version": "1.0.0",
+  "description": "An example Azure Function app showing Elastic APM integration for tracing/monitoring",
+  "private": true,
+  "main": "initapm.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {
+    "elastic-apm-node": "^3.42.0"
+  }
+}

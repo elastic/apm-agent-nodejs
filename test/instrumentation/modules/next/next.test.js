@@ -31,6 +31,7 @@ const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../../../_mock_apm_server')
+const { formatForTComment } = require('../../../_utils')
 
 if (os.platform() === 'win32') {
   // Limitation: currently don't support testing on Windows.
@@ -55,9 +56,6 @@ if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
 }
 
 const testAppDir = path.join(__dirname, 'a-nextjs-app')
-
-// Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
-const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
 
 let apmServer
 let nextJsVersion // Determined after `npm ci` is run.
@@ -392,23 +390,6 @@ if (DEV_TEST_FILTER) {
 // ---- utility functions
 
 /**
- * Format the given data for passing to `t.comment()`.
- *
- * - t.comment() wipes leading whitespace. Prefix lines with '|' to avoid
- *   that, and to visually group a multi-line write.
- * - Drop ANSI escape characters, because those include control chars that
- *   are illegal in XML. When we convert TAP output to JUnit XML for
- *   Jenkins, then Jenkins complains about invalid XML. `FORCE_COLOR=0`
- *   can be used to disable ANSI escapes in `next dev`'s usage of chalk,
- *   but not in its coloured exception output.
- */
-function formatForTComment (data) {
-  return data.toString('utf8')
-    .replace(ANSI_RE, '')
-    .trimRight().replace(/\n/g, '\n|') + '\n'
-}
-
-/**
  * Wait for the test a-nextjs-app server to be ready.
  *
  * This polls `GET /api/an-api-endpoint` until the expected 200 response is
@@ -575,7 +556,7 @@ function checkExpectedApmEvents (t, apmEvents) {
 // We need to `npm ci` for a first test run. However, *only* for a first test
 // run, otherwise this will override any possible `npm install --no-save ...`
 // changes made by a TAV runner.
-const haveNodeModules = fs.existsSync(path.join(testAppDir, 'node_modules'))
+const haveNodeModules = fs.existsSync(path.join(testAppDir, 'node_modules', '.bin', 'next'))
 tape.test(`setup: npm ci (in ${testAppDir})`, { skip: haveNodeModules }, t => {
   const startTime = Date.now()
   exec(
@@ -738,7 +719,7 @@ tape.test('-- prod server tests --', suite => {
     })
     setTimeout(() => {
       nextServerProc.kill('SIGTERM')
-    }, 4000) // 2x ELASTIC_APM_API_REQUEST_SIZE set above
+    }, 4000) // 2x ELASTIC_APM_API_REQUEST_TIME set above
   })
 
   suite.end()
@@ -834,7 +815,7 @@ tape.test('-- dev server tests --', suite => {
     })
     setTimeout(() => {
       nextServerProc.kill('SIGTERM')
-    }, 4000) // 2x ELASTIC_APM_API_REQUEST_SIZE set above
+    }, 4000) // 2x ELASTIC_APM_API_REQUEST_TIME set above
   })
 
   suite.end()

@@ -31,6 +31,127 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Propagate trace-context in message attributes for SQS (SendMessage and
+  SendMessageBatch) and SNS (Publish), provided the maximum 10 message
+  attributes limit is not passed. SQS message reception (ReceiveMessage) and
+  SQS- and SNS-triggered Lambda functions already produce _span links_ for
+  incoming messages with trace-context. This allows linking between
+  producer and consumer in the Kibana APM app. ({pull}3044[#3044])
+
+* Extend Lambda instrumentation to capture details for Lambda function URL
+  and ELB-triggered Lambdas. ({issues}2901[#2901])
+
+[float]
+===== Bug fixes
+
+* Fix `metadata.service.agent.activation_method=k8s-attach` handling to
+  (a) use an explicit marker from the k8s apm attacher
+  (`ELASTIC_APM_ACTIVATION_METHOD`) and (b) use the specified "k8s-attach"
+  value, rather than the incorrect "k8s-attacher".
+  ({issue}3119[#3119])
+
+* Add missing <<opentelemetry-bridge-enabled>> ({pull}3121[#3121]) and
+  <<context-manager>> Agent configuration options to the TypeScript types.
+
+[float]
+===== Chores
+
+
+[[release-notes-3.42.0]]
+==== 3.42.0 2023/01/18
+
+[float]
+===== Features
+
+* Support for tracing/monitoring https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions].
+  See the <<azure-functions>> document.
+  ({pull}3071[#3071], https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-azure-functions.md[spec])
+
+* Support `restify@11`.
+
+[float]
+===== Bug fixes
+
+* Fix instrumentation of `http.request()` and `http.get()` (and the same
+  for `https.`) so that Basic auth fields are not lost. Before this change
+  if the first arg was a URL or string with `username` and/or `password`
+  values, e.g. `https://user:pass@...`, then the auth fields were not
+  included in the actual HTTP request.  ({issues}2044[#2044])
+
+* Fix `span.context.destination.service.resource` for S3 spans to have an
+  "s3/" prefix.
++
+*Note*: While this is considered a bugfix, but it can potentially be a breaking
+change in the Kibana APM app: It can break the history of the S3-Spans / metrics
+for users relying on `context.destination.service.resource`. If users happen to
+run agents both with and without this fix (for same or different languages), the
+same S3-buckets can appear twice in the service map (with and without
+s3-prefix).
+
+* Ensure collected dropped spans stats follow the intake API type requirements.
+  Before this change `transaction.dropped_spans_stats[*].duration.sum.us` could
+  have been a floating-point value, but the intake API requires an int. The
+  result was dropped transactions and errors in the agent log.
+  ({issues}3104[#3104])
+
+[float]
+===== Chores
+
+* Add `service.agent.activation_method` metadatum.
+  Spec: https://github.com/elastic/apm/blob/main/specs/agents/metadata.md#activation-method
+  ({issues}3039[#3039])
+
+
+[[release-notes-3.41.1]]
+==== 3.41.1 2022/12/21
+
+[float]
+===== Bug fixes
+
+* Fix a bug in span compression with sending spans that were buffered for
+  possible compression. Before this fix, in some cases a compressible span could
+  be sent *twice* or not sent at all. ({pull}3076[#3076])
+
+
+[[release-notes-3.41.0]]
+==== 3.41.0 2022/12/12
+
+[float]
+===== Features
+
+* Capture HTTP context (status code, headers, etc.) on transactions (and
+  captured errors) for Lambda functions triggered by API Gateway.
+  ({issues}2419[#2419])
+
+* Support instrumentation for restify@10.
+
+[float]
+===== Bug fixes
+
+* Change default `serverUrl` from `http://localhost:8200` to `http://127.0.0.1:8200`
+  to avoid ambiguity between possible IPv4 and IPv6 DNS-resolved values for "localhost".
+  APM server only listens on IPv4 by default, so this avoids a possible surprising
+  mismatch. ({issues}3045[#3045])
+
+* Add `tracestate` to the `TransactionOptions` TypeScript type for
+  `apm.startTransaction(..., options)`. ({issues}3061[#3061])
+
+[float]
+===== Chores
+
+* Mark the published Lambda layer as supporting the recently released
+  "nodejs18.x" Lambda Runtime (`--compatible-runtimes`).
+
+
 [[release-notes-3.40.1]]
 ==== 3.40.1 2022/11/15
 

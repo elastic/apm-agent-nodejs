@@ -30,7 +30,7 @@ Applications with a high request rate and/or many spans per incoming request
 may want to lower the the sampling rate. For example, see the example below
 to trace 20% of incoming requests. Note that incoming HTTP requests that are
 part of a <<distributed-tracing,distributed trace>> already have the sampling
-decision made -- the `tracestate` header includes a
+decision made -- the `traceparent` header includes a
 https://w3c.github.io/trace-context/#sampled-flag[sampled flag]. In these cases
 the `transactionSampleRate` setting will not apply.
 

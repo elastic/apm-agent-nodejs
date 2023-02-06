@@ -36,7 +36,6 @@ pipeline {
     booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
     booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
-    booleanParam(name: 'test_edge_ci', defaultValue: true, description: 'Enable tests for edge versions of nodejs.')
   }
   stages {
     /**
@@ -86,21 +85,9 @@ pipeline {
           unstash 'source'
           dir("${BASE_DIR}"){
             script {
-              def node = readYaml(file: '.ci/.jenkins_nodejs.yml')
               def parallelTasks = [:]
-              node['NODEJS_VERSION'].each{ version ->
-                parallelTasks["Node.js-${version}"] = generateStep(version: version)
-                parallelTasks["Node.js-${version}-noasynchooks"] = generateStep(version: version, disableAsyncHooks: true)
-                // TODO: to be enabled if required.
-                // parallelTasks["Windows-Node.js-${version}"] = generateStepForWindows(version: version)
-              }
-
               // Only 14 for the time being
               parallelTasks["Windows-Node.js-14"] = generateStepForWindows(version: '14')
-
-              // Linting in parallel with the test stage
-              parallelTasks['linting'] = linting()
-
               parallel(parallelTasks)
             }
           }
@@ -149,107 +136,6 @@ pipeline {
       }
     }
 
-    /**
-      The "Edge Test" is a run of the agent test suite with pre-release builds
-      of node.js, if available and useful. "Pre-release" builds are release
-      candidate (RC) and "nightly" node.js builds.
-    */
-    stage('Edge Test') {
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-      }
-      when {
-        beforeAgent true
-        allOf {
-          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
-          anyOf {
-            expression { return params.Run_As_Main_Branch }
-            triggeredBy 'TimerTrigger'
-          }
-          expression { return params.test_edge_ci }
-          expression { return env.ONLY_DOCS == "false" }
-        }
-      }
-      parallel {
-        stage('Nightly Test') {
-          agent { label 'linux && immutable' }
-          steps {
-            withGithubNotify(context: 'Nightly Test', tab: 'tests') {
-              deleteDir()
-              unstash 'source'
-              dir("${BASE_DIR}"){
-                script {
-                  def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
-                  def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-nightly"] = generateStep(version: version, buildType: 'nightly')
-                  }
-                  parallel(parallelTasks)
-                }
-              }
-            }
-          }
-        }
-        stage('Nightly Test - noasynchooks') {
-          agent { label 'linux && immutable' }
-          steps {
-            withGithubNotify(context: 'Nightly noasynchooks Test', tab: 'tests') {
-              deleteDir()
-              unstash 'source'
-              dir("${BASE_DIR}"){
-                script {
-                  def node = readYaml(file: '.ci/.jenkins_nightly_nodejs.yml')
-                  def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-nightly-noasynchooks"] = generateStep(version: version, buildType: 'nightly', disableAsyncHooks: true)
-                  }
-                  parallel(parallelTasks)
-                }
-              }
-            }
-          }
-        }
-        stage('RC Test') {
-          agent { label 'linux && immutable' }
-          steps {
-            withGithubNotify(context: 'RC Test', tab: 'tests') {
-              deleteDir()
-              unstash 'source'
-              dir("${BASE_DIR}"){
-                script {
-                  def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
-                  def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-rc"] = generateStep(version: version, buildType: 'rc')
-                  }
-                  parallel(parallelTasks)
-                }
-              }
-            }
-          }
-        }
-        stage('RC Test - noasynchooks') {
-          agent { label 'linux && immutable' }
-          steps {
-            withGithubNotify(context: 'RC noasynchooks Test', tab: 'tests') {
-              deleteDir()
-              unstash 'source'
-              dir("${BASE_DIR}"){
-                script {
-                  def node = readYaml(file: '.ci/.jenkins_rc_nodejs.yml')
-                  def parallelTasks = [:]
-                  node['NODEJS_VERSION'].each { version ->
-                    parallelTasks["Node.js-${version}-rc-noasynchooks"] = generateStep(version: version, buildType: 'rc', disableAsyncHooks: true)
-                  }
-                  parallel(parallelTasks)
-                }
-              }
-            }
-          }
-        }
-      }
-    }
     stage('Release') {
       options { skipDefaultCheckout() }
       when {
@@ -470,25 +356,6 @@ def getSmartTAVContext() {
    }
    return context
  }
-
- def linting(){
-   return {
-    withNode(labels: 'linux && immutable', forceWorkspace: true, forceWorker: true) {
-      catchError(stageResult: 'UNSTABLE', message: 'Linting failures') {
-        withGithubNotify(context: 'Linting') {
-          deleteDir()
-          unstash 'source'
-          docker.image('node:16').inside("-v ${WORKSPACE}/${BASE_DIR}:/app -v /var/lib/jenkins/.git-references/:/var/lib/jenkins/.git-references"){
-            withEnv(["HOME=/app"]) {
-              sh(label: 'Basic tests I', script: 'cd /app && .ci/scripts/test_basic.sh')
-              sh(label: 'Basic tests II', script: 'cd /app && .ci/scripts/test_types_babel_esm.sh')
-            }
-          }
-        }
-      }
-    }
-  }
-}
 
 def generateStepForWindows(Map params = [:]){
   def version = params?.version

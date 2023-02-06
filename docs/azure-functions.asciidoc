@@ -1,0 +1,155 @@
+:framework: Azure Functions
+
+[[azure-functions]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/azure-functions.html[elastic.co]
+endif::[]
+
+=== Monitoring Node.js Azure Functions
+
+The Node.js APM Agent can trace function invocations in an https://learn.microsoft.com/en-us/azure/azure-functions/[Azure Functions] app.
+
+
+[float]
+[[azure-functions-prerequisites]]
+==== Prerequisites
+
+You need an APM Server to send APM data to. Follow the
+{apm-guide-ref}/apm-quick-start.html[APM Quick start] if you have not set one up
+yet. You will need your *APM server URL* and an APM server *secret token* (or
+*API key*) for configuring the APM agent below.
+
+You will also need an Azure Function app to monitor. If you do not have an
+existing one, you can follow https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-node#create-supporting-azure-resources-for-your-function[this Azure guide]
+to create one.
+
+[IMPORTANT]
+====
+If you use `func init --javascript ...` as suggested in this Azure guide,
+then it is recommended that you *uninstall* the `azure-functions-core-tools`
+dependency by running `npm uninstall azure-functions-core-tools` and
+https://github.com/Azure/azure-functions-core-tools#installing[install it separately].
+Having `azure-functions-core-tools` as a "devDependency" in your package.json
+will result in unreasonably large deployments that will be very slow to publish
+and will run your Azure Function app VM out of disk space.
+====
+
+You can also take a look at and use this https://github.com/elastic/apm-agent-nodejs/tree/main/examples/an-azure-function-app/[Azure Functions example app with Elastic APM already integrated].
+
+[float]
+[[azure-functions-setup]]
+==== Step 1: Add the APM agent dependency
+
+Add the `elastic-apm-node` module as a dependency of your application:
+
+[source,bash]
+----
+npm install elastic-apm-node --save  # or 'yarn add elastic-apm-node'
+----
+
+
+[float]
+==== Step 2: Start the APM agent
+
+For the APM agent to instrument Azure Functions, it needs to be started when the
+Azure host starts its Node.js worker processes. The best way to do so is by
+using an app-level entry point (support for this was added for Node.js Azure
+Functions https://github.com/Azure/azure-functions-nodejs-worker/issues/537[here]).
+
+1. Create a module to start the APM agent. For example, a file at the root of your repository named "initapm.js":
++
+[source,javascript]
+----
+// initapm.js
+require('elastic-apm-node').start({
+  <1>
+})
+----
+<1> Optional <<configuration,configuration options>> can be added here.
+
+2. Add a "main" entry to your package.json pointing to the app init file.
++
+[source,json]
+----
+...
+  "main": "initapm.js",
+...
+----
++
+If your application already has a "main" init file, you can instead add the
+`require('elastic-apm-node').start()` to top of that file.
+
+
+[float]
+==== Step 3: Configure the APM agent
+
+The APM agent can be <<configuring-the-agent,configured>> with options to the
+`.start()` method or with environment variables. Using environment variables
+allows one to use https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings?tabs=portal#settings[application settings in the Azure Portal] which allows hiding values and updating settings
+without needing to re-deploy code.
+
+Open _Configuration > Application settings_ for your Function App in the Azure Portal
+and set:
+
+[source,yaml]
+----
+ELASTIC_APM_SERVER_URL: <your APM server URL from the prerequisites step>
+ELASTIC_APM_SECRET_TOKEN: <your APM secret token from the prerequisites step>
+----
+
+For example:
+
+image::./images/azure-functions-configuration.png[Configuring the APM Agent in the Azure Portal]
+
+For local testing via `func start` you can set these environment variables in
+your terminal, or in the "local.settings.json" file. See the
+<<configuration,agent configuration guide>> for full details on supported
+configuration variables.
+
+
+[float]
+==== Step 4: (Re-)deploy your Azure Function app
+
+[source,bash]
+----
+func azure functionapp publish <APP_NAME>
+----
+
+Now, when you invoke your Azure Functions, you should see your application
+show up as a Service in the APM app in Kibana and see APM transactions for
+function invocations.  Tracing data is forwarded to APM server after a period
+of time, so allow a minute or so for data to appear.
+
+
+[float]
+[[azure-functions-limitations]]
+==== Limitations
+
+This instrumentation does not send an APM transaction or error to APM server when
+a handler has an `uncaughtException` or `unhandledRejection`.
+The Azure Functions Node.js reference https://learn.microsoft.com/en-ca/azure/azure-functions/functions-reference-node#use-async-and-await[has a section] with best practices for avoiding these cases.
+
+Azure Functions instrumentation currently does _not_ collect system metrics in
+the background because of a concern with unintentionally increasing Azure
+Functions costs (for Consumption plans).
+
+
+[float]
+[[azure-functions-filter-sensitive-information]]
+==== Filter sensitive information
+
+include::./shared-set-up.asciidoc[tag=filter-sensitive-info]
+
+[float]
+[[azure-functions-compatibility]]
+==== Compatibility
+
+include::./shared-set-up.asciidoc[tag=compatibility-link]
+
+[float]
+[[azure-functions-troubleshooting]]
+==== Troubleshooting
+
+include::./shared-set-up.asciidoc[tag=troubleshooting-link]

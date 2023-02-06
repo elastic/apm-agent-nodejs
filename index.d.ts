@@ -244,9 +244,11 @@ declare namespace apm {
      * @deprecated Use `spanStackTraceMinDuration`.
      */
     captureSpanStackTraces?: boolean;
+    centralConfig?: boolean;
     cloudProvider?: string;
     configFile?: string;
     containerId?: string;
+    contextManager?: string;
     contextPropagationOnly?: boolean;
     disableInstrumentations?: string | string[];
     disableSend?: boolean;
@@ -276,8 +278,8 @@ declare namespace apm {
     maxQueueSize?: number;
     metricsInterval?: string; // Also support `number`, but as we're removing this functionality soon, there's no need to advertise it
     metricsLimit?: number;
+    opentelemetryBridgeEnabled?: boolean;
     payloadLogFile?: string;
-    centralConfig?: boolean;
     sanitizeFieldNames?: Array<string>;
     secretToken?: string;
     serverCaCertFile?: string;
@@ -375,7 +377,10 @@ declare namespace apm {
 
   export interface TransactionOptions {
     startTime?: number;
+    // `childOf` is a W3C trace-context 'traceparent' string. Passing a
+    // Transaction or Span is deprecated.
     childOf?: Transaction | Span | string;
+    tracestate?: string; // A W3C trace-context 'tracestate' string.
     links?: Link[];
   }
 
