@@ -1,12 +1,23 @@
 
-# Cases
+# Use Cases
 
-A. Pure OTel, exporting to Prom
-B. Pure OTel, exporting via OTLP/gRPC to Elastic
-C. Node Prom lib, exporting to Prom
-D. OTel Metrics SDK explicitly used (configured to export to Prom with custom Views), elastic-apm-node turned on and duplicating metrics to APM server. (This is "Exporter Installation" method 1.)
-E. OTel Metrics API used (e.g. by a dep), elastic-apm-node turned on and providing a default global MetricsProvider sending to APM server, as long as a global MetricsProvider isn't already provided by user code.
+Here are a number of use cases for getting metrics from an app. We'll compare
+end results for each of these.
 
+1. `prom-prom` - Using a Prometheus client and export metrics to Prometheus.
+2. `otel-prom` - Using OTel Metrics (API and SDK) to create metrics and export
+   to Prometheus.
+3. `otel-otlp` - Using OTel Metrics (API and SDK) to create metrics and export
+   via OTLP/gRPC. Elastic APM supports OTLP/gRPC intake.
+4. `otelsdk-elastic` - Using OTel Metrics SDK (and optionally the API) to create
+   (and optionally export) metrics. Enabling the Elastic APM agent will result
+   in an exporter being added to the Metrics SDK instance (via
+   auto-instrumentation), which sends metrics to Elastic APM via the Elastic
+   intake API.
+5. `otelapi-elastic` - Using the OTel Metrics API *without* registering a
+   global MeterProvider. Enabling the Elastic APM agent will result in a global
+   MeterProvider being registered that will export metrics to Elastic APM via
+   the Elastic intake API.
 
 # Links
 

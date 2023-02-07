@@ -15,20 +15,20 @@ restart: restart-prom restart-apps
 
 
 start-apps: log
-	node caseA-otel-prom.js >./log/caseA-otel-prom.log 2>&1 &
-	node caseB-otel-otlp.js >./log/caseB-otel-otlp.log 2>&1 &
-	node caseC-prom.js >./log/caseC-prom.log 2>&1 &
-	node caseE-metrics-api-elastic.js >./log/caseE-metrics-api-elastic.log 2>&1 &
+	node prom-prom.js >./log/prom-prom.log 2>&1 &
+	node otel-prom.js >./log/otel-prom.log 2>&1 &
+	node otel-otlp.js >./log/otel-otlp.log 2>&1 &
+	node otelapi-elastic.js >./log/otelapi-elastic.log 2>&1 &
 
 stop-apps:
-	ps -f | rg "caseA-otel-prom.js"
-	kill $(shell ps -f | rg "caseA-otel-prom.js" | rg -vw rg | awk '{print $$2}') || true
-	ps -f | rg "caseB-otel-otlp.js"
-	kill $(shell ps -f | rg "caseB-otel-otlp.js" | rg -vw rg | awk '{print $$2}') || true
-	ps -f | rg "caseC-prom.js"
-	kill $(shell ps -f | rg "caseC-prom.js" | rg -vw rg | awk '{print $$2}') || true
-	ps -f | rg "caseE-metrics-api-elastic.js"
-	kill $(shell ps -f | rg "caseE-metrics-api-elastic.js" | rg -vw rg | awk '{print $$2}') || true
+	ps -f | rg "prom-prom.js"
+	kill $(shell ps -f | rg "prom-prom.js" | rg -vw rg | awk '{print $$2}') || true
+	ps -f | rg "otel-prom.js"
+	kill $(shell ps -f | rg "otel-prom.js" | rg -vw rg | awk '{print $$2}') || true
+	ps -f | rg "otel-otlp.js"
+	kill $(shell ps -f | rg "otel-otlp.js" | rg -vw rg | awk '{print $$2}') || true
+	ps -f | rg "otelapi-elastic.js"
+	kill $(shell ps -f | rg "otelapi-elastic.js" | rg -vw rg | awk '{print $$2}') || true
 
 restart-apps: stop-apps start-apps
 

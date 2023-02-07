@@ -1,3 +1,9 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
 // An app that uses a Prometheus client to export metrics for scraping.
 //    http://localhost:3003/metrics
 // No OTel or Elastic APM usage user. This is a baseline for comparison.
@@ -5,37 +11,30 @@
 'use strict'
 
 const PORT = 3003
-const SERVICE_NAME = 'examples-opentelemetry-metrics-C'
+const SERVICE_NAME = 'otelmetrics-prom-prom'
 
 const prom = require('prom-client') // https://github.com/siimon/prom-client
 const Fastify = require('fastify')
-
-
-function indent(s) {
-  const indentation = '    '
-  return indentation + s.split(/\r?\n/g).join('\n' + indentation) + '\n'
-}
-
 
 // ---- mainline
 
 // XXX what labels?
 prom.register.setDefaultLabels({
-  'serviceName': SERVICE_NAME
+  serviceName: SERVICE_NAME
 })
 // prom.collectDefaultMetrics(); // XXX
 
 const counter = new prom.Counter({
   name: 'test_counter',
-  help: 'A test Counter',
-});
+  help: 'A test Counter'
+})
 
 setInterval(() => {
   counter.inc(1)
 }, 1000)
 
 const fastify = Fastify({
-  logger: true
+  // logger: true // XXX
 })
 fastify.get('/', function (request, reply) {
   reply.send({ hello: 'world' })
@@ -51,13 +50,6 @@ fastify.listen({ port: PORT }, function (err, address) {
   }
   console.log(`Listening at ${address}`)
 })
-
-// // Manual "scrape" of metrics.
-// const METRICS_INTERVAL_MS = 5000
-// setInterval(async () => {
-//   const metrics = await prom.register.metrics()
-//   console.log('\n# metrics at %s\n\n%s', new Date().toISOString(), indent(metrics))
-// }, METRICS_INTERVAL_MS)
 
 process.on('SIGTERM', () => {
   console.log('Bye (SIGTERM).')
