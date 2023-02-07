@@ -18,10 +18,16 @@
 
 const { execFile } = require('child_process')
 const path = require('path')
+const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../_mock_apm_server')
 const { findObjInArray } = require('../_utils')
+
+if (!semver.satisfies(process.version, '>=14')) {
+  console.log(`# SKIP @opentelemetry/sdk-metrics only supports node >=14 (node ${process.version})`)
+  process.exit()
+}
 
 const cases = [
   {
@@ -31,12 +37,14 @@ const cases = [
       const metricset = findObjInArray(events, 'metricset.samples.test_counter').metricset
       console.log('XXX metricset:'); console.dir(metricset, { depth: 5 })
       t.equal(metricset.samples.test_counter.type, 'counter', 'metricset.samples.test_counter.type')
-      t.ok(Number.isInteger(metricset.samples.test_counter.value), 'metricset.samples.test_counter.value')
+      t.ok(Number.isInteger(metricset.samples.test_counter.value) && metricset.samples.test_counter.value >= 0,
+        'metricset.samples.test_counter.value')
       // XXX desc?
       // XXX units?
       const agoUs = Date.now() * 1000 - metricset.timestamp
       const limit = 10 * 1000 * 1000 // 10s ago in μs
       t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
+      t.deepEqual(metricset.tags, {}, 'metricset.tags')
     }
   }
 ]
