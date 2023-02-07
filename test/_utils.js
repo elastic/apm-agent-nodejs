@@ -27,16 +27,26 @@ function dottedLookup (obj, str) {
   return o
 }
 
-// Return the first element in the array that has a `key` with the given `val`.
+// Return the first element in the array that has a `key` with the given `val`;
+// or if `val` is undefined, then the first element with any value for the given
+// `key`.
 //
 // The `key` maybe a nested field given in dot-notation, for example:
 // 'context.db.statement'.
 function findObjInArray (arr, key, val) {
   let result = null
   arr.some(function (elm) {
-    if (dottedLookup(elm, key) === val) {
-      result = elm
-      return true
+    const actualVal = dottedLookup(elm, key)
+    if (val === undefined) {
+      if (actualVal !== undefined) {
+        result = elm
+        return true
+      }
+    } else {
+      if (actualVal === val) {
+        result = elm
+        return true
+      }
     }
   })
   return result
