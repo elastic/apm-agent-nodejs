@@ -12,12 +12,12 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  - job_name: 'caseA-otel-prom'
-    scrape_interval: 5s
-    static_configs:
-      - targets: ['localhost:3001']
-
-  - job_name: 'caseC-prom'
+  - job_name: 'prom-prom'
     scrape_interval: 5s
     static_configs:
       - targets: ['localhost:3003']
+
+  - job_name: 'otel-prom'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:3001']
