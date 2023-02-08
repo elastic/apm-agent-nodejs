@@ -22,7 +22,7 @@ const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../_mock_apm_server')
-const { findObjInArray } = require('../_utils')
+const { findObjInArray, formatForTComment } = require('../_utils')
 
 if (!semver.satisfies(process.version, '>=14')) {
   console.log(`# SKIP @opentelemetry/sdk-metrics only supports node >=14 (node ${process.version})`)
@@ -74,9 +74,10 @@ cases.forEach(c => {
             }
           )
         },
-        function done (err, _stdout, _stderr) {
+        function done (err, stdout, stderr) {
           t.error(err, `${scriptPath} exited non-zero`)
           if (err) {
+            t.comment(`$ node ${scriptPath}\n-- stdout --\n|${formatForTComment(stdout)}\n-- stderr --\n|${formatForTComment(stderr)}\n--`)
             t.comment('skip checks because script errored out')
           } else {
             c.check(t, server.events)
