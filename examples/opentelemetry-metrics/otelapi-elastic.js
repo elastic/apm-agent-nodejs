@@ -10,14 +10,14 @@
 
 'use strict'
 
+// XXX move this out to NODE_OPTIONS usage to show with Elastic and with OTel boilerplate separate usage
 process.env.ELASTIC_APM_SERVICE_NAME = 'otelmetrics-otelapi-elastic'
 require('elastic-apm-node/start')
 
 const otel = require('@opentelemetry/api')
 // otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // get some OTel debug logging
 
-const meter = otel.metrics.getMeter('foobar') // XXX what's this string used for?
-console.log('XXX meter: ', meter)
+const meter = otel.metrics.getMeter('my-meter') // XXX what's this string used for?
 const counter = meter.createCounter('test_counter', {
   description: 'A test Counter'
 })

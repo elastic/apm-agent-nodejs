@@ -11,6 +11,7 @@
 
 const assert = require('assert')
 
+// XXX Perhaps, similar to otelapi-elastic.js, pull this config out and do it via envvars to show the no-code usage of the Elastic APM agent for this.
 const SERVICE_NAME = 'otelmetrics-otel-otlp'
 const CONFIG = require('./elastic-apm-node')
 assert(CONFIG.serverUrl)
@@ -37,7 +38,7 @@ meterProvider.addMetricReader(new PeriodicExportingMetricReader({
 }))
 otel.metrics.setGlobalMeterProvider(meterProvider)
 
-const meter = otel.metrics.getMeter('foobar') // XXX what's this string used for?
+const meter = otel.metrics.getMeter('my-meter') // XXX what's this string used for?
 const counter = meter.createCounter('test_counter', {
   description: 'A test Counter'
 })

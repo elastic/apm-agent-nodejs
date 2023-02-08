@@ -6,7 +6,7 @@
 
 // An app that uses a Prometheus client to export metrics for scraping.
 //    http://localhost:3003/metrics
-// No OTel or Elastic APM usage user. This is a baseline for comparison.
+// No OTel or Elastic APM usage here. This is a baseline for comparison.
 
 'use strict'
 

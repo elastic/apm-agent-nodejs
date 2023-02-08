@@ -6,7 +6,6 @@
 
 // An app that uses the OTel Metrics SDK and API to export metrics to Prometheus.
 //    http://localhost:3001/metrics
-// No OTel or Elastic APM usage user. This is a baseline for comparison.
 
 'use strict'
 
@@ -18,7 +17,8 @@ const { MeterProvider } = require('@opentelemetry/sdk-metrics')
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
 const { Resource } = require('@opentelemetry/resources')
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions')
-// otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // get some OTel debug logging
+// XXX
+otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // get some OTel debug logging
 
 const exporter = new PrometheusExporter({ host: 'localhost', port: PORT })
 const meterProvider = new MeterProvider({
@@ -29,7 +29,7 @@ const meterProvider = new MeterProvider({
 meterProvider.addMetricReader(exporter)
 otel.metrics.setGlobalMeterProvider(meterProvider)
 
-const meter = otel.metrics.getMeter('foobar') // XXX what's this string used for?
+const meter = otel.metrics.getMeter('my-meter') // XXX what's this string used for?
 const counter = meter.createCounter('test_counter', {
   description: 'A test Counter'
 })
