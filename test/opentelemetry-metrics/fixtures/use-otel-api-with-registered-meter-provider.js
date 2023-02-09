@@ -17,7 +17,7 @@
 // This test case checks that the APM agent does *not* interfere with the
 // `.setGlobalMeterProvider()` usage.
 
- const otel = require('@opentelemetry/api')
+const otel = require('@opentelemetry/api')
 
 const { MeterProvider } = require('@opentelemetry/sdk-metrics')
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
