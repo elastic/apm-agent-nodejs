@@ -74,14 +74,11 @@ cases.forEach(c => {
             }
           )
         },
-        function done (err, stdout, stderr) {
-          t.error(err, `${scriptPath} exited non-zero`)
-          if (err) {
-            t.comment(`$ node ${scriptPath}\n-- stdout --\n|${formatForTComment(stdout)}\n-- stderr --\n|${formatForTComment(stderr)}\n--`)
-            t.comment('skip checks because script errored out')
-          } else {
-            c.check(t, server.events)
-          }
+        function done (_err, stdout, stderr) {
+          // We are terminating the process with SIGTERM, so we *expect* a
+          // non-zero exit. Hence checking `_err` isn't useful.
+          t.comment(`$ node ${scriptPath}\n-- stdout --\n|${formatForTComment(stdout)}\n-- stderr --\n|${formatForTComment(stderr)}\n--`)
+          c.check(t, server.events)
           server.close()
           t.end()
         }

@@ -27,8 +27,3 @@ console.log('XXX otelapi-counter: got a counter')
 setInterval(() => {
   counter.add(1)
 }, 200)
-
-process.on('SIGTERM', () => {
-  console.log('XXX otelapi-counter: SIGTERM')
-  process.exit(0)
-})
