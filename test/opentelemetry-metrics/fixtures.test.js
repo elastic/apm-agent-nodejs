@@ -29,22 +29,51 @@ if (!semver.satisfies(process.version, '>=14')) {
   process.exit()
 }
 
+const { fetch } = require('undici') // import after we've excluded node <14
+
+async function checkEventsHaveTestMetrics (t, events) {
+  const metricset = findObjInArray(events, 'metricset.samples.test_counter').metricset
+  console.log('XXX metricset:'); console.dir(metricset, { depth: 5 })
+  t.equal(metricset.samples.test_counter.type, 'counter', 'metricset.samples.test_counter.type')
+  t.ok(Number.isInteger(metricset.samples.test_counter.value) && metricset.samples.test_counter.value >= 0,
+    'metricset.samples.test_counter.value')
+  // XXX desc?
+  // XXX units?
+  const agoUs = Date.now() * 1000 - metricset.timestamp
+  const limit = 10 * 1000 * 1000 // 10s ago in μs
+  t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
+  t.deepEqual(metricset.tags, {}, 'metricset.tags')
+}
+
+async function checkHasPrometheusMetrics (t) {
+  const res = await fetch('http://localhost:9464/metrics')
+  t.equal(res.status, 200, 'prometheus exporter is still working')
+  const text = await res.text()
+  t.ok(text.indexOf('\ntest_counter') !== -1, 'prometheus metrics include "test_counter"')
+}
+
 const cases = [
   {
-    script: 'otelapi-counter.js',
-    check: (t, events) => {
+    script: 'use-just-otel-api.js',
+    check: async (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
-      const metricset = findObjInArray(events, 'metricset.samples.test_counter').metricset
-      console.log('XXX metricset:'); console.dir(metricset, { depth: 5 })
-      t.equal(metricset.samples.test_counter.type, 'counter', 'metricset.samples.test_counter.type')
-      t.ok(Number.isInteger(metricset.samples.test_counter.value) && metricset.samples.test_counter.value >= 0,
-        'metricset.samples.test_counter.value')
-      // XXX desc?
-      // XXX units?
-      const agoUs = Date.now() * 1000 - metricset.timestamp
-      const limit = 10 * 1000 * 1000 // 10s ago in μs
-      t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
-      t.deepEqual(metricset.tags, {}, 'metricset.tags')
+      await checkEventsHaveTestMetrics(t, events)
+    }
+  },
+  {
+    script: 'use-just-otel-sdk.js',
+    check: async (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      await checkEventsHaveTestMetrics(t, events)
+      await checkHasPrometheusMetrics(t)
+    }
+  },
+  {
+    script: 'use-otel-api-with-registered-meter-provider.js',
+    check: async (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+      await checkEventsHaveTestMetrics(t, events)
+      await checkHasPrometheusMetrics(t)
     }
   }
 ]
@@ -76,14 +105,19 @@ cases.forEach(c => {
         },
         function done (_err, stdout, stderr) {
           // We are terminating the process with SIGTERM, so we *expect* a
-          // non-zero exit. Hence checking `_err` isn't useful.
-          t.comment(`$ node ${scriptPath}\n-- stdout --\n|${formatForTComment(stdout)}\n-- stderr --\n|${formatForTComment(stderr)}\n--`)
-          c.check(t, server.events)
+          // non-zero exit. Hence checking `_err` isn't useful. If there is
+          // any output, then show it, in case it is useful for debugging
+          // test failures.
+          if (stdout.trim() || stderr.trim()) {
+            t.comment(`$ node ${scriptPath}\n-- stdout --\n|${formatForTComment(stdout)}\n-- stderr --\n|${formatForTComment(stderr)}\n--`)
+          }
           server.close()
           t.end()
         }
       )
-      setTimeout(() => {
+      // Wait ~2s for some metrics to have been sent.
+      setTimeout(async () => {
+        await c.check(t, server.events)
         proc.kill()
       }, 2000)
     })

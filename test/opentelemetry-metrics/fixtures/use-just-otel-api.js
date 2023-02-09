@@ -6,24 +6,13 @@
 
 'use strict'
 
-console.log('XXX otelapi-counter: start')
-
-// Expect periodic metricsets like this:
-//     {
-//       metricset: {
-//         samples: { test_counter: { type: 'counter', value: 2 } },
-//         timestamp: 1675810106904000,
-//         tags: {}
-//       }
-//     }
+// When run with the APM agent, we expect a MeterProvider to be implicitly
+// provided by the agent, such that metrics are sent to APM server.
 
 const otel = require('@opentelemetry/api')
-console.log('XXX otelapi-counter: after otel/api import')
 
 const meter = otel.metrics.getMeter('my-meter')
-console.log('XXX otelapi-counter: got a meter')
 const counter = meter.createCounter('test_counter', { description: 'A test Counter' })
-console.log('XXX otelapi-counter: got a counter')
 setInterval(() => {
   counter.add(1)
 }, 200)
