@@ -6,6 +6,8 @@
 
 'use strict'
 
+console.log('XXX otelapi-counter: start')
+
 // Expect periodic metricsets like this:
 //     {
 //       metricset: {
@@ -16,11 +18,17 @@
 //     }
 
 const otel = require('@opentelemetry/api')
+console.log('XXX otelapi-counter: after otel/api import')
 
 const meter = otel.metrics.getMeter('my-meter')
+console.log('XXX otelapi-counter: got a meter')
 const counter = meter.createCounter('test_counter', { description: 'A test Counter' })
+console.log('XXX otelapi-counter: got a counter')
 setInterval(() => {
   counter.add(1)
 }, 200)
 
-process.on('SIGTERM', () => { process.exit(0) })
+process.on('SIGTERM', () => {
+  console.log('XXX otelapi-counter: SIGTERM')
+  process.exit(0)
+})
