@@ -33,4 +33,3 @@ const counter = meter.createCounter('test_counter', { description: 'A test Count
 setInterval(() => {
   counter.add(1)
 }, 1000)
-

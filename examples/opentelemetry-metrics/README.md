@@ -84,7 +84,10 @@ the three scripts exporting to Prometheus:
 http://localhost:9090/graph?g0.expr=test_counter%7Bjob%3D%22use-prom%22%7D&g0.tab=0&g0.stacked=1&g0.show_exemplars=0&g0.range_input=5m&g1.expr=test_counter_total%7Bjob%3D%22use-otel-prom%22%7D&g1.tab=0&g1.stacked=1&g1.show_exemplars=0&g1.range_input=5m&g2.expr=test_counter_total%7Bjob%3D%22use-otel-prom-elastic%22%7D&g2.tab=0&g2.stacked=1&g2.show_exemplars=0&g2.range_input=5m
 
 
+XXX internal, but show a screenshot
+
 - Elastic dashboard: https://my-deployment-31a70c.kb.us-west2.gcp.elastic-cloud.com:9243/app/dashboards#/view/be0f56b0-a1cc-11ed-9fae-bbff25ada9d8
+
 
 
 # setup prom
