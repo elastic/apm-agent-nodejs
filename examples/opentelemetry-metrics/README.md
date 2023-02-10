@@ -62,8 +62,7 @@ from OTel-using code **without any code changes**:
       node -r elastic-apm-node/start use-otel-api.js
    ```
 
-XXX TODO: a use case using the OTel *SDK*. More realistic. What's the experience
-   then?
+XXX TODO: a use case using the OTel *Node SDK*. More realistic. What's the experience then?
    https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-sdk-node/README.md
    This also uses the EnvDetector, so can use that for OTEL_RESOURCE_ATTRIBUTES.
 
