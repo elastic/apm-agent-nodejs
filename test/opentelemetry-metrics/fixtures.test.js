@@ -29,7 +29,7 @@ if (!semver.satisfies(process.version, '>=14')) {
   process.exit()
 }
 
-const { fetch } = require('undici') // import after we've excluded node <14
+const undici = require('undici') // import after we've excluded node <14
 
 async function checkEventsHaveTestMetrics (t, events) {
   const metricset = findObjInArray(events, 'metricset.samples.test_counter').metricset
@@ -46,9 +46,9 @@ async function checkEventsHaveTestMetrics (t, events) {
 }
 
 async function checkHasPrometheusMetrics (t) {
-  const res = await fetch('http://localhost:9464/metrics')
-  t.equal(res.status, 200, 'prometheus exporter is still working')
-  const text = await res.text()
+  const { statusCode, body } = await undici.request('http://localhost:9464/metrics')
+  t.equal(statusCode, 200, 'prometheus exporter is still working')
+  const text = await body.text()
   t.ok(text.indexOf('\ntest_counter') !== -1, 'prometheus metrics include "test_counter"')
 }
 
