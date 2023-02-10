@@ -22,7 +22,7 @@ const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../_mock_apm_server')
-const { findObjInArray, formatForTComment } = require('../_utils')
+const { findObjsInArray, formatForTComment } = require('../_utils')
 
 if (!semver.satisfies(process.version, '>=14')) {
   console.log(`# SKIP @opentelemetry/sdk-metrics only supports node >=14 (node ${process.version})`)
@@ -32,7 +32,9 @@ if (!semver.satisfies(process.version, '>=14')) {
 const undici = require('undici') // import after we've excluded node <14
 
 async function checkEventsHaveTestMetrics (t, events) {
-  const metricset = findObjInArray(events, 'metricset.samples.test_counter').metricset
+  // console.log('XXX events: ', events)
+  const metricsets = findObjsInArray(events, 'metricset.samples.test_counter')
+  const metricset = metricsets[0].metricset
   console.log('XXX metricset:'); console.dir(metricset, { depth: 5 })
   t.equal(metricset.samples.test_counter.type, 'counter', 'metricset.samples.test_counter.type')
   t.ok(Number.isInteger(metricset.samples.test_counter.value) && metricset.samples.test_counter.value >= 0,
@@ -43,6 +45,11 @@ async function checkEventsHaveTestMetrics (t, events) {
   const limit = 10 * 1000 * 1000 // 10s ago in μs
   t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
   t.deepEqual(metricset.tags, {}, 'metricset.tags')
+  metricsets.forEach(m => {
+    const val = m.metricset.samples.test_counter.value
+    // eslint-disable-next-line yoda
+    t.ok(2 <= val && val <= 3, 'test_counter value is in [2,3], indicating aggregation temporality is the expected "Delta"')
+  })
 }
 
 async function checkHasPrometheusMetrics (t) {

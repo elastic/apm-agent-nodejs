@@ -52,6 +52,23 @@ function findObjInArray (arr, key, val) {
   return result
 }
 
+// Same as `findObjInArray` but return all matches instead of just the first.
+function findObjsInArray (arr, key, val) {
+  return arr.filter(function (elm) {
+    const actualVal = dottedLookup(elm, key)
+    if (val === undefined) {
+      if (actualVal !== undefined) {
+        return true
+      }
+    } else {
+      if (actualVal === val) {
+        return true
+      }
+    }
+    return false
+  })
+}
+
 // "Safely" get the version of the given package, if possible. Otherwise return
 // null.
 //
@@ -103,6 +120,7 @@ function formatForTComment (data) {
 module.exports = {
   dottedLookup,
   findObjInArray,
+  findObjsInArray,
   formatForTComment,
   safeGetPackageVersion
 }
