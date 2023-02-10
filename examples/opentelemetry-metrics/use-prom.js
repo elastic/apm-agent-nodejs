@@ -10,38 +10,33 @@
 
 'use strict'
 
-const PORT = 3003
-const SERVICE_NAME = 'otelmetrics-prom-prom'
+const PORT = 3001
+const SERVICE_NAME = 'use-prom'
 
 const prom = require('prom-client') // https://github.com/siimon/prom-client
 const Fastify = require('fastify')
 
 // ---- mainline
 
-// XXX what labels?
+// Setup metrics.
 prom.register.setDefaultLabels({
   serviceName: SERVICE_NAME
 })
-// prom.collectDefaultMetrics(); // XXX
-
 const counter = new prom.Counter({
   name: 'test_counter',
   help: 'A test Counter'
 })
-
 setInterval(() => {
   counter.inc(1)
 }, 1000)
 
-const fastify = Fastify({
-  // logger: true // XXX
-})
+// Create a simple HTTP server with 'GET /metrics' to export Prometheus metrics.
+const fastify = Fastify({})
 fastify.get('/', function (request, reply) {
   reply.send({ hello: 'world' })
 })
 fastify.get('/metrics', async function (request, reply) {
   reply.send(await prom.register.metrics())
-  console.log('Scraped')
 })
 fastify.listen({ port: PORT }, function (err, address) {
   if (err) {
@@ -49,9 +44,5 @@ fastify.listen({ port: PORT }, function (err, address) {
     process.exit(1)
   }
   console.log(`Listening at ${address}`)
-})
-
-process.on('SIGTERM', () => {
-  console.log('Bye (SIGTERM).')
-  process.exit()
+  console.log(`Prometheus metrics at ${address}/metrics`)
 })

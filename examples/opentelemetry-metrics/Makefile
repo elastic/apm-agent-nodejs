@@ -15,20 +15,27 @@ restart: restart-prom restart-apps
 
 
 start-apps: log
-	node prom-prom.js >./log/prom-prom.log 2>&1 &
-	node otel-prom.js >./log/otel-prom.log 2>&1 &
-	node otel-otlp.js >./log/otel-otlp.log 2>&1 &
-	node otelapi-elastic.js >./log/otelapi-elastic.log 2>&1 &
+	node use-prom.js >./log/use-prom.log 2>&1 &
+	node use-otel-prom.js >./log/use-otel-prom.log 2>&1 &
+	OTEL_RESOURCE_ATTRIBUTES=service.name=use-otel-otlp \
+		./node_modules/.bin/dotenv -- node use-otel-otlp.js >./log/use-otel-otlp.log 2>&1 &
+	ELASTIC_APM_SERVICE_NAME=use-otel-prom-elastic \
+		PROM_PORT=3004 \
+		./node_modules/.bin/dotenv -- node -r elastic-apm-node/start use-otel-prom.js >./log/use-otel-prom-elastic.log 2>&1 &
+	ELASTIC_APM_SERVICE_NAME=use-otel-api \
+		./node_modules/.bin/dotenv -- node -r elastic-apm-node/start use-otel-api.js >./log/use-otel-api.log 2>&1 &
 
 stop-apps:
-	ps -f | rg "prom-prom.js"
-	kill $(shell ps -f | rg "prom-prom.js" | rg -vw rg | awk '{print $$2}') || true
-	ps -f | rg "otel-prom.js"
-	kill $(shell ps -f | rg "otel-prom.js" | rg -vw rg | awk '{print $$2}') || true
-	ps -f | rg "otel-otlp.js"
-	kill $(shell ps -f | rg "otel-otlp.js" | rg -vw rg | awk '{print $$2}') || true
-	ps -f | rg "otelapi-elastic.js"
-	kill $(shell ps -f | rg "otelapi-elastic.js" | rg -vw rg | awk '{print $$2}') || true
+	ps -f | grep "use-prom.js"
+	kill $(shell ps -f | grep "use-prom.js" | grep -vw grep | awk '{print $$2}') || true
+	ps -f | grep "use-otel-prom.js"
+	kill $(shell ps -f | grep "use-otel-prom.js" | grep -vw grep | awk '{print $$2}') || true
+	ps -f | grep "use-otel-otlp.js"
+	kill $(shell ps -f | grep "use-otel-otlp.js" | grep -vw grep | awk '{print $$2}') || true
+	ps -f | grep "use-otel-prom.js"
+	kill $(shell ps -f | grep "use-otel-prom.js" | grep -vw grep | awk '{print $$2}') || true
+	ps -f | grep "use-otel-api.js"
+	kill $(shell ps -f | grep "use-otel-api.js" | grep -vw grep | awk '{print $$2}') || true
 
 restart-apps: stop-apps start-apps
 
@@ -37,8 +44,8 @@ start-prom: log
 	echo "Prometheus: http://localhost:9090/"
 
 stop-prom:
-	ps -f | rg "$(PROM_BIN)"
-	kill $(shell ps -f | rg "$(PROM_BIN)" | rg -vw rg | awk '{print $$2}')
+	ps -f | grep "$(PROM_BIN)"
+	kill $(shell ps -f | grep "$(PROM_BIN)" | grep -vw grep | awk '{print $$2}')
 
 restart-prom: stop-prom start-prom
 

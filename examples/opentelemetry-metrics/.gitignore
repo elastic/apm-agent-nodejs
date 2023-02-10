@@ -1,3 +1,4 @@
+/.env
 /log
 /data
 /prometheus-*

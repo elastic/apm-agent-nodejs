@@ -9,18 +9,16 @@
 
 'use strict'
 
-const PORT = 3001
-const SERVICE_NAME = 'otelmetrics-otel-prom'
+const PROM_PORT = process.env.PROM_PORT || 3002
+const SERVICE_NAME = process.env.ELASTIC_APM_SERVICE_NAME || 'use-otel-prom'
 
 const otel = require('@opentelemetry/api')
 const { MeterProvider } = require('@opentelemetry/sdk-metrics')
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
 const { Resource } = require('@opentelemetry/resources')
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions')
-// XXX
-otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // get some OTel debug logging
 
-const exporter = new PrometheusExporter({ host: 'localhost', port: PORT })
+const exporter = new PrometheusExporter({ host: 'localhost', port: PROM_PORT })
 const meterProvider = new MeterProvider({
   resource: new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME
@@ -28,18 +26,11 @@ const meterProvider = new MeterProvider({
 })
 meterProvider.addMetricReader(exporter)
 otel.metrics.setGlobalMeterProvider(meterProvider)
+console.log(`Prometheus metrics at http://localhost:${PROM_PORT}/metrics`)
 
-const meter = otel.metrics.getMeter('my-meter') // XXX what's this string used for?
-const counter = meter.createCounter('test_counter', {
-  description: 'A test Counter'
-})
-// const attributes = { pid: process.pid, environment: 'staging' } // XXX
+const meter = otel.metrics.getMeter('my-meter')
+const counter = meter.createCounter('test_counter', { description: 'A test Counter' })
 setInterval(() => {
   counter.add(1)
-  // counter.add(1, attributes)
 }, 1000)
 
-process.on('SIGTERM', () => {
-  console.log('Bye (SIGTERM).')
-  process.exit()
-})
