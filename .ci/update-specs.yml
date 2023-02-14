@@ -20,6 +20,9 @@ sources:
     spec:
       file: 'https://github.com/elastic/apm-data/commit/main.patch'
       matchpattern: "^From\\s([0-9a-f]{40})\\s"
+    transformers:
+      - findsubmatch:
+          pattern: "[0-9a-f]{40}"
   error.json:
     kind: file
     spec:
