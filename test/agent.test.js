@@ -1148,6 +1148,21 @@ test('#flush()', function (t) {
     })
   })
 
+  t.test('flush can be used without a callback to return a Promise', function (t) {
+    t.plan(1)
+
+    const agent = new Agent()
+
+    agent.flush().then(function () {
+      t.pass('should resolve the Promise for agent.flush')
+    }).catch(function (err) {
+      t.error(err, 'no error passed to agent.flush callback')
+    }).finally(function () {
+      agent.destroy()
+      t.end()
+    })
+  })
+
   t.end()
 })
 
