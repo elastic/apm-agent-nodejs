@@ -1155,11 +1155,10 @@ test('#flush()', function (t) {
 
     agent.flush().then(function () {
       t.pass('should resolve the Promise for agent.flush')
-    }).catch(function (err) {
-      t.error(err, 'no error passed to agent.flush callback')
-    }).finally(function () {
       agent.destroy()
       t.end()
+    }).catch(function (err) {
+      t.error(err, 'no error passed to agent.flush callback')
     })
   })
 
