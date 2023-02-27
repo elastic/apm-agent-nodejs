@@ -15,25 +15,26 @@ const agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
-const { promisify } = require('util')
-
-// As of mongodb@4 only supports node >=v12.
-const mongodbVersion = require('../../../node_modules/mongodb/package.json').version
-const semver = require('semver')
-if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
-  console.log(`# SKIP mongodb@${mongodbVersion} does not support node ${process.version}`)
+const isMongodbIncompat = require('../../_is_mongodb_incompat')()
+if (isMongodbIncompat) {
+  console.log(`# SKIP ${isMongodbIncompat}`)
   process.exit()
 }
+
+const { promisify } = require('util')
+
 const MongoClient = require('mongodb').MongoClient
+const semver = require('semver')
 const test = require('tape')
 
 const mockClient = require('../../_mock_http_client')
 const mockClientStates = require('../../_mock_http_client_states')
 
+const mongodbSupportsCallbacks = semver.satisfies(require('mongodb/package.json').version, '<5')
 const host = process.env.MONGODB_HOST || 'localhost'
 const url = `mongodb://${host}:27017`
 
-test('new MongoClient(url); client.connect(callback)', function (t) {
+test('new MongoClient(url); client.connect(callback)', { skip: !mongodbSupportsCallbacks }, function (t) {
   resetAgent(2, function (data) {
     t.equal(data.transactions[0].name, 't0', 'transaction.name')
     t.equal(data.spans.length, 1)
@@ -60,7 +61,7 @@ test('new MongoClient(url); client.connect(callback)', function (t) {
   })
 })
 
-test('new MongoClient(url, {...}); client.connect(callback)', function (t) {
+test('new MongoClient(url, {...}); client.connect(callback)', { skip: !mongodbSupportsCallbacks }, function (t) {
   resetAgent(2, function (data) {
     t.equal(data.transactions[0].name, 't0', 'transaction.name')
     t.equal(data.spans.length, 1)
@@ -88,7 +89,7 @@ test('new MongoClient(url, {...}); client.connect(callback)', function (t) {
   })
 })
 
-test('MongoClient.connect(url, callback)', function (t) {
+test('MongoClient.connect(url, callback)', { skip: !mongodbSupportsCallbacks }, function (t) {
   resetAgent(2, function (data) {
     t.equal(data.transactions[0].name, 't0', 'transaction.name')
     t.equal(data.spans.length, 1)
@@ -173,7 +174,7 @@ test('ensure run context', async function (t) {
   t.end()
 })
 
-test('instrument simple command', function (t) {
+test('instrument simple command', async function (t) {
   resetAgentStates([
     makeSpanTest(t, 'elasticapm.test.insert', 'insert'),
     makeSpanTest(t, 'elasticapm.test.update', 'update'),
@@ -184,62 +185,47 @@ test('instrument simple command', function (t) {
     t.end()
   })
 
-  const client = new MongoClient(url, {
+  const client = await new MongoClient(url, {
     // These two options are to avoid deprecation warnings from some versions
     // of mongodb@3.
     useUnifiedTopology: true,
     useNewUrlParser: true
-  })
+  }).connect()
 
   agent.startTransaction('foo', 'bar')
 
-  client.connect((err) => {
-    t.error(err, 'no connect error')
-    t.ok(client, 'got a valid client connection')
+  const db = client.db('elasticapm')
+  const collection = db.collection('test')
+  let results
+  let count
 
-    const db = client.db('elasticapm')
-    const collection = db.collection('test')
+  results = await collection.insertMany([{ a: 1 }, { a: 2 }, { a: 3 }], { w: 1 })
+  count = getInsertedCountFromResults(results)
+  t.strictEqual(count, 3, 'inserted three records')
 
-    collection.insertMany([{ a: 1 }, { a: 2 }, { a: 3 }], { w: 1 }, function (err, results) {
-      t.error(err, 'no insert error')
-      const insertedCount = getInsertedCountFromResults(results)
-      t.strictEqual(insertedCount, 3, 'inserted three records')
-
-      // If records have been inserted, they should be cleaned up
-      t.on('end', () => {
-        collection.deleteMany({}, { w: 1 }, function () {
-          client.close()
-        })
-      })
-
-      collection.updateOne({ a: 1 }, { $set: { b: 1 } }, { w: 1 }, function (err, results) {
-        t.error(err, 'no update error')
-        const count = getMatchedCountFromResults(results)
-        t.strictEqual(count, 1, 'updated one record')
-
-        collection.deleteOne({ a: 1 }, { w: 1 }, function (err, results) {
-          t.error(err, 'no delete error')
-          const count = getDeletedCountFromResults(results)
-          t.strictEqual(count, 1, 'deleted one record')
-
-          var cursor = collection.find({})
-
-          cursor.next(function (err, doc) {
-            t.error(err, 'no cursor next error')
-            t.strictEqual(doc.a, 2, 'found record #2')
-
-            cursor.next(function (err, doc) {
-              t.error(err, 'no cursor next error')
-              t.strictEqual(doc.a, 3, 'found record #3')
-
-              agent.endTransaction()
-              agent.flush()
-            })
-          })
-        })
-      })
-    })
+  // If records have been inserted, they should be cleaned up
+  t.on('end', async () => {
+    await collection.deleteMany({}, { w: 1 })
+    client.close()
   })
+
+  results = await collection.updateOne({ a: 1 }, { $set: { b: 1 } }, { w: 1 })
+  count = getMatchedCountFromResults(results)
+  t.strictEqual(count, 1, 'updated one record')
+
+  results = await collection.deleteOne({ a: 1 }, { w: 1 })
+  count = getDeletedCountFromResults(results)
+  t.strictEqual(count, 1, 'deleted one record')
+
+  const cursor = collection.find({})
+  let doc = await cursor.next()
+  t.strictEqual(doc.a, 2, 'found record #2')
+
+  doc = await cursor.next()
+  t.strictEqual(doc.a, 3, 'found record #3')
+
+  agent.endTransaction()
+  agent.flush()
 })
 
 function makeTransactionTest (t) {
