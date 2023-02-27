@@ -34,7 +34,7 @@ and setup to be traced by the Elastic APM agent. The App has two "functions":
 5. In a separate terminal, call the Azure Function via:
 
     ```
-    curl -i http://localhost:7071/api/Hello
+    curl -i http://localhost:7071/api/Hi
     ```
 
 
