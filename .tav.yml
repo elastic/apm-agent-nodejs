@@ -129,7 +129,12 @@ mongodb-3:
 mongodb-4:
   name: mongodb
   versions: '>=4 <5'
-  node: '>=12'
+  node: '>=12.9.0'
+  commands: node test/instrumentation/modules/mongodb.test.js
+mongodb:
+  name: mongodb
+  versions: '>=5 <6'
+  node: '>=14.20.1'
   commands: node test/instrumentation/modules/mongodb.test.js
 
 bluebird:
