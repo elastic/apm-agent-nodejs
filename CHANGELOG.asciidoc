@@ -40,6 +40,8 @@ Notes:
 [float]
 ===== Features
 
+* Support mongodb v5. ({issues}3138[#3138])
+
 * Propagate trace-context in message attributes for SQS (SendMessage and
   SendMessageBatch) and SNS (Publish), provided the maximum 10 message
   attributes limit is not passed. SQS message reception (ReceiveMessage) and
