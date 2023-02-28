@@ -29,6 +29,7 @@ const os = require('os')
 const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
+const treekill = require('tree-kill')
 
 const { MockAPMServer } = require('../../../_mock_apm_server')
 const { formatForTComment } = require('../../../_utils')
@@ -774,7 +775,7 @@ tape.test('-- dev server tests --', suite => {
       waitForServerReady(t, waitErr => {
         if (waitErr) {
           t.fail(`error waiting for Next.js server to be ready: ${waitErr.message}`)
-          nextServerProc.kill('SIGKILL')
+          treekill(nextServerProc.pid, 'SIGKILL')
           nextServerProc = null
         } else {
           t.comment('Next.js server is ready')
@@ -814,7 +815,7 @@ tape.test('-- dev server tests --', suite => {
       t.end()
     })
     setTimeout(() => {
-      nextServerProc.kill('SIGTERM')
+      treekill(nextServerProc.pid, 'SIGTERM')
     }, 4000) // 2x ELASTIC_APM_API_REQUEST_TIME set above
   })
 
