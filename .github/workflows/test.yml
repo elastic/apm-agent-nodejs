@@ -118,7 +118,7 @@ jobs:
 
     strategy:
       matrix:
-        max-parallel: 10
+        max-parallel: '10'
         node:
           - '19'
           - '18'
