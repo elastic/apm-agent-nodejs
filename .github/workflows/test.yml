@@ -117,8 +117,8 @@ jobs:
           - nodelocalstackdata:/var/lib/localstack
 
     strategy:
+      max-parallel: 10
       matrix:
-        max-parallel: '10'
         node:
           - '19'
           - '18'
