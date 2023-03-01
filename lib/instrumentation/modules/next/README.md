@@ -62,10 +62,11 @@ capturing those.)
 *API* routes ("pages/api/...") are handled differently from other pages.
 The `catchAllRoute` route handler calls `handleApiRequest`, which calls
 `runApi`. **We instrument `runApi` to get the resolved (e.g. handling dynamic
-routes) route name.**  `runApi` loads the webpack-compiled user module
-for that route, and calls `apiResolver` in "api-utils/node.ts" to execute it.
-**We instrument that `apiResolver()` function to capture any errors in the
-user's handler.**
+routes) route name.**  (For next@11, `ensureApiPage` is instrumented instead
+because `runApi` was only added in next@12.) `runApi` loads the webpack-compiled
+user module for that route, and calls `apiResolver` in "api-utils/node.ts" to
+execute it. **We instrument that `apiResolver()` function to capture any errors
+in the user's handler.**
 
 
 ## dist/server/dev/next-dev-server.js
