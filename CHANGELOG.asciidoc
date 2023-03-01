@@ -57,6 +57,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix the transaction name for *API* routes in Next.js >=13.2.x. Before this
+  change internal changes in next@13.2.0 resulted in transactions for Next.js
+  API routes being `{method} unknown route`.
+
 * Fix `metadata.service.agent.activation_method=k8s-attach` handling to
   (a) use an explicit marker from the k8s apm attacher
   (`ELASTIC_APM_ACTIVATION_METHOD`) and (b) use the specified "k8s-attach"
