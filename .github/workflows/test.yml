@@ -117,7 +117,10 @@ jobs:
           - nodelocalstackdata:/var/lib/localstack
 
     strategy:
-      max-parallel: 10
+      # max-parallel to attempt to avoid 429s from many concurrent
+      # 'actions/checkout'. Try to have a value high enough to not more than
+      # double the time to execute all jobs.
+      max-parallel: 15
       matrix:
         node:
           - '19'
@@ -137,7 +140,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-node@v2
+    - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
     - run: docker ps  # show the services against which we'll be testing
