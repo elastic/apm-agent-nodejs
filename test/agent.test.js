@@ -1148,6 +1148,21 @@ test('#flush()', function (t) {
     })
   })
 
+  t.test('flush async', function (t) {
+    const agent = new Agent().start(filterAgentOpts)
+    agent.startTransaction('transaction-name')
+    agent.endTransaction()
+    const p = agent.flush()
+    t.ok(p instanceof Promise, 'should return a promise')
+    p.then(() => {
+      apmServer.clear()
+      agent.destroy()
+    }).catch(err => {
+      t.fail('should not reject')
+    })
+    t.end()
+  })
+
   t.end()
 })
 
