@@ -16,16 +16,16 @@ on:
     branches:
     - main
     paths-ignore:
-    - '*.md'
-    - '*.asciidoc'
+    - '**/*.md'
+    - '**/*.asciidoc'
     - 'docs/**'
     - 'examples/**'
   pull_request:
     branches:
     - main
     paths-ignore:
-    - '*.md'
-    - '*.asciidoc'
+    - '**/*.md'
+    - '**/*.asciidoc'
     - 'docs/**'
     - 'examples/**'
 

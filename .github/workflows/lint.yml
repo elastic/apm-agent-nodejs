@@ -7,15 +7,15 @@ on:
     branches:
     - main
     paths-ignore:
-    - '*.md'
-    - '*.asciidoc'
+    - '**/*.md'
+    - '**/*.asciidoc'
     - 'docs/**'
   pull_request:
     branches:
     - main
     paths-ignore:
-    - '*.md'
-    - '*.asciidoc'
+    - '**/*.md'
+    - '**/*.asciidoc'
     - 'docs/**'
 
 jobs:
