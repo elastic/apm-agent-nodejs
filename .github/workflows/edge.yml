@@ -11,8 +11,8 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**.md'
-      - '**.asciidoc'
+      - '**/**.md'
+      - '**/**.asciidoc'
       - 'docs/**'
       - 'examples/**'
 
