@@ -32,7 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
+[[release-notes-3.43.0]]
+==== 3.43.0 2023/03/02
 
 [float]
 ===== Breaking changes
@@ -52,7 +53,9 @@ Notes:
 * Extend Lambda instrumentation to capture details for Lambda function URL
   and ELB-triggered Lambdas. ({issues}2901[#2901])
 
-* Make `Agent.flush()` return a `Promise` if no callback is passed as param. ({issues}2857(#2857))
+* Make `Agent.flush()` return a `Promise` if no callback is passed as param.
+  This means that flush is now `await`able: `await apm.flush()`.
+  ({issues}2857(#2857))
 
 [float]
 ===== Bug fixes
