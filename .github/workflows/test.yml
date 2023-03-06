@@ -117,10 +117,6 @@ jobs:
           - nodelocalstackdata:/var/lib/localstack
 
     strategy:
-      # max-parallel to attempt to avoid 429s from many concurrent
-      # 'actions/checkout'. Try to have a value high enough to not more than
-      # double the time to execute all jobs.
-      max-parallel: 15
       matrix:
         node:
           - '19'
