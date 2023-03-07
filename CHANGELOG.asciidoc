@@ -32,13 +32,16 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
+[[release-notes-3.43.0]]
+==== 3.43.0 2023/03/02
 
 [float]
 ===== Breaking changes
 
 [float]
 ===== Features
+
+* Support mongodb v5. ({issues}3138[#3138])
 
 * Propagate trace-context in message attributes for SQS (SendMessage and
   SendMessageBatch) and SNS (Publish), provided the maximum 10 message
@@ -50,8 +53,16 @@ Notes:
 * Extend Lambda instrumentation to capture details for Lambda function URL
   and ELB-triggered Lambdas. ({issues}2901[#2901])
 
+* Make `Agent.flush()` return a `Promise` if no callback is passed as param.
+  This means that flush is now `await`able: `await apm.flush()`.
+  ({issues}2857(#2857))
+
 [float]
 ===== Bug fixes
+
+* Fix the transaction name for *API* routes in Next.js >=13.2.x. Before this
+  change internal changes in next@13.2.0 resulted in transactions for Next.js
+  API routes being `{method} unknown route`.
 
 * Fix `metadata.service.agent.activation_method=k8s-attach` handling to
   (a) use an explicit marker from the k8s apm attacher

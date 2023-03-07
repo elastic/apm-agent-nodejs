@@ -437,7 +437,7 @@ tape.test('gatherStackTrace()', function (suite) {
         },
         function done (err, _stdout, _stderr) {
           t.ok(!err)
-          t.equals(_stdout.trim(), 'undefined', 'Error.prepareStackTrace is set')
+          t.equals(_stdout.trim(), 'undefined', 'Error.prepareStackTrace is not set')
           server.close()
           t.end()
         }
