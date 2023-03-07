@@ -22,11 +22,28 @@ const Fastify = require('fastify')
 prom.register.setDefaultLabels({
   serviceName: SERVICE_NAME
 })
+
 const counter = new prom.Counter({
-  name: 'test_counter',
-  help: 'A test Counter'
+  name: 'my_counter',
+  help: 'My counter'
 })
+
+// Note: prom-client's Counter just has a `.inc()` method, so there isn't a
+// reasonably equivalent to OTel's "observable" counter.
+
+// XXX An `collect()` method exists for a Counter, but doesn't really make sense given just `this.inc()` method.
+// let n = 0
+// new prom.Counter({ /* eslint-disable-line no-new */
+//   name: 'my_obs_counter',
+//   help: 'My observable counter',
+//   collect () {
+//     console.log('XXX this', this)
+//     this.inc(n)
+//   }
+// })
+
 setInterval(() => {
+  // n++
   counter.inc(1)
 }, 1000)
 

@@ -26,15 +26,13 @@ start-apps: log
 		./node_modules/.bin/dotenv -- node -r elastic-apm-node/start use-otel-api.js >./log/use-otel-api.log 2>&1 &
 
 stop-apps:
-	ps -f | grep "use-prom.js"
+	ps -f | grep "use-prom.js" | grep -vw grep || true
 	kill $(shell ps -f | grep "use-prom.js" | grep -vw grep | awk '{print $$2}') || true
-	ps -f | grep "use-otel-prom.js"
+	ps -f | grep "use-otel-prom.js" | grep -vw grep || true
 	kill $(shell ps -f | grep "use-otel-prom.js" | grep -vw grep | awk '{print $$2}') || true
-	ps -f | grep "use-otel-otlp.js"
+	ps -f | grep "use-otel-otlp.js" | grep -vw grep || true
 	kill $(shell ps -f | grep "use-otel-otlp.js" | grep -vw grep | awk '{print $$2}') || true
-	ps -f | grep "use-otel-prom.js"
-	kill $(shell ps -f | grep "use-otel-prom.js" | grep -vw grep | awk '{print $$2}') || true
-	ps -f | grep "use-otel-api.js"
+	ps -f | grep "use-otel-api.js" | grep -vw grep || true
 	kill $(shell ps -f | grep "use-otel-api.js" | grep -vw grep | awk '{print $$2}') || true
 
 restart-apps: stop-apps start-apps

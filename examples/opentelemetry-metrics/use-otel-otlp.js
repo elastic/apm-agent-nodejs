@@ -4,8 +4,8 @@
  * compliance with the BSD 2-Clause License.
  */
 
-// An app that uses the OTel Metrics SDK and API, and exports metrics to Elastic
-// via OTLP/gRPC every 5s.
+// An app that uses the OTel Metrics SDK and API, reads metrics every 5s, and
+// exports Elastic APM via OTLP/gRPC.
 
 'use strict'
 
@@ -16,8 +16,7 @@ const { MeterProvider, PeriodicExportingMetricReader } = require('@opentelemetry
 const { Resource } = require('@opentelemetry/resources')
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions')
 const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-grpc') // OTLP/gRPC
-// XXX
-// otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // get some OTel debug logging
+// otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // XXX get some OTel diagnostic logging
 
 // XXX
 // process.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS = `Authorization=Bearer ${CONFIG.secretToken}`
@@ -37,7 +36,16 @@ meterProvider.addMetricReader(new PeriodicExportingMetricReader({
 otel.metrics.setGlobalMeterProvider(meterProvider)
 
 const meter = otel.metrics.getMeter('my-meter')
-const counter = meter.createCounter('test_counter', { description: 'A test Counter' })
+
+const counter = meter.createCounter('my_counter', { description: 'My counter' })
+
+let n = 0
+const obsCounter = meter.createObservableCounter('my_obs_counter', { description: 'My observable counter' })
+obsCounter.addCallback(observableResult => {
+  observableResult.observe(n)
+})
+
 setInterval(() => {
+  n++
   counter.add(1)
 }, 1000)

@@ -21,8 +21,17 @@ const exporter = new PrometheusExporter({ host: 'localhost' })
 const meterProvider = new MeterProvider()
 meterProvider.addMetricReader(exporter)
 
-const meter = meterProvider.getMeter('my-meter')
-const counter = meter.createCounter('test_counter', { description: 'A test Counter' })
+const meter = meterProvider.getMeter('test-meter')
+
+const counter = meter.createCounter('test_counter', { description: 'A test counter' })
+
+let n = 0
+const obsCounter = meter.createObservableCounter('test_obs_counter', { description: 'A test observable counter' })
+obsCounter.addCallback(observableResult => {
+  observableResult.observe(n)
+})
+
 setInterval(() => {
+  n++
   counter.add(1)
 }, 200)

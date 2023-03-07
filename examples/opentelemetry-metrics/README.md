@@ -1,3 +1,4 @@
+XXX 'splain
 
 # Setup
 
@@ -77,10 +78,10 @@ make start
 
 # Links
 
-A Prometheus quick dashboard showing the `test_counter` metric exported from
-the three scripts exporting to Prometheus:
+A Prometheus quick dashboard showing the `my_counter` metric exported from
+the three cases (1, 2, and 4) exporting to Prometheus:
 
-http://localhost:9090/graph?g0.expr=test_counter%7Bjob%3D%22use-prom%22%7D&g0.tab=0&g0.stacked=1&g0.show_exemplars=0&g0.range_input=5m&g1.expr=test_counter_total%7Bjob%3D%22use-otel-prom%22%7D&g1.tab=0&g1.stacked=1&g1.show_exemplars=0&g1.range_input=5m&g2.expr=test_counter_total%7Bjob%3D%22use-otel-prom-elastic%22%7D&g2.tab=0&g2.stacked=1&g2.show_exemplars=0&g2.range_input=5m
+http://localhost:9090/graph?g0.expr=my_counter%7Bjob%3D%22use-prom%22%7D&g0.tab=0&g0.stacked=1&g0.show_exemplars=0&g0.range_input=5m&g1.expr=my_counter_total%7Bjob%3D%22use-otel-prom%22%7D&g1.tab=0&g1.stacked=1&g1.show_exemplars=0&g1.range_input=5m&g2.expr=my_counter_total%7Bjob%3D%22use-otel-prom-elastic%22%7D&g2.tab=0&g2.stacked=1&g2.show_exemplars=0&g2.range_input=5m
 
 
 XXX internal, but show a screenshot

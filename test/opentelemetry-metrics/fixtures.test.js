@@ -41,14 +41,22 @@ async function checkEventsHaveTestMetrics (t, events) {
     'metricset.samples.test_counter.value')
   // XXX desc?
   // XXX units?
+  // XXX valueType?
   const agoUs = Date.now() * 1000 - metricset.timestamp
   const limit = 10 * 1000 * 1000 // 10s ago in μs
   t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
   t.deepEqual(metricset.tags, {}, 'metricset.tags')
   metricsets.forEach(m => {
-    const val = m.metricset.samples.test_counter.value
-    // eslint-disable-next-line yoda
-    t.ok(2 <= val && val <= 3, 'test_counter value is in [2,3], indicating aggregation temporality is the expected "Delta"')
+    let val
+    val = m.metricset.samples.test_counter.value
+    // The expected value is between 2 and 3 because we have
+    // `metricsInterval=500ms` and the "fixtures/*.js" scripts are incrementing
+    // the counters every 200ms.
+    t.ok(2 <= val && val <= 3, // eslint-disable-line yoda
+      'test_counter value is in [2,3] range, indicating aggregation temporality is the expected "Delta"')
+    val = m.metricset.samples.test_obs_counter.value
+    t.ok(2 <= val && val <= 3, // eslint-disable-line yoda
+      'test_obs_counter value is in [2,3] range, indicating aggregation temporality is the expected "Delta"')
   })
 }
 

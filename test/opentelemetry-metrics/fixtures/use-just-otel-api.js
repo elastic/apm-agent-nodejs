@@ -11,8 +11,17 @@
 
 const otel = require('@opentelemetry/api')
 
-const meter = otel.metrics.getMeter('my-meter')
-const counter = meter.createCounter('test_counter', { description: 'A test Counter' })
+const meter = otel.metrics.getMeter('test-meter')
+
+const counter = meter.createCounter('test_counter', { description: 'A test counter' })
+
+let n = 0
+const obsCounter = meter.createObservableCounter('test_obs_counter', { description: 'A test observable counter' })
+obsCounter.addCallback(observableResult => {
+  observableResult.observe(n)
+})
+
 setInterval(() => {
+  n++
   counter.add(1)
 }, 200)
