@@ -48,15 +48,15 @@ async function checkEventsHaveTestMetrics (t, events) {
   t.deepEqual(metricset.tags, {}, 'metricset.tags')
   metricsets.forEach(m => {
     let val
-    val = m.metricset.samples.test_counter.value
     // The expected value is between 2 and 3 because we have
     // `metricsInterval=500ms` and the "fixtures/*.js" scripts are incrementing
     // the counters every 200ms.
+    val = m.metricset.samples.test_counter.value
     t.ok(2 <= val && val <= 3, // eslint-disable-line yoda
       'test_counter value is in [2,3] range, indicating aggregation temporality is the expected "Delta"')
-    val = m.metricset.samples.test_obs_counter.value
+    val = m.metricset.samples.test_async_counter.value
     t.ok(2 <= val && val <= 3, // eslint-disable-line yoda
-      'test_obs_counter value is in [2,3] range, indicating aggregation temporality is the expected "Delta"')
+      'test_async_counter value is in [2,3] range, indicating aggregation temporality is the expected "Delta"')
   })
 }
 

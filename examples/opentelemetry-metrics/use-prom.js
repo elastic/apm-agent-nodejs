@@ -25,7 +25,7 @@ prom.register.setDefaultLabels({
 
 const counter = new prom.Counter({
   name: 'my_counter',
-  help: 'My counter'
+  help: 'My Counter'
 })
 
 // Note: prom-client's Counter just has a `.inc()` method, so there isn't a
@@ -34,7 +34,7 @@ const counter = new prom.Counter({
 // XXX An `collect()` method exists for a Counter, but doesn't really make sense given just `this.inc()` method.
 // let n = 0
 // new prom.Counter({ /* eslint-disable-line no-new */
-//   name: 'my_obs_counter',
+//   name: 'my_async_counter',
 //   help: 'My observable counter',
 //   collect () {
 //     console.log('XXX this', this)

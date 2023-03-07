@@ -37,11 +37,11 @@ otel.metrics.setGlobalMeterProvider(meterProvider)
 
 const meter = otel.metrics.getMeter('my-meter')
 
-const counter = meter.createCounter('my_counter', { description: 'My counter' })
+const counter = meter.createCounter('my_counter', { description: 'My Counter' })
 
 let n = 0
-const obsCounter = meter.createObservableCounter('my_obs_counter', { description: 'My observable counter' })
-obsCounter.addCallback(observableResult => {
+const asyncCounter = meter.createObservableCounter('my_async_counter', { description: 'My Asynchronous Counter' })
+asyncCounter.addCallback(observableResult => {
   observableResult.observe(n)
 })
 
