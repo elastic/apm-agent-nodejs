@@ -73,9 +73,6 @@ Notes:
 * Add missing <<opentelemetry-bridge-enabled>> ({pull}3121[#3121]) and
   <<context-manager>> Agent configuration options to the TypeScript types.
 
-[float]
-===== Chores
-
 
 [[release-notes-3.42.0]]
 ==== 3.42.0 2023/01/18
@@ -174,6 +171,11 @@ s3-prefix).
 
 [[release-notes-3.40.0]]
 ==== 3.40.0 2022/10/31
+
+**Note**: This was a bad release. Users should upgrade to v3.40.1 or later.
+This version of the agent could enter a tight loop re-fetching central config,
+which increases network traffic, CPU usage, and load on the APM server.
+See {issues}3029[issue #3029] for details.
 
 [float]
 ===== Features
