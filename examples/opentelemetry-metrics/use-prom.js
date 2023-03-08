@@ -28,22 +28,20 @@ const counter = new prom.Counter({
   help: 'My Counter'
 })
 
-// Note: prom-client's Counter just has a `.inc()` method, so there isn't a
-// reasonably equivalent to OTel's "observable" counter.
+// Asynchronous Counter
+// prom-client's Counter just has a `.inc()` method, so there isn't a
+// reasonable equivalent to OTel's Asynchronous Counter.
 
-// XXX An `collect()` method exists for a Counter, but doesn't really make sense given just `this.inc()` method.
-// let n = 0
-// new prom.Counter({ /* eslint-disable-line no-new */
-//   name: 'my_async_counter',
-//   help: 'My observable counter',
-//   collect () {
-//     console.log('XXX this', this)
-//     this.inc(n)
-//   }
-// })
+new prom.Gauge({ // eslint-disable-line no-new
+  name: 'my_async_gauge',
+  help: 'My Asynchronous Gauge',
+  collect () {
+    // A sine wave with a 5 minute period, to have a recognizable pattern.
+    this.set(Math.sin(Date.now() / 1000 / 60 / 5 * (2 * Math.PI)))
+  }
+})
 
 setInterval(() => {
-  // n++
   counter.inc(1)
 }, 1000)
 

@@ -16,6 +16,8 @@
 //
 // The scripts can be run independent of the test suite.
 
+const util = require('util')
+
 const { execFile } = require('child_process')
 const path = require('path')
 const semver = require('semver')
@@ -32,31 +34,36 @@ if (!semver.satisfies(process.version, '>=14')) {
 const undici = require('undici') // import after we've excluded node <14
 
 async function checkEventsHaveTestMetrics (t, events) {
-  // console.log('XXX events: ', events)
   const metricsets = findObjsInArray(events, 'metricset.samples.test_counter')
-  const metricset = metricsets[0].metricset
-  console.log('XXX metricset:'); console.dir(metricset, { depth: 5 })
-  t.equal(metricset.samples.test_counter.type, 'counter', 'metricset.samples.test_counter.type')
-  t.ok(Number.isInteger(metricset.samples.test_counter.value) && metricset.samples.test_counter.value >= 0,
-    'metricset.samples.test_counter.value')
+  t.comment('first metricset: ' + formatForTComment(util.inspect(metricsets[0].metricset)))
   // XXX desc?
   // XXX units?
   // XXX valueType?
-  const agoUs = Date.now() * 1000 - metricset.timestamp
-  const limit = 10 * 1000 * 1000 // 10s ago in μs
-  t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
-  t.deepEqual(metricset.tags, {}, 'metricset.tags')
-  metricsets.forEach(m => {
-    let val
+  metricsets.forEach(event => {
+    let m
+
+    const agoUs = Date.now() * 1000 - event.metricset.timestamp
+    const limit = 10 * 1000 * 1000 // 10s ago in μs
+    t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
+    t.deepEqual(event.metricset.tags, {}, 'metricset.tags')
+
+    m = event.metricset.samples.test_counter
+    t.equal(m.type, 'counter', 'test_counter.type')
+    t.ok(Number.isInteger(m.value) && m.value >= 0, 'test_counter.value is a positive integer')
     // The expected value is between 2 and 3 because we have
     // `metricsInterval=500ms` and the "fixtures/*.js" scripts are incrementing
     // the counters every 200ms.
-    val = m.metricset.samples.test_counter.value
-    t.ok(2 <= val && val <= 3, // eslint-disable-line yoda
+    t.ok(2 <= m.value && m.value <= 3, // eslint-disable-line yoda
       'test_counter value is in [2,3] range, indicating aggregation temporality is the expected "Delta"')
-    val = m.metricset.samples.test_async_counter.value
-    t.ok(2 <= val && val <= 3, // eslint-disable-line yoda
+
+    m = event.metricset.samples.test_async_counter
+    t.equal(m.type, 'counter', 'test_async_counter.type')
+    t.ok(2 <= m.value && m.value <= 3, // eslint-disable-line yoda
       'test_async_counter value is in [2,3] range, indicating aggregation temporality is the expected "Delta"')
+
+    m = event.metricset.samples.test_async_gauge
+    t.ok(-1 <= m.value && m.value <= 1, // eslint-disable-line yoda
+      'test_async_gauge value is in [-1,1] range, the expected sine wave range')
   })
 }
 

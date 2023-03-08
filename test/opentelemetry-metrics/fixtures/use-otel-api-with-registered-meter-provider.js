@@ -37,6 +37,12 @@ asyncCounter.addCallback(observableResult => {
   observableResult.observe(n)
 })
 
+const asyncGauge = meter.createObservableGauge('test_async_gauge', { description: 'A test Asynchronous Gauge' })
+asyncGauge.addCallback(observableResult => {
+  // A sine wave with a 5 minute period, to have a recognizable pattern.
+  observableResult.observe(Math.sin(Date.now() / 1000 / 60 / 5 * (2 * Math.PI)))
+})
+
 setInterval(() => {
   n++
   counter.add(1)

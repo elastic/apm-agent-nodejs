@@ -17,6 +17,7 @@ const { MeterProvider } = require('@opentelemetry/sdk-metrics')
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
 const { Resource } = require('@opentelemetry/resources')
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions')
+otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // XXX get some OTel diagnostic logging
 
 const exporter = new PrometheusExporter({ host: 'localhost', port: PROM_PORT })
 const meterProvider = new MeterProvider({
@@ -36,6 +37,12 @@ let n = 0
 const asyncCounter = meter.createObservableCounter('my_async_counter', { description: 'My Asynchronous Counter' })
 asyncCounter.addCallback(observableResult => {
   observableResult.observe(n)
+})
+
+const asyncGauge = meter.createObservableGauge('my_async_gauge', { description: 'My Asynchronous Gauge' })
+asyncGauge.addCallback(observableResult => {
+  // A sine wave with a 5 minute period, to have a recognizable pattern.
+  observableResult.observe(Math.sin(Date.now() / 1000 / 60 / 5 * (2 * Math.PI)))
 })
 
 setInterval(() => {
