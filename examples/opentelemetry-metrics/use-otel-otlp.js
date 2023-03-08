@@ -51,7 +51,14 @@ asyncGauge.addCallback(observableResult => {
   observableResult.observe(Math.sin(Date.now() / 1000 / 60 / 5 * (2 * Math.PI)))
 })
 
+const upDownCounter = meter.createUpDownCounter('my_updowncounter', { description: 'My UpDownCounter' })
+
 setInterval(() => {
   n++
   counter.add(1)
+  if (new Date().getUTCSeconds() < 30) {
+    upDownCounter.add(1)
+  } else {
+    upDownCounter.add(-1)
+  }
 }, 1000)

@@ -38,7 +38,6 @@ async function checkEventsHaveTestMetrics (t, events) {
   t.comment('first metricset: ' + formatForTComment(util.inspect(metricsets[0].metricset)))
   // XXX desc?
   // XXX units?
-  // XXX valueType?
   metricsets.forEach(event => {
     let m
 
@@ -64,6 +63,11 @@ async function checkEventsHaveTestMetrics (t, events) {
     m = event.metricset.samples.test_async_gauge
     t.ok(-1 <= m.value && m.value <= 1, // eslint-disable-line yoda
       'test_async_gauge value is in [-1,1] range, the expected sine wave range')
+
+    m = event.metricset.samples.test_updowncounter
+    t.equal(m.type, 'gauge', 'test_updowncounter.type')
+    t.ok(-30 <= m.value && m.value <= 30, // eslint-disable-line yoda
+      'test_updowncounter value is in expect [-30,30] range')
   })
 }
 

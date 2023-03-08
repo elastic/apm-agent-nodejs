@@ -32,17 +32,30 @@ const counter = new prom.Counter({
 // prom-client's Counter just has a `.inc()` method, so there isn't a
 // reasonable equivalent to OTel's Asynchronous Counter.
 
+// Asynchronous Gauge
+// A sine wave with a 5 minute period, to have a recognizable pattern.
 new prom.Gauge({ // eslint-disable-line no-new
   name: 'my_async_gauge',
   help: 'My Asynchronous Gauge',
   collect () {
-    // A sine wave with a 5 minute period, to have a recognizable pattern.
     this.set(Math.sin(Date.now() / 1000 / 60 / 5 * (2 * Math.PI)))
   }
 })
 
+// UpDownCouner
+// Count up once per second in the first half of the minute, down otherwise.
+const upDownCounter = new prom.Gauge({
+  name: 'my_updowncounter',
+  help: 'My UpDownCounter'
+})
+
 setInterval(() => {
   counter.inc(1)
+  if (new Date().getUTCSeconds() < 30) {
+    upDownCounter.inc()
+  } else {
+    upDownCounter.dec()
+  }
 }, 1000)
 
 // Create a simple HTTP server with 'GET /metrics' to export Prometheus metrics.
