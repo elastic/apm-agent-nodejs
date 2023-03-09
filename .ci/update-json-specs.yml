@@ -9,7 +9,7 @@ scms:
       user: '{{ requiredEnv "GIT_USER" }}'
       email: '{{ requiredEnv "GIT_EMAIL" }}'
       owner: elastic
-      repository: apm-agent-dotnet
+      repository: apm-agent-nodejs
       token: '{{ requiredEnv "GITHUB_TOKEN" }}'
       username: '{{ requiredEnv "GIT_USER" }}'
       branch: main
