@@ -45,12 +45,20 @@ asyncGauge.addCallback(observableResult => {
 
 const upDownCounter = meter.createUpDownCounter('test_updowncounter', { description: 'A test UpDownCounter' })
 
+let c = 0
+const asyncUpDownCounter = meter.createObservableUpDownCounter('test_async_updowncounter', { description: 'A test Asynchronous UpDownCounter' })
+asyncUpDownCounter.addCallback(observableResult => {
+  observableResult.observe(c)
+})
+
 setInterval(() => {
   n++
   counter.add(1)
   if (new Date().getUTCSeconds() < 30) {
+    c++
     upDownCounter.add(1)
   } else {
+    c--
     upDownCounter.add(-1)
   }
 }, 200)

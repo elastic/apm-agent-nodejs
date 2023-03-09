@@ -68,6 +68,11 @@ async function checkEventsHaveTestMetrics (t, events) {
     t.equal(m.type, 'gauge', 'test_updowncounter.type')
     t.ok(-30 <= m.value && m.value <= 30, // eslint-disable-line yoda
       'test_updowncounter value is in expect [-30,30] range')
+
+    m = event.metricset.samples.test_async_updowncounter
+    t.equal(m.type, 'gauge', 'test_async_updowncounter.type')
+    t.ok(-30 <= m.value && m.value <= 30, // eslint-disable-line yoda
+      'test_async_updowncounter value is in expect [-30,30] range')
   })
 }
 
