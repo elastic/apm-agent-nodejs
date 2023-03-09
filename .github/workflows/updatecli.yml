@@ -19,7 +19,8 @@ jobs:
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
           pipeline: .ci/updatecli.d
-      - uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+      - if: failure()
+        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
           status: ${{ steps.check.outputs.status }}
           vaultUrl: ${{ secrets.VAULT_ADDR }}
