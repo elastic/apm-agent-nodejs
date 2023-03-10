@@ -51,6 +51,10 @@ asyncUpDownCounter.addCallback(observableResult => {
   observableResult.observe(c)
 })
 
+// We expect this to get the bucket boundaries from the
+// `custom_metrics_histogram_boundaries` config.
+const histo = meter.createHistogram('test_histogram_confbuckets')
+
 setInterval(() => {
   n++
   counter.add(1)
@@ -61,4 +65,7 @@ setInterval(() => {
     c--
     upDownCounter.add(-1)
   }
+  histo.record(2)
+  histo.record(3)
+  histo.record(4)
 }, 200)

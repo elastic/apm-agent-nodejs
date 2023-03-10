@@ -16,6 +16,17 @@ const SERVICE_NAME = 'use-prom'
 const prom = require('prom-client') // https://github.com/siimon/prom-client
 const Fastify = require('fastify')
 
+// ---- support functions
+
+// Standard Normal variate using Box-Muller transform.
+// https://stackoverflow.com/a/36481059/14444044
+function gaussianRandom (mean = 0, stdev = 1) {
+  const u = 1 - Math.random() // Converting [0,1) to (0,1]
+  const v = Math.random()
+  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v)
+  return z * stdev + mean // Transform to the desired mean and standard deviation.
+}
+
 // ---- mainline
 
 // Setup metrics.
@@ -49,12 +60,25 @@ const upDownCounter = new prom.Gauge({
   help: 'My UpDownCounter'
 })
 
+// Histogram
+const histo = new prom.Histogram({
+  name: 'my_histogram',
+  help: 'My Histogram'
+})
+
 setInterval(() => {
   counter.inc(1)
   if (new Date().getUTCSeconds() < 30) {
     upDownCounter.inc()
   } else {
     upDownCounter.dec()
+  }
+  for (let i = 0; i < 100; i++) {
+    // A Gaussian distribution centered on 150ms, with a minimum 1ms. This is
+    // an attempt at a "known" distribution for a response latency metric for
+    // a service getting 100 req/s.
+    const valS = Math.max(gaussianRandom(0.150, 0.050), 0.001)
+    histo.observe(valS)
   }
 }, 1000)
 

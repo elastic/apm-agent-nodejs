@@ -6,8 +6,10 @@
 
 'use strict'
 
-// When run with the APM agent, we expect a MeterProvider to be implicitly
-// provided by the agent, such that metrics are sent to APM server.
+// When run with the APM agent:
+//    node -r elastic-apm-node/start use-just-otel-api.js
+// we expect a MeterProvider to be implicitly provided by the agent, such that
+// metrics are sent to APM server.
 
 const otel = require('@opentelemetry/api')
 
@@ -35,6 +37,9 @@ asyncUpDownCounter.addCallback(observableResult => {
   observableResult.observe(c)
 })
 
+// We expect to get the APM agent's default buckets boundaries.
+const histo = meter.createHistogram('test_histogram_defbuckets')
+
 setInterval(() => {
   n++
   counter.add(1)
@@ -45,4 +50,7 @@ setInterval(() => {
     c--
     upDownCounter.add(-1)
   }
+  histo.record(2)
+  histo.record(3)
+  histo.record(4)
 }, 200)

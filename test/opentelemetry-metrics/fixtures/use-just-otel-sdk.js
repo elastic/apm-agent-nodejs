@@ -14,11 +14,20 @@
 // server, because the agent will add its MetricReader to the created
 // MeterProvider.
 
-const { MeterProvider } = require('@opentelemetry/sdk-metrics')
+const { MeterProvider, View, ExplicitBucketHistogramAggregation } = require('@opentelemetry/sdk-metrics')
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
 
 const exporter = new PrometheusExporter({ host: 'localhost' })
-const meterProvider = new MeterProvider()
+const meterProvider = new MeterProvider({
+  views: [
+    new View({
+      instrumentName: 'test_histogram_viewbuckets',
+      aggregation: new ExplicitBucketHistogramAggregation(
+        // Use the same default buckets as in `prom-client`.
+        [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10])
+    })
+  ]
+})
 meterProvider.addMetricReader(exporter)
 
 const meter = meterProvider.getMeter('test-meter')
@@ -45,6 +54,9 @@ asyncUpDownCounter.addCallback(observableResult => {
   observableResult.observe(c)
 })
 
+// We expect this to get the bucket boundaries from the View above.
+const histo = meter.createHistogram('test_histogram_viewbuckets')
+
 setInterval(() => {
   n++
   counter.add(1)
@@ -55,4 +67,7 @@ setInterval(() => {
     c--
     upDownCounter.add(-1)
   }
+  histo.record(2)
+  histo.record(3)
+  histo.record(4)
 }, 200)
