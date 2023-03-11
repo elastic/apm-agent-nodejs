@@ -24,7 +24,7 @@ const semver = require('semver')
 const tape = require('tape')
 
 const { MockAPMServer } = require('../_mock_apm_server')
-const { findObjsInArray, formatForTComment } = require('../_utils')
+const { findObjInArray, findObjsInArray, formatForTComment } = require('../_utils')
 
 if (!semver.satisfies(process.version, '>=14')) {
   console.log(`# SKIP @opentelemetry/sdk-metrics only supports node >=14 (node ${process.version})`)
@@ -33,21 +33,21 @@ if (!semver.satisfies(process.version, '>=14')) {
 
 const undici = require('undici') // import after we've excluded node <14
 
-async function checkEventsHaveTestMetrics (t, events, histoMetricName) {
-  const metricsets = findObjsInArray(events, 'metricset.samples.test_counter')
-  // Only need to test the first metricset. Subsequent ones should be equivalent.
-  const event = metricsets[0]
+async function checkEventsHaveTestMetrics (t, events, extraMetricNames = []) {
+  // console.log('XXX events: ', events)
   let m
 
-  t.comment('first metricset: ' + formatForTComment(util.inspect(event.metricset, { depth: 5 })))
-  // XXX desc?
-  // XXX units?
+  // Test the first of the metricsets with no tags/attributes.
+  const event = findObjInArray(events, 'metricset.samples.test_counter')
+  t.comment('metricset: ' + formatForTComment(util.inspect(event.metricset, { depth: 5 })))
 
   const agoUs = Date.now() * 1000 - event.metricset.timestamp
   const limit = 10 * 1000 * 1000 // 10s ago in μs
   t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
   t.deepEqual(event.metricset.tags, {}, 'metricset.tags')
 
+  // XXX desc?
+  // XXX units?
   m = event.metricset.samples.test_counter
   t.equal(m.type, 'counter', 'test_counter.type')
   t.ok(Number.isInteger(m.value) && m.value >= 0, 'test_counter.value is a positive integer')
@@ -76,38 +76,47 @@ async function checkEventsHaveTestMetrics (t, events, histoMetricName) {
   t.ok(-30 <= m.value && m.value <= 30, // eslint-disable-line yoda
     'test_async_updowncounter value is in expect [-30,30] range')
 
-  switch (histoMetricName) {
-    case 'test_histogram_defbuckets':
-      // A histogram that we expect to have the APM agent default buckets.
-      m = event.metricset.samples.test_histogram_defbuckets
-      t.equal(m.type, 'histogram', 'test_histogram_defbuckets.type')
-      t.equal(m.counts.length, 3, 'test_histogram_defbuckets.counts')
-      // The test file recorded values of 2, 3, and 4. The expected converted values
-      // are the midpoints between the default bucket boundaries. For example,
-      // 3 is between bucket boundaries (2.82843, 4], whose midpoint is 3.414215.
-      t.deepEqual(m.values, [2.414215, 3.414215, 4.828425], 'test_histogram_defbuckets.values')
-      break
-    case 'test_histogram_viewbuckets':
-      // A histogram that we expect to have the buckets defined by a `View`.
-      m = event.metricset.samples.test_histogram_viewbuckets
-      t.equal(m.type, 'histogram', 'test_histogram_viewbuckets.type')
-      // The test file recorded values of 2, 3, and 4. These fall into two
-      // buckets in `[..., 1, 2.5, 5, ...]`. After conversion to APM server
-      // intake format, the values are the midpoints of those buckets.
-      t.equal(m.counts.length, 2, 'test_histogram_viewbuckets.counts')
-      t.deepEqual(m.values, [1.75, 3.75], 'test_histogram_viewbuckets.values')
-      break
-    case 'test_histogram_confbuckets':
-      // A histogram that we expect to have the buckets defined by the
-      // `custom_metrics_histogram_boundaries` config var.
-      m = event.metricset.samples.test_histogram_confbuckets
-      t.equal(m.type, 'histogram', 'test_histogram_confbuckets.type')
-      // The test file recorded values of 2, 3, and 4. These fall into three
-      // buckets in `[0, 1, 2, 3, 4, 5]`. After conversion to APM server
-      // intake format, the values are the midpoints of those buckets.
-      t.equal(m.counts.length, 3, 'test_histogram_confbuckets.counts')
-      t.deepEqual(m.values, [2.5, 3.5, 4.5], 'test_histogram_confbuckets.values')
-      break
+  if (extraMetricNames.includes('test_histogram_defbuckets')) {
+    // A histogram that we expect to have the APM agent default buckets.
+    m = event.metricset.samples.test_histogram_defbuckets
+    t.equal(m.type, 'histogram', 'test_histogram_defbuckets.type')
+    t.equal(m.counts.length, 3, 'test_histogram_defbuckets.counts')
+    // The test file recorded values of 2, 3, and 4. The expected converted values
+    // are the midpoints between the default bucket boundaries. For example,
+    // 3 is between bucket boundaries (2.82843, 4], whose midpoint is 3.414215.
+    t.deepEqual(m.values, [2.414215, 3.414215, 4.828425], 'test_histogram_defbuckets.values')
+  }
+  if (extraMetricNames.includes('test_histogram_viewbuckets')) {
+    // A histogram that we expect to have the buckets defined by a `View`.
+    m = event.metricset.samples.test_histogram_viewbuckets
+    t.equal(m.type, 'histogram', 'test_histogram_viewbuckets.type')
+    // The test file recorded values of 2, 3, and 4. These fall into two
+    // buckets in `[..., 1, 2.5, 5, ...]`. After conversion to APM server
+    // intake format, the values are the midpoints of those buckets.
+    t.equal(m.counts.length, 2, 'test_histogram_viewbuckets.counts')
+    t.deepEqual(m.values, [1.75, 3.75], 'test_histogram_viewbuckets.values')
+  }
+  if (extraMetricNames.includes('test_histogram_confbuckets')) {
+    // A histogram that we expect to have the buckets defined by the
+    // `custom_metrics_histogram_boundaries` config var.
+    m = event.metricset.samples.test_histogram_confbuckets
+    t.equal(m.type, 'histogram', 'test_histogram_confbuckets.type')
+    // The test file recorded values of 2, 3, and 4. These fall into three
+    // buckets in `[0, 1, 2, 3, 4, 5]`. After conversion to APM server
+    // intake format, the values are the midpoints of those buckets.
+    t.equal(m.counts.length, 3, 'test_histogram_confbuckets.counts')
+    t.deepEqual(m.values, [2.5, 3.5, 4.5], 'test_histogram_confbuckets.values')
+  }
+
+  if (extraMetricNames.includes('test_counter_attrs')) {
+    // Test that there are 3 separate metricsets for 'test_counter_attrs'
+    // for a given timestamp -- one for each of the expected attr sets.
+    const eventsAttrs = findObjsInArray(events, 'metricset.samples.test_counter_attrs')
+      .filter(e => e.metricset.timestamp === event.metricset.timestamp)
+    t.equal(eventsAttrs.length, 3, '3 attr sets for test_counter_attrs')
+    t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'POST' && e.metricset.tags['http.response.status_code'] === '200'))
+    t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'GET' && e.metricset.tags['http.response.status_code'] === '200'))
+    t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'GET' && e.metricset.tags['http.response.status_code'] === '400'))
   }
 }
 
@@ -123,14 +132,15 @@ const cases = [
     script: 'use-just-otel-api.js',
     check: async (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
-      await checkEventsHaveTestMetrics(t, events, 'test_histogram_defbuckets')
+      await checkEventsHaveTestMetrics(t, events,
+        ['test_histogram_defbuckets', 'test_counter_attrs'])
     }
   },
   {
     script: 'use-just-otel-sdk.js',
     check: async (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
-      await checkEventsHaveTestMetrics(t, events, 'test_histogram_viewbuckets')
+      await checkEventsHaveTestMetrics(t, events, ['test_histogram_viewbuckets'])
       await checkHasPrometheusMetrics(t)
     }
   },
@@ -141,7 +151,7 @@ const cases = [
     },
     check: async (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
-      await checkEventsHaveTestMetrics(t, events, 'test_histogram_confbuckets')
+      await checkEventsHaveTestMetrics(t, events, ['test_histogram_confbuckets'])
       await checkHasPrometheusMetrics(t)
     }
   }
