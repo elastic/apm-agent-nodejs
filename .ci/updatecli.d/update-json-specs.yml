@@ -1,0 +1,120 @@
+name: update-jsons-specs
+pipelineid: update-json-specs
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: '{{ requiredEnv "GIT_USER" }}'
+      email: '{{ requiredEnv "GIT_EMAIL" }}'
+      owner: elastic
+      repository: apm-agent-nodejs
+      token: '{{ requiredEnv "GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "GIT_USER" }}'
+      branch: main
+
+sources:
+  sha:
+    kind: file
+    spec:
+      file: 'https://github.com/elastic/apm/commit/main.patch'
+      matchpattern: "^From\\s([0-9a-f]{40})\\s"
+    transformers:
+      - findsubmatch:
+          pattern: "[0-9a-f]{40}"
+
+  cgroup_parsing.json:
+    kind: file
+    spec:
+      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/cgroup_parsing.json
+  service_resource_inference.json:
+    kind: file
+    spec:
+      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/service_resource_inference.json
+  span_types.json:
+    kind: file
+    spec:
+      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/span_types.json
+  sql_signature_examples.json:
+    kind: file
+    spec:
+      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/sql_signature_examples.json
+  sql_token_examples.json:
+    kind: file
+    spec:
+      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/sql_token_examples.json
+  w3c_distributed_tracing.json:
+    kind: file
+    spec:
+      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/w3c_distributed_tracing.json
+  wildcard_matcher_tests.json:
+    kind: file
+    spec:
+      file: https://raw.githubusercontent.com/elastic/apm/main/tests/agents/json-specs/wildcard_matcher_tests.json
+actions:
+  pr:
+    kind: "github/pullrequest"
+    scmid: default
+    spec:
+      title: Update JSON specs
+      automerge: false
+      draft: false
+      labels:
+        - "automation"
+      description: |-
+        ### What
+        APM agent specs automatic sync
+        ### Why
+        *Changeset*
+        * https://github.com/elastic/apm/commit/{{ source "sha" }}
+
+targets:
+  cgroup_parsing.json:
+    name: cgroup_parsing.json
+    scmid: default
+    sourceid: cgroup_parsing.json
+    kind: file
+    spec:
+      file: test/fixtures/json-specs/cgroup_parsing.json
+  service_resource_inference.json:
+    name: service_resource_inference.json
+    scmid: default
+    sourceid: service_resource_inference.json
+    kind: file
+    spec:
+      file: test/fixtures/json-specs/service_resource_inference.json
+  span_types.json:
+    name: span_types.json
+    scmid: default
+    sourceid: span_types.json
+    kind: file
+    spec:
+      file: test/fixtures/json-specs/span_types.json
+  sql_signature_examples.json:
+    name: sql_signature_examples.json
+    scmid: default
+    sourceid: sql_signature_examples.json
+    kind: file
+    spec:
+      file: test/fixtures/json-specs/sql_signature_examples.json
+  sql_token_examples.json:
+    name: sql_token_examples.json
+    scmid: default
+    sourceid: sql_token_examples.json
+    kind: file
+    spec:
+      file: test/fixtures/json-specs/sql_token_examples.json
+  w3c_distributed_tracing.json:
+    name: w3c_distributed_tracing.json
+    scmid: default
+    sourceid: w3c_distributed_tracing.json
+    kind: file
+    spec:
+      file: test/fixtures/json-specs/w3c_distributed_tracing.json
+  wildcard_matcher_tests.json:
+    name: wildcard_matcher_tests.json
+    scmid: default
+    sourceid: wildcard_matcher_tests.json
+    kind: file
+    spec:
+      file: test/fixtures/json-specs/wildcard_matcher_tests.json
