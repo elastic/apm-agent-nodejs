@@ -10,14 +10,6 @@ on:
     - '*.asciidoc'
     - 'docs/**'
     - 'examples/**'
-  pull_request:
-    branches:
-    - main
-    paths-ignore:
-    - '*.md'
-    - '*.asciidoc'
-    - 'docs/**'
-    - 'examples/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,29 +20,59 @@ permissions:
   contents: read
 
 jobs:
-
-  filter:
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    outputs:
-      matrix: ${{ steps.generate.outputs.matrix }}
-    steps:
-      - id: generate
-        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
-        with:
-          versionsFile: .ci/.jenkins_tav_nodejs.yml
-          frameworksFile: .ci/.jenkins_tav.yml
-
   test-tav:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: [filter]
+    timeout-minutes: 40
     strategy:
+      max-parallel: 30
       fail-fast: false
-      matrix: ${{ fromJson(needs.filter.outputs.matrix) }}
+      matrix:
+        node:
+          - "19"
+          - "18"
+          - "16"
+          - "14"
+          - "12"
+          - "10"
+          - "8"
+        framework:
+          - '@elastic/elasticsearch'
+          - '@elastic/elasticsearch-canary'
+          - '@hapi/hapi'
+          - '@koa/router'
+          - apollo-server-express
+          - aws-sdk
+          - bluebird
+          - cassandra-driver
+          - elasticsearch
+          - express
+          - express-graphql
+          - express-queue
+          - fastify
+          - finalhandler
+          - generic-pool
+          - got
+          - graphql
+          - handlebars
+          - ioredis
+          - knex
+          - koa-router
+          - memcached
+          - mimic-response
+          - mongodb
+          - mongodb-core
+          - mysql
+          - mysql2
+          - next
+          - pg
+          - pug
+          - redis
+          - restify
+          - tedious
+          - undici
+          - ws
     steps:
       - uses: actions/checkout@v3
-      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.framework }}" "${{ matrix.version }}"
+      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.framework }}" "${{ matrix.node }}"
         env:
-          VERSION: ${{ matrix.version }}
           ELASTIC_APM_CONTEXT_MANAGER: ''
