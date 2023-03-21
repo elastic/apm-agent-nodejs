@@ -32,13 +32,16 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
+[[release-notes-3.43.0]]
+==== 3.43.0 2023/03/02
 
 [float]
 ===== Breaking changes
 
 [float]
 ===== Features
+
+* Support mongodb v5. ({issues}3138[#3138])
 
 * Propagate trace-context in message attributes for SQS (SendMessage and
   SendMessageBatch) and SNS (Publish), provided the maximum 10 message
@@ -47,8 +50,19 @@ Notes:
   incoming messages with trace-context. This allows linking between
   producer and consumer in the Kibana APM app. ({pull}3044[#3044])
 
+* Extend Lambda instrumentation to capture details for Lambda function URL
+  and ELB-triggered Lambdas. ({issues}2901[#2901])
+
+* Make `Agent.flush()` return a `Promise` if no callback is passed as param.
+  This means that flush is now `await`able: `await apm.flush()`.
+  ({issues}2857(#2857))
+
 [float]
 ===== Bug fixes
+
+* Fix the transaction name for *API* routes in Next.js >=13.2.x. Before this
+  change internal changes in next@13.2.0 resulted in transactions for Next.js
+  API routes being `{method} unknown route`.
 
 * Fix `metadata.service.agent.activation_method=k8s-attach` handling to
   (a) use an explicit marker from the k8s apm attacher
@@ -56,8 +70,8 @@ Notes:
   value, rather than the incorrect "k8s-attacher".
   ({issue}3119[#3119])
 
-[float]
-===== Chores
+* Add missing <<opentelemetry-bridge-enabled>> ({pull}3121[#3121]) and
+  <<context-manager>> Agent configuration options to the TypeScript types.
 
 
 [[release-notes-3.42.0]]
@@ -157,6 +171,11 @@ s3-prefix).
 
 [[release-notes-3.40.0]]
 ==== 3.40.0 2022/10/31
+
+**Note**: This was a bad release. Users should upgrade to v3.40.1 or later.
+This version of the agent could enter a tight loop re-fetching central config,
+which increases network traffic, CPU usage, and load on the APM server.
+See {issues}3029[issue #3029] for details.
 
 [float]
 ===== Features

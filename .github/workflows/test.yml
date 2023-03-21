@@ -6,7 +6,6 @@
 # - the "TAV" tests that run against all supported versions of instrumented
 #   modules
 # - the integration tests that run with an apm-server
-# - testing with ELASTIC_APM_CONTEXT_MANAGER=patch (i.e. without using async_hooks)
 # - code coverage (npm run coverage)
 
 name: Test
@@ -17,18 +16,24 @@ on:
     branches:
     - main
     paths-ignore:
-    - '*.md'
-    - '*.asciidoc'
+    - '**/*.md'
+    - '**/*.asciidoc'
     - 'docs/**'
     - 'examples/**'
   pull_request:
     branches:
     - main
     paths-ignore:
-    - '*.md'
-    - '*.asciidoc'
+    - '**/*.md'
+    - '**/*.asciidoc'
     - 'docs/**'
     - 'examples/**'
+
+## Concurrency only allowed in the main branch.
+## So old builds running for old commits within the same Pull Request are cancelled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test-vers:
@@ -133,10 +138,11 @@ jobs:
           - '10.0'
           - '8'
           - '8.6'
+        contextManager: [ 'patch', '' ]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
     - run: docker ps  # show the services against which we'll be testing
@@ -144,6 +150,8 @@ jobs:
     - run: npm ls --all || true
     - name: npm test
       run: npm test
+      env:
+        ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
     - uses: inception-health/otel-upload-test-artifact-action@v1
       if: always()
       continue-on-error: true

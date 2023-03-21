@@ -20,7 +20,7 @@ const MongoClient = require('mongodb').MongoClient
 const DB_NAME = 'example-trace-mongodb'
 const url = 'mongodb://localhost:27017'
 
-async function usingPromises () {
+async function main () {
   // For tracing spans to be created, there must be an active transaction.
   // Typically, a transaction is automatically started for incoming HTTP
   // requests to a Node.js server. However, because this script is not running
@@ -45,10 +45,6 @@ async function usingPromises () {
     res = await coll.findOne({ item: 'eggs' })
     console.log('findOne eggs:', res)
 
-    coll.findOne({ item: 'ham' }, function (err, res) {
-      console.log('findOne ham: err=%s res=%s', err && err.message, res)
-    })
-
     await coll.deleteMany({})
 
     res = await coll.findOne({ item: 'eggs' })
@@ -59,28 +55,4 @@ async function usingPromises () {
   }
 }
 
-function usingCallbacks () {
-  const t2 = apm.startTransaction('t2-callback-style')
-
-  MongoClient.connect(url, function (err, client) {
-    console.log('connect: err=%s', err && err.message)
-    if (err) {
-      throw err
-    }
-
-    const db = client.db(DB_NAME)
-    const coll = db.collection('breakfast')
-    coll.insertMany([
-      { item: 'spam', n: 0 },
-      { item: 'ham', n: 1 },
-      { item: 'eggs', n: 2 }
-    ], { w: 1 }, function (err, res) {
-      console.log('insertMany: err=%s res=%s', err && err.message, res)
-      t2.end()
-      client.close()
-    })
-  })
-}
-
-usingPromises()
-  .finally(usingCallbacks)
+main()

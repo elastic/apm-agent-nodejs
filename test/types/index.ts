@@ -161,7 +161,7 @@ apm.addMetadataFilter(filter1)
 apm.addMetadataFilter(filter2)
 apm.addMetadataFilter(filter3)
 
-apm.flush()
+apm.flush().finally(() => {})
 apm.flush(() => {})
 
 apm.destroy()

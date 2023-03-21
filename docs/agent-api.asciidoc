@@ -695,16 +695,35 @@ remember to terminate the node process.
 
 [source,js]
 ----
+// with node-style callback
 apm.flush(function (err) {
   // Flush complete
 })
+
+// with promises
+apm.flush().then(function () {
+  // Flush complete
+}).catch(function (err) {
+  // Flush returned an error
+})
+
+// inside of an async function
+try {
+  await apm.flush()
+  // Flush complete
+} catch (err) {
+  // Flush returned an error
+}
 ----
 
 Manually end the active outgoing HTTP request to the APM Server.
 The HTTP request is otherwise ended automatically at regular intervals,
 controlled by the <<api-request-time,`apiRequestTime`>> and <<api-request-size,`apiRequestSize`>> config options.
 
-The callback is called *after* the active HTTP request has ended.
+If an optional `callback` is provided as the first argument to this method, it will call `callback(flushErr)` when complete. 
+If no `callback` is provided, then a `Promise` will be returned, which will either resolve with `void` or reject with `flushErr`.
+
+The callback is called (or the `Promise` resolves if no `callback` argument is provided) *after* the active HTTP request has ended.
 The callback is called even if no HTTP request is currently active.
 
 [[apm-lambda]]
