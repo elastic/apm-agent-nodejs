@@ -66,7 +66,9 @@ run_test_suite () {
     ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
   fi
 
-  npm run test:types
+  if [[ $major_node_version -gt 12 ]] || [[ $major_node_version -eq 12 && $minor_node_version -ge 20 ]]; then
+    npm run test:types # typescript@5 engines.node is >=12.20
+  fi
   if [[ $major_node_version -ne 13 ]] || [[ $minor_node_version -gt 1 ]]; then
     npm run test:babel
   fi
