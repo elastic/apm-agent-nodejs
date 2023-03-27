@@ -6,8 +6,8 @@ on:
     branches:
       - main
     paths-ignore:
-    - '*.md'
-    - '*.asciidoc'
+    - '**/*.md'
+    - '**/*.asciidoc'
     - 'docs/**'
     - 'examples/**'
 
@@ -35,7 +35,7 @@ jobs:
           - "12"
           - "10"
           - "8"
-        framework:
+        module:
           - '@elastic/elasticsearch'
           - '@elastic/elasticsearch-canary'
           - '@hapi/hapi'
@@ -73,6 +73,6 @@ jobs:
           - ws
     steps:
       - uses: actions/checkout@v3
-      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.framework }}" "${{ matrix.node }}"
+      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"
         env:
           ELASTIC_APM_CONTEXT_MANAGER: ''
