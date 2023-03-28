@@ -2,11 +2,6 @@
   "name": "examples-opentelemetry-metrics",
   "version": "1.0.0",
   "private": true,
-  "XXX dependencies": {
-    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.34.0",
-    "@opentelemetry/exporter-metrics-otlp-http": "^0.34.0",
-    "@opentelemetry/exporter-metrics-otlp-proto": "^0.34.0"
-  },
   "dependencies": {
     "@opentelemetry/api": "^1.4.0",
     "@opentelemetry/exporter-metrics-otlp-grpc": "^0.35.1",

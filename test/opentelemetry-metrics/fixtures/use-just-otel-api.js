@@ -40,9 +40,6 @@ asyncUpDownCounter.addCallback(observableResult => {
 // We expect to get the APM agent's default buckets boundaries.
 const histo = meter.createHistogram('test_histogram_defbuckets')
 
-// A counter with attributes to test attr-set segmentation.
-const counterAttrs = meter.createCounter('test_counter_attrs')
-
 setInterval(() => {
   n++
   counter.add(1)
@@ -56,10 +53,4 @@ setInterval(() => {
   histo.record(2)
   histo.record(3)
   histo.record(4)
-
-  // This should result in *3* metricsets.
-  counterAttrs.add(1, { 'http.request.method': 'POST', 'http.response.status_code': '200' })
-  counterAttrs.add(1, { 'http.request.method': 'GET', 'http.response.status_code': '200' })
-  counterAttrs.add(1, { 'http.request.method': 'GET', 'http.response.status_code': '400' })
-  counterAttrs.add(1, { 'http.request.method': 'GET', 'http.response.status_code': '200' })
 }, 200)

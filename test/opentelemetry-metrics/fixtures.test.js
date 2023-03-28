@@ -34,20 +34,15 @@ if (!semver.satisfies(process.version, '>=14')) {
 const undici = require('undici') // import after we've excluded node <14
 
 async function checkEventsHaveTestMetrics (t, events, extraMetricNames = []) {
-  // console.log('XXX events: ', events)
   let m
 
   // Test the first of the metricsets with no tags/attributes.
   const event = findObjInArray(events, 'metricset.samples.test_counter')
-  t.comment('metricset: ' + formatForTComment(util.inspect(event.metricset, { depth: 5 })))
-
+  t.comment('test_counter metricset: ' + formatForTComment(util.inspect(event.metricset, { depth: 5 })))
   const agoUs = Date.now() * 1000 - event.metricset.timestamp
   const limit = 10 * 1000 * 1000 // 10s ago in μs
   t.ok(agoUs > 0 && agoUs < limit, `metricset.timestamp (a recent number of μs since the epoch, ${agoUs}μs ago)`)
   t.deepEqual(event.metricset.tags, {}, 'metricset.tags')
-
-  // XXX desc?
-  // XXX units?
   m = event.metricset.samples.test_counter
   t.equal(m.type, 'counter', 'test_counter.type')
   t.ok(Number.isInteger(m.value) && m.value >= 0, 'test_counter.value is a positive integer')
@@ -107,17 +102,6 @@ async function checkEventsHaveTestMetrics (t, events, extraMetricNames = []) {
     t.equal(m.counts.length, 3, 'test_histogram_confbuckets.counts')
     t.deepEqual(m.values, [2.5, 3.5, 4.5], 'test_histogram_confbuckets.values')
   }
-
-  if (extraMetricNames.includes('test_counter_attrs')) {
-    // Test that there are 3 separate metricsets for 'test_counter_attrs'
-    // for a given timestamp -- one for each of the expected attr sets.
-    const eventsAttrs = findObjsInArray(events, 'metricset.samples.test_counter_attrs')
-      .filter(e => e.metricset.timestamp === event.metricset.timestamp)
-    t.equal(eventsAttrs.length, 3, '3 attr sets for test_counter_attrs')
-    t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'POST' && e.metricset.tags['http.response.status_code'] === '200'))
-    t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'GET' && e.metricset.tags['http.response.status_code'] === '200'))
-    t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'GET' && e.metricset.tags['http.response.status_code'] === '400'))
-  }
 }
 
 async function checkHasPrometheusMetrics (t) {
@@ -130,15 +114,15 @@ async function checkHasPrometheusMetrics (t) {
 const cases = [
   {
     script: 'use-just-otel-api.js',
-    check: async (t, events) => {
+    checkEvents: async (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
       await checkEventsHaveTestMetrics(t, events,
-        ['test_histogram_defbuckets', 'test_counter_attrs'])
+        ['test_histogram_defbuckets'])
     }
   },
   {
     script: 'use-just-otel-sdk.js',
-    check: async (t, events) => {
+    checkEvents: async (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
       await checkEventsHaveTestMetrics(t, events, ['test_histogram_viewbuckets'])
       await checkHasPrometheusMetrics(t)
@@ -149,10 +133,33 @@ const cases = [
     env: {
       ELASTIC_APM_CUSTOM_METRICS_HISTOGRAM_BOUNDARIES: '0,1, 2,\t3,4 ,5'
     },
-    check: async (t, events) => {
+    checkEvents: async (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object')
       await checkEventsHaveTestMetrics(t, events, ['test_histogram_confbuckets'])
       await checkHasPrometheusMetrics(t)
+    }
+  },
+  {
+    script: 'various-attrs.js',
+    checkEvents: async (t, events) => {
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+
+      // Test that there are 3 separate metricsets for 'test_counter_attrs'
+      // for a given timestamp -- one for each of the expected attr sets.
+      const firstTimestamp = findObjInArray(events, 'metricset.samples.test_counter_attrs').metricset.timestamp
+      const eventsAttrs = findObjsInArray(events, 'metricset.samples.test_counter_attrs')
+        .filter(e => e.metricset.timestamp === firstTimestamp)
+      t.equal(eventsAttrs.length, 3, '3 attr sets for test_counter_attrs')
+      t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'POST' && e.metricset.tags['http.response.status_code'] === '200'))
+      t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'GET' && e.metricset.tags['http.response.status_code'] === '200'))
+      t.ok(eventsAttrs.some(e => e.metricset.tags['http.request.method'] === 'GET' && e.metricset.tags['http.response.status_code'] === '400'))
+      t.ok(!eventsAttrs.some(e => e.metricset.tags.array_valued_attr), 'no test_counter_attrs metricset with "array_valued_attr" label')
+    },
+    checkOutput: async (t, stdout, _stderr) => {
+      const warnLines = stdout.split('\n').filter(ln => ~ln.indexOf('dropping array-valued metric attribute'))
+      t.equal(warnLines.length, 1, 'exactly one log.warn about dropping the array-valued metric attribute')
+      t.ok(warnLines[0].indexOf('test_counter_attrs'), 'log.warn mentions the metric name')
+      t.ok(warnLines[0].indexOf('array_valued_attr'), 'log.warn mentions the attribute name')
     }
   }
 ]
@@ -182,7 +189,7 @@ cases.forEach(c => {
             }
           )
         },
-        function done (_err, stdout, stderr) {
+        async function done (_err, stdout, stderr) {
           // We are terminating the process with SIGTERM, so we *expect* a
           // non-zero exit. Hence checking `_err` isn't useful. If there is
           // any output, then show it, in case it is useful for debugging
@@ -190,13 +197,16 @@ cases.forEach(c => {
           if (stdout.trim() || stderr.trim()) {
             t.comment(`$ node ${scriptPath}\n-- stdout --\n|${formatForTComment(stdout)}\n-- stderr --\n|${formatForTComment(stderr)}\n--`)
           }
+          if (c.checkOutput) {
+            await c.checkOutput(t, stdout, stderr)
+          }
           server.close()
           t.end()
         }
       )
       // Wait ~2s for some metrics to have been sent.
       setTimeout(async () => {
-        await c.check(t, server.events)
+        await c.checkEvents(t, server.events)
         proc.kill()
       }, 2000)
     })

@@ -17,7 +17,6 @@ const { MeterProvider, View, ExplicitBucketHistogramAggregation } = require('@op
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
 const { Resource } = require('@opentelemetry/resources')
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions')
-// otel.diag.setLogger(new otel.DiagConsoleLogger(), otel.DiagLogLevel.ALL) // XXX get some OTel diagnostic logging
 
 // ---- support functions
 
