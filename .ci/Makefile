@@ -6,14 +6,16 @@ LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
 DOCKER_IMAGE_NAME ?= observability/apm-agent-nodejs
 DOCKER_REGISTRY = docker.elastic.co
 SUFFIX_ARN_FILE = arn-file.md
-AGENT_VERSION = $(shell echo $${GITHUB_REF_NAME} | cut -f 2 -d 'v')
+AGENT_VERSION = $(shell echo $${GITHUB_REF_NAME} | cut -f 2 -d 'v' | sed 's#/merge##g') ## TODO: sed is not required when running for tag releases.
+## TODO: as long as the GITHUB_REF_NAME points to a PR then let's use this temporary workaround.
+BRANCH_NAME = $(shell echo $${GITHUB_REF_NAME} | sed 's#/merge##g')
 export AWS_FOLDER
 
 .PHONY: dist
 dist: validate-ref-name
 	../dev-utils/make-distribution.sh
 	@mkdir -p $(AWS_FOLDER)
-	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(GITHUB_REF_NAME).zip
+	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip
 
 .PHONY: clean
 clean:
@@ -59,7 +61,7 @@ publish: validate-layer-name validate-aws-default-region
 		--description "AWS Lambda Extension Layer for the Elastic APM Node.js Agent" \
 		--license "Apache-2.0" \
 		--compatible-runtimes nodejs18.x nodejs16.x nodejs14.x nodejs12.x nodejs10.x \
-		--zip-file "fileb://./$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(GITHUB_REF_NAME).zip"
+		--zip-file "fileb://./$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip"
 
 # Grant public access to the given LAYER in the given AWS region
 grant-public-layer-access: validate-layer-name validate-aws-default-region
@@ -87,8 +89,8 @@ github-release: validate-ref-name validate-suffix-arn-file
 	@gh release list
 	@gh \
 		release \
-		create $(GITHUB_REF_NAME) \
-		--title '$(GITHUB_REF_NAME)' \
+		create $(BRANCH_NAME) \
+		--title '$(BRANCH_NAME)' \
 		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE) \
 		--repo v1v/apm-agent-nodejs
 
