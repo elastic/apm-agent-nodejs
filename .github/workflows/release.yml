@@ -42,7 +42,7 @@ jobs:
 
       - run: make -C .ci dist
 
-      - run: make -C .ci build-docker
+      - run: make -C .ci push-docker
 
       - uses: hashicorp/vault-action@v2.5.0
         with:
