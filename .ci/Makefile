@@ -90,7 +90,8 @@ github-release: validate-ref-name validate-suffix-arn-file
 		release \
 		create $(BRANCH_NAME) \
 		--title '$(BRANCH_NAME)' \
-		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
+		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE) \
+		--repo v1v/apm-agent-nodejs
 
 validate-version:
 ifndef AGENT_VERSION
