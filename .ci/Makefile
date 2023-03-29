@@ -5,15 +5,15 @@ DIST_DIR = /build/dist/nodejs
 LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
 DOCKER_IMAGE_NAME = observability/apm-agent-nodejs
 DOCKER_REGISTRY = docker.elastic.co
-AGENT_VERSION = $(shell echo $${BRANCH_NAME} | cut -f 2 -d 'v')
+AGENT_VERSION = $(shell echo $${GITHUB_REF_NAME} | cut -f 2 -d 'v')
 
 export AWS_FOLDER
 
 .PHONY: dist
-dist: validate-branch-name
+dist: validate-ref-name
 	../dev-utils/make-distribution.sh
 	@mkdir -p $(AWS_FOLDER)
-	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip
+	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(GITHUB_REF_NAME).zip
 
 .PHONY: clean
 clean:
@@ -59,7 +59,7 @@ publish: validate-layer-name validate-aws-default-region
 		--description "AWS Lambda Extension Layer for the Elastic APM Node.js Agent" \
 		--license "Apache-2.0" \
 		--compatible-runtimes nodejs18.x nodejs16.x nodejs14.x nodejs12.x nodejs10.x \
-		--zip-file "fileb://./$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip"
+		--zip-file "fileb://./$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(GITHUB_REF_NAME).zip"
 
 # Grant public access to the given LAYER in the given AWS region
 grant-public-layer-access: validate-layer-name validate-aws-default-region
@@ -83,12 +83,12 @@ get-version: validate-aws-default-region
 create-arn-file: validate-suffix-arn-file validate-release-notes-url
 	@./scripts/create-arn-table.sh
 
-github-release: validate-branch-name validate-suffix-arn-file
+github-release: validate-ref-name validate-suffix-arn-file
 	@gh release list
 	@gh \
 		release \
-		create $(BRANCH_NAME) \
-		--title '$(BRANCH_NAME)' \
+		create $(GITHUB_REF_NAME) \
+		--title '$(GITHUB_REF_NAME)' \
 		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
 
 validate-version:
@@ -96,9 +96,9 @@ ifndef AGENT_VERSION
 	$(error AGENT_VERSION is undefined)
 endif
 
-validate-branch-name:
-ifndef BRANCH_NAME
-	$(error BRANCH_NAME is undefined)
+validate-ref-name:
+ifndef GITHUB_REF_NAME
+	$(error GITHUB_REF_NAME is undefined)
 endif
 
 validate-suffix-arn-file:

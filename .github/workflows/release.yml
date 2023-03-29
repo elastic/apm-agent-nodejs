@@ -40,6 +40,7 @@ jobs:
       - run: make -C .ci env
 
       - run: make -C .ci dist
+
       - run: echo 'make -C .ci push-docker'
 
       - uses: hashicorp/vault-action@v2.5.0
@@ -55,12 +56,12 @@ jobs:
       - run: echo 'make -C .ci publish-in-all-aws-regions create-arn-file'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ github.ref_name }}
+          VERSION: ${{ env.GITHUB_REF_NAME }}
 
       - run: echo 'make -C .ci github-release'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ github.ref_name }}
+          VERSION: ${{ env.GITHUB_REF_NAME }}
 
       - uses: hashicorp/vault-action@v2.5.0
         with:
