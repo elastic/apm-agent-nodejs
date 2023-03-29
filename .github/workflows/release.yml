@@ -6,8 +6,6 @@ on:
       - v*.*.*
   ## For testing purposes
   pull_request:
-    branches:
-    - feature/release-action
 
 env:
   DOCKER_REGISTRY: docker.elastic.co
