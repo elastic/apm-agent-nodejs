@@ -8,6 +8,7 @@
     "@opentelemetry/exporter-prometheus": "^0.35.1",
     "@opentelemetry/resources": "^1.9.1",
     "@opentelemetry/sdk-metrics": "^1.9.1",
+    "@opentelemetry/sdk-node": "^0.36.1",
     "@opentelemetry/semantic-conventions": "^1.9.1",
     "elastic-apm-node": "file:../..",
     "fastify": "^4.12.0",
