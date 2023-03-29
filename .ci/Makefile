@@ -82,10 +82,10 @@ get-version: validate-aws-default-region
 	@grep '"Version"' "$(AWS_FOLDER)/$(AWS_DEFAULT_REGION).publish" | cut -d":" -f2 | sed 's/ //g' | cut -d"," -f1
 
 # Generate the file with the ARN entries
-create-arn-file: validate-suffix-arn-file validate-release-notes-url
+create-arn-file: validate-release-notes-url
 	@./scripts/create-arn-table.sh
 
-github-release: validate-ref-name validate-suffix-arn-file
+github-release: validate-ref-name
 	@gh release list
 	@gh \
 		release \
