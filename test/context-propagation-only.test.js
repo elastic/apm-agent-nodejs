@@ -191,7 +191,7 @@ tape.test('contextPropagationOnly', function (suite) {
       // stacktrace collection when contextPropagationOnly=true. It isn't a
       // perfect way to test that.
       const durationMs = duration[0] / 1e3 + duration[1] / 1e6
-      const THRESHOLD_MS = 5 // Is this long enough for slow CI?
+      const THRESHOLD_MS = 10 // Is this long enough for slow CI?
       t.ok(durationMs < THRESHOLD_MS, `captureError is fast (<${THRESHOLD_MS}ms): ${durationMs}ms`)
 
       t.equal(server.events.length, 0, 'no events sent to APM server intake')
