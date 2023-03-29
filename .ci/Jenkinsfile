@@ -34,7 +34,6 @@ pipeline {
   parameters {
     booleanParam(name: 'Run_As_Main_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on main branch.')
     booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
-    booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
     booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
   }
   stages {
@@ -51,11 +50,6 @@ pipeline {
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
         script {
           dir("${BASE_DIR}"){
-            def regexps =[
-              "^lib/instrumentation/modules/",
-              "^test/instrumentation/modules/"
-            ]
-            env.TAV_UPDATED = isGitRegionMatch(patterns: regexps)
 
             // Skip all the stages except docs for PR's with asciidoc or md changes only
             env.ONLY_DOCS = isGitRegionMatch(patterns: [ '.*\\.(asciidoc|md)' ], shouldMatchAll: true)
@@ -88,47 +82,6 @@ pipeline {
               def parallelTasks = [:]
               // Only 14 for the time being
               parallelTasks["Windows-Node.js-14"] = generateStepForWindows(version: '14')
-              parallel(parallelTasks)
-            }
-          }
-        }
-      }
-    }
-    /**
-      Run TAV tests.
-    */
-    stage('TAV Test') {
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-      }
-      when {
-        beforeAgent true
-        allOf {
-          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
-          anyOf {
-            expression { return params.Run_As_Main_Branch }
-            triggeredBy 'TimerTrigger'
-            changeRequest()
-            expression { return env.TAV_UPDATED != "false" }
-          }
-          expression { return params.tav_ci }
-          expression { return env.ONLY_DOCS == "false" }
-        }
-      }
-      steps {
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          script {
-            def tavContext = getSmartTAVContext()
-            withGithubNotify(context: tavContext.ghContextName, description: tavContext.ghDescription, tab: 'tests') {
-              def parallelTasks = [:]
-              tavContext.node['NODEJS_VERSION'].each{ version ->
-                tavContext.tav['TAV'].each{ tav_item ->
-                  parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version: version, tav: tav_item)
-                }
-              }
               parallel(parallelTasks)
             }
           }
@@ -283,7 +236,6 @@ pipeline {
 
 def generateStep(Map params = [:]){
   def version = params?.version
-  def tav = params.containsKey('tav') ? params.tav : ''
   def buildType = params.containsKey('buildType') ? params.buildType : 'release'
   def contextManager = params.get('disableAsyncHooks', false) ? 'patch' : ''
   return {
@@ -296,7 +248,7 @@ def generateStep(Map params = [:]){
           dir("${BASE_DIR}"){
             try {
               retryWithSleep(retries: 2, seconds: 5, backoff: true) {
-                sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" -t "${tav}" "${version}" """)
+                sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" "${version}" """)
               }
             } finally {
               junit(testResults: "test_output/*.junit.xml", allowEmptyResults: true, keepLongStdio: true)
@@ -308,54 +260,6 @@ def generateStep(Map params = [:]){
     }
   }
 }
-
-/**
-* Gather the TAV context for the current execution. Then the TAV stage will execute
-* the TAV using a smarter approach.
-*/
-def getSmartTAVContext() {
-   context = [:]
-   context.ghContextName = 'TAV Test'
-   context.ghDescription = context.ghContextName
-   context.node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
-
-   // Hard to debug what's going on as there are a few nested conditions. Let's then add more verbose output
-   echo """\
-   env.GITHUB_COMMENT=${env.GITHUB_COMMENT}
-   params.Run_As_Main_Branch=${params.Run_As_Main_Branch}
-   env.CHANGE_ID=${env.CHANGE_ID}
-   env.TAV_UPDATED=${env.TAV_UPDATED}""".stripIndent()
-
-   if (env.GITHUB_COMMENT) {
-     def modules = getModulesFromCommentTrigger(regex: 'run module tests for (.+)')
-     if (modules.isEmpty()) {
-       context.ghDescription = 'TAV Test disabled'
-       context.tav = readYaml(text: 'TAV:')
-       context.node = readYaml(text: 'NODEJS_VERSION:')
-     } else {
-       if (modules.find{ it == 'ALL' }) {
-         context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
-       } else {
-         context.ghContextName = 'TAV Test Subset'
-         context.ghDescription = 'TAV Test comment-triggered'
-         context.tav = readYaml(text: """TAV:${modules.collect{ it.replaceAll('"', '').replaceAll("'", '') }.collect{ "\n  - '${it}'"}.join("") }""")
-       }
-     }
-   } else if (params.Run_As_Main_Branch) {
-     context.ghDescription = 'TAV Test param-triggered'
-     context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
-   } else if (env.CHANGE_ID && env.TAV_UPDATED != "false") {
-     context.ghContextName = 'TAV Test Subset'
-     context.ghDescription = 'TAV Test changes-triggered'
-     sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
-     context.tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
-   } else {
-     context.ghDescription = 'TAV Test disabled'
-     context.tav = readYaml(text: 'TAV:')
-     context.node = readYaml(text: 'NODEJS_VERSION:')
-   }
-   return context
- }
 
 def generateStepForWindows(Map params = [:]){
   def version = params?.version
