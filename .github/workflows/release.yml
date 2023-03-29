@@ -35,7 +35,8 @@ jobs:
 
       - run: make -C .ci push-docker
 
-      - uses: hashicorp/vault-action@v2.5.0
+      - name: Read AWS vault secrets
+        uses: hashicorp/vault-action@v2.5.0
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: approle
@@ -45,7 +46,8 @@ jobs:
             secret/observability-team/ci/service-account/apm-aws-lambda access_key_id | AWS_ACCESS_KEY_ID ;
             secret/observability-team/ci/service-account/apm-aws-lambda secret_access_key | AWS_SECRET_ACCESS_KEY
 
-      - run: |-
+      - name: Publish AWS lambda
+        run: |-
           VERSION=$(cut -f 2 -d 'v' <<< $GITHUB_REF_NAME)
           MAJOR_VERSION=$(cut -d '.' -f 1 <<< "$VERSION")
           ELASTIC_LAYER_VERSION=$(sed 's#\.#-#g' <<< "$VERSION")
@@ -59,7 +61,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - uses: hashicorp/vault-action@v2.5.0
+      - name: Read NPM vault secrets
+        uses: hashicorp/vault-action@v2.5.0
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: approle
@@ -69,11 +72,13 @@ jobs:
             secret/jenkins-ci/npmjs/elasticmachine token | NPMJS_TOKEN ;
             totp/code/npmjs-elasticmachine code | TOTP_CODE
 
-      - run: |-
+      - name: npm publish
+        run: |-
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
           npm publish --otp=${{ env.TOTP_CODE }}
 
       - if: ${{ success() }}
+        name: slack message if success
         uses: elastic/apm-pipeline-library/.github/actions/slack-message@current
         with:
           url: ${{ secrets.VAULT_ADDR }}
@@ -85,6 +90,7 @@ jobs:
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
 
       - if: ${{ failure() }}
+        name: slack message if failure
         uses: elastic/apm-pipeline-library/.github/actions/slack-message@current
         with:
           url: ${{ secrets.VAULT_ADDR }}
