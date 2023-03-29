@@ -81,7 +81,7 @@ jobs:
           secretId: ${{ secrets.VAULT_SECRET_ID }}
           channel: "#apm-agent-node"
           message: |
-            :large_green_circle: [${{ github.repository }}] Release *${{ github.ref_name }}* published."
+            :large_green_circle: [${{ github.repository }}] Release *${{ github.ref_name }}* published.
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
 
       - if: ${{ failure() }}
@@ -92,5 +92,5 @@ jobs:
           secretId: ${{ secrets.VAULT_SECRET_ID }}
           channel: "#apm-agent-node"
           message: |
-            :large_yellow_circle: [${{ github.repository }}] Release *${{ github.ref_name }}* could not be published."
+            :large_yellow_circle: [${{ github.repository }}] Release *${{ github.ref_name }}* could not be published.
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
