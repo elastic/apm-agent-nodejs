@@ -1,0 +1,163 @@
+# Run a significant subset of tests on GitHub Actions.
+#
+# Examples of things *not* being run here currently that are run by
+# the Jenkins-based tests:
+# - a test run on windows
+# - the "TAV" tests that run against all supported versions of instrumented
+#   modules
+# - the integration tests that run with an apm-server
+# - code coverage (npm run coverage)
+
+name: Test
+
+# https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
+on:
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - '**/*.md'
+    - '**/*.asciidoc'
+    - 'docs/**'
+    - 'examples/**'
+  pull_request:
+    branches:
+    - main
+    paths-ignore:
+    - '**/*.md'
+    - '**/*.asciidoc'
+    - 'docs/**'
+    - 'examples/**'
+
+## Concurrency only allowed in the main branch.
+## So old builds running for old commits within the same Pull Request are cancelled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  test-vers:
+
+    # These services and their configuration should match test/docker-compose.yml.
+    services:
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+      memcached:
+        image: memcached:alpine
+        ports:
+          - 11211:11211
+
+      cassandra:
+        image: cassandra
+        ports:
+          - 9042:9042
+        env:
+          MAX_HEAP_SIZE: '1G'
+          HEAP_NEWSIZE: '400m'
+        volumes:
+          - nodecassandradata:/var/lib/cassandra
+
+      postgres:
+        image: postgres:9.6
+        ports:
+          - 5432:5432
+        volumes:
+          - nodepgdata:/var/lib/postgresql/data
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_DB: 'test_elastic_apm'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+
+      mongodb:
+        image: mongo:5
+        ports:
+          - 27017:27017
+        volumes:
+          - nodemongodata:/data/db
+
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        volumes:
+          - nodemysqldata:/var/lib/mysql
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
+
+      mssql:
+        image: mcr.microsoft.com/mssql/server
+        env:
+          ACCEPT_EULA: 'Y'
+          SA_PASSWORD: 'Very(!)Secure'
+          MSSQL_PID: 'Developer'
+        ports:
+          - 1433:1433
+        volumes:
+          - nodemssqldata:/var/opt/mssql
+
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.2.1
+        env:
+          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+          network.host: ''
+          transport.host: '127.0.0.1'
+          http.host: '0.0.0.0'
+          xpack.security.enabled: 'false'
+        ports:
+          - 9200:9200
+        volumes:
+          - nodeesdata:/usr/share/elasticsearch/data
+
+      localstack:
+        image: localstack/localstack:0.12.12
+        env:
+          LOCALSTACK_SERVICES: 's3'
+          DATA_DIR: '/var/lib/localstack'
+        ports:
+          - "4566:4566"
+        volumes:
+          - nodelocalstackdata:/var/lib/localstack
+
+    strategy:
+      matrix:
+        node:
+          - '19'
+          - '18'
+          - '18.0'
+          - '16'
+          - '16.0'
+          - '14'
+          - '14.0'
+          - '12'
+          - '12.0'
+          - '10'
+          - '10.0'
+          - '8'
+          - '8.6'
+        contextManager: [ 'patch', '' ]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+    - run: docker ps  # show the services against which we'll be testing
+    - run: npm install
+    - run: npm ls --all || true
+    - name: npm test
+      run: npm test
+      env:
+        ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
+    - uses: inception-health/otel-upload-test-artifact-action@v1
+      if: always()
+      continue-on-error: true
+      with:
+        jobName: "test-vers (${{ matrix.node }})"
+        stepName: "npm test"
+        path: "test_output/*.junit.xml"
+        type: "junit"
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
