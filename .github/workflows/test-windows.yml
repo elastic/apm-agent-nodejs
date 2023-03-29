@@ -1,6 +1,5 @@
-# Run a significant subset of tests on GitHub Actions.
-
-name: Test
+# Run a significant subset of tests on GitHub Actions on windows
+name: Test-Windows
 
 # https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
 on:
@@ -28,7 +27,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  test-vers:
+  test-windows:
 
     # These services and their configuration should match test/docker-compose.yml.
     services:
@@ -114,42 +113,12 @@ jobs:
         volumes:
           - nodelocalstackdata:/var/lib/localstack
 
-    strategy:
-      matrix:
-        node:
-          - '19'
-          - '18'
-          - '18.0'
-          - '16'
-          - '16.0'
-          - '14'
-          - '14.0'
-          - '12'
-          - '12.0'
-          - '10'
-          - '10.0'
-          - '8'
-          - '8.6'
-        contextManager: [ 'patch', '' ]
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node }}
-    - run: docker ps  # show the services against which we'll be testing
+        node-version: 14
     - run: npm install
     - run: npm ls --all || true
-    - name: npm test
-      run: npm test
-      env:
-        ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
-    - uses: inception-health/otel-upload-test-artifact-action@v1
-      if: always()
-      continue-on-error: true
-      with:
-        jobName: "test-vers (${{ matrix.node }})"
-        stepName: "npm test"
-        path: "test_output/*.junit.xml"
-        type: "junit"
-        githubToken: ${{ secrets.GITHUB_TOKEN }}
+    - run: npm test
