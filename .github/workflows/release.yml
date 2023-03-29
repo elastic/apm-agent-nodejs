@@ -4,20 +4,13 @@ on:
   push:
     tags:
       - v*.*.*
-  ## For testing purposes
-  pull_request:
-
-env:
-  DOCKER_REGISTRY: docker.elastic.co
-  ## TODO: remove this
-  DOCKER_IMAGE_NAME: observability-ci/apm-agent-nodejs-v1v
 
 permissions:
   contents: write
   pull-requests: read
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -53,7 +46,7 @@ jobs:
             secret/observability-team/ci/service-account/apm-aws-lambda secret_access_key | AWS_SECRET_ACCESS_KEY
 
       - run: |-
-          VERSION=$(echo $GITHUB_REF_NAME | cut -f 2 -d 'v' | sed 's#/merge##g')
+          VERSION=$(cut -f 2 -d 'v' <<< $GITHUB_REF_NAME)
           MAJOR_VERSION=$(cut -d '.' -f 1 <<< "$VERSION")
           ELASTIC_LAYER_VERSION=$(sed 's#\.#-#g' <<< "$VERSION")
           RELEASE_NOTES_URL="https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-${MAJOR_VERSION}.x.html#release-notes-${VERSION}" \
@@ -62,18 +55,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # As long as we test agains my forked repo
-      - uses: elastic/apm-pipeline-library/.github/actions/github-token@current
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-
       - run: make -C .ci github-release
         env:
-          # As long as we test agains my forked repo
-          #GH_TOKEN: ${{ github.token }}
-          GH_TOKEN: ${{ env.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
 
       - uses: hashicorp/vault-action@v2.5.0
         with:
@@ -87,7 +71,7 @@ jobs:
 
       - run: |-
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
-          npm publish --otp=${{ env.TOTP_CODE }} --dry-run
+          npm publish --otp=${{ env.TOTP_CODE }}
 
       - if: ${{ success() }}
         uses: elastic/apm-pipeline-library/.github/actions/slack-message@current
@@ -95,7 +79,7 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
-          channel: "#on-week-oblt-productivity"
+          channel: "#apm-agent-node"
           message: |
             :large_green_circle: [${{ github.repository }}] Release *${{ github.ref_name }}* published."
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
@@ -106,7 +90,7 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
-          channel: "#on-week-oblt-productivity"
+          channel: "#apm-agent-node"
           message: |
             :large_yellow_circle: [${{ github.repository }}] Release *${{ github.ref_name }}* could not be published."
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
