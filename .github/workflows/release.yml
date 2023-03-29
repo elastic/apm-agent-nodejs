@@ -37,6 +37,8 @@ jobs:
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
 
+      - run: make -C .ci env
+
       - run: make -C .ci dist
       - run: echo 'make -C .ci push-docker'
 

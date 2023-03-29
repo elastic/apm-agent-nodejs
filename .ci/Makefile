@@ -17,10 +17,10 @@ dist: validate-branch-name
 
 .PHONY: clean
 clean:
-	rm -rf $(AWS_FOLDER)
+	@rm -rf $(AWS_FOLDER)
 
 env:
-	env
+	@env | sort
 
 # Create Docker image
 build-docker: validate-version
