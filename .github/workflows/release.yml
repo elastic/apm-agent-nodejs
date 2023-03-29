@@ -59,7 +59,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - run: echo 'make -C .ci github-release'
+      - run: make -C .ci github-release
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -75,4 +75,4 @@ jobs:
 
       - run: |-
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
-          echo 'npm publish --otp=${{ env.TOTP_CODE }} --dry-run'
+          npm publish --otp=${{ env.TOTP_CODE }} --dry-run
