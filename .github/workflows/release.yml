@@ -59,9 +59,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      # As long as we test agains my forked repo
+      - uses: elastic/apm-pipeline-library/.github/actions/github-token@current
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+
       - run: make -C .ci github-release
         env:
-          GH_TOKEN: ${{ github.token }}
+          # As long as we test agains my forked repo
+          #GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ env.GITHUB_TOKEN }}
 
       - uses: hashicorp/vault-action@v2.5.0
         with:
