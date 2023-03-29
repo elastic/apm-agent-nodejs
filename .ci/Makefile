@@ -1,5 +1,5 @@
 SHELL = /bin/bash -eo pipefail
-
+MAKEFLAGS += --no-print-directory
 AWS_FOLDER = ../build/aws
 DIST_DIR = /build/dist/nodejs
 LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
