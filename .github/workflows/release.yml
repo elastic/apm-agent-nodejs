@@ -1,0 +1,77 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+  ## For testing purposes
+  pull_request:
+    branches:
+    - feature/release-action
+
+env:
+  DOCKER_REGISTRY: docker.elastic.co
+  SUFFIX_ARN_FILE: 'arn-file.md'
+  RELEASE_NOTES_URL: 'https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-3.x.html#release-notes-3.43.0'
+  ELASTIC_LAYER_NAME: 'elastic-apm-node-ver-1-2-3'
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 'v16.15.1'
+
+      - uses: elastic/apm-pipeline-library/.github/actions/docker-login@current
+        with:
+          registry: docker.elastic.co
+          secret: secret/observability-team/ci/docker-registry/prod
+          url: ${{ secrets.VAULT_ADDR }}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+
+      - run: make -C .ci dist
+      - run: echo 'make -C .ci push-docker'
+
+      - uses: hashicorp/vault-action@v2.5.0
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          secrets: |
+            secret/observability-team/ci/service-account/apm-aws-lambda access_key_id | AWS_ACCESS_KEY_ID ;
+            secret/observability-team/ci/service-account/apm-aws-lambda secret_access_key | AWS_SECRET_ACCESS_KEY
+
+      - run: echo 'make -C .ci publish-in-all-aws-regions create-arn-file'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ github.ref_name }}
+
+      - run: echo 'make -C .ci github-release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ github.ref_name }}
+
+      - uses: hashicorp/vault-action@v2.5.0
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          secrets: |
+            secret/jenkins-ci/npmjs/elasticmachine token | NPMJS_TOKEN ;
+            totp/code/npmjs-elasticmachine code | TOTP_CODE
+
+      - run: |-
+          echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
+          echo 'npm publish --otp=${{ env.TOTP_CODE }} --dry-run'
