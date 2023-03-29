@@ -3,7 +3,7 @@ SHELL = /bin/bash -eo pipefail
 AWS_FOLDER = ../build/aws
 DIST_DIR = /build/dist/nodejs
 LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
-DOCKER_IMAGE_NAME = observability/apm-agent-nodejs
+DOCKER_IMAGE_NAME ?= observability/apm-agent-nodejs
 DOCKER_REGISTRY = docker.elastic.co
 AGENT_VERSION = $(shell echo $${GITHUB_REF_NAME} | cut -f 2 -d 'v')
 ## TODO: as long as the GITHUB_REF_NAME points to a PR then let's use this temporary workaround.

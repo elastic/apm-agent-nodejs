@@ -12,6 +12,7 @@ env:
   SUFFIX_ARN_FILE: 'arn-file.md'
   RELEASE_NOTES_URL: 'https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-3.x.html#release-notes-3.43.0'
   ELASTIC_LAYER_NAME: 'elastic-apm-node-ver-1-2-3'
+  DOCKER_IMAGE_NAME: observability-ci/apm-agent-nodejs-v1v
 
 permissions:
   contents: write
@@ -41,7 +42,7 @@ jobs:
 
       - run: make -C .ci dist
 
-      - run: echo 'make -C .ci push-docker'
+      - run: make -C .ci build-docker
 
       - uses: hashicorp/vault-action@v2.5.0
         with:
