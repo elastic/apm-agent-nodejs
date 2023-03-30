@@ -104,6 +104,7 @@ const cases = [
       // All the transactions and spans, in timestamp order.
       const tas = events.slice(1)
         .sort((a, b) => (a.transaction || a.span).timestamp - (b.transaction || b.span).timestamp)
+      console.log('XXX tas:'); console.dir(tas, { depth: 5 })
       //  transaction "callServiceA"
       t.equal(tas[0].transaction.name, 'callServiceA')
       //  `- span "GET localhost:$portA" (context.http.url=http://localhost:$portA/a-ping)
