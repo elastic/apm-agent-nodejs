@@ -71,26 +71,11 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
           npm publish --otp=${{ env.TOTP_CODE }}
 
-      - if: ${{ success() }}
-        name: slack message if success
-        uses: elastic/apm-pipeline-library/.github/actions/slack-message@current
+      - if: always()
+        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
-          url: ${{ secrets.VAULT_ADDR }}
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          channel: "#apm-agent-node"
-          message: |
-            :elasticheart: [${{ github.repository }}] Release *${{ github.ref_name }}* published.
-            Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
-
-      - if: ${{ failure() }}
-        name: slack message if failure
-        uses: elastic/apm-pipeline-library/.github/actions/slack-message@current
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          channel: "#apm-agent-node"
-          message: |
-            :broken_heart: [${{ github.repository }}] Release *${{ github.ref_name }}* could not be published.
-            Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
+          vaultUrl: ${{ secrets.VAULT_ADDR }}
+          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
+          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
+          slackChannel: "#apm-agent-node"
+          message: '[${{ github.repository }}] Release *${{ github.ref_name }}*'
