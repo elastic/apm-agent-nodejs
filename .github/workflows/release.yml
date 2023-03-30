@@ -30,11 +30,11 @@ jobs:
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
 
-      - run: GITHUB_REF_NAME=0.0.1 make -C .ci env debug-env
+      - run: GITHUB_REF_NAME=v0.0.1 make -C .ci env debug-env
 
-      - run: GITHUB_REF_NAME=0.0.1 make -C .ci dist
+      - run: GITHUB_REF_NAME=v0.0.1 make -C .ci dist
 
-      - run: GITHUB_REF_NAME=0.0.1 make -C .ci push-docker
+      - run: GITHUB_REF_NAME=v0.0.1 make -C .ci push-docker
 
       - name: Read AWS vault secrets
         uses: hashicorp/vault-action@v2.5.0
@@ -48,7 +48,7 @@ jobs:
             secret/observability-team/ci/service-account/apm-aws-lambda secret_access_key | AWS_SECRET_ACCESS_KEY
 
       - name: Publish AWS lambda
-        run: GITHUB_REF_NAME=0.0.1 make -C .ci publish-in-all-aws-regions create-arn-file
+        run: GITHUB_REF_NAME=v0.0.1 make -C .ci publish-in-all-aws-regions create-arn-file
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -58,7 +58,7 @@ jobs:
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
 
-      - run: GITHUB_REF_NAME=0.0.1 make -C .ci github-release
+      - run: GITHUB_REF_NAME=v0.0.1 make -C .ci github-release
         env:
           GH_TOKEN: ${{ env.GITHUB_TOKEN }}
 
