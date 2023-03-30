@@ -94,7 +94,7 @@ get-version: validate-aws-default-region
 
 # Generate the file with the ARN entries
 create-arn-file: validate-release-notes-url
-	@./scripts/create-arn-table.sh
+	@RELEASE_NOTES_URL=$(RELEASE_NOTES_URL) ./scripts/create-arn-table.sh
 
 github-release: validate-ref-name
 	@gh release list
