@@ -1,26 +1,39 @@
 SHELL = /bin/bash -eo pipefail
-
+MAKEFLAGS += --no-print-directory
 AWS_FOLDER = ../build/aws
 DIST_DIR = /build/dist/nodejs
 LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
 DOCKER_IMAGE_NAME = observability/apm-agent-nodejs
 DOCKER_REGISTRY = docker.elastic.co
-AGENT_VERSION = $(shell echo $${BRANCH_NAME} | cut -f 2 -d 'v')
-
+SUFFIX_ARN_FILE = arn-file.md
+AGENT_VERSION = $(subst v,,$(GITHUB_REF_NAME))
+MAJOR_VERSION = $(shell cut -d '.' -f 1 <<< $(AGENT_VERSION))
+ELASTIC_LAYER_VERSION = $(subst .,-,$(AGENT_VERSION))
+RELEASE_NOTES_URL = https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-$(MAJOR_VERSION).x.html\#release-notes-$(AGENT_VERSION)
+ELASTIC_LAYER_NAME = elastic-apm-node-ver-$(ELASTIC_LAYER_VERSION)
 export AWS_FOLDER
 
 .PHONY: dist
-dist: validate-branch-name
+dist: validate-ref-name
 	../dev-utils/make-distribution.sh
 	@mkdir -p $(AWS_FOLDER)
-	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip
+	cp $(LAMBDA_LAYER_ZIP_FILE) $(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(GITHUB_REF_NAME).zip
+
+# Debug env variables created on the fly
+debug-env:
+	@echo "GITHUB_REF_NAME=$${GITHUB_REF_NAME}"
+	@echo "AGENT_VERSION=$(AGENT_VERSION)"
+	@echo "MAJOR_VERSION=$(MAJOR_VERSION)"
+	@echo "ELASTIC_LAYER_VERSION=$(ELASTIC_LAYER_VERSION)"
+	@echo "RELEASE_NOTES_URL=$(RELEASE_NOTES_URL)"
+	@echo "ELASTIC_LAYER_NAME=$(ELASTIC_LAYER_NAME)"
 
 .PHONY: clean
 clean:
-	rm -rf $(AWS_FOLDER)
+	@rm -rf $(AWS_FOLDER)
 
 env:
-	env
+	@env | sort
 
 # Create Docker image
 build-docker: validate-version
@@ -59,7 +72,7 @@ publish: validate-layer-name validate-aws-default-region
 		--description "AWS Lambda Extension Layer for the Elastic APM Node.js Agent" \
 		--license "Apache-2.0" \
 		--compatible-runtimes nodejs18.x nodejs16.x nodejs14.x nodejs12.x nodejs10.x \
-		--zip-file "fileb://./$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(BRANCH_NAME).zip"
+		--zip-file "fileb://./$(AWS_FOLDER)/elastic-apm-node-lambda-layer-$(GITHUB_REF_NAME).zip"
 
 # Grant public access to the given LAYER in the given AWS region
 grant-public-layer-access: validate-layer-name validate-aws-default-region
@@ -80,15 +93,15 @@ get-version: validate-aws-default-region
 	@grep '"Version"' "$(AWS_FOLDER)/$(AWS_DEFAULT_REGION).publish" | cut -d":" -f2 | sed 's/ //g' | cut -d"," -f1
 
 # Generate the file with the ARN entries
-create-arn-file: validate-suffix-arn-file validate-release-notes-url
-	@./scripts/create-arn-table.sh
+create-arn-file: validate-release-notes-url
+	@RELEASE_NOTES_URL=$(RELEASE_NOTES_URL) ./scripts/create-arn-table.sh
 
-github-release: validate-branch-name validate-suffix-arn-file
+github-release: validate-ref-name
 	@gh release list
 	@gh \
 		release \
-		create $(BRANCH_NAME) \
-		--title '$(BRANCH_NAME)' \
+		create $(GITHUB_REF_NAME) \
+		--title '$(GITHUB_REF_NAME)' \
 		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
 
 validate-version:
@@ -96,14 +109,9 @@ ifndef AGENT_VERSION
 	$(error AGENT_VERSION is undefined)
 endif
 
-validate-branch-name:
-ifndef BRANCH_NAME
-	$(error BRANCH_NAME is undefined)
-endif
-
-validate-suffix-arn-file:
-ifndef SUFFIX_ARN_FILE
-	$(error SUFFIX_ARN_FILE is undefined)
+validate-ref-name:
+ifndef GITHUB_REF_NAME
+	$(error GITHUB_REF_NAME is undefined)
 endif
 
 validate-layer-name:
