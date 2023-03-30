@@ -27,6 +27,11 @@ var mockClient = require('../../_mock_http_client')
 var findObjInArray = require('../../_utils').findObjInArray
 const constants = require('../../../lib/constants')
 
+if (semver.satisfies(process.version, '8.x')) {
+  console.log('# SKIP http2 testing on node v8.x is crashy in CI')
+  process.exit()
+}
+
 var isSecure = [false, true]
 isSecure.forEach(secure => {
   var method = secure ? 'createSecureServer' : 'createServer'
