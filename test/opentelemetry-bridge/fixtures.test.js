@@ -97,36 +97,38 @@ const cases = [
     //      `- transaction "GET unknown route" (context.request.headers.{traceparent,tracestate})
     //         `- span "GET localhost:$portB" (context.http.url=http://localhost:$portB/b-ping)
     //           `- transaction "GET unknown route" (context.request.headers.{traceparent,tracestate})
+    //
+    // Dev Note: On Windows GitHub Actions runners the timestamp ordering of
+    // the transaction and span events is not reliable.
     script: 'distributed-trace.js',
     check: (t, events) => {
+      let e
+
       t.equal(events.length, 6, 'exactly 6 events')
       t.ok(events[0].metadata, 'APM server got event metadata object')
-      // All the transactions and spans, in timestamp order.
-      const tas = events.slice(1)
-        .sort((a, b) => (a.transaction || a.span).timestamp - (b.transaction || b.span).timestamp)
-      console.log('XXX tas:'); console.dir(tas, { depth: 5 })
       //  transaction "callServiceA"
-      t.equal(tas[0].transaction.name, 'callServiceA')
+      e = findObjInArray(events, 'transaction.name', 'callServiceA')
+      t.equal(e.transaction.parent_id, undefined, 'trans "callServiceA" has no parent_id')
       //  `- span "GET localhost:$portA" (context.http.url=http://localhost:$portA/a-ping)
-      const portA = tas[1].span.context.destination.port
-      t.equal(tas[1].span.parent_id, tas[0].transaction.id)
-      t.equal(tas[1].span.name, `GET localhost:${portA}`)
-      t.ok(tas[1].span.context.http.url, `http://localhost:${portA}/a-ping`)
+      e = findObjInArray(events, 'span.parent_id', e.transaction.id)
+      const portA = e.span.context.destination.port
+      t.equal(e.span.name, `GET localhost:${portA}`)
+      t.ok(e.span.context.http.url, `http://localhost:${portA}/a-ping`)
       //    `- transaction "GET unknown route" (context.request.headers.{traceparent,tracestate})
-      t.equal(tas[2].transaction.parent_id, tas[1].span.id)
-      t.equal(tas[2].transaction.name, 'GET unknown route')
-      t.ok(tas[2].transaction.context.request.headers.traceparent)
-      t.equal(tas[2].transaction.context.request.headers.tracestate, 'es=s:1')
+      e = findObjInArray(events, 'transaction.parent_id', e.span.id)
+      t.equal(e.transaction.name, 'GET unknown route')
+      t.ok(e.transaction.context.request.headers.traceparent)
+      t.equal(e.transaction.context.request.headers.tracestate, 'es=s:1')
       //       `- span "GET localhost:$portB" (context.http.url=http://localhost:$portB/b-ping)
-      const portB = tas[3].span.context.destination.port
-      t.equal(tas[3].span.parent_id, tas[2].transaction.id)
-      t.equal(tas[3].span.name, `GET localhost:${portB}`)
-      t.ok(tas[3].span.context.http.url, `http://localhost:${portB}/b-ping`)
+      e = findObjInArray(events, 'span.parent_id', e.transaction.id)
+      const portB = e.span.context.destination.port
+      t.equal(e.span.name, `GET localhost:${portB}`)
+      t.ok(e.span.context.http.url, `http://localhost:${portB}/b-ping`)
       //         `- transaction "GET unknown route" (context.request.headers.{traceparent,tracestate})
-      t.equal(tas[4].transaction.parent_id, tas[3].span.id)
-      t.equal(tas[4].transaction.name, 'GET unknown route')
-      t.ok(tas[4].transaction.context.request.headers.traceparent)
-      t.equal(tas[4].transaction.context.request.headers.tracestate, 'es=s:1')
+      e = findObjInArray(events, 'transaction.parent_id', e.span.id)
+      t.equal(e.transaction.name, 'GET unknown route')
+      t.ok(e.transaction.context.request.headers.traceparent)
+      t.equal(e.transaction.context.request.headers.tracestate, 'es=s:1')
     }
   },
 
