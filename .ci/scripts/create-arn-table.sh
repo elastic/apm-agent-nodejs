@@ -10,6 +10,8 @@ set -o pipefail
 
 ARN_FILE=arn-file.md
 
+echo "RELEASE_NOTES_URL=${RELEASE_NOTES_URL}"
+
 {
 	echo "For more information, please see the [changelog](${RELEASE_NOTES_URL})."
 	echo ''
