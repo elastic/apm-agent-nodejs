@@ -163,4 +163,4 @@ jobs:
         node-version: 14
     - run: npm install
     - run: npm ls --all || true
-    - run: npm test
+    - run: node test/test.js
