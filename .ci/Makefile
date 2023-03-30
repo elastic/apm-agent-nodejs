@@ -102,8 +102,7 @@ github-release: validate-ref-name
 		release \
 		create $(GITHUB_REF_NAME) \
 		--title '$(GITHUB_REF_NAME)' \
-		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE) \
-		--repo v1v/apm-agent-nodejs
+		--notes-file $(AWS_FOLDER)/$(SUFFIX_ARN_FILE)
 
 validate-version:
 ifndef AGENT_VERSION
