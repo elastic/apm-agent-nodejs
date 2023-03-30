@@ -19,7 +19,7 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    issueCommentTrigger("(^run benchmark tests.*)")
+    issueCommentTrigger("^run benchmark tests.*")
   }
   parameters {
     booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
