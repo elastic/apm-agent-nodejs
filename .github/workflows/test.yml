@@ -1,5 +1,3 @@
-# Run a significant subset of tests on GitHub Actions.
-
 name: Test
 
 # https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
@@ -32,7 +30,6 @@ jobs:
 
     # These services and their configuration should match test/docker-compose.yml.
     services:
-
       redis:
         image: redis
         ports:
@@ -163,4 +160,5 @@ jobs:
         node-version: 14
     - run: npm install
     - run: npm ls --all || true
+    # Run a subset of tests that we can reasonably get running on Windows CI.
     - run: node test/test.js
