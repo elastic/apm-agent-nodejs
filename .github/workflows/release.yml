@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - v*.*.*
+  pull_request:
 
 permissions:
   contents: write
@@ -29,11 +30,11 @@ jobs:
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
 
-      - run: make -C .ci env
+      - run: GITHUB_REF_NAME=0.0.1 make -C .ci env debug-env
 
-      - run: make -C .ci dist
+      - run: GITHUB_REF_NAME=0.0.1 make -C .ci dist
 
-      - run: make -C .ci push-docker
+      - run: GITHUB_REF_NAME=0.0.1 make -C .ci push-docker
 
       - name: Read AWS vault secrets
         uses: hashicorp/vault-action@v2.5.0
@@ -47,13 +48,19 @@ jobs:
             secret/observability-team/ci/service-account/apm-aws-lambda secret_access_key | AWS_SECRET_ACCESS_KEY
 
       - name: Publish AWS lambda
-        run: make -C .ci publish-in-all-aws-regions create-arn-file
+        run: GITHUB_REF_NAME=0.0.1 make -C .ci publish-in-all-aws-regions create-arn-file
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - run: make -C .ci github-release
+      - uses: elastic/apm-pipeline-library/.github/actions/github-token@current
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+
+      - run: GITHUB_REF_NAME=0.0.1 make -C .ci github-release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ env.GITHUB_TOKEN }}
 
       - name: Read NPM vault secrets
         uses: hashicorp/vault-action@v2.5.0
@@ -69,7 +76,7 @@ jobs:
       - name: npm publish
         run: |-
           echo "//registry.npmjs.org/:_authToken=${{ env.NPMJS_TOKEN }}" > .npmrc
-          npm publish --otp=${{ env.TOTP_CODE }}
+          npm publish --otp=${{ env.TOTP_CODE }} --dry-run
 
       - if: always()
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
@@ -77,5 +84,5 @@ jobs:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          slackChannel: "#apm-agent-node"
+          slackChannel: "#on-week-oblt-productivity"
           message: '[${{ github.repository }}] Release *${{ github.ref_name }}*'

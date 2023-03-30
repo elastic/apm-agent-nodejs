@@ -3,14 +3,14 @@ MAKEFLAGS += --no-print-directory
 AWS_FOLDER = ../build/aws
 DIST_DIR = /build/dist/nodejs
 LAMBDA_LAYER_ZIP_FILE = ../build/dist/elastic-apm-node-lambda-layer.zip
-DOCKER_IMAGE_NAME = observability/apm-agent-nodejs
+DOCKER_IMAGE_NAME = observability-ci/apm-agent-nodejs-v1v
 DOCKER_REGISTRY = docker.elastic.co
 SUFFIX_ARN_FILE = arn-file.md
 AGENT_VERSION = $(subst v,,$(GITHUB_REF_NAME))
 MAJOR_VERSION = $(shell cut -d '.' -f 1 <<< $(AGENT_VERSION))
 ELASTIC_LAYER_VERSION = $(subst .,-,$(AGENT_VERSION))
 RELEASE_NOTES_URL = https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-$(MAJOR_VERSION).x.html\#release-notes-$(AGENT_VERSION)
-ELASTIC_LAYER_NAME = elastic-apm-node-ver-$(ELASTIC_LAYER_VERSION)
+ELASTIC_LAYER_NAME = v1v-elastic-apm-node-ver-$(ELASTIC_LAYER_VERSION)
 export AWS_FOLDER
 
 .PHONY: dist
