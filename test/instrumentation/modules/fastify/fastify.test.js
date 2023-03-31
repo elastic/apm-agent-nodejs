@@ -33,6 +33,10 @@ const mockClient = require('../../../_mock_http_client')
 test('transaction name', function (t) {
   t.plan(5)
 
+  if (process.version === '10.0.0') {
+    t.fail('XXX boom on 10.0.0 only, to test fail-fast=false change')
+  }
+
   resetAgent(data => {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
