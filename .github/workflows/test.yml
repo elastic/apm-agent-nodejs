@@ -158,6 +158,7 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 14
+        cache: 'npm'
     - run: npm install
     - run: npm ls --all || true
     # Run a subset of tests that we can reasonably get running on Windows CI.
