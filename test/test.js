@@ -28,9 +28,6 @@ function getDirectoriesWithTests (path = './test', results = [], exclude = []) {
   const result = fs.readdirSync(path)
   for (const file of result) {
     const pathToTest = `${path}/${file}`
-    console.log('XXX pathToTest: ', pathToTest)
-    // XXX pathToTest:  ./test/instrumentation/modules/next/a-nextjs-app/node_modules/tslib/tslib.js
-    // XXX just use glob??
     if (
       file.indexOf('.test.js') !== -1 && // is a test file
       results.indexOf(path) === -1 && // has not been found yet
@@ -187,9 +184,7 @@ var directories = getDirectoriesWithTests(
   [
     './test/start/env',
     './test/start/file',
-    './test/activation-method/fixtures',
-    './test/instrumentation/modules/next/a-nextjs-app',
-    './test/instrumentation/azure-functions/fixtures'
+    './test/activation-method/fixtures'
   ]
 )
 
