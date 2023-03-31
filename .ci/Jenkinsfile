@@ -9,7 +9,7 @@ pipeline {
     PIPELINE_LOG_LEVEL = 'INFO'
   }
   options {
-    timeout(time: 3, unit: 'HOURS')
+    timeout(time: 1, unit: 'HOURS')
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '20', daysToKeepStr: '30'))
     timestamps()
     ansiColor('xterm')
@@ -19,11 +19,10 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    issueCommentTrigger("(${obltGitHubComments()}|^run (module|benchmark) tests.*)")
+    issueCommentTrigger("^run benchmark tests.*")
   }
   parameters {
     booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
-    booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
   }
   stages {
     /**
@@ -37,44 +36,6 @@ pipeline {
         gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true,
                     shallow: false, reference: "/var/lib/jenkins/.git-references/${REPO}.git")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
-        script {
-          dir("${BASE_DIR}"){
-
-            // Skip all the stages except docs for PR's with asciidoc or md changes only
-            env.ONLY_DOCS = isGitRegionMatch(patterns: [ '.*\\.(asciidoc|md)' ], shouldMatchAll: true)
-          }
-        }
-      }
-    }
-    /**
-      Run tests.
-    */
-    stage('Test') {
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-      }
-      when {
-        beforeAgent true
-        allOf {
-          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
-          expression { return env.ONLY_DOCS == "false" }
-          expression { return params.tests_ci }
-        }
-      }
-      steps {
-        withGithubNotify(context: 'Test', tab: 'tests') {
-          deleteDir()
-          unstash 'source'
-          dir("${BASE_DIR}"){
-            script {
-              def parallelTasks = [:]
-              // Only 14 for the time being
-              parallelTasks["Windows-Node.js-14"] = generateStepForWindows(version: '14')
-              parallel(parallelTasks)
-            }
-          }
-        }
       }
     }
     /**
@@ -94,7 +55,6 @@ pipeline {
         allOf {
           anyOf {
             branch 'main'
-            expression { return params.Run_As_Main_Branch }
             expression { return env.GITHUB_COMMENT?.contains('benchmark tests') }
           }
           expression { return params.bench_ci }
@@ -129,92 +89,4 @@ pipeline {
       notifyBuildResult()
     }
   }
-}
-
-def generateStep(Map params = [:]){
-  def version = params?.version
-  def buildType = params.containsKey('buildType') ? params.buildType : 'release'
-  def contextManager = params.get('disableAsyncHooks', false) ? 'patch' : ''
-  return {
-    withNode(labels: 'linux && immutable', forceWorkspace: true, forceWorker: true) {
-      withEnv(["VERSION=${version}", "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}"]) {
-        deleteDir()
-        unstash 'source'
-        // Grab the current docker context for helping to troubleshoot the docker containers using filebeat and metricbeat
-        dockerContext(filebeatOutput: "docker-${version}-${buildType}.log", metricbeatOutput: "docker-${version}-${buildType}-metricbeat.log", archiveOnlyOnFail: true){
-          dir("${BASE_DIR}"){
-            try {
-              retryWithSleep(retries: 2, seconds: 5, backoff: true) {
-                sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" "${version}" """)
-              }
-            } finally {
-              junit(testResults: "test_output/*.junit.xml", allowEmptyResults: true, keepLongStdio: true)
-              archiveArtifacts(artifacts: "test_output/*.tap", allowEmptyArchive: true)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-def generateStepForWindows(Map params = [:]){
-  def version = params?.version
-  def contextManager = params.get('disableAsyncHooks', false) ? 'patch' : ''
-  return {
-    sh label: 'Prepare services', script: ".ci/scripts/windows/prepare-test.sh ${version}"
-    def linuxIp = grabWorkerIP()
-    withNode(labels: 'windows-2019-docker-immutable', forceWorkspace: true, forceWorker: true) {
-      // When installing with choco the PATH might not be updated within the already connected worker.
-      withEnv(["PATH=${PATH};C:\\Program Files\\nodejs",
-               "VERSION=${version}",
-               "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}",
-               "CASSANDRA_HOST=${linuxIp}",
-               "ES_HOST=${linuxIp}",
-               "LOCALSTACK_HOST=${linuxIp}",
-               "MEMCACHED_HOST=${linuxIp}",
-               "MONGODB_HOST=${linuxIp}",
-               "MSSQL_HOST=${linuxIp}",
-               "MYSQL_HOST=${linuxIp}",
-               "PGHOST=${linuxIp}",
-               "REDIS_HOST=${linuxIp}"]) {
-        try {
-          deleteDir()
-          unstash 'source'
-          dir(BASE_DIR) {
-            bat label: 'Ping linux worker', script: "ping -n 3 ${linuxIp}"
-            installTools([ [tool: 'nodejs-lts', version: "${version}" ] ])
-            bat label: 'Tool versions', script: '''
-              npm --version
-              node --version
-            '''
-            retryWithSleep(retries: 2, sideEffect: { bat 'npm cache clean --force' }) {
-                bat 'npm install'
-            }
-            bat 'node test/test.js'
-          }
-        } catch(e){
-          error(e.toString())
-        } finally {
-          echo 'JUnit archiving no yet in place'
-        }
-      }
-    }
-
-    // If the above execution failed, then it will not reach this section. TBD
-    sh label: 'Stop services', script: ".ci/scripts/windows/stop-test.sh ${version}"
-  }
-}
-
-
-def grabWorkerIP(){
-  def linuxIp = ''
-  retryWithSleep(retries: 3, seconds: 5, backoff: true){
-    linuxIp = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)?.trim()
-    log(level: 'INFO', text: "Worker IP '${linuxIp}'")
-    if(!linuxIp?.trim()){
-      error('Unable to get the Linux worker IP')
-    }
-  }
-  return linuxIp
 }
