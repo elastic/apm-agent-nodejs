@@ -98,6 +98,12 @@ function deep (depth, n) {
 test('#getServiceName()', function (t) {
   const agent = new Agent()
 
+  if (process.version === 'v10.0.0') {
+    t.fail('XXX boom on 10.0.0 only, to test fail-fast=false change')
+  } else {
+    t.comment('XXX no boom on node ' + process.version)
+  }
+
   // Before agent.start() the agent hasn't configured yet.
   t.ok(!agent.isStarted(), 'agent should not have been started yet')
   t.strictEqual(agent.getServiceName(), undefined)
