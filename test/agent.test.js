@@ -34,7 +34,10 @@ const agentOpts = {
   metricsInterval: '0s',
   cloudProvider: 'none',
   spanStackTraceMinDuration: 0, // Always have span stacktraces.
-  logLevel: 'warn'
+  logLevel: 'warn',
+  // Ensure the APM client's `GET /` requests do not get in the way of test
+  // asserts. Also ensure it is new enough to include 'activation_method'.
+  apmServerVersion: '8.7.1'
 }
 const agentOptsNoopTransport = Object.assign(
   {},
@@ -574,12 +577,7 @@ test('filters', function (t) {
       filterAgentOpts = Object.assign(
         {},
         agentOpts,
-        {
-          serverUrl,
-          // Ensure the APM client's `GET /` requests do not get in the way of
-          // the test asserts below.
-          apmServerVersion: '8.0.0'
-        }
+        { serverUrl }
       )
       t.end()
     })

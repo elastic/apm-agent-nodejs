@@ -32,11 +32,27 @@ Notes:
 === Node.js Agent version 3.x
 
 
-[[release-notes-3.43.0]]
-==== 3.43.0 2023/03/02
+==== Unreleased
 
 [float]
 ===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Ensure `metadata.service.agent.activation_method` is only sent for APM
+  server version 8.7.1 or later. APM server 8.7.0 included a bug where
+  receiving `activation_method` is harmful. ({issues}3230[#3230])
+
+[float]
+===== Chores
+
+
+[[release-notes-3.43.0]]
+==== 3.43.0 2023/03/02
 
 [float]
 ===== Features
@@ -55,7 +71,7 @@ Notes:
 
 * Make `Agent.flush()` return a `Promise` if no callback is passed as param.
   This means that flush is now `await`able: `await apm.flush()`.
-  ({issues}2857(#2857))
+  ({issues}2857[#2857])
 
 [float]
 ===== Bug fixes
