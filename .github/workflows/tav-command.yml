@@ -20,6 +20,7 @@ jobs:
     outputs:
       versions: ${{ steps.generate-matrix.outputs.versions }}
       modules: ${{ steps.generate-matrix.outputs.modules }}
+      pull-request: ${{ steps.generate-matrix.outputs.pull-request }}
     steps:
     - name: Validate github comment
       uses: elastic/apm-pipeline-library/.github/actions/validate-github-comment@current
@@ -50,7 +51,7 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
-          ref: refs/pull/${{ env.PR_NUMBER }}/merge
+          ref: refs/pull/${{ needs.command-validation.outputs.pull-request }}/merge
 
       - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"
         env:
