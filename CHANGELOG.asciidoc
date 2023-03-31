@@ -40,12 +40,12 @@ Notes:
 [float]
 ===== Features
 
+[float]
+===== Bug fixes
+
 * Ensure `metadata.service.agent.activation_method` is only sent for APM
   server version 8.7.1 or later. APM server 8.7.0 included a bug where
   receiving `activation_method` is harmful. ({issues}3230[#3230])
-
-[float]
-===== Bug fixes
 
 
 [float]
