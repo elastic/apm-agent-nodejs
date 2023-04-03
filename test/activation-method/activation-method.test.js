@@ -107,7 +107,7 @@ tape.test('metadata.system.agent.activation_method fixtures', function (suite) {
 
     const envStr = c.env ? Object.keys(c.env).map(k => `${k}="${c.env[k]}"`).join(' ') : ''
     suite.test(`${envStr} node ${(c.nodeOpts || []).join(' ')} ${c.script}`, t => {
-      const server = new MockAPMServer()
+      const server = new MockAPMServer({ apmServerVersion: '8.7.1' })
       const args = c.nodeOpts || []
       args.push(c.script)
       server.start(function (serverUrl) {
