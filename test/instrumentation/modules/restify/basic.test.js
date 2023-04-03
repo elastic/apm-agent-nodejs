@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 const isRestifyIncompat = require('../../../_is_restify_incompat')()
 if (isRestifyIncompat) {
   console.log(`# SKIP ${isRestifyIncompat}`)

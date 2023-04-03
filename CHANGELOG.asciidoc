@@ -31,6 +31,23 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Update the <<opentelemetry-bridge>> supported version of `@opentelemetry/api`
+  to version 1.4.x. ({pull}3239[#3239])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
 
 ==== Unreleased
 

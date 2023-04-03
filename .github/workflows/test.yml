@@ -1,13 +1,3 @@
-# Run a significant subset of tests on GitHub Actions.
-#
-# Examples of things *not* being run here currently that are run by
-# the Jenkins-based tests:
-# - a test run on windows
-# - the "TAV" tests that run against all supported versions of instrumented
-#   modules
-# - the integration tests that run with an apm-server
-# - code coverage (npm run coverage)
-
 name: Test
 
 # https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
@@ -40,7 +30,6 @@ jobs:
 
     # These services and their configuration should match test/docker-compose.yml.
     services:
-
       redis:
         image: redis
         ports:
@@ -123,6 +112,7 @@ jobs:
           - nodelocalstackdata:/var/lib/localstack
 
     strategy:
+      fail-fast: false
       matrix:
         node:
           - '19'
@@ -161,3 +151,19 @@ jobs:
         path: "test_output/*.junit.xml"
         type: "junit"
         githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        # What Node.js version to test on Windows is a balance between which
+        # is the current LTS version (https://github.com/nodejs/release) and
+        # which version more of our users are using.
+        node-version: 16
+        cache: 'npm'
+    - run: npm install
+    - run: npm ls --all || true
+    # Run a subset of tests that we can reasonably get running on Windows CI.
+    - run: node test/test.js

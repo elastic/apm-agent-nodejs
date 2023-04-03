@@ -8,6 +8,8 @@ Setup dependencies via:
 
 To run a script using the **Elastic Node.js APM Agent** use:
 
+    export ELASTIC_APM_SERVER_URL=https://...  # your Elastic APM Server URL
+    export ELASTIC_APM_SECRET_TOKEN=...
     export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
     node -r elastic-apm-node/start.js THE-SCRIPT.js
 

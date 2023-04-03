@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 // this test file is about testing `legacyMode`
 // https://github.com/redis/node-redis/blob/HEAD/docs/v3-to-v4.md#legacy-mode
 const redisVersion = require('redis/package.json').version
