@@ -24,7 +24,9 @@ without any vendor lock-in from adding manual tracing using the APM agent's own
 
 The goal of the OpenTelemetry bridge is to allow using the OpenTelemetry API
 with the APM agent. ① First, you will need to add those dependencies to your
-project. The minimum required OpenTelemetry API version is 1.0.0. For example:
+project. The minimum required OpenTelemetry API version is 1.0.0; see
+<<compatibility-opentelemetry,the OpenTelemetry compatibility section>> for the
+current maximum supported API version. For example:
 
 [source,bash]
 ----
@@ -128,10 +130,11 @@ The Metrics API is currently not supported.
 
 [float]
 [[otel-span-links]]
-===== Span Links
+===== Span Link Attributes
+
 Adding links when
 https://open-telemetry.github.io/opentelemetry-js-api/interfaces/tracer.html[starting a span]
-are not currently supported. Any given links will be silently dropped.
+*is* currently supported, but any span link *attributes are silently dropped*.
 
 [float]
 [[otel-span-events]]
