@@ -99,6 +99,20 @@ These are the frameworks that we officially support:
 |=======================================================================
 
 [float]
+[[compatibility-opentelemetry]]
+=== OpenTelemetry
+
+The Node.js Elastic APM agent supports usage of the OpenTelemetry Tracing API
+via its <<opentelemetry-bridge>>.
+
+[options="header"]
+|=======================================================================
+| Framework                                   | Version
+| <<opentelemetry-bridge,@opentelemetry/api>> | >=1.0.0 <1.5.0
+|=======================================================================
+
+
+[float]
 [[compatibility-custom-transactions]]
 === Custom Transactions
 

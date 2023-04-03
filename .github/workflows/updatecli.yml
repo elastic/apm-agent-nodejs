@@ -1,4 +1,4 @@
-name: update-specs
+name: updatecli
 
 on:
   workflow_dispatch: ~
@@ -14,13 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: elastic/apm-pipeline-library/.github/actions/updatecli@current
-        env:
-          BRANCH_NAME: ${{ github.ref_name }}
         with:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          pipeline: ./.ci/update-specs.yml
+          pipeline: .ci/updatecli.d
       - if: failure()
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:

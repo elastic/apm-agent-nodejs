@@ -1,0 +1,79 @@
+name: TAV
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+    - '**/*.md'
+    - '**/*.asciidoc'
+    - 'docs/**'
+    - 'examples/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# limit the access of the generated GITHUB_TOKEN
+permissions:
+  contents: read
+
+jobs:
+  test-tav:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      max-parallel: 30
+      fail-fast: false
+      matrix:
+        node:
+          - "19"
+          - "18"
+          - "16"
+          - "14"
+          - "12"
+          - "10"
+          - "8"
+        module:
+          - '@elastic/elasticsearch'
+          - '@elastic/elasticsearch-canary'
+          - '@hapi/hapi'
+          - '@koa/router'
+          - '@opentelemetry/api'
+          - apollo-server-express
+          - aws-sdk
+          - bluebird
+          - cassandra-driver
+          - elasticsearch
+          - express
+          - express-graphql
+          - express-queue
+          - fastify
+          - finalhandler
+          - generic-pool
+          - got
+          - graphql
+          - handlebars
+          - ioredis
+          - knex
+          - koa-router
+          - memcached
+          - mimic-response
+          - mongodb
+          - mongodb-core
+          - mysql
+          - mysql2
+          - next
+          - pg
+          - pug
+          - redis
+          - restify
+          - tedious
+          - undici
+          - ws
+    steps:
+      - uses: actions/checkout@v3
+      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"
+        env:
+          ELASTIC_APM_CONTEXT_MANAGER: ''

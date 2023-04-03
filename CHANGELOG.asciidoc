@@ -31,6 +31,23 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Update the <<opentelemetry-bridge>> supported version of `@opentelemetry/api`
+  to version 1.4.x. ({pull}3239[#3239])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
 
 [[release-notes-3.43.0]]
 ==== 3.43.0 2023/03/02
@@ -72,9 +89,6 @@ Notes:
 
 * Add missing <<opentelemetry-bridge-enabled>> ({pull}3121[#3121]) and
   <<context-manager>> Agent configuration options to the TypeScript types.
-
-[float]
-===== Chores
 
 
 [[release-notes-3.42.0]]
@@ -174,6 +188,11 @@ s3-prefix).
 
 [[release-notes-3.40.0]]
 ==== 3.40.0 2022/10/31
+
+**Note**: This was a bad release. Users should upgrade to v3.40.1 or later.
+This version of the agent could enter a tight loop re-fetching central config,
+which increases network traffic, CPU usage, and load on the APM server.
+See {issues}3029[issue #3029] for details.
 
 [float]
 ===== Features

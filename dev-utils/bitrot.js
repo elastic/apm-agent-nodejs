@@ -192,6 +192,8 @@ function loadSupportedDoc () {
         moduleNames = ['next']
       } else if (match[2] === '@hapi/hapi') {
         moduleNames = [match[2]]
+      } else if (match[2] === '@opentelemetry/api') {
+        moduleNames = [match[2]]
       } else if (match[1] === 'koa') {
         moduleNames = ['koa-router', '@koa/router']
       } else if (match[1] === 'azure-functions') {
