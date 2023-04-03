@@ -24,7 +24,9 @@ without any vendor lock-in from adding manual tracing using the APM agent's own
 
 The goal of the OpenTelemetry bridge is to allow using the OpenTelemetry API
 with the APM agent. ① First, you will need to add those dependencies to your
-project. The minimum required OpenTelemetry API version is 1.0.0. For example:
+project. The minimum required OpenTelemetry API version is 1.0.0; see
+<<compatibility-opentelemetry,the OpenTelemetry compatibility section>> for the
+current maximum supported API version. For example:
 
 [source,bash]
 ----
