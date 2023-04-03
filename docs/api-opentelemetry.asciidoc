@@ -130,10 +130,11 @@ The Metrics API is currently not supported.
 
 [float]
 [[otel-span-links]]
-===== Span Links
+===== Span Link Attributes
+
 Adding links when
 https://open-telemetry.github.io/opentelemetry-js-api/interfaces/tracer.html[starting a span]
-are not currently supported. Any given links will be silently dropped.
+*is* currently supported, but any span link *attributes are silently dropped*.
 
 [float]
 [[otel-span-events]]
