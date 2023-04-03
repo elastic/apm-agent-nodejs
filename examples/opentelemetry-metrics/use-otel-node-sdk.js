@@ -20,7 +20,7 @@ const otel = require('@opentelemetry/api')
 const sdk = new NodeSDK({
   serviceName: 'use-otel-node-sdk',
   metricReader: new PrometheusExporter()
-});
+})
 sdk.start()
 
 const meter = otel.metrics.getMeter('my-meter')
