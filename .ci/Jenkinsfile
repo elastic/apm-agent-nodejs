@@ -30,6 +30,16 @@ pipeline {
     */
     stage('Checkout') {
       options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        allOf {
+          anyOf {
+            branch 'main'
+            expression { return env.GITHUB_COMMENT?.contains('benchmark tests') }
+          }
+          expression { return params.bench_ci }
+        }
+      }
       steps {
         pipelineManager([ cancelPreviousRunningBuilds: [ when: 'PR' ] ])
         deleteDir()
@@ -82,11 +92,6 @@ pipeline {
           }
         }
       }
-    }
-  }
-  post {
-    cleanup {
-      notifyBuildResult()
     }
   }
 }
