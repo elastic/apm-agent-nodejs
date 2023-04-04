@@ -69,6 +69,9 @@ module.exports = function (expected, done) {
     },
     supportsKeepingUnsampledTransaction () {
       return true
+    },
+    supportsActivationMethodField () {
+      return true
     }
   }
 

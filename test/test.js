@@ -179,7 +179,13 @@ if (opts.help) {
 // './test/start/env', './test/start/file' which are special
 // cases
 var directories = getDirectoriesWithTests(
-  './test', [], ['./test/start/env', './test/start/file']
+  './test',
+  [],
+  [
+    './test/start/env',
+    './test/start/file',
+    './test/activation-method/fixtures'
+  ]
 )
 
 mapSeries(directories, readdir, function (err, directoryFiles) {
