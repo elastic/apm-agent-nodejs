@@ -1,0 +1,87 @@
+name: tav-command
+
+on:
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  command-validation:
+    if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/test tav')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      versions: ${{ steps.generate-matrix.outputs.versions }}
+      modules: ${{ steps.generate-matrix.outputs.modules }}
+      pull-request: ${{ steps.transform.outputs.pull-request }}
+    steps:
+    - name: Validate github comment
+      uses: elastic/apm-pipeline-library/.github/actions/validate-github-comment@current
+
+    - id: transform
+      name: Transform comment to the supported matrix
+      uses: actions/github-script@v6
+      with:
+        script: |
+          core.setOutput('pull-request', context.payload.issue.number)
+
+    - uses: actions/checkout@v3
+      with:
+        ref: refs/pull/${{ steps.transform.outputs.pull-request }}/merge
+
+    ## TODO: use elastic/apm-pipeline-library/.github/actions/version-framework
+    ##       as soon as https://github.com/elastic/apm-pipeline-library/issues/2171 is done.
+    - id: generate-matrix
+      run: .ci/generate-github-tav-matrix.sh
+
+  test-tav:
+    needs: command-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      max-parallel: 20
+      fail-fast: false
+      matrix:
+        node: ${{ fromJSON(needs.command-validation.outputs.versions) }}
+        module: ${{ fromJSON(needs.command-validation.outputs.modules) }}
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{ needs.command-validation.outputs.pull-request }}/merge
+
+      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"
+        env:
+          ELASTIC_APM_CONTEXT_MANAGER: ''
+
+      ##
+      ## POST-BUILD notifications
+      ##
+      - name: Notify - success
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              ...context.repo,
+              comment_id: context.payload.comment.id,
+              content: 'heart',
+            })
+
+      - name: Notify - failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              ...context.repo,
+              comment_id: context.payload.comment.id,
+              content: '-1',
+            })
