@@ -5,7 +5,7 @@
  */
 
 // An app that uses the OTel Metrics SDK and API to export metrics to Prometheus.
-//    http://localhost:3001/metrics
+//    http://localhost:3002/metrics
 
 'use strict'
 
@@ -13,7 +13,7 @@ const PROM_PORT = process.env.PROM_PORT || 3002
 const SERVICE_NAME = process.env.ELASTIC_APM_SERVICE_NAME || 'use-otel-prom'
 
 const otel = require('@opentelemetry/api')
-const { MeterProvider, View, ExplicitBucketHistogramAggregation } = require('@opentelemetry/sdk-metrics')
+const { MeterProvider, View, ExplicitBucketHistogramAggregation, ExponentialHistogramAggregation } = require('@opentelemetry/sdk-metrics')
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
 const { Resource } = require('@opentelemetry/resources')
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions')
@@ -43,6 +43,10 @@ const meterProvider = new MeterProvider({
         // Use the same default buckets as in `prom-client` for comparability
         // with "use-prom.js".
         [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10])
+    }),
+    new View({
+      instrumentName: 'my_exp_histogram',
+      aggregation: new ExponentialHistogramAggregation()
     })
   ]
 })
@@ -81,6 +85,9 @@ asyncUpDownCounter.addCallback(observableResult => {
 // above to provide a more appropriate set.
 const histo = meter.createHistogram('my_histogram', { description: 'My Histogram' })
 
+// Exponential Histogram
+const exphisto = meter.createHistogram('my_exp_histogram', { description: 'My Exponential Histogram' })
+
 setInterval(() => {
   n++
   counter.add(1)
@@ -97,5 +104,6 @@ setInterval(() => {
     // a service getting 100 req/s.
     const valS = Math.max(gaussianRandom(0.150, 0.050), 0.001)
     histo.record(valS)
+    exphisto.record(valS)
   }
 }, 1000)
