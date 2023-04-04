@@ -1167,6 +1167,21 @@ the self-time spent in each unique type of span. This data drives the
 chart in the APM app.
 
 
+[[disable-metrics]]
+==== `disableMetrics`
+
+[small]#Added in: v3.45.0#
+
+* *Type:* Array
+* *Env:* `ELASTIC_APM_DISABLE_METRICS`
+
+The `disableMetrics` configuration variable is a list of wildcard patterns of metric names to *not* send to APM server. The filter is applied to <<metrics,core APM agent metrics>>, custom metrics defined by <<apm-register-custom-metrics>>, and metrics defined using the OpenTelemetry Metrics API (XXX doc link).
+
+For example, setting the `ELASTIC_APM_DISABLE_METRICS="nodejs.*,my_counter"` environment variable (or the equivalent `disableMetrics: ['nodejs.*', 'my_counter']` option to <<apm-start>>) will result in reported metrics excluding any metric named `my_counter` and any starting with `nodejs.`.  Wildcard matches are case-insensitive by default. You may make wildcard searches case-sensitive by using the `(?-i)` prefix.
+
+Use `metricsInterval: '0s'` to completely disable metrics collection. See <<metrics-interval>>.
+
+
 [[cloud-provider]]
 ==== `cloudProvider`
 * *Type:* String

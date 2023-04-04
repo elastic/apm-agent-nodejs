@@ -183,6 +183,39 @@ const cases = [
       e = findObjInArray(eventGroup, 'metricset.samples.test_counter_d')
       t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_d', 'test_counter_e'])
     }
+  },
+  {
+    script: 'use-disable-metrics-conf.js',
+    env: {
+      ELASTIC_APM_DISABLE_METRICS: 'nodejs.*,system*cpu*,system.memory.actual.free,foo-counter-*'
+    },
+    checkEvents: async (t, events) => {
+      let e
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+
+      // Test all metricsets:
+      // - There should be no samples for metrics matching the above config patterns.
+      // - There should not be any empty metricsets (ones with no samples).
+      const reportedMetricNames = new Set()
+      events
+        .filter(e => !!e.metricset)
+        .forEach(e => {
+          const names = Object.keys(e.metricset.samples)
+          t.ok(names.length > 0, 'metricset is not empty')
+          const unexpectedNames = names.filter(n =>
+            /^nodejs\..*$/.test(n) ||
+            /^system.*cpu.*$/.test(n) ||
+            n === 'system.memory.actual.free' ||
+            /^foo-counter-.*$/.test(n)
+          )
+          t.equal(unexpectedNames.length, 0, `no unexpected metric names (unexpectedNames=${JSON.stringify(unexpectedNames)})`)
+          names.forEach(n => reportedMetricNames.add(n))
+        })
+
+      // Spot test that some expected metrics are being reported.
+      t.ok(reportedMetricNames.has('bar-counter-1'), '"bar-counter-1" metric is being reported')
+      t.ok(reportedMetricNames.has('system.memory.total'), '"system.memory.total" metric is being reported')
+    }
   }
 ]
 
