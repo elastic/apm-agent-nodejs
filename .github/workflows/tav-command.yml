@@ -20,19 +20,21 @@ jobs:
     outputs:
       versions: ${{ steps.generate-matrix.outputs.versions }}
       modules: ${{ steps.generate-matrix.outputs.modules }}
-      pull-request: ${{ steps.generate-matrix.outputs.pull-request }}
+      pull-request: ${{ steps.transform.outputs.pull-request }}
     steps:
     - name: Validate github comment
       uses: elastic/apm-pipeline-library/.github/actions/validate-github-comment@current
 
-    - name: Transform comment to the supported matrix
+    - id: transform
+      name: Transform comment to the supported matrix
       uses: actions/github-script@v6
       with:
         script: |
-          core.exportVariable('PR_NUMBER', context.payload.issue.number)
+          core.setOutput('pull-request', context.payload.issue.number)
+
     - uses: actions/checkout@v3
       with:
-        ref: refs/pull/${{ env.PR_NUMBER }}/merge
+        ref: refs/pull/${{ steps.transform.outputs.pull-request }}/merge
 
     - id: generate-matrix
       run: .ci/generate-github-tav-matrix.sh
