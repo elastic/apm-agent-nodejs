@@ -5,6 +5,7 @@
     "@elastic/elasticsearch-canary",
     "@hapi/hapi",
     "@koa/router",
+    "@opentelemetry/api",
     "apollo-server-express",
     "aws-sdk",
     "bluebird",
