@@ -190,7 +190,6 @@ const cases = [
       ELASTIC_APM_DISABLE_METRICS: 'nodejs.*,system*cpu*,system.memory.actual.free,foo-counter-*'
     },
     checkEvents: async (t, events) => {
-      let e
       t.ok(events[0].metadata, 'APM server got event metadata object')
 
       // Test all metricsets:
