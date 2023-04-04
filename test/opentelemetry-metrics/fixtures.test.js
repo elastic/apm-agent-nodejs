@@ -161,6 +161,28 @@ const cases = [
       t.ok(warnLines[0].indexOf('test_counter_attrs'), 'log.warn mentions the metric name')
       t.ok(warnLines[0].indexOf('array_valued_attr'), 'log.warn mentions the attribute name')
     }
+  },
+  {
+    script: 'instrumentation-scopes.js',
+    checkEvents: async (t, events) => {
+      let e
+      t.ok(events[0].metadata, 'APM server got event metadata object')
+
+      // Test that there are 4 separate metricsets for 'test_counter_{a,b,c,d,e}'
+      // for a given timestamp -- one for each of the instrumentation scopes.
+      const firstTimestamp = findObjInArray(events, 'metricset.samples.test_counter_a').metricset.timestamp
+      const eventGroup = findObjsInArray(events, 'metricset.samples')
+        .filter(e => e.metricset.timestamp === firstTimestamp)
+      t.equal(eventGroup.length, 4, '4 instrumentation scopes test_counter_* metrics')
+      e = findObjInArray(eventGroup, 'metricset.samples.test_counter_a')
+      t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_a'])
+      e = findObjInArray(eventGroup, 'metricset.samples.test_counter_b')
+      t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_b'])
+      e = findObjInArray(eventGroup, 'metricset.samples.test_counter_c')
+      t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_c'])
+      e = findObjInArray(eventGroup, 'metricset.samples.test_counter_d')
+      t.deepEqual(Object.keys(e.metricset.samples), ['test_counter_d', 'test_counter_e'])
+    }
   }
 ]
 
