@@ -28,6 +28,8 @@ jobs:
       modules: ${{ steps.generate-matrix.outputs.modules }}
     steps:
     - uses: actions/checkout@v3
+    ## TODO: use elastic/apm-pipeline-library/.github/actions/version-framework
+    ##       as soon as https://github.com/elastic/apm-pipeline-library/issues/2171 is done.
     - id: generate-matrix
       run: .ci/generate-github-tav-matrix.sh
 

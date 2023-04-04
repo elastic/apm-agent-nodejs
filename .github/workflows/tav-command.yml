@@ -36,6 +36,8 @@ jobs:
       with:
         ref: refs/pull/${{ steps.transform.outputs.pull-request }}/merge
 
+    ## TODO: use elastic/apm-pipeline-library/.github/actions/version-framework
+    ##       as soon as https://github.com/elastic/apm-pipeline-library/issues/2171 is done.
     - id: generate-matrix
       run: .ci/generate-github-tav-matrix.sh
 
