@@ -18,28 +18,56 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      versions: ${{ steps.generate-matrix.outputs.versions }}
-      modules: ${{ steps.generate-matrix.outputs.modules }}
-      pull-request: ${{ steps.transform.outputs.pull-request }}
+      versions: ${{ steps.transform.outputs.versions }}
+      modules: ${{ steps.transform.outputs.modules }}
+      pull-request: ${{ steps.pr.outputs.number }}
     steps:
-    - name: Validate github comment
-      uses: elastic/apm-pipeline-library/.github/actions/validate-github-comment@current
+      - name: Validate github comment
+        uses: elastic/apm-pipeline-library/.github/actions/validate-github-comment@main
 
-    - id: transform
-      name: Transform comment to the supported matrix
-      uses: actions/github-script@v6
-      with:
-        script: |
-          core.setOutput('pull-request', context.payload.issue.number)
+      - id: pr
+        uses: actions/github-script@v6
+        with:
+          script: core.setOutput('number', context.payload.issue.number)
 
-    - uses: actions/checkout@v3
-      with:
-        ref: refs/pull/${{ steps.transform.outputs.pull-request }}/merge
+      - uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{ steps.pr.outputs.number }}/merge
 
-    ## TODO: use elastic/apm-pipeline-library/.github/actions/version-framework
-    ##       as soon as https://github.com/elastic/apm-pipeline-library/issues/2171 is done.
-    - id: generate-matrix
-      run: .ci/generate-github-tav-matrix.sh
+      - id: transform
+        name: Transform comment to the supported matrix
+        uses: actions/github-script@v6
+        with:
+          script: |
+            if ('${{ github.event.comment.body }}' === '/test tav') {
+              const fs = require("fs");
+              fs.readFile("./matrix.json", "utf8", (err, jsonString) => {
+                if (err) {
+                  core.setFailed("Error reading file from disk")
+                  return
+                }
+                try {
+                  const matrix = JSON.parse(jsonString)
+                  core.setOutput('modules', matrix.modules)
+                  core.setOutput('versions', matrix.versions)
+                } catch (err) {
+                  core.setFailed("Error parsing JSON string")
+                }
+              })
+              return
+            }
+            // Transform comment in the right data structure to be consumed later on
+            const comment = context.payload.comment.body
+            const regexpSize = /\/test tav (.+) (.+)/
+            const match = comment.match(regexpSize)
+            if (match[1]) {
+              const modules = match[1].replace(/\s/g, '').split(',')
+              core.setOutput('modules', modules)
+            }
+            if (match[2]) {
+              const versions = match[2].replace(/\s/g, '').split(',')
+              core.setOutput('versions', versions)
+            }
 
   test-tav:
     needs: command-validation

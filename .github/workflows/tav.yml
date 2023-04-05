@@ -24,14 +24,34 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      versions: ${{ steps.generate-matrix.outputs.versions }}
-      modules: ${{ steps.generate-matrix.outputs.modules }}
+      versions: ${{ steps.transform.outputs.versions }}
+      modules: ${{ steps.transform.outputs.modules }}
     steps:
-    - uses: actions/checkout@v3
-    ## TODO: use elastic/apm-pipeline-library/.github/actions/version-framework
-    ##       as soon as https://github.com/elastic/apm-pipeline-library/issues/2171 is done.
-    - id: generate-matrix
-      run: .ci/generate-github-tav-matrix.sh
+
+      - uses: actions/checkout@v3
+
+      - id: transform
+        name: Transform comment to the supported matrix
+        uses: actions/github-script@v6
+        with:
+          script: |
+            if ('${{ github.event.comment.body }}' === '/test tav') {
+              const fs = require("fs");
+              fs.readFile("./matrix.json", "utf8", (err, jsonString) => {
+                if (err) {
+                  core.setFailed("Error reading file from disk")
+                  return
+                }
+                try {
+                  const matrix = JSON.parse(jsonString)
+                  core.setOutput('modules', matrix.modules)
+                  core.setOutput('versions', matrix.versions)
+                } catch (err) {
+                  core.setFailed("Error parsing JSON string")
+                }
+              })
+              return
+            }
 
   test-tav:
     needs: prepare-matrix
