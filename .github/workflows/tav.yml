@@ -35,23 +35,23 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            if ('${{ github.event.comment.body }}' === '/test tav') {
-              const fs = require("fs");
-              fs.readFile("./.ci/tav.json", "utf8", (err, jsonString) => {
-                if (err) {
-                  core.setFailed("Error reading file from disk")
-                  return
-                }
-                try {
-                  const matrix = JSON.parse(jsonString)
-                  core.setOutput('modules', matrix.modules)
-                  core.setOutput('versions', matrix.versions)
-                } catch (err) {
-                  core.setFailed("Error parsing JSON string")
-                }
-              })
+            async function f() {
+              const fsPromises = require('fs').promises;
+              const data = await fsPromises.readFile('./.ci/tav.json')
+                                 .catch((err) => core.setFailed('Failed to read file', err));
+              return JSON.parse(data.toString());
+            }
+            const matrix = await f()
+            let modules, versions
+            try {
+              versions = matrix.versions
+              modules = matrix.modules
+            } catch (err) {
+              core.setFailed("Error parsing JSON string")
               return
             }
+            core.setOutput('modules', modules)
+            core.setOutput('versions', versions)
 
   test-tav:
     needs: prepare-matrix

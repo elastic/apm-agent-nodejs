@@ -26,6 +26,7 @@ jobs:
         uses: elastic/apm-pipeline-library/.github/actions/validate-github-comment@main
 
       - id: pr
+        name: Fetch PR
         uses: actions/github-script@v6
         with:
           script: core.setOutput('number', context.payload.issue.number)
@@ -39,35 +40,37 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            if ('${{ github.event.comment.body }}' === '/test tav') {
-              const fs = require("fs");
-              fs.readFile("./.ci/tav.json", "utf8", (err, jsonString) => {
-                if (err) {
-                  core.setFailed("Error reading file from disk")
-                  return
-                }
-                try {
-                  const matrix = JSON.parse(jsonString)
-                  core.setOutput('modules', matrix.modules)
-                  core.setOutput('versions', matrix.versions)
-                } catch (err) {
-                  core.setFailed("Error parsing JSON string")
-                }
-              })
+            async function f() {
+              const fsPromises = require('fs').promises;
+              const data = await fsPromises.readFile('./.ci/tav.json')
+                                 .catch((err) => core.setFailed('Failed to read file', err));
+              return JSON.parse(data.toString());
+            }
+            const matrix = await f()
+            let modules, versions
+            try {
+              versions = matrix.versions
+              modules = matrix.modules
+            } catch (err) {
+              core.setFailed("Error parsing JSON string")
               return
             }
-            // Transform comment in the right data structure to be consumed later on
             const comment = context.payload.comment.body
-            const regexpSize = /\/test tav (.+) (.+)/
-            const match = comment.match(regexpSize)
-            if (match[1]) {
-              const modules = match[1].replace(/\s/g, '').split(',')
-              core.setOutput('modules', modules)
+            if (comment !== '/test tav') {
+              const regex = /\/test tav ([^\s\\]+)(\s*)([^\s\\]*)/
+              const match = comment.match(regex)
+              console.log(`parse comment - ${match}`)
+              if (match[1]) {
+                if (match[1] !== 'all') {
+                  modules = match[1].split(',')
+                }
+              }
+              if (match[3]) {
+                versions = match[3].split(',')
+              }
             }
-            if (match[2]) {
-              const versions = match[2].replace(/\s/g, '').split(',')
-              core.setOutput('versions', versions)
-            }
+            core.setOutput('modules', modules)
+            core.setOutput('versions', versions)
 
   test-tav:
     needs: command-validation
