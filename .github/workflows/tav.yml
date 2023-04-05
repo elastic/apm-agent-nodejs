@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:
-      max-parallel: 30
+      max-parallel: 15
       fail-fast: false
       matrix:
         node: ${{ fromJSON(needs.prepare-matrix.outputs.versions) }}
