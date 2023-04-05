@@ -41,7 +41,7 @@ jobs:
           script: |
             if ('${{ github.event.comment.body }}' === '/test tav') {
               const fs = require("fs");
-              fs.readFile("./matrix.json", "utf8", (err, jsonString) => {
+              fs.readFile("./.ci/tav.json", "utf8", (err, jsonString) => {
                 if (err) {
                   core.setFailed("Error reading file from disk")
                   return
