@@ -55,7 +55,10 @@ jobs:
             if (comment !== '/test tav') {
               const regex = /\/test tav ([^\s]+)(\s*)([^\s]*)/
               const match = comment.match(regex)
-              console.log(`parse comment - ${match}`)
+              if (!match) {
+                core.setFailed(`Incorrect comment, please use /test tav(\\s(module1,...,moduleN)?(\\s)?(node1,...,nodeN)?)?'`)
+                return
+              }
               if (match[1]) {
                 if (match[1] !== 'all') {
                   modules = match[1].split(',')
