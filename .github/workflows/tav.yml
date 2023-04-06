@@ -35,23 +35,16 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            async function f() {
-              const fsPromises = require('fs').promises;
-              const data = await fsPromises.readFile('./.ci/tav.json')
-                                 .catch((err) => core.setFailed('Failed to read file', err));
-              return JSON.parse(data.toString());
-            }
-            const matrix = await f()
-            let modules, versions
+            const fs = require('fs')
+            let matrix
             try {
-              versions = matrix.versions
-              modules = matrix.modules
+              matrix = JSON.parse(fs.readFileSync('./.ci/tav.json'))
             } catch (err) {
-              core.setFailed("Error parsing JSON string")
+              core.setFailed(`Error loading './.ci/tav.json': ${err}`)
               return
             }
-            core.setOutput('modules', modules)
-            core.setOutput('versions', versions)
+            core.setOutput('modules', matrix.modules)
+            core.setOutput('versions', matrix.versions)
 
   test-tav:
     needs: prepare-matrix
