@@ -32,6 +32,25 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix an issue where the APM agent receiving central config (from APM server)
+  containing a value for `sanitized_field_names` would crash.
+  ({issues}3247[#3247])
+
+[float]
+===== Chores
+
+
 [[release-notes-3.44.0]]
 ==== 3.44.0 2023/04/03
 
