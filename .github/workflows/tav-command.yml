@@ -71,6 +71,17 @@ jobs:
             core.setOutput('modules', modules)
             core.setOutput('versions', versions)
 
+      - name: Notify - failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              ...context.repo,
+              comment_id: context.payload.comment.id,
+              content: '-1',
+            })
+
   test-tav:
     needs: command-validation
     runs-on: ubuntu-latest
