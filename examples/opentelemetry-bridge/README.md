@@ -1,6 +1,7 @@
 This directory includes example Node.js scripts showing usage of the
-OpenTelemetry JS API. These can be instrumented with the Elastic Node.js APM
-agent using its OpenTelemetry Bridge.
+OpenTelemetry JS Tracing API. These can be instrumented with the Elastic
+Node.js APM agent using its OpenTelemetry Bridge
+(https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html).
 
 Setup dependencies via:
 
