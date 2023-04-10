@@ -222,7 +222,7 @@ see <<disable-instrumentations, `disableInstrumentations`>>.
 Activate APM Agent Configuration via Kibana.
 If set to `true`, the client will poll the APM Server regularly for new agent configuration.
 
-NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
+NOTE: This feature requires APM Server v7.3 or later.
 More information is available in {kibana-ref}/agent-configuration.html[APM Agent configuration].
 
 [[context-manager]]
