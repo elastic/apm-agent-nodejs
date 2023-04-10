@@ -192,7 +192,7 @@
     "rimraf": "^3.0.2",
     "tap-junit": "^5.0.1",
     "tape": "^5.0.0",
-    "tedious": "^15.1.0",
+    "tedious": "^16.0.0",
     "test-all-versions": "^4.1.1",
     "thunky": "^1.1.0",
     "tree-kill": "^1.2.2",
