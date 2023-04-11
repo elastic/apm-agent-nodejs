@@ -98,6 +98,10 @@ class CapturingTransport {
     return true
   }
 
+  supportsActivationMethodField () {
+    return true
+  }
+
   // Inherited from Writable, called in agent.js.
   destroy () {}
 }

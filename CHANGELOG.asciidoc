@@ -32,11 +32,36 @@ Notes:
 === Node.js Agent version 3.x
 
 
-[[release-notes-3.43.0]]
-==== 3.43.0 2023/03/02
+[[release-notes-3.44.1]]
+==== 3.44.1 2023/04/06
 
 [float]
-===== Breaking changes
+===== Bug fixes
+
+* Fix an issue where the APM agent receiving central config (from APM server)
+  containing a value for `sanitized_field_names` would crash.
+  ({issues}3247[#3247])
+
+
+[[release-notes-3.44.0]]
+==== 3.44.0 2023/04/03
+
+[float]
+===== Features
+
+* Update the <<opentelemetry-bridge>> supported version of `@opentelemetry/api`
+  to version 1.4.x. ({pull}3239[#3239])
+
+[float]
+===== Bug fixes
+
+* Ensure `metadata.service.agent.activation_method` is only sent for APM
+  server version 8.7.1 or later. APM server 8.7.0 included a bug where
+  receiving `activation_method` is harmful. ({issues}3230[#3230])
+
+
+[[release-notes-3.43.0]]
+==== 3.43.0 2023/03/02
 
 [float]
 ===== Features
@@ -55,7 +80,7 @@ Notes:
 
 * Make `Agent.flush()` return a `Promise` if no callback is passed as param.
   This means that flush is now `await`able: `await apm.flush()`.
-  ({issues}2857(#2857))
+  ({issues}2857[#2857])
 
 [float]
 ===== Bug fixes

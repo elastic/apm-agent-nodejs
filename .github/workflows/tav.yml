@@ -1,0 +1,50 @@
+name: TAV
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+    - '**/*.md'
+    - '**/*.asciidoc'
+    - 'docs/**'
+    - 'examples/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# limit the access of the generated GITHUB_TOKEN
+permissions:
+  contents: read
+
+jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      versions: ${{ steps.generate-matrix.outputs.versions }}
+      modules: ${{ steps.generate-matrix.outputs.modules }}
+    steps:
+    - uses: actions/checkout@v3
+    ## TODO: use elastic/apm-pipeline-library/.github/actions/version-framework
+    ##       as soon as https://github.com/elastic/apm-pipeline-library/issues/2171 is done.
+    - id: generate-matrix
+      run: .ci/generate-github-tav-matrix.sh
+
+  test-tav:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      max-parallel: 30
+      fail-fast: false
+      matrix:
+        node: ${{ fromJSON(needs.prepare-matrix.outputs.versions) }}
+        module: ${{ fromJSON(needs.prepare-matrix.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"
+        env:
+          ELASTIC_APM_CONTEXT_MANAGER: ''

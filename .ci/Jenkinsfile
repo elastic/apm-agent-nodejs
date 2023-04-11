@@ -6,20 +6,10 @@ pipeline {
   environment {
     REPO = 'apm-agent-nodejs'
     BASE_DIR = "src/github.com/elastic/${env.REPO}"
-    PIPELINE_LOG_LEVEL='INFO'
-    JOB_GCS_BUCKET = credentials('gcs-bucket')
-    GITHUB_CHECK = 'true'
-    RELEASE_URL_MESSAGE = "(<https://github.com/elastic/${env.REPO}/releases/tag/${env.TAG_NAME}|${env.TAG_NAME}>)"
-    SLACK_CHANNEL = '#apm-agent-node'
-    NOTIFY_TO = 'build-apm+apm-agent-nodejs@elastic.co'
-    NPMRC_SECRET = 'secret/jenkins-ci/npmjs/elasticmachine'
-    TOTP_SECRET = 'totp/code/npmjs-elasticmachine'
-    BUILD_NODE_VERSION = 'v16.15.1'
-    DOCKER_REGISTRY = 'docker.elastic.co'
-    DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
+    PIPELINE_LOG_LEVEL = 'INFO'
   }
   options {
-    timeout(time: 3, unit: 'HOURS')
+    timeout(time: 1, unit: 'HOURS')
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '20', daysToKeepStr: '30'))
     timestamps()
     ansiColor('xterm')
@@ -29,13 +19,10 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    issueCommentTrigger("(${obltGitHubComments()}|^run (module|benchmark) tests.*)")
+    issueCommentTrigger("^run benchmark tests.*")
   }
   parameters {
-    booleanParam(name: 'Run_As_Main_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on main branch.')
     booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable benchmarks.')
-    booleanParam(name: 'tav_ci', defaultValue: true, description: 'Enable TAV tests.')
-    booleanParam(name: 'tests_ci', defaultValue: true, description: 'Enable tests.')
   }
   stages {
     /**
@@ -43,188 +30,22 @@ pipeline {
     */
     stage('Checkout') {
       options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        allOf {
+          anyOf {
+            branch 'main'
+            expression { return env.GITHUB_COMMENT?.contains('benchmark tests') }
+          }
+          expression { return params.bench_ci }
+        }
+      }
       steps {
         pipelineManager([ cancelPreviousRunningBuilds: [ when: 'PR' ] ])
         deleteDir()
         gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true,
                     shallow: false, reference: "/var/lib/jenkins/.git-references/${REPO}.git")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
-        script {
-          dir("${BASE_DIR}"){
-            def regexps =[
-              "^lib/instrumentation/modules/",
-              "^test/instrumentation/modules/"
-            ]
-            env.TAV_UPDATED = isGitRegionMatch(patterns: regexps)
-
-            // Skip all the stages except docs for PR's with asciidoc or md changes only
-            env.ONLY_DOCS = isGitRegionMatch(patterns: [ '.*\\.(asciidoc|md)' ], shouldMatchAll: true)
-          }
-        }
-      }
-    }
-    /**
-      Run tests.
-    */
-    stage('Test') {
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-      }
-      when {
-        beforeAgent true
-        allOf {
-          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
-          expression { return env.ONLY_DOCS == "false" }
-          expression { return params.tests_ci }
-        }
-      }
-      steps {
-        withGithubNotify(context: 'Test', tab: 'tests') {
-          deleteDir()
-          unstash 'source'
-          dir("${BASE_DIR}"){
-            script {
-              def parallelTasks = [:]
-              // Only 14 for the time being
-              parallelTasks["Windows-Node.js-14"] = generateStepForWindows(version: '14')
-              parallel(parallelTasks)
-            }
-          }
-        }
-      }
-    }
-    /**
-      Run TAV tests.
-    */
-    stage('TAV Test') {
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-      }
-      when {
-        beforeAgent true
-        allOf {
-          not { tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP' }
-          anyOf {
-            expression { return params.Run_As_Main_Branch }
-            triggeredBy 'TimerTrigger'
-            changeRequest()
-            expression { return env.TAV_UPDATED != "false" }
-          }
-          expression { return params.tav_ci }
-          expression { return env.ONLY_DOCS == "false" }
-        }
-      }
-      steps {
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          script {
-            def tavContext = getSmartTAVContext()
-            withGithubNotify(context: tavContext.ghContextName, description: tavContext.ghDescription, tab: 'tests') {
-              def parallelTasks = [:]
-              tavContext.node['NODEJS_VERSION'].each{ version ->
-                tavContext.tav['TAV'].each{ tav_item ->
-                  parallelTasks["Node.js-${version}-${tav_item}"] = generateStep(version: version, tav: tav_item)
-                }
-              }
-              parallel(parallelTasks)
-            }
-          }
-        }
-      }
-    }
-
-    stage('Release') {
-      options { skipDefaultCheckout() }
-      when {
-        beforeAgent true
-        tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
-      }
-      environment {
-        HOME = "${env.WORKSPACE}" // required by "bash_standard_lib.sh" for "Push Docker Image" step
-        SUFFIX_ARN_FILE = 'arn-file.md'
-      }
-      stages {
-        stage('Dist') {
-          steps {
-            withGithubNotify(context: "Dist") {
-              setEnvVar('ELASTIC_LAYER_NAME', "elastic-apm-node${getVersion()}")
-              setEnvVar('RELEASE_NOTES_URL', getReleaseNotesUrl())
-              deleteDir()
-              unstash 'source'
-              withNodeJSEnv(version: "${env.BUILD_NODE_VERSION}"){
-                dir("${BASE_DIR}"){
-                  cmd(label: 'make dist', script: 'make -C .ci dist')
-                }
-              }
-            }
-          }
-        }
-        stage('Push Docker Image') {
-          steps {
-            withGithubNotify(context: "Push-Docker-Image") {
-              dir("${BASE_DIR}"){
-                dockerLogin(secret: "${env.DOCKER_SECRET}", registry: "${env.DOCKER_REGISTRY}")
-                cmd(label: 'make push-docker', script: 'make -C .ci push-docker')
-              }
-            }
-          }
-        }
-        stage('Publish to AWS') {
-          steps {
-            withGithubNotify(context: "Publish") {
-              withGoEnv(){
-                withAWSEnv(secret: 'secret/observability-team/ci/service-account/apm-aws-lambda', forceInstallation: true, version: '2.4.10') {
-                  dir("${BASE_DIR}"){
-                    cmd(label: 'make publish-in-all-aws-regions', script: 'make -C .ci publish-in-all-aws-regions')
-                    cmd(label: 'make create-arn-file', script: 'make -C .ci create-arn-file')
-                  }
-                }
-              }
-            }
-          }
-          post {
-            always {
-              archiveArtifacts(allowEmptyArchive: true, artifacts: "${BASE_DIR}/build/aws")
-            }
-          }
-        }
-        stage('GitHub Release') {
-          steps {
-            withGhEnv(forceInstallation: true, version: '2.4.0') {
-              dir("${BASE_DIR}"){
-                cmd(label: 'make github-release', script: 'make -C .ci github-release')
-              }
-            }
-          }
-        }
-        stage('Publish to npm') {
-          steps {
-            withNodeJSEnv(version: "${env.BUILD_NODE_VERSION}") {
-              withNpmrc(secret: "${env.NPMRC_SECRET}", path: "${env.WORKSPACE}/${env.BASE_DIR}") {
-                withTotpVault(secret: "${env.TOTP_SECRET}", code_var_name: 'TOTP_CODE') {
-                  dir("${BASE_DIR}") {
-                    sh(label: 'npm-publish', script: "npm publish --otp=${env.TOTP_CODE}")
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      post {
-        success {
-          whenTrue(isTag()) {
-            notifyStatus(slackStatus: 'good', subject: "[${env.REPO}] Release *${env.TAG_NAME}* published", body: "Build: (<${env.RUN_DISPLAY_URL}|here>)\nRelease URL: ${env.RELEASE_URL_MESSAGE}")
-          }
-        }
-        failure {
-          whenTrue(isTag()) {
-            notifyStatus(slackStatus: 'warning', subject: "[${env.REPO}] Release *${env.TAG_NAME}* could not be published.", body: "Build: (<${env.RUN_DISPLAY_URL}|here>)")
-          }
-        }
       }
     }
     /**
@@ -244,7 +65,6 @@ pipeline {
         allOf {
           anyOf {
             branch 'main'
-            expression { return params.Run_As_Main_Branch }
             expression { return env.GITHUB_COMMENT?.contains('benchmark tests') }
           }
           expression { return params.bench_ci }
@@ -274,182 +94,4 @@ pipeline {
       }
     }
   }
-  post {
-    cleanup {
-      notifyBuildResult()
-    }
-  }
-}
-
-def generateStep(Map params = [:]){
-  def version = params?.version
-  def tav = params.containsKey('tav') ? params.tav : ''
-  def buildType = params.containsKey('buildType') ? params.buildType : 'release'
-  def contextManager = params.get('disableAsyncHooks', false) ? 'patch' : ''
-  return {
-    withNode(labels: 'linux && immutable', forceWorkspace: true, forceWorker: true) {
-      withEnv(["VERSION=${version}", "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}"]) {
-        deleteDir()
-        unstash 'source'
-        // Grab the current docker context for helping to troubleshoot the docker containers using filebeat and metricbeat
-        dockerContext(filebeatOutput: "docker-${version}-${buildType}.log", metricbeatOutput: "docker-${version}-${buildType}-metricbeat.log", archiveOnlyOnFail: true){
-          dir("${BASE_DIR}"){
-            try {
-              retryWithSleep(retries: 2, seconds: 5, backoff: true) {
-                sh(label: "Run Tests", script: """.ci/scripts/test.sh -b "${buildType}" -t "${tav}" "${version}" """)
-              }
-            } finally {
-              junit(testResults: "test_output/*.junit.xml", allowEmptyResults: true, keepLongStdio: true)
-              archiveArtifacts(artifacts: "test_output/*.tap", allowEmptyArchive: true)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-/**
-* Gather the TAV context for the current execution. Then the TAV stage will execute
-* the TAV using a smarter approach.
-*/
-def getSmartTAVContext() {
-   context = [:]
-   context.ghContextName = 'TAV Test'
-   context.ghDescription = context.ghContextName
-   context.node = readYaml(file: '.ci/.jenkins_tav_nodejs.yml')
-
-   // Hard to debug what's going on as there are a few nested conditions. Let's then add more verbose output
-   echo """\
-   env.GITHUB_COMMENT=${env.GITHUB_COMMENT}
-   params.Run_As_Main_Branch=${params.Run_As_Main_Branch}
-   env.CHANGE_ID=${env.CHANGE_ID}
-   env.TAV_UPDATED=${env.TAV_UPDATED}""".stripIndent()
-
-   if (env.GITHUB_COMMENT) {
-     def modules = getModulesFromCommentTrigger(regex: 'run module tests for (.+)')
-     if (modules.isEmpty()) {
-       context.ghDescription = 'TAV Test disabled'
-       context.tav = readYaml(text: 'TAV:')
-       context.node = readYaml(text: 'NODEJS_VERSION:')
-     } else {
-       if (modules.find{ it == 'ALL' }) {
-         context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
-       } else {
-         context.ghContextName = 'TAV Test Subset'
-         context.ghDescription = 'TAV Test comment-triggered'
-         context.tav = readYaml(text: """TAV:${modules.collect{ it.replaceAll('"', '').replaceAll("'", '') }.collect{ "\n  - '${it}'"}.join("") }""")
-       }
-     }
-   } else if (params.Run_As_Main_Branch) {
-     context.ghDescription = 'TAV Test param-triggered'
-     context.tav = readYaml(file: '.ci/.jenkins_tav.yml')
-   } else if (env.CHANGE_ID && env.TAV_UPDATED != "false") {
-     context.ghContextName = 'TAV Test Subset'
-     context.ghDescription = 'TAV Test changes-triggered'
-     sh '.ci/scripts/get_tav.sh .ci/.jenkins_generated_tav.yml'
-     context.tav = readYaml(file: '.ci/.jenkins_generated_tav.yml')
-   } else {
-     context.ghDescription = 'TAV Test disabled'
-     context.tav = readYaml(text: 'TAV:')
-     context.node = readYaml(text: 'NODEJS_VERSION:')
-   }
-   return context
- }
-
-def generateStepForWindows(Map params = [:]){
-  def version = params?.version
-  def contextManager = params.get('disableAsyncHooks', false) ? 'patch' : ''
-  return {
-    sh label: 'Prepare services', script: ".ci/scripts/windows/prepare-test.sh ${version}"
-    def linuxIp = grabWorkerIP()
-    withNode(labels: 'windows-2019-docker-immutable', forceWorkspace: true, forceWorker: true) {
-      // When installing with choco the PATH might not be updated within the already connected worker.
-      withEnv(["PATH=${PATH};C:\\Program Files\\nodejs",
-               "VERSION=${version}",
-               "ELASTIC_APM_CONTEXT_MANAGER=${contextManager}",
-               "CASSANDRA_HOST=${linuxIp}",
-               "ES_HOST=${linuxIp}",
-               "LOCALSTACK_HOST=${linuxIp}",
-               "MEMCACHED_HOST=${linuxIp}",
-               "MONGODB_HOST=${linuxIp}",
-               "MSSQL_HOST=${linuxIp}",
-               "MYSQL_HOST=${linuxIp}",
-               "PGHOST=${linuxIp}",
-               "REDIS_HOST=${linuxIp}"]) {
-        try {
-          deleteDir()
-          unstash 'source'
-          dir(BASE_DIR) {
-            bat label: 'Ping linux worker', script: "ping -n 3 ${linuxIp}"
-            installTools([ [tool: 'nodejs-lts', version: "${version}" ] ])
-            bat label: 'Tool versions', script: '''
-              npm --version
-              node --version
-            '''
-            retryWithSleep(retries: 2, sideEffect: { bat 'npm cache clean --force' }) {
-                bat 'npm install'
-            }
-            bat 'node test/test.js'
-          }
-        } catch(e){
-          error(e.toString())
-        } finally {
-          echo 'JUnit archiving no yet in place'
-        }
-      }
-    }
-
-    // If the above execution failed, then it will not reach this section. TBD
-    sh label: 'Stop services', script: ".ci/scripts/windows/stop-test.sh ${version}"
-  }
-}
-
-
-def grabWorkerIP(){
-  def linuxIp = ''
-  retryWithSleep(retries: 3, seconds: 5, backoff: true){
-    linuxIp = sh(label: 'Get IP', script: '''hostname -I | awk '{print $1}' ''', returnStdout: true)?.trim()
-    log(level: 'INFO', text: "Worker IP '${linuxIp}'")
-    if(!linuxIp?.trim()){
-      error('Unable to get the Linux worker IP')
-    }
-  }
-  return linuxIp
-}
-
-/**
-* Transform TAG releases from v{major}.{minor}.{patch} to
-* ver-{major}-{minor}-{patch}. e.g: given v1.2.3 then
-* -ver-1-2-3.
-*/
-def getVersion() {
-  if (env.BRANCH_NAME?.trim() && env.BRANCH_NAME.startsWith('v')) {
-    return env.BRANCH_NAME.replaceAll('v', '-ver-').replaceAll('\\.', '-')
-  }
-  return ''
-}
-
-/**
-* Calculate the elastic.co release notes URL given the TAG release. Otherwise
-* it returns the default current URL.
-*/
-def getReleaseNotesUrl() {
-  def baseUrl = 'https://www.elastic.co/guide/en/apm/agent/nodejs/current'
-  if (env.BRANCH_NAME?.trim() && env.BRANCH_NAME.startsWith('v')) {
-    def version = env.BRANCH_NAME.replaceAll('v', '')
-    def parts = version.split('\\.')
-    def major = parts[0]
-    return "${baseUrl}/release-notes-${major}.x.html#release-notes-${version}"
-  }
-  return baseUrl
-}
-
-def notifyStatus(def args = [:]) {
-  releaseNotification(slackChannel: "${env.SLACK_CHANNEL}",
-                      slackColor: args.slackStatus,
-                      slackCredentialsId: 'jenkins-slack-integration-token',
-                      to: "${env.NOTIFY_TO}",
-                      subject: args.subject,
-                      body: args.body)
 }

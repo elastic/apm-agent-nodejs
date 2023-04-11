@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 // Test S3 instrumentation of the 'aws-sdk' module.
 //
 // Note that this uses localstack for testing, which mimicks the S3 API but
