@@ -43,18 +43,15 @@ Notes:
 [float]
 ===== Bug fixes
 
-[float]
-===== Chores
-
-- Restrict Next.js instrumentation to `<13.3.0` for now, because of a known
-  issue with instrumentating the `next@13.3.0` dev server. ({issues}3263[#3263])
-
 * Fix an edge case in instrumentation of `http.request()` and `https.request()`
   with node v19.9.0 and recently nightly builds of node v20.
   ({issues}3261[#3261])
 
 [float]
 ===== Chores
+
+* Restrict Next.js instrumentation to `<13.3.0` for now, because of a known
+  issue with instrumentating the `next@13.3.0` dev server. ({issues}3263[#3263])
 
 
 [[release-notes-3.44.1]]
