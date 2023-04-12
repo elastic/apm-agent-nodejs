@@ -31,7 +31,6 @@ next-12:
 next:
   name: next
   versions: '>=13.0.0 <13.3.0'
-  # versions: '>=13.0.0 <14'
   node: '>=14.6.0'
   commands: node ../next.test.js
   peerDependencies:
