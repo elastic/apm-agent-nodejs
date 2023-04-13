@@ -143,14 +143,6 @@ server.listen(3000, () => {
 ----
 <1> The full example is https://github.com/elastic/apm-agent-nodejs/blob/main/examples/opentelemetry-metrics/otel-metrics-hello-world.js[here].
 
-If needed, this OpenTelemetry Metrics API support can be disabled via the
-<<disable-instrumentations>> config var. For example:
-
-[source,bash]
-----
-export ELASTIC_APM_DISABLE_INSTRUMENTATIONS="@opentelemetry/api"
-----
-
 
 [float]
 [[otel-metrics-sdk]]
@@ -180,13 +172,17 @@ const latency = meter.createHistogram('latency', { description: 'Response latenc
 ----
 <1> The full example is https://github.com/elastic/apm-agent-nodejs/blob/main/examples/opentelemetry-metrics/use-otel-metrics-sdk.js[here].
 
-If needed, this OpenTelemetry Metrics SDK instrumentation can be disabled via
-the <<disable-instrumentations>> config var. For example:
 
-[source,bash]
-----
-export ELASTIC_APM_DISABLE_INSTRUMENTATIONS="@opentelemetry/sdk-metrics"
-----
+[float]
+[[otel-metrics-conf]]
+==== OpenTelemetry Metrics configuration
+
+A few configuration options can be used to control OpenTelemetry Metrics support.
+
+- Specific metrics names can be filtered out via the <<disable-metrics>> configuration option.
+- Integration with the OpenTelemetry Metrics API can be disabled via the <<disable-instrumentations,`disableInstrumentations: '@opentelemetry/api'`>> configuration option.
+- Integration with the OpenTelemetry Metrics SDK can be disabled via the <<disable-instrumentations,`disableInstrumentations: '@opentelemetry/sdk-metrics'`>> configuration option.
+- All metrics support in the APM agent can be disabled via the <<metrics-interval,`metricsInterval: '0s'`>> configuration option.
 
 
 [float]
@@ -246,7 +242,7 @@ any limitations and differences.
 - https://opentelemetry.io/docs/reference/specification/metrics/data-model/#summary-legacy[Summary metrics] are not supported.
 - https://opentelemetry.io/docs/reference/specification/metrics/data-model/#exponentialhistogram[Exponential Histograms] are not yet supported.
 - The `sum`, `count`, `min` and `max` within the OpenTelemetry histogram data are discarded.
-- The default histogram bucket boundaries are different from the OpenTelemetry default. They provide better resolution. They can be configured with the `customMetricsHistogramBoundaries` config var.
+- The default histogram bucket boundaries are different from the OpenTelemetry default. They provide better resolution. They can be configured with the <<custom-metrics-histogram-boundaries>> configuration option.
 - Metrics label names are dedotted (`s/\./_/g`) in APM server to avoid possible mapping collisions in Elasticsearch.
 - The default Aggregation Temporality used differs from the OpenTelemetry default -- preferring
 *delta*-temporality (nicer for visualizing in Kibana) to cumulative-temporality.
@@ -254,7 +250,6 @@ any limitations and differences.
 Metrics support requires an APM server >=7.11 -- for earlier APM server
 versions, metrics with label names including `.`, `*`, or `"` will get dropped.
 
-// XXX `custom-metrics-histogram-boundaries` ref when have it.
 // XXX Temporality link to spec when merged: https://github.com/elastic/apm/pull/742/files#diff-a04e98daf311e4b4d6a186717a32577382b938c32ebcfc3a73f3b322e584532eR16
 
 

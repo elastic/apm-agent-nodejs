@@ -103,8 +103,9 @@ These are the frameworks that we officially support:
 === OpenTelemetry
 
 The Node.js Elastic APM agent supports usage of the OpenTelemetry Tracing API
-via its <<opentelemetry-bridge>>. As well, it instruments the OpenTelemetry JS
-API and Metrics SDK to allow usage of the OpenTelemetry Metrics API.
+via its <<opentelemetry-bridge>>. As well, it instruments the OpenTelemetry
+Metrics API and Metrics SDK to allow
+<<otel-metrics-api,usage of the OpenTelemetry Metrics API>>.
 
 [options="header"]
 |=======================================================================
