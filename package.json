@@ -111,7 +111,7 @@
     "original-url": "^1.2.3",
     "pino": "^6.11.2",
     "relative-microtime": "^2.0.0",
-    "require-in-the-middle": "elastic/require-in-the-middle#trentm/http2-is-builtin-node8",
+    "require-in-the-middle": "^7.0.1",
     "semver": "^6.3.0",
     "set-cookie-serde": "^1.0.0",
     "shallow-clone-shim": "^2.0.0",
