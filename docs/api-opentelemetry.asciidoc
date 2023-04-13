@@ -13,9 +13,9 @@ The Elastic APM OpenTelemetry bridge allows one to use the vendor-neutral
 https://opentelemetry.io/docs/instrumentation/js/[OpenTelemetry API]
 (https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`]) in
 your code, and have the Elastic Node.js APM agent handle those API calls.
-This allows one to use the Elastic APM agent for tracing and metrics
-without any vendor lock-in from adding manual tracing or custom metrics
-using the APM agent's own <<api,public API>>.
+This allows one to use the Elastic APM agent for tracing and metrics without any
+vendor lock-in to APM agent's own <<api,public API>> with adding manual tracing
+or custom metrics.
 
 
 [float]
@@ -87,7 +87,7 @@ tracer.startActiveSpan('makeRequest', span => {
 ----
 
 The APM agent source code repository includes
-https://github.com/elastic/apm-agent-nodejs/tree/main/examples/opentelemetry-bridge[some examples using the OpenTelemetry bridge].
+https://github.com/elastic/apm-agent-nodejs/tree/main/examples/opentelemetry-bridge[some examples using the OpenTelemetry tracing bridge].
 
 
 [float]
@@ -103,7 +103,7 @@ for the current maximum supported API version. For example:
 npm install --save elastic-apm-node @opentelemetry/api
 ----
 
-② Second, configure and start the APM agent. This can be done completely with
+② Configure and start the APM agent. This can be done completely with
 environment variables -- as shown below -- or in code. (See <<starting-the-agent>>
 and <<configuration,the full APM agent configuration reference>> for other
 configuration options.)
@@ -159,8 +159,8 @@ export ELASTIC_APM_DISABLE_INSTRUMENTATIONS="@opentelemetry/api"
 The Elastic APM agent also supports exporting metrics to APM server when the
 OpenTelemetry Metrics *SDK* is being used directly. You might want to use
 the OpenTelemetry Metrics SDK to use a https://opentelemetry.io/docs/reference/specification/metrics/sdk/#view[`View`]
-to configure histogram bucket sizes, to setup a Prometheus exporter, etc.
-For example:
+to configure histogram bucket sizes, to setup a Prometheus exporter, or for
+other reasons. For example:
 
 [source,js]
 ----
@@ -205,7 +205,7 @@ Some examples of semantic translations: The first entry span of a
 service (e.g. an incoming HTTP request) will be converted to an
 {apm-guide-ref}/data-model-transactions.html[Elasic APM `Transaction`],
 subsequent spans are mapped to
-{apm-guide-ref}/data-model-spans.html[Elastic APM `Span`]. OpenTelemetry Span
+{apm-guide-ref}/data-model-spans.html[Elastic APM `Span`s]. OpenTelemetry Span
 attributes are translated into the appropriate fields in Elastic APM's data
 model.
 
@@ -234,7 +234,7 @@ any limitations and differences.
 [[otel-caveats-tracing]]
 ===== Tracing
 
-- Span Link Attributes. Adding links when https://open-telemetry.github.io/opentelemetry-js/interfaces/\_opentelemetry_api.Tracer.html[starting a span] is currently supported, but any added span link _attributes_ are silently dropped.
+- Span Link Attributes. Adding links when https://open-telemetry.github.io/opentelemetry-js/interfaces/\_opentelemetry_api.Tracer.html[starting a span] is supported, but any added span link *attributes* are silently dropped.
 - Span events (https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api.Span.html#addEvent[`Span#addEvent()`]) are not currently supported. Events will be silently dropped.
 - https://open-telemetry.github.io/opentelemetry-js/classes/_opentelemetry_api.PropagationAPI.html[Propagating baggage] within or outside the process is not supported. Baggage items are silently dropped.
 
