@@ -95,7 +95,7 @@ https://github.com/elastic/apm-agent-nodejs/tree/main/examples/opentelemetry-bri
 === Using the OpenTelemetry Metrics API
 
 ① As above, install the needed dependencies. The minimum required OpenTelemetry
-API version is 1.0.0; see <<compatibility-opentelemetry,the OpenTelemetry compatibility section>>
+API version is 1.3.0 when metrics were added; see <<compatibility-opentelemetry,the OpenTelemetry compatibility section>>
 for the current maximum supported API version. For example:
 
 [source,bash]
