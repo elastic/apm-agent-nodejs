@@ -265,7 +265,6 @@ cases.forEach(c => {
               ELASTIC_APM_API_REQUEST_TIME: '500ms',
               ELASTIC_APM_CENTRAL_CONFIG: 'false',
               ELASTIC_APM_CLOUD_PROVIDER: 'none',
-              ELASTIC_APM_LOG_LEVEL: 'trace', // XXX debugging windows CI failure
               ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true'
             }
           )
