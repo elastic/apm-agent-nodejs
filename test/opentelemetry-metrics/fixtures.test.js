@@ -18,7 +18,8 @@
 
 const util = require('util')
 
-const { execFile } = require('child_process')
+const { exec, execFile } = require('child_process')
+const fs = require('fs')
 const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
@@ -32,6 +33,10 @@ if (!semver.satisfies(process.version, '>=14')) {
 }
 
 const undici = require('undici') // import after we've excluded node <14
+
+const fixturesDir = path.join(__dirname, 'fixtures')
+
+// ---- support functions
 
 async function checkEventsHaveTestMetrics (t, events, extraMetricNames = []) {
   let m
@@ -110,6 +115,27 @@ async function checkHasPrometheusMetrics (t) {
   const text = await body.text()
   t.ok(text.indexOf('\ntest_counter') !== -1, 'prometheus metrics include "test_counter"')
 }
+
+// ---- tests
+
+// We need to `npm install` for a first test run.
+const haveNodeModules = fs.existsSync(path.join(fixturesDir, 'node_modules'))
+tape.test(`setup: npm install (in ${fixturesDir})`, { skip: haveNodeModules }, t => {
+  const startTime = Date.now()
+  exec(
+    'npm install',
+    {
+      cwd: fixturesDir
+    },
+    function (err, stdout, stderr) {
+      t.error(err, `"npm install" succeeded (took ${(Date.now() - startTime) / 1000}s)`)
+      if (err) {
+        t.comment(`$ npm install\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`)
+      }
+      t.end()
+    }
+  )
+})
 
 const cases = [
   {
