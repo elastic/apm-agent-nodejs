@@ -4,7 +4,7 @@ This directory shows how you can use the OpenTelemetry Metrics API with the Elas
    If you don't have one, start here to use a free hosted trial:
    https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html
 
-2. Install dependencies (XXX bump elastic-apm-node dep once have release):
+2. Install dependencies:
 
     ```
     git clone https://github.com/elastic/apm-agent-nodejs.git
