@@ -20,58 +20,32 @@ permissions:
   contents: read
 
 jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      versions: ${{ steps.generate-matrix.outputs.versions }}
+      modules: ${{ steps.generate-matrix.outputs.modules }}
+    steps:
+    - uses: actions/checkout@v3
+    ## TODO: use elastic/apm-pipeline-library/.github/actions/version-framework
+    ##       as soon as https://github.com/elastic/apm-pipeline-library/issues/2171 is done.
+    - id: generate-matrix
+      run: .ci/generate-github-tav-matrix.sh
+
   test-tav:
+    needs: prepare-matrix
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:
       max-parallel: 30
       fail-fast: false
       matrix:
-        # A job matrix limit is 256. Grouping below is to stay under that limit.
+        # A job matrix limit is 256. We do some grouping of TAV modules to
+        # stay under that limit.
         # https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration
-        node:
-          - "19"
-          - "18"
-          - "16"
-          - "14"
-          - "12"
-          - "10"
-          - "8"
-        module:
-          - '@elastic/elasticsearch'
-          - '@elastic/elasticsearch-canary'
-          - '@hapi/hapi'
-          - '@opentelemetry/api'
-          - '@opentelemetry/sdk-metrics'
-          - apollo-server-express
-          - aws-sdk
-          - cassandra-driver
-          - elasticsearch
-          - express
-          - express-graphql
-          - express-queue
-          - fastify
-          - finalhandler
-          - generic-pool
-          - graphql
-          - ioredis
-          - knex
-          - memcached
-          - mongodb
-          - mongodb-core
-          - mysql
-          - mysql2
-          - next
-          - pg
-          - redis
-          - restify
-          - tedious
-          - undici
-          - ws
-          # Grouped sets.
-          - '@koa/router,koa-router'
-          - handlebars,pug
-          - bluebird,got,mimic-response
+        node: ${{ fromJSON(needs.prepare-matrix.outputs.versions) }}
+        module: ${{ fromJSON(needs.prepare-matrix.outputs.modules) }}
     steps:
       - uses: actions/checkout@v3
       - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"

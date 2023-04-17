@@ -50,6 +50,9 @@ module.exports = function (expectations = [], done) {
     },
     supportsKeepingUnsampledTransaction () {
       return true
+    },
+    supportsActivationMethodField () {
+      return true
     }
   }
 }

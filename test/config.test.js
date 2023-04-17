@@ -1141,6 +1141,10 @@ test('custom transport', function (t) {
     supportsKeepingUnsampledTransaction () {
       return true
     }
+
+    supportsActivationMethodField () {
+      return true
+    }
   }
   const myTransport = new MyTransport()
 
