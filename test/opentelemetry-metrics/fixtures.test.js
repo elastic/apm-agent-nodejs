@@ -20,6 +20,7 @@ const util = require('util')
 
 const { exec, execFile } = require('child_process')
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 const semver = require('semver')
 const tape = require('tape')
@@ -284,11 +285,14 @@ cases.forEach(c => {
           t.end()
         }
       )
-      // Wait ~2s for some metrics to have been sent.
+      // Wait some time for some metrics to have been sent.
+      // (Attempt to avoid spurious GH Actions CI issues on Windows runners with
+      // a longer wait time.)
+      const WAIT_TIME_MS = os.platform() === 'win32' ? 4000 : 2000
       setTimeout(async () => {
         await c.checkEvents(t, server.events)
         proc.kill()
-      }, 2000)
+      }, WAIT_TIME_MS)
     })
   })
 })
