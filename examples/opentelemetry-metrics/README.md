@@ -1,153 +1,55 @@
-XXX 'splain
+This directory shows how you can use the OpenTelemetry Metrics API with the Elastic APM Node.js agent.
 
-# Setup
+1. You will need an Elastic deployment to which to send APM data.
+   If you don't have one, start here to use a free hosted trial:
+   https://www.elastic.co/guide/en/apm/guide/current/apm-quick-start.html
 
-XXX get started with APM server
+2. Install dependencies (XXX bump elastic-apm-node dep once have release):
 
-npm install
-cp .env.template .env
-vi .env
-XXX prom download? or use docker?
+    ```
+    git clone https://github.com/elastic/apm-agent-nodejs.git
+    cd apm-agent-nodejs/examples/opentelemetry-metrics
+    npm install
+    ```
 
+3. Run [the "Hello World" example](./otel-metrics-hello-world.js). This shows
+   a minimal example using the `@opentelemetry/api` to create a custom counter
+   metric.
 
-# Application metrics use cases
+    ```
+    export ELASTIC_APM_SERVER_URL=https://...  # your Elastic APM Server URL
+    export ELASTIC_APM_SECRET_TOKEN=...
+    node -r elastic-apm-node/start.js otel-metrics-hello-world.js
+    ```
 
-Here are a number of use cases for getting metrics from an app. We'll compare
-end results for each of these. The first three do not involve the Elastic
-APM Node.js agent.
+    Then add some load to exercise the custom metrics in that script:
 
-1. Using a Prometheus client and export metrics to Prometheus.
-   ```
-   node use-prom.js
-   ```
+    ```
+    while true; do curl http://127.0.0.1:3000/; sleep 1; done
+    ```
 
-2. Using OTel Metrics (API and SDK) to create metrics and export to Prometheus.
-   ```
-   node use-otel-prom.js
-   ```
+    **The `num_requests` custom metric counter can now be visualized in Kibana.**
 
-This one shows that OTel Metrics can be **sent directly to an Elastic APM server
-via OTLP/gRPC**, configured via the
-[OTLP exporter environment variables](https://opentelemetry.io/docs/concepts/sdk-configuration/otlp-exporter-configuration/):
+    ![A chart of num_requests](./num_requests-chart.png)
 
-3. Using OTel Metrics to create metrics and export via OTLP/gRPC.
-   Elastic APM server supports OTLP/gRPC intake.
-   ```
-   OTEL_EXPORTER_OTLP_ENDPOINT=https://APM-SERVER-URL:8200 \
-      OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer APM-SECRET-TOKEN" \
-      OTEL_RESOURCE_ATTRIBUTES=service.name=use-otel-otlp \
-      node use-otel-otlp.js
-   ```
+5. Stop the hello world example and run [the "Using the OTel Metrics SDK" example](./use-otel-metrics-sdk.js).
+   This example shows how to use the OpenTelemetry Metrics *SDK* to export metrics
+   both via a Prometheus endpoint *and* to Elastic APM:
 
-Cases 4 and 5 show how the Elastic APM agent can be used to collect metrics
-from OTel-using code **without any code changes**:
+    ```
+    export ELASTIC_APM_SERVER_URL=https://...  # your Elastic APM Server URL
+    export ELASTIC_APM_SECRET_TOKEN=...
+    node -r elastic-apm-node/start.js use-otel-metrics-sdk.js
+    ```
 
-4. Use the same "otel-prom.js" script from above, but also start the Elastic APM
-   agent. The APM agent will send metrics to APM server without interfering with
-   the Prometheus metrics.
-   ```
-   ELASTIC_APM_SERVER_URL=https://... \
-      ELASTIC_APM_SECRET_TOKEN=... \
-      ELASTIC_APM_SERVICE_NAME=use-otel-prom-elastic \
-      PROM_PORT=3004 \
-      node -r elastic-apm-node/start use-otel-prom.js
-   ```
+    Again apply some load to exercise the the script:
 
-5. A script that just uses the OTel *API*, without configuring an SDK. The
-   Elastic APM agent will provide a fallback MeterProvider to send created
-   metrics to APM server.
-   ```
-   ELASTIC_APM_SERVER_URL=https://... \
-      ELASTIC_APM_SECRET_TOKEN=... \
-      ELASTIC_APM_SERVICE_NAME=use-otel-api \
-      node -r elastic-apm-node/start use-otel-api.js
-   ```
+    ```
+    while true; do curl http://127.0.0.1:3000/; sleep 1; done
+    ```
 
-XXX TODO: a use case using the OTel *Node SDK*. More realistic. What's the experience then?
-   https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-sdk-node/README.md
-   This also uses the EnvDetector, so can use that for OTEL_RESOURCE_ATTRIBUTES.
-
-# Running everything
-
-XXX prom setup
-XXX note prom config
-
-```
-make start
-```
-
-# Links
-
-A Prometheus quick dashboard showing the `my_counter` metric exported from
-the three cases (1, 2, and 4) exporting to Prometheus:
-
-http://localhost:9090/graph?g0.expr=my_counter%7Bjob%3D%22use-prom%22%7D&g0.tab=0&g0.stacked=1&g0.show_exemplars=0&g0.range_input=5m&g1.expr=my_counter_total%7Bjob%3D%22use-otel-prom%22%7D&g1.tab=0&g1.stacked=1&g1.show_exemplars=0&g1.range_input=5m&g2.expr=my_counter_total%7Bjob%3D%22use-otel-prom-elastic%22%7D&g2.tab=0&g2.stacked=1&g2.show_exemplars=0&g2.range_input=5m
-
-http://localhost:9090/graph?g0.expr=my_async_gauge%7Bjob%3D%22use-prom%22%7D&g0.tab=0&g0.stacked=1&g0.show_exemplars=0&g0.range_input=5m&g1.expr=my_async_gauge_total%7Bjob%3D%22use-otel-prom%22%7D&g1.tab=0&g1.stacked=1&g1.show_exemplars=0&g1.range_input=5m&g2.expr=my_async_gauge_total%7Bjob%3D%22use-otel-prom-elastic%22%7D&g2.tab=0&g2.stacked=1&g2.show_exemplars=0&g2.range_input=5m
+    **The a percentile of the `latency` custom histogram metric can now be visualized in Kibana.**
 
 
-XXX internal, but show a screenshot
-
-- Elastic dashboard: https://my-deployment-31a70c.kb.us-west2.gcp.elastic-cloud.com:9243/app/dashboards#/view/be0f56b0-a1cc-11ed-9fae-bbff25ada9d8
-
-
-
-# setup prom
-
-XXX
-
-https://prometheus.io/docs/prometheus/latest/getting_started/
-
-```
-curl -LO https://github.com/prometheus/prometheus/releases/download/v2.41.0/prometheus-2.41.0.darwin-amd64.tar.gz
-tar xf prometheus-2.41.0.darwin-amd64.tar.gz
-
-make start  # starts prom and apps
-```
-
-
-# node prom-client vs OTel Metrics SDK
-
-XXX move to issue
-
-An interesting difference in Prometheus metrics from simple node prom-client usage
-OTel Metrics SDK usage. Abridged usage:
-
-```js
-// prom-client
-prom.register.setDefaultLabels({ 'serviceName': SERVICE_NAME })
-const counter = new prom.Counter({
-  name: 'test_counter',
-  help: 'A test Counter',
-})
-
-// OTel Metrics
-const meterProvider = new MeterProvider({
-  resource: new Resource({ [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME })
-})
-const counter = meter.createCounter('test_counter', {
-  description: 'A test Counter'
-})
-```
-
-Resultant Prometheus metrics:
-
-```
-// prom-client
-# HELP test_counter A test Counter
-# TYPE test_counter counter
-test_counter{serviceName="examples-opentelemetry-metrics"} 6
-
-// OTel Metrics
-# HELP target_info Target metadata
-# TYPE target_info gauge
-target_info{service_name="examples-opentelemetry-metrics",telemetry_sdk_language="nodejs",telemetry_sdk_name="opentelemetry",telemetry_sdk_version="1.9.1"} 1
-# HELP test_counter_total A test Counter
-# TYPE test_counter_total counter
-test_counter_total 3 1675211231572
-```
-
-Differences:
-- Resource/metadata in `target_info` metric.
-- `_total` suffix on the counter.
-
+See https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html
+for more details on the OpenTelemetry integration in the Elastic APM Node.js agent.
