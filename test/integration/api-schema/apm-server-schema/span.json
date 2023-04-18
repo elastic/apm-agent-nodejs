@@ -659,7 +659,23 @@
           "type": [
             "null",
             "object"
-          ]
+          ],
+          "properties": {
+            "aws.s3.bucket": {
+              "type": [
+                "null",
+                "string"
+              ],
+              "description": "The S3 bucket name the request refers to. Corresponds to the `--bucket` parameter of the S3 API"
+            },
+            "aws.s3.key": {
+              "type": [
+                "null",
+                "string"
+              ],
+              "description": "The S3 object key the request refers to. Corresponds to the `--key` parameter of the S3 API"
+            }
+          }
         },
         "span_kind": {
           "description": "SpanKind holds the incoming OpenTelemetry span kind.",
