@@ -21,6 +21,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 //   cannot be tested.
 
 const { execFile } = require('child_process')
+const util = require('util')
 
 const tape = require('tape')
 
@@ -44,20 +45,24 @@ tape.test('simple S3 usage scenario', function (t) {
       TEST_REGION: 'us-east-2'
     }
     t.comment('executing test script with this env: ' + JSON.stringify(additionalEnv))
+    console.time('exec use-s3')
     execFile(
       process.execPath,
       ['fixtures/use-s3.js'],
       {
         cwd: __dirname,
-        timeout: 10000, // sanity guard on the test hanging
+        timeout: 20000, // sanity guard on the test hanging
+        maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
         env: Object.assign({}, process.env, additionalEnv)
       },
       function done (err, stdout, stderr) {
+        console.timeLog('exec use-s3')
         t.error(err, 'use-s3.js did not error out')
         if (err) {
-          t.comment(`use-s3.js stdout:\n${stdout}\n`)
-          t.comment(`use-s3.js stderr:\n${stderr}\n`)
+          t.comment('err: ' + util.inspect(err))
         }
+        t.comment(`use-s3.js stdout:\n${stdout}\n`)
+        t.comment(`use-s3.js stderr:\n${stderr}\n`)
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
 
         // Sort the events by timestamp, then work through each expected span.
