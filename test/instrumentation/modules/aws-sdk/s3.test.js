@@ -45,7 +45,7 @@ tape.test('simple S3 usage scenario', function (t) {
       TEST_REGION: 'us-east-2'
     }
     t.comment('executing test script with this env: ' + JSON.stringify(additionalEnv))
-    console.time('exec use-s3')
+    console.time && console.time('exec use-s3')
     execFile(
       process.execPath,
       ['fixtures/use-s3.js'],
@@ -56,7 +56,7 @@ tape.test('simple S3 usage scenario', function (t) {
         env: Object.assign({}, process.env, additionalEnv)
       },
       function done (err, stdout, stderr) {
-        console.timeLog('exec use-s3')
+        console.timeLog && console.timeLog('exec use-s3')
         t.error(err, 'use-s3.js did not error out')
         if (err) {
           t.comment('err: ' + util.inspect(err))
