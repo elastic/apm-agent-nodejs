@@ -5,7 +5,7 @@
 # for improvement.
 #
 # Usage:
-#   ./dev-utils/ghaction-tav-slow-jobs.sh
+#   ./dev-utils/ci-tav-slow-jobs.sh
 #
 # The columns are:
 #   1. duration in seconds
