@@ -118,6 +118,7 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200, response: { encoded_body_size: 205 } }
           },
+          otel: { attributes: {} },
           outcome: 'success'
         }, 'listAllBuckets produced expected span')
 
