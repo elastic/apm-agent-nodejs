@@ -40,6 +40,10 @@ Notes:
 [float]
 ===== Features
 
+* Add `aws.s3.bucket` and `aws.s3.key` attributes for OpenTelemetry in S3 instrumentation.
+  Spec https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/semantic_conventions/trace/instrumentation/aws-sdk.yml#L435
+  ({issues}3150[#3150]).
+
 [float]
 ===== Bug fixes
 
