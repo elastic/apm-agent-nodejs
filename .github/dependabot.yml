@@ -9,6 +9,14 @@ updates:
       - "elastic/apm-agent-node-js"
 
   - package-ecosystem: "npm"
+    directory: "/test/instrumentation/azure-functions/fixtures/AJsAzureFnApp"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "elastic/apm-agent-node-js"
+
+  - package-ecosystem: "npm"
     directory: "/test/instrumentation/modules/next/a-nextjs-app"
     schedule:
       interval: "weekly"
