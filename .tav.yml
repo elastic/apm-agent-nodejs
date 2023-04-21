@@ -524,10 +524,17 @@ aws-sdk:
 # - undici@4.7.0 added its diagnostics_channel support.
 # - In undici@4.7.1 the `request.origin` property was added, which we need
 #   in the 'undici:request:create' diagnostic message.
-undici:
-  versions: '>=4.7.1 <6'
+# - In undici@5.22.0 support for node <14. Before that the min was node >=12.18.
+undici-v4-v5220:
+  name: undici
+  versions: '>=4.7.1 <5.22.0'
   commands: node test/instrumentation/modules/undici/undici.test.js
   node: '>=12.18'
+undici:
+  name: undici
+  versions: '>=5.22.0 <6'
+  commands: node test/instrumentation/modules/undici/undici.test.js
+  node: '>=14'
 
 "@opentelemetry/api":
   versions: '>=1.0.0 <1.5.0'
