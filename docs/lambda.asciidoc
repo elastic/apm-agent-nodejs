@@ -90,3 +90,4 @@ include::./shared-set-up.asciidoc[tag=error-logging]
 
 * System and custom metrics are not collected for Lambda functions. This is both because most of those are irrelevant
 and because the interval-based event sending model is not suitable for FaaS environments.
+* Lambda instrumentation does not currently work when the (deprecated) <<context-manager,`contextManager: 'patch'`>> configuration setting is used.

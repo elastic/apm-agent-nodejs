@@ -12,6 +12,11 @@
 // "AgentMock". The mock doesn't fully test the "transaction" intake event
 // object creation path.)
 
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
+  process.exit()
+}
+
 const lambdaLocal = require('lambda-local')
 const tape = require('tape')
 

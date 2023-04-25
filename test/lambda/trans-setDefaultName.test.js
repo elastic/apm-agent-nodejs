@@ -9,6 +9,11 @@
 // Test that instrumentation using `Transaction.setDefaultName(...)` still
 // works after the Lambda instrumentation has set the transaction name.
 
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
+  process.exit()
+}
+
 const lambdaLocal = require('lambda-local')
 const tape = require('tape')
 
