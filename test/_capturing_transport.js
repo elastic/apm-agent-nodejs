@@ -94,6 +94,13 @@ class CapturingTransport {
     }
   }
 
+  lambdaShouldRegisterTransactions () {
+    return true
+  }
+
+  lambdaRegisterTransaction (trans, awsRequestId) {
+  }
+
   supportsKeepingUnsampledTransaction () {
     return true
   }

@@ -15,10 +15,7 @@
 const lambdaLocal = require('lambda-local')
 const tape = require('tape')
 
-const apm = require('../../')
-const { MockAPMServer } = require('../_mock_apm_server')
-
-// Setup env for both apm.start() and lambdaLocal.execute().
+// Setup env for `require('elastic-apm-http-client')` and lambdaLocal.execute().
 process.env.AWS_LAMBDA_FUNCTION_NAME = 'fixture-function-name'
 // Set these values to have stable data from lambdaLocal.execute().
 process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs14.x'
@@ -34,16 +31,57 @@ process.env.AWS_LAMBDA_LOG_STREAM_NAME = '2021/11/01/[1.0]lambda/e7b05091b39b4aa
 //    warning Using both auth systems: aws_access_key/id and secret_access_token!
 process.env.AWS_PROFILE = 'fake'
 
+const apm = require('../../')
+const { MockAPMServer } = require('../_mock_apm_server')
+const { findObjInArray } = require('../_utils')
+
+// ---- support functions
+
 function loadFixture (file) {
   return require('./fixtures/' + file)
 }
+
+// There is an expected order and set of requests from the APM agent to the
+// Elastic Lambda extension in a Lambda function.
+//
+// - There may be a `GET /` request.
+// - There must be a `POST /register/transaction` request -- at least for the
+//   first invocation. If that fails, then the APM agent will stop sending this.
+// - For a lambda invocation that completes (as opposed to a timeout, crash, etc.):
+//    - There must be one or more `POST /intake/v2/events` req with tracing data.
+//    - The last `POST /intake/v2/events` request must have the `?flushed=true`
+//      query param.
+function assertExpectedServerRequests (t, requests, expectIntakeRequests = true) {
+  const rootReq = findObjInArray(requests, 'url', '/')
+  if (rootReq) {
+    t.equal(rootReq.method, 'GET', '"GET /" request')
+  }
+
+  const regReq = findObjInArray(requests, 'url', '/register/transaction')
+  t.equal(regReq.method, 'POST', '"POST /register/transaction" request')
+  t.equal(regReq.headers['content-type'], 'application/vnd.elastic.apm.transaction+ndjson', '"POST /register/transaction" content-type')
+  t.ok(regReq.headers['x-elastic-aws-request-id'], '"POST /register/transaction" x-elastic-aws-request-id header')
+  t.ok(regReq.body.includes('{"metadata":'), '"POST /register/transaction" body includes metadata')
+  t.ok(regReq.body.includes('{"transaction":'), '"POST /register/transaction" body includes transaction')
+
+  if (expectIntakeRequests) {
+    const intakeReqs = requests.filter(r => r.url.startsWith('/intake/v2/events'))
+    intakeReqs.forEach(intakeReq => {
+      t.equal(intakeReq.method, 'POST', '"POST /intake/v2/events" request')
+    })
+    t.equal(intakeReqs[intakeReqs.length - 1].url, '/intake/v2/events?flushed=true',
+      'last intake request uses "?flushed=true"')
+  }
+}
+
+// ---- tests
 
 tape.test('lambda transactions', function (suite) {
   let server
   let serverUrl
 
   suite.test('setup', function (t) {
-    server = new MockAPMServer()
+    server = new MockAPMServer({ mockLambdaExtension: true })
     server.start(function (serverUrl_) {
       serverUrl = serverUrl_
       t.comment('mock APM serverUrl: ' + serverUrl)
@@ -62,7 +100,8 @@ tape.test('lambda transactions', function (suite) {
     {
       name: 'transaction.context.{request,response} for API Gateway payload format version 1.0',
       event: loadFixture('aws_api_rest_test_data.json'),
-      checkApmEvents: (t, events) => {
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
         const trans = events[1].transaction
         t.deepEqual(trans.context.request, {
           http_version: '1.1',
@@ -107,7 +146,8 @@ tape.test('lambda transactions', function (suite) {
     {
       name: 'transaction.context.{request,response} for API Gateway payload format version 2.0',
       event: loadFixture('aws_api_http_test_data.json'),
-      checkApmEvents: (t, events) => {
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
         const trans = events[1].transaction
         t.deepEqual(trans.context.request, {
           http_version: '1.1',
@@ -147,7 +187,8 @@ tape.test('lambda transactions', function (suite) {
       handler: (_event, _context, cb) => {
         cb(null, 'hi')
       },
-      checkApmEvents: (t, events) => {
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
         const trans = events[1].transaction
         t.deepEqual(trans.context.response, {
           status_code: 200,
@@ -161,7 +202,8 @@ tape.test('lambda transactions', function (suite) {
       handler: (_event, _context, cb) => {
         cb(new Error('boom'))
       },
-      checkApmEvents: (t, events) => {
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
         const trans = events[1].transaction
         const error = events[2].error
         t.equal(trans.outcome, 'failure', 'transaction.outcome')
@@ -173,7 +215,8 @@ tape.test('lambda transactions', function (suite) {
     {
       name: 'ALB (ELB) event',
       event: loadFixture('aws_elb_test_data.json'),
-      checkApmEvents: (t, events) => {
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
         const trans = events[1].transaction
         t.equal(trans.trace_id, '12345678901234567890123456789012', 'transaction.trace_id')
         t.equal(trans.parent_id, '1234567890123456', 'transaction.parent_id')
@@ -207,7 +250,8 @@ tape.test('lambda transactions', function (suite) {
           hi: 'there'
         }
       },
-      checkApmEvents: (t, events) => {
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
         const trans = events[1].transaction
         t.equal(trans.name, 'POST unknown route', 'transaction.name')
         t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
@@ -215,8 +259,49 @@ tape.test('lambda transactions', function (suite) {
         t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
         t.deepEqual(trans.context.response, { status_code: 502, headers: {} }, 'transaction.context.response')
       }
+    },
+    {
+      // Test that a `POST /register/transaction` request from the APM agent
+      // will result in this transaction getting reported -- assuming the
+      // Lambda extension does its job.
+      name: 'lambda fn timeout',
+      event: {},
+      timeoutMs: 500,
+      handler: (_event, _context, cb) => {
+        setTimeout(() => {
+          cb(null, 'hi')
+        }, 1000)
+      },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests, /* expectIntakeRequests */ false)
+        t.equal(events.length, 0, 'no intake events were reported')
+        // Get the transaction from the `POST /register/transaction` request
+        // and assert some basic structure.
+        const regReq = findObjInArray(requests, 'url', '/register/transaction')
+        const trans = JSON.parse(regReq.body.split(/\n/g)[1]).transaction
+        t.equal(trans.faas.name, process.env.AWS_LAMBDA_FUNCTION_NAME, 'transaction.faas.name')
+        t.equal(trans.outcome, 'unknown', 'transaction.outcome')
+      }
+    },
+    {
+      name: 'lambda fn sync throw',
+      event: {},
+      handler: (_event, _context, cb) => {
+        throw new Error('errorThrowSync')
+      },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.result, 'failure', 'transaction.result')
+        t.equal(trans.outcome, 'failure', 'transaction.outcome')
+        const error = events[2].error
+        t.ok(error, 'error is reported')
+        t.equal(error.parent_id, trans.id, 'error is a child of the transaction')
+        t.equal(error.exception.message, 'errorThrowSync', 'error.exception.message')
+      }
     }
   ]
+
   testCases.forEach(c => {
     suite.test(c.name, { skip: c.skip || false }, function (t) {
       const handler = c.handler || (
@@ -239,10 +324,10 @@ tape.test('lambda transactions', function (suite) {
           [process.env.AWS_LAMBDA_FUNCTION_NAME]: wrappedHandler
         },
         lambdaHandler: process.env.AWS_LAMBDA_FUNCTION_NAME,
-        timeoutMs: 3000,
+        timeoutMs: c.timeoutMs || 3000,
         verboseLevel: 0,
         callback: function (_err, _result) {
-          c.checkApmEvents(t, server.events)
+          c.checkResults(t, server.requests, server.events)
           t.end()
         }
       })

@@ -18,7 +18,8 @@ const assertTransaction = util.assertTransaction
 process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs14.x'
 process.env.AWS_REGION = 'us-east-1'
 
-test('success', function (t) {
+// XXX
+test.only('success', function (t) {
   const name = 'greet.hello'
   const input = { name: 'world' }
   const output = 'Hello, world!'
@@ -37,7 +38,7 @@ test('success', function (t) {
     },
     lambdaHandler: name,
     timeoutMs: 3000,
-    verboseLevel: 0, // set to `3` for debugging output
+    verboseLevel: 3, // set to `3` for debugging output
     callback: function (err, result) {
       t.ok(lambdaStartCalled,
         '_transport.lambdaStart() had been called before handler code executed')

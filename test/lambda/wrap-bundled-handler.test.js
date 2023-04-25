@@ -43,7 +43,7 @@ tape.test('automatic wrapping of _HANDLER=esbuild-bundled-handler/hello.main', f
   const express = require('express')
 
   const handler = require(path.join(__dirname, 'fixtures/esbuild-bundled-handler/hello')).main
-  t.equals(handler.name, 'wrappedLambda', 'handler function wrapped correctly')
+  t.equals(handler.name, 'wrappedLambdaHandler', 'handler function wrapped correctly')
 
   // Did normal patching/wrapping take place?
   t.equals(express.static.name, 'wrappedStatic', 'express module was instrumented correctly')
