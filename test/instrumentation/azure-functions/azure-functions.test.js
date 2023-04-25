@@ -20,7 +20,10 @@ const treekill = require('tree-kill')
 const { MockAPMServer } = require('../../_mock_apm_server')
 const { formatForTComment } = require('../../_utils')
 
-if (!semver.satisfies(process.version, '>=14 <19')) {
+if (semver.satisfies(process.version, '>=18')) {
+  console.log(`# SKIP azure-functions-core-tools is currently busted for node >=18.x (currently running node ${process.version}): see https://github.com/elastic/apm-agent-nodejs/issues/3279 and https://github.com/Azure/azure-functions-core-tools/issues/3335`)
+  process.exit()
+} else if (!semver.satisfies(process.version, '>=14 <19')) {
   console.log(`# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`)
   process.exit()
 } else if (os.platform() === 'win32') {

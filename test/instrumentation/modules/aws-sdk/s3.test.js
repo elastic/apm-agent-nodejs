@@ -141,6 +141,9 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200, response: { encoded_body_size: 177 } }
           },
+          otel: {
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
+          },
           outcome: 'success'
         }, 'createTheBucketIfNecessary produced expected span')
 
@@ -158,6 +161,9 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
+          },
+          otel: {
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
           },
           outcome: 'success'
         }, 'waitForBucketToExist produced expected span')
@@ -177,6 +183,12 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200 }
           },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
+          },
           outcome: 'success'
         }, 'createObj produced expected span')
 
@@ -194,6 +206,12 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
+          },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
           },
           outcome: 'success'
         }, 'waitForObjectToExist produced expected span')
@@ -213,6 +231,12 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
+          },
           outcome: 'success'
         }, 'getObj produced expected span')
 
@@ -230,6 +254,12 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 304 }
+          },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
           },
           outcome: 'success'
         }, 'getObjConditionalGet produced expected span')
@@ -249,6 +279,12 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
+          },
           outcome: 'success'
         }, 'getObjUsingPromise produced expected span')
 
@@ -267,6 +303,12 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 404, response: { encoded_body_size: 207 } }
+          },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt-does-not-exist'
+            }
           },
           outcome: 'failure'
         }, 'getObjNonExistantObject produced expected span')
@@ -290,6 +332,12 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 204 }
           },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
+          },
           outcome: 'success'
         }, 'deleteTheObj produced expected span')
 
@@ -307,6 +355,9 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 204 }
+          },
+          otel: {
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
           },
           outcome: 'success'
         }, 'deleteTheBucketIfCreatedIt produced expected span')
