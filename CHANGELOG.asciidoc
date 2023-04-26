@@ -44,8 +44,8 @@ Notes:
   https://github.com/elastic/apm-aws-lambda[Elastic AWS Lambda extension]
   v1.4.0 or greater, the APM agent will pre-register a partial transaction
   before the user's handler function is run. If the handler function fails
-  with a Lambda timeout, `uncaughtException`, or `unhandledRejection` then
-  the Lambda extension will report the failed transaction so it can be
+  with a Lambda timeout, `uncaughtException`, `unhandledRejection`, or crash
+  then the Lambda extension will report the failed transaction so it can be
   seen in the Kibana APM app. ({issues}3136[#3136])
 
 * Add `aws.s3.bucket` and `aws.s3.key` attributes for OpenTelemetry in S3 instrumentation.
