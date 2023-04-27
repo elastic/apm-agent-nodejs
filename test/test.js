@@ -13,41 +13,17 @@
 
 var fs = require('fs')
 var path = require('path')
-var readdir = require('fs').readdir
 var spawn = require('child_process').spawn
 
 var dashdash = require('dashdash')
+var glob = require('glob')
 var semver = require('semver')
 
 // XXX is this PATH adjustment actually needed? Drop if we can.
 var bin = path.join(process.cwd(), 'node_modules/.bin')
 var PATH = process.env.PATH + ':' + bin
 
-// XXX see if can avoid this being a top-level global to pass around, inside main() would be prefered
-var opts = {}
-
 // ---- support functions
-
-// gets list of directory names in ./test that contain a
-// .test.js file.
-function getDirectoriesWithTests (path = './test', results = [], exclude = []) {
-  const result = fs.readdirSync(path)
-  for (const file of result) {
-    const pathToTest = `${path}/${file}`
-    if (
-      file.indexOf('.test.js') !== -1 && // is a test file
-      results.indexOf(path) === -1 && // has not been found yet
-      exclude.indexOf(path) === -1 // is not something we're excluding
-    ) {
-      results.push(path)
-    }
-    if (fs.lstatSync(pathToTest).isDirectory()) {
-      getDirectoriesWithTests(pathToTest, results, exclude)
-    }
-  }
-
-  return results.map((item) => item.replace('./', ''))
-}
 
 function slugifyPath (f) {
   const illegalChars = /[^\w.-]/g
@@ -56,7 +32,8 @@ function slugifyPath (f) {
 
 // Run a single test file.  If `outDir` is set, then the TAP output will be
 // written to a "$outDir/*.tap" file.
-function run (test, cb) {
+function runTestFile (test, cb) {
+  // XXX can drop this?
   test.env = Object.assign({}, process.env, test.env || {})
   test.env.PATH = PATH
 
@@ -68,9 +45,9 @@ function run (test, cb) {
   }
 
   if (test.outDir) {
-    const outFileName = path.join(test.outDir, slugifyPath(path.join(test.cwd, test.file)) + '.tap')
-    console.log(`running test: cd ${test.cwd} && node ${args.join(' ')} > ${outFileName} 2&>1`)
-    if (opts.dry_run) {
+    const outFileName = path.join(test.outDir, slugifyPath(test.file) + '.tap')
+    console.log(`running test: node ${args.join(' ')} > ${outFileName} 2&>1`)
+    if (test.dryRun) {
       cb()
       return
     }
@@ -78,7 +55,6 @@ function run (test, cb) {
     outFile.on('open', function () {
       var ps = spawn('node', args, {
         stdio: ['inherit', outFile, outFile],
-        cwd: test.cwd,
         env: test.env
       })
       ps.on('error', cb)
@@ -104,14 +80,13 @@ function run (test, cb) {
       })
     })
   } else {
-    console.log(`running test: cd ${test.cwd} && node ${args.join(' ')}`)
-    if (opts.dry_run) {
+    console.log(`running test: node ${args.join(' ')}`)
+    if (test.dryRun) {
       cb()
       return
     }
     var ps = spawn('node', args, {
       stdio: 'inherit',
-      cwd: test.cwd,
       env: test.env
     })
     ps.on('error', cb)
@@ -177,69 +152,42 @@ var options = [
   }
 ]
 
-var parser = dashdash.createParser({ options: options })
-try {
-  opts = parser.parse(process.argv)
-} catch (e) {
-  console.error('test/test.js: error: %s', e.message)
-  process.exit(1)
-}
+function main () {
+  var parser = dashdash.createParser({ options })
+  try {
+    var opts = parser.parse(process.argv)
+  } catch (e) {
+    console.error('test/test.js: error: %s', e.message)
+    process.exit(1)
+  }
 
-// Use `parser.help()` for formatted options help.
-if (opts.help) {
-  var help = parser.help().trimRight()
-  console.log('usage: node test/test.js [OPTIONS]\n' +
+  // Use `parser.help()` for formatted options help.
+  if (opts.help) {
+    var help = parser.help().trimRight()
+    console.log('usage: node test/test.js [OPTIONS]\n' +
               'options:\n' +
               help)
-  process.exit(0)
-}
+    process.exit(0)
+  }
 
-// scan ./test for folders with *.test.js file, excluding
-// './test/start/env', './test/start/file' which are special
-// cases
-var directories = getDirectoriesWithTests(
-  './test',
-  [],
-  [
-    './test/start/env',
-    './test/start/file',
-    './test/activation-method/fixtures'
-  ]
-)
-
-mapSeries(directories, readdir, function (err, directoryFiles) {
-  if (err) throw err
-
-  var tests = [
-    {
-      file: 'test.test.js',
-      cwd: 'test/start/env',
-      env: {
-        ELASTIC_APM_SERVICE_NAME: 'from-env'
-      },
-      outDir: opts.output_dir
-    },
-    {
-      file: 'test.test.js',
-      cwd: 'test/start/file',
-      outDir: opts.output_dir
-    }
-  ]
-
-  directoryFiles.forEach(function (files, i) {
-    var directory = directories[i]
-    files.forEach(function (file) {
-      if (!file.endsWith('.test.js')) return
-
-      tests.push({
-        file: path.join(directory, file),
-        cwd: '.',
+  var tests = glob
+    .sync(
+      // Find all ".test.js" files, except those in "fixtures" dirs and in
+      // "node_modules" dirs created for test packages.
+      'test/**/*.test.js',
+      { ignore: ['**/node_modules/**', '**/fixtures/**'] }
+    )
+    .map(file => {
+      return {
+        file,
+        dryRun: opts.dry_run,
         outDir: opts.output_dir
-      })
+      }
     })
-  })
 
-  mapSeries(tests, run, function (err) {
+  mapSeries(tests, runTestFile, function (err) {
     if (err) throw err
   })
-})
+}
+
+main()
