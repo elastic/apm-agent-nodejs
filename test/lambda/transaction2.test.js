@@ -12,6 +12,9 @@
 // "AgentMock". The mock doesn't fully test the "transaction" intake event
 // object creation path.)
 
+const fs = require('fs')
+const path = require('path')
+
 const lambdaLocal = require('lambda-local')
 const tape = require('tape')
 
@@ -35,7 +38,7 @@ process.env.AWS_LAMBDA_LOG_STREAM_NAME = '2021/11/01/[1.0]lambda/e7b05091b39b4aa
 process.env.AWS_PROFILE = 'fake'
 
 function loadFixture (file) {
-  return require('./fixtures/' + file)
+  return JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', file)))
 }
 
 tape.test('lambda transactions', function (suite) {
@@ -215,8 +218,41 @@ tape.test('lambda transactions', function (suite) {
         t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
         t.deepEqual(trans.context.response, { status_code: 502, headers: {} }, 'transaction.context.response')
       }
+    },
+    {
+      name: 'API Gateway event, but without ".headers" field: APM agent should not crash',
+      event: (function () {
+        const ev = loadFixture('aws_api_http_test_data.json')
+        delete ev.headers
+        return ev
+      })(),
+      handler: (_event, _context, cb) => {
+        cb(null, { statusCode: 200, body: 'hi' })
+      },
+      checkApmEvents: (t, events) => {
+        const trans = events[1].transaction
+        t.equal(trans.name, 'POST /default/the-function-name', 'transaction.name')
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+      }
+    },
+    {
+      name: 'ELB event, but without ".headers" field: APM agent should not crash',
+      event: (function () {
+        const ev = loadFixture('aws_elb_test_data.json')
+        delete ev.headers
+        return ev
+      })(),
+      handler: (_event, _context, cb) => {
+        cb(null, { statusCode: 200, body: 'hi' })
+      },
+      checkApmEvents: (t, events) => {
+        const trans = events[1].transaction
+        t.equal(trans.faas.name, 'fixture-function-name', 'transaction.faas.name')
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+      }
     }
   ]
+
   testCases.forEach(c => {
     suite.test(c.name, { skip: c.skip || false }, function (t) {
       const handler = c.handler || (
