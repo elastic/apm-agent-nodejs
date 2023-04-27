@@ -284,7 +284,7 @@ tape.test('lambda transactions', function (suite) {
       handler: (_event, _context, cb) => {
         cb(null, { statusCode: 200, body: 'hi' })
       },
-      checkApmEvents: (t, events) => {
+      checkResults: (t, requests, events) => {
         const trans = events[1].transaction
         t.equal(trans.name, 'POST /default/the-function-name', 'transaction.name')
         t.equal(trans.outcome, 'success', 'transaction.outcome')
@@ -300,7 +300,7 @@ tape.test('lambda transactions', function (suite) {
       handler: (_event, _context, cb) => {
         cb(null, { statusCode: 200, body: 'hi' })
       },
-      checkApmEvents: (t, events) => {
+      checkResults: (t, requests, events) => {
         const trans = events[1].transaction
         t.equal(trans.faas.name, 'fixture-function-name', 'transaction.faas.name')
         t.equal(trans.outcome, 'success', 'transaction.outcome')
