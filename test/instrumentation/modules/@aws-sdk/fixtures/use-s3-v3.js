@@ -68,18 +68,6 @@ const {
 const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 
 // ---- support functions
-/**
- * Gets the data or error from a promise and calls the callback function in a calssic node fashion
- *
- * @param {Promise<unknown>} promise the promise we want to capture result and error for the callback
- * @param {*} cb node lile callback with the signature (err, data)
- */
-function toCallback (promise, cb) {
-  promise.then(
-    function (data) { cb(null, data) },
-    function (err) { cb(err, null) }
-  )
-}
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
 function useS3 (s3Client, bucketName, cb) {
@@ -101,11 +89,11 @@ function useS3 (s3Client, bucketName, cb) {
       function listAllBuckets (arg, next) {
         const command = new ListBucketsCommand({})
 
-        toCallback(s3Client.send(command), function (err, data) {
+        s3Client.send(command, function (err, data) {
           log.info({ err, data }, 'listBuckets')
           // TODO: need to check why this assertion fails
-          // assert(apm.currentSpan === null,
-          //   'S3 span should NOT be a currentSpan in its callback')
+          assert(apm.currentSpan === null,
+            'S3 span should NOT be a currentSpan in its callback')
           if (err) {
             next(err)
           } else {
@@ -114,8 +102,8 @@ function useS3 (s3Client, bucketName, cb) {
           }
         })
         // TODO: need to check why this assertion fails
-        // assert(apm.currentSpan === null,
-        //   'S3 span (or its HTTP span) should not be currentSpan in same async task after the method call')
+        assert(apm.currentSpan === null,
+          'S3 span (or its HTTP span) should not be currentSpan in same async task after the method call')
       },
 
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/createbucketcommand.html
@@ -132,7 +120,7 @@ function useS3 (s3Client, bucketName, cb) {
           }
         })
 
-        toCallback(s3Client.send(command), function (err, data) {
+        s3Client.send(command, function (err, data) {
           // E.g. data: {"Location": "http://trentm-play-s3-bukkit2.s3.amazonaws.com/"}
           log.info({ err, data }, 'createBucket')
           next(err)
@@ -140,13 +128,17 @@ function useS3 (s3Client, bucketName, cb) {
       },
 
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/functions/waitforbucketexists.html
-      function waitForBucketToExist (_, next) {
+      function waitForBucketExists (_, next) {
         const waiterConfig = { client: s3Client, minwaitTime: 5, maxWaitTime: 10 }
 
-        toCallback(
-          waitUntilBucketExists(waiterConfig, { Bucket: bucketName }),
-          function (err, data) {
-            log.info({ err, data }, 'waitFor bucketExists')
+        // use of `waitForBucketExists` logs a deprecation warning in favor of this method
+        waitUntilBucketExists(waiterConfig, { Bucket: bucketName }).then(
+          function (data) {
+            log.info({ data }, 'waitUntil bucketExists')
+            next()
+          },
+          function (err) {
+            log.info({ err }, 'waitUntil bucketExists')
             next(err)
           }
         )
@@ -164,7 +156,7 @@ function useS3 (s3Client, bucketName, cb) {
           ContentMD5: md5
         })
 
-        toCallback(s3Client.send(command), function (err, data) {
+        s3Client.send(command, function (err, data) {
           // data.ETag should match a hexdigest md5 of body.
           log.info({ err, data }, 'putObject')
           next(err)
@@ -172,13 +164,17 @@ function useS3 (s3Client, bucketName, cb) {
       },
 
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/functions/waitforobjectexists.html
-      function waitForObjectToExist (_, next) {
+      function waitForObjectExists (_, next) {
         const waiterConfig = { client: s3Client, minwaitTime: 5, maxWaitTime: 10 }
 
-        toCallback(
-          waitUntilObjectExists(waiterConfig, { Bucket: bucketName, Key: key }),
+        // use of `waitForObjectExists` logs a deprecation warning in favor of this method
+        waitUntilObjectExists(waiterConfig, { Bucket: bucketName, Key: key }).then(
+          function (data) {
+            log.info({ data }, 'waitUntil objectExists')
+            next()
+          },
           function (err, data) {
-            log.info({ err, data }, 'waitFor bucketExists')
+            log.info({ err, data }, 'waitUntil objectExists')
             next(err)
           }
         )
@@ -191,7 +187,7 @@ function useS3 (s3Client, bucketName, cb) {
           Key: key
         })
 
-        toCallback(s3Client.send(command), function (err, data) {
+        s3Client.send(command, function (err, data) {
           // data.ETag should match a hexdigest md5 of body.
           log.info({ err, data }, 'getObject')
           next(err)
@@ -208,10 +204,10 @@ function useS3 (s3Client, bucketName, cb) {
           Key: key
         })
 
-        toCallback(s3Client.send(command), function (err, data) {
+        s3Client.send(command, function (err, data) {
           log.info({ err, data }, 'getObject conditional get')
-          // Expect a 'NotModified' error, statusCode=304.
-          if (err && err.code === 'NotModified') {
+          // Expect a 'NotModified' error, httpStatusCode=304.
+          if (err && err.$metadata && err.$metadata.httpStatusCode === 304) {
             next()
           } else if (err) {
             next(err)
@@ -230,7 +226,7 @@ function useS3 (s3Client, bucketName, cb) {
           Key: nonExistantKey
         })
 
-        toCallback(s3Client.send(command), function (err, data) {
+        s3Client.send(command, function (err, data) {
           log.info({ err, data }, 'getObject non-existant key, expect error')
           if (err) {
             next()
@@ -247,7 +243,7 @@ function useS3 (s3Client, bucketName, cb) {
           Key: key
         })
 
-        toCallback(s3Client.send(command), function (err, data) {
+        s3Client.send(command, function (err, data) {
           log.info({ err, data }, 'deleteObject')
           next(err)
         })
@@ -262,7 +258,7 @@ function useS3 (s3Client, bucketName, cb) {
 
         const command = new DeleteBucketCommand({ Bucket: bucketName })
 
-        toCallback(s3Client.send(command), function (err, data) {
+        s3Client.send(command, function (err, data) {
           log.info({ err, data }, 'deleteBucket')
           next(err)
         })
