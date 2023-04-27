@@ -91,7 +91,6 @@ function useS3 (s3Client, bucketName, cb) {
 
         s3Client.send(command, function (err, data) {
           log.info({ err, data }, 'listBuckets')
-          // TODO: need to check why this assertion fails
           assert(apm.currentSpan === null,
             'S3 span should NOT be a currentSpan in its callback')
           if (err) {
@@ -101,7 +100,6 @@ function useS3 (s3Client, bucketName, cb) {
             next()
           }
         })
-        // TODO: need to check why this assertion fails
         assert(apm.currentSpan === null,
           'S3 span (or its HTTP span) should not be currentSpan in same async task after the method call')
       },
