@@ -244,13 +244,10 @@ any limitations and differences.
 - The `sum`, `count`, `min` and `max` within the OpenTelemetry histogram data are discarded.
 - The default histogram bucket boundaries are different from the OpenTelemetry default. They provide better resolution. They can be configured with the <<custom-metrics-histogram-boundaries>> configuration option.
 - Metrics label names are dedotted (`s/\./_/g`) in APM server to avoid possible mapping collisions in Elasticsearch.
-- The default Aggregation Temporality used differs from the OpenTelemetry default -- preferring
-*delta*-temporality (nicer for visualizing in Kibana) to cumulative-temporality.
+- The default https://github.com/elastic/apm/blob/main/specs/agents/metrics-otel.md#aggregation-temporality[Aggregation Temporality] used differs from the OpenTelemetry default -- preferring *delta*-temporality (nicer for visualizing in Kibana) to cumulative-temporality.
 
 Metrics support requires an APM server >=7.11 -- for earlier APM server
 versions, metrics with label names including `.`, `*`, or `"` will get dropped.
-
-// XXX Temporality link to spec when merged: https://github.com/elastic/apm/pull/742/files#diff-a04e98daf311e4b4d6a186717a32577382b938c32ebcfc3a73f3b322e584532eR16
 
 
 [float]
