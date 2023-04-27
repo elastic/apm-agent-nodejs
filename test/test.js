@@ -19,8 +19,14 @@ var spawn = require('child_process').spawn
 var dashdash = require('dashdash')
 var semver = require('semver')
 
+// XXX is this PATH adjustment actually needed? Drop if we can.
 var bin = path.join(process.cwd(), 'node_modules/.bin')
 var PATH = process.env.PATH + ':' + bin
+
+// XXX see if can avoid this being a top-level global to pass around, inside main() would be prefered
+var opts = {}
+
+// ---- support functions
 
 // gets list of directory names in ./test that contain a
 // .test.js file.
@@ -64,6 +70,10 @@ function run (test, cb) {
   if (test.outDir) {
     const outFileName = path.join(test.outDir, slugifyPath(path.join(test.cwd, test.file)) + '.tap')
     console.log(`running test: cd ${test.cwd} && node ${args.join(' ')} > ${outFileName} 2&>1`)
+    if (opts.dry_run) {
+      cb()
+      return
+    }
     const outFile = fs.createWriteStream(outFileName)
     outFile.on('open', function () {
       var ps = spawn('node', args, {
@@ -95,6 +105,10 @@ function run (test, cb) {
     })
   } else {
     console.log(`running test: cd ${test.cwd} && node ${args.join(' ')}`)
+    if (opts.dry_run) {
+      cb()
+      return
+    }
     var ps = spawn('node', args, {
       stdio: 'inherit',
       cwd: test.cwd,
@@ -150,6 +164,11 @@ var options = [
     help: 'Print this help and exit.'
   },
   {
+    names: ['dry-run', 'n'],
+    type: 'bool',
+    help: 'Dry-run. Just print what would be run.'
+  },
+  {
     names: ['output-dir', 'o'],
     type: 'string',
     help: 'Directory to which to write .tap files. By default test ' +
@@ -160,7 +179,7 @@ var options = [
 
 var parser = dashdash.createParser({ options: options })
 try {
-  var opts = parser.parse(process.argv)
+  opts = parser.parse(process.argv)
 } catch (e) {
   console.error('test/test.js: error: %s', e.message)
   process.exit(1)
