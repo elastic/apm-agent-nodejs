@@ -5,6 +5,7 @@
  */
 
 // A mock APM server to use in tests.
+// It also has an option to attempt to behave like the Elastic Lambda extension.
 //
 // Usage:
 //    const server = new MockAPMServer(opts)
@@ -22,14 +23,20 @@ const { URL } = require('url')
 const zlib = require('zlib')
 
 class MockAPMServer {
-  // - @param {Object} opts
-  //    - {String} opts.apmServerVersion - The version to report in the
-  //      "GET /" response body. Defaults to "8.0.0".
+  /**
+   * @param {object} opts
+   *    - {string} opts.apmServerVersion - The version to report in the `GET /`
+   *      response body. Defaults to "8.0.0".
+   *    - {boolean} opts.mockLambdaExtension - Default false. If enabled then
+   *      this will add some behaviour expected of APM Lambda extension, e.g.
+   *      responding to the `POST /register/transaction` endpoint.
+   */
   constructor (opts) {
     opts = opts || {}
     this.clear()
     this.serverUrl = null // set in .start()
-    this.apmServerVersion = opts.apmServerVersion || '8.0.0'
+    this._apmServerVersion = opts.apmServerVersion || '8.0.0'
+    this._mockLambdaExtension = !!opts.mockLambdaExtension
     this._http = http.createServer(this._onRequest.bind(this))
   }
 
@@ -60,7 +67,7 @@ class MockAPMServer {
         resBody = JSON.stringify({
           build_date: '2021-09-16T02:05:39Z',
           build_sha: 'a183f675ecd03fca4a897cbe85fda3511bc3ca43',
-          version: this.apmServerVersion
+          version: this._apmServerVersion
         })
       } else if (parsedUrl.pathname === '/config/v1/agents') {
         // Central config mocking.
@@ -75,6 +82,12 @@ class MockAPMServer {
           })
         resBody = '{}'
         res.writeHead(202)
+      } else if (this._mockLambdaExtension && req.method === 'POST' && parsedUrl.pathname === '/register/transaction') {
+        // See `func handleTransactionRegistration` in apm-aws-lambda.git.
+        // This mock doesn't handle the various checks there. It only handles
+        // the status code, so the APM agent will continue to register
+        // transactions.
+        res.writeHead(200)
       } else {
         res.writeHead(404)
       }

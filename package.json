@@ -1,6 +1,6 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.44.1",
+  "version": "3.45.0",
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -49,7 +49,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": "^8.6.0 || 10 || 12 || 14 || 16 || 17 || 18 || 19"
+    "node": ">=8.6.0"
   },
   "keywords": [
     "opbeat",
@@ -96,7 +96,7 @@
     "basic-auth": "^2.0.1",
     "cookie": "^0.5.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "11.3.1",
+    "elastic-apm-http-client": "11.4.0",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",
@@ -159,7 +159,7 @@
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "express-queue": "^0.0.13",
-    "fastify": "^4.0.2",
+    "fastify": "^4.16.3",
     "finalhandler": "^1.1.2",
     "generic-pool": "^3.7.1",
     "get-port": "^5.1.1",

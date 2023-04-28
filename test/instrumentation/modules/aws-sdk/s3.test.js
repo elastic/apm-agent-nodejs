@@ -21,6 +21,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 //   cannot be tested.
 
 const { execFile } = require('child_process')
+const util = require('util')
 
 const tape = require('tape')
 
@@ -44,20 +45,24 @@ tape.test('simple S3 usage scenario', function (t) {
       TEST_REGION: 'us-east-2'
     }
     t.comment('executing test script with this env: ' + JSON.stringify(additionalEnv))
+    console.time && console.time('exec use-s3')
     execFile(
       process.execPath,
       ['fixtures/use-s3.js'],
       {
         cwd: __dirname,
-        timeout: 10000, // sanity guard on the test hanging
+        timeout: 20000, // sanity guard on the test hanging
+        maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
         env: Object.assign({}, process.env, additionalEnv)
       },
       function done (err, stdout, stderr) {
+        console.timeLog && console.timeLog('exec use-s3')
         t.error(err, 'use-s3.js did not error out')
         if (err) {
-          t.comment(`use-s3.js stdout:\n${stdout}\n`)
-          t.comment(`use-s3.js stderr:\n${stderr}\n`)
+          t.comment('err: ' + util.inspect(err))
         }
+        t.comment(`use-s3.js stdout:\n${stdout}\n`)
+        t.comment(`use-s3.js stderr:\n${stderr}\n`)
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
 
         // Sort the events by timestamp, then work through each expected span.
@@ -136,6 +141,9 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200, response: { encoded_body_size: 177 } }
           },
+          otel: {
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
+          },
           outcome: 'success'
         }, 'createTheBucketIfNecessary produced expected span')
 
@@ -153,6 +161,9 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
+          },
+          otel: {
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
           },
           outcome: 'success'
         }, 'waitForBucketToExist produced expected span')
@@ -172,6 +183,12 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200 }
           },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
+          },
           outcome: 'success'
         }, 'createObj produced expected span')
 
@@ -189,6 +206,12 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
+          },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
           },
           outcome: 'success'
         }, 'waitForObjectToExist produced expected span')
@@ -208,6 +231,12 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
+          },
           outcome: 'success'
         }, 'getObj produced expected span')
 
@@ -225,6 +254,12 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 304 }
+          },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
           },
           outcome: 'success'
         }, 'getObjConditionalGet produced expected span')
@@ -244,6 +279,12 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
+          },
           outcome: 'success'
         }, 'getObjUsingPromise produced expected span')
 
@@ -262,6 +303,12 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 404, response: { encoded_body_size: 207 } }
+          },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt-does-not-exist'
+            }
           },
           outcome: 'failure'
         }, 'getObjNonExistantObject produced expected span')
@@ -285,6 +332,12 @@ tape.test('simple S3 usage scenario', function (t) {
             },
             http: { status_code: 204 }
           },
+          otel: {
+            attributes: {
+              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.key': 'aDir/aFile.txt'
+            }
+          },
           outcome: 'success'
         }, 'deleteTheObj produced expected span')
 
@@ -302,6 +355,9 @@ tape.test('simple S3 usage scenario', function (t) {
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
             http: { status_code: 204 }
+          },
+          otel: {
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
           },
           outcome: 'success'
         }, 'deleteTheBucketIfCreatedIt produced expected span')
