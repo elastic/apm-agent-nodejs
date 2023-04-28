@@ -32,10 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.45.0]]
+==== 3.45.0 2023/04/28
 
 [float]
 ===== Features
@@ -47,12 +45,18 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix a possible crash in AWS Lambda Function instrumentation when an ELB-
+  or API Gateway-triggered invocation received an `event` object with no
+  `headers` field. ({issues}3286[#3286])
+
 * Fix an edge case in instrumentation of `http.request()` and `https.request()`
   with node v19.9.0 and recently nightly builds of node v20.
   ({issues}3261[#3261])
 
 [float]
 ===== Chores
+
+* Update "engines" to support node v20. ({pull}3278[#3278])
 
 * Restrict Next.js instrumentation to `<13.3.0` for now, because of a known
   issue with instrumentating the `next@13.3.0` dev server. ({issues}3263[#3263])
