@@ -61,90 +61,44 @@ index 94376188..571539aa 100644
 
 # Testing tips
 
-## How to show the slowest TAV tests from a Jenkins build
+## How to show the slowest TAV tests from a CI run
 
-Jenkins builds of the agent produce a "steps-info.json" artifact that gives
-execution time of each of the build steps. For a build that ran the TAV tests
-we can list the slowest ones via:
+The [TAV tests](./TESTING.md#tav-tests) run a large test matrix, where each
+step can take a long time (installing and testing a large number of module
+versions).  Part of maintaining this is to look at particularly slow steps
+as candidates for speeding up.
 
-```
-npm install -g json  # Re-writing this to use jq is an exercise for the reader.
+    ./dev-utils/ci-tav-slow-jobs.sh
 
-curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/.../artifact/steps-info.json \
-    | json -c 'this.displayName==="Run Tests"' -ga durationInMillis state result displayDescription | sort -n -k1 | tail -20
-```
+This script will list all the TAV test steps, from the latest run, with the
+slowest last. For example:
 
-For example:
-
-```
-% curl -s https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/job/main/903/artifact/steps-info.json \
-    | json -c 'this.displayName==="Run Tests"' -ga durationInMillis state result displayDescription | sort -n -k1 | tail -10
-1940297 FINISHED SUCCESS .ci/scripts/test.sh "14" "fastify" "false"
-2434461 FINISHED SUCCESS .ci/scripts/test.sh "15" "apollo-server-express" "false"
-2867593 FINISHED SUCCESS .ci/scripts/test.sh "16" "apollo-server-express" "false"
-3232404 FINISHED SUCCESS .ci/scripts/test.sh "8" "pg" "false"
-3233514 FINISHED SUCCESS .ci/scripts/test.sh "12" "pg" "false"
-3371890 FINISHED SUCCESS .ci/scripts/test.sh "10" "pg" "false"
-5394174 FINISHED SUCCESS .ci/scripts/test.sh "12" "apollo-server-express" "false"
-5832066 FINISHED SUCCESS .ci/scripts/test.sh "10" "apollo-server-express" "false"
-6481178 FINISHED SUCCESS .ci/scripts/test.sh "14" "apollo-server-express" "false"
-6626799 FINISHED SUCCESS .ci/scripts/test.sh "8" "apollo-server-express" "false"
+```sh
+% ./dev-utils/ci-tav-slow-jobs.sh | tail
+1256 20m56s test-tav (14, next)
+1307 21m47s test-tav (12, knex)
+1307 21m47s test-tav (14, knex)
+1323 22m03s test-tav (10, pg)
+1386 23m06s test-tav (12, graphql)
+1431 23m51s test-tav (14, tedious)
+1496 24m56s test-tav (10, graphql)
+1508 25m08s test-tav (8, graphql)
+1757 29m17s test-tav (14, graphql)
+1794 29m54s test-tav (10, knex)
 ```
 
-## How to troubleshoot `Container "$containerId" is unhealthy.` errors
 
-Each "Test" step of a Jenkins CI build uses `docker-compose` to start services
-for testing, and then runs tests in a `node_tests` container. Starting those
-services can fail with the following unhelpful message in the logs:
+## Reproducing CI test failures locally
 
-```
-[2022-09-19T05:55:43.897Z] .ci/scripts/test.sh:250: main(): docker-compose --no-ansi --log-level ERROR -f .ci/docker/docker-compose-all.yml up --exit-code-from node_tests --remove-orphans --abort-on-container-exit node_tests
-...
-[2022-09-19T05:56:23.776Z] ERROR: for node_tests  Container "2d979b0c797d" is unhealthy.
-```
-
-That container ID does not identify *which* of the many service containers is
-the one to fail. Two ways to troubleshoot this are as follows.
-
-First, the Jenkins build will include log files of both Docker container logs
-and Docker events as Jenkins build artifacts, if the "Test" step failed. These
-are collected by filebeat and metricbeat (as configured by the `dockerContext()`
-block in ".ci/Jenkinsfile"). Here is an example querying the metricbeat log of
-docker events for containers that are failing their healthcheck. This uses
-[ecslog](https://github.com/trentm/go-ecslog) to filter and format the log file.
-
-```
-$ ecslog -k 'docker.healthcheck.failingstreak > 0' -i container.image.name,docker.healthcheck  docker-16-release-metricbeat.log-20220927.ndjson
-...
-[2022-09-27T14:55:53.857Z]  (on apm-ci-immutable-ubuntu-1804-1664290081867003348):
-    container: {
-        "image": {
-            "name": "mongo:6"
-        }
-    }
-    docker: {
-        "healthcheck": {
-            "status": "unhealthy",
-            "failingstreak": 49,
-            "event": {
-                "start_date": "2022-09-27T14:55:53.012Z",
-                "end_date": "2022-09-27T14:55:53.153Z",
-                "exit_code": -1,
-                "output": "OCI runtime exec failed: exec failed: unable to start container process: exec: \"mongo\": executable file not found in $PATH: unknown"
-            }
-        }
-    }
-```
-
-Second, most of the time you should be able to reproduce a "Test" step failure
-locally. Sometimes this requires forcing an update to the latest Docker image
-for some services.
+Most of the time you should be able to reproduce a CI test step failure locally.
+Sometimes this requires forcing an update to the latest Docker image for some
+services.
 
 ```
 $ docker system prune --all --force --volumes   # heavy-handed purge of all local Docker data
 ...
 
-$ .ci/scripts/test.sh -b "release" -t "" "16"   # or a different value for "16" depending which stage failed
+$ .ci/scripts/test.sh -b "release" "16"   # or a different value for "16" depending which stage failed
 ...
 ```
 
@@ -191,7 +145,7 @@ Two maintenance tasks are (a) to keep these three places in sync and (b) to
 know when support for newer versions of module needs to be added. The latter
 is partially handled by automated dependabot PRs (see ".github/dependabot.yml").
 Both tasks are also partially supported by the **`./dev-utils/bitrot.js`** tool.
-It will list inconsistences between ".tav.yaml" and
+It will list inconsistences between ".tav.yml" and
 "supported-technologies.asciidoc", and will note newer releases of a module
 that isn't covered. For example, redis@5 is not covered by the ranges above,
 so the tool looks like this:
@@ -203,27 +157,6 @@ redis bitrot: latest redis@4.3.1 (released 2022-09-06): is not in .tav.yml range
 
 
 # Other tips
-
-## How to trigger a benchmark run for a PR
-
-1. Go to the [apm-ci list of apm-agent-nodejs PRs](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/view/change-requests/) and click on your PR.
-2. Click "Build with Parameters" in the left sidebar. (If you don't have "Build with Parameters" then you aren't logged in.)
-3. Select these options to (mostly) *only* run the ["Benchmarks" step](https://github.com/elastic/apm-agent-nodejs/blob/v3.14.0/.ci/Jenkinsfile#L311-L330):
-    - [x] Run\_As\_Main\_Branch
-    - [x] bench\_ci
-    - [ ] tav\_ci
-    - [ ] tests\_ci
-    - [ ] test\_edge\_ci
-
-Limitation: The current dashboard for benchmark results only shows datapoints
-from the "main" branch. It would be useful to have a separate chart that
-showed PR values.
-
-(Another way to start the "Benchmarks" step is via a GitHub comment
-"run benchmark tests". However, that also triggers the "Test" step
-and, depending on other conditions, the "TAV Test" step -- both of which are
-long and will run before getting to the Benchmarks run.)
-
 
 ## How to test your local agent in Docker
 
