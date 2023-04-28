@@ -14,8 +14,8 @@ https://opentelemetry.io/docs/instrumentation/js/[OpenTelemetry API]
 (https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`]) in
 your code, and have the Elastic Node.js APM agent handle those API calls.
 This allows one to use the Elastic APM agent for tracing and metrics without any
-vendor lock-in to APM agent's own <<api,public API>> with adding manual tracing
-or custom metrics.
+vendor lock-in to the APM agent's own <<api,public API>> when adding manual
+tracing or custom metrics.
 
 
 [float]
@@ -95,7 +95,7 @@ https://github.com/elastic/apm-agent-nodejs/tree/main/examples/opentelemetry-bri
 === Using the OpenTelemetry Metrics API
 
 ① As above, install the needed dependencies. The minimum required OpenTelemetry
-API version is 1.3.0 when metrics were added; see <<compatibility-opentelemetry,the OpenTelemetry compatibility section>>
+API version is 1.3.0 (the version when metrics were added); see <<compatibility-opentelemetry,the OpenTelemetry compatibility section>>
 for the current maximum supported API version. For example:
 
 [source,bash]
@@ -183,6 +183,7 @@ A few configuration options can be used to control OpenTelemetry Metrics support
 - Integration with the OpenTelemetry Metrics API can be disabled via the <<disable-instrumentations,`disableInstrumentations: '@opentelemetry/api'`>> configuration option.
 - Integration with the OpenTelemetry Metrics SDK can be disabled via the <<disable-instrumentations,`disableInstrumentations: '@opentelemetry/sdk-metrics'`>> configuration option.
 - All metrics support in the APM agent can be disabled via the <<metrics-interval,`metricsInterval: '0s'`>> configuration option.
+- The default histogram bucket boundaries are different from the OpenTelemetry default, to provide better resolution. The boundaries used by the APM agent can be configured with the <<custom-metrics-histogram-boundaries>> configuration option.
 
 
 [float]

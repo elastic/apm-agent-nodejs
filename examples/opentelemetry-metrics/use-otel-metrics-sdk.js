@@ -15,7 +15,7 @@
 // sets up a Prometheus endpoint:
 //    curl -i http://127.0.0.1:3001/metrics
 //
-// When the Elastic APM agent is start, the histogram metric will also
+// When the Elastic APM agent is started, the histogram metric will also
 // periodically be exported to the configured Elastic APM server:
 //    export ELASTIC_APM_SERVER_URL='<url of your APM server>'
 //    export ELASTIC_APM_SECRET_TOKEN='<secret token for your APM server>'
@@ -36,8 +36,9 @@ const meterProvider = new MeterProvider({
     new View({
       instrumentName: 'latency',
       aggregation: new ExplicitBucketHistogramAggregation(
-        // Use the same default buckets as in `prom-client` so we can report
-        // latency in seconds.
+        // Use the same default buckets as in `prom-client` for comparison.
+        // This is to demonstrate using a View. The default buckets used by the
+        // APM agent would suffice as well.
         [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10])
     })
   ]
