@@ -537,13 +537,3 @@ undici:
   commands: node test/instrumentation/modules/undici/undici.test.js
   node: '>=14'
 
-"@opentelemetry/api":
-  versions: '>=1.0.0 <1.5.0'
-  node: '>=8.0.0'
-  commands:
-    - node test/opentelemetry-bridge/OTelBridgeNonRecordingSpan.test.js
-    - node test/opentelemetry-bridge/OTelBridgeRunContext.test.js
-    - node test/opentelemetry-bridge/active-span-and-context-interop.test.js
-    - node test/opentelemetry-bridge/fixtures.test.js
-    - node test/opentelemetry-bridge/interface-ContextManager.test.js
-    - node test/opentelemetry-bridge/otel-bridge-feature.test.js

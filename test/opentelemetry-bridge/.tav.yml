@@ -1,0 +1,11 @@
+"@opentelemetry/api":
+  versions: '>=1.0.0 <1.5.0'
+  node: '>=8.0.0'
+  commands:
+    - node OTelBridgeNonRecordingSpan.test.js
+    - node OTelBridgeRunContext.test.js
+    - node active-span-and-context-interop.test.js
+    - node fixtures.test.js
+    - node interface-ContextManager.test.js
+    - node otel-bridge-feature.test.js
+

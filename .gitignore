@@ -12,6 +12,6 @@
 /build
 node_modules
 /test/benchmarks/.tmp
-/tmp
+tmp
 /examples/*/dist
 .next
