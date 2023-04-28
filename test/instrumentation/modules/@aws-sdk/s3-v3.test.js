@@ -106,10 +106,6 @@ tape.test('simple S3 V3 usage scenario', function (t) {
           delete s.sample_rate
         })
 
-        console.log('>>>>>>>>>>>>')
-        console.log(spans)
-        console.log('>>>>>>>>>>>>')
-
         // Work through each of the pipeline functions (listAppBuckets,
         // createTheBucketIfNecessary, ...) in the script:
         t.deepEqual(spans.shift(), {
@@ -125,7 +121,6 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 's3' }
             },
-            // TODO: add response: { encoded_body_size: 205 }
             http: { status_code: 200 }
           },
           outcome: 'success'
@@ -142,10 +137,9 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            // TODO: add response: { encoded_body_size: 177 }
-            http: { status_code: 200 }
+            http: { status_code: 200, response: { encoded_body_size: 177 } }
           },
           otel: {
             attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
@@ -164,7 +158,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
           },
@@ -185,7 +179,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
             http: { status_code: 200 }
           },
@@ -209,9 +203,9 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            http: { status_code: 200 }
+            http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
           otel: {
             attributes: {
@@ -233,7 +227,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
@@ -257,7 +251,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
             http: { status_code: 304 }
           },
@@ -281,7 +275,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
@@ -306,9 +300,9 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
-            http: { status_code: 404, response: { encoded_body_size: 207 } }
+            http: { status_code: 404 }
           },
           otel: {
             attributes: {
@@ -334,7 +328,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
             http: { status_code: 204 }
           },
@@ -358,7 +352,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
             },
             http: { status_code: 204 }
           },

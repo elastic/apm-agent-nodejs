@@ -215,6 +215,22 @@ function useS3v3 (s3Client, bucketName, cb) {
         })
       },
 
+      async function getObjPromise (_, next) {
+        const command = new GetObjectCommand({
+          Bucket: bucketName,
+          Key: key
+        })
+
+        try {
+          const data = s3Client.send(command)
+          log.info({ data }, 'getObjectPromise')
+          next()
+        } catch (err) {
+          log.info({ err }, 'getObjectPromise')
+          next(err)
+        }
+      },
+
       // Get a non-existant object to test APM captureError.
       function getObjNonExistantObject (_, next) {
         const nonExistantKey = key + '-does-not-exist'
