@@ -68,7 +68,7 @@ and ELB.
 
 A transaction will be reported for Lambda invocations that fail due to a
 timeout, crash, `uncaughtException`, or `unhandledRejection`. (This requires
-APM agent v3.45.0 or later and
+APM agent v3.46.0 or later and
 https://www.elastic.co/guide/en/apm/lambda/current/aws-lambda-arch.html[Elastic's APM Lambda extension]
 version 1.4.0 or later.)
 
