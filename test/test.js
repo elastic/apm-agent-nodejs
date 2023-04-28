@@ -8,8 +8,11 @@
 
 // Run all "test/**/*.test.js" files, each in a separate process.
 //
-// If the `-o DIR` option is provided, then the TAP output from each test file
-// will be written to "$DIR/*.tap".
+// This is the main entry point for running all tests locally, without setting
+// up service dependencies (e.g. running a Redis to test redis instrumentation).
+// To start service deps run `npm run docker:start`.
+//
+// Run `node test/test.js -h` for usage.
 
 var fs = require('fs')
 var path = require('path')
@@ -19,10 +22,6 @@ var dashdash = require('dashdash')
 var glob = require('glob')
 var semver = require('semver')
 
-// XXX is this PATH adjustment actually needed? Drop if we can.
-var bin = path.join(process.cwd(), 'node_modules/.bin')
-var PATH = process.env.PATH + ':' + bin
-
 // ---- support functions
 
 function slugifyPath (f) {
@@ -30,13 +29,8 @@ function slugifyPath (f) {
   return f.replace(illegalChars, '-')
 }
 
-// Run a single test file.  If `outDir` is set, then the TAP output will be
-// written to a "$outDir/*.tap" file.
+// Run a single test file.
 function runTestFile (test, cb) {
-  // XXX can drop this?
-  test.env = Object.assign({}, process.env, test.env || {})
-  test.env.PATH = PATH
-
   var args = [test.file]
   if (semver.gte(process.version, '12.0.0')) {
     args.unshift('--unhandled-rejections=strict')
@@ -54,8 +48,7 @@ function runTestFile (test, cb) {
     const outFile = fs.createWriteStream(outFileName)
     outFile.on('open', function () {
       var ps = spawn('node', args, {
-        stdio: ['inherit', outFile, outFile],
-        env: test.env
+        stdio: ['inherit', outFile, outFile]
       })
       ps.on('error', cb)
       ps.on('close', function (code) {
