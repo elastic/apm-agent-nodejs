@@ -1,0 +1,10 @@
+{
+  "name": "otel-metrics-fixtures",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@opentelemetry/api": "^1.3.0",
+    "@opentelemetry/exporter-prometheus": "^0.37.0",
+    "@opentelemetry/sdk-metrics": "^1.11.0"
+  }
+}
