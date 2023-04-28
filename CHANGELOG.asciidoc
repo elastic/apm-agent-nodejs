@@ -32,8 +32,10 @@ Notes:
 === Node.js Agent version 3.x
 
 
-[[release-notes-3.45.0]]
-==== 3.45.0 2023/04/28
+==== Unreleased
+
+[float]
+===== Breaking changes
 
 [float]
 ===== Features
@@ -44,7 +46,20 @@ Notes:
   before the user's handler function is run. If the handler function fails
   with a Lambda timeout, `uncaughtException`, `unhandledRejection`, or crash
   then the Lambda extension will report the failed transaction so it can be
-  seen in the Kibana APM app. ({issues}3136[#3136])
+  seen in the Kibana APM app. ({pull}3285[#3285])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
+[[release-notes-3.45.0]]
+==== 3.45.0 2023/04/28
+
+[float]
+===== Features
 
 * Add `aws.s3.bucket` and `aws.s3.key` attributes for OpenTelemetry in S3 instrumentation.
   Spec https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/semantic_conventions/trace/instrumentation/aws-sdk.yml#L435
