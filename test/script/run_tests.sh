@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-set -eo pipefail # abort if any of the commands exit badly
+if [ "$TRACE" != "" ]; then
+    export PS4='${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+    set -o xtrace
+fi
+set -o errexit
+set -o pipefail
 
 number_of_started_containers () {
   echo "$(docker ps --format '{{.ID}}' | wc -l | awk '{$1=$1};1')"
