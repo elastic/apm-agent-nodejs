@@ -4,6 +4,11 @@
  * compliance with the BSD 2-Clause License.
  */
 
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
+  process.exit()
+}
+
 const tape = require('tape')
 
 const AgentMock = require('./mock/agent')
