@@ -51,7 +51,6 @@ const apm = require('../../../../..').start({
 })
 
 const crypto = require('crypto')
-const vasync = require('vasync')
 const assert = require('assert')
 const {
   S3Client,
