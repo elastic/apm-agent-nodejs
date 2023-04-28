@@ -9,6 +9,11 @@
 // Test that the "metadata" sent to APM server from a lambda invocation
 // respects the `serviceName` and `serviceVersion` config settings.
 
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
+  process.exit()
+}
+
 const lambdaLocal = require('lambda-local')
 const tape = require('tape')
 

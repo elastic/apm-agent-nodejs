@@ -32,6 +32,29 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Improve error handling with AWS Lambda. When used together with the
+  https://github.com/elastic/apm-aws-lambda[Elastic AWS Lambda extension]
+  v1.4.0 or greater, the APM agent will pre-register a partial transaction
+  before the user's handler function is run. If the handler function fails
+  with a Lambda timeout, `uncaughtException`, `unhandledRejection`, or crash
+  then the Lambda extension will report the failed transaction so it can be
+  seen in the Kibana APM app. ({pull}3285[#3285])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
 [[release-notes-3.45.0]]
 ==== 3.45.0 2023/04/28
 

@@ -6,6 +6,8 @@
 
 'use strict'
 
+const Filters = require('object-filter-sequence')
+
 const { CapturingTransport } = require('../../_capturing_transport')
 const logging = require('../../../lib/logging')
 const TransactionMock = require('./transaction')
@@ -22,6 +24,7 @@ module.exports = class AgentMock {
       usePathAsTransactionName: false
     }, conf)
     this._transport = new CapturingTransport()
+    this._transactionFilters = new Filters()
   }
 
   startTransaction (name, type, opts) {
