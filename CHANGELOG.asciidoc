@@ -48,6 +48,13 @@ Notes:
   then the Lambda extension will report the failed transaction so it can be
   seen in the Kibana APM app. ({pull}3285[#3285])
 
+* Add OpenTelemetry Metrics API and Metrics SDK support. This is currently
+  experimental and may change. With this change, you may use the OpenTelemetry
+  Metrics API to create custom metrics and the APM agent will ship those
+  metrics to APM server. As well, you may use the OpenTelemetry Metrics SDK
+  and the APM agent will automatically add a MetricReader to ship metrics to
+  APM server. See the <<opentelemetry-bridge>> for details. ({pull}3152[#3152])
+
 [float]
 ===== Bug fixes
 
