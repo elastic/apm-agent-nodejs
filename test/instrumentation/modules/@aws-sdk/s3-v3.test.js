@@ -93,7 +93,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
           spans.length, 'all spans have sync=false')
         t.equal(spans.filter(s => s.sample_rate === 1).length,
           spans.length, 'all spans have sample_rate=1')
-        const failingSpanId = spans[8].id // index of `getObjNonExistantObject`
+        const failingSpanId = spans[7].id // index of `getObjNonExistantObject`
         spans.forEach(s => {
           // Remove variable and common fields to facilitate t.deepEqual below.
           delete s.id
@@ -264,30 +264,6 @@ tape.test('simple S3 V3 usage scenario', function (t) {
           outcome: 'success'
         }, 'getObjConditionalGet produced expected span')
 
-        t.deepEqual(spans.shift(), {
-          name: 'S3 GetObject elasticapmtest-bucket-1',
-          type: 'storage',
-          subtype: 's3',
-          action: 'GetObject',
-          context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
-            destination: {
-              address: LOCALSTACK_HOST,
-              port: 4566,
-              cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 'elasticapmtest-bucket-1' }
-            },
-            http: { status_code: 200, response: { encoded_body_size: 8 } }
-          },
-          otel: {
-            attributes: {
-              'aws.s3.bucket': 'elasticapmtest-bucket-1',
-              'aws.s3.key': 'aDir/aFile.txt'
-            }
-          },
-          outcome: 'success'
-        }, 'getObjUsingPromise produced expected span')
-
         // This is the GetObject to a non-existant-key, so we expect a failure.
         t.deepEqual(spans.shift(), {
           name: 'S3 GetObject elasticapmtest-bucket-1',
@@ -312,6 +288,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
           },
           outcome: 'failure'
         }, 'getObjNonExistantObject produced expected span')
+        console.log(errors)
         t.equal(errors.length, 1, 'got 1 error')
         t.equal(errors[0].parent_id, failingSpanId, 'error is a child of the failing span from getObjNonExistantObject')
         t.equal(errors[0].transaction_id, tx.id, 'error.transaction_id')

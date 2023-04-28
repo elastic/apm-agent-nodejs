@@ -70,7 +70,7 @@ const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 // ---- support functions
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
-function useS3v3 (s3Client, bucketName, cb) {
+async function useS3v3 (s3Client, bucketName) {
   const region = s3Client.config.region
   const log = apm.logger.child({
     'event.module': 'app',
@@ -80,210 +80,97 @@ function useS3v3 (s3Client, bucketName, cb) {
   })
   const key = 'aDir/aFile.txt'
   const content = 'hi there'
+  const md5hex = crypto.createHash('md5').update(content).digest('hex')
+  const md5base64 = crypto.createHash('md5').update(content).digest('base64')
+  const etag = `"${md5hex}"`
+  const waiterConfig = { client: s3Client, minwaitTime: 5, maxWaitTime: 10 }
 
-  vasync.pipeline({
-    arg: {},
-    funcs: [
-      // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/listbucketscommand.html
-      // Limitation: this doesn't handle paging.
-      function listAllBuckets (arg, next) {
-        const command = new ListBucketsCommand({})
+  let command
+  let data
 
-        s3Client.send(command, function (err, data) {
-          log.info({ err, data }, 'listBuckets')
-          assert(apm.currentSpan === null,
-            'S3 span should NOT be a currentSpan in its callback')
-          if (err) {
-            next(err)
-          } else {
-            arg.bucketIsPreexisting = data.Buckets.some(b => b.Name === bucketName)
-            next()
-          }
-        })
-        assert(apm.currentSpan === null,
-          'S3 span (or its HTTP span) should not be currentSpan in same async task after the method call')
-      },
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/listbucketscommand.html
+  // Limitation: this doesn't handle paging.
+  command = new ListBucketsCommand({})
+  data = await s3Client.send(command)
+  assert(apm.currentSpan === null,
+    'S3 span (or its HTTP span) should not be currentSpan after awaiting the task')
+  log.info({ data }, 'listBuckets')
 
-      // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/createbucketcommand.html
-      function createTheBucketIfNecessary (arg, next) {
-        if (arg.bucketIsPreexisting) {
-          next()
-          return
-        }
-
-        const command = new CreateBucketCommand({
-          Bucket: bucketName,
-          CreateBucketConfiguration: {
-            LocationConstraint: region
-          }
-        })
-
-        s3Client.send(command, function (err, data) {
-          // E.g. data: {"Location": "http://trentm-play-s3-bukkit2.s3.amazonaws.com/"}
-          log.info({ err, data }, 'createBucket')
-          next(err)
-        })
-      },
-
-      // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/functions/waitforbucketexists.html
-      function waitForBucketExists (_, next) {
-        const waiterConfig = { client: s3Client, minwaitTime: 5, maxWaitTime: 10 }
-
-        // use of `waitForBucketExists` logs a deprecation warning in favor of this method
-        waitUntilBucketExists(waiterConfig, { Bucket: bucketName }).then(
-          function (data) {
-            log.info({ data }, 'waitUntil bucketExists')
-            next()
-          },
-          function (err) {
-            log.info({ err }, 'waitUntil bucketExists')
-            next(err)
-          }
-        )
-      },
-
-      // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/putobjectcommand.html
-      function createObj (_, next) {
-        var md5 = crypto.createHash('md5').update(content).digest('base64')
-
-        const command = new PutObjectCommand({
-          Bucket: bucketName,
-          Key: key,
-          ContentType: 'text/plain',
-          Body: content,
-          ContentMD5: md5
-        })
-
-        s3Client.send(command, function (err, data) {
-          // data.ETag should match a hexdigest md5 of body.
-          log.info({ err, data }, 'putObject')
-          next(err)
-        })
-      },
-
-      // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/functions/waitforobjectexists.html
-      function waitForObjectExists (_, next) {
-        const waiterConfig = { client: s3Client, minwaitTime: 5, maxWaitTime: 10 }
-
-        // use of `waitForObjectExists` logs a deprecation warning in favor of this method
-        waitUntilObjectExists(waiterConfig, { Bucket: bucketName, Key: key }).then(
-          function (data) {
-            log.info({ data }, 'waitUntil objectExists')
-            next()
-          },
-          function (err, data) {
-            log.info({ err, data }, 'waitUntil objectExists')
-            next(err)
-          }
-        )
-      },
-
-      // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/getobjectcommand.html
-      function getObj (_, next) {
-        const command = new GetObjectCommand({
-          Bucket: bucketName,
-          Key: key
-        })
-
-        s3Client.send(command, function (err, data) {
-          // data.ETag should match a hexdigest md5 of body.
-          log.info({ err, data }, 'getObject')
-          next(err)
-        })
-      },
-
-      function getObjConditionalGet (_, next) {
-        const md5hex = crypto.createHash('md5').update(content).digest('hex')
-        const etag = `"${md5hex}"`
-
-        const command = new GetObjectCommand({
-          IfNoneMatch: etag,
-          Bucket: bucketName,
-          Key: key
-        })
-
-        s3Client.send(command, function (err, data) {
-          log.info({ err, data }, 'getObject conditional get')
-          // Expect a 'NotModified' error, httpStatusCode=304.
-          if (err && err.$metadata && err.$metadata.httpStatusCode === 304) {
-            next()
-          } else if (err) {
-            next(err)
-          } else {
-            next(new Error('expected NotModified error for conditional request'))
-          }
-        })
-      },
-
-      async function getObjPromise (_, next) {
-        const command = new GetObjectCommand({
-          Bucket: bucketName,
-          Key: key
-        })
-
-        try {
-          const data = s3Client.send(command)
-          log.info({ data }, 'getObjectPromise')
-          next()
-        } catch (err) {
-          log.info({ err }, 'getObjectPromise')
-          next(err)
-        }
-      },
-
-      // Get a non-existant object to test APM captureError.
-      function getObjNonExistantObject (_, next) {
-        const nonExistantKey = key + '-does-not-exist'
-
-        const command = new GetObjectCommand({
-          Bucket: bucketName,
-          Key: nonExistantKey
-        })
-
-        s3Client.send(command, function (err, data) {
-          log.info({ err, data }, 'getObject non-existant key, expect error')
-          if (err) {
-            next()
-          } else {
-            next(new Error(`did not get an error from getObject(${nonExistantKey})`))
-          }
-        })
-      },
-
-      // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#deleteObject-property
-      function deleteTheObj (_, next) {
-        const command = new DeleteObjectCommand({
-          Bucket: bucketName,
-          Key: key
-        })
-
-        s3Client.send(command, function (err, data) {
-          log.info({ err, data }, 'deleteObject')
-          next(err)
-        })
-      },
-
-      // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/deletebucketcorscommand.html
-      function deleteTheBucketIfCreatedIt (arg, next) {
-        if (arg.bucketIsPreexisting) {
-          next()
-          return
-        }
-
-        const command = new DeleteBucketCommand({ Bucket: bucketName })
-
-        s3Client.send(command, function (err, data) {
-          log.info({ err, data }, 'deleteBucket')
-          next(err)
-        })
+  const bucketIsPreexisting = data.Buckets.some(b => b.Name === bucketName)
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/createbucketcommand.html
+  if (!bucketIsPreexisting) {
+    command = new CreateBucketCommand({
+      Bucket: bucketName,
+      CreateBucketConfiguration: {
+        LocationConstraint: region
       }
-    ]
-  }, function (err) {
-    if (err) {
-      log.error({ err }, 'unexpected error using S3 V3')
-    }
-    cb(err)
+    })
+    data = await s3Client.send(command)
+    log.info({ data }, 'createBucket')
+  }
+
+  data = await waitUntilBucketExists(waiterConfig, { Bucket: bucketName })
+  log.info({ data }, 'waitUntilBucketExists')
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/putobjectcommand.html
+  command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    ContentType: 'text/plain',
+    Body: content,
+    ContentMD5: md5base64
   })
+  data = await s3Client.send(command)
+  log.info({ data }, 'putObject')
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/functions/waitforobjectexists.html
+  data = await waitUntilObjectExists(waiterConfig, { Bucket: bucketName, Key: key })
+  log.info({ data }, 'waitUntilObjectExists')
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/getobjectcommand.html
+  command = new GetObjectCommand({ Bucket: bucketName, Key: key })
+  data = await s3Client.send(command)
+  log.info({ data }, 'getObject')
+
+  command = new GetObjectCommand({
+    IfNoneMatch: etag,
+    Bucket: bucketName,
+    Key: key
+  })
+
+  try {
+    data = await s3Client.send(command)
+    throw new Error('expected NotModified error for conditional request')
+  } catch (err) {
+    log.info({ err }, 'getObject conditional get')
+    const statusCode = err && err.$metadata && err.$metadata.httpStatusCode
+    if (statusCode !== 304) {
+      throw err
+    }
+  }
+
+  command = new GetObjectCommand({
+    Bucket: bucketName,
+    Key: key + '-does-not-exist'
+  })
+  try {
+    data = await s3Client.send(command)
+    throw new Error(`did not get an error from getObject(${key}-does-not-exist)`)
+  } catch (err) {
+    log.info({ err }, 'getObject non-existant key, expect error')
+  }
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#deleteObject-property
+  command = new DeleteObjectCommand({ Bucket: bucketName, Key: key })
+  data = await s3Client.send(command)
+  log.info({ data }, 'deleteObject')
+
+  if (!bucketIsPreexisting) {
+    // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/deletebucketcorscommand.html
+    command = new DeleteBucketCommand({ Bucket: bucketName })
+    data = await s3Client.send(command)
+    log.info({ data }, 'deleteBucket')
+  }
 }
 
 // Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an S3
@@ -335,13 +222,18 @@ function main () {
 
   // Ensure an APM transaction so spans can happen.
   const tx = apm.startTransaction('manual')
-  useS3v3(s3Client, bucketName, function (err) {
-    if (err) {
+
+  useS3v3(s3Client, bucketName).then(
+    function () {
+      tx.end()
+      process.exitCode = 0
+    },
+    function () {
       tx.setOutcome('failure')
+      tx.end()
+      process.exitCode = 1
     }
-    tx.end()
-    process.exitCode = err ? 1 : 0
-  })
+  )
 }
 
 main()
