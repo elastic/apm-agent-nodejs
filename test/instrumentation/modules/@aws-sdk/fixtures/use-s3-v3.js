@@ -70,7 +70,7 @@ const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 // ---- support functions
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
-function useS3 (s3Client, bucketName, cb) {
+function useS3v3 (s3Client, bucketName, cb) {
   const region = s3Client.config.region
   const log = apm.logger.child({
     'event.module': 'app',
@@ -319,7 +319,7 @@ function main () {
 
   // Ensure an APM transaction so spans can happen.
   const tx = apm.startTransaction('manual')
-  useS3(s3Client, bucketName, function (err) {
+  useS3v3(s3Client, bucketName, function (err) {
     if (err) {
       tx.setOutcome('failure')
     }
