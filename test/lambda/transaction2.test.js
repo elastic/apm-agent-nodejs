@@ -109,7 +109,7 @@ tape.test('lambda transactions', function (suite) {
 
   const testCases = [
     // Test usage of the `context.{succeed,done,fail}()` methods -- now
-    // deprecated by Lambda.
+    // deprecated by Lambda -- in the handler function.
     {
       name: 'context.succeed()',
       event: {},
@@ -141,6 +141,34 @@ tape.test('lambda transactions', function (suite) {
       event: {},
       handler: (_event, context) => {
         context.fail(new Error('boom'))
+      },
+      checkResults: (t, requests, events, err, _result) => {
+        assertExpectedServerRequests(t, requests)
+        t.equal(err.errorMessage, 'boom', 'err.errorMessage')
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'failure', 'transaction.outcome')
+      }
+    },
+
+    // Test usage of Promises in the handler function.
+    {
+      name: 'Promise resolve',
+      event: {},
+      handler: () => {
+        return Promise.resolve('hi')
+      },
+      checkResults: (t, requests, events, _err, result) => {
+        assertExpectedServerRequests(t, requests)
+        t.equal(result, 'hi', 'result')
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+      }
+    },
+    {
+      name: 'Promise reject',
+      event: {},
+      handler: () => {
+        return Promise.reject(new Error('boom'))
       },
       checkResults: (t, requests, events, err, _result) => {
         assertExpectedServerRequests(t, requests)
