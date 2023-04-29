@@ -13,10 +13,7 @@
 // object creation path.)
 
 const semver = require('semver')
-if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
-  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
-  process.exit()
-} else if (semver.satisfies(process.version, '>=10.0.0 <10.4.0')) {
+if (semver.satisfies(process.version, '>=10.0.0 <10.4.0')) {
   // This isn't considered an issue because AWS Lambda doesn't support a node
   // v10 runtime, and node v10 is EOL.
   console.log(`# SKIP async context propagation currently does not work to a Lambda handler with node ${process.version}`)
@@ -111,6 +108,48 @@ tape.test('lambda transactions', function (suite) {
   })
 
   const testCases = [
+    // Test usage of the `context.{succeed,done,fail}()` methods -- now
+    // deprecated by Lambda.
+    {
+      name: 'context.succeed()',
+      event: {},
+      handler: (_event, context) => {
+        context.succeed('hi')
+      },
+      checkResults: (t, requests, events, _err, result) => {
+        assertExpectedServerRequests(t, requests)
+        t.equal(result, 'hi', 'result')
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+      }
+    },
+    {
+      name: 'context.done()',
+      event: {},
+      handler: (_event, context) => {
+        context.done(null, 'hi')
+      },
+      checkResults: (t, requests, events, _err, result) => {
+        assertExpectedServerRequests(t, requests)
+        t.equal(result, 'hi', 'result')
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+      }
+    },
+    {
+      name: 'context.done()',
+      event: {},
+      handler: (_event, context) => {
+        context.fail(new Error('boom'))
+      },
+      checkResults: (t, requests, events, err, _result) => {
+        assertExpectedServerRequests(t, requests)
+        t.equal(err.errorMessage, 'boom', 'err.errorMessage')
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'failure', 'transaction.outcome')
+      }
+    },
+
     {
       name: 'transaction.context.{request,response} for API Gateway payload format version 1.0',
       event: loadFixture('aws_api_rest_test_data.json'),
@@ -372,8 +411,8 @@ tape.test('lambda transactions', function (suite) {
         lambdaHandler: process.env.AWS_LAMBDA_FUNCTION_NAME,
         timeoutMs: c.timeoutMs || 3000,
         verboseLevel: 0,
-        callback: function (_err, _result) {
-          c.checkResults(t, server.requests, server.events)
+        callback: function (err, result) {
+          c.checkResults(t, server.requests, server.events, err, result)
           t.end()
         }
       })
