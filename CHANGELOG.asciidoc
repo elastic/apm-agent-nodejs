@@ -62,7 +62,7 @@ Notes:
 ===== Chores
 
 * Stop testing `express-graphql` instrumentation -- the module is deprecated.
-  XXX
+  ({pull}3304[#3304])
 
 
 [[release-notes-3.45.0]]
