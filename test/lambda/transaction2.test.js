@@ -46,6 +46,8 @@ const apm = require('../../')
 const { MockAPMServer } = require('../_mock_apm_server')
 const { findObjInArray } = require('../_utils')
 
+const UUID_RE = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i
+
 // ---- support functions
 
 function loadFixture (file) {
@@ -108,6 +110,26 @@ tape.test('lambda transactions', function (suite) {
   })
 
   let testCases = [
+    // Test handling of `transaction.faas.coldstart`.
+    {
+      name: 'coldstart: first',
+      event: {},
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        const trans = events[1].transaction
+        t.strictEqual(trans.faas.coldstart, true, 'transaction.faas.coldstart')
+      }
+    },
+    {
+      name: 'coldstart: second',
+      event: {},
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        const trans = events[1].transaction
+        t.strictEqual(trans.faas.coldstart, false, 'transaction.faas.coldstart')
+      }
+    },
+
     // Test usage of the `context.{succeed,done,fail}()` methods -- now
     // deprecated by Lambda -- in the handler function.
     {
@@ -137,7 +159,7 @@ tape.test('lambda transactions', function (suite) {
       }
     },
     {
-      name: 'context.done()',
+      name: 'context.fail()',
       event: {},
       handler: (_event, context) => {
         context.fail(new Error('boom'))
@@ -175,6 +197,302 @@ tape.test('lambda transactions', function (suite) {
         t.equal(err.errorMessage, 'boom', 'err.errorMessage')
         const trans = events[1].transaction
         t.equal(trans.outcome, 'failure', 'transaction.outcome')
+      }
+    },
+
+    // General transaction fields for various trigger events.
+    // There are specific tests below for some of the fields.
+    {
+      name: 'trans data: API Gateway v1 "rest"',
+      event: loadFixture('aws_api_rest_test_data.json'),
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.type, 'request', 'transaction.type')
+        t.equal(trans.name, 'GET /dev/fetch_all', 'transaction.name')
+        t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution')
+        t.deepEqual(trans.faas, {
+          id: 'arn:aws:lambda:us-east-1:123456789012:function:fixture-function-name',
+          name: 'fixture-function-name',
+          version: '1.0',
+          coldstart: trans.faas.coldstart,
+          execution: trans.faas.execution,
+          trigger: {
+            type: 'http',
+            request_id: '6f3dffca-46f8-4c8b-800b-6bc1ea2554ec'
+          }
+        }, 'transaction.faas')
+        t.deepEqual(trans.context.service, {
+          origin: {
+            name: '02plqthge2.execute-api.us-east-1.amazonaws.com',
+            id: '02plqthge2',
+            version: '1.0'
+          }
+        }, 'transaction.context.service')
+        t.deepEqual(trans.context.cloud, {
+          origin: {
+            provider: 'aws',
+            service: { name: 'api gateway' },
+            account: { id: '571481734049' }
+          }
+        }, 'transaction.context.cloud')
+      }
+    },
+    {
+      name: 'trans data: API Gateway v2 "http"',
+      event: loadFixture('aws_api_http_test_data.json'),
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.type, 'request', 'transaction.type')
+        t.equal(trans.name, 'POST /default/the-function-name', 'transaction.name')
+        t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution')
+        t.deepEqual(trans.faas, {
+          id: 'arn:aws:lambda:us-east-1:123456789012:function:fixture-function-name',
+          name: 'fixture-function-name',
+          version: '1.0',
+          coldstart: trans.faas.coldstart,
+          execution: trans.faas.execution,
+          trigger: { type: 'http', request_id: 'D-TXmgKqPHcEJMg=' }
+        }, 'transaction.faas')
+        t.deepEqual(trans.context.service, {
+          origin: {
+            name: '21mj4tsk90.execute-api.us-west-2.amazonaws.com',
+            id: '21mj4tsk90',
+            version: '2.0'
+          }
+        }, 'transaction.context.service')
+        t.deepEqual(trans.context.cloud, {
+          origin: {
+            provider: 'aws',
+            service: { name: 'api gateway' },
+            account: { id: '000000000000' }
+          }
+        }, 'transaction.context.cloud')
+      }
+    },
+    {
+      name: 'trans data: SQS',
+      event: loadFixture('aws_sqs_test_data.json'),
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.type, 'messaging', 'transaction.type')
+        t.equal(trans.name, 'RECEIVE testqueue', 'transaction.name')
+        t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution')
+        t.deepEqual(trans.faas, {
+          id: 'arn:aws:lambda:us-east-1:123456789012:function:fixture-function-name',
+          name: 'fixture-function-name',
+          version: '1.0',
+          coldstart: trans.faas.coldstart,
+          execution: trans.faas.execution,
+          trigger: { type: 'pubsub' }
+        }, 'transaction.faas')
+        t.deepEqual(trans.context.service, {
+          origin: {
+            name: 'testqueue',
+            id: 'arn:aws:sqs:us-east-1:268121251715:testqueue'
+          }
+        }, 'transaction.context.service')
+        t.deepEqual(trans.context.cloud, {
+          origin: {
+            provider: 'aws',
+            region: 'us-east-1',
+            service: { name: 'sqs' },
+            account: { id: '268121251715' }
+          }
+        }, 'transaction.context.cloud')
+      }
+    },
+    {
+      name: 'trans data: SNS',
+      event: loadFixture('aws_sns_test_data.json'),
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.type, 'messaging', 'transaction.type')
+        t.equal(trans.name, 'RECEIVE basepiwstesttopic', 'transaction.name')
+        t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution')
+        t.deepEqual(trans.faas, {
+          id: 'arn:aws:lambda:us-east-1:123456789012:function:fixture-function-name',
+          name: 'fixture-function-name',
+          version: '1.0',
+          coldstart: trans.faas.coldstart,
+          execution: trans.faas.execution,
+          trigger: { type: 'pubsub' }
+        }, 'transaction.faas')
+        t.deepEqual(trans.context.service, {
+          origin: {
+            name: 'basepiwstesttopic',
+            id: 'arn:aws:sns:us-east-1:268121251715:basepiwstesttopic'
+          }
+        }, 'transaction.context.service')
+        t.deepEqual(trans.context.cloud, {
+          origin: {
+            provider: 'aws',
+            region: 'us-east-1',
+            service: { name: 'sns' },
+            account: { id: '268121251715' }
+          }
+        }, 'transaction.context.cloud')
+      }
+    },
+    {
+      name: 'trans data: S3 single event',
+      event: loadFixture('aws_s3_test_data.json'),
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.type, 'request', 'transaction.type')
+        t.equal(trans.name, 'ObjectCreated:Put basepitestbucket', 'transaction.name')
+        t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution')
+        t.deepEqual(trans.faas, {
+          id: 'arn:aws:lambda:us-east-1:123456789012:function:fixture-function-name',
+          name: 'fixture-function-name',
+          version: '1.0',
+          coldstart: trans.faas.coldstart,
+          execution: trans.faas.execution,
+          trigger: { type: 'datasource', request_id: '0FM18R15SDX52CT2' }
+        }, 'transaction.faas')
+        t.deepEqual(trans.context.service, {
+          origin: {
+            name: 'basepitestbucket',
+            id: 'arn:aws:s3:::basepitestbucket',
+            version: '2.1'
+          }
+        }, 'transaction.context.service')
+        t.deepEqual(trans.context.cloud, {
+          origin: {
+            provider: 'aws',
+            service: { name: 's3' },
+            region: 'us-east-1'
+          }
+        }, 'transaction.context.cloud')
+      }
+    },
+    {
+      name: 'trans data: generic event',
+      event: loadFixture('generic.json'),
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.type, 'request', 'transaction.type')
+        t.equal(trans.name, 'fixture-function-name', 'transaction.name')
+        t.ok(UUID_RE.test(trans.faas.execution), 'transaction.faas.execution')
+        t.deepEqual(trans.faas, {
+          id: 'arn:aws:lambda:us-east-1:123456789012:function:fixture-function-name',
+          name: 'fixture-function-name',
+          version: '1.0',
+          coldstart: trans.faas.coldstart,
+          execution: trans.faas.execution,
+          trigger: { type: 'other' }
+        }, 'transaction.faas')
+        t.deepEqual(trans.context.service, {}, 'transaction.context.service')
+        t.deepEqual(trans.context.cloud, { origin: { provider: 'aws' } }, 'transaction.context.cloud')
+      }
+    },
+
+    // API Gateway triggers with/without usePathAsTransactionName.
+    {
+      name: 'usePathAsTransactionName=false',
+      conf: {
+        usePathAsTransactionName: false
+      },
+      event: loadFixture('aws_apigateway_event_with_template_path.json'),
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.name, 'POST /prod/{proxy+}', 'transaction.name')
+      }
+    },
+    {
+      name: 'usePathAsTransactionName=true',
+      conf: {
+        usePathAsTransactionName: true
+      },
+      event: loadFixture('aws_apigateway_event_with_template_path.json'),
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.name, 'POST /prod/path/to/resource', 'transaction.name')
+      }
+    },
+
+    // Invalid event objects do not result in a crash in instrumentation.
+    {
+      name: 'invalid event: empty API Gateway event',
+      event: {
+        requestContext: {
+          requestId: 'abc123'
+        }
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, result) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+        t.error(err, 'no err')
+        t.equal(result, 'hi')
+        console.log('XXX trans:'); console.dir(trans, { depth: 5 })
+      }
+    },
+    {
+      name: 'invalid event: empty SQS event',
+      event: {
+        Records: [{
+          eventSource: 'aws:sqs'
+        }]
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, result) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+        t.error(err, 'no err')
+        t.equal(result, 'hi')
+        console.log('XXX trans:'); console.dir(trans, { depth: 5 })
+      }
+    },
+    {
+      name: 'invalid event: empty SNS event',
+      event: {
+        Records: [{
+          EventSource: 'aws:sns'
+        }]
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, result) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+        t.error(err, 'no err')
+        t.equal(result, 'hi')
+        console.log('XXX trans:'); console.dir(trans, { depth: 5 })
+      }
+    },
+    {
+      name: 'invalid event: empty S3 event',
+      event: {
+        Records: [{
+          eventSource: 'aws:s3'
+        }]
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, result) => {
+        assertExpectedServerRequests(t, requests)
+        const trans = events[1].transaction
+        t.equal(trans.outcome, 'success', 'transaction.outcome')
+        t.error(err, 'no err')
+        t.equal(result, 'hi')
+        console.log('XXX trans:'); console.dir(trans, { depth: 5 })
       }
     },
 
@@ -465,6 +783,7 @@ tape.test('lambda transactions', function (suite) {
         const trans = events[1].transaction
         const error = events[2].error
         t.equal(trans.outcome, 'failure', 'transaction.outcome')
+        t.equal(trans.result, 'HTTP 5xx', 'transaction.result')
         t.equal(error.transaction_id, trans.id, 'error.transaction_id')
         t.ok(error.context.request, 'has error.context.request')
         t.equal(error.context.response.status_code, 500, 'error.context.response.status_code')
@@ -502,7 +821,7 @@ tape.test('lambda transactions', function (suite) {
       // ELB defaults to 502 Bad Gateway if the response doesn't have "statusCode".
       name: 'ALB (ELB) event with missing "statusCode" field',
       event: loadFixture('aws_elb_test_data.json'),
-      handler: async (_event, _context, cb) => {
+      handler: async (_event, _context) => {
         return {
           // Missing 'statusCode' field that ELB expects.
           hi: 'there'
@@ -611,6 +930,15 @@ tape.test('lambda transactions', function (suite) {
       )
       const wrappedHandler = apm.lambda(handler)
 
+      // Save current and apply new config values.
+      var confToRestore = {}
+      if (c.conf) {
+        Object.keys(c.conf).forEach(k => {
+          confToRestore[k] = apm._conf[k]
+          apm._conf[k] = c.conf[k]
+        })
+      }
+
       server.clear()
       lambdaLocal.execute({
         event: c.event,
@@ -622,6 +950,12 @@ tape.test('lambda transactions', function (suite) {
         verboseLevel: 0,
         callback: function (err, result) {
           c.checkResults(t, server.requests, server.events, err, result)
+
+          // Restore old config values.
+          Object.keys(confToRestore).forEach(k => {
+            apm._conf[k] = confToRestore[k]
+          })
+
           t.end()
         }
       })
