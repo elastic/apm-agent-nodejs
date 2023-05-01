@@ -61,6 +61,9 @@ Notes:
 [float]
 ===== Chores
 
+* Stop testing `express-graphql` instrumentation -- the module is deprecated.
+  XXX
+
 
 [[release-notes-3.45.0]]
 ==== 3.45.0 2023/04/28

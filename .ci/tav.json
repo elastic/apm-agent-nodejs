@@ -12,7 +12,6 @@
     "cassandra-driver",
     "elasticsearch",
     "express",
-    "express-graphql",
     "express-queue",
     "fastify",
     "finalhandler",
