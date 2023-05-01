@@ -6,28 +6,27 @@
 
 'use strict'
 
+const semver = require('semver')
+if (semver.lt(process.version, '14.16.0')) {
+  console.log(`# SKIP @apollo/server does not officially support node ${process.version} (14.16.0 or later required)`)
+  process.exit()
+}
+
 const agent = require('../../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
+  serviceName: 'test-apollo-server',
   captureExceptions: false,
-  metricsInterval: 0,
+  metricsInterval: '0s',
   centralConfig: false,
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  apmServerVersion: '8.7.0'
 })
 
 const test = require('tape')
 const http = require('http')
-const semver = require('semver')
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
 const mockClient = require('../../../_mock_http_client')
 
 const APOLLO_PORT = 4000
-
-if (semver.lt(process.version, '14.16.0')) {
-  console.log(`# SKIP @apollo/server does not officially support node ${process.version} (14.16.0 or later required)`)
-  process.exit()
-}
 
 function initialiseHelloWorldServer (t) {
   const typeDefs = `#graphql
@@ -52,7 +51,7 @@ function requestOpts (method, query = '') {
   return {
     method,
     port: APOLLO_PORT,
-    path: `/graphql?${query}`,
+    path: `/${query ? '?' + query : ''}`,
     headers: { 'Content-Type': 'application/json' }
   }
 }
@@ -68,7 +67,7 @@ function parseResponse (res) {
   })
 }
 
-test('POST /graphql', function (t) {
+test('POST /', function (t) {
   resetAgent(done(t, 'hello'))
   initialiseHelloWorldServer(t).then((server) => {
     const req = http.request(requestOpts('POST'), function (res) {
@@ -83,7 +82,7 @@ test('POST /graphql', function (t) {
   })
 })
 
-test('GET /graphql', function (t) {
+test('GET /', function (t) {
   resetAgent(done(t, 'hello'))
   initialiseHelloWorldServer(t).then((server) => {
     const query = 'query=query+%7B%0D%0A++hello%0D%0A%7D%0D%0A'
@@ -99,7 +98,7 @@ test('GET /graphql', function (t) {
   })
 })
 
-test('POST /graphql - named query', function (t) {
+test('POST / - named query', function (t) {
   resetAgent(done(t, 'HelloQuery hello'))
   const query = '{"query":"query HelloQuery { hello }"}'
   initialiseHelloWorldServer(t).then((server) => {
@@ -114,7 +113,7 @@ test('POST /graphql - named query', function (t) {
   })
 })
 
-test('POST /graphql - sort multiple queries', function (t) {
+test('POST / - sort multiple queries', function (t) {
   resetAgent(done(t, 'hello, life'))
   const typeDefs = `#graphql
     type Query {
@@ -150,7 +149,7 @@ test('POST /graphql - sort multiple queries', function (t) {
   })
 })
 
-test('POST /graphql - sub-query', function (t) {
+test('POST / - sub-query', function (t) {
   resetAgent(done(t, 'books'))
   const query = '{"query":"{ books { title author, publisher { name } } }"}'
   const books = [
@@ -209,7 +208,7 @@ function done (t, query) {
     var trans = data.transactions[0]
     var span = data.spans[0]
 
-    t.strictEqual(trans.name, query + ' (/graphql)')
+    t.strictEqual(trans.name, query + ' (/)')
     t.strictEqual(trans.type, 'graphql')
     t.strictEqual(span.name, 'GraphQL: ' + query)
     t.strictEqual(span.type, 'db')
