@@ -217,6 +217,9 @@ Or with something like this:
 import apm from 'elastic-apm-node/start'; apm; // Ensure import is kept for its side-effect.
 ----
 
+TypeScript 5.0 https://devblogs.microsoft.com/typescript/announcing-typescript-5-0/#verbatimmodulesyntax[introduced a `--verbatimModuleSyntax`]
+option that avoids this elision.
+
 
 [[start-bundlers]]
 ===== Bundlers and APM

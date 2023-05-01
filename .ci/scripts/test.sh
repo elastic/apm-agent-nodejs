@@ -140,7 +140,7 @@ set -o xtrace
 
 # ---- For nightly and rc builds, determine if there is a point in testing.
 
-if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
+if [[ $BUILD_TYPE != "release" ]]; then
   # If there is no nightly/rc build for this version, then skip.
   #
   # Note: We are relying on new releases being added to the top of index.tab,
@@ -165,7 +165,7 @@ if [[ $BUILD_TYPE != "release" && $FORCE != "true" ]]; then
   possible_release_version=${edge_node_version%-*}  # remove "-*" suffix
   release_version=$(curl -sS https://nodejs.org/dist/index.tab \
     | (grep -E "^${possible_release_version}\>" || true) | awk '{print $1}')
-  if [[ -n "$release_version" ]]; then
+  if [[ -n "$release_version" && $FORCE != "true" ]]; then
     skip "There is already a release build (${release_version}) of the latest v${NODE_VERSION} ${BUILD_TYPE} (${edge_node_version}). Skipping tests."
   fi
 

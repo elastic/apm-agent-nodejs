@@ -22,7 +22,10 @@ const apm = require('../..').start({
 })
 
 const otel = require('@opentelemetry/api')
+const semver = require('semver')
 const tape = require('tape')
+
+const supportsGetActiveSpan = semver.satisfies(require('@opentelemetry/api/package.json').version, '>=1.2.0')
 
 const tracer = otel.trace.getTracer()
 
@@ -43,6 +46,13 @@ tape.test('curr Elastic span is contained in OTel Context', t => {
   const t1 = apm.startTransaction('t1')
   const otelSpan = otel.trace.getSpan(otel.context.active())
   t.strictEqual(otelSpan._span, t1, 'active OTel span contains the Elastic API-started transaction')
+
+  if (supportsGetActiveSpan) {
+    // Also test the `otel.trace.getActiveSpan()` added in @opentelemetry/api@1.2.0.
+    t.strictEqual(otel.trace.getActiveSpan()._span, t1,
+      'active OTel span (retrieved from getActiveSpan()) contains the Elastic API-started transaction')
+  }
+
   t1.end()
   t.end()
 })

@@ -173,7 +173,7 @@ If you have access to make releases, the process is as follows:
 
 1. Be sure you have checked out the `main` branch and have pulled latest
    changes.
-1. Make a PR titled "x.y.z" (the new version) which updates:
+2. Make a PR titled "x.y.z" (the new version) which updates:
     - the version in `package.json`,
     - the version in `package-lock.json` (by running `npm install`),
     - "CHANGELOG.asciidoc": Add missing changelog entries, if any. Then change
@@ -182,15 +182,18 @@ If you have access to make releases, the process is as follows:
         [[release-notes-x.y.z]]
         ==== x.y.z - YYYY/MM/DD
         ```
-1. Ensure PR checks pass, then merge to main.
-1. Working on the elastic repo now (not a fork), tag the merged-to-main commit
+3. Ensure PR checks pass, then merge to main.
+4. Working on the elastic repo now (not a fork), tag the merged-to-main commit
    with `git tag vx.y.x && git push origin vx.y.z`. For example: `git tag
    v1.2.3 && git push origin v1.2.3`.
-   (The Jenkins CI "Release" stage will handle `npm publish ...`ing the new
-   package version. See the appropriate [apm-ci tag build for this repo](https://apm-ci.elastic.co/job/apm-agent-nodejs/job/apm-agent-nodejs-mbp/view/tags/).)
-1. Reset the latest major branch (currently `3.x`) to point to the current
-   main, e.g. `git branch -f 3.x main && git push origin 3.x`
-1. For major releases, [create an issue](https://github.com/elastic/website-requests/issues/new) to request an update of the [EOL table](https://www.elastic.co/support/eol).
+   (The GitHub Actions CI "release" workflow will handle all the release
+   steps -- including the `npm publish`. See the appropriate run at:
+   https://github.com/elastic/apm-agent-nodejs/actions/workflows/release.yml)
+5. Reset the latest major branch (currently `3.x`) to point to the current
+   main, e.g. `git branch -f 3.x main && git push origin 3.x`.
+   (The periodic [docs CI job](https://elasticsearch-ci.elastic.co/view/Docs/job/elastic+docs+master+build/)
+   uses this branch to update the [published docs](https://www.elastic.co/guide/en/apm/agent/nodejs/current/release-notes-3.x.html).)
+6. For major releases, [create an issue](https://github.com/elastic/website-requests/issues/new) to request an update of the [EOL table](https://www.elastic.co/support/eol).
 
 ### Past major
 

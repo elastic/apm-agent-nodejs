@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 // The unhandledRejection will be fired by our bluebird tests, which is to be
 // expected.
 require('../../../_promise_rejection').remove()

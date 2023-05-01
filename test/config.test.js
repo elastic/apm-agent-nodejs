@@ -125,6 +125,7 @@ var optionFixtures = [
   ['centralConfig', 'CENTRAL_CONFIG', true],
   ['containerId', 'CONTAINER_ID'],
   ['contextPropagationOnly', 'CONTEXT_PROPAGATION_ONLY', false],
+  ['customMetricsHistogramBoundaries', 'CUSTOM_METRICS_HISTOGRAM_BOUNDARIES', config.DEFAULTS.customMetricsHistogramBoundaries.slice()],
   ['disableSend', 'DISABLE_SEND', false],
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
   ['environment', 'ENVIRONMENT', 'development'],
@@ -179,6 +180,8 @@ optionFixtures.forEach(function (fixture) {
     } else if (fixture[0] === 'serverCaCertFile') {
       // special case for files, so a temp file can be written
       type = 'file'
+    } else if (fixture[0] === 'customMetricsHistogramBoundaries') {
+      type = 'customMetricsHistogramBoundaries'
     } else if (fixture[0] === 'traceContinuationStrategy') {
       type = 'traceContinuationStrategy'
     } else if (typeof fixture[2] === 'number' || fixture[0] === 'errorMessageMaxLength') {
@@ -214,6 +217,9 @@ optionFixtures.forEach(function (fixture) {
           fs.writeFileSync(tmpfile, tmpfile)
           value = tmpfile
           break
+        case 'customMetricsHistogramBoundaries':
+          value = [1, 2, 3] // a valid non-default value
+          break
         case 'traceContinuationStrategy':
           value = 'restart' // a valid non-default value
           break
@@ -239,7 +245,7 @@ optionFixtures.forEach(function (fixture) {
           t.deepEqual(agent._conf[fixture[0]], value)
           break
         default:
-          t.strictEqual(agent._conf[fixture[0]], value)
+          t.deepEqual(agent._conf[fixture[0]], value)
       }
 
       // Restore process.env state.
@@ -284,6 +290,10 @@ optionFixtures.forEach(function (fixture) {
           value1 = ['overwriting-value']
           value2 = ['custom-value']
           break
+        case 'customMetricsHistogramBoundaries':
+          value1 = [1, 2, 3, 4]
+          value2 = [1, 5, 10, 50, 100]
+          break
         case 'traceContinuationStrategy':
           value1 = 'restart'
           value2 = 'continue'
@@ -303,6 +313,7 @@ optionFixtures.forEach(function (fixture) {
 
       switch (type) {
         case 'array':
+        case 'customMetricsHistogramBoundaries':
           t.deepEqual(agent._conf[fixture[0]], value2)
           break
         default:
@@ -333,6 +344,7 @@ optionFixtures.forEach(function (fixture) {
 
     switch (type) {
       case 'array':
+      case 'customMetricsHistogramBoundaries':
         t.deepEqual(agent._conf[fixture[0]], fixture[2])
         break
       default:
@@ -1130,6 +1142,10 @@ test('custom transport', function (t) {
     }
 
     supportsKeepingUnsampledTransaction () {
+      return true
+    }
+
+    supportsActivationMethodField () {
       return true
     }
   }

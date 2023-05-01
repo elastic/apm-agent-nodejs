@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 process.env.ELASTIC_APM_TEST = true
 const { CapturingTransport } = require('../../../_capturing_transport')
 const apm = require('../../../..').start({
@@ -25,9 +30,9 @@ try {
   console.log('# SKIP undici instrumention is not supported (no "diagnostics_channel" module)')
   process.exit()
 }
-const semver = require('semver')
-if (semver.lt(process.version, '12.18.0')) {
-  console.log('# SKIP undici instrumention does not support node %s', process.version)
+const isUndiciIncompat = require('../../../_is_undici_incompat')()
+if (isUndiciIncompat) {
+  console.log(`# SKIP ${isUndiciIncompat}`)
   process.exit()
 }
 

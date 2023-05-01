@@ -6,25 +6,26 @@ endif::[]
 [[opentelemetry-bridge]]
 == OpenTelemetry bridge
 
-NOTE: Added as experimental in v3.34.0.
-To enable it, set <<opentelemetry-bridge-enabled, `opentelemetryBridgeEnabled`>> to `true`.
+NOTE: Integration with the OpenTelemetry Tracing API was added as experimental in v3.34.0.
+Integration with the OpenTelemetry Metrics API was added as experimental in v3.45.0.
 
 The Elastic APM OpenTelemetry bridge allows one to use the vendor-neutral
-https://opentelemetry.io/docs/instrumentation/js/api/[OpenTelemetry Tracing API]
-(https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`]) to
-manually instrument your code, and have the Elastic Node.js APM agent handle
-those API calls. This allows one to use the Elastic APM agent for tracing,
-without any vendor lock-in from adding manual tracing using the APM agent's own
-<<api,public API>>.
+https://opentelemetry.io/docs/instrumentation/js/[OpenTelemetry API]
+(https://www.npmjs.com/package/@opentelemetry/api[`@opentelemetry/api`]) in
+your code, and have the Elastic Node.js APM agent handle those API calls.
+This allows one to use the Elastic APM agent for tracing and metrics without any
+vendor lock-in to the APM agent's own <<api,public API>> when adding manual
+tracing or custom metrics.
 
 
 [float]
-[[otel-getting-started]]
-=== Getting started
+[[otel-tracing-api]]
+=== Using the OpenTelemetry Tracing API
 
-The goal of the OpenTelemetry bridge is to allow using the OpenTelemetry API
-with the APM agent. ① First, you will need to add those dependencies to your
-project. The minimum required OpenTelemetry API version is 1.0.0. For example:
+① First, you will need to add the Elastic APM agent and OpenTelemetry API
+dependencies to your project. The minimum required OpenTelemetry API version is
+1.0.0; see <<compatibility-opentelemetry,the OpenTelemetry compatibility section>>
+for the current maximum supported API version. For example:
 
 [source,bash]
 ----
@@ -39,15 +40,14 @@ your application code):
 ----
 export ELASTIC_APM_SERVER_URL='<url of your APM server>'
 export ELASTIC_APM_SECRET_TOKEN='<secret token for your APM server>'  # or ELASTIC_APM_API_KEY=...
-export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true
+export ELASTIC_APM_OPENTELEMETRY_BRIDGE_ENABLED=true <1>
 export NODE_OPTIONS='-r elastic-apm-node/start.js'  # Tell node to preload and start the APM agent
 node my-app.js
 ----
+<1> Future versions may drop this config var and enable usage of the tracing API by default.
 
 Or, alternatively, you can configure and start the APM agent at the top of your
-application code as follows. (Note: For automatic instrumentations to function
-properly, this must be executed before other `require` statements and
-application code.)
+application code:
 
 [source,js]
 ----
@@ -60,11 +60,11 @@ require('elastic-apm-node').start({
 // Application code ...
 ----
 
-NOTE: These examples show the minimal configuration. See <<configuration,the full APM agent configuration reference>> for other configuration options.
+See <<configuration,the full APM agent configuration reference>> for other configuration options.
 
-③ Finally, you can use the OpenTelemetry API for any manual tracing in your code.
-For example, the following script uses
-https://open-telemetry.github.io/opentelemetry-js-api/interfaces/tracer.html#startactivespan[Tracer#startActiveSpan()]
+③ Finally, you can use the https://open-telemetry.github.io/opentelemetry-js/modules/_opentelemetry_api.html[OpenTelemetry API]
+for any manual tracing in your code. For example, the following script uses
+https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api.Tracer.html#startActiveSpan[Tracer#startActiveSpan()]
 to trace an outgoing HTTPS request:
 
 [source,js]
@@ -87,61 +87,173 @@ tracer.startActiveSpan('makeRequest', span => {
 ----
 
 The APM agent source code repository includes
-https://github.com/elastic/apm-agent-nodejs/tree/main/examples/opentelemetry-bridge[some examples using the OpenTelemetry bridge].
+https://github.com/elastic/apm-agent-nodejs/tree/main/examples/opentelemetry-bridge[some examples using the OpenTelemetry tracing bridge].
+
+
+[float]
+[[otel-metrics-api]]
+=== Using the OpenTelemetry Metrics API
+
+① As above, install the needed dependencies. The minimum required OpenTelemetry
+API version is 1.3.0 (the version when metrics were added); see <<compatibility-opentelemetry,the OpenTelemetry compatibility section>>
+for the current maximum supported API version. For example:
+
+[source,bash]
+----
+npm install --save elastic-apm-node @opentelemetry/api
+----
+
+② Configure and start the APM agent. This can be done completely with
+environment variables -- as shown below -- or in code. (See <<starting-the-agent>>
+and <<configuration,the full APM agent configuration reference>> for other
+configuration options.)
+
+[source,bash]
+----
+export ELASTIC_APM_SERVER_URL='<url of your APM server>'
+export ELASTIC_APM_SECRET_TOKEN='<secret token for your APM server>'  # or ELASTIC_APM_API_KEY=...
+export NODE_OPTIONS='-r elastic-apm-node/start.js'  # Tell node to preload and start the APM agent
+node my-app.js
+----
+
+③ Finally, you can use the OpenTelemetry Metrics API, to
+https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api.Meter.html[create metrics]
+and the APM agent will periodically ship those metrics to your Elastic APM
+deployment where you can visualize them in Kibana.
+
+[source,js]
+----
+// otel-metrics-hello-world.js <1>
+const { createServer } = require('http')
+const otel = require('@opentelemetry/api')
+
+const meter = otel.metrics.getMeter('my-meter')
+const numReqs = meter.createCounter('num_requests', { description: 'number of HTTP requests' })
+
+const server = createServer((req, res) => {
+  numReqs.add(1)
+  req.resume()
+  req.on('end', () => {
+    res.end('pong\n')
+  })
+})
+server.listen(3000, () => {
+  console.log('listening at http://127.0.0.1:3000/')
+})
+----
+<1> The full example is https://github.com/elastic/apm-agent-nodejs/blob/main/examples/opentelemetry-metrics/otel-metrics-hello-world.js[here].
+
+
+[float]
+[[otel-metrics-sdk]]
+==== Using the OpenTelemetry Metrics SDK
+
+The Elastic APM agent also supports exporting metrics to APM server when the
+OpenTelemetry Metrics *SDK* is being used directly. You might want to use
+the OpenTelemetry Metrics SDK to use a https://opentelemetry.io/docs/reference/specification/metrics/sdk/#view[`View`]
+to configure histogram bucket sizes, to setup a Prometheus exporter, or for
+other reasons. For example:
+
+[source,js]
+----
+// use-otel-metrics-sdk.js <1>
+const otel = require('@opentelemetry/api')
+const { MeterProvider } = require('@opentelemetry/sdk-metrics')
+const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus')
+
+const exporter = new PrometheusExporter({ host: '127.0.0.1', port: 3001 })
+const meterProvider = new MeterProvider()
+meterProvider.addMetricReader(exporter)
+otel.metrics.setGlobalMeterProvider(meterProvider)
+
+const meter = otel.metrics.getMeter('my-meter')
+const latency = meter.createHistogram('latency', { description: 'Response latency (s)' })
+// ...
+----
+<1> The full example is https://github.com/elastic/apm-agent-nodejs/blob/main/examples/opentelemetry-metrics/use-otel-metrics-sdk.js[here].
+
+
+[float]
+[[otel-metrics-conf]]
+==== OpenTelemetry Metrics configuration
+
+A few configuration options can be used to control OpenTelemetry Metrics support.
+
+- Specific metrics names can be filtered out via the <<disable-metrics>> configuration option.
+- Integration with the OpenTelemetry Metrics API can be disabled via the <<disable-instrumentations,`disableInstrumentations: '@opentelemetry/api'`>> configuration option.
+- Integration with the OpenTelemetry Metrics SDK can be disabled via the <<disable-instrumentations,`disableInstrumentations: '@opentelemetry/sdk-metrics'`>> configuration option.
+- All metrics support in the APM agent can be disabled via the <<metrics-interval,`metricsInterval: '0s'`>> configuration option.
+- The default histogram bucket boundaries are different from the OpenTelemetry default, to provide better resolution. The boundaries used by the APM agent can be configured with the <<custom-metrics-histogram-boundaries>> configuration option.
 
 
 [float]
 [[otel-architecture]]
 === Bridge architecture
 
-The OpenTelemetry bridge works similarly to the
-https://github.com/open-telemetry/opentelemetry-js[OpenTelemetry JS SDK]. It
-registers Tracer and ContextManager providers with the OpenTelemetry API.
-Subsequent `@opentelemetry/api` calls in user code will call into those
-providers. The APM agent translates from OpenTelemetry to Elastic APM semantics
-and sends tracing data to your APM server for full support in
+The OpenTelemetry Tracing bridge works similarly to the
+https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-node/[OpenTelemetry Node.js Trace SDK].
+It registers Tracer and ContextManager providers with the OpenTelemetry API.
+Subsequent `@opentelemetry/api` calls in user code will use those providers.
+The APM agent translates from OpenTelemetry to Elastic APM semantics and sends
+tracing data to your APM server for full support in
 https://www.elastic.co/apm[Elastic Observability's APM app].
 
-Here are a couple examples of semantic translations: The first entry span of a
+Some examples of semantic translations: The first entry span of a
 service (e.g. an incoming HTTP request) will be converted to an
 {apm-guide-ref}/data-model-transactions.html[Elasic APM `Transaction`],
 subsequent spans are mapped to
-{apm-guide-ref}/data-model-spans.html[Elastic APM `Span`]. OpenTelemetry Span
+{apm-guide-ref}/data-model-spans.html[Elastic APM `Span`s]. OpenTelemetry Span
 attributes are translated into the appropriate fields in Elastic APM's data
 model.
 
 The only difference, from the user's point of view, is in the setup of tracing.
 Instead of setting up the OpenTelemetry JS SDK, one sets up the APM agent
-as <<otel-getting-started,described above>>.
+as <<otel-tracing-api,described above>>.
 
+---
+
+The OpenTelemetry Metrics support, is slightly different. If your code uses
+just the Metrics *API*, then the APM agent provides a full MeterProvider so
+that metrics are accumulated and sent to APM server. If your code uses the
+Metrics *SDK*, then the APM agents adds a MetricReader to your MeterProvider
+to send metrics on to APM server. This allows you to use the APM agent as
+either an easy setup for using metrics or in conjunction with your existing
+OpenTelemetry Metrics configuration.
 
 [float]
 [[otel-caveats]]
 === Caveats
-Not all features of the OpenTelemetry API are supported.
+
+Not all features of the OpenTelemetry API are supported. This section describes
+any limitations and differences.
 
 [float]
-[[otel-metrics]]
+[[otel-caveats-tracing]]
+===== Tracing
+
+- Span Link Attributes. Adding links when https://open-telemetry.github.io/opentelemetry-js/interfaces/\_opentelemetry_api.Tracer.html[starting a span] is supported, but any added span link *attributes* are silently dropped.
+- Span events (https://open-telemetry.github.io/opentelemetry-js/interfaces/_opentelemetry_api.Span.html#addEvent[`Span#addEvent()`]) are not currently supported. Events will be silently dropped.
+- https://open-telemetry.github.io/opentelemetry-js/classes/_opentelemetry_api.PropagationAPI.html[Propagating baggage] within or outside the process is not supported. Baggage items are silently dropped.
+
+[float]
+[[otel-caveats-metrics]]
 ===== Metrics
-This bridge only supports the tracing API.
-The Metrics API is currently not supported.
+
+- Metrics https://opentelemetry.io/docs/reference/specification/metrics/data-model/#exemplars[exemplars] are not supported.
+- https://opentelemetry.io/docs/reference/specification/metrics/data-model/#summary-legacy[Summary metrics] are not supported.
+- https://opentelemetry.io/docs/reference/specification/metrics/data-model/#exponentialhistogram[Exponential Histograms] are not yet supported.
+- The `sum`, `count`, `min` and `max` within the OpenTelemetry histogram data are discarded.
+- The default histogram bucket boundaries are different from the OpenTelemetry default. They provide better resolution. They can be configured with the <<custom-metrics-histogram-boundaries>> configuration option.
+- Metrics label names are dedotted (`s/\./_/g`) in APM server to avoid possible mapping collisions in Elasticsearch.
+- The default https://github.com/elastic/apm/blob/main/specs/agents/metrics-otel.md#aggregation-temporality[Aggregation Temporality] used differs from the OpenTelemetry default -- preferring *delta*-temporality (nicer for visualizing in Kibana) to cumulative-temporality.
+
+Metrics support requires an APM server >=7.11 -- for earlier APM server
+versions, metrics with label names including `.`, `*`, or `"` will get dropped.
+
 
 [float]
-[[otel-span-links]]
-===== Span Links
-Adding links when
-https://open-telemetry.github.io/opentelemetry-js-api/interfaces/tracer.html[starting a span]
-are not currently supported. Any given links will be silently dropped.
+[[otel-caveats-logs]]
+===== Logs
 
-[float]
-[[otel-span-events]]
-===== Span Events
-Span events (https://open-telemetry.github.io/opentelemetry-js-api/interfaces/span.html#addevent[`Span#addEvent()`])
-is not currently supported. Events will be silently dropped.
-
-[float]
-[[otel-baggage]]
-===== Baggage
-https://open-telemetry.github.io/opentelemetry-js-api/classes/propagationapi.html[Propagating baggage]
-within or outside the process is not supported. Baggage items are silently
-dropped.
+The OpenTelemetry Logs API is currently not support -- only the Tracing and
+Metrics APIs.

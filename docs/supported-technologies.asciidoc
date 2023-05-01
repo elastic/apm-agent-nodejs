@@ -94,9 +94,26 @@ These are the frameworks that we officially support:
 | <<hapi,@hapi/hapi>>   | >=17.9.0 <22.0.0 |
 | <<hapi,hapi>>         | >=9.0.0 <19.0.0 | Deprecated. No longer tested.
 | <<koa,Koa>> via koa-router or @koa/router | >=5.2.0 <13.0.0 | Koa doesn't have a built in router, so we can't support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called https://github.com/koajs/koa-router[koa-router].
-| <<nextjs,Next.js>>    | >=11.1.0 <14.0.0 | (Technical Preview) This instruments Next.js routing to name transactions for incoming HTTP transactions; and reports errors in user pages. It supports the Next.js production server (`next start`) and development server (`next dev`). See the <<nextjs,Getting Started document>>.
+| <<nextjs,Next.js>>    | >=11.1.0 <13.3.0 | (Technical Preview) This instruments Next.js routing to name transactions for incoming HTTP transactions; and reports errors in user pages. It supports the Next.js production server (`next start`) and development server (`next dev`). See the <<nextjs,Getting Started document>>.
 | <<restify,Restify>>   | >=5.2.0 <12.0.0 |
 |=======================================================================
+
+[float]
+[[compatibility-opentelemetry]]
+=== OpenTelemetry
+
+The Node.js Elastic APM agent supports usage of the OpenTelemetry Tracing API
+via its <<opentelemetry-bridge>>. As well, it instruments the OpenTelemetry
+Metrics API and Metrics SDK to allow
+<<otel-metrics-api,usage of the OpenTelemetry Metrics API>>.
+
+[options="header"]
+|=======================================================================
+| Framework | Version
+| <<opentelemetry-bridge,@opentelemetry/api>> | >=1.0.0 <1.5.0
+| https://www.npmjs.com/package/@opentelemetry/sdk-metrics[@opentelemetry/sdk-metrics] | >=1.11.0 <2
+|=======================================================================
+
 
 [float]
 [[compatibility-custom-transactions]]

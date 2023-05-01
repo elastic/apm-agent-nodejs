@@ -24,6 +24,9 @@ function mockAgent (conf = {}, onMetricSet) {
     _conf: conf,
     _transport: {
       sendMetricSet: onMetricSet
+    },
+    _isMetricNameDisabled (name) {
+      return false
     }
   }
 }

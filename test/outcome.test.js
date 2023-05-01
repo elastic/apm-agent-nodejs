@@ -20,7 +20,8 @@ const noOpClient = {
   sendError () {},
   sendMetricSet () {},
   flush () {},
-  supportsKeepingUnsampledTransaction () { return true }
+  supportsKeepingUnsampledTransaction () { return true },
+  supportsActivationMethodField () { return true }
 }
 agent._transport = noOpClient
 
