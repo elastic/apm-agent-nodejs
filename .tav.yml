@@ -42,8 +42,8 @@ mysql:
 # - v2.2.3 has a github dep ("@types/mysql": "types/mysql") that hits
 #   npm v6 install issue https://github.com/npm/cli/issues/4896
 # - v3: It isn't clear what the min supported Node.js version is. "engines" says
-#   8.0.0, however it uses an lru-cache that supports only node >=16.14! My
-#   guess is the effective min supported node is v14.
+#   8.0.0, however it uses an lru-cache that supports only node >=16.14! From
+#   trial and error the effective min supported node is v14.6.0.
 #   See https://github.com/elastic/apm-agent-nodejs/pull/3301#issuecomment-1530138870
 mysql2-v1-v1.6.0:
   name: mysql2
@@ -61,7 +61,7 @@ mysql2-v1.6.0-v3:
 mysql2:
   name: mysql2
   versions: '>=3.0.0 <4'
-  node: '>=14'
+  node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/mysql2/mysql.test.js
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
