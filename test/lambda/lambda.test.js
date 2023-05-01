@@ -441,7 +441,6 @@ tape.test('lambda transactions', function (suite) {
         t.equal(trans.outcome, 'success', 'transaction.outcome')
         t.error(err, 'no err')
         t.equal(result, 'hi')
-        console.log('XXX trans:'); console.dir(trans, { depth: 5 })
       }
     },
     {
@@ -458,7 +457,6 @@ tape.test('lambda transactions', function (suite) {
         t.equal(trans.outcome, 'success', 'transaction.outcome')
         t.error(err, 'no err')
         t.equal(result, 'hi')
-        console.log('XXX trans:'); console.dir(trans, { depth: 5 })
       }
     },
     {
@@ -475,7 +473,6 @@ tape.test('lambda transactions', function (suite) {
         t.equal(trans.outcome, 'success', 'transaction.outcome')
         t.error(err, 'no err')
         t.equal(result, 'hi')
-        console.log('XXX trans:'); console.dir(trans, { depth: 5 })
       }
     },
     {
@@ -492,7 +489,6 @@ tape.test('lambda transactions', function (suite) {
         t.equal(trans.outcome, 'success', 'transaction.outcome')
         t.error(err, 'no err')
         t.equal(result, 'hi')
-        console.log('XXX trans:'); console.dir(trans, { depth: 5 })
       }
     },
 
