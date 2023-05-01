@@ -107,7 +107,7 @@ tape.test('lambda transactions', function (suite) {
     })
   })
 
-  const testCases = [
+  let testCases = [
     // Test usage of the `context.{succeed,done,fail}()` methods -- now
     // deprecated by Lambda -- in the handler function.
     {
@@ -175,6 +175,183 @@ tape.test('lambda transactions', function (suite) {
         t.equal(err.errorMessage, 'boom', 'err.errorMessage')
         const trans = events[1].transaction
         t.equal(trans.outcome, 'failure', 'transaction.outcome')
+      }
+    },
+
+    // Test trace-context handling (i.e. traceparent and tracestate from
+    // the trigger event).
+    {
+      name: 'trace-context: API Gateway: traceparent header present',
+      event: {
+        requestContext: {
+          domainName: '21mj4tsk90.execute-api.us-west-2.amazonaws.com',
+          domainPrefix: '21mj4tsk90',
+          routeKey: 'ANY /the-function-name',
+          requestId: '1d108eda-bfc2-4e1a-8942-d82db026cdf9',
+          stage: 'default',
+          http: { method: 'GET', path: '/default/the-function-name' }
+        },
+        headers: {
+          traceparent: '00-12345678901234567890123456789012-1234567890123456-01',
+          tracestate: 'acme:foo=123'
+        }
+        // ...
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, _result) => {
+        assertExpectedServerRequests(t, requests)
+        t.error(err, 'no err')
+        const trans = events[1].transaction
+        t.equal(trans.name, 'GET /default/the-function-name', 'transaction.name')
+        t.equal(trans.trace_id, '12345678901234567890123456789012', 'transaction.trace_id')
+        t.equal(trans.parent_id, '1234567890123456', 'transaction.parent_id')
+        // No great way to test that `tracestate` was picked up.
+      }
+    },
+    {
+      name: 'trace-context: API Gateway: elastic-apm-traceparent header present',
+      event: {
+        requestContext: {
+          domainName: '21mj4tsk90.execute-api.us-west-2.amazonaws.com',
+          domainPrefix: '21mj4tsk90',
+          routeKey: 'ANY /the-function-name',
+          requestId: '1d108eda-bfc2-4e1a-8942-d82db026cdf9',
+          stage: 'default',
+          http: { method: 'GET', path: '/default/the-function-name' }
+        },
+        headers: {
+          'elastic-apm-traceparent': '00-abc45678901234567890123456789012-abc4567890123456-01',
+          tracestate: 'acme:foo=123'
+        }
+        // ...
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, _result) => {
+        assertExpectedServerRequests(t, requests)
+        t.error(err, 'no err')
+        const trans = events[1].transaction
+        t.equal(trans.name, 'GET /default/the-function-name', 'transaction.name')
+        t.equal(trans.trace_id, 'abc45678901234567890123456789012', 'transaction.trace_id')
+        t.equal(trans.parent_id, 'abc4567890123456', 'transaction.parent_id')
+      }
+    },
+    {
+      name: 'trace-context: API Gateway: both traceparent and elastic-apm-traceparent present',
+      event: {
+        requestContext: {
+          domainName: '21mj4tsk90.execute-api.us-west-2.amazonaws.com',
+          domainPrefix: '21mj4tsk90',
+          routeKey: 'ANY /the-function-name',
+          requestId: '1d108eda-bfc2-4e1a-8942-d82db026cdf9',
+          stage: 'default',
+          http: { method: 'GET', path: '/default/the-function-name' }
+        },
+        headers: {
+          'elastic-apm-traceparent': '00-abc45678901234567890123456789012-abc4567890123456-01',
+          traceparent: '00-12345678901234567890123456789012-1234567890123456-01',
+          tracestate: 'acme:foo=123'
+        }
+        // ...
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, _result) => {
+        assertExpectedServerRequests(t, requests)
+        t.error(err, 'no err')
+        const trans = events[1].transaction
+        t.equal(trans.name, 'GET /default/the-function-name', 'transaction.name')
+        t.equal(trans.trace_id, '12345678901234567890123456789012', 'transaction.trace_id')
+        t.equal(trans.parent_id, '1234567890123456', 'transaction.parent_id')
+      }
+    },
+    {
+      name: 'trace-context: SQS: traceparent present',
+      event: {
+        Records: [
+          {
+            messageAttributes: {
+              aBinaryAttr: {
+                binaryValue: 'SGVsbG8sIFdvcmxkIQ==',
+                stringListValues: [],
+                binaryListValues: [],
+                dataType: 'Binary'
+              },
+              traceparent: {
+                stringValue: '00-12345678901234567890123456789012-1234567890123456-01',
+                stringListValues: [],
+                binaryListValues: [],
+                dataType: 'String'
+              },
+              tracestate: {
+                stringValue: 'acme:foo=123',
+                stringListValues: [],
+                binaryListValues: [],
+                dataType: 'String'
+              }
+            },
+            eventSource: 'aws:sqs',
+            eventSourceARN: 'arn:aws:sqs:us-east-1:268121251715:testqueue'
+            // ...
+          },
+          {
+            messageAttributes: {},
+            eventSource: 'aws:sqs',
+            eventSourceARN: 'arn:aws:sqs:us-east-1:268121251715:testqueue'
+            // ...
+          },
+          {
+            messageAttributes: {
+              TrAcEpArEnT: {
+                stringValue: '00-abc45678901234567890123456789012-abc4567890123456-01',
+                stringListValues: [],
+                binaryListValues: [],
+                dataType: 'String'
+              }
+            },
+            eventSource: 'aws:sqs',
+            eventSourceARN: 'arn:aws:sqs:us-east-1:268121251715:testqueue'
+            // ...
+          }
+        ]
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, _result, c) => {
+        assertExpectedServerRequests(t, requests)
+        t.error(err, 'no err')
+        const trans = events[1].transaction
+        t.equal(trans.name, 'RECEIVE testqueue', 'transaction.name')
+        t.deepEqual(trans.links, [
+          { trace_id: '12345678901234567890123456789012', span_id: '1234567890123456' },
+          { trace_id: 'abc45678901234567890123456789012', span_id: 'abc4567890123456' }
+        ], 'transaction.links')
+      }
+    },
+    {
+      name: 'trace-context: SNS: traceparent present',
+      event: {
+        Records: [
+          {
+            EventSource: 'aws:sns',
+            Sns: {
+              TopicArn: 'arn:aws:sns:us-west-2:123456789012:testtopic',
+              MessageAttributes: {
+                aBinaryAttr: { Type: 'Binary', Value: 'SGVsbG8sIFdvcmxkIQ==' },
+                traceparent: { Type: 'String', Value: '00-12345678901234567890123456789012-1234567890123456-01' },
+                tracestate: { Type: 'String', Value: 'acme:foo=123' }
+              }
+            }
+            // ...
+          }
+        ]
+      },
+      handler: async () => { return 'hi' },
+      checkResults: (t, requests, events, err, _result, c) => {
+        assertExpectedServerRequests(t, requests)
+        t.error(err, 'no err')
+        const trans = events[1].transaction
+        t.equal(trans.name, 'RECEIVE testtopic', 'transaction.name')
+        t.deepEqual(trans.links, [
+          { trace_id: '12345678901234567890123456789012', span_id: '1234567890123456' }
+        ], 'transaction.links')
       }
     },
 
@@ -414,6 +591,10 @@ tape.test('lambda transactions', function (suite) {
       }
     }
   ]
+  if (process.env.DEV_TEST_FILTER) {
+    suite.comment(`Filtering "testCases" with DEV_TEST_FILTER=${process.env.DEV_TEST_FILTER}`)
+    testCases = testCases.filter(c => ~c.name.indexOf(process.env.DEV_TEST_FILTER))
+  }
 
   testCases.forEach(c => {
     suite.test(c.name, { skip: c.skip || false }, function (t) {
