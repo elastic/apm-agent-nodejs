@@ -40,6 +40,8 @@ Notes:
 [float]
 ===== Features
 
+* Add support for mysql2@3. Contributed by @firecow. ({pull}3301[#3301])
+
 * Improve error handling with AWS Lambda. When used together with the
   https://github.com/elastic/apm-aws-lambda[Elastic AWS Lambda extension]
   v1.4.0 or greater, the APM agent will pre-register a partial transaction

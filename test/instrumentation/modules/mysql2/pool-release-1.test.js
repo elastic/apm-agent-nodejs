@@ -11,6 +11,14 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
+const semver = require('semver')
+const { safeGetPackageVersion } = require('../../../_utils')
+const mysql2Ver = safeGetPackageVersion('mysql2')
+if (semver.gte(mysql2Ver, '3.0.0') && semver.lt(process.version, '14.6.0')) {
+  console.log(`# SKIP mysql2@${mysql2Ver} does not support node ${process.version}`)
+  process.exit()
+}
+
 var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
