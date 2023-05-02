@@ -62,7 +62,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
           t.comment('err: ' + util.inspect(err))
         }
         t.comment(`use-s3-v3.js stdout:\n${stdout}\n`)
-        t.comment(`use-s3-v3<.js stderr:\n${stderr}\n`)
+        t.comment(`use-s3-v3.js stderr:\n${stderr}\n`)
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
 
         // Sort the events by timestamp, then work through each expected span.
