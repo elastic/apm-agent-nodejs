@@ -10,7 +10,10 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows')
   process.exit(0)
 }
-
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP @aws-sdk/* instrumentation does not work with contextManager="patch"')
+  process.exit()
+}
 // Test S3 instrumentation of the '@aws-sdk/client-s3' module.
 //
 // Note that this uses localstack for testing, which mimicks the S3 API but
