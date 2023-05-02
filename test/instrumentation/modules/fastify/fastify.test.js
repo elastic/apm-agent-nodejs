@@ -9,8 +9,9 @@
 const agent = require('../../../..').start({
   serviceName: 'test-fastify',
   captureExceptions: false,
-  metricsInterval: 0,
+  metricsInterval: '0s',
   centralConfig: false,
+  apmServerVersion: '8.7.0',
   captureBody: 'all'
 })
 
@@ -72,9 +73,13 @@ test('captureBody', function (t) {
   const postData = JSON.stringify({ foo: 'bar' })
 
   resetAgent(data => {
-    assert(t, data, { name: 'POST /postSomeData', method: 'POST' })
-    t.equal(data.transactions[0].context.request.body, postData,
-      'body was captured to trans.context.request.body')
+    t.strictEqual(data.transactions.length, 1)
+    var trans = data.transactions[0]
+    t.strictEqual(trans.name, 'POST /postSomeData', 'transaction.name')
+    t.strictEqual(trans.type, 'request', 'transaction.type')
+    t.strictEqual(trans.result, 'HTTP 2xx', 'transaction.result')
+    t.strictEqual(trans.context.request.method, 'POST', 'transaction.context.request.method')
+    t.equal(trans.context.request.body, postData, 'transaction.context.request.body')
     fastify.close()
   })
 
@@ -84,7 +89,7 @@ test('captureBody', function (t) {
     reply.send('your data has been posted')
   })
 
-  fastify.listen(0, function (err) {
+  fastify.listen({ port: 0 }, function (err) {
     t.error(err)
 
     // build the URL manually as older versions of fastify doesn't supply it as
@@ -120,20 +125,4 @@ function resetAgent (cb) {
   agent._instrumentation.testReset()
   agent._transport = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
-}
-
-function assert (t, data, results) {
-  if (!results) results = {}
-  results.status = results.status || 'HTTP 2xx'
-  results.name = results.name || 'GET /hello/world'
-  results.method = results.method || 'GET'
-
-  t.strictEqual(data.transactions.length, 1)
-
-  var trans = data.transactions[0]
-
-  t.strictEqual(trans.name, results.name)
-  t.strictEqual(trans.type, 'request')
-  t.strictEqual(trans.result, results.status)
-  t.strictEqual(trans.context.request.method, results.method)
 }
