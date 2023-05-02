@@ -40,7 +40,7 @@ const { validateSpan } = require('../../../_validate_schema')
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost'
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566'
 
-// Execute 'node fixtures/use-s3js' and assert APM server gets the expected
+// Execute 'node fixtures/use-client-s3.js' and assert APM server gets the expected
 // spans.
 tape.test('simple S3 V3 usage scenario', function (t) {
   const server = new MockAPMServer()
@@ -54,7 +54,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
       TEST_REGION: 'us-east-2'
     }
     t.comment('executing test script with this env: ' + JSON.stringify(additionalEnv))
-    console.time && console.time('exec use-s3-v3')
+    console.time && console.time('exec use-client-s3')
     execFile(
       process.execPath,
       ['fixtures/use-client-s3.js'],
@@ -65,13 +65,13 @@ tape.test('simple S3 V3 usage scenario', function (t) {
         env: Object.assign({}, process.env, additionalEnv)
       },
       function done (err, stdout, stderr) {
-        console.timeLog && console.timeLog('exec use-s3-v3')
-        t.error(err, 'use-s3-v3.js did not error out')
+        console.timeLog && console.timeLog('exec use-client-s3')
+        t.error(err, 'use-client-s3.js did not error out')
         if (err) {
           t.comment('err: ' + util.inspect(err))
         }
-        t.comment(`use-s3-v3.js stdout:\n${stdout}\n`)
-        t.comment(`use-s3-v3.js stderr:\n${stderr}\n`)
+        t.comment(`use-client-s3.js stdout:\n${stdout}\n`)
+        t.comment(`use-client-s3.js stderr:\n${stderr}\n`)
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
 
         // Sort the events by timestamp, then work through each expected span.

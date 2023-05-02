@@ -70,7 +70,7 @@ const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
 async function useClientS3 (s3Client, bucketName) {
-  const region = s3Client.config.region
+  const region = await s3Client.config.region()
   const log = apm.logger.child({
     'event.module': 'app',
     endpoint: s3Client.config.endpoint,
