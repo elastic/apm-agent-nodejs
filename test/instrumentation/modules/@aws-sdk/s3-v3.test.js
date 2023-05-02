@@ -288,7 +288,6 @@ tape.test('simple S3 V3 usage scenario', function (t) {
           },
           outcome: 'failure'
         }, 'getObjNonExistantObject produced expected span')
-        console.log(errors)
         t.equal(errors.length, 1, 'got 1 error')
         t.equal(errors[0].parent_id, failingSpanId, 'error is a child of the failing span from getObjNonExistantObject')
         t.equal(errors[0].transaction_id, tx.id, 'error.transaction_id')
