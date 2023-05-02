@@ -27,21 +27,21 @@
 // Usage:
 //    # Run against the default configured AWS profile, creating a new bucket
 //    # and deleting it afterwards.
-//    node use-s3-v3.js | ecslog
+//    node use-client-s3.js | ecslog
 //
 //    # Testing against localstack.
 //    docker run --rm -it -e SERVICES=s3 -p 4566:4566 localstack/localstack
-//    TEST_ENDPOINT=http://localhost:4566 node use-s3-v3.js | ecslog
+//    TEST_ENDPOINT=http://localhost:4566 node use-client-s3.js | ecslog
 //
 //    # Use TEST_BUCKET_NAME to re-use an existing bucket (and not delete it).
 //    # For safety the bucket name must start with "elasticapmtest-bucket-".
-//    TEST_BUCKET_NAME=elasticapmtest-bucket-1 node use-s3.js | ecslog
+//    TEST_BUCKET_NAME=elasticapmtest-bucket-3 node use-client-s3.js | ecslog
 //
 // Output from a sample run is here:
 // https://gist.github.com/trentm/c402bcab8c0571f26d879ec0bcf5759c
 
 const apm = require('../../../../..').start({
-  serviceName: 'use-s3-v3',
+  serviceName: 'use-client-s3',
   captureExceptions: false,
   centralConfig: false,
   metricsInterval: 0,
@@ -69,7 +69,7 @@ const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 // ---- support functions
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
-async function useS3v3 (s3Client, bucketName) {
+async function useClientS3 (s3Client, bucketName) {
   const region = s3Client.config.region
   const log = apm.logger.child({
     'event.module': 'app',
@@ -222,14 +222,16 @@ function main () {
   // Ensure an APM transaction so spans can happen.
   const tx = apm.startTransaction('manual')
 
-  useS3v3(s3Client, bucketName).then(
+  useClientS3(s3Client, bucketName).then(
     function () {
       tx.end()
+      s3Client.destroy()
       process.exitCode = 0
     },
     function () {
       tx.setOutcome('failure')
       tx.end()
+      s3Client.destroy()
       process.exitCode = 1
     }
   )
