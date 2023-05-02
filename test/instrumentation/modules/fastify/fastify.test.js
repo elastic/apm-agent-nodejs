@@ -118,6 +118,7 @@ test('captureBody', function (t) {
         })
         res.on('end', function () {
           agent.flush()
+          t.end()
         })
       }
     )
