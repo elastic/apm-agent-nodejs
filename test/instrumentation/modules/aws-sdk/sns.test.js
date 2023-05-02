@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -45,8 +50,15 @@ function initializeAwsSdk () {
 
 function createMockServer (fixture) {
   const app = express()
+  app._receivedReqs = []
   app.use(bodyParser.urlencoded({ extended: false }))
   app.post('/', (req, res) => {
+    app._receivedReqs.push({
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body
+    })
     res.status(fixture.httpStatusCode)
     res.setHeader('Content-Type', 'text/xml')
     res.send(fixture.response)
@@ -191,11 +203,6 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
       {
         address: 'example.com',
         port: 1234,
-        service: {
-          resource: 'sns/topic-name',
-          type: 'messaging',
-          name: 'sns'
-        },
         cloud: { region: 'us-west-2' }
       }
     )
@@ -205,11 +212,6 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
       {
         address: null,
         port: null,
-        service: {
-          resource: 'sns/undefined',
-          type: 'messaging',
-          name: 'sns'
-        },
         cloud: { region: null }
       }
     )
@@ -219,11 +221,6 @@ tape.test('AWS SNS: Unit Test Functions', function (test) {
       {
         address: undefined,
         port: undefined,
-        service: {
-          resource: 'sns/undefined',
-          type: 'messaging',
-          name: 'sns'
-        },
         cloud: { region: undefined }
       }
     )
@@ -253,12 +250,30 @@ tape.test('AWS SNS: End to End Test', function (test) {
         t.equals(span.action, 'publish', 'span action set correctly')
         t.equals(span.sync, false, 'span.sync is false')
         t.equals(span.context.message.queue.name, 'topic-name')
-        t.equals(span.context.destination.service.resource, 'sns/topic-name')
-        t.equals(span.context.destination.service.type, 'messaging')
-        t.equals(span.context.destination.service.name, 'sns')
-        t.equals(span.context.destination.address, 'localhost')
-        t.equals(span.context.destination.port, port)
-        t.equals(span.context.destination.cloud.region, 'us-west-2')
+        t.deepEquals(span.context.service.target,
+          { type: 'sns', name: 'topic-name' },
+          'span.context.service.target')
+        t.deepEquals(span.context.destination, {
+          address: 'localhost',
+          port: port,
+          cloud: { region: 'us-west-2' },
+          service: { type: '', name: '', resource: 'sns/topic-name' }
+        }, 'span.context.destination')
+
+        // Ensure the request sent to SNS included trace-context in message
+        // attributes.
+        t.equal(app._receivedReqs.length, 1)
+        const req = app._receivedReqs[0]
+        t.equal(req.body.Action, 'Publish', 'req.body.Action')
+        // The fixture has 0 message attributes, so traceparent and tracestate
+        // should be attributes 1 and 2.
+        t.equal(req.body['MessageAttributes.entry.1.Name'], 'traceparent', 'traceparent message attribute Name')
+        t.equal(req.body['MessageAttributes.entry.1.Value.DataType'], 'String', 'traceparent message attribute DataType')
+        t.equal(req.body['MessageAttributes.entry.1.Value.StringValue'], `00-${span.trace_id}-${span.id}-01`, 'traceparent message attribute StringValue')
+        t.equal(req.body['MessageAttributes.entry.2.Name'], 'tracestate', 'tracestate message attribute Name')
+        t.equal(req.body['MessageAttributes.entry.2.Value.DataType'], 'String', 'tracestate message attribute DataType')
+        t.equal(req.body['MessageAttributes.entry.2.Value.StringValue'], 'es=s:1', 'tracestate message attribute StringValue')
+
         t.end()
       })
 
@@ -303,12 +318,30 @@ tape.test('AWS SNS: End to End Test', function (test) {
         t.equals(span.action, 'publish', 'span action set correctly')
         t.equals(span.sync, false, 'span.sync is false')
         t.equals(span.context.message.queue.name, 'topic-name')
-        t.equals(span.context.destination.service.resource, 'sns/topic-name')
-        t.equals(span.context.destination.service.type, 'messaging')
-        t.equals(span.context.destination.service.name, 'sns')
-        t.equals(span.context.destination.address, 'localhost')
-        t.equals(span.context.destination.port, port)
-        t.equals(span.context.destination.cloud.region, 'us-west-2')
+        t.deepEquals(span.context.service.target,
+          { type: 'sns', name: 'topic-name' },
+          'span.context.service.target')
+        t.deepEquals(span.context.destination, {
+          address: 'localhost',
+          port: port,
+          cloud: { region: 'us-west-2' },
+          service: { type: '', name: '', resource: 'sns/topic-name' }
+        }, 'span.context.destination')
+
+        // Ensure the request sent to SNS included trace-context in message
+        // attributes.
+        t.equal(app._receivedReqs.length, 1)
+        const req = app._receivedReqs[0]
+        t.equal(req.body.Action, 'Publish', 'req.body.Action')
+        // The fixture has 0 message attributes, so traceparent and tracestate
+        // should be attributes 1 and 2.
+        t.equal(req.body['MessageAttributes.entry.1.Name'], 'traceparent', 'traceparent message attribute Name')
+        t.equal(req.body['MessageAttributes.entry.1.Value.DataType'], 'String', 'traceparent message attribute DataType')
+        t.equal(req.body['MessageAttributes.entry.1.Value.StringValue'], `00-${span.trace_id}-${span.id}-01`, 'traceparent message attribute StringValue')
+        t.equal(req.body['MessageAttributes.entry.2.Name'], 'tracestate', 'tracestate message attribute Name')
+        t.equal(req.body['MessageAttributes.entry.2.Value.DataType'], 'String', 'tracestate message attribute DataType')
+        t.equal(req.body['MessageAttributes.entry.2.Value.StringValue'], 'es=s:1', 'tracestate message attribute StringValue')
+
         t.end()
       })
 
@@ -319,7 +352,7 @@ tape.test('AWS SNS: End to End Test', function (test) {
       const sns = new AWS.SNS({ apiVersion: '2010-03-31' })
       sns.publish(params, function (err, _data) {
         t.error(err)
-        t.ok(agent.currentSpan === null, 'no currentSpan in sns.promise callback')
+        t.ok(agent.currentSpan === null, 'no currentSpan in sns.publish(...) callback')
         agent.endTransaction()
         listener.close()
       })

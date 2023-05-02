@@ -11,20 +11,26 @@
     "license-header/header": [ "error", "./dev-utils/license-header.js" ]
   },
   "ignorePatterns": [
+    "/*.example.js", // a pattern for uncommited local dev files to avoid linting
     "/.nyc_output",
     "/build",
     "node_modules",
+    "elastic-apm-node.js",
     "/examples/esbuild/dist",
     "/examples/typescript/dist",
+    "/examples/nextjs",
+    "/examples/an-azure-function-app",
     "/lib/opentelemetry-bridge/opentelemetry-core-mini",
     "/test/babel/out.js",
     "/test/lambda/fixtures/esbuild-bundled-handler/hello.js",
+    "/test/instrumentation/modules/next/a-nextjs-app/pages",
+    "/test/instrumentation/modules/next/a-nextjs-app/components",
     "/test/sourcemaps/fixtures/lib",
     "/test/sourcemaps/fixtures/src",
     "/test/stacktraces/fixtures/dist",
     "/test/types/transpile/index.js",
     "/test/types/transpile-default/index.js",
     "/test_output",
-    "/tmp"
+    "tmp"
   ]
 }

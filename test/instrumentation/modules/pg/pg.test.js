@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 var agent = require('../../../..').start({
   serviceName: 'test-pg',
   captureExceptions: false,
@@ -577,16 +582,20 @@ function assertSpan (t, span, sql) {
   t.strictEqual(span.type, 'db')
   t.strictEqual(span.subtype, 'postgresql')
   t.strictEqual(span.action, 'query')
-  t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+  t.deepEqual(span.context.db, {
+    type: 'sql',
+    statement: sql,
+    instance: 'test_elastic_apm',
+    user: process.env.PGUSER || 'postgres'
+  }, 'span.context.db')
+  t.deepEqual(span.context.service.target,
+    { type: 'postgresql', name: 'test_elastic_apm' },
+    'span.context.service.target')
   t.deepEqual(span.context.destination, {
-    service: {
-      name: 'postgresql',
-      resource: 'postgresql',
-      type: 'db'
-    },
     address: process.env.PGHOST || 'localhost',
-    port: 5432
-  })
+    port: 5432,
+    service: { type: '', name: '', resource: 'postgresql/test_elastic_apm' }
+  }, 'span.context.destination')
 }
 
 function createClient (cb) {

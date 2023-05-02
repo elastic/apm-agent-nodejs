@@ -335,6 +335,8 @@ See the <<apm-add-labels,`apm.addLabels()`>> method for details about the format
 
 ** `skipOutcome` +{type-boolean}+ Whether to skip setting the outcome value for the current span to `failure`.  See <<span-outcome,Span outcome>> for more information. *Default:* `false`.
 
+** `parent` <<transaction-api,Transaction>> | <<span-api,Span>> | `null` - A Transaction or Span instance to make the parent of this error. If not given (or `undefined`), then the current span or transaction will be used. If `null` is given, then no span or transaction will be used. [small]#(Added in v3.33.0.)#
+
 * `callback` - Will be called after the error has been sent to the APM Server.
 It will receive an `Error` instance if the agent failed to send the error,
 and the id of the captured error.
@@ -515,7 +517,9 @@ Sub-millisecond precision can be achieved using decimals.
 If not provided,
 the current time will be used
 
-** `childOf` +{type-string}+ The traceparent header received from a remote service.
+** `childOf` +{type-string}+ A W3C trace-context "traceparent" string, typically received from a remote service call.
+
+** `tracestate` +{type-string}+ A W3C trace-context "tracestate" string.
 
 ** `links` +{type-array}+ Span links.
 A transaction can refer to zero or more other transactions or spans (separate
@@ -691,16 +695,35 @@ remember to terminate the node process.
 
 [source,js]
 ----
+// with node-style callback
 apm.flush(function (err) {
   // Flush complete
 })
+
+// with promises
+apm.flush().then(function () {
+  // Flush complete
+}).catch(function (err) {
+  // Flush returned an error
+})
+
+// inside of an async function
+try {
+  await apm.flush()
+  // Flush complete
+} catch (err) {
+  // Flush returned an error
+}
 ----
 
 Manually end the active outgoing HTTP request to the APM Server.
 The HTTP request is otherwise ended automatically at regular intervals,
 controlled by the <<api-request-time,`apiRequestTime`>> and <<api-request-size,`apiRequestSize`>> config options.
 
-The callback is called *after* the active HTTP request has ended.
+If an optional `callback` is provided as the first argument to this method, it will call `callback(flushErr)` when complete. 
+If no `callback` is provided, then a `Promise` will be returned, which will either resolve with `void` or reject with `flushErr`.
+
+The callback is called (or the `Promise` resolves if no `callback` argument is provided) *after* the active HTTP request has ended.
 The callback is called even if no HTTP request is currently active.
 
 [[apm-lambda]]

@@ -82,23 +82,38 @@ This agent is compatible with {apm-guide-ref}[APM Server] v6.6 and above.
 
 Though you can use Elastic APM <<custom-stack,with any Node.js framework>>,
 we automate a few things for the most popular Node.js modules.
-
 These are the frameworks that we officially support:
 
 [options="header"]
 |=======================================================================
-|Framework |Version
-|<<express,Express>> |^4.0.0
-|<<hapi,hapi>> |>=9.0.0 <19.0.0; Deprecated. No longer tested.
-|<<hapi,@hapi/hapi>> |>=17.9.0 <21.0.0
-|<<koa,Koa>> via koa-router or @koa/router |>=5.2.0 <10.0.0
-2+|Koa doesn't have a built in router, so we can't support Koa directly since we rely on
-router information for full support. We currently support the most popular Koa router called
-https://github.com/alexmingoia/koa-router[koa-router].
-|<<restify,Restify>> |>=5.2.0
-|<<fastify,Fastify>> |>=1.0.0; see also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
-|<<lambda,AWS Lambda>> |N/A
+| Framework             | Version | Note
+| <<lambda,AWS Lambda>> | N/A |
+| <<azure-functions,Azure Functions>> | ~4 | See https://learn.microsoft.com/en-ca/azure/azure-functions/set-runtime-version[the guide on Azure Functions runtime versions].
+| <<express,Express>>   | ^4.0.0 |
+| <<fastify,Fastify>>   | >=1.0.0 | See also https://www.fastify.io/docs/latest/Reference/LTS/[Fastify's own LTS documentation]
+| <<hapi,@hapi/hapi>>   | >=17.9.0 <22.0.0 |
+| <<hapi,hapi>>         | >=9.0.0 <19.0.0 | Deprecated. No longer tested.
+| <<koa,Koa>> via koa-router or @koa/router | >=5.2.0 <13.0.0 | Koa doesn't have a built in router, so we can't support Koa directly since we rely on router information for full support. We currently support the most popular Koa router called https://github.com/koajs/koa-router[koa-router].
+| <<nextjs,Next.js>>    | >=11.1.0 <13.3.0 | (Technical Preview) This instruments Next.js routing to name transactions for incoming HTTP transactions; and reports errors in user pages. It supports the Next.js production server (`next start`) and development server (`next dev`). See the <<nextjs,Getting Started document>>.
+| <<restify,Restify>>   | >=5.2.0 <12.0.0 |
 |=======================================================================
+
+[float]
+[[compatibility-opentelemetry]]
+=== OpenTelemetry
+
+The Node.js Elastic APM agent supports usage of the OpenTelemetry Tracing API
+via its <<opentelemetry-bridge>>. As well, it instruments the OpenTelemetry
+Metrics API and Metrics SDK to allow
+<<otel-metrics-api,usage of the OpenTelemetry Metrics API>>.
+
+[options="header"]
+|=======================================================================
+| Framework | Version
+| <<opentelemetry-bridge,@opentelemetry/api>> | >=1.0.0 <1.5.0
+| https://www.npmjs.com/package/@opentelemetry/sdk-metrics[@opentelemetry/sdk-metrics] | >=1.11.0 <2
+|=======================================================================
+
 
 [float]
 [[compatibility-custom-transactions]]
@@ -110,8 +125,8 @@ These modules override that behavior to give better insights into specialized HT
 [options="header"]
 |=======================================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/express-graphql[express-graphql] |>=0.6.1 <0.13.0 |Will name all transactions by the GraphQL query name. (There is https://github.com/elastic/apm-agent-nodejs/issues/2516[known issue with node <10.4].)
-|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |^2.0.4 <4|Will name all transactions by the GraphQL query name
+|https://www.npmjs.com/package/express-graphql[express-graphql] |>=0.6.1 <0.13.0 |Will name all transactions by the GraphQL query name. There is a https://github.com/elastic/apm-agent-nodejs/issues/2516[known issue with node <10.4]. Versions before 0.10.0 are no longer tested.
+|https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |>=2.0.4 <4|Will name all transactions by the GraphQL query name. Versions before 2.9.6 are no longer tested.
 |=======================================================================
 
 [float]
@@ -130,49 +145,49 @@ The Node.js agent will automatically instrument the following modules to give yo
 |https://www.npmjs.com/package/graphql[graphql] |>=0.7.0 <17 |Will instrument all queries
 |https://www.npmjs.com/package/handlebars[handlebars] |* |Will instrument compile and render calls
 |https://www.npmjs.com/package/jade[jade] |>=0.5.6 |Will instrument compile and render calls; Deprecated. No longer tested. Use pug.
-|https://www.npmjs.com/package/pug[pug] |'>=0.1.0' |Will instrument compile and render calls
-|https://www.npmjs.com/package/ioredis[ioredis] |>=2.0.0 <6.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/memcached[memcached] |>=2.2.0  |Will instrument all commands.
-|https://www.npmjs.com/package/mongodb-core[mongodb-core] |>=1.2.19 <4 |Will instrument all queries.
+|https://www.npmjs.com/package/pug[pug] |>=0.1.0 |Will instrument compile and render calls
+|https://www.npmjs.com/package/ioredis[ioredis] |>=2.0.0 <6.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/memcached[memcached] |>=2.2.0 |Will instrument all commands.
+|https://www.npmjs.com/package/mongodb-core[mongodb-core] |>=1.2.19 <4 |Will instrument all queries.
 A lot of higher level MongoDB modules use mongodb-core,
 so those should be supported as well.
 |https://www.npmjs.com/package/mongodb[mongodb] |>=2.0.0 <3.3.0 |Supported via mongodb-core
-|https://www.npmjs.com/package/mongodb[mongodb] |^3.3.0 <5 |Will instrument all queries
+|https://www.npmjs.com/package/mongodb[mongodb] |>=3.3.0 <6 |Will instrument all queries
 |https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 <2.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 <5.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <3.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/redis[redis] |>=2.0.0 <4.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/tedious[tedious] |>=1.9 <15.0.0 | (Excluding v4.0.0.) Will instrument all queries
-|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <8.0.0 |Will instrument outgoing WebSocket messages
+|https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <4.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/redis[redis] |>=2.0.0 <5.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/tedious[tedious] |>=1.9 <16.0.0 | (Excluding v4.0.0.) Will instrument all queries
+|https://www.npmjs.com/package/undici[undici] | >=4.7.1 <6 | Will instrument undici HTTP requests, except HTTP CONNECT. Requires node v14.17.0 or later, or the user to have installed the https://www.npmjs.com/package/diagnostics_channel['diagnostics_channel' polyfill].
+|https://www.npmjs.com/package/ws[ws] |>=1.0.0 <8.0.0 |Will instrument outgoing WebSocket messages
 |=======================================================================
 
 [float]
 [[compatibility-better-stack-traces]]
 ==== Better Stack Traces
 
-When viewing a span in Elastic APM,
-you'll see where in your code you initiated the span (e.g. a database query).
+The APM agent <<span-stack-trace-min-duration,can be configured>> to capture
+span stack traces, to show where in your code a span (e.g. for a database query)
+was initiated.
 
-Given the async nature of Node.js,
-it's not possible for us to see further back than the last async boundary.
-We therefore make sure to monitor as close to your code as possible.
-But some modules will interfere with this monitoring by injecting an async call between your code and the actual monitored function.
+Given the async nature of Node.js, it's not possible for the APM agent to see
+further back than the last async boundary. Modules that happen to have an async
+boundary between a call from your application code and the action that leads
+to an APM span will limit the utility of these span stack traces.
 
-We monitor these "offending" modules directly to give you a better experience.
-
-The modules and versions listed below are the ones we support.
-If you use an unsupported version you might not be able to see your own code in the spans.
-This does not impact the stability of your application in any way - only the collected metrics.
+The modules listed below are those that the APM agent instruments to provide
+more useful span stack traces -- ones that point to your application code --
+when enabled.
 
 If you don't see your own code in spans,
 please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM discuss forum] and include information about your dependencies.
 
 [options="header"]
 |=================================================
-|Module |Version
-|https://www.npmjs.com/package/knex[knex] |>=0.9.0 <1.0.0
+|Module |Version |Note
+|https://www.npmjs.com/package/knex[knex] |>=0.9.0 <1.0.0 | Provides better span stack traces for 'pg' and 'mysql' spans. Instrumentation of Knex >=0.95.0 is not supported when using the deprecated <<context-manager,`contextManager=patch`>> configuration option.
 |=================================================
 
 [float]
@@ -193,8 +208,8 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 [options="header"]
 |=======================================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/bluebird[bluebird] |>=2.0.0 <4.0.0 |
+|https://www.npmjs.com/package/bluebird[bluebird] |>=2.0.0 <4.0.0 |
 |https://www.npmjs.com/package/generic-pool[generic-pool] | ^2.0.0 \|\| ^3.1.0 |Used
 by a lot of database modules like for instance "pg"
-|https://www.npmjs.com/package/express-queue[express-queue] |>=0.0.11 <1.0.0 |
+|https://www.npmjs.com/package/express-queue[express-queue] |>=0.0.11 <1.0.0 |
 |=======================================================================

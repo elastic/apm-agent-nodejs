@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -456,16 +461,25 @@ function assertBasicQuery (t, sql, data) {
 }
 
 function assertSpan (t, span, sql) {
-  t.strictEqual(span.name, 'SELECT')
-  t.strictEqual(span.type, 'db')
-  t.strictEqual(span.subtype, 'mysql')
-  t.strictEqual(span.action, 'query')
-  t.deepEqual(span.context.db, { statement: sql, type: 'sql' })
+  t.strictEqual(span.name, 'SELECT', 'span.name')
+  t.strictEqual(span.type, 'db', 'span.type')
+  t.strictEqual(span.subtype, 'mysql', 'span.subtype')
+  t.strictEqual(span.action, 'query', 'span.action')
+  t.deepEqual(span.context.db, {
+    statement: sql,
+    type: 'sql',
+    user: connectionOptions.user,
+    instance: connectionOptions.database
+  }, 'span.context.db')
+  t.deepEqual(span.context.service.target, {
+    type: 'mysql',
+    name: connectionOptions.database
+  }, 'span.context.service.target')
   t.deepEqual(span.context.destination, {
-    service: { name: 'mysql', resource: 'mysql', type: 'db' },
     address: connectionOptions.host,
-    port: 3306
-  })
+    port: 3306,
+    service: { type: '', name: '', resource: `mysql/${connectionOptions.database}` }
+  }, 'span.context.destination')
 }
 
 function createConnection (cb) {

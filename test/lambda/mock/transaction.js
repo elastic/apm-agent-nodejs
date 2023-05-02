@@ -24,6 +24,10 @@ module.exports = class TransactionMock {
     this.opts = opts
   }
 
+  setDefaultName (name) {
+    this.name = name
+  }
+
   setCustomContext (custom) {
     if (!custom) {
       return
@@ -63,8 +67,37 @@ module.exports = class TransactionMock {
     this.outcome = outcome
   }
 
+  _setOutcomeFromHttpStatusCode (statusCode) {
+    if (statusCode && statusCode >= 500) {
+      this.outcome = constants.OUTCOME_FAILURE
+    } else {
+      this.outcome = constants.OUTCOME_SUCCESS
+    }
+  }
+
   _addLinks (links) {
     this._links = this._links.concat(links)
+  }
+
+  toJSON () {
+    // A simplified version of the real Transaction.prototype.toJSON.
+    var payload = {
+      name: this.name,
+      type: this.type,
+      context: {
+        tags: this._labels || {},
+        custom: this._custom || {},
+        service: this._service || {},
+        cloud: this._cloud || {},
+        message: this._message || {}
+      },
+      outcome: this.outcome,
+      faas: this._faas
+    }
+    if (this._links.length > 0) {
+      payload.links = this._links
+    }
+    return payload
   }
 
   end () {

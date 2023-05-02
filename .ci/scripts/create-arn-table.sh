@@ -4,12 +4,11 @@ set -o pipefail
 #
 # Create the AWS ARN table given the below environment variables:
 #
-# - AWS_FOLDER      - that's the location of the publish-layer-version output for each region.
-# - SUFFIX_ARN_FILE - that's the output file to be stored in the AWS_FOLDER.
+# - AWS_FOLDER        - that's the location of the publish-layer-version output for each region.
 # - RELEASE_NOTES_URL - that's the URL for the changelog in the elastic.co
 #
 
-ARN_FILE=${SUFFIX_ARN_FILE}
+ARN_FILE=arn-file.md
 
 {
 	echo "For more information, please see the [changelog](${RELEASE_NOTES_URL})."

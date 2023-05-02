@@ -47,14 +47,28 @@ run_test_suite () {
 
   npm run test:deps
 
-  if [ -z "$COVERAGE" ]
-  then
-    node test/test.js
-  else
-    nyc node test/test.js
+  # If running in CI, then output .tap files and covert them to JUnit
+  # format for test reporting.
+  local testArgs=""
+  if [[ -n "$CI" ]]; then
+    rm -rf ./test_output
+    mkdir ./test_output
+    testArgs="-o ./test_output"
   fi
 
-  npm run test:types
+  if [[ -n "$COVERAGE" ]]; then
+    nyc node test/test.js $testArgs
+  else
+    node test/test.js $testArgs
+  fi
+
+  if [[ -n "$CI" ]]; then
+    ls test_output/*.tap | while read f; do cat $f | ./node_modules/.bin/tap-junit > $f.junit.xml; done
+  fi
+
+  if [[ $major_node_version -gt 12 ]] || [[ $major_node_version -eq 12 && $minor_node_version -ge 20 ]]; then
+    npm run test:types # typescript@5 engines.node is >=12.20
+  fi
   if [[ $major_node_version -ne 13 ]] || [[ $minor_node_version -gt 1 ]]; then
     npm run test:babel
   fi

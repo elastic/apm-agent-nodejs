@@ -18,10 +18,16 @@ const apm = require('../').start({ // elastic-apm-node
   logUncaughtExceptions: true
 })
 
+// Note that version 7 is *not* installed by default. To use v7 you'll need to:
+//    npm install @elastic/elasticsearch@7
 const { Client } = require('@elastic/elasticsearch')
 
 const client = new Client({
-  node: `http://${process.env.ES_HOST || 'localhost'}:9200`
+  node: process.env.ES_URL || 'http://localhost:9200',
+  auth: {
+    username: process.env.ES_USERNAME || undefined,
+    password: process.env.ES_PASSWORD || undefined
+  }
 })
 
 async function run () {

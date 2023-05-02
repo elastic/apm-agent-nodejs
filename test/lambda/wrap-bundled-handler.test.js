@@ -12,6 +12,11 @@
 // The created module exports its properties only with a getter, so wrapping
 // of the handler cannot modify the module object directly.
 
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
+  process.exit()
+}
+
 const tape = require('tape')
 const path = require('path')
 
@@ -43,7 +48,7 @@ tape.test('automatic wrapping of _HANDLER=esbuild-bundled-handler/hello.main', f
   const express = require('express')
 
   const handler = require(path.join(__dirname, 'fixtures/esbuild-bundled-handler/hello')).main
-  t.equals(handler.name, 'wrappedLambda', 'handler function wrapped correctly')
+  t.equals(handler.name, 'wrappedLambdaHandler', 'handler function wrapped correctly')
 
   // Did normal patching/wrapping take place?
   t.equals(express.static.name, 'wrappedStatic', 'express module was instrumented correctly')

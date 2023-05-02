@@ -18,7 +18,7 @@ const agent = require('../../../..').start({
 
 var http = require('http')
 var https = require('https')
-var url = require('url')
+const { URL } = require('url')
 
 var endOfStream = require('end-of-stream')
 var semver = require('semver')
@@ -29,18 +29,19 @@ var mockClient = require('../../../_mock_http_client')
 var { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 var methods = ['request', 'get']
+const nodeHttpRequestSupportsSeparateUrlArg = semver.gte(process.version, '10.9.0')
 
 //
 // http
 //
-test('http.request(options)', echoTest('http', (port, cb) => {
+test('http.request(options)', echoTest('http', {}, (port, cb) => {
   var options = { port }
   var req = http.request(options)
   req.on('response', cb)
   return req
 }))
 
-test('http.request(options, callback)', echoTest('http', (port, cb) => {
+test('http.request(options, callback)', echoTest('http', {}, (port, cb) => {
   var options = { port }
   return http.request(options, cb)
 }))
@@ -85,46 +86,119 @@ test('http.request(options, callback) - aborted on data', abortTest('http', (por
 }))
 
 methods.forEach(function (name) {
-  test(`http.${name}(urlString)`, echoTest('http', (port, cb) => {
+  test(`http.${name}(urlString)`, echoTest('http', {}, (port, cb) => {
     var urlString = `http://localhost:${port}`
     var req = http[name](urlString)
     req.on('response', cb)
     return req
   }))
 
-  test(`http.${name}(urlString, callback)`, echoTest('http', (port, cb) => {
+  test(`http.${name}(urlString, callback)`, echoTest('http', {}, (port, cb) => {
     var urlString = `http://localhost:${port}`
     return http[name](urlString, cb)
   }))
 
-  if (url.URL) {
-    test(`http.${name}(urlObject)`, echoTest('http', (port, cb) => {
-      var urlString = `http://localhost:${port}`
-      var urlObject = new url.URL(urlString)
-      var req = http[name](urlObject)
-      req.on('response', cb)
-      return req
-    }))
+  test(`http.${name}(urlObject)`, echoTest('http', {}, (port, cb) => {
+    var urlString = `http://localhost:${port}`
+    var urlObject = new URL(urlString)
+    var req = http[name](urlObject)
+    req.on('response', cb)
+    return req
+  }))
 
-    test(`http.${name}(urlObject, callback)`, echoTest('http', (port, cb) => {
-      var urlString = `http://localhost:${port}`
-      var urlObject = new url.URL(urlString)
-      return http[name](urlObject, cb)
-    }))
-  }
+  test(`http.${name}(urlObject, callback)`, echoTest('http', {}, (port, cb) => {
+    var urlString = `http://localhost:${port}`
+    var urlObject = new URL(urlString)
+    return http[name](urlObject, cb)
+  }))
+})
+
+// Test that an outgoing HTTP request with basic auth in the URL or URL string
+// gets through in the "authorization" header to the server.
+test('http.request(urlStringWithAuth, cb)', t => {
+  const username = 'user'
+  const password = 'pass'
+  let serverReceivedHeaders
+
+  resetAgent({}, 3, data => {
+    // The `user:pass` auth information must get through.
+    const authz = serverReceivedHeaders.authorization
+    t.strictEqual(authz, `Basic ${Buffer.from(username + ':' + password).toString('base64')}`, 'authorization header')
+    t.end()
+  })
+
+  const server = http.createServer((req, res) => {
+    serverReceivedHeaders = req.headers
+    req.resume()
+    req.on('end', function () {
+      res.writeHead(200)
+      res.end()
+    })
+  })
+  server.listen(() => {
+    const port = server.address().port
+    const urlString = `http://${username}:${password}@localhost:${port}`
+    const tx = agent.startTransaction('tx')
+    const cReq = http.request(urlString, cRes => {
+      cRes.resume()
+      cRes.on('end', () => {
+        tx.end()
+        server.close()
+      })
+    })
+    cReq.end()
+  })
+})
+
+// Test that incorrect call signature usage results in the expected error.
+test('http.request(..., bogusCb) errors on the bogusCb', { timeout: 5000 }, t => {
+  resetAgent({}, 1, data => {
+    const trans = data.transactions[0]
+    t.equal(trans.name, 'tx', 'trans.name')
+    t.end()
+  })
+
+  const server = http.createServer((req, res) => {
+    req.resume()
+    req.on('end', function () {
+      res.writeHead(200)
+      res.end()
+    })
+  })
+  server.listen(() => {
+    const port = server.address().port
+    const urlString = `http://localhost:${port}/a-path`
+    const tx = agent.startTransaction('tx')
+    try {
+      if (nodeHttpRequestSupportsSeparateUrlArg) {
+        http.request(urlString, {}, 'this-is-not-a-cb-function')
+      } else {
+        http.request(urlString, 'this-is-not-a-cb-function')
+      }
+    } catch (err) {
+      t.comment(`err.message: ${JSON.stringify(err.message)}`)
+      t.ok(err.message.indexOf('"listener" argument must be') !== -1, 'error message mentions listener argument')
+      t.ok(err.name.indexOf('TypeError') !== -1, 'error name includes "TypeError"')
+      if (err.code) {
+        t.equal(err.code, 'ERR_INVALID_ARG_TYPE', 'err.code')
+      }
+      tx.end()
+      server.close()
+    }
+  })
 })
 
 //
 // https
 //
-test('https.request(options)', echoTest('https', (port, cb) => {
+test('https.request(options)', echoTest('https', {}, (port, cb) => {
   var options = { port, rejectUnauthorized: false }
   var req = https.request(options)
   req.on('response', cb)
   return req
 }))
 
-test('https.request(options, callback)', echoTest('https', (port, cb) => {
+test('https.request(options, callback)', echoTest('https', {}, (port, cb) => {
   var options = { port, rejectUnauthorized: false }
   return https.request(options, cb)
 }))
@@ -135,35 +209,33 @@ test('https: consider useElasticTraceparentHeader config option', echoTest('http
 }))
 
 methods.forEach(function (name) {
-  test(`https.${name}(urlString, options)`, echoTest('https', (port, cb) => {
-    var urlString = `https://localhost:${port}`
-    var options = { rejectUnauthorized: false }
-    var req = https[name](urlString, options)
-    req.on('response', cb)
-    return req
-  }))
+  if (nodeHttpRequestSupportsSeparateUrlArg) {
+    test(`https.${name}(urlString, options)`, echoTest('https', {}, (port, cb) => {
+      var urlString = `https://localhost:${port}`
+      var options = { rejectUnauthorized: false }
+      var req = https[name](urlString, options)
+      req.on('response', cb)
+      return req
+    }))
 
-  if (semver.satisfies(process.version, '>=10.9')) {
-    test(`https.${name}(urlString, options, callback)`, echoTest('https', (port, cb) => {
+    test(`https.${name}(urlString, options, callback)`, echoTest('https', {}, (port, cb) => {
       var urlString = `https://localhost:${port}`
       var options = { rejectUnauthorized: false }
       return https[name](urlString, options, cb)
     }))
-  }
 
-  if (url.URL && semver.satisfies(process.version, '>=10.9')) {
-    test(`https.${name}(urlObject, options)`, echoTest('https', (port, cb) => {
+    test(`https.${name}(urlObject, options)`, echoTest('https', {}, (port, cb) => {
       var urlString = `https://localhost:${port}`
-      var urlObject = new url.URL(urlString)
+      var urlObject = new URL(urlString)
       var options = { rejectUnauthorized: false }
       var req = https[name](urlObject, options)
       req.on('response', cb)
       return req
     }))
 
-    test(`https.${name}(urlObject, options, callback)`, echoTest('https', (port, cb) => {
+    test(`https.${name}(urlObject, options, callback)`, echoTest('https', {}, (port, cb) => {
       var urlString = `https://localhost:${port}`
-      var urlObject = new url.URL(urlString)
+      var urlObject = new URL(urlString)
       var options = { rejectUnauthorized: false }
       return https[name](urlObject, options, cb)
     }))
@@ -171,14 +243,9 @@ methods.forEach(function (name) {
 })
 
 function echoTest (type, opts, handler) {
-  if (arguments.length === 2) {
-    handler = opts
-    opts = undefined
-  }
-
   return function (t) {
     echoServer(type, (cp, port) => {
-      resetAgent(opts, data => {
+      resetAgent(opts, 2, data => {
         t.strictEqual(data.transactions.length, 1, 'has one transaction')
         t.strictEqual(data.spans.length, 1, 'has one span')
         t.strictEqual(data.spans[0].name, 'GET localhost:' + port, 'has expected span name')
@@ -188,15 +255,19 @@ function echoTest (type, opts, handler) {
           status_code: 200,
           url: `${type}://localhost:${port}/`
         })
+        t.deepEqual(data.spans[0].context.service.target, {
+          type: 'http',
+          name: `localhost:${port}`
+        }, 'span.context.service.target')
         t.deepEqual(data.spans[0].context.destination, {
           service: {
-            name: `${type}://localhost:${port}`,
-            resource: `localhost:${port}`,
-            type: data.spans[0].type
+            type: '',
+            name: '',
+            resource: `localhost:${port}`
           },
           address: 'localhost',
           port: Number(port)
-        })
+        }, 'span.context.destination')
         t.end()
         cp.kill()
       })
@@ -241,7 +312,7 @@ function abortTest (type, handler) {
         url: `http://localhost:${port}/`
       }
 
-      resetAgent({}, data => {
+      resetAgent({}, 2, data => {
         t.equal(data.transactions.length, 1, 'has one transaction')
         t.equal(data.spans.length, 1, 'has one span')
         t.equal(data.spans[0].name, `${req.method} localhost:${port}`, 'has expected span name')
@@ -253,15 +324,19 @@ function abortTest (type, handler) {
 
         t.deepEqual(data.spans[0].context.http, httpContext)
         if (httpContext.url) {
+          t.deepEqual(data.spans[0].context.service.target, {
+            type: 'http',
+            name: `localhost:${port}`
+          }, 'span.context.service.target')
           t.deepEqual(data.spans[0].context.destination, {
             service: {
-              name: `${type}://localhost:${port}`,
-              resource: `localhost:${port}`,
-              type: data.spans[0].type
+              type: '',
+              name: '',
+              resource: `localhost:${port}`
             },
             address: 'localhost',
             port: Number(port)
-          })
+          }, 'span.context.destination')
         }
         t.end()
         cp.kill()
@@ -289,8 +364,8 @@ function abortTest (type, handler) {
   }
 }
 
-function resetAgent (opts, cb) {
+function resetAgent (opts, numExpected, cb) {
   agent._instrumentation.testReset()
   agent._config(opts)
-  agent._transport = mockClient(2, cb)
+  agent._transport = mockClient(numExpected, cb)
 }

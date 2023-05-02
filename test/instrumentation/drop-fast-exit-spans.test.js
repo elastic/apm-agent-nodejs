@@ -4,6 +4,8 @@
  * compliance with the BSD 2-Clause License.
  */
 
+// Test `exitSpanMinDuration` handling.
+
 const { CapturingTransport } = require('../_capturing_transport')
 const agent = require('../..').start({
   serviceName: 'test-fast-exit-span',
@@ -12,7 +14,7 @@ const agent = require('../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  exitSpanMinDuration: '10ms',
+  exitSpanMinDuration: '50ms', // Using a large value to not get surprised by event-loop delay on busy CI VMs.
   spanStackTraceMinDuration: 0, // Always have span stacktraces.
   transport () { return new CapturingTransport() }
 })
@@ -50,7 +52,7 @@ tape.test('end to end test', function (t) {
   resetAgent(function (data) {
     t.equals(data.length, 2)
     const span = data.spans.pop()
-    t.equals(span.name, 'long span')
+    t.equals(span.name, 'long span', `the long span was not dropped (duration ${span.duration}ms > ${agent._conf.exitSpanMinDuration * 1000}ms) was not dropped`)
     t.end()
   })
 
@@ -63,27 +65,20 @@ tape.test('end to end test', function (t) {
     span2.end()
     agent.endTransaction()
     agent.flush()
-  }, 20) // longer than exitSpanMinDuration
+  }, 100) // longer than exitSpanMinDuration
 })
 
+// Test that a composite span faster than `exitSpanMinDuration` is dropped.
 tape.test('end to end test with compression', function (t) {
   resetAgent(function (data) {
-    // would normally be a single compressed span, but here there's
-    // no spans because min duration was not hit
-    t.equals(data.spans.length, 0)
+    t.equals(data.spans.length, 0, 'the composite span was dropped')
     t.end()
   })
 
   agent.startTransaction('test')
-  const destinationContext = {
-    service: {
-      resource: 'foo'
-    }
-  }
   let firstSpan, finalSpan
   setTimeout(function () {
     firstSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
-    firstSpan.setDestinationContext(destinationContext)
     setTimeout(function () {
       firstSpan.end()
     }, 1)
@@ -91,7 +86,6 @@ tape.test('end to end test with compression', function (t) {
 
   setTimeout(function () {
     const span = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
-    span.setDestinationContext(destinationContext)
     setTimeout(function () {
       span.end()
     }, 1)
@@ -99,7 +93,6 @@ tape.test('end to end test with compression', function (t) {
 
   setTimeout(function () {
     finalSpan = agent.startSpan('name1', 'db', 'mysql', { exitSpan: true })
-    finalSpan.setDestinationContext(destinationContext)
     setTimeout(function () {
       finalSpan.end()
       agent.endTransaction()

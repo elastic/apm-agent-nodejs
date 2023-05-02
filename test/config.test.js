@@ -28,7 +28,8 @@ var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
 var apmName = require('../package').name
 var isHapiIncompat = require('./_is_hapi_incompat')
-const isFastifyIncompat = require('./_is_fastify_incompat')()
+const isMongodbIncompat = require('./_is_mongodb_incompat')
+const isFastifyIncompat = require('./_is_fastify_incompat')
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
@@ -124,6 +125,7 @@ var optionFixtures = [
   ['centralConfig', 'CENTRAL_CONFIG', true],
   ['containerId', 'CONTAINER_ID'],
   ['contextPropagationOnly', 'CONTEXT_PROPAGATION_ONLY', false],
+  ['customMetricsHistogramBoundaries', 'CUSTOM_METRICS_HISTOGRAM_BOUNDARIES', config.DEFAULTS.customMetricsHistogramBoundaries.slice()],
   ['disableSend', 'DISABLE_SEND', false],
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
   ['environment', 'ENVIRONMENT', 'development'],
@@ -148,7 +150,7 @@ var optionFixtures = [
   ['secretToken', 'SECRET_TOKEN'],
   ['serverCaCertFile', 'SERVER_CA_CERT_FILE'],
   ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['serverUrl', 'SERVER_URL'],
+  ['serverUrl', 'SERVER_URL', 'http://127.0.0.1:8200'],
   ['serviceName', 'SERVICE_NAME', apmName],
   ['serviceNodeName', 'SERVICE_NODE_NAME'],
   ['serviceVersion', 'SERVICE_VERSION', apmVersion],
@@ -178,6 +180,8 @@ optionFixtures.forEach(function (fixture) {
     } else if (fixture[0] === 'serverCaCertFile') {
       // special case for files, so a temp file can be written
       type = 'file'
+    } else if (fixture[0] === 'customMetricsHistogramBoundaries') {
+      type = 'customMetricsHistogramBoundaries'
     } else if (fixture[0] === 'traceContinuationStrategy') {
       type = 'traceContinuationStrategy'
     } else if (typeof fixture[2] === 'number' || fixture[0] === 'errorMessageMaxLength') {
@@ -213,6 +217,9 @@ optionFixtures.forEach(function (fixture) {
           fs.writeFileSync(tmpfile, tmpfile)
           value = tmpfile
           break
+        case 'customMetricsHistogramBoundaries':
+          value = [1, 2, 3] // a valid non-default value
+          break
         case 'traceContinuationStrategy':
           value = 'restart' // a valid non-default value
           break
@@ -238,7 +245,7 @@ optionFixtures.forEach(function (fixture) {
           t.deepEqual(agent._conf[fixture[0]], value)
           break
         default:
-          t.strictEqual(agent._conf[fixture[0]], value)
+          t.deepEqual(agent._conf[fixture[0]], value)
       }
 
       // Restore process.env state.
@@ -283,6 +290,10 @@ optionFixtures.forEach(function (fixture) {
           value1 = ['overwriting-value']
           value2 = ['custom-value']
           break
+        case 'customMetricsHistogramBoundaries':
+          value1 = [1, 2, 3, 4]
+          value2 = [1, 5, 10, 50, 100]
+          break
         case 'traceContinuationStrategy':
           value1 = 'restart'
           value2 = 'continue'
@@ -302,6 +313,7 @@ optionFixtures.forEach(function (fixture) {
 
       switch (type) {
         case 'array':
+        case 'customMetricsHistogramBoundaries':
           t.deepEqual(agent._conf[fixture[0]], value2)
           break
         default:
@@ -332,6 +344,7 @@ optionFixtures.forEach(function (fixture) {
 
     switch (type) {
       case 'array':
+      case 'customMetricsHistogramBoundaries':
         t.deepEqual(agent._conf[fixture[0]], fixture[2])
         break
       default:
@@ -675,20 +688,26 @@ test('should separate strings and regexes into their own ignore arrays', functio
   t.end()
 })
 
-test('should compile wildcards from string', function (t) {
+test('should prepare WildcardMatcher array config vars', function (t) {
   var agent = new Agent()
   agent.start(Object.assign(
     {},
     agentOptsNoopTransport,
     {
-      transactionIgnoreUrls: ['foo', '/str1', '/wil*card']
+      transactionIgnoreUrls: ['foo', 'bar', '/wil*card'],
+      elasticsearchCaptureBodyUrls: ['*/_search', '*/_eql/search']
     }
   ))
 
-  t.strictEqual(
-    agent._conf.transactionIgnoreUrlRegExp.length,
-    3,
-    'was everything added?'
+  t.equal(
+    agent._conf.transactionIgnoreUrlRegExp.toString(),
+    '/^foo$/i,/^bar$/i,/^\\/wil.*card$/i',
+    'transactionIgnoreUrlRegExp'
+  )
+  t.equal(
+    agent._conf.elasticsearchCaptureBodyUrlsRegExp.toString(),
+    '/^.*\\/_search$/i,/^.*\\/_eql\\/search$/i',
+    'elasticsearchCaptureBodyUrlsRegExp'
   )
 
   agent.destroy()
@@ -998,12 +1017,10 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '14.0.0')) {
     modules.delete('@elastic/elasticsearch-canary')
   }
-  if (isFastifyIncompat) {
+  if (isFastifyIncompat()) {
     modules.delete('fastify')
   }
-  // As of mongodb@4 only supports node >=v12.
-  const mongodbVersion = require('../node_modules/mongodb/package.json').version
-  if (semver.gte(mongodbVersion, '4.0.0') && semver.lt(process.version, '12.0.0')) {
+  if (isMongodbIncompat()) {
     modules.delete('mongodb')
   }
   if (semver.gte(apolloServerCoreVersion, '3.0.0') && semver.lt(process.version, '12.0.0')) {
@@ -1014,9 +1031,32 @@ test('disableInstrumentations', function (t) {
     // https://github.com/restify/node-restify/issues/1888
     modules.delete('restify')
   }
-  if (semver.lt(process.version, '12.3.0')) {
+  if (semver.lt(process.version, '14.0.0')) {
     modules.delete('tedious')
   }
+  if (semver.lt(process.version, '12.18.0')) {
+    modules.delete('undici') // undici@5 supports node >=12.18
+  }
+  if (semver.lt(process.version, '12.0.0')) {
+    modules.delete('koa-router') // koa-router@11 supports node >=12
+    modules.delete('@koa/router') // koa-router@11 supports node >=12
+  }
+  if (semver.lt(process.version, '14.8.0')) {
+    modules.delete('restify')
+  }
+  modules.delete('next/dist/server/api-utils/node')
+  modules.delete('next/dist/server/dev/next-dev-server')
+  modules.delete('next/dist/server/next')
+  modules.delete('next/dist/server/next-server')
+  if (semver.lt(process.version, '14.0.0')) {
+    modules.delete('redis') // redis@4 supports node >=14
+    modules.delete('@redis/client/dist/lib/client') // redis@4 supports node >=14
+    modules.delete('@redis/client/dist/lib/client/commands-queue') // redis@4 supports node >=14
+  }
+  // @node-redis only present for redis >4 <4.1 --
+  modules.delete('@node-redis/client/dist/lib/client') // redis@4 supports node >=14
+  modules.delete('@node-redis/client/dist/lib/client/commands-queue') // redis@4 supports node >=14
+  modules.delete('mysql2')
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)
@@ -1099,6 +1139,10 @@ test('custom transport', function (t) {
     }
 
     supportsKeepingUnsampledTransaction () {
+      return true
+    }
+
+    supportsActivationMethodField () {
       return true
     }
   }
@@ -1226,6 +1270,11 @@ test('parsing of ARRAY and KEY_VALUE opts', function (t) {
     {
       opts: { transactionIgnoreUrls: 'foo, bar bling' },
       expect: { transactionIgnoreUrls: ['foo', 'bar bling'] }
+    },
+
+    {
+      opts: { elasticsearchCaptureBodyUrls: '*/_search, */_msearch/template ' },
+      expect: { elasticsearchCaptureBodyUrls: ['*/_search', '*/_msearch/template'] }
     },
 
     {

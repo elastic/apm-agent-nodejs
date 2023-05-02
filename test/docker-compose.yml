@@ -19,7 +19,7 @@ services:
       retries: 30
 
   mongodb:
-    image: mongo
+    image: mongo:5
     ports:
       - "27017:27017"
     volumes:

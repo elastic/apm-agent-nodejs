@@ -324,9 +324,9 @@ test('#_encode() - with meta data', function myTest2 (t) {
   var trans = new Transaction(agent)
   var span = new Span(trans, 'foo', 'bar')
   var timerStart = span._timer.start
-  span.end()
   span.setDbContext({ statement: 'foo', type: 'bar' })
   span.setLabel('baz', 1)
+  span.end()
   span._encode(function (err, payload) {
     t.error(err)
     t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'subtype', 'action', 'timestamp', 'duration', 'context', 'stacktrace', 'sync', 'outcome', 'sample_rate'])
@@ -341,7 +341,10 @@ test('#_encode() - with meta data', function myTest2 (t) {
     t.strictEqual(payload.type, 'bar')
     t.strictEqual(payload.timestamp, timerStart)
     t.ok(payload.duration > 0)
-    t.deepEqual(payload.context, { db: { statement: 'foo', type: 'bar' }, http: undefined, tags: { baz: '1' }, destination: undefined, message: undefined })
+    t.deepEqual(payload.context, {
+      db: { statement: 'foo', type: 'bar' },
+      tags: { baz: '1' }
+    })
     assert.stacktrace(t, 'myTest2', __filename, payload.stacktrace, agent)
     t.end()
   })

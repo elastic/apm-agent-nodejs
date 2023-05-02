@@ -13,7 +13,7 @@ const path = require('path')
 const tape = require('tape')
 
 const logging = require('../lib/logging')
-const { createAPMError, generateErrorId, _moduleNameFromFrames } = require('../lib/errors')
+const { createAPMError, generateErrorId, attributesFromErr, _moduleNameFromFrames } = require('../lib/errors')
 const { dottedLookup } = require('./_utils')
 
 const log = logging.createLogger('off')
@@ -285,9 +285,31 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
       expected: '@elastic/elasticsearch'
     },
     {
+      name: 'deep package',
+      frames: [
+        {
+          library_frame: true,
+          filename: 'node_modules/foo/node_modules/bar/lib/baz.js'
+        }
+        // More frames... Only top frame is used by _moduleNameFromFrames.
+      ],
+      expected: 'bar'
+    },
+    {
+      name: 'namespaced package missing name',
+      frames: [
+        {
+          library_frame: true,
+          filename: 'node_modules/@ns/'
+        }
+        // More frames... Only top frame is used by _moduleNameFromFrames.
+      ],
+      expected: null
+    },
+    {
       name: 'empty frames',
       frames: [],
-      expected: undefined
+      expected: null
     },
     {
       name: 'not library_frame',
@@ -297,7 +319,7 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
           filename: 'node:_http_common'
         }
       ],
-      expected: undefined
+      expected: null
     },
     {
       name: 'frame in node lib',
@@ -310,7 +332,7 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
           abs_path: 'timers.js'
         }
       ],
-      expected: undefined
+      expected: null
     }
 
   ]
@@ -325,6 +347,46 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
 
       t.strictEqual(_moduleNameFromFrames(opts.frames), opts.expected,
         'got ' + opts.expected)
+      t.end()
+    })
+  })
+
+  suite.end()
+})
+
+tape.test('#attributesFromErr()', function (suite) {
+  var cases = [
+    // 'err' is an Error instance, or a function that returns one.
+    {
+      name: 'no attrs',
+      err: new Error('boom'),
+      expectedAttrs: undefined
+    },
+    {
+      name: 'string attr',
+      err: () => {
+        const err = new Error('boom')
+        err.aStr = 'hello'
+        return err
+      },
+      expectedAttrs: { aStr: 'hello' }
+    },
+    {
+      name: 'Invalid Date attr',
+      err: () => {
+        const err = new Error('boom')
+        err.aDate = new Date('invalid')
+        return err
+      },
+      expectedAttrs: { aDate: 'Invalid Date' }
+    }
+  ]
+
+  cases.forEach(function (opts) {
+    suite.test(opts.name, function (t) {
+      const err = typeof (opts.err) === 'function' ? opts.err() : opts.err
+      const attrs = attributesFromErr(err)
+      t.deepEqual(attrs, opts.expectedAttrs, 'got expected attrs')
       t.end()
     })
   })

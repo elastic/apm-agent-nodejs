@@ -1,0 +1,208 @@
+:framework: Next.js
+
+[[nextjs]]
+
+ifdef::env-github[]
+NOTE: For the best reading experience,
+please view this documentation at https://www.elastic.co/guide/en/apm/agent/nodejs/current/nextjs.html[elastic.co]
+endif::[]
+
+=== Get started with Next.js
+
+The Elastic APM Node.js agent can be used to trace the Next.js server (`next
+start` or `next dev`) that runs your application without the need for code
+changes to your app. The APM transactions for incoming HTTP requests to the
+server will be named for the https://nextjs.org/docs/routing/introduction[pages]
+and https://nextjs.org/docs/api-routes/introduction[API endpoints] in your
+application, as well as for internal routes used by Next.js. Errors in code run
+on the server will be reported for viewing in the Kibana APM app.
+
+Note that the Node.js APM agent can only instrument _server-side_ code. To
+monitor the client-side parts of a Next.js application, see the
+{apm-rum-ref}/intro.html[Elastic RUM agent].
+
+NOTE: preview:[] This Next.js instrumentation is a _technical preview_ while we
+solicit feedback from Next.js users. If you are a Next.js user, please help us
+provide a better Next.js observability experience with your feedback on our
+https://discuss.elastic.co/tags/c/apm/nodejs[Discuss forum].
+
+
+[float]
+[[nextjs-prerequisites]]
+==== Prerequisites
+
+You need an APM Server to send APM data to. Follow the
+{apm-guide-ref}/apm-quick-start.html[APM Quick start] if you have not set one up
+yet. You will need your *APM server URL* and an APM server *secret token* (or
+*API key*) for configuring the APM agent below.
+
+You will also need a Next.js application to monitor. If you do not have an
+existing one to use, you can use the following to create a starter app (see
+https://nextjs.org/docs/getting-started[Next.js Getting Started docs] for more):
+
+[source,bash]
+----
+npx create-next-app@latest  # use the defaults
+cd my-app
+----
+
+You can also take a look at and use this https://github.com/elastic/apm-agent-nodejs/tree/main/examples/nextjs/[Next.js + Elastic APM example app].
+
+[float]
+[[nextjs-setup]]
+==== Step 1: Add the APM agent dependency
+
+Add the `elastic-apm-node` module as a dependency to your application:
+
+[source,bash]
+----
+npm install elastic-apm-node --save  # or 'yarn add elastic-apm-node'
+----
+
+
+[float]
+==== Step 2: Start the APM agent
+
+For the APM agent to instrument the Next.js server, it needs to be started
+before the Next.js server code is loaded. The best way to do so is by using
+Node's https://nodejs.org/api/cli.html#-r---require-module[`--require`] option
+to load the "elastic-apm-node/start-next.js" module -- this will start the agent
+(plus a little more for Next.js integration).
+
+Edit the "dev" and "start" scripts in your "package.json" as follows:
+
+[source,json]
+----
+{
+  // ...
+  "scripts": {
+    "dev": "NODE_OPTIONS=--require=elastic-apm-node/start-next.js next dev",
+    "build": "next build",
+    "start": "NODE_OPTIONS=--require=elastic-apm-node/start-next.js next start",
+    "lint": "next lint"
+  },
+  // ...
+}
+----
+
+
+[float]
+==== Step 3: Configure the APM agent
+
+The APM agent can be
+<<configuring-the-agent,configured>>
+with environment variables or with an "elastic-apm-node.js" module in the
+current working directory. Note that because the APM agent is being loaded
+before the Next.js server, the
+https://nextjs.org/docs/basic-features/environment-variables[Next.js-supported
+".env" files] *cannot* be used to configure the APM agent. We will use an
+"elastic-apm-node.js" file here.
+
+Create an "elastic-apm-node.js" file in the application root with the APM server
+URL and secret token values from the <<nextjs-prerequisites>> section above:
+
+[source,javascript]
+----
+// elastic-apm-node.js
+module.exports = {
+  serverUrl: 'https://...',  // E.g. https://my-deployment-name.apm.us-west2.gcp.elastic-cloud.com
+  secretToken: '...'
+}
+----
+
+The equivalent using environment variables is:
+
+[source,bash]
+----
+export ELASTIC_APM_SERVER_URL='https://...'
+export ELASTIC_APM_SECRET_TOKEN='...'
+----
+
+See the <<configuration,agent configuration guide>> for full details on supported configuration variables.
+
+
+[float]
+==== Step 4: Start your Next.js app
+
+[source,bash]
+----
+npm run dev  # or 'npm run build && npm start' for the production server
+----
+
+Open <http://localhost:3000> in your browser to load your Next.js app. If you
+used the `create-next-app` tool above, it defines an
+http://localhost:3000/api/hello[/api/hello] API endpoint. You can provide some
+artificial load by running the following in a separate terminal:
+
+[source,bash]
+----
+while true; do sleep 1; curl -i http://localhost:3000/api/hello; done
+----
+
+Visit your Kibana APM app and, after a few seconds, you should see a service
+entry for your Next.js app. The service name will be pulled from the "name"
+field in "package.json". It can be overriden with
+<<service-name,`serviceName`>>. Here is an example:
+
+image::./images/nextjs-my-app-screenshot.png[Kibana APM app showing Next.js my-app]
+
+
+[float]
+[[nextjs-limitations]]
+==== Limitations and future work
+
+This Next.js instrumentation has some limitations to be aware of.
+
+Next.js build tooling bundles dependencies (using Webpack) for both client _and_
+server-side code execution. The Node.js APM agent does not work when bundled.
+See <<start-bundlers>> for details. The implication for Next.js instrumentation
+is that you cannot directly import and use the APM agent in your code. That
+means that using the <<agent-api>> for manual instrumentation is not currently
+possible.
+
+This instrumentation supports naming APM transactions for many internal Next.js
+routes.  For example, for
+https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props[server-side
+rendering (SSR)] Next.js client code will make requests of the form `GET
+/next/_data/$buildId/$page.json`, for which the APM agent names the transaction
+`Next.js _next/data route $page`. However, there is a limitation with the
+Next.js "public folder catchall" route. HTTP requests that resolve to files in
+your "public/" directory, for example `GET /favicon.ico`, will result in a
+transaction named `GET unknown route`. See <<nextjs-unknown-routes>> below.
+
+If you notice other limitations or have any suggestions, please give us feedback
+on our https://discuss.elastic.co/tags/c/apm/nodejs[Discuss forum].
+
+
+[float]
+[[nextjs-performance-monitoring]]
+==== Performance monitoring
+
+Elastic APM automatically measures the performance of your Next.js application.
+It records spans for database queries, external HTTP requests, and other slow
+operations that happen during requests to your Next.js app. Spans are grouped in
+transactions -- by default one for each incoming HTTP request.
+
+[float]
+[[nextjs-unknown-routes]]
+==== Unknown routes
+
+include::./shared-set-up.asciidoc[tag=unknown-roots]
+
+[float]
+[[nextjs-filter-sensitive-information]]
+==== Filter sensitive information
+
+include::./shared-set-up.asciidoc[tag=filter-sensitive-info]
+
+[float]
+[[nextjs-compatibility]]
+==== Compatibility
+
+include::./shared-set-up.asciidoc[tag=compatibility-link]
+
+[float]
+[[nextjs-troubleshooting]]
+==== Troubleshooting
+
+include::./shared-set-up.asciidoc[tag=troubleshooting-link]

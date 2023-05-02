@@ -6,13 +6,15 @@ To get you off the ground, we've prepared guides for setting up the Agent with a
 // This tagged region is used throughout the documentation to link to the framework guides
 // Updates made here will be applied elsewhere as well.
 // tag::web-frameworks-list[]
+* <<lambda>>
+* <<azure-functions>>
 * <<express>>
+* <<fastify>>
 * <<hapi>>
 * <<koa>>
+* <<nextjs>>
 * <<restify>>
-* <<fastify>>
 * <<typescript>>
-* <<lambda>>
 // end::web-frameworks-list[]
 
 Alternatively, you can <<custom-stack>>.
@@ -26,21 +28,26 @@ Other useful documentation includes:
 * <<api>>
 * <<troubleshooting>>
 
+include::./lambda.asciidoc[]
+
+include::./azure-functions.asciidoc[]
+
 include::./express.asciidoc[]
+
+include::./fastify.asciidoc[]
 
 include::./hapi.asciidoc[]
 
 include::./koa.asciidoc[]
 
-include::./restify.asciidoc[]
+include::./nextjs.asciidoc[]
 
-include::./fastify.asciidoc[]
+include::./restify.asciidoc[]
 
 include::./typescript.asciidoc[]
 
 include::./custom-stack.asciidoc[]
 
-include::./lambda.asciidoc[]
 
 [[starting-the-agent]]
 === Starting the agent
@@ -97,7 +104,7 @@ A limitation of this approach is that you cannot configure the agent with an opt
 [[start-option-node-require-opt]]
 ===== `node -r elastic-apm-node/start ...`
 
-Another way to start the agent is with the `-r elastic-apm-node/start` https://nodejs.org/api/cli.html#-r---require-module[command line option to `node`]. This will import and start the APM agent before your application code starts. This method allows you to enable the agent _without touching any code_. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>>.
+Another way to start the agent is with the `-r elastic-apm-node/start` https://nodejs.org/api/cli.html#-r---require-module[command line option to `node`]. This will import and start the APM agent before your application code starts. This method allows you to enable the agent _without touching any code_. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>> and for tracing <<nextjs,a Next.js server>>.
 
 [source,bash]
 ----
@@ -209,6 +216,9 @@ Or with something like this:
 ----
 import apm from 'elastic-apm-node/start'; apm; // Ensure import is kept for its side-effect.
 ----
+
+TypeScript 5.0 https://devblogs.microsoft.com/typescript/announcing-typescript-5-0/#verbatimmodulesyntax[introduced a `--verbatimModuleSyntax`]
+option that avoids this elision.
 
 
 [[start-bundlers]]

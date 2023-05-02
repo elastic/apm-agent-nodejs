@@ -4,6 +4,11 @@
  * compliance with the BSD 2-Clause License.
  */
 
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
+  process.exit()
+}
+
 const tape = require('tape')
 
 const AgentMock = require('./mock/agent')
@@ -54,7 +59,7 @@ tape.test('transaction data TRIGGER_API_GATEWAY v2', function (t) {
   t.strictEquals(transaction._faas.trigger.type, 'http', 'execution value set')
   t.strictEquals(transaction._faas.trigger.request_id, event.requestContext.requestId, 'execution value set')
   t.strictEquals(transaction.type, 'request', 'transaction type set')
-  t.strictEquals(transaction.name, 'GET /default/the-function-name', 'transaction named correctly')
+  t.strictEquals(transaction.name, 'POST /default/the-function-name', 'transaction named correctly')
   t.strictEquals(transaction._cloud.origin.provider, 'aws', 'cloud origin provider set correctly')
   t.strictEquals(transaction._service.origin.name, '21mj4tsk90.execute-api.us-west-2.amazonaws.com', 'service origin name set correctly')
   t.strictEquals(transaction._service.origin.id, '21mj4tsk90', 'service origin id set correctly')

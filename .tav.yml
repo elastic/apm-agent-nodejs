@@ -41,23 +41,42 @@ mysql:
 # - v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
 # - v2.2.3 has a github dep ("@types/mysql": "types/mysql") that hits
 #   npm v6 install issue https://github.com/npm/cli/issues/4896
-mysql2-old:
+# - v3: It isn't clear what the min supported Node.js version is. "engines" says
+#   8.0.0, however it uses an lru-cache that supports only node >=16.14! From
+#   trial and error the effective min supported node is v14.6.0.
+#   See https://github.com/elastic/apm-agent-nodejs/pull/3301#issuecomment-1530138870
+mysql2-v1-v1.6.0:
   name: mysql2
   versions: '>=1.0.0 <1.6.0'
   commands:
     - node test/instrumentation/modules/mysql2/mysql.test.js
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
-mysql2-new:
+mysql2-v1.6.0-v3:
   name: mysql2
   versions: '>=1.6.0 <1.6.2 || >=1.6.3 <2.2.3 || >=2.2.4 <3'
-  node: '>=6.0.0'
+  node: '>=8.0.0'
+  commands:
+    - node test/instrumentation/modules/mysql2/mysql.test.js
+    - node test/instrumentation/modules/mysql2/pool-release-1.test.js
+mysql2:
+  name: mysql2
+  versions: '>=3.0.0 <4'
+  node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/mysql2/mysql.test.js
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
 
-redis:
+redis-v2-v4:
+  name: redis
   versions: '>=2.0.0 <4.0.0'
-  commands: node test/instrumentation/modules/redis.test.js
+  commands: node test/instrumentation/modules/redis-2-3.test.js
+
+redis:
+  name: redis
+  versions: '>=4.0.0 <5.0.0'
+  commands:
+   - node test/instrumentation/modules/redis.test.js
+   - node test/instrumentation/modules/redis4-legacy.test.js
 
 # We want these version ranges:
 #   # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
@@ -121,7 +140,12 @@ mongodb-3:
 mongodb-4:
   name: mongodb
   versions: '>=4 <5'
-  node: '>=12'
+  node: '>=12.9.0'
+  commands: node test/instrumentation/modules/mongodb.test.js
+mongodb:
+  name: mongodb
+  versions: '>=5 <6'
+  node: '>=14.20.1'
   commands: node test/instrumentation/modules/mongodb.test.js
 
 bluebird:
@@ -159,10 +183,12 @@ ws-new:
   commands: node test/instrumentation/modules/ws.test.js
 
 graphql-v0.7-v16:
+  name: graphql
   preinstall: npm uninstall express-graphql
   versions: '>=0.7.0 <0.11.0 || >=0.11.1 <16'
   commands: node test/instrumentation/modules/graphql.test.js
 graphql:
+  name: graphql
   preinstall: npm uninstall express-graphql
   node: '>=12'
   versions: '>=16.0.0 <17'
@@ -175,92 +201,6 @@ express:
     - node test/instrumentation/modules/express/capture-exceptions-off.test.js
     - node test/instrumentation/modules/express/capture-exceptions-on.test.js
     - node test/instrumentation/modules/express/set-framework.test.js
-
-express-graphql-0.6.1_graphql-0.8:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.8.2
-  versions: '0.6.1'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-
-express-graphql-0.6.2_graphql-0.9:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.9.0
-  versions: '>=0.6.2 <0.6.6'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-
-express-graphql-0.6.6_graphql-0.10:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.10.0
-  versions: '>=0.6.6 <0.6.8'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-
-express-graphql-0.6.11_graphql-0.10:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.10.0
-  versions: '0.6.11'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.6.11_graphql-0.11:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.11.0
-  versions: '0.6.11'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-
-express-graphql-0.6.12_graphql-0.10:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.10.0
-  versions: '^0.6.12'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.6.12_graphql-0.11:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.11.0
-  versions: '^0.6.12'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.6.12_graphql-0.12:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.12.0
-  versions: '^0.6.12'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.6.12_graphql-0.13:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.13.0
-  versions: '^0.6.12'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-
-express-graphql-0.7.1_graphql-0.12:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.12.0
-  versions: '>=0.7.1 <0.9.0'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.7.1_graphql-0.13:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^0.13.0
-  versions: '>=0.7.1 <0.9.0'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-express-graphql-0.7.1_graphql-14:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^14.0.0
-  versions: '>=0.7.1 <0.9.0'
-  commands: node test/instrumentation/modules/express-graphql.test.js
-
-express-graphql-0.9.0_graphql-14:
-  name: express-graphql
-  preinstall: npm uninstall apollo-server-express
-  peerDependencies: graphql@^14.4.1
-  versions: '>=0.9.0 <0.10.0'
-  node: '>=7.6.0'
-  commands: node test/instrumentation/modules/express-graphql.test.js
 
 # - Skip express-graphql@0.10.0 because it briefly, accidentally introduced
 #   syntax that required ES2020 (node v14).
@@ -296,31 +236,7 @@ express-graphql-0.11.0_graphql-15:
   node: '>=10.4'
   commands: node test/instrumentation/modules/express-graphql.test.js
 
-apollo-server-express-2_12:
-  name: apollo-server-express
-  preinstall: npm uninstall express-graphql
-  peerDependencies: graphql@^0.12.0
-  # We want this version range:
-  #   versions: '>=2.9.16 <2.2 || >= 2.3.2 <3'
-  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
-  #
-  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
-  node: '>=6'
-  commands: node test/instrumentation/modules/apollo-server-express.test.js
-apollo-server-express-2_13:
-  name: apollo-server-express
-  preinstall: npm uninstall express-graphql
-  peerDependencies: graphql@^0.13.0
-  # We want this version range:
-  #   versions: '>=2.9.16 <2.2 || >= 2.3.2 <3'
-  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
-  #
-  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
-  node: '>=6'
-  commands: node test/instrumentation/modules/apollo-server-express.test.js
-apollo-server-express-2_14:
+apollo-server-express-2_graphql-14:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^14.0.0
@@ -332,7 +248,7 @@ apollo-server-express-2_14:
   versions: '2.9.16 || 2.10.1 || 2.11.0 || 2.12.0 || 2.13.1 || 2.14.5 || 2.15.1 || 2.16.1 || 2.17.0 || 2.18.2 || 2.19.2 || 2.20.0 || 2.21.2 || 2.22.2 || 2.23.0 || 2.24.1 || 2.25.0 || >2.25.x <3'
   node: '>=6'
   commands: node test/instrumentation/modules/apollo-server-express.test.js
-apollo-server-express-2_15:
+apollo-server-express-2_graphql-15:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^15.0.0
@@ -347,28 +263,46 @@ apollo-server-express-2_15:
   # graphql v15 supports node v8 as a minimum.
   node: '>=8'
   commands: node test/instrumentation/modules/apollo-server-express.test.js
-
-apollo-server-express-3_15:
+apollo-server-express-3_graphql-15:
   name: apollo-server-express
   preinstall: npm uninstall express-graphql
   peerDependencies: graphql@^15.0.0
-  versions: '^3.0.0'
-  node: '>=12'
+  # We want this version range:
+  #   versions: '^3.0.0'
+  # but only test the latest MAJOR.MINOR.x to reduce the test matrix.
+  #
+  # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
+  versions: '3.0.2 || 3.1.2 || 3.2.0 || 3.3.0 || 3.4.1 || 3.5.0 || 3.6.8 || 3.7.0 || 3.8.2 || 3.9.0 || ^3.10.2'
   commands: node test/instrumentation/modules/apollo-server-express.test.js
 
 express-queue:
   versions: '>=0.0.11'
   commands: node test/instrumentation/modules/express-queue.test.js
 
-koa-router:
+koa-router-v5-v11:
+  name: koa-router
+  versions: '>=5.2.0 <11'
   node: '>=6.0.0'
   peerDependencies: koa@2
-  versions: '>=5.2.0 <11'
   commands: node test/instrumentation/modules/koa-router/old-name.test.js
-'@koa/router':
+koa-router:
+  name: koa-router
+  versions: '>=11 <13'
+  node: '>=12.0.0'
+  peerDependencies: koa@2
+  commands: node test/instrumentation/modules/koa-router/old-name.test.js
+
+'@koa/router-v8-v11':
+  name: '@koa/router'
+  versions: '>=8 <11'
   node: '>=8.0.0'
   peerDependencies: koa@2
-  versions: '>=8 <11'
+  commands: node test/instrumentation/modules/koa-router/new-name.test.js
+'@koa/router':
+  name: '@koa/router'
+  versions: '>=11 <13'
+  node: '>=12.0.0'
+  peerDependencies: koa@2
   commands: node test/instrumentation/modules/koa-router/new-name.test.js
 
 elasticsearch:
@@ -417,9 +351,11 @@ handlebars:
   commands: node test/instrumentation/modules/handlebars.test.js
 # Pug v3 dropped node v8 support (https://github.com/pugjs/pug/releases/tag/pug%403.0.0).
 pug-v2:
+  name: 'pug'
   versions: '0.1.0 || >2.0.0 <3.0.0'
   commands: node test/instrumentation/modules/pug.test.js
 pug:
+  name: 'pug'
   versions: '>=3.0.0'
   node: '>8'
   commands: node test/instrumentation/modules/pug.test.js
@@ -431,17 +367,36 @@ pug:
 # - Node version compat:
 #   - @hapi/hapi@19: supports node >=v12 (judging from commit 50d8d7d)
 #   - @hapi/hapi@20: appears (from travis template refs) to support node >=v12
-'@hapi/hapi-v17-v18':
+#   - @hapi/hapi@20.1.2 fixed an issue (https://github.com/hapijs/hapi/pull/4225)
+#     needed to work with node >=16. Earlier versions of Hapi will crash when
+#     handling a POST.
+#   - @hapi/hapi@21: dropped support for node v12, and requires v14.10.0
+#     for 'performance.eventLoopUtilization'
+'@hapi/hapi-v17-v19':
   name: '@hapi/hapi'
   versions: '>=17.0.0 <19.0.0'
-  node: '>=8.12.0'
+  node: '>=8.12.0 <16.0.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.test.js
     - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
-'@hapi/hapi':
+'@hapi/hapi-v19-v20.1.2':
   name: '@hapi/hapi'
-  versions: '>=19.0.0'
-  node: '>=12'
+  versions: '>=19.0.0 <20.1.2'
+  node: '>=12.0.0 <16.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+'@hapi/hapi-v20.1.2-v21':
+  name: '@hapi/hapi'
+  versions: '>=20.1.2 <21.0.0'
+  node: '>=12.0.0'
+  commands:
+    - node test/instrumentation/modules/hapi/basic.test.js
+    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+'@hapi/hapi-v21-':
+  name: '@hapi/hapi'
+  versions: '>=21.0.0'
+  node: '>=14.10.0'
   commands:
     - node test/instrumentation/modules/hapi/basic.test.js
     - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
@@ -459,10 +414,16 @@ tedious-v11-v12:
   versions: '11.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
-tedious:
+tedious-v12-v15:
   name: tedious
   node: '>=12.3.0'
   versions: '12.x || 13.x || 14.x'
+  commands: node test/instrumentation/modules/tedious.test.js
+
+tedious:
+  name: tedious
+  node: '>=14'
+  versions: '15.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:
@@ -470,16 +431,35 @@ cassandra-driver:
   versions: '>=3 <3.1.0 || >3.1.0 <5'
   commands: node test/instrumentation/modules/cassandra-driver/index.test.js
 
-restify-old:
+# Restify
+# - restify <v10 doesn't work with node v18+ (https://github.com/restify/node-restify/issues/1888)
+# - restify v9 used `require('node:...')` that requires node >v14.18.0
+#   (https://nodejs.org/api/modules.html#core-modules)
+restify-v5-v8:
   name: restify
   versions: '>=5.2.0 <8.0.0'
+  node: '<18.0.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
-restify-new:
+restify-v8-v9:
   name: restify
-  node: '>=8.6.0'
-  versions: '>=8.0.0'
+  versions: '>=8.0.0 <9.0.0'
+  node: '>=8.6.0 <18.0.0'
+  commands:
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
+restify-v9-v10:
+  name: restify
+  versions: '>=9.0.0 <10.0.0'
+  node: '>=14.18.0 <18.0.0'
+  commands:
+    - node test/instrumentation/modules/restify/basic.test.js
+    - node test/instrumentation/modules/restify/set-framework.test.js
+restify-v10-v12:
+  name: restify
+  versions: '>=10.0.0 <12.0.0'
+  node: '>=14.18.0'
   commands:
     - node test/instrumentation/modules/restify/basic.test.js
     - node test/instrumentation/modules/restify/set-framework.test.js
@@ -487,6 +467,7 @@ restify-new:
 # https://www.fastify.io/docs/latest/LTS/
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
 # - fastify@4.0.1 is broken: https://github.com/fastify/fastify/issues/3998#issuecomment-1153662513
+# - fastify@4.16.0 - 4.16.2 (inclusive) are broken releases
 fastify-v1:
   name: fastify
   versions: '1.x'
@@ -516,7 +497,7 @@ fastify-v3:
     - node test/sanitize-field-names/fastify.test.js
 fastify:
   name: fastify
-  versions: '>=4 <4.0.1 || >4.0.1'
+  versions: '>=4 <4.0.1 || >4.0.1 <4.16.0 || >4.16.2'
   node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
@@ -547,11 +528,27 @@ aws-sdk:
   # Maintenance note: This should be updated periodically using:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
-  # Test v2.858.0, every N=54 of 275 releases, and current latest.
-  versions: '2.858.0 || 2.912.0 || 2.966.0 || 2.1020.0 || 2.1074.0 || 2.1128.0 || 2.1132.0 || >2.1132.0 <3'
+  # Test v2.858.0, every N=88 of 445 releases, and current latest.
+  versions: '2.858.0 || 2.946.0 || 2.1034.0 || 2.1122.0 || 2.1210.0 || 2.1298.0 || 2.1302.0 || >2.1302.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
     - node test/instrumentation/modules/aws-sdk/sns.test.js
     - node test/instrumentation/modules/aws-sdk/sqs.test.js
     - node test/instrumentation/modules/aws-sdk/dynamodb.test.js
+
+# - undici@4.7.0 added its diagnostics_channel support.
+# - In undici@4.7.1 the `request.origin` property was added, which we need
+#   in the 'undici:request:create' diagnostic message.
+# - In undici@5.22.0 support for node <14. Before that the min was node >=12.18.
+undici-v4-v5220:
+  name: undici
+  versions: '>=4.7.1 <5.22.0'
+  commands: node test/instrumentation/modules/undici/undici.test.js
+  node: '>=12.18'
+undici:
+  name: undici
+  versions: '>=5.22.0 <6'
+  commands: node test/instrumentation/modules/undici/undici.test.js
+  node: '>=14'
+

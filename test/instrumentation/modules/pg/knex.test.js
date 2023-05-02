@@ -6,6 +6,11 @@
 
 'use strict'
 
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 process.env.ELASTIC_APM_TEST = true
 
 var agent = require('../../../..').start({
@@ -25,6 +30,12 @@ var semver = require('semver')
 if ((semver.gte(knexVersion, '0.18.0') && semver.lt(process.version, '8.6.0')) ||
   (semver.gte(knexVersion, '0.21.0') && semver.lt(process.version, '10.22.0'))) {
   console.log(`# SKIP knex@${knexVersion} does not support node ${process.version}`)
+  process.exit()
+}
+// Instrumentation does not work with Knex >=0.95.0 and `contextManager=patch`.
+// The "patch" context manager is deprecated.
+if (semver.gte(knexVersion, '0.95.0') && agent._conf.contextManager === 'patch') {
+  console.log(`# SKIP knex@${knexVersion} and contextManager='patch' is not supported`)
   process.exit()
 }
 

@@ -7,11 +7,18 @@
 'use strict'
 
 // Test functionality described in:
-// https://github.com/elastic/apm/blob/main/tests/agents/gherkin-specs/otel_bridge.feature#L30
-// https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#compatibility-mapping
+//  https://github.com/elastic/apm/blob/main/tests/agents/gherkin-specs/otel_bridge.feature#L30
+// which largely tests compatibility mapping described here:
+//  https://github.com/elastic/apm/blob/main/specs/agents/tracing-api-otel.md#compatibility-mapping
 //
-// See https://github.com/elastic/apm-agent-nodejs/pull/2672 for why we aren't
-// testing with the Gherkin .feature files directly.
+// It would be more convenient for maintenance to test "otel_bridge.feature"
+// directly. However we cannot test Gherkin (.feature) files directly.
+// See https://github.com/elastic/apm-agent-nodejs/pull/2672 for why.
+//
+// Instead, this file is a *manual* painstaking translation of the logic of
+// "otel_bridge.feature".
+// - Currently at commit 4412a55 of https://github.com/elastic/apm/commits/main/tests/agents/gherkin-specs/otel_bridge.feature
+// - Each "Scenario: ..." from "otel_bridge.feature" is a separate test case below.
 
 const otel = require('@opentelemetry/api')
 const tape = require('tape')
@@ -20,7 +27,7 @@ const Agent = require('../../lib/agent')
 const { OUTCOME_UNKNOWN, OUTCOME_SUCCESS, OUTCOME_FAILURE } = require('../../lib/constants')
 const { MockAPMServer } = require('../_mock_apm_server')
 
-tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (suite) {
+tape.test('otel_bridge.feature scenarios', function (suite) {
   let apmServer
   let serverUrl
   let agent
@@ -75,11 +82,12 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const spans = apmServer.events
         .filter(e => e.span)
         .map(e => e.span)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(spans.length, examples.length, `got ${examples.length} spans`)
       for (let i = 0; i < examples.length; i++) {
         const ex = examples[i]
         const span = spans[i]
+        t.comment(`example: ${JSON.stringify(ex)}`)
         t.ok(span, 'Then Elastic bridged object is a span')
         t.equal(span.otel.span_kind, otel.SpanKind[ex.kind], 'Then Elastic bridged span OTel kind is "<kind>"')
         t.equal(span.type, ex.type, 'Then Elastic bridged span type is "<default_type>"')
@@ -107,7 +115,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const transactions = apmServer.events
         .filter(e => e.transaction)
         .map(e => e.transaction)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(transactions.length, examples.length, `got ${examples.length} transactions`)
       for (let i = 0; i < examples.length; i++) {
         const ex = examples[i]
@@ -136,7 +144,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const transactions = apmServer.events
         .filter(e => e.transaction)
         .map(e => e.transaction)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(transactions.length, examples.length, `got ${examples.length} transactions`)
       for (let i = 0; i < examples.length; i++) {
         const ex = examples[i]
@@ -167,7 +175,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const spans = apmServer.events
         .filter(e => e.span)
         .map(e => e.span)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(spans.length, examples.length, `got ${examples.length} spans`)
       for (let i = 0; i < examples.length; i++) {
         const ex = examples[i]
@@ -194,7 +202,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const transactions = apmServer.events
         .filter(e => e.transaction)
         .map(e => e.transaction)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(transactions.length, examples.length, `got ${examples.length} transactions`)
       for (let i = 0; i < examples.length; i++) {
         const trans = transactions[i]
@@ -212,39 +220,39 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
     const examples = [
       {
         attributes: { 'http.url': 'https://testing.invalid:8443/' },
-        resource: 'testing.invalid:8443'
+        target_service_name: 'testing.invalid:8443'
       },
       {
         attributes: { 'http.url': 'https://[::1]/' },
-        resource: '[::1]:443'
+        target_service_name: '[::1]:443'
       },
       {
         attributes: { 'http.url': 'http://testing.invalid/' },
-        resource: 'testing.invalid:80'
+        target_service_name: 'testing.invalid:80'
       },
       {
         attributes: { 'http.scheme': 'http', 'http.host': 'testing.invalid' },
-        resource: 'testing.invalid:80'
+        target_service_name: 'testing.invalid:80'
       },
       {
         attributes: { 'http.scheme': 'https', 'http.host': 'testing.invalid', 'net.peer.ip': '127.0.0.1' },
-        resource: 'testing.invalid:443'
+        target_service_name: 'testing.invalid:443'
       },
       {
         attributes: { 'http.scheme': 'http', 'net.peer.ip': '127.0.0.1', 'net.peer.port': '81' },
-        resource: '127.0.0.1:81'
+        target_service_name: '127.0.0.1:81'
       },
       {
         attributes: { 'http.scheme': 'https', 'net.peer.ip': '127.0.0.1', 'net.peer.port': '445' },
-        resource: '127.0.0.1:445'
+        target_service_name: '127.0.0.1:445'
       },
       {
         attributes: { 'http.scheme': 'http', 'net.peer.ip': '127.0.0.1', 'net.peer.name': 'host1', 'net.peer.port': '445' },
-        resource: 'host1:445'
+        target_service_name: 'host1:445'
       },
       {
         attributes: { 'http.scheme': 'https', 'net.peer.ip': '127.0.0.1', 'net.peer.name': 'host2', 'net.peer.port': '445' },
-        resource: 'host2:445'
+        target_service_name: 'host2:445'
       }
     ]
     tracer.startActiveSpan('aTrans', aTrans => {
@@ -258,7 +266,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const spans = apmServer.events
         .filter(e => e.span)
         .map(e => e.span)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(spans.length, examples.length, `got ${examples.length} spans`)
       for (let i = 0; i < examples.length; i++) {
         const ex = examples[i]
@@ -266,7 +274,9 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
         t.equal(span.type, 'external', 'Then Elastic bridged span type is "external"')
         t.equal(span.subtype, 'http', 'Then Elastic bridged span subtype is "http"')
         t.deepEqual(span.otel.attributes, ex.attributes, 'Then Elastic bridged span OTel attributes are copied as-is')
-        t.equal(span.context.destination.service.resource, ex.resource, 'Then Elastic bridged span destination resource is set to "<resource>"')
+        t.equal(span.context.destination.service.resource, ex.target_service_name, 'Then Elastic bridged span destination resource is set to "<target_service_name>"')
+        t.equal(span.context.service.target.type, 'http', 'Then Elastic bridged span service target type is \'http\' ...')
+        t.equal(span.context.service.target.name, ex.target_service_name, 'Then Elastic bridged span service target ... name is "<target_service_name>"')
       }
 
       apmServer.clear()
@@ -282,31 +292,35 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       },
       {
         attributes: { 'db.system': 'oracle', 'net.peer.name': 'oracledb' },
-        resource: 'oracledb'
+        resource: 'oracle'
       },
       {
         attributes: { 'db.system': 'oracle', 'net.peer.ip': '127.0.0.1' },
-        resource: '127.0.0.1'
+        resource: 'oracle'
       },
       {
         attributes: { 'db.system': 'mysql', 'net.peer.ip': '127.0.0.1', 'net.peer.name': 'dbserver', 'net.peer.port': '3307' },
-        resource: 'dbserver:3307'
+        resource: 'mysql'
       },
       {
         attributes: { 'db.system': 'mysql', 'db.name': 'myDb' },
-        resource: 'mysql/myDb'
+        resource: 'mysql/myDb',
+        target_service_name: 'myDb'
       },
       {
         attributes: { 'db.system': 'oracle', 'db.name': 'myDb', 'net.peer.name': 'oracledb' },
-        resource: 'oracledb/myDb'
+        resource: 'oracle/myDb',
+        target_service_name: 'myDb'
       },
       {
         attributes: { 'db.system': 'oracle', 'db.name': 'myDb', 'net.peer.ip': '127.0.0.1' },
-        resource: '127.0.0.1/myDb'
+        resource: 'oracle/myDb',
+        target_service_name: 'myDb'
       },
       {
         attributes: { 'db.system': 'mysql', 'db.name': 'myDb', 'net.peer.ip': '127.0.0.1', 'net.peer.name': 'dbserver', 'net.peer.port': '3307' },
-        resource: 'dbserver:3307/myDb'
+        resource: 'mysql/myDb',
+        target_service_name: 'myDb'
       }
     ]
     tracer.startActiveSpan('aTrans', aTrans => {
@@ -320,7 +334,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const spans = apmServer.events
         .filter(e => e.span)
         .map(e => e.span)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(spans.length, examples.length, `got ${examples.length} spans`)
       for (let i = 0; i < examples.length; i++) {
         const ex = examples[i]
@@ -329,6 +343,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
         t.equal(span.subtype, ex.attributes['db.system'], 'Then Elastic bridged span subtype is "<db.system>"')
         t.deepEqual(span.otel.attributes, ex.attributes, 'Then Elastic bridged span OTel attributes are copied as-is')
         t.equal(span.context.destination.service.resource, ex.resource, 'Then Elastic bridged span destination resource is set to "<resource>"')
+        t.equal(span.context.service.target.type, ex.attributes['db.system'], 'Then Elastic bridged span service target type is "<db.system>" ...')
+        t.equal(span.context.service.target.name, ex.target_service_name, 'Then Elastic bridged span service target ... name is "<target_service_name>"')
       }
 
       apmServer.clear()
@@ -360,7 +376,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'messaging.system': 'rabbitmq',
           'messaging.url': 'amqp://carrot:4444/q1'
         },
-        resource: 'carrot:4444'
+        resource: 'rabbitmq'
       },
       {
         attributes: {
@@ -369,21 +385,21 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'net.peer.name': 'carrot-server',
           'net.peer.port': '7777'
         },
-        resource: 'carrot-server:7777'
+        resource: 'rabbitmq'
       },
       {
         attributes: {
           'messaging.system': 'rabbitmq',
           'net.peer.name': 'carrot-server'
         },
-        resource: 'carrot-server'
+        resource: 'rabbitmq'
       },
       {
         attributes: {
           'messaging.system': 'rabbitmq',
           'net.peer.ip': '127.0.0.1'
         },
-        resource: '127.0.0.1'
+        resource: 'rabbitmq'
       },
       {
         attributes: {
@@ -391,7 +407,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'messaging.destination': 'myQueue',
           'messaging.url': 'amqp://carrot:4444/q1 '
         },
-        resource: 'carrot:4444/myQueue'
+        resource: 'rabbitmq/myQueue',
+        target_service_name: 'myQueue'
       },
       {
         attributes: {
@@ -401,7 +418,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'net.peer.name': 'carrot-server',
           'net.peer.port': '7777'
         },
-        resource: 'carrot-server:7777/myQueue'
+        resource: 'rabbitmq/myQueue',
+        target_service_name: 'myQueue'
       },
       {
         attributes: {
@@ -409,7 +427,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'messaging.destination': 'myQueue',
           'net.peer.name': 'carrot-server'
         },
-        resource: 'carrot-server/myQueue'
+        resource: 'rabbitmq/myQueue',
+        target_service_name: 'myQueue'
       },
       {
         attributes: {
@@ -417,7 +436,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'messaging.destination': 'myQueue',
           'net.peer.ip': '127.0.0.1'
         },
-        resource: '127.0.0.1/myQueue'
+        resource: 'rabbitmq/myQueue',
+        target_service_name: 'myQueue'
       }
 
     ]
@@ -432,7 +452,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const spans = apmServer.events
         .filter(e => e.span)
         .map(e => e.span)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(spans.length, examples.length, `got ${examples.length} spans`)
       for (let i = 0; i < examples.length; i++) {
         const ex = examples[i]
@@ -441,6 +461,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
         t.equal(span.subtype, ex.attributes['messaging.system'], 'Then Elastic bridged span subtype is "<messaging.system>"')
         t.deepEqual(span.otel.attributes, ex.attributes, 'Then Elastic bridged span OTel attributes are copied as-is')
         t.equal(span.context.destination.service.resource, ex.resource, 'Then Elastic bridged span destination resource is set to "<resource>"')
+        t.equal(span.context.service.target.type, ex.attributes['messaging.system'], 'Then Elastic bridged span service target type is "<messaging.system>" ...')
+        t.equal(span.context.service.target.name, ex.target_service_name, 'Then Elastic bridged span service target ... name is "<target_service_name>"')
       }
 
       apmServer.clear()
@@ -461,7 +483,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'rpc.system': 'grpc',
           'rpc.service': 'myService'
         },
-        resource: 'grpc/myService'
+        resource: 'myService',
+        target_service_name: 'myService'
       },
       {
         attributes: {
@@ -469,7 +492,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'rpc.service': 'myService',
           'net.peer.name': 'rpc-server'
         },
-        resource: 'rpc-server/myService'
+        resource: 'rpc-server',
+        target_service_name: 'rpc-server'
       },
       {
         attributes: {
@@ -478,7 +502,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'net.peer.ip': '127.0.0.1',
           'net.peer.name': 'rpc-server'
         },
-        resource: 'rpc-server/myService'
+        resource: 'rpc-server',
+        target_service_name: 'rpc-server'
       },
       {
         attributes: {
@@ -487,7 +512,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'net.peer.name': 'rpc-server',
           'net.peer.port': '7777'
         },
-        resource: 'rpc-server:7777'
+        resource: 'rpc-server:7777',
+        target_service_name: 'rpc-server:7777'
       },
       {
         attributes: {
@@ -497,7 +523,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'net.peer.name': 'rpc-server',
           'net.peer.port': '7777'
         },
-        resource: 'rpc-server:7777/myService'
+        resource: 'rpc-server:7777',
+        target_service_name: 'rpc-server:7777'
       },
       {
         attributes: {
@@ -506,7 +533,8 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
           'net.peer.ip': '127.0.0.1',
           'net.peer.port': '7777'
         },
-        resource: '127.0.0.1:7777/myService'
+        resource: '127.0.0.1:7777',
+        target_service_name: '127.0.0.1:7777'
       }
     ]
     tracer.startActiveSpan('aTrans', aTrans => {
@@ -520,11 +548,12 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
       const spans = apmServer.events
         .filter(e => e.span)
         .map(e => e.span)
-        .sort((a, b) => a.name - b.name) // Cannot use "timestamp" for sorting, because #2180.
+        .sort((a, b) => a.name < b.name ? -1 : 1) // Cannot use "timestamp" for sorting, because #2180.
       t.equal(spans.length, examples.length, `got ${examples.length} spans`)
       for (let i = 0; i < examples.length; i++) {
         const ex = examples[i]
         const span = spans[i]
+        t.comment('attributes: ' + JSON.stringify(ex.attributes))
         t.equal(span.type, 'external', 'Then Elastic bridged span type is "external"')
         t.equal(span.subtype, ex.attributes['rpc.system'], 'Then Elastic bridged span subtype is "<rpc.system>"')
         t.deepEqual(span.otel.attributes, ex.attributes, 'Then Elastic bridged span OTel attributes are copied as-is')

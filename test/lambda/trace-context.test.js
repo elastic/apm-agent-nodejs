@@ -8,6 +8,11 @@
 
 // Test trace-context propagation in Lambda instrumentation.
 
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
+  process.exit()
+}
+
 const test = require('tape')
 const lambdaLocal = require('lambda-local')
 
@@ -23,6 +28,8 @@ test('API Gateway trigger: traceparent header present', function (t) {
   const handlerName = 'greet.hello'
   const mockApiGatewayEventWithTraceContext = {
     requestContext: {
+      domainName: '21mj4tsk90.execute-api.us-west-2.amazonaws.com',
+      domainPrefix: '21mj4tsk90',
       routeKey: 'ANY /the-function-name',
       requestId: '1d108eda-bfc2-4e1a-8942-d82db026cdf9',
       stage: 'default',

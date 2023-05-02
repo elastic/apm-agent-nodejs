@@ -78,8 +78,8 @@
             "https"
         ]
     },
-    "queryStringParameters": null,
-    "multiValueQueryStringParameters": null,
+    "queryStringParameters": { "q": "myquery" },
+    "multiValueQueryStringParameters": { "q": [ "myquery" ] },
     "pathParameters": null,
     "stageVariables": null,
     "requestContext": {

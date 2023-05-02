@@ -5,6 +5,12 @@
  */
 
 'use strict'
+
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+
 const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
@@ -168,6 +174,10 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
       service: {
         config: {
           region: 'region-name'
+        },
+        endpoint: {
+          hostname: 'example.com',
+          port: 1234
         }
       },
       params: {
@@ -179,11 +189,8 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.equals(getQueueNameFromRequest(request), 'bing')
 
     t.deepEquals(getMessageDestinationContextFromRequest(request), {
-      service: {
-        name: 'sqs',
-        resource: 'sqs/bing',
-        type: 'messaging'
-      },
+      address: 'example.com',
+      port: 1234,
       cloud: {
         region: 'region-name'
       }
@@ -203,13 +210,35 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       resetAgent(function (data) {
         t.equals(data.spans.length, 1, 'generated one span')
         const spanSqs = data.spans[0]
-
         t.equals(spanSqs.name, 'SQS SEND to our-queue', 'SQS span named correctly')
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+
+        // Ensure the request sent to SQS included trace-context in message
+        // attributes.  The mock server parses the sent urlencoded body into an
+        // object on req.body.
+        t.equal(app._receivedReqs.length, 1)
+        const req = app._receivedReqs[0]
+        t.equal(req.body.Action, 'SendMessage', 'req.body.Action')
+        // The fixture has 3 message attributes, so traceparent and tracestate
+        // should be attributes 4 and 5.
+        t.equal(req.body['MessageAttribute.4.Name'], 'traceparent', 'traceparent message attribute Name')
+        t.equal(req.body['MessageAttribute.4.Value.DataType'], 'String', 'traceparent message attribute DataType')
+        t.equal(req.body['MessageAttribute.4.Value.StringValue'], `00-${spanSqs.trace_id}-${spanSqs.id}-01`, 'traceparent message attribute StringValue')
+        t.equal(req.body['MessageAttribute.5.Name'], 'tracestate', 'tracestate message attribute Name')
+        t.equal(req.body['MessageAttribute.5.Value.DataType'], 'String', 'tracestate message attribute DataType')
+        t.equal(req.body['MessageAttribute.5.Value.StringValue'], 'es=s:1', 'tracestate message attribute StringValue')
 
         t.end()
       })
@@ -225,6 +254,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       t.ok(agent.currentSpan === null, 'no currentSpan in sync code after sqs.sendMessage')
     })
   })
+
   test.test('API: sendMessageBatch', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessageBatch')
@@ -238,8 +268,31 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+
+        // Ensure the request sent to SQS included trace-context in message
+        // attributes.  The mock server parses the sent urlencoded body into an
+        // object on req.body.
+        t.equal(app._receivedReqs.length, 1)
+        const req = app._receivedReqs[0]
+        t.equal(req.body.Action, 'SendMessageBatch', 'req.body.Action')
+        // The fixture has 3 message attributes, so traceparent and tracestate
+        // should be attributes 4 and 5.
+        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.4.Name'], 'traceparent', 'traceparent message attribute Name')
+        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.4.Value.DataType'], 'String', 'traceparent message attribute DataType')
+        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.4.Value.StringValue'], `00-${spanSqs.trace_id}-${spanSqs.id}-01`, 'traceparent message attribute StringValue')
+        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.5.Name'], 'tracestate', 'tracestate message attribute Name')
+        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.5.Value.DataType'], 'String', 'tracestate message attribute DataType')
+        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.5.Value.StringValue'], 'es=s:1', 'tracestate message attribute StringValue')
 
         t.end()
       })
@@ -250,6 +303,50 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.error(err)
         agent.endTransaction()
         listener.close()
+      })
+    })
+  })
+
+  // Test that SQS trace-context propagation works properly when called in an
+  // unsampled transaction.
+  test.test('API: sendMessage, unsampled transaction', function (t) {
+    const app = createMockServer(
+      getXmlResponse('sendMessage')
+    )
+    const listener = app.listen(0, function () {
+      // Note: This test is relying on _mock_http_client behaving like a
+      // a pre-8.0 APM server, where unsampled transactions are still
+      // sent to APM server (`supportsKeepingUnsampledTransaction()` -> true).
+      resetAgent(function (data) {
+        t.equal(data.spans.length, 0, 'no SQS span was sent')
+
+        // Ensure the request sent to SQS included trace-context in message
+        // attributes.  The mock server parses the sent urlencoded body into an
+        // object on req.body.
+        t.equal(app._receivedReqs.length, 1)
+        const req = app._receivedReqs[0]
+        t.equal(req.body.Action, 'SendMessage', 'req.body.Action')
+        // The fixture has 3 message attributes, so traceparent should be
+        // attr 4. No 'tracestate' should be sent for a non-root transaction.
+        t.equal(req.body['MessageAttribute.4.Name'], 'traceparent', 'traceparent message attribute Name')
+        t.equal(req.body['MessageAttribute.4.Value.DataType'], 'String', 'traceparent message attribute DataType')
+        t.equal(req.body['MessageAttribute.4.Value.StringValue'], t0.traceparent, 'traceparent message attribute StringValue')
+        t.equal(req.body['MessageAttribute.5.Name'], undefined, 'there is no "tracestate" message attribute')
+
+        t.end()
+      })
+
+      const TRACEPARENT_SAMPLED_FALSE = '00-12345678901234567890123456789012-1234567890123456-00'
+      const t0 = agent.startTransaction('t0', { childOf: TRACEPARENT_SAMPLED_FALSE })
+
+      setImmediate(() => {
+        const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+        const params = getParams('sendMessage', listener.address().port)
+        sqs.sendMessage(params, function (err, data) {
+          t.error(err)
+          t0.end()
+          listener.close()
+        })
       })
     })
   })
@@ -267,7 +364,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -296,7 +401,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -325,8 +438,20 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'poll', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+        t.deepEqual(spanSqs.links, [{
+          trace_id: '460d51b6ed3ab96be45f2580b8016509',
+          span_id: '8ba4419207a1f2f8'
+        }], 'span.links')
 
         t.end()
       })
@@ -378,7 +503,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: sendMessage without a transaction', function (t) {
+  test.test('API: sendMessageBatch without a transaction', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessage')
     )
@@ -388,8 +513,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.end()
       })
       const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('sendMessage', listener.address().port)
-      sqs.sendMessage(params, function (err, data) {
+      const params = getParams('sendMessageBatch', listener.address().port)
+      sqs.sendMessageBatch(params, function (err, data) {
         t.error(err)
         listener.close()
       })
@@ -409,7 +534,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -447,7 +580,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -480,7 +621,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -514,7 +663,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
 
         t.end()
@@ -548,7 +705,15 @@ tape.test('AWS SQS: End to End Tests', function (test) {
         t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
         t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
         t.equals(spanSqs.action, 'poll', 'span action matches API method called')
-        t.equals(spanSqs.context.destination.service.type, 'messaging', 'messaging context set')
+        t.deepEqual(spanSqs.context.service.target,
+          { type: 'sqs', name: 'our-queue' },
+          'span.context.service.target')
+        t.deepEqual(spanSqs.context.destination, {
+          address: 'sqs.us-west.amazonaws.com',
+          port: 443,
+          cloud: { region: 'us-west' },
+          service: { type: '', name: '', resource: 'sqs/our-queue' }
+        }, 'span.context.destination')
         t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
         t.deepEqual(spanSqs.links, [{
           trace_id: '460d51b6ed3ab96be45f2580b8016509',
@@ -573,27 +738,6 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: no transaction', function (t) {
-    const app = createMockServer(
-      getXmlResponse('sendMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 0, 'no spans generated because no transaction')
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      agent.endTransaction()
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('sendMessage', listener.address().port)
-      sqs.sendMessage(params, function (err, data) {
-        t.error(err)
-        agent.endTransaction()
-        listener.close()
-      })
-    })
-  })
-
   test.end()
 })
 
@@ -604,8 +748,15 @@ function awsPromiseFinally (agent, listener) {
 
 function createMockServer (xmlResponse) {
   const app = express()
+  app._receivedReqs = []
   app.use(bodyParser.urlencoded({ extended: false }))
   app.post('/', (req, res) => {
+    app._receivedReqs.push({
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body
+    })
     res.setHeader('Content-Type', 'text/xml')
     res.send(xmlResponse)
   })
