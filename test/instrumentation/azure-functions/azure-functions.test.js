@@ -20,7 +20,10 @@ const treekill = require('tree-kill')
 const { MockAPMServer } = require('../../_mock_apm_server')
 const { formatForTComment } = require('../../_utils')
 
-if (!semver.satisfies(process.version, '>=14 <19')) {
+if (!semver.satisfies(process.version, '>=14.1.0 <19')) {
+  // The "14.1.0" version is selected to skip testing on Node.js v14.0.0
+  // because of the issue described here:
+  // https://github.com/elastic/apm-agent-nodejs/issues/3279#issuecomment-1532084620
   console.log(`# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`)
   process.exit()
 } else if (os.platform() === 'win32') {
