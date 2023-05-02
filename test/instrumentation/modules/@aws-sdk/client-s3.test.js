@@ -57,7 +57,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
     console.time && console.time('exec use-s3-v3')
     execFile(
       process.execPath,
-      ['fixtures/use-s3-v3.js'],
+      ['fixtures/use-client-s3.js'],
       {
         cwd: __dirname,
         timeout: 20000, // sanity guard on the test hanging
