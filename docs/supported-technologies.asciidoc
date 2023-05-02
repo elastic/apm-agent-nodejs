@@ -103,12 +103,15 @@ These are the frameworks that we officially support:
 === OpenTelemetry
 
 The Node.js Elastic APM agent supports usage of the OpenTelemetry Tracing API
-via its <<opentelemetry-bridge>>.
+via its <<opentelemetry-bridge>>. As well, it instruments the OpenTelemetry
+Metrics API and Metrics SDK to allow
+<<otel-metrics-api,usage of the OpenTelemetry Metrics API>>.
 
 [options="header"]
 |=======================================================================
-| Framework                                   | Version
+| Framework | Version
 | <<opentelemetry-bridge,@opentelemetry/api>> | >=1.0.0 <1.5.0
+| https://www.npmjs.com/package/@opentelemetry/sdk-metrics[@opentelemetry/sdk-metrics] | >=1.11.0 <2
 |=======================================================================
 
 
@@ -153,7 +156,7 @@ so those should be supported as well.
 |https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 <2.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 <5.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <3.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <4.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/redis[redis] |>=2.0.0 <5.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/tedious[tedious] |>=1.9 <16.0.0 | (Excluding v4.0.0.) Will instrument all queries

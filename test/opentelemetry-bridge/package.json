@@ -1,0 +1,8 @@
+{
+  "name": "opentelemetry-bridge-tests",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@opentelemetry/api": "^1.4.1"
+  }
+}

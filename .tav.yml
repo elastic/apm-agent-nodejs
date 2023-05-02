@@ -41,16 +41,27 @@ mysql:
 # - v1.6.2 is broken: https://github.com/sidorares/node-mysql2/issues/869
 # - v2.2.3 has a github dep ("@types/mysql": "types/mysql") that hits
 #   npm v6 install issue https://github.com/npm/cli/issues/4896
-mysql2-old:
+# - v3: It isn't clear what the min supported Node.js version is. "engines" says
+#   8.0.0, however it uses an lru-cache that supports only node >=16.14! From
+#   trial and error the effective min supported node is v14.6.0.
+#   See https://github.com/elastic/apm-agent-nodejs/pull/3301#issuecomment-1530138870
+mysql2-v1-v1.6.0:
   name: mysql2
   versions: '>=1.0.0 <1.6.0'
   commands:
     - node test/instrumentation/modules/mysql2/mysql.test.js
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
-mysql2-new:
+mysql2-v1.6.0-v3:
   name: mysql2
   versions: '>=1.6.0 <1.6.2 || >=1.6.3 <2.2.3 || >=2.2.4 <3'
-  node: '>=6.0.0'
+  node: '>=8.0.0'
+  commands:
+    - node test/instrumentation/modules/mysql2/mysql.test.js
+    - node test/instrumentation/modules/mysql2/pool-release-1.test.js
+mysql2:
+  name: mysql2
+  versions: '>=3.0.0 <4'
+  node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/mysql2/mysql.test.js
     - node test/instrumentation/modules/mysql2/pool-release-1.test.js
@@ -456,6 +467,7 @@ restify-v10-v12:
 # https://www.fastify.io/docs/latest/LTS/
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
 # - fastify@4.0.1 is broken: https://github.com/fastify/fastify/issues/3998#issuecomment-1153662513
+# - fastify@4.16.0 - 4.16.2 (inclusive) are broken releases
 fastify-v1:
   name: fastify
   versions: '1.x'
@@ -482,7 +494,7 @@ fastify-v3:
     - node test/instrumentation/modules/fastify/set-framework.test.js
 fastify:
   name: fastify
-  versions: '>=4 <4.0.1 || >4.0.1'
+  versions: '>=4 <4.0.1 || >4.0.1 <4.16.0 || >4.16.2'
   node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
@@ -552,13 +564,3 @@ undici:
   commands: node test/instrumentation/modules/undici/undici.test.js
   node: '>=14'
 
-"@opentelemetry/api":
-  versions: '>=1.0.0 <1.5.0'
-  node: '>=8.0.0'
-  commands:
-    - node test/opentelemetry-bridge/OTelBridgeNonRecordingSpan.test.js
-    - node test/opentelemetry-bridge/OTelBridgeRunContext.test.js
-    - node test/opentelemetry-bridge/active-span-and-context-interop.test.js
-    - node test/opentelemetry-bridge/fixtures.test.js
-    - node test/opentelemetry-bridge/interface-ContextManager.test.js
-    - node test/opentelemetry-bridge/otel-bridge-feature.test.js

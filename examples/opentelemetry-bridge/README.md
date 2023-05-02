@@ -1,6 +1,7 @@
 This directory includes example Node.js scripts showing usage of the
-OpenTelemetry JS API. These can be instrumented with the Elastic Node.js APM
-agent using its OpenTelemetry Bridge.
+OpenTelemetry JS Tracing API. These can be instrumented with the Elastic
+Node.js APM agent using its OpenTelemetry Bridge
+(https://www.elastic.co/guide/en/apm/agent/nodejs/current/opentelemetry-bridge.html).
 
 Setup dependencies via:
 
@@ -19,8 +20,10 @@ For example:
     node -r elastic-apm-node/start.js trace-https-request.js
 
 While these examples are written to use the `node -r elastic-apm-node/start.js ...`
-mechanism to start the APM agent. That isn't required. One can still load and
-start the APM agent at the top of a script like this:
+mechanism to start the APM agent, there are other ways to start the APM agent.
+For example, one can start the APM agent at the top of a script as follows.
+(See https://www.elastic.co/guide/en/apm/agent/nodejs/current/starting-the-agent.html
+for details.)
 
 ```js
 require('elastic-apm-node').start({

@@ -5,6 +5,12 @@
  */
 
 'use strict'
+
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
+  process.exit()
+}
+
 const tape = require('tape')
 const path = require('path')
 const Instrumentation = require('../../lib/instrumentation')
@@ -144,7 +150,7 @@ tape.test('integration test', function (t) {
 
   // check that the handler fixture is wrapped
   const handler = require(path.join(__dirname, '/fixtures/lambda')).foo
-  t.equals(handler.name, 'wrappedLambda', 'handler function wrapped correctly')
+  t.equals(handler.name, 'wrappedLambdaHandler', 'handler function wrapped correctly')
 
   // did normal patching/wrapping take place
   t.equals(express.static.name, 'wrappedStatic', 'express module was instrumented correctly')

@@ -40,6 +40,36 @@ Notes:
 [float]
 ===== Features
 
+* Add support for mysql2@3. Contributed by @firecow. ({pull}3301[#3301])
+
+* Improve error handling with AWS Lambda. When used together with the
+  https://github.com/elastic/apm-aws-lambda[Elastic AWS Lambda extension]
+  v1.4.0 or greater, the APM agent will pre-register a partial transaction
+  before the user's handler function is run. If the handler function fails
+  with a Lambda timeout, `uncaughtException`, `unhandledRejection`, or crash
+  then the Lambda extension will report the failed transaction so it can be
+  seen in the Kibana APM app. ({pull}3285[#3285])
+
+* Add OpenTelemetry Metrics API and Metrics SDK support. This is currently
+  experimental and may change. With this change, you may use the OpenTelemetry
+  Metrics API to create custom metrics and the APM agent will ship those
+  metrics to APM server. As well, you may use the OpenTelemetry Metrics SDK
+  and the APM agent will automatically add a MetricReader to ship metrics to
+  APM server. See the <<opentelemetry-bridge>> for details. ({pull}3152[#3152])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
+[[release-notes-3.45.0]]
+==== 3.45.0 2023/04/28
+
+[float]
+===== Features
+
 * Add `aws.s3.bucket` and `aws.s3.key` attributes for OpenTelemetry in S3 instrumentation.
   Spec https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/semantic_conventions/trace/instrumentation/aws-sdk.yml#L435
   ({issues}3150[#3150]).
@@ -47,12 +77,18 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix a possible crash in AWS Lambda Function instrumentation when an ELB-
+  or API Gateway-triggered invocation received an `event` object with no
+  `headers` field. ({issues}3286[#3286])
+
 * Fix an edge case in instrumentation of `http.request()` and `https.request()`
   with node v19.9.0 and recently nightly builds of node v20.
   ({issues}3261[#3261])
 
 [float]
 ===== Chores
+
+* Update "engines" to support node v20. ({pull}3278[#3278])
 
 * Restrict Next.js instrumentation to `<13.3.0` for now, because of a known
   issue with instrumentating the `next@13.3.0` dev server. ({issues}3263[#3263])
