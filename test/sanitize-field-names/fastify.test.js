@@ -16,6 +16,7 @@ if (isFastifyIncompat) {
 
 const {
   resetAgent,
+  assertFormsWithFixture,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture
 } = require('./_shared')
@@ -40,9 +41,7 @@ function runTest (
     const transaction = data.transactions.pop()
     assertRequestHeadersWithFixture(transaction, expected, t)
     assertResponseHeadersWithFixture(transaction, expected, t)
-    // TODO: uncomment once we fix
-    // https://github.com/elastic/apm-agent-nodejs/issues/1906
-    // assertFormsWithFixture(transaction, expected, t)
+    assertFormsWithFixture(transaction, expected, t)
   })
 
   // register request handler

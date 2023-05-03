@@ -55,38 +55,30 @@ You can optionally <<configuration, fine-tune the Node.js agent>> or the {apm-la
 That's it. After following the steps above, you're ready to go!
 Your Lambda function invocations should be traced from now on.
 
-Read on to learn more about the features and limitations of the Node.js APM Agent on AWS Lambda Functions.
 
 [float]
-[[aws-lambda-features-and-caveats]]
-=== Features and Caveats
+[[aws-lambda-features]]
+=== Features
 
-The AWS Lambda as a runtime behaves differently from conventional runtimes.
-While most APM and monitoring concepts apply to AWS Lambda, there are a few differences and limitations to be aware of.
+The AWS Lambda instrumentation will report a transaction for all function invocations
+and trace any <<compatibility-frameworks,supported modules>>. In addition, the
+created transactions will capture additional data for a number of Lambda
+trigger types -- API Gateway, SNS, SQS, S3 (when the trigger is a single event),
+and ELB.
 
-[float]
-[[aws-lambda-performance-monitoring]]
-==== Performance monitoring
+A transaction will be reported for Lambda invocations that fail due to a
+timeout, crash, `uncaughtException`, or `unhandledRejection`. (This requires
+APM agent v3.45.0 or later and
+https://www.elastic.co/guide/en/apm/lambda/current/aws-lambda-arch.html[Elastic's APM Lambda extension]
+version 1.4.0 or later.)
 
-Elastic APM automatically measures the performance of your lambda function executions.
-It records traces for database queries, external HTTP requests,
-and other slow operations that happen during execution.
-
-By default, the agent will trace <<supported-technologies,the most common modules>>.
-To trace other events,
-you can use custom traces.
-For information about custom traces,
-see the <<custom-spans,Custom Spans section>>.
-
-[float]
-[[aws-lambda-error-monitoring]]
-==== Error monitoring
-
-include::./shared-set-up.asciidoc[tag=error-logging]
 
 [float]
 [[aws-lambda-caveats]]
-==== Caveats
+=== Caveats and Troubleshooting
 
 * System and custom metrics are not collected for Lambda functions. This is both because most of those are irrelevant
 and because the interval-based event sending model is not suitable for FaaS environments.
+* Lambda instrumentation does not currently work when the (deprecated) <<context-manager,`contextManager: 'patch'`>> configuration setting is used.
+* The APM agent does not yet support a Lambda handler module that uses ECMAScript modules (ESM). That means your handler file name should end with ".js" (and not have `"type": "module"` in package.json if you have one) or end with ".cjs". A handler file that uses the ".mjs" suffix will not be instrumented by the APM agent.
+

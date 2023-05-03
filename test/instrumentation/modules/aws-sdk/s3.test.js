@@ -68,8 +68,8 @@ tape.test('simple S3 usage scenario', function (t) {
         // Sort the events by timestamp, then work through each expected span.
         const events = server.events.slice(1)
         events.sort((a, b) => {
-          const aTimestamp = (a.transaction || a.span || {}).timestamp
-          const bTimestamp = (b.transaction || b.span || {}).timestamp
+          const aTimestamp = (a.transaction || a.span || a.error || {}).timestamp
+          const bTimestamp = (b.transaction || b.span || b.error || {}).timestamp
           return aTimestamp < bTimestamp ? -1 : 1
         })
 

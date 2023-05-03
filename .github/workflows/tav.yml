@@ -41,6 +41,9 @@ jobs:
       max-parallel: 30
       fail-fast: false
       matrix:
+        # A job matrix limit is 256. We do some grouping of TAV modules to
+        # stay under that limit.
+        # https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration
         node: ${{ fromJSON(needs.prepare-matrix.outputs.versions) }}
         module: ${{ fromJSON(needs.prepare-matrix.outputs.modules) }}
     steps:

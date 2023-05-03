@@ -103,12 +103,15 @@ These are the frameworks that we officially support:
 === OpenTelemetry
 
 The Node.js Elastic APM agent supports usage of the OpenTelemetry Tracing API
-via its <<opentelemetry-bridge>>.
+via its <<opentelemetry-bridge>>. As well, it instruments the OpenTelemetry
+Metrics API and Metrics SDK to allow
+<<otel-metrics-api,usage of the OpenTelemetry Metrics API>>.
 
 [options="header"]
 |=======================================================================
-| Framework                                   | Version
+| Framework | Version
 | <<opentelemetry-bridge,@opentelemetry/api>> | >=1.0.0 <1.5.0
+| https://www.npmjs.com/package/@opentelemetry/sdk-metrics[@opentelemetry/sdk-metrics] | >=1.11.0 <2
 |=======================================================================
 
 
@@ -122,7 +125,7 @@ These modules override that behavior to give better insights into specialized HT
 [options="header"]
 |=======================================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/express-graphql[express-graphql] |>=0.6.1 <0.13.0 |Will name all transactions by the GraphQL query name. There is a https://github.com/elastic/apm-agent-nodejs/issues/2516[known issue with node <10.4]. Versions before 0.10.0 are no longer tested.
+|https://www.npmjs.com/package/express-graphql[express-graphql] |>=0.6.1 <0.13.0 |Will name all transactions by the GraphQL query name. There is a https://github.com/elastic/apm-agent-nodejs/issues/2516[known issue with node <10.4]. This module is deprecated and is no longer tested.
 |https://www.npmjs.com/package/apollo-server-express[apollo-server-express] |>=2.0.4 <4|Will name all transactions by the GraphQL query name. Versions before 2.9.6 are no longer tested.
 |=======================================================================
 
@@ -136,6 +139,7 @@ The Node.js agent will automatically instrument the following modules to give yo
 |=======================================================================
 |Module |Version |Note
 |https://www.npmjs.com/package/aws-sdk[aws-sdk] |>1 <3 |Will instrument SQS send/receive/delete messages, all S3 methods, all DynamoDB methods, and the SNS publish method
+|https://www.npmjs.com/package/@aws-sdk/client-s3[@aws-sdk/client-s3] |>=3.15.0 <4 |Will instrument all S3 methods
 |https://www.npmjs.com/package/cassandra-driver[cassandra-driver] |>=3.0.0 <5 |Will instrument all queries
 |https://www.npmjs.com/package/elasticsearch[elasticsearch] |>=8.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/@elastic/elasticsearch[@elastic/elasticsearch] |>=7.0.0 <9.0.0 |Will instrument all queries
@@ -153,7 +157,7 @@ so those should be supported as well.
 |https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 <2.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 <5.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all queries
-|https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <3.0.0 |Will instrument all queries
+|https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <4.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/redis[redis] |>=2.0.0 <5.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/tedious[tedious] |>=1.9 <16.0.0 | (Excluding v4.0.0.) Will instrument all queries
