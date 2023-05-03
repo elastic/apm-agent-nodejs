@@ -476,6 +476,7 @@ fastify-v1:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js
     - node test/instrumentation/modules/fastify/set-framework.test.js
+    - node test/sanitize-field-names/fastify.test.js
 fastify-v2:
   name: fastify
   versions: '>=2.0.0 <2.4.0 || >2.4.0 <3'
@@ -484,6 +485,7 @@ fastify-v2:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js
     - node test/instrumentation/modules/fastify/set-framework.test.js
+    - node test/sanitize-field-names/fastify.test.js
 fastify-v3:
   name: fastify
   versions: '>=3.0.0 <4'
@@ -492,6 +494,7 @@ fastify-v3:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js
     - node test/instrumentation/modules/fastify/set-framework.test.js
+    - node test/sanitize-field-names/fastify.test.js
 fastify:
   name: fastify
   versions: '>=4 <4.0.1 || >4.0.1 <4.16.0 || >4.16.2'
@@ -500,6 +503,7 @@ fastify:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js
     - node test/instrumentation/modules/fastify/set-framework.test.js
+    - node test/sanitize-field-names/fastify.test.js
 
 finalhandler:
   versions: '*'
