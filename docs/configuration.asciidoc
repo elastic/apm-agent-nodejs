@@ -1436,3 +1436,20 @@ require('elastic-apm-node').start({
 The URL path patterns for which the APM agent will capture the request body of outgoing requests to Elasticsearch made with the `@elastic/elasticsearch` module (or the legacy `elasticsearch` module). The default setting captures the body for https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html[Elasticsearch REST APIs] making a search.
 
 The captured request body (if any) is stored on the `span.db.statement` field. Captured request bodies are truncated to a maximum length defined by <<long-field-max-length>>.
+
+
+[[use-elastic-traceparent-header]]
+==== `useElasticTraceparentHeader`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_USE_ELASTIC_TRACEPARENT_HEADER`
+
+To enable {apm-guide-ref}/apm-distributed-tracing.html[distributed tracing], the agent
+adds trace context headers to outgoing requests (like HTTP requests, etc.).
+These headers (`traceparent` and `tracestate`) are defined in the
+https://www.w3.org/TR/trace-context-1/[W3C Trace Context] specification.
+
+When this setting is `true`, the agent will also add the header `elastic-apm-traceparent`
+for backwards compatibility with older versions of Elastic APM agents. (In the
+next major version of this APM agent, this setting will default to false.)
