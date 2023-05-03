@@ -12,11 +12,6 @@
 // The created module exports its properties only with a getter, so wrapping
 // of the handler cannot modify the module object directly.
 
-if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
-  console.log('# SKIP Lambda instrumentation currently does not work with contextManager="patch"')
-  process.exit()
-}
-
 const tape = require('tape')
 const path = require('path')
 
