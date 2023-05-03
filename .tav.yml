@@ -468,6 +468,9 @@ restify-v10-v12:
 # - #1086 suggests fastify@2.4.0 was a broken release, skip it.
 # - fastify@4.0.1 is broken: https://github.com/fastify/fastify/issues/3998#issuecomment-1153662513
 # - fastify@4.16.0 - 4.16.2 (inclusive) are broken releases
+# - Do not run "test/sanitize-field-names/fastify.test.js" for older fastify,
+#   because the test file uses '@fastify/formbody', which only has versions
+#   for fastify >=3.
 fastify-v1:
   name: fastify
   versions: '1.x'
@@ -476,7 +479,6 @@ fastify-v1:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js
     - node test/instrumentation/modules/fastify/set-framework.test.js
-    - node test/sanitize-field-names/fastify.test.js
 fastify-v2:
   name: fastify
   versions: '>=2.0.0 <2.4.0 || >2.4.0 <3'
@@ -485,10 +487,10 @@ fastify-v2:
     - node test/instrumentation/modules/fastify/fastify.test.js
     - node test/instrumentation/modules/fastify/async-await.test.js
     - node test/instrumentation/modules/fastify/set-framework.test.js
-    - node test/sanitize-field-names/fastify.test.js
 fastify-v3:
   name: fastify
   versions: '>=3.0.0 <4'
+  peerDependencies: '@fastify/formbody@^6.0.1'
   node: '>=10'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
@@ -498,6 +500,7 @@ fastify-v3:
 fastify:
   name: fastify
   versions: '>=4 <4.0.1 || >4.0.1 <4.16.0 || >4.16.2'
+  peerDependencies: '@fastify/formbody@^7'
   node: '>=14.6.0'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
