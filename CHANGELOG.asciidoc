@@ -41,6 +41,7 @@ Notes:
 ===== Features
 
 * Add support for @aws-sdk/client-s3 ({pull}3287[#3287])
+
 * Add <<capture-body>> support for Fastify instrumentation.
   Contributed by @xxzefgh. ({pull}2681[#2681])
 
