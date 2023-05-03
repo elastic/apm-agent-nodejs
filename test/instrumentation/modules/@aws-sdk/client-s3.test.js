@@ -6,12 +6,21 @@
 
 'use strict'
 
+const semver = require('semver')
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows')
   process.exit(0)
 }
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP @aws-sdk/* instrumentation does not work with contextManager="patch"')
+  process.exit()
+}
+if (semver.lt(process.version, '14.0.0')) {
+  console.log(`# SKIP @aws-sdk min supported node is v14 (node ${process.version})`)
+  process.exit()
+}
 
-// Test S3 instrumentation of the 'aws-sdk' module.
+// Test S3 instrumentation of the '@aws-sdk/client-s3' module.
 //
 // Note that this uses localstack for testing, which mimicks the S3 API but
 // isn't identical. Some known limitations:
@@ -31,24 +40,24 @@ const { validateSpan } = require('../../../_validate_schema')
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost'
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566'
 
-// Execute 'node fixtures/use-s3js' and assert APM server gets the expected
+// Execute 'node fixtures/use-client-s3.js' and assert APM server gets the expected
 // spans.
-tape.test('simple S3 usage scenario', function (t) {
+tape.test('simple S3 V3 usage scenario', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
     const additionalEnv = {
       ELASTIC_APM_SERVER_URL: serverUrl,
       AWS_ACCESS_KEY_ID: 'fake',
       AWS_SECRET_ACCESS_KEY: 'fake',
-      TEST_BUCKET_NAME: 'elasticapmtest-bucket-1',
+      TEST_BUCKET_NAME: 'elasticapmtest-bucket-3',
       TEST_ENDPOINT: endpoint,
       TEST_REGION: 'us-east-2'
     }
     t.comment('executing test script with this env: ' + JSON.stringify(additionalEnv))
-    console.time && console.time('exec use-s3')
+    console.time && console.time('exec use-client-s3')
     execFile(
       process.execPath,
-      ['fixtures/use-s3.js'],
+      ['fixtures/use-client-s3.js'],
       {
         cwd: __dirname,
         timeout: 20000, // sanity guard on the test hanging
@@ -56,13 +65,13 @@ tape.test('simple S3 usage scenario', function (t) {
         env: Object.assign({}, process.env, additionalEnv)
       },
       function done (err, stdout, stderr) {
-        console.timeLog && console.timeLog('exec use-s3')
-        t.error(err, 'use-s3.js did not error out')
+        console.timeLog && console.timeLog('exec use-client-s3')
+        t.error(err, 'use-client-s3.js did not error out')
         if (err) {
           t.comment('err: ' + util.inspect(err))
         }
-        t.comment(`use-s3.js stdout:\n${stdout}\n`)
-        t.comment(`use-s3.js stderr:\n${stderr}\n`)
+        t.comment(`use-client-s3.js stdout:\n${stdout}\n`)
+        t.comment(`use-client-s3.js stderr:\n${stderr}\n`)
         t.ok(server.events[0].metadata, 'APM server got event metadata object')
 
         // Sort the events by timestamp, then work through each expected span.
@@ -93,7 +102,7 @@ tape.test('simple S3 usage scenario', function (t) {
           spans.length, 'all spans have sync=false')
         t.equal(spans.filter(s => s.sample_rate === 1).length,
           spans.length, 'all spans have sample_rate=1')
-        const failingSpanId = spans[8].id // index of `getObjNonExistantObject`
+        const failingSpanId = spans[7].id // index of `getObjNonExistantObject`
         spans.forEach(s => {
           // Remove variable and common fields to facilitate t.deepEqual below.
           delete s.id
@@ -121,71 +130,71 @@ tape.test('simple S3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 's3' }
             },
-            http: { status_code: 200, response: { encoded_body_size: 205 } }
+            http: { status_code: 200 }
           },
           outcome: 'success'
         }, 'listAllBuckets produced expected span')
 
         t.deepEqual(spans.shift(), {
-          name: 'S3 CreateBucket elasticapmtest-bucket-1',
+          name: 'S3 CreateBucket elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'CreateBucket',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
             http: { status_code: 200, response: { encoded_body_size: 177 } }
           },
           otel: {
-            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-3' }
           },
           outcome: 'success'
         }, 'createTheBucketIfNecessary produced expected span')
 
         t.deepEqual(spans.shift(), {
-          name: 'S3 HeadBucket elasticapmtest-bucket-1',
+          name: 'S3 HeadBucket elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'HeadBucket',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 200 }
+            http: { status_code: 200, response: { encoded_body_size: 0 } }
           },
           otel: {
-            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-3' }
           },
           outcome: 'success'
         }, 'waitForBucketToExist produced expected span')
 
         t.deepEqual(spans.shift(), {
-          name: 'S3 PutObject elasticapmtest-bucket-1',
+          name: 'S3 PutObject elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'PutObject',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 200 }
+            http: { status_code: 200, response: { encoded_body_size: 0 } }
           },
           otel: {
             attributes: {
-              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.bucket': 'elasticapmtest-bucket-3',
               'aws.s3.key': 'aDir/aFile.txt'
             }
           },
@@ -193,23 +202,23 @@ tape.test('simple S3 usage scenario', function (t) {
         }, 'createObj produced expected span')
 
         t.deepEqual(spans.shift(), {
-          name: 'S3 HeadObject elasticapmtest-bucket-1',
+          name: 'S3 HeadObject elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'HeadObject',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 200 }
+            http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
           otel: {
             attributes: {
-              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.bucket': 'elasticapmtest-bucket-3',
               'aws.s3.key': 'aDir/aFile.txt'
             }
           },
@@ -217,23 +226,23 @@ tape.test('simple S3 usage scenario', function (t) {
         }, 'waitForObjectToExist produced expected span')
 
         t.deepEqual(spans.shift(), {
-          name: 'S3 GetObject elasticapmtest-bucket-1',
+          name: 'S3 GetObject elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'GetObject',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
             http: { status_code: 200, response: { encoded_body_size: 8 } }
           },
           otel: {
             attributes: {
-              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.bucket': 'elasticapmtest-bucket-3',
               'aws.s3.key': 'aDir/aFile.txt'
             }
           },
@@ -241,72 +250,48 @@ tape.test('simple S3 usage scenario', function (t) {
         }, 'getObj produced expected span')
 
         t.deepEqual(spans.shift(), {
-          name: 'S3 GetObject elasticapmtest-bucket-1',
+          name: 'S3 GetObject elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'GetObject',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
             http: { status_code: 304 }
           },
           otel: {
             attributes: {
-              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.bucket': 'elasticapmtest-bucket-3',
               'aws.s3.key': 'aDir/aFile.txt'
             }
           },
           outcome: 'success'
         }, 'getObjConditionalGet produced expected span')
 
-        t.deepEqual(spans.shift(), {
-          name: 'S3 GetObject elasticapmtest-bucket-1',
-          type: 'storage',
-          subtype: 's3',
-          action: 'GetObject',
-          context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
-            destination: {
-              address: LOCALSTACK_HOST,
-              port: 4566,
-              cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
-            },
-            http: { status_code: 200, response: { encoded_body_size: 8 } }
-          },
-          otel: {
-            attributes: {
-              'aws.s3.bucket': 'elasticapmtest-bucket-1',
-              'aws.s3.key': 'aDir/aFile.txt'
-            }
-          },
-          outcome: 'success'
-        }, 'getObjUsingPromise produced expected span')
-
         // This is the GetObject to a non-existant-key, so we expect a failure.
         t.deepEqual(spans.shift(), {
-          name: 'S3 GetObject elasticapmtest-bucket-1',
+          name: 'S3 GetObject elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'GetObject',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 404, response: { encoded_body_size: 207 } }
+            http: { status_code: 404 }
           },
           otel: {
             attributes: {
-              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.bucket': 'elasticapmtest-bucket-3',
               'aws.s3.key': 'aDir/aFile.txt-does-not-exist'
             }
           },
@@ -318,23 +303,23 @@ tape.test('simple S3 usage scenario', function (t) {
         t.equal(errors[0].exception.type, 'NoSuchKey', 'error.exception.type')
 
         t.deepEqual(spans.shift(), {
-          name: 'S3 DeleteObject elasticapmtest-bucket-1',
+          name: 'S3 DeleteObject elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'DeleteObject',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 204 }
+            http: { status_code: 204, response: { encoded_body_size: 0 } }
           },
           otel: {
             attributes: {
-              'aws.s3.bucket': 'elasticapmtest-bucket-1',
+              'aws.s3.bucket': 'elasticapmtest-bucket-3',
               'aws.s3.key': 'aDir/aFile.txt'
             }
           },
@@ -342,22 +327,22 @@ tape.test('simple S3 usage scenario', function (t) {
         }, 'deleteTheObj produced expected span')
 
         t.deepEqual(spans.shift(), {
-          name: 'S3 DeleteBucket elasticapmtest-bucket-1',
+          name: 'S3 DeleteBucket elasticapmtest-bucket-3',
           type: 'storage',
           subtype: 's3',
           action: 'DeleteBucket',
           context: {
-            service: { target: { type: 's3', name: 'elasticapmtest-bucket-1' } },
+            service: { target: { type: 's3', name: 'elasticapmtest-bucket-3' } },
             destination: {
               address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
-              service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
+              service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 204 }
+            http: { status_code: 204, response: { encoded_body_size: 0 } }
           },
           otel: {
-            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
+            attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-3' }
           },
           outcome: 'success'
         }, 'deleteTheBucketIfCreatedIt produced expected span')

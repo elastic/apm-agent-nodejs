@@ -15,7 +15,7 @@
 //      export ELASTIC_APM_SERVER_URL=...
 //      export ELASTIC_APM_SECRET_TOKEN=...
 // - Start the small GraphQL server:
-//      node examples/trace-express-graphql.js
+//      node examples/trace-apollo-server-express.js
 // - Make a GraphQL client request. E.g.:
 //      curl -i localhost:3000/graphql -X POST -H content-type:application/json -d'{"query":"query HelloQuery { hello }"}'
 //

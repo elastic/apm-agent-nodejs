@@ -989,7 +989,6 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 })
 
 test('disableInstrumentations', function (t) {
-  var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
@@ -1002,9 +1001,7 @@ test('disableInstrumentations', function (t) {
   if (isHapiIncompat('@hapi/hapi')) {
     modules.delete('@hapi/hapi')
   }
-  if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
-    modules.delete('express-graphql')
-  }
+  modules.delete('express-graphql')
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
     modules.delete('@elastic/elasticsearch') // - Version 7.12.0 dropped support for node v8.
   }
@@ -1056,10 +1053,10 @@ test('disableInstrumentations', function (t) {
     modules.delete('@redis/client/dist/lib/client') // redis@4 supports node >=14
     modules.delete('@redis/client/dist/lib/client/commands-queue') // redis@4 supports node >=14
   }
-
   // @node-redis only present for redis >4 <4.1 --
   modules.delete('@node-redis/client/dist/lib/client') // redis@4 supports node >=14
   modules.delete('@node-redis/client/dist/lib/client/commands-queue') // redis@4 supports node >=14
+  modules.delete('mysql2')
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)

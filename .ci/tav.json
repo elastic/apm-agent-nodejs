@@ -3,6 +3,7 @@
   "versions": [ "20", "18", "16", "14", "12", "10", "8" ],
   "modules": [
     "@apollo/server",
+    "@aws-sdk/client-s3",
     "@elastic/elasticsearch",
     "@elastic/elasticsearch-canary",
     "@hapi/hapi",
@@ -13,7 +14,6 @@
     "cassandra-driver",
     "elasticsearch",
     "express",
-    "express-graphql",
     "express-queue",
     "fastify",
     "finalhandler",

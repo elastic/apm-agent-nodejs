@@ -50,7 +50,7 @@ The following deprecated API's has been removed:
 [[v3-changes-in-collected-data]]
 ==== Changes in collected data
 
-When instrumenting a GraphQL server that is run by either https://www.npmjs.com/package/apollo-server-express[`apollo-server-express`] or https://www.npmjs.com/package/express-graphql[`express-graphql`],
+When instrumenting a GraphQL server that is run by https://www.npmjs.com/package/apollo-server-express[`apollo-server-express`]
 the Transaction type is now `graphql` instead of `request`.
 
 All Spans whose type was previously `ext` is now `external`.

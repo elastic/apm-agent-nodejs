@@ -40,6 +40,13 @@ Notes:
 [float]
 ===== Features
 
+* Add support for @aws-sdk/client-s3 ({pull}3287[#3287])
+
+* Add <<capture-body>> support for Fastify instrumentation.
+  Contributed by @xxzefgh. ({pull}2681[#2681])
+
+* Add support for mysql2@3. Contributed by @firecow. ({pull}3301[#3301])
+
 * Improve error handling with AWS Lambda. When used together with the
   https://github.com/elastic/apm-aws-lambda[Elastic AWS Lambda extension]
   v1.4.0 or greater, the APM agent will pre-register a partial transaction
@@ -60,6 +67,9 @@ Notes:
 
 [float]
 ===== Chores
+
+* Stop testing `express-graphql` instrumentation -- the module is deprecated.
+  ({pull}3304[#3304])
 
 
 [[release-notes-3.45.0]]
