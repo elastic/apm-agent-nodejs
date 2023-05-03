@@ -40,6 +40,9 @@ Notes:
 [float]
 ===== Features
 
+* Add <<capture-body>> support for Fastify instrumentation.
+  Contributed by @xxzefgh. ({pull}2681[#2681])
+
 * Add support for mysql2@3. Contributed by @firecow. ({pull}3301[#3301])
 
 * Improve error handling with AWS Lambda. When used together with the
