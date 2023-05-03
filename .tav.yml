@@ -75,8 +75,8 @@ redis:
   name: redis
   versions: '>=4.0.0 <5.0.0'
   commands:
-   - node test/instrumentation/modules/redis.test.js
-   - node test/instrumentation/modules/redis4-legacy.test.js
+    - node test/instrumentation/modules/redis.test.js
+    - node test/instrumentation/modules/redis4-legacy.test.js
 
 # We want these version ranges:
 #   # v3.1.3 is broken in older versions of Node because of https://github.com/luin/ioredis/commit/d5867f7c7f03a770a8c0ca5680fdcbfcaf8488e7
@@ -536,6 +536,22 @@ aws-sdk:
     - node test/instrumentation/modules/aws-sdk/sns.test.js
     - node test/instrumentation/modules/aws-sdk/sqs.test.js
     - node test/instrumentation/modules/aws-sdk/dynamodb.test.js
+
+'@aws-sdk/client-s3':
+  # We want this version range:
+  #   versions: '>=3 <4'
+  # However, @awk-sdk/client-s3 releases *very* frequently (almost every day) and there
+  # is no need to test *all* those releases. Instead we statically list a subset
+  # of versions to test.
+  #
+  # Maintenance note: This should be updated periodically using:
+  #   ./dev-utils/aws-sdk-s3-client-tav-versions.sh
+  #
+  # Test v3.0.0, every N=41 of 210 releases, and current latest
+  versions: '3.0.0 || 3.36.0 || 3.86.0 || 3.171.0 || 3.245.0 || 3.315.0 || 3.321.1 || >3.321.1 <4'
+  commands:
+    - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
+  node: '>=14'
 
 # - undici@4.7.0 added its diagnostics_channel support.
 # - In undici@4.7.1 the `request.origin` property was added, which we need
