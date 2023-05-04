@@ -20,7 +20,6 @@ set -o errexit
 set -o pipefail
 
 branch=main
-branch=test/action-tav
 latestTavRun=$(gh run list -R elastic/apm-agent-nodejs -b "$branch" -w TAV -L 1 --json databaseId --jq '.[].databaseId')
 gh api --paginate repos/elastic/apm-agent-nodejs/actions/runs/$latestTavRun/jobs \
     | json -ga jobs \
