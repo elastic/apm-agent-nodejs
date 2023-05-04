@@ -35,6 +35,6 @@
     "ws",
     "@koa/router,koa-router",
     "handlebars,pug",
-    "bluebird,got,mimic-response"
+    "bluebird,got"
   ]
 }
