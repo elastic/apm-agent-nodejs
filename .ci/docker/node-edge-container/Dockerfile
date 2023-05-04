@@ -21,7 +21,7 @@ ENV NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR}
 ENV ELASTIC_APM_CONTEXT_MANAGER=${ELASTIC_APM_CONTEXT_MANAGER}
 
 # nvm environment variables
-ENV NVM_VERSION v0.34.0
+ENV NVM_VERSION v0.39.3
 ENV NVM_DIR /usr/local/nvm
 RUN mkdir $NVM_DIR
 RUN curl --silent -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash
