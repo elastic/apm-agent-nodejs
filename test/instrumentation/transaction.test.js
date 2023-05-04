@@ -452,9 +452,14 @@ test('#_encode() - http request meta data', function (t) {
         host: 'example.com',
         'user-agent': 'user-agent-header',
         'content-length': 42,
-        cookie: 'cookie1=foo; cookie2=bar',
+        // cookie: 'cookie1=foo; cookie2=bar',
         'x-foo': 'bar',
         'x-bar': 'baz'
+      },
+      cookies: {
+        cookie1: 'foo',
+        cookie2: 'bar',
+        'session-id': '[REDACTED]'
       },
       body: '[REDACTED]'
     }
@@ -648,7 +653,7 @@ function mockRequest () {
       host: 'example.com',
       'user-agent': 'user-agent-header',
       'content-length': 42,
-      cookie: 'cookie1=foo;cookie2=bar',
+      cookie: 'cookie1=foo;cookie2=bar;session-id=secret',
       'x-foo': 'bar',
       'x-bar': 'baz'
     },
