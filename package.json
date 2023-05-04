@@ -123,6 +123,7 @@
     "unicode-byte-truncate": "^1.0.0"
   },
   "devDependencies": {
+    "@apollo/server": "^4.2.2",
     "@aws-sdk/client-s3": "^3.319.0",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
@@ -164,7 +165,7 @@
     "generic-pool": "^3.7.1",
     "get-port": "^5.1.1",
     "got": "^11.8.5",
-    "graphql": "^15.8.0",
+    "graphql": "^16.6.0",
     "handlebars": "^4.7.3",
     "https-pem": "^3.0.0",
     "ioredis": "^5.1.0",

@@ -1041,6 +1041,9 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '14.8.0')) {
     modules.delete('restify')
   }
+  if (semver.lt(process.version, '14.16.0')) {
+    modules.delete('@apollo/server')
+  }
   modules.delete('next/dist/server/api-utils/node')
   modules.delete('next/dist/server/dev/next-dev-server')
   modules.delete('next/dist/server/next')
