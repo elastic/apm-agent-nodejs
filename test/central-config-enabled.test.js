@@ -6,8 +6,7 @@
 
 'use strict'
 
-const existingValue = process.env.ELASTIC_APM_CENTRAL_CONFIG
-delete process.env.ELASTIC_APM_CENTRAL_CONFIG
+delete process.env.ELASTIC_APM_CENTRAL_CONFIG // In case this is set, don't let it break the test.
 
 const { URL } = require('url')
 const http = require('http')
@@ -58,10 +57,6 @@ const runTestsWithServer = (t, updates, expect) => {
       metricsInterval: 0,
       centralConfig: true
     })
-  })
-
-  t.on('end', function () {
-    if (existingValue) process.env.ELASTIC_APM_CENTRAL_CONFIG = existingValue
   })
 }
 
