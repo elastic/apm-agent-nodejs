@@ -189,7 +189,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 [options="header"]
 |=================================================
 |Module |Version |Note
-|https://www.npmjs.com/package/knex[knex] |>=0.9.0 <1.0.0 | Provides better span stack traces for 'pg' and 'mysql' spans. Instrumentation of Knex >=0.95.0 is not supported when using the deprecated <<context-manager,`contextManager=patch`>> configuration option.
+|https://www.npmjs.com/package/knex[knex] |>=0.10.0 <1.0.0 | Provides better span stack traces for 'pg' and 'mysql' spans. Instrumentation of Knex >=0.95.0 is not supported when using the deprecated <<context-manager,`contextManager=patch`>> configuration option.
 |=================================================
 
 [float]
