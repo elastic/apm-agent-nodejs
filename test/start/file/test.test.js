@@ -6,6 +6,11 @@
 
 'use strict'
 
+// Test that agent start will pick up config from an "elastic-apm-node.js" file
+// in the cwd.
+
+process.chdir(__dirname)
+
 var agent = require('../../..').start({
   disableSend: true
 })
