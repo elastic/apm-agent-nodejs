@@ -588,6 +588,11 @@ Another side-effect is that the APM agent does not log the uncaught exception
 to stderr by default. Use <<log-uncaught-exceptions, `logUncaughtExceptions: true`>>
 to have the agent print the exception to stderr before exiting.
 
+Unhandled rejections (https://nodejs.org/api/process.html#event-unhandledrejection[`unhandledRejection`])
+will also be captured if your node process starts with `--unhandled-rejections` mode set to
+`strict` or `throw`. If your application run on Node.js 15+ you don't need to explitcitly set the mode
+since `throw` is the default (https://nodejs.org/api/cli.html#--unhandled-rejectionsmode[reference]).
+
 [[log-uncaught-exceptions]]
 ==== `logUncaughtExceptions`
 
