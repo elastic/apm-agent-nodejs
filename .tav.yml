@@ -11,29 +11,28 @@ generic-pool:
   versions: ^2.0.0 || ^3.1.0
   commands: node test/instrumentation/modules/generic-pool.test.js
 
-mimic-response:
-  versions: ^1.0.0
-  commands:
-    - node test/instrumentation/modules/mimic-response.test.js
-    - node test/instrumentation/modules/http/github-179.test.js
-
 # Testing 'got' was initially added to test an issue in its usage of
 # mimic-response@1.0.0. However, this test case serves to sanity test 'got'
 # usage with the agent. Got@12 is pure ESM, so cannot currently be tested with
 # the current test script.
+#
+# Supported got versions: '>=4 <12'. As of v11.8.6, this range includes 103
+# got versions. Testing all these versions as a "sanity test" is a waste of
+# resources. Instead we test just a few: the latest 8.x, 9.x, and 10.x (all
+# no longer getting releases); and >=11.8.6.
 got-v4-v9:
   name: got
-  versions: '>=4.0.0 <9.0.0'
+  versions: '8.3.2'
   node: '>=5'
   commands: node test/instrumentation/modules/http/github-423.test.js
 got-v9:
   name: got
-  versions: ^9.0.0
+  versions: '9.6.0'
   node: '>=8.3'
   commands: node test/instrumentation/modules/http/github-423.test.js
 got-v10-v12:
   name: got
-  versions: '>=10.0.0 <10.5.1 || >10.5.1 <12' # v10.5.1 is broken
+  versions: '10.7.0 || >=11.8.6 <12'
   node: '>=10.16.0'
   commands: node test/instrumentation/modules/http/github-423.test.js
 
@@ -109,10 +108,11 @@ pg-old-node:
   name: pg
   # We want this version range:
   #   versions: '>=4 <9'
-  # but only the latest MAJOR.MINOR.x to reduce the test matrix.
+  # but test a subset to reduce the test matrix. The last 4.x release was in
+  # 2017, 5.x in 2017, 6.x in 2017, 7.x in 2020.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '4.0.0 || 4.1.1 || 4.2.0 || 4.3.0 || 4.4.6 || 4.5.7 || 5.0.0 || 5.1.0 || 5.2.1 || 6.0.5 || 6.1.6 || 6.2.5 || 6.3.3 || 6.4.2 || 7.0.3 || 7.1.2 || 7.2.0 || 7.3.0 || 7.4.3 || 7.5.0 || 7.6.1 || 7.7.1 || 7.8.2 || 7.9.0 || 7.10.0 || 7.11.0 || 7.12.1 || 7.13.0 || 7.14.0 || 7.15.2 || 7.16.1 || 7.17.1 || 7.18.2 || 8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || >8.6.0 <9'
+  versions: '4.0.0 || 4.5.7 || 5.2.1 || 6.4.2 || 7.18.2 || 8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
   node: '<14'
   peerDependencies:
     - bluebird@^3.0.0
@@ -127,7 +127,7 @@ pg-new-node:
   # but only the latest MAJOR.MINOR.x to reduce the test matrix.
   #
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
-  versions: '8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || >8.6.0 <9'
+  versions: '8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
   node: '>=14'
   peerDependencies:
     - bluebird@^3.0.0
@@ -135,8 +135,11 @@ pg-new-node:
   commands:
     - node test/instrumentation/modules/pg/pg.test.js
     - node test/instrumentation/modules/pg/knex.test.js
+
+# Latest mongodb-core release (v3.2.7) was released in 2019. We test a subset
+# of the full supported range.
 mongodb-core:
-  versions: '>=1.2.19 <4'
+  versions: '1.2.19 || 1.2.32 || 1.3.21 || 2.0.14 || 2.1.20 || 3.0.11 || 3.1.11 || 3.2.7' # latest minors subset of '>=1.2.19 <4'
   commands: node test/instrumentation/modules/mongodb-core.test.js
 
 mongodb-3:
@@ -154,30 +157,37 @@ mongodb:
   node: '>=14.20.1'
   commands: node test/instrumentation/modules/mongodb.test.js
 
+# Bluebird is effectively deprecated (https://github.com/petkaantonov/bluebird#%EF%B8%8Fnote%EF%B8%8F).
+# Testing the full set of supported bluebird releases (`>=2 <4`) is currently
+# 119 releases. The last release was in 2019. Testing that many is a waste of
+# resources. Instead we test just the latest 3.x release.
 bluebird:
-  versions: '>=2 <4'
+  versions: '3.7.2'
   commands:
     - node test/instrumentation/modules/bluebird/bluebird.test.js
     - node test/instrumentation/modules/bluebird/cancel.test.js
+
 # knex (https://github.com/knex/knex/blob/master/UPGRADING.md)
 # - knex 0.18.0 min supported node is v8
 # - knex 0.21.0 min supported node is v10
 # - knex 1.0.0 min supported node is v12
 knex-v0.9-v0.17:
   name: knex
-  # v0.16.4 accidentally dropped support for Node.js 6
-  versions: ^0.16.5 || <0.16.4 >=0.16.0 || ^0.15.0 || ^0.14.0 || ^0.13.0 || ^0.12.5 || <0.12.4 >0.11.6 || <0.11.6 >0.9.0
+  # Latest 0.16 release was in 2019, therefore only test first and last in this range.
+  versions: '0.9.0 || 0.16.5'
   commands: node test/instrumentation/modules/pg/knex.test.js
 knex-v0.17-v0.21:
   name: knex
   node: '>=8.6.0'
-  versions: '>=0.17 <0.21'
+  # Latest 0.20.x release was 2020-04, there only test first and last in this range.
+  versions: '0.17.0 || 0.20.15'
   commands: node test/instrumentation/modules/pg/knex.test.js
 knex-v0.21-v1:
   name: knex
   node: '>=10.22.0'
-  versions: '>=0.21 <1' # Use '<1' to catch a 0.96.x release if there ever is one.
+  versions: '0.21.21 || 0.95.15' # latest minors subset of '>=0.21 <1'
   commands: node test/instrumentation/modules/pg/knex.test.js
+
 ws-old:
   name: ws
   versions: '>=1 <7'
@@ -371,26 +381,24 @@ pug:
 tedious-v1-v11:
   name: tedious
   node: '>=6'
-  # - tedious@4.0.0 was broken, fixed in 4.0.1 by https://github.com/tediousjs/tedious/commit/4eceb48
-  versions: '^1.9.0 || 2.x || 3.x || ^4.0.1 || 5.x || 6.x || 7.x || 8.x || 9.x || 10.x'
+  # latest majors subset of '>=1.9.0 <4.0.0 || >4.0.1 <11'
+  versions: '1.9.0 || 1.15.0 || 2.7.1 || 3.0.1 || 4.2.0 || 5.0.3 || 6.7.1 || 7.0.0 || 8.3.1 || 9.2.3 || 10.0.0'
   commands: node test/instrumentation/modules/tedious.test.js
-
 tedious-v11-v12:
   name: tedious
   node: '>=10.17.0'
-  versions: '11.x'
+  versions: '11.0.0 || 11.8.0' # first and last subset of '11.x'
   commands: node test/instrumentation/modules/tedious.test.js
-
 tedious-v12-v15:
   name: tedious
   node: '>=12.3.0'
-  versions: '12.x || 13.x || 14.x'
+  # first and last majors subset of '12.x || 13.x || 14.x'
+  versions: '12.0.0 || 12.3.0 || 13.0.0 || 13.2.0 || 14.0.0 || 14.7.0 || >14.7.0 <15'
   commands: node test/instrumentation/modules/tedious.test.js
-
 tedious:
   name: tedious
   node: '>=14'
-  versions: '15.x'
+  versions: '15.0.0 || 15.1.3 || >15.1.3 <16' # first and last majors subset of '15.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
 cassandra-driver:
@@ -440,7 +448,7 @@ restify-v10-v12:
 #   for fastify >=3.
 fastify-v1:
   name: fastify
-  versions: '1.x'
+  versions: '1.0.0 || 1.14.6' # subset of '1.x'
   node: '>=6 <12'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
@@ -448,7 +456,7 @@ fastify-v1:
     - node test/instrumentation/modules/fastify/set-framework.test.js
 fastify-v2:
   name: fastify
-  versions: '>=2.0.0 <2.4.0 || >2.4.0 <3'
+  versions: '2.0.0 || 2.15.3' # subset of '>=2.0.0 <2.4.0 || >2.4.0 <3'
   node: '>=6 <15'
   commands:
     - node test/instrumentation/modules/fastify/fastify.test.js
@@ -456,7 +464,8 @@ fastify-v2:
     - node test/instrumentation/modules/fastify/set-framework.test.js
 fastify-v3:
   name: fastify
-  versions: '>=3.0.0 <4'
+  # Update versions periodically with "./dev-utils/tav-versions-fastify.sh".
+  versions: '3.0.0 || 3.6.0 || 3.14.2 || 3.20.1 || 3.24.0 || 3.29.0 || 3.29.5 || >3.29.5 <4' # subset of '>=3 <4'
   peerDependencies: '@fastify/formbody@^6.0.1'
   node: '>=10'
   commands:
@@ -466,7 +475,8 @@ fastify-v3:
     - node test/sanitize-field-names/fastify.test.js
 fastify:
   name: fastify
-  versions: '>=4 <4.0.1 || >4.0.1 <4.16.0 || >4.16.2'
+  # Update versions periodically with "./dev-utils/tav-versions-fastify.sh".
+  versions: '4.0.0 || 4.2.1 || 4.5.2 || 4.8.1 || 4.10.1 || 4.14.0 || 4.17.0 || >4.17.0' # subset of '>=4 <4.0.1 || >4.0.1 <4.16.0 || >4.16.2'
   peerDependencies: '@fastify/formbody@^7'
   node: '>=14.6.0'
   commands:
@@ -498,8 +508,8 @@ aws-sdk:
   # Maintenance note: This should be updated periodically using:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
-  # Test v2.858.0, every N=88 of 445 releases, and current latest.
-  versions: '2.858.0 || 2.946.0 || 2.1034.0 || 2.1122.0 || 2.1210.0 || 2.1298.0 || 2.1302.0 || >2.1302.0 <3'
+  # Test v2.858.0, every N=102 of 515 releases, and current latest.
+  versions: '2.858.0 || 2.960.0 || 2.1062.0 || 2.1164.0 || 2.1266.0 || 2.1368.0 || 2.1372.0 || >2.1372.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js

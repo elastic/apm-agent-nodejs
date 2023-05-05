@@ -1139,6 +1139,10 @@ test('new Promise -> timeout (reject in time)', function (t) {
 })
 
 test('new Promise -> timeout (timed out)', function (t) {
+  // Allowable number of ms of slop in the `.timeout(N)` actual time.
+  // Anecdotally, I have seen +/- 6ms locally and in CI.
+  const SLOP_MS = 10
+
   t.plan(6)
   twice(function () {
     var trans = ins.startTransaction()
@@ -1151,11 +1155,13 @@ test('new Promise -> timeout (timed out)', function (t) {
     }).timeout(50).then(function () {
       t.fail('should not resolve')
     }).catch(function (err) {
-      var expected = start + 49 // timings are hard
-      var now = Date.now()
-      t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
-      t.ok(err instanceof Promise.TimeoutError)
-      t.strictEqual(ins.currTransaction().id, trans.id)
+      // You would think elapsed would always be >=50ms, but in busy CI I have
+      // seen slightly *less than* 50ms.
+      var elapsedMs = Date.now() - start
+      var diffMs = Math.abs(50 - elapsedMs)
+      t.ok(diffMs <= SLOP_MS, `.timeout(50) resulted in 50 +/- ${SLOP_MS}, actual elapsed was ${elapsedMs}ms`)
+      t.ok(err instanceof Promise.TimeoutError, 'err')
+      t.strictEqual(ins.currTransaction().id, trans.id, 'transaction.id')
     })
   })
 })
