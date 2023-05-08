@@ -986,24 +986,6 @@ The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to 
 This configuration is *deprecated* and will be removed in a future major version. If you whish to filter or or _redact_ other 
 data the <<apm-add-filter,API filtering functions>> or <<sanitize-field-names, Sanitize fields configuration>> may be a better choice.
 
-
-When tracing an incoming HTTP request,
-the agent will add metadata about the requests to the recorded transaction.
-The same applies for errors that occur and are captured as a result of the request.
-
-This boolean specifies if the agent should anonymize certain sensitive HTTP headers by default before they are sent to the APM Server.
-When anonymized,
-the header value will be set to `[REDACTED]`
-
-Currently, the following HTTP headers are anonymized by default:
-
-* `Authorization` - The full value of this header is redacted.  In versions of the agent greater than v3.9, the authorization header is redacted by the default configuration of <<sanitize-field-names>>.
-* `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
-  See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
-
-If you wish to filter or sanitize other data,
-use one of the <<apm-add-filter,filtering>> functions.
-
 [[disable-instrumentations]]
 ==== `disableInstrumentations`
 
