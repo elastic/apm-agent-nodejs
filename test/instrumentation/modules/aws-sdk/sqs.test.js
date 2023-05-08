@@ -11,23 +11,15 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../../..').start({
-  serviceName: 'test',
-  secretToken: 'test',
-  cloudProvider: 'none',
-  captureExceptions: false,
-  metricsInterval: 0,
-  centralConfig: false
-})
+const { execFile } = require('child_process')
+const util = require('util')
 
 const AWS = require('aws-sdk')
-const bodyParser = require('body-parser')
-const express = require('express')
 const tape = require('tape')
 
-const fixtures = require('./fixtures/sqs')
 const logging = require('../../../../lib/logging')
-const mockClient = require('../../../_mock_http_client')
+const { MockAPMServer } = require('../../../_mock_apm_server')
+const { validateSpan } = require('../../../_validate_schema')
 
 const {
   getToFromFromOperation,
@@ -38,58 +30,11 @@ const {
   shouldIgnoreRequest
 } = require('../../../../lib/instrumentation/modules/aws-sdk/sqs')
 
-// ---- support functions
-
-function awsPromiseFinally (agent, listener) {
-  agent.endTransaction()
-  listener.close()
-}
-
-function createMockServer (xmlResponse) {
-  const app = express()
-  app._receivedReqs = []
-  app.use(bodyParser.urlencoded({ extended: false }))
-  app.post('/', (req, res) => {
-    app._receivedReqs.push({
-      method: req.method,
-      url: req.url,
-      headers: req.headers,
-      body: req.body
-    })
-    res.setHeader('Content-Type', 'text/xml')
-    res.send(xmlResponse)
-  })
-  return app
-}
-
-function getXmlResponse (method) {
-  return fixtures[method].response
-}
-
-function getParams (method, port) {
-  const params = fixtures[method].request
-  params.QueueUrl = `http://localhost:${port}/1/our-queue`
-  return params
-}
-
-function initializeAwsSdk () {
-  // SDk requires a region to be set
-  AWS.config.update({ region: 'us-west' })
-
-  // without fake credentials the aws-sdk will attempt to fetch
-  // credentials as though it was on an EC2 instance
-  process.env.AWS_ACCESS_KEY_ID = 'fake-1'
-  process.env.AWS_SECRET_ACCESS_KEY = 'fake-2'
-}
-
-function resetAgent (cb) {
-  agent._instrumentation.testReset()
-  agent._transport = mockClient(cb)
-}
+const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost'
+const LOCALSTACK_PORT = 4566
+const ENDPOINT = 'http://' + LOCALSTACK_HOST + ':' + LOCALSTACK_PORT
 
 // ---- tests
-
-initializeAwsSdk()
 
 tape.test('unit tests', function (suite) {
   suite.test('function getToFromFromOperation', function (t) {
@@ -252,543 +197,350 @@ tape.test('unit tests', function (suite) {
   suite.end()
 })
 
-tape.test('AWS SQS: End to End Tests', function (suite) {
-  suite.test('API: sendMessage', function (t) {
-    const app = createMockServer(
-      getXmlResponse('sendMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
-        t.equals(spanSqs.name, 'SQS SEND to our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'send', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+// Execute 'node fixtures/use-sqs.js' and assert APM server gets the expected
+// spans.
+// XXX only
+tape.test.only('SQS usage scenario', function (t) {
+  const server = new MockAPMServer()
+  server.start(function (serverUrl) {
+    const additionalEnv = {
+      ELASTIC_APM_SERVER_URL: serverUrl,
+      AWS_ACCESS_KEY_ID: 'fake',
+      AWS_SECRET_ACCESS_KEY: 'fake',
+      TEST_QUEUE_NAME: 'elasticapmtest-queue-1',
+      TEST_ENDPOINT: ENDPOINT,
+      TEST_REGION: 'us-east-2'
+    }
+    t.comment('executing test script with this env: ' + JSON.stringify(additionalEnv))
+    console.time && console.time('exec use-s3')
+    execFile(
+      process.execPath,
+      ['fixtures/use-sqs.js'],
+      {
+        cwd: __dirname,
+        timeout: 20000, // sanity guard on the test hanging
+        maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
+        env: Object.assign({}, process.env, additionalEnv)
+      },
+      function done (err, stdout, stderr) {
+        console.timeLog && console.timeLog('exec use-s3')
+        t.error(err, 'use-sqs.js did not error out')
+        if (err) {
+          t.comment('err: ' + util.inspect(err))
+        }
+        t.comment(`use-sqs.js stdout:\n${stdout}\n`)
+        t.comment(`use-sqs.js stderr:\n${stderr}\n`)
+        t.ok(server.events[0].metadata, 'APM server got event metadata object')
 
-        // Ensure the request sent to SQS included trace-context in message
-        // attributes.  The mock server parses the sent urlencoded body into an
-        // object on req.body.
-        t.equal(app._receivedReqs.length, 1)
-        const req = app._receivedReqs[0]
-        t.equal(req.body.Action, 'SendMessage', 'req.body.Action')
-        // The fixture has 3 message attributes, so traceparent and tracestate
-        // should be attributes 4 and 5.
-        t.equal(req.body['MessageAttribute.4.Name'], 'traceparent', 'traceparent message attribute Name')
-        t.equal(req.body['MessageAttribute.4.Value.DataType'], 'String', 'traceparent message attribute DataType')
-        t.equal(req.body['MessageAttribute.4.Value.StringValue'], `00-${spanSqs.trace_id}-${spanSqs.id}-01`, 'traceparent message attribute StringValue')
-        t.equal(req.body['MessageAttribute.5.Name'], 'tracestate', 'tracestate message attribute Name')
-        t.equal(req.body['MessageAttribute.5.Value.DataType'], 'String', 'tracestate message attribute DataType')
-        t.equal(req.body['MessageAttribute.5.Value.StringValue'], 'es=s:1', 'tracestate message attribute StringValue')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('sendMessage', listener.address().port)
-      sqs.sendMessage(params, function (err, data) {
-        t.error(err)
-        t.ok(agent.currentSpan === null, 'no currentSpan in sqs.sendMessage callback')
-        agent.endTransaction()
-        listener.close()
-      })
-      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after sqs.sendMessage')
-    })
-  })
-
-  suite.test('API: sendMessageBatch', function (t) {
-    const app = createMockServer(
-      getXmlResponse('sendMessageBatch')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
-
-        t.equals(spanSqs.name, 'SQS SEND_BATCH to our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-
-        // Ensure the request sent to SQS included trace-context in message
-        // attributes.  The mock server parses the sent urlencoded body into an
-        // object on req.body.
-        t.equal(app._receivedReqs.length, 1)
-        const req = app._receivedReqs[0]
-        t.equal(req.body.Action, 'SendMessageBatch', 'req.body.Action')
-        // The fixture has 3 message attributes, so traceparent and tracestate
-        // should be attributes 4 and 5.
-        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.4.Name'], 'traceparent', 'traceparent message attribute Name')
-        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.4.Value.DataType'], 'String', 'traceparent message attribute DataType')
-        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.4.Value.StringValue'], `00-${spanSqs.trace_id}-${spanSqs.id}-01`, 'traceparent message attribute StringValue')
-        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.5.Name'], 'tracestate', 'tracestate message attribute Name')
-        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.5.Value.DataType'], 'String', 'tracestate message attribute DataType')
-        t.equal(req.body['SendMessageBatchRequestEntry.1.MessageAttribute.5.Value.StringValue'], 'es=s:1', 'tracestate message attribute StringValue')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('sendMessageBatch', listener.address().port)
-      sqs.sendMessageBatch(params, function (err, data) {
-        t.error(err)
-        agent.endTransaction()
-        listener.close()
-      })
-    })
-  })
-
-  // Test that SQS trace-context propagation works properly when called in an
-  // unsampled transaction.
-  suite.test('API: sendMessage, unsampled transaction', function (t) {
-    const app = createMockServer(
-      getXmlResponse('sendMessage')
-    )
-    const listener = app.listen(0, function () {
-      // Note: This test is relying on _mock_http_client behaving like a
-      // a pre-8.0 APM server, where unsampled transactions are still
-      // sent to APM server (`supportsKeepingUnsampledTransaction()` -> true).
-      resetAgent(function (data) {
-        t.equal(data.spans.length, 0, 'no SQS span was sent')
-
-        // Ensure the request sent to SQS included trace-context in message
-        // attributes.  The mock server parses the sent urlencoded body into an
-        // object on req.body.
-        t.equal(app._receivedReqs.length, 1)
-        const req = app._receivedReqs[0]
-        t.equal(req.body.Action, 'SendMessage', 'req.body.Action')
-        // The fixture has 3 message attributes, so traceparent should be
-        // attr 4. No 'tracestate' should be sent for a non-root transaction.
-        t.equal(req.body['MessageAttribute.4.Name'], 'traceparent', 'traceparent message attribute Name')
-        t.equal(req.body['MessageAttribute.4.Value.DataType'], 'String', 'traceparent message attribute DataType')
-        t.equal(req.body['MessageAttribute.4.Value.StringValue'], t0.traceparent, 'traceparent message attribute StringValue')
-        t.equal(req.body['MessageAttribute.5.Name'], undefined, 'there is no "tracestate" message attribute')
-
-        t.end()
-      })
-
-      const TRACEPARENT_SAMPLED_FALSE = '00-12345678901234567890123456789012-1234567890123456-00'
-      const t0 = agent.startTransaction('t0', { childOf: TRACEPARENT_SAMPLED_FALSE })
-
-      setImmediate(() => {
-        const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-        const params = getParams('sendMessage', listener.address().port)
-        sqs.sendMessage(params, function (err, data) {
-          t.error(err)
-          t0.end()
-          listener.close()
+        // Sort the events by timestamp, then work through each expected span.
+        const events = server.events.slice(1)
+          // Filter out "metadata" events from possible multiple intake requests.
+          .filter(e => !e.metadata)
+        events.sort((a, b) => {
+          const aTimestamp = (a.transaction || a.span || a.error || {}).timestamp
+          const bTimestamp = (b.transaction || b.span || b.error || {}).timestamp
+          return aTimestamp < bTimestamp ? -1 : 1
         })
-      })
-    })
-  })
+        console.log('XXX events:'); console.dir(events, { depth: 5 })
 
-  suite.test('API: deleteMessage', function (t) {
-    const app = createMockServer(
-      getXmlResponse('deleteMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
+        // First the transaction.
+        t.ok(events[0].transaction, 'got the transaction')
+        const tx = events.shift().transaction
 
-        t.equals(spanSqs.name, 'SQS DELETE from our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'delete', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('deleteMessage', listener.address().port)
-      sqs.deleteMessage(params, function (err, data) {
-        t.error(err)
-        agent.endTransaction()
-        listener.close()
-      })
-    })
-  })
-
-  suite.test('API: deleteMessageBatch', function (t) {
-    const app = createMockServer(
-      getXmlResponse('deleteMessageBatch')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
-
-        t.equals(spanSqs.name, 'SQS DELETE_BATCH from our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('deleteMessageBatch', listener.address().port)
-      sqs.deleteMessageBatch(params, function (err, data) {
-        t.error(err)
-        agent.endTransaction()
-        listener.close()
-      })
-    })
-  })
-
-  suite.test('API: receiveMessage', function (t) {
-    const app = createMockServer(
-      getXmlResponse('receiveMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
-
-        t.equals(spanSqs.name, 'SQS POLL from our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'poll', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-        t.deepEqual(spanSqs.links, [{
-          trace_id: '460d51b6ed3ab96be45f2580b8016509',
-          span_id: '8ba4419207a1f2f8'
-        }], 'span.links')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('receiveMessage', listener.address().port)
-      sqs.receiveMessage(params, function (err, data) {
-        t.error(err)
-        agent.endTransaction()
-        listener.close()
-      })
-    })
-  })
-
-  suite.test('API: receiveMessage no transaction', function (t) {
-    const app = createMockServer(
-      getXmlResponse('receiveMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 0, 'no spans without a transaction')
-        t.end()
-      })
-
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('receiveMessage', listener.address().port)
-      sqs.receiveMessage(params, function (err, data) {
-        t.error(err)
-        listener.close()
-      })
-    })
-  })
-
-  suite.test('API: sendMessage without a transaction', function (t) {
-    const app = createMockServer(
-      getXmlResponse('sendMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 0, 'no spans without a transaction')
-        t.end()
-      })
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('sendMessage', listener.address().port)
-      sqs.sendMessage(params, function (err, data) {
-        t.error(err)
-        listener.close()
-      })
-    })
-  })
-
-  suite.test('API: sendMessageBatch without a transaction', function (t) {
-    const app = createMockServer(
-      getXmlResponse('sendMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 0, 'no spans without a transaction')
-        t.end()
-      })
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('sendMessageBatch', listener.address().port)
-      sqs.sendMessageBatch(params, function (err, data) {
-        t.error(err)
-        listener.close()
-      })
-    })
-  })
-
-  suite.test('API: sendMessage promise', function (t) {
-    const app = createMockServer(
-      getXmlResponse('sendMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
-
-        t.equals(spanSqs.name, 'SQS SEND to our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'send', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('sendMessage', listener.address().port)
-      const request = sqs.sendMessage(params).promise()
-      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after sqs.sendMessage(...).promise()')
-
-      request.then(
-        function (data) {
-          t.ok(agent.currentSpan === null, 'no currentSpan in SQS promise resolve')
-          awsPromiseFinally(agent, listener)
-        },
-        function (err) {
-          t.ok(agent.currentSpan === null, 'no currentSpan in SQS promise reject')
-          t.fail(err)
-          awsPromiseFinally(agent, listener)
+        // Compare some common fields across all spans.
+        const spans = events.filter(e => e.span)
+          .map(e => e.span)
+        spans.forEach(s => {
+          const errs = validateSpan(s)
+          t.equal(errs, null, 'span is valid  (per apm-server intake schema)')
+        })
+        t.equal(spans.filter(s => s.trace_id === tx.trace_id).length,
+          spans.length, 'all spans have the same trace_id')
+        t.equal(spans.filter(s => s.transaction_id === tx.id).length,
+          spans.length, 'all spans have the same transaction_id')
+        t.equal(spans.filter(s => s.sync === false).length,
+          spans.length, 'all spans have sync=false')
+        t.equal(spans.filter(s => s.sample_rate === 1).length,
+          spans.length, 'all spans have sample_rate=1')
+        function delVariableSpanFields (span) {
+          // Return a copy of the span with variable and common fields to
+          // facilitate t.deepEqual below.
+          const s = Object.assign({}, span)
+          delete s.id
+          delete s.transaction_id
+          delete s.parent_id
+          delete s.trace_id
+          delete s.timestamp
+          delete s.duration
+          delete s.sync
+          delete s.sample_rate
+          return s
         }
-      )
-    })
-  })
 
-  suite.test('API: sendMessageBatch promise', function (t) {
-    const app = createMockServer(
-      getXmlResponse('sendMessageBatch')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
+        console.log('XXX events:'); console.dir(events, { depth: 5 })
 
-        t.equals(spanSqs.name, 'SQS SEND_BATCH to our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'send_batch', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
+        // Work through each of the pipeline functions in the script.
+        // Limitations: We currently don't instrument ListQueues, CreateQueue, etc.
+        t.deepEqual(delVariableSpanFields(spans.shift()), {
+          name: `POST ${LOCALSTACK_HOST}:${LOCALSTACK_PORT}`,
+          type: 'external',
+          subtype: 'http',
+          action: 'POST',
+          context: {
+            service: { target: { type: 'http', name: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` } },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              service: { type: '', name: '', resource: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` }
+            },
+            http: {
+              method: 'POST',
+              status_code: 200,
+              url: ENDPOINT + '/'
+            }
+          },
+          outcome: 'success'
+        }, 'listQueues')
 
+        t.deepEqual(delVariableSpanFields(spans.shift()), {
+          name: `POST ${LOCALSTACK_HOST}:${LOCALSTACK_PORT}`,
+          type: 'external',
+          subtype: 'http',
+          action: 'POST',
+          context: {
+            service: { target: { type: 'http', name: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` } },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              service: { type: '', name: '', resource: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` }
+            },
+            http: {
+              method: 'POST',
+              status_code: 200,
+              url: ENDPOINT + '/'
+            }
+          },
+          outcome: 'success'
+        }, 'createQueue')
+
+        const sendMessage1Span = spans.shift()
+        t.deepEqual(delVariableSpanFields(sendMessage1Span), {
+          name: 'SQS SEND to elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'send',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
+            },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo'
+              }
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
+          },
+          outcome: 'success'
+        }, 'sendMessage1')
+
+        const sendMessage2Span = spans.shift()
+        t.deepEqual(delVariableSpanFields(sendMessage2Span), {
+          name: 'SQS SEND to elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'send',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
+            },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo'
+              }
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
+          },
+          outcome: 'success'
+        }, 'sendMessage2ViaPromise')
+
+        const sendMessages34Span = spans.shift()
+        t.deepEqual(delVariableSpanFields(sendMessages34Span), {
+          name: 'SQS SEND_BATCH to elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'send_batch',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
+            },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo'
+              }
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
+          },
+          outcome: 'success'
+        }, 'sendMessageBatch')
+
+        console.log('XXX sendMessage1Span:'); console.dir(sendMessage1Span, { depth: 5 })
+        t.deepEqual(delVariableSpanFields(spans.shift()), {
+          name: 'SQS POLL from elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'poll',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
+            },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo'
+              }
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
+          },
+          outcome: 'success',
+          links: [
+            {
+              trace_id: tx.trace_id,
+              span_id: sendMessage1Span.id
+            }
+          ]
+        }, 'receiveMessageA')
+
+        t.deepEqual(delVariableSpanFields(spans.shift()), {
+          name: 'SQS DELETE from elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'delete',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
+            },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo'
+              }
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
+          },
+          outcome: 'success'
+        }, 'receiveMessageA deleteMessage')
+
+        t.deepEqual(delVariableSpanFields(spans.shift()), {
+          name: 'SQS POLL from elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'poll',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
+            },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo'
+              }
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
+          },
+          outcome: 'success',
+          links: [
+            {
+              trace_id: tx.trace_id,
+              span_id: sendMessage2Span.id
+            },
+            {
+              trace_id: tx.trace_id,
+              span_id: sendMessages34Span.id
+            },
+            {
+              trace_id: tx.trace_id,
+              span_id: sendMessages34Span.id
+            }
+          ]
+        }, 'receiveMessageB')
+
+        t.deepEqual(delVariableSpanFields(spans.shift()), {
+          name: 'SQS DELETE_BATCH from elasticapmtest-queue-1.fifo',
+          type: 'messaging',
+          subtype: 'sqs',
+          action: 'delete_batch',
+          context: {
+            service: {
+              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
+            },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              cloud: { region: 'us-east-2' },
+              service: {
+                type: '',
+                name: '',
+                resource: 'sqs/elasticapmtest-queue-1.fifo'
+              }
+            },
+            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
+          },
+          outcome: 'success'
+        }, 'receiveMessageB deleteMessageBatch')
+
+        t.deepEqual(delVariableSpanFields(spans.shift()), {
+          name: `POST ${LOCALSTACK_HOST}:${LOCALSTACK_PORT}`,
+          type: 'external',
+          subtype: 'http',
+          action: 'POST',
+          context: {
+            service: { target: { type: 'http', name: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` } },
+            destination: {
+              address: 'localhost',
+              port: 4566,
+              service: { type: '', name: '', resource: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` }
+            },
+            http: {
+              method: 'POST',
+              status_code: 200,
+              url: ENDPOINT + '/'
+            }
+          },
+          outcome: 'success'
+        }, 'deleteQueue')
+
+        t.equal(spans.length, 0, 'all spans accounted for')
+
+        server.close()
         t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('sendMessageBatch', listener.address().port)
-      const promise = sqs.sendMessageBatch(params).promise()
-      promise.then(
-        function (data) {
-          awsPromiseFinally(agent, listener)
-        },
-        function (err) {
-          t.fail(err)
-          awsPromiseFinally(agent, listener)
-        }
-      )
-    })
-  })
-
-  suite.test('API: deleteMessage promise', function (t) {
-    const app = createMockServer(
-      getXmlResponse('deleteMessage')
+      }
     )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
-
-        t.equals(spanSqs.name, 'SQS DELETE from our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'delete', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('deleteMessage', listener.address().port)
-      const promise = sqs.deleteMessage(params).promise()
-      promise.then(
-        function (data) {
-          awsPromiseFinally(agent, listener)
-        },
-        function (err) {
-          t.fail(err)
-          awsPromiseFinally(agent, listener)
-        }
-      )
-    })
   })
-
-  suite.test('API: deleteMessageBatch promise', function (t) {
-    const app = createMockServer(
-      getXmlResponse('deleteMessageBatch')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
-
-        t.equals(spanSqs.name, 'SQS DELETE_BATCH from our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'delete_batch', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('deleteMessageBatch', listener.address().port)
-      const promise = sqs.deleteMessageBatch(params).promise()
-      promise.then(
-        function (data) {
-          awsPromiseFinally(agent, listener)
-        },
-        function (err) {
-          t.fail(err)
-          awsPromiseFinally(agent, listener)
-        }
-      )
-    })
-  })
-
-  suite.test('API: receiveMessage promise', function (t) {
-    const app = createMockServer(
-      getXmlResponse('receiveMessage')
-    )
-    const listener = app.listen(0, function () {
-      resetAgent(function (data) {
-        t.equals(data.spans.length, 1, 'generated one span')
-        const spanSqs = data.spans[0]
-
-        t.equals(spanSqs.name, 'SQS POLL from our-queue', 'SQS span named correctly')
-        t.equals(spanSqs.type, 'messaging', 'span type set to messaging')
-        t.equals(spanSqs.subtype, 'sqs', 'span subtype set to sqs')
-        t.equals(spanSqs.action, 'poll', 'span action matches API method called')
-        t.deepEqual(spanSqs.context.service.target,
-          { type: 'sqs', name: 'our-queue' },
-          'span.context.service.target')
-        t.deepEqual(spanSqs.context.destination, {
-          address: 'sqs.us-west.amazonaws.com',
-          port: 443,
-          cloud: { region: 'us-west' },
-          service: { type: '', name: '', resource: 'sqs/our-queue' }
-        }, 'span.context.destination')
-        t.equals(spanSqs.context.message.queue.name, 'our-queue', 'queue name context set')
-        t.deepEqual(spanSqs.links, [{
-          trace_id: '460d51b6ed3ab96be45f2580b8016509',
-          span_id: '8ba4419207a1f2f8'
-        }], 'span.links')
-
-        t.end()
-      })
-      agent.startTransaction('myTransaction')
-      const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
-      const params = getParams('receiveMessage', listener.address().port)
-      const promise = sqs.receiveMessage(params).promise()
-      promise.then(
-        function (data) {
-          awsPromiseFinally(agent, listener)
-        },
-        function (err) {
-          t.fail(err)
-          awsPromiseFinally(agent, listener)
-        }
-      )
-    })
-  })
-
-  suite.end()
 })

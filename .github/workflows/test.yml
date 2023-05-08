@@ -105,7 +105,7 @@ jobs:
       localstack:
         image: localstack/localstack:0.12.12
         env:
-          LOCALSTACK_SERVICES: 's3'
+          LOCALSTACK_SERVICES: 's3,sqs'
           DATA_DIR: '/var/lib/localstack'
         ports:
           - "4566:4566"

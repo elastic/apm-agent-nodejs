@@ -137,7 +137,7 @@
     "ajv": "^7.2.4",
     "apollo-server-core": "^3.0.0",
     "apollo-server-express": "^3.0.0",
-    "aws-sdk": "^2.622.0",
+    "aws-sdk": "^2.1372.0",
     "backport": "^5.1.2",
     "benchmark": "^2.1.4",
     "bluebird": "^3.7.2",
