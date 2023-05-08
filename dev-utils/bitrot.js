@@ -205,7 +205,7 @@ function loadSupportedDoc () {
         results.push({ name: n, versions: row[1] })
       })
     } else {
-      match = /^https:\/\/.*\[(.*)\]$/.exec(row[0])
+      match = /^https:\/\/.*\[(.*)\]$/.exec(row[0].trim())
       if (!match) {
         throw new Error(`could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(row[0])}`)
       }
@@ -248,6 +248,8 @@ function bitrot (moduleNames) {
   log.debug({ moduleNames }, 'bitrot')
   var tavYmls = [
     yaml.load(fs.readFileSync('.tav.yml', 'utf8')),
+    yaml.load(fs.readFileSync('./test/opentelemetry-bridge/.tav.yml', 'utf8')),
+    yaml.load(fs.readFileSync('./test/opentelemetry-metrics/fixtures/.tav.yml', 'utf8')),
     yaml.load(fs.readFileSync('test/instrumentation/modules/next/a-nextjs-app/.tav.yml', 'utf8'))
   ]
   var supported = loadSupportedDoc()

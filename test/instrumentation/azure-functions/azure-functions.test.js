@@ -20,7 +20,10 @@ const treekill = require('tree-kill')
 const { MockAPMServer } = require('../../_mock_apm_server')
 const { formatForTComment } = require('../../_utils')
 
-if (!semver.satisfies(process.version, '>=14 <19')) {
+if (!semver.satisfies(process.version, '>=14.1.0 <19')) {
+  // The "14.1.0" version is selected to skip testing on Node.js v14.0.0
+  // because of the issue described here:
+  // https://github.com/elastic/apm-agent-nodejs/issues/3279#issuecomment-1532084620
   console.log(`# SKIP Azure Functions runtime ~4 does not support node ${process.version} (https://aka.ms/functions-node-versions)`)
   process.exit()
 } else if (os.platform() === 'win32') {
@@ -481,6 +484,15 @@ tape.test('azure functions', function (suite) {
     // Allow some time for an early fail of `func start`, e.g. if there is
     // already a user of port 7071...
     const onEarlyClose = code => {
+      // Warning/Limitation: The 'npm ci' above installs platform-specific
+      // binaries to "$fnAppDir/node_modules/azure-functions-core-tools/...",
+      // which means a local test run on macOS followed by an attempted test run
+      // in Docker will result in a crash:
+      //    node_tests_1  | # ["func start" stderr] /app/test/instrumentation/azure-functions/fixtures/AJsAzureFnApp/node_modules/azure-functions-core-tools/bin/func: 1: Syntax error: "(" unexpected
+      //    node_tests_1  | not ok 2 "func start" failed early: code=2
+      // For now the workaround is to manually clean that tree before running
+      // tests on a separate OS:
+      //    rm -rf test/instrumentation/azure-functions/fixtures/AJsAzureFnApp/node_modules
       t.fail(`"func start" failed early: code=${code}`)
       fnAppProc = null
       clearTimeout(earlyCloseTimer)

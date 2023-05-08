@@ -125,6 +125,7 @@ var optionFixtures = [
   ['centralConfig', 'CENTRAL_CONFIG', true],
   ['containerId', 'CONTAINER_ID'],
   ['contextPropagationOnly', 'CONTEXT_PROPAGATION_ONLY', false],
+  ['customMetricsHistogramBoundaries', 'CUSTOM_METRICS_HISTOGRAM_BOUNDARIES', config.DEFAULTS.customMetricsHistogramBoundaries.slice()],
   ['disableSend', 'DISABLE_SEND', false],
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
   ['environment', 'ENVIRONMENT', 'development'],
@@ -179,6 +180,8 @@ optionFixtures.forEach(function (fixture) {
     } else if (fixture[0] === 'serverCaCertFile') {
       // special case for files, so a temp file can be written
       type = 'file'
+    } else if (fixture[0] === 'customMetricsHistogramBoundaries') {
+      type = 'customMetricsHistogramBoundaries'
     } else if (fixture[0] === 'traceContinuationStrategy') {
       type = 'traceContinuationStrategy'
     } else if (typeof fixture[2] === 'number' || fixture[0] === 'errorMessageMaxLength') {
@@ -214,6 +217,9 @@ optionFixtures.forEach(function (fixture) {
           fs.writeFileSync(tmpfile, tmpfile)
           value = tmpfile
           break
+        case 'customMetricsHistogramBoundaries':
+          value = [1, 2, 3] // a valid non-default value
+          break
         case 'traceContinuationStrategy':
           value = 'restart' // a valid non-default value
           break
@@ -239,7 +245,7 @@ optionFixtures.forEach(function (fixture) {
           t.deepEqual(agent._conf[fixture[0]], value)
           break
         default:
-          t.strictEqual(agent._conf[fixture[0]], value)
+          t.deepEqual(agent._conf[fixture[0]], value)
       }
 
       // Restore process.env state.
@@ -284,6 +290,10 @@ optionFixtures.forEach(function (fixture) {
           value1 = ['overwriting-value']
           value2 = ['custom-value']
           break
+        case 'customMetricsHistogramBoundaries':
+          value1 = [1, 2, 3, 4]
+          value2 = [1, 5, 10, 50, 100]
+          break
         case 'traceContinuationStrategy':
           value1 = 'restart'
           value2 = 'continue'
@@ -303,6 +313,7 @@ optionFixtures.forEach(function (fixture) {
 
       switch (type) {
         case 'array':
+        case 'customMetricsHistogramBoundaries':
           t.deepEqual(agent._conf[fixture[0]], value2)
           break
         default:
@@ -333,6 +344,7 @@ optionFixtures.forEach(function (fixture) {
 
     switch (type) {
       case 'array':
+      case 'customMetricsHistogramBoundaries':
         t.deepEqual(agent._conf[fixture[0]], fixture[2])
         break
       default:
@@ -977,7 +989,6 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 })
 
 test('disableInstrumentations', function (t) {
-  var expressGraphqlVersion = require('express-graphql/package.json').version
   var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
@@ -990,9 +1001,7 @@ test('disableInstrumentations', function (t) {
   if (isHapiIncompat('@hapi/hapi')) {
     modules.delete('@hapi/hapi')
   }
-  if (semver.lt(process.version, '7.6.0') && semver.gte(expressGraphqlVersion, '0.9.0')) {
-    modules.delete('express-graphql')
-  }
+  modules.delete('express-graphql')
   if (semver.lt(process.version, '10.0.0') && semver.gte(esVersion, '7.12.0')) {
     modules.delete('@elastic/elasticsearch') // - Version 7.12.0 dropped support for node v8.
   }
@@ -1032,6 +1041,9 @@ test('disableInstrumentations', function (t) {
   if (semver.lt(process.version, '14.8.0')) {
     modules.delete('restify')
   }
+  if (semver.lt(process.version, '14.16.0')) {
+    modules.delete('@apollo/server')
+  }
   modules.delete('next/dist/server/api-utils/node')
   modules.delete('next/dist/server/dev/next-dev-server')
   modules.delete('next/dist/server/next')
@@ -1041,10 +1053,10 @@ test('disableInstrumentations', function (t) {
     modules.delete('@redis/client/dist/lib/client') // redis@4 supports node >=14
     modules.delete('@redis/client/dist/lib/client/commands-queue') // redis@4 supports node >=14
   }
-
   // @node-redis only present for redis >4 <4.1 --
   modules.delete('@node-redis/client/dist/lib/client') // redis@4 supports node >=14
   modules.delete('@node-redis/client/dist/lib/client/commands-queue') // redis@4 supports node >=14
+  modules.delete('mysql2')
 
   function testSlice (t, name, selector) {
     var selection = selector(modules)

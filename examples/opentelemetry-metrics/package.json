@@ -1,0 +1,11 @@
+{
+  "name": "examples-opentelemetry-metrics",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@opentelemetry/api": "^1.4.1",
+    "@opentelemetry/exporter-prometheus": "^0.38.0",
+    "@opentelemetry/sdk-metrics": "^1.12.0",
+    "elastic-apm-node": "file:../.."
+  }
+}

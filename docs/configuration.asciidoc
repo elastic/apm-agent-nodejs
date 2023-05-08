@@ -222,7 +222,7 @@ see <<disable-instrumentations, `disableInstrumentations`>>.
 Activate APM Agent Configuration via Kibana.
 If set to `true`, the client will poll the APM Server regularly for new agent configuration.
 
-NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
+NOTE: This feature requires APM Server v7.3 or later.
 More information is available in {kibana-ref}/agent-configuration.html[APM Agent configuration].
 
 [[context-manager]]
@@ -1008,7 +1008,7 @@ Example using options object:
 [source,js]
 ----
 require('elastic-apm-node').start({
-  disableInstrumentations: ['graphql', 'express-graphql']
+  disableInstrumentations: ['graphql', 'redis']
 })
 ----
 
@@ -1016,7 +1016,7 @@ Example using environment variable:
 
 [source,bash]
 ----
-ELASTIC_APM_DISABLE_INSTRUMENTATIONS=graphql,express-graphql
+ELASTIC_APM_DISABLE_INSTRUMENTATIONS=graphql,redis
 ----
 
 For an always up-to-date list of modules for which instrumentation can be disabled,
@@ -1165,6 +1165,74 @@ Breakdown metrics (<<metrics-span.self_time.sum, `span.self_time.*`>>) record
 the self-time spent in each unique type of span. This data drives the
 {kibana-ref}/service-overview.html#service-span-duration[Time spent by span type]
 chart in the APM app.
+
+
+[[disable-metrics]]
+==== `disableMetrics`
+
+[small]#Added in: v3.45.0#
+
+* *Type:* Array
+* *Env:* `ELASTIC_APM_DISABLE_METRICS`
+
+The `disableMetrics` configuration variable is a list of wildcard patterns of metric names to *not* send to APM server. The filter is applied to <<metrics,core APM agent metrics>>, custom metrics defined by <<apm-register-custom-metrics>>, and metrics defined <<otel-metrics-api,using the OpenTelemetry Metrics API>>.
+
+For example, setting the `ELASTIC_APM_DISABLE_METRICS="nodejs.*,my_counter"` environment variable (or the equivalent `disableMetrics: ['nodejs.*', 'my_counter']` option to <<apm-start>>) will result in reported metrics excluding any metric named `my_counter` and any starting with `nodejs.`.  Wildcard matches are case-insensitive by default. You may make wildcard searches case-sensitive by using the `(?-i)` prefix.
+
+Use `metricsInterval: '0s'` to completely disable metrics collection. See <<metrics-interval>>.
+
+
+[[custom-metrics-histogram-boundaries]]
+==== `customMetricsHistogramBoundaries`
+
+[small]#Added in: v3.45.0 as experimental#
+
+* *Type:* number[]
+* *Default:* (See below.)
+* *Env:* `ELASTIC_APM_CUSTOM_METRICS_HISTOGRAM_BOUNDARIES`
+
+Defines the default bucket boundaries to use for OpenTelemetry Metrics
+histograms. By default the value is:
+
+[source,js]
+----
+[
+  0.00390625, 0.00552427, 0.0078125, 0.0110485,
+    0.015625,  0.0220971,   0.03125, 0.0441942,
+      0.0625,  0.0883883,     0.125,  0.176777,
+        0.25,   0.353553,       0.5,  0.707107,
+           1,    1.41421,         2,   2.82843,
+           4,    5.65685,         8,   11.3137,
+          16,    22.6274,        32,   45.2548,
+          64,    90.5097,       128,   181.019,
+         256,    362.039,       512,   724.077,
+        1024,    1448.15,      2048,   2896.31,
+        4096,    5792.62,      8192,   11585.2,
+       16384,    23170.5,     32768,     46341,
+       65536,    92681.9,    131072
+]
+----
+
+This differs from the https://opentelemetry.io/docs/reference/specification/metrics/sdk/#explicit-bucket-histogram-aggregation[OpenTelemetry default histogram boundaries]. To use the OpenTelemetry default boundaries, configure the APM agent with:
+
+[source,js]
+----
+apm.start({
+  customMetricsHistogramBoundaries: [ 0, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000 ],
+  // ...
+})
+----
+
+or
+
+[source,bash]
+----
+export ELASTIC_APM_CUSTOM_METRICS_HISTOGRAM_BOUNDARIES=0,5,10,25,50,75,100,250,500,750,1000,2500,5000,7500,10000
+----
+
+To customize the boundaries for specific histogram metrics, use an OpenTelemetry Metrics SDK https://opentelemetry.io/docs/reference/specification/metrics/sdk/#view[`View`]. See https://github.com/elastic/apm-agent-nodejs/blob/main/examples/opentelemetry-metrics/use-otel-metrics-sdk.js[this script] for an example.
+
+See <<opentelemetry-bridge>> for a general guide on using OpenTelemetry with this APM agent.
 
 
 [[cloud-provider]]
@@ -1368,3 +1436,20 @@ require('elastic-apm-node').start({
 The URL path patterns for which the APM agent will capture the request body of outgoing requests to Elasticsearch made with the `@elastic/elasticsearch` module (or the legacy `elasticsearch` module). The default setting captures the body for https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html[Elasticsearch REST APIs] making a search.
 
 The captured request body (if any) is stored on the `span.db.statement` field. Captured request bodies are truncated to a maximum length defined by <<long-field-max-length>>.
+
+
+[[use-elastic-traceparent-header]]
+==== `useElasticTraceparentHeader`
+
+* *Type:* Boolean
+* *Default:* `true`
+* *Env:* `ELASTIC_APM_USE_ELASTIC_TRACEPARENT_HEADER`
+
+To enable {apm-guide-ref}/apm-distributed-tracing.html[distributed tracing], the agent
+adds trace context headers to outgoing requests (like HTTP requests, etc.).
+These headers (`traceparent` and `tracestate`) are defined in the
+https://www.w3.org/TR/trace-context-1/[W3C Trace Context] specification.
+
+When this setting is `true`, the agent will also add the header `elastic-apm-traceparent`
+for backwards compatibility with older versions of Elastic APM agents. (In the
+next major version of this APM agent, this setting will default to false.)

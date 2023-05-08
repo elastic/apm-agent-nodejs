@@ -6,14 +6,15 @@
 
 'use strict'
 
-const existingValue = process.env.ELASTIC_APM_CENTRAL_CONFIG
-delete process.env.ELASTIC_APM_CENTRAL_CONFIG
+delete process.env.ELASTIC_APM_CENTRAL_CONFIG // In case this is set, don't let it break the test.
 
 const { URL } = require('url')
 const http = require('http')
 
 const test = require('tape')
+
 const Agent = require('./_agent')
+const { CENTRAL_CONFIG_OPTS } = require('../lib/config')
 
 const runTestsWithServer = (t, updates, expect) => {
   let agent
@@ -57,67 +58,41 @@ const runTestsWithServer = (t, updates, expect) => {
       centralConfig: true
     })
   })
-
-  t.on('end', function () {
-    if (existingValue) process.env.ELASTIC_APM_CENTRAL_CONFIG = existingValue
-  })
 }
 
 test('remote config enabled', function (t) {
   const updates = {
-    transaction_sample_rate: '0.42',
-    transaction_max_spans: '99',
     capture_body: 'all',
-    transaction_ignore_urls: ['foo'],
+    exit_span_min_duration: '25ms',
+    ignore_message_queues: 'spam,eggs, (?-i)ham ',
     log_level: 'warn',
+    sanitize_field_names: 'password, pass*, *auth*',
     span_stack_trace_min_duration: '50ms',
     trace_continuation_strategy: 'restart_external',
-    exit_span_min_duration: '25ms'
+    // Test that central config returing an array works, even though, IIUC,
+    // it will always return plain strings.
+    transaction_ignore_urls: ['foo', 'bar'],
+    transaction_max_spans: '99',
+    transaction_sample_rate: '0.42'
   }
   const expect = {
-    transactionSampleRate: 0.42,
-    transactionMaxSpans: 99,
     captureBody: 'all',
-    transactionIgnoreUrls: ['foo'],
+    exitSpanMinDuration: 0.025,
+    ignoreMessageQueues: ['spam', 'eggs', '(?-i)ham'],
+    ignoreMessageQueuesRegExp: [/^spam$/i, /^eggs$/i, /^ham$/],
     logLevel: 'warn',
+    sanitizeFieldNames: ['password', 'pass*', '*auth*'],
+    sanitizeFieldNamesRegExp: [/^password$/i, /^pass.*$/i, /^.*auth.*$/i],
     spanStackTraceMinDuration: 0.05,
     traceContinuationStrategy: 'restart_external',
-    exitSpanMinDuration: 0.025
-  }
-
-  runTestsWithServer(t, updates, expect)
-})
-
-test('remote config enabled: receives comma delimited', function (t) {
-  const updates = {
-    transaction_sample_rate: '0.42',
-    transaction_max_spans: '99',
-    capture_body: 'all',
-    transaction_ignore_urls: 'foo,bar , baz , bling'
-  }
-  const expect = {
-    transactionSampleRate: 0.42,
+    transactionIgnoreUrls: ['foo', 'bar'],
+    transactionIgnoreUrlRegExp: [/^foo$/i, /^bar$/i],
     transactionMaxSpans: 99,
-    captureBody: 'all',
-    transactionIgnoreUrls: ['foo', 'bar', 'baz', 'bling']
+    transactionSampleRate: 0.42
   }
 
-  runTestsWithServer(t, updates, expect)
-})
-
-test('remote config enabled: receives non delimited string', function (t) {
-  const updates = {
-    transaction_sample_rate: '0.42',
-    transaction_max_spans: '99',
-    capture_body: 'all',
-    transaction_ignore_urls: 'foo:bar'
-  }
-  const expect = {
-    transactionSampleRate: 0.42,
-    transactionMaxSpans: 99,
-    captureBody: 'all',
-    transactionIgnoreUrls: ['foo:bar']
-  }
+  t.deepEqual(Object.keys(updates).sort(), Object.keys(CENTRAL_CONFIG_OPTS).sort(),
+    'this test uses every available central config var name (config.CENTRAL_CONFIG_OPTS)')
 
   runTestsWithServer(t, updates, expect)
 })

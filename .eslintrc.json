@@ -15,6 +15,7 @@
     "/.nyc_output",
     "/build",
     "node_modules",
+    "elastic-apm-node.js",
     "/examples/esbuild/dist",
     "/examples/typescript/dist",
     "/examples/nextjs",
@@ -30,6 +31,6 @@
     "/test/types/transpile/index.js",
     "/test/types/transpile-default/index.js",
     "/test_output",
-    "/tmp"
+    "tmp"
   ]
 }

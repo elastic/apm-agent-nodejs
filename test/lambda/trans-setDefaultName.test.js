@@ -9,6 +9,14 @@
 // Test that instrumentation using `Transaction.setDefaultName(...)` still
 // works after the Lambda instrumentation has set the transaction name.
 
+const semver = require('semver')
+if (semver.satisfies(process.version, '>=10.0.0 <10.4.0')) {
+  // This isn't considered an issue because AWS Lambda doesn't support a node
+  // v10 runtime, and node v10 is EOL.
+  console.log(`# SKIP async context propagation currently does not work to a Lambda handler with node ${process.version}`)
+  process.exit()
+}
+
 const lambdaLocal = require('lambda-local')
 const tape = require('tape')
 

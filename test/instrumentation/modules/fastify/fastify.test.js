@@ -12,9 +12,12 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 }
 
 const agent = require('../../../..').start({
+  serviceName: 'test-fastify',
   captureExceptions: false,
-  metricsInterval: 0,
-  centralConfig: false
+  metricsInterval: '0s',
+  centralConfig: false,
+  apmServerVersion: '8.7.0',
+  captureBody: 'all'
 })
 
 const isFastifyIncompat = require('../../../_is_fastify_incompat')()
@@ -66,6 +69,61 @@ test('transaction name', function (t) {
         t.end()
       })
     })
+  })
+})
+
+test('captureBody', function (t) {
+  t.plan(9)
+
+  const postData = JSON.stringify({ foo: 'bar' })
+
+  resetAgent(data => {
+    t.strictEqual(data.transactions.length, 1)
+    var trans = data.transactions[0]
+    t.strictEqual(trans.name, 'POST /postSomeData', 'transaction.name')
+    t.strictEqual(trans.type, 'request', 'transaction.type')
+    t.strictEqual(trans.result, 'HTTP 2xx', 'transaction.result')
+    t.strictEqual(trans.context.request.method, 'POST', 'transaction.context.request.method')
+    t.equal(trans.context.request.body, postData, 'transaction.context.request.body')
+    fastify.close()
+  })
+
+  var fastify = Fastify()
+
+  fastify.post('/postSomeData', (request, reply) => {
+    reply.send('your data has been posted')
+  })
+
+  fastify.listen({ port: 0 }, function (err) {
+    t.error(err)
+
+    // build the URL manually as older versions of fastify doesn't supply it as
+    // an argument to the callback
+    const port = fastify.server.address().port
+    const cReq = http.request(
+      {
+        method: 'POST',
+        hostname: 'localhost',
+        port,
+        path: '/postSomeData',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      },
+      function (res) {
+        t.strictEqual(res.statusCode, 200)
+        res.on('data', function (chunk) {
+          t.strictEqual(chunk.toString(), 'your data has been posted')
+        })
+        res.on('end', function () {
+          agent.flush()
+          t.end()
+        })
+      }
+    )
+    cReq.write(postData)
+    cReq.end()
   })
 })
 

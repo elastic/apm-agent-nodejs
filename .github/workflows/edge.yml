@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [ "20" ]
+        node: [ "21" ]
         contextManager: [ 'patch', '' ]
     steps:
       - uses: actions/checkout@v3
@@ -45,8 +45,9 @@ jobs:
         env:
           ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
 
-  # This should list all active Node.js major versions listed at:
-  # https://nodejs.org/en/about/releases/
+  # This should list all the Node.js major versions listed at
+  # https://nodejs.org/en/about/releases/, plus the next version (for which
+  # nightlies are currently being built).
   #
   # The node.js project *sometimes* produces "rc" builds leading up to a new
   # release. They get uploaded to: https://nodejs.org/download/rc/
@@ -57,10 +58,11 @@ jobs:
       fail-fast: false
       matrix:
         node:
+          - "21"
+          - "20"
           - "19"
           - "18"
           - "16"
-          - "14"
         contextManager: [ 'patch', '' ]
     steps:
       - uses: actions/checkout@v3
