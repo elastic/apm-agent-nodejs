@@ -411,6 +411,29 @@ test('should log invalid booleans', function (t) {
   t.end()
 })
 
+test('it should log deprecated booleans', function (t) {
+  var agent = new Agent()
+  var logger = new CaptureLogger()
+
+  agent.start(Object.assign(
+    {},
+    agentOptsNoopTransport,
+    {
+      serviceName: 'foo',
+      secretToken: 'baz',
+      active: false,
+      filterHttpHeaders: false,
+      logger
+    }
+  ))
+
+  var warning = findObjInArray(logger.calls, 'type', 'warn')
+  t.strictEqual(warning.message, 'the `filterHttpHeaders` config option is deprecated')
+
+  agent.destroy()
+  t.end()
+})
+
 var MINUS_ONE_EQUAL_INFINITY = [
   'transactionMaxSpans'
 ]
