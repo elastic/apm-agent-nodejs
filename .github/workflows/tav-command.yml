@@ -2,6 +2,7 @@ name: tav-command
 
 on:
   pull_request_review:
+    types: [submitted]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
