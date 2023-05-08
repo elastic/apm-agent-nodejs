@@ -131,6 +131,8 @@ var optionFixtures = [
   ['environment', 'ENVIRONMENT', 'development'],
   ['errorMessageMaxLength', 'ERROR_MESSAGE_MAX_LENGTH', undefined],
   ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
+  // Config option deprecated. To be removed in next major release
+  // TODO: https://github.com/elastic/apm-agent-nodejs/issues/3332
   ['filterHttpHeaders', 'FILTER_HTTP_HEADERS', true],
   ['frameworkName', 'FRAMEWORK_NAME'],
   ['frameworkVersion', 'FRAMEWORK_VERSION'],

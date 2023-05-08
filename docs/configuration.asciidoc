@@ -972,14 +972,20 @@ The `sanitizeFieldNames` configuration value allows you to configure a list of w
 case-insensitive by default. You may make wildcard searches case-sensitive by
 using the `(?-i)` prefix. These patterns apply to the request and response HTTP headers, as well as any form field captured during an `application/x-www-form-urlencoded` data request.
 
-The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to filter or _redact_ other data the <<filter-http-headers,`filterHttpHeaders`>> configuration field or the <<apm-add-filter,API filtering functions>> may be a better choice.
+The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to filter or _redact_ other data the <<apm-add-filter,API filtering functions>> may be a better choice.
 
 [[filter-http-headers]]
 ==== `filterHttpHeaders`
 
+[small]#Deprecated in: v3.x.x
+
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_FILTER_HTTP_HEADERS`
+
+This configuration is *deprecated* and will be removed in a future major version. If you whish to filter or or _redact_ other 
+data the <<apm-add-filter,API filtering functions>> or <<sanitize-field-names, Sanitize fields configuration>> may be a better choice.
+
 
 When tracing an incoming HTTP request,
 the agent will add metadata about the requests to the recorded transaction.
