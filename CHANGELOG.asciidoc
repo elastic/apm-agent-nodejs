@@ -68,7 +68,7 @@ Notes:
 [float]
 ===== Chores
 
-* Add cookie map in transactions' request context and redact cookie header ({pull}3304[#3322])
+* Add cookie map in transactions' request context and redact cookie header ({pull}3322[#3322])
 
 * Stop testing `express-graphql` instrumentation -- the module is deprecated.
   ({pull}3304[#3304])
