@@ -20,10 +20,11 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
-const tape = require('tape')
 const AWS = require('aws-sdk')
-const express = require('express')
 const bodyParser = require('body-parser')
+const express = require('express')
+const tape = require('tape')
+
 const fixtures = require('./fixtures/sqs')
 const logging = require('../../../../lib/logging')
 const mockClient = require('../../../_mock_http_client')
@@ -35,13 +36,63 @@ const {
   getRegionFromRequest,
   getMessageDestinationContextFromRequest,
   shouldIgnoreRequest
-} =
-  require('../../../../lib/instrumentation/modules/aws-sdk/sqs')
+} = require('../../../../lib/instrumentation/modules/aws-sdk/sqs')
+
+// ---- support functions
+
+function awsPromiseFinally (agent, listener) {
+  agent.endTransaction()
+  listener.close()
+}
+
+function createMockServer (xmlResponse) {
+  const app = express()
+  app._receivedReqs = []
+  app.use(bodyParser.urlencoded({ extended: false }))
+  app.post('/', (req, res) => {
+    app._receivedReqs.push({
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body
+    })
+    res.setHeader('Content-Type', 'text/xml')
+    res.send(xmlResponse)
+  })
+  return app
+}
+
+function getXmlResponse (method) {
+  return fixtures[method].response
+}
+
+function getParams (method, port) {
+  const params = fixtures[method].request
+  params.QueueUrl = `http://localhost:${port}/1/our-queue`
+  return params
+}
+
+function initializeAwsSdk () {
+  // SDk requires a region to be set
+  AWS.config.update({ region: 'us-west' })
+
+  // without fake credentials the aws-sdk will attempt to fetch
+  // credentials as though it was on an EC2 instance
+  process.env.AWS_ACCESS_KEY_ID = 'fake-1'
+  process.env.AWS_SECRET_ACCESS_KEY = 'fake-2'
+}
+
+function resetAgent (cb) {
+  agent._instrumentation.testReset()
+  agent._transport = mockClient(cb)
+}
+
+// ---- tests
 
 initializeAwsSdk()
 
-tape.test('AWS SQS: Unit Test Functions', function (test) {
-  test.test('function getToFromFromOperation', function (t) {
+tape.test('unit tests', function (suite) {
+  suite.test('function getToFromFromOperation', function (t) {
     t.equals(getToFromFromOperation('deleteMessage'), 'from')
     t.equals(getToFromFromOperation('deleteMessageBatch'), 'from')
     t.equals(getToFromFromOperation('receiveMessage'), 'from')
@@ -50,7 +101,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.end()
   })
 
-  test.test('function getActionFromOperation', function (t) {
+  suite.test('function getActionFromOperation', function (t) {
     const request = {}
 
     request.operation = 'deleteMessage'
@@ -94,7 +145,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.end()
   })
 
-  test.test('function getQueueNameFromRequest', function (t) {
+  suite.test('function getQueueNameFromRequest', function (t) {
     const request = {}
     t.equals(getQueueNameFromRequest(null), 'unknown')
     t.equals(getQueueNameFromRequest(request), 'unknown')
@@ -119,7 +170,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.end()
   })
 
-  test.test('function getRegionFromRequest', function (t) {
+  suite.test('function getRegionFromRequest', function (t) {
     const request = {}
     t.equals(getRegionFromRequest(null), '')
     t.equals(getRegionFromRequest(request), '')
@@ -142,7 +193,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.end()
   })
 
-  test.test('function shouldIgnoreRequest', function (t) {
+  suite.test('function shouldIgnoreRequest', function (t) {
     t.equals(shouldIgnoreRequest(null, null), true)
 
     const request = {
@@ -169,7 +220,7 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.end()
   })
 
-  test.test('function getMessageDestinationContext', function (t) {
+  suite.test('function getMessageDestinationContext', function (t) {
     const request = {
       service: {
         config: {
@@ -198,11 +249,11 @@ tape.test('AWS SQS: Unit Test Functions', function (test) {
     t.end()
   })
 
-  test.end()
+  suite.end()
 })
 
-tape.test('AWS SQS: End to End Tests', function (test) {
-  test.test('API: sendMessage', function (t) {
+tape.test('AWS SQS: End to End Tests', function (suite) {
+  suite.test('API: sendMessage', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessage')
     )
@@ -255,7 +306,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: sendMessageBatch', function (t) {
+  suite.test('API: sendMessageBatch', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessageBatch')
     )
@@ -309,7 +360,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
 
   // Test that SQS trace-context propagation works properly when called in an
   // unsampled transaction.
-  test.test('API: sendMessage, unsampled transaction', function (t) {
+  suite.test('API: sendMessage, unsampled transaction', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessage')
     )
@@ -351,7 +402,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: deleteMessage', function (t) {
+  suite.test('API: deleteMessage', function (t) {
     const app = createMockServer(
       getXmlResponse('deleteMessage')
     )
@@ -388,7 +439,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: deleteMessageBatch', function (t) {
+  suite.test('API: deleteMessageBatch', function (t) {
     const app = createMockServer(
       getXmlResponse('deleteMessageBatch')
     )
@@ -425,7 +476,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: receiveMessage', function (t) {
+  suite.test('API: receiveMessage', function (t) {
     const app = createMockServer(
       getXmlResponse('receiveMessage')
     )
@@ -466,7 +517,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: receiveMessage no transaction', function (t) {
+  suite.test('API: receiveMessage no transaction', function (t) {
     const app = createMockServer(
       getXmlResponse('receiveMessage')
     )
@@ -485,7 +536,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: sendMessage without a transaction', function (t) {
+  suite.test('API: sendMessage without a transaction', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessage')
     )
@@ -503,7 +554,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: sendMessageBatch without a transaction', function (t) {
+  suite.test('API: sendMessageBatch without a transaction', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessage')
     )
@@ -521,7 +572,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: sendMessage promise', function (t) {
+  suite.test('API: sendMessage promise', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessage')
     )
@@ -567,7 +618,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: sendMessageBatch promise', function (t) {
+  suite.test('API: sendMessageBatch promise', function (t) {
     const app = createMockServer(
       getXmlResponse('sendMessageBatch')
     )
@@ -608,7 +659,8 @@ tape.test('AWS SQS: End to End Tests', function (test) {
       )
     })
   })
-  test.test('API: deleteMessage promise', function (t) {
+
+  suite.test('API: deleteMessage promise', function (t) {
     const app = createMockServer(
       getXmlResponse('deleteMessage')
     )
@@ -650,7 +702,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: deleteMessageBatch promise', function (t) {
+  suite.test('API: deleteMessageBatch promise', function (t) {
     const app = createMockServer(
       getXmlResponse('deleteMessageBatch')
     )
@@ -692,7 +744,7 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.test('API: receiveMessage promise', function (t) {
+  suite.test('API: receiveMessage promise', function (t) {
     const app = createMockServer(
       getXmlResponse('receiveMessage')
     )
@@ -738,52 +790,5 @@ tape.test('AWS SQS: End to End Tests', function (test) {
     })
   })
 
-  test.end()
+  suite.end()
 })
-
-function awsPromiseFinally (agent, listener) {
-  agent.endTransaction()
-  listener.close()
-}
-
-function createMockServer (xmlResponse) {
-  const app = express()
-  app._receivedReqs = []
-  app.use(bodyParser.urlencoded({ extended: false }))
-  app.post('/', (req, res) => {
-    app._receivedReqs.push({
-      method: req.method,
-      url: req.url,
-      headers: req.headers,
-      body: req.body
-    })
-    res.setHeader('Content-Type', 'text/xml')
-    res.send(xmlResponse)
-  })
-  return app
-}
-
-function getXmlResponse (method) {
-  return fixtures[method].response
-}
-
-function getParams (method, port) {
-  const params = fixtures[method].request
-  params.QueueUrl = `http://localhost:${port}/1/our-queue`
-  return params
-}
-
-function initializeAwsSdk () {
-  // SDk requires a region to be set
-  AWS.config.update({ region: 'us-west' })
-
-  // without fake credentials the aws-sdk will attempt to fetch
-  // credentials as though it was on an EC2 instance
-  process.env.AWS_ACCESS_KEY_ID = 'fake-1'
-  process.env.AWS_SECRET_ACCESS_KEY = 'fake-2'
-}
-
-function resetAgent (cb) {
-  agent._instrumentation.testReset()
-  agent._transport = mockClient(cb)
-}
