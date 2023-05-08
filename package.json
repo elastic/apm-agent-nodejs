@@ -163,7 +163,7 @@
     "finalhandler": "^1.1.2",
     "generic-pool": "^3.7.1",
     "get-port": "^5.1.1",
-    "glob": "^7.2.3",
+    "glob": "^10.2.2",
     "got": "^11.8.5",
     "graphql": "^16.6.0",
     "handlebars": "^4.7.3",
