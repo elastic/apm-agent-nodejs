@@ -171,10 +171,10 @@ bluebird:
 # - knex 0.18.0 min supported node is v8
 # - knex 0.21.0 min supported node is v10
 # - knex 1.0.0 min supported node is v12
-knex-v0.9-v0.17:
+knex-v0.10-v0.17:
   name: knex
   # Latest 0.16 release was in 2019, therefore only test first and last in this range.
-  versions: '0.9.0 || 0.16.5'
+  versions: '0.10.0 || 0.16.5'
   commands: node test/instrumentation/modules/pg/knex.test.js
 knex-v0.17-v0.21:
   name: knex
