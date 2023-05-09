@@ -509,7 +509,11 @@ aws-sdk:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
   # Test v2.858.0, every N=102 of 515 releases, and current latest.
-  versions: '2.858.0 || 2.960.0 || 2.1062.0 || 2.1164.0 || 2.1266.0 || 2.1368.0 || 2.1372.0 || >2.1372.0 <3'
+  #
+  # Workaround note: Until localstack supports SQS using the JSON protocol
+  # we cannot test against >=2.1372.0. Cap the versions tested for now.
+  # See https://github.com/elastic/apm-agent-nodejs/issues/3324
+  versions: '2.858.0 || 2.960.0 || 2.1062.0 || 2.1164.0 || 2.1266.0 || 2.1368.0 || 2.1371.0'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js
