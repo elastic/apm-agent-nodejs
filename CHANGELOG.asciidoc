@@ -69,7 +69,7 @@ Notes:
 ===== Chores
 
 * The config option <<filter-http-headers, filterHttpHeaders>> is now *deprecated*. It will be
-  removed in a future major version (after an 18 month deprecation period). ({pull}3333[#3333])
+  removed in a future major version. ({pull}3333[#3333])
 
 * Add cookie map in transactions' request context and redact cookie header ({pull}3322[#3322])
 
