@@ -14,7 +14,6 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const { execFile } = require('child_process')
 const util = require('util')
 
-const AWS = require('aws-sdk')
 const tape = require('tape')
 
 const logging = require('../../../../lib/logging')
@@ -199,8 +198,7 @@ tape.test('unit tests', function (suite) {
 
 // Execute 'node fixtures/use-sqs.js' and assert APM server gets the expected
 // spans.
-// XXX only
-tape.test.only('SQS usage scenario', function (t) {
+tape.test('SQS usage scenario', function (t) {
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
     const additionalEnv = {
