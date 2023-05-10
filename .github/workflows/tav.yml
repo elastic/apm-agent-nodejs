@@ -24,21 +24,34 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      versions: ${{ steps.generate-matrix.outputs.versions }}
-      modules: ${{ steps.generate-matrix.outputs.modules }}
+      versions: ${{ steps.transform.outputs.versions }}
+      modules: ${{ steps.transform.outputs.modules }}
     steps:
-    - uses: actions/checkout@v3
-    ## TODO: use elastic/apm-pipeline-library/.github/actions/version-framework
-    ##       as soon as https://github.com/elastic/apm-pipeline-library/issues/2171 is done.
-    - id: generate-matrix
-      run: .ci/generate-github-tav-matrix.sh
+
+      - uses: actions/checkout@v3
+
+      - id: transform
+        name: Load matrix from tav.json
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs')
+            let matrix
+            try {
+              matrix = JSON.parse(fs.readFileSync('./.ci/tav.json'))
+            } catch (err) {
+              core.setFailed(`Error loading './.ci/tav.json': ${err}`)
+              return
+            }
+            core.setOutput('modules', matrix.modules)
+            core.setOutput('versions', matrix.versions)
 
   test-tav:
     needs: prepare-matrix
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:
-      max-parallel: 30
+      max-parallel: 15
       fail-fast: false
       matrix:
         # A job matrix limit is 256. We do some grouping of TAV modules to
