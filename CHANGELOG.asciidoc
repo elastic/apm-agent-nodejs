@@ -38,7 +38,12 @@ Notes:
 [float]
 ===== Features
 
-* Add support for @aws-sdk/client-s3 ({pull}3287[#3287])
+* Add support for `@aws-sdk/client-s3`, one of the AWS SDK v3 clients.
+  ({pull}3287[#3287])
+
+* Add support for `@apollo/server@4` -- the new Apollo Server package which
+  replaces `apollo-server`, `apollo-server-express`, etc. Contributed by
+  @jmesimak. ({pull}3203[#3203])
 
 * Add <<capture-body>> support for Fastify instrumentation.
   Contributed by @xxzefgh. ({pull}2681[#2681])
