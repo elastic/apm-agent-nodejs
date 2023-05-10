@@ -62,6 +62,8 @@ Notes:
   and the APM agent will automatically add a MetricReader to ship metrics to
   APM server. See the <<opentelemetry-bridge>> for details. ({pull}3152[#3152])
 
+* Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
+
 [float]
 ===== Bug fixes
 

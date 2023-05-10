@@ -497,6 +497,42 @@ test('#setCustomContext()', function (t) {
   t.end()
 })
 
+test('#setGlobalLabel()', function (t) {
+  t.test('sets a global label', function (t) {
+    const agent = new Agent().start(agentOptsNoopTransport)
+    t.strictEqual(agent.setGlobalLabel('goo', 1), true)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ goo: 1 }))
+    agent.destroy()
+    t.end()
+  })
+
+  t.test('extends the predefined global labels', function (t) {
+    const agentOptsWithGlobalLabels = Object.assign(
+      {},
+      agentOptsNoopTransport,
+      { globalLabels: { some: true } }
+    )
+    const agent = new Agent().start(agentOptsWithGlobalLabels)
+    t.strictEqual(agent.setGlobalLabel('goo', 1), true)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }))
+    agent.destroy()
+    t.end()
+  })
+
+  t.test('overrides an existing global label', function (t) {
+    const agentOptsWithGlobalLabels = Object.assign(
+      {},
+      agentOptsNoopTransport,
+      { globalLabels: { some: true, goo: 0 } }
+    )
+    const agent = new Agent().start(agentOptsWithGlobalLabels)
+    t.strictEqual(agent.setGlobalLabel('goo', 1), true)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }))
+    agent.destroy()
+    t.end()
+  })
+})
+
 test('#setLabel()', function (t) {
   t.test('no active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
