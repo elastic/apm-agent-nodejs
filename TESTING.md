@@ -59,7 +59,7 @@ can be faster. To run all tests **locally** (i.e. outside of Docker):
     node test/test.js     # run all tests locally
     npm run docker:stop   # stop all test services
 
-Test files are "*.test.js" under the "test" directory.  They are written so
+Test files are `*.test.js` under the "test" directory.  They are written so
 each can be run individually:
 
     node test/.../FOO.test.js
@@ -87,8 +87,8 @@ tool is used. A few ".tav.yml" files (e.g. [./.tav.yml](./.tav.yml)) define
 the supported ranges.
 
 Run the TAV tests for **all modules** as follows. This will take a long time.
-`tav` works out all the versions to test and serially installs each version and
-runs the relevant test files.
+For each module to be tested, `tav` works out all the versions to test and
+serially installs each version and runs the relevant test files.
 
     npm run test:tav
 
@@ -100,6 +100,30 @@ TAV tests are run in CI on commits to the "main" branch, as controlled by
 "[tav.yml](./.github/workflows/tav.yml)". See the [CI](#ci) section below.
 (TODO: TAV tests *will* be runnable on-demand for PRs, but that is awaiting
 https://github.com/elastic/apm-agent-nodejs/issues/3227.)
+
+### TAV tests on PRs
+
+When a PR is making changes that might affect instrumentation of a particular
+module it is useful to run the relevant subset of TAV tests for that module.
+This can be triggered via a special PR review comment that starts with
+`/test tav ...` -- it must be a *review* comment to associate with a
+particular PR commit sha. The full syntax is:
+
+```
+/test tav[ module1,module2,...[ nodever1,nodever2]]
+```
+
+Examples:
+
+```
+/test tav ioredis 16        # run TAV tests for module "ioredis" with node 16
+/test tav ioredis           # run TAV tests for module "ioredis" with all node versions
+/test tav ioredis,redis 20  # run TAV tests for modules "ioredis" and "redis" with node 20
+
+/test tav all 8             # run TAV tests for all modules with node 8
+
+/test tav                   # run all TAV tests, avoid using this excessively
+```
 
 
 ## CI
@@ -113,6 +137,8 @@ workflows:
   supported Node.js version. Run on every commit to PRs and to "main".
 - [tav](./.github/workflows/tav.yml) - Run [the TAV tests](#tav-tests) with
   every supported Node.js version. Run on every commit to "main".
+- [tav-command](./.github/workflows/tav-command.yml) - Run some or all [TAV tests](#tav-tests)
+  *on demand* in a PR. See [TAV tests on PRs](#tav-tests-on-prs) above.
 - [edge](./.github/workflows/edge.yml) - Run [the tests](#tests) on the
   penultimate [Node.js nightly](https://nodejs.org/download/nightly) build for
   the next upcoming release version; and on active
