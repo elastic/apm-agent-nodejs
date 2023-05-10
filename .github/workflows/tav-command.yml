@@ -1,0 +1,103 @@
+name: tav-command
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  command-validation:
+    if: startsWith(github.event.review.body, '/test tav')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    outputs:
+      versions: ${{ steps.transform.outputs.versions }}
+      modules: ${{ steps.transform.outputs.modules }}
+    steps:
+      - name: Is comment allowed?
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const actorPermission = (await github.rest.repos.getCollaboratorPermissionLevel({
+              ...context.repo,
+              username: context.actor
+            })).data.permission
+            const isPermitted = ['write', 'admin'].includes(actorPermission)
+            if (!isPermitted) {
+              const errorMessage = 'Only users with write permission to the repository can run GitHub commands'
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.issue.number,
+                body: errorMessage,
+              })
+              core.setFailed(errorMessage)
+              return;
+            }
+
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - id: transform
+        name: Transform comment to the supported matrix
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs')
+
+            let modules, versions
+            try {
+              const matrix = JSON.parse(fs.readFileSync('./.ci/tav.json'))
+              versions = matrix.versions
+              modules = matrix.modules
+            } catch (err) {
+              core.setFailed(`Error loading './.ci/tav.json': ${err}`)
+              return
+            }
+            const comment = context.payload.review.body
+            if (comment !== '/test tav') {
+              const regex = /\/test tav ([^\s]+)(\s*)([^\s]*)/
+              const match = comment.match(regex)
+              if (!match) {
+                core.setFailed(`Incorrect comment, please use /test tav(\\s(module1,...,moduleN)?(\\s)?(node1,...,nodeN)?)?'`)
+                return
+              }
+              if (match[1]) {
+                if (match[1] !== 'all') {
+                  modules = match[1].split(',')
+                }
+              }
+              if (match[3]) {
+                versions = match[3].split(',')
+              }
+            }
+            core.setOutput('modules', modules)
+            core.setOutput('versions', versions)
+
+  test-tav:
+    needs: command-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      max-parallel: 15
+      fail-fast: false
+      matrix:
+        node: ${{ fromJSON(needs.command-validation.outputs.versions) }}
+        module: ${{ fromJSON(needs.command-validation.outputs.modules) }}
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"
+        env:
+          ELASTIC_APM_CONTEXT_MANAGER: ''
