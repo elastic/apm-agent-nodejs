@@ -1,17 +1,24 @@
 # Testing
 
-There are two sets of tests:
+There are three types of tests:
 
  1. The (ambiguously named) **tests**. This means running any or all of the
     ".test.js" files under the "test" directory. For example, running
     "test/config.test.js" or running "test/instrumentation/modules/ioredis.test.js"
     using the currently installed "ioredis" dev-dependency.
 
- 2. The **TAV tests** (TAV stands for test-all-versions). This means running a
-    relevant subset of the ".test.js" files against a range of versions of the
-    module under test. For example, running the same "ioredis.test.js" multiple
-    times, once for each version of the "ioredis" module that this Node.js APM
-    agent supports instrumenting.
+ 2. The **TAV tests** (TAV stands for test-all-versions). This means running
+    the relevant subset of the ".test.js" files against the supported range of
+    versions of a module that the APM agent supports instrumenting.  For
+    example, running the same "ioredis.test.js" multiple times, once for each
+    version of the "ioredis" module that this Node.js APM agent supports
+    instrumenting.
+
+ 3. The **Edge tests**. This means running the "tests" against an "edge", or
+    non-release, version of Node.js. Relevant non-release versions are (a) the
+    latest [nightly](https://nodejs.org/download/nightly/) build for the
+    next version of Node.js, and (b) a possible [RC](https://nodejs.org/download/rc/)
+    build for an upcoming release.
 
 
 ## Quick start test commands
@@ -123,6 +130,31 @@ Examples:
 /test tav all 8             # run TAV tests for all modules with node 8
 
 /test tav                   # run all TAV tests, avoid using this excessively
+```
+
+
+## Edge tests
+
+Edge tests are run in CI for each push to main. It has two parts:
+
+- `test-nightly` which looks for the penultimate
+  [nightly](https://nodejs.org/download/nightly/) build for the next version of
+  Node.js, installs it (using `nvm`), then runs the full set of
+  ["tests"](#tests). The "penultimate" build is used instead of the latest
+  because the Node.js nightly upload process is not atomic.
+
+- `test-rc` which looks for a possible [RC](https://nodejs.org/download/rc/)
+  build for an unreleased Node.js version. If it finds one it, likewise,
+  installs it and runs the full set of "tests".
+
+These tests are run in a [`node_tests` Docker container](https://github.com/elastic/apm-agent-nodejs/blob/main/.ci/docker/node-edge-container/Dockerfile)
+using Docker Compose to run required services. You can run Edge tests locally
+via:
+
+```
+.ci/scripts/test.sh -h              # show usage
+.ci/scripts/test.sh -b nightly 21   # run nightly tests for Node.js v21
+.ci/scripts/test.sh -b rc 20        # run RC tests for Node.js v20
 ```
 
 
