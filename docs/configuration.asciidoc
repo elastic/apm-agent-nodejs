@@ -983,7 +983,7 @@ The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to 
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_FILTER_HTTP_HEADERS`
 
-This configuration is *deprecated* and will be removed in a future major version. If you whish to filter or or _redact_ other 
+This configuration is *deprecated* and will be removed in a future major version. If you wish to filter or or _redact_ other 
 data the <<apm-add-filter,API filtering functions>> or <<sanitize-field-names, Sanitize fields configuration>> may be a better choice.
 
 In versions before REPLACEME this option was `true` by default. Agent redacted cookies whose name matched any of `sanitizaFieldNames` expressions.
