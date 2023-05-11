@@ -983,14 +983,16 @@ The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to 
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_FILTER_HTTP_HEADERS`
 
-This configuration is *deprecated* and will be removed in a future major version. If you wish to filter or or _redact_ other 
-data the <<apm-add-filter,API filtering functions>> or <<sanitize-field-names, Sanitize fields configuration>> may be a better choice.
+`filterHttpHeaders` indicates whether the agent should redact sensitive fields in the `Cookie` HTTP request
+header. If true, the `Cookie` header will be parsed in to the `transaction.request.cookies` name/value
+mapping and any cookie fields that match the patterns in <<sanitize-field-names>> will be replaced with the
+string `[REDACTED]`. If false, the `Cookie` header will be left as is.
 
-In versions before REPLACEME this option was `true` by default. Agent redacted cookies whose name matched any of `sanitizaFieldNames` expressions.
-As of version REPLACEME this option has no longer use since request cookies are parsed and stored into
-`transaction.context.request.cookies` name/value pair. These new fields will be redacted if their name
-match with any of the `sanitizaFieldNames` expressions threfore having the same behaviour. To replicate `filterHttpHeaders = false` you just
-have to modify `sanitizeFieldNames` option to make sure no HTTP request cookie is redacted.
+This config option is *deprecated* and will be removed in a future major version. Use <<sanitize-field-names>>
+instead. To replicate `filterHttpHeaders: false`, modify `sanitizeFieldNames` so that no patterns match
+cookie fields that you do not want redacted.
+
+See also <<apm-add-filter,the filtering API>> for programmatic control of filtering APM data.
 
 [[disable-instrumentations]]
 ==== `disableInstrumentations`
