@@ -990,7 +990,7 @@ In versions before REPLACEME this option was `true` by default. Agent redacted c
 As of version REPLACEME this option has no longer use since request cookies are parsed and stored into
 `transaction.context.request.cookies` name/value pair. These new fields will be redacted if their name
 match with any of the `sanitizaFieldNames` expressions threfore having the same behaviour. To replicate `filterHttpHeaders = false` you just
-have to modify `sanitizaFieldNames` option to make sure no HTTP request cookie is redacted.
+have to modify `sanitizeFieldNames` option to make sure no HTTP request cookie is redacted.
 
 [[disable-instrumentations]]
 ==== `disableInstrumentations`
