@@ -493,11 +493,6 @@ memcached:
   versions: '>=2.2.0'
   commands: node test/instrumentation/modules/memcached.test.js
 
-body-parser:
-  versions: '>=1.19.0'
-  commands:
-    - node test/sanitize-field-names/express.test.js
-
 aws-sdk:
   # We want this version range:
   #   versions: '>=2.858 <3'
