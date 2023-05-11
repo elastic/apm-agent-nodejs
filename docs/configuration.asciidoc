@@ -977,7 +977,7 @@ The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to 
 [[filter-http-headers]]
 ==== `filterHttpHeaders`
 
-[small]#Deprecated in: v3.x.x
+[small]#Deprecated in: REPLACEME
 
 * *Type:* Boolean
 * *Default:* `true`
