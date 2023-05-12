@@ -37,12 +37,6 @@ class MockLogger {
     })
   }
 
-  // fatal (message) { this._log('fatal', message) }
-  // error (message) { this._log('error', message) }
-  // warn (message) { this._log('warn', message) }
-  // info (message) { this._log('info', message) }
-  // debug (message) { this._log('debug', message) }
-  // trace (message) { this._log('trace', message) }
   fatal () { this._log('fatal', arguments[0], [].slice.call(arguments, 1)) }
   error () { this._log('error', arguments[0], [].slice.call(arguments, 1)) }
   warn () { this._log('warn', arguments[0], [].slice.call(arguments, 1)) }
