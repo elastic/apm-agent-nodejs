@@ -226,7 +226,7 @@ test.skip('#normalizeKeyValuePairs()', function (t) {
 
 test('#normalizeNumbers()', function (t) {
   const logger = new MockLogger()
-  const defaults = {}
+  const defaults = { badWithDefault: 300 }
   const opts = {
     numberProperty: 100,
     stringProperty: '200',
