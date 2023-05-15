@@ -7,10 +7,11 @@
 'use strict'
 
 /**
- * @typedef {object} LogEntry
- * @property {string} type
- * @property {string} message
- * @property {Array<any>} message
+ * @typedef {Object} LogEntry
+ * @property {String} type
+ * @property {String} mergingObject
+ * @property {String} message
+ * @property {Array<any>} interpolation
  */
 
 /**
@@ -29,20 +30,32 @@ class MockLogger {
     this.calls = []
   }
 
-  _log (type, message, interpolation) {
+  /**
+   * @private
+   * @param {String} type
+   * @param {Array<any>} loggerArgs
+   */
+  _log (type, loggerArgs) {
+    const args = [].slice.call(loggerArgs)
+    const hasMergingObject = typeof args[0] === 'object'
+    const mergingObject = hasMergingObject ? args[0] : null
+    const message = hasMergingObject ? args[1] : args[0]
+    const interpolation = args.slice(hasMergingObject ? 2 : 1)
+
     this.calls.push({
       type,
+      mergingObject,
       message,
       interpolation
     })
   }
 
-  fatal () { this._log('fatal', arguments[0], [].slice.call(arguments, 1)) }
-  error () { this._log('error', arguments[0], [].slice.call(arguments, 1)) }
-  warn () { this._log('warn', arguments[0], [].slice.call(arguments, 1)) }
-  info () { this._log('info', arguments[0], [].slice.call(arguments, 1)) }
-  debug () { this._log('debug', arguments[0], [].slice.call(arguments, 1)) }
-  trace () { this._log('trace', arguments[0], [].slice.call(arguments, 1)) }
+  fatal () { this._log('fatal', arguments) }
+  error () { this._log('error', arguments) }
+  warn () { this._log('warn', arguments) }
+  info () { this._log('info', arguments) }
+  debug () { this._log('debug', arguments) }
+  trace () { this._log('trace', arguments) }
 }
 
 module.exports = MockLogger
