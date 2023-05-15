@@ -23,6 +23,7 @@ const Agent = require('../lib/agent')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
 const { safeGetPackageVersion, findObjInArray } = require('./_utils')
+const { secondsFromDuration } = require('../lib/config/normalizers')
 const config = require('../lib/config')
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
@@ -478,7 +479,7 @@ config.DURATION_OPTS.forEach(function (optSpec) {
 
   let def
   if (key in config.DEFAULTS) {
-    def = config.secondsFromDuration(config.DEFAULTS[key],
+    def = secondsFromDuration(config.DEFAULTS[key],
       optSpec.defaultUnit, optSpec.allowedUnits, optSpec.allowNegative)
   } else if (key === 'spanStackTraceMinDuration') {
     // Because of special handling in normalizeSpanStackTraceMinDuration()
