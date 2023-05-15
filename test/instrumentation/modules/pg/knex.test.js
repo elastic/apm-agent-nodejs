@@ -26,7 +26,7 @@ var agent = require('../../../..').start({
 var knexVersion = require('knex/package').version
 var semver = require('semver')
 
-// knex 0.18.0 min supported node is v8, knex 0.21.0 min supported node is v10
+// knex 0.18.0 min supported node is v8, knex 0.21.0 min supported node is v10, knex 1.0.0 min supported node is v12
 if ((semver.gte(knexVersion, '0.18.0') && semver.lt(process.version, '8.6.0')) ||
   (semver.gte(knexVersion, '0.21.0') && semver.lt(process.version, '10.22.0')) ||
   (semver.gte(knexVersion, '1.0.0') && semver.lt(process.version, '12.0.0'))) {
