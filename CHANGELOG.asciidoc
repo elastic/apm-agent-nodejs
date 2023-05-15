@@ -32,15 +32,18 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.46.0]]
+==== 3.46.0 - 2023/05/15
 
 [float]
 ===== Features
 
-* Add support for @aws-sdk/client-s3 ({pull}3287[#3287])
+* Add support for `@aws-sdk/client-s3`, one of the AWS SDK v3 clients.
+  ({pull}3287[#3287])
+
+* Add support for `@apollo/server@4` -- the new Apollo Server package which
+  replaces `apollo-server`, `apollo-server-express`, etc. Contributed by
+  @jmesimak. ({pull}3203[#3203])
 
 * Add <<capture-body>> support for Fastify instrumentation.
   Contributed by @xxzefgh. ({pull}2681[#2681])
@@ -61,9 +64,6 @@ Notes:
   metrics to APM server. As well, you may use the OpenTelemetry Metrics SDK
   and the APM agent will automatically add a MetricReader to ship metrics to
   APM server. See the <<opentelemetry-bridge>> for details. ({pull}3152[#3152])
-
-[float]
-===== Bug fixes
 
 [float]
 ===== Chores
