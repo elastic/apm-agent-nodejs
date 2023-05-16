@@ -313,16 +313,6 @@ elasticsearch:
   node: '>=14.0.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
-# @elastic/elasticsearch-canary *sometimes* gets releases in advance of
-# '@elastic/elasticsearch'. It is only the latest such release that
-# might matter. The point in testing it is to try to make sure the agent is
-# updated for coming changes to the non-canary package.
-'@elastic/elasticsearch-canary':
-  name: '@elastic/elasticsearch-canary'
-  versions: '>=8.2.0-canary.2'
-  node: '>=14'
-  commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
-
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.test.js
