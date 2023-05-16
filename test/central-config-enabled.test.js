@@ -14,7 +14,7 @@ const http = require('http')
 const test = require('tape')
 
 const Agent = require('./_agent')
-const { CENTRAL_CONFIG_OPTS } = require('../lib/config')
+const { CENTRAL_CONFIG_OPTS } = require('../lib/config/config')
 
 const runTestsWithServer = (t, updates, expect) => {
   let agent

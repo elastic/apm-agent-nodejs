@@ -24,7 +24,7 @@ const agent = require('../../../..').start({
 
 const { URL } = require('url')
 
-const config = require('../../../../lib/config')
+const config = require('../../../../lib/config/config')
 const { safeGetPackageVersion } = require('../../../_utils')
 
 // Support running these tests with a different package name -- typically
