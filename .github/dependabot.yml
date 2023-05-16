@@ -7,6 +7,9 @@ updates:
     open-pull-requests-limit: 10
     reviewers:
       - "elastic/apm-agent-node-js"
+    ignore:
+      # For mimic-response, ignore all versions https://github.com/elastic/apm-agent-nodejs/pull/3349#issuecomment-1549517238
+      - dependency-name: "mimic-response"
 
   - package-ecosystem: "npm"
     directory: "/test/instrumentation/azure-functions/fixtures/AJsAzureFnApp"
