@@ -25,7 +25,6 @@ const {
   CAPTURE_ERROR_LOG_STACK_TRACES_NEVER,
   DEFAULTS
 } = require('../lib/config/schema')
-const config = require('../lib/config/config')
 const { findObjInArray } = require('./_utils')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
