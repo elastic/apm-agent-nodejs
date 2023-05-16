@@ -32,7 +32,6 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-
 [[release-notes-3.46.0]]
 ==== 3.46.0 - 2023/05/15
 
