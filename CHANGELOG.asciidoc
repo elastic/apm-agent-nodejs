@@ -32,24 +32,6 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
-
-[float]
-===== Bug fixes
-
-[float]
-===== Chores
-
-* Move configuration to its own module and add normalizer tests.
-  ({pull}3358[#3358])
-
-
 
 [[release-notes-3.46.0]]
 ==== 3.46.0 - 2023/05/15
