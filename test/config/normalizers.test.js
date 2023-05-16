@@ -11,6 +11,11 @@ const test = require('tape')
 const MockLogger = require('./_mock_logger')
 
 const {
+  TRACE_CONTINUATION_STRATEGY_CONTINUE,
+  TRACE_CONTINUATION_STRATEGY_RESTART,
+  CONTEXT_MANAGER_PATCH
+} = require('../../lib/config/schema')
+const {
   normalizeArrays,
   normalizeBools,
   normalizeBytes,
@@ -24,7 +29,10 @@ const {
   normalizeSanitizeFieldNames,
   normalizeCloudProvider,
   normalizeCustomMetricsHistogramBoundaries,
-  normalizeTransactionSampleRate
+  normalizeTransactionSampleRate,
+  normalizeTraceContinuationStrategy,
+  normalizeContextManager,
+  normalizeSpanStackTraceMinDuration
 } = require('../../lib/config/normalizers')
 
 test('#normalizeArrays()', function (t) {
@@ -383,6 +391,95 @@ test('#normalizeTransactionSampleRate()', function (t) {
   opts.transactionSampleRate = 0.000001
   normalizeTransactionSampleRate(opts, [], defaults, logger)
   t.deepEqual(opts, { transactionSampleRate: 0.0001 })
+
+  t.end()
+})
+
+test('#normalizeTraceContinuationStrategy()', function (t) {
+  const logger = new MockLogger()
+  const defaults = { traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_CONTINUE }
+  const opts = {}
+
+  opts.traceContinuationStrategy = 'not-valid'
+  normalizeTraceContinuationStrategy(opts, [], defaults, logger)
+
+  t.deepEqual(opts, { traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_CONTINUE })
+  const warning = logger.calls[logger.calls.length - 1]
+  t.ok(warning.message.indexOf('Invalid "traceContinuationStrategy"') !== -1)
+
+  opts.traceContinuationStrategy = TRACE_CONTINUATION_STRATEGY_RESTART
+  normalizeTraceContinuationStrategy(opts, [], defaults, logger)
+  t.deepEqual(opts, { traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_RESTART })
+
+  t.end()
+})
+
+test('#normalizeContextManager()', function (t) {
+  const logger = new MockLogger()
+  const defaults = { contextManager: CONTEXT_MANAGER_PATCH }
+  let opts
+  let lastWarning
+
+  opts = { contextManager: 'not-valid' }
+  normalizeContextManager(opts, [], defaults, logger)
+  // TODO: property gets deleted, check behaviour (assing undefined instead?)
+  t.deepEqual(opts, {})
+  lastWarning = logger.calls.pop()
+  t.ok(lastWarning.message.indexOf('Invalid "contextManager"') !== -1)
+
+  opts = { contextManager: CONTEXT_MANAGER_PATCH, asyncHooks: true }
+  normalizeContextManager(opts, [], defaults, logger)
+  t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_PATCH })
+  lastWarning = logger.calls.pop()
+  t.ok(lastWarning.message.indexOf('the `asyncHooks` value will be ignored') !== -1)
+
+  opts = { asyncHooks: true }
+  normalizeContextManager(opts, [], defaults, logger)
+  t.deepEqual(opts, {})
+  lastWarning = logger.calls.pop()
+  t.ok(lastWarning.message.indexOf('`asyncHooks: true` is the default behavior') !== -1)
+
+  opts = { asyncHooks: false }
+  normalizeContextManager(opts, [], defaults, logger)
+  t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_PATCH })
+  lastWarning = logger.calls.pop()
+  t.ok(lastWarning.message.indexOf('use `contextManager: "patch"') !== -1)
+
+  t.end()
+})
+
+test('#normalizeSpanStackTraceMinDuration()', function (t) {
+  const logger = new MockLogger()
+  const defaults = { spanStackTraceMinDuration: 10 }
+  let opts
+
+  opts = {}
+  normalizeSpanStackTraceMinDuration(opts, [], defaults, logger)
+  t.deepEqual(opts, { spanStackTraceMinDuration: -1 })
+
+  opts = { spanStackTraceMinDuration: 5, captureSpanStackTraces: false, spanFramesMinDuration: 4 }
+  normalizeSpanStackTraceMinDuration(opts, [], defaults, logger)
+  t.deepEqual(opts, { spanStackTraceMinDuration: 5 })
+
+  opts = { captureSpanStackTraces: false, spanFramesMinDuration: 4 }
+  normalizeSpanStackTraceMinDuration(opts, [], defaults, logger)
+  t.deepEqual(opts, { spanStackTraceMinDuration: -1 })
+
+  opts = { captureSpanStackTraces: true, spanFramesMinDuration: 0 }
+  normalizeSpanStackTraceMinDuration(opts, [], defaults, logger)
+  t.deepEqual(opts, { spanStackTraceMinDuration: -1 })
+
+  opts = { captureSpanStackTraces: true, spanFramesMinDuration: -1 }
+  normalizeSpanStackTraceMinDuration(opts, [], defaults, logger)
+  t.deepEqual(opts, { spanStackTraceMinDuration: 0 })
+
+  opts = { captureSpanStackTraces: true, spanFramesMinDuration: 5 }
+  normalizeSpanStackTraceMinDuration(opts, [], defaults, logger)
+  t.deepEqual(opts, { spanStackTraceMinDuration: 5 })
+
+  opts = { captureSpanStackTraces: true }
+  normalizeSpanStackTraceMinDuration(opts, [], defaults, logger)
+  t.deepEqual(opts, { spanStackTraceMinDuration: 10 / 1e3 })
 
   t.end()
 })

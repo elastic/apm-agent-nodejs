@@ -19,7 +19,12 @@ var os = require('os')
 var test = require('tape')
 
 const Agent = require('../lib/agent')
-var config = require('../lib/config')
+const {
+  CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS,
+  CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
+  CAPTURE_ERROR_LOG_STACK_TRACES_NEVER,
+  DEFAULTS
+} = require('../lib/config/schema')
 const { findObjInArray } = require('./_utils')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
@@ -1291,7 +1296,7 @@ test('#captureError()', function (t) {
       function () {
         t.equal(apmServer.events.length, 2, 'APM server got 2 events')
         const data = apmServer.events[1].error
-        t.strictEqual(data.exception.stacktrace.length, config.DEFAULTS.stackTraceLimit)
+        t.strictEqual(data.exception.stacktrace.length, DEFAULTS.stackTraceLimit)
         t.strictEqual(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
 
         apmServer.clear()
@@ -1349,7 +1354,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
     ))
     agent.captureError(new Error('foo'),
       function () {
@@ -1370,7 +1375,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
     ))
     agent.captureError('foo',
       function () {
@@ -1391,7 +1396,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
     ))
     agent.captureError({ message: 'Hello %s', params: ['World'] },
       function () {
@@ -1412,7 +1417,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
     ))
     agent.captureError(new Error('foo'),
       function () {
@@ -1433,7 +1438,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
     ))
     agent.captureError('foo',
       function () {
@@ -1454,7 +1459,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
     ))
     agent.captureError({ message: 'Hello %s', params: ['World'] },
       function () {
@@ -1475,7 +1480,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
     ))
     agent.captureError(new Error('foo'),
       function () {
@@ -1497,7 +1502,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
     ))
     agent.captureError('foo',
       function () {
@@ -1518,7 +1523,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
     ))
     agent.captureError({ message: 'Hello %s', params: ['World'] },
       function () {
