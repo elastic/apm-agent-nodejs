@@ -24,7 +24,14 @@ const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopTransport } = require('../lib/noop-transport')
 const { safeGetPackageVersion, findObjInArray } = require('./_utils')
 const { secondsFromDuration } = require('../lib/config/normalizers')
-const config = require('../lib/config')
+const {
+  CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
+  DEFAULTS,
+  DURATION_OPTS,
+  ENV_TABLE
+} = require('../lib/config/schema')
+const config = require('../lib/config/config')
+
 var Instrumentation = require('../lib/instrumentation')
 var apmVersion = require('../package').version
 var apmName = require('../package').name
@@ -121,12 +128,12 @@ var optionFixtures = [
   ['apiRequestSize', 'API_REQUEST_SIZE', 768 * 1024],
   ['apiRequestTime', 'API_REQUEST_TIME', 10],
   ['captureBody', 'CAPTURE_BODY', 'off'],
-  ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
+  ['captureErrorLogStackTraces', 'CAPTURE_ERROR_LOG_STACK_TRACES', CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES],
   ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
   ['centralConfig', 'CENTRAL_CONFIG', true],
   ['containerId', 'CONTAINER_ID'],
   ['contextPropagationOnly', 'CONTEXT_PROPAGATION_ONLY', false],
-  ['customMetricsHistogramBoundaries', 'CUSTOM_METRICS_HISTOGRAM_BOUNDARIES', config.DEFAULTS.customMetricsHistogramBoundaries.slice()],
+  ['customMetricsHistogramBoundaries', 'CUSTOM_METRICS_HISTOGRAM_BOUNDARIES', DEFAULTS.customMetricsHistogramBoundaries.slice()],
   ['disableSend', 'DISABLE_SEND', false],
   ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
   ['environment', 'ENVIRONMENT', 'development'],
@@ -468,7 +475,7 @@ bytesValues.forEach(function (key) {
   })
 })
 
-config.DURATION_OPTS.forEach(function (optSpec) {
+DURATION_OPTS.forEach(function (optSpec) {
   const key = optSpec.name
 
   // Skip the deprecated `spanFramesMinDuration` because config normalization
@@ -478,12 +485,12 @@ config.DURATION_OPTS.forEach(function (optSpec) {
   }
 
   let def
-  if (key in config.DEFAULTS) {
-    def = secondsFromDuration(config.DEFAULTS[key],
+  if (key in DEFAULTS) {
+    def = secondsFromDuration(DEFAULTS[key],
       optSpec.defaultUnit, optSpec.allowedUnits, optSpec.allowNegative)
   } else if (key === 'spanStackTraceMinDuration') {
     // Because of special handling in normalizeSpanStackTraceMinDuration()
-    // `spanStackTraceMinDuration` is not listed in `config.DEFAULTS`.
+    // `spanStackTraceMinDuration` is not listed in `DEFAULTS`.
     def = -1
   } else {
     def = undefined
@@ -1855,7 +1862,7 @@ test('contextManager', suite => {
 
 test('env variable names', suite => {
   // flatten
-  const names = [].concat(...Object.values(config.ENV_TABLE))
+  const names = [].concat(...Object.values(ENV_TABLE))
 
   // list of names we keep around for backwards compatability
   // but that don't conform to the ELASTIC_APM name
