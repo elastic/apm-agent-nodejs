@@ -32,15 +32,18 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.46.0]]
+==== 3.46.0 - 2023/05/15
 
 [float]
 ===== Features
 
-* Add support for @aws-sdk/client-s3 ({pull}3287[#3287])
+* Add support for `@aws-sdk/client-s3`, one of the AWS SDK v3 clients.
+  ({pull}3287[#3287])
+
+* Add support for `@apollo/server@4` -- the new Apollo Server package which
+  replaces `apollo-server`, `apollo-server-express`, etc. Contributed by
+  @jmesimak. ({pull}3203[#3203])
 
 * Add <<capture-body>> support for Fastify instrumentation.
   Contributed by @xxzefgh. ({pull}2681[#2681])
@@ -65,10 +68,10 @@ Notes:
 * Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
 
 [float]
-===== Bug fixes
-
-[float]
 ===== Chores
+
+* The config option <<filter-http-headers, filterHttpHeaders>> is now *deprecated*. It will be
+  removed in a future major version. ({pull}3333[#3333])
 
 * Add cookie map in transactions' request context and redact cookie header ({pull}3322[#3322])
 

@@ -970,33 +970,29 @@ Remove sensitive data sent to Elastic APM.
 
 The `sanitizeFieldNames` configuration value allows you to configure a list of wildcard patterns of field names which should be redacted from agent payloads. Wildcard matches are
 case-insensitive by default. You may make wildcard searches case-sensitive by
-using the `(?-i)` prefix. These patterns apply to the request and response HTTP headers, as well as any form field captured during an `application/x-www-form-urlencoded` data request.
+using the `(?-i)` prefix. These patterns apply to the request and response HTTP headers, HTTP request cookies, and also any form field captured during an `application/x-www-form-urlencoded` data request.
 
-The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to filter or _redact_ other data the <<filter-http-headers,`filterHttpHeaders`>> configuration field or the <<apm-add-filter,API filtering functions>> may be a better choice.
+The `sanitizeFieldNames` will redact any matched _field names_.  If you wish to filter or _redact_ other data the <<apm-add-filter,API filtering functions>> may be a better choice.
 
 [[filter-http-headers]]
 ==== `filterHttpHeaders`
+
+[small]#Deprecated in: v3.46.0
 
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_FILTER_HTTP_HEADERS`
 
-When tracing an incoming HTTP request,
-the agent will add metadata about the requests to the recorded transaction.
-The same applies for errors that occur and are captured as a result of the request.
+`filterHttpHeaders` indicates whether the agent should redact sensitive fields in the `Cookie` HTTP request
+header. If true, the `Cookie` header will be parsed in to the `transaction.request.cookies` name/value
+mapping and any cookie fields that match the patterns in <<sanitize-field-names>> will be replaced with the
+string `[REDACTED]`. If false, the `Cookie` header will be left as is.
 
-This boolean specifies if the agent should anonymize certain sensitive HTTP headers by default before they are sent to the APM Server.
-When anonymized,
-the header value will be set to `[REDACTED]`
+This config option is *deprecated* and will be removed in a future major version. Use <<sanitize-field-names>>
+instead. To replicate `filterHttpHeaders: false`, modify `sanitizeFieldNames` so that no patterns match
+cookie fields that you do not want redacted.
 
-Currently, the following HTTP headers are anonymized by default:
-
-* `Authorization` - The full value of this header is redacted.  In versions of the agent greater than v3.9, the authorization header is redacted by the default configuration of <<sanitize-field-names>>.
-* `Cookie` - The cookies inside the `Cookie` header are analyzed and their values redacted if they appear sensitive (like a session cookie).
-  See the https://github.com/watson/is-secret[is-secret] module for details about which patterns are considered sensitive.
-
-If you wish to filter or sanitize other data,
-use one of the <<apm-add-filter,filtering>> functions.
+See also <<apm-add-filter,the filtering API>> for programmatic control of filtering APM data.
 
 [[disable-instrumentations]]
 ==== `disableInstrumentations`

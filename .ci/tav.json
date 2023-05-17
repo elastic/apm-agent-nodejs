@@ -5,7 +5,6 @@
     "@apollo/server",
     "@aws-sdk/client-s3",
     "@elastic/elasticsearch",
-    "@elastic/elasticsearch-canary",
     "@hapi/hapi",
     "@opentelemetry/api",
     "@opentelemetry/sdk-metrics",

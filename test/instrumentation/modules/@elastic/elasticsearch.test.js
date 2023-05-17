@@ -24,7 +24,7 @@ const agent = require('../../../..').start({
 
 const { URL } = require('url')
 
-const config = require('../../../../lib/config')
+const { CONTEXT_MANAGER_PATCH } = require('../../../../lib/config/schema')
 const { safeGetPackageVersion } = require('../../../_utils')
 
 // Support running these tests with a different package name -- typically
@@ -398,7 +398,7 @@ if (semver.gte(process.version, '10.0.0')) {
   // clients. Also cannot test with contextManager="patch", because of the
   // limitation described in "modules/@elastic/elasticsearch.js".)
   if (semver.satisfies(esVersion, '>=8') &&
-      agent._conf.contextManager !== config.CONTEXT_MANAGER_PATCH) {
+      agent._conf.contextManager !== CONTEXT_MANAGER_PATCH) {
     test('cluster name from "x-found-handling-cluster"', function (t) {
       // Create a mock Elasticsearch server that mimics a search response from
       // a cloud instance.
@@ -986,7 +986,7 @@ function checkDataAndEnd (t, expectedName, expectedHttpUrl, expectedStatusCode, 
     // a limitation such that some HTTP context fields cannot be captured.
     // (See "Limitations" section in the instrumentation code.)
     if (semver.satisfies(esVersion, '>=8', { includePrerelease: true }) &&
-          agent._conf.contextManager === config.CONTEXT_MANAGER_PATCH) {
+          agent._conf.contextManager === CONTEXT_MANAGER_PATCH) {
       t.comment('skip span.context.http.{status_code,response} check because of contextManager="patch" + esVersion>=8 limitation')
     } else {
       t.equal(esSpan.context.http.status_code, expectedStatusCode, 'context.http.status_code')

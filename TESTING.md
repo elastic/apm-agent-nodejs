@@ -1,17 +1,24 @@
 # Testing
 
-There are two sets of tests:
+There are three types of tests:
 
  1. The (ambiguously named) **tests**. This means running any or all of the
     ".test.js" files under the "test" directory. For example, running
     "test/config.test.js" or running "test/instrumentation/modules/ioredis.test.js"
     using the currently installed "ioredis" dev-dependency.
 
- 2. The **TAV tests** (TAV stands for test-all-versions). This means running a
-    relevant subset of the ".test.js" files against a range of versions of the
-    module under test. For example, running the same "ioredis.test.js" multiple
-    times, once for each version of the "ioredis" module that this Node.js APM
-    agent supports instrumenting.
+ 2. The **TAV tests** (TAV stands for test-all-versions). This means running
+    the relevant subset of the ".test.js" files against the supported range of
+    versions of a module that the APM agent supports instrumenting.  For
+    example, running the same "ioredis.test.js" multiple times, once for each
+    version of the "ioredis" module that this Node.js APM agent supports
+    instrumenting.
+
+ 3. The **Edge tests**. This means running the "tests" against an "edge", or
+    non-release, version of Node.js. Relevant non-release versions are (a) the
+    latest [nightly](https://nodejs.org/download/nightly/) build for the
+    next version of Node.js, and (b) a possible [RC](https://nodejs.org/download/rc/)
+    build for an upcoming release.
 
 
 ## Quick start test commands
@@ -59,7 +66,7 @@ can be faster. To run all tests **locally** (i.e. outside of Docker):
     node test/test.js     # run all tests locally
     npm run docker:stop   # stop all test services
 
-Test files are "*.test.js" under the "test" directory.  They are written so
+Test files are `*.test.js` under the "test" directory.  They are written so
 each can be run individually:
 
     node test/.../FOO.test.js
@@ -87,8 +94,8 @@ tool is used. A few ".tav.yml" files (e.g. [./.tav.yml](./.tav.yml)) define
 the supported ranges.
 
 Run the TAV tests for **all modules** as follows. This will take a long time.
-`tav` works out all the versions to test and serially installs each version and
-runs the relevant test files.
+For each module to be tested, `tav` works out all the versions to test and
+serially installs each version and runs the relevant test files.
 
     npm run test:tav
 
@@ -100,6 +107,55 @@ TAV tests are run in CI on commits to the "main" branch, as controlled by
 "[tav.yml](./.github/workflows/tav.yml)". See the [CI](#ci) section below.
 (TODO: TAV tests *will* be runnable on-demand for PRs, but that is awaiting
 https://github.com/elastic/apm-agent-nodejs/issues/3227.)
+
+### TAV tests on PRs
+
+When a PR is making changes that might affect instrumentation of a particular
+module it is useful to run the relevant subset of TAV tests for that module.
+This can be triggered via a special PR review comment that starts with
+`/test tav ...` -- it must be a *review* comment to associate with a
+particular PR commit sha. The full syntax is:
+
+```
+/test tav[ module1,module2,...[ nodever1,nodever2]]
+```
+
+Examples:
+
+```
+/test tav ioredis 16        # run TAV tests for module "ioredis" with node 16
+/test tav ioredis           # run TAV tests for module "ioredis" with all node versions
+/test tav ioredis,redis 20  # run TAV tests for modules "ioredis" and "redis" with node 20
+
+/test tav all 8             # run TAV tests for all modules with node 8
+
+/test tav                   # run all TAV tests, avoid using this excessively
+```
+
+
+## Edge tests
+
+Edge tests are run in CI for each push to main. It has two parts:
+
+- `test-nightly` which looks for the penultimate
+  [nightly](https://nodejs.org/download/nightly/) build for the next version of
+  Node.js, installs it (using `nvm`), then runs the full set of
+  ["tests"](#tests). The "penultimate" build is used instead of the latest
+  because the Node.js nightly upload process is not atomic.
+
+- `test-rc` which looks for a possible [RC](https://nodejs.org/download/rc/)
+  build for an unreleased Node.js version. If it finds one it, likewise,
+  installs it and runs the full set of "tests".
+
+These tests are run in a [`node_tests` Docker container](https://github.com/elastic/apm-agent-nodejs/blob/main/.ci/docker/node-edge-container/Dockerfile)
+using Docker Compose to run required services. You can run Edge tests locally
+via:
+
+```
+.ci/scripts/test.sh -h              # show usage
+.ci/scripts/test.sh -b nightly 21   # run nightly tests for Node.js v21
+.ci/scripts/test.sh -b rc 20        # run RC tests for Node.js v20
+```
 
 
 ## CI
@@ -113,6 +169,8 @@ workflows:
   supported Node.js version. Run on every commit to PRs and to "main".
 - [tav](./.github/workflows/tav.yml) - Run [the TAV tests](#tav-tests) with
   every supported Node.js version. Run on every commit to "main".
+- [tav-command](./.github/workflows/tav-command.yml) - Run some or all [TAV tests](#tav-tests)
+  *on demand* in a PR. See [TAV tests on PRs](#tav-tests-on-prs) above.
 - [edge](./.github/workflows/edge.yml) - Run [the tests](#tests) on the
   penultimate [Node.js nightly](https://nodejs.org/download/nightly) build for
   the next upcoming release version; and on active
