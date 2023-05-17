@@ -39,12 +39,11 @@ Notes:
 [float]
 ===== Features
 
+* Add `tedious@16.x` support
+  ({pull}3366[#3366])
+
 [float]
 ===== Bug fixes
-
-* Fix a new case in instrumentation of `tedious` since new version 16 drops support
-  of node v14. Agent should guard instrumentation of a version mismatch.
-  ({issues}3365[#3365])
 
 [float]
 ===== Chores
