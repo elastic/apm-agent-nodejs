@@ -392,7 +392,7 @@ tedious-v15-v16:
   commands: node test/instrumentation/modules/tedious.test.js
 tedious:
   name: tedious
-  node: '>=15'
+  node: '>=16'
   versions: '16.0.0 || 16.1.0 || 16.1.0 <17' # first and last majors subset of '16.x'
   commands: node test/instrumentation/modules/tedious.test.js
 
