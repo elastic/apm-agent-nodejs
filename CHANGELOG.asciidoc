@@ -31,6 +31,24 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix a new case in instrumentation of `tedious` since new version 16 drops support
+  of node v14. Agent should guard instrumentation of a version mismatch.
+  ({issues}3365[#3365])
+
+[float]
+===== Chores
+
 
 [[release-notes-3.46.0]]
 ==== 3.46.0 - 2023/05/15
