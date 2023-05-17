@@ -497,40 +497,78 @@ test('#setCustomContext()', function (t) {
   t.end()
 })
 
-test('#setGlobalLabel()', function (t) {
-  t.test('sets a global label', function (t) {
-    const agent = new Agent().start(agentOptsNoopTransport)
-    t.strictEqual(agent.setGlobalLabel('goo', 1), true)
-    t.deepEqual(agent._conf.globalLabels, Object.entries({ goo: 1 }))
+test('#setGlobalLabel()', function (suite) {
+  let apmServer
+  let suiteAgentOpts
+
+  suite.test('setup mock APM server', function (t) {
+    apmServer = new MockAPMServer()
+    apmServer.start(function (serverUrl) {
+      t.comment('mock APM serverUrl: ' + serverUrl)
+      suiteAgentOpts = Object.assign(
+        {},
+        agentOpts,
+        { serverUrl }
+      )
+      t.end()
+    })
+  })
+
+  suite.test('sets a global label', async function (t) {
+    apmServer.clear()
+    const agent = new Agent().start(suiteAgentOpts)
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { goo: 1 }, 'APM server metadata.labels')
     agent.destroy()
     t.end()
   })
 
-  t.test('extends the predefined global labels', function (t) {
+  suite.test('extends the predefined global labels', async function (t) {
+    apmServer.clear()
     const agentOptsWithGlobalLabels = Object.assign(
       {},
-      agentOptsNoopTransport,
+      suiteAgentOpts,
       { globalLabels: { some: true } }
     )
     const agent = new Agent().start(agentOptsWithGlobalLabels)
-    t.strictEqual(agent.setGlobalLabel('goo', 1), true)
-    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }))
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { some: true, goo: 1 }, 'APM server metadata.labels')
     agent.destroy()
     t.end()
   })
 
-  t.test('overrides an existing global label', function (t) {
+  suite.test('overrides an existing global label', async function (t) {
+    apmServer.clear()
     const agentOptsWithGlobalLabels = Object.assign(
       {},
-      agentOptsNoopTransport,
+      suiteAgentOpts,
       { globalLabels: { some: true, goo: 0 } }
     )
     const agent = new Agent().start(agentOptsWithGlobalLabels)
-    t.strictEqual(agent.setGlobalLabel('goo', 1), true)
-    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }))
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { some: true, goo: 1 }, 'APM server metadata.labels')
     agent.destroy()
     t.end()
   })
+
+  suite.test('teardown mock APM server', function (t) {
+    apmServer.close()
+    t.end()
+  })
+
+  suite.end()
 })
 
 test('#setLabel()', function (t) {
@@ -1959,8 +1997,8 @@ test('patches', function (t) {
     agent.addPatch(moduleName, handler2)
     const modulePatches = agent._instrumentation._patches.get(moduleName)
     t.ok(modulePatches.length === 2 &&
-      modulePatches[0] === handler1 &&
-      modulePatches[1] === handler2, 'module patches are as expected')
+        modulePatches[0] === handler1 &&
+        modulePatches[1] === handler2, 'module patches are as expected')
 
     agent.removePatch(moduleName)
     t.equal(agent._instrumentation._patches.get(moduleName).length, 2,
