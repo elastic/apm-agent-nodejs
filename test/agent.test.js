@@ -502,6 +502,80 @@ test('#setCustomContext()', function (t) {
   t.end()
 })
 
+test('#setGlobalLabel()', function (suite) {
+  let apmServer
+  let suiteAgentOpts
+
+  suite.test('setup mock APM server', function (t) {
+    apmServer = new MockAPMServer()
+    apmServer.start(function (serverUrl) {
+      t.comment('mock APM serverUrl: ' + serverUrl)
+      suiteAgentOpts = Object.assign(
+        {},
+        agentOpts,
+        { serverUrl }
+      )
+      t.end()
+    })
+  })
+
+  suite.test('sets a global label', async function (t) {
+    apmServer.clear()
+    const agent = new Agent().start(suiteAgentOpts)
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { goo: 1 }, 'APM server metadata.labels')
+    agent.destroy()
+    t.end()
+  })
+
+  suite.test('extends the predefined global labels', async function (t) {
+    apmServer.clear()
+    const agentOptsWithGlobalLabels = Object.assign(
+      {},
+      suiteAgentOpts,
+      { globalLabels: { some: true } }
+    )
+    const agent = new Agent().start(agentOptsWithGlobalLabels)
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { some: true, goo: 1 }, 'APM server metadata.labels')
+    agent.destroy()
+    t.end()
+  })
+
+  suite.test('overrides an existing global label', async function (t) {
+    apmServer.clear()
+    const agentOptsWithGlobalLabels = Object.assign(
+      {},
+      suiteAgentOpts,
+      { globalLabels: { some: true, goo: 0 } }
+    )
+    const agent = new Agent().start(agentOptsWithGlobalLabels)
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { some: true, goo: 1 }, 'APM server metadata.labels')
+    agent.destroy()
+    t.end()
+  })
+
+  suite.test('teardown mock APM server', function (t) {
+    apmServer.close()
+    t.end()
+  })
+
+  suite.end()
+})
+
 test('#setLabel()', function (t) {
   t.test('no active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)

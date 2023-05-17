@@ -291,6 +291,25 @@ WARNING: Avoid defining too many user-specified labels.
 Defining too many unique fields in an index is a condition that can lead to a
 {ref}/mapping.html#mapping-limit-settings[mapping explosion].
 
+[[apm-set-global-label]]
+==== `apm.setGlobalLabel(name, value)`
+
+[small]#Added in: REPLACEME#
+
+* `name` +{type-string}+
+* `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+
+Extends the <<global-labels>> configuration. It allows setting labels that are applied to all transactions. A potential use case is to specify a label with the state of your application: `'initializing' | 'available' | 'unhealthy'`.
+
+TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
+(as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+Before using custom labels, ensure you understand the different types of
+{apm-guide-ref}/metadata.html[metadata] that are available.
+
+WARNING: Avoid defining too many user-specified labels.
+Defining too many unique fields in an index is a condition that can lead to a
+{ref}/mapping.html#mapping-limit-settings[mapping explosion].
+
 [[apm-capture-error]]
 ==== `apm.captureError(error[, options][, callback])`
 

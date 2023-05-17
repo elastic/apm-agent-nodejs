@@ -116,6 +116,7 @@ declare namespace apm {
     currentSpan: Span | null;
 
     // Context
+    setGlobalLabel (name: string, value: LabelValue): void;
     setLabel (name: string, value: LabelValue, stringify?: boolean): boolean;
     addLabels (labels: Labels, stringify?: boolean): boolean;
     setUserContext (user: UserObject): void;
