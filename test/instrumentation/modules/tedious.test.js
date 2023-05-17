@@ -22,7 +22,8 @@ const agent = require('../../../').start({
 
 const tediousVer = require('../../../node_modules/tedious/package.json').version
 const semver = require('semver')
-if ((semver.gte(tediousVer, '15.0.0') && semver.lt(process.version, '14.0.0')) ||
+if ((semver.gte(tediousVer, '16.0.0') && semver.lt(process.version, '15.0.0')) ||
+    (semver.gte(tediousVer, '15.0.0') && semver.lt(process.version, '14.0.0')) ||
     (semver.gte(tediousVer, '12.0.0') && semver.lt(process.version, '12.3.0')) ||
     (semver.gte(tediousVer, '11.0.0') && semver.lt(process.version, '10.17.0'))) {
   console.log(`# SKIP tedious@${tediousVer} does not support node ${process.version}`)
