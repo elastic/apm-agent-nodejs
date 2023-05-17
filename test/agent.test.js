@@ -2002,8 +2002,8 @@ test('patches', function (t) {
     agent.addPatch(moduleName, handler2)
     const modulePatches = agent._instrumentation._patches.get(moduleName)
     t.ok(modulePatches.length === 2 &&
-        modulePatches[0] === handler1 &&
-        modulePatches[1] === handler2, 'module patches are as expected')
+      modulePatches[0] === handler1 &&
+      modulePatches[1] === handler2, 'module patches are as expected')
 
     agent.removePatch(moduleName)
     t.equal(agent._instrumentation._patches.get(moduleName).length, 2,
