@@ -31,6 +31,23 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Add `tedious@16.x` support
+  ({pull}3366[#3366])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
 
 [[release-notes-3.46.0]]
 ==== 3.46.0 - 2023/05/15
