@@ -31,6 +31,23 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+* Add support for 'knex' version v1 and v2
+  ({pull}3355[#3355])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
 
 [[release-notes-3.46.0]]
 ==== 3.46.0 - 2023/05/15
@@ -38,9 +55,6 @@ Notes:
 [float]
 ===== Features
 
-* Add support for 'knex' version v1 ({pull}3355[#3355])
-
-* Add support for @aws-sdk/client-s3 ({pull}3287[#3287])
 * Add support for `@aws-sdk/client-s3`, one of the AWS SDK v3 clients.
   ({pull}3287[#3287])
 
