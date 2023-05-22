@@ -23,7 +23,7 @@ const constantsGlobal = require('../../lib/constants')
 const mockClient = require('../_mock_http_client')
 
 const tape = require('tape')
-const { NoopTransport } = require('../../lib/noop-transport')
+const { NoopTransport } = require('../../lib/transport/noop-transport')
 
 // `setTimeout` precision is ~1ms. It can fire its callback up to a millisecond
 // early. Comparisons on the minimum time for an action using setTimeout should

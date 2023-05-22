@@ -11,7 +11,7 @@
 const tape = require('tape')
 
 const apm = require('../')
-const { NoopTransport } = require('../lib/noop-transport')
+const { NoopTransport } = require('../lib/transport/noop-transport')
 const { MockAPMServer } = require('./_mock_apm_server')
 
 tape.test('disableSend', function (suite) {
