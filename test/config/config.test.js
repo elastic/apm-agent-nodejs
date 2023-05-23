@@ -59,7 +59,7 @@ function testEnvVar (t, option, value1, value2) {
   t.end()
 }
 
-// Test BOOLS
+// Test BOOLS that can be set via ENV
 const BOOL_OPTS_WITH_ENV_EXCLUDED = [
   // This ones depend on other options so we should have specific tests
   'captureSpanStackTraces',
@@ -72,7 +72,6 @@ const BOOL_OPTS_WITH_ENV = CONFIG_DEFINITIONS.filter(function (def) {
   return ('envVar' in def) && !isExcluded && hasType(def, 'boolean')
 })
 
-// Test BOOLEAN configurations
 BOOL_OPTS_WITH_ENV.forEach(function (option) {
   test(`${option.name} should be configurable by environment variable ${option.envVar}`, function (t) {
     testEnvVar(t, option, !option.defaultValue)
@@ -83,12 +82,9 @@ BOOL_OPTS_WITH_ENV.forEach(function (option) {
   })
 })
 
-// Test BOOLS
-const NUM_OPTS_WITH_ENV_EXCLUDED = [
-]
+// Test BOOLS that can be set via ENV
 const NUM_OPTS_WITH_ENV = CONFIG_DEFINITIONS.filter(function (def) {
-  const isExcluded = NUM_OPTS_WITH_ENV_EXCLUDED.indexOf(def.name) !== -1
-  return ('envVar' in def) && !isExcluded && hasType(def, 'number')
+  return ('envVar' in def) && hasType(def, 'number')
 })
 
 NUM_OPTS_WITH_ENV.forEach(function (option) {
@@ -97,6 +93,11 @@ NUM_OPTS_WITH_ENV.forEach(function (option) {
   })
 
   test(`should overwrite option property ${option.name} by environment variable ${option.envVar}`, function (t) {
-    testEnvVar(t, option, 1, 2)
+    // 'transactionSampleRate' only accepts values between [0,1]
+    if (option.name === 'transactionSampleRate') {
+      testEnvVar(t, option, 1, 0.5)
+    } else {
+      testEnvVar(t, option, 1, 2)
+    }
   })
 })
