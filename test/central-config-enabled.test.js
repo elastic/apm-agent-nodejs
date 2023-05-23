@@ -51,7 +51,7 @@ const runTestsWithServer = (t, updates, expect) => {
     agent = new Agent().start({
       serverUrl: 'http://localhost:' + server.address().port,
       serviceName: 'test',
-      logLevel: 'off', // silence for cleaner test output
+      // logLevel: 'off', // silence for cleaner test output
       captureExceptions: false,
       apmServerVersion: '8.0.0',
       metricsInterval: 0,
