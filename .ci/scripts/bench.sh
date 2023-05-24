@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exo pipefail
+set -eo pipefail
 
 # Run the microbenchmark in Buildkite and for such
 # it configures the required settings in the Buildkite runners
@@ -7,6 +7,8 @@ set -exo pipefail
 
 ## Buildkite specific configuration
 if [ "$CI" == "true" ] ; then
+
+  echo "--- Configure Buildkite worker"
 	# If HOME is not set then use the Buildkite workspace
 	# that's normally happening when running in the CI
 	# owned by Elastic.
@@ -23,4 +25,6 @@ if [ "$CI" == "true" ] ; then
 fi
 
 .ci/scripts/run-benchmarks.sh "apm-agent-benchmark-results.json" "14"
+
+echo "--- Send benchmarks"
 echo "TBC: sendBenchmarks(file: \"apm-agent-benchmark-results.json\", index: \"benchmark-nodejs\", archive: true)"
