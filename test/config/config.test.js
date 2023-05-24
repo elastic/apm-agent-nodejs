@@ -39,7 +39,7 @@ function hasType (def, type) {
   return def.types && def.types.indexOf(type) !== -1
 }
 
-function testEnvVar (t, option, value1, value2) {
+function assertEnvVar (t, option, value1, value2) {
   const existingEnvValue = process.env[option.envVar]
   const agent = new Agent()
   const opts = {}
@@ -56,7 +56,6 @@ function testEnvVar (t, option, value1, value2) {
 
   process.env[option.envVar] = existingEnvValue
   agent.destroy()
-  t.end()
 }
 
 // Test BOOLS that can be set via ENV
@@ -74,11 +73,13 @@ const BOOL_OPTS_WITH_ENV = CONFIG_DEFINITIONS.filter(function (def) {
 
 BOOL_OPTS_WITH_ENV.forEach(function (option) {
   test(`${option.name} should be configurable by environment variable ${option.envVar}`, function (t) {
-    testEnvVar(t, option, !option.defaultValue)
+    assertEnvVar(t, option, !option.defaultValue)
+    t.end()
   })
 
   test(`should overwrite option property ${option.name} by environment variable ${option.envVar}`, function (t) {
-    testEnvVar(t, option, !option.defaultValue, !!option.defaultValue)
+    assertEnvVar(t, option, !option.defaultValue, !!option.defaultValue)
+    t.end()
   })
 })
 
@@ -89,15 +90,17 @@ const NUM_OPTS_WITH_ENV = CONFIG_DEFINITIONS.filter(function (def) {
 
 NUM_OPTS_WITH_ENV.forEach(function (option) {
   test(`${option.name} should be configurable by environment variable ${option.envVar}`, function (t) {
-    testEnvVar(t, option, 1)
+    assertEnvVar(t, option, 1)
+    t.end()
   })
 
   test(`should overwrite option property ${option.name} by environment variable ${option.envVar}`, function (t) {
     // 'transactionSampleRate' only accepts values between [0,1]
     if (option.name === 'transactionSampleRate') {
-      testEnvVar(t, option, 1, 0.5)
+      assertEnvVar(t, option, 1, 0.5)
     } else {
-      testEnvVar(t, option, 1, 2)
+      assertEnvVar(t, option, 1, 2)
     }
+    t.end()
   })
 })
