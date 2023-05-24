@@ -82,7 +82,7 @@ BOOL_OPTS_WITH_ENV.forEach(function (option) {
   })
 })
 
-// Test BOOLS that can be set via ENV
+// Test NUMS that can be set via ENV
 const NUM_OPTS_WITH_ENV = CONFIG_DEFINITIONS.filter(function (def) {
   return ('envVar' in def) && hasType(def, 'number')
 })
