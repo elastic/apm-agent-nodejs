@@ -19,17 +19,12 @@ fi
 
 echo "--- Download nvm"
 # This particular configuration is required to be installed in the baremetal
-curl -sS -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
+PROFILE=/dev/null bash -c 'curl -sS -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash'
 
 echo "--- Install nvm"
 #set +x  # Disable xtrace because output using nvm.sh is huge.
-if [ -s "$NVM_DIR/nvm.sh" ] ; then
-  \. "$NVM_DIR/nvm.sh"
-else
-  echo "$NVM_DIR/nvm.sh could not be found"
-  exit 1
-fi
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
 set -x
 command -v nvm
