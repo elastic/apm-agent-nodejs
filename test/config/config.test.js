@@ -35,26 +35,42 @@ const agentOptsNoTransportNoLogger = Object.assign(
   }
 )
 
+/**
+ * Tells if a config option definition has the given type
+ *
+ * @param {Object} def The definition of the config option
+ * @param {Array<string> | undefined} def.types List of the types for that option
+ * @param {string} type Type to check for presence
+ * @returns {Boolean}
+ */
 function hasType (def, type) {
   return def.types && def.types.indexOf(type) !== -1
 }
 
-function assertEnvVar (t, option, value1, value2) {
-  const existingEnvValue = process.env[option.envVar]
+/**
+ * Asserts that ENV vars set the option values and overrides the ones used in `agent.start()`
+ *
+ * @param {Object} t Test object instance
+ * @param {Object} optionDef The definition of the config option
+ * @param {*} value1 If value2 param defined { the value from `agent.start` options } else { the value from ENV }
+ * @param {*} value2 If defined it holde the value from ENV
+ */
+function assertEnvVar (t, optionDef, value1, value2) {
+  const existingEnvValue = process.env[optionDef.envVar]
   const agent = new Agent()
   const opts = {}
   let value = value1
 
   if (value2) {
-    opts[option.name] = value1
+    opts[optionDef.name] = value1
     value = value2
   }
 
-  process.env[option.envVar] = value.toString()
+  process.env[optionDef.envVar] = value.toString()
   agent.start(agentOptsNoTransportNoLogger)
-  t.strictEqual(agent._conf[option.name], value)
+  t.strictEqual(agent._conf[optionDef.name], value)
 
-  process.env[option.envVar] = existingEnvValue
+  process.env[optionDef.envVar] = existingEnvValue
   agent.destroy()
 }
 
