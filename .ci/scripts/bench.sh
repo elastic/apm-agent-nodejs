@@ -9,7 +9,6 @@ set -eo pipefail
 if [ "$CI" == "true" ] ; then
 
   echo "--- Configure Buildkite worker"
-  echo "::group::GitHub Configure Buildkite worker"
 	# If HOME is not set then use the Buildkite workspace
 	# that's normally happening when running in the CI
 	# owned by Elastic.
@@ -23,12 +22,9 @@ if [ "$CI" == "true" ] ; then
 	export PATH
 
 	echo 'Docker login is done in the Buildkite hooks'
-  echo "::endgroup::"
 fi
 
 .ci/scripts/run-benchmarks.sh "apm-agent-benchmark-results.json" "14"
 
 echo "--- Send benchmarks"
-echo "::group::Send benchmarks"
 echo "TBC: sendBenchmarks(file: \"apm-agent-benchmark-results.json\", index: \"benchmark-nodejs\", archive: true)"
-echo "::endgroup::"
