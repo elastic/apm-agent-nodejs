@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - feature/microbenchmark
     paths-ignore:
       - '**.md'
       - '**.asciidoc'
