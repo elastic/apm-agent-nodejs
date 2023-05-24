@@ -23,7 +23,7 @@ const constantsGlobal = require('../../lib/constants')
 const mockClient = require('../_mock_http_client')
 
 const tape = require('tape')
-const { NoopTransport } = require('../../lib/transport/noop-transport')
+const { NoopApmClient } = require('../../lib/apm-client/noop-apm-client')
 
 // `setTimeout` precision is ~1ms. It can fire its callback up to a millisecond
 // early. Comparisons on the minimum time for an action using setTimeout should
@@ -218,7 +218,7 @@ tape.test('unit tests', function (suite) {
   // there is another write to the hacked `agent._transport`, then in 200ms
   // the last registered callback will be invoked, resulting in a double
   // `t.end()`.
-  agent._transport = new NoopTransport()
+  agent._transport = new NoopApmClient()
 
   suite.test('test _getCompressionStrategy invalid', function (t) {
     const c = new SpanCompression(agent)

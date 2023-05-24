@@ -27,7 +27,7 @@ const {
 } = require('../lib/config/schema')
 const { findObjInArray } = require('./_utils')
 const { MockAPMServer } = require('./_mock_apm_server')
-const { NoopTransport } = require('../lib/transport/noop-transport')
+const { NoopApmClient } = require('../lib/apm-client/noop-apm-client')
 var packageJson = require('../package.json')
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
@@ -50,7 +50,7 @@ const agentOptsNoopTransport = Object.assign(
   {
     transport: function createNoopTransport () {
       // Avoid accidentally trying to send data to an APM server.
-      return new NoopTransport()
+      return new NoopApmClient()
     }
   }
 )

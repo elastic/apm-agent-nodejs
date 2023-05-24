@@ -10,7 +10,7 @@ const test = require('tape')
 
 var apmVersion = require('../../package').version
 
-const { userAgentFromConf } = require('../../lib/transport/elastic-apm-transport')
+const { userAgentFromConf } = require('../../lib/apm-client/http-apm-client')
 
 // Test User-Agent generation. It would be nice to also test against gherkin
 // specs from apm.git.
