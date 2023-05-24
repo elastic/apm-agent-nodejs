@@ -8,7 +8,7 @@
 
 const test = require('tape')
 
-const { CONFIG_DEFINITIONS } = require('./fixtures/config-schema')
+const { CONFIG_SCHEMA } = require('./fixtures/config-schema')
 
 const Agent = require('../../lib/agent')
 const { NoopTransport } = require('../../lib/noop-transport')
@@ -82,7 +82,7 @@ const BOOL_OPTS_WITH_ENV_EXCLUDED = [
   // this one seems to have a bug
   'breakdownMetrics'
 ]
-const BOOL_OPTS_WITH_ENV = CONFIG_DEFINITIONS.filter(function (def) {
+const BOOL_OPTS_WITH_ENV = CONFIG_SCHEMA.filter(function (def) {
   const isExcluded = BOOL_OPTS_WITH_ENV_EXCLUDED.indexOf(def.name) !== -1
   return ('envVar' in def) && !isExcluded && hasType(def, 'boolean')
 })
@@ -100,7 +100,7 @@ BOOL_OPTS_WITH_ENV.forEach(function (option) {
 })
 
 // Test NUMS that can be set via ENV
-const NUM_OPTS_WITH_ENV = CONFIG_DEFINITIONS.filter(function (def) {
+const NUM_OPTS_WITH_ENV = CONFIG_SCHEMA.filter(function (def) {
   return ('envVar' in def) && hasType(def, 'number')
 })
 
