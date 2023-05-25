@@ -30,8 +30,9 @@ if (semver.gte(ioredisVer, '5.0.0') && semver.lt(process.version, '12.22.0')) {
 var Redis = require('ioredis')
 var test = require('tape')
 
-var findObjInArray = require('../../_utils').findObjInArray
 var mockClient = require('../../_mock_http_client')
+const { NoopTransport } = require('../../../lib/noop-transport') // XXX refactor name coming
+const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../_utils')
 
 test('not nested', function (t) {
   resetAgent(done(t))
@@ -198,3 +199,58 @@ function resetAgent (cb) {
   agent._instrumentation.testReset()
   agent._transport = mockClient(9, cb)
 }
+
+const testFixtures = [
+  {
+    script: 'fixtures/use-ioredis.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../loader.mjs --require=../../../start.js',
+      NODE_NO_WARNINGS: '1'
+    },
+    nodeRange: '>=12.20.0 <20', // supported range for import-in-the-middle
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.equal(apmServer.events.length, 7, 'expected number of APM server events')
+      t.ok(apmServer.events[0].metadata, 'metadata')
+      const events = sortApmEvents(apmServer.events)
+
+      const trans = events[0].transaction
+      t.equal(trans.name, 'trans', 'transaction.name')
+      t.equal(trans.type, 'custom', 'transaction.type')
+      t.equal(trans.outcome, 'unknown', 'transaction.outcome')
+
+      const spans = events.slice(1, 5).map(e => e.span)
+      const expectedSpanNames = ['SET', 'GET', 'HSET', 'GET']
+      spans.forEach((s, idx) => {
+        t.equal(s.name, expectedSpanNames[idx], `span[${idx}].name`)
+        t.equal(s.type, 'db', `span[${idx}].type`)
+        t.equal(s.action, 'query', `span[${idx}].action`)
+        t.equal(s.parent_id, trans.id, `span[${idx}].parent_id`)
+        t.deepEqual(s.context, {
+          service: { target: { type: 'redis' } },
+          destination: {
+            address: 'localhost',
+            port: 6379,
+            service: { type: '', name: '', resource: 'redis' }
+          },
+          db: { type: 'redis' }
+        }, `span[${idx}].context`)
+      })
+
+      const error = events.slice(-1)[0].error
+      t.equal(error.exception.type, 'ReplyError', 'error.exception.type')
+      t.equal(error.transaction_id, trans.id, 'error.transaction_id')
+      t.equal(error.parent_id, spans[spans.length - 1].id,
+        'error.parent_id, it is a child of the last span')
+    }
+  }
+]
+
+test('ioredis fixtures', suite => {
+  // Undo the `agent._transport = ...` from earlier `resetAgent` usage.
+  agent._transport = new NoopTransport()
+
+  runTestFixtures(suite, testFixtures)
+  suite.end()
+})

@@ -4,12 +4,4 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
-
-// Node.js 12+ requires a fully qualified filename
-import agent from '../../index.js'
-
-agent.start({
-  captureExceptions: false,
-  metricsInterval: '0'
-})
+export * from 'import-in-the-middle/hook.mjs'
