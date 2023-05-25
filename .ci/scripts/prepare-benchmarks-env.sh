@@ -20,10 +20,14 @@ fi
 echo "--- Download nvm"
 # This particular configuration is required to be installed in the baremetal
 curl -sS -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+
+echo "--- Debug nvm "
+# debug if curl works as explained in https://github.com/nvm-sh/nvm/issues/3117
+curl -I --compressed -v https://nodejs.org/dist/
 
 echo "--- Install nvm"
 set +x  # Disable xtrace because output using nvm.sh is huge.
-export NVM_DIR="$HOME/.nvm"
 if [ -s "$NVM_DIR/nvm.sh" ] ; then
   # As long as the Buildkite agent does some weird behaviours compare to the Jenkins agent
   # let's avoid failures when running nvm.sh for the first time. For some reason
