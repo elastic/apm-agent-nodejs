@@ -8,7 +8,7 @@
 
 // Test the normalizer functions
 const test = require('tape')
-const MockLogger = require('./_mock_logger')
+const { MockLogger } = require('../_mock_logger')
 
 const {
   TRACE_CONTINUATION_STRATEGY_CONTINUE,
