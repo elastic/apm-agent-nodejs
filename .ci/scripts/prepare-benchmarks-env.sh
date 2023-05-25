@@ -28,7 +28,9 @@ if ! command -v nvm &> /dev/null ; then
   echo "--- Install nvm"
   #set +x  # Disable xtrace because output using nvm.sh is huge.
   export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+  if [ -s "$NVM_DIR/nvm.sh" ] ; then
+    \. "$NVM_DIR/nvm.sh" || true
+  fi
 fi
 
 set -x
