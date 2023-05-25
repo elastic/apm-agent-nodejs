@@ -37,7 +37,6 @@ if [ -s "$NVM_DIR/nvm.sh" ] ; then
   \. "$NVM_DIR/nvm.sh" || true
 fi
 
-set -x
 command -v nvm
 nvm --version
 
@@ -45,6 +44,7 @@ echo "--- Run nvm install ${NODE_VERSION}"
 nvm install "${NODE_VERSION}"
 
 echo "--- Run npm"
+set -x
 npm config list
 npm install
 
