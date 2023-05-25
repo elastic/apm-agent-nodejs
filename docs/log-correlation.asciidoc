@@ -18,5 +18,5 @@ Using your favorite logging framework, you'd then need to inject this informatio
 
 When your logs contain the appropriate identifiers, the final step is to ingest them into the same
 Elasticsearch instance that contains your APM data. See
-link:https://www.elastic.co/guide/en/apm/guide/master/log-correlation.html#ingest-logs-in-es[Ingest your logs into Elasticsearch]
+{apm-guide-ref}/log-correlation.html#ingest-logs-in-es[Ingest your logs into Elasticsearch]
 for more information.
