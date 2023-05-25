@@ -164,7 +164,7 @@ apm.addMetadataFilter(function dropArgv(metadata) {
 
 Warning: It is the responsibility of the author to ensure the returned object
 conforms to the
-{apm-guide-ref}/metadata-api.html#metadata-schema[metadata schema]
+{apm-guide-ref}/metadata-api.html[metadata schema]
 otherwise all APM data injest will fail. A metadata filter that breaks the
 metadata will result in error logging from the agent, something like:
 
