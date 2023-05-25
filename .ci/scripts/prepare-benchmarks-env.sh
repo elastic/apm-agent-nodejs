@@ -17,6 +17,9 @@ if [[ -z "$NODE_VERSION" ]]; then
   exit 1
 fi
 
+# Help to debug whether the shell is login so we know nvm might not be affected by that.
+shopt -q login_shell && echo 'Login shell' || echo 'No login shell'
+
 if ! command -v nvm &> /dev/null ; then
   echo "--- Download nvm"
   # This particular configuration is required to be installed in the baremetal
