@@ -48,7 +48,7 @@ Notes:
 [float]
 ===== Chores
 
-* Extract configuration's transport to its own module
+* Extract configuration's transport to new `apm-client` module
   ({pull}3372[#3372])
 
 
