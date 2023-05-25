@@ -17,22 +17,20 @@ if [[ -z "$NODE_VERSION" ]]; then
   exit 1
 fi
 
-if ! command -v nvm &> /dev/null ; then
-  echo "--- Download nvm"
-  # This particular configuration is required to be installed in the baremetal
-  PROFILE=/dev/null bash -c 'curl -sS -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash'
+echo "--- Download nvm"
+# This particular configuration is required to be installed in the baremetal
+curl -sS -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 
-  echo "--- Install nvm"
-  set +x  # Disable xtrace because output using nvm.sh is huge.
-  export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-  if [ -s "$NVM_DIR/nvm.sh" ] ; then
-    # As long as the Buildkite agent does some weird behaviours compare to the Jenkins agent
-    # let's avoid failures when running nvm.sh for the first time. For some reason
-    # nvm_resolve_local_alias default returns VERSION= while in Jenkins a similar
-    # runner returns VERSION=v14.21.3
-    # Already reported to the System owners of the Buildkite agent setup.
-    \. "$NVM_DIR/nvm.sh" || true
-  fi
+echo "--- Install nvm"
+set +x  # Disable xtrace because output using nvm.sh is huge.
+export NVM_DIR="$HOME/.nvm"
+if [ -s "$NVM_DIR/nvm.sh" ] ; then
+  # As long as the Buildkite agent does some weird behaviours compare to the Jenkins agent
+  # let's avoid failures when running nvm.sh for the first time. For some reason
+  # nvm_resolve_local_alias default returns VERSION= while in Jenkins a similar
+  # runner returns VERSION=v14.21.3
+  # Already reported to the System owners of the Buildkite agent setup.
+  \. "$NVM_DIR/nvm.sh" || true
 fi
 
 set -x
