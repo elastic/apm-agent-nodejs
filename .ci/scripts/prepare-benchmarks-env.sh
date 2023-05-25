@@ -17,14 +17,13 @@ if [[ -z "$NODE_VERSION" ]]; then
   exit 1
 fi
 
-echo "--- Download nvm"
+echo "--- Download/Install nvm"
 # This particular configuration is required to be installed in the baremetal
-PROFILE=/dev/null bash -c 'curl -sS -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash'
-
-echo "--- Install nvm"
-#set +x  # Disable xtrace because output using nvm.sh is huge.
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+export NVM_DIR="$HOME/.nvm" && (
+  git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
+  cd "$NVM_DIR"
+  git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
+) && \. "$NVM_DIR/nvm.sh"
 
 set -x
 command -v nvm
