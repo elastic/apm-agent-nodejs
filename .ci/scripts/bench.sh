@@ -24,8 +24,6 @@ if [ "$CI" == "true" ] ; then
 	echo 'Docker login is done in the Buildkite hooks'
 fi
 
-# for debugging whether it's accessible. To be deleted
-curl --user "$ES_USER_SECRET:$ES_PASS_SECRET" "$ES_URL_SECRET"/_cat/health
 
 .ci/scripts/run-benchmarks.sh "apm-agent-benchmark-results.json" "14"
 
