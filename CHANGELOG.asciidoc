@@ -31,7 +31,6 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
-
 ==== Unreleased
 
 [float]
@@ -40,7 +39,31 @@ Notes:
 [float]
 ===== Features
 
-* Add support for @aws-sdk/client-s3 ({pull}3287[#3287])
+* Add `tedious@16.x` support
+  ({pull}3366[#3366])
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+* Extract configuration's transport property to new `apm-client` module
+  ({pull}3372[#3372])
+
+
+[[release-notes-3.46.0]]
+==== 3.46.0 - 2023/05/15
+
+[float]
+===== Features
+
+* Add support for `@aws-sdk/client-s3`, one of the AWS SDK v3 clients.
+  ({pull}3287[#3287])
+
+* Add support for `@apollo/server@4` -- the new Apollo Server package which
+  replaces `apollo-server`, `apollo-server-express`, etc. Contributed by
+  @jmesimak. ({pull}3203[#3203])
 
 * Add <<capture-body>> support for Fastify instrumentation.
   Contributed by @xxzefgh. ({pull}2681[#2681])
@@ -62,8 +85,7 @@ Notes:
   and the APM agent will automatically add a MetricReader to ship metrics to
   APM server. See the <<opentelemetry-bridge>> for details. ({pull}3152[#3152])
 
-[float]
-===== Bug fixes
+* Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
 
 [float]
 ===== Chores
