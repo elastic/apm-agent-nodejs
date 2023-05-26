@@ -31,7 +31,7 @@ var Redis = require('ioredis')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
-const { NoopTransport } = require('../../../lib/noop-transport') // XXX refactor name coming
+const { NoopApmClient } = require('../../../lib/apm-client/noop-apm-client') // XXX refactor name coming
 const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../_utils')
 
 test('not nested', function (t) {
@@ -249,7 +249,7 @@ const testFixtures = [
 
 test('ioredis fixtures', suite => {
   // Undo the `agent._transport = ...` from earlier `resetAgent` usage.
-  agent._transport = new NoopTransport()
+  agent._transport = new NoopApmClient()
 
   runTestFixtures(suite, testFixtures)
   suite.end()
