@@ -27,4 +27,4 @@ fi
 .ci/scripts/run-benchmarks.sh "apm-agent-benchmark-results.json" "14"
 
 echo "--- Send benchmarks"
-echo "TBC: sendBenchmarks(file: \"apm-agent-benchmark-results.json\", index: \"benchmark-nodejs\", archive: true)"
+sendBenchmark "$ES_USER_SECRET" "$ES_PASS_SECRET" "$ES_URL_SECRET" "apm-agent-benchmark-results.json"
