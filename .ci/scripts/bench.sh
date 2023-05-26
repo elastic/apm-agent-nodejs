@@ -24,7 +24,16 @@ if [ "$CI" == "true" ] ; then
 	echo 'Docker login is done in the Buildkite hooks'
 fi
 
+# for debugging whether it's accessible. To be deleted
+curl --user "$ES_USER_SECRET:$ES_PASS_SECRET" "$ES_URL_SECRET"/_cat/health
+
 .ci/scripts/run-benchmarks.sh "apm-agent-benchmark-results.json" "14"
 
 echo "--- Send benchmarks"
-sendBenchmark "$ES_USER_SECRET" "$ES_PASS_SECRET" "$ES_URL_SECRET" "apm-agent-benchmark-results.json"
+set -x
+#sendBenchmark "$ES_USER_SECRET" "$ES_PASS_SECRET" "$ES_URL_SECRET" "apm-agent-benchmark-results.json"
+curl -X POST \
+    -H "Content-Type: application/x-ndjson" \
+    --user "$ES_USER_SECRET:$ES_PASS_SECRET" \
+    "$ES_URL_SECRET"/_bulk \
+    --data-binary @apm-agent-benchmark-results.json
