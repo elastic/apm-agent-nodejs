@@ -10,7 +10,7 @@
 import apm from '../../../../index.js' // 'elastic-apm-node'
 import Redis from 'ioredis'
 
-const redis = new Redis()
+const redis = new Redis(process.env.REDIS_HOST)
 
 async function main () {
   const trans = apm.startTransaction('trans')
