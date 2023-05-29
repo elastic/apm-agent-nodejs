@@ -236,7 +236,7 @@ const testFixtures = [
         t.deepEqual(s.context, {
           service: { target: { type: 'redis' } },
           destination: {
-            address: 'localhost',
+            address: process.env.REDIS_HOST || 'localhost',
             port: 6379,
             service: { type: '', name: '', resource: 'redis' }
           },
