@@ -495,7 +495,7 @@ DURATION_OPTS.forEach(function (optSpec) {
       } else {
         t.strictEqual(agent._conf[key], def, 'fell back to default value')
       }
-      const warning = logger.calls[0]
+      const warning = logger.calls.find(log => log.type === 'warn')
       t.equal(warning.type, 'warn', 'got a log.warn')
       t.ok(warning.message.indexOf('-3s') !== -1, 'warning message includes the invalid value')
       t.ok(warning.message.indexOf(key) !== -1, 'warning message includes the invalid key')
@@ -522,7 +522,7 @@ DURATION_OPTS.forEach(function (optSpec) {
     } else {
       t.strictEqual(agent._conf[key], def, 'fell back to default value')
     }
-    const warning = logger.calls[0]
+    const warning = logger.calls.find(log => log.type === 'warn')
     t.equal(warning.type, 'warn', 'got a log.warn')
     t.ok(warning.message.indexOf('bogusvalue') !== -1, 'warning message includes the invalid value')
     t.ok(warning.message.indexOf(key) !== -1, 'warning message includes the invalid key')
@@ -729,14 +729,17 @@ test('should prepare WildcardMatcher array config vars', function (t) {
 })
 
 test('invalid serviceName => inactive', function (t) {
-  var logger = new MockLogger()
-  var agent = new Agent()
+  const logger = new MockLogger()
+  const agent = new Agent()
+
   agent.start(Object.assign(
     {},
     agentOptsNoopTransport,
     { serviceName: 'foo&bar', logger }
   ))
-  t.ok(logger.calls[0].type === 'error' && logger.calls[0].message.indexOf('serviceName') !== -1,
+
+  const error = logger.calls.find(log => log.type === 'error')
+  t.ok(error && error.message.indexOf('serviceName') !== -1,
     'there was a log.error mentioning "serviceName"')
   t.strictEqual(agent._conf.active, false, 'active is false')
   agent.destroy()
@@ -845,7 +848,8 @@ test('serviceName/serviceVersion zero-conf: weird "name" in package.json', funct
     t.error(err, 'no error running index.js: ' + err)
     t.equal(stderr, '', 'no stderr')
     const lines = stdout.trim().split('\n')
-    const logWarn = JSON.parse(lines[0])
+    const logs = lines.map(l => JSON.parse(l))
+    const logWarn = logs.find(log => log['log.level'] === 'warn')
     t.ok(logWarn['log.level'] === 'warn' && logWarn.message.indexOf('serviceName') !== -1,
       'there is a log.warn about "serviceName"')
     const conf = JSON.parse(lines[lines.length - 1])
