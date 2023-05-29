@@ -28,7 +28,8 @@ var test = require('tape')
 var pg = require('pg')
 var utils = require('./_utils')
 var mockClient = require('../../../_mock_http_client')
-var findObjInArray = require('../../../_utils').findObjInArray
+const { NoopApmClient } = require('../../../../lib/apm-client/noop-apm-client')
+const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../../_utils')
 
 var queryable, connectionDone
 var factories = [
@@ -685,3 +686,62 @@ function resetAgent (expected, cb) {
   agent._transport = mockClient(expected, cb)
   agent._instrumentation.testReset()
 }
+
+const testFixtures = [
+  {
+    // Exercise using `pg` lightly. This still relies on the CommonJS tests
+    // for coverage of the instrumentation.
+    name: 'pg ESM',
+    script: '../fixtures/use-pg.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1',
+      ELASTIC_APM_SPAN_COMPRESSION_ENABLED: 'false'
+    },
+    nodeRange: '12.x >=12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.equal(apmServer.events.length, 4, 'expected number of APM server events')
+      t.ok(apmServer.events[0].metadata, 'metadata')
+      const events = sortApmEvents(apmServer.events)
+
+      const trans = events[0].transaction
+      t.equal(trans.name, 'trans', 'transaction.name')
+      t.equal(trans.type, 'custom', 'transaction.type')
+      t.equal(trans.outcome, 'unknown', 'transaction.outcome')
+
+      const spans = events.slice(1, 5).map(e => e.span)
+      const expectedSpanNames = ['SELECT', 'SELECT']
+      spans.forEach((s, idx) => {
+        t.equal(s.name, expectedSpanNames[idx], `span[${idx}].name`)
+        t.equal(s.type, 'db', `span[${idx}].type`)
+        t.equal(s.subtype, 'postgresql', `span[${idx}].action`)
+        t.equal(s.action, 'query', `span[${idx}].action`)
+        t.equal(s.parent_id, trans.id, `span[${idx}].parent_id`)
+        t.deepEqual(s.context, {
+          service: { target: { type: 'postgresql', name: 'postgres' } },
+          destination: {
+            address: process.env.PGHOST || 'localhost',
+            port: 5432,
+            service: { type: '', name: '', resource: 'postgresql/postgres' }
+          },
+          db: {
+            type: 'sql',
+            statement: 'SELECT $1::text as message',
+            instance: 'postgres',
+            user: 'postgres'
+          }
+        }, `span[${idx}].context`)
+      })
+    }
+  }
+]
+
+test('pg fixtures', suite => {
+  // Undo the `agent._transport = ...` from earlier `resetAgent` usage.
+  agent._transport = new NoopApmClient()
+
+  runTestFixtures(suite, testFixtures)
+  suite.end()
+})
