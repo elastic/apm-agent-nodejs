@@ -209,6 +209,7 @@ function quoteEnv (env) {
  *
  * @typedef {Object} TestFixture
  * @property {string} script The script path to execute.
+ * @property {string} [name] The name of the test. Defaults to `script`.
  * @property {string} [cwd] Typically this is `__dirname`, then `script` can be
  *    relative to the test file.
  * @property {Object<String, String>} [env] Any custom envvars, e.g. `{NODE_OPTIONS:...}`.
@@ -240,6 +241,7 @@ function runTestFixtures (suite, testFixtures) {
     ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true'
   }
   testFixtures.forEach(tf => {
+    const testName = tf.name ? `${tf.name} (${tf.script})` : tf.script
     const testOpts = Object.assign({}, tf.testOpts)
     if (!testOpts.skip && tf.nodeRange && !semver.satisfies(process.version, tf.nodeRange)) {
       // Limitation: `tape` does not print this skip reason, so it can be
@@ -247,7 +249,7 @@ function runTestFixtures (suite, testFixtures) {
       // print this, if we switch to using node-tap.
       testOpts.skip = `node ${process.version} not supported`
     }
-    suite.test(tf.script, testOpts, t => {
+    suite.test(testName, testOpts, t => {
       const apmServer = new MockAPMServer()
       apmServer.start(function (serverUrl) {
         const argv = (tf.nodeArgv || []).concat([tf.script]).concat(tf.scriptArgv || [])

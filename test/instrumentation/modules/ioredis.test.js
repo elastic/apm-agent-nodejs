@@ -31,7 +31,7 @@ var Redis = require('ioredis')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
-const { NoopApmClient } = require('../../../lib/apm-client/noop-apm-client') // XXX refactor name coming
+const { NoopApmClient } = require('../../../lib/apm-client/noop-apm-client')
 const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../_utils')
 
 test('not nested', function (t) {
@@ -202,6 +202,7 @@ function resetAgent (cb) {
 
 const testFixtures = [
   {
+    name: 'ioredis ESM',
     script: 'fixtures/use-ioredis.mjs',
     cwd: __dirname,
     env: {
