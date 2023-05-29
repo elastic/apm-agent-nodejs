@@ -241,7 +241,10 @@ function runTestFixtures (suite, testFixtures) {
   }
   testFixtures.forEach(tf => {
     const testOpts = Object.assign({}, tf.testOpts)
-    if (tf.nodeRange && !semver.satisfies(process.version, tf.nodeRange)) {
+    if (!testOpts.skip && tf.nodeRange && !semver.satisfies(process.version, tf.nodeRange)) {
+      // Limitation: `tape` does not print this skip reason, so it can be
+      // confusing to know why a test might have been skipped. `tap` *does*
+      // print this, if we switch to using node-tap.
       testOpts.skip = `node ${process.version} not supported`
     }
     suite.test(tf.script, testOpts, t => {

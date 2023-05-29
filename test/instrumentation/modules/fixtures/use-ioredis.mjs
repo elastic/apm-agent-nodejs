@@ -5,7 +5,7 @@
  */
 
 // Usage:
-//    node --experimental-loader=elastic-apm-node/loader.mjs --require=elastic-apm-node/start.js use-ioredis.mjs
+//    node --experimental-loader=./loader.mjs --require=./start.js test/instrumentation/modules/fixtures/use-ioredis.mjs
 
 import apm from '../../../../index.js' // 'elastic-apm-node'
 import Redis from 'ioredis'

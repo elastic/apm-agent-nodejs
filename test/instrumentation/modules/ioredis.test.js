@@ -209,6 +209,12 @@ const testFixtures = [
       NODE_NO_WARNINGS: '1'
     },
     nodeRange: '>=12.20.0 <20', // supported range for import-in-the-middle
+    testOpts: {
+      // Instrumentation *does* work with `contextManager: 'patch'`, but it
+      // gets the parent incorrect for the 'INFO' span used by ioredis for
+      // connection handling.
+      skip: process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch' ? 'contextManager=patch' : false
+    },
     verbose: true,
     checkApmServer: (t, apmServer) => {
       t.equal(apmServer.events.length, 7, 'expected number of APM server events')
