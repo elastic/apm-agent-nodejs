@@ -87,11 +87,34 @@ test('#printLoggingPreamble()', function (t) {
     },
     'captureExceptions is taken from file options'
   )
+  t.ok(preambleData.activationMethod === 'require', 'preamble has activation method')
   t.ok(!('logger' in preambleData.config), 'logger is not in preamble')
   t.ok(!('transport' in preambleData.config), 'transport is not in preamble')
 
   agent.destroy()
 
   process.env.ELASTIC_APM_API_REQUEST_SIZE = origApiReqSize
+  t.end()
+})
+
+test('#printLoggingPreamble() - logLevel trace', function (t) {
+  const loggerCalls = []
+  const logger = createMockLogger(loggerCalls)
+  const agent = new Agent()
+
+  // And set start options
+  agent.start({
+    logLevel: 'trace',
+    logger,
+    transport: () => new NoopApmClient()
+  })
+
+  const infoLog = loggerCalls.find(log => log.type === 'info')
+  const preambleData = infoLog.mergingObject
+
+  t.ok(preambleData.startTrace, 'preamble has startTrace')
+  t.ok(preambleData.dependencies, 'preamble has dependencies')
+
+  agent.destroy()
   t.end()
 })
