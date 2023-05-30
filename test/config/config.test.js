@@ -19,6 +19,7 @@ const AGENT_VERSION = require('../../package.json').version
 const Agent = require('../../lib/agent')
 const { createMockLogger } = require('../_mock_logger')
 const { NoopApmClient } = require('../../lib/apm-client/noop-apm-client')
+const { REDACTED } = require('../../lib/constants')
 
 test('#printLoggingPreamble()', function (t) {
   const loggerCalls = []
@@ -45,9 +46,7 @@ test('#printLoggingPreamble()', function (t) {
   agent.start({
     apiRequestSize: '512kb',
     apiRequestTime: '10s',
-    apiKey: ' a-secret-key',
     configFile: tmpFilePath,
-    secretToken: 'secret-token',
     serverUrl: 'https://server-url',
     transport: () => new NoopApmClient(),
     logger
@@ -62,8 +61,9 @@ test('#printLoggingPreamble()', function (t) {
   t.deepEqual(
     preambleData.config.apiRequestSize,
     {
+      normalizedName: 'api_request_size',
       source: 'environment',
-      sourceValue: '1024kb',
+      sourceValue: '"1024kb"',
       normalizedValue: 1024 * 1024
     },
     'apiRequestSize is taken from environment'
@@ -71,8 +71,9 @@ test('#printLoggingPreamble()', function (t) {
   t.deepEqual(
     preambleData.config.apiRequestTime,
     {
+      normalizedName: 'api_request_time',
       source: 'start',
-      sourceValue: '10s',
+      sourceValue: '"10s"',
       normalizedValue: 10
     },
     'apiRequestTime is taken from start options'
@@ -80,6 +81,7 @@ test('#printLoggingPreamble()', function (t) {
   t.deepEqual(
     preambleData.config.captureExceptions,
     {
+      normalizedName: 'capture_exceptions',
       source: 'file',
       sourceValue: false,
       normalizedValue: false,
@@ -94,6 +96,34 @@ test('#printLoggingPreamble()', function (t) {
   agent.destroy()
 
   process.env.ELASTIC_APM_API_REQUEST_SIZE = origApiReqSize
+  t.end()
+})
+
+test('#printLoggingPreamble() - secrets REDACTED', function (t) {
+  const loggerCalls = []
+  const logger = createMockLogger(loggerCalls)
+  const agent = new Agent()
+
+  // And set start options
+  agent.start({
+    secretToken: 'secret-token',
+    apiKey: ' a-secret-key',
+    transport: () => new NoopApmClient(),
+    logger
+  })
+
+  const infoLog = loggerCalls.find(log => log.type === 'info')
+  const preambleData = infoLog.mergingObject
+
+  console.log(preambleData)
+  t.ok(preambleData.config.secretToken, 'secret token is shown when given')
+  t.ok(preambleData.config.secretToken.sourceValue === REDACTED, 'secret token source value is REDACTED')
+  t.ok(preambleData.config.secretToken.normalizedValue === REDACTED, 'secret token normalized value is REDACTED')
+  t.ok(preambleData.config.apiKey, 'API key is shown when given')
+  t.ok(preambleData.config.apiKey.sourceValue === REDACTED, 'API key source value is REDACTED')
+  t.ok(preambleData.config.apiKey.normalizedValue === REDACTED, 'API key normalized value is REDACTED')
+
+  agent.destroy()
   t.end()
 })
 
