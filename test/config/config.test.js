@@ -21,7 +21,7 @@ const { createMockLogger } = require('../_mock_logger')
 const { NoopApmClient } = require('../../lib/apm-client/noop-apm-client')
 const { REDACTED } = require('../../lib/constants')
 
-test('#printLoggingPreamble()', function (t) {
+test('#loggingPreamble', function (t) {
   const loggerCalls = []
   const logger = createMockLogger(loggerCalls)
   const agent = new Agent()
@@ -99,7 +99,7 @@ test('#printLoggingPreamble()', function (t) {
   t.end()
 })
 
-test('#printLoggingPreamble() - secrets REDACTED', function (t) {
+test('#loggingPreamble - secrets REDACTED', function (t) {
   const loggerCalls = []
   const logger = createMockLogger(loggerCalls)
   const agent = new Agent()
@@ -115,7 +115,6 @@ test('#printLoggingPreamble() - secrets REDACTED', function (t) {
   const infoLog = loggerCalls.find(log => log.type === 'info')
   const preambleData = infoLog.mergingObject
 
-  console.log(preambleData)
   t.ok(preambleData.config.secretToken, 'secret token is shown when given')
   t.ok(preambleData.config.secretToken.sourceValue === REDACTED, 'secret token source value is REDACTED')
   t.ok(preambleData.config.secretToken.normalizedValue === REDACTED, 'secret token normalized value is REDACTED')
@@ -127,7 +126,7 @@ test('#printLoggingPreamble() - secrets REDACTED', function (t) {
   t.end()
 })
 
-test('#printLoggingPreamble() - logLevel trace', function (t) {
+test('#loggingPreamble - logLevel === "trace"', function (t) {
   const loggerCalls = []
   const logger = createMockLogger(loggerCalls)
   const agent = new Agent()
