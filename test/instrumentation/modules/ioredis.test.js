@@ -209,7 +209,7 @@ const testFixtures = [
       NODE_OPTIONS: '--experimental-loader=../../../loader.mjs --require=../../../start.js',
       NODE_NO_WARNINGS: '1'
     },
-    nodeRange: '12.x >=12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
     testOpts: {
       // Instrumentation *does* work with `contextManager: 'patch'`, but it
       // gets the parent incorrect for the 'INFO' span used by ioredis for

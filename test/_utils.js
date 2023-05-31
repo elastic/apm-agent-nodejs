@@ -226,7 +226,7 @@ function quoteEnv (env) {
  * @property {Object} [testOpts] Additional tape test opts, if any. https://github.com/ljharb/tape#testname-opts-cb
  * @property {string} [nodeRange] A semver range of Node.js versions to which
  *    to restrict running this fixture. E.g. this is common for ESM tests:
- *        nodeRange: '12.x >=12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+ *        nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
  *
  * @param {import('@types/tape').TestCase} suite
  * @param {Array<TestFixture>} testFixtures
