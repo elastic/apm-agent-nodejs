@@ -48,6 +48,9 @@ Notes:
 [float]
 ===== Chores
 
+* Extract configuration's transport property to new `apm-client` module
+  ({pull}3372[#3372])
+
 
 [[release-notes-3.46.0]]
 ==== 3.46.0 - 2023/05/15
