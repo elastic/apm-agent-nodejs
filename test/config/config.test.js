@@ -61,7 +61,6 @@ test('#loggingPreamble', function (t) {
   t.deepEqual(
     preambleData.config.apiRequestSize,
     {
-      normalizedName: 'api_request_size',
       source: 'environment',
       sourceValue: '1024kb',
       normalizedValue: 1024 * 1024
@@ -71,7 +70,6 @@ test('#loggingPreamble', function (t) {
   t.deepEqual(
     preambleData.config.apiRequestTime,
     {
-      normalizedName: 'api_request_time',
       source: 'start',
       sourceValue: '10s',
       normalizedValue: 10
@@ -81,11 +79,20 @@ test('#loggingPreamble', function (t) {
   t.deepEqual(
     preambleData.config.captureExceptions,
     {
-      normalizedName: 'capture_exceptions',
       source: 'file',
       sourceValue: false,
       normalizedValue: false,
       file: tmpFilePath
+    },
+    'captureExceptions is taken from file options'
+  )
+  t.deepEqual(
+    preambleData.config.serverUrl,
+    {
+      source: 'start',
+      sourceValue: REDACTED,
+      normalizedValue: REDACTED,
+      normalizedName: 'server_url'
     },
     'captureExceptions is taken from file options'
   )
