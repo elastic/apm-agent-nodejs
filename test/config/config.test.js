@@ -63,7 +63,7 @@ test('#loggingPreamble', function (t) {
     {
       normalizedName: 'api_request_size',
       source: 'environment',
-      sourceValue: '"1024kb"',
+      sourceValue: '1024kb',
       normalizedValue: 1024 * 1024
     },
     'apiRequestSize is taken from environment'
@@ -73,7 +73,7 @@ test('#loggingPreamble', function (t) {
     {
       normalizedName: 'api_request_time',
       source: 'start',
-      sourceValue: '"10s"',
+      sourceValue: '10s',
       normalizedValue: 10
     },
     'apiRequestTime is taken from start options'
