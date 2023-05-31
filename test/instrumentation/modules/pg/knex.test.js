@@ -44,6 +44,8 @@ var test = require('tape')
 
 var utils = require('./_utils')
 var mockClient = require('../../../_mock_http_client')
+const { NoopApmClient } = require('../../../../lib/apm-client/noop-apm-client')
+const { runTestFixtures, sortApmEvents } = require('../../../_utils')
 
 var transNo = 0
 var knex
@@ -188,3 +190,58 @@ function resetAgent (cb) {
   agent._transport = mockClient(cb)
   agent._instrumentation.testReset()
 }
+
+const testFixtures = [
+  {
+    // The main things to test here are that (a) knex instrumentation works
+    // with ESM and (b) that the span stacktraces are the expected "better"
+    // stack trace.
+    name: 'knex ESM',
+    script: '../fixtures/use-knex-pg.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1',
+      ELASTIC_APM_SPAN_STACK_TRACE_MIN_DURATION: '0' // enable span stack traces
+    },
+    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.equal(apmServer.events.length, 6, 'expected number of APM server events')
+      t.ok(apmServer.events[0].metadata, 'metadata')
+      const events = sortApmEvents(apmServer.events)
+
+      const trans = events[0].transaction
+      t.equal(trans.name, 'trans', 'transaction.name')
+
+      const spans = events.slice(1).map(e => e.span)
+      // Check common values.
+      const expectedSpanNames = [
+        'SELECT',
+        'CREATE TABLE "users"',
+        'INSERT INTO "users"',
+        'SELECT FROM "users"'
+      ]
+      spans.forEach((s, idx) => {
+        t.equal(s.name, expectedSpanNames[idx], `span[${idx}].name`)
+        t.equal(s.type, 'db', `span[${idx}].type`)
+        t.equal(s.subtype, 'postgresql', `span[${idx}].action`)
+        t.equal(s.parent_id, trans.id, `span[${idx}].parent_id`)
+        if (s.context.db.statement === 'select version();') {
+          // Skip this one, it is injected by knex.
+          return
+        }
+        t.ok(s.stacktrace.some(frame => frame.function === 'useTheDb'),
+          'span stacktrace includes "useTheDb" function')
+      })
+    }
+  }
+]
+
+test('knex fixtures', suite => {
+  // Undo the `agent._transport = ...` from earlier `resetAgent` usage.
+  agent._transport = new NoopApmClient()
+
+  runTestFixtures(suite, testFixtures)
+  suite.end()
+})
