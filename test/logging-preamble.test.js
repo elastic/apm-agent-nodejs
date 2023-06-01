@@ -14,14 +14,14 @@ var mkdirp = require('mkdirp')
 var rimraf = require('rimraf')
 const test = require('tape')
 
-const AGENT_VERSION = require('../../package.json').version
+const AGENT_VERSION = require('../package.json').version
 
-const Agent = require('../../lib/agent')
-const { createMockLogger } = require('../_mock_logger')
-const { NoopApmClient } = require('../../lib/apm-client/noop-apm-client')
-const { REDACTED } = require('../../lib/constants')
+const Agent = require('../lib/agent')
+const { createMockLogger } = require('./_mock_logger')
+const { NoopApmClient } = require('../lib/apm-client/noop-apm-client')
+const { REDACTED } = require('../lib/constants')
 
-test('#loggingPreamble', function (t) {
+test('logging preamble', function (t) {
   const loggerCalls = []
   const logger = createMockLogger(loggerCalls)
   const agent = new Agent()
@@ -104,7 +104,7 @@ test('#loggingPreamble', function (t) {
   t.end()
 })
 
-test('#loggingPreamble - secrets REDACTED', function (t) {
+test('logging preamble - secrets REDACTED', function (t) {
   const loggerCalls = []
   const logger = createMockLogger(loggerCalls)
   const agent = new Agent()
@@ -132,7 +132,7 @@ test('#loggingPreamble - secrets REDACTED', function (t) {
   t.end()
 })
 
-test('#loggingPreamble - logLevel === "trace"', function (t) {
+test('logging preamble - logLevel === "trace"', function (t) {
   const loggerCalls = []
   const logger = createMockLogger(loggerCalls)
   const agent = new Agent()
