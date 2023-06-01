@@ -56,14 +56,14 @@ test('#loggingPreamble', function (t) {
   const preambleHeader = infoLog && infoLog.message
   const preambleData = infoLog.mergingObject
 
-  t.ok(preambleHeader.indexOf('Elastic APM Node.js Agent, version:') !== -1, 'preamble header is logged')
+  t.ok(preambleHeader.indexOf('Elastic APM Node.js Agent v') !== -1, 'preamble header is logged')
   t.ok(preambleData.agentVersion === AGENT_VERSION, 'agent version is present')
   t.deepEqual(
     preambleData.config.apiRequestSize,
     {
       source: 'environment',
       sourceValue: '1024kb',
-      normalizedValue: 1024 * 1024
+      value: 1024 * 1024
     },
     'apiRequestSize is taken from environment'
   )
@@ -72,7 +72,7 @@ test('#loggingPreamble', function (t) {
     {
       source: 'start',
       sourceValue: '10s',
-      normalizedValue: 10
+      value: 10
     },
     'apiRequestTime is taken from start options'
   )
@@ -80,8 +80,7 @@ test('#loggingPreamble', function (t) {
     preambleData.config.captureExceptions,
     {
       source: 'file',
-      sourceValue: false,
-      normalizedValue: false,
+      value: false,
       file: tmpFilePath
     },
     'captureExceptions is taken from file options'
@@ -90,9 +89,8 @@ test('#loggingPreamble', function (t) {
     preambleData.config.serverUrl,
     {
       source: 'start',
-      sourceValue: REDACTED,
-      normalizedValue: REDACTED,
-      normalizedName: 'server_url'
+      value: REDACTED,
+      commonName: 'server_url'
     },
     'captureExceptions is taken from file options'
   )
@@ -123,11 +121,9 @@ test('#loggingPreamble - secrets REDACTED', function (t) {
   const preambleData = infoLog.mergingObject
 
   t.ok(preambleData.config.secretToken, 'secret token is shown when given')
-  t.ok(preambleData.config.secretToken.sourceValue === REDACTED, 'secret token source value is REDACTED')
-  t.ok(preambleData.config.secretToken.normalizedValue === REDACTED, 'secret token normalized value is REDACTED')
+  t.ok(preambleData.config.secretToken.value === REDACTED, 'secret token value is REDACTED')
   t.ok(preambleData.config.apiKey, 'API key is shown when given')
-  t.ok(preambleData.config.apiKey.sourceValue === REDACTED, 'API key source value is REDACTED')
-  t.ok(preambleData.config.apiKey.normalizedValue === REDACTED, 'API key normalized value is REDACTED')
+  t.ok(preambleData.config.apiKey.value === REDACTED, 'API key value is REDACTED')
 
   agent.destroy()
   t.end()
