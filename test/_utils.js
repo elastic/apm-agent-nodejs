@@ -212,6 +212,9 @@ function quoteEnv (env) {
  * @property {string} [name] The name of the test. Defaults to `script`.
  * @property {string} [cwd] Typically this is `__dirname`, then `script` can be
  *    relative to the test file.
+ * @property {number} [timeout] A timeout number of milliseconds for the script
+ *    to execute. Default 10000.
+ * @property {number} [maxBuffer] A maxBuffer to use for the exec.
  * @property {Object<String, String>} [env] Any custom envvars, e.g. `{NODE_OPTIONS:...}`.
  * @property {Array<String>} [nodeArgv] E.g. `--experimental-loader=...`.
  * @property {Array<String>} [scriptArgv]
@@ -257,12 +260,13 @@ function runTestFixtures (suite, testFixtures) {
         if (tf.verbose) {
           t.comment(`running: (cd "${cwd}" && ${quoteEnv(tf.env)} node ${quoteArgv(argv)})`)
         }
+        console.time('# elapsed')
         execFile(
           process.execPath,
           argv,
           {
             cwd,
-            timeout: 10000, // guard on hang, 3s is sometimes too short for CI
+            timeout: tf.timeout || 10000, // guard on hang, 3s is sometimes too short for CI
             env: Object.assign(
               {},
               process.env,
@@ -271,9 +275,11 @@ function runTestFixtures (suite, testFixtures) {
                 ELASTIC_APM_SERVER_URL: serverUrl
               },
               tf.env
-            )
+            ),
+            maxBuffer: tf.maxBuffer
           },
           async function done (err, stdout, stderr) {
+            console.timeLog('# elapsed')
             if (tf.verbose) {
               if (err) { t.comment(`err: ${err}`) }
               if (stdout) {
