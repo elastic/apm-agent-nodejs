@@ -66,7 +66,7 @@ tape.test('lambda config & metadata tests', function (suite) {
     t.strictEqual(apm._conf.metricsInterval, 0, 'metricsInterval=0')
     t.strictEqual(apm._conf.centralConfig, false, 'centralConfig=false')
     t.strictEqual(apm._conf.cloudProvider, 'none', 'cloudProvider="none"')
-    t.notOk(apm._transport._conf.cloudMetadataFetcher,
+    t.notOk(apm._apmClient._conf.cloudMetadataFetcher,
       'no cloudMetadataFetcher is given to the transport in a Lambda env')
     t.end()
   })

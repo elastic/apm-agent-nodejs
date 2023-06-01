@@ -103,6 +103,6 @@ tape.test('end to end test with compression', function (t) {
 
 function resetAgent (/* numExpected, */ cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(/* numExpected, */ cb)
+  agent._apmClient = mockClient(/* numExpected, */ cb)
   agent.captureError = function (err) { throw err }
 }

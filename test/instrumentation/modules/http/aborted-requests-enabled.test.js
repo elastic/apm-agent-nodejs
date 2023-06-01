@@ -40,14 +40,14 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
     assert(t, data)
   })
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
-    t.strictEqual(agent._transport._writes.length, 1, 'should send transaction')
+    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transaction')
   }
 
   var server = http.createServer(function (req, res) {
@@ -100,7 +100,7 @@ test('client-side abort above error threshold - call end', function (t) {
     server.close()
   })
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) {
     t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)')
@@ -108,7 +108,7 @@ test('client-side abort above error threshold - call end', function (t) {
   }
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
-    t.strictEqual(agent._transport._writes.length, 1, 'should send transactions')
+    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
   }
 
   var server = http.createServer(function (req, res) {
@@ -142,7 +142,7 @@ test('client-side abort below error threshold - don\'t call end', function (t) {
     t.fail('should not send any data')
   })
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the closed socket as an error')
@@ -181,7 +181,7 @@ test('client-side abort above error threshold - don\'t call end', function (t) {
     t.fail('should not send any data')
   })
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) {
     t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)')
@@ -220,7 +220,7 @@ test('server-side abort below error threshold and socket closed - call end', fun
 
   resetAgent(assert.bind(null, t))
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the closed socket as an error')
@@ -228,7 +228,7 @@ test('server-side abort below error threshold and socket closed - call end', fun
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     ended = true
-    t.strictEqual(agent._transport._writes.length, 1, 'should send transactions')
+    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
   }
 
   var server = http.createServer(function (req, res) {
@@ -263,7 +263,7 @@ test('server-side abort above error threshold and socket closed - call end', fun
 
   resetAgent(assert.bind(null, t))
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) {
     t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)')
@@ -272,7 +272,7 @@ test('server-side abort above error threshold and socket closed - call end', fun
   agent._instrumentation.addEndedTransaction = function () {
     addEndedTransaction.apply(this, arguments)
     ended = true
-    t.strictEqual(agent._transport._writes.length, 1, 'should send transactions')
+    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
   }
 
   var server = http.createServer(function (req, res) {
@@ -309,7 +309,7 @@ test('server-side abort below error threshold and socket closed - don\'t call en
     t.fail('should not send any data')
   })
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the closed socket as an error')
@@ -349,7 +349,7 @@ test('server-side abort above error threshold and socket closed - don\'t call en
     t.fail('should not send any data')
   })
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) {
     t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)')
@@ -389,7 +389,7 @@ test('server-side abort below error threshold but socket not closed - call end',
     server.close()
   })
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the closed socket as an error')
@@ -412,7 +412,7 @@ test('server-side abort below error threshold but socket not closed - call end',
     var port = server.address().port
     get('http://localhost:' + port, function (res) {
       res.on('end', function () {
-        t.strictEqual(agent._transport._writes.length, 1, 'should send transactions')
+        t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
       })
       res.resume()
     })
@@ -427,7 +427,7 @@ test('server-side abort above error threshold but socket not closed - call end',
     server.close()
   })
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
     t.fail('should not register the closed socket as an error')
@@ -450,7 +450,7 @@ test('server-side abort above error threshold but socket not closed - call end',
     var port = server.address().port
     get('http://localhost:' + port, function (res) {
       res.on('end', function () {
-        t.strictEqual(agent._transport._writes.length, 1, 'should send transactions')
+        t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
       })
       res.resume()
     })
@@ -459,7 +459,7 @@ test('server-side abort above error threshold but socket not closed - call end',
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(1, cb)
+  agent._apmClient = mockClient(1, cb)
 }
 
 function get () {

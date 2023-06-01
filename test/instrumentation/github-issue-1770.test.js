@@ -17,7 +17,7 @@ const http = require('http')
 const mockClient = require('../_mock_http_client')
 
 function resetAgent (cb) {
-  agent._transport = mockClient(3, cb)
+  agent._apmClient = mockClient(3, cb)
 }
 
 tape.test('span url contains single url', function (t) {

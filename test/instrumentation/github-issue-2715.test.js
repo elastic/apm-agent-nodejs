@@ -46,6 +46,6 @@ tape.test(function (suite) {
 
 function resetAgent (numExpected, cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(numExpected, cb)
+  agent._apmClient = mockClient(numExpected, cb)
   agent.captureError = function (err) { throw err }
 }

@@ -134,7 +134,7 @@ test('await MongoClient.connect(url)', async function (t) {
 
   await promisify(agent.flush.bind(agent))().then(function (err) {
     t.error(err, 'no error from agent.flush()')
-    const data = agent._transport._writes
+    const data = agent._apmClient._writes
     t.equal(data.transactions[0].name, 't0', 'transaction.name')
     t.equal(data.spans.length, 1)
     t.equal(data.spans[0].name, 'elasticapm.test.find', 'span.name')
@@ -167,7 +167,7 @@ test('ensure run context', async function (t) {
   agent.endTransaction()
   await promisify(agent.flush.bind(agent))().then(function (err) {
     t.error(err, 'no error from agent.flush()')
-    const data = agent._transport._writes
+    const data = agent._apmClient._writes
     t.equal(data.transactions[0].name, 't0', 'transaction.name')
     t.equal(data.spans.length, 4)
     data.spans.forEach(s => {
@@ -291,12 +291,12 @@ function getDeletedCountFromResults (results) {
 
 function resetAgentStates (expectations, cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClientStates(expectations, cb)
+  agent._apmClient = mockClientStates(expectations, cb)
   agent.captureError = function (err) { throw err }
 }
 
 function resetAgent (numExpected, cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(numExpected, cb)
+  agent._apmClient = mockClient(numExpected, cb)
   agent.captureError = function (err) { throw err }
 }

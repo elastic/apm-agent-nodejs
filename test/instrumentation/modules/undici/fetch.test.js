@@ -88,7 +88,7 @@ test('setup', t => {
 })
 
 test('fetch', async t => {
-  apm._transport.clear()
+  apm._apmClient.clear()
   const aTrans = apm.startTransaction('aTransName')
 
   const url = origin + '/ping'
@@ -100,8 +100,8 @@ test('fetch', async t => {
   aTrans.end()
   t.error(await promisyApmFlush(), 'no apm.flush() error')
 
-  t.equal(apm._transport.spans.length, 1)
-  const span = apm._transport.spans[0]
+  t.equal(apm._apmClient.spans.length, 1)
+  const span = apm._apmClient.spans[0]
   assertUndiciSpan(t, span, url)
 
   // Test trace-context propagation.

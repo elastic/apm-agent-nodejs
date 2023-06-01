@@ -13,7 +13,7 @@
 // 1. Create a client for an expected number of writes:
 //
 //      var mockClient = require('.../_mock_http_client')
-//      agent._transport = mockClient(expected, done)
+//      agent._apmClient = mockClient(expected, done)
 //
 //    The `done` callback will be called with the written data (`_writes`)
 //    once the `expected` number of writes have occurred.
@@ -21,7 +21,7 @@
 // 2. Create a client that calls back after a delay without writes:
 //
 //      var mockClient = require('.../_mock_http_client')
-//      agent._transport = mockClient(done)
+//      agent._apmClient = mockClient(done)
 //
 //    The `done` callback will be called with the written data (`_writes`)
 //    after a 200ms delay with no writes (the timer only starts after the

@@ -16,7 +16,7 @@ const test = require('tape')
 
 const origConsoleError = console.error
 const origCaptureErorr = agent.captureError
-const origSendError = agent._transport.sendError
+const origSendError = agent._apmClient.sendError
 
 test('should capture and log uncaught exceptions by default', function (t) {
   t.plan(8)
@@ -24,7 +24,7 @@ test('should capture and log uncaught exceptions by default', function (t) {
   t.on('end', function () {
     console.error = origConsoleError
     agent.captureError = origCaptureErorr
-    agent._transport.sendError = origSendError
+    agent._apmClient.sendError = origSendError
   })
 
   console.error = function (loggedError) {
@@ -37,7 +37,7 @@ test('should capture and log uncaught exceptions by default', function (t) {
     return origCaptureErorr.apply(this, arguments)
   }
 
-  agent._transport.sendError = function (sentError) {
+  agent._apmClient.sendError = function (sentError) {
     t.strictEqual(sentError.exception.message, thrownError.message)
     t.strictEqual(sentError.exception.type, 'Error')
     t.strictEqual(sentError.exception.handled, false)

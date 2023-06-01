@@ -318,6 +318,6 @@ function resetAgent (cb) {
   // receiving events from the APM agent and the graphql request receiving a
   // response. Using the 200ms delay in mockClient slows things down such that
   // "done" should always come last.
-  agent._transport = mockClient(cb)
+  agent._apmClient = mockClient(cb)
   agent.captureError = function (err) { throw err }
 }

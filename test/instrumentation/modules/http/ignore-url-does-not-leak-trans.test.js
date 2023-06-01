@@ -76,8 +76,8 @@ test('an ignored incoming http URL does not leak previous transaction', function
         prevTrans.end()
         // Wait long enough for the span to encode and be sent to transport.
         setTimeout(function () {
-          t.equal(apm._transport.transactions.length, 1)
-          t.equal(apm._transport.spans.length, 1, 'only have the span for the http *request*')
+          t.equal(apm._apmClient.transactions.length, 1)
+          t.equal(apm._apmClient.spans.length, 1, 'only have the span for the http *request*')
           t.end()
         }, 200)
       })

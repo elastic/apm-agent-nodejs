@@ -18,7 +18,7 @@
 //    test('something', function (t) {
 //      const agent = new Agent().start(testAgentOpts)
 //      // Use `agent`, then assert that
-//      // `agent._transport.{spans,transactions,errors,metricsets}` are as
+//      // `agent._apmClient.{spans,transactions,errors,metricsets}` are as
 //      // expected.
 //      agent.destroy()
 //      t.end()

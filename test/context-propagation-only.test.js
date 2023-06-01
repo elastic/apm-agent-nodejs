@@ -51,7 +51,7 @@ tape.test('contextPropagationOnly', function (suite) {
   })
 
   suite.test('transport should be NoopApmClient if contextPropagationOnly=true', function (t) {
-    t.ok(apm._transport instanceof NoopApmClient, 'agent transport is NoopApmClient')
+    t.ok(apm._apmClient instanceof NoopApmClient, 'agent transport is NoopApmClient')
     t.end()
   })
 

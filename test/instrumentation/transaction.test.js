@@ -50,22 +50,22 @@ test('init', function (t) {
   })
 
   t.test('options.links', function (t) {
-    agent._transport.clear()
+    agent._apmClient.clear()
     agent.startTransaction('theTransName', { links: [] }).end()
-    t.deepEqual(agent._transport.transactions[0].links, undefined, 'no links')
+    t.deepEqual(agent._apmClient.transactions[0].links, undefined, 'no links')
 
-    agent._transport.clear()
+    agent._apmClient.clear()
     agent.startTransaction('theTransName', { links: [42] }).end()
-    t.deepEqual(agent._transport.transactions[0].links, undefined, 'no spans link from an invalid link')
+    t.deepEqual(agent._apmClient.transactions[0].links, undefined, 'no spans link from an invalid link')
 
-    agent._transport.clear()
+    agent._apmClient.clear()
     const aTraceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     agent.startTransaction('theTransName', {
       links: [
         { context: aTraceparent }
       ]
     }).end()
-    t.deepEqual(agent._transport.transactions[0].links, [{
+    t.deepEqual(agent._apmClient.transactions[0].links, [{
       trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
       span_id: '00f067aa0ba902b7'
     }], 'a span link from a traceparent')
@@ -75,24 +75,24 @@ test('init', function (t) {
     aSpan.end()
     aTrans.end()
 
-    agent._transport.clear()
+    agent._apmClient.clear()
     agent.startTransaction('theTransName', {
       links: [
         { context: aTrans }
       ]
     }).end()
-    t.deepEqual(agent._transport.transactions[0].links, [{
+    t.deepEqual(agent._apmClient.transactions[0].links, [{
       trace_id: aTrans.traceId,
       span_id: aTrans.id
     }], 'a span link from a Transaction')
 
-    agent._transport.clear()
+    agent._apmClient.clear()
     agent.startTransaction('theTransName', {
       links: [
         { context: aSpan }
       ]
     }).end()
-    t.deepEqual(agent._transport.transactions[0].links, [{
+    t.deepEqual(agent._apmClient.transactions[0].links, [{
       trace_id: aSpan.traceId,
       span_id: aSpan.id
     }], 'a span link from a Span')
@@ -231,14 +231,14 @@ test('#startSpan()', function (t) {
 })
 
 test('#end() - with result', function (t) {
-  agent._transport.clear()
+  agent._apmClient.clear()
 
   var trans = new Transaction(agent)
   trans.end('test-result')
   t.strictEqual(trans.ended, true)
   t.strictEqual(trans.result, 'test-result')
 
-  const added = agent._transport.transactions[0]
+  const added = agent._apmClient.transactions[0]
   t.strictEqual(added.id, trans.id)
   t.strictEqual(added.result, 'test-result')
 
@@ -246,13 +246,13 @@ test('#end() - with result', function (t) {
 })
 
 test('#duration()', function (t) {
-  agent._transport.clear()
+  agent._apmClient.clear()
 
   var trans = new Transaction(agent)
   setTimeout(function () {
     trans.end()
 
-    const added = agent._transport.transactions[0]
+    const added = agent._apmClient.transactions[0]
     t.ok(trans.duration() > 40)
     t.ok(added.duration > 40)
     // TODO: Figure out why this fails on Jenkins...
@@ -324,11 +324,11 @@ test('name - default first, then custom', function (t) {
 })
 
 test('parallel transactions', function (t) {
-  agent._transport.clear()
+  agent._apmClient.clear()
 
   function finish () {
-    t.equal(agent._transport.transactions[0].name, 'second')
-    t.equal(agent._transport.transactions[1].name, 'first')
+    t.equal(agent._apmClient.transactions[0].name, 'second')
+    t.equal(agent._apmClient.transactions[1].name, 'first')
 
     t.end()
   }
@@ -356,13 +356,13 @@ test('#_encode() - un-ended', function (t) {
 })
 
 test('#_encode() - ended', function (t) {
-  agent._transport.clear()
+  agent._apmClient.clear()
 
   var trans = new Transaction(agent)
   var timerStart = trans._timer.start
   trans.end()
 
-  const payload = agent._transport.transactions[0]
+  const payload = agent._apmClient.transactions[0]
   t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
@@ -380,7 +380,7 @@ test('#_encode() - ended', function (t) {
 })
 
 test('#_encode() - with meta data', function (t) {
-  agent._transport.clear()
+  agent._apmClient.clear()
 
   var trans = new Transaction(agent, 'foo', 'bar')
   var timerStart = trans._timer.start
@@ -390,7 +390,7 @@ test('#_encode() - with meta data', function (t) {
   trans.setCustomContext({ baz: 1 })
   trans.end()
 
-  const payload = agent._transport.transactions[0]
+  const payload = agent._apmClient.transactions[0]
   t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))
@@ -408,14 +408,14 @@ test('#_encode() - with meta data', function (t) {
 })
 
 test('#_encode() - http request meta data', function (t) {
-  agent._transport.clear()
+  agent._apmClient.clear()
 
   var trans = new Transaction(agent)
   var timerStart = trans._timer.start
   trans.req = mockRequest()
   trans.end()
 
-  const payload = agent._transport.transactions[0]
+  const payload = agent._apmClient.transactions[0]
   t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate'])
   t.ok(/^[\da-f]{16}$/.test(payload.id))
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id))

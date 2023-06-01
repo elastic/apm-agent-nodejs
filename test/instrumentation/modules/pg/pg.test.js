@@ -681,7 +681,7 @@ function resetAgent (expected, cb) {
   if (typeof expected === 'function') return resetAgent(2, expected)
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock
-  if (agent._transport.destroy) agent._transport.destroy()
-  agent._transport = mockClient(expected, cb)
+  if (agent._apmClient.destroy) agent._apmClient.destroy()
+  agent._apmClient = mockClient(expected, cb)
   agent._instrumentation.testReset()
 }
