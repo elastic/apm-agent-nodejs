@@ -129,7 +129,7 @@ test('error capture, no unhandledRejection on command error is introduced', func
     process.removeListener('unhandledRejection', onUnhandledRejection)
   })
   agent._instrumentation.testReset()
-  agent._transport = mockClient(4, function (data) {
+  agent._apmClient = mockClient(4, function (data) {
     const getSpan = findObjInArray(data.spans, 'name', 'GET')
     t.equal(data.errors.length, 1, 'captured 1 error')
     t.equal(data.errors[0].exception.type, 'ReplyError', 'exception.type')
@@ -196,5 +196,5 @@ function done (t) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(9, cb)
+  agent._apmClient = mockClient(9, cb)
 }

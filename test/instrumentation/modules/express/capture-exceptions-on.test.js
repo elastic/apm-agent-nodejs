@@ -61,5 +61,5 @@ function get (server, cb) {
 }
 
 function onAPMData (cb) {
-  agent._transport = mockClient(2, cb)
+  agent._apmClient = mockClient(2, cb)
 }

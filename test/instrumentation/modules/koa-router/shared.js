@@ -163,9 +163,9 @@ module.exports = (moduleName) => {
   function resetAgent (cb) {
     // first time this function is called, the real client will be present - so
     // let's just destroy it before creating the mock
-    if (agent._transport.destroy) agent._transport.destroy()
+    if (agent._apmClient.destroy) agent._apmClient.destroy()
     agent._instrumentation.testReset()
-    agent._transport = mockClient(1, cb)
+    agent._apmClient = mockClient(1, cb)
     agent.captureError = function (err) { throw err }
   }
 }

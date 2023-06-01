@@ -91,7 +91,7 @@ test('Outcome', function (t) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(3, cb)
+  agent._apmClient = mockClient(3, cb)
 }
 
 function sendRequest (server, timeout) {

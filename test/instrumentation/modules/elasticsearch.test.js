@@ -320,6 +320,6 @@ function resetAgent (expected, cb) {
     expected = 2
   }
   agent._instrumentation.testReset()
-  agent._transport = mockClient(expected, cb)
+  agent._apmClient = mockClient(expected, cb)
   agent.captureError = function (err) { throw err }
 }
