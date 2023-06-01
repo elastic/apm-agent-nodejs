@@ -89,7 +89,7 @@ test('#loggingPreamble', function (t) {
     preambleData.config.serverUrl,
     {
       source: 'start',
-      value: REDACTED,
+      value: 'https://server-url/',
       commonName: 'server_url'
     },
     'captureExceptions is taken from file options'
@@ -112,7 +112,8 @@ test('#loggingPreamble - secrets REDACTED', function (t) {
   // And set start options
   agent.start({
     secretToken: 'secret-token',
-    apiKey: ' a-secret-key',
+    apiKey: 'a-secret-key',
+    serverUrl: 'https://username:password@localhost:433/',
     transport: () => new NoopApmClient(),
     logger
   })
@@ -124,6 +125,8 @@ test('#loggingPreamble - secrets REDACTED', function (t) {
   t.ok(preambleData.config.secretToken.value === REDACTED, 'secret token value is REDACTED')
   t.ok(preambleData.config.apiKey, 'API key is shown when given')
   t.ok(preambleData.config.apiKey.value === REDACTED, 'API key value is REDACTED')
+  t.ok(preambleData.config.serverUrl, 'server URL is shown when given')
+  t.ok(preambleData.config.serverUrl.value === `https://${REDACTED}:${REDACTED}@localhost:433/`, 'server URL is sanitized')
 
   agent.destroy()
   t.end()
