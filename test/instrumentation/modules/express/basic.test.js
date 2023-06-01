@@ -501,6 +501,6 @@ function get (server, opts, cb) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(1, cb)
+  agent._apmClient = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }

@@ -181,5 +181,5 @@ test('redis client error', { skip: semver.lt(redisVersion, '4.1.0') }, function 
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(cb)
+  agent._apmClient = mockClient(cb)
 }

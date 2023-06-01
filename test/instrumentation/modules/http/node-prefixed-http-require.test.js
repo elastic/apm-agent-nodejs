@@ -47,9 +47,9 @@ test('node:http instrumentation works', function (t) {
         aTrans.end()
         server.close()
         apm.flush(() => {
-          const aTrans_ = findObjInArray(apm._transport.transactions, 'name', 'aTrans')
-          const httpClientSpan = findObjInArray(apm._transport.spans, 'name', `GET localhost:${port}`)
-          const httpServerTrans = findObjInArray(apm._transport.transactions, 'type', 'request')
+          const aTrans_ = findObjInArray(apm._apmClient.transactions, 'name', 'aTrans')
+          const httpClientSpan = findObjInArray(apm._apmClient.spans, 'name', `GET localhost:${port}`)
+          const httpServerTrans = findObjInArray(apm._apmClient.transactions, 'type', 'request')
           t.ok(aTrans_ && httpClientSpan && httpServerTrans, 'received the expected trace objs')
           t.equal(httpClientSpan.parent_id, aTrans_.id, 'http client span is a child of the manual trans')
           t.equal(httpServerTrans.parent_id, httpClientSpan.id, 'http server trans is a child of the http client span')

@@ -65,7 +65,7 @@ testData.forEach(testDatum => {
     // 2. Then assert that it has the expected destination.service.resource and
     //    service.target.
     apm.flush(() => {
-      const spanPayload = apm._transport.spans.pop()
+      const spanPayload = apm._apmClient.spans.pop()
       if (testDatum.expected_resource === null) {
         t.ok(!(spanPayload.context && spanPayload.context.destination && spanPayload.context.destination.service),
           'no span.context.destination.service.resource')

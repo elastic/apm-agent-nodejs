@@ -93,7 +93,7 @@ test('fails', function (t) {
 })
 
 function onError (t, assert) {
-  agent._transport = {
+  agent._apmClient = {
     flush () {},
     sendTransaction () {},
     sendSpan () {},
