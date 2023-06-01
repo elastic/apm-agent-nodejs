@@ -327,7 +327,36 @@ const testFixtures = [
 
       t.equal(spans.length, 0, 'all spans accounted for')
     }
+  },
+  {
+    name: '@aws-sdk/client-s3 ESM',
+    script: 'fixtures/use-client-s3.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1',
+      AWS_ACCESS_KEY_ID: 'fake',
+      AWS_SECRET_ACCESS_KEY: 'fake',
+      TEST_ENDPOINT: endpoint,
+      TEST_REGION: 'us-east-2'
+    },
+    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.ok(apmServer.events[0].metadata, 'metadata')
+      const events = sortApmEvents(apmServer.events)
+
+      t.ok(events[0].transaction, 'got the transaction')
+      const tx = events.shift().transaction
+
+      const span = events.shift().span
+      t.equal(span.parent_id, tx.id, 'span.parent_id')
+      t.equal(span.name, 'S3 ListBuckets', 'span.name')
+
+      t.equal(events.length, 0, 'all events accounted for')
+    }
   }
+
 ]
 
 test('@aws-sdk/client-s3 fixtures', suite => {

@@ -260,7 +260,7 @@ function runTestFixtures (suite, testFixtures) {
         if (tf.verbose) {
           t.comment(`running: (cd "${cwd}" && ${quoteEnv(tf.env)} node ${quoteArgv(argv)})`)
         }
-        console.time('# elapsed')
+        const start = Date.now()
         execFile(
           process.execPath,
           argv,
@@ -279,7 +279,7 @@ function runTestFixtures (suite, testFixtures) {
             maxBuffer: tf.maxBuffer
           },
           async function done (err, stdout, stderr) {
-            console.timeLog('# elapsed')
+            t.comment(`elapsed: ${(Date.now() - start) / 1000}`)
             if (tf.verbose) {
               if (err) { t.comment(`err: ${err}`) }
               if (stdout) {
