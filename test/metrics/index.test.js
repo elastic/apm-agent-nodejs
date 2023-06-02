@@ -22,7 +22,7 @@ let metrics
 function mockAgent (conf = {}, onMetricSet) {
   return {
     _conf: conf,
-    _transport: {
+    _apmClient: {
       sendMetricSet: onMetricSet
     },
     _isMetricNameDisabled (name) {

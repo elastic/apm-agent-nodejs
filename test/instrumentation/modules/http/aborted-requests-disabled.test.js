@@ -28,7 +28,7 @@ test('client-side abort - call end', function (t) {
   resetAgent()
   var clientReq
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
@@ -45,8 +45,8 @@ test('client-side abort - call end', function (t) {
       }, 1000)
 
       var interval = setInterval(function () {
-        if (agent._transport._writes.length) {
-          t.strictEqual(agent._transport._writes.length, 1, 'should send transaction')
+        if (agent._apmClient._writes.length) {
+          t.strictEqual(agent._apmClient._writes.length, 1, 'should send transaction')
           end()
         }
       }, 100)
@@ -76,12 +76,12 @@ test('client-side abort - don\'t call end', function (t) {
   resetAgent()
   var clientReq
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       setTimeout(function () {
-        t.strictEqual(agent._transport._writes.length, 0, 'should not send transaction')
+        t.strictEqual(agent._apmClient._writes.length, 0, 'should not send transaction')
         server.close()
         t.end()
       }, 100)
@@ -109,7 +109,7 @@ test('server-side abort - call end', function (t) {
   var timedout = false
   var closeEvent = false
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
@@ -122,7 +122,7 @@ test('server-side abort - call end', function (t) {
       res.end('Hello World')
 
       setTimeout(function () {
-        t.strictEqual(agent._transport._writes.length, 1, 'should not send transactions')
+        t.strictEqual(agent._apmClient._writes.length, 1, 'should not send transactions')
         server.close()
         t.end()
       }, 50)
@@ -148,7 +148,7 @@ test('server-side abort - don\'t call end', function (t) {
   var timedout = false
   var closeEvent = false
 
-  t.strictEqual(agent._transport._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
@@ -158,7 +158,7 @@ test('server-side abort - don\'t call end', function (t) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket')
       t.ok(closeEvent, 'res should emit close event')
-      t.strictEqual(agent._transport._writes.length, 0, 'should not send transactions')
+      t.strictEqual(agent._apmClient._writes.length, 0, 'should not send transactions')
       server.close()
       t.end()
     }, 200)
@@ -180,5 +180,5 @@ test('server-side abort - don\'t call end', function (t) {
 
 function resetAgent () {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(1, function () {})
+  agent._apmClient = mockClient(1, function () {})
 }

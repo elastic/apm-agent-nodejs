@@ -11,7 +11,7 @@
 const tape = require('tape')
 
 const apm = require('../')
-const { NoopTransport } = require('../lib/noop-transport')
+const { NoopApmClient } = require('../lib/apm-client/noop-apm-client')
 const { MockAPMServer } = require('./_mock_apm_server')
 
 tape.test('disableSend', function (suite) {
@@ -40,8 +40,8 @@ tape.test('disableSend', function (suite) {
     })
   })
 
-  suite.test('transport should be NoopTransport if disableSend=true', function (t) {
-    t.ok(apm._transport instanceof NoopTransport, 'agent transport is NoopTransport')
+  suite.test('transport should be NoopApmClient if disableSend=true', function (t) {
+    t.ok(apm._apmClient instanceof NoopApmClient, 'agent transport is NoopApmClient')
     t.end()
   })
 

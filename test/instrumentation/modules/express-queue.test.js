@@ -108,6 +108,6 @@ function done (t, query) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(10, cb)
+  agent._apmClient = mockClient(10, cb)
   agent.captureError = function (err) { throw err }
 }

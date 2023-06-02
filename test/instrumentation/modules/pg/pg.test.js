@@ -32,11 +32,9 @@ var findObjInArray = require('../../../_utils').findObjInArray
 
 var queryable, connectionDone
 var factories = [
-  [createClient, 'client']
+  [createClient, 'client'],
+  [createPoolAndConnect, 'pool']
 ]
-
-// In pg@6 native promises are required for pool operations
-if (global.Promise || semver.satisfies(pgVersion, '<6')) factories.push([createPoolAndConnect, 'pool'])
 
 factories.forEach(function (f) {
   var factory = f[0]
@@ -219,7 +217,7 @@ factories.forEach(function (f) {
       t.end()
     })
 
-    if (semver.gte(pgVersion, '5.1.0') && global.Promise) {
+    if (semver.gte(pgVersion, '5.1.0')) {
       t.test('basic query promise', function (t) {
         t.test(type + '.query(sql)', function (t) {
           resetAgent(function (data) {
@@ -392,140 +390,137 @@ factories.forEach(function (f) {
   })
 })
 
-// In pg@6 native promises are required for pool operations
-if (global.Promise || semver.satisfies(pgVersion, '<6')) {
-  test('simultaneous queries on different connections', function (t) {
-    t.on('end', teardown)
-    resetAgent(4, function (data) {
-      t.strictEqual(data.transactions.length, 1)
-      t.strictEqual(data.spans.length, 3)
+test('simultaneous queries on different connections', function (t) {
+  t.on('end', teardown)
+  resetAgent(4, function (data) {
+    t.strictEqual(data.transactions.length, 1)
+    t.strictEqual(data.spans.length, 3)
 
-      var trans = data.transactions[0]
+    var trans = data.transactions[0]
 
-      t.strictEqual(trans.name, 'foo')
-      data.spans.forEach(function (span) {
-        assertSpan(t, span, sql)
-        t.equal(span.parent_id, trans.id, 'each span is a child of the transaction')
-      })
-
-      t.end()
+    t.strictEqual(trans.name, 'foo')
+    data.spans.forEach(function (span) {
+      assertSpan(t, span, sql)
+      t.equal(span.parent_id, trans.id, 'each span is a child of the transaction')
     })
 
-    var sql = 'SELECT 1 + $1 AS solution'
-
-    createPool(function (connector) {
-      var n = 0
-      var trans = agent.startTransaction('foo')
-
-      connector(function (err, client, release) {
-        t.error(err)
-        client.query(sql, [1], function (err, result, fields) {
-          t.error(err)
-          t.strictEqual(result.rows[0].solution, 2)
-          if (++n === 3) done()
-          release()
-        })
-      })
-      connector(function (err, client, release) {
-        t.error(err)
-        client.query(sql, [2], function (err, result, fields) {
-          t.error(err)
-          t.strictEqual(result.rows[0].solution, 3)
-          if (++n === 3) done()
-          release()
-        })
-      })
-      connector(function (err, client, release) {
-        t.error(err)
-        client.query(sql, [3], function (err, result, fields) {
-          t.error(err)
-          t.strictEqual(result.rows[0].solution, 4)
-          if (++n === 3) done()
-          release()
-        })
-      })
-
-      function done () {
-        trans.end()
-      }
-    })
+    t.end()
   })
 
-  test('connection.release()', function (t) {
-    t.on('end', teardown)
-    resetAgent(function (data) {
-      assertBasicQuery(t, sql, data)
-      t.end()
+  var sql = 'SELECT 1 + $1 AS solution'
+
+  createPool(function (connector) {
+    var n = 0
+    var trans = agent.startTransaction('foo')
+
+    connector(function (err, client, release) {
+      t.error(err)
+      client.query(sql, [1], function (err, result, fields) {
+        t.error(err)
+        t.strictEqual(result.rows[0].solution, 2)
+        if (++n === 3) done()
+        release()
+      })
+    })
+    connector(function (err, client, release) {
+      t.error(err)
+      client.query(sql, [2], function (err, result, fields) {
+        t.error(err)
+        t.strictEqual(result.rows[0].solution, 3)
+        if (++n === 3) done()
+        release()
+      })
+    })
+    connector(function (err, client, release) {
+      t.error(err)
+      client.query(sql, [3], function (err, result, fields) {
+        t.error(err)
+        t.strictEqual(result.rows[0].solution, 4)
+        if (++n === 3) done()
+        release()
+      })
     })
 
-    var sql = 'SELECT 1 + 1 AS solution'
+    function done () {
+      trans.end()
+    }
+  })
+})
+
+test('connection.release()', function (t) {
+  t.on('end', teardown)
+  resetAgent(function (data) {
+    assertBasicQuery(t, sql, data)
+    t.end()
+  })
+
+  var sql = 'SELECT 1 + 1 AS solution'
+
+  createPool(function (connector) {
+    agent.startTransaction('foo')
+
+    connector(function (err, client, release) {
+      t.error(err)
+      release()
+
+      connector(function (err, client, release) {
+        t.error(err)
+        client.query(sql, basicQueryCallback(t))
+        t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
+
+        if (semver.gte(pgVersion, '7.5.0')) {
+          release()
+        } else {
+          // Race-condition: Wait a bit so the query callback isn't called
+          // with a "Connection terminated by user" error
+          setTimeout(release, 100)
+        }
+      })
+    })
+  })
+})
+
+// The same guard logic as from the instrumentation module
+//
+// https://github.com/elastic/apm-agent-nodejs/blob/8a5e908b8e9ee83bb1b828a3bef980388ea6e08e/lib/instrumentation/modules/pg.js#L91
+//
+// ensures this tests runs when ending a span via promise.then
+if (typeof pg.Client.prototype.query.on !== 'function' &&
+      typeof pg.Client.prototype.query.then === 'function') {
+  test.test('handles promise rejections from pg', function (t) {
+    function unhandledRejection (e) {
+      t.fail('had unhandledRejection')
+    }
+    process.once('unhandledRejection', unhandledRejection)
+    t.on('end', function () {
+      process.removeListener('unhandledRejection', unhandledRejection)
+      teardown()
+    })
+
+    var sql = 'select \'not-a-uuid\' = \'00000000-0000-0000-0000-000000000000\'::uuid'
 
     createPool(function (connector) {
       agent.startTransaction('foo')
 
       connector(function (err, client, release) {
         t.error(err)
-        release()
 
-        connector(function (err, client, release) {
-          t.error(err)
-          client.query(sql, basicQueryCallback(t))
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
-
-          if (semver.gte(pgVersion, '7.5.0')) {
-            release()
-          } else {
-            // Race-condition: Wait a bit so the query callback isn't called
-            // with a "Connection terminated by user" error
-            setTimeout(release, 100)
-          }
-        })
+        client.query(sql)
+          .then(function () {
+            t.fail('query should have rejected')
+          })
+          .catch(function () {
+            t.ok(agent.currentSpan === null, 'no currentSpan in promise catch after pg .query')
+          })
+          .then(function () {
+            setTimeout(function () {
+              release()
+              t.end()
+            }, 100)
+          })
       })
     })
   })
-
-  // The same guard logic as from the instrumentation module
-  //
-  // https://github.com/elastic/apm-agent-nodejs/blob/8a5e908b8e9ee83bb1b828a3bef980388ea6e08e/lib/instrumentation/modules/pg.js#L91
-  //
-  // ensures this tests runs when ending a span via promise.then
-  if (typeof pg.Client.prototype.query.on !== 'function' &&
-      typeof pg.Client.prototype.query.then === 'function') {
-    test.test('handles promise rejections from pg', function (t) {
-      function unhandledRejection (e) {
-        t.fail('had unhandledRejection')
-      }
-      process.once('unhandledRejection', unhandledRejection)
-      t.on('end', function () {
-        process.removeListener('unhandledRejection', unhandledRejection)
-        teardown()
-      })
-
-      var sql = 'select \'not-a-uuid\' = \'00000000-0000-0000-0000-000000000000\'::uuid'
-
-      createPool(function (connector) {
-        agent.startTransaction('foo')
-
-        connector(function (err, client, release) {
-          t.error(err)
-
-          client.query(sql)
-            .then(function () {
-              t.fail('query should have rejected')
-            })
-            .catch(function () {
-              t.ok(agent.currentSpan === null, 'no currentSpan in promise catch after pg .query')
-            })
-            .then(function () {
-              setTimeout(function () {
-                release()
-                t.end()
-              }, 100)
-            })
-        })
-      })
-    })
-  }
 }
 
 function basicQueryCallback (t) {
@@ -686,7 +681,7 @@ function resetAgent (expected, cb) {
   if (typeof expected === 'function') return resetAgent(2, expected)
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock
-  if (agent._transport.destroy) agent._transport.destroy()
-  agent._transport = mockClient(expected, cb)
+  if (agent._apmClient.destroy) agent._apmClient.destroy()
+  agent._apmClient = mockClient(expected, cb)
   agent._instrumentation.testReset()
 }

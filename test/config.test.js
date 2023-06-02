@@ -21,7 +21,8 @@ var test = require('tape')
 
 const Agent = require('../lib/agent')
 const { MockAPMServer } = require('./_mock_apm_server')
-const { NoopTransport } = require('../lib/noop-transport')
+const { MockLogger } = require('./_mock_logger')
+const { NoopApmClient } = require('../lib/apm-client/noop-apm-client')
 const { safeGetPackageVersion, findObjInArray } = require('./_utils')
 const { secondsFromDuration } = require('../lib/config/normalizers')
 const {
@@ -54,7 +55,7 @@ const agentOptsNoopTransport = Object.assign(
   {
     transport: function createNoopTransport () {
       // Avoid accidentally trying to send data to an APM server.
-      return new NoopTransport()
+      return new NoopApmClient()
     }
   }
 )
@@ -97,26 +98,6 @@ function assertEncodedError (t, error, result, trans, parent) {
   t.strictEqual(result.exception.type, error.constructor.name, 'exception type matches')
   t.ok(result.culprit, 'has a valid culprit')
   t.ok(result.timestamp, 'has a valid timestamp')
-}
-
-class CaptureLogger {
-  constructor () {
-    this.calls = []
-  }
-
-  _log (type, message) {
-    this.calls.push({
-      type,
-      message
-    })
-  }
-
-  fatal (message) { this._log('fatal', message) }
-  error (message) { this._log('error', message) }
-  warn (message) { this._log('warn', message) }
-  info (message) { this._log('info', message) }
-  debug (message) { this._log('debug', message) }
-  trace (message) { this._log('trace', message) }
 }
 
 // ---- tests
@@ -396,7 +377,7 @@ truthyValues.forEach(function (val) {
 
 test('should log invalid booleans', function (t) {
   var agent = new Agent()
-  var logger = new CaptureLogger()
+  var logger = new MockLogger()
 
   agent.start(Object.assign(
     {},
@@ -421,7 +402,7 @@ test('should log invalid booleans', function (t) {
 
 test('it should log deprecated booleans', function (t) {
   var agent = new Agent()
-  var logger = new CaptureLogger()
+  var logger = new MockLogger()
 
   agent.start(Object.assign(
     {},
@@ -499,7 +480,7 @@ DURATION_OPTS.forEach(function (optSpec) {
   if (!optSpec.allowNegative) {
     test(key + ' should guard against a negative time', function (t) {
       var agent = new Agent()
-      var logger = new CaptureLogger()
+      var logger = new MockLogger()
       agent.start(Object.assign(
         {},
         agentOptsNoopTransport,
@@ -526,7 +507,7 @@ DURATION_OPTS.forEach(function (optSpec) {
 
   test(key + ' should guard against a bogus non-time', function (t) {
     var agent = new Agent()
-    var logger = new CaptureLogger()
+    var logger = new MockLogger()
     agent.start(Object.assign(
       {},
       agentOptsNoopTransport,
@@ -748,7 +729,7 @@ test('should prepare WildcardMatcher array config vars', function (t) {
 })
 
 test('invalid serviceName => inactive', function (t) {
-  var logger = new CaptureLogger()
+  var logger = new MockLogger()
   var agent = new Agent()
   agent.start(Object.assign(
     {},
@@ -1061,7 +1042,7 @@ test('disableInstrumentations', function (t) {
     // https://github.com/restify/node-restify/issues/1888
     modules.delete('restify')
   }
-  if (semver.lt(process.version, '14.0.0')) {
+  if (semver.lt(process.version, '16.0.0')) {
     modules.delete('tedious')
   }
   if (semver.lt(process.version, '12.18.0')) {
@@ -1544,26 +1525,6 @@ test('should accept and normalize ignoreMessageQueues', function (suite) {
   })
 
   suite.end()
-})
-
-// Test User-Agent generation. It would be nice to also test against gherkin
-// specs from apm.git.
-// https://github.com/elastic/apm/blob/main/tests/agents/gherkin-specs/user_agent.feature
-test('userAgentFromConf', t => {
-  t.equal(config.userAgentFromConf({}),
-    `apm-agent-nodejs/${apmVersion}`)
-  t.equal(config.userAgentFromConf({ serviceName: 'foo' }),
-    `apm-agent-nodejs/${apmVersion} (foo)`)
-  t.equal(config.userAgentFromConf({ serviceName: 'foo', serviceVersion: '1.0.0' }),
-    `apm-agent-nodejs/${apmVersion} (foo 1.0.0)`)
-  // ISO-8859-1 characters are generally allowed.
-  t.equal(config.userAgentFromConf({ serviceName: 'party', serviceVersion: '2021-été' }),
-    `apm-agent-nodejs/${apmVersion} (party 2021-été)`)
-  // Higher code points are replaced with `_`.
-  t.equal(config.userAgentFromConf({ serviceName: 'freeze', serviceVersion: 'do you want to build a ☃ in my 🏰' }),
-    `apm-agent-nodejs/${apmVersion} (freeze do you want to build a _ in my __)`)
-
-  t.end()
 })
 
 // `spanStackTraceMinDuration` is synthesized from itself and two deprecated

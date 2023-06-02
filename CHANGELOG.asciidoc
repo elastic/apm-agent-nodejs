@@ -41,12 +41,17 @@ Notes:
 
 * Add support for 'knex' version v1 and v2
   ({pull}3355[#3355])
+* Add `tedious@16.x` support
+  ({pull}3366[#3366])
 
 [float]
 ===== Bug fixes
 
 [float]
 ===== Chores
+
+* Extract configuration's transport property to new `apm-client` module
+  ({pull}3372[#3372])
 
 
 [[release-notes-3.46.0]]
