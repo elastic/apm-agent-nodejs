@@ -125,3 +125,15 @@ NUM_OPTS_WITH_ENV.forEach(function (option) {
     t.end()
   })
 })
+
+test('configuration options coverage', function (t) {
+  const tested = new Set([].concat(
+    BOOL_OPTS_WITH_ENV,
+    NUM_OPTS_WITH_ENV
+  ))
+
+  CONFIG_SCHEMA.forEach(function (def) {
+    t.ok(tested.has(def), `config option ${def.name} is tested`)
+  })
+  t.end()
+})
