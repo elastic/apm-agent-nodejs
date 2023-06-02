@@ -215,10 +215,10 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
 
 tape.test('unit tests', function (suite) {
   // Clean up after the latest `resetAgent()` call above. Otherwise, if
-  // there is another write to the hacked `agent._transport`, then in 200ms
+  // there is another write to the hacked `agent._apmClient`, then in 200ms
   // the last registered callback will be invoked, resulting in a double
   // `t.end()`.
-  agent._transport = new NoopApmClient()
+  agent._apmClient = new NoopApmClient()
 
   suite.test('test _getCompressionStrategy invalid', function (t) {
     const c = new SpanCompression(agent)
@@ -497,6 +497,6 @@ tape.test('unit tests', function (suite) {
 
 function resetAgent (/* numExpected, */ cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(/* numExpected, */ cb)
+  agent._apmClient = mockClient(/* numExpected, */ cb)
   agent.captureError = function (err) { throw err }
 }

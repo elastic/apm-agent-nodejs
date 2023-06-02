@@ -16,6 +16,7 @@ const {
   CONTEXT_MANAGER_PATCH
 } = require('../../lib/config/schema')
 const {
+  normalizeUrls,
   normalizeArrays,
   normalizeBools,
   normalizeBytes,
@@ -41,6 +42,38 @@ test('#normalizeArrays()', function (t) {
   normalizeArrays(opts, ['arrayOpt', 'stringOpt'])
 
   t.deepEqual(opts, { arrayOpt: ['a', 'b'], stringOpt: ['1', '2', '3'], numberOpt: 2 })
+  t.end()
+})
+
+test('#normalizeUrls()', function (t) {
+  const logger = new MockLogger()
+  const fields = ['urlHttp', 'urlHttps', 'urlWithPort', 'urlNegativePort', 'urlTooHighPort', 'urlInvalid']
+  const defaults = { }
+  const opts = {
+    urlHttp: 'http://domain.com/path?query=true',
+    urlHttps: 'https://domain.com/path?query=true',
+    urlWithPort: 'https://domain.com:4200/path?query=true',
+    urlNegativePort: 'https://domain.com:-1/path?query=true',
+    urlTooHighPort: 'https://domain.com:65536/path?query=true',
+    urlInvalid: 'foo'
+  }
+
+  normalizeUrls(opts, fields, defaults, logger)
+
+  t.deepEqual(opts, {
+    urlHttp: 'http://domain.com/path?query=true',
+    urlHttps: 'https://domain.com/path?query=true',
+    urlWithPort: 'https://domain.com:4200/path?query=true',
+    urlNegativePort: null,
+    urlTooHighPort: null,
+    urlInvalid: null
+  })
+
+  const warnings = logger.calls
+  t.ok(warnings.length === 3, 'we got warnings for bad URL options')
+  t.deepEqual(warnings[0].interpolation, ['urlNegativePort'])
+  t.deepEqual(warnings[1].interpolation, ['urlTooHighPort'])
+  t.deepEqual(warnings[2].interpolation, ['urlInvalid'])
   t.end()
 })
 

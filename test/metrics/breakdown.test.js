@@ -134,13 +134,13 @@ function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
   // problem of a test expecting 2 metricsets and never noticing that 3 are
   // actually sent.
   const WAIT_FOR_FULL_BREAKDOWN_METRICSETS_GROUP_MS = 100
-  const origSendMetricSet = agent._transport.sendMetricSet
-  agent._transport.sendMetricSet = function watchingSendMetricSet (metricset, cb) {
+  const origSendMetricSet = agent._apmClient.sendMetricSet
+  agent._apmClient.sendMetricSet = function watchingSendMetricSet (metricset, cb) {
     if (metricset.transaction) {
       // This is the first breakdown metric. Wait a short while for all of them
       // in this "group" to be sent.
       clearTimeout(timeout)
-      agent._transport.sendMetricSet = origSendMetricSet
+      agent._apmClient.sendMetricSet = origSendMetricSet
       setTimeout(waitCb, WAIT_FOR_FULL_BREAKDOWN_METRICSETS_GROUP_MS)
     }
     return origSendMetricSet.apply(this, arguments)
@@ -157,7 +157,7 @@ test('includes breakdown when sampling', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const data = agent._transport
+    const data = agent._apmClient
     t.strictEqual(data.transactions.length, 1, 'has one transaction')
     assertTransaction(t, transaction, data.transactions[0])
 
@@ -187,7 +187,7 @@ test('only transaction', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets)
     }
@@ -213,7 +213,7 @@ test('with single sub-span', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets, span),
       span: finders.span(metricsets, span)
@@ -246,7 +246,7 @@ test('with single app sub-span', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets, span),
       span: finders.span(metricsets, span)
@@ -289,7 +289,7 @@ test('with parallel sub-spans', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span0)
@@ -337,7 +337,7 @@ test('with overlapping sub-spans', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span0)
@@ -372,7 +372,7 @@ test('with sequential sub-spans', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span0)
@@ -407,7 +407,7 @@ test('with sub-spans returning to app time', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span0)
@@ -442,7 +442,7 @@ test('with overlapping nested async sub-spans', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets),
       span: finders.span(metricsets, span1)
@@ -478,7 +478,7 @@ test('with app sub-span extending beyond end', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets)
     }
@@ -506,7 +506,7 @@ test('with other sub-span extending beyond end', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets)
     }
@@ -534,7 +534,7 @@ test('with other sub-span starting after end', t => {
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
     t.error(err, 'wait for breakdown metrics did not timeout')
-    const metricsets = agent._transport.metricsets
+    const metricsets = agent._apmClient.metricsets
     const found = {
       transaction_span: finders['transaction span'](metricsets)
     }

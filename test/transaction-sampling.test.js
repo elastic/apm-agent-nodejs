@@ -159,7 +159,7 @@ tape.test('APM Server >=v8.0 (which does not want unsampled transactions)', func
     // There isn't a mechanism exposed to wait for this, so we just wait a short
     // while and poke into the internal APM client props.
     setTimeout(function () {
-      t.ok(agent._transport._apmServerVersion, 'the agent APM client has fetched the APM Server version')
+      t.ok(agent._apmClient._apmServerVersion, 'the agent APM client has fetched the APM Server version')
       t.end()
     }, 1000)
   })

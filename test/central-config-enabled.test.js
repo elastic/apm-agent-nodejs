@@ -32,7 +32,7 @@ const runTestsWithServer = (t, updates, expect) => {
 
     // 4. After the 'config' event is handled in the agent, the expected
     //    config vars should be updated.
-    agent._transport.once('config', function (remoteConf) {
+    agent._apmClient.once('config', function (remoteConf) {
       for (const key in expect) {
         t.deepEqual(agent._conf[key], expect[key],
           `agent conf for key ${key} was updated to expected value`)
@@ -129,7 +129,7 @@ test('agent.logger updates for central config `log_level` change', { timeout: 50
     })
     res.end(JSON.stringify({ log_level: 'error' }))
 
-    agent._transport.once('config', function () {
+    agent._apmClient.once('config', function () {
       // 4. agent.logger should be updated from central config.
       t.equal(agent.logger.level, 'error',
         'shortly after fetching central config, agent.logger level should be updated')
@@ -175,7 +175,7 @@ test('central config change does not erroneously update cloudProvider', { timeou
     })
     res.end(JSON.stringify({ log_level: 'error' }))
 
-    agent._transport.once('config', function () {
+    agent._apmClient.once('config', function () {
       // 4. Ensure that `cloudProvider` is *not* reset to the default "auto".
       t.equal(agent._conf.cloudProvider, 'aws',
         'after fetching central config, cloudProvider is not reset to default')

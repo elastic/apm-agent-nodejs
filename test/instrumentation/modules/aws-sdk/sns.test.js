@@ -68,7 +68,7 @@ function createMockServer (fixture) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(cb)
+  agent._apmClient = mockClient(cb)
 }
 
 tape.test('AWS SNS: Unit Test Functions', function (test) {
