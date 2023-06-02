@@ -367,5 +367,5 @@ function abortTest (type, handler) {
 function resetAgent (opts, numExpected, cb) {
   agent._instrumentation.testReset()
   agent._config(opts)
-  agent._transport = mockClient(numExpected, cb)
+  agent._apmClient = mockClient(numExpected, cb)
 }

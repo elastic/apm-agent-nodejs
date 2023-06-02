@@ -30,7 +30,7 @@ server.listen(4321, () => {
       console.log('CLIENT: res data: %j', chunk.toString())
     })
     res.on('end', () => {
-      assert(apm._transport.transactions && apm._transport.transactions.length === 1,
+      assert(apm._apmClient.transactions && apm._apmClient.transactions.length === 1,
         'got the expected APM transaction')
       server.close()
     })

@@ -108,6 +108,6 @@ if (semver.gte(fastifyVersion, '2.0.0-rc')) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(1, cb)
+  agent._apmClient = mockClient(1, cb)
   agent.captureError = function (err) { throw err }
 }

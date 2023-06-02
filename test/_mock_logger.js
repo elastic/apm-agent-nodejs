@@ -58,4 +58,6 @@ class MockLogger {
   trace () { this._log('trace', arguments) }
 }
 
-module.exports = MockLogger
+module.exports = {
+  MockLogger
+}

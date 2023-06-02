@@ -999,5 +999,5 @@ function checkDataAndEnd (t, expectedName, expectedHttpUrl, expectedStatusCode, 
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(cb)
+  agent._apmClient = mockClient(cb)
 }

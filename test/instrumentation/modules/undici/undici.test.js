@@ -105,7 +105,7 @@ test('setup', t => {
 })
 
 test('undici.request', async t => {
-  apm._transport.clear()
+  apm._apmClient.clear()
   const aTrans = apm.startTransaction('aTransName')
 
   const url = origin + '/ping'
@@ -116,8 +116,8 @@ test('undici.request', async t => {
   aTrans.end()
   t.error(await promisyApmFlush(), 'no apm.flush() error')
 
-  t.equal(apm._transport.spans.length, 1)
-  const span = apm._transport.spans[0]
+  t.equal(apm._apmClient.spans.length, 1)
+  const span = apm._apmClient.spans[0]
   assertUndiciSpan(t, span, url)
 
   // Test trace-context propagation.
@@ -130,7 +130,7 @@ test('undici.request', async t => {
 })
 
 test('undici.stream', async t => {
-  apm._transport.clear()
+  apm._apmClient.clear()
   const aTrans = apm.startTransaction('aTransName')
 
   // https://undici.nodejs.org/#/docs/api/Dispatcher?id=example-1-basic-get-stream-request
@@ -154,8 +154,8 @@ test('undici.stream', async t => {
   aTrans.end()
   t.error(await promisyApmFlush(), 'no apm.flush() error')
 
-  t.equal(apm._transport.spans.length, 1)
-  const span = apm._transport.spans[0]
+  t.equal(apm._apmClient.spans.length, 1)
+  const span = apm._apmClient.spans[0]
   assertUndiciSpan(t, span, url)
 
   t.end()
@@ -163,7 +163,7 @@ test('undici.stream', async t => {
 
 if (undici.fetch) {
   test('undici.fetch', async t => {
-    apm._transport.clear()
+    apm._apmClient.clear()
     const aTrans = apm.startTransaction('aTransName')
 
     const url = origin + '/ping'
@@ -175,8 +175,8 @@ if (undici.fetch) {
     aTrans.end()
     t.error(await promisyApmFlush(), 'no apm.flush() error')
 
-    t.equal(apm._transport.spans.length, 1)
-    const span = apm._transport.spans[0]
+    t.equal(apm._apmClient.spans.length, 1)
+    const span = apm._apmClient.spans[0]
     assertUndiciSpan(t, span, url)
 
     t.end()
@@ -185,7 +185,7 @@ if (undici.fetch) {
 
 if (global.AbortController) {
   test('undici.request AbortSignal', async t => {
-    apm._transport.clear()
+    apm._apmClient.clear()
     const aTrans = apm.startTransaction('aTransName', 'manual')
 
     const url = origin + '/ping'
@@ -202,12 +202,12 @@ if (global.AbortController) {
       aTrans.end()
       t.error(await promisyApmFlush(), 'no apm.flush() error')
 
-      t.equal(apm._transport.spans.length, 1)
-      const span = apm._transport.spans[0]
+      t.equal(apm._apmClient.spans.length, 1)
+      const span = apm._apmClient.spans[0]
       assertUndiciSpan(t, span, url, true)
 
-      t.equal(apm._transport.errors.length, 1)
-      const error = apm._transport.errors[0]
+      t.equal(apm._apmClient.errors.length, 1)
+      const error = apm._apmClient.errors[0]
       t.equal(error.parent_id, span.id, 'error.parent_id')
       t.equal(error.trace_id, span.trace_id, 'error.trace_id')
       t.equal(error.transaction_id, aTrans.id, 'error.transaction_id')

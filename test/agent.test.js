@@ -27,7 +27,7 @@ const {
 } = require('../lib/config/schema')
 const { findObjInArray } = require('./_utils')
 const { MockAPMServer } = require('./_mock_apm_server')
-const { NoopTransport } = require('../lib/noop-transport')
+const { NoopApmClient } = require('../lib/apm-client/noop-apm-client')
 var packageJson = require('../package.json')
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
@@ -50,7 +50,7 @@ const agentOptsNoopTransport = Object.assign(
   {
     transport: function createNoopTransport () {
       // Avoid accidentally trying to send data to an APM server.
-      return new NoopTransport()
+      return new NoopApmClient()
     }
   }
 )
@@ -124,38 +124,38 @@ test('#getServiceName()', function (t) {
 
 test('#setFramework()', function (t) {
   // Use `agentOpts` instead of `agentOptsNoopTransport` because this test is
-  // reaching into `agent._transport` internals.
+  // reaching into `agent._apmClient` internals.
   const agent = new Agent().start(agentOpts)
 
   t.strictEqual(agent._conf.frameworkName, undefined)
   t.strictEqual(agent._conf.frameworkVersion, undefined)
-  t.strictEqual(agent._transport._conf.frameworkName, undefined)
-  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkName, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, undefined)
   agent.setFramework({})
   t.strictEqual(agent._conf.frameworkName, undefined)
   t.strictEqual(agent._conf.frameworkVersion, undefined)
-  t.strictEqual(agent._transport._conf.frameworkName, undefined)
-  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkName, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, undefined)
   agent.setFramework({ name: 'foo' })
   t.strictEqual(agent._conf.frameworkName, 'foo')
   t.strictEqual(agent._conf.frameworkVersion, undefined)
-  t.strictEqual(agent._transport._conf.frameworkName, 'foo')
-  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkName, 'foo')
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, undefined)
   agent.setFramework({ version: 'bar' })
   t.strictEqual(agent._conf.frameworkName, 'foo')
   t.strictEqual(agent._conf.frameworkVersion, 'bar')
-  t.strictEqual(agent._transport._conf.frameworkName, 'foo')
-  t.strictEqual(agent._transport._conf.frameworkVersion, 'bar')
+  t.strictEqual(agent._apmClient._conf.frameworkName, 'foo')
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, 'bar')
   agent.setFramework({ name: 'a', version: 'b' })
   t.strictEqual(agent._conf.frameworkName, 'a')
   t.strictEqual(agent._conf.frameworkVersion, 'b')
-  t.strictEqual(agent._transport._conf.frameworkName, 'a')
-  t.strictEqual(agent._transport._conf.frameworkVersion, 'b')
+  t.strictEqual(agent._apmClient._conf.frameworkName, 'a')
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, 'b')
   agent.setFramework({ name: 'foo', version: 'bar', overwrite: false })
   t.strictEqual(agent._conf.frameworkName, 'a')
   t.strictEqual(agent._conf.frameworkVersion, 'b')
-  t.strictEqual(agent._transport._conf.frameworkName, 'a')
-  t.strictEqual(agent._transport._conf.frameworkVersion, 'b')
+  t.strictEqual(agent._apmClient._conf.frameworkName, 'a')
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, 'b')
   agent.destroy()
   t.end()
 })

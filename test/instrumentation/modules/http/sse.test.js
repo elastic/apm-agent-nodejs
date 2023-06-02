@@ -112,6 +112,6 @@ function request (server) {
 }
 
 function resetAgent (expected, cb) {
-  agent._transport = mockClient(expected, cb)
+  agent._apmClient = mockClient(expected, cb)
   agent._instrumentation.testReset()
 }

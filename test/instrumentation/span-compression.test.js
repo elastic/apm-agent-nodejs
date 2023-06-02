@@ -23,7 +23,7 @@ const constantsGlobal = require('../../lib/constants')
 const mockClient = require('../_mock_http_client')
 
 const tape = require('tape')
-const { NoopTransport } = require('../../lib/noop-transport')
+const { NoopApmClient } = require('../../lib/apm-client/noop-apm-client')
 
 // `setTimeout` precision is ~1ms. It can fire its callback up to a millisecond
 // early. Comparisons on the minimum time for an action using setTimeout should
@@ -215,10 +215,10 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
 
 tape.test('unit tests', function (suite) {
   // Clean up after the latest `resetAgent()` call above. Otherwise, if
-  // there is another write to the hacked `agent._transport`, then in 200ms
+  // there is another write to the hacked `agent._apmClient`, then in 200ms
   // the last registered callback will be invoked, resulting in a double
   // `t.end()`.
-  agent._transport = new NoopTransport()
+  agent._apmClient = new NoopApmClient()
 
   suite.test('test _getCompressionStrategy invalid', function (t) {
     const c = new SpanCompression(agent)
@@ -497,6 +497,6 @@ tape.test('unit tests', function (suite) {
 
 function resetAgent (/* numExpected, */ cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(/* numExpected, */ cb)
+  agent._apmClient = mockClient(/* numExpected, */ cb)
   agent.captureError = function (err) { throw err }
 }

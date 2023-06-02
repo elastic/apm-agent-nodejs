@@ -55,10 +55,10 @@ test('init', function (t) {
 
   t.test('options.links (no links)', function (t) {
     const theTrans = agent.startTransaction('theTransName')
-    agent._transport.clear()
+    agent._apmClient.clear()
     theTrans.startSpan('theSpanName', { links: [] }).end()
     agent.flush(() => {
-      t.deepEqual(agent._transport.spans[0].links, undefined, 'no links')
+      t.deepEqual(agent._apmClient.spans[0].links, undefined, 'no links')
       theTrans.end()
       t.end()
     })
@@ -66,10 +66,10 @@ test('init', function (t) {
 
   t.test('options.links (from invalid link)', function (t) {
     const theTrans = agent.startTransaction('theTransName')
-    agent._transport.clear()
+    agent._apmClient.clear()
     theTrans.startSpan('theSpanName', { links: [42] }).end()
     agent.flush(() => {
-      t.deepEqual(agent._transport.spans[0].links, undefined, 'no span link from an invalid link')
+      t.deepEqual(agent._apmClient.spans[0].links, undefined, 'no span link from an invalid link')
       theTrans.end()
       t.end()
     })
@@ -77,7 +77,7 @@ test('init', function (t) {
 
   t.test('options.links (from traceparent)', function (t) {
     const theTrans = agent.startTransaction('theTransName')
-    agent._transport.clear()
+    agent._apmClient.clear()
     const aTraceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
     theTrans.startSpan('theSpanName', {
       links: [
@@ -85,7 +85,7 @@ test('init', function (t) {
       ]
     }).end()
     agent.flush(() => {
-      t.deepEqual(agent._transport.spans[0].links, [{
+      t.deepEqual(agent._apmClient.spans[0].links, [{
         trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
         span_id: '00f067aa0ba902b7'
       }], 'a span link from a traceparent')
@@ -99,7 +99,7 @@ test('init', function (t) {
     const aSpan = aTrans.startSpan('aSpan')
 
     const theTrans = agent.startTransaction('theTransName')
-    agent._transport.clear()
+    agent._apmClient.clear()
     theTrans.startSpan('theSpanName', {
       links: [
         { context: aTrans },
@@ -107,7 +107,7 @@ test('init', function (t) {
       ]
     }).end()
     agent.flush(() => {
-      t.deepEqual(agent._transport.spans[0].links, [
+      t.deepEqual(agent._apmClient.spans[0].links, [
         {
           trace_id: aTrans.traceId,
           span_id: aTrans.id
