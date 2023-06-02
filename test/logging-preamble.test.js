@@ -108,7 +108,6 @@ test('logging preamble - secrets REDACTED', function (t) {
   const loggerCalls = []
   const logger = createMockLogger(loggerCalls)
   const agent = new Agent()
-  const ENCODED_REDACTED = encodeURIComponent(REDACTED)
 
   // And set start options
   agent.start({
@@ -127,7 +126,7 @@ test('logging preamble - secrets REDACTED', function (t) {
   t.ok(preambleData.config.apiKey, 'API key is shown when given')
   t.ok(preambleData.config.apiKey.value === REDACTED, 'API key value is REDACTED')
   t.ok(preambleData.config.serverUrl, 'server URL is shown when given')
-  t.ok(preambleData.config.serverUrl.value === `https://${ENCODED_REDACTED}:${ENCODED_REDACTED}@localhost:433/`,
+  t.ok(preambleData.config.serverUrl.value === `https://${REDACTED}:${REDACTED}@localhost:433/`,
     'server URL is sanitized')
 
   agent.destroy()
