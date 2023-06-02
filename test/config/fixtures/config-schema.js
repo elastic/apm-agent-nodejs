@@ -13,7 +13,9 @@ const {
   normalizeInfinity,
   normalizeDuration,
   normalizeArray,
-  normalizeKeyValuePair
+  normalizeKeyValuePair,
+  normalizeSampleRate
+  // TODO: update path
 } = require('../../../lib/config/normalizers')
 
 const CONFIG_SCHEMA = [
@@ -490,7 +492,8 @@ const CONFIG_SCHEMA = [
     envVar: 'ELASTIC_APM_TRANSACTION_SAMPLE_RATE',
     centralConfigName: 'transaction_sample_rate',
     normalizers: [
-      normalizeNumber
+      normalizeNumber,
+      normalizeSampleRate
     ]
   },
   {
@@ -596,3 +599,5 @@ const CONFIG_SCHEMA = [
 module.exports = {
   CONFIG_SCHEMA
 }
+
+
