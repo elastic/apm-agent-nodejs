@@ -29,9 +29,4 @@ fi
 
 echo "--- Send benchmarks"
 set -x
-#sendBenchmark "$ES_USER_SECRET" "$ES_PASS_SECRET" "$ES_URL_SECRET" "apm-agent-benchmark-results.json"
-curl -X POST \
-    -H "Content-Type: application/x-ndjson" \
-    --user "$ES_USER_SECRET:$ES_PASS_SECRET" \
-    "$ES_URL_SECRET"/_bulk \
-    --data-binary @apm-agent-benchmark-results.json
+sendBenchmark "$ES_USER_SECRET" "$ES_PASS_SECRET" "$ES_URL_SECRET" "apm-agent-benchmark-results.json"

@@ -6,8 +6,10 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**.md'
-      - '**.asciidoc'
+      - '**/*.md'
+      - '**/*.asciidoc'
+      - 'docs/**'
+      - 'examples/**'
 
 # limit the access of the generated GITHUB_TOKEN
 permissions:
@@ -27,6 +29,7 @@ jobs:
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
           pipeline: apm-agent-microbenchmark
+          triggerMessage: "${{ github.repository }}@${{ github.ref_name }}"
           waitFor: true
           printBuildLogs: true
           buildEnvVars: |
