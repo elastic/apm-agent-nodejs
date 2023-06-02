@@ -11,7 +11,7 @@
 const { execSync } = require('child_process')
 const semver = require('semver')
 
-// Prints versions fot TAV for the given package and version range
+// Prints versions config for ".tav.yml" for the given package and version range
 function main (packageName, versionRange) {
   // Validation
   if (!packageName || !versionRange) {
