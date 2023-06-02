@@ -209,7 +209,9 @@ const testFixtures = [
       NODE_OPTIONS: '--experimental-loader=../../../loader.mjs --require=../../../start.js',
       NODE_NO_WARNINGS: '1'
     },
-    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    versionRanges: {
+      node: '^12.20.0 || >=14.13.0 <20' // supported range for import-in-the-middle
+    },
     testOpts: {
       // Instrumentation *does* work with `contextManager: 'patch'`, but it
       // gets the parent incorrect for the 'INFO' span used by ioredis for
@@ -255,8 +257,8 @@ const testFixtures = [
 ]
 
 test('ioredis fixtures', suite => {
-  // Undo the `agent._transport = ...` from earlier `resetAgent` usage.
-  agent._transport = new NoopApmClient()
+  // Undo the `agent._apmClient = ...` from earlier `resetAgent` usage.
+  agent._apmClient = new NoopApmClient()
 
   runTestFixtures(suite, testFixtures)
   suite.end()

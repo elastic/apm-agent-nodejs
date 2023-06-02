@@ -741,8 +741,8 @@ const testFixtures = [
 ]
 
 test('pg fixtures', suite => {
-  // Undo the `agent._transport = ...` from earlier `resetAgent` usage.
-  agent._transport = new NoopApmClient()
+  // Undo the `agent._apmClient = ...` from earlier `resetAgent` usage.
+  agent._apmClient = new NoopApmClient()
 
   runTestFixtures(suite, testFixtures)
   suite.end()
