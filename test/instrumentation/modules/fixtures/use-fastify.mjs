@@ -34,9 +34,6 @@ assert(mod1.default === fastify)
 const mod2 = await import('fastify')
 assert(mod2.fastify === fastify)
 
-// Assert that other exported properties work.
-assert(fastify.errorCodes.FST_ERR_NOT_FOUND, 'fastify.errorCodes exists')
-
 const server = fastify()
 server.post('/hello/:name', function (request, reply) {
   reply.send({ hello: request.params.name })

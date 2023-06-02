@@ -336,7 +336,9 @@ const testFixtures = [
       TEST_ENDPOINT: endpoint,
       TEST_REGION: 'us-east-2'
     },
-    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    versionRanges: {
+      node: '^12.20.0 || >=14.13.0 <20' // supported range for import-in-the-middle
+    },
     verbose: true,
     checkApmServer: (t, apmServer) => {
       t.ok(apmServer.events[0].metadata, 'metadata')

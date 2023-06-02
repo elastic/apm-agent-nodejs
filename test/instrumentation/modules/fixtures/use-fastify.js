@@ -16,9 +16,6 @@ const fastify = require('fastify')
 //    const { fastify } = require('fastify')
 assert(fastify === fastify.fastify, 'fastify.fastify is correct')
 
-// Assert that other exported properties work.
-assert(fastify.errorCodes.FST_ERR_NOT_FOUND, 'fastify.errorCodes exists')
-
 const server = fastify()
 server.post('/hello/:name', function (request, reply) {
   reply.send({ hello: request.params.name })

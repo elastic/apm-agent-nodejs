@@ -699,7 +699,9 @@ const testFixtures = [
       NODE_NO_WARNINGS: '1',
       ELASTIC_APM_SPAN_COMPRESSION_ENABLED: 'false'
     },
-    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    versionRanges: {
+      node: '^12.20.0 || >=14.13.0 <20' // supported range for import-in-the-middle
+    },
     verbose: true,
     checkApmServer: (t, apmServer) => {
       t.equal(apmServer.events.length, 4, 'expected number of APM server events')

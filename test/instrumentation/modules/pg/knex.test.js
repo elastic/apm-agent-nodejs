@@ -205,7 +205,9 @@ const testFixtures = [
       NODE_NO_WARNINGS: '1',
       ELASTIC_APM_SPAN_STACK_TRACE_MIN_DURATION: '0' // enable span stack traces
     },
-    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    versionRanges: {
+      node: '^12.20.0 || >=14.13.0 <20' // supported range for import-in-the-middle
+    },
     verbose: true,
     checkApmServer: (t, apmServer) => {
       t.equal(apmServer.events.length, 6, 'expected number of APM server events')

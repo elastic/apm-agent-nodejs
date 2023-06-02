@@ -227,9 +227,17 @@ function quoteEnv (env) {
  *    the command run and its output. This can be helpful to run the script
  *    manually for dev/debugging.
  * @property {Object} [testOpts] Additional tape test opts, if any. https://github.com/ljharb/tape#testname-opts-cb
- * @property {string} [nodeRange] A semver range of Node.js versions to which
- *    to restrict running this fixture. E.g. this is common for ESM tests:
- *        nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+ * @property {Map<string,string>} [versionRanges] A mapping of required version
+ *    ranges for either "node" or a given module name. If current versions don't
+ *    satisfy, then the test will be skipped. E.g. this is common for ESM tests:
+ *        versionRanges: {
+ *          node: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+ *        }
+ * @property {function} [checkScriptResult] Check the exit and output of the
+ *    script: `checkScriptResult(t, err, stdout, stderr)`. If not provided, by
+ *    default it will be asserted that the script exited successfully.
+ * @property {function} [checkApmServer] Check the results received by the mock
+ *    APM Server. `checkApmServer(t, apmServer)`
  *
  * @param {import('@types/tape').TestCase} suite
  * @param {Array<TestFixture>} testFixtures
@@ -246,13 +254,22 @@ function runTestFixtures (suite, testFixtures) {
   testFixtures.forEach(tf => {
     const testName = tf.name ? `${tf.name} (${tf.script})` : tf.script
     const testOpts = Object.assign({}, tf.testOpts)
-    if (!testOpts.skip && tf.nodeRange && !semver.satisfies(process.version, tf.nodeRange)) {
-      // Limitation: `tape` does not print this skip reason, so it can be
-      // confusing to know why a test might have been skipped. `tap` *does*
-      // print this, if we switch to using node-tap.
-      testOpts.skip = `node ${process.version} not supported`
-    }
     suite.test(testName, testOpts, t => {
+      // Handle "tf.versionRanges"-based skips here, because `tape` doesn't
+      // print any message for `testOpts.skip`.
+      if (tf.versionRanges) {
+        for (const name in tf.versionRanges) {
+          const ver = name === 'node'
+            ? process.version
+            : safeGetPackageVersion(name)
+          if (!semver.satisfies(ver, tf.versionRanges[name])) {
+            t.comment(`SKIP ${name} ${ver} is not supported by this fixture (requires: ${tf.versionRanges[name]})`)
+            t.end()
+            return
+          }
+        }
+      }
+
       const apmServer = new MockAPMServer()
       apmServer.start(function (serverUrl) {
         const argv = (tf.nodeArgv || []).concat([tf.script]).concat(tf.scriptArgv || [])
@@ -297,7 +314,6 @@ function runTestFixtures (suite, testFixtures) {
             }
             if (tf.checkScriptResult) {
               await tf.checkScriptResult(t, err, stdout, stderr)
-              await tf.checkApmServer(t, apmServer)
             } else {
               t.error(err, `${tf.script} exited successfully: err=${err}`)
               if (err) {
@@ -305,6 +321,10 @@ function runTestFixtures (suite, testFixtures) {
                   t.comment(`stdout:\n|${formatForTComment(stdout)}`)
                   t.comment(`stderr:\n|${formatForTComment(stderr)}`)
                 }
+              }
+            }
+            if (tf.checkApmServer) {
+              if (!tf.checkScriptResult && err) {
                 t.comment('skip checkApmServer because script errored out')
               } else {
                 await tf.checkApmServer(t, apmServer)

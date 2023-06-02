@@ -47,7 +47,9 @@ const testFixtures = [
       NODE_NO_WARNINGS: '1', // skip warnings about --experimental-loader
       ELASTIC_APM_CAPTURE_BODY: 'all'
     },
-    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    versionRanges: {
+      node: '^12.20.0 || >=14.13.0 <20' // supported range for import-in-the-middle
+    },
     verbose: true,
     checkApmServer: (t, apmServer) => {
       t.equal(apmServer.events.length, 2, 'expected number of APM server events')
@@ -59,6 +61,17 @@ const testFixtures = [
       t.equal(trans.outcome, 'success', 'transaction.outcome')
       t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
       t.equal(trans.context.request.body, JSON.stringify({ foo: 'bar' }), 'transaction.context.request.body')
+    }
+  },
+  {
+    name: 'ensure fastify.errorCodes export works after instrumentation',
+    script: '../fixtures/use-fastify-errorCodes.js',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--require=../../../../start.js'
+    },
+    versionRanges: {
+      fastify: '>=4.8.0' // when `fastify.errorCodes` was added
     }
   }
 ]
