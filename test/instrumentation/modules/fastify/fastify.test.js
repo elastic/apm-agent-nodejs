@@ -6,129 +6,64 @@
 
 'use strict'
 
-if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
-  console.log('# SKIP: GH Actions do not support docker services on Windows')
-  process.exit(0)
-}
-
-const agent = require('../../../..').start({
-  serviceName: 'test-fastify',
-  captureExceptions: false,
-  metricsInterval: '0s',
-  centralConfig: false,
-  apmServerVersion: '8.7.0',
-  captureBody: 'all'
-})
-
 const isFastifyIncompat = require('../../../_is_fastify_incompat')()
 if (isFastifyIncompat) {
   console.log(`# SKIP ${isFastifyIncompat}`)
   process.exit()
 }
 
-const http = require('http')
-
-const Fastify = require('fastify')
 const test = require('tape')
 
-const mockClient = require('../../../_mock_http_client')
+const { runTestFixtures } = require('../../../_utils')
 
-test('transaction name', function (t) {
-  t.plan(5)
+const testFixtures = [
+  {
+    name: 'fastify - transaction.name, captureBody',
+    script: '../fixtures/use-fastify.js',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--require=../../../../start.js',
+      ELASTIC_APM_CAPTURE_BODY: 'all'
+    },
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.equal(apmServer.events.length, 2, 'expected number of APM server events')
+      t.ok(apmServer.events[0].metadata, 'metadata')
 
-  resetAgent(data => {
-    t.strictEqual(data.transactions.length, 1, 'has a transaction')
+      const trans = apmServer.events[1].transaction
+      t.equal(trans.name, 'POST /hello/:name', 'transaction.name')
+      t.equal(trans.type, 'request', 'transaction.type')
+      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
+      t.equal(trans.context.request.body, JSON.stringify({ foo: 'bar' }), 'transaction.context.request.body')
+    }
+  },
+  {
+    name: 'fastify ESM',
+    script: '../fixtures/use-fastify.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1', // skip warnings about --experimental-loader
+      ELASTIC_APM_CAPTURE_BODY: 'all'
+    },
+    nodeRange: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.equal(apmServer.events.length, 2, 'expected number of APM server events')
+      t.ok(apmServer.events[0].metadata, 'metadata')
 
-    const trans = data.transactions[0]
-    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
-    t.strictEqual(trans.type, 'request', 'transaction type is request')
-  })
+      const trans = apmServer.events[1].transaction
+      t.equal(trans.name, 'POST /hello/:name', 'transaction.name')
+      t.equal(trans.type, 'request', 'transaction.type')
+      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
+      t.equal(trans.context.request.body, JSON.stringify({ foo: 'bar' }), 'transaction.context.request.body')
+    }
+  }
+]
 
-  const fastify = Fastify()
-
-  fastify.get('/hello/:name', function (request, reply) {
-    reply.send({ hello: request.params.name })
-  })
-
-  fastify.listen({ port: 0 }, function (err) {
-    t.error(err)
-
-    // build the URL manually as older versions of fastify doesn't supply it as
-    // an argument to the callback
-    const port = fastify.server.address().port
-    const url = 'http://localhost:' + port + '/hello/world'
-
-    http.get(url, function (res) {
-      const chunks = []
-      res.on('data', chunks.push.bind(chunks))
-      res.on('end', function () {
-        const result = Buffer.concat(chunks).toString()
-        t.strictEqual(result, '{"hello":"world"}', 'got correct body')
-        agent.flush()
-        fastify.close()
-        t.end()
-      })
-    })
-  })
+test('fastify fixtures', suite => {
+  runTestFixtures(suite, testFixtures)
+  suite.end()
 })
-
-test('captureBody', function (t) {
-  t.plan(9)
-
-  const postData = JSON.stringify({ foo: 'bar' })
-
-  resetAgent(data => {
-    t.strictEqual(data.transactions.length, 1)
-    var trans = data.transactions[0]
-    t.strictEqual(trans.name, 'POST /postSomeData', 'transaction.name')
-    t.strictEqual(trans.type, 'request', 'transaction.type')
-    t.strictEqual(trans.result, 'HTTP 2xx', 'transaction.result')
-    t.strictEqual(trans.context.request.method, 'POST', 'transaction.context.request.method')
-    t.equal(trans.context.request.body, postData, 'transaction.context.request.body')
-    fastify.close()
-  })
-
-  var fastify = Fastify()
-
-  fastify.post('/postSomeData', (request, reply) => {
-    reply.send('your data has been posted')
-  })
-
-  fastify.listen({ port: 0 }, function (err) {
-    t.error(err)
-
-    // build the URL manually as older versions of fastify doesn't supply it as
-    // an argument to the callback
-    const port = fastify.server.address().port
-    const cReq = http.request(
-      {
-        method: 'POST',
-        hostname: 'localhost',
-        port,
-        path: '/postSomeData',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(postData)
-        }
-      },
-      function (res) {
-        t.strictEqual(res.statusCode, 200)
-        res.on('data', function (chunk) {
-          t.strictEqual(chunk.toString(), 'your data has been posted')
-        })
-        res.on('end', function () {
-          agent.flush()
-          t.end()
-        })
-      }
-    )
-    cReq.write(postData)
-    cReq.end()
-  })
-})
-
-function resetAgent (cb) {
-  agent._instrumentation.testReset()
-  agent._transport = mockClient(1, cb)
-  agent.captureError = function (err) { throw err }
-}

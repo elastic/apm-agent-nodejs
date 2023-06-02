@@ -1086,7 +1086,7 @@ test('disableInstrumentations', function (t) {
 
       var found = new Set()
 
-      agent._instrumentation._patchModule = function (exports, name, version, enabled) {
+      agent._instrumentation._patchModule = function (exports, name, version, enabled, isImportMod) {
         if (!enabled) found.add(name)
         return exports
       }

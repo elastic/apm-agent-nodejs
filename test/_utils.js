@@ -279,9 +279,11 @@ function runTestFixtures (suite, testFixtures) {
             maxBuffer: tf.maxBuffer
           },
           async function done (err, stdout, stderr) {
-            t.comment(`elapsed: ${(Date.now() - start) / 1000}`)
             if (tf.verbose) {
-              if (err) { t.comment(`err: ${err}`) }
+              t.comment(`elapsed: ${(Date.now() - start) / 1000}s`)
+              if (err) {
+                t.comment(`err:\n|${formatForTComment(err)}`)
+              }
               if (stdout) {
                 t.comment(`stdout:\n|${formatForTComment(stdout)}`)
               } else {
