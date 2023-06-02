@@ -8,11 +8,11 @@
 
 const test = require('tape')
 
-const { CONFIG_SCHEMA } = require('./fixtures/config-schema')
+const { CONFIG_SCHEMA } = require('../../lib/config/schema')
 
 const Agent = require('../../lib/agent')
-const { NoopTransport } = require('../../lib/noop-transport')
-const MockLogger = require('./_mock_logger')
+const { NoopApmClient } = require('../../lib/apm-client/noop-apm-client')
+const { createMockLogger } = require('../_mock_logger')
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
@@ -23,28 +23,33 @@ const agentOpts = {
   cloudProvider: 'none',
   logLevel: 'warn'
 }
+const logCalls = []
 const agentOptsNoTransportNoLogger = Object.assign(
   {},
   agentOpts,
   {
-    logger: new MockLogger(),
-    transport: function createNoopTransport () {
+    logger: createMockLogger(logCalls),
+    transport: function createNoopApmClient () {
       // Avoid accidentally trying to send data to an APM server.
-      return new NoopTransport()
+      return new NoopApmClient()
     }
   }
 )
 
 /**
- * Tells if a config option definition has the given type
+ * Tells if a config option definition has the given normalizer for a type
  *
  * @param {Object} def The definition of the config option
- * @param {Array<string> | undefined} def.types List of the types for that option
- * @param {string} type Type to check for presence
+ * @param {Array<string> | undefined} def.normalizers List of the normalizers for that option
+ * @param {string} type one of Bool | Number | KeyValuePair | Infinity | Duration
  * @returns {Boolean}
  */
 function hasType (def, type) {
-  return def.types && def.types.indexOf(type) !== -1
+  // return def.types && def.types.indexOf(type) !== -1
+  // if (def.normalizers) {
+  //   def.normalizers.forEach(f => console.log(f.name))
+  // }
+  return def.normalizers && def.normalizers.some((fn) => fn.name.endsWith(type))
 }
 
 /**
@@ -84,7 +89,7 @@ const BOOL_OPTS_WITH_ENV_EXCLUDED = [
 ]
 const BOOL_OPTS_WITH_ENV = CONFIG_SCHEMA.filter(function (def) {
   const isExcluded = BOOL_OPTS_WITH_ENV_EXCLUDED.indexOf(def.name) !== -1
-  return ('envVar' in def) && !isExcluded && hasType(def, 'boolean')
+  return ('envVar' in def) && !isExcluded && hasType(def, 'Bool')
 })
 
 BOOL_OPTS_WITH_ENV.forEach(function (option) {
@@ -101,7 +106,7 @@ BOOL_OPTS_WITH_ENV.forEach(function (option) {
 
 // Test NUMS that can be set via ENV
 const NUM_OPTS_WITH_ENV = CONFIG_SCHEMA.filter(function (def) {
-  return ('envVar' in def) && hasType(def, 'number')
+  return ('envVar' in def) && hasType(def, 'Number')
 })
 
 NUM_OPTS_WITH_ENV.forEach(function (option) {
