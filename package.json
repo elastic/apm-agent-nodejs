@@ -107,6 +107,7 @@
     "lru-cache": "^6.0.0",
     "measured-reporting": "^1.51.1",
     "module-details-from-path": "^1.0.3",
+    "mongoose": "^7.2.2",
     "monitor-event-loop-delay": "^1.0.0",
     "object-filter-sequence": "^1.0.0",
     "object-identity-map": "^1.0.2",
