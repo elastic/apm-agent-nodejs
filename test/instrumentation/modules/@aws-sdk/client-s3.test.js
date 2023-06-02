@@ -29,12 +29,8 @@ if (semver.lt(process.version, '14.0.0')) {
   process.exit()
 }
 
-const { execFile } = require('child_process')
-const util = require('util')
-
 const test = require('tape')
 
-const { MockAPMServer } = require('../../../_mock_apm_server')
 const { validateSpan } = require('../../../_validate_schema')
 const { runTestFixtures, sortApmEvents } = require('../../../_utils')
 
@@ -356,7 +352,6 @@ const testFixtures = [
       t.equal(events.length, 0, 'all events accounted for')
     }
   }
-
 ]
 
 test('@aws-sdk/client-s3 fixtures', suite => {
