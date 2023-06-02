@@ -6,6 +6,8 @@
 
 'use strict'
 
+const { levels, pino } = require('pino')
+
 /**
  * @typedef {Object} LogEntry
  * @property {String} type
@@ -58,6 +60,43 @@ class MockLogger {
   trace () { this._log('trace', arguments) }
 }
 
+/**
+ * Returns a logger which stores the log data into the given array
+ *
+ * @param {Array<Object>} calls Array where to put the logs to inspect later
+ */
+function createMockLogger (calls) {
+  if (!Array.isArray(calls)) {
+    throw new Error('Calls parameter must be an array to create a mock logger')
+  }
+
+  return pino(
+    { name: 'mock-logger' },
+    {
+      // The message received is a serialized object with is a merge of
+      // - the log level (`level` property) with its numeric value (eg. INFO === 30)
+      // - the log message (`msg` property) with the interpolated values
+      // - the logger name (`name` property) with the value `mock-logger`
+      // - all props of mergingObject if it was passed. See https://getpino.io/#/docs/api?id=logging-method-parameters
+      write: function (logMsg) {
+        const logObj = JSON.parse(logMsg)
+        const logMessage = logObj.msg
+        const levelValue = logObj.level
+        const levelName = Object.keys(levels.values).find(key => levels.values[key] === levelValue)
+
+        delete logObj.msg
+        delete logObj.level
+        calls.push({
+          type: levelName,
+          mergingObject: logObj,
+          message: logMessage
+        })
+      }
+    }
+  )
+}
+
 module.exports = {
+  createMockLogger,
   MockLogger
 }
