@@ -24,17 +24,12 @@ function main (packageName, versionRange) {
   }
 
   // Try to get versions
-  let info
-  try {
-    info = JSON.parse(execSync('npm info -j ' + packageName, { encoding: 'utf-8' }))
-    const versions = info.versions.filter(v => semver.satisfies(v, versionRange))
-    const modulus = Math.floor((versions.length - 2) / 5)
-    const vers = versions.filter((v, idx, arr) => idx % modulus === 0 || idx === arr.length - 1)
-    console.log('  # Test v%s, every N=%d of %d releases, and current latest.', versions[0], modulus, versions.length)
-    console.log("  versions: '%s || >%s' # subset of '%s'", vers.join(' || '), vers[vers.length - 1], versionRange)
-  } catch (e) {
-    console.error('package %s not found or cannot be fetched')
-  }
+  const info = JSON.parse(execSync('npm info -j ' + packageName, { encoding: 'utf-8' }))
+  const versions = info.versions.filter(v => semver.satisfies(v, versionRange))
+  const modulus = Math.floor((versions.length - 2) / 5)
+  const vers = versions.filter((v, idx, arr) => idx % modulus === 0 || idx === arr.length - 1)
+  console.log('  # Test v%s, every N=%d of %d releases, and current latest.', versions[0], modulus, versions.length)
+  console.log("  versions: '%s || >%s' # subset of '%s'", vers.join(' || '), vers[vers.length - 1], versionRange)
 }
 
 // Run
