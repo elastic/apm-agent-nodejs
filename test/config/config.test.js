@@ -8,7 +8,7 @@
 
 const test = require('tape')
 
-const { CONFIG_SCHEMA } = require('../../lib/config/schema')
+const { CONFIG_SCHEMA } = require('./fixtures/config-schema')
 
 const Agent = require('../../lib/agent')
 const { NoopApmClient } = require('../../lib/apm-client/noop-apm-client')
