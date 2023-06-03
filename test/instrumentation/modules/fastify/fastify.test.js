@@ -48,7 +48,11 @@ const testFixtures = [
       ELASTIC_APM_CAPTURE_BODY: 'all'
     },
     versionRanges: {
-      node: '^12.20.0 || >=14.13.0 <20' // supported range for import-in-the-middle
+      node: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+      // IITM and `import fastify from 'fastify'` fail without https://github.com/fastify/fastify/pull/2590
+      // I would have thought the only failure would be with a named import,
+      // so I don't completely understand the issue.
+      fastify: '>=3.5.0'
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
