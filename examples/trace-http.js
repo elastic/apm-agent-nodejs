@@ -10,7 +10,7 @@
 //
 // 1. This creates an HTTP server listening at http://localhost:3000
 // 2. For any incoming request it makes an outgoing HTTPS request to
-//    'https://httpstat.us/200'.
+//    'https://google.com/'.
 // 3. Calls the created HTTP server to trigger the above request handling.
 //
 // We expect the APM agent to automatically generate tracing data for (1) and (2).
@@ -33,9 +33,9 @@ const server = http.createServer(function onRequest (req, res) {
   req.resume()
 
   req.on('end', function () {
-    // Make a client request to httpstat.us.
-    https.get('https://httpstat.us/200', function (cRes) {
-      console.log('httpstat.us response: %s %s', cRes.statusCode, cRes.headers)
+    // Make a client request.
+    https.get('https://google.com/', function (cRes) {
+      console.log('google.com response: %s %s', cRes.statusCode, cRes.headers)
       cRes.resume()
       cRes.on('end', function () {
         // Then reply to the incoming request.
