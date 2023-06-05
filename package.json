@@ -162,7 +162,7 @@
     "fastify": "^4.16.3",
     "finalhandler": "^1.1.2",
     "generic-pool": "^3.7.1",
-    "get-port": "^5.1.1",
+    "get-port": "^7.0.0",
     "glob": "^7.2.3",
     "got": "^11.8.5",
     "graphql": "^16.6.0",
