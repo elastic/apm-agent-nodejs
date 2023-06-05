@@ -49,7 +49,7 @@ const testFixtures = [
       ELASTIC_APM_CAPTURE_BODY: 'all'
     },
     versionRanges: {
-      node: NODE_VER_RANGE_IITM
+      node: NODE_VER_RANGE_IITM,
       // IITM and `import fastify from 'fastify'` fail without https://github.com/fastify/fastify/pull/2590
       // I would have thought the only failure would be with a named import,
       // so I don't completely understand the issue.
