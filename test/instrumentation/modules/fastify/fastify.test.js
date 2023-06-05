@@ -15,6 +15,7 @@ if (isFastifyIncompat) {
 const test = require('tape')
 
 const { runTestFixtures } = require('../../../_utils')
+const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
 
 const testFixtures = [
   {
@@ -48,7 +49,7 @@ const testFixtures = [
       ELASTIC_APM_CAPTURE_BODY: 'all'
     },
     versionRanges: {
-      node: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+      node: NODE_VER_RANGE_IITM
       // IITM and `import fastify from 'fastify'` fail without https://github.com/fastify/fastify/pull/2590
       // I would have thought the only failure would be with a named import,
       // so I don't completely understand the issue.

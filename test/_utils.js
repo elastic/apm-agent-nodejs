@@ -231,7 +231,7 @@ function quoteEnv (env) {
  *    ranges for either "node" or a given module name. If current versions don't
  *    satisfy, then the test will be skipped. E.g. this is common for ESM tests:
  *        versionRanges: {
- *          node: '^12.20.0 || >=14.13.0 <20', // supported range for import-in-the-middle
+ *          node: NODE_VER_RANGE_IITM
  *        }
  * @property {function} [checkScriptResult] Check the exit and output of the
  *    script: `checkScriptResult(t, err, stdout, stderr)`. If not provided, by

@@ -30,6 +30,7 @@ var utils = require('./_utils')
 var mockClient = require('../../../_mock_http_client')
 const { NoopApmClient } = require('../../../../lib/apm-client/noop-apm-client')
 const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../../_utils')
+const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
 
 var queryable, connectionDone
 var factories = [
@@ -700,7 +701,7 @@ const testFixtures = [
       ELASTIC_APM_SPAN_COMPRESSION_ENABLED: 'false'
     },
     versionRanges: {
-      node: '^12.20.0 || >=14.13.0 <20' // supported range for import-in-the-middle
+      node: NODE_VER_RANGE_IITM
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
