@@ -15,7 +15,7 @@ const test = require('tape')
 
 const origConsoleError = console.error
 const origCaptureErorr = agent.captureError
-const origSendError = agent._transport.sendError
+const origSendError = agent._apmClient.sendError
 
 test('should capture uncaught exceptions but not log if disabled', function (t) {
   t.plan(7)
@@ -23,7 +23,7 @@ test('should capture uncaught exceptions but not log if disabled', function (t) 
   t.on('end', function () {
     console.error = origConsoleError
     agent.captureError = origCaptureErorr
-    agent._transport.sendError = origSendError
+    agent._apmClient.sendError = origSendError
   })
 
   console.error = function (loggedError) {
@@ -35,7 +35,7 @@ test('should capture uncaught exceptions but not log if disabled', function (t) 
     return origCaptureErorr.apply(this, arguments)
   }
 
-  agent._transport.sendError = function (sentError) {
+  agent._apmClient.sendError = function (sentError) {
     t.strictEqual(sentError.exception.message, thrownError.message, 'error.exception.message')
     t.strictEqual(sentError.exception.type, 'Error', 'error.exception.type')
     t.strictEqual(sentError.exception.handled, false, 'error.exception.handled')

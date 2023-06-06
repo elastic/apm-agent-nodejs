@@ -64,6 +64,6 @@ test('handlebars compile and render', function userLandCode (t) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(3, cb)
+  agent._apmClient = mockClient(3, cb)
   agent.captureError = function (err) { throw err }
 }

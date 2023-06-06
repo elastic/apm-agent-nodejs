@@ -39,6 +39,8 @@ Notes:
 [float]
 ===== Features
 
+* Add support for 'knex' version v1 and v2
+  ({pull}3355[#3355])
 * Add `tedious@16.x` support
   ({pull}3366[#3366])
 

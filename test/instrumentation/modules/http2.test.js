@@ -617,7 +617,7 @@ function connect (secure, port) {
 function resetAgent (expected, cb) {
   if (typeof expected === 'function') return resetAgent(1, expected)
   agent._instrumentation.testReset()
-  agent._transport = mockClient(expected, cb)
+  agent._apmClient = mockClient(expected, cb)
 }
 
 function addShouldCall (t) {

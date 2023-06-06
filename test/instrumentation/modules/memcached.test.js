@@ -122,6 +122,6 @@ test('memcached', function (t) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(8, cb)
+  agent._apmClient = mockClient(8, cb)
   agent.captureError = function (err) { throw err }
 }
