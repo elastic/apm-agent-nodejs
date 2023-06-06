@@ -40,7 +40,7 @@ server.post('/hello/:name', function (request, reply) {
 })
 
 async function main () {
-  await server.listen({ port: 3000 })
+  await server.listen({ port: 0 })
 
   // Do a POST to test `captureBody`, wait for response, then exit.
   const port = server.server.address().port
