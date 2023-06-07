@@ -23,6 +23,7 @@
     "memcached",
     "mongodb",
     "mongodb-core",
+    "mongoose",
     "mysql",
     "mysql2",
     "next",

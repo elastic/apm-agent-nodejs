@@ -97,6 +97,8 @@ npm ls --omit=dev --all --parseable \
             "measured-reporting": "license.node-measured.txt",
             "object-identity-map": "license.MIT.txt",
             "set-cookie-serde": "license.MIT.txt",
+            "sift": "license.MIT.txt",
+            "ip": "license.MIT.txt",
         }
         const allowNoLicFile = [
             "binary-search" // CC is a public domain dedication, no need for license text.
