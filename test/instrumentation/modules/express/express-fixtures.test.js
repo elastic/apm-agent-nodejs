@@ -6,6 +6,7 @@
 
 'use strict'
 
+const os = require('os')
 const test = require('tape')
 
 const { runTestFixtures, sortApmEvents } = require('../../../_utils')
@@ -25,7 +26,12 @@ const testFixtures = [
       node: NODE_VER_RANGE_IITM
     },
     testOpts: {
-      skip: process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch'
+      skip: (
+        // No point in supporting with contextManager=patch.
+        process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch' ||
+        // The `express.static()` path config doesn't work on windows. Meh windows.
+        os.platform() === 'win32'
+      )
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
