@@ -157,6 +157,27 @@ mongodb:
   node: '>=14.20.1'
   commands: node test/instrumentation/modules/mongodb.test.js
 
+mongoose-5:
+  name: mongoose
+  # Moongose switched from mongodb-core to mongode in version 5.7.0. Testing versions before
+  # and afeter the switch
+  # Test v5.0.0, every N=49 of 249 releases, and current latest.
+  versions: '5.0.0 || 5.3.2 || 5.5.10 || 5.9.2 || 5.11.2 || 5.13.14 || 5.13.17 || >5.13.17'
+  node: '>=4.0.0'
+  commands: node test/instrumentation/modules/mongoose.test.js
+mongoose-6:
+  name: mongoose
+  # Test v6.0.0, every N=18 of 94 releases, and current latest.
+  versions: '6.0.0 || 6.1.2 || 6.2.9 || 6.4.5 || 6.7.1 || 6.10.4 || 6.11.1 || >6.11.1'
+  node: '>=12.0.0'
+  commands: node test/instrumentation/modules/mongoose.test.js
+mongoose-7:
+  name: mongoose
+  # Test v7.0.0, every N=2 of 12 releases, and current latest.
+  versions: '7.0.0 || 7.0.4 || 7.1.0 || 7.1.2 || 7.2.1 || 7.2.2'
+  node: '>=14.20.1'
+  commands: node test/instrumentation/modules/mongoose.test.js
+
 # Bluebird is effectively deprecated (https://github.com/petkaantonov/bluebird#%EF%B8%8Fnote%EF%B8%8F).
 # Testing the full set of supported bluebird releases (`>=2 <4`) is currently
 # 119 releases. The last release was in 2019. Testing that many is a waste of
