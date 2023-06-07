@@ -23,13 +23,24 @@ const agent = require('../../..').start({
 const semver = require('semver')
 const test = require('tape')
 
-const mongoose = require('mongoose')
+const mongooseVersion = require('mongoose/package.json').version
 
 const isMongodbIncompat = require('../../_is_mongodb_incompat')()
-if (semver.gte(mongoose.version, '5.7.0') && isMongodbIncompat) {
-  console.log(`# SKIP mongoose ${mongoose.version}. Mongodb incompat ${isMongodbIncompat}`)
+if (semver.gte(mongooseVersion, '5.7.0') && isMongodbIncompat) {
+  console.log(`# SKIP mongoose ${mongooseVersion}. Mongodb incompat ${isMongodbIncompat}`)
   process.exit(0)
 }
+
+if (
+  (semver.gte(mongooseVersion, '7.0.0') && semver.lt(process.version, '14.20.1')) ||
+  (semver.gte(mongooseVersion, '6.0.0') && semver.lt(process.version, '12.0.0')) ||
+  (semver.gte(mongooseVersion, '5.0.0') && semver.lt(process.version, '4.0.0'))
+) {
+  console.log(`# SKIP mongoose ${mongooseVersion} not compatible with ${process.version}`)
+  process.exit(0)
+}
+
+const mongoose = require('mongoose')
 
 const mockClient = require('../../_mock_http_client')
 
