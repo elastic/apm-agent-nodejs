@@ -4,11 +4,11 @@
     "node": true
   },
   "extends": "standard",
-  "plugins": [
-    "license-header"
-  ],
+  "plugins": ["license-header"],
   "rules": {
-    "license-header/header": [ "error", "./dev-utils/license-header.js" ]
+    "license-header/header": ["error", "./dev-utils/license-header.js"],
+    "no-var":0,
+    "array-callback-return":0
   },
   "ignorePatterns": [
     "/*.example.js", // a pattern for uncommited local dev files to avoid linting
