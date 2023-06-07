@@ -244,5 +244,7 @@ test('Metrics objects do not throw/crash when not started', function (t) {
 
 function spinCPUFor (durationMs) {
   const start = Date.now()
-  while (Date.now() - start < durationMs) {}
+  while (Date.now() - start < durationMs) {
+  // spin
+  }
 }

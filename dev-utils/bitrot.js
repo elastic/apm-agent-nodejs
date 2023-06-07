@@ -136,7 +136,7 @@ function loadSupportedDoc () {
   var state = null // null | 'thead' | 'tbody'
   html.split(/\n/g).forEach(function (line) {
     if (!line.startsWith('|')) {
-
+      // no op
     } else if (state === null) {
       if (line.startsWith('|===')) {
         state = 'thead'
@@ -181,7 +181,7 @@ function loadSupportedDoc () {
   let match
   rows.forEach(function (row) {
     if (row[1] === 'N/A') {
-
+      // skip
     } else if (row[0].includes('<<')) {
       match = /^\s*<<([\w-]+),(.*?)>>/.exec(row[0])
       if (!match) {
