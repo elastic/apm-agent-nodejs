@@ -183,7 +183,7 @@ jobs:
 
   # single status check that can be set as required in branch protection rules.
   # success if all jobs listed in "needs" are successful.
-  # failure if at least one job listin "needs" is not successful.
+  # failure if at least one job listed "needs" is not successful.
   test:
     if: always()
     runs-on: ubuntu-latest
