@@ -599,5 +599,3 @@ const CONFIG_SCHEMA = [
 module.exports = {
   CONFIG_SCHEMA
 }
-
-
