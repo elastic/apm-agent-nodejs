@@ -9,7 +9,7 @@
 // Usage:
 //    node --experimental-loader=./loader.mjs --require=./start.js test/instrumentation/modules/fixtures/use-express.mjs
 
-import http from 'node:http'
+import http from 'http'
 import bodyParser from 'body-parser'
 import express from 'express'
 

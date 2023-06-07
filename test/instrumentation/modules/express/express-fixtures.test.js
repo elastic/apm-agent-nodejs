@@ -24,6 +24,9 @@ const testFixtures = [
     versionRanges: {
       node: NODE_VER_RANGE_IITM
     },
+    testOpts: {
+      skip: process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch'
+    },
     verbose: true,
     checkApmServer: (t, apmServer) => {
       t.equal(apmServer.events.length, 3, 'expected number of APM server events')
