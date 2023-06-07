@@ -9,7 +9,7 @@
     "docs:open": "PREVIEW=1 npm run docs:build",
     "docs:build": "./docs/scripts/build_docs.sh apm-agent-nodejs ./docs ./build",
     "lint": "npm run lint:eslint && npm run lint:license-files && npm run lint:yaml-files && npm run lint:tav",
-    "lint:eslint": "eslint .  # requires node >10",
+    "lint:eslint": "eslint . --max-warnings=144  # requires node >10",
     "lint:fix": "eslint --fix .  # requires node >10",
     "lint:license-files": "./dev-utils/gen-notice.sh --lint .  # requires node >=16",
     "lint:yaml-files": "./dev-utils/lint-yaml-files.sh  # requires node >=10",

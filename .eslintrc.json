@@ -7,7 +7,6 @@
   "plugins": ["license-header"],
   "rules": {
     "license-header/header": ["error", "./dev-utils/license-header.js"],
-    "no-var":0,
     "array-callback-return":0
   },
   "ignorePatterns": [
