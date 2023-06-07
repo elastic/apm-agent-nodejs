@@ -157,8 +157,7 @@ so those should be supported as well.
 |https://www.npmjs.com/package/mongodb[mongodb] |>=3.3.0 <6 |Will instrument all queries
 |https://www.npmjs.com/package/mongojs[mongojs] |>=1.0.0 <2.7.0 |Supported via mongodb-core
 |https://www.npmjs.com/package/mongoose[mongoose] |>=4.0.0 <5.7.0 |Supported via mongodb-core
-
-
+|https://www.npmjs.com/package/mongoose[mongoose] |>=5.7.0 <8 |Supported via mongodb
 |https://www.npmjs.com/package/mysql[mysql] |^2.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/mysql2[mysql2] |>=1.0.0 <4.0.0 |Will instrument all queries
 |https://www.npmjs.com/package/pg[pg] |>=4.0.0 <9.0.0 |Will instrument all queries
