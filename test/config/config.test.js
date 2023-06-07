@@ -44,10 +44,6 @@ const agentOptsNoTransportNoLogger = Object.assign(
  * @returns {Boolean}
  */
 function hasType (def, type) {
-  // return def.types && def.types.indexOf(type) !== -1
-  // if (def.normalizers) {
-  //   def.normalizers.forEach(f => console.log(f.name))
-  // }
   return def.normalizers && def.normalizers.some((fn) => fn.name.endsWith(type))
 }
 
