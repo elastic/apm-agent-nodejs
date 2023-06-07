@@ -60,8 +60,8 @@ tape.test('apm.middleware.connect()', function (t) {
 
     const server = http.createServer(app)
     server.listen(function () {
-      var port = server.address().port
-      var baseUrl = 'http://localhost:' + port
+      const port = server.address().port
+      const baseUrl = 'http://localhost:' + port
       t.comment('test server url: ' + baseUrl)
 
       http.get(baseUrl + '/error', function () {

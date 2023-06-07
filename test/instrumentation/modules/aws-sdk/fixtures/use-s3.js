@@ -120,7 +120,7 @@ function useS3 (s3Client, bucketName, cb) {
 
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
       function createObj (_, next) {
-        var md5 = crypto.createHash('md5').update(content).digest('base64')
+        const md5 = crypto.createHash('md5').update(content).digest('base64')
         s3Client.putObject({
           Bucket: bucketName,
           Key: key,

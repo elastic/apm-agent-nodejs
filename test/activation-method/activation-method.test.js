@@ -44,7 +44,7 @@ tape.test(`setup: npm install (in ${fixturesDir})`, { skip: haveNodeModules }, t
 tape.test('metadata.system.agent.activation_method fixtures', function (suite) {
   // Note: We do not test the "aws-lambda-layer" case, because this would
   // require simulating an agent install to the special path used in that case.
-  var cases = [
+  const cases = [
     {
       script: 'require1.js',
       expectedMethod: 'require'

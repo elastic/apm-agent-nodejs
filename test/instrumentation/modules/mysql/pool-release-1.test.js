@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-var agent = require('../../../..').start({
+const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -19,10 +19,10 @@ var agent = require('../../../..').start({
   centralConfig: false
 })
 
-var mysql = require('mysql')
-var test = require('tape')
+const mysql = require('mysql')
+const test = require('tape')
 
-var utils = require('./_utils')
+const utils = require('./_utils')
 
 test('release connection prior to transaction', function (t) {
   createPool(function (pool) {

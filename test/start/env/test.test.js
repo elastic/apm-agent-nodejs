@@ -10,7 +10,7 @@
 
 process.env.ELASTIC_APM_SERVICE_NAME = 'from-env'
 
-var agent = require('../../..').start({
+const agent = require('../../..').start({
   disableSend: true
 })
 const tape = require('tape')

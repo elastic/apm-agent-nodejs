@@ -20,16 +20,16 @@ const agent = require('../..').start({
   transport () { return new CapturingTransport() }
 })
 
-var test = require('tape')
+const test = require('tape')
 
-var assert = require('../_assert')
-var Transaction = require('../../lib/instrumentation/transaction')
-var Span = require('../../lib/instrumentation/span')
+const assert = require('../_assert')
+const Transaction = require('../../lib/instrumentation/transaction')
+const Span = require('../../lib/instrumentation/span')
 
 test('init', function (t) {
   t.test('properties', function (t) {
-    var trans = new Transaction(agent)
-    var span = new Span(trans, 'sig', 'type')
+    const trans = new Transaction(agent)
+    const span = new Span(trans, 'sig', 'type')
     t.ok(/^[\da-f]{16}$/.test(span.id))
     t.ok(/^[\da-f]{32}$/.test(span.traceId))
     t.ok(/^[\da-f]{16}$/.test(span.parentId))
@@ -42,9 +42,9 @@ test('init', function (t) {
   })
 
   t.test('options.childOf', function (t) {
-    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
-    var trans = new Transaction(agent)
-    var span = new Span(trans, 'sig', 'type', { childOf })
+    const childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    const trans = new Transaction(agent)
+    const span = new Span(trans, 'sig', 'type', { childOf })
     t.strictEqual(span._context.traceparent.version, '00')
     t.strictEqual(span._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7')
@@ -127,8 +127,8 @@ test('init', function (t) {
 })
 
 test('#end()', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans, 'sig', 'type')
+  const trans = new Transaction(agent)
+  const span = new Span(trans, 'sig', 'type')
   t.strictEqual(span.ended, false)
   span.end()
   t.strictEqual(span.ended, true)
@@ -136,8 +136,8 @@ test('#end()', function (t) {
 })
 
 test('#duration()', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
+  const trans = new Transaction(agent)
+  const span = new Span(trans)
   setTimeout(function () {
     span.end()
     t.ok(span.duration() > 49, span.duration() + ' should be larger than 49')
@@ -146,28 +146,28 @@ test('#duration()', function (t) {
 })
 
 test('#duration() - return null if not ended', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
+  const trans = new Transaction(agent)
+  const span = new Span(trans)
   t.strictEqual(span.duration(), null)
   t.end()
 })
 
 test('custom start time', function (t) {
-  var trans = new Transaction(agent)
-  var startTime = Date.now() - 1000
-  var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
+  const trans = new Transaction(agent)
+  const startTime = Date.now() - 1000
+  const span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
   span.end()
-  var duration = span.duration()
+  const duration = span.duration()
   t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
   t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
   t.end()
 })
 
 test('#end(time)', function (t) {
-  var trans = new Transaction(agent)
-  var startTime = Date.now() - 1000
-  var endTime = startTime + 2000.123
-  var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
+  const trans = new Transaction(agent)
+  const startTime = Date.now() - 1000
+  const endTime = startTime + 2000.123
+  const span = new Span(trans, 'sig', 'type', { childOf: trans, startTime })
   span.end(endTime)
   t.strictEqual(span.duration(), 2000.123)
   t.end()
@@ -175,8 +175,8 @@ test('#end(time)', function (t) {
 
 test('#setLabel', function (t) {
   t.test('valid', function (t) {
-    var trans = new Transaction(agent)
-    var span = new Span(trans)
+    const trans = new Transaction(agent)
+    const span = new Span(trans)
     t.strictEqual(span._labels, null)
     t.strictEqual(span.setLabel(), false)
     t.strictEqual(span._labels, null)
@@ -190,8 +190,8 @@ test('#setLabel', function (t) {
   })
 
   t.test('invalid', function (t) {
-    var trans = new Transaction(agent)
-    var span = new Span(trans)
+    const trans = new Transaction(agent)
+    const span = new Span(trans)
     t.strictEqual(span._labels, null)
     t.strictEqual(span.setLabel(), false)
     t.strictEqual(span._labels, null)
@@ -206,8 +206,8 @@ test('#setLabel', function (t) {
 })
 
 test('#addLabels', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
+  const trans = new Transaction(agent)
+  const span = new Span(trans)
   t.strictEqual(span._labels, null)
 
   t.strictEqual(span.setLabel(), false)
@@ -240,13 +240,13 @@ test('#addLabels', function (t) {
 })
 
 test('span.sync', function (t) {
-  var trans = agent.startTransaction()
+  const trans = agent.startTransaction()
 
-  var span1 = agent.startSpan('span1')
+  const span1 = agent.startSpan('span1')
   t.strictEqual(span1.sync, true)
 
   // This span will be *ended* synchronously. It should stay `span.sync=true`.
-  var span2 = agent.startSpan('span2')
+  const span2 = agent.startSpan('span2')
   t.strictEqual(span2.sync, true, 'span2.sync=true immediately after creation')
   span2.end()
   t.strictEqual(span2.sync, true, 'span2.sync=true immediately after end')
@@ -262,8 +262,8 @@ test('span.sync', function (t) {
 })
 
 test('#_encode() - un-ended', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
+  const trans = new Transaction(agent)
+  const span = new Span(trans)
   span._encode(function (err, payload) {
     t.strictEqual(err.message, 'cannot encode un-ended span')
     t.end()
@@ -271,9 +271,9 @@ test('#_encode() - un-ended', function (t) {
 })
 
 test('#_encode() - ended unnamed', function myTest1 (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
-  var timerStart = span._timer.start
+  const trans = new Transaction(agent)
+  const span = new Span(trans)
+  const timerStart = span._timer.start
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
@@ -296,9 +296,9 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
 })
 
 test('#_encode() - ended named', function myTest2 (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans, 'foo', 'bar')
-  var timerStart = span._timer.start
+  const trans = new Transaction(agent)
+  const span = new Span(trans, 'foo', 'bar')
+  const timerStart = span._timer.start
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
@@ -321,9 +321,9 @@ test('#_encode() - ended named', function myTest2 (t) {
 })
 
 test('#_encode() - with meta data', function myTest2 (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans, 'foo', 'bar')
-  var timerStart = span._timer.start
+  const trans = new Transaction(agent)
+  const span = new Span(trans, 'foo', 'bar')
+  const timerStart = span._timer.start
   span.setDbContext({ statement: 'foo', type: 'bar' })
   span.setLabel('baz', 1)
   span.end()
@@ -354,9 +354,9 @@ test('#_encode() - disabled stack traces', function (t) {
   const oldValue = agent._conf.spanStackTraceMinDuration
   agent._conf.spanStackTraceMinDuration = -1
 
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
-  var timerStart = span._timer.start
+  const trans = new Transaction(agent)
+  const span = new Span(trans)
+  const timerStart = span._timer.start
   span.end()
   span._encode(function (err, payload) {
     t.error(err)
@@ -381,8 +381,8 @@ test('#_encode() - disabled stack traces', function (t) {
 })
 
 test('#ids', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
+  const trans = new Transaction(agent)
+  const span = new Span(trans)
   t.deepLooseEqual(span.ids, {
     'trace.id': span.traceId,
     'span.id': span.id
@@ -391,8 +391,8 @@ test('#ids', function (t) {
 })
 
 test('#toString()', function (t) {
-  var trans = new Transaction(agent)
-  var span = new Span(trans)
+  const trans = new Transaction(agent)
+  const span = new Span(trans)
   t.strictEqual(span.toString(), `trace.id=${span.traceId} span.id=${span.id}`)
   t.end()
 })

@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-var agent = require('../../..').start({
+const agent = require('../../..').start({
   serviceName: 'test-ioredis',
   captureExceptions: false,
   metricsInterval: 0,
@@ -20,27 +20,27 @@ var agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
-var ioredisVer = require('ioredis/package.json').version
-var semver = require('semver')
+const ioredisVer = require('ioredis/package.json').version
+const semver = require('semver')
 if (semver.gte(ioredisVer, '5.0.0') && semver.lt(process.version, '12.22.0')) {
   console.log(`# SKIP ioredis@${ioredisVer} does not support node ${process.version}`)
   process.exit()
 }
 
-var Redis = require('ioredis')
-var test = require('tape')
+const Redis = require('ioredis')
+const test = require('tape')
 
-var findObjInArray = require('../../_utils').findObjInArray
-var mockClient = require('../../_mock_http_client')
+const findObjInArray = require('../../_utils').findObjInArray
+const mockClient = require('../../_mock_http_client')
 
 test('not nested', function (t) {
   resetAgent(done(t))
 
-  var redis = new Redis(process.env.REDIS_HOST)
+  const redis = new Redis(process.env.REDIS_HOST)
 
   agent.startTransaction('foo', 'bar')
 
-  var calls = 0
+  let calls = 0
 
   redis.flushall(function (err, reply) {
     t.error(err)
@@ -79,14 +79,14 @@ test('not nested', function (t) {
 test('nested', function (t) {
   resetAgent(done(t))
 
-  var redis = new Redis(process.env.REDIS_HOST)
+  const redis = new Redis(process.env.REDIS_HOST)
 
   agent.startTransaction('foo', 'bar')
 
   redis.flushall(function (err, reply) {
     t.error(err)
     t.strictEqual(reply, 'OK')
-    var calls = 0
+    let calls = 0
 
     redis.set('foo', 'bar')
     redis.get('foo', function (err, result) {
@@ -142,7 +142,7 @@ test('error capture, no unhandledRejection on command error is introduced', func
     }, 0)
   })
 
-  var redis = new Redis(process.env.REDIS_HOST)
+  const redis = new Redis(process.env.REDIS_HOST)
   const trans = agent.startTransaction('foo', 'bar')
   redis.hset('a', 'b', 'c')
   redis.get('a', function (err, result) {
@@ -155,7 +155,7 @@ test('error capture, no unhandledRejection on command error is introduced', func
 
 function done (t) {
   return function (data, cb) {
-    var groups = [
+    const groups = [
       'FLUSHALL',
       'SET',
       'GET',
@@ -169,7 +169,7 @@ function done (t) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, groups.length)
 
-    var trans = data.transactions[0]
+    const trans = data.transactions[0]
 
     t.strictEqual(trans.name, 'foo')
     t.strictEqual(trans.type, 'bar')

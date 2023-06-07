@@ -15,7 +15,7 @@ bench('transaction-and-span-no-stack-trace', {
     spanStackTraceMinDuration: -1
   },
   setup () {
-    var agent = this.benchmark.agent
+    const agent = this.benchmark.agent
   },
   fn (deferred) {
     if (agent) agent.startTransaction()

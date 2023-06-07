@@ -6,7 +6,7 @@
 
 'use strict'
 
-var tape = require('tape')
+const tape = require('tape')
 
 const { InflightEventSet } = require('../lib/InflightEventSet')
 

@@ -11,7 +11,7 @@
 
 process.chdir(__dirname)
 
-var agent = require('../../..').start({
+const agent = require('../../..').start({
   disableSend: true
 })
 

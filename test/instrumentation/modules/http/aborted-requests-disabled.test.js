@@ -18,15 +18,15 @@ const agent = require('../../../..').start({
   errorOnAbortedRequests: false
 })
 
-var http = require('http')
+const http = require('http')
 
-var test = require('tape')
+const test = require('tape')
 
-var mockClient = require('../../../_mock_http_client')
+const mockClient = require('../../../_mock_http_client')
 
 test('client-side abort - call end', function (t) {
   resetAgent()
-  var clientReq
+  let clientReq
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
@@ -62,7 +62,7 @@ test('client-side abort - call end', function (t) {
   })
 
   server.listen(function () {
-    var port = server.address().port
+    const port = server.address().port
     clientReq = http.get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
@@ -74,7 +74,7 @@ test('client-side abort - call end', function (t) {
 
 test('client-side abort - don\'t call end', function (t) {
   resetAgent()
-  var clientReq
+  let clientReq
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
@@ -94,7 +94,7 @@ test('client-side abort - don\'t call end', function (t) {
   })
 
   server.listen(function () {
-    var port = server.address().port
+    const port = server.address().port
     clientReq = http.get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
@@ -106,8 +106,8 @@ test('client-side abort - don\'t call end', function (t) {
 
 test('server-side abort - call end', function (t) {
   resetAgent()
-  var timedout = false
-  var closeEvent = false
+  let timedout = false
+  let closeEvent = false
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
@@ -132,8 +132,8 @@ test('server-side abort - call end', function (t) {
   server.setTimeout(100)
 
   server.listen(function () {
-    var port = server.address().port
-    var clientReq = http.get('http://localhost:' + port, function (res) {
+    const port = server.address().port
+    const clientReq = http.get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -145,8 +145,8 @@ test('server-side abort - call end', function (t) {
 
 test('server-side abort - don\'t call end', function (t) {
   resetAgent()
-  var timedout = false
-  var closeEvent = false
+  let timedout = false
+  let closeEvent = false
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
@@ -167,8 +167,8 @@ test('server-side abort - don\'t call end', function (t) {
   server.setTimeout(100)
 
   server.listen(function () {
-    var port = server.address().port
-    var clientReq = http.get('http://localhost:' + port, function (res) {
+    const port = server.address().port
+    const clientReq = http.get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {

@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-var agent = require('../../../..').start({
+const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -19,24 +19,24 @@ var agent = require('../../../..').start({
   centralConfig: false
 })
 
-var BLUEBIRD_VERSION = require('bluebird/package').version
-var Promise = require('bluebird')
-var semver = require('semver')
-var test = require('tape')
+const BLUEBIRD_VERSION = require('bluebird/package').version
+const Promise = require('bluebird')
+const semver = require('semver')
+const test = require('tape')
 
-var ins = agent._instrumentation
+const ins = agent._instrumentation
 
 if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   Promise.config({ cancellation: true })
 
-  var CANCEL_NAMES = ['cancel', 'break']
+  const CANCEL_NAMES = ['cancel', 'break']
   CANCEL_NAMES.forEach(function (fnName) {
     test('Promise.prototype.' + fnName, function (t) {
       t.plan(8)
       twice(function () {
-        var trans = ins.startTransaction()
-        var cancelled = false
-        var p = new Promise(function (resolve, reject, onCancel) {
+        const trans = ins.startTransaction()
+        let cancelled = false
+        const p = new Promise(function (resolve, reject, onCancel) {
           setTimeout(function () {
             resolve('foo')
           }, 100)
@@ -65,9 +65,9 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   test('Promise.prototype.cancel', function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
-      var p = new Promise(function () {}).cancellable()
-      var err = new Error()
+      const trans = ins.startTransaction()
+      const p = new Promise(function () {}).cancellable()
+      const err = new Error()
       p.cancel(err)
       p.then(t.fail, function (e) {
         t.strictEqual(e, err)

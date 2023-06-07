@@ -6,7 +6,7 @@
 
 'use strict'
 
-var semver = require('semver')
+const semver = require('semver')
 
 /**
  * Return whether the current 'fastify' version is incompatible with the

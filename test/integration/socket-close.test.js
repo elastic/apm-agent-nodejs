@@ -6,10 +6,10 @@
 
 'use strict'
 
-var getPort = require('get-port')
+const getPort = require('get-port')
 
 getPort().then(function (port) {
-  var agent = require('../../').start({
+  const agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
@@ -19,11 +19,11 @@ getPort().then(function (port) {
     disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
   })
 
-  var net = require('net')
-  var test = require('tape')
+  const net = require('net')
+  const test = require('tape')
 
   test('should not throw on socket close', function (t) {
-    var server = net.createServer(function (socket) {
+    const server = net.createServer(function (socket) {
       socket.destroy()
     })
 

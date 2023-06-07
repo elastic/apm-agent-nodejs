@@ -19,7 +19,7 @@ if (semver.gte(mysql2Ver, '3.0.0') && semver.lt(process.version, '14.6.0')) {
   process.exit()
 }
 
-var agent = require('../../../..').start({
+const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -27,10 +27,10 @@ var agent = require('../../../..').start({
   centralConfig: false
 })
 
-var mysql = require('mysql2')
-var test = require('tape')
+const mysql = require('mysql2')
+const test = require('tape')
 
-var utils = require('./_utils')
+const utils = require('./_utils')
 
 test('release connection prior to transaction', function (t) {
   createPool(function (pool) {

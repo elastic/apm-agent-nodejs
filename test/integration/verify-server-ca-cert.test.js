@@ -6,13 +6,13 @@
 
 'use strict'
 
-var getPort = require('get-port')
+const getPort = require('get-port')
 
 getPort().then(function (port) {
-  var fs = require('fs')
-  var path = require('path')
+  const fs = require('fs')
+  const path = require('path')
 
-  var agent = require('../../').start({
+  const agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'https://localhost:' + port,
     captureExceptions: false,
@@ -23,16 +23,16 @@ getPort().then(function (port) {
     serverCaCertFile: path.join(__dirname, 'cert.pem') // self-signed certificate
   })
 
-  var https = require('https')
-  var test = require('tape')
+  const https = require('https')
+  const test = require('tape')
 
   test('should allow self signed certificate', function (t) {
     t.plan(3)
 
-    var cert = fs.readFileSync(path.join(__dirname, 'cert.pem'))
-    var key = fs.readFileSync(path.join(__dirname, 'key.pem'))
+    const cert = fs.readFileSync(path.join(__dirname, 'cert.pem'))
+    const key = fs.readFileSync(path.join(__dirname, 'key.pem'))
 
-    var server = https.createServer({ cert, key }, function (req, res) {
+    const server = https.createServer({ cert, key }, function (req, res) {
       t.pass('server received client request')
       res.end()
     })

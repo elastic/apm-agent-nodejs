@@ -15,10 +15,10 @@ const moduleDetailsFromPath = require('module-details-from-path')
 // Lookup the property "str" (given in dot-notation) in the object "obj".
 // If the property isn't found, then `undefined` is returned.
 function dottedLookup (obj, str) {
-  var o = obj
-  var fields = str.split('.')
-  for (var i = 0; i < fields.length; i++) {
-    var field = fields[i]
+  let o = obj
+  const fields = str.split('.')
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i]
     if (!Object.prototype.hasOwnProperty.call(o, field)) {
       return undefined
     }

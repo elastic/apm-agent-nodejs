@@ -82,7 +82,7 @@ function saveCache () {
 // - Bad: blue (not visible on cmd.exe), grey (same color as background on
 //   Solarized Dark theme from <https://github.com/altercation/solarized>, see
 //   issue #160)
-var colors = {
+const colors = {
   bold: [1, 22],
   italic: [3, 23],
   underline: [4, 24],
@@ -100,7 +100,7 @@ var colors = {
 
 function stylizeWithColor (str, color) {
   if (!str) { return '' }
-  var codes = colors[color]
+  const codes = colors[color]
   if (codes) {
     return '\x1B[' + codes[0] + 'm' + str + '\x1B[' + codes[1] + 'm'
   } else {
@@ -131,9 +131,9 @@ function rot (moduleName, s) {
 // I see in supported-technologies.asciidoc.
 function loadSupportedDoc () {
   const docPath = 'docs/supported-technologies.asciidoc'
-  var html = fs.readFileSync(docPath, 'utf8')
-  var rows = []
-  var state = null // null | 'thead' | 'tbody'
+  const html = fs.readFileSync(docPath, 'utf8')
+  const rows = []
+  let state = null // null | 'thead' | 'tbody'
   html.split(/\n/g).forEach(function (line) {
     if (!line.startsWith('|')) {
       // no op
@@ -150,8 +150,8 @@ function loadSupportedDoc () {
         // Examples:
         //      |https://www.npmjs.com/package/generic-pool[generic-pool] | ^2.0.0 \|\| ^3.1.0 |Used by a lot of ...
         //      |https://www.npmjs.com/package/bluebird[bluebird] |>=2.0.0 <4.0.0 |
-        var escapePlaceholder = '6B1EC7E1-B273-40E9-94C4-197A59B55E24'
-        var cells = line
+        const escapePlaceholder = '6B1EC7E1-B273-40E9-94C4-197A59B55E24'
+        const cells = line
           .trim()
           .slice(1) // remove leading '|'
           .replace(/\\\|/g, escapePlaceholder)
@@ -177,7 +177,7 @@ function loadSupportedDoc () {
   // The entries in the "Frameworks" table use the names of internal links in
   // these docs. The anchor name is *sometimes* the same name as the npm
   // module, but sometimes not.
-  var results = []
+  const results = []
   let match
   rows.forEach(function (row) {
     if (row[1] === 'N/A') {
@@ -187,7 +187,7 @@ function loadSupportedDoc () {
       if (!match) {
         throw new Error(`could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(row[0])}`)
       }
-      var moduleNames
+      let moduleNames
       if (match[1] === 'nextjs') {
         moduleNames = ['next']
       } else if (match[2] === '@hapi/hapi') {
@@ -246,24 +246,24 @@ function getNpmInfo (name) {
 
 function bitrot (moduleNames) {
   log.debug({ moduleNames }, 'bitrot')
-  var tavYmls = [
+  const tavYmls = [
     yaml.load(fs.readFileSync('.tav.yml', 'utf8')),
     yaml.load(fs.readFileSync('./test/opentelemetry-bridge/.tav.yml', 'utf8')),
     yaml.load(fs.readFileSync('./test/opentelemetry-metrics/fixtures/.tav.yml', 'utf8')),
     yaml.load(fs.readFileSync('test/instrumentation/modules/next/a-nextjs-app/.tav.yml', 'utf8'))
   ]
-  var supported = loadSupportedDoc()
+  const supported = loadSupportedDoc()
 
   // Merge into one data structure we can iterate through.
-  var rangesFromName = {}
-  var ensureKey = (name) => {
+  const rangesFromName = {}
+  const ensureKey = (name) => {
     if (!(name in rangesFromName)) {
       rangesFromName[name] = { tavRanges: [], supRanges: [] }
     }
   }
   tavYmls.forEach(tavYml => {
     for (const [label, tavInfo] of Object.entries(tavYml)) {
-      var name = tavInfo.name || label
+      const name = tavInfo.name || label
       ensureKey(name)
       rangesFromName[name].tavRanges.push(tavInfo.versions)
     }
@@ -275,7 +275,7 @@ function bitrot (moduleNames) {
 
   // Reduce to `moduleNames` if given.
   if (moduleNames && moduleNames.length > 0) {
-    var allNames = Object.keys(rangesFromName)
+    const allNames = Object.keys(rangesFromName)
     moduleNames.forEach(name => {
       if (!(name in rangesFromName)) {
         throw new Error(`unknown module name: ${name} (known module names: ${allNames.join(', ')})`)
@@ -290,15 +290,15 @@ function bitrot (moduleNames) {
   log.debug({ rangesFromName }, 'rangesFromName')
 
   // Check each module name.
-  var namesToCheck = Object.keys(rangesFromName).sort()
+  const namesToCheck = Object.keys(rangesFromName).sort()
   namesToCheck.forEach(name => {
-    var npmInfo = getNpmInfo(name)
+    const npmInfo = getNpmInfo(name)
     log.trace({ name, 'dist-tags': npmInfo['dist-tags'], time: npmInfo.time }, 'npmInfo')
 
     // If the current latest version is in the supported and
     // tav ranges, then all is good.
-    var latest = npmInfo['dist-tags'].latest
-    var tavGood = false
+    const latest = npmInfo['dist-tags'].latest
+    let tavGood = false
     if (EXCUSE_FROM_TAV[name]) {
       tavGood = true
     } else {
@@ -309,7 +309,7 @@ function bitrot (moduleNames) {
         }
       }
     }
-    var supGood = false
+    let supGood = false
     if (EXCUSE_FROM_SUPPORTED_TECHNOLOGIES_DOC[name]) {
       supGood = true
     } else {
@@ -324,7 +324,7 @@ function bitrot (moduleNames) {
       log.debug(`latest ${name}@${latest} is in tav and supported ranges (a good thing)`)
       return
     }
-    var issues = []
+    const issues = []
     if (!tavGood) {
       issues.push(`is not in .tav.yml ranges (${rangesFromName[name].tavRanges.join(', ')})`)
     }
@@ -351,7 +351,7 @@ const options = [
 ]
 
 function main (argv) {
-  var parser = dashdash.createParser({ options: options })
+  const parser = dashdash.createParser({ options: options })
   try {
     var opts = parser.parse(argv)
   } catch (e) {
@@ -359,7 +359,7 @@ function main (argv) {
     process.exit(1)
   }
   if (opts.help) {
-    var help = parser.help().trimRight()
+    const help = parser.help().trimRight()
     process.stdout.write(`Synopsis:
     dev-utils/bitrot.js [OPTIONS]
 

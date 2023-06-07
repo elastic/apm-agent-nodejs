@@ -12,9 +12,9 @@ const bench = require('./utils/bench')
 
 bench('transaction-reading-file', {
   setup () {
-    var agent = this.benchmark.agent
-    var fs = this.benchmark.fs
-    var filename = this.benchmark.testFile
+    const agent = this.benchmark.agent
+    const fs = this.benchmark.fs
+    const filename = this.benchmark.testFile
   },
   fn (deferred) {
     if (agent) agent.startTransaction()

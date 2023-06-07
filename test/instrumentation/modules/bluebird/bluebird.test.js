@@ -15,7 +15,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 // expected.
 require('../../../_promise_rejection').remove()
 
-var agent = require('../../../..').start({
+const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -23,12 +23,12 @@ var agent = require('../../../..').start({
   centralConfig: false
 })
 
-var BLUEBIRD_VERSION = require('bluebird/package').version
-var Promise = require('bluebird')
-var semver = require('semver')
-var test = require('tape')
+const BLUEBIRD_VERSION = require('bluebird/package').version
+const Promise = require('bluebird')
+const semver = require('semver')
+const test = require('tape')
 
-var ins = agent._instrumentation
+const ins = agent._instrumentation
 
 require('../../_shared-promise-tests')(test, Promise, ins)
 require('./_coroutine')(test, Promise, ins)
@@ -36,7 +36,7 @@ require('./_coroutine')(test, Promise, ins)
 test('Promise.prototype.spread - all formal', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     Promise.all(['foo', 'bar']).spread(function (a, b) {
       t.strictEqual(a, 'foo')
       t.strictEqual(b, 'bar')
@@ -48,8 +48,8 @@ test('Promise.prototype.spread - all formal', function (t) {
 test('Promise.prototype.spread - all promises', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
-    var arr = [resolved('foo'), resolved('bar')]
+    const trans = ins.startTransaction()
+    const arr = [resolved('foo'), resolved('bar')]
     Promise.all(arr).spread(function (a, b) {
       t.strictEqual(a, 'foo')
       t.strictEqual(b, 'bar')
@@ -61,7 +61,7 @@ test('Promise.prototype.spread - all promises', function (t) {
 test('Promise.prototype.spread - then formal', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     Promise.delay(1).then(function () {
       return ['foo', 'bar']
     }).spread(function (a, b) {
@@ -75,7 +75,7 @@ test('Promise.prototype.spread - then formal', function (t) {
 test('Promise.prototype.spread - then promises', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     Promise.delay(1).then(function () {
       return [resolved('foo'), resolved('bar')]
     }).spread(function (a, b) {
@@ -86,12 +86,12 @@ test('Promise.prototype.spread - then promises', function (t) {
   })
 })
 
-var CATCH_NAMES = ['catch', 'caught']
+const CATCH_NAMES = ['catch', 'caught']
 CATCH_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> ' + fnName + ' (filtered, first type)', function (t) {
     t.plan(6)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected(new TypeError('foo'))
         .then(function () {
           t.fail('should not resolve')
@@ -110,7 +110,7 @@ CATCH_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> ' + fnName + ' (filtered, second type)', function (t) {
     t.plan(6)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected(new ReferenceError('foo'))
         .then(function () {
           t.fail('should not resolve')
@@ -130,7 +130,7 @@ CATCH_NAMES.forEach(function (fnName) {
     t.plan(6)
     twice(function () {
       setImmediate(function () {
-        var trans = ins.startTransaction()
+        const trans = ins.startTransaction()
         rejected(new SyntaxError('foo'))
           .then(function () {
             t.fail('should not resolve')
@@ -150,7 +150,7 @@ CATCH_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> ' + fnName + ' (filtered, multi, first type)', function (t) {
     t.plan(6)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected(new SyntaxError('foo'))
         .then(function () {
           t.fail('should not resolve')
@@ -169,7 +169,7 @@ CATCH_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> ' + fnName + ' (filtered, multi, second type)', function (t) {
     t.plan(6)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected(new RangeError('foo'))
         .then(function () {
           t.fail('should not resolve')
@@ -188,7 +188,7 @@ CATCH_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> ' + fnName + ' (filtered, multi, catch-all)', function (t) {
     t.plan(6)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected(new URIError('foo'))
         .then(function () {
           t.fail('should not resolve')
@@ -207,7 +207,7 @@ CATCH_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> ' + fnName + ' (filtered, predicate)', function (t) {
     t.plan(18)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
 
       rejected(new URIError('foo'))
         .then(function () {
@@ -242,8 +242,8 @@ CATCH_NAMES.forEach(function (fnName) {
     test('new Promise -> reject -> ' + fnName + ' (filtered, predicate shorthand)', function (t) {
       t.plan(6)
       twice(function () {
-        var trans = ins.startTransaction()
-        var err = new URIError('foo')
+        const trans = ins.startTransaction()
+        const err = new URIError('foo')
         err.code = 42
         rejected(err)
           .then(function () {
@@ -265,7 +265,7 @@ CATCH_NAMES.forEach(function (fnName) {
 test('new Promise -> reject -> error', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     rejected(new Promise.OperationalError('foo'))
       .then(function () {
         t.fail('should not resolve')
@@ -279,12 +279,12 @@ test('new Promise -> reject -> error', function (t) {
   })
 })
 
-var FINALLY_NAMES = ['finally', 'lastly']
+const FINALLY_NAMES = ['finally', 'lastly']
 FINALLY_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> ' + fnName, function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected('foo')
         .then(function () {
           t.fail('should not resolve')
@@ -298,7 +298,7 @@ FINALLY_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> catch -> ' + fnName, function (t) {
     t.plan(6)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected('foo')
         .then(function () {
           t.fail('should not resolve')
@@ -314,7 +314,7 @@ FINALLY_NAMES.forEach(function (fnName) {
   test('new Promise -> reject -> then -> catch -> ' + fnName + ' -> new Promise -> then', function (t) {
     t.plan(8)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected('foo')
         .then(function () {
           t.fail('should not resolve')
@@ -333,8 +333,8 @@ FINALLY_NAMES.forEach(function (fnName) {
   test('new Promise -> resolve -> then -> ' + fnName + ' -> new Promise -> then', function (t) {
     t.plan(10)
     twice(function () {
-      var trans = ins.startTransaction()
-      var finallyCalled = false
+      const trans = ins.startTransaction()
+      let finallyCalled = false
       resolved('foo')
         .then(function (result) {
           t.strictEqual(result, 'foo')
@@ -355,8 +355,8 @@ FINALLY_NAMES.forEach(function (fnName) {
   test('new Promise -> resolve -> ' + fnName + ' -> new Promise -> then', function (t) {
     t.plan(8)
     twice(function () {
-      var trans = ins.startTransaction()
-      var finallyCalled = false
+      const trans = ins.startTransaction()
+      let finallyCalled = false
       resolved('foo')
         .catch(function () {
           t.fail('should not reject')
@@ -379,9 +379,9 @@ test('new Promise -> bind -> then', function (t) {
   function Obj () {}
 
   twice(function () {
-    var trans = ins.startTransaction()
-    var obj = new Obj()
-    var n = obj.n = Math.random()
+    const trans = ins.startTransaction()
+    const obj = new Obj()
+    const n = obj.n = Math.random()
 
     resolved('foo')
       .bind(obj)
@@ -400,11 +400,11 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.0')) {
     function Obj () {}
 
     twice(function () {
-      var trans = ins.startTransaction()
-      var obj = new Obj()
-      var n = obj.n = Math.random()
+      const trans = ins.startTransaction()
+      const obj = new Obj()
+      const n = obj.n = Math.random()
 
-      var p = resolved('foo')
+      let p = resolved('foo')
 
       p = Promise.bind(obj, p)
 
@@ -420,9 +420,9 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.0')) {
 test('Promise.bind - promise, without value', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var p = resolved('foo')
+    let p = resolved('foo')
 
     p = Promise.bind(p)
 
@@ -439,11 +439,11 @@ test('Promise.bind - non-promise, without value', function (t) {
   function Obj () {}
 
   twice(function () {
-    var trans = ins.startTransaction()
-    var obj = new Obj()
-    var n = obj.n = Math.random()
+    const trans = ins.startTransaction()
+    const obj = new Obj()
+    const n = obj.n = Math.random()
 
-    var p = Promise.bind(obj)
+    const p = Promise.bind(obj)
 
     p.then(function (result) {
       t.strictEqual(this.n, n)
@@ -456,11 +456,11 @@ test('Promise.bind - non-promise, without value', function (t) {
 test('Promise.join', function (t) {
   t.plan(8)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var p1 = resolved('p1')
-    var p2 = resolved('p2')
-    var p3 = resolved('p3')
+    const p1 = resolved('p1')
+    const p2 = resolved('p2')
+    const p3 = resolved('p3')
 
     Promise.join(p1, p2, p3, function (a, b, c) {
       t.strictEqual(a, 'p1')
@@ -471,12 +471,12 @@ test('Promise.join', function (t) {
   })
 })
 
-var TRY_NAMES = ['try', 'attempt']
+const TRY_NAMES = ['try', 'attempt']
 TRY_NAMES.forEach(function (fnName) {
   test('Promise.' + fnName + ' -> return value', function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       Promise[fnName](function () {
         return 'foo'
       }).then(function (result) {
@@ -491,7 +491,7 @@ TRY_NAMES.forEach(function (fnName) {
   test('Promise.' + fnName + ' -> throw', function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       Promise[fnName](function () {
         throw new Error('foo')
       }).then(function () {
@@ -506,7 +506,7 @@ TRY_NAMES.forEach(function (fnName) {
   test('Promise.' + fnName + ' with args value', function (t) {
     t.plan(6)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       Promise[fnName](function (value) {
         t.strictEqual(value, 'bar')
         return 'foo'
@@ -522,7 +522,7 @@ TRY_NAMES.forEach(function (fnName) {
   test('Promise.' + fnName + ' with args array', function (t) {
     t.plan(6)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       Promise[fnName](function () {
         t.deepEqual([].slice.call(arguments), [1, 2, 3])
         return 'foo'
@@ -538,8 +538,8 @@ TRY_NAMES.forEach(function (fnName) {
   test('Promise.' + fnName + ' with context', function (t) {
     t.plan(8)
     twice(function () {
-      var trans = ins.startTransaction()
-      var obj = {}
+      const trans = ins.startTransaction()
+      const obj = {}
       Promise[fnName](function (value) {
         t.strictEqual(value, undefined)
         t.strictEqual(this, obj)
@@ -557,7 +557,7 @@ TRY_NAMES.forEach(function (fnName) {
 test('Promise.method -> return value', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     Promise.method(function () {
       return 'foo'
     })().then(function (result) {
@@ -572,7 +572,7 @@ test('Promise.method -> return value', function (t) {
 test('Promise.method -> throw', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     Promise.method(function () {
       throw new Error('foo')
     })().then(function () {
@@ -587,11 +587,11 @@ test('Promise.method -> throw', function (t) {
 test('Promise.all', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var p1 = resolved('p1')
-    var p2 = resolved('p2')
-    var p3 = resolved('p3')
+    const p1 = resolved('p1')
+    const p2 = resolved('p2')
+    const p3 = resolved('p3')
 
     Promise.all([p1, p2, p3]).then(function (result) {
       t.deepEqual(result, ['p1', 'p2', 'p3'])
@@ -603,11 +603,11 @@ test('Promise.all', function (t) {
 test('new Promise -> all', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var p1 = resolved('p1')
-    var p2 = resolved('p2')
-    var p3 = resolved('p3')
+    const p1 = resolved('p1')
+    const p2 = resolved('p2')
+    const p3 = resolved('p3')
 
     resolved([p1, p2, p3]).all().then(function (result) {
       t.deepEqual(result, ['p1', 'p2', 'p3'])
@@ -619,9 +619,9 @@ test('new Promise -> all', function (t) {
 test('Promise.props', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var props = {
+    const props = {
       p1: resolved('p1'),
       p2: resolved('p2'),
       p3: resolved('p3')
@@ -637,9 +637,9 @@ test('Promise.props', function (t) {
 test('new Promise -> props', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var props = {
+    const props = {
       p1: resolved('p1'),
       p2: resolved('p2'),
       p3: resolved('p3')
@@ -655,15 +655,15 @@ test('new Promise -> props', function (t) {
 test('Promise.any', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var p1 = new Promise(function (resolve, reject) {
+    const p1 = new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve('p1')
       }, 100)
     })
-    var p2 = rejected('p2')
-    var p3 = resolved('p3')
+    const p2 = rejected('p2')
+    const p3 = resolved('p3')
 
     Promise.any([p1, p2, p3]).then(function (result) {
       t.strictEqual(result, 'p3')
@@ -675,15 +675,15 @@ test('Promise.any', function (t) {
 test('new Promise -> any', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var p1 = new Promise(function (resolve, reject) {
+    const p1 = new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve('p1')
       }, 100)
     })
-    var p2 = rejected('p2')
-    var p3 = resolved('p3')
+    const p2 = rejected('p2')
+    const p3 = resolved('p3')
 
     resolved([p1, p2, p3]).any().then(function (result) {
       t.strictEqual(result, 'p3')
@@ -695,16 +695,16 @@ test('new Promise -> any', function (t) {
 test('Promise.some', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var p1 = new Promise(function (resolve, reject) {
+    const p1 = new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve('p1')
       }, 100)
     })
-    var p2 = resolved('p2')
-    var p3 = rejected('p3')
-    var p4 = resolved('p4')
+    const p2 = resolved('p2')
+    const p3 = rejected('p3')
+    const p4 = resolved('p4')
 
     Promise.some([p1, p2, p3, p4], 2).then(function (result) {
       t.deepEqual(result, ['p2', 'p4'])
@@ -716,16 +716,16 @@ test('Promise.some', function (t) {
 test('new Promise -> some', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var p1 = new Promise(function (resolve, reject) {
+    const p1 = new Promise(function (resolve, reject) {
       setTimeout(function () {
         resolve('p1')
       }, 100)
     })
-    var p2 = resolved('p2')
-    var p3 = rejected('p3')
-    var p4 = resolved('p4')
+    const p2 = resolved('p2')
+    const p3 = rejected('p3')
+    const p4 = resolved('p4')
 
     resolved([p1, p2, p3, p4]).some(2).then(function (result) {
       t.deepEqual(result, ['p2', 'p4'])
@@ -737,7 +737,7 @@ test('new Promise -> some', function (t) {
 test('Promise.map', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
     Promise.map([1, 2, 3], function (value) {
       return resolved(value)
@@ -751,7 +751,7 @@ test('Promise.map', function (t) {
 test('new Promise -> map', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
     resolved([1, 2, 3]).map(function (value) {
       return resolved(value)
@@ -765,7 +765,7 @@ test('new Promise -> map', function (t) {
 test('Promise.reduce', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
     Promise.reduce([1, 2, 3], function (total, value) {
       return new Promise(function (resolve, reject) {
@@ -783,7 +783,7 @@ test('Promise.reduce', function (t) {
 test('new Promise -> reduce', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
     resolved([1, 2, 3]).reduce(function (total, value) {
       return new Promise(function (resolve, reject) {
@@ -801,8 +801,8 @@ test('new Promise -> reduce', function (t) {
 test('Promise.filter', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
-    var arr = [resolved(1), resolved(2), resolved(3), resolved(4)]
+    const trans = ins.startTransaction()
+    const arr = [resolved(1), resolved(2), resolved(3), resolved(4)]
 
     Promise.filter(arr, function (value) {
       return value > 2
@@ -816,8 +816,8 @@ test('Promise.filter', function (t) {
 test('new Promise -> filter', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
-    var arr = [resolved(1), resolved(2), resolved(3), resolved(4)]
+    const trans = ins.startTransaction()
+    const arr = [resolved(1), resolved(2), resolved(3), resolved(4)]
 
     resolved(arr).filter(function (value) {
       return value > 2
@@ -834,12 +834,12 @@ test('new Promise -> filter', function (t) {
 test('Promise.each', function (t) {
   t.plan(24)
   twice(function () {
-    var trans = ins.startTransaction()
-    var arr = [resolved(1), resolved(2), resolved(3)]
-    var results = [1, 2, 3]
+    const trans = ins.startTransaction()
+    const arr = [resolved(1), resolved(2), resolved(3)]
+    const results = [1, 2, 3]
 
     Promise.each(arr, function (item, index, length) {
-      var expected = results.shift()
+      const expected = results.shift()
       t.strictEqual(item, expected)
       t.strictEqual(index, expected - 1, 'index should be expected - 1')
       t.strictEqual(length, 3, 'length should be 3')
@@ -854,12 +854,12 @@ test('Promise.each', function (t) {
 test('new Promise -> each', function (t) {
   t.plan(24)
   twice(function () {
-    var trans = ins.startTransaction()
-    var arr = [resolved(1), resolved(2), resolved(3)]
-    var results = [1, 2, 3]
+    const trans = ins.startTransaction()
+    const arr = [resolved(1), resolved(2), resolved(3)]
+    const results = [1, 2, 3]
 
     resolved(arr).each(function (item, index, length) {
-      var expected = results.shift()
+      const expected = results.shift()
       t.strictEqual(item, expected)
       t.strictEqual(index, expected - 1, 'index should be expected - 1')
       t.strictEqual(length, 3, 'length should be 3')
@@ -872,16 +872,16 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   test('Promise.mapSeries', function (t) {
     t.plan(24)
     twice(function () {
-      var trans = ins.startTransaction()
-      var p1 = resolved(1)
-      var p2 = resolved(2)
-      var p3 = resolved(3)
-      var arr = [p2, p3, p1]
-      var results = [2, 3, 1]
-      var i = 0
+      const trans = ins.startTransaction()
+      const p1 = resolved(1)
+      const p2 = resolved(2)
+      const p3 = resolved(3)
+      const arr = [p2, p3, p1]
+      const results = [2, 3, 1]
+      let i = 0
 
       Promise.mapSeries(arr, function (item, index, length) {
-        var expected = results.shift()
+        const expected = results.shift()
         t.strictEqual(item, expected)
         t.strictEqual(index, i++)
         t.strictEqual(length, 3, 'length should be 3')
@@ -893,16 +893,16 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   test('new Promise -> mapSeries', function (t) {
     t.plan(24)
     twice(function () {
-      var trans = ins.startTransaction()
-      var p1 = resolved(1)
-      var p2 = resolved(2)
-      var p3 = resolved(3)
-      var arr = [p2, p3, p1]
-      var results = [2, 3, 1]
-      var i = 0
+      const trans = ins.startTransaction()
+      const p1 = resolved(1)
+      const p2 = resolved(2)
+      const p3 = resolved(3)
+      const arr = [p2, p3, p1]
+      const results = [2, 3, 1]
+      let i = 0
 
       resolved(arr).mapSeries(function (item, index, length) {
-        var expected = results.shift()
+        const expected = results.shift()
         t.strictEqual(item, expected)
         t.strictEqual(index, i++)
         t.strictEqual(length, 3, 'length should be 3')
@@ -915,7 +915,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
 test('Promise.using', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
     Promise.using(getResource(), function (resource) {
       t.strictEqual(resource, 'foo')
@@ -933,11 +933,11 @@ test('Promise.using', function (t) {
 test('Promise.promisify', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
-    var readFile = Promise.promisify(require('fs').readFile)
+    const trans = ins.startTransaction()
+    const readFile = Promise.promisify(require('fs').readFile)
 
     readFile(__filename, 'utf8').then(function (contents) {
-      var firstLine = contents.split('\n')[0]
+      const firstLine = contents.split('\n')[0]
       t.strictEqual(firstLine, '/*', 'firstLine')
       t.strictEqual(ins.currTransaction().id, trans.id, 'currentTransaction().id')
     })
@@ -947,9 +947,9 @@ test('Promise.promisify', function (t) {
 test('Promise.promisifyAll', function (t) {
   t.plan(8)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
-    var obj = {
+    const obj = {
       success (cb) {
         setImmediate(function () {
           cb(null, 'foo')
@@ -982,14 +982,14 @@ test('Promise.promisifyAll', function (t) {
   })
 })
 
-var fromCallbackNames = []
+const fromCallbackNames = []
 if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.0')) fromCallbackNames.push('fromNode')
 if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) fromCallbackNames.push('fromCallback')
 fromCallbackNames.forEach(function (fnName) {
   test('Promise.' + fnName + ' - resolve', function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
 
       Promise[fnName](function (cb) {
         setImmediate(function () {
@@ -1007,7 +1007,7 @@ fromCallbackNames.forEach(function (fnName) {
   test('Promise.' + fnName + ' - reject', function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
 
       Promise[fnName](function (cb) {
         setImmediate(function () {
@@ -1023,13 +1023,13 @@ fromCallbackNames.forEach(function (fnName) {
   })
 })
 
-var asCallbackNames = ['nodeify']
+const asCallbackNames = ['nodeify']
 if (semver.satisfies(BLUEBIRD_VERSION, '>=2.9.15')) asCallbackNames.push('asCallback')
 asCallbackNames.forEach(function (fnName) {
   test('new Promise -> ' + fnName + ' (resolve)', function (t) {
     t.plan(10)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
 
       getSomething().then(function (value) {
         t.strictEqual(value, 'foo')
@@ -1051,7 +1051,7 @@ asCallbackNames.forEach(function (fnName) {
   test('new Promise -> ' + fnName + ' (reject)', function (t) {
     t.plan(10)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
 
       getSomething()
         .then(function () {
@@ -1077,12 +1077,12 @@ asCallbackNames.forEach(function (fnName) {
 test('Promise.delay', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
-    var start = Date.now()
+    const trans = ins.startTransaction()
+    const start = Date.now()
 
     Promise.delay(50).then(function () {
-      var expected = start + 49 // timings are hard
-      var now = Date.now()
+      const expected = start + 49 // timings are hard
+      const now = Date.now()
       t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
       t.strictEqual(ins.currTransaction().id, trans.id)
     })
@@ -1092,12 +1092,12 @@ test('Promise.delay', function (t) {
 test('new Promise -> delay', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
-    var start = Date.now()
+    const trans = ins.startTransaction()
+    const start = Date.now()
 
     Promise.resolve('foo').delay(50).then(function () {
-      var expected = start + 49 // timings are hard
-      var now = Date.now()
+      const expected = start + 49 // timings are hard
+      const now = Date.now()
       t.ok(expected <= now, 'start + 49 should be <= ' + now + ' - was ' + expected)
       t.strictEqual(ins.currTransaction().id, trans.id)
     })
@@ -1107,7 +1107,7 @@ test('new Promise -> delay', function (t) {
 test('new Promise -> timeout (resolve in time)', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
     resolved('foo')
       .timeout(50)
@@ -1124,7 +1124,7 @@ test('new Promise -> timeout (resolve in time)', function (t) {
 test('new Promise -> timeout (reject in time)', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
 
     rejected('foo')
       .timeout(50)
@@ -1145,8 +1145,8 @@ test('new Promise -> timeout (timed out)', function (t) {
 
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
-    var start = Date.now()
+    const trans = ins.startTransaction()
+    const start = Date.now()
 
     new Promise(function (resolve, reject) {
       setTimeout(function () {
@@ -1157,8 +1157,8 @@ test('new Promise -> timeout (timed out)', function (t) {
     }).catch(function (err) {
       // You would think elapsed would always be >=50ms, but in busy CI I have
       // seen slightly *less than* 50ms.
-      var elapsedMs = Date.now() - start
-      var diffMs = Math.abs(50 - elapsedMs)
+      const elapsedMs = Date.now() - start
+      const diffMs = Math.abs(50 - elapsedMs)
       t.ok(diffMs <= SLOP_MS, `.timeout(50) resulted in 50 +/- ${SLOP_MS}, actual elapsed was ${elapsedMs}ms`)
       t.ok(err instanceof Promise.TimeoutError, 'err')
       t.strictEqual(ins.currTransaction().id, trans.id, 'transaction.id')
@@ -1169,7 +1169,7 @@ test('new Promise -> timeout (timed out)', function (t) {
 test('new Promise -> reject -> tap -> catch', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     rejected('foo')
       .tap(function () {
         t.fail('should not call tap')
@@ -1187,7 +1187,7 @@ test('new Promise -> reject -> tap -> catch', function (t) {
 test('new Promise -> resolve -> tap -> then (no return)', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     resolved('foo')
       .tap(function (value) {
         t.strictEqual(value, 'foo')
@@ -1202,7 +1202,7 @@ test('new Promise -> resolve -> tap -> then (no return)', function (t) {
 test('new Promise -> resolve -> tap -> then (return)', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     resolved('foo')
       .tap(function (value) {
         t.strictEqual(value, 'foo')
@@ -1218,8 +1218,8 @@ test('new Promise -> resolve -> tap -> then (return)', function (t) {
 test('new Promise -> call', function (t) {
   t.plan(8)
   twice(function () {
-    var trans = ins.startTransaction()
-    var obj = {
+    const trans = ins.startTransaction()
+    const obj = {
       foo (a, b) {
         t.strictEqual(a, 1)
         t.strictEqual(b, 2)
@@ -1238,7 +1238,7 @@ test('new Promise -> call', function (t) {
 test('new Promise -> get', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     resolved({ foo: 42 })
       .get('foo')
       .then(function (value) {
@@ -1248,12 +1248,12 @@ test('new Promise -> get', function (t) {
   })
 })
 
-var RETURN_NAMES = ['return', 'thenReturn']
+const RETURN_NAMES = ['return', 'thenReturn']
 RETURN_NAMES.forEach(function (fnName) {
   test('new Promise -> ' + fnName, function (t) {
     t.plan(8)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
@@ -1267,12 +1267,12 @@ RETURN_NAMES.forEach(function (fnName) {
   })
 })
 
-var THROW_NAMES = ['throw', 'thenThrow']
+const THROW_NAMES = ['throw', 'thenThrow']
 THROW_NAMES.forEach(function (fnName) {
   test('new Promise -> ' + fnName, function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       resolved('foo')[fnName](new Error('bar'))
         .then(function () {
           t.fail('should not resolve')
@@ -1289,7 +1289,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   test('new Promise -> resolve -> catchReturn', function (t) {
     t.plan(8)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
@@ -1306,7 +1306,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   test('new Promise -> reject -> catchReturn', function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected('foo')
         .then(function () {
           t.fail('should not resolve')
@@ -1322,7 +1322,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   test('new Promise -> resolve -> catchThrow', function (t) {
     t.plan(8)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       resolved('foo')
         .then(function (value) {
           t.deepEqual(value, 'foo')
@@ -1342,7 +1342,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   test('new Promise -> reject -> catchThrow', function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       rejected('foo')
         .then(function () {
           t.fail('should not resolve')
@@ -1363,7 +1363,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=2.3.6')) {
   test('new Promise -> reflect', function (t) {
     t.plan(4)
     twice(function () {
-      var trans = ins.startTransaction()
+      const trans = ins.startTransaction()
       resolved('foo').reflect().then(function (p) {
         t.ok(p.isFulfilled())
         t.strictEqual(ins.currTransaction().id, trans.id)
@@ -1375,7 +1375,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=2.3.6')) {
 test('new Promise -> settle', function (t) {
   t.plan(6)
   twice(function () {
-    var trans = ins.startTransaction()
+    const trans = ins.startTransaction()
     Promise.settle([resolved('foo')]).then(function (result) {
       t.strictEqual(result.length, 1)
       t.ok(result[0].isFulfilled())

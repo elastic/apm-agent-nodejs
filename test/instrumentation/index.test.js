@@ -6,7 +6,7 @@
 
 'use strict'
 
-var agent = require('../..').start({
+const agent = require('../..').start({
   serviceName: 'test-instrumentation',
   breakdownMetrics: false,
   captureExceptions: false,
@@ -16,15 +16,15 @@ var agent = require('../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-var EventEmitter = require('events')
-var http = require('http')
+const EventEmitter = require('events')
+const http = require('http')
 
-var test = require('tape')
+const test = require('tape')
 
-var mockClient = require('../_mock_http_client')
-var findObjInArray = require('../_utils').findObjInArray
+const mockClient = require('../_mock_http_client')
+const findObjInArray = require('../_utils').findObjInArray
 
-var origCaptureError = agent.captureError
+const origCaptureError = agent.captureError
 
 test('basic', function (t) {
   resetAgent(6, function (data) {
@@ -65,16 +65,16 @@ test('basic', function (t) {
 
     t.end()
   })
-  var ins = agent._instrumentation
+  const ins = agent._instrumentation
 
   generateTransaction(0, function () {
     generateTransaction(1)
   })
 
   function generateTransaction (id, cb) {
-    var trans = ins.startTransaction('foo' + id, 'bar' + id)
+    const trans = ins.startTransaction('foo' + id, 'bar' + id)
     trans.result = 'baz' + id
-    var span = ins.startSpan('t' + id + '0', 'type')
+    let span = ins.startSpan('t' + id + '0', 'type')
 
     process.nextTick(function () {
       span.end()
@@ -101,11 +101,11 @@ test('same tick', function (t) {
     }
     t.end()
   })
-  var ins = agent._instrumentation
+  const ins = agent._instrumentation
 
-  var trans = ins.startTransaction('foo')
-  var t0 = ins.startSpan('t0')
-  var t1 = ins.startSpan('t1')
+  const trans = ins.startTransaction('foo')
+  const t0 = ins.startSpan('t0')
+  const t1 = ins.startSpan('t1')
   t1.end()
   t0.end()
   trans.end()
@@ -124,13 +124,13 @@ test('serial - no parents', function (t) {
     }
     t.end()
   })
-  var ins = agent._instrumentation
+  const ins = agent._instrumentation
 
-  var trans = ins.startTransaction('foo')
-  var t0 = ins.startSpan('t0')
+  const trans = ins.startTransaction('foo')
+  const t0 = ins.startSpan('t0')
   process.nextTick(function () {
     t0.end()
-    var t1 = ins.startSpan('t1')
+    const t1 = ins.startSpan('t1')
     process.nextTick(function () {
       t1.end()
       trans.end()
@@ -151,12 +151,12 @@ test('serial - with parents', function (t) {
     }
     t.end()
   })
-  var ins = agent._instrumentation
+  const ins = agent._instrumentation
 
-  var trans = ins.startTransaction('foo')
-  var t0 = ins.startSpan('t0')
+  const trans = ins.startTransaction('foo')
+  const t0 = ins.startSpan('t0')
   process.nextTick(function () {
-    var t1 = ins.startSpan('t1')
+    const t1 = ins.startSpan('t1')
     process.nextTick(function () {
       t1.end()
       t0.end()
@@ -178,11 +178,11 @@ test('stack branching - no parents', function (t) {
     }
     t.end()
   })
-  var ins = agent._instrumentation
+  const ins = agent._instrumentation
 
-  var trans = ins.startTransaction('foo')
-  var t0 = ins.startSpan('t0') // 1
-  var t1 = ins.startSpan('t1') // 2
+  const trans = ins.startTransaction('foo')
+  const t0 = ins.startSpan('t0') // 1
+  const t1 = ins.startSpan('t1') // 2
   setTimeout(function () {
     t0.end() // 3
   }, 25)
@@ -241,15 +241,15 @@ test('captureError should handle opts.captureAttributes', function (t) {
 
   agent.captureError = origCaptureError
 
-  var ex0 = new Error('ex0')
+  const ex0 = new Error('ex0')
   ex0.theProperty = 'this is the property'
   agent.captureError(ex0)
 
-  var ex1 = new Error('ex1')
+  const ex1 = new Error('ex1')
   ex1.theProperty = 'this is the property'
   agent.captureError(ex1, { captureAttributes: true })
 
-  var ex2 = new Error('ex2')
+  const ex2 = new Error('ex2')
   ex2.theProperty = 'this is the property'
   agent.captureError(ex2, { captureAttributes: false })
 })
@@ -281,7 +281,7 @@ test('unsampled request transactions should have the correct result', function (
   })
 
   server.listen(function () {
-    var port = server.address().port
+    const port = server.address().port
     http.get('http://localhost:' + port, function (res) {
       res.resume()
     })
@@ -294,12 +294,12 @@ test('bind', function (t) {
       t.strictEqual(data.transactions.length, 1)
       t.end()
     })
-    var ins = agent._instrumentation
+    const ins = agent._instrumentation
 
-    var trans = ins.startTransaction('foo')
+    const trans = ins.startTransaction('foo')
 
     function fn () {
-      var t0 = ins.startSpan('t0')
+      const t0 = ins.startSpan('t0')
       t.equal(t0, null, 'should not get a span, because there is no current transaction')
       if (t0) t0.end()
       trans.end()
@@ -317,12 +317,12 @@ test('bind', function (t) {
       t.strictEqual(data.spans[0].name, 't0')
       t.end()
     })
-    var ins = agent._instrumentation
+    const ins = agent._instrumentation
 
-    var trans = ins.startTransaction('foo')
+    const trans = ins.startTransaction('foo')
 
-    var fn = ins.bindFunction(function () {
-      var t0 = ins.startSpan('t0')
+    const fn = ins.bindFunction(function () {
+      const t0 = ins.startSpan('t0')
       t.ok(t0, 'should get a span, because run context with transaction was bound to fn')
       if (t0) t0.end()
       trans.end()
@@ -338,11 +338,11 @@ test('bind', function (t) {
       t.strictEqual(data.transactions.length, 1)
       t.end()
     })
-    var ins = agent._instrumentation
-    var trans = ins.startTransaction('foo')
-    var listeners
+    const ins = agent._instrumentation
+    const trans = ins.startTransaction('foo')
+    let listeners
 
-    var emitter = new EventEmitter()
+    const emitter = new EventEmitter()
     ins.bindEmitter(emitter)
 
     function myHandler () { }
@@ -369,7 +369,7 @@ test('bind', function (t) {
     trans.end()
   })
 
-  var methods = [
+  const methods = [
     'on',
     'once',
     'addListener',
@@ -383,15 +383,15 @@ test('bind', function (t) {
         t.strictEqual(data.transactions.length, 1)
         t.end()
       })
-      var ins = agent._instrumentation
+      const ins = agent._instrumentation
 
-      var trans = ins.startTransaction('foo')
+      const trans = ins.startTransaction('foo')
 
-      var emitter = new EventEmitter()
+      const emitter = new EventEmitter()
       // Explicitly *not* using `bindEmitter` here.
 
       emitter[method]('foo', function () {
-        var s1 = ins.startSpan('s1')
+        const s1 = ins.startSpan('s1')
         t.equal(s1, null, 'should *not* get span s1')
         if (s1) s1.end()
         trans.end()
@@ -413,14 +413,14 @@ test('bind', function (t) {
         t.end()
       })
 
-      var ins = agent._instrumentation
-      var trans = ins.startTransaction('foo')
+      const ins = agent._instrumentation
+      const trans = ins.startTransaction('foo')
 
-      var emitter = new EventEmitter()
+      const emitter = new EventEmitter()
       ins.bindEmitter(emitter)
 
       emitter[method]('foo', function () {
-        var s1 = ins.startSpan('s1')
+        const s1 = ins.startSpan('s1')
         if (s1) s1.end()
         trans.end()
       })
@@ -471,10 +471,10 @@ test('nested spans', function (t) {
 
     t.end()
   })
-  var ins = agent._instrumentation
+  const ins = agent._instrumentation
 
-  var trans = ins.startTransaction('foo')
-  var count = 0
+  const trans = ins.startTransaction('foo')
+  let count = 0
   function done () {
     s1.end()
     if (++count === 2) {
@@ -482,10 +482,10 @@ test('nested spans', function (t) {
     }
   }
 
-  var s0 = ins.startSpan('s0')
+  const s0 = ins.startSpan('s0')
   process.nextTick(function () {
     process.nextTick(function () {
-      var s01 = ins.startSpan('s01')
+      const s01 = ins.startSpan('s01')
       process.nextTick(function () {
         s01.end()
         done()
@@ -496,7 +496,7 @@ test('nested spans', function (t) {
 
   var s1 = ins.startSpan('s1')
   process.nextTick(function () {
-    var s11 = ins.startSpan('s11')
+    const s11 = ins.startSpan('s11')
     process.nextTick(function () {
       s11.end()
       done()
@@ -506,7 +506,7 @@ test('nested spans', function (t) {
   // Will adopt the t1 span as its parent,
   // because no new span has been created.
   process.nextTick(function () {
-    var s12 = ins.startSpan('s12')
+    const s12 = ins.startSpan('s12')
     process.nextTick(function () {
       s12.end()
       done()
@@ -541,14 +541,14 @@ test('nested transactions', function (t) {
 
     t.end()
   })
-  var ins = agent._instrumentation
+  const ins = agent._instrumentation
 
-  var t0 = ins.startTransaction('t0')
-  var s0 = ins.startSpan('s0')
-  var t1 = ins.startTransaction('t1', null, {
+  const t0 = ins.startTransaction('t0')
+  const s0 = ins.startSpan('s0')
+  const t1 = ins.startTransaction('t1', null, {
     childOf: t0._context.toString()
   })
-  var s1 = ins.startSpan('s1')
+  const s1 = ins.startSpan('s1')
   s1.end()
   t1.end()
   s0.end()

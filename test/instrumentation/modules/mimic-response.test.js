@@ -11,18 +11,18 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-var agent = require('../../..').start({
+const agent = require('../../..').start({
   serviceName: 'test',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false
 })
 
-var stream = require('stream')
-var mimicResponse = require('mimic-response')
-var test = require('tape')
+const stream = require('stream')
+const mimicResponse = require('mimic-response')
+const test = require('tape')
 
-var cases = [
+const cases = [
   { name: 'none bound', source: false, target: false },
   { name: 'source bound', source: true, target: false },
   { name: 'target bound', source: false, target: true },

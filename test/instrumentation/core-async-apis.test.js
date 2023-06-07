@@ -6,19 +6,19 @@
 
 'use strict'
 
-var agent = require('../..').start({
+const agent = require('../..').start({
   serviceName: 'test-core-async-apis',
   captureExceptions: false
 })
 
-var test = require('tape')
+const test = require('tape')
 
-var ins = agent._instrumentation
+const ins = agent._instrumentation
 
 test('setTimeout', function (t) {
   t.plan(2)
   twice(function () {
-    var trans = agent.startTransaction()
+    const trans = agent.startTransaction()
     setTimeout(function () {
       t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id)
       trans.end()
@@ -29,7 +29,7 @@ test('setTimeout', function (t) {
 test('setInterval', function (t) {
   t.plan(2)
   twice(function () {
-    var trans = agent.startTransaction()
+    const trans = agent.startTransaction()
     var timer = setInterval(function () {
       clearInterval(timer)
       t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id)
@@ -41,7 +41,7 @@ test('setInterval', function (t) {
 test('setImmediate', function (t) {
   t.plan(2)
   twice(function () {
-    var trans = agent.startTransaction()
+    const trans = agent.startTransaction()
     setImmediate(function () {
       t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id)
       trans.end()
@@ -52,7 +52,7 @@ test('setImmediate', function (t) {
 test('process.nextTick', function (t) {
   t.plan(2)
   twice(function () {
-    var trans = agent.startTransaction()
+    const trans = agent.startTransaction()
     process.nextTick(function () {
       t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id)
       trans.end()
@@ -63,10 +63,10 @@ test('process.nextTick', function (t) {
 test('pre-defined, pre-resolved shared promise', function (t) {
   t.plan(4)
 
-  var p = Promise.resolve('success')
+  const p = Promise.resolve('success')
 
   twice(function () {
-    var trans = agent.startTransaction()
+    const trans = agent.startTransaction()
     p.then(function (result) {
       t.strictEqual(result, 'success')
       t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id)
@@ -79,8 +79,8 @@ test('pre-defined, pre-resolved non-shared promise', function (t) {
   t.plan(4)
 
   twice(function () {
-    var p = Promise.resolve('success')
-    var trans = agent.startTransaction()
+    const p = Promise.resolve('success')
+    const trans = agent.startTransaction()
     p.then(function (result) {
       t.strictEqual(result, 'success')
       t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id)
@@ -92,12 +92,12 @@ test('pre-defined, pre-resolved non-shared promise', function (t) {
 test('pre-defined, post-resolved promise', function (t) {
   t.plan(4)
   twice(function () {
-    var p = new Promise(function (resolve) {
+    const p = new Promise(function (resolve) {
       setTimeout(function () {
         resolve('success')
       }, 20)
     })
-    var trans = agent.startTransaction()
+    const trans = agent.startTransaction()
     p.then(function (result) {
       t.strictEqual(result, 'success')
       t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id)
@@ -109,8 +109,8 @@ test('pre-defined, post-resolved promise', function (t) {
 test('post-defined, post-resolved promise', function (t) {
   t.plan(4)
   twice(function () {
-    var trans = agent.startTransaction()
-    var p = new Promise(function (resolve) {
+    const trans = agent.startTransaction()
+    const p = new Promise(function (resolve) {
       setTimeout(function () {
         resolve('success')
       }, 20)

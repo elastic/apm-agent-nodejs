@@ -43,7 +43,7 @@ client.query('SELECT $1::text as message', ['bye'], (err, res) => {
 
 // 2. Using streaming style, i.e. using a `Submittable` as node-postgres calls it.
 const t2 = apm.startTransaction('t2')
-var q = client.query(new Query('select 1 + 1 as solution'))
+const q = client.query(new Query('select 1 + 1 as solution'))
 q.on('error', (err) => {
   console.log('[t2] Failure: err is', err)
   t2.end()

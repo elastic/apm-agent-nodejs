@@ -12,7 +12,7 @@
 //     `- span "cwd"
 //     `- span "readdir"
 
-var apm = require('../../../../').start({ // elastic-apm-node
+const apm = require('../../../../').start({ // elastic-apm-node
   captureExceptions: false,
   metricsInterval: 0,
   cloudProvider: 'none',
@@ -30,7 +30,7 @@ const fsp = require('fs').promises
 let t1
 
 function getCwd () {
-  var s2 = apm.startSpan('cwd')
+  const s2 = apm.startSpan('cwd')
   try {
     return Promise.resolve(process.cwd())
   } finally {
@@ -47,7 +47,7 @@ function main () {
     .then(cwd => {
       assert(apm.currentTransaction === t1)
       assert(apm.currentSpan === null)
-      var s3 = apm.startSpan('readdir')
+      const s3 = apm.startSpan('readdir')
       assert(apm.currentSpan === s3)
       return fsp.readdir(cwd)
         .finally(() => {

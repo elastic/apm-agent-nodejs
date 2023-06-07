@@ -6,9 +6,9 @@
 
 'use strict'
 
-var path = require('path')
-var Agent = require('../lib/agent')
-var agent = new Agent()
+const path = require('path')
+const Agent = require('../lib/agent')
+const agent = new Agent()
 agent._config({})
 
 exports.stacktrace = function (t, topFunctionName, topAbsPath, stacktrace, _agent, isError) {
@@ -21,17 +21,17 @@ exports.stacktrace = function (t, topFunctionName, topAbsPath, stacktrace, _agen
 }
 
 function stackFrameValidator (t, agent, isError) {
-  var conf = agent._conf
+  const conf = agent._conf
   return function (frame) {
-    var nodeCore = !path.isAbsolute(frame.abs_path)
+    const nodeCore = !path.isAbsolute(frame.abs_path)
 
-    var lines = isError
+    const lines = isError
       ? (frame.library_frame ? conf.sourceLinesErrorLibraryFrames : conf.sourceLinesErrorAppFrames)
       : (frame.library_frame ? conf.sourceLinesSpanLibraryFrames : conf.sourceLinesSpanAppFrames)
 
-    var shouldHaveSource = !nodeCore && lines !== 0
+    const shouldHaveSource = !nodeCore && lines !== 0
 
-    var expectedKeys = shouldHaveSource
+    const expectedKeys = shouldHaveSource
       ? ['filename', 'lineno', 'function', 'library_frame', 'abs_path', 'pre_context', 'context_line', 'post_context']
       : ['filename', 'lineno', 'function', 'library_frame', 'abs_path']
     t.deepEqual(Object.keys(frame), expectedKeys, 'frame should have expected properties')

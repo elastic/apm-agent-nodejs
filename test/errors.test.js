@@ -247,7 +247,7 @@ tape.test('#createAPMError({ logMessage: ... })', function (suite) {
 })
 
 tape.test('#_moduleNameFromFrames()', function (suite) {
-  var cases = [
+  const cases = [
     {
       name: 'unnamespaced package',
       frames: [
@@ -355,7 +355,7 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
 })
 
 tape.test('#attributesFromErr()', function (suite) {
-  var cases = [
+  const cases = [
     // 'err' is an Error instance, or a function that returns one.
     {
       name: 'no attrs',

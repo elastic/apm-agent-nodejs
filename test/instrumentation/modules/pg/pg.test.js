@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-var agent = require('../../../..').start({
+const agent = require('../../../..').start({
   serviceName: 'test-pg',
   captureExceptions: false,
   metricsInterval: 0,
@@ -20,25 +20,25 @@ var agent = require('../../../..').start({
   spanCompressionEnabled: false
 })
 
-var semver = require('semver')
-var once = require('once')
-var pgVersion = require('pg/package.json').version
+const semver = require('semver')
+const once = require('once')
+const pgVersion = require('pg/package.json').version
 
-var test = require('tape')
-var pg = require('pg')
-var utils = require('./_utils')
-var mockClient = require('../../../_mock_http_client')
-var findObjInArray = require('../../../_utils').findObjInArray
+const test = require('tape')
+const pg = require('pg')
+const utils = require('./_utils')
+const mockClient = require('../../../_mock_http_client')
+const findObjInArray = require('../../../_utils').findObjInArray
 
-var queryable, connectionDone
-var factories = [
+let queryable, connectionDone
+const factories = [
   [createClient, 'client'],
   [createPoolAndConnect, 'pool']
 ]
 
 factories.forEach(function (f) {
-  var factory = f[0]
-  var type = f[1]
+  const factory = f[0]
+  const type = f[1]
 
   test('pg.' + factory.name, function (t) {
     t.on('end', teardown)
@@ -115,7 +115,7 @@ factories.forEach(function (f) {
         })
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
-          var trans = agent.startTransaction('foo')
+          const trans = agent.startTransaction('foo')
           queryable.query(sql)
           t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           setTimeout(function () {
@@ -136,7 +136,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var stream = queryable.query(new pg.Query(sql))
+          const stream = queryable.query(new pg.Query(sql))
           t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
@@ -152,7 +152,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var stream = queryable.query(sql)
+          const stream = queryable.query(sql)
           t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
@@ -166,7 +166,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var stream = queryable.query(sql, [1])
+          const stream = queryable.query(sql, [1])
           t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
@@ -180,7 +180,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + 1 AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var stream = queryable.query({ text: sql })
+          const stream = queryable.query({ text: sql })
           t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
@@ -194,7 +194,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var stream = queryable.query({ text: sql }, [1])
+          const stream = queryable.query({ text: sql }, [1])
           t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
@@ -208,7 +208,7 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + $1 AS solution'
         factory(function () {
           agent.startTransaction('foo')
-          var stream = queryable.query({ text: sql, values: [1] })
+          const stream = queryable.query({ text: sql, values: [1] })
           t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
           basicQueryStream(stream, t)
         })
@@ -227,7 +227,7 @@ factories.forEach(function (f) {
           var sql = 'SELECT 1 + 1 AS solution'
           factory(function () {
             agent.startTransaction('foo')
-            var p = queryable.query(sql)
+            const p = queryable.query(sql)
             t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
@@ -241,7 +241,7 @@ factories.forEach(function (f) {
           var sql = 'SELECT 1 + $1 AS solution'
           factory(function () {
             agent.startTransaction('foo')
-            var p = queryable.query(sql, [1])
+            const p = queryable.query(sql, [1])
             t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
@@ -255,7 +255,7 @@ factories.forEach(function (f) {
           var sql = 'SELECT 1 + 1 AS solution'
           factory(function () {
             agent.startTransaction('foo')
-            var p = queryable.query({ text: sql })
+            const p = queryable.query({ text: sql })
             t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
@@ -269,7 +269,7 @@ factories.forEach(function (f) {
           var sql = 'SELECT 1 + $1 AS solution'
           factory(function () {
             agent.startTransaction('foo')
-            var p = queryable.query({ text: sql }, [1])
+            const p = queryable.query({ text: sql }, [1])
             t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
@@ -283,7 +283,7 @@ factories.forEach(function (f) {
           var sql = 'SELECT 1 + $1 AS solution'
           factory(function () {
             agent.startTransaction('foo')
-            var p = queryable.query({ text: sql, values: [1] })
+            const p = queryable.query({ text: sql, values: [1] })
             t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query')
             basicQueryPromise(p, t)
           })
@@ -297,7 +297,7 @@ factories.forEach(function (f) {
           t.strictEqual(data.transactions.length, 1)
           t.strictEqual(data.spans.length, 3)
 
-          var trans = data.transactions[0]
+          const trans = data.transactions[0]
 
           t.strictEqual(trans.name, 'foo')
           data.spans.forEach(function (span) {
@@ -311,8 +311,8 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + $1 AS solution'
 
         factory(function () {
-          var n = 0
-          var trans = agent.startTransaction('foo')
+          let n = 0
+          const trans = agent.startTransaction('foo')
 
           queryable.query(sql, [1], function (err, result, fields) {
             t.error(err)
@@ -341,7 +341,7 @@ factories.forEach(function (f) {
       resetAgent(6, function (data) {
         t.strictEqual(data.transactions.length, 3)
         t.strictEqual(data.spans.length, 3)
-        var names = data.transactions.map(function (trans) {
+        const names = data.transactions.map(function (trans) {
           return trans.name
         }).sort()
         t.deepEqual(names, ['bar', 'baz', 'foo'])
@@ -360,7 +360,7 @@ factories.forEach(function (f) {
 
       factory(function () {
         setImmediate(function () {
-          var trans = agent.startTransaction('foo')
+          const trans = agent.startTransaction('foo')
           queryable.query(sql, [1], function (err, result, fields) {
             t.error(err)
             t.strictEqual(result.rows[0].solution, 2)
@@ -369,7 +369,7 @@ factories.forEach(function (f) {
         })
 
         setImmediate(function () {
-          var trans = agent.startTransaction('bar')
+          const trans = agent.startTransaction('bar')
           queryable.query(sql, [2], function (err, result, fields) {
             t.error(err)
             t.strictEqual(result.rows[0].solution, 3)
@@ -378,7 +378,7 @@ factories.forEach(function (f) {
         })
 
         setImmediate(function () {
-          var trans = agent.startTransaction('baz')
+          const trans = agent.startTransaction('baz')
           queryable.query(sql, [3], function (err, result, fields) {
             t.error(err)
             t.strictEqual(result.rows[0].solution, 4)
@@ -396,7 +396,7 @@ test('simultaneous queries on different connections', function (t) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 3)
 
-    var trans = data.transactions[0]
+    const trans = data.transactions[0]
 
     t.strictEqual(trans.name, 'foo')
     data.spans.forEach(function (span) {
@@ -410,8 +410,8 @@ test('simultaneous queries on different connections', function (t) {
   var sql = 'SELECT 1 + $1 AS solution'
 
   createPool(function (connector) {
-    var n = 0
-    var trans = agent.startTransaction('foo')
+    let n = 0
+    const trans = agent.startTransaction('foo')
 
     connector(function (err, client, release) {
       t.error(err)
@@ -497,7 +497,7 @@ if (typeof pg.Client.prototype.query.on !== 'function' &&
       teardown()
     })
 
-    var sql = 'select \'not-a-uuid\' = \'00000000-0000-0000-0000-000000000000\'::uuid'
+    const sql = 'select \'not-a-uuid\' = \'00000000-0000-0000-0000-000000000000\'::uuid'
 
     createPool(function (connector) {
       agent.startTransaction('foo')
@@ -533,7 +533,7 @@ function basicQueryCallback (t) {
 }
 
 function basicQueryStream (stream, t) {
-  var results = 0
+  let results = 0
   stream.on('error', function (err) {
     t.ok(agent.currentSpan === null, 'pg span should not be active in user code')
     t.error(err)
@@ -565,10 +565,10 @@ function assertBasicQuery (t, sql, data) {
   t.strictEqual(data.transactions.length, 1)
   t.strictEqual(data.spans.length, 1)
 
-  var trans = data.transactions[0]
+  const trans = data.transactions[0]
   t.strictEqual(trans.name, 'foo')
 
-  var span = data.spans[0]
+  const span = data.spans[0]
   assertSpan(t, span, sql)
 }
 
@@ -608,7 +608,7 @@ function createClient (cb) {
 
 function createPool (cb) {
   setup(function () {
-    var connector
+    let connector
 
     if (semver.satisfies(pgVersion, '<6.0.0')) {
       queryable = pg
@@ -619,7 +619,7 @@ function createPool (cb) {
         }, cb)
       }
     } else {
-      var pool = new pg.Pool({
+      const pool = new pg.Pool({
         database: 'test_elastic_apm',
         user: process.env.PGUSER || 'postgres'
       })

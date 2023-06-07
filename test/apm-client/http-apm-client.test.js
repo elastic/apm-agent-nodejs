@@ -8,7 +8,7 @@
 
 const test = require('tape')
 
-var apmVersion = require('../../package').version
+const apmVersion = require('../../package').version
 
 const { userAgentFromConf } = require('../../lib/apm-client/http-apm-client')
 

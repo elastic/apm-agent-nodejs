@@ -164,7 +164,7 @@ function assertTransaction (t, sql, data, spanCount) {
   t.strictEqual(data.transactions.length, 1, 'transaction count')
   t.strictEqual(data.spans.length, spanCount, 'span count')
 
-  var trans = data.transactions[0]
+  const trans = data.transactions[0]
   t.strictEqual(trans.name, 'foo', 'transaction name')
 }
 
@@ -197,7 +197,7 @@ function assertBasicQuery (t, sql, data) {
 function assertPreparedQuery (t, sql, data) {
   assertTransaction(t, sql, data, 2)
 
-  var spans = sortSpansBy(data.spans, span => span.name)
+  const spans = sortSpansBy(data.spans, span => span.name)
   assertQuery(t, sql, spans[0], 'SELECT')
   assertQuery(t, sql, spans[1], 'SELECT (prepare)')
 }

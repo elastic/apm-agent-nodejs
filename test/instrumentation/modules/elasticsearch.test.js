@@ -12,9 +12,9 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 }
 
 process.env.ELASTIC_APM_TEST = true
-var host = (process.env.ES_HOST || 'localhost') + ':9200'
+const host = (process.env.ES_HOST || 'localhost') + ':9200'
 
-var agent = require('../../..').start({
+const agent = require('../../..').start({
   serviceName: 'test-elasticsearch-legacy-client',
   captureExceptions: false,
   metricsInterval: 0,
@@ -24,20 +24,20 @@ var agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
-var elasticsearch = require('elasticsearch')
-var pkg = require('elasticsearch/package.json')
-var semver = require('semver')
-var test = require('tape')
+const elasticsearch = require('elasticsearch')
+const pkg = require('elasticsearch/package.json')
+const semver = require('semver')
+const test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
-var findObjInArray = require('../../_utils').findObjInArray
+const mockClient = require('../../_mock_http_client')
+const findObjInArray = require('../../_utils').findObjInArray
 
 test('client.ping with callback', function userLandCode (t) {
   resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
+  const client = new elasticsearch.Client({ host: host })
 
   client.ping(function (err) {
     t.error(err, 'no error from client.ping')
@@ -52,7 +52,7 @@ test('client.ping with promise', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
+  const client = new elasticsearch.Client({ host: host })
 
   client.ping().then(function () {
     agent.endTransaction()
@@ -68,8 +68,8 @@ test('client.search with callback', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
-  var query = { q: 'pants' }
+  const client = new elasticsearch.Client({ host: host })
+  const query = { q: 'pants' }
 
   client.search(query, function (err) {
     t.error(err)
@@ -84,10 +84,10 @@ test('client.search with abort', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
-  var query = { q: 'pants' }
+  const client = new elasticsearch.Client({ host: host })
+  const query = { q: 'pants' }
 
-  var req = client.search(query)
+  const req = client.search(query)
   t.ok(agent.currentSpan === null, 'no currentSpan in sync code after elasticsearch client command')
 
   setImmediate(() => {
@@ -99,7 +99,7 @@ test('client.search with abort', function userLandCode (t) {
 
 if (semver.satisfies(pkg.version, '>= 10')) {
   test('client.searchTemplate with callback', function userLandCode (t) {
-    var body = {
+    const body = {
       source: {
         query: {
           query_string: {
@@ -121,7 +121,7 @@ if (semver.satisfies(pkg.version, '>= 10')) {
 
     agent.startTransaction('foo')
 
-    var client = new elasticsearch.Client({ host: host })
+    const client = new elasticsearch.Client({ host: host })
 
     client.searchTemplate({ body }, function (err) {
       t.error(err)
@@ -134,7 +134,7 @@ if (semver.satisfies(pkg.version, '>= 10')) {
 
 if (semver.satisfies(pkg.version, '>= 13')) {
   test('client.msearch with callback', function userLandCode (t) {
-    var body = [
+    const body = [
       {},
       {
         query: {
@@ -145,13 +145,13 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       }
     ]
 
-    var statement = body.map(JSON.stringify).join('\n') + '\n'
+    const statement = body.map(JSON.stringify).join('\n') + '\n'
 
     resetAgent(assertApmDataAndEnd(t, 'POST /_msearch', `http://${host}/_msearch`, statement))
 
     agent.startTransaction('foo')
 
-    var client = new elasticsearch.Client({ host: host })
+    const client = new elasticsearch.Client({ host: host })
 
     client.msearch({ body }, function (err) {
       t.error(err)
@@ -162,7 +162,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
   })
 
   test('client.msearchTempate with callback', function userLandCode (t) {
-    var body = [
+    const body = [
       {},
       {
         source: {
@@ -178,13 +178,13 @@ if (semver.satisfies(pkg.version, '>= 13')) {
       }
     ]
 
-    var statement = body.map(JSON.stringify).join('\n') + '\n'
+    const statement = body.map(JSON.stringify).join('\n') + '\n'
 
     resetAgent(assertApmDataAndEnd(t, 'POST /_msearch/template', `http://${host}/_msearch/template`, statement))
 
     agent.startTransaction('foo')
 
-    var client = new elasticsearch.Client({ host: host })
+    const client = new elasticsearch.Client({ host: host })
 
     client.msearchTemplate({ body }, function (err) {
       t.error(err)
@@ -200,7 +200,7 @@ test('client.count with callback', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
+  const client = new elasticsearch.Client({ host: host })
   client.count(function (err) {
     t.error(err)
     agent.endTransaction()
@@ -212,7 +212,7 @@ test('client.count with callback', function userLandCode (t) {
 test('client with host=<array of host:port>', function userLandCode (t) {
   resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
-  var client = new elasticsearch.Client({ host: [host] })
+  const client = new elasticsearch.Client({ host: [host] })
   client.ping(function (err) {
     t.error(err)
     agent.endTransaction()
@@ -224,7 +224,7 @@ test('client with host=<array of host:port>', function userLandCode (t) {
 test('client with hosts=<array of host:port>', function userLandCode (t) {
   resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
-  var client = new elasticsearch.Client({ hosts: [host, host] })
+  const client = new elasticsearch.Client({ hosts: [host, host] })
   client.ping(function (err) {
     t.error(err)
     agent.endTransaction()
@@ -240,7 +240,7 @@ test('client with hosts="http://host:port"', function userLandCode (t) {
   if (!hostWithProto.startsWith('http')) {
     hostWithProto = 'http://' + host
   }
-  var client = new elasticsearch.Client({ hosts: hostWithProto })
+  const client = new elasticsearch.Client({ hosts: hostWithProto })
   client.ping(function (err) {
     t.error(err)
     agent.endTransaction()
@@ -253,7 +253,7 @@ test('client with host=<array of object>', function userLandCode (t) {
   resetAgent(assertApmDataAndEnd(t, 'HEAD /', `http://${host}/`))
   agent.startTransaction('foo')
   const [hostname, port] = host.split(':')
-  var client = new elasticsearch.Client({
+  const client = new elasticsearch.Client({
     host: [{ host: hostname, port: port }]
   })
   client.ping(function (err) {
@@ -269,7 +269,7 @@ function assertApmDataAndEnd (t, expectedName, expectedHttpUrl, expectedDbStatem
     t.strictEqual(data.transactions.length, 1, 'should have 1 transaction')
     t.strictEqual(data.spans.length, 1, 'should have 1 span')
 
-    var trans = data.transactions[0]
+    const trans = data.transactions[0]
 
     t.strictEqual(trans.name, 'foo', 'transaction name should be "foo"')
     t.strictEqual(trans.type, 'custom', 'transaction type should be "custom"')

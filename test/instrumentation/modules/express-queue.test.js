@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-var agent = require('../../..').start({
+const agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -19,23 +19,23 @@ var agent = require('../../..').start({
   centralConfig: false
 })
 
-var http = require('http')
+const http = require('http')
 
-var express = require('express')
-var queue = require('express-queue')
-var test = require('tape')
+const express = require('express')
+const queue = require('express-queue')
+const test = require('tape')
 
-var mockClient = require('../../_mock_http_client')
-var findObjInArray = require('../../_utils').findObjInArray
+const mockClient = require('../../_mock_http_client')
+const findObjInArray = require('../../_utils').findObjInArray
 
 test('express-queue', function (t) {
   resetAgent(done(t, 'done'))
 
-  var app = express()
+  const app = express()
   app.use(queue({ activeLimit: 1, queuedLimit: -1 }))
   app.get('/', function (req, res) {
     setImmediate(function () {
-      var span = agent.startSpan('foo', 'bar')
+      const span = agent.startSpan('foo', 'bar')
       setImmediate(function () {
         if (span) span.end()
         res.end('done')
@@ -44,10 +44,10 @@ test('express-queue', function (t) {
   })
 
   var server = app.listen(function () {
-    var port = server.address().port
-    var path = '/'
+    const port = server.address().port
+    const path = '/'
 
-    var tasks = []
+    const tasks = []
     for (let i = 0; i < 5; i++) {
       tasks.push(request(port, path))
     }
@@ -63,7 +63,7 @@ test('express-queue', function (t) {
 
 function request (port, path) {
   return new Promise((resolve, reject) => {
-    var opts = {
+    const opts = {
       method: 'GET',
       port: port,
       path: path,
@@ -72,8 +72,8 @@ function request (port, path) {
       }
     }
 
-    var req = http.request(opts, function (res) {
-      var chunks = []
+    const req = http.request(opts, function (res) {
+      const chunks = []
       res.on('error', reject)
       res.on('data', chunks.push.bind(chunks))
       res.on('end', function () {
@@ -98,7 +98,7 @@ function done (t, query) {
       t.strictEqual(span.name, 'foo', 'span name should be foo')
       t.strictEqual(span.type, 'bar', 'span name should be bar')
 
-      var offset = span.timestamp - trans.timestamp
+      const offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000, 'span should have valid timings')
     })
 

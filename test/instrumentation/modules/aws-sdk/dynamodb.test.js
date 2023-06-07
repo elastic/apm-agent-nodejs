@@ -182,7 +182,7 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         endpoint: `http://localhost:${port}`
       })
       agent.startTransaction('myTransaction')
-      var ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
+      const ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
       var params = {
         TableName: 'fixture-table',
         KeyConditionExpression: 'id = :foo',
@@ -230,7 +230,7 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         endpoint: `http://localhost:${port}`
       })
       agent.startTransaction('myTransaction')
-      var ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
+      const ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
       ddb.listTables(function (err, data) {
         t.ok(agent.currentSpan === null, 'no currentSpan in ddb.listTables callback')
         t.error(err)
@@ -260,8 +260,8 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         endpoint: `http://localhost:${port}`
       })
       agent.startTransaction('myTransaction')
-      var ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
-      var params = {
+      const ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
+      const params = {
         TableName: 'fixture-table',
         KeyConditionExpression: 'id = :foo',
         ExpressionAttributeValues: {
@@ -292,8 +292,8 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         AWS.config.update({
           endpoint: `http://localhost:${port}`
         })
-        var ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
-        var params = {
+        const ddb = new AWS.DynamoDB({ apiVersion: '2012-08-10' })
+        const params = {
           TableName: 'fixture-table',
           KeyConditionExpression: 'id = :foo',
           ExpressionAttributeValues: {

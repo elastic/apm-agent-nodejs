@@ -205,8 +205,8 @@ function done (t, query) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 1)
 
-    var trans = data.transactions[0]
-    var span = data.spans[0]
+    const trans = data.transactions[0]
+    const span = data.spans[0]
 
     t.strictEqual(trans.name, query + ' (/)')
     t.strictEqual(trans.type, 'graphql')
@@ -215,7 +215,7 @@ function done (t, query) {
     t.strictEqual(span.subtype, 'graphql')
     t.strictEqual(span.action, 'execute')
 
-    var offset = span.timestamp - trans.timestamp
+    const offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()

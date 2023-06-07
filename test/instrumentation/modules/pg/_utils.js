@@ -6,13 +6,13 @@
 
 'use strict'
 
-var Client = require('pg').Client
+const Client = require('pg').Client
 
 exports.reset = reset
 exports.loadData = loadData
 
 function reset (cb) {
-  var client = new Client({
+  const client = new Client({
     database: 'postgres',
     user: process.env.PGUSER || 'postgres'
   })
@@ -31,7 +31,7 @@ function reset (cb) {
 }
 
 function loadData (cb) {
-  var client = new Client({
+  const client = new Client({
     database: 'test_elastic_apm',
     user: process.env.PGUSER || 'postgres'
   })
@@ -41,7 +41,7 @@ function loadData (cb) {
     client.query('CREATE TABLE test (id serial NOT NULL, c1 varchar, c2 varchar)', function (err) {
       if (err) throw err
 
-      var sql = 'INSERT INTO test (c1, c2) ' +
+      const sql = 'INSERT INTO test (c1, c2) ' +
         'VALUES (\'foo1\', \'bar1\'), ' +
                '(\'foo2\', \'bar2\'), ' +
                '(\'foo3\', \'bar3\'), ' +

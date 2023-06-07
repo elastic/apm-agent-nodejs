@@ -122,12 +122,12 @@ tape.test('integration/end-to-end span compression tests', function (suite) {
       t.end()
     })
 
-    var t0 = agent.startTransaction('t0')
+    const t0 = agent.startTransaction('t0')
     setImmediate(() => {
-      var s1 = t0.startSpan('s1', 'db', 'mysql', { exitSpan: true })
+      const s1 = t0.startSpan('s1', 'db', 'mysql', { exitSpan: true })
       setTimeout(() => {
         s1.end()
-        var s2 = t0.startSpan('s2', 'db', 'mysql', { exitSpan: true })
+        const s2 = t0.startSpan('s2', 'db', 'mysql', { exitSpan: true })
         setTimeout(() => {
           s2.end()
           t0.end()

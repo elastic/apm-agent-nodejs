@@ -18,13 +18,13 @@
 //   t.end()
 // })
 
-var Agent = require('../lib/agent')
-var symbols = require('../lib/symbols')
+const Agent = require('../lib/agent')
+const symbols = require('../lib/symbols')
 
-var Filters = require('object-filter-sequence')
+const Filters = require('object-filter-sequence')
 
-var uncaughtExceptionListeners = process._events.uncaughtException
-var agent
+let uncaughtExceptionListeners = process._events.uncaughtException
+let agent
 
 module.exports = setup
 

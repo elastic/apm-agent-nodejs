@@ -16,13 +16,13 @@ const agent = require('../../../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-var http = require('http')
+const http = require('http')
 
-var test = require('tape')
+const test = require('tape')
 
-var assert = require('./_assert')
-var mockClient = require('../../../_mock_http_client')
-var { TraceParent } = require('../../../../lib/tracecontext/traceparent')
+const assert = require('./_assert')
+const mockClient = require('../../../_mock_http_client')
+const { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
 test('http.createServer', function (t) {
   t.test('direct callback', function (t) {
@@ -112,8 +112,8 @@ test('new http.Server', function (t) {
 
 function sendRequest (server, timeout, useElasticHeader) {
   server.listen(function () {
-    var port = server.address().port
-    var context = TraceParent.startOrResume(null, {
+    const port = server.address().port
+    const context = TraceParent.startOrResume(null, {
       transactionSampleRate: 1.0
     })
 
@@ -125,7 +125,7 @@ function sendRequest (server, timeout, useElasticHeader) {
       headers.traceparent = contextValue
     }
 
-    var req = http.request({
+    const req = http.request({
       hostname: 'localhost',
       port: port,
       path: '/',
@@ -147,9 +147,9 @@ function sendRequest (server, timeout, useElasticHeader) {
 
 function onRequest (t, useElasticHeader) {
   return function onRequestHandler (req, res) {
-    var traceparent = useElasticHeader ? req.headers['elastic-apm-traceparent'] : req.headers.traceparent
-    var parent = TraceParent.fromString(traceparent)
-    var traceContext = agent.currentTransaction._context
+    const traceparent = useElasticHeader ? req.headers['elastic-apm-traceparent'] : req.headers.traceparent
+    const parent = TraceParent.fromString(traceparent)
+    const traceContext = agent.currentTransaction._context
     t.strictEqual(parent.traceId, traceContext.traceparent.traceId, 'traceContext trace id matches parent trace id')
     t.notEqual(parent.id, traceContext.traceparent.id, 'traceContext id does not match parent id')
     t.strictEqual(parent.flags, traceContext.traceparent.flags, 'traceContext flags matches parent flags')

@@ -25,8 +25,8 @@ if (typeof fs.realpath.native === 'function') {
   // Before https://github.com/elastic/apm-agent-nodejs/issues/2401 this test
   // would crash with asyncHooks=false
   tape.test('fs.realpath.native', function (t) {
-    var trans = apm.startTransaction('t0')
-    var span = apm.startSpan('s1')
+    const trans = apm.startTransaction('t0')
+    const span = apm.startSpan('s1')
     fs.realpath.native(__filename, function (err, resolvedPath) {
       t.error(err, 'no error from fs.realpath.native')
       t.equal(apm.currentSpan, span, 'apm.currentSpan is as expected')

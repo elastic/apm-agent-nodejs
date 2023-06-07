@@ -20,14 +20,14 @@ const agent = require('../..').start({
   transport () { return new CapturingTransport() }
 })
 
-var test = require('tape')
+const test = require('tape')
 
-var Transaction = require('../../lib/instrumentation/transaction')
+const Transaction = require('../../lib/instrumentation/transaction')
 const Span = require('../../lib/instrumentation/span')
 
 test('init', function (t) {
   t.test('name and type', function (t) {
-    var trans = new Transaction(agent, 'name', 'type')
+    const trans = new Transaction(agent, 'name', 'type')
     t.ok(/^[\da-f]{16}$/.test(trans.id))
     t.ok(/^[\da-f]{32}$/.test(trans.traceId))
     t.ok(/^[\da-f]{2}-[\da-f]{32}-[\da-f]{16}-[\da-f]{2}$/.test(trans.traceparent))
@@ -39,8 +39,8 @@ test('init', function (t) {
   })
 
   t.test('options.childOf', function (t) {
-    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
-    var trans = new Transaction(agent, 'name', 'type', { childOf })
+    const childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    const trans = new Transaction(agent, 'name', 'type', { childOf })
     t.strictEqual(trans._context.traceparent.version, '00')
     t.strictEqual(trans._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(trans._context.traceparent.id, '00f067aa0ba902b7')
@@ -102,7 +102,7 @@ test('init', function (t) {
 })
 
 test('#setUserContext', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   t.strictEqual(trans._user, null)
   trans.setUserContext()
   t.strictEqual(trans._user, null)
@@ -118,7 +118,7 @@ test('#setUserContext', function (t) {
 })
 
 test('#setCustomContext', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   t.strictEqual(trans._custom, null)
   trans.setCustomContext()
   t.strictEqual(trans._custom, null)
@@ -135,7 +135,7 @@ test('#setCustomContext', function (t) {
 
 test('#setLabel', function (t) {
   t.test('valid', function (t) {
-    var trans = new Transaction(agent)
+    const trans = new Transaction(agent)
     t.strictEqual(trans._labels, null)
     t.strictEqual(trans.setLabel(), false)
     t.strictEqual(trans._labels, null)
@@ -149,7 +149,7 @@ test('#setLabel', function (t) {
   })
 
   t.test('invalid', function (t) {
-    var trans = new Transaction(agent)
+    const trans = new Transaction(agent)
     t.strictEqual(trans._labels, null)
     t.strictEqual(trans.setLabel(), false)
     t.strictEqual(trans._labels, null)
@@ -164,7 +164,7 @@ test('#setLabel', function (t) {
 })
 
 test('#addLabels', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   t.strictEqual(trans._labels, null)
 
   t.strictEqual(trans.setLabel(), false)
@@ -198,8 +198,8 @@ test('#addLabels', function (t) {
 
 test('#startSpan()', function (t) {
   t.test('basic', function (t) {
-    var trans = new Transaction(agent)
-    var span = trans.startSpan('span-name', 'span-type')
+    const trans = new Transaction(agent)
+    const span = trans.startSpan('span-name', 'span-type')
     t.ok(span, 'should return a span')
     t.strictEqual(span.name, 'span-name')
     t.strictEqual(span.type, 'span-type')
@@ -207,20 +207,20 @@ test('#startSpan()', function (t) {
   })
 
   t.test('options.startTime', function (t) {
-    var trans = new Transaction(agent)
-    var startTime = Date.now() - 1000
-    var span = trans.startSpan(null, null, { startTime })
+    const trans = new Transaction(agent)
+    const startTime = Date.now() - 1000
+    const span = trans.startSpan(null, null, { startTime })
     span.end()
-    var duration = span.duration()
+    const duration = span.duration()
     t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     t.end()
   })
 
   t.test('options.childOf', function (t) {
-    var trans = new Transaction(agent)
-    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
-    var span = trans.startSpan(null, null, { childOf })
+    const trans = new Transaction(agent)
+    const childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    const span = trans.startSpan(null, null, { childOf })
     t.strictEqual(span._context.traceparent.version, '00')
     t.strictEqual(span._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7')
@@ -233,7 +233,7 @@ test('#startSpan()', function (t) {
 test('#end() - with result', function (t) {
   agent._apmClient.clear()
 
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   trans.end('test-result')
   t.strictEqual(trans.ended, true)
   t.strictEqual(trans.result, 'test-result')
@@ -248,7 +248,7 @@ test('#end() - with result', function (t) {
 test('#duration()', function (t) {
   agent._apmClient.clear()
 
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   setTimeout(function () {
     trans.end()
 
@@ -263,17 +263,17 @@ test('#duration()', function (t) {
 })
 
 test('#duration() - un-ended transaction', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   t.strictEqual(trans.duration(), null)
   t.end()
 })
 
 test('custom start time', function (t) {
-  var startTime = Date.now() - 1000
-  var trans = new Transaction(agent, null, null, { startTime })
+  const startTime = Date.now() - 1000
+  const trans = new Transaction(agent, null, null, { startTime })
   trans.end()
 
-  var duration = trans.duration()
+  const duration = trans.duration()
   t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
   t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
 
@@ -281,9 +281,9 @@ test('custom start time', function (t) {
 })
 
 test('#end(time)', function (t) {
-  var startTime = Date.now() - 1000
-  var endTime = startTime + 2000.123
-  var trans = new Transaction(agent, null, null, { startTime })
+  const startTime = Date.now() - 1000
+  const endTime = startTime + 2000.123
+  const trans = new Transaction(agent, null, null, { startTime })
   trans.end(null, endTime)
 
   t.strictEqual(trans.duration(), 2000.123)
@@ -292,7 +292,7 @@ test('#end(time)', function (t) {
 })
 
 test('#setDefaultName() - with initial value', function (t) {
-  var trans = new Transaction(agent, 'default-1')
+  const trans = new Transaction(agent, 'default-1')
   t.strictEqual(trans.name, 'default-1')
   trans.setDefaultName('default-2')
   t.strictEqual(trans.name, 'default-2')
@@ -300,7 +300,7 @@ test('#setDefaultName() - with initial value', function (t) {
 })
 
 test('#setDefaultName() - no initial value', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   t.strictEqual(trans.name, 'unnamed')
   trans.setDefaultName('default')
   t.strictEqual(trans.name, 'default')
@@ -308,7 +308,7 @@ test('#setDefaultName() - no initial value', function (t) {
 })
 
 test('name - custom first, then default', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   trans.name = 'custom'
   trans.setDefaultName('default')
   t.strictEqual(trans.name, 'custom')
@@ -316,7 +316,7 @@ test('name - custom first, then default', function (t) {
 })
 
 test('name - default first, then custom', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   trans.setDefaultName('default')
   trans.name = 'custom'
   t.strictEqual(trans.name, 'custom')
@@ -334,7 +334,7 @@ test('parallel transactions', function (t) {
   }
 
   setImmediate(function () {
-    var t1 = new Transaction(agent, 'first')
+    const t1 = new Transaction(agent, 'first')
     setTimeout(function () {
       t1.end()
       finish()
@@ -342,7 +342,7 @@ test('parallel transactions', function (t) {
   })
 
   setTimeout(function () {
-    var t2 = new Transaction(agent, 'second')
+    const t2 = new Transaction(agent, 'second')
     setTimeout(function () {
       t2.end()
     }, 25)
@@ -350,7 +350,7 @@ test('parallel transactions', function (t) {
 })
 
 test('#_encode() - un-ended', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   t.strictEqual(trans._encode(), null, 'cannot encode un-ended transaction')
   t.end()
 })
@@ -358,8 +358,8 @@ test('#_encode() - un-ended', function (t) {
 test('#_encode() - ended', function (t) {
   agent._apmClient.clear()
 
-  var trans = new Transaction(agent)
-  var timerStart = trans._timer.start
+  const trans = new Transaction(agent)
+  const timerStart = trans._timer.start
   trans.end()
 
   const payload = agent._apmClient.transactions[0]
@@ -382,8 +382,8 @@ test('#_encode() - ended', function (t) {
 test('#_encode() - with meta data', function (t) {
   agent._apmClient.clear()
 
-  var trans = new Transaction(agent, 'foo', 'bar')
-  var timerStart = trans._timer.start
+  const trans = new Transaction(agent, 'foo', 'bar')
+  const timerStart = trans._timer.start
   trans.result = 'baz'
   trans.setUserContext({ foo: 1 })
   trans.setLabel('bar', 1)
@@ -410,8 +410,8 @@ test('#_encode() - with meta data', function (t) {
 test('#_encode() - http request meta data', function (t) {
   agent._apmClient.clear()
 
-  var trans = new Transaction(agent)
-  var timerStart = trans._timer.start
+  const trans = new Transaction(agent)
+  const timerStart = trans._timer.start
   trans.req = mockRequest()
   trans.end()
 
@@ -469,10 +469,10 @@ test('#_encode() - http request meta data', function (t) {
 })
 
 test('#_encode() - with spans', function (t) {
-  var trans = new Transaction(agent, 'single-name', 'type')
-  var timerStart = trans._timer.start
+  const trans = new Transaction(agent, 'single-name', 'type')
+  const timerStart = trans._timer.start
   trans.result = 'result'
-  var span = trans.startSpan('span')
+  const span = trans.startSpan('span')
   span.end()
   trans.end()
 
@@ -505,12 +505,12 @@ test('#_encode() - dropped spans', function (t) {
   const oldTransactionMaxSpans = agent._conf.transactionMaxSpans
   agent._conf.transactionMaxSpans = 2
 
-  var trans = new Transaction(agent, 'single-name', 'type')
-  var timerStart = trans._timer.start
+  const trans = new Transaction(agent, 'single-name', 'type')
+  const timerStart = trans._timer.start
   trans.result = 'result'
-  var span0 = trans.startSpan('s0', 'type0')
+  const span0 = trans.startSpan('s0', 'type0')
   trans.startSpan('s1', 'type1')
-  var span2 = trans.startSpan('s2', { exitSpan: true })
+  const span2 = trans.startSpan('s2', { exitSpan: true })
   if (span2.isRecorded()) {
     t.fail('should have dropped the span')
   }
@@ -549,12 +549,12 @@ test('#_encode() - not sampled', function (t) {
   const oldTransactionSampleRate = agent._conf.transactionSampleRate
   agent._conf.transactionSampleRate = 0
 
-  var trans = new Transaction(agent, 'single-name', 'type')
-  var timerStart = trans._timer.start
+  const trans = new Transaction(agent, 'single-name', 'type')
+  const timerStart = trans._timer.start
   trans.result = 'result'
   trans.req = mockRequest()
   trans.res = mockResponse()
-  var span = trans.startSpan()
+  const span = trans.startSpan()
   t.notOk(span)
   trans.end()
 
@@ -572,7 +572,7 @@ test('#_encode() - not sampled', function (t) {
 })
 
 test('#ids', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   t.deepLooseEqual(trans.ids, {
     'trace.id': trans.traceId,
     'transaction.id': trans.id
@@ -581,7 +581,7 @@ test('#ids', function (t) {
 })
 
 test('#toString()', function (t) {
-  var trans = new Transaction(agent)
+  const trans = new Transaction(agent)
   t.strictEqual(trans.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`)
   t.end()
 })
@@ -667,8 +667,8 @@ function mockRequest () {
 }
 
 function mockResponse () {
-  var statusLine = 'HTTP/1.1 200 OK\r\n'
-  var msgHeaders = 'Date: Tue, 10 Jun 2014 07:29:20 GMT\r\n' +
+  const statusLine = 'HTTP/1.1 200 OK\r\n'
+  const msgHeaders = 'Date: Tue, 10 Jun 2014 07:29:20 GMT\r\n' +
     'Connection: keep-alive\r\n' +
     'Transfer-Encoding: chunked\r\n' +
     'Age: foo\r\n' +

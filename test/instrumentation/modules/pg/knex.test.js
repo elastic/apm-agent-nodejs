@@ -13,7 +13,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 
 process.env.ELASTIC_APM_TEST = true
 
-var agent = require('../../../..').start({
+const agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -23,8 +23,8 @@ var agent = require('../../../..').start({
   spanCompressionEnabled: false
 })
 
-var knexVersion = require('knex/package').version
-var semver = require('semver')
+const knexVersion = require('knex/package').version
+const semver = require('semver')
 
 // knex 0.18.0 min supported node is v8, knex 0.21.0 min supported node is v10, knex 1.0.0 min supported node is v12
 if ((semver.gte(knexVersion, '0.18.0') && semver.lt(process.version, '8.6.0')) ||
@@ -40,16 +40,16 @@ if (semver.gte(knexVersion, '0.95.0') && agent._conf.contextManager === 'patch')
   process.exit()
 }
 
-var Knex = require('knex')
-var test = require('tape')
+const Knex = require('knex')
+const test = require('tape')
 
-var utils = require('./_utils')
-var mockClient = require('../../../_mock_http_client')
+const utils = require('./_utils')
+const mockClient = require('../../../_mock_http_client')
 
-var transNo = 0
-var knex
+let transNo = 0
+let knex
 
-var selectTests = [
+const selectTests = [
   'knex.select().from(\'test\')',
   'knex.select(\'c1\', \'c2\').from(\'test\')',
   'knex.column(\'c1\', \'c2\').select().from(\'test\')',
@@ -60,7 +60,7 @@ if (semver.gte(knexVersion, '0.11.0')) {
   selectTests.push('knex.select().from(\'test\').timeout(10000)')
 }
 
-var insertTests = [
+const insertTests = [
   'knex(\'test\').insert({c1: \'test1\', c2: \'test2\'})'
 ]
 
@@ -73,7 +73,7 @@ selectTests.forEach(function (source) {
     createClient(t, function userLandCode () {
       agent.startTransaction('foo' + ++transNo)
 
-      var query = eval(source) // eslint-disable-line no-eval
+      const query = eval(source) // eslint-disable-line no-eval
 
       query.then(function (rows) {
         t.strictEqual(rows.length, 5)
@@ -98,7 +98,7 @@ insertTests.forEach(function (source) {
     createClient(t, function userLandCode () {
       agent.startTransaction('foo' + ++transNo)
 
-      var query = eval(source) // eslint-disable-line no-eval
+      const query = eval(source) // eslint-disable-line no-eval
 
       query.then(function (result) {
         t.strictEqual(result.command, 'INSERT')
@@ -119,10 +119,10 @@ test('knex.raw', function (t) {
   createClient(t, function userLandCode () {
     agent.startTransaction('foo' + ++transNo)
 
-    var query = knex.raw('SELECT * FROM "test"')
+    const query = knex.raw('SELECT * FROM "test"')
 
     query.then(function (result) {
-      var rows = result.rows
+      const rows = result.rows
       t.strictEqual(rows.length, 5)
       rows.forEach(function (row, i) {
         t.strictEqual(row.c1, 'foo' + (i + 1))
@@ -138,7 +138,7 @@ test('knex.raw', function (t) {
 function assertBasicQuery (t, data) {
   t.strictEqual(data.transactions.length, 1)
 
-  var trans = data.transactions[0]
+  const trans = data.transactions[0]
 
   t.strictEqual(trans.name, 'foo' + transNo)
 

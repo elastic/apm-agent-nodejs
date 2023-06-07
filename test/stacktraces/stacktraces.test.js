@@ -325,7 +325,7 @@ tape.test('gatherStackTrace()', function (suite) {
     }
   }
 
-  var cases = [
+  const cases = [
     {
       lines: 0,
       expectedContext: {}

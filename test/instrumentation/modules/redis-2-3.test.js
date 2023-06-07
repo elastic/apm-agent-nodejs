@@ -11,14 +11,14 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-var redisVersion = require('redis/package.json').version
-var semver = require('semver')
+const redisVersion = require('redis/package.json').version
+const semver = require('semver')
 if (semver.gte(redisVersion, '4.0.0')) {
   console.log('# SKIP: skipping redis-2-3.test.js tests >=4.0.0')
   process.exit(0)
 }
 
-var agent = require('../../..').start({
+const agent = require('../../..').start({
   serviceName: 'test-redis-2-3',
   captureExceptions: false,
   metricsInterval: 0,
@@ -26,12 +26,12 @@ var agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
-var redis = require('redis')
+const redis = require('redis')
 
-var test = require('tape')
+const test = require('tape')
 
-var findObjInArray = require('../../_utils').findObjInArray
-var mockClient = require('../../_mock_http_client')
+const findObjInArray = require('../../_utils').findObjInArray
+const mockClient = require('../../_mock_http_client')
 
 test('redis', function (t) {
   resetAgent(function (data) {
@@ -41,9 +41,9 @@ test('redis', function (t) {
     // does *not* have spans for each of the client commands. It *possibly*
     // (with contextManager="patch" it doesn't) has an "INFO" span for the
     // internal INFO command the RedisClient setup does.
-    var trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
+    let trans = findObjInArray(data.transactions, 'name', 'transBeforeClient')
     t.ok(trans, 'have "transBeforeClient" transaction')
-    var spans = data.spans.filter(s => s.transaction_id === trans.id)
+    let spans = data.spans.filter(s => s.transaction_id === trans.id)
       .filter(s => s.name !== 'INFO')
     t.equal(spans.length, 0, 'there are no non-INFO spans in the "transBeforeClient" transaction')
 
@@ -56,7 +56,7 @@ test('redis', function (t) {
     t.ok(trans, 'have "transAfterClient" transaction')
     t.strictEqual(trans.result, 'success', 'trans.result')
 
-    var expectedSpanNames = [
+    const expectedSpanNames = [
       'FLUSHALL',
       'SET',
       'SET',
@@ -65,7 +65,7 @@ test('redis', function (t) {
       'HKEYS'
     ]
     t.equal(spans.length, expectedSpanNames.length, 'have the expected number of spans')
-    for (var i = 0; i < expectedSpanNames.length; i++) {
+    for (let i = 0; i < expectedSpanNames.length; i++) {
       const expectedName = expectedSpanNames[i]
       const span = spans[i]
       t.strictEqual(span.transaction_id, trans.id, 'span.transaction_id')
@@ -82,7 +82,7 @@ test('redis', function (t) {
       t.deepEqual(span.context.db, { type: 'redis' }, 'span.context.db')
       t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction')
 
-      var offset = span.timestamp - trans.timestamp
+      const offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000,
         'span ended before transaction ended')
     }
@@ -98,16 +98,16 @@ test('redis', function (t) {
   // currentTransaction for the async task in which the redis client is created.
   // That's what `transBeforeClient` is: to make sure we *don't* get
   // double-spans.
-  var transBeforeClient = agent.startTransaction('transBeforeClient')
+  const transBeforeClient = agent.startTransaction('transBeforeClient')
 
-  var client = redis.createClient('6379', process.env.REDIS_HOST)
+  const client = redis.createClient('6379', process.env.REDIS_HOST)
 
-  var transAfterClient = agent.startTransaction('transAfterClient')
+  const transAfterClient = agent.startTransaction('transAfterClient')
 
   client.flushall(function (err, reply) {
     t.error(err, 'no flushall error')
     t.strictEqual(reply, 'OK', 'reply is OK')
-    var done = 0
+    let done = 0
 
     client.set('string key', 'string val', function (err, reply) {
       t.error(err)
@@ -166,12 +166,12 @@ if (semver.satisfies(redisVersion, '>=3.0.0')) {
 
     // Simulate a redis client error with `enable_offline_queue: false` and a
     // quick `.set()` before the client connection ready.
-    var client = redis.createClient({
+    const client = redis.createClient({
       host: process.env.REDIS_HOST,
       port: '6379',
       enable_offline_queue: false
     })
-    var t0 = agent.startTransaction('t0')
+    const t0 = agent.startTransaction('t0')
     client.set('k', 'v', function (err, reply) {
       t.ok(err, 'got error from client.set')
       t.equal(err.name, 'AbortError', 'error.name')
@@ -201,9 +201,9 @@ test('client.cmd(...) call signatures', function (t) {
     t.end()
   })
 
-  var client = redis.createClient('6379', process.env.REDIS_HOST)
+  const client = redis.createClient('6379', process.env.REDIS_HOST)
   client.on('ready', function () {
-    var t0 = agent.startTransaction('t0')
+    const t0 = agent.startTransaction('t0')
 
     // Use different call signatures to trigger the different forms of arguments
     // to the internal RedisClient.send_command that we are wrapping.
@@ -235,9 +235,9 @@ if (semver.satisfies(redisVersion, '<=2.4.2')) {
       t.end()
     })
 
-    var client = redis.createClient('6379', process.env.REDIS_HOST)
+    const client = redis.createClient('6379', process.env.REDIS_HOST)
     client.on('ready', function () {
-      var t0 = agent.startTransaction('t0')
+      const t0 = agent.startTransaction('t0')
 
       client.get(['k', myCb])
 

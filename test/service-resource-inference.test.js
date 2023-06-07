@@ -28,7 +28,7 @@ test('setup: current trans', t => {
   t.end()
 })
 
-var testData = require('./fixtures/json-specs/service_resource_inference.json')
+const testData = require('./fixtures/json-specs/service_resource_inference.json')
 testData.forEach(testDatum => {
   test(testDatum.failure_message, t => {
     // 1. Create a span according to `testDatum.span`.
