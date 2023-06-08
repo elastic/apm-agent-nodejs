@@ -82,30 +82,14 @@ test('Mongoose simple test', async function (t) {
     const subtypeOk = spans.reduce((prev, s) => prev && s.subtype === 'mongodb', true)
 
     t.equal(trans.name, 't0', 'transaction.name')
+    t.ok(parentTransOk, 'spans parent_id')
+    t.ok(subtypeOk, 'spans subtype')
     // v5 sends : insert, find, delete
     // v5.4.0 added a new command to end sessions:  insert, find, delete, admin.$cmd.command
     // on v6 a new command `create` appears:  create, insert, find, delete, admin.$cmd.command
-    // on v6.6 the create command happens after (maybe because is only used when needed?)
-    // t.ok(spans.length >= 3, 'number of spans ' + spans.length)
-    t.ok(parentTransOk, 'spans parent_id')
-    t.ok(subtypeOk, 'spans subtype')
-
-    // TODO: there seems to be situations where create is sent after insert, seems to be internal to the pacakge
-    // narrowed the problem to v6. v5 and v7 have the spans in order always
-    // if (spans.length < 5) {
-    //   t.equal(spans[0].name, 'elasticapm.tests.insert', 'span.name')
-    //   t.equal(spans[1].name, 'elasticapm.tests.find', 'span.name')
-    //   // Between v5.5.10 and 5.9.2 the operation `remove` was renamed to `delete`
-    //   // we normalize it
-    //   t.equal(spans[2].name.replace('.remove', '.delete'), 'elasticapm.tests.delete', 'span.name')
-    // } else {
-    //   t.equal(spans[0].name, 'elasticapm.tests.create', 'span.name')
-    //   t.equal(spans[1].name, 'elasticapm.tests.insert', 'span.name')
-    //   t.equal(spans[2].name, 'elasticapm.tests.find', 'span.name')
-    //   t.equal(spans[3].name, 'elasticapm.tests.delete', 'span.name delete')
-    // }
     t.ok(spanExists(spans, 'elasticapm.tests.insert'), 'insert span present')
     t.ok(spanExists(spans, 'elasticapm.tests.find'), 'find span present')
+    // Between v5.5.10 and 5.9.2 the operation `remove` was renamed to `delete`
     t.ok(
       spanExists(spans, 'elasticapm.tests.remove') || spanExists(spans, 'elasticapm.tests.delete'),
       'delete span present'
