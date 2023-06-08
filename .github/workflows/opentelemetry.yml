@@ -2,7 +2,7 @@ name: OpenTelemetry Export Trace
 
 on:
   workflow_run:
-    workflows: [Edge, Test, Lint, Snapshoty, release, TAV, tav-command, updatecli]
+    workflows: [edge, test, snapshoty, release, TAV, tav-command, updatecli]
     types: [completed]
 
 jobs:
