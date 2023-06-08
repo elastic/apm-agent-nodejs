@@ -180,6 +180,7 @@
     "mkdirp": "^0.5.1",
     "mongodb": "^5.1.0",
     "mongodb-core": "^3.2.7",
+    "mongoose": "^7.2.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.2.4",
     "ndjson": "^1.5.0",
