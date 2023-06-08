@@ -20,7 +20,6 @@
     "test:tav": "(cd test/opentelemetry-metrics/fixtures && tav --quiet) && (cd test/opentelemetry-bridge && tav --quiet) && (cd test/instrumentation/modules/next/a-nextjs-app && tav --quiet) && tav --quiet",
     "test:types": "tsc --project test/types/tsconfig.json && tsc --project test/types/transpile/tsconfig.json && node test/types/transpile/index.js && tsc --project test/types/transpile-default/tsconfig.json && node test/types/transpile-default/index.js  # requires node >=12.20",
     "test:babel": "babel test/babel/src.js --out-file test/babel/out.js && cd test/babel && node out.js",
-    "test:esm": "node --experimental-modules test/esm/index.mjs",
     "bench": "./test/benchmarks/scripts/run-benchmarks.sh",
     "bench:ci": "./test/benchmarks/scripts/run-benchmarks-ci.sh",
     "local:start": "./test/script/local-deps-start.sh",
