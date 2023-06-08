@@ -15,7 +15,6 @@ if (isFastifyIncompat) {
 const test = require('tape')
 
 const { runTestFixtures } = require('../../../_utils')
-const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
 
 const testFixtures = [
   {
@@ -49,7 +48,7 @@ const testFixtures = [
       ELASTIC_APM_CAPTURE_BODY: 'all'
     },
     versionRanges: {
-      node: NODE_VER_RANGE_IITM,
+      node: '^14.13.1 || ^16.0.0 || ^18.1.0 <20', // NODE_VER_RANGE_IITM minus node v12 because top-level `await` is used
       // IITM and `import fastify from 'fastify'` fail without https://github.com/fastify/fastify/pull/2590
       // I would have thought the only failure would be with a named import,
       // so I don't completely understand the issue.

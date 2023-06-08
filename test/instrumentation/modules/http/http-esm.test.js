@@ -92,7 +92,7 @@ const testFixtures = [
       ELASTIC_APM_USE_PATH_AS_TRANSACTION_NAME: 'true'
     },
     versionRanges: {
-      node: NODE_VER_RANGE_IITM
+      node: '^14.13.1 || ^16.0.0 || ^18.1.0 <20' // NODE_VER_RANGE_IITM minus node v12 because top-level `await` is used
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
