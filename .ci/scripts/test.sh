@@ -195,7 +195,7 @@ elif [[ -n "${TAV_MODULE}" ]]; then
     tedious)
       DOCKER_COMPOSE_FILE=docker-compose-mssql.yml
       ;;
-    mongodb|mongodb-core)
+    mongodb|mongodb-core|mongoose)
       DOCKER_COMPOSE_FILE=docker-compose-mongodb.yml
       ;;
     pg|knex)
