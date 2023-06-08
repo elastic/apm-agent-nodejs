@@ -61,8 +61,30 @@ const testFixtures = [
     }
   },
   {
-    name: 'https.createServer ESM',
+    name: 'http.createServer ESM',
     script: './fixtures/use-http-server.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1', // skip warnings about --experimental-loader
+      ELASTIC_APM_USE_PATH_AS_TRANSACTION_NAME: 'true'
+    },
+    versionRanges: {
+      node: NODE_VER_RANGE_IITM
+    },
+    verbose: false,
+    checkApmServer: (t, apmServer) => {
+      t.equal(apmServer.events.length, 2, 'expected number of APM server events')
+      t.ok(apmServer.events[0].metadata, 'metadata')
+      const trans = apmServer.events[1].transaction
+      t.equal(trans.name, 'GET /', 'transaction.name')
+      t.equal(trans.type, 'request', 'transaction.type')
+      t.equal(trans.outcome, 'success', 'transaction.outcome')
+    }
+  },
+  {
+    name: 'http.createServer ESM import()',
+    script: './fixtures/use-dynamic-import.mjs',
     cwd: __dirname,
     env: {
       NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
