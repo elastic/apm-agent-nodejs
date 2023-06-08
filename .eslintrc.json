@@ -35,6 +35,7 @@
     "tmp",
     // These files use top-level await, which is *fine* for ESM files but, IIUC,
     // not supported by eslint until v8.
-    "/test/instrumentation/modules/fixtures/use-fastify.mjs"
+    "/test/instrumentation/modules/fixtures/use-fastify.mjs",
+    "/test/instrumentation/modules/http/fixtures/use-dynamic-import.mjs"
   ]
 }
