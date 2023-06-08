@@ -44,7 +44,7 @@ module.exports = function (expected, done) {
 
       if (timerBased) resetTimer()
       else if (this._writes.length === expected) done(this._writes)
-      else if (this._writes.length > expected) throw new Error('too many writes')
+      else if (this._writes.length > expected) throw new Error(`too many writes (${this._writes.length})`)
     },
     sendSpan (span, cb) {
       this._write({ span }, cb)
