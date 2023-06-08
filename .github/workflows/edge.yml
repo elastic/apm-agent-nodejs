@@ -1,5 +1,5 @@
 ---
-name: Edge
+name: edge
 
 # The "Edge Test" is a run of the agent test suite with pre-release builds
 # of node.js, if available and useful. "Pre-release" builds are release
