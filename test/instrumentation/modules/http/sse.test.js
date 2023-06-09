@@ -16,11 +16,11 @@ const agent = require('../../../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-const http = require('http')
+var http = require('http')
 
-const test = require('tape')
+var test = require('tape')
 
-const mockClient = require('../../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 test('normal response', function (t) {
   resetAgent(2, function (data) {
@@ -28,8 +28,8 @@ test('normal response', function (t) {
     t.end()
   })
 
-  const server = http.createServer(function (req, res) {
-    const span = agent.startSpan('foo', 'bar')
+  var server = http.createServer(function (req, res) {
+    var span = agent.startSpan('foo', 'bar')
     setTimeout(function () {
       if (span) span.end()
       res.end()
@@ -45,9 +45,9 @@ test('SSE response with explicit headers', function (t) {
     t.end()
   })
 
-  const server = http.createServer(function (req, res) {
+  var server = http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/event-stream' })
-    const span = agent.startSpan('foo', 'bar')
+    var span = agent.startSpan('foo', 'bar')
     setTimeout(function () {
       if (span) span.end()
       res.end()
@@ -63,10 +63,10 @@ test('SSE response with implicit headers', function (t) {
     t.end()
   })
 
-  const server = http.createServer(function (req, res) {
+  var server = http.createServer(function (req, res) {
     res.setHeader('Content-type', 'text/event-stream; foo')
     res.write('data: hello world\n\n')
-    const span = agent.startSpan('foo', 'bar')
+    var span = agent.startSpan('foo', 'bar')
     setTimeout(function () {
       if (span) span.end()
       res.end()
@@ -80,8 +80,8 @@ function assertNonSSEResponse (t, data) {
   t.strictEqual(data.transactions.length, 1)
   t.strictEqual(data.spans.length, 1)
 
-  const trans = data.transactions[0]
-  const span = data.spans[0]
+  var trans = data.transactions[0]
+  var span = data.spans[0]
 
   t.strictEqual(trans.name, 'GET unknown route')
   t.strictEqual(trans.context.request.method, 'GET')
@@ -93,7 +93,7 @@ function assertSSEResponse (t, data) {
   t.strictEqual(data.transactions.length, 1)
   t.strictEqual(data.spans.length, 0)
 
-  const trans = data.transactions[0]
+  var trans = data.transactions[0]
 
   t.strictEqual(trans.name, 'GET unknown route')
   t.strictEqual(trans.context.request.method, 'GET')
@@ -101,7 +101,7 @@ function assertSSEResponse (t, data) {
 
 function request (server) {
   server.listen(function () {
-    const port = server.address().port
+    var port = server.address().port
     http.request({ port: port }, function (res) {
       res.on('end', function () {
         server.close()

@@ -6,13 +6,13 @@
 
 'use strict'
 
-const semver = require('semver')
+var semver = require('semver')
 
 // 'hapi' and '@hapi/hapi' versions have some challenges with compat with
 // various versions of node. This method tells you if the current versions
 // are incompatible.
 function isHapiIncompat (moduleName) {
-  const hapiVersion = require(`${moduleName}/package.json`).version
+  var hapiVersion = require(`${moduleName}/package.json`).version
 
   // hapi 17+ requires Node.js 8.9.0 or higher
   if (semver.lt(process.version, '8.9.0') && semver.gte(hapiVersion, '17.0.0')) {
@@ -39,7 +39,7 @@ function isHapiIncompat (moduleName) {
   // https://github.com/nodejs/node/issues/20516
   //
   // NOTE: Do not use semver.satisfies, as it does not match prereleases
-  const parsed = semver.parse(process.version)
+  var parsed = semver.parse(process.version)
   if (parsed.major === 10 && parsed.minor >= 0 && parsed.minor < 8) {
     return true
   }

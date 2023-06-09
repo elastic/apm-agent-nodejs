@@ -12,7 +12,7 @@ function assert (t, data) {
   t.strictEqual(data.transactions.length, 1, 'should have one transaction')
   t.strictEqual(data.spans.length, 0, 'should have zero spans')
 
-  const trans = data.transactions[0]
+  var trans = data.transactions[0]
 
   t.strictEqual(trans.name, 'GET unknown route', 'should have expected transaction name')
   t.strictEqual(trans.type, 'request', 'should have expected transaction type')

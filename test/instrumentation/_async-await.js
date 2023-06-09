@@ -10,7 +10,7 @@ exports.promise = promise
 exports.nonPromise = nonPromise
 
 async function promise (delay) {
-  const res = await promise2(delay)
+  var res = await promise2(delay)
   return res.toUpperCase()
 }
 
@@ -23,6 +23,6 @@ async function promise2 (delay) {
 }
 
 async function nonPromise () {
-  const res = await 'success'
+  var res = await 'success'
   return res.toUpperCase()
 }

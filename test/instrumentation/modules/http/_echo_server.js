@@ -6,20 +6,20 @@
 
 'use strict'
 
-const http = require('http')
-const https = require('https')
-const zlib = require('zlib')
+var http = require('http')
+var https = require('https')
+var zlib = require('zlib')
 
-const pem = require('https-pem')
+var pem = require('https-pem')
 
 process.title = 'echo-server'
 
-const server = process.argv[2] === 'https'
+var server = process.argv[2] === 'https'
   ? https.createServer(pem)
   : http.createServer()
 
 server.on('request', function (req, res) {
-  const acceptEncoding = req.headers['accept-encoding'] || ''
+  var acceptEncoding = req.headers['accept-encoding'] || ''
 
   if (/\bdeflate\b/.test(acceptEncoding)) {
     res.writeHead(200, { 'Content-Encoding': 'deflate' })

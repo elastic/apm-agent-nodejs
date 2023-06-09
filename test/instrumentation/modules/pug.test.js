@@ -13,7 +13,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 
 process.env.ELASTIC_APM_TEST = true
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -22,18 +22,18 @@ const agent = require('../../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-const pug = require('pug')
-const test = require('tape')
+var pug = require('pug')
+var test = require('tape')
 
-const mockClient = require('../../_mock_http_client')
-const findObjInArray = require('../../_utils').findObjInArray
+var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
 
 test('pug compile and render', function userLandCode (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 2)
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
 
     t.ok(/^foo\d$/.test(trans.name))
     t.strictEqual(trans.type, 'custom')
@@ -55,8 +55,8 @@ test('pug compile and render', function userLandCode (t) {
 
   agent.startTransaction('foo1')
 
-  const template = pug.compile('p Hello, #{name}!')
-  const output = template({ name: 'world' })
+  var template = pug.compile('p Hello, #{name}!')
+  var output = template({ name: 'world' })
   t.strictEqual(output, '<p>Hello, world!</p>', 'compiled string should be Hello,world!')
   agent.endTransaction()
   agent.flush()

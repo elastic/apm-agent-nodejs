@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: true,
@@ -19,13 +19,13 @@ const agent = require('../../..').start({
   centralConfig: false
 })
 
-const http = require('http')
+var http = require('http')
 
-const express = require('express')
-const finalhandler = require('finalhandler')
-const test = require('tape')
+var express = require('express')
+var finalhandler = require('finalhandler')
+var test = require('tape')
 
-const mockClient = require('../../_mock_http_client')
+var mockClient = require('../../_mock_http_client')
 
 function makeTest (makeServer) {
   return function (t) {
@@ -34,14 +34,14 @@ function makeTest (makeServer) {
     resetAgent(function (data) {
       t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
-      const trans = data.transactions[0]
+      var trans = data.transactions[0]
       t.strictEqual(trans.name, 'GET /', 'transaction name is GET /')
       t.strictEqual(trans.type, 'request', 'transaction type is request')
     })
 
-    let request
-    const error = new Error('wat')
-    const captureError = agent.captureError
+    var request
+    var error = new Error('wat')
+    var captureError = agent.captureError
     agent.captureError = function (err, data) {
       t.strictEqual(err, error, 'has the expected error')
       t.ok(data, 'captured data with error')
@@ -51,12 +51,12 @@ function makeTest (makeServer) {
       agent.captureError = captureError
     })
 
-    const server = makeServer(error, req => {
+    var server = makeServer(error, req => {
       request = req
     })
 
     server.listen(function () {
-      const port = server.address().port
+      var port = server.address().port
       http.get(`http://localhost:${port}`, res => {
         t.strictEqual(res.statusCode, 500)
         res.resume()
@@ -71,7 +71,7 @@ function makeTest (makeServer) {
 
 test('basic http', makeTest((error, setRequest) => {
   return http.createServer((req, res) => {
-    const done = finalhandler(req, res)
+    var done = finalhandler(req, res)
     agent.setTransactionName('GET /')
     setRequest(req)
     done(error)
@@ -79,7 +79,7 @@ test('basic http', makeTest((error, setRequest) => {
 }))
 
 test('express done', makeTest((error, setRequest) => {
-  const app = express()
+  var app = express()
 
   app.get('/', (req, res, next) => {
     setRequest(req)
@@ -90,7 +90,7 @@ test('express done', makeTest((error, setRequest) => {
 }))
 
 test('express throw', makeTest((error, setRequest) => {
-  const app = express()
+  var app = express()
 
   app.get('/', (req, res, next) => {
     setRequest(req)
@@ -101,7 +101,7 @@ test('express throw', makeTest((error, setRequest) => {
 }))
 
 test('express with error handler', makeTest((error, setRequest) => {
-  const app = express()
+  var app = express()
 
   app.get('/', (req, res, next) => {
     setRequest(req)

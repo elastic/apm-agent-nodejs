@@ -15,7 +15,7 @@ const {
 } = require('./_shared')
 const agent = require('../..').start(createAgentConfig())
 
-const isHapiIncompat = require('../_is_hapi_incompat')
+var isHapiIncompat = require('../_is_hapi_incompat')
 if (isHapiIncompat('@hapi/hapi')) {
   // Skip out of this test.
   process.exit()

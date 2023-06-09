@@ -6,35 +6,35 @@
 
 'use strict'
 
-const agent = require('../../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false
 })
 
-const zlib = require('zlib')
-const http = require('http')
-const PassThrough = require('stream').PassThrough
+var zlib = require('zlib')
+var http = require('http')
+var PassThrough = require('stream').PassThrough
 
-const mimicResponse = require('mimic-response')
-const test = require('tape')
+var mimicResponse = require('mimic-response')
+var test = require('tape')
 
-const echoServer = require('./_echo_server_util').echoServer
+var echoServer = require('./_echo_server_util').echoServer
 
 test('https://github.com/opbeat/opbeat-node/issues/179', function (t) {
   echoServer(function (cp, port) {
-    const opts = {
+    var opts = {
       port: port,
       headers: { 'Accept-Encoding': 'gzip' }
     }
 
     agent.startTransaction()
 
-    const req = http.request(opts, function (res) {
+    var req = http.request(opts, function (res) {
       process.nextTick(function () {
-        const unzip = zlib.createUnzip()
-        const stream = new PassThrough()
+        var unzip = zlib.createUnzip()
+        var stream = new PassThrough()
 
         // This would previously copy res.emit to the stream object which
         // shouldn't happen since res.emit is supposed to be on the res.prototype

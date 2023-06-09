@@ -6,14 +6,14 @@
 
 'use strict'
 
-const agent = require('../..').start({
+var agent = require('../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false
 })
 
-const test = require('tape')
+var test = require('tape')
 
-const ins = agent._instrumentation
+var ins = agent._instrumentation
 
 require('./_shared-promise-tests')(test, Promise, ins)

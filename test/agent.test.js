@@ -12,11 +12,11 @@
 // we do not need to start the agent at the top of file. Instead, tests create
 // separate instances of the Agent.
 
-const http = require('http')
-const path = require('path')
-const os = require('os')
+var http = require('http')
+var path = require('path')
+var os = require('os')
 
-const test = require('tape')
+var test = require('tape')
 
 const Agent = require('../lib/agent')
 const {
@@ -28,7 +28,7 @@ const {
 const { findObjInArray } = require('./_utils')
 const { MockAPMServer } = require('./_mock_apm_server')
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client')
-const packageJson = require('../package.json')
+var packageJson = require('../package.json')
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
 // that is unhelpful for these tests.
@@ -170,7 +170,7 @@ test('#startTransaction()', function (t) {
 
   t.test('name, type, subtype and action', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction('foo', 'type', 'subtype', 'action')
+    var trans = agent.startTransaction('foo', 'type', 'subtype', 'action')
     t.strictEqual(trans.name, 'foo')
     t.strictEqual(trans.type, 'type')
     t.strictEqual(trans.subtype, 'subtype')
@@ -181,10 +181,10 @@ test('#startTransaction()', function (t) {
 
   t.test('options.startTime', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const startTime = Date.now() - 1000
-    const trans = agent.startTransaction('foo', 'bar', { startTime })
+    var startTime = Date.now() - 1000
+    var trans = agent.startTransaction('foo', 'bar', { startTime })
     trans.end()
-    const duration = trans.duration()
+    var duration = trans.duration()
     t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     agent.destroy()
@@ -193,8 +193,8 @@ test('#startTransaction()', function (t) {
 
   t.test('options.childOf', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
-    const trans = agent.startTransaction('foo', 'bar', { childOf })
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var trans = agent.startTransaction('foo', 'bar', { childOf })
     t.strictEqual(trans._context.traceparent.version, '00')
     t.strictEqual(trans._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(trans._context.traceparent.id, '00f067aa0ba902b7')
@@ -217,7 +217,7 @@ test('#endTransaction()', function (t) {
 
   t.test('with no result', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(trans.ended, false)
     agent.endTransaction()
     t.strictEqual(trans.ended, true)
@@ -228,7 +228,7 @@ test('#endTransaction()', function (t) {
 
   t.test('with explicit result', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(trans.ended, false)
     agent.endTransaction('done')
     t.strictEqual(trans.ended, true)
@@ -239,9 +239,9 @@ test('#endTransaction()', function (t) {
 
   t.test('with custom endTime', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const startTime = Date.now() - 1000
-    const endTime = startTime + 2000.123
-    const trans = agent.startTransaction('foo', 'bar', { startTime })
+    var startTime = Date.now() - 1000
+    var endTime = startTime + 2000.123
+    var trans = agent.startTransaction('foo', 'bar', { startTime })
     agent.endTransaction('done', endTime)
     t.strictEqual(trans.duration(), 2000.123)
     agent.destroy()
@@ -261,7 +261,7 @@ test('#currentTransaction', function (t) {
 
   t.test('with active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(agent.currentTransaction, trans)
     agent.endTransaction()
     agent.destroy()
@@ -279,8 +279,8 @@ test('#currentSpan', function (t) {
 
   t.test('with binding span', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
-    const span = agent.startSpan()
+    var trans = agent.startTransaction()
+    var span = agent.startSpan()
     t.strictEqual(agent.currentSpan, span)
     span.end()
     trans.end()
@@ -290,8 +290,8 @@ test('#currentSpan', function (t) {
 
   t.test('with active span', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
-    const span = agent.startSpan()
+    var trans = agent.startTransaction()
+    var span = agent.startSpan()
     process.nextTick(() => {
       t.strictEqual(agent.currentSpan, span)
       span.end()
@@ -314,7 +314,7 @@ test('#currentTraceparent', function (t) {
 
   t.test('with active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(agent.currentTraceparent, trans.traceparent)
     agent.endTransaction()
     agent.destroy()
@@ -324,7 +324,7 @@ test('#currentTraceparent', function (t) {
   t.test('with active span', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
-    const span = agent.startSpan()
+    var span = agent.startSpan()
     t.strictEqual(agent.currentTraceparent, span.traceparent)
     span.end()
     agent.endTransaction()
@@ -346,7 +346,7 @@ test('#currentTraceIds', function (t) {
 
   t.test('with active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': trans.traceId,
       'transaction.id': trans.id
@@ -360,7 +360,7 @@ test('#currentTraceIds', function (t) {
   t.test('with active span', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
-    const span = agent.startSpan()
+    var span = agent.startSpan()
     t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': span.traceId,
       'span.id': span.id
@@ -387,7 +387,7 @@ test('#setTransactionName', function (t) {
 
   t.test('active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     agent.setTransactionName('foo')
     t.strictEqual(trans.name, 'foo')
     agent.destroy()
@@ -408,7 +408,7 @@ test('#startSpan()', function (t) {
   t.test('active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
-    const span = agent.startSpan('span-name', 'type', 'subtype', 'action')
+    var span = agent.startSpan('span-name', 'type', 'subtype', 'action')
     t.ok(span, 'should return a span')
     t.strictEqual(span.name, 'span-name')
     t.strictEqual(span.type, 'type')
@@ -421,7 +421,7 @@ test('#startSpan()', function (t) {
   t.test('startSpan with no name results in span.name="unnamed"', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
-    const span = agent.startSpan()
+    var span = agent.startSpan()
     t.ok(span, 'should return a span')
     t.strictEqual(span.name, 'unnamed')
     t.strictEqual(span.type, 'custom')
@@ -434,10 +434,10 @@ test('#startSpan()', function (t) {
   t.test('options.startTime', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
-    const startTime = Date.now() - 1000
-    const span = agent.startSpan('span-with-startTime', null, { startTime })
+    var startTime = Date.now() - 1000
+    var span = agent.startSpan('span-with-startTime', null, { startTime })
     span.end()
-    const duration = span.duration()
+    var duration = span.duration()
     t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`) // we've seen 998.752 in the wild
     t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`)
     agent.destroy()
@@ -447,8 +447,8 @@ test('#startSpan()', function (t) {
   t.test('options.childOf', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.startTransaction()
-    const childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
-    const span = agent.startSpan(null, null, { childOf })
+    var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'
+    var span = agent.startSpan(null, null, { childOf })
     t.strictEqual(span._context.traceparent.version, '00')
     t.strictEqual(span._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736')
     t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7')
@@ -472,7 +472,7 @@ test('#setUserContext()', function (t) {
 
   t.test('active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(agent.setUserContext({ foo: 1 }), true)
     t.deepEqual(trans._user, { foo: 1 })
     agent.destroy()
@@ -492,7 +492,7 @@ test('#setCustomContext()', function (t) {
 
   t.test('active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(agent.setCustomContext({ foo: 1 }), true)
     t.deepEqual(trans._custom, { foo: 1 })
     agent.destroy()
@@ -586,7 +586,7 @@ test('#setLabel()', function (t) {
 
   t.test('active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(agent.setLabel('foo', 1), true)
     t.deepEqual(trans._labels, { foo: '1' })
     agent.destroy()
@@ -595,7 +595,7 @@ test('#setLabel()', function (t) {
 
   t.test('active transaction without label stringification', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(agent.setLabel('positive', 1, false), true)
     t.strictEqual(agent.setLabel('negative', -10, false), true)
     t.strictEqual(agent.setLabel('boolean-true', true, false), true)
@@ -625,7 +625,7 @@ test('#addLabels()', function (t) {
 
   t.test('active transaction', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(agent.addLabels({ foo: 1, bar: 2 }), true)
     t.strictEqual(agent.addLabels({ foo: 3 }), true)
     t.deepEqual(trans._labels, { foo: '3', bar: '2' })
@@ -635,7 +635,7 @@ test('#addLabels()', function (t) {
 
   t.test('active transaction without label stringification', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     t.strictEqual(agent.addLabels({ foo: 1, bar: true }, false), true)
     t.deepEqual(trans._labels, { foo: 1, bar: true })
     agent.destroy()
@@ -1073,7 +1073,7 @@ test('#flush()', function (t) {
         { serverUrl }
       ))
       const t0 = agent.startTransaction('t0')
-      for (let i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         agent.startSpan('s').end()
       }
       t0.end()
@@ -1081,7 +1081,7 @@ test('#flush()', function (t) {
         t.error(err, 'no error passed to agent.flush callback')
         t.equal(apmServer.events.length, 12, 'apmServer got 12 events')
         t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0')
-        for (let i = 2; i < 12; i++) {
+        for (var i = 2; i < 12; i++) {
           t.equal(apmServer.events[i].span.name, 's', `event[${i}] is span s`)
         }
 
@@ -1335,7 +1335,7 @@ test('#captureError()', function (t) {
 
   t.test('should not fail on a non string err.message', function (t) {
     const agent = new Agent().start(ceAgentOpts)
-    const err = new Error()
+    var err = new Error()
     err.message = { foo: 'bar' }
     agent.captureError(err, function () {
       t.equal(apmServer.events.length, 2, 'APM server got 2 events')
@@ -1863,7 +1863,7 @@ test('#handleUncaughtExceptions()', function (t) {
   t.test('should not add more than one listener for the uncaughtException event', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport)
     agent.handleUncaughtExceptions()
-    const before = process._events.uncaughtException.length
+    var before = process._events.uncaughtException.length
     agent.handleUncaughtExceptions()
     t.strictEqual(process._events.uncaughtException.length, before)
 
@@ -1951,7 +1951,7 @@ test('patches', function (t) {
     agent.clearPatches('express')
     agent.start(agentOptsNoopTransport)
 
-    const replacement = {
+    var replacement = {
       foo: 'bar'
     }
 

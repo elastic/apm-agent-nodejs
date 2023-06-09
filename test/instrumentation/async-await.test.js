@@ -6,25 +6,25 @@
 
 'use strict'
 
-const agent = require('../..').start({
+var agent = require('../..').start({
   serviceName: 'test',
   captureExceptions: false
 })
 
-const test = require('tape')
+var test = require('tape')
 
-const ins = agent._instrumentation
+var ins = agent._instrumentation
 
-const _async = require('./_async-await')
+var _async = require('./_async-await')
 
 test('await promise', function (t) {
   t.plan(4)
-  const t1 = ins.startTransaction()
+  var t1 = ins.startTransaction()
   _async.promise(100).then(function (result) {
     t.strictEqual(result, 'SUCCESS')
     t.strictEqual(ins.currTransaction() && ins.currTransaction().id, t1.id)
   })
-  const t2 = ins.startTransaction()
+  var t2 = ins.startTransaction()
   _async.promise(50).then(function (result) {
     t.strictEqual(result, 'SUCCESS')
     t.strictEqual(ins.currTransaction() && ins.currTransaction().id, t2.id)
@@ -33,14 +33,14 @@ test('await promise', function (t) {
 
 test('await non-promise', function (t) {
   t.plan(7)
-  let n = 0
-  const t1 = ins.startTransaction()
+  var n = 0
+  var t1 = ins.startTransaction()
   _async.nonPromise().then(function (result) {
     t.strictEqual(++n, 2) // this should be the first then-callback to execute
     t.strictEqual(result, 'SUCCESS')
     t.strictEqual(ins.currTransaction() && ins.currTransaction().id, t1.id)
   })
-  const t2 = ins.startTransaction()
+  var t2 = ins.startTransaction()
   _async.nonPromise().then(function (result) {
     t.strictEqual(++n, 3) // this should be the second then-callback to execute
     t.strictEqual(result, 'SUCCESS')

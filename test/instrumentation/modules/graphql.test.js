@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -26,10 +26,10 @@ if (semver.satisfies(graphqlVer, '>=16') && !semver.satisfies(process.version, '
   process.exit()
 }
 
-const graphql = require('graphql')
-const test = require('tape')
+var graphql = require('graphql')
+var test = require('tape')
 
-const mockClient = require('../../_mock_http_client')
+var mockClient = require('../../_mock_http_client')
 
 // See explanation of these in "lib/instrumentation/modules/graphql.js".
 const onlySupportsPositionalArgs = semver.lt(graphqlVer, '0.10.0')
@@ -40,13 +40,13 @@ if (!onlySupportsSingleArg) {
   test('graphql.graphql(...) - positional args', function (t) {
     resetAgent(done(t))
 
-    const schema = graphql.buildSchema('type Query { hello: String }')
-    const rootValue = {
+    var schema = graphql.buildSchema('type Query { hello: String }')
+    var rootValue = {
       hello () {
         return 'Hello world!'
       }
     }
-    const query = '{ hello }'
+    var query = '{ hello }'
 
     agent.startTransaction('foo')
 
@@ -64,13 +64,13 @@ if (!onlySupportsPositionalArgs) {
   test('graphql.graphql(...) - single GraphQLArgs arg', function (t) {
     resetAgent(done(t))
 
-    const schema = graphql.buildSchema('type Query { hello: String }')
-    const rootValue = {
+    var schema = graphql.buildSchema('type Query { hello: String }')
+    var rootValue = {
       hello () {
         return 'Hello world!'
       }
     }
-    const query = '{ hello }'
+    var query = '{ hello }'
 
     agent.startTransaction('foo')
 
@@ -87,13 +87,13 @@ if (!onlySupportsPositionalArgs) {
 test('graphql.graphql - invalid query', function (t) {
   resetAgent(done(t, 'Unknown Query'))
 
-  const schema = graphql.buildSchema('type Query { hello: String }')
-  const rootValue = {
+  var schema = graphql.buildSchema('type Query { hello: String }')
+  var rootValue = {
     hello () {
       return 'Hello world!'
     }
   }
-  const query = '{ hello'
+  var query = '{ hello'
 
   agent.startTransaction('foo')
 
@@ -115,19 +115,19 @@ test('graphql.graphql - transaction ended', function (t) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 0)
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
 
     t.strictEqual(trans.name, 'foo')
     t.strictEqual(trans.type, 'custom')
   })
 
-  const schema = graphql.buildSchema('type Query { hello: String }')
-  const rootValue = {
+  var schema = graphql.buildSchema('type Query { hello: String }')
+  var rootValue = {
     hello () {
       return 'Hello world!'
     }
   }
-  const query = '{ hello }'
+  var query = '{ hello }'
 
   agent.startTransaction('foo').end()
 
@@ -143,15 +143,15 @@ if (!onlySupportsSingleArg) {
   test('graphql.execute(...) - positional args', function (t) {
     resetAgent(done(t))
 
-    const schema = graphql.buildSchema('type Query { hello: String }')
-    const rootValue = {
+    var schema = graphql.buildSchema('type Query { hello: String }')
+    var rootValue = {
       hello () {
         return Promise.resolve('Hello world!')
       }
     }
-    const query = '{ hello }'
-    const source = new graphql.Source(query)
-    const documentAST = graphql.parse(source)
+    var query = '{ hello }'
+    var source = new graphql.Source(query)
+    var documentAST = graphql.parse(source)
 
     agent.startTransaction('foo')
 
@@ -172,21 +172,21 @@ test('graphql.execute - transaction ended', function (t) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 0)
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
 
     t.strictEqual(trans.name, 'foo')
     t.strictEqual(trans.type, 'custom')
   })
 
-  const schema = graphql.buildSchema('type Query { hello: String }')
-  const rootValue = {
+  var schema = graphql.buildSchema('type Query { hello: String }')
+  var rootValue = {
     hello () {
       return Promise.resolve('Hello world!')
     }
   }
-  const query = '{ hello }'
-  const source = new graphql.Source(query)
-  const document = graphql.parse(source)
+  var query = '{ hello }'
+  var source = new graphql.Source(query)
+  var document = graphql.parse(source)
 
   agent.startTransaction('foo').end()
 
@@ -201,16 +201,16 @@ if (!onlySupportsPositionalArgs) {
   test('graphql.execute(...) - single ExecutionArgs arg', function (t) {
     resetAgent(done(t))
 
-    const schema = graphql.buildSchema('type Query { hello: String }')
-    const rootValue = {
+    var schema = graphql.buildSchema('type Query { hello: String }')
+    var rootValue = {
       hello () {
         return Promise.resolve('Hello world!')
       }
     }
-    const query = '{ hello }'
-    const source = new graphql.Source(query)
-    const documentAST = graphql.parse(source)
-    const args = {
+    var query = '{ hello }'
+    var source = new graphql.Source(query)
+    var documentAST = graphql.parse(source)
+    var args = {
       schema: schema,
       document: documentAST,
       rootValue: rootValue
@@ -232,19 +232,19 @@ if (semver.satisfies(graphqlVer, '>=0.12')) {
   test('graphql.execute sync', function (t) {
     resetAgent(done(t))
 
-    const schema = graphql.buildSchema('type Query { hello: String }')
-    const rootValue = {
+    var schema = graphql.buildSchema('type Query { hello: String }')
+    var rootValue = {
       hello () {
         return 'Hello world!'
       }
     }
-    const query = '{ hello }'
-    const source = new graphql.Source(query)
-    const document = graphql.parse(source)
+    var query = '{ hello }'
+    var source = new graphql.Source(query)
+    var document = graphql.parse(source)
 
     agent.startTransaction('foo')
 
-    const response = graphql.execute(...buildExecuteArgs({ schema, document, rootValue }))
+    var response = graphql.execute(...buildExecuteArgs({ schema, document, rootValue }))
     t.ok(agent.currentSpan === null, 'no currentSpan in sync code after .execute(...)')
 
     agent.endTransaction()
@@ -260,8 +260,8 @@ function done (t, spanNameSuffix) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 1)
 
-    const trans = data.transactions[0]
-    const span = data.spans[0]
+    var trans = data.transactions[0]
+    var span = data.spans[0]
 
     t.strictEqual(trans.name, 'foo')
     t.strictEqual(trans.type, 'custom')
@@ -270,7 +270,7 @@ function done (t, spanNameSuffix) {
     t.strictEqual(span.subtype, 'graphql')
     t.strictEqual(span.action, 'execute')
 
-    const offset = span.timestamp - trans.timestamp
+    var offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()

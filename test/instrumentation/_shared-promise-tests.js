@@ -10,7 +10,7 @@ module.exports = function (test, Promise, ins) {
   test('new Promise -> resolve -> then', function (t) {
     t.plan(4)
     twice(function () {
-      const trans = ins.startTransaction()
+      var trans = ins.startTransaction()
       new Promise(function (resolve) {
         resolve('foo')
       }).then(function (data) {
@@ -20,14 +20,14 @@ module.exports = function (test, Promise, ins) {
     })
   })
 
-  const catchNames = ['catch']
+  var catchNames = ['catch']
   // caught is a catch alias and an early ECMAScript standard since abandoned
   if (Promise.prototype.caught) catchNames.push('caught')
   catchNames.forEach(function (fnName) {
     test('new Promise -> reject -> ' + fnName, function (t) {
       t.plan(4)
       twice(function () {
-        const trans = ins.startTransaction()
+        var trans = ins.startTransaction()
         new Promise(function (resolve, reject) {
           reject(new Error('foo'))
         }).then(function () {
@@ -42,7 +42,7 @@ module.exports = function (test, Promise, ins) {
     test('new Promise -> reject -> ' + fnName + ' -> then', function (t) {
       t.plan(8)
       twice(function () {
-        const trans = ins.startTransaction()
+        var trans = ins.startTransaction()
         new Promise(function (resolve, reject) {
           reject(new Error('foo'))
         })[fnName](function (err) {
@@ -60,7 +60,7 @@ module.exports = function (test, Promise, ins) {
   test('new Promise -> reject -> then (2nd arg)', function (t) {
     t.plan(4)
     twice(function () {
-      const trans = ins.startTransaction()
+      var trans = ins.startTransaction()
       new Promise(function (resolve, reject) {
         reject(new Error('foo'))
       }).then(function () {
@@ -75,7 +75,7 @@ module.exports = function (test, Promise, ins) {
   test('Promise.resolve', function (t) {
     t.plan(4)
     twice(function () {
-      const trans = ins.startTransaction()
+      var trans = ins.startTransaction()
       Promise.resolve('foo')
         .then(function (data) {
           t.strictEqual(data, 'foo')
@@ -90,7 +90,7 @@ module.exports = function (test, Promise, ins) {
   test('Promise.reject', function (t) {
     t.plan(4)
     twice(function () {
-      const trans = ins.startTransaction()
+      var trans = ins.startTransaction()
       Promise.reject(new Error('foo'))
         .then(function () {
           t.fail('should not resolve')
@@ -105,10 +105,10 @@ module.exports = function (test, Promise, ins) {
   test('Promise.all', function (t) {
     t.plan(4)
     twice(function () {
-      const trans = ins.startTransaction()
-      const p1 = Promise.resolve(3)
-      const p2 = 1337
-      const p3 = new Promise(function (resolve, reject) {
+      var trans = ins.startTransaction()
+      var p1 = Promise.resolve(3)
+      var p2 = 1337
+      var p3 = new Promise(function (resolve, reject) {
         setTimeout(resolve, 10, 'foo')
       })
 
@@ -122,11 +122,11 @@ module.exports = function (test, Promise, ins) {
   test('Promise.race - 2nd resolve', function (t) {
     t.plan(4)
     twice(function () {
-      const trans = ins.startTransaction()
-      const p1 = new Promise(function (resolve, reject) {
+      var trans = ins.startTransaction()
+      var p1 = new Promise(function (resolve, reject) {
         setTimeout(resolve, 50, 'one')
       })
-      const p2 = new Promise(function (resolve, reject) {
+      var p2 = new Promise(function (resolve, reject) {
         setTimeout(resolve, 10, 'two')
       })
 
@@ -140,11 +140,11 @@ module.exports = function (test, Promise, ins) {
   test('Promise.race - 1st resolve', function (t) {
     t.plan(4)
     twice(function () {
-      const trans = ins.startTransaction()
-      const p1 = new Promise(function (resolve, reject) {
+      var trans = ins.startTransaction()
+      var p1 = new Promise(function (resolve, reject) {
         setTimeout(resolve, 10, 'one')
       })
-      const p2 = new Promise(function (resolve, reject) {
+      var p2 = new Promise(function (resolve, reject) {
         setTimeout(reject, 50, 'two')
       })
 
@@ -160,11 +160,11 @@ module.exports = function (test, Promise, ins) {
   test('Promise.race - 2nd reject', function (t) {
     t.plan(4)
     twice(function () {
-      const trans = ins.startTransaction()
-      const p1 = new Promise(function (resolve, reject) {
+      var trans = ins.startTransaction()
+      var p1 = new Promise(function (resolve, reject) {
         setTimeout(resolve, 50, 'one')
       })
-      const p2 = new Promise(function (resolve, reject) {
+      var p2 = new Promise(function (resolve, reject) {
         setTimeout(reject, 10, 'two')
       })
 
@@ -180,7 +180,7 @@ module.exports = function (test, Promise, ins) {
   test('return new Promise', function (t) {
     t.plan(12)
     twice(function () {
-      const trans = ins.startTransaction()
+      var trans = ins.startTransaction()
       new Promise(function (resolve) {
         resolve('foo')
       }).then(function (data) {

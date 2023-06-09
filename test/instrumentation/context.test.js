@@ -6,8 +6,8 @@
 
 'use strict'
 
-const test = require('tape')
-const { getHTTPDestination, getDBDestination } = require('../../lib/instrumentation/context')
+var test = require('tape')
+var { getHTTPDestination, getDBDestination } = require('../../lib/instrumentation/context')
 
 test('#getHTTPDestination', function (t) {
   t.test('username and pass', (t) => {

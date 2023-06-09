@@ -387,7 +387,7 @@ let TEST_REQUESTS = [
 ]
 // Dev Note: To limit a test run to a particular test request, provide a
 // string value to DEV_TEST_FILTER that matches `testName`.
-const DEV_TEST_FILTER = null
+var DEV_TEST_FILTER = null
 if (DEV_TEST_FILTER) {
   TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(DEV_TEST_FILTER))
   assert(TEST_REQUESTS.length > 0, 'DEV_TEST_FILTER should not result in an *empty* TEST_REQUESTS')

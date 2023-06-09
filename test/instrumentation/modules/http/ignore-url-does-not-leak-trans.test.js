@@ -47,15 +47,15 @@ if (Number(process.versions.node.split('.')[0]) <= 8 &&
   process.exit()
 }
 
-const http = require('http')
-const test = require('tape')
+var http = require('http')
+var test = require('tape')
 
 test('an ignored incoming http URL does not leak previous transaction', function (t) {
   // Start an outer transaction that should not "leak" into the server handler
   // for ignored URLs.
-  const prevTrans = apm.startTransaction('prevTrans')
+  var prevTrans = apm.startTransaction('prevTrans')
 
-  const server = http.createServer(function (req, res) {
+  var server = http.createServer(function (req, res) {
     t.equal(apm.currentTransaction, null, 'current transaction in ignored URL handler is null')
     const span = apm.startSpan('aSpan')
     t.ok(span === null, 'no spans are created in ignored URL handler')
@@ -66,7 +66,7 @@ test('an ignored incoming http URL does not leak previous transaction', function
   })
 
   server.listen(function onListen () {
-    const opts = {
+    var opts = {
       port: server.address().port,
       path: '/ignore-this-path'
     }

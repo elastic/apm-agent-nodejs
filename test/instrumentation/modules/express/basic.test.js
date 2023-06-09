@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: true,
@@ -19,21 +19,21 @@ const agent = require('../../../..').start({
   centralConfig: false
 })
 
-const http = require('http')
+var http = require('http')
 
-const express = require('express')
-const test = require('tape')
+var express = require('express')
+var test = require('tape')
 
-const mockClient = require('../../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
-const nestedRouteTestCases = [
+var nestedRouteTestCases = [
   [], // no nesting
   ['/', ''],
   ['/sub', '/sub'],
   ['/sub/:id', '/sub/42']
 ]
 
-const routeTestCases = [
+var routeTestCases = [
   ['use', '/', 'GET', '/'],
   ['use', '/', 'POST', '/'],
   ['get', '/', 'GET', '/'],
@@ -104,14 +104,14 @@ test('error intercept', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /', 'transaction name is GET /')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
-  let request
-  const error = new Error('wat')
-  const captureError = agent.captureError
+  var request
+  var error = new Error('wat')
+  var captureError = agent.captureError
   agent.captureError = function (err, data) {
     t.strictEqual(err, error, 'has the expected error')
     t.ok(data, 'captured data with error')
@@ -121,7 +121,7 @@ test('error intercept', function (t) {
     agent.captureError = captureError
   })
 
-  const app = express()
+  var app = express()
   app.set('env', 'production')
 
   app.get('/', function (req, res, next) {
@@ -150,12 +150,12 @@ test('ignore 404 errors', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET unknown route', 'transaction name is GET unknown route')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
-  const captureError = agent.captureError
+  var captureError = agent.captureError
   agent.captureError = function (_, data) {
     t.fail('it should not capture 404 errors')
   }
@@ -163,7 +163,7 @@ test('ignore 404 errors', function (t) {
     agent.captureError = captureError
   })
 
-  const app = express()
+  var app = express()
   app.set('env', 'production')
 
   app.use(function (req, res) {
@@ -186,12 +186,12 @@ test('ignore invalid errors', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /', 'transaction name is GET /')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
-  const captureError = agent.captureError
+  var captureError = agent.captureError
   agent.captureError = function (_, data) {
     t.fail('should not capture invalid errors')
   }
@@ -199,7 +199,7 @@ test('ignore invalid errors', function (t) {
     agent.captureError = captureError
   })
 
-  const app = express()
+  var app = express()
   app.set('env', 'production')
 
   app.get('/', function (req, res, next) {
@@ -226,12 +226,12 @@ test('do not inherit past route names', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /', 'transaction name is GET /')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
-  const captureError = agent.captureError
+  var captureError = agent.captureError
   agent.captureError = function (_, data) {
     t.fail('should not capture invalid errors')
   }
@@ -239,7 +239,7 @@ test('do not inherit past route names', function (t) {
     agent.captureError = captureError
   })
 
-  const app = express()
+  var app = express()
   app.set('env', 'production')
 
   app.get('/', function (req, res, next) {
@@ -267,12 +267,12 @@ test('sub-routers include base path', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
-  const captureError = agent.captureError
+  var captureError = agent.captureError
   agent.captureError = function (_, data) {
     t.fail('should not capture invalid errors')
   }
@@ -280,12 +280,12 @@ test('sub-routers include base path', function (t) {
     agent.captureError = captureError
   })
 
-  const router = express.Router()
+  var router = express.Router()
   router.get('/:name', (req, res) => {
     res.end(`hello, ${req.params.name}`)
   })
 
-  const app = express()
+  var app = express()
   app.set('env', 'production')
   app.use('/hello', router)
 
@@ -305,24 +305,24 @@ test('sub-routers throw exception', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
-  const error = new Error('hello')
-  const captureError = agent.captureError
+  var error = new Error('hello')
+  var captureError = agent.captureError
   agent.captureError = function () {}
   t.on('end', function () {
     agent.captureError = captureError
   })
 
-  const router = express.Router()
+  var router = express.Router()
   router.get('/:name', (req, res) => {
     throw error
   })
 
-  const app = express()
+  var app = express()
   app.set('env', 'production')
   app.use('/api', router)
 
@@ -340,23 +340,23 @@ test('sub-router handler calls next(exception)', function (t) {
 
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   // Ignore captureError handling for this test.
-  const captureError = agent.captureError
+  var captureError = agent.captureError
   agent.captureError = function () {}
   t.on('end', function () {
     agent.captureError = captureError
   })
 
-  const router = express.Router()
+  var router = express.Router()
   router.get('/:name', (_req, _res, next) => {
     next(new Error('boom'))
   })
-  const app = express()
+  var app = express()
   app.set('env', 'production')
   app.use('/api', router)
 
@@ -376,23 +376,23 @@ test('sub-router handler calls next(non-exception)', function (t) {
 
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   // Ignore captureError handling for this test.
-  const captureError = agent.captureError
+  var captureError = agent.captureError
   agent.captureError = function () {}
   t.on('end', function () {
     agent.captureError = captureError
   })
 
-  const router = express.Router()
+  var router = express.Router()
   router.get('/:name', (_req, _res, next) => {
     next('this is some truthy value that is not "route" or "router"')
   })
-  const app = express()
+  var app = express()
   app.set('env', 'production')
   app.use('/api', router)
 
@@ -410,26 +410,26 @@ test('sub-router handler calls next("route")', function (t) {
 
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'GET /api/other-endpoint', 'transaction name is GET /api/other-endpoint')
     t.strictEqual(trans.type, 'request', 'transaction type is request')
   })
 
   // Ignore captureError handling for this test.
-  const captureError = agent.captureError
+  var captureError = agent.captureError
   agent.captureError = function () {}
   t.on('end', function () {
     agent.captureError = captureError
   })
 
-  const router = express.Router()
+  var router = express.Router()
   router.get('/:name', (_req, _res, next) => {
     next('route')
   })
   router.get('/other-endpoint', (_req, res) => {
     res.end('hi from other-endpoint')
   })
-  const app = express()
+  var app = express()
   app.set('env', 'production')
   app.use('/api', router)
 
@@ -488,8 +488,8 @@ function get (server, opts, cb) {
   Object.assign(opts, {
     port: server.address().port
   })
-  const req = http.request(opts, function (res) {
-    const chunks = []
+  var req = http.request(opts, function (res) {
+    var chunks = []
     res.setEncoding('utf8')
     res.on('error', cb)
     res.on('data', chunks.push.bind(chunks))

@@ -12,7 +12,7 @@ if (process.platform === 'win32') {
   process.exit()
 }
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test-memcached',
   captureExceptions: false,
   metricsInterval: '0s',
@@ -21,10 +21,10 @@ const agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
-const test = require('tape')
-const mockClient = require('../../_mock_http_client')
+var test = require('tape')
+var mockClient = require('../../_mock_http_client')
 
-const host = process.env.MEMCACHED_HOST || '127.0.0.1'
+var host = process.env.MEMCACHED_HOST || '127.0.0.1'
 
 test('memcached', function (t) {
   resetAgent(function (data) {
@@ -86,8 +86,8 @@ test('memcached', function (t) {
     t.end()
   })
 
-  const Memcached = require('memcached')
-  const cache = new Memcached(`${host}:11211`, { timeout: 500 })
+  var Memcached = require('memcached')
+  var cache = new Memcached(`${host}:11211`, { timeout: 500 })
   agent.startTransaction('myTrans')
   cache.set('foo', 'bar', 300, (err) => {
     t.ok(agent.currentSpan === null, 'memcached span should not be currentSpan in callback')

@@ -14,13 +14,13 @@
 //
 // Run `node test/test.js -h` for usage.
 
-const fs = require('fs')
-const path = require('path')
-const spawn = require('child_process').spawn
+var fs = require('fs')
+var path = require('path')
+var spawn = require('child_process').spawn
 
-const dashdash = require('dashdash')
-const glob = require('glob')
-const semver = require('semver')
+var dashdash = require('dashdash')
+var glob = require('glob')
+var semver = require('semver')
 
 // ---- support functions
 
@@ -31,7 +31,7 @@ function slugifyPath (f) {
 
 // Run a single test file.
 function runTestFile (test, cb) {
-  const args = [test.file]
+  var args = [test.file]
   if (semver.gte(process.version, '12.0.0')) {
     args.unshift('--unhandled-rejections=strict')
   } else {
@@ -47,7 +47,7 @@ function runTestFile (test, cb) {
     }
     const outFile = fs.createWriteStream(outFileName)
     outFile.on('open', function () {
-      const ps = spawn('node', args, {
+      var ps = spawn('node', args, {
         stdio: ['inherit', outFile, outFile]
       })
       ps.on('error', cb)
@@ -78,7 +78,7 @@ function runTestFile (test, cb) {
       cb()
       return
     }
-    const ps = spawn('node', args, {
+    var ps = spawn('node', args, {
       stdio: 'inherit',
       env: test.env
     })
@@ -96,8 +96,8 @@ function runTestFile (test, cb) {
 }
 
 function series (tasks, cb) {
-  const results = []
-  let pos = 0
+  var results = []
+  var pos = 0
 
   function done (err, result) {
     if (err) return cb(err)
@@ -125,7 +125,7 @@ function mapSeries (tasks, handler, cb) {
 
 // ---- mainline
 
-const options = [
+var options = [
   {
     names: ['help', 'h'],
     type: 'bool',
@@ -146,7 +146,7 @@ const options = [
 ]
 
 function main () {
-  const parser = dashdash.createParser({ options })
+  var parser = dashdash.createParser({ options })
   try {
     var opts = parser.parse(process.argv)
   } catch (e) {
@@ -156,14 +156,14 @@ function main () {
 
   // Use `parser.help()` for formatted options help.
   if (opts.help) {
-    const help = parser.help().trimRight()
+    var help = parser.help().trimRight()
     console.log('usage: node test/test.js [OPTIONS]\n' +
               'options:\n' +
               help)
     process.exit(0)
   }
 
-  const tests = glob
+  var tests = glob
     .sync(
       // Find all ".test.js" files, except those in "fixtures" dirs and in
       // "node_modules" dirs created for test packages.

@@ -16,11 +16,11 @@ const agent = require('../../../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-const http = require('http')
+var http = require('http')
 
-const test = require('tape')
+var test = require('tape')
 
-const mockClient = require('../../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 const { WildcardMatcher } = require('../../../../lib/wildcard-matcher')
 
@@ -137,12 +137,12 @@ function assertNoMatch (t, data) {
 }
 
 function request (path, headers, cb) {
-  const server = http.createServer(function (req, res) {
+  var server = http.createServer(function (req, res) {
     res.end()
   })
 
   server.listen(function () {
-    const opts = {
+    var opts = {
       port: server.address().port,
       path: path,
       headers: headers

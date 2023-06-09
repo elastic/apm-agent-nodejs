@@ -16,38 +16,38 @@ const agent = require('../../../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-const http = require('http')
-const https = require('https')
+var http = require('http')
+var https = require('https')
 const { URL } = require('url')
 
-const endOfStream = require('end-of-stream')
-const semver = require('semver')
-const test = require('tape')
+var endOfStream = require('end-of-stream')
+var semver = require('semver')
+var test = require('tape')
 
-const echoServer = require('./_echo_server_util').echoServer
-const mockClient = require('../../../_mock_http_client')
-const { TraceParent } = require('../../../../lib/tracecontext/traceparent')
+var echoServer = require('./_echo_server_util').echoServer
+var mockClient = require('../../../_mock_http_client')
+var { TraceParent } = require('../../../../lib/tracecontext/traceparent')
 
-const methods = ['request', 'get']
+var methods = ['request', 'get']
 const nodeHttpRequestSupportsSeparateUrlArg = semver.gte(process.version, '10.9.0')
 
 //
 // http
 //
 test('http.request(options)', echoTest('http', {}, (port, cb) => {
-  const options = { port }
-  const req = http.request(options)
+  var options = { port }
+  var req = http.request(options)
   req.on('response', cb)
   return req
 }))
 
 test('http.request(options, callback)', echoTest('http', {}, (port, cb) => {
-  const options = { port }
+  var options = { port }
   return http.request(options, cb)
 }))
 
 test('http: consider useElasticTraceparentHeader config option', echoTest('http', { useElasticTraceparentHeader: false }, (port, cb) => {
-  const options = { port }
+  var options = { port }
   return http.request(options, cb)
 }))
 
@@ -87,28 +87,28 @@ test('http.request(options, callback) - aborted on data', abortTest('http', (por
 
 methods.forEach(function (name) {
   test(`http.${name}(urlString)`, echoTest('http', {}, (port, cb) => {
-    const urlString = `http://localhost:${port}`
-    const req = http[name](urlString)
+    var urlString = `http://localhost:${port}`
+    var req = http[name](urlString)
     req.on('response', cb)
     return req
   }))
 
   test(`http.${name}(urlString, callback)`, echoTest('http', {}, (port, cb) => {
-    const urlString = `http://localhost:${port}`
+    var urlString = `http://localhost:${port}`
     return http[name](urlString, cb)
   }))
 
   test(`http.${name}(urlObject)`, echoTest('http', {}, (port, cb) => {
-    const urlString = `http://localhost:${port}`
-    const urlObject = new URL(urlString)
-    const req = http[name](urlObject)
+    var urlString = `http://localhost:${port}`
+    var urlObject = new URL(urlString)
+    var req = http[name](urlObject)
     req.on('response', cb)
     return req
   }))
 
   test(`http.${name}(urlObject, callback)`, echoTest('http', {}, (port, cb) => {
-    const urlString = `http://localhost:${port}`
-    const urlObject = new URL(urlString)
+    var urlString = `http://localhost:${port}`
+    var urlObject = new URL(urlString)
     return http[name](urlObject, cb)
   }))
 })
@@ -192,51 +192,51 @@ test('http.request(..., bogusCb) errors on the bogusCb', { timeout: 5000 }, t =>
 // https
 //
 test('https.request(options)', echoTest('https', {}, (port, cb) => {
-  const options = { port, rejectUnauthorized: false }
-  const req = https.request(options)
+  var options = { port, rejectUnauthorized: false }
+  var req = https.request(options)
   req.on('response', cb)
   return req
 }))
 
 test('https.request(options, callback)', echoTest('https', {}, (port, cb) => {
-  const options = { port, rejectUnauthorized: false }
+  var options = { port, rejectUnauthorized: false }
   return https.request(options, cb)
 }))
 
 test('https: consider useElasticTraceparentHeader config option', echoTest('https', { useElasticTraceparentHeader: false }, (port, cb) => {
-  const options = { port, rejectUnauthorized: false }
+  var options = { port, rejectUnauthorized: false }
   return https.request(options, cb)
 }))
 
 methods.forEach(function (name) {
   if (nodeHttpRequestSupportsSeparateUrlArg) {
     test(`https.${name}(urlString, options)`, echoTest('https', {}, (port, cb) => {
-      const urlString = `https://localhost:${port}`
-      const options = { rejectUnauthorized: false }
-      const req = https[name](urlString, options)
+      var urlString = `https://localhost:${port}`
+      var options = { rejectUnauthorized: false }
+      var req = https[name](urlString, options)
       req.on('response', cb)
       return req
     }))
 
     test(`https.${name}(urlString, options, callback)`, echoTest('https', {}, (port, cb) => {
-      const urlString = `https://localhost:${port}`
-      const options = { rejectUnauthorized: false }
+      var urlString = `https://localhost:${port}`
+      var options = { rejectUnauthorized: false }
       return https[name](urlString, options, cb)
     }))
 
     test(`https.${name}(urlObject, options)`, echoTest('https', {}, (port, cb) => {
-      const urlString = `https://localhost:${port}`
-      const urlObject = new URL(urlString)
-      const options = { rejectUnauthorized: false }
-      const req = https[name](urlObject, options)
+      var urlString = `https://localhost:${port}`
+      var urlObject = new URL(urlString)
+      var options = { rejectUnauthorized: false }
+      var req = https[name](urlObject, options)
       req.on('response', cb)
       return req
     }))
 
     test(`https.${name}(urlObject, options, callback)`, echoTest('https', {}, (port, cb) => {
-      const urlString = `https://localhost:${port}`
-      const urlObject = new URL(urlString)
-      const options = { rejectUnauthorized: false }
+      var urlString = `https://localhost:${port}`
+      var urlObject = new URL(urlString)
+      var options = { rejectUnauthorized: false }
       return https[name](urlObject, options, cb)
     }))
   }
@@ -272,15 +272,15 @@ function echoTest (type, opts, handler) {
         cp.kill()
       })
 
-      const trans = agent.startTransaction()
-      const req = handler(port, res => {
+      var trans = agent.startTransaction()
+      var req = handler(port, res => {
         res.on('end', function () {
           agent.endTransaction()
         })
         res.resume()
       })
 
-      const traceparent = req.getHeader('traceparent')
+      var traceparent = req.getHeader('traceparent')
       t.ok(traceparent, 'should have traceparent header')
       if (opts && opts.useElasticTraceparentHeader === false) {
         t.strictEqual(req.getHeader('elastic-apm-traceparent'), undefined)
@@ -288,8 +288,8 @@ function echoTest (type, opts, handler) {
         t.ok(req.getHeader('elastic-apm-traceparent'), 'should have elastic-apm-traceparent header')
       }
 
-      const expected = TraceParent.fromString(trans._context.toString())
-      const received = TraceParent.fromString(traceparent)
+      var expected = TraceParent.fromString(trans._context.toString())
+      var received = TraceParent.fromString(traceparent)
       t.strictEqual(received.version, expected.version, 'traceparent header has matching version')
       t.strictEqual(received.traceId, expected.traceId, 'traceparent header has matching traceId')
       t.ok(/^[\da-f]{16}$/.test(expected.id), 'traceparent header has valid id')

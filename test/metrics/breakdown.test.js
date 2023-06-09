@@ -150,8 +150,8 @@ function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
 test('includes breakdown when sampling', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar')
-  const span = agent.startSpan('s0 name', 's0 type')
+  var transaction = agent.startTransaction('foo', 'bar')
+  var span = agent.startSpan('s0 name', 's0 type')
   if (span) span.end()
   transaction.end()
 
@@ -182,7 +182,7 @@ test('includes breakdown when sampling', t => {
 test('only transaction', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
   transaction.end(null, 30)
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {
@@ -206,8 +206,8 @@ test('only transaction', t => {
 test('with single sub-span', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  const span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
   if (span) span.end(20)
   transaction.end(null, 30)
 
@@ -239,8 +239,8 @@ test('with single sub-span', t => {
 test('with single app sub-span', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  const span = agent.startSpan('foo', 'app', { startTime: 10 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span = agent.startSpan('foo', 'app', { startTime: 10 })
   if (span) span.end(20)
   transaction.end(null, 30)
 
@@ -266,8 +266,8 @@ test('with single app sub-span', t => {
 test('with parallel sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  let span0
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0
   setImmediate(function () {
     span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
     setImmediate(function () {
@@ -279,7 +279,7 @@ test('with parallel sub-spans', t => {
     // transaction for the special case of (a) contextManager="patch" such that
     // we are using "patch-async.js" and (b) use of `agent.destroy(); new
     // Agent()`.  The latter breaks patch-async's patching of setImmediate.
-    const span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
       { startTime: 10, childOf: transaction })
     setImmediate(function () {
       if (span1) span1.end(20)
@@ -315,8 +315,8 @@ test('with parallel sub-spans', t => {
 test('with overlapping sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  let span0
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0
   setImmediate(function () {
     span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
     setImmediate(function () {
@@ -325,7 +325,7 @@ test('with overlapping sub-spans', t => {
   })
   setImmediate(function () {
     // See "childOf" comment above for why `childOf` is used here.
-    const span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
       { startTime: 15, childOf: transaction })
     setImmediate(function () {
       if (span1) span1.end(25)
@@ -363,10 +363,10 @@ test('with overlapping sub-spans', t => {
 test('with sequential sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  const span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 5 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 5 })
   if (span0) span0.end(15)
-  const span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
+  var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 15 })
   if (span1) span1.end(25)
   transaction.end(null, 30)
 
@@ -398,10 +398,10 @@ test('with sequential sub-spans', t => {
 test('with sub-spans returning to app time', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  const span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('SELECT * FROM a', 'db.mysql', { startTime: 10 })
   if (span0) span0.end(15)
-  const span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 20 })
+  var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', { startTime: 20 })
   if (span1) span1.end(25)
   transaction.end(null, 30)
 
@@ -433,9 +433,9 @@ test('with sub-spans returning to app time', t => {
 test('with overlapping nested async sub-spans', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  const span0 = agent.startSpan('foo', 'app', { startTime: 10 })
-  const span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 15, childOf: span0 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
+  var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 15, childOf: span0 })
   if (span0) span0.end(20)
   if (span1) span1.end(25)
   transaction.end(null, 30)
@@ -468,11 +468,11 @@ test('with overlapping nested async sub-spans', t => {
 test('with app sub-span extending beyond end', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  const span0 = agent.startSpan('foo', 'app', { startTime: 10 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span0 = agent.startSpan('foo', 'app', { startTime: 10 })
   transaction.end(null, 20)
   // span1 is *not* created, because cannot create a span on an ended transaction.
-  const span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: span0 })
+  var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: span0 })
   if (span0) span0.end(30)
   if (span1) span1.end(30)
 
@@ -499,8 +499,8 @@ test('with app sub-span extending beyond end', t => {
 test('with other sub-span extending beyond end', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
-  const span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 10 })
   transaction.end(null, 20)
   if (span) span.end(30)
 
@@ -527,9 +527,9 @@ test('with other sub-span extending beyond end', t => {
 test('with other sub-span starting after end', t => {
   const agent = new Agent().start(testAgentOpts)
 
-  const transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
+  var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 })
   transaction.end(null, 10)
-  const span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: transaction })
+  var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: transaction })
   if (span) span.end(30)
 
   waitForAgentToSendBreakdownMetrics(agent, function (err) {

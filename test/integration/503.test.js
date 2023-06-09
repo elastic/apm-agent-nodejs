@@ -6,10 +6,10 @@
 
 'use strict'
 
-const getPort = require('get-port')
+var getPort = require('get-port')
 
 getPort().then(function (port) {
-  const agent = require('../../').start({
+  var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
@@ -18,11 +18,11 @@ getPort().then(function (port) {
     disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
   })
 
-  const http = require('http')
-  const test = require('tape')
+  var http = require('http')
+  var test = require('tape')
 
   test('should not throw on 503', function (t) {
-    const server = http.createServer(function (req, res) {
+    var server = http.createServer(function (req, res) {
       res.statusCode = 503
       res.setHeader('Content-Type', 'application/json')
       res.end('{"error":"something"}')

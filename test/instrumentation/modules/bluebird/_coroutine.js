@@ -6,11 +6,11 @@
 
 'use strict'
 
-const semver = require('semver')
-const BLUEBIRD_VERSION = require('bluebird/package').version
+var semver = require('semver')
+var BLUEBIRD_VERSION = require('bluebird/package').version
 
 module.exports = function (test, Promise, ins) {
-  const bluebird = Promise
+  var bluebird = Promise
 
   test('Promise.coroutine', function (t) {
     t.plan(10)
@@ -39,8 +39,8 @@ module.exports = function (test, Promise, ins) {
     })
 
     twice(function () {
-      const trans = ins.startTransaction()
-      const a = new PingPong(trans)
+      var trans = ins.startTransaction()
+      var a = new PingPong(trans)
       a.ping(0)
     })
   })
@@ -49,7 +49,7 @@ module.exports = function (test, Promise, ins) {
     test('Promise.coroutine.addYieldHandler', function (t) {
       t.plan(10)
 
-      const Promise = bluebird.getNewLibraryCopy()
+      var Promise = bluebird.getNewLibraryCopy()
 
       Promise.coroutine.addYieldHandler(function (value) {
         return Promise.delay(value)
@@ -79,8 +79,8 @@ module.exports = function (test, Promise, ins) {
       })
 
       twice(function () {
-        const trans = ins.startTransaction()
-        const a = new PingPong(trans)
+        var trans = ins.startTransaction()
+        var a = new PingPong(trans)
         a.ping(0)
       })
     })
@@ -91,7 +91,7 @@ module.exports = function (test, Promise, ins) {
     test('Promise.spawn', function (t) {
       t.plan(4)
       twice(function () {
-        const trans = ins.startTransaction()
+        var trans = ins.startTransaction()
 
         Promise.spawn(function * () {
           return yield Promise.resolve('foo')

@@ -6,12 +6,12 @@
 
 'use strict'
 
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
+var fs = require('fs')
+var os = require('os')
+var path = require('path')
 
-const mkdirp = require('mkdirp')
-const rimraf = require('rimraf')
+var mkdirp = require('mkdirp')
+var rimraf = require('rimraf')
 const test = require('tape')
 
 const AGENT_VERSION = require('../package.json').version

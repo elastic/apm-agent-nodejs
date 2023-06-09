@@ -34,12 +34,12 @@ require('../..').start({
   disableSend: true
 })
 
-const test = require('tape')
-const clone = require('clone')
-const redact = require('../../lib/redact-secrets')
+var test = require('tape')
+var clone = require('clone')
+var redact = require('../../lib/redact-secrets')
 
 test('redact.map', function (t) {
-  const input = {
+  var input = {
     foo: 'non-secret',
     secret: 'secret',
     sub1: {
@@ -52,7 +52,7 @@ test('redact.map', function (t) {
     }]
   }
 
-  const expected = {
+  var expected = {
     foo: 'non-secret',
     secret: 'redacted',
     sub1: {
@@ -65,8 +65,8 @@ test('redact.map', function (t) {
     }]
   }
 
-  const orig = clone(input)
-  const result = redact('redacted').map(input)
+  var orig = clone(input)
+  var result = redact('redacted').map(input)
 
   t.deepEqual(result, expected)
   t.deepEqual(input, orig)
@@ -74,7 +74,7 @@ test('redact.map', function (t) {
 })
 
 test('redact.forEach', function (t) {
-  const input = {
+  var input = {
     foo: 'non-secret',
     secret: 'secret',
     sub1: {
@@ -87,7 +87,7 @@ test('redact.forEach', function (t) {
     }]
   }
 
-  const expected = {
+  var expected = {
     foo: 'non-secret',
     secret: 'redacted',
     sub1: {
@@ -100,7 +100,7 @@ test('redact.forEach', function (t) {
     }]
   }
 
-  const result = redact('redacted').forEach(input)
+  var result = redact('redacted').forEach(input)
 
   t.equal(result, undefined)
   t.deepEqual(input, expected)

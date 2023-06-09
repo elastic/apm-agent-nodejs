@@ -16,24 +16,24 @@ const agent = require('../../../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-const http = require('http')
+var http = require('http')
 
-const test = require('tape')
-const express = require('express')
-const request = require('request')
+var test = require('tape')
+var express = require('express')
+var request = require('request')
 
-const mockClient = require('../../../_mock_http_client')
-const findObjInArray = require('../../../_utils').findObjInArray
+var mockClient = require('../../../_mock_http_client')
+var findObjInArray = require('../../../_utils').findObjInArray
 
 test('request', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 2)
     t.strictEqual(data.spans.length, 1)
 
-    const sub = data.transactions[0]
+    var sub = data.transactions[0]
     t.strictEqual(sub.name, 'GET /test')
 
-    const root = data.transactions[1]
+    var root = data.transactions[1]
     t.strictEqual(root.name, 'GET /')
     t.strictEqual(root.outcome, 'success')
     const span = findObjInArray(data.spans, 'transaction_id', root.id)
@@ -44,7 +44,7 @@ test('request', function (t) {
     t.end()
   })
 
-  const app = express()
+  var app = express()
   var server = http.createServer(app)
 
   app.get('/test', (req, res) => {
@@ -63,7 +63,7 @@ test('Outcome', function (t) {
     t.strictEqual(data.transactions.length, 2)
     t.strictEqual(data.spans.length, 1)
 
-    const root = data.transactions[1]
+    var root = data.transactions[1]
     t.strictEqual(root.name, 'GET /')
     t.strictEqual(root.outcome, 'failure')
     const span = findObjInArray(data.spans, 'transaction_id', root.id)
@@ -74,7 +74,7 @@ test('Outcome', function (t) {
     t.end()
   })
 
-  const app = express()
+  var app = express()
   var server = http.createServer(app)
 
   app.get('/test', (req, res) => {
@@ -96,8 +96,8 @@ function resetAgent (cb) {
 
 function sendRequest (server, timeout) {
   server.listen(function () {
-    const port = server.address().port
-    const req = http.get('http://localhost:' + port, function (res) {
+    var port = server.address().port
+    var req = http.get('http://localhost:' + port, function (res) {
       if (timeout) throw new Error('should not get to here')
       res.resume()
     })

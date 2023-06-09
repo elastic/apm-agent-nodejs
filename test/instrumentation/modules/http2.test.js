@@ -6,25 +6,25 @@
 
 'use strict'
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none'
 })
-const ins = agent._instrumentation
+var ins = agent._instrumentation
 
-const fs = require('fs')
-const https = require('https')
-const http2 = require('http2')
+var fs = require('fs')
+var https = require('https')
+var http2 = require('http2')
 
-const semver = require('semver')
-const pem = require('https-pem')
-const test = require('tape')
+var semver = require('semver')
+var pem = require('https-pem')
+var test = require('tape')
 
-const mockClient = require('../../_mock_http_client')
-const findObjInArray = require('../../_utils').findObjInArray
+var mockClient = require('../../_mock_http_client')
+var findObjInArray = require('../../_utils').findObjInArray
 const constants = require('../../../lib/constants')
 
 if (semver.satisfies(process.version, '8.x')) {
@@ -32,9 +32,9 @@ if (semver.satisfies(process.version, '8.x')) {
   process.exit()
 }
 
-const isSecure = [false, true]
+var isSecure = [false, true]
 isSecure.forEach(secure => {
-  const method = secure ? 'createSecureServer' : 'createServer'
+  var method = secure ? 'createSecureServer' : 'createServer'
 
   test(`http2.${method} compatibility mode`, t => {
     t.plan(16)
@@ -49,7 +49,7 @@ isSecure.forEach(secure => {
     })
 
     function onRequest (req, res) {
-      const trans = ins.currTransaction()
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -59,22 +59,22 @@ isSecure.forEach(secure => {
       res.end('foo')
     }
 
-    let port
+    var port
     var server = secure
       ? http2.createSecureServer(pem, onRequest)
       : http2.createServer(onRequest)
 
-    const onError = err => t.error(err)
+    var onError = err => t.error(err)
     server.on('error', onError)
     server.on('socketError', onError)
 
     server.listen(() => {
       port = server.address().port
-      const client = connect(secure, port)
+      var client = connect(secure, port)
       client.on('error', onError)
       client.on('socketError', onError)
 
-      const req = client.request({ ':path': '/' })
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, 'foo')
       req.resume()
       req.on('end', () => client.destroy())
@@ -90,17 +90,17 @@ isSecure.forEach(secure => {
       server.close()
     })
 
-    let port
+    var port
     var server = secure
       ? http2.createSecureServer(pem)
       : http2.createServer()
 
-    const onError = err => t.error(err)
+    var onError = err => t.error(err)
     server.on('error', onError)
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      const trans = ins.currTransaction()
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -113,11 +113,11 @@ isSecure.forEach(secure => {
 
     server.listen(() => {
       port = server.address().port
-      const client = connect(secure, port)
+      var client = connect(secure, port)
       client.on('error', onError)
       client.on('socketError', onError)
 
-      const req = client.request({ ':path': '/' })
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, 'foo')
       req.resume()
       req.on('end', () => client.destroy())
@@ -133,17 +133,17 @@ isSecure.forEach(secure => {
       server.close()
     })
 
-    let port
+    var port
     var server = secure
       ? http2.createSecureServer(pem)
       : http2.createServer()
 
-    const onError = err => t.error(err)
+    var onError = err => t.error(err)
     server.on('error', onError)
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      const trans = ins.currTransaction()
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -163,11 +163,11 @@ isSecure.forEach(secure => {
 
     server.listen(() => {
       port = server.address().port
-      const client = connect(secure, port)
+      var client = connect(secure, port)
       client.on('error', onError)
       client.on('socketError', onError)
 
-      const req = client.request({ ':path': '/' })
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, '') // Do not expect 'foo' to get through.
       req.resume()
       req.on('end', () => client.destroy())
@@ -183,17 +183,17 @@ isSecure.forEach(secure => {
       server.close()
     })
 
-    let port
+    var port
     var server = secure
       ? http2.createSecureServer(pem)
       : http2.createServer()
 
-    const onError = err => t.error(err)
+    var onError = err => t.error(err)
     server.on('error', onError)
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      const trans = ins.currTransaction()
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -213,11 +213,11 @@ isSecure.forEach(secure => {
 
     server.listen(() => {
       port = server.address().port
-      const client = connect(secure, port)
+      var client = connect(secure, port)
       client.on('error', onError)
       client.on('socketError', onError)
 
-      const req = client.request({ ':path': '/' })
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, fs.readFileSync(__filename).toString())
       req.resume()
       req.on('end', () => client.destroy())
@@ -233,17 +233,17 @@ isSecure.forEach(secure => {
       server.close()
     })
 
-    let port
+    var port
     var server = secure
       ? http2.createSecureServer(pem)
       : http2.createServer()
 
-    const onError = err => t.error(err)
+    var onError = err => t.error(err)
     server.on('error', onError)
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      const trans = ins.currTransaction()
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -255,11 +255,11 @@ isSecure.forEach(secure => {
 
     server.listen(() => {
       port = server.address().port
-      const client = connect(secure, port)
+      var client = connect(secure, port)
       client.on('error', onError)
       client.on('socketError', onError)
 
-      const req = client.request({ ':path': '/' })
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, fs.readFileSync(__filename).toString())
       req.resume()
       req.on('end', () => client.destroy())
@@ -270,7 +270,7 @@ isSecure.forEach(secure => {
   test(`http2.${method} ignore push streams`, t => {
     addShouldCall(t)
 
-    const done = after(3, () => {
+    var done = after(3, () => {
       client.destroy()
       t.end()
     })
@@ -281,18 +281,18 @@ isSecure.forEach(secure => {
       done()
     })
 
-    let port
-    let client
+    var port
+    var client
     var server = secure
       ? http2.createSecureServer(pem)
       : http2.createServer()
 
-    const onError = err => t.error(err)
+    var onError = err => t.error(err)
     server.on('error', onError)
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      const trans = ins.currTransaction()
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
@@ -333,7 +333,7 @@ isSecure.forEach(secure => {
         assertResponse(t, stream, 'some pushed data', done)
       }))
 
-      const req = client.request({ ':path': '/' })
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, 'foo')
       req.end()
     })
@@ -346,13 +346,13 @@ isSecure.forEach(secure => {
       t.strictEqual(data.transactions.length, 2)
       t.strictEqual(data.spans.length, 1)
 
-      const sub = data.transactions[0]
+      var sub = data.transactions[0]
       assertPath(t, sub, secure, port, '/sub', '2.0')
 
-      const root = data.transactions[1]
+      var root = data.transactions[1]
       assertPath(t, root, secure, port, '/', '2.0')
 
-      const span = findObjInArray(data.spans, 'transaction_id', root.id)
+      var span = findObjInArray(data.spans, 'transaction_id', root.id)
       t.ok(span, 'root transaction should have span')
       t.strictEqual(span.type, 'external')
       t.strictEqual(span.subtype, 'http')
@@ -380,22 +380,22 @@ isSecure.forEach(secure => {
       server.close()
     })
 
-    let port
+    var port
     var server = secure
       ? http2.createSecureServer(pem)
       : http2.createServer()
 
-    const onError = err => t.error(err)
+    var onError = err => t.error(err)
     server.on('error', onError)
     server.on('socketError', onError)
 
     server.on('stream', function (stream, headers) {
-      const trans = ins.currTransaction()
+      var trans = ins.currTransaction()
       t.ok(trans, 'have current transaction')
       t.strictEqual(trans.type, 'request')
 
       if (headers[':path'] === '/') {
-        const client = connect(secure, port)
+        var client = connect(secure, port)
         client.on('error', onError)
         client.on('socketError', onError)
 
@@ -404,7 +404,7 @@ isSecure.forEach(secure => {
           ':status': 200
         })
 
-        const req = client.request({ ':path': '/sub' })
+        var req = client.request({ ':path': '/sub' })
         t.ok(agent.currentSpan === null, 'the http2 span should not spill into user code')
         req.on('end', () => {
           t.ok(agent.currentSpan === null, 'the http2 span should *not* be the currentSpan in user event handlers')
@@ -422,11 +422,11 @@ isSecure.forEach(secure => {
 
     server.listen(() => {
       port = server.address().port
-      const client = connect(secure, port)
+      var client = connect(secure, port)
       client.on('error', onError)
       client.on('socketError', onError)
 
-      const req = client.request({ ':path': '/' })
+      var req = client.request({ ':path': '/' })
       assertResponse(t, req, 'foo')
       req.resume()
       req.on('end', () => client.destroy())
@@ -446,11 +446,11 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
     tx = data.transactions[0]
   })
 
-  let port
-  const serverOpts = Object.assign({ allowHTTP1: true }, pem)
-  const server = http2.createSecureServer(serverOpts)
+  var port
+  var serverOpts = Object.assign({ allowHTTP1: true }, pem)
+  var server = http2.createSecureServer(serverOpts)
   server.on('request', function onRequest (req, res) {
-    const trans = ins.currTransaction()
+    var trans = ins.currTransaction()
     t.ok(trans, 'have current transaction')
     t.strictEqual(trans.type, 'request')
     res.writeHead(200, { 'content-type': 'text/plain' })
@@ -463,7 +463,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
     port = server.address().port
 
     // Make an HTTP/1.1 request.
-    const getOpts = {
+    var getOpts = {
       agent: new https.Agent(),
       protocol: 'https:',
       host: 'localhost',
@@ -472,7 +472,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
       ALPNProtocols: ['http/1.1'],
       rejectUnauthorized: false
     }
-    const req = https.get(getOpts, function (res) {
+    var req = https.get(getOpts, function (res) {
       assertResponse(t, res, 'foo', function () {
         // Assert the APM transaction is as expected for an HTTP/1.x request.
         t.ok(tx, 'got the transaction')
@@ -488,7 +488,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
   })
 })
 
-const matchId = /^[\da-f]{16}$/
+var matchId = /^[\da-f]{16}$/
 
 function assertPath (t, trans, secure, port, path, httpVersion) {
   t.ok(trans)
@@ -593,7 +593,7 @@ function assert (t, data, secure, port) {
 
   // Top-level props of the transaction need to be checked individually
   // because there are a few dynamic properties
-  const trans = data.transactions[0]
+  var trans = data.transactions[0]
   assertPath(t, trans, secure, port, '/', '2.0')
 }
 
@@ -609,8 +609,8 @@ function assertResponse (t, stream, expected, done) {
 }
 
 function connect (secure, port) {
-  const proto = secure ? 'https' : 'http'
-  const opts = { rejectUnauthorized: false }
+  var proto = secure ? 'https' : 'http'
+  var opts = { rejectUnauthorized: false }
   return http2.connect(`${proto}://localhost:${port}`, opts)
 }
 
@@ -621,18 +621,18 @@ function resetAgent (expected, cb) {
 }
 
 function addShouldCall (t) {
-  const calls = []
-  const realEnd = t.end
+  var calls = []
+  var realEnd = t.end
 
   t.end = function end () {
-    for (let i = 0; i < calls.length; i++) {
+    for (var i = 0; i < calls.length; i++) {
       t.strictEqual(calls[i].called, true, 'should have called function')
     }
     return realEnd.apply(this, arguments)
   }
 
   t.shouldCall = function shouldCall (fn) {
-    const record = { called: false }
+    var record = { called: false }
     calls.push(record)
     return function shouldCallWrap () {
       record.called = true

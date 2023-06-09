@@ -10,10 +10,10 @@
 const apm = require('../').start({ // elastic-apm-node
   serviceName: 'example-trace-graphql'
 })
-const { graphql, buildSchema } = require('graphql')
+var { graphql, buildSchema } = require('graphql')
 
 // Construct a schema, using GraphQL schema language
-const schema = buildSchema(`
+var schema = buildSchema(`
   type Query {
     hello: String
     bye: String
@@ -21,7 +21,7 @@ const schema = buildSchema(`
 `)
 
 // The root provides a resolver function for each API endpoint
-const root = {
+var root = {
   hello: () => {
     return 'Hello world!'
   },

@@ -6,24 +6,24 @@
 
 'use strict'
 
-const getPort = require('get-port')
+var getPort = require('get-port')
 
 getPort().then(function (port) {
-  const agent = require('../../').start({
+  var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'https://localhost:' + port,
     metricsInterval: 0,
     centralConfig: false
   })
 
-  const https = require('https')
-  const pem = require('https-pem')
-  const test = require('tape')
+  var https = require('https')
+  var pem = require('https-pem')
+  var test = require('tape')
 
   test('should not allow self signed certificate', function (t) {
     t.plan(1)
 
-    const server = https.createServer(pem, function (req, res) {
+    var server = https.createServer(pem, function (req, res) {
       // Gotcha: there's no way to know if the agent failed except setting
       // `logLevel < error` and looking at stderr, which is a bit cumbersome.
       // This is easier.

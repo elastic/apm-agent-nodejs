@@ -34,8 +34,8 @@ require('../..').start({
   disableSend: true
 })
 
-const test = require('tape')
-const isSecret = require('../../lib/redact-secrets/is-secret')
+var test = require('tape')
+var isSecret = require('../../lib/redact-secrets/is-secret')
 
 test('isSecret.key true', function (t) {
   t.equal(isSecret.key('pass'), true)

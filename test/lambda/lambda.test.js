@@ -927,7 +927,7 @@ tape.test('lambda transactions', function (suite) {
       const wrappedHandler = apm.lambda(handler)
 
       // Save current and apply new config values.
-      const confToRestore = {}
+      var confToRestore = {}
       if (c.conf) {
         Object.keys(c.conf).forEach(k => {
           confToRestore[k] = apm._conf[k]

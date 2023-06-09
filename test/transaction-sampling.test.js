@@ -35,13 +35,13 @@ tape.test('various transactionSampleRate values', function (t) {
       }
     ))
 
-    const results = {
+    var results = {
       count: count,
       numSampled: 0,
       numUnsampled: 0
     }
-    for (let i = 0; i < count; i++) {
-      const trans = agent.startTransaction('myTrans')
+    for (var i = 0; i < count; i++) {
+      var trans = agent.startTransaction('myTrans')
       if (trans && trans.sampled) {
         results.numSampled++
       } else {
@@ -95,11 +95,11 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
     ))
 
     // Start and end a transaction with some spans.
-    const t0 = agent.startTransaction('t0')
-    const s0 = agent.startSpan('s0', 'type')
+    var t0 = agent.startTransaction('t0')
+    var s0 = agent.startSpan('s0', 'type')
     process.nextTick(function () {
       if (s0) s0.end()
-      const s1 = agent.startSpan('s1', 'type')
+      var s1 = agent.startSpan('s1', 'type')
       t.ok(s1 === null, 'no span should be started for an unsampled transaction')
       process.nextTick(function () {
         if (s1) s1.end()
@@ -108,7 +108,7 @@ tape.test('APM Server <v8.0 (which requires unsampled transactions)', function (
         agent.flush(function () {
           // Assert that the transaction was sent, but no spans.
           t.equal(apmServer.events.length, 2)
-          const trans = apmServer.events[1].transaction
+          var trans = apmServer.events[1].transaction
           t.equal(trans.name, 't0')
           t.equal(trans.sampled, false, 'trans.sampled is false')
           t.equal(trans.sample_rate, 0, 'trans.sample_rate')
@@ -166,11 +166,11 @@ tape.test('APM Server >=v8.0 (which does not want unsampled transactions)', func
 
   suite.test('unsampled transactions are not sent', function (t) {
     // Start and end a transaction with some spans.
-    const t0 = agent.startTransaction('t0')
-    const s0 = agent.startSpan('s0', 'type')
+    var t0 = agent.startTransaction('t0')
+    var s0 = agent.startSpan('s0', 'type')
     process.nextTick(function () {
       if (s0) s0.end()
-      const s1 = agent.startSpan('s1', 'type')
+      var s1 = agent.startSpan('s1', 'type')
       t.ok(s1 === null, 'no span should be started for an unsampled transaction')
       process.nextTick(function () {
         if (s1) s1.end()

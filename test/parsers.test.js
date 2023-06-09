@@ -6,11 +6,11 @@
 
 'use strict'
 
-const http = require('http')
+var http = require('http')
 
-const test = require('tape')
+var test = require('tape')
 
-const parsers = require('../lib/parsers')
+var parsers = require('../lib/parsers')
 
 test('#getContextFromResponse()', function (t) {
   t.test('for error (before headers)', function (t) {
@@ -21,7 +21,7 @@ test('#getContextFromResponse()', function (t) {
 
       res.sendDate = false
 
-      const context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
+      var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
       t.deepEqual(context, {
         status_code: 200,
         headers: {},
@@ -42,7 +42,7 @@ test('#getContextFromResponse()', function (t) {
       res.sendDate = false
       res.write('foo')
 
-      const context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
+      var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
       t.deepEqual(context, {
         status_code: 200,
         headers: { connection: 'close', 'transfer-encoding': 'chunked' },
@@ -57,7 +57,7 @@ test('#getContextFromResponse()', function (t) {
   t.test('for error (request finished)', function (t) {
     onRequest(function (req, res) {
       req.on('end', function () {
-        const context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
+        var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true)
         t.deepEqual(context, {
           status_code: 200,
           headers: { connection: 'close', 'content-length': '0' },
@@ -76,7 +76,7 @@ test('#getContextFromResponse()', function (t) {
   t.test('for transaction', function (t) {
     onRequest(function (req, res) {
       req.on('end', function () {
-        const context = parsers.getContextFromResponse(res, { captureHeaders: true }, false)
+        var context = parsers.getContextFromResponse(res, { captureHeaders: true }, false)
         t.deepEqual(context, {
           status_code: 200,
           headers: { connection: 'close', 'content-length': '0' }
@@ -91,8 +91,8 @@ test('#getContextFromResponse()', function (t) {
 
 test('#getContextFromRequest()', function (t) {
   t.test('should parse a request object', function (t) {
-    const conf = { captureHeaders: true, captureBody: 'off' }
-    const parsed = parsers.getContextFromRequest(getMockReq(), conf)
+    var conf = { captureHeaders: true, captureBody: 'off' }
+    var parsed = parsers.getContextFromRequest(getMockReq(), conf)
     t.deepEqual(parsed, {
       http_version: '1.1',
       method: 'GET',
@@ -116,9 +116,9 @@ test('#getContextFromRequest()', function (t) {
   })
 
   t.test('full URI', function (t) {
-    const req = getMockReq()
+    var req = getMockReq()
     req.url = 'https://www.example.com:8080/some/path?key=value'
-    const parsed = parsers.getContextFromRequest(req, {})
+    var parsed = parsers.getContextFromRequest(req, {})
     t.deepEqual(parsed.url, {
       pathname: '/some/path',
       search: '?key=value',
@@ -132,9 +132,9 @@ test('#getContextFromRequest()', function (t) {
   })
 
   t.test('port in host header', function (t) {
-    const req = getMockReq()
+    var req = getMockReq()
     req.headers.host = 'example.com:8080'
-    const parsed = parsers.getContextFromRequest(req, {})
+    var parsed = parsers.getContextFromRequest(req, {})
     t.deepEqual(parsed.url, {
       hostname: 'example.com',
       port: '8080',
@@ -148,9 +148,9 @@ test('#getContextFromRequest()', function (t) {
   })
 
   t.test('empty query string', function (t) {
-    const req = getMockReq()
+    var req = getMockReq()
     req.url = '/some/path?'
-    const parsed = parsers.getContextFromRequest(req, {})
+    var parsed = parsers.getContextFromRequest(req, {})
     t.deepEqual(parsed.url, {
       hostname: 'example.com',
       pathname: '/some/path',
@@ -163,42 +163,42 @@ test('#getContextFromRequest()', function (t) {
   })
 
   t.test('should not log body if opts.body is false', function (t) {
-    const conf = { captureBody: 'off' }
-    const req = getMockReq()
+    var conf = { captureBody: 'off' }
+    var req = getMockReq()
     req.body = 'secret stuff'
     req.headers['content-length'] = String(req.body.length)
-    const parsed = parsers.getContextFromRequest(req, conf)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.strictEqual(parsed.body, '[REDACTED]')
     t.end()
   })
 
   t.test('body is object', function (t) {
-    const conf = { captureBody: 'all' }
-    const req = getMockReq()
+    var conf = { captureBody: 'all' }
+    var req = getMockReq()
     req.body = { foo: 42 }
     req.headers['content-length'] = JSON.stringify(req.body).length
-    const parsed = parsers.getContextFromRequest(req, conf)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.deepEqual(parsed.body, JSON.stringify({ foo: 42 }))
     t.end()
   })
 
   t.test('body is object, but not safe to stringify', function (t) {
-    const conf = { captureBody: 'all' }
-    const req = getMockReq()
+    var conf = { captureBody: 'all' }
+    var req = getMockReq()
     req.body = { foo: 42 }
     req.body.bar = req.body
     req.headers['transfer-encoding'] = 'chunked'
-    const parsed = parsers.getContextFromRequest(req, conf)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.deepEqual(parsed.body, JSON.stringify({ foo: 42, bar: '[Circular]' }))
     t.end()
   })
 
   t.test('body is an array', function (t) {
-    const conf = { captureBody: 'all' }
-    const req = getMockReq()
+    var conf = { captureBody: 'all' }
+    var req = getMockReq()
     req.body = [{ foo: 42 }]
     req.headers['content-length'] = JSON.stringify(req.body).length
-    const parsed = parsers.getContextFromRequest(req, conf)
+    var parsed = parsers.getContextFromRequest(req, conf)
     t.deepEqual(parsed.body, JSON.stringify([{ foo: 42 }]))
     t.end()
   })
@@ -235,14 +235,14 @@ test('#getContextFromRequest()', function (t) {
 })
 
 function onRequest (cb) {
-  const server = http.createServer(cb)
+  var server = http.createServer(cb)
 
   server.listen(function () {
-    const opts = {
+    var opts = {
       agent: new http.Agent(),
       port: server.address().port
     }
-    const req = http.request(opts, function (res) {
+    var req = http.request(opts, function (res) {
       res.on('end', function () {
         server.close()
       })

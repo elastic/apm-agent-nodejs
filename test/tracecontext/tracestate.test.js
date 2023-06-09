@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-const test = require('tape')
+var test = require('tape')
 
 const TraceState = require('../../lib/tracecontext/tracestate')
 test('TraceState binary format functionality', function (t) {

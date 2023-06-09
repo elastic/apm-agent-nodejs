@@ -6,11 +6,11 @@
 
 'use strict'
 
-const getPort = require('get-port')
-const ndjson = require('ndjson')
+var getPort = require('get-port')
+var ndjson = require('ndjson')
 
 getPort().then(function (port) {
-  const agent = require('../../').start({
+  var agent = require('../../').start({
     serviceName: 'test-no-sampling',
     serverUrl: 'http://localhost:' + port,
     captureExceptions: false,
@@ -21,9 +21,9 @@ getPort().then(function (port) {
     apiRequestTime: '1s'
   })
 
-  const http = require('http')
-  const zlib = require('zlib')
-  const test = require('tape')
+  var http = require('http')
+  var zlib = require('zlib')
+  var test = require('tape')
 
   test('should not sample', function (t) {
     var server = http.createServer(function (req, res) {
@@ -57,7 +57,7 @@ getPort().then(function (port) {
   }
 
   function makeTransaction (cb) {
-    const trans = agent.startTransaction('foo', 'bar')
+    var trans = agent.startTransaction('foo', 'bar')
     setTimeout(function () {
       trans.end()
       process.nextTick(cb)

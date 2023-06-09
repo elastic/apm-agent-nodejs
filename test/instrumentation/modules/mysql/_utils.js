@@ -6,12 +6,12 @@
 
 'use strict'
 
-const mysql = require('mysql')
+var mysql = require('mysql')
 
 exports.reset = reset
 exports.credentials = credentials
 
-const DEFAULTS = {
+var DEFAULTS = {
   host: process.env.MYSQL_HOST || 'localhost',
   user: process.env.MYSQL_USER || 'root',
   password: process.env.MYSQL_PASSWORD,
@@ -27,7 +27,7 @@ function credentials (conf) {
 }
 
 function reset (cb) {
-  const client = mysql.createConnection(credentials({ database: 'mysql' }))
+  var client = mysql.createConnection(credentials({ database: 'mysql' }))
 
   client.connect(function (err) {
     if (err) throw err

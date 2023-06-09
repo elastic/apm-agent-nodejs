@@ -16,29 +16,29 @@ const agent = require('../../../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-const http = require('http')
+var http = require('http')
 
-const test = require('tape')
+var test = require('tape')
 
-const mockClient = require('../../../_mock_http_client')
+var mockClient = require('../../../_mock_http_client')
 
 test('response writeHead is bound to transaction', function (t) {
   resetAgent(data => {
     t.strictEqual(data.transactions.length, 1, 'has a transaction')
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.result, 'HTTP 2xx', 'has correct result')
 
     t.end()
   })
 
-  const server = http.createServer(function (req, res) {
+  var server = http.createServer(function (req, res) {
     agent._instrumentation.supersedeWithEmptyRunContext()
     res.end()
   })
 
   server.listen(function () {
-    const port = server.address().port
+    var port = server.address().port
     http.get(`http://localhost:${port}`, function (res) {
       res.resume()
       res.on('end', () => {

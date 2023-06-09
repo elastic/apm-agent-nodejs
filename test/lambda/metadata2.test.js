@@ -69,7 +69,7 @@ tape.test('lambda metadata respects config settings', function (suite) {
       callback: function (err, result) {
         t.error(err, `no error from executing the lambda handler: err=${JSON.stringify(err)}`)
 
-        const metadata = server.events[0].metadata
+        var metadata = server.events[0].metadata
         t.ok(metadata, 'got metadata')
         t.same(metadata.service.name, 'my-service', 'service.name from serviceName config')
         t.same(metadata.service.version, '1.2.3', 'service.version from serviceVersion config')

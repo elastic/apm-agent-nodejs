@@ -11,24 +11,24 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test-ws',
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false
 })
 
-const test = require('tape')
-const WebSocket = require('ws')
+var test = require('tape')
+var WebSocket = require('ws')
 
-const mockClient = require('../../_mock_http_client')
+var mockClient = require('../../_mock_http_client')
 
-const PORT = 12342
+var PORT = 12342
 
 test('ws.send', function (t) {
   resetAgent(done(t))
 
-  const wss = new WebSocket.Server({ port: PORT })
+  var wss = new WebSocket.Server({ port: PORT })
 
   wss.on('connection', function (ws) {
     ws.on('message', function (message) {
@@ -37,7 +37,7 @@ test('ws.send', function (t) {
     })
   })
 
-  const ws = new WebSocket('ws://localhost:' + PORT)
+  var ws = new WebSocket('ws://localhost:' + PORT)
 
   ws.on('open', function () {
     agent.startTransaction('foo', 'websocket')
@@ -61,8 +61,8 @@ function done (t) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 1)
 
-    const trans = data.transactions[0]
-    const span = data.spans[0]
+    var trans = data.transactions[0]
+    var span = data.spans[0]
 
     t.strictEqual(trans.name, 'foo')
     t.strictEqual(trans.type, 'websocket')
@@ -70,7 +70,7 @@ function done (t) {
     t.strictEqual(span.type, 'websocket')
     t.strictEqual(span.subtype, 'send')
 
-    const offset = span.timestamp - trans.timestamp
+    var offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()

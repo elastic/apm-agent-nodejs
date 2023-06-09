@@ -46,8 +46,8 @@ class MockAPMServer {
   }
 
   _onRequest (req, res) {
-    const parsedUrl = new URL(req.url, this.serverUrl)
-    let instream = req
+    var parsedUrl = new URL(req.url, this.serverUrl)
+    var instream = req
     if (req.headers['content-encoding'] === 'gzip') {
       instream = req.pipe(zlib.createGunzip())
     } else {

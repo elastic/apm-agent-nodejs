@@ -6,18 +6,18 @@
 
 'use strict'
 
-const cp = require('child_process')
-const fs = require('fs')
-const IncomingMessage = require('http').IncomingMessage
-const os = require('os')
-const path = require('path')
-const util = require('util')
+var cp = require('child_process')
+var fs = require('fs')
+var IncomingMessage = require('http').IncomingMessage
+var os = require('os')
+var path = require('path')
+var util = require('util')
 
-const isRegExp = require('core-util-is').isRegExp
-const mkdirp = require('mkdirp')
-const rimraf = require('rimraf')
-const semver = require('semver')
-const test = require('tape')
+var isRegExp = require('core-util-is').isRegExp
+var mkdirp = require('mkdirp')
+var rimraf = require('rimraf')
+var semver = require('semver')
+var test = require('tape')
 
 const Agent = require('../lib/agent')
 const { MockAPMServer } = require('./_mock_apm_server')
@@ -33,10 +33,10 @@ const {
 } = require('../lib/config/schema')
 const config = require('../lib/config/config')
 
-const Instrumentation = require('../lib/instrumentation')
-const apmVersion = require('../package').version
-const apmName = require('../package').name
-const isHapiIncompat = require('./_is_hapi_incompat')
+var Instrumentation = require('../lib/instrumentation')
+var apmVersion = require('../package').version
+var apmName = require('../package').name
+var isHapiIncompat = require('./_is_hapi_incompat')
 const isMongodbIncompat = require('./_is_mongodb_incompat')
 const isFastifyIncompat = require('./_is_fastify_incompat')
 
@@ -102,7 +102,7 @@ function assertEncodedError (t, error, result, trans, parent) {
 
 // ---- tests
 
-const optionFixtures = [
+var optionFixtures = [
   ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
   ['active', 'ACTIVE', true],
   ['apiKey', 'API_KEY'],
@@ -157,8 +157,8 @@ const optionFixtures = [
   ['verifyServerCert', 'VERIFY_SERVER_CERT', true]
 ]
 
-const falsyValues = [false, 'false']
-const truthyValues = [true, 'true']
+var falsyValues = [false, 'false']
+var truthyValues = [true, 'true']
 
 optionFixtures.forEach(function (fixture) {
   if (fixture[1]) {
@@ -187,8 +187,8 @@ optionFixtures.forEach(function (fixture) {
     var existingValue = process.env[envName]
 
     test(`should be configurable by environment variable ${envName}`, function (t) {
-      const agent = new Agent()
-      let value
+      var agent = new Agent()
+      var value
 
       switch (type) {
         case 'bool':
@@ -251,9 +251,9 @@ optionFixtures.forEach(function (fixture) {
     })
 
     test(`should overwrite option property ${fixture[0]} by ${envName}`, function (t) {
-      const agent = new Agent()
-      const opts = {}
-      let value1, value2
+      var agent = new Agent()
+      var opts = {}
+      var value1, value2
 
       switch (type) {
         case 'bool':
@@ -326,12 +326,12 @@ optionFixtures.forEach(function (fixture) {
     if (existingValue) {
       delete process.env[envName]
     }
-    const opts = Object.assign({}, agentOptsNoopTransport)
+    var opts = Object.assign({}, agentOptsNoopTransport)
     if (fixture[0] in opts) {
       delete opts[fixture[0]]
     }
 
-    const agent = new Agent().start(opts)
+    var agent = new Agent().start(opts)
 
     switch (type) {
       case 'array':
@@ -353,7 +353,7 @@ optionFixtures.forEach(function (fixture) {
 
 falsyValues.forEach(function (val) {
   test('should be disabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
-    const agent = new Agent()
+    var agent = new Agent()
     process.env.ELASTIC_APM_ACTIVE = val
     agent.start(Object.assign({}, agentOptsNoopTransport, { serviceName: 'foo', secretToken: 'baz' }))
     t.strictEqual(agent._conf.active, false)
@@ -365,7 +365,7 @@ falsyValues.forEach(function (val) {
 
 truthyValues.forEach(function (val) {
   test('should be enabled by environment variable ELASTIC_APM_ACTIVE set to: ' + util.inspect(val), function (t) {
-    const agent = new Agent()
+    var agent = new Agent()
     process.env.ELASTIC_APM_ACTIVE = val
     agent.start(Object.assign({}, agentOptsNoopTransport, { serviceName: 'foo', secretToken: 'baz' }))
     t.strictEqual(agent._conf.active, true)
@@ -376,8 +376,8 @@ truthyValues.forEach(function (val) {
 })
 
 test('should log invalid booleans', function (t) {
-  const agent = new Agent()
-  const logger = new MockLogger()
+  var agent = new Agent()
+  var logger = new MockLogger()
 
   agent.start(Object.assign(
     {},
@@ -390,10 +390,10 @@ test('should log invalid booleans', function (t) {
     }
   ))
 
-  const warning = findObjInArray(logger.calls, 'type', 'warn')
+  var warning = findObjInArray(logger.calls, 'type', 'warn')
   t.strictEqual(warning.message, 'unrecognized boolean value "nope" for "active"')
 
-  const debug = findObjInArray(logger.calls, 'type', 'debug')
+  var debug = findObjInArray(logger.calls, 'type', 'debug')
   t.strictEqual(debug.message, 'Elastic APM agent disabled (`active` is false)')
 
   agent.destroy()
@@ -401,8 +401,8 @@ test('should log invalid booleans', function (t) {
 })
 
 test('it should log deprecated booleans', function (t) {
-  const agent = new Agent()
-  const logger = new MockLogger()
+  var agent = new Agent()
+  var logger = new MockLogger()
 
   agent.start(Object.assign(
     {},
@@ -416,21 +416,21 @@ test('it should log deprecated booleans', function (t) {
     }
   ))
 
-  const warning = findObjInArray(logger.calls, 'type', 'warn')
+  var warning = findObjInArray(logger.calls, 'type', 'warn')
   t.strictEqual(warning.message, 'the `filterHttpHeaders` config option is deprecated')
 
   agent.destroy()
   t.end()
 })
 
-const MINUS_ONE_EQUAL_INFINITY = [
+var MINUS_ONE_EQUAL_INFINITY = [
   'transactionMaxSpans'
 ]
 
 MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
   test(key + ' should be Infinity if set to -1', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = -1
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], Infinity)
@@ -439,15 +439,15 @@ MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
   })
 })
 
-const bytesValues = [
+var bytesValues = [
   'apiRequestSize',
   'errorMessageMaxLength'
 ]
 
 bytesValues.forEach(function (key) {
   test(key + ' should be converted to a number', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = '1mb'
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 1024 * 1024)
@@ -479,8 +479,8 @@ DURATION_OPTS.forEach(function (optSpec) {
 
   if (!optSpec.allowNegative) {
     test(key + ' should guard against a negative time', function (t) {
-      const agent = new Agent()
-      const logger = new MockLogger()
+      var agent = new Agent()
+      var logger = new MockLogger()
       agent.start(Object.assign(
         {},
         agentOptsNoopTransport,
@@ -506,8 +506,8 @@ DURATION_OPTS.forEach(function (optSpec) {
   }
 
   test(key + ' should guard against a bogus non-time', function (t) {
-    const agent = new Agent()
-    const logger = new MockLogger()
+    var agent = new Agent()
+    var logger = new MockLogger()
     agent.start(Object.assign(
       {},
       agentOptsNoopTransport,
@@ -532,8 +532,8 @@ DURATION_OPTS.forEach(function (optSpec) {
   })
 
   test(key + ' should convert minutes to seconds', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = '1m'
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 60)
@@ -542,8 +542,8 @@ DURATION_OPTS.forEach(function (optSpec) {
   })
 
   test(key + ' should convert milliseconds to seconds', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = '2000ms'
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 2)
@@ -552,8 +552,8 @@ DURATION_OPTS.forEach(function (optSpec) {
   })
 
   test(key + ' should parse seconds', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = '5s'
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.strictEqual(agent._conf[key], 5)
@@ -562,11 +562,11 @@ DURATION_OPTS.forEach(function (optSpec) {
   })
 
   test(key + ' should support bare numbers', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = 10
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
-    let expectedVal
+    var expectedVal
     switch (optSpec.defaultUnit) {
       case 's':
         expectedVal = 10
@@ -583,15 +583,15 @@ DURATION_OPTS.forEach(function (optSpec) {
   })
 })
 
-const keyValuePairValues = [
+var keyValuePairValues = [
   'addPatch',
   'globalLabels'
 ]
 
 keyValuePairValues.forEach(function (key) {
-  const string = 'foo=bar,baz=buz'
-  const object = { foo: 'bar', baz: 'buz' }
-  const pairs = [
+  var string = 'foo=bar,baz=buz'
+  var object = { foo: 'bar', baz: 'buz' }
+  var pairs = [
     [
       'foo',
       'bar'
@@ -603,8 +603,8 @@ keyValuePairValues.forEach(function (key) {
   ]
 
   test(key + ' should support string form', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = string
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.deepEqual(agent._conf[key], pairs)
@@ -613,8 +613,8 @@ keyValuePairValues.forEach(function (key) {
   })
 
   test(key + ' should support object form', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = object
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.deepEqual(agent._conf[key], pairs)
@@ -623,8 +623,8 @@ keyValuePairValues.forEach(function (key) {
   })
 
   test(key + ' should support pair form', function (t) {
-    const agent = new Agent()
-    const opts = {}
+    var agent = new Agent()
+    var opts = {}
     opts[key] = pairs
     agent.start(Object.assign({}, agentOptsNoopTransport, opts))
     t.deepEqual(agent._conf[key], pairs)
@@ -633,7 +633,7 @@ keyValuePairValues.forEach(function (key) {
   })
 })
 
-const noPrefixValues = [
+var noPrefixValues = [
   ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
   ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
   ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
@@ -643,7 +643,7 @@ const noPrefixValues = [
 noPrefixValues.forEach(function (pair) {
   const [key, envVar] = pair
   test(`maps ${envVar} to ${key}`, (t) => {
-    const agent = new Agent()
+    var agent = new Agent()
     process.env[envVar] = 'test'
     agent.start(agentOptsNoopTransport)
     delete process.env[envVar]
@@ -654,8 +654,8 @@ noPrefixValues.forEach(function (pair) {
 })
 
 test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (t) {
-  const agent = new Agent()
-  const opts = { serviceName: 'foo', secretToken: 'baz', active: true }
+  var agent = new Agent()
+  var opts = { serviceName: 'foo', secretToken: 'baz', active: true }
   process.env.ELASTIC_APM_ACTIVE = 'false'
   agent.start(Object.assign({}, agentOptsNoopTransport, opts))
   t.strictEqual(agent._conf.active, false)
@@ -665,7 +665,7 @@ test('should overwrite option property active by ELASTIC_APM_ACTIVE', function (
 })
 
 test('should default to empty request ignore arrays', function (t) {
-  const agent = new Agent()
+  var agent = new Agent()
   agent.start(agentOptsNoopTransport)
   t.strictEqual(agent._conf.ignoreUrlStr.length, 0)
   t.strictEqual(agent._conf.ignoreUrlRegExp.length, 0)
@@ -677,7 +677,7 @@ test('should default to empty request ignore arrays', function (t) {
 })
 
 test('should separate strings and regexes into their own ignore arrays', function (t) {
-  const agent = new Agent()
+  var agent = new Agent()
   agent.start(Object.assign(
     {},
     agentOptsNoopTransport,
@@ -703,7 +703,7 @@ test('should separate strings and regexes into their own ignore arrays', functio
 })
 
 test('should prepare WildcardMatcher array config vars', function (t) {
-  const agent = new Agent()
+  var agent = new Agent()
   agent.start(Object.assign(
     {},
     agentOptsNoopTransport,
@@ -747,7 +747,7 @@ test('invalid serviceName => inactive', function (t) {
 })
 
 test('valid serviceName => active', function (t) {
-  const agent = new Agent()
+  var agent = new Agent()
   agent.start(Object.assign({}, agentOptsNoopTransport, { serviceName: 'fooBAR0123456789_- ' }))
   t.strictEqual(agent._conf.active, true)
   agent.destroy()
@@ -901,7 +901,7 @@ test('serviceName/serviceVersion zero-conf: no package.json to find', function (
   })
 })
 
-const captureBodyTests = [
+var captureBodyTests = [
   { value: 'off', errors: '[REDACTED]', transactions: '[REDACTED]' },
   { value: 'transactions', errors: '[REDACTED]', transactions: 'test' },
   { value: 'errors', errors: 'test', transactions: '[REDACTED]' },
@@ -921,13 +921,13 @@ captureBodyTests.forEach(function (captureBodyTest) {
         }
       ))
 
-      const req = new IncomingMessage()
+      var req = new IncomingMessage()
       req.socket = { remoteAddress: '127.0.0.1' }
       req.headers['transfer-encoding'] = 'chunked'
       req.headers['content-length'] = 4
       req.body = 'test'
 
-      const trans = agent.startTransaction()
+      var trans = agent.startTransaction()
       trans.req = req
       trans.end()
 
@@ -952,15 +952,15 @@ captureBodyTests.forEach(function (captureBodyTest) {
   })
 })
 
-const usePathAsTransactionNameTests = [
+var usePathAsTransactionNameTests = [
   { value: true, url: '/foo/bar?baz=2', transactionName: 'GET /foo/bar' },
   { value: false, url: '/foo/bar?baz=2', transactionName: 'GET unknown route' }
 ]
 
 usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
   test('usePathAsTransactionName => ' + usePathAsTransactionNameTest.value, function (t) {
-    let sentTrans
-    const agent = new Agent()
+    var sentTrans
+    var agent = new Agent()
     agent.start(Object.assign(
       {},
       agentOptsNoopTransport,
@@ -986,12 +986,12 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
       }
     ))
 
-    const req = new IncomingMessage()
+    var req = new IncomingMessage()
     req.socket = { remoteAddress: '127.0.0.1' }
     req.url = usePathAsTransactionNameTest.url
     req.method = 'GET'
 
-    const trans = agent.startTransaction()
+    var trans = agent.startTransaction()
     trans.req = req
     trans.end()
 
@@ -1007,13 +1007,13 @@ usePathAsTransactionNameTests.forEach(function (usePathAsTransactionNameTest) {
 })
 
 test('disableInstrumentations', function (t) {
-  const esVersion = safeGetPackageVersion('@elastic/elasticsearch')
+  var esVersion = safeGetPackageVersion('@elastic/elasticsearch')
 
   // require('apollo-server-core') is a hard crash on nodes < 12.0.0
   const apolloServerCoreVersion = require('apollo-server-core/package.json').version
 
-  const flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
-  const modules = new Set(flattenedModules)
+  var flattenedModules = Instrumentation.modules.reduce((acc, val) => acc.concat(val), [])
+  var modules = new Set(flattenedModules)
   modules.delete('hapi') // Deprecated, we no longer test this instrumentation.
   modules.delete('jade') // Deprecated, we no longer test this instrumentation.
   if (isHapiIncompat('@hapi/hapi')) {
@@ -1077,18 +1077,18 @@ test('disableInstrumentations', function (t) {
   modules.delete('mysql2')
 
   function testSlice (t, name, selector) {
-    const selection = selector(modules)
-    const selectionSet = new Set(typeof selection === 'string' ? selection.split(',') : selection)
+    var selection = selector(modules)
+    var selectionSet = new Set(typeof selection === 'string' ? selection.split(',') : selection)
 
     t.test(name + ' -> ' + Array.from(selectionSet).join(','), function (t) {
-      const agent = new Agent()
+      var agent = new Agent()
       agent.start(Object.assign(
         {},
         agentOptsNoopTransport,
         { disableInstrumentations: selection }
       ))
 
-      const found = new Set()
+      var found = new Set()
 
       agent._instrumentation._patchModule = function (exports, name, version, enabled) {
         if (!enabled) found.add(name)
@@ -1166,12 +1166,12 @@ test('custom transport', function (t) {
   }
   const myTransport = new MyTransport()
 
-  const agent = new Agent()
+  var agent = new Agent()
   agent.start(Object.assign({}, agentOpts, { transport: () => myTransport }))
 
-  const error = new Error('error')
-  const trans = agent.startTransaction('transaction')
-  const span = agent.startSpan('span')
+  var error = new Error('error')
+  var trans = agent.startTransaction('transaction')
+  var span = agent.startSpan('span')
   agent.captureError(error)
   span.end()
   trans.end()
@@ -1210,7 +1210,7 @@ test('addPatch', function (t) {
 })
 
 test('globalLabels should be received by transport', function (t) {
-  const globalLabels = {
+  var globalLabels = {
     foo: 'bar'
   }
 
@@ -1264,7 +1264,7 @@ test('instrument: false allows manual instrumentation', function (t) {
 })
 
 test('parsing of ARRAY and KEY_VALUE opts', function (t) {
-  const cases = [
+  var cases = [
     {
       opts: { transactionIgnoreUrls: ['foo', 'bar'] },
       expect: { transactionIgnoreUrls: ['foo', 'bar'] }
@@ -1320,13 +1320,13 @@ test('parsing of ARRAY and KEY_VALUE opts', function (t) {
   ]
 
   cases.forEach(function testOneCase ({ opts, env, expect }) {
-    const origEnv = process.env
+    var origEnv = process.env
     try {
       if (env) {
         process.env = Object.assign({}, origEnv, env)
       }
-      const cfg = config.createConfig(opts)
-      for (const field in expect) {
+      var cfg = config.createConfig(opts)
+      for (var field in expect) {
         t.deepEqual(cfg[field], expect[field],
           util.format('opts=%j env=%j -> %j', opts, env, expect))
       }
@@ -1339,7 +1339,7 @@ test('parsing of ARRAY and KEY_VALUE opts', function (t) {
 })
 
 test('transactionSampleRate precision', function (t) {
-  const cases = [
+  var cases = [
     {
       opts: { transactionSampleRate: 0 },
       expect: { transactionSampleRate: 0 }
@@ -1379,13 +1379,13 @@ test('transactionSampleRate precision', function (t) {
   ]
 
   cases.forEach(function testOneCase ({ opts, env, expect }) {
-    const origEnv = process.env
+    var origEnv = process.env
     try {
       if (env) {
         process.env = Object.assign({}, origEnv, env)
       }
-      const cfg = config.createConfig(opts)
-      for (const field in expect) {
+      var cfg = config.createConfig(opts)
+      for (var field in expect) {
         t.deepEqual(cfg[field], expect[field],
           util.format('opts=%j env=%j -> %j', opts, env, expect))
       }

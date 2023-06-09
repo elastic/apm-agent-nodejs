@@ -6,10 +6,10 @@
 
 'use strict'
 
-const getPort = require('get-port')
+var getPort = require('get-port')
 
 getPort().then(function (port) {
-  const agent = require('../../').start({
+  var agent = require('../../').start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + port + '/sub',
     captureExceptions: false,
@@ -19,8 +19,8 @@ getPort().then(function (port) {
     disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
   })
 
-  const http = require('http')
-  const test = require('tape')
+  var http = require('http')
+  var test = require('tape')
 
   test('should allow path in serverUrl', function (t) {
     var server = http.createServer(function (req, res) {

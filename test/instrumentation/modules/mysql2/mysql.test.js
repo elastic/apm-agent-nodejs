@@ -19,7 +19,7 @@ if (semver.gte(mysql2Ver, '3.0.0') && semver.lt(process.version, '14.6.0')) {
   process.exit()
 }
 
-const agent = require('../../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -28,30 +28,30 @@ const agent = require('../../../..').start({
   spanCompressionEnabled: false
 })
 
-const mysql = require('mysql2')
-const mysqlPromise = require('mysql2/promise')
-const test = require('tape')
+var mysql = require('mysql2')
+var mysqlPromise = require('mysql2/promise')
+var test = require('tape')
 
-const utils = require('./_utils')
-const mockClient = require('../../../_mock_http_client')
-const findObjInArray = require('../../../_utils').findObjInArray
+var utils = require('./_utils')
+var mockClient = require('../../../_mock_http_client')
+var findObjInArray = require('../../../_utils').findObjInArray
 
-const connectionOptions = utils.credentials()
-let queryable
-let queryablePromise
-const factories = [
+var connectionOptions = utils.credentials()
+var queryable
+var queryablePromise
+var factories = [
   [createConnection, 'connection', true],
   [createPool, 'pool', true],
   [createPoolAndGetConnection, 'pool > connection', true],
   [createPoolClusterAndGetConnection, 'poolCluster > connection', false],
   [createPoolClusterAndGetConnectionViaOf, 'poolCluster > of > connection', false]
 ]
-const executors = [
+var executors = [
   'query',
   'execute'
 ]
 
-const universalArgumentSets = [
+var universalArgumentSets = [
   {
     names: ['sql'],
     query: 'SELECT 1 + 1 AS solution',
@@ -74,7 +74,7 @@ const universalArgumentSets = [
   }
 ]
 
-const callbackArgumentSets = [
+var callbackArgumentSets = [
   {
     names: ['query'],
     query: 'SELECT 1 + 1 AS solution',
@@ -88,27 +88,27 @@ const callbackArgumentSets = [
 ]
 
 factories.forEach(function (f) {
-  const factory = f[0]
-  const type = f[1]
-  const hasPromises = f[2]
+  var factory = f[0]
+  var type = f[1]
+  var hasPromises = f[2]
 
   test('mysql2.' + factory.name, function (t) {
     t.on('end', teardown)
     executors.forEach(function (executor) {
       t.test(executor, function (t) {
-        const isQuery = executor === 'query'
-        const argumentSets = isQuery && type !== 'pool'
+        var isQuery = executor === 'query'
+        var argumentSets = isQuery && type !== 'pool'
           ? universalArgumentSets.concat(callbackArgumentSets)
           : universalArgumentSets
 
         t.test('callback', function (t) {
           argumentSets.forEach(function (argumentSet) {
-            const query = argumentSet.query
-            const names = argumentSet.names
-            const values = argumentSet.values
+            var query = argumentSet.query
+            var names = argumentSet.names
+            var values = argumentSet.values
 
-            const name = `${type}.${executor}(${names.join(', ')}, callback)`
-            const args = values(query, basicQueryCallback(t))
+            var name = `${type}.${executor}(${names.join(', ')}, callback)`
+            var args = values(query, basicQueryCallback(t))
 
             t.test(name, function (t) {
               resetAgent(function (data) {
@@ -127,12 +127,12 @@ factories.forEach(function (f) {
         if (hasPromises) {
           t.test('promise', function (t) {
             universalArgumentSets.forEach(function (argumentSet) {
-              const query = argumentSet.query
-              const names = argumentSet.names
-              const values = argumentSet.values
+              var query = argumentSet.query
+              var names = argumentSet.names
+              var values = argumentSet.values
 
-              const name = `${type}.${executor}(${names.join(', ')})`
-              const args = values(query)
+              var name = `${type}.${executor}(${names.join(', ')})`
+              var args = values(query)
 
               t.test(name, function (t) {
                 resetAgent(function (data) {
@@ -141,7 +141,7 @@ factories.forEach(function (f) {
                 })
                 factory(function () {
                   agent.startTransaction('foo')
-                  const promise = queryablePromise[executor].apply(queryablePromise, args)
+                  var promise = queryablePromise[executor].apply(queryablePromise, args)
                   t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code')
                   basicQueryPromise(t, promise)
                 })
@@ -153,12 +153,12 @@ factories.forEach(function (f) {
         if (isQuery) {
           t.test('streaming', function (t) {
             argumentSets.forEach(function (argumentSet) {
-              const query = argumentSet.query
-              const names = argumentSet.names
-              const values = argumentSet.values
+              var query = argumentSet.query
+              var names = argumentSet.names
+              var values = argumentSet.values
 
-              const name = `${type}.${executor}(${names.join(', ')})`
-              const args = values(query)
+              var name = `${type}.${executor}(${names.join(', ')})`
+              var args = values(query)
 
               t.test(name, function (t) {
                 resetAgent(function (data) {
@@ -167,7 +167,7 @@ factories.forEach(function (f) {
                 })
                 factory(function () {
                   agent.startTransaction('foo')
-                  const stream = queryable[executor].apply(queryable, args)
+                  var stream = queryable[executor].apply(queryable, args)
                   t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code')
                   basicQueryStream(stream, t)
                 })
@@ -184,7 +184,7 @@ factories.forEach(function (f) {
           t.strictEqual(data.transactions.length, 1)
           t.strictEqual(data.spans.length, 3)
 
-          const trans = data.transactions[0]
+          var trans = data.transactions[0]
 
           t.strictEqual(trans.name, 'foo')
 
@@ -199,8 +199,8 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + ? AS solution'
 
         factory(function () {
-          let n = 0
-          const trans = agent.startTransaction('foo')
+          var n = 0
+          var trans = agent.startTransaction('foo')
 
           queryable.query(sql, [1], function (err, rows, fields) {
             t.error(err)
@@ -229,7 +229,7 @@ factories.forEach(function (f) {
           t.strictEqual(data.transactions.length, 1)
           t.strictEqual(data.spans.length, 3)
 
-          const trans = data.transactions[0]
+          var trans = data.transactions[0]
 
           t.strictEqual(trans.name, 'foo')
 
@@ -244,8 +244,8 @@ factories.forEach(function (f) {
         var sql = 'SELECT 1 + ? AS solution'
 
         createPool(function () {
-          let n = 0
-          const trans = agent.startTransaction('foo')
+          var n = 0
+          var trans = agent.startTransaction('foo')
 
           queryable.getConnection(function (err, conn) {
             t.error(err)
@@ -283,7 +283,7 @@ factories.forEach(function (f) {
       resetAgent(6, function (data) {
         t.strictEqual(data.transactions.length, 3)
         t.strictEqual(data.spans.length, 3)
-        const names = data.transactions.map(function (trans) {
+        var names = data.transactions.map(function (trans) {
           return trans.name
         }).sort()
         t.deepEqual(names, ['bar', 'baz', 'foo'])
@@ -301,7 +301,7 @@ factories.forEach(function (f) {
 
       factory(function () {
         setImmediate(function () {
-          const trans = agent.startTransaction('foo')
+          var trans = agent.startTransaction('foo')
           queryable.query(sql, [1], function (err, rows, fields) {
             t.error(err)
             t.strictEqual(rows[0].solution, 2)
@@ -310,7 +310,7 @@ factories.forEach(function (f) {
         })
 
         setImmediate(function () {
-          const trans = agent.startTransaction('bar')
+          var trans = agent.startTransaction('bar')
           queryable.query(sql, [2], function (err, rows, fields) {
             t.error(err)
             t.strictEqual(rows[0].solution, 3)
@@ -319,7 +319,7 @@ factories.forEach(function (f) {
         })
 
         setImmediate(function () {
-          const trans = agent.startTransaction('baz')
+          var trans = agent.startTransaction('baz')
           queryable.query(sql, [3], function (err, rows, fields) {
             t.error(err)
             t.strictEqual(rows[0].solution, 4)
@@ -364,7 +364,7 @@ function basicQueryPromise (t, p) {
   }
 
   p.then(function (response) {
-    const rows = response[0]
+    var rows = response[0]
     t.strictEqual(rows[0].solution, 2)
     done()
   }, function (error) {
@@ -383,7 +383,7 @@ function basicQueryCallback (t) {
 }
 
 function basicQueryStream (stream, t) {
-  let results = 0
+  var results = 0
   stream.on('error', function (err) {
     t.ok(agent.currentSpan === null, 'mysql2 span should not be active in user code')
     t.error(err)
@@ -404,8 +404,8 @@ function assertBasicQuery (t, sql, data) {
   t.strictEqual(data.transactions.length, 1)
   t.strictEqual(data.spans.length, 1)
 
-  const trans = data.transactions[0]
-  const span = data.spans[0]
+  var trans = data.transactions[0]
+  var span = data.spans[0]
 
   t.strictEqual(trans.name, 'foo')
   assertSpan(t, span, sql)

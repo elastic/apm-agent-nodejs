@@ -28,15 +28,15 @@ if (Number(process.versions.node.split('.')[0]) > 8) {
   assert = assert.strict
 }
 
-const t1 = apm.startTransaction('t1')
+var t1 = apm.startTransaction('t1')
 assert(apm.currentTransaction === t1)
-const t2 = apm.startTransaction('t2')
+var t2 = apm.startTransaction('t2')
 assert(apm.currentTransaction === t2)
-const t3 = apm.startTransaction('t3')
+var t3 = apm.startTransaction('t3')
 assert(apm.currentTransaction === t3)
-const s4 = apm.startSpan('s4')
+var s4 = apm.startSpan('s4')
 assert(apm.currentSpan === s4)
-const s5 = apm.startSpan('s5')
+var s5 = apm.startSpan('s5')
 assert(apm.currentSpan === s5)
 s4.end() // (out of order)
 assert(apm.currentSpan === s5)

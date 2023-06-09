@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../../..').start({
+var agent = require('../../../..').start({
   serviceName: 'test-knex-no-span-stack-traces',
   secretToken: 'test',
   captureExceptions: false,
@@ -22,8 +22,8 @@ const agent = require('../../../..').start({
   spanStackTraceMinDuration: -1
 })
 
-const knexVersion = require('knex/package').version
-const semver = require('semver')
+var knexVersion = require('knex/package').version
+var semver = require('semver')
 
 // knex 0.18.0 min supported node is v8, knex 0.21.0 min supported node is v10
 if ((semver.gte(knexVersion, '0.18.0') && semver.lt(process.version, '8.6.0')) ||
@@ -38,8 +38,8 @@ if (semver.gte(knexVersion, '0.95.0') && agent._conf.contextManager === 'patch')
   process.exit()
 }
 
-const Knex = require('knex')
-const test = require('tape')
+var Knex = require('knex')
+var test = require('tape')
 
 test('knex instrumentation is disabled if not collecting span stacktraces', t => {
   // To test that knex instrumentation did *not* happen, we are assuming that

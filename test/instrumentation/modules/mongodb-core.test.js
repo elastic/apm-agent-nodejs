@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test-mongodb-core',
   captureExceptions: false,
   metricsInterval: 0,
@@ -20,19 +20,19 @@ const agent = require('../../..').start({
   spanCompressionEnabled: false
 })
 
-const Server = require('mongodb-core').Server
-const semver = require('semver')
-const test = require('tape')
-const mongodbCoreVersion = require('mongodb-core/package').version
+var Server = require('mongodb-core').Server
+var semver = require('semver')
+var test = require('tape')
+var mongodbCoreVersion = require('mongodb-core/package').version
 
-const mockClient = require('../../_mock_http_client')
+var mockClient = require('../../_mock_http_client')
 
 test('instrument simple command', function (t) {
   // Because a variable number of events to the APM server is possible (see
   // the "Note ... additional spans" below), we cannot use the 'expected' arg
   // to `mockClient` here.
   resetAgent(function (data) {
-    const expectedSpanNamesInOrder = [
+    var expectedSpanNamesInOrder = [
       'system.$cmd.ismaster',
       'elasticapm.test.insert',
       'elasticapm.test.update',
@@ -42,7 +42,7 @@ test('instrument simple command', function (t) {
     ]
 
     t.strictEqual(data.transactions.length, 1)
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'foo', 'transaction.name')
     t.strictEqual(trans.type, 'bar', 'transaction.type')
     t.strictEqual(trans.result, 'success', 'transaction.result')
@@ -61,7 +61,7 @@ test('instrument simple command', function (t) {
     //   `contextManager != "patch"`.
     // - mongodb-core@1.x includes `elasticapm.$cmd.command` spans after the
     //   insert, update, and remove commands.
-    for (let i = 0; i < data.spans.length; i++) {
+    for (var i = 0; i < data.spans.length; i++) {
       const span = data.spans[i]
       if (semver.lt(mongodbCoreVersion, '2.0.0')) {
         if (span.name === 'admin.$cmd.ismaster' && i === 0) {
@@ -82,7 +82,7 @@ test('instrument simple command', function (t) {
       t.strictEqual(span.subtype, 'mongodb', 'span has expected subtype')
       t.strictEqual(span.action, 'query', 'span has expected action')
       t.strictEqual(span.parent_id, trans.id, 'span is a direct child of transaction')
-      const offset = span.timestamp - trans.timestamp
+      var offset = span.timestamp - trans.timestamp
       t.ok(offset + span.duration * 1000 < trans.duration * 1000,
         `span ends (${span.timestamp / 1000 + span.duration}ms) before the transaction (${trans.timestamp / 1000 + trans.duration}ms)`)
       const dbInstance = expectedSpanNamesInOrder[0].slice(0, expectedSpanNamesInOrder[0].lastIndexOf('.'))
@@ -110,7 +110,7 @@ test('instrument simple command', function (t) {
     t.end()
   })
 
-  const server = new Server({ host: process.env.MONGODB_HOST })
+  var server = new Server({ host: process.env.MONGODB_HOST })
 
   agent.startTransaction('foo', 'bar')
 
@@ -132,7 +132,7 @@ test('instrument simple command', function (t) {
             t.error(err, 'no error from remove')
             t.strictEqual(results.result.n, 1)
 
-            const cursor = _server.cursor('elasticapm.test', { find: 'elasticapm.test', query: {} })
+            var cursor = _server.cursor('elasticapm.test', { find: 'elasticapm.test', query: {} })
             cursor.next(function (err, doc) {
               t.error(err, 'no error from cursor.next')
               t.strictEqual(doc.a, 2, 'doc.a')

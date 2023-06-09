@@ -21,7 +21,7 @@ const pug = require('pug')
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 const t1 = apm.startTransaction('t1')
 
-const template = pug.compile('p Hello, #{name}!')
+var template = pug.compile('p Hello, #{name}!')
 console.log(template({ name: 'world' }))
 console.log(template({ name: 'Bob' }))
 

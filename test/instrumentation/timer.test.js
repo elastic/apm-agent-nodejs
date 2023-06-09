@@ -6,19 +6,19 @@
 
 'use strict'
 
-const test = require('tape')
+var test = require('tape')
 
-const Timer = require('../../lib/instrumentation/timer')
+var Timer = require('../../lib/instrumentation/timer')
 
 test('started', function (t) {
-  const timer = new Timer()
+  var timer = new Timer()
   t.ok(timer.start > 0)
   t.strictEqual(timer.duration, null)
   t.end()
 })
 
 test('ended', function (t) {
-  const timer = new Timer()
+  var timer = new Timer()
   timer.end()
   t.ok(timer.duration > 0)
   t.ok(timer.duration < 100)
@@ -26,19 +26,19 @@ test('ended', function (t) {
 })
 
 test('ended twice', function (t) {
-  const timer = new Timer()
+  var timer = new Timer()
   timer.end()
-  const duration = timer.duration
+  var duration = timer.duration
   timer.end()
   t.strictEqual(timer.duration, duration)
   t.end()
 })
 
 test('elapsed', function (t) {
-  const timer = new Timer()
-  const e1 = timer.elapsed()
+  var timer = new Timer()
+  var e1 = timer.elapsed()
   process.nextTick(function () {
-    const e2 = timer.elapsed()
+    var e2 = timer.elapsed()
     t.ok(e2 > e1)
     timer.end()
     t.ok(timer.duration >= e2)
@@ -48,8 +48,8 @@ test('elapsed', function (t) {
 })
 
 test('custom start time', function (t) {
-  const startTime = Date.now() - 1000
-  const timer = new Timer(null, startTime)
+  var startTime = Date.now() - 1000
+  var timer = new Timer(null, startTime)
   t.strictEqual(timer.start, startTime * 1000)
   timer.end()
   t.ok(timer.duration > 990, `duration should be circa more than 1s (was: ${timer.duration})`) // we've seen 998.752 in the wild
@@ -58,9 +58,9 @@ test('custom start time', function (t) {
 })
 
 test('custom end time', function (t) {
-  const startTime = Date.now() - 1000
-  const endTime = startTime + 2000.123
-  const timer = new Timer(null, startTime)
+  var startTime = Date.now() - 1000
+  var endTime = startTime + 2000.123
+  var timer = new Timer(null, startTime)
   timer.end(endTime)
   t.strictEqual(timer.duration, 2000.123)
   t.end()

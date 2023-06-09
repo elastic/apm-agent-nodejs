@@ -12,7 +12,7 @@ const bench = require('./utils/bench')
 
 bench('transaction', {
   setup () {
-    const agent = this.benchmark.agent
+    var agent = this.benchmark.agent
   },
   fn (deferred) {
     if (agent) agent.startTransaction()

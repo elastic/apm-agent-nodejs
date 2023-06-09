@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -20,11 +20,11 @@ const agent = require('../../..').start({
   spanStackTraceMinDuration: 0 // Always have span stacktraces.
 })
 
-const test = require('tape')
+var test = require('tape')
 
-const http = require('http')
-const express = require('express')
-const querystring = require('querystring')
+var http = require('http')
+var express = require('express')
+var querystring = require('querystring')
 const semver = require('semver')
 // require('apollo-server-express') is a hard crash for nodes < 12.0.0
 const apolloServerExpressVersion = require('apollo-server-express/package.json').version
@@ -33,20 +33,20 @@ if (semver.gte(apolloServerExpressVersion, '3.0.0') && semver.lt(process.version
   process.exit()
 }
 
-const ApolloServer = require('apollo-server-express').ApolloServer
-const gql = require('apollo-server-express').gql
+var ApolloServer = require('apollo-server-express').ApolloServer
+var gql = require('apollo-server-express').gql
 
-const mockClient = require('../../_mock_http_client')
+var mockClient = require('../../_mock_http_client')
 
 test('POST /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
-  const typeDefs = gql`
+  var typeDefs = gql`
     type Query {
       hello: String
     }
   `
-  const resolvers = {
+  var resolvers = {
     Query: {
       hello () {
         t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
@@ -54,26 +54,26 @@ test('POST /graphql', function (t) {
       }
     }
   }
-  const query = '{"query":"{ hello }"}'
+  var query = '{"query":"{ hello }"}'
 
-  const app = express()
-  const apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
+  var app = express()
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.start().then(function () {
     apollo.applyMiddleware({ app })
     var server = app.listen(function () {
-      const port = server.address().port
-      const opts = {
+      var port = server.address().port
+      var opts = {
         method: 'POST',
         port: port,
         path: '/graphql',
         headers: { 'Content-Type': 'application/json' }
       }
-      const req = http.request(opts, function (res) {
-        const chunks = []
+      var req = http.request(opts, function (res) {
+        var chunks = []
         res.on('data', chunks.push.bind(chunks))
         res.on('end', function () {
           server.close()
-          const result = Buffer.concat(chunks).toString()
+          var result = Buffer.concat(chunks).toString()
           t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
             'client got the expected response body')
           agent.flush()
@@ -87,12 +87,12 @@ test('POST /graphql', function (t) {
 test('GET /graphql', function (t) {
   resetAgent(done(t, 'hello'))
 
-  const typeDefs = gql`
+  var typeDefs = gql`
     type Query {
       hello: String
     }
   `
-  const resolvers = {
+  var resolvers = {
     Query: {
       hello () {
         t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
@@ -100,25 +100,25 @@ test('GET /graphql', function (t) {
       }
     }
   }
-  const query = querystring.stringify({ query: '{ hello }' })
+  var query = querystring.stringify({ query: '{ hello }' })
 
-  const app = express()
-  const apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
+  var app = express()
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.start().then(function () {
     apollo.applyMiddleware({ app })
     var server = app.listen(function () {
-      const port = server.address().port
-      const opts = {
+      var port = server.address().port
+      var opts = {
         method: 'GET',
         port: port,
         path: '/graphql?' + query
       }
-      const req = http.request(opts, function (res) {
-        const chunks = []
+      var req = http.request(opts, function (res) {
+        var chunks = []
         res.on('data', chunks.push.bind(chunks))
         res.on('end', function () {
           server.close()
-          const result = Buffer.concat(chunks).toString()
+          var result = Buffer.concat(chunks).toString()
           t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
             'client got the expected response body')
           agent.flush()
@@ -132,12 +132,12 @@ test('GET /graphql', function (t) {
 test('POST /graphql - named query', function (t) {
   resetAgent(done(t, 'HelloQuery hello'))
 
-  const typeDefs = gql`
+  var typeDefs = gql`
     type Query {
       hello: String
     }
   `
-  const resolvers = {
+  var resolvers = {
     Query: {
       hello () {
         t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
@@ -145,26 +145,26 @@ test('POST /graphql - named query', function (t) {
       }
     }
   }
-  const query = '{"query":"query HelloQuery { hello }"}'
+  var query = '{"query":"query HelloQuery { hello }"}'
 
-  const app = express()
-  const apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
+  var app = express()
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.start().then(function () {
     apollo.applyMiddleware({ app })
     var server = app.listen(function () {
-      const port = server.address().port
-      const opts = {
+      var port = server.address().port
+      var opts = {
         method: 'POST',
         port: port,
         path: '/graphql',
         headers: { 'Content-Type': 'application/json' }
       }
-      const req = http.request(opts, function (res) {
-        const chunks = []
+      var req = http.request(opts, function (res) {
+        var chunks = []
         res.on('data', chunks.push.bind(chunks))
         res.on('end', function () {
           server.close()
-          const result = Buffer.concat(chunks).toString()
+          var result = Buffer.concat(chunks).toString()
           t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n')
           agent.flush()
         })
@@ -177,13 +177,13 @@ test('POST /graphql - named query', function (t) {
 test('POST /graphql - sort multiple queries', function (t) {
   resetAgent(done(t, 'hello, life'))
 
-  const typeDefs = gql`
+  var typeDefs = gql`
     type Query {
       hello: String
       life: Int
     }
   `
-  const resolvers = {
+  var resolvers = {
     Query: {
       hello () {
         t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
@@ -195,26 +195,26 @@ test('POST /graphql - sort multiple queries', function (t) {
       }
     }
   }
-  const query = '{"query":"{ life, hello }"}'
+  var query = '{"query":"{ life, hello }"}'
 
-  const app = express()
-  const apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
+  var app = express()
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.start().then(function () {
     apollo.applyMiddleware({ app })
     var server = app.listen(function () {
-      const port = server.address().port
-      const opts = {
+      var port = server.address().port
+      var opts = {
         method: 'POST',
         port: port,
         path: '/graphql',
         headers: { 'Content-Type': 'application/json' }
       }
-      const req = http.request(opts, function (res) {
-        const chunks = []
+      var req = http.request(opts, function (res) {
+        var chunks = []
         res.on('data', chunks.push.bind(chunks))
         res.on('end', function () {
           server.close()
-          const result = Buffer.concat(chunks).toString()
+          var result = Buffer.concat(chunks).toString()
           t.strictEqual(result, '{"data":{"life":42,"hello":"Hello world!"}}\n')
           agent.flush()
         })
@@ -227,7 +227,7 @@ test('POST /graphql - sort multiple queries', function (t) {
 test('POST /graphql - sub-query', function (t) {
   resetAgent(done(t, 'books'))
 
-  const books = [
+  var books = [
     {
       title: 'Harry Potter and the Chamber of Secrets',
       author: 'J.K. Rowling',
@@ -239,7 +239,7 @@ test('POST /graphql - sub-query', function (t) {
       publisher: { name: 'ACME' }
     }
   ]
-  const typeDefs = gql`
+  var typeDefs = gql`
     type Publisher {
       name: String
     }
@@ -252,7 +252,7 @@ test('POST /graphql - sub-query', function (t) {
       books: [Book]
     }
   `
-  const resolvers = {
+  var resolvers = {
     Query: {
       books () {
         t.ok(agent._instrumentation.currTransaction(), 'have active transaction')
@@ -260,26 +260,26 @@ test('POST /graphql - sub-query', function (t) {
       }
     }
   }
-  const query = '{"query":"{ books { title author, publisher { name } } }"}'
+  var query = '{"query":"{ books { title author, publisher { name } } }"}'
 
-  const app = express()
-  const apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
+  var app = express()
+  var apollo = new ApolloServer({ typeDefs, resolvers, uploads: false })
   apollo.start().then(function () {
     apollo.applyMiddleware({ app })
     var server = app.listen(function () {
-      const port = server.address().port
-      const opts = {
+      var port = server.address().port
+      var opts = {
         method: 'POST',
         port: port,
         path: '/graphql',
         headers: { 'Content-Type': 'application/json' }
       }
-      const req = http.request(opts, function (res) {
-        const chunks = []
+      var req = http.request(opts, function (res) {
+        var chunks = []
         res.on('data', chunks.push.bind(chunks))
         res.on('end', function () {
           server.close()
-          const result = Buffer.concat(chunks).toString()
+          var result = Buffer.concat(chunks).toString()
           t.strictEqual(result, JSON.stringify({ data: { books } }) + '\n')
           agent.flush()
         })
@@ -294,8 +294,8 @@ function done (t, query) {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 1)
 
-    const trans = data.transactions[0]
-    const span = data.spans[0]
+    var trans = data.transactions[0]
+    var span = data.spans[0]
 
     t.strictEqual(trans.name, query + ' (/graphql)')
     t.strictEqual(trans.type, 'graphql')
@@ -304,7 +304,7 @@ function done (t, query) {
     t.strictEqual(span.subtype, 'graphql')
     t.strictEqual(span.action, 'execute')
 
-    const offset = span.timestamp - trans.timestamp
+    var offset = span.timestamp - trans.timestamp
     t.ok(offset + span.duration * 1000 < trans.duration * 1000)
 
     t.end()

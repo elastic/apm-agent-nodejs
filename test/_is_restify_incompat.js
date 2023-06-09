@@ -6,7 +6,7 @@
 
 'use strict'
 
-const semver = require('semver')
+var semver = require('semver')
 
 /**
  * Return whether the current 'restify' version is incompatible with the

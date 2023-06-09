@@ -79,7 +79,7 @@ test('captureBody', function (t) {
 
   resetAgent(data => {
     t.strictEqual(data.transactions.length, 1)
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
     t.strictEqual(trans.name, 'POST /postSomeData', 'transaction.name')
     t.strictEqual(trans.type, 'request', 'transaction.type')
     t.strictEqual(trans.result, 'HTTP 2xx', 'transaction.result')

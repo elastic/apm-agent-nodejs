@@ -6,10 +6,10 @@
 
 'use strict'
 
-const getPort = require('get-port')
+var getPort = require('get-port')
 
 getPort().then(function (port) {
-  const agent = require('../../').start({
+  var agent = require('../../').start({
     serviceName: 'test-allow-invalid-cert',
     serverUrl: 'https://localhost:' + port,
     captureExceptions: false,
@@ -20,14 +20,14 @@ getPort().then(function (port) {
     verifyServerCert: false
   })
 
-  const https = require('https')
-  const pem = require('https-pem')
-  const test = require('tape')
+  var https = require('https')
+  var pem = require('https-pem')
+  var test = require('tape')
 
   test('should allow self signed certificate', function (t) {
     t.plan(3)
 
-    const server = https.createServer(pem, function (req, res) {
+    var server = https.createServer(pem, function (req, res) {
       t.pass('server received client request')
       res.end()
     })

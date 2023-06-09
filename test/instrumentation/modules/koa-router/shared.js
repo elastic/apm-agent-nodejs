@@ -7,7 +7,7 @@
 'use strict'
 
 module.exports = (moduleName) => {
-  const agent = require('../../../..').start({
+  var agent = require('../../../..').start({
     serviceName: 'test',
     secretToken: 'test',
     captureExceptions: false,
@@ -25,14 +25,14 @@ module.exports = (moduleName) => {
     process.exit()
   }
 
-  const http = require('http')
+  var http = require('http')
 
-  const Koa = require('koa')
-  const test = require('tape')
+  var Koa = require('koa')
+  var test = require('tape')
 
-  const Router = require(moduleName)
+  var Router = require(moduleName)
 
-  const mockClient = require('../../../_mock_http_client')
+  var mockClient = require('../../../_mock_http_client')
 
   test('route naming', function (t) {
     t.plan(8)
@@ -107,7 +107,7 @@ module.exports = (moduleName) => {
   })
 
   function startServer (cb) {
-    const server = buildServer()
+    var server = buildServer()
     server.listen(function () {
       cb(server.address().port)
     })
@@ -115,10 +115,10 @@ module.exports = (moduleName) => {
   }
 
   function buildServer () {
-    const app = new Koa()
-    const router = new Router()
-    const parentRouter = new Router()
-    const childRouter = new Router({
+    var app = new Koa()
+    var router = new Router()
+    var parentRouter = new Router()
+    var childRouter = new Router({
       prefix: '/prefix2'
     })
 
@@ -152,7 +152,7 @@ module.exports = (moduleName) => {
     t.strictEqual(data.transactions.length, 1)
     t.strictEqual(data.spans.length, 0)
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
 
     t.strictEqual(trans.name, results.name)
     t.strictEqual(trans.type, 'request')

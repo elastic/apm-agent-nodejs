@@ -5,7 +5,7 @@
  */
 
 'use strict'
-const agent = require('..').start({
+var agent = require('..').start({
   serviceName: 'test-outcome',
   captureExceptions: true,
   metricsInterval: 0,

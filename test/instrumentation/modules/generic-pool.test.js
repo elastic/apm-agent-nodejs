@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
-const agent = require('../../..').start({
+var agent = require('../../..').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -19,18 +19,18 @@ const agent = require('../../..').start({
   centralConfig: false
 })
 
-const genericPool = require('generic-pool')
-const test = require('tape')
+var genericPool = require('generic-pool')
+var test = require('tape')
 
-const ins = global.ins = agent._instrumentation
+var ins = global.ins = agent._instrumentation
 
 if (genericPool.createPool) {
   test('v3.x', function (t) {
-    let active = 0
+    var active = 0
 
-    const pool = genericPool.createPool({
+    var pool = genericPool.createPool({
       create () {
-        const p = new Promise(function (resolve, reject) {
+        var p = new Promise(function (resolve, reject) {
           process.nextTick(function () {
             resolve({ id: ++active })
           })
@@ -48,7 +48,7 @@ if (genericPool.createPool) {
       }
     })
 
-    const t1 = ins.startTransaction()
+    var t1 = ins.startTransaction()
 
     pool.acquire().then(function (resource) {
       t.strictEqual(resource.id, 1)
@@ -59,7 +59,7 @@ if (genericPool.createPool) {
     })
 
     t.strictEqual(ins.currTransaction().id, t1.id)
-    const t2 = ins.startTransaction()
+    var t2 = ins.startTransaction()
 
     pool.acquire().then(function (resource) {
       t.strictEqual(resource.id, 1)
@@ -79,9 +79,9 @@ if (genericPool.createPool) {
   })
 } else {
   test('v2.x', function (t) {
-    let active = 0
+    var active = 0
 
-    const pool = new genericPool.Pool({
+    var pool = new genericPool.Pool({
       create (cb) {
         process.nextTick(function () {
           cb(null, { id: ++active })
@@ -92,7 +92,7 @@ if (genericPool.createPool) {
       }
     })
 
-    const t1 = ins.startTransaction()
+    var t1 = ins.startTransaction()
 
     pool.acquire(function (err, resource) {
       t.error(err)
@@ -102,7 +102,7 @@ if (genericPool.createPool) {
     })
 
     t.strictEqual(ins.currTransaction().id, t1.id)
-    const t2 = ins.startTransaction()
+    var t2 = ins.startTransaction()
 
     pool.acquire(function (err, resource) {
       t.error(err)

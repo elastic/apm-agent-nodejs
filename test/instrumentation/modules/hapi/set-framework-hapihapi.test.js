@@ -11,7 +11,7 @@ const agent = require('../../../..').start({
   metricsInterval: 0
 })
 
-const isHapiIncompat = require('../../../_is_hapi_incompat')
+var isHapiIncompat = require('../../../_is_hapi_incompat')
 if (isHapiIncompat('@hapi/hapi')) {
   // Skip out of this test.
   console.log(`# SKIP this version of '@hapi/hapi' is incompatible with node ${process.version}`)

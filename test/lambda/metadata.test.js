@@ -90,7 +90,7 @@ tape.test('lambda config & metadata tests', function (suite) {
         t.error(err, `no error from executing the lambda handler: err=${JSON.stringify(err)}`)
         t.strictEqual(result, output)
 
-        const metadata = server.events[0].metadata
+        var metadata = server.events[0].metadata
         t.ok(metadata, 'got metadata')
         t.same(metadata.service.name, process.env.AWS_LAMBDA_FUNCTION_NAME, 'service.name')
         t.same(metadata.service.version, '42', 'service.version')

@@ -6,6 +6,6 @@
 
 'use strict'
 
-const Agent = require('./lib/agent')
+var Agent = require('./lib/agent')
 
 module.exports = new Agent()

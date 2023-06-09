@@ -19,17 +19,17 @@ const agent = require('../../../..').start({
   errorOnAbortedRequests: true
 })
 
-const http = require('http')
+var http = require('http')
 
-const test = require('tape')
+var test = require('tape')
 
-const assert = require('./_assert')
-const mockClient = require('../../../_mock_http_client')
+var assert = require('./_assert')
+var mockClient = require('../../../_mock_http_client')
 
-const addEndedTransaction = agent._instrumentation.addEndedTransaction
+var addEndedTransaction = agent._instrumentation.addEndedTransaction
 
 test('client-side abort below error threshold - call end', { timeout: 10000 }, function (t) {
-  let clientReq
+  var clientReq
   t.plan(9)
 
   t.on('end', function () {
@@ -81,7 +81,7 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
   })
 
   server.listen(function () {
-    const port = server.address().port
+    var port = server.address().port
     clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
@@ -92,7 +92,7 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
 })
 
 test('client-side abort above error threshold - call end', function (t) {
-  let clientReq
+  var clientReq
   t.plan(10)
 
   resetAgent(function (data) {
@@ -126,7 +126,7 @@ test('client-side abort above error threshold - call end', function (t) {
   })
 
   server.listen(function () {
-    const port = server.address().port
+    var port = server.address().port
     clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
@@ -137,7 +137,7 @@ test('client-side abort above error threshold - call end', function (t) {
 })
 
 test('client-side abort below error threshold - don\'t call end', function (t) {
-  let clientReq
+  var clientReq
   resetAgent(function () {
     t.fail('should not send any data')
   })
@@ -165,7 +165,7 @@ test('client-side abort below error threshold - don\'t call end', function (t) {
   })
 
   server.listen(function () {
-    const port = server.address().port
+    var port = server.address().port
     clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
@@ -176,7 +176,7 @@ test('client-side abort below error threshold - don\'t call end', function (t) {
 })
 
 test('client-side abort above error threshold - don\'t call end', function (t) {
-  let clientReq
+  var clientReq
   resetAgent(function () {
     t.fail('should not send any data')
   })
@@ -203,7 +203,7 @@ test('client-side abort above error threshold - don\'t call end', function (t) {
   })
 
   server.listen(function () {
-    const port = server.address().port
+    var port = server.address().port
     clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
@@ -214,8 +214,8 @@ test('client-side abort above error threshold - don\'t call end', function (t) {
 })
 
 test('server-side abort below error threshold and socket closed - call end', function (t) {
-  let timedout = false
-  let ended = false
+  var timedout = false
+  var ended = false
   t.plan(11)
 
   resetAgent(assert.bind(null, t))
@@ -245,8 +245,8 @@ test('server-side abort below error threshold and socket closed - call end', fun
   server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2)
 
   server.listen(function () {
-    const port = server.address().port
-    const clientReq = get('http://localhost:' + port, function (res) {
+    var port = server.address().port
+    var clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -257,8 +257,8 @@ test('server-side abort below error threshold and socket closed - call end', fun
 })
 
 test('server-side abort above error threshold and socket closed - call end', function (t) {
-  let timedout = false
-  let ended = false
+  var timedout = false
+  var ended = false
   t.plan(13)
 
   resetAgent(assert.bind(null, t))
@@ -289,8 +289,8 @@ test('server-side abort above error threshold and socket closed - call end', fun
   server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 10)
 
   server.listen(function () {
-    const port = server.address().port
-    const clientReq = get('http://localhost:' + port, function (res) {
+    var port = server.address().port
+    var clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -301,8 +301,8 @@ test('server-side abort above error threshold and socket closed - call end', fun
 })
 
 test('server-side abort below error threshold and socket closed - don\'t call end', function (t) {
-  let timedout = false
-  const ended = false
+  var timedout = false
+  var ended = false
   t.plan(3)
 
   resetAgent(function () {
@@ -329,8 +329,8 @@ test('server-side abort below error threshold and socket closed - don\'t call en
   server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2)
 
   server.listen(function () {
-    const port = server.address().port
-    const clientReq = get('http://localhost:' + port, function (res) {
+    var port = server.address().port
+    var clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -341,8 +341,8 @@ test('server-side abort below error threshold and socket closed - don\'t call en
 })
 
 test('server-side abort above error threshold and socket closed - don\'t call end', function (t) {
-  let timedout = false
-  const ended = false
+  var timedout = false
+  var ended = false
   t.plan(5)
 
   resetAgent(function () {
@@ -370,8 +370,8 @@ test('server-side abort above error threshold and socket closed - don\'t call en
   server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 50)
 
   server.listen(function () {
-    const port = server.address().port
-    const clientReq = get('http://localhost:' + port, function (res) {
+    var port = server.address().port
+    var clientReq = get('http://localhost:' + port, function (res) {
       t.fail('should not call http.get callback')
     })
     clientReq.on('error', function (err) {
@@ -409,7 +409,7 @@ test('server-side abort below error threshold but socket not closed - call end',
   server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2)
 
   server.listen(function () {
-    const port = server.address().port
+    var port = server.address().port
     get('http://localhost:' + port, function (res) {
       res.on('end', function () {
         t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
@@ -447,7 +447,7 @@ test('server-side abort above error threshold but socket not closed - call end',
   server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 10)
 
   server.listen(function () {
-    const port = server.address().port
+    var port = server.address().port
     get('http://localhost:' + port, function (res) {
       res.on('end', function () {
         t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')

@@ -7,7 +7,7 @@
 'use strict'
 
 module.exports = (moduleName) => {
-  const agent = require('../../../..').start({
+  var agent = require('../../../..').start({
     serviceName: 'test-hapi',
     captureExceptions: false,
     logLevel: 'off',
@@ -17,23 +17,23 @@ module.exports = (moduleName) => {
     captureBody: 'all'
   })
 
-  const isHapiIncompat = require('../../../_is_hapi_incompat')
+  var isHapiIncompat = require('../../../_is_hapi_incompat')
   if (isHapiIncompat(moduleName)) {
     // Skip out of this test.
     console.log(`# SKIP this version of ${moduleName} is incompatible with node ${process.version}`)
     process.exit()
   }
 
-  const http = require('http')
+  var http = require('http')
 
-  const Hapi = require(moduleName)
-  const pkg = require(moduleName + '/package.json')
-  const semver = require('semver')
-  const test = require('tape')
+  var Hapi = require(moduleName)
+  var pkg = require(moduleName + '/package.json')
+  var semver = require('semver')
+  var test = require('tape')
 
-  const mockClient = require('../../../_mock_http_client')
+  var mockClient = require('../../../_mock_http_client')
 
-  const originalCaptureError = agent.captureError
+  var originalCaptureError = agent.captureError
 
   function noop () {}
 
@@ -41,7 +41,7 @@ module.exports = (moduleName) => {
     resetAgent(2, function (data) {
       t.strictEqual(data.transactions.length, 1)
       t.strictEqual(data.errors.length, 1)
-      const request = data.errors[0].context.request
+      var request = data.errors[0].context.request
       t.strictEqual(request.method, 'GET')
       t.strictEqual(request.url.pathname, '/captureError')
       t.strictEqual(request.url.search, '?foo=bar')
@@ -133,7 +133,7 @@ module.exports = (moduleName) => {
 
     resetAgent()
 
-    const server = makeServer()
+    var server = makeServer()
     initServer(server, function (err) {
       server.stop(noop)
       t.error(err, 'start error')
@@ -149,7 +149,7 @@ module.exports = (moduleName) => {
 
     t.plan(6)
 
-    const customError = new Error('custom error')
+    var customError = new Error('custom error')
 
     resetAgent()
 
@@ -180,7 +180,7 @@ module.exports = (moduleName) => {
 
     t.plan(6)
 
-    const customError = 'custom error'
+    var customError = 'custom error'
 
     resetAgent()
 
@@ -211,7 +211,7 @@ module.exports = (moduleName) => {
 
     t.plan(6)
 
-    const customError = {
+    var customError = {
       error: 'I forgot to turn this into an actual Error'
     }
 
@@ -238,7 +238,7 @@ module.exports = (moduleName) => {
   test('server error logging with Error', function (t) {
     t.plan(6)
 
-    const customError = new Error('custom error')
+    var customError = new Error('custom error')
 
     resetAgent()
 
@@ -262,7 +262,7 @@ module.exports = (moduleName) => {
   test('server error logging with Error does not affect event tags', function (t) {
     t.plan(8)
 
-    const customError = new Error('custom error')
+    var customError = new Error('custom error')
 
     resetAgent()
 
@@ -278,7 +278,7 @@ module.exports = (moduleName) => {
 
     var server = makeServer()
 
-    const emitter = server.events || server
+    var emitter = server.events || server
     emitter.on('log', function (event, tags) {
       t.deepEqual(event.tags, ['error'])
     })
@@ -297,7 +297,7 @@ module.exports = (moduleName) => {
   test('server error logging with String', function (t) {
     t.plan(6)
 
-    const customError = 'custom error'
+    var customError = 'custom error'
 
     resetAgent()
 
@@ -321,7 +321,7 @@ module.exports = (moduleName) => {
   test('server error logging with Object', function (t) {
     t.plan(6)
 
-    const customError = {
+    var customError = {
       error: 'I forgot to turn this into an actual Error'
     }
 
@@ -347,7 +347,7 @@ module.exports = (moduleName) => {
   test('request error logging with Error', function (t) {
     t.plan(13)
 
-    const customError = new Error('custom error')
+    var customError = new Error('custom error')
 
     resetAgent(1, function (data) {
       assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
@@ -392,7 +392,7 @@ module.exports = (moduleName) => {
   test('request error logging with Error does not affect event tags', function (t) {
     t.plan(15)
 
-    const customError = new Error('custom error')
+    var customError = new Error('custom error')
 
     resetAgent(1, function (data) {
       assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
@@ -421,7 +421,7 @@ module.exports = (moduleName) => {
       })
     })
 
-    const emitter = server.events || server
+    var emitter = server.events || server
     emitter.on('request', function (req, event, tags) {
       if (event.channel === 'internal') return
       t.deepEqual(event.tags, ['elastic-apm', 'error'])
@@ -448,7 +448,7 @@ module.exports = (moduleName) => {
   test('request error logging with String', function (t) {
     t.plan(13)
 
-    const customError = 'custom error'
+    var customError = 'custom error'
 
     resetAgent(1, function (data) {
       assert(t, data, { status: 'HTTP 2xx', name: 'GET /error' })
@@ -493,7 +493,7 @@ module.exports = (moduleName) => {
   test('request error logging with Object', function (t) {
     t.plan(13)
 
-    const customError = {
+    var customError = {
       error: 'I forgot to turn this into an actual Error'
     }
 
@@ -555,7 +555,7 @@ module.exports = (moduleName) => {
       http.get('http://localhost:' + port + '/error', function (res) {
         t.strictEqual(res.statusCode, 500)
         res.on('data', function (chunk) {
-          const data = JSON.parse(chunk.toString())
+          var data = JSON.parse(chunk.toString())
           t.deepEqual(data, {
             statusCode: 500,
             error: 'Internal Server Error',
@@ -572,7 +572,7 @@ module.exports = (moduleName) => {
   function makeServer (opts) {
     // Specify 'localhost' to avoid Hapi default of '0.0.0.0' which ties to
     // IPv4. We want a later HTTP client request using 'localhost' to work.
-    let server
+    var server
     if (semver.satisfies(pkg.version, '<17')) {
       server = new Hapi.Server()
       opts = opts || {}
@@ -610,7 +610,7 @@ module.exports = (moduleName) => {
   }
 
   function startServer (cb) {
-    const server = buildServer()
+    var server = buildServer()
     runServer(server, cb)
     return server
   }
@@ -618,7 +618,7 @@ module.exports = (moduleName) => {
   function handler (fn) {
     if (semver.satisfies(pkg.version, '>=17')) return fn
     return function (request, reply) {
-      const p = new Promise(function (resolve, reject) {
+      var p = new Promise(function (resolve, reject) {
         resolve(fn(request))
       })
       p.then(reply, reply)
@@ -626,7 +626,7 @@ module.exports = (moduleName) => {
   }
 
   function buildServer () {
-    const server = makeServer()
+    var server = makeServer()
 
     server.route({
       method: 'GET',
@@ -668,7 +668,7 @@ module.exports = (moduleName) => {
 
     t.strictEqual(data.transactions.length, 1)
 
-    const trans = data.transactions[0]
+    var trans = data.transactions[0]
 
     t.strictEqual(trans.name, results.name)
     t.strictEqual(trans.type, 'request')

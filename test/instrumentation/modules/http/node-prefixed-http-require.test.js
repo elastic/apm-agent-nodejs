@@ -33,7 +33,7 @@ const test = require('tape')
 const { findObjInArray } = require('../../../_utils')
 
 test('node:http instrumentation works', function (t) {
-  const server = http.createServer(function (req, res) {
+  var server = http.createServer(function (req, res) {
     res.end('pong')
   })
 

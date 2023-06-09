@@ -6,11 +6,11 @@
 
 'use strict'
 
-const path = require('path')
+var path = require('path')
 
-const test = require('tape')
+var test = require('tape')
 
-const agent = require('../../').start({
+var agent = require('../../').start({
   serviceName: 'test',
   secretToken: 'test',
   captureExceptions: false,
@@ -46,7 +46,7 @@ test('fails', function (t) {
       t.strictEqual(error.exception.type, 'Error')
       t.strictEqual(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-inline-broken.js')})`)
 
-      const frame = error.exception.stacktrace[0]
+      var frame = error.exception.stacktrace[0]
       t.strictEqual(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-inline-broken.js'))
       t.strictEqual(frame.lineno, 6)
       t.strictEqual(frame.function, 'generateError')
@@ -63,7 +63,7 @@ test('fails', function (t) {
       t.strictEqual(error.exception.type, 'Error')
       t.strictEqual(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-map-missing.js')})`)
 
-      const frame = error.exception.stacktrace[0]
+      var frame = error.exception.stacktrace[0]
       t.strictEqual(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-map-missing.js'))
       t.strictEqual(frame.lineno, 6)
       t.strictEqual(frame.function, 'generateError')
@@ -80,7 +80,7 @@ test('fails', function (t) {
       t.strictEqual(error.exception.type, 'Error')
       t.strictEqual(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-broken.js')})`)
 
-      const frame = error.exception.stacktrace[0]
+      var frame = error.exception.stacktrace[0]
       t.strictEqual(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'lib', 'error-broken.js'))
       t.strictEqual(frame.lineno, 6)
       t.strictEqual(frame.function, 'generateError')
@@ -110,7 +110,7 @@ function assertSourceFound (t, error) {
   t.strictEqual(error.exception.type, 'Error')
   t.strictEqual(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'src', 'error.js')})`)
 
-  const frame = error.exception.stacktrace[0]
+  var frame = error.exception.stacktrace[0]
   t.strictEqual(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'src', 'error.js'))
   t.strictEqual(frame.lineno, 2)
   t.strictEqual(frame.function, 'generateError')
@@ -126,7 +126,7 @@ function assertSourceNotFound (t, error) {
   t.strictEqual(error.exception.type, 'Error')
   t.strictEqual(error.culprit, `generateError (${path.join('test', 'sourcemaps', 'fixtures', 'src', 'not', 'found.js')})`)
 
-  const frame = error.exception.stacktrace[0]
+  var frame = error.exception.stacktrace[0]
   t.strictEqual(frame.filename, path.join('test', 'sourcemaps', 'fixtures', 'src', 'not', 'found.js'))
   t.strictEqual(frame.lineno, 2)
   t.strictEqual(frame.function, 'generateError')
