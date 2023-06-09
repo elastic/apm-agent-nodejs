@@ -701,7 +701,12 @@ const testFixtures = [
       ELASTIC_APM_SPAN_COMPRESSION_ENABLED: 'false'
     },
     versionRanges: {
-      node: NODE_VER_RANGE_IITM
+      node: NODE_VER_RANGE_IITM,
+      // In earlier 'pg' versions the getter for `pg.native` (intended to avoid
+      // importing 'pg-native' unless used) would be tickled by the core Node.js
+      // ESM translator, resulting in this error:
+      //    Cannot find module 'pg-native'
+      pg: '>=8'
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {

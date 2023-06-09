@@ -18,7 +18,6 @@ function createKnex (dbName = undefined) {
   return Knex({
     client: 'pg',
     connection: {
-      host: '127.0.0.1',
       user: process.env.PGUSER || 'postgres',
       database: dbName
     }
