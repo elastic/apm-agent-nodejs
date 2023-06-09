@@ -19,6 +19,7 @@ try {
   var workerThreads = require('worker_threads')
   isMainThread = workerThreads.isMainThread
 } catch (_importErr) {
+  // worker_threads were added in node 12 and behind a flag in node ^10.5.0.
   isMainThread = true
 }
 if (isMainThread) {
