@@ -48,6 +48,7 @@ function findObjInArray (arr, key, val) {
         return true
       }
     }
+    return false
   })
   return result
 }
