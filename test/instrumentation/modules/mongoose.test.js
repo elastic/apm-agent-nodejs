@@ -11,6 +11,11 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0)
 }
 
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP mongoose instrumentation does not work with contextManager="patch"')
+  process.exit()
+}
+
 const { NoopApmClient } = require('../../../lib/apm-client/noop-apm-client')
 
 const agent = require('../../..').start({
