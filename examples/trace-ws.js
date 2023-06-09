@@ -20,8 +20,8 @@ const apm = require('../').start({ // elastic-apm-node
   serviceName: 'example-trace-ws'
 })
 
-var WebSocket = require('ws')
-var PORT = 4567
+const WebSocket = require('ws')
+const PORT = 4567
 
 // Server
 const wss = new WebSocket.Server({ port: PORT })
