@@ -39,18 +39,31 @@ Notes:
 [float]
 ===== Features
 
-* Add support for 'knex' version v1 and v2
-  ({pull}3355[#3355])
-* Add `tedious@16.x` support
-  ({pull}3366[#3366])
+* Add support for 'knex' version v1 and v2. ({pull}3355[#3355])
+* Add `tedious@16.x` support. ({pull}3366[#3366])
 
 [float]
 ===== Bug fixes
 
+* Change the "start.js" export to *not* start the APM agent inside a
+  https://nodejs.org/api/worker_threads.html[Node.js Worker thread].
++
+One way to start the APM agent is via `node -r elastic-apm-node/start.js ...` or
+`NODE_OPTIONS='-r elastic-apm-node/start.js`.  When a Node.js Worker thread is
+started, it inherits the `process.execArgv` and environment, which results in
+"start.js" being run in the context of the new thread. Starting an additional
+APM agent in each new Worker is arguably surprising. For now, "start.js" will
+avoid starting in a thread. The exact behavior may change in future versions.
++
+One undesirable effect of this change is that explicit use of "start.js" in
+code (`import 'elastic-apm-node/start.js'` or `require('elastic-apm-node/start.js')`)
+in a Worker will *not* start the APM agent. Instead, one must use:
+`require('elastic-apm-node').start()` or equivalent.
+
 [float]
 ===== Chores
 
-* Extract configuration's transport property to new `apm-client` module
+* Refactor transport handling to new internal `apm-client` module.
   ({pull}3372[#3372])
 
 
