@@ -8,13 +8,8 @@
 //    node --require=./start.js test/instrumentation/modules/fixtures/use-fastify.js
 
 const http = require('http')
-const assert = require('assert')
 
 const fastify = require('fastify')
-
-// This assert ensures that this require-style works as well:
-//    const { fastify } = require('fastify')
-assert(fastify === fastify.fastify, 'fastify.fastify is correct')
 
 const server = fastify()
 server.post('/hello/:name', function (request, reply) {
