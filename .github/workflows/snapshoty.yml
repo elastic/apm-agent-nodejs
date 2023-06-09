@@ -1,7 +1,7 @@
 ---
 # Publish a snapshot. A "snapshot" is a packaging of the latest *unreleased* APM agent,
 # published to a known GCS bucket for use in edge demo/test environments.
-name: Snapshoty
+name: snapshoty
 
 on:
   push:
