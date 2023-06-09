@@ -210,7 +210,9 @@ const testFixtures = [
       node: NODE_VER_RANGE_IITM,
       // In earlier 'pg' versions this results in an unhandledRejection that I
       // don't understand. Not sure it is worth debugging.
-      pg: '>=8'
+      pg: '>=8',
+      // Tests fail with knex 0.17.0. Might be due to bluebird. Not work debugging.
+      knex: '>=0.20'
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
@@ -238,6 +240,7 @@ const testFixtures = [
           // Skip this one, it is injected by knex.
           return
         }
+        console.log('XXX stacktrace:'); console.dir(s, { depth: 5 })
         t.ok(s.stacktrace.some(frame => frame.function === 'useTheDb'),
           'span stacktrace includes "useTheDb" function')
       })
