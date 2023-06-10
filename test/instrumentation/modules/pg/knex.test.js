@@ -240,7 +240,6 @@ const testFixtures = [
           // Skip this one, it is injected by knex.
           return
         }
-        console.log('XXX stacktrace:'); console.dir(s, { depth: 5 })
         t.ok(s.stacktrace.some(frame => frame.function === 'useTheDb'),
           'span stacktrace includes "useTheDb" function')
       })

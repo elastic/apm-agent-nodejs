@@ -24,47 +24,20 @@ The current APM agent version (3.x) works with Node.js versions back to v8.6. We
 
 [float]
 [[compatibility-esm]]
-=== ES Modules
+=== ECMAScript Modules (ESM)
 
-The Elastic APM Node.js agent does _not yet support automatically instrumenting
-https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript module imports (ESM)]_, i.e. modules that are loaded via `import ...` statements. It currently only instruments https://nodejs.org/api/modules.html#modules-commonjs-modules[CommonJS module imports], i.e. modules loaded via `require(...)`.
+Beginning with version REPLACEME, the Elastic APM Node.js agent includes
+_limited and experimental_ support for instrumenting
+https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript module imports]_,
+i.e. modules that are loaded via `import ...` statements and `import('...')` (dynamic import).
+See the <<esm>> document for details.
 
-For example, in the following code the `http` module *is* instrumented:
-
-[source,js]
-----
-require('elastic-apm-node').start(/* ... */);
-
-const http = require('http'); // CommonJS require
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.end('pong');
-});
-server.listen(3000);
-----
-
-But in the following code the `http` module *is not* instrumented:
-
-[source,js]
-----
-import apm from 'elastic-apm-node/start';
-
-import http from 'http'; // ESM import
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.end('pong');
-});
-server.listen(3000);
-----
-
-However, if you are using TypeScript or JavaScript that is _compiled/translated/transpiled to CommonJS-using JavaScript_ via tools like Babel, Webpack, esbuild, etc., then using `import ...` in your source code is fine. To ensure your compiler is generating JS that uses CommonJS imports, use the following settings:
+Note: If you are using TypeScript or JavaScript that is _compiled/translated/transpiled to CommonJS-using JavaScript_ via tools like Babel, Webpack, esbuild, etc., then using `import ...` in your source code is fine. To ensure your compiler is generating JS that uses CommonJS imports, use the following settings:
 
 - For TypeScript, use https://www.typescriptlang.org/tsconfig#module[`"module": "commonjs"` in your "tsconfig.json"] (a https://github.com/tsconfig/bases/blob/main/bases/node16.json[complete tsconfig.json example]).
 - For Babel, use https://babeljs.io/docs/en/babel-preset-env#modules[`"modules": "commonjs"` in your Babel config] (https://github.com/elastic/apm-agent-nodejs/blob/main/test/babel/.babelrc[for example]).
 - For Webpack, use `target: 'node', externalsPresets: { node: true }` in your "webpack.config.js".
 - For esbuild, use `--platform=node --target=node...` options to `esbuild` (https://github.com/elastic/apm-agent-nodejs/blob/main/examples/esbuild/package.json#L7[for example]).
-
-The ESM limitation only affects the agent's automatic instrumentation. Other functionality -- such as metrics collection, manual instrumentation and error capture -- still works when using ES modules. Support for ES modules is planned for a future version of the APM agent.
 
 
 [float]
@@ -168,7 +141,7 @@ so those should be supported as well.
 
 [float]
 [[compatibility-better-stack-traces]]
-==== Better Stack Traces
+=== Better Stack Traces
 
 The APM agent <<span-stack-trace-min-duration,can be configured>> to capture
 span stack traces, to show where in your code a span (e.g. for a database query)
@@ -194,7 +167,7 @@ please create a new topic in the https://discuss.elastic.co/c/apm[Elastic APM di
 
 [float]
 [[compatibility-continuity]]
-==== Continuity
+=== Continuity
 
 The Elastic APM agent monitors async operations in your Node.js application to maintain awareness of which request is the active request at any given time.
 Certain modules can interfere with this monitoring if not handled properly.
