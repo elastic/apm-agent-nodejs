@@ -28,7 +28,7 @@ The current APM agent version (3.x) works with Node.js versions back to v8.6. We
 
 Beginning with version REPLACEME, the Elastic APM Node.js agent includes
 _limited and experimental_ support for instrumenting
-https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript module imports]_,
+https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript module imports],
 i.e. modules that are loaded via `import ...` statements and `import('...')` (dynamic import).
 See the <<esm>> document for details.
 
