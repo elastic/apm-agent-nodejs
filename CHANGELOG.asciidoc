@@ -63,7 +63,7 @@ in a Worker will *not* start the APM agent. Instead, one must use:
 `require('elastic-apm-node').start()` or equivalent.
 
 * Avoid redaction of response headers while extrating `transaction.context.response`
-  data from the HTTP response. Contributed by @lytc. ({pull}XXXX[#XXXX])
+  data from the HTTP response. Contributed by @lytc. ({pull}3427[#3427])
 
 [float]
 ===== Chores
