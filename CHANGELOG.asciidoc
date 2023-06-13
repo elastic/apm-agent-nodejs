@@ -44,7 +44,7 @@ Notes:
 
 
 [[release-notes-3.47.0]]
-=== Node.js Agent version 3.47.0
+==== 3.46.0 - 2023/06/15
 
 [float]
 ===== Breaking changes
@@ -52,7 +52,7 @@ Notes:
 [float]
 ===== Features
 
-* Add support for 'knex' version v1 and v2. ({pull}3355[#3355])
+* Add support for `knex` version v1 and v2. ({pull}3355[#3355])
 
 * Add `tedious@16.x` support. ({pull}3366[#3366])
 
