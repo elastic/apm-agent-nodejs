@@ -119,14 +119,13 @@ services:
 
   localstack:
     # https://hub.docker.com/r/localstack/localstack/tags
-    image: localstack/localstack:0.12.12
+    image: localstack/localstack:2.1.0
     environment:
-      - "LOCALSTACK_SERVICES=s3,sqs"
       - "DATA_DIR=/var/lib/localstack"
     ports:
       - "4566:4566"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
       interval: 30s
       timeout: 10s
       retries: 5

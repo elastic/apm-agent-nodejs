@@ -14,6 +14,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const { execFile } = require('child_process')
 const util = require('util')
 
+const semver = require('semver')
 const tape = require('tape')
 
 const logging = require('../../../../lib/logging')
@@ -199,12 +200,17 @@ tape.test('unit tests', function (suite) {
 // Execute 'node fixtures/use-sqs.js' and assert APM server gets the expected
 // spans.
 tape.test('SQS usage scenario', function (t) {
+  // Skip in earlier Node.js versions because use-sqs.js uses a recent core function.
+  if (!semver.satisfies(process.version, '>=16.14.0')) {
+    t.comment(`SKIP node ${process.version} is not supported by this fixture (requires: >=16.14.0})`)
+    t.end()
+    return
+  }
+
   const server = new MockAPMServer()
   server.start(function (serverUrl) {
     const additionalEnv = {
       ELASTIC_APM_SERVER_URL: serverUrl,
-      AWS_ACCESS_KEY_ID: 'fake',
-      AWS_SECRET_ACCESS_KEY: 'fake',
       TEST_QUEUE_NAME: 'elasticapmtest-queue-1',
       TEST_ENDPOINT: ENDPOINT,
       TEST_REGION: 'us-east-2'
@@ -239,15 +245,18 @@ tape.test('SQS usage scenario', function (t) {
           const bTimestamp = (b.transaction || b.span || b.error || {}).timestamp
           return aTimestamp < bTimestamp ? -1 : 1
         })
-        console.log('XXX events:'); console.dir(events, { depth: 5 })
 
         // First the transaction.
         t.ok(events[0].transaction, 'got the transaction')
         const tx = events.shift().transaction
 
+        // Limitations: We currently don't instrument ListQueues, CreateQueue, etc.
+        // Filter those ones out.
+        const spans = events
+          .filter(e => e.span).map(e => e.span)
+          .filter(e => !e.name.startsWith('POST '))
+
         // Compare some common fields across all spans.
-        const spans = events.filter(e => e.span)
-          .map(e => e.span)
         spans.forEach(s => {
           const errs = validateSpan(s)
           t.equal(errs, null, 'span is valid  (per apm-server intake schema)')
@@ -275,54 +284,8 @@ tape.test('SQS usage scenario', function (t) {
           return s
         }
 
-        console.log('XXX events:'); console.dir(events, { depth: 5 })
-
-        // Work through each of the pipeline functions in the script.
-        // Limitations: We currently don't instrument ListQueues, CreateQueue, etc.
-        t.deepEqual(delVariableSpanFields(spans.shift()), {
-          name: `POST ${LOCALSTACK_HOST}:${LOCALSTACK_PORT}`,
-          type: 'external',
-          subtype: 'http',
-          action: 'POST',
-          context: {
-            service: { target: { type: 'http', name: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` } },
-            destination: {
-              address: 'localhost',
-              port: 4566,
-              service: { type: '', name: '', resource: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` }
-            },
-            http: {
-              method: 'POST',
-              status_code: 200,
-              url: ENDPOINT + '/'
-            }
-          },
-          outcome: 'success'
-        }, 'listQueues')
-
-        t.deepEqual(delVariableSpanFields(spans.shift()), {
-          name: `POST ${LOCALSTACK_HOST}:${LOCALSTACK_PORT}`,
-          type: 'external',
-          subtype: 'http',
-          action: 'POST',
-          context: {
-            service: { target: { type: 'http', name: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` } },
-            destination: {
-              address: 'localhost',
-              port: 4566,
-              service: { type: '', name: '', resource: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` }
-            },
-            http: {
-              method: 'POST',
-              status_code: 200,
-              url: ENDPOINT + '/'
-            }
-          },
-          outcome: 'success'
-        }, 'createQueue')
-
-        const sendMessage1Span = spans.shift()
-        t.deepEqual(delVariableSpanFields(sendMessage1Span), {
+        const sendMessageSpan = spans.shift()
+        t.deepEqual(delVariableSpanFields(sendMessageSpan), {
           name: 'SQS SEND to elasticapmtest-queue-1.fifo',
           type: 'messaging',
           subtype: 'sqs',
@@ -344,35 +307,10 @@ tape.test('SQS usage scenario', function (t) {
             message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
           },
           outcome: 'success'
-        }, 'sendMessage1')
+        }, 'sendMessage')
 
-        const sendMessage2Span = spans.shift()
-        t.deepEqual(delVariableSpanFields(sendMessage2Span), {
-          name: 'SQS SEND to elasticapmtest-queue-1.fifo',
-          type: 'messaging',
-          subtype: 'sqs',
-          action: 'send',
-          context: {
-            service: {
-              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
-            },
-            destination: {
-              address: 'localhost',
-              port: 4566,
-              cloud: { region: 'us-east-2' },
-              service: {
-                type: '',
-                name: '',
-                resource: 'sqs/elasticapmtest-queue-1.fifo'
-              }
-            },
-            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
-          },
-          outcome: 'success'
-        }, 'sendMessage2ViaPromise')
-
-        const sendMessages34Span = spans.shift()
-        t.deepEqual(delVariableSpanFields(sendMessages34Span), {
+        const sendMessagesBatchSpan = spans.shift()
+        t.deepEqual(delVariableSpanFields(sendMessagesBatchSpan), {
           name: 'SQS SEND_BATCH to elasticapmtest-queue-1.fifo',
           type: 'messaging',
           subtype: 'sqs',
@@ -396,7 +334,6 @@ tape.test('SQS usage scenario', function (t) {
           outcome: 'success'
         }, 'sendMessageBatch')
 
-        console.log('XXX sendMessage1Span:'); console.dir(sendMessage1Span, { depth: 5 })
         t.deepEqual(delVariableSpanFields(spans.shift()), {
           name: 'SQS POLL from elasticapmtest-queue-1.fifo',
           type: 'messaging',
@@ -422,72 +359,18 @@ tape.test('SQS usage scenario', function (t) {
           links: [
             {
               trace_id: tx.trace_id,
-              span_id: sendMessage1Span.id
+              span_id: sendMessageSpan.id
+            },
+            {
+              trace_id: tx.trace_id,
+              span_id: sendMessagesBatchSpan.id
+            },
+            {
+              trace_id: tx.trace_id,
+              span_id: sendMessagesBatchSpan.id
             }
           ]
-        }, 'receiveMessageA')
-
-        t.deepEqual(delVariableSpanFields(spans.shift()), {
-          name: 'SQS DELETE from elasticapmtest-queue-1.fifo',
-          type: 'messaging',
-          subtype: 'sqs',
-          action: 'delete',
-          context: {
-            service: {
-              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
-            },
-            destination: {
-              address: 'localhost',
-              port: 4566,
-              cloud: { region: 'us-east-2' },
-              service: {
-                type: '',
-                name: '',
-                resource: 'sqs/elasticapmtest-queue-1.fifo'
-              }
-            },
-            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
-          },
-          outcome: 'success'
-        }, 'receiveMessageA deleteMessage')
-
-        t.deepEqual(delVariableSpanFields(spans.shift()), {
-          name: 'SQS POLL from elasticapmtest-queue-1.fifo',
-          type: 'messaging',
-          subtype: 'sqs',
-          action: 'poll',
-          context: {
-            service: {
-              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
-            },
-            destination: {
-              address: 'localhost',
-              port: 4566,
-              cloud: { region: 'us-east-2' },
-              service: {
-                type: '',
-                name: '',
-                resource: 'sqs/elasticapmtest-queue-1.fifo'
-              }
-            },
-            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
-          },
-          outcome: 'success',
-          links: [
-            {
-              trace_id: tx.trace_id,
-              span_id: sendMessage2Span.id
-            },
-            {
-              trace_id: tx.trace_id,
-              span_id: sendMessages34Span.id
-            },
-            {
-              trace_id: tx.trace_id,
-              span_id: sendMessages34Span.id
-            }
-          ]
-        }, 'receiveMessageB')
+        }, 'receiveMessage')
 
         t.deepEqual(delVariableSpanFields(spans.shift()), {
           name: 'SQS DELETE_BATCH from elasticapmtest-queue-1.fifo',
@@ -511,28 +394,7 @@ tape.test('SQS usage scenario', function (t) {
             message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
           },
           outcome: 'success'
-        }, 'receiveMessageB deleteMessageBatch')
-
-        t.deepEqual(delVariableSpanFields(spans.shift()), {
-          name: `POST ${LOCALSTACK_HOST}:${LOCALSTACK_PORT}`,
-          type: 'external',
-          subtype: 'http',
-          action: 'POST',
-          context: {
-            service: { target: { type: 'http', name: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` } },
-            destination: {
-              address: 'localhost',
-              port: 4566,
-              service: { type: '', name: '', resource: `${LOCALSTACK_HOST}:${LOCALSTACK_PORT}` }
-            },
-            http: {
-              method: 'POST',
-              status_code: 200,
-              url: ENDPOINT + '/'
-            }
-          },
-          outcome: 'success'
-        }, 'deleteQueue')
+        }, 'deleteMessageBatch')
 
         t.equal(spans.length, 0, 'all spans accounted for')
 
