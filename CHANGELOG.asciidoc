@@ -28,20 +28,8 @@ Notes:
         ==== x.x.x - YYYY/MM/DD
 ////
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
-
-[float]
-===== Bug fixes
-
-[float]
-===== Chores
-
+[[release-notes-3.x]]
+=== Node.js Agent version 3.x
 
 [[release-notes-3.47.0]]
 ==== 3.47.0 - 2023/06/15
