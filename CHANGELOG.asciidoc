@@ -44,7 +44,7 @@ Notes:
 
 
 [[release-notes-3.47.0]]
-==== 3.46.0 - 2023/06/15
+==== 3.47.0 - 2023/06/15
 
 [float]
 ===== Breaking changes
