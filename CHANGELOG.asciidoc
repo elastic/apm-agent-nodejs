@@ -47,9 +47,6 @@ Notes:
 ==== 3.47.0 - 2023/06/15
 
 [float]
-===== Breaking changes
-
-[float]
 ===== Features
 
 * Add support for `knex` version v1 and v2. ({pull}3355[#3355])
