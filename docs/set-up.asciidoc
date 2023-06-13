@@ -100,7 +100,7 @@ import 'elastic-apm-node/start.js';
 
 A limitation of this approach is that you cannot configure the agent with an options object, but instead have to rely on <<configuring-the-agent,one of the other methods of configuration>>, such as setting `ELASTIC_APM_...` environment variables.
 
-Note: As of elastic-apm-node version REPLACEME, the "elastic-apm-node/start.js" will *not start the agent in a Node.js Worker thread.*
+Note: As of elastic-apm-node version 3.47.0, the "elastic-apm-node/start.js" will *not start the agent in a Node.js Worker thread.*
 
 
 [[start-option-node-require-opt]]
@@ -122,7 +122,7 @@ export NODE_OPTIONS='-r elastic-apm-node/start.js'
 node app.js
 ----
 
-Note: As of elastic-apm-node version REPLACEME, the "elastic-apm-node/start.js" will *not start the agent in a https://nodejs.org/api/worker_threads.html[Node.js Worker thread].* New Worker threads inherit the `process.execArgv` and environment, so "elastic-apm-node/start.js" is executed again. Starting a new APM agent in each Worker thread because of "start.js" is deemed surprise, so is disabled for now.
+Note: As of elastic-apm-node version 3.47.0, the "elastic-apm-node/start.js" will *not start the agent in a https://nodejs.org/api/worker_threads.html[Node.js Worker thread].* New Worker threads inherit the `process.execArgv` and environment, so "elastic-apm-node/start.js" is executed again. Starting a new APM agent in each Worker thread because of "start.js" is deemed surprise, so is disabled for now.
 
 
 [[start-option-separate-init-module]]
