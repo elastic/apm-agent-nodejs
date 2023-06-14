@@ -40,8 +40,6 @@ Notes:
 * Add support for `knex` version v1 and v2. ({pull}3355[#3355])
 
 * Add `tedious@16.x` support. ({pull}3366[#3366])
-* Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in the initial config.
-  Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
 
 * Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in
   the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
