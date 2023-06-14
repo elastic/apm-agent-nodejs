@@ -32,7 +32,7 @@ Notes:
 === Node.js Agent version 3.x
 
 [[release-notes-3.47.0]]
-==== 3.47.0 - 2023/06/15
+==== 3.47.0 - 2023/06/14
 
 [float]
 ===== Features
