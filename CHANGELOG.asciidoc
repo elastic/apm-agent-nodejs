@@ -40,6 +40,8 @@ Notes:
 * Add support for `knex` version v1 and v2. ({pull}3355[#3355])
 
 * Add `tedious@16.x` support. ({pull}3366[#3366])
+* Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in the initial config.
+  Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
 
 * Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in
   the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
@@ -61,6 +63,9 @@ One undesirable effect of this change is that explicit use of "start.js" in
 code (`import 'elastic-apm-node/start.js'` or `require('elastic-apm-node/start.js')`)
 in a Worker will *not* start the APM agent. Instead, one must use:
 `require('elastic-apm-node').start()` or equivalent.
+
+* Avoid redaction of response headers while extracting `transaction.context.response`
+  data from the HTTP response. Contributed by @lytc. ({pull}3427[#3427])
 
 [float]
 ===== Chores
@@ -101,6 +106,7 @@ in a Worker will *not* start the APM agent. Instead, one must use:
   metrics to APM server. As well, you may use the OpenTelemetry Metrics SDK
   and the APM agent will automatically add a MetricReader to ship metrics to
   APM server. See the <<opentelemetry-bridge>> for details. ({pull}3152[#3152])
+
 
 [float]
 ===== Chores
