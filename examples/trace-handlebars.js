@@ -21,7 +21,7 @@ const handlebars = require('handlebars')
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 const t1 = apm.startTransaction('t1')
 
-var template = handlebars.compile('Hello, {{name}}!')
+const template = handlebars.compile('Hello, {{name}}!')
 console.log(template({ name: 'world' }))
 console.log(template({ name: 'Bob' }))
 
