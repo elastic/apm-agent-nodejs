@@ -211,6 +211,8 @@ tape.test('SQS usage scenario', function (t) {
   server.start(function (serverUrl) {
     const additionalEnv = {
       ELASTIC_APM_SERVER_URL: serverUrl,
+      AWS_ACCESS_KEY_ID: 'fake',
+      AWS_SECRET_ACCESS_KEY: 'fake',
       TEST_QUEUE_NAME: 'elasticapmtest-queue-1',
       TEST_ENDPOINT: ENDPOINT,
       TEST_REGION: 'us-east-2'
@@ -222,7 +224,7 @@ tape.test('SQS usage scenario', function (t) {
       ['fixtures/use-sqs.js'],
       {
         cwd: __dirname,
-        timeout: 20000, // sanity guard on the test hanging
+        timeout: 40000, // sanity guard on the test hanging
         maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
         env: Object.assign({}, process.env, additionalEnv)
       },
@@ -295,7 +297,7 @@ tape.test('SQS usage scenario', function (t) {
               target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
             },
             destination: {
-              address: 'localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
               service: {
@@ -320,7 +322,7 @@ tape.test('SQS usage scenario', function (t) {
               target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
             },
             destination: {
-              address: 'localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
               service: {
@@ -334,6 +336,7 @@ tape.test('SQS usage scenario', function (t) {
           outcome: 'success'
         }, 'sendMessageBatch')
 
+        // XXX This is wrong. It is N SQS POLLs until collect all 3 messages. Sigh.
         t.deepEqual(delVariableSpanFields(spans.shift()), {
           name: 'SQS POLL from elasticapmtest-queue-1.fifo',
           type: 'messaging',
@@ -344,7 +347,7 @@ tape.test('SQS usage scenario', function (t) {
               target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
             },
             destination: {
-              address: 'localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
               service: {
@@ -382,7 +385,7 @@ tape.test('SQS usage scenario', function (t) {
               target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
             },
             destination: {
-              address: 'localhost',
+              address: LOCALSTACK_HOST,
               port: 4566,
               cloud: { region: 'us-east-2' },
               service: {

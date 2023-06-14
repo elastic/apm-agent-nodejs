@@ -18,6 +18,14 @@
 // - There is a 60s window after queue deletion where re-using that queue name
 //   can result in surprising behaviour.
 //
+// Auth note: By default this uses the AWS profile/configuration from the
+// environment. If you do not have that configured (i.e. do not have
+// "~/.aws/...") files, then you can still use localstack via setting:
+//    unset AWS_PROFILE
+//    export AWS_ACCESS_KEY_ID=fake
+//    export AWS_SECRET_ACCESS_KEY=fake
+// See also: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+//
 // Usage:
 //    # Run against the default configured AWS profile ('aws configure list').
 //    # but defaulting to 'us-east-2' region.
@@ -129,7 +137,7 @@ async function useSQS (sqsClient, queueName) {
     AttributeNames: ['All'],
     MessageAttributeNames: ['All'],
     VisibilityTimeout: 10,
-    WaitTimeSeconds: 20
+    WaitTimeSeconds: 5
   }
   const messages = []
   for await (const attemptNum of [0, 1, 2, 3, 4]) {
