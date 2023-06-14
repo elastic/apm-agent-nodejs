@@ -19,10 +19,15 @@ var os = require('os')
 var test = require('tape')
 
 const Agent = require('../lib/agent')
-var config = require('../lib/config')
+const {
+  CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS,
+  CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
+  CAPTURE_ERROR_LOG_STACK_TRACES_NEVER,
+  DEFAULTS
+} = require('../lib/config/schema')
 const { findObjInArray } = require('./_utils')
 const { MockAPMServer } = require('./_mock_apm_server')
-const { NoopTransport } = require('../lib/noop-transport')
+const { NoopApmClient } = require('../lib/apm-client/noop-apm-client')
 var packageJson = require('../package.json')
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
@@ -45,7 +50,7 @@ const agentOptsNoopTransport = Object.assign(
   {
     transport: function createNoopTransport () {
       // Avoid accidentally trying to send data to an APM server.
-      return new NoopTransport()
+      return new NoopApmClient()
     }
   }
 )
@@ -119,38 +124,38 @@ test('#getServiceName()', function (t) {
 
 test('#setFramework()', function (t) {
   // Use `agentOpts` instead of `agentOptsNoopTransport` because this test is
-  // reaching into `agent._transport` internals.
+  // reaching into `agent._apmClient` internals.
   const agent = new Agent().start(agentOpts)
 
   t.strictEqual(agent._conf.frameworkName, undefined)
   t.strictEqual(agent._conf.frameworkVersion, undefined)
-  t.strictEqual(agent._transport._conf.frameworkName, undefined)
-  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkName, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, undefined)
   agent.setFramework({})
   t.strictEqual(agent._conf.frameworkName, undefined)
   t.strictEqual(agent._conf.frameworkVersion, undefined)
-  t.strictEqual(agent._transport._conf.frameworkName, undefined)
-  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkName, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, undefined)
   agent.setFramework({ name: 'foo' })
   t.strictEqual(agent._conf.frameworkName, 'foo')
   t.strictEqual(agent._conf.frameworkVersion, undefined)
-  t.strictEqual(agent._transport._conf.frameworkName, 'foo')
-  t.strictEqual(agent._transport._conf.frameworkVersion, undefined)
+  t.strictEqual(agent._apmClient._conf.frameworkName, 'foo')
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, undefined)
   agent.setFramework({ version: 'bar' })
   t.strictEqual(agent._conf.frameworkName, 'foo')
   t.strictEqual(agent._conf.frameworkVersion, 'bar')
-  t.strictEqual(agent._transport._conf.frameworkName, 'foo')
-  t.strictEqual(agent._transport._conf.frameworkVersion, 'bar')
+  t.strictEqual(agent._apmClient._conf.frameworkName, 'foo')
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, 'bar')
   agent.setFramework({ name: 'a', version: 'b' })
   t.strictEqual(agent._conf.frameworkName, 'a')
   t.strictEqual(agent._conf.frameworkVersion, 'b')
-  t.strictEqual(agent._transport._conf.frameworkName, 'a')
-  t.strictEqual(agent._transport._conf.frameworkVersion, 'b')
+  t.strictEqual(agent._apmClient._conf.frameworkName, 'a')
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, 'b')
   agent.setFramework({ name: 'foo', version: 'bar', overwrite: false })
   t.strictEqual(agent._conf.frameworkName, 'a')
   t.strictEqual(agent._conf.frameworkVersion, 'b')
-  t.strictEqual(agent._transport._conf.frameworkName, 'a')
-  t.strictEqual(agent._transport._conf.frameworkVersion, 'b')
+  t.strictEqual(agent._apmClient._conf.frameworkName, 'a')
+  t.strictEqual(agent._apmClient._conf.frameworkVersion, 'b')
   agent.destroy()
   t.end()
 })
@@ -495,6 +500,80 @@ test('#setCustomContext()', function (t) {
   })
 
   t.end()
+})
+
+test('#setGlobalLabel()', function (suite) {
+  let apmServer
+  let suiteAgentOpts
+
+  suite.test('setup mock APM server', function (t) {
+    apmServer = new MockAPMServer()
+    apmServer.start(function (serverUrl) {
+      t.comment('mock APM serverUrl: ' + serverUrl)
+      suiteAgentOpts = Object.assign(
+        {},
+        agentOpts,
+        { serverUrl }
+      )
+      t.end()
+    })
+  })
+
+  suite.test('sets a global label', async function (t) {
+    apmServer.clear()
+    const agent = new Agent().start(suiteAgentOpts)
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { goo: 1 }, 'APM server metadata.labels')
+    agent.destroy()
+    t.end()
+  })
+
+  suite.test('extends the predefined global labels', async function (t) {
+    apmServer.clear()
+    const agentOptsWithGlobalLabels = Object.assign(
+      {},
+      suiteAgentOpts,
+      { globalLabels: { some: true } }
+    )
+    const agent = new Agent().start(agentOptsWithGlobalLabels)
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { some: true, goo: 1 }, 'APM server metadata.labels')
+    agent.destroy()
+    t.end()
+  })
+
+  suite.test('overrides an existing global label', async function (t) {
+    apmServer.clear()
+    const agentOptsWithGlobalLabels = Object.assign(
+      {},
+      suiteAgentOpts,
+      { globalLabels: { some: true, goo: 0 } }
+    )
+    const agent = new Agent().start(agentOptsWithGlobalLabels)
+    agent.setGlobalLabel('goo', 1)
+    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }), 'agent._conf.globalLabels')
+    agent.startTransaction('manual')
+    agent.endTransaction()
+    await agent.flush()
+    t.deepEqual(apmServer.events[0].metadata.labels, { some: true, goo: 1 }, 'APM server metadata.labels')
+    agent.destroy()
+    t.end()
+  })
+
+  suite.test('teardown mock APM server', function (t) {
+    apmServer.close()
+    t.end()
+  })
+
+  suite.end()
 })
 
 test('#setLabel()', function (t) {
@@ -1291,7 +1370,7 @@ test('#captureError()', function (t) {
       function () {
         t.equal(apmServer.events.length, 2, 'APM server got 2 events')
         const data = apmServer.events[1].error
-        t.strictEqual(data.exception.stacktrace.length, config.DEFAULTS.stackTraceLimit)
+        t.strictEqual(data.exception.stacktrace.length, DEFAULTS.stackTraceLimit)
         t.strictEqual(data.exception.stacktrace[0].context_line.trim(), 'return new Error()')
 
         apmServer.clear()
@@ -1349,7 +1428,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
     ))
     agent.captureError(new Error('foo'),
       function () {
@@ -1370,7 +1449,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
     ))
     agent.captureError('foo',
       function () {
@@ -1391,7 +1470,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
     ))
     agent.captureError({ message: 'Hello %s', params: ['World'] },
       function () {
@@ -1412,7 +1491,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
     ))
     agent.captureError(new Error('foo'),
       function () {
@@ -1433,7 +1512,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
     ))
     agent.captureError('foo',
       function () {
@@ -1454,7 +1533,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
     ))
     agent.captureError({ message: 'Hello %s', params: ['World'] },
       function () {
@@ -1475,7 +1554,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
     ))
     agent.captureError(new Error('foo'),
       function () {
@@ -1497,7 +1576,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
     ))
     agent.captureError('foo',
       function () {
@@ -1518,7 +1597,7 @@ test('#captureError()', function (t) {
     const agent = new Agent().start(Object.assign(
       {},
       ceAgentOpts,
-      { captureErrorLogStackTraces: config.CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
+      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
     ))
     agent.captureError({ message: 'Hello %s', params: ['World'] },
       function () {

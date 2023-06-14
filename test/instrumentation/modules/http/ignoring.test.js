@@ -158,7 +158,7 @@ function request (path, headers, cb) {
 }
 
 function resetAgent (opts, cb) {
-  agent._transport = mockClient(1, cb)
+  agent._apmClient = mockClient(1, cb)
   agent._conf.ignoreUrlStr = opts.ignoreUrlStr || []
   agent._conf.ignoreUrlRegExp = opts.ignoreUrlRegExp || []
   agent._conf.ignoreUserAgentStr = opts.ignoreUserAgentStr || []

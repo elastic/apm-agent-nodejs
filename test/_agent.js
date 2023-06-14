@@ -50,9 +50,9 @@ function clean () {
       }
     }
     agent._metrics.stop()
-    if (agent._transport && agent._transport.destroy) {
-      agent._transport.destroy()
+    if (agent._apmClient && agent._apmClient.destroy) {
+      agent._apmClient.destroy()
     }
-    agent._transport = null
+    agent._apmClient = null
   }
 }

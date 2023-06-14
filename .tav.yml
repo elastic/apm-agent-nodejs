@@ -171,10 +171,10 @@ bluebird:
 # - knex 0.18.0 min supported node is v8
 # - knex 0.21.0 min supported node is v10
 # - knex 1.0.0 min supported node is v12
-knex-v0.9-v0.17:
+knex-v0.10-v0.17:
   name: knex
   # Latest 0.16 release was in 2019, therefore only test first and last in this range.
-  versions: '0.9.0 || 0.16.5'
+  versions: '0.10.0 || 0.16.5'
   commands: node test/instrumentation/modules/pg/knex.test.js
 knex-v0.17-v0.21:
   name: knex
@@ -186,6 +186,11 @@ knex-v0.21-v1:
   name: knex
   node: '>=10.22.0'
   versions: '0.21.21 || 0.95.15' # latest minors subset of '>=0.21 <1'
+  commands: node test/instrumentation/modules/pg/knex.test.js
+knex-v1-v3:
+  name: knex
+  node: '>=12.0.0'
+  versions: '1.0.7 || 2.4.2' # latest minors subset of '>=1 <3'
   commands: node test/instrumentation/modules/pg/knex.test.js
 
 ws-old:
@@ -313,16 +318,6 @@ elasticsearch:
   node: '>=14.0.0'
   commands: node test/instrumentation/modules/@elastic/elasticsearch.test.js
 
-# @elastic/elasticsearch-canary *sometimes* gets releases in advance of
-# '@elastic/elasticsearch'. It is only the latest such release that
-# might matter. The point in testing it is to try to make sure the agent is
-# updated for coming changes to the non-canary package.
-'@elastic/elasticsearch-canary':
-  name: '@elastic/elasticsearch-canary'
-  versions: '>=8.2.0-canary.2'
-  node: '>=14'
-  commands: node test/instrumentation/modules/@elastic/elasticsearch-canary.test.js
-
 handlebars:
   versions: '*'
   commands: node test/instrumentation/modules/handlebars.test.js
@@ -395,11 +390,17 @@ tedious-v12-v15:
   # first and last majors subset of '12.x || 13.x || 14.x'
   versions: '12.0.0 || 12.3.0 || 13.0.0 || 13.2.0 || 14.0.0 || 14.7.0 || >14.7.0 <15'
   commands: node test/instrumentation/modules/tedious.test.js
-tedious:
+tedious-v15-v16:
   name: tedious
   node: '>=14'
   versions: '15.0.0 || 15.1.3 || >15.1.3 <16' # first and last majors subset of '15.x'
   commands: node test/instrumentation/modules/tedious.test.js
+tedious:
+  name: tedious
+  node: '>=16'
+  versions: '16.0.0 || 16.1.0 || >16.1.0 <17' # first and last majors subset of '16.x'
+  commands: node test/instrumentation/modules/tedious.test.js
+
 
 cassandra-driver:
   # 3.1.0 is broken
@@ -492,11 +493,6 @@ finalhandler:
 memcached:
   versions: '>=2.2.0'
   commands: node test/instrumentation/modules/memcached.test.js
-
-body-parser:
-  versions: '>=1.19.0'
-  commands:
-    - node test/sanitize-field-names/express.test.js
 
 aws-sdk:
   # We want this version range:

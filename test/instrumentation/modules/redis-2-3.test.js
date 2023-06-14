@@ -250,5 +250,5 @@ if (semver.satisfies(redisVersion, '<=2.4.2')) {
 
 function resetAgent (cb) {
   agent._instrumentation.testReset()
-  agent._transport = mockClient(cb)
+  agent._apmClient = mockClient(cb)
 }

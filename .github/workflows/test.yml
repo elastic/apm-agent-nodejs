@@ -1,4 +1,4 @@
-name: Test
+name: test
 
 # https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/2
 on:
@@ -27,6 +27,17 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - run: npm run lint
+
   test-vers:
 
     # These services and their configuration should match test/docker-compose.yml.
@@ -90,10 +101,10 @@ jobs:
           - nodemssqldata:/var/opt/mssql
 
       elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.2.1
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
         env:
           ES_JAVA_OPTS: '-Xms512m -Xmx512m'
-          network.host: ''
+          network.host: '_site_'
           transport.host: '127.0.0.1'
           http.host: '0.0.0.0'
           xpack.security.enabled: 'false'
@@ -168,3 +179,20 @@ jobs:
     - run: npm ls --all || true
     # Run a subset of tests that we can reasonably get running on Windows CI.
     - run: node test/test.js
+
+  # single status check that can be set as required in branch protection rules.
+  # success if all jobs listed in "needs" are successful.
+  # failure if at least one job listed "needs" is not successful.
+  test:
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - test-vers
+      - test-windows
+    steps:
+      - id: check
+        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
+        with:
+          needs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.isSuccess }}

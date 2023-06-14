@@ -23,7 +23,7 @@ const noOpClient = {
   supportsKeepingUnsampledTransaction () { return true },
   supportsActivationMethodField () { return true }
 }
-agent._transport = noOpClient
+agent._apmClient = noOpClient
 
 const suite = require('tape')
 
