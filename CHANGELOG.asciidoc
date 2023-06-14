@@ -31,6 +31,7 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
 ==== Unreleased
 
 [float]
@@ -63,9 +64,25 @@ recent versions of node v12-v18. ESM support will remain experimental while the
 https://nodejs.org/api/esm.html#loaders[Node.js Loaders API] is experimental.
 See <<esm>> for full details.
 
-* Add support for 'knex' version v1 and v2. ({pull}3355[#3355])
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+
+[[release-notes-3.47.0]]
+==== 3.47.0 - 2023/06/14
+
+[float]
+===== Features
+
+* Add support for `knex` version v1 and v2. ({pull}3355[#3355])
 
 * Add `tedious@16.x` support. ({pull}3366[#3366])
+
+* Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in
+  the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
 
 [float]
 ===== Bug fixes
@@ -84,6 +101,9 @@ One undesirable effect of this change is that explicit use of "start.js" in
 code (`import 'elastic-apm-node/start.js'` or `require('elastic-apm-node/start.js')`)
 in a Worker will *not* start the APM agent. Instead, one must use:
 `require('elastic-apm-node').start()` or equivalent.
+
+* Avoid redaction of response headers while extracting `transaction.context.response`
+  data from the HTTP response. Contributed by @lytc. ({pull}3427[#3427])
 
 [float]
 ===== Chores
@@ -125,7 +145,6 @@ in a Worker will *not* start the APM agent. Instead, one must use:
   and the APM agent will automatically add a MetricReader to ship metrics to
   APM server. See the <<opentelemetry-bridge>> for details. ({pull}3152[#3152])
 
-* Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
 
 [float]
 ===== Chores

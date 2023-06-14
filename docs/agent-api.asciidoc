@@ -294,7 +294,7 @@ Defining too many unique fields in an index is a condition that can lead to a
 [[apm-set-global-label]]
 ==== `apm.setGlobalLabel(name, value)`
 
-[small]#Added in: REPLACEME#
+[small]#Added in: v3.47.0#
 
 * `name` +{type-string}+
 * `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
