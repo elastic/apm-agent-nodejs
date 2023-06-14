@@ -336,44 +336,47 @@ tape.test('SQS usage scenario', function (t) {
           outcome: 'success'
         }, 'sendMessageBatch')
 
-        // XXX This is wrong. It is N SQS POLLs until collect all 3 messages. Sigh.
-        t.deepEqual(delVariableSpanFields(spans.shift()), {
-          name: 'SQS POLL from elasticapmtest-queue-1.fifo',
-          type: 'messaging',
-          subtype: 'sqs',
-          action: 'poll',
-          context: {
-            service: {
-              target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
-            },
-            destination: {
-              address: LOCALSTACK_HOST,
-              port: 4566,
-              cloud: { region: 'us-east-2' },
+        // There will be one or more `SQS POLL ...` spans for the ReceiveMessage
+        // API calls until all messages are retrieved.
+        let spanLinks = []
+        while (spans.length > 0 && spans[0].name.startsWith('SQS POLL')) {
+          const span = spans.shift()
+          if (span.links) {
+            spanLinks = spanLinks.concat(span.links)
+            delete span.links
+          }
+          t.deepEqual(delVariableSpanFields(span), {
+            name: 'SQS POLL from elasticapmtest-queue-1.fifo',
+            type: 'messaging',
+            subtype: 'sqs',
+            action: 'poll',
+            context: {
               service: {
-                type: '',
-                name: '',
-                resource: 'sqs/elasticapmtest-queue-1.fifo'
-              }
+                target: { type: 'sqs', name: 'elasticapmtest-queue-1.fifo' }
+              },
+              destination: {
+                address: LOCALSTACK_HOST,
+                port: 4566,
+                cloud: { region: 'us-east-2' },
+                service: {
+                  type: '',
+                  name: '',
+                  resource: 'sqs/elasticapmtest-queue-1.fifo'
+                }
+              },
+              message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
             },
-            message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
-          },
-          outcome: 'success',
-          links: [
-            {
-              trace_id: tx.trace_id,
-              span_id: sendMessageSpan.id
-            },
-            {
-              trace_id: tx.trace_id,
-              span_id: sendMessagesBatchSpan.id
-            },
-            {
-              trace_id: tx.trace_id,
-              span_id: sendMessagesBatchSpan.id
-            }
-          ]
-        }, 'receiveMessage')
+            outcome: 'success'
+          }, 'receiveMessage')
+        }
+        t.deepEqual(
+          spanLinks,
+          [
+            { trace_id: tx.trace_id, span_id: sendMessageSpan.id },
+            { trace_id: tx.trace_id, span_id: sendMessagesBatchSpan.id },
+            { trace_id: tx.trace_id, span_id: sendMessagesBatchSpan.id }
+          ],
+          'collected span.links')
 
         t.deepEqual(delVariableSpanFields(spans.shift()), {
           name: 'SQS DELETE_BATCH from elasticapmtest-queue-1.fifo',
