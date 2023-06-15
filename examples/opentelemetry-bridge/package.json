@@ -10,7 +10,7 @@
     "@opentelemetry/api": "^1.4.0",
     "@opentelemetry/core": "^1.11.0",
     "@opentelemetry/instrumentation": "^0.39.1",
-    "@opentelemetry/instrumentation-http": "^0.39.1",
+    "@opentelemetry/instrumentation-http": "^0.40.0",
     "@opentelemetry/sdk-trace-base": "^1.11.0",
     "@opentelemetry/sdk-trace-node": "^1.11.0",
     "elastic-apm-node": "file:../.."
