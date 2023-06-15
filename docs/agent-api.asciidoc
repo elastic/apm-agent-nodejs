@@ -863,13 +863,9 @@ apm.clearPatches(['timers'])
 
 [small]#Added in: v2.17.0#
 
-// This content is reused in log-correlation.asciidoc
-// Ensure any updates here also make sense there
-// tag::currentTraceIds[]
-
 `apm.currentTraceIds` produces an object containing `trace.id` and either `transaction.id` or `span.id` when a current transaction or span is available.
 When no transaction or span is available it will return an empty object.
-This enables <<log-correlation,log correlation>> to APM traces with structured loggers.
+This enables <<log-correlation-ids,log correlation>> to APM traces with structured loggers.
 
 [source,js]
 ----
@@ -883,8 +879,6 @@ This enables <<log-correlation,log correlation>> to APM traces with structured l
   "span.id": "abc123"
 }
 ----
-
-// end::currentTraceIds[]
 
 [[apm-register-custom-metrics]]
 ==== `apm.registerMetric(name[, labels], callback)`

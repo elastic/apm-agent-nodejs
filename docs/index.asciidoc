@@ -32,11 +32,11 @@ include::./api.asciidoc[]
 
 include::./metrics.asciidoc[]
 
+include::./logs.asciidoc[]
+
 include::./api-opentelemetry.asciidoc[]
 
 include::./opentracing.asciidoc[]
-
-include::./log-correlation.asciidoc[]
 
 include::./source-maps.asciidoc[]
 
