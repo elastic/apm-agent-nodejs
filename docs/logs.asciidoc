@@ -19,7 +19,7 @@ In order to correlate logs from your application with traces captured by the
 Elastic APM Node.js Agent, your logs must contain the following identifiers:
 
 * {ecs-ref}/ecs-tracing.html[`trace.id`]
-* {ecs-ref}/ecs-tracing.html[`transaction.id`]* or {ecs-ref}/ecs-error.html[`span.id`]
+* {ecs-ref}/ecs-tracing.html[`transaction.id`] or {ecs-ref}/ecs-tracing.html[`span.id`]
 
 The APM Node.js Agent provides the <<apm-current-trace-ids>> API for this.
 If your application is also using one of the {ecs-logging-nodejs-ref}/intro.html[ECS formatting plugin packages]
