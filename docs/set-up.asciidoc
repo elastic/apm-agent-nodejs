@@ -93,22 +93,24 @@ This start method exists for those that use a tool like Babel or esbuild to tran
 
 [source,js]
 ----
-import 'elastic-apm-node/start';
+import 'elastic-apm-node/start.js';
 
 // Application main code goes here.
 ----
 
 A limitation of this approach is that you cannot configure the agent with an options object, but instead have to rely on <<configuring-the-agent,one of the other methods of configuration>>, such as setting `ELASTIC_APM_...` environment variables.
 
+Note: As of elastic-apm-node version 3.47.0, the "elastic-apm-node/start.js" will *not start the agent in a Node.js Worker thread.*
+
 
 [[start-option-node-require-opt]]
-===== `node -r elastic-apm-node/start ...`
+===== `node -r elastic-apm-node/start.js ...`
 
-Another way to start the agent is with the `-r elastic-apm-node/start` https://nodejs.org/api/cli.html#-r---require-module[command line option to `node`]. This will import and start the APM agent before your application code starts. This method allows you to enable the agent _without touching any code_. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>> and for tracing <<nextjs,a Next.js server>>.
+Another way to start the agent is with the `-r elastic-apm-node/start.js` https://nodejs.org/api/cli.html#-r---require-module[command line option to `node`]. This will load and start the APM agent before your application code starts. This method allows you to enable the agent _without touching any code_. This is the recommended start method for <<lambda,monitoring AWS Lambda functions>> and for tracing <<nextjs,a Next.js server>>.
 
 [source,bash]
 ----
-node -r elastic-apm-node/start app.js
+node -r elastic-apm-node/start.js app.js
 ----
 
 The `-r, --require` option can also be specified via the https://nodejs.org/api/cli.html#node_optionsoptions[`NODE_OPTIONS` environment variable]:
@@ -116,9 +118,11 @@ The `-r, --require` option can also be specified via the https://nodejs.org/api/
 [source,bash]
 ----
 # export ELASTIC_APM_...  # Configure the agent with envvars.
-export NODE_OPTIONS='-r elastic-apm-node/start'
+export NODE_OPTIONS='-r elastic-apm-node/start.js'
 node app.js
 ----
+
+Note: As of elastic-apm-node version 3.47.0, the "elastic-apm-node/start.js" will *not start the agent in a https://nodejs.org/api/worker_threads.html[Node.js Worker thread].* New Worker threads inherit the `process.execArgv` and environment, so "elastic-apm-node/start.js" is executed again. Starting a new APM agent in each Worker thread because of "start.js" is deemed surprise, so is disabled for now.
 
 
 [[start-option-separate-init-module]]

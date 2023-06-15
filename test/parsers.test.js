@@ -87,6 +87,36 @@ test('#getContextFromResponse()', function (t) {
       res.end()
     })
   })
+
+  // Some instrumentations set a pseudo response object, e.g. serverless
+  // functions where the "response" isn't a core Node.js `http.OutgoingMessage`.
+  t.test('for pseudo-res', function (t) {
+    const testCases = [
+      {
+        res: { statusCode: 500 },
+        conf: { captureHeaders: true },
+        isError: false,
+        expectedContext: { status_code: 500, headers: {} }
+      },
+      {
+        res: { statusCode: 500 },
+        conf: { captureHeaders: true },
+        isError: true,
+        expectedContext: { status_code: 500, headers: {}, headers_sent: undefined, finished: undefined }
+      },
+      {
+        res: { statusCode: 200, headers: { 'content-type': 'application/json' } },
+        conf: { captureHeaders: true },
+        isError: false,
+        expectedContext: { status_code: 200, headers: { 'content-type': 'application/json' } }
+      }
+    ]
+    testCases.forEach((tc, idx) => {
+      const context = parsers.getContextFromResponse(tc.res, tc.conf, tc.isError)
+      t.deepEqual(context, tc.expectedContext, `pseudo-res testCase ${idx}`)
+    })
+    t.end()
+  })
 })
 
 test('#getContextFromRequest()', function (t) {

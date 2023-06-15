@@ -50,3 +50,8 @@ This page has moved.
 
 - For details on ES Modules (ESM) support, see <<compatibility-esm>>.
 - For information on using the APM agent with TypeScript, see <<typescript>>.
+
+[role="exclude",id="log-correlation"]
+=== Log correlation
+
+This section has moved. See <<logs>>.

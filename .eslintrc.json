@@ -8,7 +8,16 @@
     "license-header"
   ],
   "rules": {
-    "license-header/header": [ "error", "./dev-utils/license-header.js" ]
+    "license-header/header": ["error", "./dev-utils/license-header.js"],
+    // Regarding "no-var": The opinion of this repository's maintainers is that
+    // while const/let are useful, the use of `var` is not bad and therefore
+    // does not need to be ruled out. Eliminating the use of `var` would be a
+    // large diff that (a) could theoretically cause bugs due to lexical scoping
+    // changes and (b) could theoretically impact perf (e.g. see
+    // https://github.com/microsoft/TypeScript/issues/52924). New code MAY
+    // prefer const/let over `var`. Code in "examples/" MUST use const/let --
+    // this is enforced by "examples/.eslintrc.json".
+    "no-var": "off"
   },
   "ignorePatterns": [
     "/*.example.js", // a pattern for uncommited local dev files to avoid linting
