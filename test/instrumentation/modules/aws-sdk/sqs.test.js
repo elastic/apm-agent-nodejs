@@ -341,7 +341,9 @@ tape.test('SQS usage scenario', function (t) {
         let spanLinks = []
         while (spans.length > 0 && spans[0].name.startsWith('SQS POLL')) {
           const span = spans.shift()
+          let numSpanLinks = 0
           if (span.links) {
+            numSpanLinks = span.links.length
             spanLinks = spanLinks.concat(span.links)
             delete span.links
           }
@@ -367,7 +369,7 @@ tape.test('SQS usage scenario', function (t) {
               message: { queue: { name: 'elasticapmtest-queue-1.fifo' } }
             },
             outcome: 'success'
-          }, 'receiveMessage')
+          }, `receiveMessage (${numSpanLinks} span links)`)
         }
         t.deepEqual(
           spanLinks,
@@ -402,7 +404,7 @@ tape.test('SQS usage scenario', function (t) {
           outcome: 'success'
         }, 'deleteMessageBatch')
 
-        t.equal(spans.length, 0, 'all spans accounted for')
+        t.equal(spans.length, 0, `all spans accounted for, remaining spans: ${JSON.stringify(spans)}`)
 
         server.close()
         t.end()
