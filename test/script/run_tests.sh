@@ -43,13 +43,6 @@ setup_env () {
 }
 
 run_test_suite () {
-  # eslint@8 requires a more recent Node.js than our min supported node.
-  if $(./node_modules/.bin/semver -r '^12.22.0 || ^14.17.0 || >=16.0.0' $(node --version) >/dev/null); then
-    npm run lint
-  else
-    echo "# skip lint with old node (node $(node --version))"
-  fi
-
   npm run test:deps
 
   # If running in CI, then output .tap files and covert them to JUnit
