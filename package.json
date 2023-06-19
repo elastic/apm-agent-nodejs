@@ -104,7 +104,7 @@
     "fast-safe-stringify": "^2.0.7",
     "http-headers": "^3.0.2",
     "is-native": "^1.0.1",
-    "lru-cache": "^6.0.0",
+    "lru-cache": "^10.0.0",
     "measured-reporting": "^1.51.1",
     "module-details-from-path": "^1.0.3",
     "monitor-event-loop-delay": "^1.0.0",
