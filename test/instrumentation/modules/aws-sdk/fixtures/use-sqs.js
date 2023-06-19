@@ -140,7 +140,7 @@ async function useSQS (sqsClient, queueName) {
     WaitTimeSeconds: 5
   }
   const messages = []
-  for await (const attemptNum of [0, 1, 2, 3, 4]) {
+  for (const attemptNum of [0, 1, 2, 3, 4]) {
     data = await sqsClient.receiveMessage(params).promise()
     log.info({ attemptNum, data }, 'receiveMessage')
     if (data.Messages) {
