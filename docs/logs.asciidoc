@@ -1,0 +1,34 @@
+[[logs]]
+## Logs
+
+The Elastic APM Node.js Agent provides support for <<log-correlation-ids>>. When
+used together with the {ecs-logging-nodejs-ref}/intro.html[`ecs-logging-nodejs`
+packages], correlation IDs will be automatically injected into log records to
+allow navigation between logs, traces, and services.
+
+This feature is part of {observability-guide}/application-logs.html[Application log ingestion strategies].
+
+[float]
+[[log-correlation-ids]]
+== Log correlation
+
+{apm-guide-ref}/log-correlation.html[Log correlation] allows you to navigate to all logs belonging to a particular trace
+and vice-versa: for a specific log, see in which context it has been logged and which parameters the user provided.
+
+In order to correlate logs from your application with traces captured by the
+Elastic APM Node.js Agent, your logs must contain the following identifiers:
+
+* {ecs-ref}/ecs-tracing.html[`trace.id`]
+* {ecs-ref}/ecs-tracing.html[`transaction.id`] or {ecs-ref}/ecs-tracing.html[`span.id`]
+
+The APM Node.js Agent provides the <<apm-current-trace-ids>> API for this.
+If your application is also using one of the {ecs-logging-nodejs-ref}/intro.html[ECS formatting plugin packages]
+(available for Pino, Winston, and Morgan), then this APM Agent API will
+automatically be used to inject the appropriate tracing fields into your log
+records. Otherwise, configure your logger to add these fields when emitting a
+log record.
+
+When your logs contain the appropriate identifiers, the final step is to ingest them into the same
+Elasticsearch instance that contains your APM data. See
+{apm-guide-ref}/log-correlation.html#ingest-logs-in-es[Ingest your logs into Elasticsearch]
+for more information.

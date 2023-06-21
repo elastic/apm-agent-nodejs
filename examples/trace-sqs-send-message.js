@@ -66,12 +66,16 @@ sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
   const queueUrl = data.QueueUrl
   // console.log('queueUrl:', queueUrl)
 
+  const rand = Math.random()
   const params = {
     QueueUrl: queueUrl,
-    MessageBody: `this is my message (${Math.random()})`,
+    MessageBody: `this is my message (${rand}})`,
     MessageAttributes: {
       foo: { DataType: 'String', StringValue: 'bar' }
-    }
+    },
+    // Only used for FIFO queues.
+    MessageGroupId: 'example-trace-sqs',
+    MessageDeduplicationId: rand.toString()
   }
   console.log('Sending message with body: %j', params.MessageBody)
   sqs.sendMessage(params, function (err, data) {

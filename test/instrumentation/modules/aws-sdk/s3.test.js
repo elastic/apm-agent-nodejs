@@ -121,7 +121,7 @@ tape.test('simple S3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 's3' }
             },
-            http: { status_code: 200, response: { encoded_body_size: 205 } }
+            http: { status_code: 200, response: { encoded_body_size: 222 } }
           },
           outcome: 'success'
         }, 'listAllBuckets produced expected span')
@@ -139,7 +139,7 @@ tape.test('simple S3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
-            http: { status_code: 200, response: { encoded_body_size: 177 } }
+            http: { status_code: 200, response: { encoded_body_size: 61 } }
           },
           otel: {
             attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-1' }
@@ -181,7 +181,7 @@ tape.test('simple S3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
-            http: { status_code: 200 }
+            http: { status_code: 200, response: { encoded_body_size: 58 } }
           },
           otel: {
             attributes: {
@@ -302,7 +302,7 @@ tape.test('simple S3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 's3/elasticapmtest-bucket-1' }
             },
-            http: { status_code: 404, response: { encoded_body_size: 207 } }
+            http: { status_code: 404, response: { encoded_body_size: 227 } }
           },
           otel: {
             attributes: {
