@@ -103,6 +103,19 @@ const testFixtures = [
       t.equal(trans.type, 'request', 'transaction.type')
       t.equal(trans.outcome, 'success', 'transaction.outcome')
     }
+  },
+  {
+    name: 'loading http from CJS and ESM works',
+    script: './fixtures/load-http-twice.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1' // skip warnings about --experimental-loader
+    },
+    versionRanges: {
+      node: '^14.13.1 || ^16.0.0 || ^18.1.0 <20' // NODE_VER_RANGE_IITM minus node v12 because top-level `await` is used
+    },
+    verbose: true
   }
 ]
 
