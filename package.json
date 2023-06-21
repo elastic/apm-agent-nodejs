@@ -85,6 +85,7 @@
     "url": "https://github.com/elastic/apm-agent-nodejs/issues"
   },
   "homepage": "https://github.com/elastic/apm-agent-nodejs",
+  "XXX elastic-apm-http-client": "12.0.0",
   "dependencies": {
     "@elastic/ecs-pino-format": "^1.2.0",
     "@opentelemetry/api": "^1.4.1",
@@ -96,7 +97,7 @@
     "basic-auth": "^2.0.1",
     "cookie": "^0.5.0",
     "core-util-is": "^1.0.2",
-    "elastic-apm-http-client": "11.4.0",
+    "elastic-apm-http-client": "elastic/apm-nodejs-http-client#trentm/fqdn-detected-hostname",
     "end-of-stream": "^1.4.4",
     "error-callsites": "^2.0.4",
     "error-stack-parser": "^2.0.6",

@@ -65,8 +65,8 @@ function assertMetadata (t, payload) {
     'metadata: service.agent')
 
   const system = Object.assign({}, payload.system)
-  t.strictEqual(system.hostname, os.hostname(), 'metadata: system.hostname')
-  delete system.hostname
+  t.ok(system.detected_hostname.startsWith(os.hostname()), 'metadata: system.detected_hostname')
+  delete system.detected_hostname
   t.strictEqual(system.architecture, process.arch, 'metadata: system.architecture')
   delete system.architecture
   t.strictEqual(system.platform, process.platform, 'metadata: system.platform')
