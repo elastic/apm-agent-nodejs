@@ -22,7 +22,7 @@ const testFixtures = [
     script: '../fixtures/use-fastify.js',
     cwd: __dirname,
     env: {
-      NODE_OPTIONS: '--require=../../../../start.js',
+      NODE_OPTIONS: '--require ../../../../start.js',
       ELASTIC_APM_CAPTURE_BODY: 'all'
     },
     verbose: true,
