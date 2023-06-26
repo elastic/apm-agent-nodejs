@@ -31,6 +31,22 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+* Fix setGlobalLabel throw error when apm is inactive
+
+[float]
+===== Chores
+
+
 [[release-notes-3.47.0]]
 ==== 3.47.0 - 2023/06/14
 
