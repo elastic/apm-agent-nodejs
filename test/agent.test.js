@@ -568,6 +568,20 @@ test('#setGlobalLabel()', function (suite) {
     t.end()
   })
 
+  suite.test('set global label when agent inactive', function (t) {
+    apmServer.clear()
+    const agent = new Agent().start({ active: false })
+    let err
+    try {
+      agent.setGlobalLabel('goo', 1)
+    } catch (error) {
+      err = error
+    }
+    t.ok(err === undefined, 'Should no error when inactive')
+    agent.destroy()
+    t.end(err)
+  })
+
   suite.test('teardown mock APM server', function (t) {
     apmServer.close()
     t.end()
