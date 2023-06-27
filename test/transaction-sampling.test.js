@@ -36,7 +36,7 @@ tape.test('various transactionSampleRate values', function (t) {
     ))
 
     var results = {
-      count: count,
+      count,
       numSampled: 0,
       numUnsampled: 0
     }

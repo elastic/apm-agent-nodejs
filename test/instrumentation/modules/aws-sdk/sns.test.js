@@ -255,7 +255,7 @@ tape.test('AWS SNS: End to End Test', function (test) {
           'span.context.service.target')
         t.deepEquals(span.context.destination, {
           address: 'localhost',
-          port: port,
+          port,
           cloud: { region: 'us-west-2' },
           service: { type: '', name: '', resource: 'sns/topic-name' }
         }, 'span.context.destination')
@@ -323,7 +323,7 @@ tape.test('AWS SNS: End to End Test', function (test) {
           'span.context.service.target')
         t.deepEquals(span.context.destination, {
           address: 'localhost',
-          port: port,
+          port,
           cloud: { region: 'us-west-2' },
           service: { type: '', name: '', resource: 'sns/topic-name' }
         }, 'span.context.destination')

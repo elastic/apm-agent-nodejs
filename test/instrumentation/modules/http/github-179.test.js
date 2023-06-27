@@ -25,7 +25,7 @@ var echoServer = require('./_echo_server_util').echoServer
 test('https://github.com/opbeat/opbeat-node/issues/179', function (t) {
   echoServer(function (cp, port) {
     var opts = {
-      port: port,
+      port,
       headers: { 'Accept-Encoding': 'gzip' }
     }
 
