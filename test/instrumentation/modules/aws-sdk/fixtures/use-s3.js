@@ -44,7 +44,7 @@ const apm = require('../../../../..').start({
   serviceName: 'use-s3',
   captureExceptions: false,
   centralConfig: false,
-  metricsInterval: 0,
+  metricsInterval: '0s',
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info'

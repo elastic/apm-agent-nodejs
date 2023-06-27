@@ -130,7 +130,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 's3' }
             },
-            http: { status_code: 200 }
+            http: { status_code: 200, response: { encoded_body_size: 222 } }
           },
           outcome: 'success'
         }, 'listAllBuckets produced expected span')
@@ -148,7 +148,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 200, response: { encoded_body_size: 177 } }
+            http: { status_code: 200, response: { encoded_body_size: 61 } }
           },
           otel: {
             attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-3' }
@@ -190,7 +190,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 200, response: { encoded_body_size: 0 } }
+            http: { status_code: 200, response: { encoded_body_size: 58 } }
           },
           otel: {
             attributes: {
@@ -315,7 +315,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 204, response: { encoded_body_size: 0 } }
+            http: { status_code: 204 }
           },
           otel: {
             attributes: {
@@ -339,7 +339,7 @@ tape.test('simple S3 V3 usage scenario', function (t) {
               cloud: { region: 'us-east-2' },
               service: { type: '', name: '', resource: 'elasticapmtest-bucket-3' }
             },
-            http: { status_code: 204, response: { encoded_body_size: 0 } }
+            http: { status_code: 204 }
           },
           otel: {
             attributes: { 'aws.s3.bucket': 'elasticapmtest-bucket-3' }
