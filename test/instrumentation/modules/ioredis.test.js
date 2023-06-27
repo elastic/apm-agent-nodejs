@@ -30,8 +30,10 @@ if (semver.gte(ioredisVer, '5.0.0') && semver.lt(process.version, '12.22.0')) {
 var Redis = require('ioredis')
 var test = require('tape')
 
-var findObjInArray = require('../../_utils').findObjInArray
 var mockClient = require('../../_mock_http_client')
+const { NoopApmClient } = require('../../../lib/apm-client/noop-apm-client')
+const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../_utils')
+const { NODE_VER_RANGE_IITM } = require('../../testconsts')
 
 test('not nested', function (t) {
   resetAgent(done(t))
@@ -198,3 +200,67 @@ function resetAgent (cb) {
   agent._instrumentation.testReset()
   agent._apmClient = mockClient(9, cb)
 }
+
+const testFixtures = [
+  {
+    name: 'ioredis ESM',
+    script: 'fixtures/use-ioredis.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../loader.mjs --require=../../../start.js',
+      NODE_NO_WARNINGS: '1'
+    },
+    versionRanges: {
+      node: NODE_VER_RANGE_IITM
+    },
+    testOpts: {
+      // Instrumentation *does* work with `contextManager: 'patch'`, but it
+      // gets the parent incorrect for the 'INFO' span used by ioredis for
+      // connection handling.
+      skip: process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch' ? 'contextManager=patch' : false
+    },
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.equal(apmServer.events.length, 7, 'expected number of APM server events')
+      t.ok(apmServer.events[0].metadata, 'metadata')
+      const events = sortApmEvents(apmServer.events)
+
+      const trans = events[0].transaction
+      t.equal(trans.name, 'trans', 'transaction.name')
+      t.equal(trans.type, 'custom', 'transaction.type')
+      t.equal(trans.outcome, 'unknown', 'transaction.outcome')
+
+      const spans = events.slice(1, 5).map(e => e.span)
+      const expectedSpanNames = ['SET', 'GET', 'HSET', 'GET']
+      spans.forEach((s, idx) => {
+        t.equal(s.name, expectedSpanNames[idx], `span[${idx}].name`)
+        t.equal(s.type, 'db', `span[${idx}].type`)
+        t.equal(s.action, 'query', `span[${idx}].action`)
+        t.equal(s.parent_id, trans.id, `span[${idx}].parent_id`)
+        t.deepEqual(s.context, {
+          service: { target: { type: 'redis' } },
+          destination: {
+            address: process.env.REDIS_HOST || 'localhost',
+            port: 6379,
+            service: { type: '', name: '', resource: 'redis' }
+          },
+          db: { type: 'redis' }
+        }, `span[${idx}].context`)
+      })
+
+      const error = events.slice(-1)[0].error
+      t.equal(error.exception.type, 'ReplyError', 'error.exception.type')
+      t.equal(error.transaction_id, trans.id, 'error.transaction_id')
+      t.equal(error.parent_id, spans[spans.length - 1].id,
+        'error.parent_id, it is a child of the last span')
+    }
+  }
+]
+
+test('ioredis fixtures', suite => {
+  // Undo the `agent._apmClient = ...` from earlier `resetAgent` usage.
+  agent._apmClient = new NoopApmClient()
+
+  runTestFixtures(suite, testFixtures)
+  suite.end()
+})

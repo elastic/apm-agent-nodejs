@@ -31,6 +31,7 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
 ==== Unreleased
 
 [float]
@@ -42,6 +43,32 @@ Notes:
 [float]
 ===== Bug fixes
 * Fix setGlobalLabel throw error when apm is inactive
+* Initial and experimental ECMAScript Module (ESM) support.
+  With the following invocation the APM agent will now be able to instrument
+  modules loaded via `import`. (See the https://nodejs.org/api/esm.html#introduction[Node.js introduction to ESM].)
++
+[source,bash]
+----
+node -r elastic-apm-node/start.js \
+  --experimental-loader=elastic-apm-node/loader.mjs \
+  server.mjs
+
+# or
+
+NODE_OPTIONS='-r elastic-apm-node/start.js --experimental-loader=elastic-apm-node/loader.mjs'
+node server.mjs
+----
++
+The new usage requirement is the `--experimental-loader=elastic-apm-node/loader.mjs` option.
+This initial release only includes support for instrumenting a subset of the
+modules listed at <<supported-technologies>>. This set will grow in subsequent
+versions. Notably, ESM support does not currently work in node v20 -- only in
+recent versions of node v12-v18. ESM support will remain experimental while the
+https://nodejs.org/api/esm.html#loaders[Node.js Loaders API] is experimental.
+See <<esm>> for full details.
+
+[float]
+===== Bug fixes
 
 [float]
 ===== Chores

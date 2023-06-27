@@ -103,6 +103,10 @@ To run TAV tests for one or a few modules:
 
     TAV=redis,ioredis npm run test:tav
 
+Or, to run TAV tests for a module in Docker as they are run in CI:
+
+    .ci/scripts/test.sh -b "release" -t "ioredis" "18"
+
 TAV tests are run in CI on commits to the "main" branch, as controlled by
 "[tav.yml](./.github/workflows/tav.yml)". See the [CI](#ci) section below.
 (TODO: TAV tests *will* be runnable on-demand for PRs, but that is awaiting

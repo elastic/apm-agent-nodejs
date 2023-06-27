@@ -70,7 +70,6 @@ run_test_suite () {
   if [[ $major_node_version -ne 13 ]] || [[ $minor_node_version -gt 1 ]]; then
     npm run test:babel
   fi
-  npm run test:esm
 }
 
 major_node_version=`node --version | cut -d . -f1 | cut -d v -f2`

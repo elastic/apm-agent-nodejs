@@ -28,7 +28,9 @@ var test = require('tape')
 var pg = require('pg')
 var utils = require('./_utils')
 var mockClient = require('../../../_mock_http_client')
-var findObjInArray = require('../../../_utils').findObjInArray
+const { NoopApmClient } = require('../../../../lib/apm-client/noop-apm-client')
+const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../../_utils')
+const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
 
 var queryable, connectionDone
 var factories = [
@@ -685,3 +687,69 @@ function resetAgent (expected, cb) {
   agent._apmClient = mockClient(expected, cb)
   agent._instrumentation.testReset()
 }
+
+const testFixtures = [
+  {
+    // Exercise using `pg` lightly. This still relies on the CommonJS tests
+    // for coverage of the instrumentation.
+    name: 'pg ESM',
+    script: '../fixtures/use-pg.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1',
+      ELASTIC_APM_SPAN_COMPRESSION_ENABLED: 'false'
+    },
+    versionRanges: {
+      node: NODE_VER_RANGE_IITM,
+      // In earlier 'pg' versions the getter for `pg.native` (intended to avoid
+      // importing 'pg-native' unless used) would be tickled by the core Node.js
+      // ESM translator, resulting in this error:
+      //    Cannot find module 'pg-native'
+      pg: '>=8'
+    },
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.equal(apmServer.events.length, 4, 'expected number of APM server events')
+      t.ok(apmServer.events[0].metadata, 'metadata')
+      const events = sortApmEvents(apmServer.events)
+
+      const trans = events[0].transaction
+      t.equal(trans.name, 'trans', 'transaction.name')
+      t.equal(trans.type, 'custom', 'transaction.type')
+      t.equal(trans.outcome, 'unknown', 'transaction.outcome')
+
+      const spans = events.slice(1, 5).map(e => e.span)
+      const expectedSpanNames = ['SELECT', 'SELECT']
+      spans.forEach((s, idx) => {
+        t.equal(s.name, expectedSpanNames[idx], `span[${idx}].name`)
+        t.equal(s.type, 'db', `span[${idx}].type`)
+        t.equal(s.subtype, 'postgresql', `span[${idx}].action`)
+        t.equal(s.action, 'query', `span[${idx}].action`)
+        t.equal(s.parent_id, trans.id, `span[${idx}].parent_id`)
+        t.deepEqual(s.context, {
+          service: { target: { type: 'postgresql', name: 'postgres' } },
+          destination: {
+            address: process.env.PGHOST || 'localhost',
+            port: 5432,
+            service: { type: '', name: '', resource: 'postgresql/postgres' }
+          },
+          db: {
+            type: 'sql',
+            statement: 'SELECT $1::text as message',
+            instance: 'postgres',
+            user: 'postgres'
+          }
+        }, `span[${idx}].context`)
+      })
+    }
+  }
+]
+
+test('pg fixtures', suite => {
+  // Undo the `agent._apmClient = ...` from earlier `resetAgent` usage.
+  agent._apmClient = new NoopApmClient()
+
+  runTestFixtures(suite, testFixtures)
+  suite.end()
+})

@@ -45,8 +45,8 @@ function clean () {
     agent._spanFilters = new Filters()
     if (agent._instrumentation) {
       agent._instrumentation._started = false
-      if (agent._instrumentation._hook) {
-        agent._instrumentation._hook.unhook()
+      if (agent._instrumentation._ritmHook) {
+        agent._instrumentation._ritmHook.unhook()
       }
     }
     agent._metrics.stop()

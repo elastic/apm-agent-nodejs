@@ -40,6 +40,8 @@ include::./opentracing.asciidoc[]
 
 include::./source-maps.asciidoc[]
 
+include::./esm.asciidoc[]
+
 include::./distributed-tracing.asciidoc[]
 
 include::./message-queues.asciidoc[]
