@@ -115,8 +115,7 @@ pg-old-node:
   versions: '4.0.0 || 4.5.7 || 5.2.1 || 6.4.2 || 7.18.2 || 8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
   node: '<14'
   peerDependencies:
-    - bluebird@^3.0.0
-    - knex@^0.17.3
+    - knex@^0.20 # latest knex that supports back to node v8
   commands:
     - node test/instrumentation/modules/pg/pg.test.js
     - node test/instrumentation/modules/pg/knex.test.js
@@ -129,9 +128,6 @@ pg-new-node:
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
   versions: '8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
   node: '>=14'
-  peerDependencies:
-    - bluebird@^3.0.0
-    - knex@^0.17.3
   commands:
     - node test/instrumentation/modules/pg/pg.test.js
     - node test/instrumentation/modules/pg/knex.test.js
