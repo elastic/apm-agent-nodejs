@@ -40,9 +40,6 @@ Notes:
 [float]
 ===== Features
 
-[float]
-===== Bug fixes
-* Fix setGlobalLabel throw error when apm is inactive
 * Initial and experimental ECMAScript Module (ESM) support.
   With the following invocation the APM agent will now be able to instrument
   modules loaded via `import`. (See the https://nodejs.org/api/esm.html#introduction[Node.js introduction to ESM].)
@@ -69,6 +66,9 @@ See <<esm>> for full details.
 
 [float]
 ===== Bug fixes
+
+* Ensure `apm.setGlobalLabel(...)` does not throw an error when apm is inactive.
+  ({issues}3442[#3442])
 
 [float]
 ===== Chores
