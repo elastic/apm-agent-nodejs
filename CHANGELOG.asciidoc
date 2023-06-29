@@ -69,6 +69,7 @@ See <<esm>> for full details.
 
 * Ensure `apm.setGlobalLabel(...)` does not throw an error when apm is inactive.
   ({issues}3442[#3442])
+* Set the transaction parent for an incoming HTTP/2 request ({issues}1830[#1830])
 
 [float]
 ===== Chores
