@@ -18,6 +18,7 @@ if [[ -z "$RESULT_FILE" || -z "$NODE_VERSION" ]]; then
 fi
 
 # Prepare benchmark environment
+export NODE_VERSION="${NODE_VERSION}"
 source "${RELATIVE_DIR}/prepare-benchmarks-env.sh"
 
 # Run benchmark
