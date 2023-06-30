@@ -24,6 +24,8 @@ export NVM_DIR="${HOME}/.nvm"
 
 echo "--- Install nvm"
 # set +x  # Disable xtrace because output using nvm.sh is huge.
+# Flush positional arguments
+shift $#
 if [ -s "${NVM_DIR}/nvm.sh" ] ; then
   # As long as the Buildkite agent does some weird behaviours compare to the Jenkins agent
   # let's avoid failures when running nvm.sh for the first time. For some reason
