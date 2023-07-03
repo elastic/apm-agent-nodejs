@@ -26,7 +26,7 @@ fi
 
 # Run benchmark
 echo "--- Execute benchmarks"
-"${BASE_PROJECT}/.ci/scripts/run-benchmarks.sh" "apm-agent-benchmark-results.json" "14"
+"${BASE_PROJECT}/.ci/scripts/run-benchmarks.sh" "apm-agent-benchmark-results.json" "$(cat "${BASE_PROJECT}/.nvmrc")"
 
 echo "--- Send benchmark results"
 sendBenchmark "${ES_USER_SECRET}" "${ES_PASS_SECRET}" "${ES_URL_SECRET}" "apm-agent-benchmark-results.json"
