@@ -19,7 +19,7 @@ fi
 echo $(pwd)
 
 # Share this 'setUp' implementation with
-# https://github.com/elastic/apm-agent-java/blob/e0a54c21e3ce5606353dcf237e154b27ff7f5bb5/scripts/jenkins/run-benchmarks.sh
+# https://github.com/elastic/apm-agent-java/blob/main/scripts/jenkins/run-benchmarks.sh
 function setUp() {
     echo "Setting CPU frequency to base frequency"
 
@@ -81,8 +81,10 @@ function safe_env_export() {
 
 function benchmark() {
     # sha and BRANCH_NAME are variables passed throught the GitHub action
-    echo "export BRANCH_NAME='${BRANCH_NAME}'" >> env_vars.sh
+    echo "export BRANCH_NAME='${BRANCH_NAME}'" > env_vars.sh
     echo "export GIT_BASE_COMMIT='${sha}'" >> env_vars.sh
+    # Needed by the benchmark script
+    echo "export GIT_BUILD_CAUSE='${GITHUB_EVENT_NAME}'" >> env_vars.sh
     echo "export GIT_COMMIT='${sha}'" >> env_vars.sh
     sudo -n cset proc --exec /benchmark -- ./"${SCRIPTPATH}"/run-benchmarks.sh all "${RESULT_FILE}" "${NODE_VERSION}"
 }

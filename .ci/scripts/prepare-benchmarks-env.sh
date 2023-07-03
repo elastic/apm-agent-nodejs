@@ -23,7 +23,7 @@ curl -sS -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | b
 export NVM_DIR="${HOME}/.nvm"
 
 echo "--- Install nvm"
-# set +x  # Disable xtrace because output using nvm.sh is huge.
+set +x  # Disable xtrace because output using nvm.sh is huge.
 # Flush positional arguments
 shift $#
 if [ -s "${NVM_DIR}/nvm.sh" ] ; then
