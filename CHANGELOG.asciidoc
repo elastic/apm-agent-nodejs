@@ -64,6 +64,11 @@ recent versions of node v12-v18. ESM support will remain experimental while the
 https://nodejs.org/api/esm.html#loaders[Node.js Loaders API] is experimental.
 See <<esm>> for full details.
 
+* Send `configured_hostname` and `detected_hostname` metadata separately,
+  rather than the old deprecated single `hostname` metadatum. As well, the
+  detected hostname now attempts to collect a FQDN to be used in the
+  `host.name` field in the Elasticsearch document. ({issues}3310[#3310])
+
 [float]
 ===== Bug fixes
 
