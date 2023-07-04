@@ -78,6 +78,9 @@ See <<esm>> for full details.
 * Set the trace-context for an incoming HTTP/2 request. Contributed by @paulish.
   ({issues}1830[#1830])
 
+* Fix aws-sdk v3 instrumentation (currently just `@aws-sdk/client-s3`) for
+  versions 3.363.0 and later. ({pull}3455[#3455])
+
 [float]
 ===== Chores
 
