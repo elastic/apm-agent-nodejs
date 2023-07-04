@@ -64,8 +64,6 @@ const {
   waitUntilObjectExists
 } = require('@aws-sdk/client-s3')
 
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
-
 const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 
 // ---- support functions
