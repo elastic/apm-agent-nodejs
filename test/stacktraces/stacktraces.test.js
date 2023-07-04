@@ -293,7 +293,7 @@ tape.test('stackTraceFromErrStackString()', function (t) {
     {
       filename: path.relative(process.cwd(), __filename),
       function: 'theFunction',
-      lineno: lineno,
+      lineno,
       library_frame: false,
       abs_path: __filename
     },
@@ -387,7 +387,7 @@ tape.test('gatherStackTrace()', function (suite) {
       gatherStackTrace(log, err, c.lines, c.lines, null, function (_, stacktrace) {
         const expectedTopFrame = {
           filename: path.relative(process.cwd(), __filename),
-          lineno: lineno,
+          lineno,
           function: 'thisIsMyFunction',
           library_frame: false,
           abs_path: __filename,

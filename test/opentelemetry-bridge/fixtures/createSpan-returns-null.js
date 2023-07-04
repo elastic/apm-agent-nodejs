@@ -50,7 +50,7 @@ async function makeAClientRequest (port) {
   return new Promise(resolve => {
     http.get({
       host: 'localhost',
-      port: port,
+      port,
       path: '/ping'
     }, (cRes) => {
       console.log('client response status:', cRes.statusCode)

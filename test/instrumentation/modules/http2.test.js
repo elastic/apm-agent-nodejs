@@ -495,7 +495,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
       agent: new https.Agent(),
       protocol: 'https:',
       host: 'localhost',
-      port: port,
+      port,
       path: '/',
       ALPNProtocols: ['http/1.1'],
       rejectUnauthorized: false

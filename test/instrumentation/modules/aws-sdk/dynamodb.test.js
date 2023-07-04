@@ -165,7 +165,7 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         t.deepEqual(span.context.service.target, { type: 'dynamodb', name: AWS_REGION }, 'span.context.service.target')
         t.deepEqual(span.context.destination, {
           address: 'localhost',
-          port: port,
+          port,
           cloud: { region: AWS_REGION },
           service: { type: '', name: '', resource: `dynamodb/${AWS_REGION}` }
         }, 'span.context.destination')
@@ -214,7 +214,7 @@ tape.test('AWS DynamoDB: End to End Test', function (test) {
         t.deepEqual(span.context.service.target, { type: 'dynamodb', name: AWS_REGION }, 'span.context.service.target')
         t.deepEqual(span.context.destination, {
           address: 'localhost',
-          port: port,
+          port,
           cloud: { region: AWS_REGION },
           service: { type: '', name: '', resource: `dynamodb/${AWS_REGION}` }
         }, 'span.context.destination')

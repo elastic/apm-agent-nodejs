@@ -37,7 +37,7 @@ test('client.ping with callback', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
+  var client = new elasticsearch.Client({ host })
 
   client.ping(function (err) {
     t.error(err, 'no error from client.ping')
@@ -52,7 +52,7 @@ test('client.ping with promise', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
+  var client = new elasticsearch.Client({ host })
 
   client.ping().then(function () {
     agent.endTransaction()
@@ -68,7 +68,7 @@ test('client.search with callback', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
+  var client = new elasticsearch.Client({ host })
   var query = { q: 'pants' }
 
   client.search(query, function (err) {
@@ -84,7 +84,7 @@ test('client.search with abort', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
+  var client = new elasticsearch.Client({ host })
   var query = { q: 'pants' }
 
   var req = client.search(query)
@@ -121,7 +121,7 @@ if (semver.satisfies(pkg.version, '>= 10')) {
 
     agent.startTransaction('foo')
 
-    var client = new elasticsearch.Client({ host: host })
+    var client = new elasticsearch.Client({ host })
 
     client.searchTemplate({ body }, function (err) {
       t.error(err)
@@ -151,7 +151,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 
     agent.startTransaction('foo')
 
-    var client = new elasticsearch.Client({ host: host })
+    var client = new elasticsearch.Client({ host })
 
     client.msearch({ body }, function (err) {
       t.error(err)
@@ -184,7 +184,7 @@ if (semver.satisfies(pkg.version, '>= 13')) {
 
     agent.startTransaction('foo')
 
-    var client = new elasticsearch.Client({ host: host })
+    var client = new elasticsearch.Client({ host })
 
     client.msearchTemplate({ body }, function (err) {
       t.error(err)
@@ -200,7 +200,7 @@ test('client.count with callback', function userLandCode (t) {
 
   agent.startTransaction('foo')
 
-  var client = new elasticsearch.Client({ host: host })
+  var client = new elasticsearch.Client({ host })
   client.count(function (err) {
     t.error(err)
     agent.endTransaction()
@@ -254,7 +254,7 @@ test('client with host=<array of object>', function userLandCode (t) {
   agent.startTransaction('foo')
   const [hostname, port] = host.split(':')
   var client = new elasticsearch.Client({
-    host: [{ host: hostname, port: port }]
+    host: [{ host: hostname, port }]
   })
   client.ping(function (err) {
     t.error(err)

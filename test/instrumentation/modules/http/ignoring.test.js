@@ -144,8 +144,8 @@ function request (path, headers, cb) {
   server.listen(function () {
     var opts = {
       port: server.address().port,
-      path: path,
-      headers: headers
+      path,
+      headers
     }
     http.request(opts, function (res) {
       res.on('end', function () {
