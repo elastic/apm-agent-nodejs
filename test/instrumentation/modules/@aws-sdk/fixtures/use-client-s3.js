@@ -64,9 +64,33 @@ const {
   waitUntilObjectExists
 } = require('@aws-sdk/client-s3')
 
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
+
 const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 
 // ---- support functions
+
+/**
+ * Slurp everything from the given ReadableStream and return the content,
+ * converted to a string.
+ */
+async function slurpStream (stream) {
+  return new Promise((resolve, reject) => {
+    const chunks = []
+    stream.on('error', (err) => {
+      reject(err)
+    })
+    stream.on('readable', function () {
+      let chunk
+      while ((chunk = this.read()) !== null) {
+        chunks.push(chunk)
+      }
+    })
+    stream.on('end', () => {
+      resolve(Buffer.concat(chunks).toString('utf8'))
+    })
+  })
+}
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
 async function useClientS3 (s3Client, bucketName) {
@@ -129,14 +153,18 @@ async function useClientS3 (s3Client, bucketName) {
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/getobjectcommand.html
   command = new GetObjectCommand({ Bucket: bucketName, Key: key })
   data = await s3Client.send(command)
-  log.info({ data }, 'getObject')
+  // `data.Body` is a *stream*, so we cannot just log it
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/interfaces/getobjectcommandoutput.html#body
+  const body = await slurpStream(data.Body)
+  assert(body === content)
+  delete data.Body
+  log.info({ data, body }, 'getObject')
 
   command = new GetObjectCommand({
     IfNoneMatch: etag,
     Bucket: bucketName,
     Key: key
   })
-
   try {
     data = await s3Client.send(command)
     throw new Error('expected NotModified error for conditional request')
