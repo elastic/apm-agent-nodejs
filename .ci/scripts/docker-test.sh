@@ -37,7 +37,7 @@ npm_install() {
     count=$(($count + 1))
     if [ $count -lt $retries ]; then
       printf "Retry of 'npm install' %s/%s exited %s, retrying in %s seconds...\n" "$count" "$retries" "$exit" "$wait" >&2
-      printf "Force-cleaning of npm cache" >&2
+      printf "Force-cleaning of npm cache.\n" >&2
       npm cache clean --force
       sleep $wait
     else

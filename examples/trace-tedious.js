@@ -65,7 +65,7 @@ const conn2 = new tedious.Connection(connOpts)
 conn2.on('connect', onConnect2)
 conn2.connect()
 function onConnect2 () {
-  var req = new tedious.Request("select @mynum=42, @mystr='qaz'", function (err, rowCount) {
+  const req = new tedious.Request("select @mynum=42, @mystr='qaz'", function (err, rowCount) {
     console.log('select @mynum ...: err=%s rowCount=%s', err && err.message, rowCount)
     conn2.close()
   })

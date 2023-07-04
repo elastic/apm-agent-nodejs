@@ -1,0 +1,22 @@
+---
+# This workflow sets the "test" status check to success in case it's a docs only PR and test.yml is not triggered
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+name: test # The name must be the same as in test.yml
+
+on:
+  pull_request:
+    paths-ignore: # This expression needs to match the paths ignored on test.yml.
+      - '**'
+      - '!**/*.md'
+      - '!**/*.asciidoc'
+      - '!docs/**'
+      - '!examples/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No build required"

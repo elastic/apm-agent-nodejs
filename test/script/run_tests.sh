@@ -43,13 +43,6 @@ setup_env () {
 }
 
 run_test_suite () {
-  # Our current eslint requires at least node 8.10.0
-  if $(./node_modules/.bin/semver -r '>=8.10.0' $(node --version) >/dev/null); then
-    npm run lint
-  else
-    echo "# skip lint with old node (node $(node --version))"
-  fi
-
   npm run test:deps
 
   # If running in CI, then output .tap files and covert them to JUnit
@@ -77,7 +70,6 @@ run_test_suite () {
   if [[ $major_node_version -ne 13 ]] || [[ $minor_node_version -gt 1 ]]; then
     npm run test:babel
   fi
-  npm run test:esm
 }
 
 major_node_version=`node --version | cut -d . -f1 | cut -d v -f2`

@@ -115,8 +115,7 @@ pg-old-node:
   versions: '4.0.0 || 4.5.7 || 5.2.1 || 6.4.2 || 7.18.2 || 8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
   node: '<14'
   peerDependencies:
-    - bluebird@^3.0.0
-    - knex@^0.17.3
+    - knex@^0.20 # latest knex that supports back to node v8
   commands:
     - node test/instrumentation/modules/pg/pg.test.js
     - node test/instrumentation/modules/pg/knex.test.js
@@ -129,9 +128,6 @@ pg-new-node:
   # Maintenance note: This should be updated for newer MAJOR.MINOR releases.
   versions: '8.0.3 || 8.1.0 || 8.2.2 || 8.3.3 || 8.4.2 || 8.5.1 || 8.6.0 || 8.7.3 || 8.8.0 || 8.9.0 || 8.10.0 || >8.10.0 <9'
   node: '>=14'
-  peerDependencies:
-    - bluebird@^3.0.0
-    - knex@^0.17.3
   commands:
     - node test/instrumentation/modules/pg/pg.test.js
     - node test/instrumentation/modules/pg/knex.test.js
@@ -496,20 +492,19 @@ memcached:
 
 aws-sdk:
   # We want this version range:
-  #   versions: '>=2.858 <3'
+  #   versions: '>=2.858 <2.1372.0 || >2.1372.0 <3'
   # However, awk-sdk releases *very* frequently (almost every day) and there
   # is no need to test *all* those releases. Instead we statically list a subset
   # of versions to test.
   #
+  # - v2.1372.0 changed the SQS client protocol from "query" to "json", which
+  #   isn't supported in localstack. It was reverted in v2.1373.0.
+  #
   # Maintenance note: This should be updated periodically using:
   #   ./dev-utils/aws-sdk-tav-versions.sh
   #
-  # Test v2.858.0, every N=102 of 515 releases, and current latest.
-  #
-  # Workaround note: Until localstack supports SQS using the JSON protocol
-  # we cannot test against >=2.1372.0. Cap the versions tested for now.
-  # See https://github.com/elastic/apm-agent-nodejs/issues/3324
-  versions: '2.858.0 || 2.960.0 || 2.1062.0 || 2.1164.0 || 2.1266.0 || 2.1368.0 || 2.1371.0'
+  # Test v2.858.0, every N=108 of 542 releases, and current latest.
+  versions: '2.858.0 || 2.966.0 || 2.1074.0 || 2.1182.0 || 2.1290.0 || 2.1399.0 || 2.1400.0 || >2.1400.0 <3'
   commands:
     - node test/instrumentation/modules/aws-sdk/aws4-retries.test.js
     - node test/instrumentation/modules/aws-sdk/s3.test.js

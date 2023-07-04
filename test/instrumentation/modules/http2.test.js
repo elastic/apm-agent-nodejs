@@ -309,9 +309,9 @@ isSecure.forEach(secure => {
         semver.lt(process.version, '8.11.2-rc')
           ? onPushStream
           : (err, pushStream, headers) => {
-            t.error(err)
-            onPushStream(pushStream, headers)
-          }
+              t.error(err)
+              onPushStream(pushStream, headers)
+            }
       ))
 
       stream.respond({

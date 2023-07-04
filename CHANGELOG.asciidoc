@@ -31,6 +31,7 @@ Notes:
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
 
+
 ==== Unreleased
 
 [float]
@@ -39,18 +40,79 @@ Notes:
 [float]
 ===== Features
 
-* Add support for 'knex' version v1 and v2
-  ({pull}3355[#3355])
-* Add `tedious@16.x` support
-  ({pull}3366[#3366])
+* Initial and experimental ECMAScript Module (ESM) support.
+  With the following invocation the APM agent will now be able to instrument
+  modules loaded via `import`. (See the https://nodejs.org/api/esm.html#introduction[Node.js introduction to ESM].)
++
+[source,bash]
+----
+node -r elastic-apm-node/start.js \
+  --experimental-loader=elastic-apm-node/loader.mjs \
+  server.mjs
+
+# or
+
+NODE_OPTIONS='-r elastic-apm-node/start.js --experimental-loader=elastic-apm-node/loader.mjs'
+node server.mjs
+----
++
+The new usage requirement is the `--experimental-loader=elastic-apm-node/loader.mjs` option.
+This initial release only includes support for instrumenting a subset of the
+modules listed at <<supported-technologies>>. This set will grow in subsequent
+versions. Notably, ESM support does not currently work in node v20 -- only in
+recent versions of node v12-v18. ESM support will remain experimental while the
+https://nodejs.org/api/esm.html#loaders[Node.js Loaders API] is experimental.
+See <<esm>> for full details.
 
 [float]
 ===== Bug fixes
 
+* Ensure `apm.setGlobalLabel(...)` does not throw an error when apm is inactive.
+  ({issues}3442[#3442])
+* Set the transaction parent for an incoming HTTP/2 request ({issues}1830[#1830])
+
 [float]
 ===== Chores
 
-* Extract configuration's transport property to new `apm-client` module
+
+[[release-notes-3.47.0]]
+==== 3.47.0 - 2023/06/14
+
+[float]
+===== Features
+
+* Add support for `knex` version v1 and v2. ({pull}3355[#3355])
+
+* Add `tedious@16.x` support. ({pull}3366[#3366])
+
+* Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in
+  the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
+
+[float]
+===== Bug fixes
+
+* Change the "start.js" export to *not* start the APM agent inside a
+  https://nodejs.org/api/worker_threads.html[Node.js Worker thread].
++
+One way to start the APM agent is via `node -r elastic-apm-node/start.js ...` or
+`NODE_OPTIONS='-r elastic-apm-node/start.js`.  When a Node.js Worker thread is
+started, it inherits the `process.execArgv` and environment, which results in
+"start.js" being run in the context of the new thread. Starting an additional
+APM agent in each new Worker is arguably surprising. For now, "start.js" will
+avoid starting in a thread. The exact behavior may change in future versions.
++
+One undesirable effect of this change is that explicit use of "start.js" in
+code (`import 'elastic-apm-node/start.js'` or `require('elastic-apm-node/start.js')`)
+in a Worker will *not* start the APM agent. Instead, one must use:
+`require('elastic-apm-node').start()` or equivalent.
+
+* Avoid redaction of response headers while extracting `transaction.context.response`
+  data from the HTTP response. Contributed by @lytc. ({pull}3427[#3427])
+
+[float]
+===== Chores
+
+* Refactor transport handling to new internal `apm-client` module.
   ({pull}3372[#3372])
 
 
@@ -87,7 +149,6 @@ Notes:
   and the APM agent will automatically add a MetricReader to ship metrics to
   APM server. See the <<opentelemetry-bridge>> for details. ({pull}3152[#3152])
 
-* Add `apm.setGlobalLabel()` to dynamically extend the `globalLabels` set in the initial config. Refer to <<apm-set-global-label>> for details. ({pull}3337[#3337])
 
 [float]
 ===== Chores

@@ -42,7 +42,7 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
-  agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
+  agent.captureError = function (err, opts) { // eslint-disable-line node/handle-callback-err
     t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
@@ -144,7 +144,7 @@ test('client-side abort below error threshold - don\'t call end', function (t) {
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
-  agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
+  agent.captureError = function (err, opts) { // eslint-disable-line node/handle-callback-err
     t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
@@ -222,7 +222,7 @@ test('server-side abort below error threshold and socket closed - call end', fun
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
-  agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
+  agent.captureError = function (err, opts) { // eslint-disable-line node/handle-callback-err
     t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
@@ -311,7 +311,7 @@ test('server-side abort below error threshold and socket closed - don\'t call en
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
-  agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
+  agent.captureError = function (err, opts) { // eslint-disable-line node/handle-callback-err
     t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = function () {
@@ -391,7 +391,7 @@ test('server-side abort below error threshold but socket not closed - call end',
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
-  agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
+  agent.captureError = function (err, opts) { // eslint-disable-line node/handle-callback-err
     t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = addEndedTransaction
@@ -429,7 +429,7 @@ test('server-side abort above error threshold but socket not closed - call end',
 
   t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
 
-  agent.captureError = function (err, opts) { // eslint-disable-line handle-callback-err
+  agent.captureError = function (err, opts) { // eslint-disable-line node/handle-callback-err
     t.fail('should not register the closed socket as an error')
   }
   agent._instrumentation.addEndedTransaction = addEndedTransaction
