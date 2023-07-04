@@ -28,9 +28,9 @@ test('#getPathFromRequest', function (t) {
 
 function createRequest (url, host = 'example.com') {
   return {
-    url: url,
+    url,
     headers: {
-      host: host
+      host
     }
   }
 }

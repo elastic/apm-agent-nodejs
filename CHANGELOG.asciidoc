@@ -67,6 +67,12 @@ See <<esm>> for full details.
 [float]
 ===== Bug fixes
 
+* Ensure `apm.setGlobalLabel(...)` does not throw an error when apm is inactive.
+  ({issues}3442[#3442])
+
+* Set the trace-context for an incoming HTTP/2 request. Contributed by @paulish.
+  ({issues}1830[#1830])
+
 [float]
 ===== Chores
 

@@ -127,10 +127,10 @@ function sendRequest (server, timeout, useElasticHeader) {
 
     var req = http.request({
       hostname: 'localhost',
-      port: port,
+      port,
       path: '/',
       method: 'GET',
-      headers: headers
+      headers
     }, function (res) {
       if (timeout) throw new Error('should not get to here')
       res.resume()

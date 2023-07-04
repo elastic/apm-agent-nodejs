@@ -65,8 +65,8 @@ function request (port, path) {
   return new Promise((resolve, reject) => {
     var opts = {
       method: 'GET',
-      port: port,
-      path: path,
+      port,
+      path,
       headers: {
         'Content-Type': 'application/json'
       }

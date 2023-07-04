@@ -25,7 +25,7 @@ async function callHttpFnDistTrace (req, suffix) {
         resolve({
           statusCode: clientRes.statusCode,
           headers: clientRes.headers,
-          body: body
+          body
         })
       })
       clientRes.on('error', reject)

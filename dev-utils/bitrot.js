@@ -351,7 +351,7 @@ const options = [
 ]
 
 function main (argv) {
-  var parser = dashdash.createParser({ options: options })
+  var parser = dashdash.createParser({ options })
   try {
     var opts = parser.parse(argv)
   } catch (e) {
