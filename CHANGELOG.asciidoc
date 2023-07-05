@@ -32,10 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
+[[release-notes-3.48.0]]
+==== 3.48.0 - 2023/07/06
 
 [float]
 ===== Features
@@ -80,9 +78,6 @@ See <<esm>> for full details.
 
 * Fix aws-sdk v3 instrumentation (currently just `@aws-sdk/client-s3`) for
   versions 3.363.0 and later. ({pull}3455[#3455])
-
-[float]
-===== Chores
 
 
 [[release-notes-3.47.0]]

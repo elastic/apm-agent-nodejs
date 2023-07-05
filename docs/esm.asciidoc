@@ -6,7 +6,7 @@ endif::[]
 [[esm]]
 == ECMAScript module support
 
-NOTE: ECMAScript module support is currently incomplete and experimental. It was added in version REPLACEME.
+NOTE: ECMAScript module support is currently incomplete and experimental. It was added in version v3.48.0.
 
 The Elastic APM Node.js agent includes _limited and experimental_ support for auto-instrumentation of https://nodejs.org/api/esm.html#modules-ecmascript-modules[ECMAScript modules] (ESM) -- i.e. modules loaded via the `import ...` statement or the `import(...)` expression.  Support is based on the experimental https://nodejs.org/api/esm.html#loaders[Node.js Loaders API], which requires passing the `--experimental-loader` option to node.
 
