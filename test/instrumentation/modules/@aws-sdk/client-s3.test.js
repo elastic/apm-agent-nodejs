@@ -77,7 +77,7 @@ const testFixtures = [
         spans.length, 'all spans have sync=false')
       t.equal(spans.filter(s => s.sample_rate === 1).length,
         spans.length, 'all spans have sample_rate=1')
-      const failingSpanId = spans[7].id // index of `getObjNonExistantObject`
+      const failingSpanId = spans[8].id // index of `getObjNonExistantObject`
       spans.forEach(s => {
         // Remove variable and common fields to facilitate t.deepEqual below.
         delete s.id
@@ -223,6 +223,14 @@ const testFixtures = [
         },
         outcome: 'success'
       }, 'getObj produced expected span')
+
+      t.deepEqual(spans.shift(), {
+        name: 'get-signed-url',
+        type: 'custom',
+        subtype: null,
+        action: null,
+        outcome: 'success'
+      }, 'custom span for getSignedUrl call')
 
       t.deepEqual(spans.shift(), {
         name: 'S3 GetObject elasticapmtest-bucket-3',
