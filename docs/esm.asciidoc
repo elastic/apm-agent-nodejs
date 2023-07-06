@@ -70,7 +70,7 @@ As well, the APM agent must also be separately *started* -- for example via `--r
 
 Automatic instrumentation of ES modules is based on the experimental Node.js Loaders API. ESM support in the Elastic APM Node.js agent will remain *experimental* while the Loaders API is experimental.
 
-ESM auto-instrumentation is only supported for Node.js versions that match *`^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20`*. Notably, in the current APM agent version, this _excludes Node.js v20_ because of changes in the Loaders API. The behavior when using `node --experimental-loader=elastic-apm-node/loader.mjs` with earlier Node.js versions is undefined and unsupported.
+ESM auto-instrumentation is only supported for Node.js versions that match *`^12.20.0 || ^14.13.1 || ^16.0.0 || >=18.1.0`*. The behavior when using `node --experimental-loader=elastic-apm-node/loader.mjs` with earlier Node.js versions is undefined and unsupported.
 
 
 [float]

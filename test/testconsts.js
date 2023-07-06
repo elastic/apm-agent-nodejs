@@ -13,9 +13,7 @@
 //   fixes in the .1 minor release
 // - v18.1.0 fixes an issue in v18.0.0
 //   https://github.com/nodejs/node/pull/42881
-// - Current node v20 does not work with IITM
-//   https://github.com/DataDog/import-in-the-middle/pull/27
-const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20'
+const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || >=18.1.0'
 
 module.exports = {
   NODE_VER_RANGE_IITM
