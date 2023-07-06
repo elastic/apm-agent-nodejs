@@ -89,6 +89,7 @@ npm ls --omit=dev --all --parseable \
         // We handle getting the license text for a few specific deps that
         // do not include one in their install.
         const licFileFromPkgName = {
+            "acorn-import-assertions": "license.MIT.txt",
             "async-value": "license.MIT.txt",
             "async-value-promise": "license.MIT.txt",
             "breadth-filter": "license.MIT.txt",
