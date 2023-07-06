@@ -81,6 +81,9 @@ See <<esm>> for full details.
 * Fix aws-sdk v3 instrumentation (currently just `@aws-sdk/client-s3`) for
   versions 3.363.0 and later. ({pull}3455[#3455])
 
+* Fix a possible crash when using `getSignedUrl()` from `@aws-sdk/s3-request-presigner`
+  due to a bug in `@aws-sdk/client-s3` instrumentation. ({issues}3464[#3464])
+
 [float]
 ===== Chores
 

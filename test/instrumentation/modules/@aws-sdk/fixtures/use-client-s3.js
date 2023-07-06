@@ -63,6 +63,7 @@ const {
   waitUntilBucketExists,
   waitUntilObjectExists
 } = require('@aws-sdk/client-s3')
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
 const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
 
@@ -157,6 +158,18 @@ async function useClientS3 (s3Client, bucketName) {
   assert(body === content)
   delete data.Body
   log.info({ data, body }, 'getObject')
+
+  // Get a signed URL.
+  // This is interesting to test, because `getSignedUrl` uses the command
+  // `middlewareStack` -- including our added middleware -- **without** calling
+  // `s3Client.send()`. The test here is to ensure this doesn't break.
+  const customSpan = apm.startSpan('get-signed-url')
+  const signedUrl = await getSignedUrl(
+    s3Client,
+    new GetObjectCommand({ Bucket: bucketName, Key: key }),
+    { expiresIn: 3600 })
+  log.info({ signedUrl }, 'getSignedUrl')
+  customSpan.end()
 
   command = new GetObjectCommand({
     IfNoneMatch: etag,
@@ -254,7 +267,8 @@ function main () {
       s3Client.destroy()
       process.exitCode = 0
     },
-    function () {
+    function (err) {
+      apm.logger.error(err, 'useClientS3 rejected')
       tx.setOutcome('failure')
       tx.end()
       s3Client.destroy()
