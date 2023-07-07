@@ -82,9 +82,6 @@ See <<esm>> for full details.
 * Fix a possible crash when using `getSignedUrl()` from `@aws-sdk/s3-request-presigner`
   due to a bug in `@aws-sdk/client-s3` instrumentation. ({issues}3464[#3464])
 
-[float]
-===== Chores
-
 
 [[release-notes-3.47.0]]
 ==== 3.47.0 - 2023/06/14
