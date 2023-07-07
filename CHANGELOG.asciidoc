@@ -32,6 +32,24 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+* Fix tedious instrumentation to recognize "connection.prepare()" usage in
+  tedious@16.2.0 and later.
+
+[float]
+===== Chores
+
+
 [[release-notes-3.48.0]]
 ==== 3.48.0 - 2023/07/07
 
