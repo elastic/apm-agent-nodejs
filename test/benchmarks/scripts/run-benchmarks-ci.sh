@@ -80,14 +80,12 @@ function safe_env_export() {
 }
 
 function benchmark() {
-    echo "export GIT_BUILD_CAUSE='${GIT_BUILD_CAUSE}'" > env_vars.sh
-    echo "export GIT_BASE_COMMIT='${GIT_BASE_COMMIT}'" >> env_vars.sh
-    echo "export GIT_COMMIT='${GIT_COMMIT}'" >> env_vars.sh
-    echo "export BRANCH_NAME='${BRANCH_NAME}'" >> env_vars.sh
-    echo "export CHANGE_ID='${CHANGE_ID}'" >> env_vars.sh
-    safe_env_export "CHANGE_TITLE" "${CHANGE_TITLE}" >> env_vars.sh
-    echo "export CHANGE_TARGET='${CHANGE_TARGET}'" >> env_vars.sh
-    echo "export CHANGE_URL='${CHANGE_URL}'" >> env_vars.sh
+    # sha and BRANCH_NAME are variables passed throught the GitHub action
+    echo "export BRANCH_NAME='${BRANCH_NAME}'" > env_vars.sh
+    echo "export GIT_BASE_COMMIT='${sha}'" >> env_vars.sh
+    # Needed by the benchmark script
+    echo "export GIT_BUILD_CAUSE='${GITHUB_EVENT_NAME}'" >> env_vars.sh
+    echo "export GIT_COMMIT='${sha}'" >> env_vars.sh
     sudo -n cset proc --exec /benchmark -- ./"${SCRIPTPATH}"/run-benchmarks.sh all "${RESULT_FILE}" "${NODE_VERSION}"
 }
 

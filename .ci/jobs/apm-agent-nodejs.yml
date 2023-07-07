@@ -1,4 +1,0 @@
----
-- job:
-    name: apm-agent-nodejs
-    project-type: folder
