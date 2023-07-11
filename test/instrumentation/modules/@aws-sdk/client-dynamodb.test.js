@@ -61,7 +61,7 @@ const testFixtures = [
       // First the transaction.
       t.ok(events[0].transaction, 'got the transaction')
       const tx = events.shift().transaction
-      // const errors = events.filter(e => e.error).map(e => e.error)
+      const errors = events.filter(e => e.error).map(e => e.error)
 
       // Compare some common fields across all spans.
       const spans = events.filter(e => e.span)
@@ -80,7 +80,7 @@ const testFixtures = [
         spans.length, 'all spans have sample_rate=1')
 
       // TODO: review from here
-      // const failingSpanId = spans[8].id // index of `getObjNonExistantObject`
+      const failingSpanId = spans[4].id // index of non existing table error
       spans.forEach(s => {
         // Remove variable and common fields to facilitate t.deepEqual below.
         delete s.id
@@ -94,7 +94,6 @@ const testFixtures = [
       })
 
       // Work through each of the pipeline functions (query, xxx, ...) in the script:
-      // TODO: review
       t.deepEqual(spans.shift(), {
         name: 'DynamoDB ListTables',
         type: 'db',
@@ -115,12 +114,63 @@ const testFixtures = [
           }
         },
         outcome: 'success'
-      }, 'listAllBuckets produced expected span')
+      }, 'listTables produced expected span')
 
-      // t.equal(errors.length, 1, 'got 1 error')
-      // t.equal(errors[0].parent_id, failingSpanId, 'error is a child of the failing span from getObjNonExistantObject')
-      // t.equal(errors[0].transaction_id, tx.id, 'error.transaction_id')
-      // t.equal(errors[0].exception.type, 'NoSuchKey', 'error.exception.type')
+      t.deepEqual(spans.shift(), {
+        name: 'DynamoDB PutItem elasticapmtest-table-3',
+        type: 'db',
+        subtype: 'dynamodb',
+        action: 'PutItem',
+        context: {
+          service: { target: { type: 'dynamodb', name: AWS_REGION } },
+          destination: {
+            address: LOCALSTACK_HOST,
+            port: 4566,
+            cloud: { region: 'us-east-2' },
+            service: { type: '', name: '', resource: `dynamodb/${AWS_REGION}` }
+          },
+          db: {
+            instance: AWS_REGION,
+            type: 'dynamodb'
+          }
+        },
+        outcome: 'success'
+      }, 'putItem produced expected span')
+
+      t.deepEqual(spans.shift(), {
+        name: 'DynamoDB Query elasticapmtest-table-3',
+        type: 'db',
+        subtype: 'dynamodb',
+        action: 'Query',
+        context: {
+          service: { target: { type: 'dynamodb', name: AWS_REGION } },
+          destination: {
+            address: LOCALSTACK_HOST,
+            port: 4566,
+            cloud: { region: 'us-east-2' },
+            service: { type: '', name: '', resource: `dynamodb/${AWS_REGION}` }
+          },
+          db: {
+            instance: AWS_REGION,
+            statement: 'RECORD_ID = :foo',
+            type: 'dynamodb'
+          }
+        },
+        outcome: 'success'
+      }, 'query produced expected span')
+
+      t.deepEqual(spans.shift(), {
+        name: 'get-signed-url',
+        type: 'custom',
+        subtype: null,
+        action: null,
+        outcome: 'success'
+      }, 'custom span for getSignedUrl call')
+
+      t.equal(errors.length, 1, 'got 1 error')
+      t.equal(errors[0].parent_id, failingSpanId, 'error is a child of the failing span')
+      t.equal(errors[0].transaction_id, tx.id, 'error.transaction_id')
+      t.equal(errors[0].exception.type, 'ResourceNotFoundException', 'error.exception.type')
 
       // t.equal(spans.length, 0, 'all spans accounted for')
     }

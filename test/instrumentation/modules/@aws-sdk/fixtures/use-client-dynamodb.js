@@ -56,9 +56,10 @@ const {
   DynamoDBClient,
   ListTablesCommand,
   CreateTableCommand,
+  PutItemCommand,
   QueryCommand
 } = require('@aws-sdk/client-dynamodb')
-// const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
 const TEST_TABLE_NAME_PREFIX = 'elasticapmtest-table-'
 
@@ -87,29 +88,41 @@ async function useClientDynamoDB (dynamoDBClient, tableName) {
       TableName: tableName,
       AttributeDefinitions: [
         {
-          AttributeName: 'id',
+          AttributeName: 'RECORD_ID',
           AttributeType: 'S'
         }
       ],
       KeySchema: [
         {
-          AttributeName: 'id',
+          AttributeName: 'RECORD_ID',
           KeyType: 'HASH'
         }
       ],
       ProvisionedThroughput: {
-        ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1,
+        WriteCapacityUnits: 1
       }
     })
     data = await dynamoDBClient.send(command)
     log.info({ data }, 'createTable')
   }
 
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/PutItemCommand/
+  command = new PutItemCommand({
+    TableName: tableName,
+    Item: {
+      RECORD_ID: { S: '001' }
+    }
+  })
+  data = await dynamoDBClient.send(command)
+  assert(apm.currentSpan === null,
+    'DynamoDB span (or its HTTP span) should not be currentSpan after awaiting the task')
+  log.info({ data }, 'putItem')
+
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/QueryCommand/
   command = new QueryCommand({
     TableName: tableName,
-    KeyConditionExpression: 'id = :foo',
+    KeyConditionExpression: 'RECORD_ID = :foo',
     ExpressionAttributeValues: {
       ':foo': { S: '001' }
     }
@@ -118,6 +131,40 @@ async function useClientDynamoDB (dynamoDBClient, tableName) {
   assert(apm.currentSpan === null,
     'DynamoDB span (or its HTTP span) should not be currentSpan after awaiting the task')
   log.info({ data }, 'query')
+
+  // Get a signed URL.
+  // This is interesting to test, because `getSignedUrl` uses the command
+  // `middlewareStack` -- including our added middleware -- **without** calling
+  // `dynamoDBClient.send()`. The test here is to ensure this doesn't break.
+  const customSpan = apm.startSpan('get-signed-url')
+  const signedUrl = await getSignedUrl(
+    dynamoDBClient,
+    new QueryCommand({
+      TableName: tableName,
+      KeyConditionExpression: 'RECORD_ID = :foo',
+      ExpressionAttributeValues: { ':foo': { S: '001' } }
+    }),
+    { expiresIn: 3600 })
+  log.info({ signedUrl }, 'getSignedUrl')
+  customSpan.end()
+
+  command = new QueryCommand({
+    TableName: tableName + '-unexistent',
+    KeyConditionExpression: 'RECORD_ID = :foo',
+    ExpressionAttributeValues: {
+      ':foo': { S: '001' }
+    }
+  })
+  try {
+    data = await dynamoDBClient.send(command)
+    throw new Error('expected ResourceNotFoundException error for query')
+  } catch (err) {
+    log.info({ err }, 'query with error')
+    const statusCode = err && err.$metadata && err.$metadata.httpStatusCode
+    if (statusCode !== 400) {
+      throw err
+    }
+  }
 }
 
 // Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an S3
