@@ -71,7 +71,7 @@ tape.test('end to end test', function (t) {
 // Test that a composite span faster than `exitSpanMinDuration` is dropped.
 tape.test('end to end test with compression', function (t) {
   resetAgent(function (data) {
-    t.equals(data.spans.length, 0, 'the composite span was dropped')
+    t.equals(data.spans.length, 0, `the composite span was dropped (exitSpanMinDuration=${agent._conf.exitSpanMinDuration * 1000}ms, data.spans=${JSON.stringify(data.spans)})`)
     t.end()
   })
 
