@@ -122,6 +122,7 @@
   },
   "devDependencies": {
     "@apollo/server": "^4.2.2",
+    "@aws-sdk/client-dynamodb": "^3.369.0",
     "@aws-sdk/client-s3": "^3.363.0",
     "@aws-sdk/s3-request-presigner": "^3.363.0",
     "@babel/cli": "^7.8.4",
@@ -166,6 +167,7 @@
     "graphql": "^16.6.0",
     "handlebars": "^4.7.3",
     "https-pem": "^3.0.0",
+    "install": "^0.13.0",
     "ioredis": "^5.1.0",
     "js-yaml": "^4.1.0",
     "knex": "^2.4.2",
@@ -181,6 +183,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.2.4",
     "ndjson": "^1.5.0",
+    "npm": "^9.8.0",
     "numeral": "^2.0.6",
     "nyc": "^15.0.0",
     "once": "^1.4.0",

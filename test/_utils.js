@@ -140,6 +140,28 @@ function sortApmEvents (events) {
     })
 }
 
+/**
+ * Slurp everything from the given ReadableStream and return the content,
+ * converted to a string.
+ */
+async function slurpStream (stream) {
+  return new Promise((resolve, reject) => {
+    const chunks = []
+    stream.on('error', (err) => {
+      reject(err)
+    })
+    stream.on('readable', function () {
+      let chunk
+      while ((chunk = this.read()) !== null) {
+        chunks.push(chunk)
+      }
+    })
+    stream.on('end', () => {
+      resolve(Buffer.concat(chunks).toString('utf8'))
+    })
+  })
+}
+
 function quoteArg (a) {
   if (a.includes("'")) {
     return "'" + a.replace("'", "'\\''") + "'"
@@ -346,6 +368,7 @@ module.exports = {
   findObjsInArray,
   formatForTComment,
   safeGetPackageVersion,
+  slurpStream,
   sortApmEvents,
   runTestFixtures
 }
