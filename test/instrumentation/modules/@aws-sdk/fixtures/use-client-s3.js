@@ -65,31 +65,9 @@ const {
 } = require('@aws-sdk/client-s3')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
+const { slurpStream } = require('../../../../_utils')
+
 const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
-
-// ---- support functions
-
-/**
- * Slurp everything from the given ReadableStream and return the content,
- * converted to a string.
- */
-async function slurpStream (stream) {
-  return new Promise((resolve, reject) => {
-    const chunks = []
-    stream.on('error', (err) => {
-      reject(err)
-    })
-    stream.on('readable', function () {
-      let chunk
-      while ((chunk = this.read()) !== null) {
-        chunks.push(chunk)
-      }
-    })
-    stream.on('end', () => {
-      resolve(Buffer.concat(chunks).toString('utf8'))
-    })
-  })
-}
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
 async function useClientS3 (s3Client, bucketName) {
