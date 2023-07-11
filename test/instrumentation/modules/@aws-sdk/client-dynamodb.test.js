@@ -6,15 +6,11 @@
 
 'use strict'
 
-// Test S3 instrumentation of the '@aws-sdk/client-dynammodb' module.
+// Test DynamoDB instrumentation of the '@aws-sdk/client-dynamodb' module.
 //
 // Note that this uses localstack for testing, which mimicks the DynamoDB API but
 // isn't identical. Some known limitations:
-// TODO: check this
-// - It basically does nothing with regions, so testing bucket region discovery
-//   isn't possible.
-// - AFAIK localstack does not support Access Points, so access point ARNs
-//   cannot be tested.
+// TODO: check limitations
 
 const semver = require('semver')
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
@@ -93,7 +89,7 @@ const testFixtures = [
         delete s.sample_rate
       })
 
-      // Work through each of the pipeline functions (query, xxx, ...) in the script:
+      // Work through each of the pipeline functions (lisTables, createTable, ...) in the script:
       t.deepEqual(spans.shift(), {
         name: 'DynamoDB ListTables',
         type: 'db',

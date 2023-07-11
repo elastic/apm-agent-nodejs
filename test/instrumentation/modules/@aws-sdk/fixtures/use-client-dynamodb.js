@@ -6,14 +6,14 @@
 
 'use strict'
 
-// Run a single scenario of using the S3 client (callback style) with APM
+// Run a single scenario of using the DynamoDB client (callback style) with APM
 // enabled. This is used to test that the expected APM events are generated.
 // It writes log.info (in ecs-logging format, see
 // https://github.com/trentm/go-ecslog#install) for each S3 client API call.
 //
-// This script can also be used for manual testing of APM instrumentation of S3
-// against a real S3 account. This can be useful because tests are done against
-// https://github.com/localstack/localstack that *simulates* S3 with imperfect
+// This script can also be used for manual testing of APM instrumentation of DynamoDB
+// against a real DynamoDB account. This can be useful because tests are done against
+// https://github.com/localstack/localstack that *simulates* DynamoDB with imperfect
 // fidelity.
 //
 // Auth note: By default this uses the AWS profile/configuration from the
@@ -27,18 +27,18 @@
 // Usage:
 //    # Run against the default configured AWS profile, creating a new bucket
 //    # and deleting it afterwards.
-//    node use-client-s3.js | ecslog
+//    node use-client-dynamodb.js | ecslog
 //
 //    # Testing against localstack.
 //    docker run --rm -it -e SERVICES=s3 -p 4566:4566 localstack/localstack
 //    TEST_ENDPOINT=http://localhost:4566 node use-client-s3.js | ecslog
 //
-//    # Use TEST_BUCKET_NAME to re-use an existing bucket (and not delete it).
-//    # For safety the bucket name must start with "elasticapmtest-bucket-".
-//    TEST_BUCKET_NAME=elasticapmtest-bucket-3 node use-client-s3.js | ecslog
+//    # Use TEST_TABLE_NAME to re-use an existing table (and not delete it).
+//    # For safety the table name must start with "elasticapmtest-table-".
+//    TEST_TABLE_NAME=elasticapmtest-table-3 node use-client-dynamodb.js | ecslog
 //
 // Output from a sample run is here:
-// https://gist.github.com/trentm/c402bcab8c0571f26d879ec0bcf5759c
+// TODO: add a gist here
 
 const apm = require('../../../../..').start({
   serviceName: 'use-client-dyamodb',
