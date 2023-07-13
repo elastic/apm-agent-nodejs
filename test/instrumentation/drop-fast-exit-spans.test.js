@@ -6,7 +6,6 @@
 
 // Test `exitSpanMinDuration` handling.
 
-const { CapturingTransport } = require('../_capturing_transport')
 const agent = require('../..').start({
   serviceName: 'test-fast-exit-span',
   breakdownMetrics: false,
@@ -14,9 +13,7 @@ const agent = require('../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  exitSpanMinDuration: '50ms', // Using a large value to not get surprised by event-loop delay on busy CI VMs.
-  spanStackTraceMinDuration: 0, // Always have span stacktraces.
-  transport () { return new CapturingTransport() }
+  exitSpanMinDuration: '200ms' // Use a large enough value to not get surprised by event-loop delay on busy CI VMs.
 })
 const Transaction = require('../../lib/instrumentation/transaction')
 const Span = require('../../lib/instrumentation/span')
@@ -65,7 +62,7 @@ tape.test('end to end test', function (t) {
     span2.end()
     agent.endTransaction()
     agent.flush()
-  }, 100) // longer than exitSpanMinDuration
+  }, 300) // longer than exitSpanMinDuration
 })
 
 // Test that a composite span faster than `exitSpanMinDuration` is dropped.
