@@ -50,3 +50,11 @@ updates:
     open-pull-requests-limit: 5
     reviewers:
       - "elastic/apm-agent-node-js"
+
+  - package-ecosystem: "npm"
+    directory: "/examples/opentelemetry-metrics"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "elastic/apm-agent-node-js"
