@@ -12,14 +12,14 @@ updates:
       - dependency-name: "mimic-response"
       # aws-sdk packages update so frequently, we don't want anything but majors.
       - dependency-name: "aws-sdk"
-        update-types: "version-update:semver-minor"
+        update-types: ["version-update:semver-minor"]
       - dependency-name: "@aws-sdk/*"
-        update-types: "version-update:semver-minor"
+        update-types: ["version-update:semver-minor"]
       # Babel packages are numerous and our tests don't depend on finer details.
       - dependency-name: "@babel/*"
-        update-types: "version-update:semver-patch"
+        update-types: ["version-update:semver-patch"]
       - dependency-name: "@types/*"
-        update-types: "version-update:semver-patch"
+        update-types: ["version-update:semver-patch"]
 
   - package-ecosystem: "npm"
     directory: "/test/instrumentation/azure-functions/fixtures/AJsAzureFnApp"
