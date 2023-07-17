@@ -147,6 +147,8 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
+    - run: npm --version
+    - run: node --version
     - run: docker ps  # show the services against which we'll be testing
     - run: npm install
     - run: npm ls --all || true
