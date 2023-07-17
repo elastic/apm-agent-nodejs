@@ -4,6 +4,7 @@
   "modules": [
     "@apollo/server",
     "@aws-sdk/client-s3",
+    "@aws-sdk/client-dynamodb",
     "@elastic/elasticsearch",
     "@hapi/hapi",
     "@opentelemetry/api",
