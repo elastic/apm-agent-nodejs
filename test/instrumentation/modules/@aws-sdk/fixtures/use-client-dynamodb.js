@@ -38,7 +38,7 @@
 //    TEST_TABLE_NAME=elasticapmtest-table-3 node use-client-dynamodb.js | ecslog
 //
 // Output from a sample run is here:
-// TODO: add a gist here
+// https://gist.github.com/david-luna/2b785a3197891505902fa85ee8ff3e3d
 
 const apm = require('../../../../..').start({
   serviceName: 'use-client-dyamodb',
