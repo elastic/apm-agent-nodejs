@@ -10,6 +10,16 @@ updates:
     ignore:
       # For mimic-response, ignore all versions https://github.com/elastic/apm-agent-nodejs/pull/3349#issuecomment-1549517238
       - dependency-name: "mimic-response"
+      # aws-sdk packages update so frequently, we don't want anything but majors.
+      - dependency-name: "aws-sdk"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "@aws-sdk/*"
+        update-types: ["version-update:semver-minor"]
+      # Babel packages are numerous and our tests don't depend on finer details.
+      - dependency-name: "@babel/*"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "@types/*"
+        update-types: ["version-update:semver-patch"]
 
   - package-ecosystem: "npm"
     directory: "/test/instrumentation/azure-functions/fixtures/AJsAzureFnApp"
@@ -45,6 +55,14 @@ updates:
 
   - package-ecosystem: "npm"
     directory: "/examples/opentelemetry-bridge"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "elastic/apm-agent-node-js"
+
+  - package-ecosystem: "npm"
+    directory: "/examples/opentelemetry-metrics"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
