@@ -43,11 +43,6 @@ Notes:
 * Add support for `@aws-sdk/client-dynamodb`, one of the AWS SDK v3 clients.
   ({pull}3486[#3486])
 
-
-Fix tedious instrumentation to recognize "connection.prepare()" usage in
-  tedious@16.2.0 and later.
-
-
 [float]
 ===== Bug fixes
 
