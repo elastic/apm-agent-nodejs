@@ -147,13 +147,11 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
-    - run: node --version
-    - run: npm --version
     - run: docker ps  # show the services against which we'll be testing
     - run: npm install
     - run: npm ls --all || true
     - name: npm test
-      run: node --version && npm --version && npm test
+      run: npm test
       env:
         ELASTIC_APM_CONTEXT_MANAGER: ${{ matrix.contextManager }}
     - uses: inception-health/otel-upload-test-artifact-action@v1

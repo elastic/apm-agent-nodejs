@@ -95,9 +95,6 @@ then
   # been set up in advance, or the user specificailly used the "none"
   # command to indicate that they do not want to spin up any
   # dependencies
-  echo "running on CI"
-  node --version
-  npm --version
   run_test_suite
   exit $?
 elif [[ "$1" == "all" ]]
