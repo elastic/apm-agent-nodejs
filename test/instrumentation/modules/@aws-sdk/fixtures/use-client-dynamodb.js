@@ -57,7 +57,9 @@ const {
   ListTablesCommand,
   CreateTableCommand,
   PutItemCommand,
-  QueryCommand
+  QueryCommand,
+  DeleteItemCommand,
+  DeleteTableCommand
 } = require('@aws-sdk/client-dynamodb')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
@@ -165,6 +167,21 @@ async function useClientDynamoDB (dynamoDBClient, tableName) {
       throw err
     }
   }
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/DeleteItemCommand/
+  command = new DeleteItemCommand({
+    TableName: tableName,
+    Key: {
+      RECORD_ID: { S: '001' }
+    }
+  })
+  data = await dynamoDBClient.send(command)
+  log.info({ data }, 'deleteItem')
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/DeleteTableCommand/
+  command = new DeleteTableCommand({ TableName: tableName })
+  data = await dynamoDBClient.send(command)
+  log.info({ data }, 'deleteTable')
 }
 
 // Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an S3
