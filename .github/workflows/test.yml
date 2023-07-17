@@ -150,6 +150,8 @@ jobs:
     - run: docker ps  # show the services against which we'll be testing
     - run: npm install
     - run: npm ls --all || true
+    - run: node --version
+    - run: npm --version
     - name: npm test
       run: npm test
       env:
