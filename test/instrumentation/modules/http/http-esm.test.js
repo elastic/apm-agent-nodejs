@@ -92,7 +92,7 @@ const testFixtures = [
       ELASTIC_APM_USE_PATH_AS_TRANSACTION_NAME: 'true'
     },
     versionRanges: {
-      node: '^14.13.1 || ^16.0.0 || ^18.1.0 <20' // NODE_VER_RANGE_IITM minus node v12 because top-level `await` is used
+      node: '^14.13.1 || ^16.0.0 || >=18.1.0' // NODE_VER_RANGE_IITM minus node v12 because top-level `await` is used
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
@@ -113,7 +113,7 @@ const testFixtures = [
       NODE_NO_WARNINGS: '1' // skip warnings about --experimental-loader
     },
     versionRanges: {
-      node: '^14.13.1 || ^16.0.0 || ^18.1.0 <20' // NODE_VER_RANGE_IITM minus node v12 because top-level `await` is used
+      node: '^14.13.1 || ^16.0.0 || >=18.1.0' // NODE_VER_RANGE_IITM minus node v12 because top-level `await` is used
     },
     verbose: true
   }
