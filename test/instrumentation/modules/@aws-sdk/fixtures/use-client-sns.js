@@ -184,7 +184,7 @@ function main () {
   // Config vars.
   const region = process.env.TEST_REGION || 'us-east-2'
   const endpoint = process.env.TEST_ENDPOINT || null
-  const topicName = process.env.TEST_BUCKET_NAME || TEST_TOPIC_NAME_PREFIX + getTimestamp()
+  const topicName = process.env.TEST_TOPIC_NAME || TEST_TOPIC_NAME_PREFIX + getTimestamp()
 
   // Guard against any topic name being used because we will be publishing
   // messages in it, and potentially *deleting* the topic.

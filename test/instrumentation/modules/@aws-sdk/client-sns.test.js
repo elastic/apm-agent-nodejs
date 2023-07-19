@@ -45,7 +45,7 @@ const testFixtures = [
     env: {
       AWS_ACCESS_KEY_ID: 'fake',
       AWS_SECRET_ACCESS_KEY: 'fake',
-      TEST_BUCKET_NAME: 'elasticapmtest-topic-3',
+      TEST_TOPIC_NAME: 'elasticapmtest-topic-3',
       TEST_ENDPOINT: endpoint,
       TEST_REGION: 'us-east-2'
     },
@@ -158,7 +158,7 @@ const testFixtures = [
 
       // This is the Publish to a non-existant-topic, so we expect a failure.
       t.equal(errors.length, 1, 'got 1 error')
-      t.equal(errors[0].parent_id, failingSpanId, 'error is a child of the failing span from getObjNonExistantObject')
+      t.equal(errors[0].parent_id, failingSpanId, 'error is a child of the failing span from publish to a non existant topic')
       t.equal(errors[0].transaction_id, tx.id, 'error.transaction_id')
       t.equal(errors[0].exception.type, 'NotFoundException', 'error.exception.type')
 
