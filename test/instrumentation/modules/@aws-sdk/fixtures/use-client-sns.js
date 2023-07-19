@@ -173,9 +173,8 @@ async function useClientSNS (snsClient, topicName) {
   log.info({ data }, 'deleteTopic')
 }
 
-// Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an S3
-// bucket name:
-// https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
+// Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an SNS
+// topic name:
 function getTimestamp () {
   return (new Date()).toISOString().split('.')[0].replace(/[^0-9]/g, '')
 }
