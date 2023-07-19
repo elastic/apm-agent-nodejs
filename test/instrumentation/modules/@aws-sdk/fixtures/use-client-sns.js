@@ -101,7 +101,6 @@ async function useClientSNS (snsClient, topicName) {
   } else {
     topicArn = preexistingTopic.TopicArn
   }
-  console.log('topicArn', topicArn)
 
   // Get a signed URL.
   // This is interesting to test, because `getSignedUrl` uses the command
