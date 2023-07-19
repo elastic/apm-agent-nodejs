@@ -40,6 +40,9 @@ Notes:
 [float]
 ===== Features
 
+* Add support for `@aws-sdk/client-sns`, one of the AWS SDK v3 clients.
+  ({pull}3500[#3500])
+
 [float]
 ===== Bug fixes
 
