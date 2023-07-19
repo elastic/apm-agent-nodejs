@@ -6,14 +6,11 @@
 
 'use strict'
 
-// Test S3 instrumentation of the '@aws-sdk/client-s3' module.
+// Test SNS instrumentation of the '@aws-sdk/client-sns' module.
 //
-// Note that this uses localstack for testing, which mimicks the S3 API but
+// Note that this uses localstack for testing, which mimicks the SNS API but
 // isn't identical. Some known limitations:
-// - It basically does nothing with regions, so testing bucket region discovery
-//   isn't possible.
-// - AFAIK localstack does not support Access Points, so access point ARNs
-//   cannot be tested.
+// TODO: check if there are limitations
 
 const semver = require('semver')
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
