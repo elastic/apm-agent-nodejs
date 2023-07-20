@@ -528,6 +528,18 @@ aws-sdk:
     - node test/instrumentation/modules/@aws-sdk/client-s3.test.js
   node: '>=14'
 
+
+'@aws-sdk/client-s3':
+  # Maintenance note: This should be updated periodically using:
+  #   node ./dev-utils/tav-versions.js @aws-sdk/client-sns ">=3.15.0 <4"
+  #
+  # Test v3.15.0, every N=40 of 205 releases, and current latest.
+  versions: '3.15.0 || 3.53.0 || 3.154.0 || 3.218.0 || 3.294.0 || 3.360.0 || 3.370.0 || >3.370.0 <4'
+  commands:
+    - node test/instrumentation/modules/@aws-sdk/client-sns.test.js
+  node: '>=14'
+
+
 # - undici@4.7.0 added its diagnostics_channel support.
 # - In undici@4.7.1 the `request.origin` property was added, which we need
 #   in the 'undici:request:create' diagnostic message.
