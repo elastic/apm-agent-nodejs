@@ -22,7 +22,7 @@ const {
   normalizeBytes,
   normalizeDurationOptions,
   normalizeIgnoreOptions,
-  normalizeInfinity,
+  normalizeInfinities,
   normalizeKeyValuePairs,
   normalizeNumbers,
   normalizeElasticsearchCaptureBodyUrls,
@@ -215,7 +215,7 @@ test('#normalizeIgnoreOptions()', function (t) {
   t.end()
 })
 
-test('#normalizeInfinity()', function (t) {
+test('#normalizeInfinities()', function (t) {
   const logger = new MockLogger()
   const fields = ['minusOne']
   const defaults = {}
@@ -226,7 +226,7 @@ test('#normalizeInfinity()', function (t) {
     anotherProperty: 'value'
   }
 
-  normalizeInfinity(opts, fields, defaults, logger)
+  normalizeInfinities(opts, fields, defaults, logger)
 
   t.deepEqual(opts, {
     positiveNumber: 100,
