@@ -41,7 +41,7 @@ module.exports = function (name, { agentConf, ...benchConf }) {
     },
     onComplete (result) {
       process.stdout.write(JSON.stringify({
-        name: name,
+        name,
         count: result.target.count,
         cycles: result.target.cycles,
         hz: result.target.hz,

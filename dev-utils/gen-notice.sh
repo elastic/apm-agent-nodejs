@@ -78,6 +78,7 @@ npm ls --omit=dev --all --parseable \
         const fs = require("fs")
         const path = require("path")
         const knownLicTypes = {
+            "0BSD": true,
             "Apache-2.0": true,
             "BSD-2-Clause": true,
             "BSD-3-Clause": true,

@@ -24,7 +24,6 @@ var pem = require('https-pem')
 var test = require('tape')
 
 var mockClient = require('../../_mock_http_client')
-var findObjInArray = require('../../_utils').findObjInArray
 const constants = require('../../../lib/constants')
 
 if (semver.satisfies(process.version, '8.x')) {
@@ -339,45 +338,70 @@ isSecure.forEach(secure => {
     })
   })
 
+  // Scenario:
+  // - create a manual transaction (expect transaction)
+  // - http2 client "GET /" request (expect span, then HTTP/2 transaction)
+  // - http2 client "GET /sub" request inside server handler (expect span,
+  //   then HTTP/2 transcation)
   test(`http2.request${secure ? ' secure' : ' '}`, t => {
-    t.plan(39)
+    resetAgent(5, (data) => {
+      t.strictEqual(data.transactions.length, 3)
+      t.strictEqual(data.spans.length, 2)
+      const transactions = data.transactions.sort((a, b) => {
+        return a.timestamp < b.timestamp ? -1 : 1
+      })
+      const spans = data.spans.sort((a, b) => {
+        return a.timestamp < b.timestamp ? -1 : 1
+      })
 
-    resetAgent(3, (data) => {
-      t.strictEqual(data.transactions.length, 2)
-      t.strictEqual(data.spans.length, 1)
+      const transManual = transactions[0]
+      t.equal(transManual.name, 'manual', 'transManual.name')
 
-      var sub = data.transactions[0]
-      assertPath(t, sub, secure, port, '/sub', '2.0')
+      const expectedSpanContextFromPath = (urlPath) => {
+        return {
+          service: { target: { type: 'http', name: `localhost:${port}` } },
+          destination: {
+            address: 'localhost',
+            port,
+            service: { type: '', name: '', resource: `localhost:${port}` }
+          },
+          http: {
+            method: 'GET',
+            status_code: 200,
+            url: `http${secure ? 's' : ''}://localhost:${port}${urlPath}`
+          }
+        }
+      }
+      let span = spans[0]
+      t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}`, 'span.name')
+      t.strictEqual(span.type, 'external', 'span.type')
+      t.strictEqual(span.subtype, 'http', 'span.subtype')
+      t.strictEqual(span.action, 'GET', 'span.action')
+      t.strictEqual(span.trace_id, transManual.trace_id, 'span.trace_id')
+      t.strictEqual(span.parent_id, transManual.id, 'span.parent_id')
+      t.deepEqual(span.context, expectedSpanContextFromPath('/'), 'span.context')
 
-      var root = data.transactions[1]
-      assertPath(t, root, secure, port, '/', '2.0')
+      const transRoot = transactions[1]
+      t.equal(transRoot.trace_id, transManual.trace_id, 'transRoot.trace_id')
+      t.equal(transRoot.parent_id, span.id, 'transRoot.parent_id')
+      assertPath(t, transRoot, secure, port, '/', '2.0')
 
-      var span = findObjInArray(data.spans, 'transaction_id', root.id)
-      t.ok(span, 'root transaction should have span')
-      t.strictEqual(span.type, 'external')
-      t.strictEqual(span.subtype, 'http')
-      t.strictEqual(span.action, 'GET')
-      t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}`)
-      t.deepEqual(span.context.http, {
-        method: 'GET',
-        status_code: 200,
-        url: `http${secure ? 's' : ''}://localhost:${port}/sub`
-      }, 'span.context.http')
-      t.deepEqual(span.context.destination, {
-        service: {
-          type: '',
-          name: '',
-          resource: `localhost:${port}`
-        },
-        address: 'localhost',
-        port
-      }, 'span.context.destination')
-      t.deepEqual(span.context.service.target, {
-        type: 'http',
-        name: `localhost:${port}`
-      }, 'span.context.service.target')
+      span = spans[1]
+      t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}`, 'span.name')
+      t.strictEqual(span.type, 'external', 'span.type')
+      t.strictEqual(span.subtype, 'http', 'span.subtype')
+      t.strictEqual(span.action, 'GET', 'span.action')
+      t.strictEqual(span.trace_id, transRoot.trace_id, 'span.trace_id')
+      t.strictEqual(span.parent_id, transRoot.id, 'span.parent_id')
+      t.deepEqual(span.context, expectedSpanContextFromPath('/sub'), 'span.context')
+
+      const transSub = transactions[2]
+      t.equal(transSub.trace_id, transRoot.trace_id, 'transSub.trace_id')
+      t.equal(transSub.parent_id, span.id, 'transSub.parent_id')
+      assertPath(t, transSub, secure, port, '/sub', '2.0')
 
       server.close()
+      t.end()
     })
 
     var port
@@ -426,10 +450,14 @@ isSecure.forEach(secure => {
       client.on('error', onError)
       client.on('socketError', onError)
 
+      const transManual = agent.startTransaction('manual')
       var req = client.request({ ':path': '/' })
       assertResponse(t, req, 'foo')
       req.resume()
-      req.on('end', () => client.destroy())
+      req.on('end', () => {
+        client.destroy()
+        transManual.end()
+      })
       req.end()
     })
   })
@@ -467,7 +495,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
       agent: new https.Agent(),
       protocol: 'https:',
       host: 'localhost',
-      port: port,
+      port,
       path: '/',
       ALPNProtocols: ['http/1.1'],
       rejectUnauthorized: false

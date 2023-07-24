@@ -47,7 +47,7 @@ tape.test('basic metadata request: gcp', function (t) {
   const listener = serverGcp.listen(0, function () {
     const url = `http://127.0.0.1:${listener.address().port}/computeMetadata/v1/?recursive=true`
     const options = {
-      url: url,
+      url,
       headers: {
         'Metadata-Flavor': 'Google'
       }
@@ -69,7 +69,7 @@ tape.test('basic metadata request: azure', function (t) {
   const listener = serverAzure.listen(0, function () {
     const url = `http://127.0.0.1:${listener.address().port}/metadata/instance?api-version=2020-09-01`
     const options = {
-      url: url,
+      url,
       headers: {
         Metadata: 'true'
       }
@@ -101,7 +101,7 @@ tape.test('IMDSv2 token fetching: aws', function (t) {
       t.equals(rawBodyToken, 'AQAAAOaONNcThIsIsAfAkEtOkEn_b94UPLuLYRThIsIsAfAkEtOkEn==', 'returns correct fake token')
       const url = `http://127.0.0.1:${listener.address().port}/latest/dynamic/instance-identity/document`
       const options = {
-        url: url,
+        url,
         headers: {
           'X-aws-ec2-metadata-token': rawBodyToken
         }

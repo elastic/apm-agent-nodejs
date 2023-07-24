@@ -175,7 +175,7 @@ if (semver.gte(process.version, '10.0.0')) {
     }
     const searchOpts = {
       index: 'myIndex*',
-      body: body
+      body
     }
 
     resetAgent(checkDataAndEnd(
@@ -246,7 +246,7 @@ if (semver.gte(process.version, '10.0.0')) {
     }
     const searchOpts = {
       index: 'myIndex*',
-      body: body,
+      body,
       size: 2,
       sort: 'myField:asc'
     }
@@ -329,7 +329,7 @@ if (semver.gte(process.version, '10.0.0')) {
     const searchOpts = {
       search_type: 'query_then_fetch',
       typed_keys: false,
-      body: body
+      body
     }
     const query = 'search_type=query_then_fetch&typed_keys=false'
     const statement = body.map(JSON.stringify).join('\n') + '\n'
@@ -963,7 +963,7 @@ function checkDataAndEnd (t, expectedName, expectedHttpUrl, expectedStatusCode, 
 
     const expectedDestination = {
       address: host.split(':')[0],
-      port: port,
+      port,
       service: { type: '', name: '', resource: 'elasticsearch' }
     }
     if (expectedHttpUrl) {

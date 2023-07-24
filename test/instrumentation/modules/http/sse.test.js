@@ -102,7 +102,7 @@ function assertSSEResponse (t, data) {
 function request (server) {
   server.listen(function () {
     var port = server.address().port
-    http.request({ port: port }, function (res) {
+    http.request({ port }, function (res) {
       res.on('end', function () {
         server.close()
       })

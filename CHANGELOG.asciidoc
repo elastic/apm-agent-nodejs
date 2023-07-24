@@ -40,6 +40,22 @@ Notes:
 [float]
 ===== Features
 
+[float]
+===== Bug fixes
+
+* Fix tedious instrumentation to recognize "connection.prepare()" usage in
+  tedious@16.2.0 and later.
+
+[float]
+===== Chores
+
+
+[[release-notes-3.48.0]]
+==== 3.48.0 - 2023/07/07
+
+[float]
+===== Features
+
 * Initial and experimental ECMAScript Module (ESM) support.
   With the following invocation the APM agent will now be able to instrument
   modules loaded via `import`. (See the https://nodejs.org/api/esm.html#introduction[Node.js introduction to ESM].)
@@ -64,15 +80,25 @@ recent versions of node v12-v18. ESM support will remain experimental while the
 https://nodejs.org/api/esm.html#loaders[Node.js Loaders API] is experimental.
 See <<esm>> for full details.
 
+* Send `configured_hostname` and `detected_hostname` metadata separately,
+  rather than the old deprecated single `hostname` metadatum. As well, the
+  detected hostname now attempts to collect a FQDN to be used in the
+  `host.name` field in the Elasticsearch document. ({issues}3310[#3310])
+
 [float]
 ===== Bug fixes
 
 * Ensure `apm.setGlobalLabel(...)` does not throw an error when apm is inactive.
   ({issues}3442[#3442])
-* Set the transaction parent for an incoming HTTP/2 request ({issues}1830[#1830])
 
-[float]
-===== Chores
+* Set the trace-context for an incoming HTTP/2 request. Contributed by @paulish.
+  ({issues}1830[#1830])
+
+* Fix aws-sdk v3 instrumentation (currently just `@aws-sdk/client-s3`) for
+  versions 3.363.0 and later. ({pull}3455[#3455])
+
+* Fix a possible crash when using `getSignedUrl()` from `@aws-sdk/s3-request-presigner`
+  due to a bug in `@aws-sdk/client-s3` instrumentation. ({issues}3464[#3464])
 
 
 [[release-notes-3.47.0]]

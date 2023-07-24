@@ -95,7 +95,7 @@ class MockAPMServer {
         method: req.method,
         url: req.url,
         headers: req.headers,
-        body: body
+        body
       })
       res.end(resBody)
     })

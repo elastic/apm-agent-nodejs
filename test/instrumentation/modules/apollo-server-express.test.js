@@ -64,7 +64,7 @@ test('POST /graphql', function (t) {
       var port = server.address().port
       var opts = {
         method: 'POST',
-        port: port,
+        port,
         path: '/graphql',
         headers: { 'Content-Type': 'application/json' }
       }
@@ -110,7 +110,7 @@ test('GET /graphql', function (t) {
       var port = server.address().port
       var opts = {
         method: 'GET',
-        port: port,
+        port,
         path: '/graphql?' + query
       }
       var req = http.request(opts, function (res) {
@@ -155,7 +155,7 @@ test('POST /graphql - named query', function (t) {
       var port = server.address().port
       var opts = {
         method: 'POST',
-        port: port,
+        port,
         path: '/graphql',
         headers: { 'Content-Type': 'application/json' }
       }
@@ -205,7 +205,7 @@ test('POST /graphql - sort multiple queries', function (t) {
       var port = server.address().port
       var opts = {
         method: 'POST',
-        port: port,
+        port,
         path: '/graphql',
         headers: { 'Content-Type': 'application/json' }
       }
@@ -270,7 +270,7 @@ test('POST /graphql - sub-query', function (t) {
       var port = server.address().port
       var opts = {
         method: 'POST',
-        port: port,
+        port,
         path: '/graphql',
         headers: { 'Content-Type': 'application/json' }
       }

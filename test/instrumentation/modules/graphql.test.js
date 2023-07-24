@@ -211,9 +211,9 @@ if (!onlySupportsPositionalArgs) {
     var source = new graphql.Source(query)
     var documentAST = graphql.parse(source)
     var args = {
-      schema: schema,
+      schema,
       document: documentAST,
-      rootValue: rootValue
+      rootValue
     }
 
     agent.startTransaction('foo')
