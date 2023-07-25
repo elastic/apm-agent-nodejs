@@ -1,0 +1,99 @@
+/*
+ * Copyright Elasticsearch B.V. and other contributors where applicable.
+ * Licensed under the BSD 2-Clause License; you may not use this file except in
+ * compliance with the BSD 2-Clause License.
+ */
+
+'use strict'
+
+// Test S3 instrumentation of the '@aws-sdk/client-s3' module.
+//
+// Note that this uses localstack for testing, which mimicks the S3 API but
+// isn't identical. Some known limitations:
+// - It basically does nothing with regions, so testing bucket region discovery
+//   isn't possible.
+// - AFAIK localstack does not support Access Points, so access point ARNs
+//   cannot be tested.
+
+const semver = require('semver')
+if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
+  console.log('# SKIP: GH Actions do not support docker services on Windows')
+  process.exit(0)
+}
+if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
+  console.log('# SKIP @aws-sdk/* instrumentation does not work with contextManager="patch"')
+  process.exit()
+}
+if (semver.lt(process.version, '14.0.0')) {
+  console.log(`# SKIP @aws-sdk min supported node is v14 (node ${process.version})`)
+  process.exit()
+}
+
+const test = require('tape')
+
+const { validateSpan } = require('../../../_validate_schema')
+const { runTestFixtures, sortApmEvents } = require('../../../_utils')
+// const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
+
+const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost'
+const endpoint = 'http://' + LOCALSTACK_HOST + ':4566'
+
+const testFixtures = [
+  {
+    name: 'simple SQS V3 usage scenario',
+    script: 'fixtures/use-client-sqs.js',
+    cwd: __dirname,
+    timeout: 20000, // sanity guard on the test hanging
+    maxBuffer: 10 * 1024 * 1024, // This is big, but I don't ever want this to be a failure reason.
+    env: {
+      AWS_ACCESS_KEY_ID: 'fake',
+      AWS_SECRET_ACCESS_KEY: 'fake',
+      TEST_ENDPOINT: endpoint,
+      TEST_REGION: 'us-east-2'
+    },
+    verbose: false,
+    checkApmServer: (t, apmServer) => {
+      t.ok(apmServer.events[0].metadata, 'metadata')
+      const events = sortApmEvents(apmServer.events)
+
+      // First the transaction.
+      t.ok(events[0].transaction, 'got the transaction')
+      const tx = events.shift().transaction
+      // const errors = events.filter(e => e.error).map(e => e.error)
+
+      // Compare some common fields across all spans.
+      // ignore http/external spans
+      const spans = events.filter(e => e.span && e.span.type !== 'external')
+        .map(e => e.span)
+      spans.forEach(s => {
+        const errs = validateSpan(s)
+        t.equal(errs, null, 'span is valid (per apm-server intake schema)')
+      })
+      t.equal(spans.filter(s => s.trace_id === tx.trace_id).length,
+        spans.length, 'all spans have the same trace_id')
+      t.equal(spans.filter(s => s.transaction_id === tx.id).length,
+        spans.length, 'all spans have the same transaction_id')
+      t.equal(spans.filter(s => s.sync === false).length,
+        spans.length, 'all spans have sync=false')
+      t.equal(spans.filter(s => s.sample_rate === 1).length,
+        spans.length, 'all spans have sample_rate=1')
+      // const failingSpanId = spans[3].id // index of `Publish` to a non exixtent topic
+      spans.forEach(s => {
+        // Remove variable and common fields to facilitate t.deepEqual below.
+        delete s.id
+        delete s.transaction_id
+        delete s.parent_id
+        delete s.trace_id
+        delete s.timestamp
+        delete s.duration
+        delete s.sync
+        delete s.sample_rate
+      })
+    }
+  }
+]
+
+test('@aws-sdk/client-sqs fixtures', suite => {
+  runTestFixtures(suite, testFixtures)
+  suite.end()
+})
