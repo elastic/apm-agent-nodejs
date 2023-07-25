@@ -8,8 +8,9 @@
 
 // A small example showing Elastic APM tracing the 'handlebars' package.
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-handlebars'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-handlebars',
 });
 
 const handlebars = require('handlebars');

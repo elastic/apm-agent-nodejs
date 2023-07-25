@@ -14,27 +14,26 @@
 //    node --experimental-loader=./loader.mjs --require=./start.js test/instrumentation/modules/@aws-sdk/fixtures/use-client-s3.mjs
 
 import apm from '../../../../../index.js'; // 'elastic-apm-node'
-import {
-  S3Client,
-  ListBucketsCommand
-} from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3';
 
 import assert from 'assert';
 
 // ---- support functions
 
-async function useClientS3 (s3Client) {
+async function useClientS3(s3Client) {
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/listbucketscommand.html
   const command = new ListBucketsCommand({});
   const data = await s3Client.send(command);
-  assert(apm.currentSpan === null,
-    'S3 span (or its HTTP span) should not be currentSpan after awaiting the task');
+  assert(
+    apm.currentSpan === null,
+    'S3 span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
   console.log('ListBuckets found %d buckets', data.Buckets.length);
 }
 
 // ---- mainline
 
-function main () {
+function main() {
   const region = process.env.TEST_REGION || 'us-east-2';
   const endpoint = process.env.TEST_ENDPOINT || null;
   const s3Client = new S3Client({ region, endpoint });
@@ -51,7 +50,7 @@ function main () {
       tx.end();
       s3Client.destroy();
       process.exitCode = 1;
-    }
+    },
   );
 }
 

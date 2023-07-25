@@ -10,7 +10,7 @@ const agent = require('../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  spanCompressionEnabled: true
+  spanCompressionEnabled: true,
 });
 
 const mockClient = require('../_mock_http_client');
@@ -44,8 +44,10 @@ tape.test(function (suite) {
   suite.end();
 });
 
-function resetAgent (numExpected, cb) {
+function resetAgent(numExpected, cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(numExpected, cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

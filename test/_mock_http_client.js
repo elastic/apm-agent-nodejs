@@ -32,8 +32,14 @@ module.exports = function (expected, done) {
   let timer;
 
   const client = {
-    _writes: { length: 0, spans: [], transactions: [], errors: [], metricsets: [] },
-    _write (obj, cb) {
+    _writes: {
+      length: 0,
+      spans: [],
+      transactions: [],
+      errors: [],
+      metricsets: [],
+    },
+    _write(obj, cb) {
       cb = cb || noop;
 
       const type = Object.keys(obj)[0];
@@ -44,21 +50,22 @@ module.exports = function (expected, done) {
 
       if (timerBased) resetTimer();
       else if (this._writes.length === expected) done(this._writes);
-      else if (this._writes.length > expected) throw new Error('too many writes');
+      else if (this._writes.length > expected)
+        throw new Error('too many writes');
     },
-    sendSpan (span, cb) {
+    sendSpan(span, cb) {
       this._write({ span }, cb);
     },
-    sendTransaction (transaction, cb) {
+    sendTransaction(transaction, cb) {
       this._write({ transaction }, cb);
     },
-    sendError (error, cb) {
+    sendError(error, cb) {
       this._write({ error }, cb);
     },
-    sendMetricSet (metricset, cb) {
+    sendMetricSet(metricset, cb) {
       this._write({ metricset }, cb);
     },
-    flush (opts, cb) {
+    flush(opts, cb) {
       if (typeof opts === 'function') {
         cb = opts;
         opts = {};
@@ -67,17 +74,17 @@ module.exports = function (expected, done) {
       }
       if (cb) process.nextTick(cb);
     },
-    supportsKeepingUnsampledTransaction () {
+    supportsKeepingUnsampledTransaction() {
       return true;
     },
-    supportsActivationMethodField () {
+    supportsActivationMethodField() {
       return true;
-    }
+    },
   };
 
   return client;
 
-  function resetTimer () {
+  function resetTimer() {
     if (timer) clearTimeout(timer);
     timer = setTimeout(function () {
       done(client._writes);
@@ -85,4 +92,4 @@ module.exports = function (expected, done) {
   }
 };
 
-function noop () {}
+function noop() {}

@@ -9,7 +9,7 @@
 var agent = require('../..').start({
   serviceName: 'test',
   secretToken: 'test',
-  captureExceptions: false
+  captureExceptions: false,
 });
 
 var test = require('tape');

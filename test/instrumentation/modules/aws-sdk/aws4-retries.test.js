@@ -20,7 +20,7 @@ const apm = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  disableSend: true
+  disableSend: true,
 });
 
 const http = require('http');
@@ -46,14 +46,31 @@ tape.test('AWS4 signature auth with retry', function (t) {
         // Request 1: a request with credentials for us-east-1 (the wrong region)
         // results in a 400 response.
         t.equal(req.method, 'HEAD', 'request 1 method is HEAD');
-        t.equal(req.url, '/' + BUKKIT + '/' + KEY, 'request 1 path is /$BUKKIT/$KEY');
-        t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-east-1\/.*/.test(req.headers.authorization),
-          `request 1 "Authorization" header is for us-east-1: "${req.headers.authorization}"`);
-        t.equal(signedHeaders, 'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
-          'request 1 "Authorization" header has expected SignedHeaders');
-        t.ok(traceparentRe.test(req.headers.traceparent),
-          'request 1 traceparent has expected trace id: ' + req.headers.traceparent);
-        t.ok(tracestateRe.test(req.headers.tracestate), 'request 1 tracestate has expected es item');
+        t.equal(
+          req.url,
+          '/' + BUKKIT + '/' + KEY,
+          'request 1 path is /$BUKKIT/$KEY',
+        );
+        t.ok(
+          /^AWS4-HMAC-SHA256 Credential=.*\/us-east-1\/.*/.test(
+            req.headers.authorization,
+          ),
+          `request 1 "Authorization" header is for us-east-1: "${req.headers.authorization}"`,
+        );
+        t.equal(
+          signedHeaders,
+          'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
+          'request 1 "Authorization" header has expected SignedHeaders',
+        );
+        t.ok(
+          traceparentRe.test(req.headers.traceparent),
+          'request 1 traceparent has expected trace id: ' +
+            req.headers.traceparent,
+        );
+        t.ok(
+          tracestateRe.test(req.headers.tracestate),
+          'request 1 tracestate has expected es item',
+        );
         res.writeHead(400, {});
         res.end();
         break;
@@ -62,32 +79,63 @@ tape.test('AWS4 signature auth with retry', function (t) {
         // Still has credentials for wrong region, so responds with 400.
         t.equal(req.method, 'HEAD', 'request 2 method is HEAD');
         t.equal(req.url, '/' + BUKKIT, 'request 2 path is /$BUKKIT');
-        t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-east-1\/.*/.test(req.headers.authorization),
-          `request 2 "Authorization" header is for us-east-1: "${req.headers.authorization}"`);
-        t.equal(signedHeaders, 'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
-          'request 2 "Authorization" header has expected SignedHeaders');
-        t.ok(traceparentRe.test(req.headers.traceparent),
-          'request 2 traceparent has expected trace id: ' + req.headers.traceparent);
-        t.ok(tracestateRe.test(req.headers.tracestate), 'request 2 tracestate has expected es item');
+        t.ok(
+          /^AWS4-HMAC-SHA256 Credential=.*\/us-east-1\/.*/.test(
+            req.headers.authorization,
+          ),
+          `request 2 "Authorization" header is for us-east-1: "${req.headers.authorization}"`,
+        );
+        t.equal(
+          signedHeaders,
+          'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
+          'request 2 "Authorization" header has expected SignedHeaders',
+        );
+        t.ok(
+          traceparentRe.test(req.headers.traceparent),
+          'request 2 traceparent has expected trace id: ' +
+            req.headers.traceparent,
+        );
+        t.ok(
+          tracestateRe.test(req.headers.tracestate),
+          'request 2 tracestate has expected es item',
+        );
         res.writeHead(400, { 'x-amz-bucket-region': 'us-west-1' });
         res.end();
         break;
       case 3:
         // Request 3: A HeadObject with creds for the correct region -> 200.
         t.equal(req.method, 'HEAD', 'request 3 method is HEAD');
-        t.equal(req.url, '/' + BUKKIT + '/' + KEY, 'request 3 path is /$BUKKIT/$KEY');
-        t.ok(/^AWS4-HMAC-SHA256 Credential=.*\/us-west-1\/.*/.test(req.headers.authorization),
-          `request 3 "Authorization" header is for *us-west-1*: "${req.headers.authorization}"`);
+        t.equal(
+          req.url,
+          '/' + BUKKIT + '/' + KEY,
+          'request 3 path is /$BUKKIT/$KEY',
+        );
+        t.ok(
+          /^AWS4-HMAC-SHA256 Credential=.*\/us-west-1\/.*/.test(
+            req.headers.authorization,
+          ),
+          `request 3 "Authorization" header is for *us-west-1*: "${req.headers.authorization}"`,
+        );
         // This is where the #2134 bug fix is being tested. Before that
         // bug fix, this instrumented aws-sdk client request was including
         // agent-added headers in `SignedHeaders=...`.
-        t.equal(signedHeaders, 'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
-          'request 3 "Authorization" header has expected SignedHeaders');
-        t.ok(traceparentRe.test(req.headers.traceparent),
-          'request 3 traceparent has expected trace id: ' + req.headers.traceparent);
-        t.ok(tracestateRe.test(req.headers.tracestate), 'request 3 tracestate has expected es item');
+        t.equal(
+          signedHeaders,
+          'SignedHeaders=host;x-amz-content-sha256;x-amz-date,',
+          'request 3 "Authorization" header has expected SignedHeaders',
+        );
+        t.ok(
+          traceparentRe.test(req.headers.traceparent),
+          'request 3 traceparent has expected trace id: ' +
+            req.headers.traceparent,
+        );
+        t.ok(
+          tracestateRe.test(req.headers.tracestate),
+          'request 3 tracestate has expected es item',
+        );
         res.writeHead(200, {
-          'x-amz-id-2': 'jF2PKn8hyuCt3lMJ+DWJfUwDUDFK/sLLa4dlrtLKKCtE9tEuU4ioy2WMtRJlNzuqMthx6ZkwXMg=',
+          'x-amz-id-2':
+            'jF2PKn8hyuCt3lMJ+DWJfUwDUDFK/sLLa4dlrtLKKCtE9tEuU4ioy2WMtRJlNzuqMthx6ZkwXMg=',
           'x-amz-request-id': 'ZZ21R6SXK79FGQKT',
           date: 'Tue, 06 Jul 2021 20:01:44 GMT',
           'last-modified': 'Wed, 16 Jun 2021 20:49:08 GMT',
@@ -95,7 +143,7 @@ tape.test('AWS4 signature auth with retry', function (t) {
           'accept-ranges': 'bytes',
           'content-type': 'text/plain',
           server: 'AmazonS3',
-          'content-length': '15'
+          'content-length': '15',
         });
         res.end();
         break;
@@ -120,7 +168,7 @@ tape.test('AWS4 signature auth with retry', function (t) {
       // Use s3ForcePathStyle to avoid `$bucketName.localhost` attempted usage
       // by the client -- which fails on Windows.
       s3ForcePathStyle: true,
-      endpoint: `http://localhost:${mockS3Server.address().port}`
+      endpoint: `http://localhost:${mockS3Server.address().port}`,
     });
 
     // Make a HeadObject request on a bucket that lives in a different
@@ -129,9 +177,17 @@ tape.test('AWS4 signature auth with retry', function (t) {
       t.ifErr(err, 'headObject did not return an error');
       t.ok(data, 'headObject returned data');
       // Spot check this data matches data from response 3 headers above.
-      t.equal(data.ContentLength, 15, 'headObject data.ContentLength is as expected');
+      t.equal(
+        data.ContentLength,
+        15,
+        'headObject data.ContentLength is as expected',
+      );
 
-      t.equal(numRequests, 3, 'the mock S3 server got 3 requests from the AWS.S3 client');
+      t.equal(
+        numRequests,
+        3,
+        'the mock S3 server got 3 requests from the AWS.S3 client',
+      );
       tx.end();
       mockS3Server.close();
       t.end();

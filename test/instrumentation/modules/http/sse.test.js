@@ -13,7 +13,7 @@ const agent = require('../../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
 });
 
 var http = require('http');
@@ -76,7 +76,7 @@ test('SSE response with implicit headers', function (t) {
   request(server);
 });
 
-function assertNonSSEResponse (t, data) {
+function assertNonSSEResponse(t, data) {
   t.strictEqual(data.transactions.length, 1);
   t.strictEqual(data.spans.length, 1);
 
@@ -89,7 +89,7 @@ function assertNonSSEResponse (t, data) {
   t.strictEqual(span.type, 'bar');
 }
 
-function assertSSEResponse (t, data) {
+function assertSSEResponse(t, data) {
   t.strictEqual(data.transactions.length, 1);
   t.strictEqual(data.spans.length, 0);
 
@@ -99,19 +99,21 @@ function assertSSEResponse (t, data) {
   t.strictEqual(trans.context.request.method, 'GET');
 }
 
-function request (server) {
+function request(server) {
   server.listen(function () {
     var port = server.address().port;
-    http.request({ port }, function (res) {
-      res.on('end', function () {
-        server.close();
-      });
-      res.resume();
-    }).end();
+    http
+      .request({ port }, function (res) {
+        res.on('end', function () {
+          server.close();
+        });
+        res.resume();
+      })
+      .end();
   });
 }
 
-function resetAgent (expected, cb) {
+function resetAgent(expected, cb) {
   agent._apmClient = mockClient(expected, cb);
   agent._instrumentation.testReset();
 }

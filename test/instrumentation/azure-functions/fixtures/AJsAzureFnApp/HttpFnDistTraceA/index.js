@@ -9,7 +9,7 @@ const apm = require('../../../../../../'); // elastic-apm-node
 const http = require('http');
 const https = require('https');
 
-async function callHttpFnDistTrace (req, suffix) {
+async function callHttpFnDistTrace(req, suffix) {
   const u = new URL(req.url);
   u.pathname = u.pathname.replace(/.$/, suffix);
   const url = u.toString();
@@ -25,7 +25,7 @@ async function callHttpFnDistTrace (req, suffix) {
         resolve({
           statusCode: clientRes.statusCode,
           headers: clientRes.headers,
-          body
+          body,
         });
       });
       clientRes.on('error', reject);
@@ -44,6 +44,6 @@ module.exports = async function (context, req) {
 
   context.res = {
     status: 200,
-    body: 'HttpFnDistTraceA body'
+    body: 'HttpFnDistTraceA body',
   };
 };

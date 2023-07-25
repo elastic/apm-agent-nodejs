@@ -18,11 +18,11 @@ const flags = '01';
 
 const header = `${version}-${traceId}-${id}-${flags}`;
 
-function jsonify (object) {
+function jsonify(object) {
   return JSON.parse(JSON.stringify(object));
 }
 
-function isValid (t, traceParent) {
+function isValid(t, traceParent) {
   t.ok(traceParent instanceof TraceParent, 'has a trace parent object');
   t.ok(/^[\da-f]{2}$/.test(traceParent.version), 'has valid version');
   t.ok(/^[\da-f]{32}$/.test(traceParent.traceId), 'has valid traceId');
@@ -30,7 +30,7 @@ function isValid (t, traceParent) {
   t.ok(/^[\da-f]{2}$/.test(traceParent.flags), 'has valid flags');
 }
 
-test('fromString', t => {
+test('fromString', (t) => {
   const traceParent = TraceParent.fromString(header);
 
   isValid(t, traceParent);
@@ -42,32 +42,40 @@ test('fromString', t => {
   t.end();
 });
 
-test('toString', t => {
+test('toString', (t) => {
   const traceParent = TraceParent.fromString(header);
 
   isValid(t, traceParent);
-  t.equal(traceParent.toString(), header, 'trace parent stringifies to valid header');
+  t.equal(
+    traceParent.toString(),
+    header,
+    'trace parent stringifies to valid header',
+  );
 
   t.end();
 });
 
-test('toJSON', t => {
+test('toJSON', (t) => {
   const traceParent = TraceParent.fromString(header);
 
   isValid(t, traceParent);
-  t.deepEqual(jsonify(traceParent), {
-    version,
-    traceId,
-    id,
-    flags,
-    recorded: true
-  }, 'trace parent serializes fields to hex strings, in JSON form');
+  t.deepEqual(
+    jsonify(traceParent),
+    {
+      version,
+      traceId,
+      id,
+      flags,
+      recorded: true,
+    },
+    'trace parent serializes fields to hex strings, in JSON form',
+  );
 
   t.end();
 });
 
-test('startOrResume', t => {
-  t.test('resume from header', t => {
+test('startOrResume', (t) => {
+  t.test('resume from header', (t) => {
     const traceParent = TraceParent.startOrResume(header);
 
     isValid(t, traceParent);
@@ -79,9 +87,9 @@ test('startOrResume', t => {
     t.end();
   });
 
-  t.test('resume from TraceParent', t => {
+  t.test('resume from TraceParent', (t) => {
     const traceParent = TraceParent.startOrResume(
-      TraceParent.fromString(header)
+      TraceParent.fromString(header),
     );
 
     isValid(t, traceParent);
@@ -93,7 +101,7 @@ test('startOrResume', t => {
     t.end();
   });
 
-  t.test('resume from Span-like', t => {
+  t.test('resume from Span-like', (t) => {
     const trans = { _context: TraceParent.fromString(header) };
     const traceParent = TraceParent.startOrResume(trans);
 
@@ -106,9 +114,9 @@ test('startOrResume', t => {
     t.end();
   });
 
-  t.test('start sampled', t => {
+  t.test('start sampled', (t) => {
     const traceParent = TraceParent.startOrResume(null, {
-      transactionSampleRate: 1.0
+      transactionSampleRate: 1.0,
     });
 
     isValid(t, traceParent);
@@ -120,9 +128,9 @@ test('startOrResume', t => {
     t.end();
   });
 
-  t.test('start unsampled', t => {
+  t.test('start unsampled', (t) => {
     const traceParent = TraceParent.startOrResume(null, {
-      transactionSampleRate: 0.0
+      transactionSampleRate: 0.0,
     });
 
     isValid(t, traceParent);
@@ -135,8 +143,8 @@ test('startOrResume', t => {
   });
 });
 
-test('child', t => {
-  t.test('recorded', t => {
+test('child', (t) => {
+  t.test('recorded', (t) => {
     const header = `${version}-${traceId}-${id}-01`;
     const traceParent = TraceParent.fromString(header).child();
 
@@ -149,7 +157,7 @@ test('child', t => {
     t.end();
   });
 
-  t.test('not recorded', t => {
+  t.test('not recorded', (t) => {
     const header = `${version}-${traceId}-${id}-00`;
     const traceParent = TraceParent.fromString(header).child();
 
@@ -163,7 +171,7 @@ test('child', t => {
   });
 });
 
-test('ensureParentId', t => {
+test('ensureParentId', (t) => {
   const traceParent = TraceParent.fromString(header);
 
   isValid(t, traceParent);
@@ -175,7 +183,11 @@ test('ensureParentId', t => {
 
   const first = traceParent.ensureParentId();
   t.ok(first, 'returns parent id');
-  t.equal(traceParent.parentId, first, 'parent id of trace parent matches returned parent id');
+  t.equal(
+    traceParent.parentId,
+    first,
+    'parent id of trace parent matches returned parent id',
+  );
 
   const second = traceParent.ensureParentId();
   t.equal(first, second, 'future calls return the first parent id');
@@ -183,7 +195,7 @@ test('ensureParentId', t => {
   t.end();
 });
 
-test('setRecorded', t => {
+test('setRecorded', (t) => {
   const traceParent = TraceParent.fromString(header);
 
   t.ok(traceParent.recorded);

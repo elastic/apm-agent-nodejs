@@ -24,7 +24,7 @@ var semver = require('semver');
  *
  * @returns {string | boolean}
  */
-function isMongodbIncompat () {
+function isMongodbIncompat() {
   const nodeVer = process.version;
   const mongodbVer = require('mongodb/package.json').version;
   const msg = `mongodb@${mongodbVer} is incompatible with node@${nodeVer}`;

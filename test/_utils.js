@@ -18,7 +18,7 @@ const { MockAPMServer } = require('./_mock_apm_server');
 
 // Lookup the property "str" (given in dot-notation) in the object "obj".
 // If the property isn't found, then `undefined` is returned.
-function dottedLookup (obj, str) {
+function dottedLookup(obj, str) {
   var o = obj;
   var fields = str.split('.');
   for (var i = 0; i < fields.length; i++) {
@@ -37,7 +37,7 @@ function dottedLookup (obj, str) {
 //
 // The `key` maybe a nested field given in dot-notation, for example:
 // 'context.db.statement'.
-function findObjInArray (arr, key, val) {
+function findObjInArray(arr, key, val) {
   let result = null;
   arr.some(function (elm) {
     const actualVal = dottedLookup(elm, key);
@@ -58,7 +58,7 @@ function findObjInArray (arr, key, val) {
 }
 
 // Same as `findObjInArray` but return all matches instead of just the first.
-function findObjsInArray (arr, key, val) {
+function findObjsInArray(arr, key, val) {
   return arr.filter(function (elm) {
     const actualVal = dottedLookup(elm, key);
     if (val === undefined) {
@@ -80,7 +80,7 @@ function findObjsInArray (arr, key, val) {
 // Here "safely" means avoiding `require("$packageName/package.json")` because
 // that can fail if the package uses an old form of "exports"
 // (e.g. https://github.com/elastic/apm-agent-nodejs/issues/2350).
-function safeGetPackageVersion (packageName) {
+function safeGetPackageVersion(packageName) {
   let file;
   try {
     file = require.resolve(packageName);
@@ -96,14 +96,16 @@ function safeGetPackageVersion (packageName) {
   }
 
   try {
-    return JSON.parse(fs.readFileSync(details.basedir + '/package.json')).version;
+    return JSON.parse(fs.readFileSync(details.basedir + '/package.json'))
+      .version;
   } catch (_err) {
     return null;
   }
 }
 
 // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
-const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g; /* eslint-disable-line no-control-regex */
+const ANSI_RE =
+  /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g; /* eslint-disable-line no-control-regex */
 
 /**
  * Format the given data for passing to `t.comment()`.
@@ -116,10 +118,14 @@ const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZ
  *   can be used to disable ANSI escapes in `next dev`'s usage of chalk,
  *   but not in its coloured exception output.
  */
-function formatForTComment (data) {
-  return data.toString('utf8')
-    .replace(ANSI_RE, '')
-    .trimRight().replace(/\r?\n/g, '\n|') + '\n';
+function formatForTComment(data) {
+  return (
+    data
+      .toString('utf8')
+      .replace(ANSI_RE, '')
+      .trimRight()
+      .replace(/\r?\n/g, '\n|') + '\n'
+  );
 }
 
 /**
@@ -130,9 +136,9 @@ function formatForTComment (data) {
  *    `MockAPMServer().events`
  * @returns {Array}
  */
-function sortApmEvents (events) {
+function sortApmEvents(events) {
   return events
-    .filter(e => !e.metadata)
+    .filter((e) => !e.metadata)
     .sort((a, b) => {
       const aTimestamp = (a.transaction || a.span || a.error || {}).timestamp;
       const bTimestamp = (b.transaction || b.span || b.error || {}).timestamp;
@@ -140,7 +146,7 @@ function sortApmEvents (events) {
     });
 }
 
-function quoteArg (a) {
+function quoteArg(a) {
   if (a.includes("'")) {
     return "'" + a.replace("'", "'\\''") + "'";
   } else if (a.includes('"') || a.includes('$')) {
@@ -152,16 +158,16 @@ function quoteArg (a) {
   }
 }
 
-function quoteArgv (argv) {
+function quoteArgv(argv) {
   return argv.map(quoteArg).join(' ');
 }
 
-function quoteEnv (env) {
+function quoteEnv(env) {
   if (!env) {
     return '';
   }
   return Object.keys(env)
-    .map(k => {
+    .map((k) => {
       return `${k}=${quoteArg(env[k])}`;
     })
     .join(' ');
@@ -243,28 +249,29 @@ function quoteEnv (env) {
  * @param {import('@types/tape').TestCase} suite
  * @param {Array<TestFixture>} testFixtures
  */
-function runTestFixtures (suite, testFixtures) {
+function runTestFixtures(suite, testFixtures) {
   const convenienceConfig = {
     // Silence some features of the agent that can make testing
     // noisier and less convenient.
     ELASTIC_APM_CENTRAL_CONFIG: 'false',
     ELASTIC_APM_CLOUD_PROVIDER: 'none',
     ELASTIC_APM_METRICS_INTERVAL: '0s',
-    ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true'
+    ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true',
   };
-  testFixtures.forEach(tf => {
+  testFixtures.forEach((tf) => {
     const testName = tf.name ? `${tf.name} (${tf.script})` : tf.script;
     const testOpts = Object.assign({}, tf.testOpts);
-    suite.test(testName, testOpts, t => {
+    suite.test(testName, testOpts, (t) => {
       // Handle "tf.versionRanges"-based skips here, because `tape` doesn't
       // print any message for `testOpts.skip`.
       if (tf.versionRanges) {
         for (const name in tf.versionRanges) {
-          const ver = name === 'node'
-            ? process.version
-            : safeGetPackageVersion(name);
+          const ver =
+            name === 'node' ? process.version : safeGetPackageVersion(name);
           if (!semver.satisfies(ver, tf.versionRanges[name])) {
-            t.comment(`SKIP ${name} ${ver} is not supported by this fixture (requires: ${tf.versionRanges[name]})`);
+            t.comment(
+              `SKIP ${name} ${ver} is not supported by this fixture (requires: ${tf.versionRanges[name]})`,
+            );
             t.end();
             return;
           }
@@ -273,10 +280,16 @@ function runTestFixtures (suite, testFixtures) {
 
       const apmServer = new MockAPMServer();
       apmServer.start(function (serverUrl) {
-        const argv = (tf.nodeArgv || []).concat([tf.script]).concat(tf.scriptArgv || []);
+        const argv = (tf.nodeArgv || [])
+          .concat([tf.script])
+          .concat(tf.scriptArgv || []);
         const cwd = tf.cwd || process.cwd();
         if (tf.verbose) {
-          t.comment(`running: (cd "${cwd}" && ${quoteEnv(tf.env)} node ${quoteArgv(argv)})`);
+          t.comment(
+            `running: (cd "${cwd}" && ${quoteEnv(tf.env)} node ${quoteArgv(
+              argv,
+            )})`,
+          );
         }
         const start = Date.now();
         execFile(
@@ -290,13 +303,13 @@ function runTestFixtures (suite, testFixtures) {
               process.env,
               tf.noConvenienceConfig ? {} : convenienceConfig,
               {
-                ELASTIC_APM_SERVER_URL: serverUrl
+                ELASTIC_APM_SERVER_URL: serverUrl,
               },
-              tf.env
+              tf.env,
             ),
-            maxBuffer: tf.maxBuffer
+            maxBuffer: tf.maxBuffer,
           },
-          async function done (err, stdout, stderr) {
+          async function done(err, stdout, stderr) {
             if (tf.verbose) {
               t.comment(`elapsed: ${(Date.now() - start) / 1000}s`);
               if (err) {
@@ -333,7 +346,7 @@ function runTestFixtures (suite, testFixtures) {
             }
             apmServer.close();
             t.end();
-          }
+          },
         );
       });
     });
@@ -347,5 +360,5 @@ module.exports = {
   formatForTComment,
   safeGetPackageVersion,
   sortApmEvents,
-  runTestFixtures
+  runTestFixtures,
 };

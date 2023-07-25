@@ -17,7 +17,7 @@ var agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 var mysql = require('mysql');
@@ -36,7 +36,7 @@ var factories = [
   [createPool, 'pool'],
   [createPoolAndGetConnection, 'pool > connection'],
   [createPoolClusterAndGetConnection, 'poolCluster > connection'],
-  [createPoolClusterAndGetConnectionViaOf, 'poolCluster > of > connection']
+  [createPoolClusterAndGetConnectionViaOf, 'poolCluster > of > connection'],
 ];
 
 factories.forEach(function (f) {
@@ -45,11 +45,13 @@ factories.forEach(function (f) {
 
   // Prior to mysql v2.4 pool.query would not return a Query object.
   // See: https://github.com/mysqljs/mysql/pull/830
-  var skipStreamTest = type === 'pool' && semver.satisfies(mysqlVersion, '<2.4.0');
+  var skipStreamTest =
+    type === 'pool' && semver.satisfies(mysqlVersion, '<2.4.0');
 
   // Prior to mysql v2.2 pool.query required a callback.
   // See: https://github.com/mysqljs/mysql/pull/585
-  var skipNoCallbackTest = type === 'pool' && semver.satisfies(mysqlVersion, '<2.2.0');
+  var skipNoCallbackTest =
+    type === 'pool' && semver.satisfies(mysqlVersion, '<2.2.0');
 
   test('mysql.' + factory.name, function (t) {
     t.on('end', teardown);
@@ -63,7 +65,11 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query(sql, basicQueryCallback(t));
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
         });
       });
 
@@ -76,7 +82,11 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query(sql, [1], basicQueryCallback(t));
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
         });
       });
 
@@ -89,7 +99,11 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query({ sql }, basicQueryCallback(t));
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
         });
       });
 
@@ -102,7 +116,11 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query({ sql }, [1], basicQueryCallback(t));
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
         });
       });
 
@@ -116,7 +134,11 @@ factories.forEach(function (f) {
           agent.startTransaction('foo');
           var query = mysql.createQuery(sql, basicQueryCallback(t));
           queryable.query(query);
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
         });
       });
 
@@ -130,7 +152,11 @@ factories.forEach(function (f) {
           agent.startTransaction('foo');
           var query = mysql.createQuery(sql, [1], basicQueryCallback(t));
           queryable.query(query);
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
         });
       });
 
@@ -145,7 +171,11 @@ factories.forEach(function (f) {
         factory(function () {
           var trans = agent.startTransaction('foo');
           queryable.query(sql);
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
           setTimeout(function () {
             trans.end();
           }, 250);
@@ -165,7 +195,11 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query(sql);
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -179,7 +213,11 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query(sql, [1]);
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -193,7 +231,11 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query({ sql });
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -207,7 +249,11 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query({ sql }, [1]);
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -222,7 +268,11 @@ factories.forEach(function (f) {
           agent.startTransaction('foo');
           var query = mysql.createQuery(sql);
           var stream = queryable.query(query);
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -237,7 +287,11 @@ factories.forEach(function (f) {
           agent.startTransaction('foo');
           var query = mysql.createQuery(sql, [1]);
           var stream = queryable.query(query);
-          t.equal(agent.currentSpan, null, 'mysql span should not bleed into calling code');
+          t.equal(
+            agent.currentSpan,
+            null,
+            'mysql span should not bleed into calling code',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -255,7 +309,11 @@ factories.forEach(function (f) {
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql);
-            t.equal(span.parent_id, trans.id, 'each mysql span is a child of the transaction');
+            t.equal(
+              span.parent_id,
+              trans.id,
+              'each mysql span is a child of the transaction',
+            );
           });
 
           t.end();
@@ -283,7 +341,7 @@ factories.forEach(function (f) {
             if (++n === 3) done();
           });
 
-          function done () {
+          function done() {
             trans.end();
           }
         });
@@ -300,7 +358,11 @@ factories.forEach(function (f) {
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql);
-            t.equal(span.parent_id, trans.id, 'each mysql span is a child of the transaction');
+            t.equal(
+              span.parent_id,
+              trans.id,
+              'each mysql span is a child of the transaction',
+            );
           });
 
           t.end();
@@ -337,7 +399,7 @@ factories.forEach(function (f) {
             });
           });
 
-          function done () {
+          function done() {
             trans.end();
           }
         });
@@ -348,9 +410,11 @@ factories.forEach(function (f) {
       resetAgent(6, function (data) {
         t.strictEqual(data.transactions.length, 3);
         t.strictEqual(data.spans.length, 3);
-        var names = data.transactions.map(function (trans) {
-          return trans.name;
-        }).sort();
+        var names = data.transactions
+          .map(function (trans) {
+            return trans.name;
+          })
+          .sort();
         t.deepEqual(names, ['bar', 'baz', 'foo']);
 
         data.transactions.forEach(function (trans) {
@@ -422,34 +486,50 @@ factories.forEach(function (f) {
   });
 });
 
-function basicQueryCallback (t) {
+function basicQueryCallback(t) {
   return function (err, rows, fields) {
-    t.equal(agent.currentSpan, null, 'mysql span should not bleed into user callback');
+    t.equal(
+      agent.currentSpan,
+      null,
+      'mysql span should not bleed into user callback',
+    );
     t.error(err);
     t.strictEqual(rows[0].solution, 2);
     agent.endTransaction();
   };
 }
 
-function basicQueryStream (stream, t) {
+function basicQueryStream(stream, t) {
   var results = 0;
   stream.on('error', function (err) {
-    t.equal(agent.currentSpan, null, 'mysql span should not be active in user code');
+    t.equal(
+      agent.currentSpan,
+      null,
+      'mysql span should not be active in user code',
+    );
     t.error(err);
   });
   stream.on('result', function (row) {
-    t.equal(agent.currentSpan, null, 'mysql span should not be active in user code');
+    t.equal(
+      agent.currentSpan,
+      null,
+      'mysql span should not be active in user code',
+    );
     results++;
     t.strictEqual(row.solution, 2);
   });
   stream.on('end', function () {
-    t.equal(agent.currentSpan, null, 'mysql span should not be active in user code');
+    t.equal(
+      agent.currentSpan,
+      null,
+      'mysql span should not be active in user code',
+    );
     t.strictEqual(results, 1);
     agent.endTransaction();
   });
 }
 
-function assertBasicQuery (t, sql, data) {
+function assertBasicQuery(t, sql, data) {
   t.strictEqual(data.transactions.length, 1);
   t.strictEqual(data.spans.length, 1);
 
@@ -460,31 +540,47 @@ function assertBasicQuery (t, sql, data) {
   assertSpan(t, span, sql);
 }
 
-function assertSpan (t, span, sql) {
+function assertSpan(t, span, sql) {
   t.strictEqual(span.name, 'SELECT', 'span.name');
   t.strictEqual(span.type, 'db', 'span.type');
   t.strictEqual(span.subtype, 'mysql', 'span.subtype');
   t.strictEqual(span.action, 'query', 'span.action');
-  t.deepEqual(span.context.db, {
-    statement: sql,
-    type: 'sql',
-    user: connectionOptions.user,
-    instance: connectionOptions.database
-  }, 'span.context.db');
-  t.deepEqual(span.context.service.target, {
-    type: 'mysql',
-    name: connectionOptions.database
-  }, 'span.context.service.target');
-  t.deepEqual(span.context.destination, {
-    address: connectionOptions.host,
-    port: 3306,
-    service: { type: '', name: '', resource: `mysql/${connectionOptions.database}` }
-  }, 'span.context.destination');
+  t.deepEqual(
+    span.context.db,
+    {
+      statement: sql,
+      type: 'sql',
+      user: connectionOptions.user,
+      instance: connectionOptions.database,
+    },
+    'span.context.db',
+  );
+  t.deepEqual(
+    span.context.service.target,
+    {
+      type: 'mysql',
+      name: connectionOptions.database,
+    },
+    'span.context.service.target',
+  );
+  t.deepEqual(
+    span.context.destination,
+    {
+      address: connectionOptions.host,
+      port: 3306,
+      service: {
+        type: '',
+        name: '',
+        resource: `mysql/${connectionOptions.database}`,
+      },
+    },
+    'span.context.destination',
+  );
 }
 
-function createConnection (cb) {
+function createConnection(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       if (queryable) {
         queryable.end();
         queryable = undefined;
@@ -498,9 +594,9 @@ function createConnection (cb) {
   });
 }
 
-function createPool (cb) {
+function createPool(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       if (pool) {
         pool.end();
         pool = undefined;
@@ -514,9 +610,9 @@ function createPool (cb) {
   });
 }
 
-function createPoolAndGetConnection (cb) {
+function createPoolAndGetConnection(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       if (pool) {
         pool.end();
         pool = undefined;
@@ -532,9 +628,9 @@ function createPoolAndGetConnection (cb) {
   });
 }
 
-function createPoolClusterAndGetConnection (cb) {
+function createPoolClusterAndGetConnection(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       if (cluster) {
         cluster.end();
         cluster = undefined;
@@ -551,9 +647,9 @@ function createPoolClusterAndGetConnection (cb) {
   });
 }
 
-function createPoolClusterAndGetConnectionViaOf (cb) {
+function createPoolClusterAndGetConnectionViaOf(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       cluster.end();
     };
 
@@ -567,7 +663,7 @@ function createPoolClusterAndGetConnectionViaOf (cb) {
   });
 }
 
-function setup (cb) {
+function setup(cb) {
   teardown(); // just in case it didn't happen at the end of the previous test
   utils.reset(cb);
 }
@@ -578,7 +674,7 @@ var teardown = function () {
   _teardown();
 };
 
-function resetAgent (expected, cb) {
+function resetAgent(expected, cb) {
   if (typeof expected === 'function') return resetAgent(2, expected);
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock

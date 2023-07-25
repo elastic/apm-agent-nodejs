@@ -18,5 +18,5 @@
 const NODE_VER_RANGE_IITM = '^12.20.0 || ^14.13.1 || ^16.0.0 || ^18.1.0 <20';
 
 module.exports = {
-  NODE_VER_RANGE_IITM
+  NODE_VER_RANGE_IITM,
 };

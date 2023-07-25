@@ -22,7 +22,7 @@ assert(prefixedMod.get === get);
 assert(prefixedMod.default.get === get);
 
 apm.startTransaction('manual');
-get('https://www.google.com/', res => {
+get('https://www.google.com/', (res) => {
   console.log('client response: %s %s', res.statusCode, res.headers);
   res.resume();
   res.on('end', () => {

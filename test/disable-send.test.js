@@ -30,20 +30,28 @@ tape.test('disableSend', function (suite) {
         logLevel: 'off',
         captureExceptions: false,
         metricsInterval: `${METRICS_INTERVAL_S}s`, // Try to force getting metrics soon.
-        transport: function customTransport (conf, agent) {
-          throw new Error('custom transport should not get called with disableSend=true');
+        transport: function customTransport(conf, agent) {
+          throw new Error(
+            'custom transport should not get called with disableSend=true',
+          );
         },
-        disableSend: true
+        disableSend: true,
       });
       t.comment('apm started');
       t.end();
     });
   });
 
-  suite.test('transport should be NoopApmClient if disableSend=true', function (t) {
-    t.ok(apm._apmClient instanceof NoopApmClient, 'agent transport is NoopApmClient');
-    t.end();
-  });
+  suite.test(
+    'transport should be NoopApmClient if disableSend=true',
+    function (t) {
+      t.ok(
+        apm._apmClient instanceof NoopApmClient,
+        'agent transport is NoopApmClient',
+      );
+      t.end();
+    },
+  );
 
   suite.test('transactions and spans are not sent to APM server', function (t) {
     const tx = apm.startTransaction('mytx');
@@ -51,7 +59,7 @@ tape.test('disableSend', function (suite) {
     setImmediate(function () {
       s.end();
       tx.end();
-      apm.flush(function onFlushed () {
+      apm.flush(function onFlushed() {
         t.ok(tx.id, 'transaction has an id: ' + tx.id);
         t.ok(s.id, 'span has an id: ' + s.id);
         t.equal(server.events.length, 0, 'no events sent to APM server intake');
@@ -62,16 +70,22 @@ tape.test('disableSend', function (suite) {
 
   suite.test('errors are not sent to APM server', function (t) {
     apm.captureError(new Error('myboom'), function (_, errId) {
-      t.ok(errId, 'apm.captureError still calls back with an error id: ' + errId);
+      t.ok(
+        errId,
+        'apm.captureError still calls back with an error id: ' + errId,
+      );
       t.equal(server.events.length, 0, 'no events sent to APM server intake');
       t.end();
     });
   });
 
   suite.test('metrics are not sent to APM server', function (t) {
-    setTimeout(function afterMetricsInterval () {
-      t.equal(server.events.length, 0,
-        'after metricsInterval, no events sent to APM server intake');
+    setTimeout(function afterMetricsInterval() {
+      t.equal(
+        server.events.length,
+        0,
+        'after metricsInterval, no events sent to APM server intake',
+      );
       t.end();
     }, METRICS_INTERVAL_S * 1000);
   });

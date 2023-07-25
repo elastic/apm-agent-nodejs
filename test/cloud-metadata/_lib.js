@@ -16,7 +16,7 @@ const TIMEOUT_SLOWSERVER_MS = 5000;
  *
  * https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html
  */
-function addAwsRoute (app, fixture) {
+function addAwsRoute(app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
     res.send(fixture.response);
   });
@@ -24,7 +24,7 @@ function addAwsRoute (app, fixture) {
   return app;
 }
 
-function addSlowAwsRoute (app, fixture) {
+function addSlowAwsRoute(app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
     setTimeout(function () {
       res.send(fixture.response);
@@ -41,7 +41,7 @@ function addSlowAwsRoute (app, fixture) {
  *
  * https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html
  */
-function addAwsIMDSv2Route (app, fixture) {
+function addAwsIMDSv2Route(app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
     const token = req.headers['x-aws-ec2-metadata-token'];
     if (!token) {
@@ -57,7 +57,7 @@ function addAwsIMDSv2Route (app, fixture) {
   return app;
 }
 
-function addSlowAwsIMDSv2Route (app, fixture) {
+function addSlowAwsIMDSv2Route(app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
     const token = req.headers['x-aws-ec2-metadata-token'];
     if (!token) {
@@ -85,7 +85,7 @@ function addSlowAwsIMDSv2Route (app, fixture) {
  *
  * https://cloud.google.com/compute/docs/storing-retrieving-metadata#querying
  */
-function addGcpRoute (app, fixture) {
+function addGcpRoute(app, fixture) {
   app.get('/computeMetadata/v1', (req, res) => {
     if (!req.query.recursive) {
       throw new Error('recursive GET parameter required');
@@ -101,7 +101,7 @@ function addGcpRoute (app, fixture) {
   return app;
 }
 
-function addSlowGcpRoute (app, fixture) {
+function addSlowGcpRoute(app, fixture) {
   app.get('/computeMetadata/v1', (req, res) => {
     if (!req.query.recursive) {
       throw new Error('recursive GET parameter required');
@@ -126,7 +126,7 @@ function addSlowGcpRoute (app, fixture) {
  *
  * https://docs.microsoft.com/en-us/azure/virtual-machines/windows/instance-metadata-service
  */
-function addAzureRoute (app, fixture) {
+function addAzureRoute(app, fixture) {
   app.get('/metadata/instance', (req, res) => {
     if (!req.query['api-version']) {
       throw new Error('api-version GET parameter required');
@@ -142,7 +142,7 @@ function addAzureRoute (app, fixture) {
   return app;
 }
 
-function addSlowAzureRoute (app, fixture) {
+function addSlowAzureRoute(app, fixture) {
   app.get('/metadata/instance', (req, res) => {
     if (!req.query['api-version']) {
       throw new Error('api-version GET parameter required');
@@ -159,7 +159,7 @@ function addSlowAzureRoute (app, fixture) {
   return app;
 }
 
-function addSlowRoutesToExpressApp (app, provider, fixture) {
+function addSlowRoutesToExpressApp(app, provider, fixture) {
   switch (provider) {
     case 'aws':
       return addSlowAwsRoute(app, fixture);
@@ -175,7 +175,7 @@ function addSlowRoutesToExpressApp (app, provider, fixture) {
   }
 }
 
-function addRoutesToExpressApp (app, provider, fixture) {
+function addRoutesToExpressApp(app, provider, fixture) {
   switch (provider) {
     case 'aws':
       return addAwsRoute(app, fixture);
@@ -202,7 +202,7 @@ function addRoutesToExpressApp (app, provider, fixture) {
  * @param {string} provider name of cloud meta data provider
  * @param {string} fixtureName name of to response fixtures
  */
-function createTestServer (provider, fixtureName) {
+function createTestServer(provider, fixtureName) {
   const fixture = loadFixtureData(provider, fixtureName);
   if (!fixture) {
     throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`);
@@ -220,7 +220,7 @@ function createTestServer (provider, fixtureName) {
  * @param {string} provider name of cloud meta data provider
  * @param {string} fixtureName name of to response fixtures
  */
-function createSlowTestServer (provider, fixtureName) {
+function createSlowTestServer(provider, fixtureName) {
   const fixture = loadFixtureData(provider, fixtureName);
   if (!fixture) {
     throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`);
@@ -229,16 +229,18 @@ function createSlowTestServer (provider, fixtureName) {
   return addSlowRoutesToExpressApp(app, provider, fixture);
 }
 
-function loadFixtureData (provider, fixtureName) {
+function loadFixtureData(provider, fixtureName) {
   const providerFixtures = fixtures[provider] ? fixtures[provider] : [];
-  const fixture = providerFixtures.filter(function (item) {
-    return item.name === fixtureName;
-  }).pop();
+  const fixture = providerFixtures
+    .filter(function (item) {
+      return item.name === fixtureName;
+    })
+    .pop();
   return fixture;
 }
 
 module.exports = {
   createTestServer,
   createSlowTestServer,
-  loadFixtureData
+  loadFixtureData,
 };

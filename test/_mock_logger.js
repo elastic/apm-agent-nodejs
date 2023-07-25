@@ -23,7 +23,7 @@ const { levels, pino } = require('pino');
  * @public
  */
 class MockLogger {
-  constructor () {
+  constructor() {
     /**
      * someProperty is an example property that is set to `true`
      * @type {Array<LogEntry>}
@@ -37,7 +37,7 @@ class MockLogger {
    * @param {String} type
    * @param {Array<any>} loggerArgs
    */
-  _log (type, loggerArgs) {
+  _log(type, loggerArgs) {
     const args = [].slice.call(loggerArgs);
     const hasMergingObject = typeof args[0] === 'object';
     const mergingObject = hasMergingObject ? args[0] : null;
@@ -48,16 +48,28 @@ class MockLogger {
       type,
       mergingObject,
       message,
-      interpolation
+      interpolation,
     });
   }
 
-  fatal () { this._log('fatal', arguments); }
-  error () { this._log('error', arguments); }
-  warn () { this._log('warn', arguments); }
-  info () { this._log('info', arguments); }
-  debug () { this._log('debug', arguments); }
-  trace () { this._log('trace', arguments); }
+  fatal() {
+    this._log('fatal', arguments);
+  }
+  error() {
+    this._log('error', arguments);
+  }
+  warn() {
+    this._log('warn', arguments);
+  }
+  info() {
+    this._log('info', arguments);
+  }
+  debug() {
+    this._log('debug', arguments);
+  }
+  trace() {
+    this._log('trace', arguments);
+  }
 }
 
 /**
@@ -65,7 +77,7 @@ class MockLogger {
  *
  * @param {Array<Object>} calls Array where to put the logs to inspect later
  */
-function createMockLogger (calls) {
+function createMockLogger(calls) {
   if (!Array.isArray(calls)) {
     throw new Error('Calls parameter must be an array to create a mock logger');
   }
@@ -82,21 +94,23 @@ function createMockLogger (calls) {
         const logObj = JSON.parse(logMsg);
         const logMessage = logObj.msg;
         const levelValue = logObj.level;
-        const levelName = Object.keys(levels.values).find(key => levels.values[key] === levelValue);
+        const levelName = Object.keys(levels.values).find(
+          (key) => levels.values[key] === levelValue,
+        );
 
         delete logObj.msg;
         delete logObj.level;
         calls.push({
           type: levelName,
           mergingObject: logObj,
-          message: logMessage
+          message: logMessage,
         });
-      }
-    }
+      },
+    },
   );
 }
 
 module.exports = {
   createMockLogger,
-  MockLogger
+  MockLogger,
 };

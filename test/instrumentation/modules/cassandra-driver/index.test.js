@@ -17,7 +17,7 @@ const agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 const semver = require('semver');
@@ -41,11 +41,14 @@ test('connect', function (t) {
     t.end();
   });
 
-  makeClient(t).then(client => {
+  makeClient(t).then((client) => {
     agent.startTransaction('foo');
 
     client.connect(assertCallback(t));
-    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command');
+    t.ok(
+      agent.currentSpan === null,
+      'no currentSpan in sync code after cassandra-driver client command',
+    );
   });
 });
 
@@ -59,14 +62,17 @@ if (hasPromises) {
       t.end();
     });
 
-    makeClient(t).then(client => {
+    makeClient(t).then((client) => {
       agent.startTransaction('foo');
 
       assertPromise(t, client.execute(sql), function (rows) {
         t.strictEqual(rows.length, 1, 'number of rows');
         t.strictEqual(rows[0].key, 'local', 'result key');
       });
-      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command');
+      t.ok(
+        agent.currentSpan === null,
+        'no currentSpan in sync code after cassandra-driver client command',
+      );
     });
   });
 }
@@ -80,14 +86,20 @@ test('execute - callback', function (t) {
     t.end();
   });
 
-  makeClient(t).then(client => {
+  makeClient(t).then((client) => {
     agent.startTransaction('foo');
 
-    client.execute(sql, assertCallback(t, function (rows) {
-      t.strictEqual(rows.length, 1, 'number of rows');
-      t.strictEqual(rows[0].key, 'local', 'result key');
-    }));
-    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command');
+    client.execute(
+      sql,
+      assertCallback(t, function (rows) {
+        t.strictEqual(rows.length, 1, 'number of rows');
+        t.strictEqual(rows[0].key, 'local', 'result key');
+      }),
+    );
+    t.ok(
+      agent.currentSpan === null,
+      'no currentSpan in sync code after cassandra-driver client command',
+    );
   });
 });
 
@@ -113,14 +125,17 @@ if (hasPromises) {
 
     const queries = [
       { query: sql, params: ['foo'] },
-      { query: sql, params: ['bar'] }
+      { query: sql, params: ['bar'] },
     ];
 
-    makeClient(t, { keyspace, table }).then(client => {
+    makeClient(t, { keyspace, table }).then((client) => {
       agent.startTransaction('foo');
 
       assertPromise(t, client.batch(queries));
-      t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command');
+      t.ok(
+        agent.currentSpan === null,
+        'no currentSpan in sync code after cassandra-driver client command',
+      );
     });
   });
 }
@@ -146,16 +161,22 @@ test('batch - callback', function (t) {
 
   const queries = [
     { query: sql, params: ['foo'] },
-    { query: sql, params: ['bar'] }
+    { query: sql, params: ['bar'] },
   ];
 
-  makeClient(t, { keyspace, table }).then(client => {
+  makeClient(t, { keyspace, table }).then((client) => {
     agent.startTransaction('foo');
 
-    client.batch(queries, assertCallback(t, function (err) {
-      t.error(err, 'no error');
-    }));
-    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command');
+    client.batch(
+      queries,
+      assertCallback(t, function (err) {
+        t.error(err, 'no error');
+      }),
+    );
+    t.ok(
+      agent.currentSpan === null,
+      'no currentSpan in sync code after cassandra-driver client command',
+    );
   });
 });
 
@@ -168,16 +189,24 @@ test('eachRow', function (t) {
     t.end();
   });
 
-  makeClient(t).then(client => {
+  makeClient(t).then((client) => {
     agent.startTransaction('foo');
 
-    client.eachRow(sql, [], (n, row) => {
-      t.strictEqual(row.key, 'local', 'row key');
-    }, (err) => {
-      t.error(err, 'no error');
-      agent.endTransaction();
-    });
-    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command');
+    client.eachRow(
+      sql,
+      [],
+      (n, row) => {
+        t.strictEqual(row.key, 'local', 'row key');
+      },
+      (err) => {
+        t.error(err, 'no error');
+        agent.endTransaction();
+      },
+    );
+    t.ok(
+      agent.currentSpan === null,
+      'no currentSpan in sync code after cassandra-driver client command',
+    );
   });
 });
 
@@ -190,11 +219,14 @@ test('stream', function (t) {
     t.end();
   });
 
-  makeClient(t).then(client => {
+  makeClient(t).then((client) => {
     agent.startTransaction('foo');
 
     const stream = client.stream(sql, []);
-    t.ok(agent.currentSpan === null, 'no currentSpan in sync code after cassandra-driver client command');
+    t.ok(
+      agent.currentSpan === null,
+      'no currentSpan in sync code after cassandra-driver client command',
+    );
     let rows = 0;
 
     stream.on('readable', function () {
@@ -216,7 +248,7 @@ test('stream', function (t) {
   });
 });
 
-function assertCallback (t, handle) {
+function assertCallback(t, handle) {
   return function (err, result) {
     t.error(err, 'no error');
     if (handle) handle(result.rows);
@@ -224,12 +256,12 @@ function assertCallback (t, handle) {
   };
 }
 
-function assertPromise (t, promise, handle) {
+function assertPromise(t, promise, handle) {
   const cb = assertCallback(t, handle);
   return promise.then(cb.bind(null, null), cb);
 }
 
-function assertBasicQuery (t, sql, summary, data) {
+function assertBasicQuery(t, sql, summary, data) {
   t.strictEqual(data.transactions.length, 1, 'transaction count');
   t.strictEqual(data.spans.length, 2, 'span count');
 
@@ -240,56 +272,98 @@ function assertBasicQuery (t, sql, summary, data) {
   assertSpan(t, data.spans[1], sql, summary);
 }
 
-function assertConnectSpan (t, span, keyspace) {
+function assertConnectSpan(t, span, keyspace) {
   t.strictEqual(span.name, 'Cassandra: Connect', 'span name');
   t.strictEqual(span.type, 'db', 'span type');
   t.strictEqual(span.subtype, 'cassandra', 'span subtype');
   t.strictEqual(span.action, 'connect', 'span action');
   if (keyspace) {
-    t.deepEqual(span.context.db, { type: 'cassandra', instance: keyspace }, 'span.context.db');
-    t.deepEqual(span.context.service.target, { type: 'cassandra', name: keyspace }, 'span.context.service.target');
-    t.deepEqual(span.context.destination, {
-      service: { type: '', name: '', resource: `cassandra/${keyspace}` }
-    }, 'span.context.destination');
+    t.deepEqual(
+      span.context.db,
+      { type: 'cassandra', instance: keyspace },
+      'span.context.db',
+    );
+    t.deepEqual(
+      span.context.service.target,
+      { type: 'cassandra', name: keyspace },
+      'span.context.service.target',
+    );
+    t.deepEqual(
+      span.context.destination,
+      {
+        service: { type: '', name: '', resource: `cassandra/${keyspace}` },
+      },
+      'span.context.destination',
+    );
   } else {
     t.deepEqual(span.context.db, { type: 'cassandra' }, 'span.context.db');
-    t.deepEqual(span.context.service.target, { type: 'cassandra' }, 'span.context.service.target');
-    t.deepEqual(span.context.destination, {
-      service: { type: '', name: '', resource: 'cassandra' }
-    }, 'span.context.destination');
+    t.deepEqual(
+      span.context.service.target,
+      { type: 'cassandra' },
+      'span.context.service.target',
+    );
+    t.deepEqual(
+      span.context.destination,
+      {
+        service: { type: '', name: '', resource: 'cassandra' },
+      },
+      'span.context.destination',
+    );
   }
 }
 
-function assertSpan (t, span, sql, summary, keyspace) {
+function assertSpan(t, span, sql, summary, keyspace) {
   t.strictEqual(span.name, summary, 'span name');
   t.strictEqual(span.type, 'db', 'span type');
   t.strictEqual(span.subtype, 'cassandra', 'span subtype');
   t.strictEqual(span.action, 'query', 'span action');
   if (keyspace) {
-    t.deepEqual(span.context.db, {
-      type: 'cassandra',
-      statement: sql,
-      instance: keyspace
-    }, 'span.context.db');
-    t.deepEqual(span.context.service.target,
+    t.deepEqual(
+      span.context.db,
+      {
+        type: 'cassandra',
+        statement: sql,
+        instance: keyspace,
+      },
+      'span.context.db',
+    );
+    t.deepEqual(
+      span.context.service.target,
       { type: 'cassandra', name: keyspace },
-      'span.context.service.target');
-    t.deepEqual(span.context.destination, {
-      service: { type: '', name: '', resource: `cassandra/${keyspace}` }
-    }, 'span.context.destination');
+      'span.context.service.target',
+    );
+    t.deepEqual(
+      span.context.destination,
+      {
+        service: { type: '', name: '', resource: `cassandra/${keyspace}` },
+      },
+      'span.context.destination',
+    );
   } else {
-    t.deepEqual(span.context.db, {
-      type: 'cassandra',
-      statement: sql
-    }, 'span.context.db');
-    t.deepEqual(span.context.service.target, { type: 'cassandra' }, 'span.context.service.target');
-    t.deepEqual(span.context.destination, {
-      service: { type: '', name: '', resource: 'cassandra' }
-    }, 'span.context.destination');
+    t.deepEqual(
+      span.context.db,
+      {
+        type: 'cassandra',
+        statement: sql,
+      },
+      'span.context.db',
+    );
+    t.deepEqual(
+      span.context.service.target,
+      { type: 'cassandra' },
+      'span.context.service.target',
+    );
+    t.deepEqual(
+      span.context.destination,
+      {
+        service: { type: '', name: '', resource: 'cassandra' },
+      },
+      'span.context.destination',
+    );
   }
 }
 
-function resetAgent (expected, cb) {
+function resetAgent(expected, cb) {
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock
   if (agent._apmClient.destroy) agent._apmClient.destroy();

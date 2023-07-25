@@ -13,24 +13,23 @@ import http from 'http';
 import bodyParser from 'body-parser';
 import express from 'express';
 
-async function mkRequest (opts, data) {
+async function mkRequest(opts, data) {
   return new Promise((resolve, reject) => {
-    const req = http.request(
-      opts,
-      function (res) {
-        console.log('client response:', res.statusCode, res.headers);
-        let body = '';
-        res.on('data', chunk => { body += chunk; });
-        res.on('end', () => {
-          console.log('body:', body);
-          resolve({
-            statusCode: res.statusCode,
-            headers: res.headers,
-            body
-          });
+    const req = http.request(opts, function (res) {
+      console.log('client response:', res.statusCode, res.headers);
+      let body = '';
+      res.on('data', (chunk) => {
+        body += chunk;
+      });
+      res.on('end', () => {
+        console.log('body:', body);
+        resolve({
+          statusCode: res.statusCode,
+          headers: res.headers,
+          body,
         });
-      }
-    );
+      });
+    });
     if (data) {
       req.write(data);
     }
@@ -60,10 +59,11 @@ const server = app.listen({ port: 0 }, async () => {
       port,
       path: '/hello/bob',
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     },
-    data);
+    data,
+  );
 
   server.close();
 });

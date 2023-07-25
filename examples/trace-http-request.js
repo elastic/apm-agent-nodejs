@@ -10,18 +10,23 @@
 // `http.request` (or `http.get`, `https.request`, `https.get`) from Node.js
 // core.
 
-const apm = require('../').start({ // elastic-apm-node
+const apm = require('../').start({
+  // elastic-apm-node
   serviceName: 'example-trace-http-request',
   // Now that OpenTelemetry has been GA for a while, the Elastic-specific
   // 'elastic-apm-traceparent' header is rarely needed.
-  useElasticTraceparentHeader: false
+  useElasticTraceparentHeader: false,
 });
 
 const http = require('http');
 
-function makeARequest (url, opts, cb) {
+function makeARequest(url, opts, cb) {
   const clientReq = http.request(url, opts, function (clientRes) {
-    console.log('client response: %s %s', clientRes.statusCode, clientRes.headers);
+    console.log(
+      'client response: %s %s',
+      clientRes.statusCode,
+      clientRes.headers,
+    );
 
     const chunks = [];
     clientRes.on('data', function (chunk) {
@@ -49,5 +54,5 @@ makeARequest(
   { headers: { accept: '*/*' } },
   function () {
     t0.end();
-  }
+  },
 );

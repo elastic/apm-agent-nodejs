@@ -10,9 +10,10 @@
 //    npm run docker:start cassandra
 // to start a Cassandra docker container. Then `npm run docker:stop` to stop it.
 
-const apm = require('../').start({ // elastic-apm-node
+const apm = require('../').start({
+  // elastic-apm-node
   serviceName: 'example-trace-cassandra-driver',
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 const cassandra = require('cassandra-driver');
@@ -21,12 +22,12 @@ const KEYSPACE = 'tracecassandradriver';
 const TABLE = 'testtable';
 let client;
 
-async function run () {
+async function run() {
   let res;
 
   client = new cassandra.Client({
     contactPoints: ['localhost'],
-    localDataCenter: 'datacenter1'
+    localDataCenter: 'datacenter1',
   });
   await client.connect();
   res = await client.execute('SELECT key FROM system.local');
@@ -48,7 +49,7 @@ async function run () {
   client = new cassandra.Client({
     contactPoints: ['localhost'],
     localDataCenter: 'datacenter1',
-    keyspace: KEYSPACE
+    keyspace: KEYSPACE,
   });
 
   // Play in this keyspace and table.
@@ -56,11 +57,11 @@ async function run () {
   res = await client.batch([
     { query: sqlInsert, params: ['foo'] },
     { query: sqlInsert, params: ['bar'] },
-    { query: sqlInsert, params: ['foo'] }
+    { query: sqlInsert, params: ['foo'] },
   ]);
   console.log('batch insert result:', res);
 
-  function useEachRow () {
+  function useEachRow() {
     console.log('-- client.eachRow');
     // `eachRow` doesn't provide a Promise interface, so we promisify ourselves.
     return new Promise((resolve, reject) => {
@@ -76,14 +77,17 @@ async function run () {
           } else {
             resolve(res);
           }
-        }
+        },
       );
     });
   }
   await useEachRow();
 
   console.log('-- client.stream');
-  const q = client.stream(`SELECT id, text FROM ${TABLE} WHERE text=? ALLOW FILTERING`, ['foo']);
+  const q = client.stream(
+    `SELECT id, text FROM ${TABLE} WHERE text=? ALLOW FILTERING`,
+    ['foo'],
+  );
   for await (const row of q) {
     console.log('row: %j', row);
   }
@@ -99,7 +103,7 @@ async function run () {
 const t1 = apm.startTransaction('t1');
 
 run()
-  .catch(err => {
+  .catch((err) => {
     console.warn('run err:', err);
   })
   .finally(() => {

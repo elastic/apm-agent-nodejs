@@ -14,17 +14,17 @@ import Knex from 'knex';
 
 const DBNAME = 'test_use_knex_pg';
 
-function createKnex (dbName = undefined) {
+function createKnex(dbName = undefined) {
   return Knex({
     client: 'pg',
     connection: {
       user: process.env.PGUSER || 'postgres',
-      database: dbName
-    }
+      database: dbName,
+    },
   });
 }
 
-async function setupDb () {
+async function setupDb() {
   const knex = createKnex();
   const res = await knex.from('pg_database').where('datname', DBNAME);
   if (res.length < 1) {
@@ -33,24 +33,23 @@ async function setupDb () {
   await knex.destroy();
 }
 
-async function teardownDb () {
+async function teardownDb() {
   const knex = createKnex();
   await knex.raw('DROP DATABASE IF EXISTS ??', [DBNAME]);
   await knex.destroy();
 }
 
-async function useTheDb (knex) {
-  await knex.schema
-    .createTable('users', table => {
-      table.increments('id');
-      table.string('user_name');
-    });
+async function useTheDb(knex) {
+  await knex.schema.createTable('users', (table) => {
+    table.increments('id');
+    table.string('user_name');
+  });
   await knex('users').insert({ user_name: 'Tim' });
   const hits = await knex('users').where('user_name', 'Tim');
   console.log('Hits for user_name=Tim:', hits);
 }
 
-async function main () {
+async function main() {
   await setupDb();
   const knex = createKnex(DBNAME);
 

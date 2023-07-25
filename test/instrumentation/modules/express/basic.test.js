@@ -16,7 +16,7 @@ var agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: true,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 var http = require('http');
@@ -30,7 +30,7 @@ var nestedRouteTestCases = [
   [], // no nesting
   ['/', ''],
   ['/sub', '/sub'],
-  ['/sub/:id', '/sub/42']
+  ['/sub/:id', '/sub/42'],
 ];
 
 var routeTestCases = [
@@ -43,14 +43,17 @@ var routeTestCases = [
   ['use', '/foo/:id', 'POST', '/foo/42'],
   ['get', '/foo/:id', 'GET', '/foo/42'],
   ['post', '/foo/:id', 'POST', '/foo/42'],
-  ['head', '/foo/:id', 'HEAD', '/foo/42']
+  ['head', '/foo/:id', 'HEAD', '/foo/42'],
 ];
 
-function normalizePathElements (...elements) {
+function normalizePathElements(...elements) {
   return '/' + elements.join('/').split('/').filter(Boolean).join('/');
 }
 
-nestedRouteTestCases.forEach(function ([parentRoute = '', pathPrefix = ''] = []) {
+nestedRouteTestCases.forEach(function ([
+  parentRoute = '',
+  pathPrefix = '',
+] = []) {
   routeTestCases.forEach(function ([expressFn, route, method, path]) {
     path = normalizePathElements(pathPrefix, path);
 
@@ -64,10 +67,15 @@ nestedRouteTestCases.forEach(function ([parentRoute = '', pathPrefix = ''] = [])
       resetAgent(function (data) {
         t.strictEqual(data.transactions.length, 1, 'has a transaction');
         const trans = data.transactions[0];
-        const transName = (expressFn === 'use' && path === '/')
-          ? `${method} unknown route`
-          : `${method} ${normalizePathElements(parentRoute, route)}`;
-        t.strictEqual(trans.name, transName, 'transaction name is ' + transName);
+        const transName =
+          expressFn === 'use' && path === '/'
+            ? `${method} unknown route`
+            : `${method} ${normalizePathElements(parentRoute, route)}`;
+        t.strictEqual(
+          trans.name,
+          transName,
+          'transaction name is ' + transName,
+        );
         t.strictEqual(trans.type, 'request', 'transaction type is request');
       });
 
@@ -89,7 +97,11 @@ nestedRouteTestCases.forEach(function ([parentRoute = '', pathPrefix = ''] = [])
       const server = app.listen(function () {
         get(server, { method, path }, (err, body) => {
           t.error(err);
-          t.strictEqual(body, method === 'HEAD' ? '' : 'foo', 'should have expected response body');
+          t.strictEqual(
+            body,
+            method === 'HEAD' ? '' : 'foo',
+            'should have expected response body',
+          );
           server.close();
           agent.flush();
         });
@@ -115,7 +127,11 @@ test('error intercept', function (t) {
   agent.captureError = function (err, data) {
     t.strictEqual(err, error, 'has the expected error');
     t.ok(data, 'captured data with error');
-    t.strictEqual(data.request, request, 'captured data has the request object');
+    t.strictEqual(
+      data.request,
+      request,
+      'captured data has the request object',
+    );
   };
   t.on('end', function () {
     agent.captureError = captureError;
@@ -137,7 +153,11 @@ test('error intercept', function (t) {
     get(server, { path: '/' }, (err, body) => {
       t.error(err);
       const expected = JSON.stringify({ error: error.message });
-      t.strictEqual(body, expected, 'got correct body from error handler middleware');
+      t.strictEqual(
+        body,
+        expected,
+        'got correct body from error handler middleware',
+      );
       server.close();
       agent.flush();
     });
@@ -151,7 +171,11 @@ test('ignore 404 errors', function (t) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
     var trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET unknown route', 'transaction name is GET unknown route');
+    t.strictEqual(
+      trans.name,
+      'GET unknown route',
+      'transaction name is GET unknown route',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -173,7 +197,11 @@ test('ignore 404 errors', function (t) {
   var server = app.listen(function () {
     get(server, { path: '/' }, (err, body) => {
       t.error(err);
-      t.strictEqual(body, 'not found', 'got correct body from error handler middleware');
+      t.strictEqual(
+        body,
+        'not found',
+        'got correct body from error handler middleware',
+      );
       server.close();
       agent.flush();
     });
@@ -213,7 +241,11 @@ test('ignore invalid errors', function (t) {
   var server = app.listen(function () {
     get(server, { path: '/' }, (err, body) => {
       t.error(err);
-      t.strictEqual(body, 'done', 'got correct body from error handler middleware');
+      t.strictEqual(
+        body,
+        'done',
+        'got correct body from error handler middleware',
+      );
       server.close();
       agent.flush();
     });
@@ -254,7 +286,11 @@ test('do not inherit past route names', function (t) {
   var server = app.listen(function () {
     get(server, { path: '/' }, (err, body) => {
       t.error(err);
-      t.strictEqual(body, 'done', 'got correct body from error handler middleware');
+      t.strictEqual(
+        body,
+        'done',
+        'got correct body from error handler middleware',
+      );
       server.close();
       agent.flush();
     });
@@ -268,7 +304,11 @@ test('sub-routers include base path', function (t) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
     var trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name');
+    t.strictEqual(
+      trans.name,
+      'GET /hello/:name',
+      'transaction name is GET /hello/:name',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -306,7 +346,11 @@ test('sub-routers throw exception', function (t) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
     var trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name');
+    t.strictEqual(
+      trans.name,
+      'GET /api/:name',
+      'transaction name is GET /api/:name',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -341,7 +385,11 @@ test('sub-router handler calls next(exception)', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
     var trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name');
+    t.strictEqual(
+      trans.name,
+      'GET /api/:name',
+      'transaction name is GET /api/:name',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -377,7 +425,11 @@ test('sub-router handler calls next(non-exception)', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
     var trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /api/:name', 'transaction name is GET /api/:name');
+    t.strictEqual(
+      trans.name,
+      'GET /api/:name',
+      'transaction name is GET /api/:name',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -411,7 +463,11 @@ test('sub-router handler calls next("route")', function (t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
     var trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /api/other-endpoint', 'transaction name is GET /api/other-endpoint');
+    t.strictEqual(
+      trans.name,
+      'GET /api/other-endpoint',
+      'transaction name is GET /api/other-endpoint',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -484,9 +540,9 @@ test('expose app.use handle properties', function (t) {
   });
 });
 
-function get (server, opts, cb) {
+function get(server, opts, cb) {
   Object.assign(opts, {
-    port: server.address().port
+    port: server.address().port,
   });
   var req = http.request(opts, function (res) {
     var chunks = [];
@@ -499,8 +555,10 @@ function get (server, opts, cb) {
   req.end();
 }
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(1, cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

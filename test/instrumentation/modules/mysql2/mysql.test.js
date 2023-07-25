@@ -15,7 +15,9 @@ const semver = require('semver');
 const { safeGetPackageVersion } = require('../../../_utils');
 const mysql2Ver = safeGetPackageVersion('mysql2');
 if (semver.gte(mysql2Ver, '3.0.0') && semver.lt(process.version, '14.6.0')) {
-  console.log(`# SKIP mysql2@${mysql2Ver} does not support node ${process.version}`);
+  console.log(
+    `# SKIP mysql2@${mysql2Ver} does not support node ${process.version}`,
+  );
   process.exit();
 }
 
@@ -25,7 +27,7 @@ var agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 var mysql = require('mysql2');
@@ -44,47 +46,48 @@ var factories = [
   [createPool, 'pool', true],
   [createPoolAndGetConnection, 'pool > connection', true],
   [createPoolClusterAndGetConnection, 'poolCluster > connection', false],
-  [createPoolClusterAndGetConnectionViaOf, 'poolCluster > of > connection', false]
+  [
+    createPoolClusterAndGetConnectionViaOf,
+    'poolCluster > of > connection',
+    false,
+  ],
 ];
-var executors = [
-  'query',
-  'execute'
-];
+var executors = ['query', 'execute'];
 
 var universalArgumentSets = [
   {
     names: ['sql'],
     query: 'SELECT 1 + 1 AS solution',
-    values: (query, cb) => [query, cb]
+    values: (query, cb) => [query, cb],
   },
   {
     names: ['sql', 'values'],
     query: 'SELECT 1 + ? AS solution',
-    values: (query, cb) => [query, [1], cb]
+    values: (query, cb) => [query, [1], cb],
   },
   {
     names: ['options'],
     query: 'SELECT 1 + 1 AS solution',
-    values: (query, cb) => [{ sql: query }, cb]
+    values: (query, cb) => [{ sql: query }, cb],
   },
   {
     names: ['options', 'values'],
     query: 'SELECT 1 + ? AS solution',
-    values: (query, cb) => [{ sql: query }, [1], cb]
-  }
+    values: (query, cb) => [{ sql: query }, [1], cb],
+  },
 ];
 
 var callbackArgumentSets = [
   {
     names: ['query'],
     query: 'SELECT 1 + 1 AS solution',
-    values: (query, cb) => [mysql.Connection.createQuery(query, [], cb, {})]
+    values: (query, cb) => [mysql.Connection.createQuery(query, [], cb, {})],
   },
   {
     names: ['query_with_values'],
     query: 'SELECT 1 + ? AS solution',
-    values: (query, cb) => [mysql.Connection.createQuery(query, [1], cb, {})]
-  }
+    values: (query, cb) => [mysql.Connection.createQuery(query, [1], cb, {})],
+  },
 ];
 
 factories.forEach(function (f) {
@@ -97,9 +100,10 @@ factories.forEach(function (f) {
     executors.forEach(function (executor) {
       t.test(executor, function (t) {
         var isQuery = executor === 'query';
-        var argumentSets = isQuery && type !== 'pool'
-          ? universalArgumentSets.concat(callbackArgumentSets)
-          : universalArgumentSets;
+        var argumentSets =
+          isQuery && type !== 'pool'
+            ? universalArgumentSets.concat(callbackArgumentSets)
+            : universalArgumentSets;
 
         t.test('callback', function (t) {
           argumentSets.forEach(function (argumentSet) {
@@ -118,7 +122,10 @@ factories.forEach(function (f) {
               factory(function () {
                 agent.startTransaction('foo');
                 queryable[executor].apply(queryable, args);
-                t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code');
+                t.ok(
+                  agent.currentSpan === null,
+                  'mysql2 span should not spill into calling code',
+                );
               });
             });
           });
@@ -141,8 +148,14 @@ factories.forEach(function (f) {
                 });
                 factory(function () {
                   agent.startTransaction('foo');
-                  var promise = queryablePromise[executor].apply(queryablePromise, args);
-                  t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code');
+                  var promise = queryablePromise[executor].apply(
+                    queryablePromise,
+                    args,
+                  );
+                  t.ok(
+                    agent.currentSpan === null,
+                    'mysql2 span should not spill into calling code',
+                  );
                   basicQueryPromise(t, promise);
                 });
               });
@@ -168,7 +181,10 @@ factories.forEach(function (f) {
                 factory(function () {
                   agent.startTransaction('foo');
                   var stream = queryable[executor].apply(queryable, args);
-                  t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code');
+                  t.ok(
+                    agent.currentSpan === null,
+                    'mysql2 span should not spill into calling code',
+                  );
                   basicQueryStream(stream, t);
                 });
               });
@@ -190,7 +206,11 @@ factories.forEach(function (f) {
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql);
-            t.equal(span.parent_id, trans.id, 'each mysql2 span is a child of the transaction');
+            t.equal(
+              span.parent_id,
+              trans.id,
+              'each mysql2 span is a child of the transaction',
+            );
           });
 
           t.end();
@@ -218,7 +238,7 @@ factories.forEach(function (f) {
             if (++n === 3) done();
           });
 
-          function done () {
+          function done() {
             trans.end();
           }
         });
@@ -235,7 +255,11 @@ factories.forEach(function (f) {
 
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql);
-            t.equal(span.parent_id, trans.id, 'each mysql2 span is a child of the transaction');
+            t.equal(
+              span.parent_id,
+              trans.id,
+              'each mysql2 span is a child of the transaction',
+            );
           });
 
           t.end();
@@ -272,7 +296,7 @@ factories.forEach(function (f) {
             });
           });
 
-          function done () {
+          function done() {
             trans.end();
           }
         });
@@ -283,9 +307,11 @@ factories.forEach(function (f) {
       resetAgent(6, function (data) {
         t.strictEqual(data.transactions.length, 3);
         t.strictEqual(data.spans.length, 3);
-        var names = data.transactions.map(function (trans) {
-          return trans.name;
-        }).sort();
+        var names = data.transactions
+          .map(function (trans) {
+            return trans.name;
+          })
+          .sort();
         t.deepEqual(names, ['bar', 'baz', 'foo']);
 
         data.transactions.forEach(function (trans) {
@@ -349,7 +375,10 @@ factories.forEach(function (f) {
             queryable.getConnection(function (err, conn) {
               t.error(err);
               conn.query(sql, basicQueryCallback(t));
-              t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code');
+              t.ok(
+                agent.currentSpan === null,
+                'mysql2 span should not spill into calling code',
+              );
             });
           });
         });
@@ -358,49 +387,64 @@ factories.forEach(function (f) {
   });
 });
 
-function basicQueryPromise (t, p) {
-  function done () {
+function basicQueryPromise(t, p) {
+  function done() {
     agent.endTransaction();
   }
 
-  p.then(function (response) {
-    var rows = response[0];
-    t.strictEqual(rows[0].solution, 2);
-    done();
-  }, function (error) {
-    t.error(error);
-    done();
-  });
+  p.then(
+    function (response) {
+      var rows = response[0];
+      t.strictEqual(rows[0].solution, 2);
+      done();
+    },
+    function (error) {
+      t.error(error);
+      done();
+    },
+  );
 }
 
-function basicQueryCallback (t) {
+function basicQueryCallback(t) {
   return function (err, rows, fields) {
-    t.ok(agent.currentSpan === null, 'mysql2 span should not spill into calling code');
+    t.ok(
+      agent.currentSpan === null,
+      'mysql2 span should not spill into calling code',
+    );
     t.error(err);
     t.strictEqual(rows[0].solution, 2);
     agent.endTransaction();
   };
 }
 
-function basicQueryStream (stream, t) {
+function basicQueryStream(stream, t) {
   var results = 0;
   stream.on('error', function (err) {
-    t.ok(agent.currentSpan === null, 'mysql2 span should not be active in user code');
+    t.ok(
+      agent.currentSpan === null,
+      'mysql2 span should not be active in user code',
+    );
     t.error(err);
   });
   stream.on('result', function (row) {
-    t.ok(agent.currentSpan === null, 'mysql2 span should not be active in user code');
+    t.ok(
+      agent.currentSpan === null,
+      'mysql2 span should not be active in user code',
+    );
     results++;
     t.strictEqual(row.solution, 2);
   });
   stream.on('end', function () {
-    t.ok(agent.currentSpan === null, 'mysql2 span should not be active in user code');
+    t.ok(
+      agent.currentSpan === null,
+      'mysql2 span should not be active in user code',
+    );
     t.strictEqual(results, 1);
     agent.endTransaction();
   });
 }
 
-function assertBasicQuery (t, sql, data) {
+function assertBasicQuery(t, sql, data) {
   t.strictEqual(data.transactions.length, 1);
   t.strictEqual(data.spans.length, 1);
 
@@ -411,31 +455,47 @@ function assertBasicQuery (t, sql, data) {
   assertSpan(t, span, sql);
 }
 
-function assertSpan (t, span, sql) {
+function assertSpan(t, span, sql) {
   t.strictEqual(span.name, 'SELECT', 'span.name');
   t.strictEqual(span.type, 'db', 'span.type');
   t.strictEqual(span.subtype, 'mysql', 'span.subtype');
   t.strictEqual(span.action, 'query', 'span.action');
-  t.deepEqual(span.context.db, {
-    type: 'sql',
-    instance: connectionOptions.database,
-    user: connectionOptions.user,
-    statement: sql
-  }, 'span.context.db');
-  t.deepEqual(span.context.service.target, {
-    type: 'mysql',
-    name: connectionOptions.database
-  }, 'span.context.service.target');
-  t.deepEqual(span.context.destination, {
-    address: connectionOptions.host,
-    port: 3306,
-    service: { type: '', name: '', resource: `mysql/${connectionOptions.database}` }
-  }, 'span.context.destination');
+  t.deepEqual(
+    span.context.db,
+    {
+      type: 'sql',
+      instance: connectionOptions.database,
+      user: connectionOptions.user,
+      statement: sql,
+    },
+    'span.context.db',
+  );
+  t.deepEqual(
+    span.context.service.target,
+    {
+      type: 'mysql',
+      name: connectionOptions.database,
+    },
+    'span.context.service.target',
+  );
+  t.deepEqual(
+    span.context.destination,
+    {
+      address: connectionOptions.host,
+      port: 3306,
+      service: {
+        type: '',
+        name: '',
+        resource: `mysql/${connectionOptions.database}`,
+      },
+    },
+    'span.context.destination',
+  );
 }
 
-function createConnection (cb) {
+function createConnection(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       if (queryable) {
         queryable.end();
         queryable = undefined;
@@ -449,16 +509,16 @@ function createConnection (cb) {
     queryable = mysql.createConnection(connectionOptions);
     queryable.connect();
 
-    mysqlPromise.createConnection(connectionOptions).then(connection => {
+    mysqlPromise.createConnection(connectionOptions).then((connection) => {
       queryablePromise = connection;
       cb();
     });
   });
 }
 
-function createPool (cb) {
+function createPool(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       if (queryable) {
         queryable.end();
         queryable = undefined;
@@ -476,9 +536,9 @@ function createPool (cb) {
   });
 }
 
-function createPoolAndGetConnection (cb) {
+function createPoolAndGetConnection(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       if (pool) {
         pool.end();
         pool = undefined;
@@ -506,9 +566,9 @@ function createPoolAndGetConnection (cb) {
   });
 }
 
-function createPoolClusterAndGetConnection (cb) {
+function createPoolClusterAndGetConnection(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       if (cluster) {
         cluster.end();
         cluster = undefined;
@@ -526,9 +586,9 @@ function createPoolClusterAndGetConnection (cb) {
   });
 }
 
-function createPoolClusterAndGetConnectionViaOf (cb) {
+function createPoolClusterAndGetConnectionViaOf(cb) {
   setup(function () {
-    _teardown = function teardown () {
+    _teardown = function teardown() {
       cluster.end();
     };
 
@@ -542,7 +602,7 @@ function createPoolClusterAndGetConnectionViaOf (cb) {
   });
 }
 
-function setup (cb) {
+function setup(cb) {
   teardown(); // just in case it didn't happen at the end of the previous test
   utils.reset(cb);
 }
@@ -553,7 +613,7 @@ var teardown = function () {
   _teardown();
 };
 
-function resetAgent (expected, cb) {
+function resetAgent(expected, cb) {
   if (typeof expected === 'function') return resetAgent(2, expected);
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock

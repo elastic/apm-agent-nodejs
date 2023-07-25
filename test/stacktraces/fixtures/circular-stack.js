@@ -15,10 +15,10 @@ const apm = require('../../../').start({
   logUncaughtExceptions: true,
   metricsInterval: 0,
   centralConfig: false,
-  logLevel: 'off'
+  logLevel: 'off',
 });
 
-function boomOnZero (n) {
+function boomOnZero(n) {
   if (--n <= 0) {
     throw new Error('boom on zero');
   } else {
@@ -26,7 +26,7 @@ function boomOnZero (n) {
   }
 }
 
-function main () {
+function main() {
   // This setInterval is somewhat of a hack to avoid a problem with the
   // elastic-apm-http-client's "smart" auto-end functionality. Without this
   // interval, node.js will think it is time to exit the process during the

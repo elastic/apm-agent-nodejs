@@ -14,7 +14,7 @@ const apm = require('../..').start({
   metricsInterval: '0s',
   centralConfig: false,
   cloudProvider: 'none',
-  disableSend: true
+  disableSend: true,
 });
 
 const fs = require('fs');

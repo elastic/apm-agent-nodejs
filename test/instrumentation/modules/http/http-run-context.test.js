@@ -47,16 +47,23 @@ const cases = [
       const metadata = events.shift();
       t.ok(metadata, 'APM server got event metadata object');
       events.sort((a, b) => {
-        return (a.span || a.transaction).timestamp < (b.span || b.transaction).timestamp ? -1 : 1;
+        return (a.span || a.transaction).timestamp <
+          (b.span || b.transaction).timestamp
+          ? -1
+          : 1;
       });
       const trans = events.shift().transaction;
       t.equal(trans.name, 't0', 'transaction.name');
-      events.forEach(e => {
-        t.equal(e.span.parent_id, trans.id, `span ${e.span.name} is a child of the transaction`);
+      events.forEach((e) => {
+        t.equal(
+          e.span.parent_id,
+          trans.id,
+          `span ${e.span.name} is a child of the transaction`,
+        );
       });
       const spanGet = events.shift().span;
       t.equal(spanGet.name, 'GET www.google.com');
-    }
+    },
   },
   {
     // Same as above, but s/http/https/, to verify "https" instrumentation
@@ -67,21 +74,32 @@ const cases = [
       const metadata = events.shift();
       t.ok(metadata, 'APM server got event metadata object');
       events.sort((a, b) => {
-        return (a.span || a.transaction).timestamp < (b.span || b.transaction).timestamp ? -1 : 1;
+        return (a.span || a.transaction).timestamp <
+          (b.span || b.transaction).timestamp
+          ? -1
+          : 1;
       });
       const trans = events.shift().transaction;
       t.equal(trans.name, 't0', 'transaction.name');
-      events.forEach(e => {
-        t.equal(e.span.parent_id, trans.id, `span ${e.span.name} is a child of the transaction`);
+      events.forEach((e) => {
+        t.equal(
+          e.span.parent_id,
+          trans.id,
+          `span ${e.span.name} is a child of the transaction`,
+        );
       });
       const spanGet = events.shift().span;
-      t.equal(spanGet.name, 'GET www.google.com', 'first span.name is "GET www.google.com"');
-    }
-  }
+      t.equal(
+        spanGet.name,
+        'GET www.google.com',
+        'first span.name is "GET www.google.com"',
+      );
+    },
+  },
 ];
 
-cases.forEach(c => {
-  tape.test(`http/fixtures/${c.script}`, c.testOpts || {}, t => {
+cases.forEach((c) => {
+  tape.test(`http/fixtures/${c.script}`, c.testOpts || {}, (t) => {
     const server = new MockAPMServer();
     const scriptPath = path.join('fixtures', c.script);
     server.start(function (serverUrl) {
@@ -92,10 +110,10 @@ cases.forEach(c => {
           cwd: __dirname,
           timeout: 10000, // guard on hang, 3s is sometimes too short for CI
           env: Object.assign({}, process.env, {
-            ELASTIC_APM_SERVER_URL: serverUrl
-          })
+            ELASTIC_APM_SERVER_URL: serverUrl,
+          }),
         },
-        function done (err, stdout, stderr) {
+        function done(err, stdout, stderr) {
           t.error(err, `${scriptPath} exited non-zero`);
           if (err) {
             t.comment(`${scriptPath} stdout:\n${stdout}\n`);
@@ -106,7 +124,7 @@ cases.forEach(c => {
           }
           server.close();
           t.end();
-        }
+        },
       );
     });
   });

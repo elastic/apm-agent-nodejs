@@ -21,12 +21,16 @@ test('#getContextFromResponse()', function (t) {
 
       res.sendDate = false;
 
-      var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true);
+      var context = parsers.getContextFromResponse(
+        res,
+        { captureHeaders: true },
+        true,
+      );
       t.deepEqual(context, {
         status_code: 200,
         headers: {},
         headers_sent: false,
-        finished: false
+        finished: false,
       });
 
       res.end();
@@ -42,12 +46,16 @@ test('#getContextFromResponse()', function (t) {
       res.sendDate = false;
       res.write('foo');
 
-      var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true);
+      var context = parsers.getContextFromResponse(
+        res,
+        { captureHeaders: true },
+        true,
+      );
       t.deepEqual(context, {
         status_code: 200,
         headers: { connection: 'close', 'transfer-encoding': 'chunked' },
         headers_sent: true,
-        finished: false
+        finished: false,
       });
 
       res.end();
@@ -57,12 +65,16 @@ test('#getContextFromResponse()', function (t) {
   t.test('for error (request finished)', function (t) {
     onRequest(function (req, res) {
       req.on('end', function () {
-        var context = parsers.getContextFromResponse(res, { captureHeaders: true }, true);
+        var context = parsers.getContextFromResponse(
+          res,
+          { captureHeaders: true },
+          true,
+        );
         t.deepEqual(context, {
           status_code: 200,
           headers: { connection: 'close', 'content-length': '0' },
           headers_sent: true,
-          finished: true
+          finished: true,
         });
         t.end();
       });
@@ -76,10 +88,14 @@ test('#getContextFromResponse()', function (t) {
   t.test('for transaction', function (t) {
     onRequest(function (req, res) {
       req.on('end', function () {
-        var context = parsers.getContextFromResponse(res, { captureHeaders: true }, false);
+        var context = parsers.getContextFromResponse(
+          res,
+          { captureHeaders: true },
+          false,
+        );
         t.deepEqual(context, {
           status_code: 200,
-          headers: { connection: 'close', 'content-length': '0' }
+          headers: { connection: 'close', 'content-length': '0' },
         });
         t.end();
       });
@@ -96,23 +112,38 @@ test('#getContextFromResponse()', function (t) {
         res: { statusCode: 500 },
         conf: { captureHeaders: true },
         isError: false,
-        expectedContext: { status_code: 500, headers: {} }
+        expectedContext: { status_code: 500, headers: {} },
       },
       {
         res: { statusCode: 500 },
         conf: { captureHeaders: true },
         isError: true,
-        expectedContext: { status_code: 500, headers: {}, headers_sent: undefined, finished: undefined }
+        expectedContext: {
+          status_code: 500,
+          headers: {},
+          headers_sent: undefined,
+          finished: undefined,
+        },
       },
       {
-        res: { statusCode: 200, headers: { 'content-type': 'application/json' } },
+        res: {
+          statusCode: 200,
+          headers: { 'content-type': 'application/json' },
+        },
         conf: { captureHeaders: true },
         isError: false,
-        expectedContext: { status_code: 200, headers: { 'content-type': 'application/json' } }
-      }
+        expectedContext: {
+          status_code: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      },
     ];
     testCases.forEach((tc, idx) => {
-      const context = parsers.getContextFromResponse(tc.res, tc.conf, tc.isError);
+      const context = parsers.getContextFromResponse(
+        tc.res,
+        tc.conf,
+        tc.isError,
+      );
       t.deepEqual(context, tc.expectedContext, `pseudo-res testCase ${idx}`);
     });
     t.end();
@@ -132,15 +163,15 @@ test('#getContextFromRequest()', function (t) {
         search: '?key=value',
         full: 'http://example.com/some/path?key=value',
         protocol: 'http:',
-        raw: '/some/path?key=value'
+        raw: '/some/path?key=value',
       },
       socket: {
-        remote_address: '127.0.0.1'
+        remote_address: '127.0.0.1',
       },
       headers: {
         host: 'example.com',
-        'user-agent': 'Mozilla Chrome Edge'
-      }
+        'user-agent': 'Mozilla Chrome Edge',
+      },
     });
     t.end();
   });
@@ -156,7 +187,7 @@ test('#getContextFromRequest()', function (t) {
       hostname: 'www.example.com',
       port: '8080',
       full: 'https://www.example.com:8080/some/path?key=value',
-      raw: 'https://www.example.com:8080/some/path?key=value'
+      raw: 'https://www.example.com:8080/some/path?key=value',
     });
     t.end();
   });
@@ -172,7 +203,7 @@ test('#getContextFromRequest()', function (t) {
       search: '?key=value',
       protocol: 'http:',
       full: 'http://example.com:8080/some/path?key=value',
-      raw: '/some/path?key=value'
+      raw: '/some/path?key=value',
     });
     t.end();
   });
@@ -187,7 +218,7 @@ test('#getContextFromRequest()', function (t) {
       search: '?',
       protocol: 'http:',
       full: 'http://example.com/some/path?',
-      raw: '/some/path?'
+      raw: '/some/path?',
     });
     t.end();
   });
@@ -238,7 +269,9 @@ test('#getContextFromRequest()', function (t) {
     const requestPropsToTest = ['body', 'json', 'payload'];
     for (const [, prop] of requestPropsToTest.entries()) {
       const req = getMockReq();
-      req[prop] = Buffer.from('almost, but not quite, entirely unlike a string.');
+      req[prop] = Buffer.from(
+        'almost, but not quite, entirely unlike a string.',
+      );
       req.headers['content-length'] = req[prop].length;
       const parsed = parsers.getContextFromRequest(req, conf);
       t.equals(parsed.body, '<Buffer>');
@@ -246,31 +279,31 @@ test('#getContextFromRequest()', function (t) {
     t.end();
   });
 
-  function getMockReq () {
+  function getMockReq() {
     return {
       httpVersion: '1.1',
       method: 'GET',
       url: '/some/path?key=value',
       headers: {
         host: 'example.com',
-        'user-agent': 'Mozilla Chrome Edge'
+        'user-agent': 'Mozilla Chrome Edge',
       },
       body: '',
       cookies: {},
       socket: {
-        remoteAddress: '127.0.0.1'
-      }
+        remoteAddress: '127.0.0.1',
+      },
     };
   }
 });
 
-function onRequest (cb) {
+function onRequest(cb) {
   var server = http.createServer(cb);
 
   server.listen(function () {
     var opts = {
       agent: new http.Agent(),
-      port: server.address().port
+      port: server.address().port,
     };
     var req = http.request(opts, function (res) {
       res.on('end', function () {

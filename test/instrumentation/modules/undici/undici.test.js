@@ -20,14 +20,18 @@ const apm = require('../../../..').start({
   centralConfig: false,
   apmServerVersion: '8.0.0',
   spanCompressionEnabled: false,
-  transport () { return new CapturingTransport(); }
+  transport() {
+    return new CapturingTransport();
+  },
 });
 
 // Skip (exit the process) if this undici instrumentation isn't supported.
 try {
   require('diagnostics_channel');
 } catch (_noModErr) {
-  console.log('# SKIP undici instrumention is not supported (no "diagnostics_channel" module)');
+  console.log(
+    '# SKIP undici instrumention is not supported (no "diagnostics_channel" module)',
+  );
   process.exit();
 }
 const isUndiciIncompat = require('../../../_is_undici_incompat')();
@@ -51,19 +55,19 @@ let lastServerReq;
 
 // Undici docs (https://github.com/nodejs/undici#garbage-collection) suggest
 // that an undici response body should always be consumed.
-async function consumeResponseBody (body) {
-  return new Promise(resolve => {
+async function consumeResponseBody(body) {
+  return new Promise((resolve) => {
     const devNull = new Writable({
-      write (_chunk, _encoding, cb) {
+      write(_chunk, _encoding, cb) {
         setImmediate(cb);
-      }
+      },
     });
     body.pipe(devNull);
     body.on('end', resolve);
   });
 }
 
-function assertUndiciSpan (t, span, url, reqFailed) {
+function assertUndiciSpan(t, span, url, reqFailed) {
   const u = new URL(url);
   t.equal(span.name, `GET ${u.host}`, 'span.name');
   t.equal(span.type, 'external', 'span.type');
@@ -73,22 +77,36 @@ function assertUndiciSpan (t, span, url, reqFailed) {
   t.equal(span.context.http.method, 'GET', 'span.context.http.method');
   t.equal(span.context.http.url, url, 'span.context.http.url');
   if (!reqFailed) {
-    t.equal(span.context.http.status_code, 200, 'span.context.http.status_code');
-    t.equal(span.context.http.response.encoded_body_size, 4, 'span.context.http.response.encoded_body_size');
+    t.equal(
+      span.context.http.status_code,
+      200,
+      'span.context.http.status_code',
+    );
+    t.equal(
+      span.context.http.response.encoded_body_size,
+      4,
+      'span.context.http.response.encoded_body_size',
+    );
   }
-  t.deepEqual(span.context.service.target,
+  t.deepEqual(
+    span.context.service.target,
     { type: 'http', name: u.host },
-    'span.context.service.target');
-  t.deepEqual(span.context.destination, {
-    address: u.hostname,
-    port: Number(u.port),
-    service: { type: '', name: '', resource: u.host }
-  }, 'span.context.destination');
+    'span.context.service.target',
+  );
+  t.deepEqual(
+    span.context.destination,
+    {
+      address: u.hostname,
+      port: Number(u.port),
+      service: { type: '', name: '', resource: u.host },
+    },
+    'span.context.destination',
+  );
 }
 
 // ---- tests
 
-test('setup', t => {
+test('setup', (t) => {
   server = http.createServer((req, res) => {
     lastServerReq = req;
     req.resume();
@@ -104,7 +122,7 @@ test('setup', t => {
   });
 });
 
-test('undici.request', async t => {
+test('undici.request', async (t) => {
   apm._apmClient.clear();
   const aTrans = apm.startTransaction('aTransName');
 
@@ -121,15 +139,21 @@ test('undici.request', async t => {
   assertUndiciSpan(t, span, url);
 
   // Test trace-context propagation.
-  t.equal(lastServerReq.headers.traceparent,
+  t.equal(
+    lastServerReq.headers.traceparent,
     `00-${span.trace_id}-${span.id}-01`,
-    'serverReq.headers.traceparent');
-  t.equal(lastServerReq.headers.tracestate, 'es=s:1', 'serverReq.headers.tracestate');
+    'serverReq.headers.traceparent',
+  );
+  t.equal(
+    lastServerReq.headers.tracestate,
+    'es=s:1',
+    'serverReq.headers.tracestate',
+  );
 
   t.end();
 });
 
-test('undici.stream', async t => {
+test('undici.stream', async (t) => {
   apm._apmClient.clear();
   const aTrans = apm.startTransaction('aTransName');
 
@@ -142,12 +166,12 @@ test('undici.stream', async t => {
     ({ statusCode, opaque: { chunks } }) => {
       t.equal(statusCode, 200, 'statusCode');
       return new Writable({
-        write (chunk, _encoding, cb) {
+        write(chunk, _encoding, cb) {
           chunks.push(chunk);
           cb();
-        }
+        },
       });
-    }
+    },
   );
   t.equal(chunks.join(''), 'pong', 'response body');
 
@@ -162,7 +186,7 @@ test('undici.stream', async t => {
 });
 
 if (undici.fetch) {
-  test('undici.fetch', async t => {
+  test('undici.fetch', async (t) => {
     apm._apmClient.clear();
     const aTrans = apm.startTransaction('aTransName');
 
@@ -184,7 +208,7 @@ if (undici.fetch) {
 }
 
 if (global.AbortController) {
-  test('undici.request AbortSignal', async t => {
+  test('undici.request AbortSignal', async (t) => {
     apm._apmClient.clear();
     const aTrans = apm.startTransaction('aTransName', 'manual');
 
@@ -211,8 +235,16 @@ if (global.AbortController) {
       t.equal(error.parent_id, span.id, 'error.parent_id');
       t.equal(error.trace_id, span.trace_id, 'error.trace_id');
       t.equal(error.transaction_id, aTrans.id, 'error.transaction_id');
-      t.deepEqual(error.transaction, { name: 'aTransName', type: 'manual', sampled: true }, 'error.transaction');
-      t.equal(error.exception.message, 'Request aborted', 'error.exception.message');
+      t.deepEqual(
+        error.transaction,
+        { name: 'aTransName', type: 'manual', sampled: true },
+        'error.transaction',
+      );
+      t.equal(
+        error.exception.message,
+        'Request aborted',
+        'error.exception.message',
+      );
       t.equal(error.exception.type, 'AbortError', 'error.exception.type');
       t.equal(error.exception.code, 'UND_ERR_ABORTED', 'error.exception.code');
       t.equal(error.exception.module, 'undici', 'error.exception.module');
@@ -223,7 +255,7 @@ if (global.AbortController) {
   });
 }
 
-test('teardown', t => {
+test('teardown', (t) => {
   undici.getGlobalDispatcher().close(); // Close kept-alive sockets.
   server.close();
   t.end();

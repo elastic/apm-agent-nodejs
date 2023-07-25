@@ -27,7 +27,10 @@ test('#createApmClient - contextPropagationOnly', (t) => {
   const agent = new Agent();
   const transport = createApmClient({ contextPropagationOnly: true }, agent);
 
-  t.ok(transport instanceof NoopApmClient, 'transport should be a NoopApmClient instance');
+  t.ok(
+    transport instanceof NoopApmClient,
+    'transport should be a NoopApmClient instance',
+  );
   agent.destroy();
   t.end();
 });
@@ -35,22 +38,38 @@ test('#createApmClient - contextPropagationOnly', (t) => {
 test('#createApmClient - customClient', (t) => {
   const agent = new Agent();
   const customClient = {};
-  const transport = createApmClient({ transport: function () { return customClient; } }, agent);
+  const transport = createApmClient(
+    {
+      transport: function () {
+        return customClient;
+      },
+    },
+    agent,
+  );
 
-  t.ok(transport === customClient, 'transport should be resolved from config property');
+  t.ok(
+    transport === customClient,
+    'transport should be resolved from config property',
+  );
   agent.destroy();
   t.end();
 });
 
 test('#createApmClient - elastic APM Transport', (t) => {
   const agent = new Agent();
-  const transport = createApmClient({
-    serviceName: 'test-agent',
-    centralConfig: false,
-    cloudProvider: 'none'
-  }, agent);
+  const transport = createApmClient(
+    {
+      serviceName: 'test-agent',
+      centralConfig: false,
+      cloudProvider: 'none',
+    },
+    agent,
+  );
 
-  t.ok(transport instanceof ElasticAPMHttpClient, 'transport should be an ElasticAPMHttpClient instance');
+  t.ok(
+    transport instanceof ElasticAPMHttpClient,
+    'transport should be an ElasticAPMHttpClient instance',
+  );
   agent.destroy();
   t.end();
 });

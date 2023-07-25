@@ -6,7 +6,9 @@
 
 const tape = require('tape');
 const http = require('http');
-const { getUrlFromRequestAndOptions } = require('../../../../lib/instrumentation/http-shared');
+const {
+  getUrlFromRequestAndOptions,
+} = require('../../../../lib/instrumentation/http-shared');
 
 // Creates a ClientRequest from options
 //
@@ -17,7 +19,7 @@ const { getUrlFromRequestAndOptions } = require('../../../../lib/instrumentation
 //
 // @param {options} options
 // @return {ClientRequest}
-function requestFromOptions (options) {
+function requestFromOptions(options) {
   const req = http.request(options);
   req.on('error', function () {});
   req.destroy();
@@ -27,7 +29,7 @@ function requestFromOptions (options) {
 tape('getUrlFromRequestAndOptions tests', function (suite) {
   suite.test('options with host', function (t) {
     const options = {
-      host: 'example.com'
+      host: 'example.com',
     };
     const req = requestFromOptions(options);
 
@@ -39,7 +41,7 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
   suite.test('options with host and path', function (t) {
     const options = {
       host: 'example.com',
-      path: '/foo'
+      path: '/foo',
     };
     const req = requestFromOptions(options);
 
@@ -52,41 +54,56 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
     const options = {
       host: 'example.com',
       path: '/foo?fpp=bar',
-      port: 32
+      port: 32,
     };
     const req = requestFromOptions(options);
 
     const url = getUrlFromRequestAndOptions(req, options);
-    t.equals(url, 'http://example.com:32/foo?fpp=bar', 'url rendered as expected');
+    t.equals(
+      url,
+      'http://example.com:32/foo?fpp=bar',
+      'url rendered as expected',
+    );
     t.end();
   });
 
-  suite.test('options with host, path, port, query string, and a username/password', function (t) {
-    const options = {
-      host: 'example.com',
-      path: '/foo?fpp=bar',
-      auth: 'username:password',
-      port: 32
-    };
-    const req = requestFromOptions(options);
+  suite.test(
+    'options with host, path, port, query string, and a username/password',
+    function (t) {
+      const options = {
+        host: 'example.com',
+        path: '/foo?fpp=bar',
+        auth: 'username:password',
+        port: 32,
+      };
+      const req = requestFromOptions(options);
 
-    const url = getUrlFromRequestAndOptions(req, options);
-    t.equals(url, 'http://example.com:32/foo?fpp=bar', 'url rendered as expected');
-    t.equals(url.indexOf('username'), -1, 'no auth information in url');
-    t.equals(url.indexOf('password'), -1, 'no auth information in url');
-    t.end();
-  });
+      const url = getUrlFromRequestAndOptions(req, options);
+      t.equals(
+        url,
+        'http://example.com:32/foo?fpp=bar',
+        'url rendered as expected',
+      );
+      t.equals(url.indexOf('username'), -1, 'no auth information in url');
+      t.equals(url.indexOf('password'), -1, 'no auth information in url');
+      t.end();
+    },
+  );
 
   suite.test('options with host and hostname', function (t) {
     const options = {
       host: 'two.example.com',
       hostname: 'one.example.com',
       path: '/bar',
-      auth: 'username:password'
+      auth: 'username:password',
     };
     const req = requestFromOptions(options);
     const url = getUrlFromRequestAndOptions(req, options);
-    t.equals(url, 'http://one.example.com/bar', 'url rendered as expected (hostname wins)');
+    t.equals(
+      url,
+      'http://one.example.com/bar',
+      'url rendered as expected (hostname wins)',
+    );
     t.equals(url.indexOf('username'), -1, 'no auth information in url');
     t.equals(url.indexOf('password'), -1, 'no auth information in url');
     t.end();
@@ -96,7 +113,7 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
     const options = {
       host: 'two.example.com',
       hostname: 'one.example.com',
-      path: '/bar'
+      path: '/bar',
     };
     const req = requestFromOptions(options);
 
@@ -113,7 +130,7 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
   suite.test('port 80 makes it through', function (t) {
     const options = {
       host: 'two.example.com',
-      port: 80
+      port: 80,
     };
     const req = requestFromOptions(options);
 
@@ -129,8 +146,8 @@ tape('getUrlFromRequestAndOptions tests', function (suite) {
       // A custom agent that implements the minimum to pass muster, but does
       // *not* define `agent.protocol`.
       agent: {
-        addRequest () {}
-      }
+        addRequest() {},
+      },
     };
     const req = requestFromOptions(options);
 

@@ -13,14 +13,15 @@
 //    npm run docker:start postgres
 // to start a Postgres container. Then `npm run docker:stop` to stop it.
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-pg'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-pg',
 });
 
 const { Client, Query } = require('pg');
 
 const client = new Client({
-  user: process.env.PGUSER || 'postgres'
+  user: process.env.PGUSER || 'postgres',
 });
 client.connect(function (err) {
   console.warn('Connected (err=%s)', err);
@@ -34,10 +35,18 @@ client.connect(function (err) {
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 apm.startTransaction('t1');
 client.query('SELECT $1::text as message', ['hi'], (err, res) => {
-  console.log('[t1] err=%s res=%s', err && err.message, !err && res.rows[0].message);
+  console.log(
+    '[t1] err=%s res=%s',
+    err && err.message,
+    !err && res.rows[0].message,
+  );
 });
 client.query('SELECT $1::text as message', ['bye'], (err, res) => {
-  console.log('[t1] err=%s res=%s', err && err.message, !err && res.rows[0].message);
+  console.log(
+    '[t1] err=%s res=%s',
+    err && err.message,
+    !err && res.rows[0].message,
+  );
   apm.endTransaction();
 });
 
@@ -58,7 +67,8 @@ q.on('end', () => {
 
 // 3. Promise style
 apm.startTransaction('t3');
-client.query('select 1 + 1 as solution')
+client
+  .query('select 1 + 1 as solution')
   .then(function (result) {
     console.log('[t3] Success: solution is %s', result.rows[0].solution);
   })

@@ -12,7 +12,7 @@ const { execSync } = require('child_process');
 const semver = require('semver');
 
 // Prints versions config for ".tav.yml" for the given package and version range
-function main (packageName, versionRange) {
+function main(packageName, versionRange) {
   // Validation
   if (!packageName || !versionRange) {
     console.error('package or version range not defined');
@@ -24,12 +24,28 @@ function main (packageName, versionRange) {
   }
 
   // Try to get versions
-  const info = JSON.parse(execSync('npm info -j ' + packageName, { encoding: 'utf-8' }));
-  const versions = info.versions.filter(v => semver.satisfies(v, versionRange));
+  const info = JSON.parse(
+    execSync('npm info -j ' + packageName, { encoding: 'utf-8' }),
+  );
+  const versions = info.versions.filter((v) =>
+    semver.satisfies(v, versionRange),
+  );
   const modulus = Math.floor((versions.length - 2) / 5);
-  const vers = versions.filter((v, idx, arr) => idx % modulus === 0 || idx === arr.length - 1);
-  console.log('  # Test v%s, every N=%d of %d releases, and current latest.', versions[0], modulus, versions.length);
-  console.log("  versions: '%s || >%s' # subset of '%s'", vers.join(' || '), vers[vers.length - 1], versionRange);
+  const vers = versions.filter(
+    (v, idx, arr) => idx % modulus === 0 || idx === arr.length - 1,
+  );
+  console.log(
+    '  # Test v%s, every N=%d of %d releases, and current latest.',
+    versions[0],
+    modulus,
+    versions.length,
+  );
+  console.log(
+    "  versions: '%s || >%s' # subset of '%s'",
+    vers.join(' || '),
+    vers[vers.length - 1],
+    versionRange,
+  );
 }
 
 // Run

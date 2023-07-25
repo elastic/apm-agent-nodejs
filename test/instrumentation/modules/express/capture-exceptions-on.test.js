@@ -14,7 +14,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const agent = require('../../../..').start({
   captureExceptions: true,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 const { exec } = require('child_process');
@@ -54,12 +54,12 @@ test('use given error handler middleware if captureExceptions: true', function (
   });
 });
 
-function get (server, cb) {
+function get(server, cb) {
   // use curl instead of http.get so the agent doesn't try to track the outgoing request
   // -s: Silent mode. Don't output progress on stderr
   exec(`curl -s localhost:${server.address().port}`, cb);
 }
 
-function onAPMData (cb) {
+function onAPMData(cb) {
   agent._apmClient = mockClient(2, cb);
 }

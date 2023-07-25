@@ -16,7 +16,7 @@ var agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 var mysql = require('mysql');
@@ -43,12 +43,12 @@ test('release connection prior to transaction', function (t) {
   });
 });
 
-function createPool (cb) {
+function createPool(cb) {
   setup(function () {
     cb(mysql.createPool(utils.credentials()));
   });
 }
 
-function setup (cb) {
+function setup(cb) {
   utils.reset(cb);
 }

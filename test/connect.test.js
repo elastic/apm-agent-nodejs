@@ -23,7 +23,7 @@ tape.test('apm.middleware.connect()', function (t) {
     metricsInterval: '0s',
     cloudProvider: 'none',
     stackTraceLimit: 2,
-    logLevel: 'warn'
+    logLevel: 'warn',
   };
 
   t.test('setup mock APM server', function (t) {
@@ -69,9 +69,17 @@ tape.test('apm.middleware.connect()', function (t) {
           agent.flush(function () {
             t.ok(apmServer.events[0].metadata, 'event 0 is metadata');
 
-            const err1 = findObjInArray(apmServer.events, 'error.exception.message', 'responding with an Error');
+            const err1 = findObjInArray(
+              apmServer.events,
+              'error.exception.message',
+              'responding with an Error',
+            );
             t.ok(err1, 'the "responding with an Error" error was captured');
-            const err2 = findObjInArray(apmServer.events, 'error.exception.message', 'throwing an Error');
+            const err2 = findObjInArray(
+              apmServer.events,
+              'error.exception.message',
+              'throwing an Error',
+            );
             t.ok(err2, 'the "throwing an Error" error was captured');
 
             server.close();

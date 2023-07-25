@@ -17,7 +17,9 @@ const agent = require('../..').start({
   centralConfig: false,
   cloudProvider: 'none',
   spanStackTraceMinDuration: 0, // Always have span stacktraces.
-  transport () { return new CapturingTransport(); }
+  transport() {
+    return new CapturingTransport();
+  },
 });
 
 var test = require('tape');
@@ -30,7 +32,9 @@ test('init', function (t) {
     var trans = new Transaction(agent, 'name', 'type');
     t.ok(/^[\da-f]{16}$/.test(trans.id));
     t.ok(/^[\da-f]{32}$/.test(trans.traceId));
-    t.ok(/^[\da-f]{2}-[\da-f]{32}-[\da-f]{16}-[\da-f]{2}$/.test(trans.traceparent));
+    t.ok(
+      /^[\da-f]{2}-[\da-f]{32}-[\da-f]{16}-[\da-f]{2}$/.test(trans.traceparent),
+    );
     t.strictEqual(trans.name, 'name');
     t.strictEqual(trans.type, 'type');
     t.strictEqual(trans.result, 'success');
@@ -42,7 +46,10 @@ test('init', function (t) {
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
     var trans = new Transaction(agent, 'name', 'type', { childOf });
     t.strictEqual(trans._context.traceparent.version, '00');
-    t.strictEqual(trans._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736');
+    t.strictEqual(
+      trans._context.traceparent.traceId,
+      '4bf92f3577b34da6a3ce929d0e0e4736',
+    );
     t.notEqual(trans._context.traceparent.id, '00f067aa0ba902b7');
     t.strictEqual(trans._context.traceparent.parentId, '00f067aa0ba902b7');
     t.strictEqual(trans._context.traceparent.flags, '01');
@@ -56,19 +63,30 @@ test('init', function (t) {
 
     agent._apmClient.clear();
     agent.startTransaction('theTransName', { links: [42] }).end();
-    t.deepEqual(agent._apmClient.transactions[0].links, undefined, 'no spans link from an invalid link');
+    t.deepEqual(
+      agent._apmClient.transactions[0].links,
+      undefined,
+      'no spans link from an invalid link',
+    );
 
     agent._apmClient.clear();
-    const aTraceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
-    agent.startTransaction('theTransName', {
-      links: [
-        { context: aTraceparent }
-      ]
-    }).end();
-    t.deepEqual(agent._apmClient.transactions[0].links, [{
-      trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
-      span_id: '00f067aa0ba902b7'
-    }], 'a span link from a traceparent');
+    const aTraceparent =
+      '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
+    agent
+      .startTransaction('theTransName', {
+        links: [{ context: aTraceparent }],
+      })
+      .end();
+    t.deepEqual(
+      agent._apmClient.transactions[0].links,
+      [
+        {
+          trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
+          span_id: '00f067aa0ba902b7',
+        },
+      ],
+      'a span link from a traceparent',
+    );
 
     const aTrans = agent.startTransaction('aTrans');
     const aSpan = aTrans.startSpan('aSpan');
@@ -76,26 +94,38 @@ test('init', function (t) {
     aTrans.end();
 
     agent._apmClient.clear();
-    agent.startTransaction('theTransName', {
-      links: [
-        { context: aTrans }
-      ]
-    }).end();
-    t.deepEqual(agent._apmClient.transactions[0].links, [{
-      trace_id: aTrans.traceId,
-      span_id: aTrans.id
-    }], 'a span link from a Transaction');
+    agent
+      .startTransaction('theTransName', {
+        links: [{ context: aTrans }],
+      })
+      .end();
+    t.deepEqual(
+      agent._apmClient.transactions[0].links,
+      [
+        {
+          trace_id: aTrans.traceId,
+          span_id: aTrans.id,
+        },
+      ],
+      'a span link from a Transaction',
+    );
 
     agent._apmClient.clear();
-    agent.startTransaction('theTransName', {
-      links: [
-        { context: aSpan }
-      ]
-    }).end();
-    t.deepEqual(agent._apmClient.transactions[0].links, [{
-      trace_id: aSpan.traceId,
-      span_id: aSpan.id
-    }], 'a span link from a Span');
+    agent
+      .startTransaction('theTransName', {
+        links: [{ context: aSpan }],
+      })
+      .end();
+    t.deepEqual(
+      agent._apmClient.transactions[0].links,
+      [
+        {
+          trace_id: aSpan.traceId,
+          span_id: aSpan.id,
+        },
+      ],
+      'a span link from a Span',
+    );
 
     t.end();
   });
@@ -176,13 +206,13 @@ test('#addLabels', function (t) {
   trans.addLabels({ bar: { baz: 2 } });
   t.deepEqual(trans._labels, {
     foo: '1',
-    bar: '[object Object]'
+    bar: '[object Object]',
   });
 
   trans.addLabels({ foo: 3 });
   t.deepEqual(trans._labels, {
     foo: '3',
-    bar: '[object Object]'
+    bar: '[object Object]',
   });
 
   trans.addLabels({ bux: 'bax', bix: 'bex' });
@@ -190,7 +220,7 @@ test('#addLabels', function (t) {
     foo: '3',
     bar: '[object Object]',
     bux: 'bax',
-    bix: 'bex'
+    bix: 'bex',
   });
 
   t.end();
@@ -212,8 +242,14 @@ test('#startSpan()', function (t) {
     var span = trans.startSpan(null, null, { startTime });
     span.end();
     var duration = span.duration();
-    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`); // we've seen 998.752 in the wild
-    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`);
+    t.ok(
+      duration > 990,
+      `duration should be circa more than 1s (was: ${duration})`,
+    ); // we've seen 998.752 in the wild
+    t.ok(
+      duration < 1100,
+      `duration should be less than 1.1s (was: ${duration})`,
+    );
     t.end();
   });
 
@@ -222,7 +258,10 @@ test('#startSpan()', function (t) {
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
     var span = trans.startSpan(null, null, { childOf });
     t.strictEqual(span._context.traceparent.version, '00');
-    t.strictEqual(span._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736');
+    t.strictEqual(
+      span._context.traceparent.traceId,
+      '4bf92f3577b34da6a3ce929d0e0e4736',
+    );
     t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7');
     t.strictEqual(span._context.traceparent.parentId, '00f067aa0ba902b7');
     t.strictEqual(span._context.traceparent.flags, '01');
@@ -274,7 +313,10 @@ test('custom start time', function (t) {
   trans.end();
 
   var duration = trans.duration();
-  t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`); // we've seen 998.752 in the wild
+  t.ok(
+    duration > 990,
+    `duration should be circa more than 1s (was: ${duration})`,
+  ); // we've seen 998.752 in the wild
   t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`);
 
   t.end();
@@ -326,7 +368,7 @@ test('name - default first, then custom', function (t) {
 test('parallel transactions', function (t) {
   agent._apmClient.clear();
 
-  function finish () {
+  function finish() {
     t.equal(agent._apmClient.transactions[0].name, 'second');
     t.equal(agent._apmClient.transactions[1].name, 'first');
 
@@ -363,7 +405,22 @@ test('#_encode() - ended', function (t) {
   trans.end();
 
   const payload = agent._apmClient.transactions[0];
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate']);
+  t.deepEqual(Object.keys(payload), [
+    'id',
+    'trace_id',
+    'parent_id',
+    'name',
+    'type',
+    'duration',
+    'timestamp',
+    'result',
+    'sampled',
+    'context',
+    'span_count',
+    'outcome',
+    'faas',
+    'sample_rate',
+  ]);
   t.ok(/^[\da-f]{16}$/.test(payload.id));
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id));
   t.strictEqual(payload.id, trans.id);
@@ -374,7 +431,14 @@ test('#_encode() - ended', function (t) {
   t.ok(payload.duration > 0);
   t.strictEqual(payload.timestamp, timerStart);
   t.strictEqual(payload.result, 'success');
-  t.deepEqual(payload.context, { user: {}, tags: {}, custom: {}, service: {}, cloud: {}, message: {} });
+  t.deepEqual(payload.context, {
+    user: {},
+    tags: {},
+    custom: {},
+    service: {},
+    cloud: {},
+    message: {},
+  });
 
   t.end();
 });
@@ -391,7 +455,22 @@ test('#_encode() - with meta data', function (t) {
   trans.end();
 
   const payload = agent._apmClient.transactions[0];
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate']);
+  t.deepEqual(Object.keys(payload), [
+    'id',
+    'trace_id',
+    'parent_id',
+    'name',
+    'type',
+    'duration',
+    'timestamp',
+    'result',
+    'sampled',
+    'context',
+    'span_count',
+    'outcome',
+    'faas',
+    'sample_rate',
+  ]);
   t.ok(/^[\da-f]{16}$/.test(payload.id));
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id));
   t.strictEqual(payload.id, trans.id);
@@ -402,7 +481,14 @@ test('#_encode() - with meta data', function (t) {
   t.ok(payload.duration > 0);
   t.strictEqual(payload.timestamp, timerStart);
   t.strictEqual(payload.result, 'baz');
-  t.deepEqual(payload.context, { user: { foo: 1 }, tags: { bar: '1' }, custom: { baz: 1 }, service: {}, cloud: {}, message: {} });
+  t.deepEqual(payload.context, {
+    user: { foo: 1 },
+    tags: { bar: '1' },
+    custom: { baz: 1 },
+    service: {},
+    cloud: {},
+    message: {},
+  });
 
   t.end();
 });
@@ -416,7 +502,22 @@ test('#_encode() - http request meta data', function (t) {
   trans.end();
 
   const payload = agent._apmClient.transactions[0];
-  t.deepEqual(Object.keys(payload), ['id', 'trace_id', 'parent_id', 'name', 'type', 'duration', 'timestamp', 'result', 'sampled', 'context', 'span_count', 'outcome', 'faas', 'sample_rate']);
+  t.deepEqual(Object.keys(payload), [
+    'id',
+    'trace_id',
+    'parent_id',
+    'name',
+    'type',
+    'duration',
+    'timestamp',
+    'result',
+    'sampled',
+    'context',
+    'span_count',
+    'outcome',
+    'faas',
+    'sample_rate',
+  ]);
   t.ok(/^[\da-f]{16}$/.test(payload.id));
   t.ok(/^[\da-f]{32}$/.test(payload.trace_id));
   t.strictEqual(payload.id, trans.id);
@@ -443,10 +544,10 @@ test('#_encode() - http request meta data', function (t) {
         hostname: 'example.com',
         pathname: '/foo',
         search: '?bar=baz',
-        full: 'http://example.com/foo?bar=baz'
+        full: 'http://example.com/foo?bar=baz',
       },
       socket: {
-        remote_address: '127.0.0.1'
+        remote_address: '127.0.0.1',
       },
       headers: {
         host: 'example.com',
@@ -454,15 +555,15 @@ test('#_encode() - http request meta data', function (t) {
         'content-length': 42,
         cookie: '[REDACTED]',
         'x-foo': 'bar',
-        'x-bar': 'baz'
+        'x-bar': 'baz',
       },
       cookies: {
         cookie1: 'foo',
         cookie2: 'bar',
-        'session-id': '[REDACTED]'
+        'session-id': '[REDACTED]',
       },
-      body: '[REDACTED]'
-    }
+      body: '[REDACTED]',
+    },
   });
 
   t.end();
@@ -491,10 +592,10 @@ test('#_encode() - with spans', function (t) {
       custom: {},
       service: {},
       cloud: {},
-      message: {}
+      message: {},
     });
     t.deepEqual(payload.span_count, {
-      started: 1
+      started: 1,
     });
 
     t.end();
@@ -532,12 +633,12 @@ test('#_encode() - dropped spans', function (t) {
       custom: {},
       service: {},
       cloud: {},
-      message: {}
+      message: {},
     });
 
     t.deepEqual(payload.span_count, {
       started: 2,
-      dropped: 1
+      dropped: 1,
     });
     t.equals(payload.dropped_spans_stats.length, 1);
     agent._conf.transactionMaxSpans = oldTransactionMaxSpans;
@@ -575,14 +676,17 @@ test('#ids', function (t) {
   var trans = new Transaction(agent);
   t.deepLooseEqual(trans.ids, {
     'trace.id': trans.traceId,
-    'transaction.id': trans.id
+    'transaction.id': trans.id,
   });
   t.end();
 });
 
 test('#toString()', function (t) {
   var trans = new Transaction(agent);
-  t.strictEqual(trans.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`);
+  t.strictEqual(
+    trans.toString(),
+    `trace.id=${trans.traceId} transaction.id=${trans.id}`,
+  );
   t.end();
 });
 
@@ -603,15 +707,23 @@ test('Transaction API on ended transaction', function (t) {
   t.equal(trans.type, 'theTransType', 'trans.type');
   t.equal(trans.subtype, null, 'trans.subtype');
   t.equal(trans.action, null, 'trans.action');
-  t.equal(trans.traceparent, traceparentBefore, `trans.traceparent: ${trans.traceparent}`);
+  t.equal(
+    trans.traceparent,
+    traceparentBefore,
+    `trans.traceparent: ${trans.traceparent}`,
+  );
   t.equal(trans.outcome, 'unknown', 'trans.outcome');
   t.equal(trans.result, 'success', 'trans.result');
-  t.deepLooseEqual(trans.ids,
+  t.deepLooseEqual(
+    trans.ids,
     { 'trace.id': traceId, 'transaction.id': transId },
-    'trans.ids');
-  t.equal(trans.toString(), // deprecated
+    'trans.ids',
+  );
+  t.equal(
+    trans.toString(), // deprecated
     `trace.id=${traceId} transaction.id=${transId}`,
-    trans.toString());
+    trans.toString(),
+  );
 
   // We just want to ensure that these Transaction API methods don't throw.
   // Whether they make field changes after the transaction has ended isn't
@@ -644,7 +756,7 @@ test('Transaction API on ended transaction', function (t) {
   });
 });
 
-function mockRequest () {
+function mockRequest() {
   return {
     httpVersion: '1.1',
     method: 'POST',
@@ -655,20 +767,21 @@ function mockRequest () {
       'content-length': 42,
       cookie: 'cookie1=foo;cookie2=bar;session-id=secret',
       'x-foo': 'bar',
-      'x-bar': 'baz'
+      'x-bar': 'baz',
     },
     socket: {
-      remoteAddress: '127.0.0.1'
+      remoteAddress: '127.0.0.1',
     },
     body: {
-      foo: 42
-    }
+      foo: 42,
+    },
   };
 }
 
-function mockResponse () {
+function mockResponse() {
   var statusLine = 'HTTP/1.1 200 OK\r\n';
-  var msgHeaders = 'Date: Tue, 10 Jun 2014 07:29:20 GMT\r\n' +
+  var msgHeaders =
+    'Date: Tue, 10 Jun 2014 07:29:20 GMT\r\n' +
     'Connection: keep-alive\r\n' +
     'Transfer-Encoding: chunked\r\n' +
     'Age: foo\r\n' +
@@ -685,6 +798,6 @@ function mockResponse () {
     statusMessage: 'OK',
     headersSent: true,
     finished: true,
-    _header: statusLine + msgHeaders
+    _header: statusLine + msgHeaders,
   };
 }

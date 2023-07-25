@@ -17,7 +17,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
 });
 
 var test = require('tape');
@@ -27,9 +27,15 @@ var express = require('express');
 var querystring = require('querystring');
 const semver = require('semver');
 // require('apollo-server-express') is a hard crash for nodes < 12.0.0
-const apolloServerExpressVersion = require('apollo-server-express/package.json').version;
-if (semver.gte(apolloServerExpressVersion, '3.0.0') && semver.lt(process.version, '12.0.0')) {
-  console.log(`# SKIP apollo-server-express@${apolloServerExpressVersion} does not support node ${process.version}`);
+const apolloServerExpressVersion =
+  require('apollo-server-express/package.json').version;
+if (
+  semver.gte(apolloServerExpressVersion, '3.0.0') &&
+  semver.lt(process.version, '12.0.0')
+) {
+  console.log(
+    `# SKIP apollo-server-express@${apolloServerExpressVersion} does not support node ${process.version}`,
+  );
   process.exit();
 }
 
@@ -48,11 +54,14 @@ test('POST /graphql', function (t) {
   `;
   var resolvers = {
     Query: {
-      hello () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      hello() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return 'Hello world!';
-      }
-    }
+      },
+    },
   };
   var query = '{"query":"{ hello }"}';
 
@@ -66,7 +75,7 @@ test('POST /graphql', function (t) {
         method: 'POST',
         port,
         path: '/graphql',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       };
       var req = http.request(opts, function (res) {
         var chunks = [];
@@ -74,8 +83,11 @@ test('POST /graphql', function (t) {
         res.on('end', function () {
           server.close();
           var result = Buffer.concat(chunks).toString();
-          t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
-            'client got the expected response body');
+          t.strictEqual(
+            result,
+            '{"data":{"hello":"Hello world!"}}\n',
+            'client got the expected response body',
+          );
           agent.flush();
         });
       });
@@ -94,11 +106,14 @@ test('GET /graphql', function (t) {
   `;
   var resolvers = {
     Query: {
-      hello () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      hello() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return 'Hello world!';
-      }
-    }
+      },
+    },
   };
   var query = querystring.stringify({ query: '{ hello }' });
 
@@ -111,7 +126,7 @@ test('GET /graphql', function (t) {
       var opts = {
         method: 'GET',
         port,
-        path: '/graphql?' + query
+        path: '/graphql?' + query,
       };
       var req = http.request(opts, function (res) {
         var chunks = [];
@@ -119,8 +134,11 @@ test('GET /graphql', function (t) {
         res.on('end', function () {
           server.close();
           var result = Buffer.concat(chunks).toString();
-          t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
-            'client got the expected response body');
+          t.strictEqual(
+            result,
+            '{"data":{"hello":"Hello world!"}}\n',
+            'client got the expected response body',
+          );
           agent.flush();
         });
       });
@@ -139,11 +157,14 @@ test('POST /graphql - named query', function (t) {
   `;
   var resolvers = {
     Query: {
-      hello () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      hello() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return 'Hello world!';
-      }
-    }
+      },
+    },
   };
   var query = '{"query":"query HelloQuery { hello }"}';
 
@@ -157,7 +178,7 @@ test('POST /graphql - named query', function (t) {
         method: 'POST',
         port,
         path: '/graphql',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       };
       var req = http.request(opts, function (res) {
         var chunks = [];
@@ -185,15 +206,21 @@ test('POST /graphql - sort multiple queries', function (t) {
   `;
   var resolvers = {
     Query: {
-      hello () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      hello() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return 'Hello world!';
       },
-      life () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      life() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return 42;
-      }
-    }
+      },
+    },
   };
   var query = '{"query":"{ life, hello }"}';
 
@@ -207,7 +234,7 @@ test('POST /graphql - sort multiple queries', function (t) {
         method: 'POST',
         port,
         path: '/graphql',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       };
       var req = http.request(opts, function (res) {
         var chunks = [];
@@ -215,7 +242,10 @@ test('POST /graphql - sort multiple queries', function (t) {
         res.on('end', function () {
           server.close();
           var result = Buffer.concat(chunks).toString();
-          t.strictEqual(result, '{"data":{"life":42,"hello":"Hello world!"}}\n');
+          t.strictEqual(
+            result,
+            '{"data":{"life":42,"hello":"Hello world!"}}\n',
+          );
           agent.flush();
         });
       });
@@ -231,13 +261,13 @@ test('POST /graphql - sub-query', function (t) {
     {
       title: 'Harry Potter and the Chamber of Secrets',
       author: 'J.K. Rowling',
-      publisher: { name: 'ACME' }
+      publisher: { name: 'ACME' },
     },
     {
       title: 'Jurassic Park',
       author: 'Michael Crichton',
-      publisher: { name: 'ACME' }
-    }
+      publisher: { name: 'ACME' },
+    },
   ];
   var typeDefs = gql`
     type Publisher {
@@ -254,11 +284,14 @@ test('POST /graphql - sub-query', function (t) {
   `;
   var resolvers = {
     Query: {
-      books () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      books() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return books;
-      }
-    }
+      },
+    },
   };
   var query = '{"query":"{ books { title author, publisher { name } } }"}';
 
@@ -272,7 +305,7 @@ test('POST /graphql - sub-query', function (t) {
         method: 'POST',
         port,
         path: '/graphql',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       };
       var req = http.request(opts, function (res) {
         var chunks = [];
@@ -289,7 +322,7 @@ test('POST /graphql - sub-query', function (t) {
   });
 });
 
-function done (t, query) {
+function done(t, query) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 1);
     t.strictEqual(data.spans.length, 1);
@@ -311,7 +344,7 @@ function done (t, query) {
   };
 }
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   // Cannot use the 'expected' argument to mockClient, because the way the
   // tests above are structured, there is a race between the mockClient
@@ -319,5 +352,7 @@ function resetAgent (cb) {
   // response. Using the 200ms delay in mockClient slows things down such that
   // "done" should always come last.
   agent._apmClient = mockClient(cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

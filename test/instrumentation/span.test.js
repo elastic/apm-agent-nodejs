@@ -17,7 +17,9 @@ const agent = require('../..').start({
   centralConfig: false,
   cloudProvider: 'none',
   spanStackTraceMinDuration: 0, // Always have span stacktraces.
-  transport () { return new CapturingTransport(); }
+  transport() {
+    return new CapturingTransport();
+  },
 });
 
 var test = require('tape');
@@ -33,7 +35,9 @@ test('init', function (t) {
     t.ok(/^[\da-f]{16}$/.test(span.id));
     t.ok(/^[\da-f]{32}$/.test(span.traceId));
     t.ok(/^[\da-f]{16}$/.test(span.parentId));
-    t.ok(/^[\da-f]{2}-[\da-f]{32}-[\da-f]{16}-[\da-f]{2}$/.test(span.traceparent));
+    t.ok(
+      /^[\da-f]{2}-[\da-f]{32}-[\da-f]{16}-[\da-f]{2}$/.test(span.traceparent),
+    );
     t.strictEqual(span.transaction, trans);
     t.strictEqual(span.name, 'sig');
     t.strictEqual(span.type, 'type');
@@ -46,7 +50,10 @@ test('init', function (t) {
     var trans = new Transaction(agent);
     var span = new Span(trans, 'sig', 'type', { childOf });
     t.strictEqual(span._context.traceparent.version, '00');
-    t.strictEqual(span._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736');
+    t.strictEqual(
+      span._context.traceparent.traceId,
+      '4bf92f3577b34da6a3ce929d0e0e4736',
+    );
     t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7');
     t.strictEqual(span._context.traceparent.parentId, '00f067aa0ba902b7');
     t.strictEqual(span._context.traceparent.flags, '01');
@@ -69,7 +76,11 @@ test('init', function (t) {
     agent._apmClient.clear();
     theTrans.startSpan('theSpanName', { links: [42] }).end();
     agent.flush(() => {
-      t.deepEqual(agent._apmClient.spans[0].links, undefined, 'no span link from an invalid link');
+      t.deepEqual(
+        agent._apmClient.spans[0].links,
+        undefined,
+        'no span link from an invalid link',
+      );
       theTrans.end();
       t.end();
     });
@@ -78,17 +89,24 @@ test('init', function (t) {
   t.test('options.links (from traceparent)', function (t) {
     const theTrans = agent.startTransaction('theTransName');
     agent._apmClient.clear();
-    const aTraceparent = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
-    theTrans.startSpan('theSpanName', {
-      links: [
-        { context: aTraceparent }
-      ]
-    }).end();
+    const aTraceparent =
+      '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
+    theTrans
+      .startSpan('theSpanName', {
+        links: [{ context: aTraceparent }],
+      })
+      .end();
     agent.flush(() => {
-      t.deepEqual(agent._apmClient.spans[0].links, [{
-        trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
-        span_id: '00f067aa0ba902b7'
-      }], 'a span link from a traceparent');
+      t.deepEqual(
+        agent._apmClient.spans[0].links,
+        [
+          {
+            trace_id: '4bf92f3577b34da6a3ce929d0e0e4736',
+            span_id: '00f067aa0ba902b7',
+          },
+        ],
+        'a span link from a traceparent',
+      );
       theTrans.end();
       t.end();
     });
@@ -100,23 +118,26 @@ test('init', function (t) {
 
     const theTrans = agent.startTransaction('theTransName');
     agent._apmClient.clear();
-    theTrans.startSpan('theSpanName', {
-      links: [
-        { context: aTrans },
-        { context: aSpan }
-      ]
-    }).end();
+    theTrans
+      .startSpan('theSpanName', {
+        links: [{ context: aTrans }, { context: aSpan }],
+      })
+      .end();
     agent.flush(() => {
-      t.deepEqual(agent._apmClient.spans[0].links, [
-        {
-          trace_id: aTrans.traceId,
-          span_id: aTrans.id
-        },
-        {
-          trace_id: aSpan.traceId,
-          span_id: aSpan.id
-        }
-      ], 'a span link from a Transaction and a Span');
+      t.deepEqual(
+        agent._apmClient.spans[0].links,
+        [
+          {
+            trace_id: aTrans.traceId,
+            span_id: aTrans.id,
+          },
+          {
+            trace_id: aSpan.traceId,
+            span_id: aSpan.id,
+          },
+        ],
+        'a span link from a Transaction and a Span',
+      );
 
       aSpan.end();
       aTrans.end();
@@ -158,7 +179,10 @@ test('custom start time', function (t) {
   var span = new Span(trans, 'sig', 'type', { childOf: trans, startTime });
   span.end();
   var duration = span.duration();
-  t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`); // we've seen 998.752 in the wild
+  t.ok(
+    duration > 990,
+    `duration should be circa more than 1s (was: ${duration})`,
+  ); // we've seen 998.752 in the wild
   t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`);
   t.end();
 });
@@ -219,13 +243,13 @@ test('#addLabels', function (t) {
   span.addLabels({ bar: { baz: 2 } });
   t.deepEqual(span._labels, {
     foo: '1',
-    bar: '[object Object]'
+    bar: '[object Object]',
   });
 
   span.addLabels({ foo: 3 });
   t.deepEqual(span._labels, {
     foo: '3',
-    bar: '[object Object]'
+    bar: '[object Object]',
   });
 
   span.addLabels({ bux: 'bax', bix: 'bex' });
@@ -233,7 +257,7 @@ test('#addLabels', function (t) {
     foo: '3',
     bar: '[object Object]',
     bux: 'bax',
-    bix: 'bex'
+    bix: 'bex',
   });
 
   t.end();
@@ -255,8 +279,11 @@ test('span.sync', function (t) {
     span1.end();
     t.strictEqual(span1.sync, false, 'span1.sync=false immediately after end');
     trans.end();
-    t.strictEqual(span2.sync, true,
-      'span2.sync=true later after having ended sync');
+    t.strictEqual(
+      span2.sync,
+      true,
+      'span2.sync=true later after having ended sync',
+    );
     t.end();
   });
 });
@@ -270,14 +297,30 @@ test('#_encode() - un-ended', function (t) {
   });
 });
 
-test('#_encode() - ended unnamed', function myTest1 (t) {
+test('#_encode() - ended unnamed', function myTest1(t) {
   var trans = new Transaction(agent);
   var span = new Span(trans);
   var timerStart = span._timer.start;
   span.end();
   span._encode(function (err, payload) {
     t.error(err);
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'subtype', 'action', 'timestamp', 'duration', 'context', 'stacktrace', 'sync', 'outcome', 'sample_rate']);
+    t.deepEqual(Object.keys(payload), [
+      'id',
+      'transaction_id',
+      'parent_id',
+      'trace_id',
+      'name',
+      'type',
+      'subtype',
+      'action',
+      'timestamp',
+      'duration',
+      'context',
+      'stacktrace',
+      'sync',
+      'outcome',
+      'sample_rate',
+    ]);
     t.ok(/^[\da-f]{16}$/.test(payload.id));
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id));
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id));
@@ -295,14 +338,30 @@ test('#_encode() - ended unnamed', function myTest1 (t) {
   });
 });
 
-test('#_encode() - ended named', function myTest2 (t) {
+test('#_encode() - ended named', function myTest2(t) {
   var trans = new Transaction(agent);
   var span = new Span(trans, 'foo', 'bar');
   var timerStart = span._timer.start;
   span.end();
   span._encode(function (err, payload) {
     t.error(err);
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'subtype', 'action', 'timestamp', 'duration', 'context', 'stacktrace', 'sync', 'outcome', 'sample_rate']);
+    t.deepEqual(Object.keys(payload), [
+      'id',
+      'transaction_id',
+      'parent_id',
+      'trace_id',
+      'name',
+      'type',
+      'subtype',
+      'action',
+      'timestamp',
+      'duration',
+      'context',
+      'stacktrace',
+      'sync',
+      'outcome',
+      'sample_rate',
+    ]);
     t.ok(/^[\da-f]{16}$/.test(payload.id));
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id));
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id));
@@ -320,7 +379,7 @@ test('#_encode() - ended named', function myTest2 (t) {
   });
 });
 
-test('#_encode() - with meta data', function myTest2 (t) {
+test('#_encode() - with meta data', function myTest2(t) {
   var trans = new Transaction(agent);
   var span = new Span(trans, 'foo', 'bar');
   var timerStart = span._timer.start;
@@ -329,7 +388,23 @@ test('#_encode() - with meta data', function myTest2 (t) {
   span.end();
   span._encode(function (err, payload) {
     t.error(err);
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'subtype', 'action', 'timestamp', 'duration', 'context', 'stacktrace', 'sync', 'outcome', 'sample_rate']);
+    t.deepEqual(Object.keys(payload), [
+      'id',
+      'transaction_id',
+      'parent_id',
+      'trace_id',
+      'name',
+      'type',
+      'subtype',
+      'action',
+      'timestamp',
+      'duration',
+      'context',
+      'stacktrace',
+      'sync',
+      'outcome',
+      'sample_rate',
+    ]);
     t.ok(/^[\da-f]{16}$/.test(payload.id));
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id));
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id));
@@ -343,7 +418,7 @@ test('#_encode() - with meta data', function myTest2 (t) {
     t.ok(payload.duration > 0);
     t.deepEqual(payload.context, {
       db: { statement: 'foo', type: 'bar' },
-      tags: { baz: '1' }
+      tags: { baz: '1' },
     });
     assert.stacktrace(t, 'myTest2', __filename, payload.stacktrace, agent);
     t.end();
@@ -360,7 +435,23 @@ test('#_encode() - disabled stack traces', function (t) {
   span.end();
   span._encode(function (err, payload) {
     t.error(err);
-    t.deepEqual(Object.keys(payload), ['id', 'transaction_id', 'parent_id', 'trace_id', 'name', 'type', 'subtype', 'action', 'timestamp', 'duration', 'context', 'stacktrace', 'sync', 'outcome', 'sample_rate']);
+    t.deepEqual(Object.keys(payload), [
+      'id',
+      'transaction_id',
+      'parent_id',
+      'trace_id',
+      'name',
+      'type',
+      'subtype',
+      'action',
+      'timestamp',
+      'duration',
+      'context',
+      'stacktrace',
+      'sync',
+      'outcome',
+      'sample_rate',
+    ]);
     t.ok(/^[\da-f]{16}$/.test(payload.id));
     t.ok(/^[\da-f]{16}$/.test(payload.transaction_id));
     t.ok(/^[\da-f]{16}$/.test(payload.parent_id));
@@ -385,7 +476,7 @@ test('#ids', function (t) {
   var span = new Span(trans);
   t.deepLooseEqual(span.ids, {
     'trace.id': span.traceId,
-    'span.id': span.id
+    'span.id': span.id,
   });
   t.end();
 });
@@ -399,7 +490,12 @@ test('#toString()', function (t) {
 
 test('Span API on ended span', function (t) {
   const trans = agent.startTransaction('theTransName');
-  const span = trans.startSpan('theSpanName', 'theSpanType', 'theSpanSubtype', 'theSpanAction');
+  const span = trans.startSpan(
+    'theSpanName',
+    'theSpanType',
+    'theSpanSubtype',
+    'theSpanAction',
+  );
   const traceId = span.traceId;
   const spanId = span.id;
   const traceparentBefore = span.traceparent;
@@ -412,17 +508,27 @@ test('Span API on ended span', function (t) {
   t.equal(span.type, 'theSpanType', 'span.type');
   t.equal(span.subtype, 'theSpanSubtype', 'span.subtype');
   t.equal(span.action, 'theSpanAction', 'span.action');
-  t.equal(span.traceparent, traceparentBefore, `span.traceparent: ${span.traceparent}`);
+  t.equal(
+    span.traceparent,
+    traceparentBefore,
+    `span.traceparent: ${span.traceparent}`,
+  );
   t.equal(span.outcome, 'success', 'span.outcome');
-  t.equal(JSON.stringify(span.ids),
+  t.equal(
+    JSON.stringify(span.ids),
     JSON.stringify({ 'trace.id': span.traceId, 'span.id': span.id }),
-    'span.ids');
-  t.deepLooseEqual(span.ids,
+    'span.ids',
+  );
+  t.deepLooseEqual(
+    span.ids,
     { 'trace.id': traceId, 'span.id': spanId },
-    'span.ids');
-  t.equal(span.toString(), // deprecated
+    'span.ids',
+  );
+  t.equal(
+    span.toString(), // deprecated
     `trace.id=${traceId} span.id=${spanId}`,
-    span.toString());
+    span.toString(),
+  );
 
   // We just want to ensure that the Span API methods don't throw. Whether
   // they make span field changes after the span has ended isn't tested.

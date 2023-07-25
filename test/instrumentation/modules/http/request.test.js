@@ -13,7 +13,7 @@ const agent = require('../../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
 });
 
 var http = require('http');
@@ -89,12 +89,12 @@ test('Outcome', function (t) {
   sendRequest(server);
 });
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(3, cb);
 }
 
-function sendRequest (server, timeout) {
+function sendRequest(server, timeout) {
   server.listen(function () {
     var port = server.address().port;
     var req = http.get('http://localhost:' + port, function (res) {

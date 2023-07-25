@@ -11,10 +11,10 @@
 const bench = require('./utils/bench');
 
 bench('transaction', {
-  setup () {
+  setup() {
     var agent = this.benchmark.agent;
   },
-  fn (deferred) {
+  fn(deferred) {
     if (agent) agent.startTransaction();
     setImmediate(() => {
       if (agent) agent.endTransaction();
@@ -22,5 +22,5 @@ bench('transaction', {
         deferred.resolve();
       });
     });
-  }
+  },
 });

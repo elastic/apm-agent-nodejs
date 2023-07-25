@@ -16,7 +16,7 @@ var agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 var BLUEBIRD_VERSION = require('bluebird/package').version;
@@ -41,17 +41,27 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
             resolve('foo');
           }, 100);
 
-          t.strictEqual(ins.currTransaction().id, trans.id, 'before calling onCancel');
+          t.strictEqual(
+            ins.currTransaction().id,
+            trans.id,
+            'before calling onCancel',
+          );
 
           onCancel(function () {
             t.ok(cancelled, 'should be cancelled');
-            t.strictEqual(ins.currTransaction().id, trans.id, 'onCancel callback');
+            t.strictEqual(
+              ins.currTransaction().id,
+              trans.id,
+              'onCancel callback',
+            );
           });
-        }).then(function () {
-          t.fail('should not resolve');
-        }).catch(function () {
-          t.fail('should not reject');
-        });
+        })
+          .then(function () {
+            t.fail('should not resolve');
+          })
+          .catch(function () {
+            t.fail('should not reject');
+          });
 
         setTimeout(function () {
           cancelled = true;
@@ -77,7 +87,7 @@ if (semver.satisfies(BLUEBIRD_VERSION, '>=3')) {
   });
 }
 
-function twice (fn) {
+function twice(fn) {
   setImmediate(fn);
   setImmediate(fn);
 }

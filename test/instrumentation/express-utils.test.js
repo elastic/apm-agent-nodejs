@@ -8,7 +8,9 @@
 
 const test = require('tape');
 
-const { getPathFromRequest } = require('../../lib/instrumentation/express-utils');
+const {
+  getPathFromRequest,
+} = require('../../lib/instrumentation/express-utils');
 
 test('#getPathFromRequest', function (t) {
   t.test('should return path for an auth like url', function (t) {
@@ -26,11 +28,11 @@ test('#getPathFromRequest', function (t) {
   });
 });
 
-function createRequest (url, host = 'example.com') {
+function createRequest(url, host = 'example.com') {
   return {
     url,
     headers: {
-      host
-    }
+      host,
+    },
   };
 }

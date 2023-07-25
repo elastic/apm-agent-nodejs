@@ -16,7 +16,7 @@ var agent = require('../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 var http = require('http');
@@ -54,22 +54,22 @@ test('express-queue', function (t) {
 
     Promise.all(tasks).then(done, done);
 
-    function done () {
+    function done() {
       agent.flush();
       server.close();
     }
   });
 });
 
-function request (port, path) {
+function request(port, path) {
   return new Promise((resolve, reject) => {
     var opts = {
       method: 'GET',
       port,
       path,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     };
 
     var req = http.request(opts, function (res) {
@@ -85,7 +85,7 @@ function request (port, path) {
   });
 }
 
-function done (t, query) {
+function done(t, query) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 5);
 
@@ -93,21 +93,30 @@ function done (t, query) {
       t.comment('request ' + (i + 1));
       t.strictEqual(trans.name, 'GET /', 'name should be GET /');
       t.strictEqual(trans.type, 'request', 'type should be request');
-      t.strictEqual(data.spans.filter(span => span.transaction_id === trans.id).length, 1, 'transaction should have 1 span');
+      t.strictEqual(
+        data.spans.filter((span) => span.transaction_id === trans.id).length,
+        1,
+        'transaction should have 1 span',
+      );
       const span = findObjInArray(data.spans, 'transaction_id', trans.id);
       t.strictEqual(span.name, 'foo', 'span name should be foo');
       t.strictEqual(span.type, 'bar', 'span name should be bar');
 
       var offset = span.timestamp - trans.timestamp;
-      t.ok(offset + span.duration * 1000 < trans.duration * 1000, 'span should have valid timings');
+      t.ok(
+        offset + span.duration * 1000 < trans.duration * 1000,
+        'span should have valid timings',
+      );
     });
 
     t.end();
   };
 }
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(10, cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

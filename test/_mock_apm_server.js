@@ -31,7 +31,7 @@ class MockAPMServer {
    *      this will add some behaviour expected of APM Lambda extension, e.g.
    *      responding to the `POST /register/transaction` endpoint.
    */
-  constructor (opts) {
+  constructor(opts) {
     opts = opts || {};
     this.clear();
     this.serverUrl = null; // set in .start()
@@ -40,12 +40,12 @@ class MockAPMServer {
     this._http = http.createServer(this._onRequest.bind(this));
   }
 
-  clear () {
+  clear() {
     this.events = [];
     this.requests = [];
   }
 
-  _onRequest (req, res) {
+  _onRequest(req, res) {
     var parsedUrl = new URL(req.url, this.serverUrl);
     var instream = req;
     if (req.headers['content-encoding'] === 'gzip') {
@@ -67,22 +67,29 @@ class MockAPMServer {
         resBody = JSON.stringify({
           build_date: '2021-09-16T02:05:39Z',
           build_sha: 'a183f675ecd03fca4a897cbe85fda3511bc3ca43',
-          version: this._apmServerVersion
+          version: this._apmServerVersion,
         });
       } else if (parsedUrl.pathname === '/config/v1/agents') {
         // Central config mocking.
         res.writeHead(200);
         resBody = '{}';
-      } else if (req.method === 'POST' && parsedUrl.pathname === '/intake/v2/events') {
+      } else if (
+        req.method === 'POST' &&
+        parsedUrl.pathname === '/intake/v2/events'
+      ) {
         body
           .split(/\n/g) // parse each line
-          .filter(line => line.trim()) // ... if it is non-empty
-          .forEach(line => {
+          .filter((line) => line.trim()) // ... if it is non-empty
+          .forEach((line) => {
             this.events.push(JSON.parse(line)); // ... append to this.events
           });
         resBody = '{}';
         res.writeHead(202);
-      } else if (this._mockLambdaExtension && req.method === 'POST' && parsedUrl.pathname === '/register/transaction') {
+      } else if (
+        this._mockLambdaExtension &&
+        req.method === 'POST' &&
+        parsedUrl.pathname === '/register/transaction'
+      ) {
         // See `func handleTransactionRegistration` in apm-aws-lambda.git.
         // This mock doesn't handle the various checks there. It only handles
         // the status code, so the APM agent will continue to register
@@ -95,25 +102,25 @@ class MockAPMServer {
         method: req.method,
         url: req.url,
         headers: req.headers,
-        body
+        body,
       });
       res.end(resBody);
     });
   }
 
   // Start listening and callback with `cb(serverUrl)`.
-  start (cb) {
+  start(cb) {
     return this._http.listen(() => {
       this.serverUrl = `http://localhost:${this._http.address().port}`;
       cb(this.serverUrl);
     });
   }
 
-  close () {
+  close() {
     return this._http.close();
   }
 }
 
 module.exports = {
-  MockAPMServer
+  MockAPMServer,
 };

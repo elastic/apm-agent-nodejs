@@ -18,6 +18,9 @@ const tracer = otel.trace.getTracer('test-start-span');
 const s = tracer.startSpan('mySpan');
 
 // OTel's startSpan does *not* make the span active/current.
-assert.ok(otel.trace.getSpan(otel.context.active()) === undefined, 'no active span');
+assert.ok(
+  otel.trace.getSpan(otel.context.active()) === undefined,
+  'no active span',
+);
 
 s.end();

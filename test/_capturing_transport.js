@@ -29,11 +29,11 @@
 // end.
 
 class CapturingTransport {
-  constructor () {
+  constructor() {
     this.clear();
   }
 
-  clear () {
+  clear() {
     this.lambdaStartCalled = false;
     this.extraMetadata = null;
     this.spans = [];
@@ -42,47 +42,47 @@ class CapturingTransport {
     this.metricsets = [];
   }
 
-  config (opts) {}
+  config(opts) {}
 
-  addMetadataFilter (fn) {}
+  addMetadataFilter(fn) {}
 
-  setExtraMetadata (metadata) {
+  setExtraMetadata(metadata) {
     this.extraMetadata = metadata;
   }
 
-  lambdaStart () {
+  lambdaStart() {
     this.lambdaStartCalled = true;
   }
 
-  sendSpan (span, cb) {
+  sendSpan(span, cb) {
     this.spans.push(span);
     if (cb) {
       process.nextTick(cb);
     }
   }
 
-  sendTransaction (transaction, cb) {
+  sendTransaction(transaction, cb) {
     this.transactions.push(transaction);
     if (cb) {
       process.nextTick(cb);
     }
   }
 
-  sendError (error, cb) {
+  sendError(error, cb) {
     this.errors.push(error);
     if (cb) {
       process.nextTick(cb);
     }
   }
 
-  sendMetricSet (metricset, cb) {
+  sendMetricSet(metricset, cb) {
     this.metricsets.push(metricset);
     if (cb) {
       process.nextTick(cb);
     }
   }
 
-  flush (opts, cb) {
+  flush(opts, cb) {
     if (typeof opts === 'function') {
       cb = opts;
       opts = {};
@@ -94,25 +94,24 @@ class CapturingTransport {
     }
   }
 
-  lambdaShouldRegisterTransactions () {
+  lambdaShouldRegisterTransactions() {
     return true;
   }
 
-  lambdaRegisterTransaction (trans, awsRequestId) {
-  }
+  lambdaRegisterTransaction(trans, awsRequestId) {}
 
-  supportsKeepingUnsampledTransaction () {
+  supportsKeepingUnsampledTransaction() {
     return true;
   }
 
-  supportsActivationMethodField () {
+  supportsActivationMethodField() {
     return true;
   }
 
   // Inherited from Writable, called in agent.js.
-  destroy () {}
+  destroy() {}
 }
 
 module.exports = {
-  CapturingTransport
+  CapturingTransport,
 };

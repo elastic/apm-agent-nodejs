@@ -12,13 +12,14 @@
 //     `- span "cwd"
 //     `- span "readdir"
 
-const apm = require('../../../../').start({ // elastic-apm-node
+const apm = require('../../../../').start({
+  // elastic-apm-node
   captureExceptions: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'ls-callbacks'
+  serviceName: 'ls-callbacks',
 });
 
 let assert = require('assert');
@@ -29,7 +30,7 @@ const fs = require('fs');
 
 let t1;
 
-function getCwd () {
+function getCwd() {
   const s2 = apm.startSpan('cwd');
   try {
     return process.cwd();
@@ -40,7 +41,7 @@ function getCwd () {
   }
 }
 
-function main () {
+function main() {
   t1 = apm.startTransaction('ls');
   assert(apm.currentTransaction === t1);
 

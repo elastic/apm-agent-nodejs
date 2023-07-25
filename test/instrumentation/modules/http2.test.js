@@ -11,7 +11,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  cloudProvider: 'none'
+  cloudProvider: 'none',
 });
 var ins = agent._instrumentation;
 
@@ -32,10 +32,10 @@ if (semver.satisfies(process.version, '8.x')) {
 }
 
 var isSecure = [false, true];
-isSecure.forEach(secure => {
+isSecure.forEach((secure) => {
   var method = secure ? 'createSecureServer' : 'createServer';
 
-  test(`http2.${method} compatibility mode`, t => {
+  test(`http2.${method} compatibility mode`, (t) => {
     t.plan(16);
 
     // Note NODE_OPTIONS env because it sometimes has a setting relevant
@@ -47,13 +47,13 @@ isSecure.forEach(secure => {
       server.close();
     });
 
-    function onRequest (req, res) {
+    function onRequest(req, res) {
       var trans = ins.currTransaction();
       t.ok(trans, 'have current transaction');
       t.strictEqual(trans.type, 'request');
 
       res.writeHead(200, {
-        'content-type': 'text/plain'
+        'content-type': 'text/plain',
       });
       res.end('foo');
     }
@@ -63,7 +63,7 @@ isSecure.forEach(secure => {
       ? http2.createSecureServer(pem, onRequest)
       : http2.createServer(onRequest);
 
-    var onError = err => t.error(err);
+    var onError = (err) => t.error(err);
     server.on('error', onError);
     server.on('socketError', onError);
 
@@ -81,7 +81,7 @@ isSecure.forEach(secure => {
     });
   });
 
-  test(`http2.${method} stream respond`, t => {
+  test(`http2.${method} stream respond`, (t) => {
     t.plan(16);
 
     resetAgent((data) => {
@@ -90,11 +90,9 @@ isSecure.forEach(secure => {
     });
 
     var port;
-    var server = secure
-      ? http2.createSecureServer(pem)
-      : http2.createServer();
+    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
 
-    var onError = err => t.error(err);
+    var onError = (err) => t.error(err);
     server.on('error', onError);
     server.on('socketError', onError);
 
@@ -105,7 +103,7 @@ isSecure.forEach(secure => {
 
       stream.respond({
         'content-type': 'text/plain',
-        ':status': 200
+        ':status': 200,
       });
       stream.end('foo');
     });
@@ -124,7 +122,7 @@ isSecure.forEach(secure => {
     });
   });
 
-  test(`http2.${method} stream end after session destroy`, t => {
+  test(`http2.${method} stream end after session destroy`, (t) => {
     t.plan(16);
 
     resetAgent((data) => {
@@ -133,11 +131,9 @@ isSecure.forEach(secure => {
     });
 
     var port;
-    var server = secure
-      ? http2.createSecureServer(pem)
-      : http2.createServer();
+    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
 
-    var onError = err => t.error(err);
+    var onError = (err) => t.error(err);
     server.on('error', onError);
     server.on('socketError', onError);
 
@@ -148,7 +144,7 @@ isSecure.forEach(secure => {
 
       stream.respond({
         'content-type': 'text/plain',
-        ':status': 200
+        ':status': 200,
       });
 
       // Destroying the Http2Session results in any usage of the
@@ -174,7 +170,7 @@ isSecure.forEach(secure => {
     });
   });
 
-  test(`http2.${method} stream respondWithFD`, t => {
+  test(`http2.${method} stream respondWithFD`, (t) => {
     t.plan(17);
 
     resetAgent((data) => {
@@ -183,11 +179,9 @@ isSecure.forEach(secure => {
     });
 
     var port;
-    var server = secure
-      ? http2.createSecureServer(pem)
-      : http2.createServer();
+    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
 
-    var onError = err => t.error(err);
+    var onError = (err) => t.error(err);
     server.on('error', onError);
     server.on('socketError', onError);
 
@@ -201,7 +195,7 @@ isSecure.forEach(secure => {
 
         stream.respondWithFD(fd, {
           ':status': 200,
-          'content-type': 'text/plain'
+          'content-type': 'text/plain',
         });
 
         stream.on('close', function () {
@@ -224,7 +218,7 @@ isSecure.forEach(secure => {
     });
   });
 
-  test(`http2.${method} stream respondWithFile`, t => {
+  test(`http2.${method} stream respondWithFile`, (t) => {
     t.plan(16);
 
     resetAgent((data) => {
@@ -233,11 +227,9 @@ isSecure.forEach(secure => {
     });
 
     var port;
-    var server = secure
-      ? http2.createSecureServer(pem)
-      : http2.createServer();
+    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
 
-    var onError = err => t.error(err);
+    var onError = (err) => t.error(err);
     server.on('error', onError);
     server.on('socketError', onError);
 
@@ -248,7 +240,7 @@ isSecure.forEach(secure => {
 
       stream.respondWithFile(__filename, {
         ':status': 200,
-        'content-type': 'text/plain'
+        'content-type': 'text/plain',
       });
     });
 
@@ -266,7 +258,7 @@ isSecure.forEach(secure => {
     });
   });
 
-  test(`http2.${method} ignore push streams`, t => {
+  test(`http2.${method} ignore push streams`, (t) => {
     addShouldCall(t);
 
     var done = after(3, () => {
@@ -282,11 +274,9 @@ isSecure.forEach(secure => {
 
     var port;
     var client;
-    var server = secure
-      ? http2.createSecureServer(pem)
-      : http2.createServer();
+    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
 
-    var onError = err => t.error(err);
+    var onError = (err) => t.error(err);
     server.on('error', onError);
     server.on('socketError', onError);
 
@@ -295,27 +285,30 @@ isSecure.forEach(secure => {
       t.ok(trans, 'have current transaction');
       t.strictEqual(trans.type, 'request');
 
-      function onPushStream (stream, headers) {
+      function onPushStream(stream, headers) {
         stream.respond({
           'content-type': 'text/plain',
-          ':status': 200
+          ':status': 200,
         });
         stream.end('some pushed data');
         done();
       }
 
-      stream.pushStream({ ':path': '/pushed' }, t.shouldCall(
-        semver.lt(process.version, '8.11.2-rc')
-          ? onPushStream
-          : (err, pushStream, headers) => {
-              t.error(err);
-              onPushStream(pushStream, headers);
-            }
-      ));
+      stream.pushStream(
+        { ':path': '/pushed' },
+        t.shouldCall(
+          semver.lt(process.version, '8.11.2-rc')
+            ? onPushStream
+            : (err, pushStream, headers) => {
+                t.error(err);
+                onPushStream(pushStream, headers);
+              },
+        ),
+      );
 
       stream.respond({
         'content-type': 'text/plain',
-        ':status': 200
+        ':status': 200,
       });
       stream.end('foo');
     });
@@ -327,10 +320,13 @@ isSecure.forEach(secure => {
       client.on('socketError', onError);
 
       // Receive push stream
-      client.on('stream', t.shouldCall((stream, headers, flags) => {
-        t.strictEqual(headers[':path'], '/pushed');
-        assertResponse(t, stream, 'some pushed data', done);
-      }));
+      client.on(
+        'stream',
+        t.shouldCall((stream, headers, flags) => {
+          t.strictEqual(headers[':path'], '/pushed');
+          assertResponse(t, stream, 'some pushed data', done);
+        }),
+      );
 
       var req = client.request({ ':path': '/' });
       assertResponse(t, req, 'foo');
@@ -343,7 +339,7 @@ isSecure.forEach(secure => {
   // - http2 client "GET /" request (expect span, then HTTP/2 transaction)
   // - http2 client "GET /sub" request inside server handler (expect span,
   //   then HTTP/2 transcation)
-  test(`http2.request${secure ? ' secure' : ' '}`, t => {
+  test(`http2.request${secure ? ' secure' : ' '}`, (t) => {
     resetAgent(5, (data) => {
       t.strictEqual(data.transactions.length, 3);
       t.strictEqual(data.spans.length, 2);
@@ -363,23 +359,31 @@ isSecure.forEach(secure => {
           destination: {
             address: 'localhost',
             port,
-            service: { type: '', name: '', resource: `localhost:${port}` }
+            service: { type: '', name: '', resource: `localhost:${port}` },
           },
           http: {
             method: 'GET',
             status_code: 200,
-            url: `http${secure ? 's' : ''}://localhost:${port}${urlPath}`
-          }
+            url: `http${secure ? 's' : ''}://localhost:${port}${urlPath}`,
+          },
         };
       };
       let span = spans[0];
-      t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}`, 'span.name');
+      t.strictEqual(
+        span.name,
+        `GET http${secure ? 's' : ''}://localhost:${port}`,
+        'span.name',
+      );
       t.strictEqual(span.type, 'external', 'span.type');
       t.strictEqual(span.subtype, 'http', 'span.subtype');
       t.strictEqual(span.action, 'GET', 'span.action');
       t.strictEqual(span.trace_id, transManual.trace_id, 'span.trace_id');
       t.strictEqual(span.parent_id, transManual.id, 'span.parent_id');
-      t.deepEqual(span.context, expectedSpanContextFromPath('/'), 'span.context');
+      t.deepEqual(
+        span.context,
+        expectedSpanContextFromPath('/'),
+        'span.context',
+      );
 
       const transRoot = transactions[1];
       t.equal(transRoot.trace_id, transManual.trace_id, 'transRoot.trace_id');
@@ -387,13 +391,21 @@ isSecure.forEach(secure => {
       assertPath(t, transRoot, secure, port, '/', '2.0');
 
       span = spans[1];
-      t.strictEqual(span.name, `GET http${secure ? 's' : ''}://localhost:${port}`, 'span.name');
+      t.strictEqual(
+        span.name,
+        `GET http${secure ? 's' : ''}://localhost:${port}`,
+        'span.name',
+      );
       t.strictEqual(span.type, 'external', 'span.type');
       t.strictEqual(span.subtype, 'http', 'span.subtype');
       t.strictEqual(span.action, 'GET', 'span.action');
       t.strictEqual(span.trace_id, transRoot.trace_id, 'span.trace_id');
       t.strictEqual(span.parent_id, transRoot.id, 'span.parent_id');
-      t.deepEqual(span.context, expectedSpanContextFromPath('/sub'), 'span.context');
+      t.deepEqual(
+        span.context,
+        expectedSpanContextFromPath('/sub'),
+        'span.context',
+      );
 
       const transSub = transactions[2];
       t.equal(transSub.trace_id, transRoot.trace_id, 'transSub.trace_id');
@@ -405,11 +417,9 @@ isSecure.forEach(secure => {
     });
 
     var port;
-    var server = secure
-      ? http2.createSecureServer(pem)
-      : http2.createServer();
+    var server = secure ? http2.createSecureServer(pem) : http2.createServer();
 
-    var onError = err => t.error(err);
+    var onError = (err) => t.error(err);
     server.on('error', onError);
     server.on('socketError', onError);
 
@@ -425,20 +435,26 @@ isSecure.forEach(secure => {
 
         stream.respond({
           'content-type': 'text/plain',
-          ':status': 200
+          ':status': 200,
         });
 
         var req = client.request({ ':path': '/sub' });
-        t.ok(agent.currentSpan === null, 'the http2 span should not spill into user code');
+        t.ok(
+          agent.currentSpan === null,
+          'the http2 span should not spill into user code',
+        );
         req.on('end', () => {
-          t.ok(agent.currentSpan === null, 'the http2 span should *not* be the currentSpan in user event handlers');
+          t.ok(
+            agent.currentSpan === null,
+            'the http2 span should *not* be the currentSpan in user event handlers',
+          );
           client.destroy();
         });
         req.pipe(stream);
       } else {
         stream.respond({
           'content-type': 'text/plain',
-          ':status': 200
+          ':status': 200,
         });
         stream.end('foo');
       }
@@ -463,7 +479,7 @@ isSecure.forEach(secure => {
   });
 });
 
-test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true', t => {
+test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true', (t) => {
   // Note NODE_OPTIONS env because it sometimes has a setting relevant
   // for this test.
   t.comment(`NODE_OPTIONS=${process.env.NODE_OPTIONS || ''}`);
@@ -477,7 +493,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
   var port;
   var serverOpts = Object.assign({ allowHTTP1: true }, pem);
   var server = http2.createSecureServer(serverOpts);
-  server.on('request', function onRequest (req, res) {
+  server.on('request', function onRequest(req, res) {
     var trans = ins.currTransaction();
     t.ok(trans, 'have current transaction');
     t.strictEqual(trans.type, 'request');
@@ -498,7 +514,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
       port,
       path: '/',
       ALPNProtocols: ['http/1.1'],
-      rejectUnauthorized: false
+      rejectUnauthorized: false,
     };
     var req = https.get(getOpts, function (res) {
       assertResponse(t, res, 'foo', function () {
@@ -518,7 +534,7 @@ test('handling HTTP/1.1 request to http2.createSecureServer with allowHTTP1:true
 
 var matchId = /^[\da-f]{16}$/;
 
-function assertPath (t, trans, secure, port, path, httpVersion) {
+function assertPath(t, trans, secure, port, path, httpVersion) {
   t.ok(trans);
   t.ok(matchId.test(trans.id));
   t.strictEqual(trans.name, 'GET unknown route');
@@ -547,24 +563,24 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
         hostname: 'localhost',
         port: port.toString(),
         pathname: path,
-        full: `https://localhost:${port}/`
+        full: `https://localhost:${port}/`,
       };
       expectedReqHeaders = {
         host: `localhost:${port}`,
-        connection: 'close'
+        connection: 'close',
       };
       expectedResHeaders = {
         'content-type': 'text/plain',
         date: trans.context.response.headers.date,
         connection: 'close',
-        'transfer-encoding': 'chunked'
+        'transfer-encoding': 'chunked',
       };
       break;
     case '2.0':
       expectedUrl = {
         raw: path,
         protocol: 'http:',
-        pathname: path
+        pathname: path,
       };
       expectedReqHeaders = {
         ':scheme': secure ? 'https' : 'http',
@@ -574,11 +590,11 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
         //   ':authority': `localhost:${port}`,
         ':authority': constants.REDACTED,
         ':method': 'GET',
-        ':path': path
+        ':path': path,
       };
       expectedResHeaders = {
         'content-type': 'text/plain',
-        ':status': 200
+        ':status': 200,
       };
       break;
   }
@@ -586,36 +602,51 @@ function assertPath (t, trans, secure, port, path, httpVersion) {
   if (trans.context.request.headers.traceparent) {
     expectedReqHeaders.traceparent = trans.context.request.headers.traceparent;
     expectedReqHeaders.tracestate = trans.context.request.headers.tracestate;
-    expectedReqHeaders['elastic-apm-traceparent'] = trans.context.request.headers['elastic-apm-traceparent'];
+    expectedReqHeaders['elastic-apm-traceparent'] =
+      trans.context.request.headers['elastic-apm-traceparent'];
   }
 
   // What is "expected" for transaction.context.request.socket.remote_address
   // is a bit of a pain.
   if (httpVersion === '1.1' && semver.lt(process.version, '8.17.0')) {
     // Before node v8.17.0 `socket.remoteAddress` was not set for https.
-    t.pass(`skip checking on transaction.context.request.socket.remote_address on node ${process.version}`);
+    t.pass(
+      `skip checking on transaction.context.request.socket.remote_address on node ${process.version}`,
+    );
   } else {
     // With node v17 on Linux (or at least on the linux containers used for
     // GitHub Action tests), the localhost socket.remoteAddress is "::1".
-    t.ok(trans.context.request.socket.remote_address === '::ffff:127.0.0.1' || trans.context.request.socket.remote_address === '::1',
-      'transaction.context.request.socket.remote_address is as expected: ' + trans.context.request.socket.remote_address);
+    t.ok(
+      trans.context.request.socket.remote_address === '::ffff:127.0.0.1' ||
+        trans.context.request.socket.remote_address === '::1',
+      'transaction.context.request.socket.remote_address is as expected: ' +
+        trans.context.request.socket.remote_address,
+    );
   }
   delete trans.context.request.socket;
 
-  t.deepEqual(trans.context.request, {
-    http_version: httpVersion,
-    method: 'GET',
-    url: expectedUrl,
-    headers: expectedReqHeaders
-  }, 'trans.context.request is as expected');
+  t.deepEqual(
+    trans.context.request,
+    {
+      http_version: httpVersion,
+      method: 'GET',
+      url: expectedUrl,
+      headers: expectedReqHeaders,
+    },
+    'trans.context.request is as expected',
+  );
 
-  t.deepLooseEqual(trans.context.response, {
-    status_code: 200,
-    headers: expectedResHeaders
-  }, 'trans.context.response is as expected');
+  t.deepLooseEqual(
+    trans.context.response,
+    {
+      status_code: 200,
+      headers: expectedResHeaders,
+    },
+    'trans.context.response is as expected',
+  );
 }
 
-function assert (t, data, secure, port) {
+function assert(t, data, secure, port) {
   t.strictEqual(data.transactions.length, 1);
   t.strictEqual(data.spans.length, 0);
 
@@ -625,51 +656,55 @@ function assert (t, data, secure, port) {
   assertPath(t, trans, secure, port, '/', '2.0');
 }
 
-function assertResponse (t, stream, expected, done) {
+function assertResponse(t, stream, expected, done) {
   const chunks = [];
   stream.on('data', function (chunk) {
     chunks.push(chunk);
   });
   stream.on('end', function () {
-    t.strictEqual(Buffer.concat(chunks).toString(), expected, 'should have expected body');
+    t.strictEqual(
+      Buffer.concat(chunks).toString(),
+      expected,
+      'should have expected body',
+    );
     if (done) done();
   });
 }
 
-function connect (secure, port) {
+function connect(secure, port) {
   var proto = secure ? 'https' : 'http';
   var opts = { rejectUnauthorized: false };
   return http2.connect(`${proto}://localhost:${port}`, opts);
 }
 
-function resetAgent (expected, cb) {
+function resetAgent(expected, cb) {
   if (typeof expected === 'function') return resetAgent(1, expected);
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(expected, cb);
 }
 
-function addShouldCall (t) {
+function addShouldCall(t) {
   var calls = [];
   var realEnd = t.end;
 
-  t.end = function end () {
+  t.end = function end() {
     for (var i = 0; i < calls.length; i++) {
       t.strictEqual(calls[i].called, true, 'should have called function');
     }
     return realEnd.apply(this, arguments);
   };
 
-  t.shouldCall = function shouldCall (fn) {
+  t.shouldCall = function shouldCall(fn) {
     var record = { called: false };
     calls.push(record);
-    return function shouldCallWrap () {
+    return function shouldCallWrap() {
       record.called = true;
       return fn.apply(this, arguments);
     };
   };
 }
 
-function after (n, fn) {
+function after(n, fn) {
   return function () {
     --n || fn();
   };

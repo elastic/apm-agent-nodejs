@@ -11,15 +11,18 @@ const cassandra = require('cassandra-driver');
 
 const defaultOptions = {
   contactPoints: [process.env.CASSANDRA_HOST || 'localhost'],
-  localDataCenter: 'datacenter1'
+  localDataCenter: 'datacenter1',
 };
 
-function maybeInitialize (options) {
+function maybeInitialize(options) {
   options = options || {};
   if (!options.keyspace) {
     return Promise.resolve();
   }
-  assert(options.table, 'makeClient options must include "table" if "keyspace" is provided');
+  assert(
+    options.table,
+    'makeClient options must include "table" if "keyspace" is provided',
+  );
 
   const keyspace = options.keyspace;
   const query1 = `
@@ -52,8 +55,10 @@ function maybeInitialize (options) {
  * keyspace and table for testing. The caller should provide neither option, or
  * both.
  */
-function makeClient (t, opts) {
-  const cassOpts = Object.assign({}, defaultOptions, { keyspace: opts && opts.keyspace });
+function makeClient(t, opts) {
+  const cassOpts = Object.assign({}, defaultOptions, {
+    keyspace: opts && opts.keyspace,
+  });
 
   return maybeInitialize(opts).then(() => {
     const client = new cassandra.Client(cassOpts);
@@ -67,5 +72,5 @@ function makeClient (t, opts) {
 }
 
 module.exports = {
-  makeClient
+  makeClient,
 };

@@ -18,7 +18,7 @@ const {
   resetAgent,
   assertFormsWithFixture,
   assertRequestHeadersWithFixture,
-  assertResponseHeadersWithFixture
+  assertResponseHeadersWithFixture,
 } = require('./_shared');
 const test = require('tape');
 const request = require('request');
@@ -26,8 +26,14 @@ const fastify = require('fastify');
 const fastifyFormbody = require('@fastify/formbody');
 const fixtures = require('./_fixtures');
 
-function runTest (
-  t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
+function runTest(
+  t,
+  expected,
+  agentConfig,
+  requestHeaders,
+  responseHeaders,
+  formFields,
+  middleware = false,
 ) {
   agent._config(agentConfig);
   const app = fastify();
@@ -62,7 +68,7 @@ function runTest (
       url,
       {
         form: formFields,
-        headers: requestHeaders
+        headers: requestHeaders,
       },
       function (error, response, body) {
         if (error) {
@@ -70,7 +76,8 @@ function runTest (
         }
         t.ok(body, 'received response');
         t.end();
-      });
+      },
+    );
   });
 
   const done = () => {
@@ -79,7 +86,7 @@ function runTest (
   t.on('end', done);
 }
 
-function createMiddleware (type) {
+function createMiddleware(type) {
   // fastify only has the one body parsing middleware
   // there's no text or raw/Buffer to worry about
   return fastifyFormbody;
@@ -95,7 +102,7 @@ test('Running fixtures with fastify', function (suite) {
         fixture.input.requestHeaders,
         fixture.input.responseHeaders,
         fixture.input.formFields,
-        createMiddleware(fixture.bodyParsing)
+        createMiddleware(fixture.bodyParsing),
       );
     });
   }

@@ -47,8 +47,10 @@ tape.test('InflightEventSet timeout', function (t) {
     const endTime = Date.now();
     t.pass('drain handler was called');
     t.ok(err, 'got an error from drain handler');
-    t.ok(Math.abs(endTime - startTime - timeoutMs) < 100,
-      `time to timeout was near ${timeoutMs}ms (was ${endTime - startTime}ms)`);
+    t.ok(
+      Math.abs(endTime - startTime - timeoutMs) < 100,
+      `time to timeout was near ${timeoutMs}ms (was ${endTime - startTime}ms)`,
+    );
     clearTimeout(tooSlow);
     t.end();
   }, timeoutMs);

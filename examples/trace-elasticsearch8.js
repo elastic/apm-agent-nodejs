@@ -13,9 +13,10 @@
 // to start an Elasticsearch docker container. Then the following to stop:
 //    npm run docker:stop
 
-const apm = require('../').start({ // elastic-apm-node
+const apm = require('../').start({
+  // elastic-apm-node
   serviceName: 'example-trace-elasticsearch8',
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 // eslint-disable-next-line no-unused-vars
@@ -29,12 +30,12 @@ const client = new Client({
   node: process.env.ES_URL || 'http://localhost:9200',
   auth: {
     username: process.env.ES_USERNAME || undefined,
-    password: process.env.ES_PASSWORD || undefined
+    password: process.env.ES_PASSWORD || undefined,
   },
-  maxRetries: 1
+  maxRetries: 1,
 });
 
-async function run () {
+async function run() {
   // For tracing spans to be created, there must be an active transaction.
   // Typically, a transaction is automatically started for incoming HTTP
   // requests to a Node.js server. However, because this script is not running
@@ -54,15 +55,27 @@ async function run () {
 
   // Using Promises directly.
   const t2 = apm.startTransaction('t2');
-  client.ping()
-    .then(_res => { console.log('[example 2] ping succeeded'); })
-    .catch(err => { console.log('[example 2] ping error:', err); });
+  client
+    .ping()
+    .then((_res) => {
+      console.log('[example 2] ping succeeded');
+    })
+    .catch((err) => {
+      console.log('[example 2] ping error:', err);
+    });
   // Another request to have two concurrent requests. Also use a bogus index
   // to trigger an error and see APM error capture.
-  client.search({ index: 'no-such-index', q: 'pants' })
-    .then(_res => { console.log('[example 2] search succeeded'); })
-    .catch(err => { console.log('[example 2] search error:', err.message); })
-    .finally(() => { t2.end(); });
+  client
+    .search({ index: 'no-such-index', q: 'pants' })
+    .then((_res) => {
+      console.log('[example 2] search succeeded');
+    })
+    .catch((err) => {
+      console.log('[example 2] search error:', err.message);
+    })
+    .finally(() => {
+      t2.end();
+    });
 
   // Example aborting requests using AbortController (node v15 and above).
   if (global.AbortController) {
@@ -74,7 +87,8 @@ async function run () {
     try {
       const res = await client.search(
         { query: { match_all: {} } },
-        { signal: ac.signal });
+        { signal: ac.signal },
+      );
       console.log('[example 3] search response:', res);
     } catch (err) {
       console.log('[example 3] search error:', err);

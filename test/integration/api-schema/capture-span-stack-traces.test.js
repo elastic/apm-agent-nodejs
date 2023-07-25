@@ -34,7 +34,11 @@ const next = afterAll(function (err, validators) {
 
     const server = http.createServer(function (req, res) {
       t.strictEqual(req.method, 'POST', 'server should recieve a POST request');
-      t.strictEqual(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint');
+      t.strictEqual(
+        req.url,
+        '/intake/v2/events',
+        'server should recieve request to correct endpoint',
+      );
 
       req
         .pipe(zlib.createGunzip())
@@ -43,7 +47,11 @@ const next = afterAll(function (err, validators) {
           const type = Object.keys(data)[0];
           const validate = validators.shift();
           t.strictEqual(validate(data[type]), true, type + ' should be valid');
-          t.strictEqual(validate.errors, null, type + ' should not have any validation errors');
+          t.strictEqual(
+            validate.errors,
+            null,
+            type + ' should not have any validation errors',
+          );
         })
         .on('end', function () {
           res.end();
@@ -68,7 +76,7 @@ const next = afterAll(function (err, validators) {
 utils.metadataValidator(next());
 utils.spanValidator(next());
 
-function newAgent (server) {
+function newAgent(server) {
   return new Agent().start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + server.address().port,
@@ -77,6 +85,6 @@ function newAgent (server) {
     captureSpanStackTraces: false,
     apmServerVersion: '8.0.0',
     metricsInterval: 0,
-    centralConfig: false
+    centralConfig: false,
   });
 }

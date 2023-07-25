@@ -11,7 +11,7 @@ var path = require('path');
 
 exports.echoServer = echoServer;
 
-function echoServer (type, cb) {
+function echoServer(type, cb) {
   if (typeof type === 'function') return echoServer('http', type);
   var script = path.join(__dirname, '_echo_server.js');
   var cp = exec(`node "${script}" ${type}`);

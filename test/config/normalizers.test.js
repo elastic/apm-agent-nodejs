@@ -13,7 +13,7 @@ const { MockLogger } = require('../_mock_logger');
 const {
   TRACE_CONTINUATION_STRATEGY_CONTINUE,
   TRACE_CONTINUATION_STRATEGY_RESTART,
-  CONTEXT_MANAGER_PATCH
+  CONTEXT_MANAGER_PATCH,
 } = require('../../lib/config/schema');
 const {
   normalizeUrls,
@@ -33,7 +33,7 @@ const {
   normalizeTransactionSampleRate,
   normalizeTraceContinuationStrategy,
   normalizeContextManager,
-  normalizeSpanStackTraceMinDuration
+  normalizeSpanStackTraceMinDuration,
 } = require('../../lib/config/normalizers');
 
 test('#normalizeArrays()', function (t) {
@@ -41,21 +41,32 @@ test('#normalizeArrays()', function (t) {
 
   normalizeArrays(opts, ['arrayOpt', 'stringOpt']);
 
-  t.deepEqual(opts, { arrayOpt: ['a', 'b'], stringOpt: ['1', '2', '3'], numberOpt: 2 });
+  t.deepEqual(opts, {
+    arrayOpt: ['a', 'b'],
+    stringOpt: ['1', '2', '3'],
+    numberOpt: 2,
+  });
   t.end();
 });
 
 test('#normalizeUrls()', function (t) {
   const logger = new MockLogger();
-  const fields = ['urlHttp', 'urlHttps', 'urlWithPort', 'urlNegativePort', 'urlTooHighPort', 'urlInvalid'];
-  const defaults = { };
+  const fields = [
+    'urlHttp',
+    'urlHttps',
+    'urlWithPort',
+    'urlNegativePort',
+    'urlTooHighPort',
+    'urlInvalid',
+  ];
+  const defaults = {};
   const opts = {
     urlHttp: 'http://domain.com/path?query=true',
     urlHttps: 'https://domain.com/path?query=true',
     urlWithPort: 'https://domain.com:4200/path?query=true',
     urlNegativePort: 'https://domain.com:-1/path?query=true',
     urlTooHighPort: 'https://domain.com:65536/path?query=true',
-    urlInvalid: 'foo'
+    urlInvalid: 'foo',
   };
 
   normalizeUrls(opts, fields, defaults, logger);
@@ -66,7 +77,7 @@ test('#normalizeUrls()', function (t) {
     urlWithPort: 'https://domain.com:4200/path?query=true',
     urlNegativePort: null,
     urlTooHighPort: null,
-    urlInvalid: null
+    urlInvalid: null,
   });
 
   const warnings = logger.calls;
@@ -79,7 +90,14 @@ test('#normalizeUrls()', function (t) {
 
 test('#normalizeBools()', function (t) {
   const logger = new MockLogger();
-  const fields = ['boolTrue', 'boolFalse', 'strTrue', 'strFalse', 'badWithDefault', 'badWithoutDefault'];
+  const fields = [
+    'boolTrue',
+    'boolFalse',
+    'strTrue',
+    'strFalse',
+    'badWithDefault',
+    'badWithoutDefault',
+  ];
   const defaults = { badWithDefault: false };
   const opts = {
     boolTrue: true,
@@ -88,7 +106,7 @@ test('#normalizeBools()', function (t) {
     strFalse: 'false',
     badWithDefault: 'not-a-bool',
     badWithoutDefault: 'not-a-bool',
-    nonBoolProperty: 25
+    nonBoolProperty: 25,
   };
 
   normalizeBools(opts, fields, defaults, logger);
@@ -100,7 +118,7 @@ test('#normalizeBools()', function (t) {
     strFalse: false,
     badWithDefault: undefined,
     badWithoutDefault: undefined,
-    nonBoolProperty: 25
+    nonBoolProperty: 25,
   });
 
   const warnings = logger.calls;
@@ -112,7 +130,15 @@ test('#normalizeBools()', function (t) {
 
 test('#normalizeBytes()', function (t) {
   const logger = new MockLogger();
-  const fields = ['bytes', 'kiloBytes', 'megaBytes', 'gigaBytes', 'numberBytes', 'badWithDefault', 'badWithoutDefault'];
+  const fields = [
+    'bytes',
+    'kiloBytes',
+    'megaBytes',
+    'gigaBytes',
+    'numberBytes',
+    'badWithDefault',
+    'badWithoutDefault',
+  ];
   const defaults = { badWithDefault: '25kb' };
   const opts = {
     bytes: '1000b',
@@ -122,7 +148,7 @@ test('#normalizeBytes()', function (t) {
     numberBytes: 12345678,
     badWithDefault: 'not-bytes',
     badWithoutDefault: 'not-bytes',
-    anotherProperty: 25
+    anotherProperty: 25,
   };
 
   normalizeBytes(opts, fields, defaults, logger);
@@ -135,7 +161,7 @@ test('#normalizeBytes()', function (t) {
     numberBytes: 12345678,
     badWithDefault: NaN,
     badWithoutDefault: NaN,
-    anotherProperty: 25
+    anotherProperty: 25,
   });
 
   t.ok(logger.calls.length === 0, 'we got no warnings for bad byte options');
@@ -145,13 +171,42 @@ test('#normalizeBytes()', function (t) {
 test('#normalizeDurationOptions()', function (t) {
   const logger = new MockLogger();
   const fields = [
-    { name: 'withoutUnit', defaultUnit: 'ms', allowedUnits: ['us', 'ms', 's', 'm'], allowNegative: true },
-    { name: 'withUnit', defaultUnit: 'ms', allowedUnits: ['us', 'ms', 's', 'm'], allowNegative: true },
-    { name: 'notAllowedUnit', defaultUnit: 's', allowedUnits: ['s', 'm'], allowNegative: true },
-    { name: 'notAllowedNegative', defaultUnit: 's', allowedUnits: ['s', 'm'], allowNegative: false },
-    { name: 'badWithDefault', defaultUnit: 's', allowedUnits: ['s', 'm'], allowNegative: false },
-    { name: 'badWithoutDefault', defaultUnit: 's', allowedUnits: ['s', 'm'], allowNegative: false }
-
+    {
+      name: 'withoutUnit',
+      defaultUnit: 'ms',
+      allowedUnits: ['us', 'ms', 's', 'm'],
+      allowNegative: true,
+    },
+    {
+      name: 'withUnit',
+      defaultUnit: 'ms',
+      allowedUnits: ['us', 'ms', 's', 'm'],
+      allowNegative: true,
+    },
+    {
+      name: 'notAllowedUnit',
+      defaultUnit: 's',
+      allowedUnits: ['s', 'm'],
+      allowNegative: true,
+    },
+    {
+      name: 'notAllowedNegative',
+      defaultUnit: 's',
+      allowedUnits: ['s', 'm'],
+      allowNegative: false,
+    },
+    {
+      name: 'badWithDefault',
+      defaultUnit: 's',
+      allowedUnits: ['s', 'm'],
+      allowNegative: false,
+    },
+    {
+      name: 'badWithoutDefault',
+      defaultUnit: 's',
+      allowedUnits: ['s', 'm'],
+      allowNegative: false,
+    },
   ];
   const defaults = { badWithDefault: '25s' };
   const opts = {
@@ -161,7 +216,7 @@ test('#normalizeDurationOptions()', function (t) {
     notAllowedNegative: '-1s',
     badWithDefault: 'not-duration',
     badWithoutDefault: 'not-duration',
-    anotherProperty: 25
+    anotherProperty: 25,
   };
 
   normalizeDurationOptions(opts, fields, defaults, logger);
@@ -172,18 +227,34 @@ test('#normalizeDurationOptions()', function (t) {
     withoutUnit: 0.2,
     withUnit: 120,
     badWithDefault: 25,
-    anotherProperty: 25
+    anotherProperty: 25,
   });
 
   const warnings = logger.calls;
   t.ok(warnings.length === 4, 'we got warnings for bad duration options');
-  t.ok(warnings[0].message.indexOf('ignoring this option') !== -1, 'ignores not allowed unit');
+  t.ok(
+    warnings[0].message.indexOf('ignoring this option') !== -1,
+    'ignores not allowed unit',
+  );
   t.deepEqual(warnings[0].interpolation, ['20us', 'notAllowedUnit']);
-  t.ok(warnings[1].message.indexOf('ignoring this option') !== -1, 'ignores not allowed negative value');
+  t.ok(
+    warnings[1].message.indexOf('ignoring this option') !== -1,
+    'ignores not allowed negative value',
+  );
   t.deepEqual(warnings[1].interpolation, ['-1s', 'notAllowedNegative']);
-  t.ok(warnings[2].message.indexOf('using default') !== -1, 'uses default value');
-  t.deepEqual(warnings[2].interpolation, ['not-duration', 'badWithDefault', '25s']);
-  t.ok(warnings[3].message.indexOf('ignoring this option') !== -1, 'ignores bad value without default');
+  t.ok(
+    warnings[2].message.indexOf('using default') !== -1,
+    'uses default value',
+  );
+  t.deepEqual(warnings[2].interpolation, [
+    'not-duration',
+    'badWithDefault',
+    '25s',
+  ]);
+  t.ok(
+    warnings[3].message.indexOf('ignoring this option') !== -1,
+    'ignores bad value without default',
+  );
   t.deepEqual(warnings[3].interpolation, ['not-duration', 'badWithoutDefault']);
   t.end();
 });
@@ -195,7 +266,7 @@ test('#normalizeIgnoreOptions()', function (t) {
     transactionIgnoreUrls: ['*path*'],
     ignoreUrls: ['str/path/ignore', /path\/to\/secret/],
     ignoreUserAgents: ['Mozilla', /Safari/],
-    ignoreMessageQueues: ['*topic*']
+    ignoreMessageQueues: ['*topic*'],
   };
 
   normalizeIgnoreOptions(opts, Object.keys(opts), defaults, logger);
@@ -208,7 +279,7 @@ test('#normalizeIgnoreOptions()', function (t) {
     ignoreUserAgentStr: ['Mozilla'],
     ignoreUserAgentRegExp: [/Safari/],
     ignoreMessageQueues: ['*topic*'],
-    ignoreMessageQueuesRegExp: [/^.*topic.*$/i]
+    ignoreMessageQueuesRegExp: [/^.*topic.*$/i],
   });
 
   t.ok(logger.calls.length === 0, 'we got no warnings for bad ignore options');
@@ -223,7 +294,7 @@ test('#normalizeInfinity()', function (t) {
     positiveNumber: 100,
     negativeNumber: -100,
     minusOne: -1,
-    anotherProperty: 'value'
+    anotherProperty: 'value',
   };
 
   normalizeInfinity(opts, fields, defaults, logger);
@@ -232,7 +303,7 @@ test('#normalizeInfinity()', function (t) {
     positiveNumber: 100,
     negativeNumber: -100,
     minusOne: Infinity,
-    anotherProperty: 'value'
+    anotherProperty: 'value',
   });
 
   t.ok(logger.calls.length === 0, 'we got no warnings for bad ignore options');
@@ -247,21 +318,33 @@ test.skip('#normalizeKeyValuePairs()', function (t) {
     stringProperty: 'foo=bar, eggs=spam',
     arrayProperty: ['foo=bar', 'eggs=spam'],
     badWithDefault: 234,
-    badWithoutDefault: 234
+    badWithoutDefault: 234,
   };
 
   normalizeKeyValuePairs(opts, Object.keys(opts), defaults, logger);
 
   // TODO: they should all be in the same format, shouldn't they?
   t.deepEqual(opts, {
-    objectProperty: [['foo', 'bar'], ['eggs', 'spam']],
-    stringProperty: [['foo', 'bar'], ['eggs', 'spam']],
-    arrayProperty: [['foo', 'bar'], ['eggs', 'spam']],
+    objectProperty: [
+      ['foo', 'bar'],
+      ['eggs', 'spam'],
+    ],
+    stringProperty: [
+      ['foo', 'bar'],
+      ['eggs', 'spam'],
+    ],
+    arrayProperty: [
+      ['foo', 'bar'],
+      ['eggs', 'spam'],
+    ],
     badWithDefault: 234,
-    badWithoutDefault: 234
+    badWithoutDefault: 234,
   });
 
-  t.ok(logger.calls.length === 0, 'we got no warnings for bad key/value options');
+  t.ok(
+    logger.calls.length === 0,
+    'we got no warnings for bad key/value options',
+  );
   t.end();
 });
 
@@ -272,7 +355,7 @@ test('#normalizeNumbers()', function (t) {
     numberProperty: 100,
     stringProperty: '200',
     badWithDefault: 'not-a-number',
-    badWithoutDefault: 'not-a-number'
+    badWithoutDefault: 'not-a-number',
   };
 
   normalizeNumbers(opts, Object.keys(opts), defaults, logger);
@@ -281,7 +364,7 @@ test('#normalizeNumbers()', function (t) {
     numberProperty: 100,
     stringProperty: 200,
     badWithDefault: NaN,
-    badWithoutDefault: NaN
+    badWithoutDefault: NaN,
   });
 
   t.ok(logger.calls.length === 0, 'we got no warnings for bad number options');
@@ -292,14 +375,19 @@ test('#normalizeElasticsearchCaptureBodyUrls()', function (t) {
   const logger = new MockLogger();
   const defaults = {};
   const opts = {
-    elasticsearchCaptureBodyUrls: ['*body*']
+    elasticsearchCaptureBodyUrls: ['*body*'],
   };
 
-  normalizeElasticsearchCaptureBodyUrls(opts, Object.keys(opts), defaults, logger);
+  normalizeElasticsearchCaptureBodyUrls(
+    opts,
+    Object.keys(opts),
+    defaults,
+    logger,
+  );
 
   t.deepEqual(opts, {
     elasticsearchCaptureBodyUrls: ['*body*'],
-    elasticsearchCaptureBodyUrlsRegExp: [/^.*body.*$/i]
+    elasticsearchCaptureBodyUrlsRegExp: [/^.*body.*$/i],
   });
   t.end();
 });
@@ -308,14 +396,14 @@ test('#normalizeDisableMetrics()', function (t) {
   const logger = new MockLogger();
   const defaults = {};
   const opts = {
-    disableMetrics: ['*metric*']
+    disableMetrics: ['*metric*'],
   };
 
   normalizeDisableMetrics(opts, Object.keys(opts), defaults, logger);
 
   t.deepEqual(opts, {
     disableMetrics: ['*metric*'],
-    disableMetricsRegExp: [/^.*metric.*$/i]
+    disableMetricsRegExp: [/^.*metric.*$/i],
   });
   t.end();
 });
@@ -324,14 +412,14 @@ test('#normalizeSanitizeFieldNames()', function (t) {
   const logger = new MockLogger();
   const defaults = {};
   const opts = {
-    sanitizeFieldNames: ['*secret*']
+    sanitizeFieldNames: ['*secret*'],
   };
 
   normalizeSanitizeFieldNames(opts, Object.keys(opts), defaults, logger);
 
   t.deepEqual(opts, {
     sanitizeFieldNames: ['*secret*'],
-    sanitizeFieldNamesRegExp: [/^.*secret.*$/i]
+    sanitizeFieldNamesRegExp: [/^.*secret.*$/i],
   });
   t.end();
 });
@@ -355,7 +443,10 @@ test('#normalizeCloudProvider()', function (t) {
   t.deepEqual(opts, { cloudProvider: defaults.cloudProvider });
   const warnings = logger.calls;
   t.ok(warnings.length === 1, 'we got warnings for bad cloudProvider options');
-  t.ok(warnings[0].message.indexOf('Invalid "cloudProvider" config value') !== -1, 'warns about invalid value');
+  t.ok(
+    warnings[0].message.indexOf('Invalid "cloudProvider" config value') !== -1,
+    'warns about invalid value',
+  );
   t.deepEqual(warnings[0].interpolation, ['unknown', 'auto']);
   t.end();
 });
@@ -371,7 +462,7 @@ test('#normalizeCustomMetricsHistogramBoundaries()', function (t) {
     { val: 'test', errReason: 'array includes non-numbers' },
     { val: [1, 'test'], errReason: 'array includes non-numbers' },
     { val: [1, 0], errReason: 'array is not sorted' },
-    { val: [1, 2, 2], errReason: 'array has duplicate values' }
+    { val: [1, 2, 2], errReason: 'array has duplicate values' },
   ];
 
   for (const input of badInputs) {
@@ -379,14 +470,14 @@ test('#normalizeCustomMetricsHistogramBoundaries()', function (t) {
     normalizeCustomMetricsHistogramBoundaries(opts, [], defaults, logger);
     t.deepEqual(opts.customMetricsHistogramBoundaries, [1, 2, 3, 4]);
     const lastWarnig = warnings.pop();
-    t.ok(typeof lastWarnig !== 'undefined', 'we got warnings for "' + input.errReason + '"');
+    t.ok(
+      typeof lastWarnig !== 'undefined',
+      'we got warnings for "' + input.errReason + '"',
+    );
     t.deepEqual(lastWarnig.interpolation, [input.val, input.errReason]);
   }
 
-  const goodInputs = [
-    { val: [1, 2, 3] },
-    { val: '1,2,3' }
-  ];
+  const goodInputs = [{ val: [1, 2, 3] }, { val: '1,2,3' }];
 
   for (const input of goodInputs) {
     opts.customMetricsHistogramBoundaries = input.val;
@@ -430,19 +521,25 @@ test('#normalizeTransactionSampleRate()', function (t) {
 
 test('#normalizeTraceContinuationStrategy()', function (t) {
   const logger = new MockLogger();
-  const defaults = { traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_CONTINUE };
+  const defaults = {
+    traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_CONTINUE,
+  };
   const opts = {};
 
   opts.traceContinuationStrategy = 'not-valid';
   normalizeTraceContinuationStrategy(opts, [], defaults, logger);
 
-  t.deepEqual(opts, { traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_CONTINUE });
+  t.deepEqual(opts, {
+    traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_CONTINUE,
+  });
   const warning = logger.calls[logger.calls.length - 1];
   t.ok(warning.message.indexOf('Invalid "traceContinuationStrategy"') !== -1);
 
   opts.traceContinuationStrategy = TRACE_CONTINUATION_STRATEGY_RESTART;
   normalizeTraceContinuationStrategy(opts, [], defaults, logger);
-  t.deepEqual(opts, { traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_RESTART });
+  t.deepEqual(opts, {
+    traceContinuationStrategy: TRACE_CONTINUATION_STRATEGY_RESTART,
+  });
 
   t.end();
 });
@@ -464,13 +561,20 @@ test('#normalizeContextManager()', function (t) {
   normalizeContextManager(opts, [], defaults, logger);
   t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_PATCH });
   lastWarning = logger.calls.pop();
-  t.ok(lastWarning.message.indexOf('the `asyncHooks` value will be ignored') !== -1);
+  t.ok(
+    lastWarning.message.indexOf('the `asyncHooks` value will be ignored') !==
+      -1,
+  );
 
   opts = { asyncHooks: true };
   normalizeContextManager(opts, [], defaults, logger);
   t.deepEqual(opts, {});
   lastWarning = logger.calls.pop();
-  t.ok(lastWarning.message.indexOf('`asyncHooks: true` is the default behavior') !== -1);
+  t.ok(
+    lastWarning.message.indexOf(
+      '`asyncHooks: true` is the default behavior',
+    ) !== -1,
+  );
 
   opts = { asyncHooks: false };
   normalizeContextManager(opts, [], defaults, logger);
@@ -490,7 +594,11 @@ test('#normalizeSpanStackTraceMinDuration()', function (t) {
   normalizeSpanStackTraceMinDuration(opts, [], defaults, logger);
   t.deepEqual(opts, { spanStackTraceMinDuration: -1 });
 
-  opts = { spanStackTraceMinDuration: 5, captureSpanStackTraces: false, spanFramesMinDuration: 4 };
+  opts = {
+    spanStackTraceMinDuration: 5,
+    captureSpanStackTraces: false,
+    spanFramesMinDuration: 4,
+  };
   normalizeSpanStackTraceMinDuration(opts, [], defaults, logger);
   t.deepEqual(opts, { spanStackTraceMinDuration: 5 });
 

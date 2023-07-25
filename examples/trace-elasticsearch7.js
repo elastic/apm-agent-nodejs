@@ -13,9 +13,10 @@
 // to start an Elasticsearch docker container. Then the following to stop:
 //    npm run docker:stop
 
-const apm = require('../').start({ // elastic-apm-node
+const apm = require('../').start({
+  // elastic-apm-node
   serviceName: 'example-trace-elasticsearch7',
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 // Note that version 7 is *not* installed by default. To use v7 you'll need to:
@@ -26,11 +27,11 @@ const client = new Client({
   node: process.env.ES_URL || 'http://localhost:9200',
   auth: {
     username: process.env.ES_USERNAME || undefined,
-    password: process.env.ES_PASSWORD || undefined
-  }
+    password: process.env.ES_PASSWORD || undefined,
+  },
 });
 
-async function run () {
+async function run() {
   // For tracing spans to be created, there must be an active transaction.
   // Typically, a transaction is automatically started for incoming HTTP
   // requests to a Node.js server. However, because this script is not running
@@ -50,20 +51,35 @@ async function run () {
 
   // Using Promises directly.
   const t2 = apm.startTransaction('t2');
-  client.ping()
-    .then(_res => { console.log('ping succeeded'); })
-    .catch(err => { console.log('ping error:', err); });
+  client
+    .ping()
+    .then((_res) => {
+      console.log('ping succeeded');
+    })
+    .catch((err) => {
+      console.log('ping error:', err);
+    });
   // Another request to have two concurrent requests. Also use a bogus index
   // to trigger an error and see APM error capture.
-  client.search({ index: 'no-such-index', q: 'pants' })
-    .then(_res => { console.log('search succeeded'); })
-    .catch(err => { console.log('search error:', err.message); })
-    .finally(() => { t2.end(); });
+  client
+    .search({ index: 'no-such-index', q: 'pants' })
+    .then((_res) => {
+      console.log('search succeeded');
+    })
+    .catch((err) => {
+      console.log('search error:', err.message);
+    })
+    .finally(() => {
+      t2.end();
+    });
 
   // Callback style.
   const t3 = apm.startTransaction('t3');
   client.ping(function (err, _res) {
-    console.log('ping', err ? `error ${err.name}: ${err.message}` : 'succeeded');
+    console.log(
+      'ping',
+      err ? `error ${err.name}: ${err.message}` : 'succeeded',
+    );
     t3.end();
   });
 }

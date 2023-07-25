@@ -13,14 +13,15 @@
 // to start a MySQL container (and other containers used for testing of
 // this project).
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-mysql'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-mysql',
 });
 
 const mysql = require('mysql');
 
 const client = mysql.createConnection({
-  user: process.env.MYSQL_USER || 'root'
+  user: process.env.MYSQL_USER || 'root',
 });
 client.connect(function (err) {
   console.warn('Connected (err=%s)', err);

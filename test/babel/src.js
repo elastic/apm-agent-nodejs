@@ -26,12 +26,14 @@ const server = http.createServer((req, res) => {
 server.listen(4321, () => {
   http.get('http://localhost:4321', (res) => {
     console.log('CLIENT: res.headers:', res.headers);
-    res.on('data', chunk => {
+    res.on('data', (chunk) => {
       console.log('CLIENT: res data: %j', chunk.toString());
     });
     res.on('end', () => {
-      assert(apm._apmClient.transactions && apm._apmClient.transactions.length === 1,
-        'got the expected APM transaction');
+      assert(
+        apm._apmClient.transactions && apm._apmClient.transactions.length === 1,
+        'got the expected APM transaction',
+      );
       server.close();
     });
   });

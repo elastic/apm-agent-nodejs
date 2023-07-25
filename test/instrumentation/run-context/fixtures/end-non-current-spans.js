@@ -15,13 +15,14 @@
 //     `- span "s3"
 //       `- span "s4"
 
-const apm = require('../../../../').start({ // elastic-apm-node
+const apm = require('../../../../').start({
+  // elastic-apm-node
   captureExceptions: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'run-context-end-non-current-spans'
+  serviceName: 'run-context-end-non-current-spans',
 });
 
 let assert = require('assert');

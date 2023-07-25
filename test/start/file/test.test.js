@@ -12,7 +12,7 @@
 process.chdir(__dirname);
 
 var agent = require('../../..').start({
-  disableSend: true
+  disableSend: true,
 });
 
 const tape = require('tape');

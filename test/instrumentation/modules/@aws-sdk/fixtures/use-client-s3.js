@@ -47,7 +47,7 @@ const apm = require('../../../../..').start({
   metricsInterval: 0,
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
-  logLevel: 'info'
+  logLevel: 'info',
 });
 
 const crypto = require('crypto');
@@ -61,7 +61,7 @@ const {
   GetObjectCommand,
   DeleteObjectCommand,
   waitUntilBucketExists,
-  waitUntilObjectExists
+  waitUntilObjectExists,
 } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
@@ -73,7 +73,7 @@ const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-';
  * Slurp everything from the given ReadableStream and return the content,
  * converted to a string.
  */
-async function slurpStream (stream) {
+async function slurpStream(stream) {
   return new Promise((resolve, reject) => {
     const chunks = [];
     stream.on('error', (err) => {
@@ -92,13 +92,13 @@ async function slurpStream (stream) {
 }
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
-async function useClientS3 (s3Client, bucketName) {
+async function useClientS3(s3Client, bucketName) {
   const region = await s3Client.config.region();
   const log = apm.logger.child({
     'event.module': 'app',
     endpoint: s3Client.config.endpoint,
     bucketName,
-    region
+    region,
   });
   const key = 'aDir/aFile.txt';
   const content = 'hi there';
@@ -114,18 +114,20 @@ async function useClientS3 (s3Client, bucketName) {
   // Limitation: this doesn't handle paging.
   command = new ListBucketsCommand({});
   data = await s3Client.send(command);
-  assert(apm.currentSpan === null,
-    'S3 span (or its HTTP span) should not be currentSpan after awaiting the task');
+  assert(
+    apm.currentSpan === null,
+    'S3 span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
   log.info({ data }, 'listBuckets');
 
-  const bucketIsPreexisting = data.Buckets.some(b => b.Name === bucketName);
+  const bucketIsPreexisting = data.Buckets.some((b) => b.Name === bucketName);
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/createbucketcommand.html
   if (!bucketIsPreexisting) {
     command = new CreateBucketCommand({
       Bucket: bucketName,
       CreateBucketConfiguration: {
-        LocationConstraint: region
-      }
+        LocationConstraint: region,
+      },
     });
     data = await s3Client.send(command);
     log.info({ data }, 'createBucket');
@@ -140,13 +142,16 @@ async function useClientS3 (s3Client, bucketName) {
     Key: key,
     ContentType: 'text/plain',
     Body: content,
-    ContentMD5: md5base64
+    ContentMD5: md5base64,
   });
   data = await s3Client.send(command);
   log.info({ data }, 'putObject');
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/functions/waitforobjectexists.html
-  data = await waitUntilObjectExists(waiterConfig, { Bucket: bucketName, Key: key });
+  data = await waitUntilObjectExists(waiterConfig, {
+    Bucket: bucketName,
+    Key: key,
+  });
   log.info({ data }, 'waitUntilObjectExists');
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/getobjectcommand.html
@@ -167,14 +172,15 @@ async function useClientS3 (s3Client, bucketName) {
   const signedUrl = await getSignedUrl(
     s3Client,
     new GetObjectCommand({ Bucket: bucketName, Key: key }),
-    { expiresIn: 3600 });
+    { expiresIn: 3600 },
+  );
   log.info({ signedUrl }, 'getSignedUrl');
   customSpan.end();
 
   command = new GetObjectCommand({
     IfNoneMatch: etag,
     Bucket: bucketName,
-    Key: key
+    Key: key,
   });
   try {
     data = await s3Client.send(command);
@@ -189,11 +195,13 @@ async function useClientS3 (s3Client, bucketName) {
 
   command = new GetObjectCommand({
     Bucket: bucketName,
-    Key: key + '-does-not-exist'
+    Key: key + '-does-not-exist',
   });
   try {
     data = await s3Client.send(command);
-    throw new Error(`did not get an error from getObject(${key}-does-not-exist)`);
+    throw new Error(
+      `did not get an error from getObject(${key}-does-not-exist)`,
+    );
   } catch (err) {
     log.info({ err }, 'getObject non-existant key, expect error');
   }
@@ -214,22 +222,28 @@ async function useClientS3 (s3Client, bucketName) {
 // Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an S3
 // bucket name:
 // https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-function getTimestamp () {
-  return (new Date()).toISOString().split('.')[0].replace(/[^0-9]/g, '');
+function getTimestamp() {
+  return new Date()
+    .toISOString()
+    .split('.')[0]
+    .replace(/[^0-9]/g, '');
 }
 
 // ---- mainline
 
-function main () {
+function main() {
   // Config vars.
   const region = process.env.TEST_REGION || 'us-east-2';
   const endpoint = process.env.TEST_ENDPOINT || null;
-  const bucketName = process.env.TEST_BUCKET_NAME || TEST_BUCKET_NAME_PREFIX + getTimestamp();
+  const bucketName =
+    process.env.TEST_BUCKET_NAME || TEST_BUCKET_NAME_PREFIX + getTimestamp();
 
   // Guard against any bucket name being used because we will be creating and
   // deleting objects in it, and potentially *deleting* the bucket.
   if (!bucketName.startsWith(TEST_BUCKET_NAME_PREFIX)) {
-    throw new Error(`cannot use bucket name "${bucketName}", it must start with ${TEST_BUCKET_NAME_PREFIX}`);
+    throw new Error(
+      `cannot use bucket name "${bucketName}", it must start with ${TEST_BUCKET_NAME_PREFIX}`,
+    );
   }
 
   const s3Client = new S3Client({
@@ -255,7 +269,7 @@ function main () {
     //
     // The work around is to force the client to use "path-style" URLs, e.g.:
     //    http://localstack:4566/$bucketName/$key
-    forcePathStyle: true
+    forcePathStyle: true,
   });
 
   // Ensure an APM transaction so spans can happen.
@@ -273,7 +287,7 @@ function main () {
       tx.end();
       s3Client.destroy();
       process.exitCode = 1;
-    }
+    },
   );
 }
 

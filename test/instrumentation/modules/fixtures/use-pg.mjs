@@ -11,9 +11,9 @@ import apm from '../../../../index.js'; // 'elastic-apm-node'
 
 import pg from 'pg';
 
-async function main () {
+async function main() {
   const client = new pg.Client({
-    user: process.env.PGUSER || 'postgres'
+    user: process.env.PGUSER || 'postgres',
   });
   await client.connect();
 
@@ -22,7 +22,7 @@ async function main () {
   const res = await client.query('SELECT $1::text as message', ['hi']);
   console.log('using await:', res.rows[0].message);
 
-  await new Promise(resolve => {
+  await new Promise((resolve) => {
     client.query('SELECT $1::text as message', ['bye'], (err, res) => {
       console.log('using callback:', err ? err.stack : res.rows[0].message);
       resolve();

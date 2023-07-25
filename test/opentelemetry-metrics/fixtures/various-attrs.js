@@ -16,8 +16,21 @@ setInterval(() => {
   // - This should result in *3* metricsets.
   // - The array-valued attribute should be dropped and there should be a
   //   *single* logged warning about it.
-  counterAttrs.add(1, { 'http.request.method': 'POST', 'http.response.status_code': '200' });
-  counterAttrs.add(1, { 'http.request.method': 'GET', 'http.response.status_code': '200' });
-  counterAttrs.add(1, { 'http.request.method': 'GET', 'http.response.status_code': '400' });
-  counterAttrs.add(1, { 'http.request.method': 'GET', 'http.response.status_code': '200', array_valued_attr: ['foo', 'bar'] });
+  counterAttrs.add(1, {
+    'http.request.method': 'POST',
+    'http.response.status_code': '200',
+  });
+  counterAttrs.add(1, {
+    'http.request.method': 'GET',
+    'http.response.status_code': '200',
+  });
+  counterAttrs.add(1, {
+    'http.request.method': 'GET',
+    'http.response.status_code': '400',
+  });
+  counterAttrs.add(1, {
+    'http.request.method': 'GET',
+    'http.response.status_code': '200',
+    array_valued_attr: ['foo', 'bar'],
+  });
 }, 200);

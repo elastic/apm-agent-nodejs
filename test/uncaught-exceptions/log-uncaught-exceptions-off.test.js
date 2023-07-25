@@ -8,7 +8,7 @@
 
 const agent = require('../..').start({
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 const test = require('tape');
@@ -36,18 +36,35 @@ test('should capture uncaught exceptions but not log if disabled', function (t) 
   };
 
   agent._apmClient.sendError = function (sentError) {
-    t.strictEqual(sentError.exception.message, thrownError.message, 'error.exception.message');
+    t.strictEqual(
+      sentError.exception.message,
+      thrownError.message,
+      'error.exception.message',
+    );
     t.strictEqual(sentError.exception.type, 'Error', 'error.exception.type');
-    t.strictEqual(sentError.exception.handled, false, 'error.exception.handled');
-    t.ok(Array.isArray(sentError.exception.stacktrace), 'should have a stack trace');
-    t.ok(sentError.exception.stacktrace.length > 0, 'stack trace should contain frames');
-    t.ok(__filename.includes(sentError.exception.stacktrace[0].filename), 'top frame should be this file');
+    t.strictEqual(
+      sentError.exception.handled,
+      false,
+      'error.exception.handled',
+    );
+    t.ok(
+      Array.isArray(sentError.exception.stacktrace),
+      'should have a stack trace',
+    );
+    t.ok(
+      sentError.exception.stacktrace.length > 0,
+      'stack trace should contain frames',
+    );
+    t.ok(
+      __filename.includes(sentError.exception.stacktrace[0].filename),
+      'top frame should be this file',
+    );
   };
 
   // Re-install the Agent's default (captureExceptions=true) uncaughtException
   // handler, but with a *callback* so this test is called back instead of
   // the Agent default of `process.exit(1)`. A process.exit breaks this test.
-  agent.handleUncaughtExceptions(_err => {
+  agent.handleUncaughtExceptions((_err) => {
     t.end();
   });
 

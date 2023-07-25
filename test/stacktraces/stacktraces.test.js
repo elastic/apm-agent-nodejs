@@ -16,7 +16,11 @@ const tape = require('tape');
 
 const logging = require('../../lib/logging');
 const { MockAPMServer } = require('../_mock_apm_server');
-const { gatherStackTrace, initStackTraceCollection, stackTraceFromErrStackString } = require('../../lib/stacktraces');
+const {
+  gatherStackTrace,
+  initStackTraceCollection,
+  stackTraceFromErrStackString,
+} = require('../../lib/stacktraces');
 
 const log = logging.createLogger('off');
 
@@ -32,13 +36,15 @@ tape.test('error.exception.stacktrace', function (t) {
         cwd: __dirname,
         timeout: 10000, // sanity stop, 3s is sometimes too short for CI
         env: Object.assign({}, process.env, {
-          ELASTIC_APM_SERVER_URL: serverUrl
-        })
+          ELASTIC_APM_SERVER_URL: serverUrl,
+        }),
       },
-      function done (err, _stdout, _stderr) {
+      function done(err, _stdout, _stderr) {
         t.ok(err, 'throw-an-error.js errored out');
-        t.ok(/Error: boom/.test(err.message),
-          'err.message includes /Error: boom/: ' + JSON.stringify(err.message));
+        t.ok(
+          /Error: boom/.test(err.message),
+          'err.message includes /Error: boom/: ' + JSON.stringify(err.message),
+        );
         t.ok(server.events[0].metadata, 'APM server got event metadata object');
         t.ok(server.events[1].error, 'APM server got error event');
         const stacktrace = server.events[1].error.exception.stacktrace;
@@ -52,13 +58,13 @@ tape.test('error.exception.stacktrace', function (t) {
             abs_path: path.join(__dirname, 'fixtures', 'throw-an-error.js'),
             pre_context: ['', 'function main () {'],
             context_line: "  throw new Error('boom')",
-            post_context: ['}', '']
+            post_context: ['}', ''],
           },
-          'stacktrace top frame is as expected'
+          'stacktrace top frame is as expected',
         );
         server.close();
         t.end();
-      }
+      },
     );
   });
 });
@@ -66,55 +72,71 @@ tape.test('error.exception.stacktrace', function (t) {
 // There was a bug in stacktrace frame caching when a stacktrace had duplicate
 // frames: the JSON serialization protection against circular references would
 // accidentally replace duplicate frames with `["Circular"]`.
-tape.test('error.exception.stacktrace does not have "[Circular]" frames', function (t) {
-  const server = new MockAPMServer();
-  server.start(function (serverUrl) {
-    execFile(
-      process.execPath,
-      ['fixtures/circular-stack.js'],
-      {
-        cwd: __dirname,
-        timeout: 10000, // sanity stop, 3s is sometimes too short for CI
-        env: Object.assign({}, process.env, {
-          ELASTIC_APM_SERVER_URL: serverUrl
-        })
-      },
-      function done (err, _stdout, _stderr) {
-        t.error(err, 'circular-stack.js exited non-zero');
-        t.ok(server.events[0].metadata, 'APM server got first metadata object');
-        t.ok(server.events[1].error, 'APM server got first error event');
-        t.ok(server.events[2].metadata, 'APM server got second metadata object');
-        t.ok(server.events[3].error, 'APM server got second error event');
-        // The script calls `boomOnZero(10)`, so we expect to see *9* frames at the
-        // `boomOnZero(n)` line.
-        let count = 0;
-        const stacktrace = server.events[3].error.exception.stacktrace;
-        stacktrace.forEach(function (frame) {
-          if (frame.context_line === '    boomOnZero(n)') {
-            count++;
-            t.deepEqual(
-              frame,
-              {
-                filename: path.join('fixtures', 'circular-stack.js'),
-                lineno: 25,
-                function: 'boomOnZero',
-                library_frame: false,
-                abs_path: path.join(__dirname, 'fixtures', 'circular-stack.js'),
-                pre_context: ['    throw new Error(\'boom on zero\')', '  } else {'],
-                context_line: '    boomOnZero(n)',
-                post_context: ['  }', '}']
-              },
-              '"boom on zero" stacktrace frame is as expected'
-            );
-          }
-        });
-        t.equal(count, 9, 'found 9 "boom on zero" stacktrace frames');
-        server.close();
-        t.end();
-      }
-    );
-  });
-});
+tape.test(
+  'error.exception.stacktrace does not have "[Circular]" frames',
+  function (t) {
+    const server = new MockAPMServer();
+    server.start(function (serverUrl) {
+      execFile(
+        process.execPath,
+        ['fixtures/circular-stack.js'],
+        {
+          cwd: __dirname,
+          timeout: 10000, // sanity stop, 3s is sometimes too short for CI
+          env: Object.assign({}, process.env, {
+            ELASTIC_APM_SERVER_URL: serverUrl,
+          }),
+        },
+        function done(err, _stdout, _stderr) {
+          t.error(err, 'circular-stack.js exited non-zero');
+          t.ok(
+            server.events[0].metadata,
+            'APM server got first metadata object',
+          );
+          t.ok(server.events[1].error, 'APM server got first error event');
+          t.ok(
+            server.events[2].metadata,
+            'APM server got second metadata object',
+          );
+          t.ok(server.events[3].error, 'APM server got second error event');
+          // The script calls `boomOnZero(10)`, so we expect to see *9* frames at the
+          // `boomOnZero(n)` line.
+          let count = 0;
+          const stacktrace = server.events[3].error.exception.stacktrace;
+          stacktrace.forEach(function (frame) {
+            if (frame.context_line === '    boomOnZero(n)') {
+              count++;
+              t.deepEqual(
+                frame,
+                {
+                  filename: path.join('fixtures', 'circular-stack.js'),
+                  lineno: 25,
+                  function: 'boomOnZero',
+                  library_frame: false,
+                  abs_path: path.join(
+                    __dirname,
+                    'fixtures',
+                    'circular-stack.js',
+                  ),
+                  pre_context: [
+                    "    throw new Error('boom on zero')",
+                    '  } else {',
+                  ],
+                  context_line: '    boomOnZero(n)',
+                  post_context: ['  }', '}'],
+                },
+                '"boom on zero" stacktrace frame is as expected',
+              );
+            }
+          });
+          t.equal(count, 9, 'found 9 "boom on zero" stacktrace frames');
+          server.close();
+          t.end();
+        },
+      );
+    });
+  },
+);
 
 tape.test('error.log.stacktrace', function (t) {
   const server = new MockAPMServer();
@@ -126,10 +148,10 @@ tape.test('error.log.stacktrace', function (t) {
         cwd: __dirname,
         timeout: 3000,
         env: Object.assign({}, process.env, {
-          ELASTIC_APM_SERVER_URL: serverUrl
-        })
+          ELASTIC_APM_SERVER_URL: serverUrl,
+        }),
       },
-      function done (err, _stdout, _stderr) {
+      function done(err, _stdout, _stderr) {
         t.error(err, 'capture-error-string.js did not error');
         t.ok(server.events[0].metadata, 'APM server got event metadata object');
         t.deepEqual(
@@ -139,12 +161,19 @@ tape.test('error.log.stacktrace', function (t) {
             lineno: 21,
             function: 'main',
             library_frame: false,
-            abs_path: path.join(__dirname, 'fixtures', 'capture-error-string.js'),
+            abs_path: path.join(
+              __dirname,
+              'fixtures',
+              'capture-error-string.js',
+            ),
             pre_context: ['', 'function main () {'],
-            context_line: '  agent.captureError(\'a string error message\')',
-            post_context: ['  agent.captureError({ message: \'message template: %d\', params: [42] })', '}']
+            context_line: "  agent.captureError('a string error message')",
+            post_context: [
+              "  agent.captureError({ message: 'message template: %d', params: [42] })",
+              '}',
+            ],
           },
-          'first error.log.stacktrace top frame is as expected'
+          'first error.log.stacktrace top frame is as expected',
         );
         t.deepEqual(
           server.events[2].error.log.stacktrace[0],
@@ -153,16 +182,24 @@ tape.test('error.log.stacktrace', function (t) {
             lineno: 22,
             function: 'main',
             library_frame: false,
-            abs_path: path.join(__dirname, 'fixtures', 'capture-error-string.js'),
-            pre_context: ['function main () {', '  agent.captureError(\'a string error message\')'],
-            context_line: '  agent.captureError({ message: \'message template: %d\', params: [42] })',
-            post_context: ['}', '']
+            abs_path: path.join(
+              __dirname,
+              'fixtures',
+              'capture-error-string.js',
+            ),
+            pre_context: [
+              'function main () {',
+              "  agent.captureError('a string error message')",
+            ],
+            context_line:
+              "  agent.captureError({ message: 'message template: %d', params: [42] })",
+            post_context: ['}', ''],
           },
-          'second error.log.stacktrace top frame is as expected'
+          'second error.log.stacktrace top frame is as expected',
         );
         server.close();
         t.end();
-      }
+      },
     );
   });
 });
@@ -178,21 +215,22 @@ tape.test('span.stacktrace', function (t) {
         cwd: __dirname,
         timeout: 3000,
         env: Object.assign({}, process.env, {
-          ELASTIC_APM_SERVER_URL: serverUrl
-        })
+          ELASTIC_APM_SERVER_URL: serverUrl,
+        }),
       },
-      function done (err, _stdout, _stderr) {
+      function done(err, _stdout, _stderr) {
         t.error(err, 'send-a-span.js did not error');
         t.ok(server.events[0].metadata, 'APM server got event metadata object');
-        const span = server.events.filter(e => e.span)[0].span;
+        const span = server.events.filter((e) => e.span)[0].span;
         t.ok(span, 'APM server got span event');
         t.ok(span.stacktrace, 'span has a stacktrace');
         // Some top frames will be in the agent code. Normally these are
         // filtered out, but that depends on an agent installed in
         // ".../node_modules/elastic-apm-node/...", which isn't the case under
         // test.
-        const firstAppFrame = span.stacktrace
-          .filter(f => f.filename === testScript)[0];
+        const firstAppFrame = span.stacktrace.filter(
+          (f) => f.filename === testScript,
+        )[0];
         t.deepEqual(
           firstAppFrame,
           {
@@ -203,16 +241,16 @@ tape.test('span.stacktrace', function (t) {
             abs_path: path.join(__dirname, 'fixtures', 'send-a-span.js'),
             pre_context: [
               'function main () {',
-              "  const trans = agent.startTransaction('main')"
+              "  const trans = agent.startTransaction('main')",
             ],
             context_line: "  const span = agent.startSpan('a')",
-            post_context: ['  a(function () {', '    span.end()']
+            post_context: ['  a(function () {', '    span.end()'],
           },
-          'first app frame in stacktrace is as expected'
+          'first app frame in stacktrace is as expected',
         );
         server.close();
         t.end();
-      }
+      },
     );
   });
 });
@@ -237,39 +275,52 @@ tape.test('error.exception.stacktrace with sourcemap', function (t) {
         cwd: __dirname,
         timeout: 3000,
         env: Object.assign({}, process.env, {
-          ELASTIC_APM_SERVER_URL: serverUrl
-        })
+          ELASTIC_APM_SERVER_URL: serverUrl,
+        }),
       },
-      function done (err, _stdout, _stderr) {
+      function done(err, _stdout, _stderr) {
         t.ok(err, 'throw-an-error-with-sourcemap.js errored out');
-        t.ok(/Error: boom/.test(err.message),
-          'err.message includes /Error: boom/: ' + JSON.stringify(err.message));
+        t.ok(
+          /Error: boom/.test(err.message),
+          'err.message includes /Error: boom/: ' + JSON.stringify(err.message),
+        );
         t.ok(server.events[0].metadata, 'APM server got event metadata object');
         t.ok(server.events[1].error, 'APM server got error event');
         const stacktrace = server.events[1].error.exception.stacktrace;
         t.deepEqual(
           stacktrace[0],
           {
-            filename: path.join('fixtures', 'dist', 'no-such-dir', 'throw-an-error-with-sourcemap.ts'),
+            filename: path.join(
+              'fixtures',
+              'dist',
+              'no-such-dir',
+              'throw-an-error-with-sourcemap.ts',
+            ),
             lineno: 22,
             function: 'main',
             library_frame: false,
-            abs_path: path.join(__dirname, 'fixtures', 'dist', 'no-such-dir', 'throw-an-error-with-sourcemap.ts'),
+            abs_path: path.join(
+              __dirname,
+              'fixtures',
+              'dist',
+              'no-such-dir',
+              'throw-an-error-with-sourcemap.ts',
+            ),
             pre_context: ['', 'function main(msg: string) {'],
             context_line: '  throw new Error(msg)',
-            post_context: ['}', '']
+            post_context: ['}', ''],
           },
-          'stacktrace top frame is as expected'
+          'stacktrace top frame is as expected',
         );
         server.close();
         t.end();
-      }
+      },
     );
   });
 });
 
 tape.test('stackTraceFromErrStackString()', function (t) {
-  function theFunction () {
+  function theFunction() {
     return new Error('here I am'); // <-- the top frame will point here
   }
 
@@ -295,9 +346,9 @@ tape.test('stackTraceFromErrStackString()', function (t) {
       function: 'theFunction',
       lineno,
       library_frame: false,
-      abs_path: __filename
+      abs_path: __filename,
     },
-    'stacktrace top frame is as expected'
+    'stacktrace top frame is as expected',
   );
 
   t.end();
@@ -305,7 +356,7 @@ tape.test('stackTraceFromErrStackString()', function (t) {
 
 tape.test('gatherStackTrace()', function (suite) {
   initStackTraceCollection();
-  function thisIsMyFunction () {
+  function thisIsMyFunction() {
     // before 2
     // before 1
     return new Error('sha-boom');
@@ -328,74 +379,76 @@ tape.test('gatherStackTrace()', function (suite) {
   var cases = [
     {
       lines: 0,
-      expectedContext: {}
+      expectedContext: {},
     },
     {
       lines: 1,
       expectedContext: {
         pre_context: [],
-        context_line: '    return new Error(\'sha-boom\')',
-        post_context: []
-      }
+        context_line: "    return new Error('sha-boom')",
+        post_context: [],
+      },
     },
     {
       lines: 2,
       expectedContext: {
         pre_context: ['    // before 1'],
-        context_line: '    return new Error(\'sha-boom\')',
-        post_context: []
-      }
+        context_line: "    return new Error('sha-boom')",
+        post_context: [],
+      },
     },
     {
       lines: 3,
       expectedContext: {
         pre_context: ['    // before 1'],
-        context_line: '    return new Error(\'sha-boom\')',
-        post_context: ['    // after 1']
-      }
+        context_line: "    return new Error('sha-boom')",
+        post_context: ['    // after 1'],
+      },
     },
     {
       lines: 4,
       expectedContext: {
-        pre_context: [
-          '    // before 2',
-          '    // before 1'
-        ],
-        context_line: '    return new Error(\'sha-boom\')',
-        post_context: ['    // after 1']
-      }
+        pre_context: ['    // before 2', '    // before 1'],
+        context_line: "    return new Error('sha-boom')",
+        post_context: ['    // after 1'],
+      },
     },
     {
       lines: 5,
       expectedContext: {
-        pre_context: [
-          '    // before 2',
-          '    // before 1'
-        ],
-        context_line: '    return new Error(\'sha-boom\')',
-        post_context: [
-          '    // after 1',
-          '    // after 2'
-        ]
-      }
-    }
+        pre_context: ['    // before 2', '    // before 1'],
+        context_line: "    return new Error('sha-boom')",
+        post_context: ['    // after 1', '    // after 2'],
+      },
+    },
   ];
 
-  cases.forEach(c => {
-    suite.test(`${c.lines} lines of source context`, t => {
+  cases.forEach((c) => {
+    suite.test(`${c.lines} lines of source context`, (t) => {
       const err = thisIsMyFunction();
-      gatherStackTrace(log, err, c.lines, c.lines, null, function (_, stacktrace) {
-        const expectedTopFrame = {
-          filename: path.relative(process.cwd(), __filename),
-          lineno,
-          function: 'thisIsMyFunction',
-          library_frame: false,
-          abs_path: __filename,
-          ...c.expectedContext
-        };
-        t.deepEqual(stacktrace[0], expectedTopFrame, 'top frame is as expected');
-        t.end();
-      });
+      gatherStackTrace(
+        log,
+        err,
+        c.lines,
+        c.lines,
+        null,
+        function (_, stacktrace) {
+          const expectedTopFrame = {
+            filename: path.relative(process.cwd(), __filename),
+            lineno,
+            function: 'thisIsMyFunction',
+            library_frame: false,
+            abs_path: __filename,
+            ...c.expectedContext,
+          };
+          t.deepEqual(
+            stacktrace[0],
+            expectedTopFrame,
+            'top frame is as expected',
+          );
+          t.end();
+        },
+      );
     });
   });
 
@@ -409,15 +462,19 @@ tape.test('gatherStackTrace()', function (suite) {
           cwd: __dirname,
           timeout: 3000,
           env: Object.assign({}, process.env, {
-            ELASTIC_APM_ACTIVE: true
-          })
+            ELASTIC_APM_ACTIVE: true,
+          }),
         },
-        function done (err, _stdout, _stderr) {
+        function done(err, _stdout, _stderr) {
           t.ok(!err);
-          t.equals(_stdout.trim(), 'csPrepareStackTrace', 'Error.prepareStackTrace is set');
+          t.equals(
+            _stdout.trim(),
+            'csPrepareStackTrace',
+            'Error.prepareStackTrace is set',
+          );
           server.close();
           t.end();
-        }
+        },
       );
     });
   });
@@ -432,15 +489,19 @@ tape.test('gatherStackTrace()', function (suite) {
           cwd: __dirname,
           timeout: 3000,
           env: Object.assign({}, process.env, {
-            ELASTIC_APM_ACTIVE: false
-          })
+            ELASTIC_APM_ACTIVE: false,
+          }),
         },
-        function done (err, _stdout, _stderr) {
+        function done(err, _stdout, _stderr) {
           t.ok(!err);
-          t.equals(_stdout.trim(), 'undefined', 'Error.prepareStackTrace is not set');
+          t.equals(
+            _stdout.trim(),
+            'undefined',
+            'Error.prepareStackTrace is not set',
+          );
           server.close();
           t.end();
-        }
+        },
       );
     });
   });

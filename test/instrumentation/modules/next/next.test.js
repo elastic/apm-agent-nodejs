@@ -57,7 +57,9 @@ if (semver.lt(process.version, '14.6.0')) {
   process.exit();
 }
 if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
-  console.log('# SKIP Next.js instrumentation does not work with contextManager="patch"');
+  console.log(
+    '# SKIP Next.js instrumentation does not work with contextManager="patch"',
+  );
   process.exit();
 }
 
@@ -88,28 +90,44 @@ let TEST_REQUESTS = [
     reqOpts: { method: 'GET', path: '/a-page/' },
     expectedRes: {
       statusCode: 308,
-      headers: { location: '/a-page' }
+      headers: { location: '/a-page' },
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'Next.js Redirect route /:path+/', 'transaction.name');
-      t.equal(trans.context.response.status_code, 308, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.name,
+        'Next.js Redirect route /:path+/',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        308,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'configured (in next.config.js) redirect',
     reqOpts: { method: 'GET', path: '/redirect-to-a-page' },
     expectedRes: {
       statusCode: 307,
-      headers: { location: '/a-page' }
+      headers: { location: '/a-page' },
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'Next.js Redirect route /redirect-to-a-page', 'transaction.name');
-      t.equal(trans.context.response.status_code, 307, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.name,
+        'Next.js Redirect route /redirect-to-a-page',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        307,
+        'transaction.context.response.status_code',
+      );
+    },
   },
 
   // Rewrites are configured in "next.config.js".
@@ -120,14 +138,22 @@ let TEST_REQUESTS = [
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
       // This shows that we got the content from "pages/a-page.js".
-      body: /This is APage/
+      body: /This is APage/,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-page -> /a-page', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.name,
+        'Next.js Rewrite route /rewrite-to-a-page -> /a-page',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'rewrite to a dynamic page',
@@ -135,67 +161,114 @@ let TEST_REQUESTS = [
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
-      body: /This is ADynamicPage/
+      body: /This is ADynamicPage/,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-dynamic-page/:num -> /a-dynamic-page/:num', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.name,
+        'Next.js Rewrite route /rewrite-to-a-dynamic-page/:num -> /a-dynamic-page/:num',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'rewrite to a /public/... folder file',
     reqOpts: { method: 'GET', path: '/rewrite-to-a-public-file' },
     expectedRes: {
       statusCode: 200,
-      headers: { 'content-type': 'image/x-icon' }
+      headers: { 'content-type': 'image/x-icon' },
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-public-file -> /favicon.ico', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.name,
+        'Next.js Rewrite route /rewrite-to-a-public-file -> /favicon.ico',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'rewrite to a 404',
     reqOpts: { method: 'GET', path: '/rewrite-to-a-404' },
     expectedRes: {
-      statusCode: 404
+      statusCode: 404,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'Next.js Rewrite route /rewrite-to-a-404 -> /no-such-page', 'transaction.name');
-      t.equal(trans.context.response.status_code, 404, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.name,
+        'Next.js Rewrite route /rewrite-to-a-404 -> /no-such-page',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        404,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'rewrite to a external site',
     reqOpts: { method: 'GET', path: '/rewrite-external/foo' },
     expectedRes: {
       // This is a 500 because the configured `old.example.com` doesn't resolve.
-      statusCode: 500
+      statusCode: 500,
     },
     checkApmEvents: (t, apmEventsForReq) => {
-      t.ok(apmEventsForReq.length === 1 || apmEventsForReq.length === 2, 'expected number of APM events');
+      t.ok(
+        apmEventsForReq.length === 1 || apmEventsForReq.length === 2,
+        'expected number of APM events',
+      );
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'Next.js Rewrite route /rewrite-external/:path* -> https://old.example.com/:path*', 'transaction.name');
-      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code');
+      t.equal(
+        trans.name,
+        'Next.js Rewrite route /rewrite-external/:path* -> https://old.example.com/:path*',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        500,
+        'transaction.context.response.status_code',
+      );
       // Limitation: Currently the instrumentation only captures an error with
       // the DevServer, because Next.js special cases dev-mode and calls
       // `renderErrorToResponse`. To capture the error with NextNodeServer we
       // would need to shim `Server.run()` in base-server.js.
       if (apmEventsForReq.length === 2) {
         const error = apmEventsForReq[1].error;
-        t.equal(trans.trace_id, error.trace_id, 'transaction and error are in same trace');
-        t.equal(error.parent_id, trans.id, 'error is a child of the transaction');
+        t.equal(
+          trans.trace_id,
+          error.trace_id,
+          'transaction and error are in same trace',
+        );
+        t.equal(
+          error.parent_id,
+          trans.id,
+          'error is a child of the transaction',
+        );
         t.equal(error.transaction.type, 'request', 'error.transaction.type');
         t.equal(error.transaction.name, trans.name, 'error.transaction.name');
-        t.equal(error.exception.message, 'getaddrinfo ENOTFOUND old.example.com', 'error.exception.message');
+        t.equal(
+          error.exception.message,
+          'getaddrinfo ENOTFOUND old.example.com',
+          'error.exception.message',
+        );
       }
-    }
+    },
   },
 
   // The different kinds of pages.
@@ -205,14 +278,18 @@ let TEST_REQUESTS = [
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
-      body: /This is IndexPage/
+      body: /This is IndexPage/,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
       t.equal(trans.name, 'GET /', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'a page (Server-Side Generated, SSG)',
@@ -220,14 +297,18 @@ let TEST_REQUESTS = [
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
-      body: /This is APage/
+      body: /This is APage/,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
       t.equal(trans.name, 'GET /a-page', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'a dynamic page',
@@ -235,14 +316,18 @@ let TEST_REQUESTS = [
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
-      body: /This is ADynamicPage/
+      body: /This is ADynamicPage/,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
       t.equal(trans.name, 'GET /a-dynamic-page/[num]', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'a server-side rendered (SSR) page',
@@ -250,14 +335,18 @@ let TEST_REQUESTS = [
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /text\/html/ },
-      body: /This is AnSSRPage/
+      body: /This is AnSSRPage/,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
       t.equal(trans.name, 'GET /an-ssr-page', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
 
   // API endpoint pages
@@ -267,14 +356,18 @@ let TEST_REQUESTS = [
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /application\/json/ },
-      body: '{"ping":"pong"}'
+      body: '{"ping":"pong"}',
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
       t.equal(trans.name, 'GET /api/an-api-endpoint', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
   {
     testName: 'a dynamic API endpoint page',
@@ -282,14 +375,22 @@ let TEST_REQUESTS = [
     expectedRes: {
       statusCode: 200,
       headers: { 'content-type': /application\/json/ },
-      body: '{"num":"123","n":123,"double":246,"floor":123}'
+      body: '{"num":"123","n":123,"double":246,"floor":123}',
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'GET /api/a-dynamic-api-endpoint/[num]', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.name,
+        'GET /api/a-dynamic-api-endpoint/[num]',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
 
   // Various internal Next.js routes.
@@ -297,19 +398,27 @@ let TEST_REQUESTS = [
   // `wrapFsRoute` in "next-server.js" and "next-dev-server.js".
   {
     testName: '"_next/data catchall" route',
-    reqOpts: buildId => {
+    reqOpts: (buildId) => {
       return { method: 'GET', path: `/_next/data/${buildId}/a-page.json` };
     },
     expectedRes: {
       statusCode: 200,
-      headers: { 'content-type': /application\/json/ }
+      headers: { 'content-type': /application\/json/ },
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 1);
       const trans = apmEventsForReq[0].transaction;
-      t.equal(trans.name, 'Next.js _next/data route /a-page', 'transaction.name');
-      t.equal(trans.context.response.status_code, 200, 'transaction.context.response.status_code');
-    }
+      t.equal(
+        trans.name,
+        'Next.js _next/data route /a-page',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        200,
+        'transaction.context.response.status_code',
+      );
+    },
   },
 
   // Error capture cases
@@ -323,41 +432,69 @@ let TEST_REQUESTS = [
     nextVersionRange: '>=12.0.11-canary.14',
     reqOpts: { method: 'GET', path: '/api/an-api-endpoint-that-throws' },
     expectedRes: {
-      statusCode: 500
+      statusCode: 500,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 2);
       const trans = apmEventsForReq[0].transaction;
       const error = apmEventsForReq[1].error;
-      t.equal(trans.name, 'GET /api/an-api-endpoint-that-throws', 'transaction.name');
-      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code');
+      t.equal(
+        trans.name,
+        'GET /api/an-api-endpoint-that-throws',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        500,
+        'transaction.context.response.status_code',
+      );
       t.ok(error, 'captured an APM error');
-      t.equal(trans.trace_id, error.trace_id, 'transaction and error are in same trace');
+      t.equal(
+        trans.trace_id,
+        error.trace_id,
+        'transaction and error are in same trace',
+      );
       t.equal(error.parent_id, trans.id, 'error is a child of the transaction');
       t.equal(error.transaction.type, 'request', 'error.transaction.type');
       t.equal(error.transaction.name, trans.name, 'error.transaction.name');
-      t.equal(error.exception.message, 'An error thrown in anApiEndpointThatThrows handler', 'error.exception.message');
-    }
+      t.equal(
+        error.exception.message,
+        'An error thrown in anApiEndpointThatThrows handler',
+        'error.exception.message',
+      );
+    },
   },
   {
     testName: 'a throw in a page handler',
     reqOpts: { method: 'GET', path: '/a-throw-in-page-handler' },
     expectedRes: {
-      statusCode: 500
+      statusCode: 500,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 2);
       const trans = apmEventsForReq[0].transaction;
       const error = apmEventsForReq[1].error;
       t.equal(trans.name, 'GET /a-throw-in-page-handler', 'transaction.name');
-      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code');
+      t.equal(
+        trans.context.response.status_code,
+        500,
+        'transaction.context.response.status_code',
+      );
       t.ok(error, 'captured an APM error');
-      t.equal(trans.trace_id, error.trace_id, 'transaction and error are in same trace');
+      t.equal(
+        trans.trace_id,
+        error.trace_id,
+        'transaction and error are in same trace',
+      );
       t.equal(error.parent_id, trans.id, 'error is a child of the transaction');
       t.equal(error.transaction.type, 'request', 'error.transaction.type');
       t.equal(error.transaction.name, trans.name, 'error.transaction.name');
-      t.equal(error.exception.message, 'throw in page handler', 'error.exception.message');
-    }
+      t.equal(
+        error.exception.message,
+        'throw in page handler',
+        'error.exception.message',
+      );
+    },
   },
   {
     testName: 'a throw in getServerSideProps',
@@ -368,29 +505,50 @@ let TEST_REQUESTS = [
     nextVersionRange: '>=11.1.1-canary.18',
     reqOpts: { method: 'GET', path: '/a-throw-in-getServerSideProps' },
     expectedRes: {
-      statusCode: 500
+      statusCode: 500,
     },
     checkApmEvents: (t, apmEventsForReq) => {
       t.equal(apmEventsForReq.length, 2);
       const trans = apmEventsForReq[0].transaction;
       const error = apmEventsForReq[1].error;
-      t.equal(trans.name, 'GET /a-throw-in-getServerSideProps', 'transaction.name');
-      t.equal(trans.context.response.status_code, 500, 'transaction.context.response.status_code');
+      t.equal(
+        trans.name,
+        'GET /a-throw-in-getServerSideProps',
+        'transaction.name',
+      );
+      t.equal(
+        trans.context.response.status_code,
+        500,
+        'transaction.context.response.status_code',
+      );
       t.ok(error, 'captured an APM error');
-      t.equal(trans.trace_id, error.trace_id, 'transaction and error are in same trace');
+      t.equal(
+        trans.trace_id,
+        error.trace_id,
+        'transaction and error are in same trace',
+      );
       t.equal(error.parent_id, trans.id, 'error is a child of the transaction');
       t.equal(error.transaction.type, 'request', 'error.transaction.type');
       t.equal(error.transaction.name, trans.name, 'error.transaction.name');
-      t.equal(error.exception.message, 'thrown error in getServerSideProps', 'error.exception.message');
-    }
-  }
+      t.equal(
+        error.exception.message,
+        'thrown error in getServerSideProps',
+        'error.exception.message',
+      );
+    },
+  },
 ];
 // Dev Note: To limit a test run to a particular test request, provide a
 // string value to DEV_TEST_FILTER that matches `testName`.
 var DEV_TEST_FILTER = null;
 if (DEV_TEST_FILTER) {
-  TEST_REQUESTS = TEST_REQUESTS.filter(testReq => ~testReq.testName.indexOf(DEV_TEST_FILTER));
-  assert(TEST_REQUESTS.length > 0, 'DEV_TEST_FILTER should not result in an *empty* TEST_REQUESTS');
+  TEST_REQUESTS = TEST_REQUESTS.filter(
+    (testReq) => ~testReq.testName.indexOf(DEV_TEST_FILTER),
+  );
+  assert(
+    TEST_REQUESTS.length > 0,
+    'DEV_TEST_FILTER should not result in an *empty* TEST_REQUESTS',
+  );
 }
 
 // ---- utility functions
@@ -405,7 +563,7 @@ if (DEV_TEST_FILTER) {
  * @param {Function} cb - Calls `cb(err)` if there was a timeout, `cb()` on
  *    success.
  */
-function waitForServerReady (t, cb) {
+function waitForServerReady(t, cb) {
   let sentinel = 10;
 
   const pollForServerReady = () => {
@@ -413,15 +571,17 @@ function waitForServerReady (t, cb) {
       'http://localhost:3000/api/an-api-endpoint',
       {
         agent: false,
-        timeout: 500
+        timeout: 500,
       },
-      res => {
+      (res) => {
         if (res.statusCode !== 200) {
           res.resume();
           scheduleNextPoll(`statusCode=${res.statusCode}`);
         }
         const chunks = [];
-        res.on('data', chunk => { chunks.push(chunk); });
+        res.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
         res.on('end', () => {
           try {
             const body = Buffer.concat(chunks).toString();
@@ -434,15 +594,17 @@ function waitForServerReady (t, cb) {
             scheduleNextPoll(bodyErr.message);
           }
         });
-      }
+      },
     );
-    req.on('error', err => {
+    req.on('error', (err) => {
       scheduleNextPoll(err.message);
     });
   };
 
   const scheduleNextPoll = (msg) => {
-    t.comment(`[sentinel=${sentinel} ${new Date().toISOString()}] wait another 1s for server ready: ${msg}`);
+    t.comment(
+      `[sentinel=${sentinel} ${new Date().toISOString()}] wait another 1s for server ready: ${msg}`,
+    );
     sentinel--;
     if (sentinel <= 0) {
       cb(new Error('timed out'));
@@ -454,55 +616,76 @@ function waitForServerReady (t, cb) {
   pollForServerReady();
 }
 
-async function makeTestRequest (t, testReq, buildId) {
+async function makeTestRequest(t, testReq, buildId) {
   return new Promise((resolve, reject) => {
     let reqOpts = testReq.reqOpts;
     if (typeof reqOpts === 'function') {
       reqOpts = reqOpts(buildId);
     }
     const url = `http://localhost:3000${reqOpts.path}`;
-    t.comment(`makeTestRequest: ${testReq.testName} (${reqOpts.method} ${url})`);
+    t.comment(
+      `makeTestRequest: ${testReq.testName} (${reqOpts.method} ${url})`,
+    );
     const req = http.request(
       url,
       {
-        method: reqOpts.method
+        method: reqOpts.method,
       },
-      res => {
+      (res) => {
         const chunks = [];
-        res.on('data', chunk => { chunks.push(chunk); });
+        res.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
         res.on('end', () => {
           const body = Buffer.concat(chunks);
           if (testReq.expectedRes.statusCode) {
-            t.equal(res.statusCode, testReq.expectedRes.statusCode, `res.statusCode === ${testReq.expectedRes.statusCode}`);
+            t.equal(
+              res.statusCode,
+              testReq.expectedRes.statusCode,
+              `res.statusCode === ${testReq.expectedRes.statusCode}`,
+            );
           }
           if (testReq.expectedRes.headers) {
             for (const [k, v] of Object.entries(testReq.expectedRes.headers)) {
               if (v instanceof RegExp) {
-                t.ok(v.test(res.headers[k]), `res.headers[${JSON.stringify(k)}] =~ ${v}`);
+                t.ok(
+                  v.test(res.headers[k]),
+                  `res.headers[${JSON.stringify(k)}] =~ ${v}`,
+                );
               } else {
-                t.equal(res.headers[k], v, `res.headers[${JSON.stringify(k)}] === ${JSON.stringify(v)}`);
+                t.equal(
+                  res.headers[k],
+                  v,
+                  `res.headers[${JSON.stringify(k)}] === ${JSON.stringify(v)}`,
+                );
               }
             }
           }
           if (testReq.expectedRes.body) {
             if (testReq.expectedRes.body instanceof RegExp) {
-              t.ok(testReq.expectedRes.body.test(body), `body =~ ${testReq.expectedRes.body}`);
+              t.ok(
+                testReq.expectedRes.body.test(body),
+                `body =~ ${testReq.expectedRes.body}`,
+              );
             } else if (typeof testReq.expectedRes.body === 'string') {
               t.equal(body.toString(), testReq.expectedRes.body, 'body');
             } else {
-              t.fail(`unsupported type for TEST_REQUESTS[].expectedRes.body: ${typeof testReq.expectedRes.body}`);
+              t.fail(
+                `unsupported type for TEST_REQUESTS[].expectedRes.body: ${typeof testReq
+                  .expectedRes.body}`,
+              );
             }
           }
           resolve();
         });
-      }
+      },
     );
     req.on('error', reject);
     req.end();
   });
 }
 
-function getEventField (e, fieldName) {
+function getEventField(e, fieldName) {
   return (e.transaction || e.error || e.span)[fieldName];
 }
 
@@ -510,7 +693,7 @@ function getEventField (e, fieldName) {
  * Return the buildId for this Next.js prod server. The buildId is stored
  * in ".next/BUILD_ID" by `next build`.
  */
-function getNextProdServerBuildId () {
+function getNextProdServerBuildId() {
   const buildIdPath = path.join(testAppDir, '.next', 'BUILD_ID');
   return fs.readFileSync(buildIdPath, 'utf8').trim();
 }
@@ -519,42 +702,64 @@ function getNextProdServerBuildId () {
  * Assert that the given `apmEvents` (events that the mock APM server received)
  * match all the expected APM events in `TEST_REQUESTS`.
  */
-function checkExpectedApmEvents (t, apmEvents) {
+function checkExpectedApmEvents(t, apmEvents) {
   // metadata
   let evt = apmEvents.shift();
   t.ok(evt.metadata, 'metadata is first event');
   t.equal(evt.metadata.service.name, 'a-nextjs-app', 'metadata.service.name');
-  t.equal(evt.metadata.service.framework.name, 'Next.js', 'metadata.service.framework.name');
-  t.equal(evt.metadata.service.framework.version, nextJsVersion, 'metadata.service.framework.version');
+  t.equal(
+    evt.metadata.service.framework.name,
+    'Next.js',
+    'metadata.service.framework.name',
+  );
+  t.equal(
+    evt.metadata.service.framework.version,
+    nextJsVersion,
+    'metadata.service.framework.version',
+  );
 
   // Filter out any metadata from separate requests, and metricsets which we
   // aren't testing.
-  apmEvents = apmEvents
-    .filter(e => !e.metadata)
-    .filter(e => !e.metricset);
+  apmEvents = apmEvents.filter((e) => !e.metadata).filter((e) => !e.metricset);
 
   // One `GET /api/an-api-endpoint` from waitForServerReady.
   evt = apmEvents.shift();
-  t.equal(evt.transaction.name, 'GET /api/an-api-endpoint', 'waitForServerReady request');
+  t.equal(
+    evt.transaction.name,
+    'GET /api/an-api-endpoint',
+    'waitForServerReady request',
+  );
   t.equal(evt.transaction.outcome, 'success', 'transaction.outcome');
 
   // Sort all the remaining APM events and check expectations from TEST_REQUESTS.
-  apmEvents = apmEvents
-    .sort((a, b) => {
-      return getEventField(a, 'timestamp') < getEventField(b, 'timestamp') ? -1 : 1;
-    });
-  TEST_REQUESTS.forEach(testReq => {
+  apmEvents = apmEvents.sort((a, b) => {
+    return getEventField(a, 'timestamp') < getEventField(b, 'timestamp')
+      ? -1
+      : 1;
+  });
+  TEST_REQUESTS.forEach((testReq) => {
     t.comment(`check APM events for "${testReq.testName}"`);
     // Collect all events for this transaction's trace_id, and pass that to
     // the `checkApmEvents` function for this request.
-    assert(apmEvents.length > 0 && apmEvents[0].transaction, `next APM event is a transaction: ${JSON.stringify(apmEvents[0])}`);
+    assert(
+      apmEvents.length > 0 && apmEvents[0].transaction,
+      `next APM event is a transaction: ${JSON.stringify(apmEvents[0])}`,
+    );
     const traceId = apmEvents[0].transaction.trace_id;
-    const apmEventsForReq = apmEvents.filter(e => getEventField(e, 'trace_id') === traceId);
-    apmEvents = apmEvents.filter(e => getEventField(e, 'trace_id') !== traceId);
+    const apmEventsForReq = apmEvents.filter(
+      (e) => getEventField(e, 'trace_id') === traceId,
+    );
+    apmEvents = apmEvents.filter(
+      (e) => getEventField(e, 'trace_id') !== traceId,
+    );
     testReq.checkApmEvents(t, apmEventsForReq);
   });
 
-  t.equal(apmEvents.length, 0, 'no additional unexpected APM server events: ' + JSON.stringify(apmEvents));
+  t.equal(
+    apmEvents.length,
+    0,
+    'no additional unexpected APM server events: ' + JSON.stringify(apmEvents),
+  );
 }
 
 // ---- tests
@@ -562,32 +767,53 @@ function checkExpectedApmEvents (t, apmEvents) {
 // We need to `npm ci` for a first test run. However, *only* for a first test
 // run, otherwise this will override any possible `npm install --no-save ...`
 // changes made by a TAV runner.
-const haveNodeModules = fs.existsSync(path.join(testAppDir, 'node_modules', '.bin', 'next'));
-tape.test(`setup: npm ci (in ${testAppDir})`, { skip: haveNodeModules }, t => {
-  const startTime = Date.now();
-  exec(
-    'npm ci',
-    {
-      cwd: testAppDir
-    },
-    function (err, stdout, stderr) {
-      t.error(err, `"npm ci" succeeded (took ${(Date.now() - startTime) / 1000}s)`);
-      if (err) {
-        t.comment(`$ npm ci\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`);
-      }
-      t.end();
-    }
-  );
-});
+const haveNodeModules = fs.existsSync(
+  path.join(testAppDir, 'node_modules', '.bin', 'next'),
+);
+tape.test(
+  `setup: npm ci (in ${testAppDir})`,
+  { skip: haveNodeModules },
+  (t) => {
+    const startTime = Date.now();
+    exec(
+      'npm ci',
+      {
+        cwd: testAppDir,
+      },
+      function (err, stdout, stderr) {
+        t.error(
+          err,
+          `"npm ci" succeeded (took ${(Date.now() - startTime) / 1000}s)`,
+        );
+        if (err) {
+          t.comment(
+            `$ npm ci\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`,
+          );
+        }
+        t.end();
+      },
+    );
+  },
+);
 
-tape.test('setup: filter TEST_REQUESTS', t => {
+tape.test('setup: filter TEST_REQUESTS', (t) => {
   // This version can only be fetched after the above `npm ci`.
-  nextJsVersion = require(path.join(testAppDir, 'node_modules/next/package.json')).version;
+  nextJsVersion = require(path.join(
+    testAppDir,
+    'node_modules/next/package.json',
+  )).version;
 
   // Some entries in TEST_REQUESTS are only run for newer versions of Next.js.
-  TEST_REQUESTS = TEST_REQUESTS.filter(testReq => {
-    if (testReq.nextVersionRange && !semver.satisfies(nextJsVersion, testReq.nextVersionRange, { includePrerelease: true })) {
-      t.comment(`skip "${testReq.testName}" because next@${nextJsVersion} does not satisfy "${testReq.nextVersionRange}"`);
+  TEST_REQUESTS = TEST_REQUESTS.filter((testReq) => {
+    if (
+      testReq.nextVersionRange &&
+      !semver.satisfies(nextJsVersion, testReq.nextVersionRange, {
+        includePrerelease: true,
+      })
+    ) {
+      t.comment(
+        `skip "${testReq.testName}" because next@${nextJsVersion} does not satisfy "${testReq.nextVersionRange}"`,
+      );
       return false;
     } else {
       return true;
@@ -597,7 +823,7 @@ tape.test('setup: filter TEST_REQUESTS', t => {
   t.end();
 });
 
-tape.test('setup: mock APM server', t => {
+tape.test('setup: mock APM server', (t) => {
   apmServer = new MockAPMServer({ apmServerVersion: '7.15.0' });
   apmServer.start(function (serverUrl_) {
     serverUrl = serverUrl_;
@@ -607,27 +833,34 @@ tape.test('setup: mock APM server', t => {
 });
 
 // Test the Next "prod" server. I.e. `next build && next start`.
-tape.test('-- prod server tests --', suite => {
+tape.test('-- prod server tests --', (suite) => {
   let nextServerProc;
 
-  suite.test('setup: npm run build', t => {
+  suite.test('setup: npm run build', (t) => {
     const startTime = Date.now();
     exec(
       'npm run build',
       {
-        cwd: testAppDir
+        cwd: testAppDir,
       },
       function (err, stdout, stderr) {
-        t.error(err, `"npm run build" succeeded (took ${(Date.now() - startTime) / 1000}s)`);
+        t.error(
+          err,
+          `"npm run build" succeeded (took ${
+            (Date.now() - startTime) / 1000
+          }s)`,
+        );
         if (err) {
-          t.comment(`$ npm run build\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`);
+          t.comment(
+            `$ npm run build\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`,
+          );
         }
         t.end();
-      }
+      },
     );
   });
 
-  suite.test('setup: start Next.js prod server (next start)', t => {
+  suite.test('setup: start Next.js prod server (next start)', (t) => {
     // Ideally we would simply spawn `npm run start` -- which handles setting
     // NODE_OPTIONS. However, that results in a process tree:
     //    <PID 0>
@@ -654,23 +887,23 @@ tape.test('-- prod server tests --', suite => {
           // Disable Next.js telemetry (https://nextjs.org/telemetry),
           // otherwise get additional `POST telemetry.nextjs.org` spans that
           // break assertions.
-          NEXT_TELEMETRY_DISABLED: '1'
-        })
-      }
+          NEXT_TELEMETRY_DISABLED: '1',
+        }),
+      },
     );
-    nextServerProc.on('error', err => {
+    nextServerProc.on('error', (err) => {
       t.error(err, 'no error from "next start"');
     });
-    nextServerProc.stdout.on('data', data => {
+    nextServerProc.stdout.on('data', (data) => {
       t.comment(`[Next.js server stdout] ${formatForTComment(data)}`);
     });
-    nextServerProc.stderr.on('data', data => {
+    nextServerProc.stderr.on('data', (data) => {
       t.comment(`[Next.js server stderr] ${formatForTComment(data)}`);
     });
 
     // Allow some time for an early fail of `next start`, e.g. if there is
     // already a user of port 3000...
-    const onEarlyClose = code => {
+    const onEarlyClose = (code) => {
       t.fail(`"next start" failed early: code=${code}`);
       nextServerProc = null;
       clearTimeout(earlyCloseTimer);
@@ -681,9 +914,11 @@ tape.test('-- prod server tests --', suite => {
       nextServerProc.removeListener('close', onEarlyClose);
 
       // ... then wait for the server to be ready.
-      waitForServerReady(t, waitErr => {
+      waitForServerReady(t, (waitErr) => {
         if (waitErr) {
-          t.fail(`error waiting for Next.js server to be ready: ${waitErr.message}`);
+          t.fail(
+            `error waiting for Next.js server to be ready: ${waitErr.message}`,
+          );
           nextServerProc.kill('SIGKILL');
           nextServerProc = null;
         } else {
@@ -694,7 +929,7 @@ tape.test('-- prod server tests --', suite => {
     }, 1000);
   });
 
-  suite.test('make requests', async t => {
+  suite.test('make requests', async (t) => {
     if (!nextServerProc) {
       t.skip('there is no nextServerProc');
       t.end();
@@ -709,7 +944,7 @@ tape.test('-- prod server tests --', suite => {
     t.end();
   });
 
-  suite.test('check all APM events', t => {
+  suite.test('check all APM events', (t) => {
     if (!nextServerProc) {
       t.skip('there is no nextServerProc');
       t.end();
@@ -718,7 +953,7 @@ tape.test('-- prod server tests --', suite => {
 
     // To ensure we get all the trace data from the instrumented Next.js
     // server, we wait 2x the `apiRequestTime` (set above) before stopping it.
-    nextServerProc.on('close', code => {
+    nextServerProc.on('close', (code) => {
       t.equal(code, 0, 'Next.js server exit status was 0');
       checkExpectedApmEvents(t, apmServer.events);
       t.end();
@@ -732,10 +967,10 @@ tape.test('-- prod server tests --', suite => {
 });
 
 // Test the Next "dev" server. I.e. `next dev`.
-tape.test('-- dev server tests --', suite => {
+tape.test('-- dev server tests --', (suite) => {
   let nextServerProc;
 
-  suite.test('setup: start Next.js dev server (next dev)', t => {
+  suite.test('setup: start Next.js dev server (next dev)', (t) => {
     // See the warning notes for `spawn()` above. The same apply here.
     nextServerProc = spawn(
       path.normalize('./node_modules/.bin/next'),
@@ -750,23 +985,23 @@ tape.test('-- dev server tests --', suite => {
           // Disable Next.js telemetry (https://nextjs.org/telemetry),
           // otherwise get additional `POST telemetry.nextjs.org` spans that
           // break assertions.
-          NEXT_TELEMETRY_DISABLED: '1'
-        })
-      }
+          NEXT_TELEMETRY_DISABLED: '1',
+        }),
+      },
     );
-    nextServerProc.on('error', err => {
+    nextServerProc.on('error', (err) => {
       t.error(err, 'no error from "next dev"');
     });
-    nextServerProc.stdout.on('data', data => {
+    nextServerProc.stdout.on('data', (data) => {
       t.comment(`[Next.js server stdout] ${formatForTComment(data)}`);
     });
-    nextServerProc.stderr.on('data', data => {
+    nextServerProc.stderr.on('data', (data) => {
       t.comment(`[Next.js server stderr] ${formatForTComment(data)}`);
     });
 
     // Allow some time for an early fail of `next dev`, e.g. if there is
     // already a user of port 3000...
-    const onEarlyClose = code => {
+    const onEarlyClose = (code) => {
       t.fail(`"next dev" failed early: code=${code}`);
       nextServerProc = null;
       clearTimeout(earlyCloseTimer);
@@ -777,9 +1012,11 @@ tape.test('-- dev server tests --', suite => {
       nextServerProc.removeListener('close', onEarlyClose);
 
       // ... then wait for the server to be ready.
-      waitForServerReady(t, waitErr => {
+      waitForServerReady(t, (waitErr) => {
         if (waitErr) {
-          t.fail(`error waiting for Next.js server to be ready: ${waitErr.message}`);
+          t.fail(
+            `error waiting for Next.js server to be ready: ${waitErr.message}`,
+          );
           treekill(nextServerProc.pid, 'SIGKILL');
           nextServerProc = null;
         } else {
@@ -790,7 +1027,7 @@ tape.test('-- dev server tests --', suite => {
     }, 1000);
   });
 
-  suite.test('make requests', async t => {
+  suite.test('make requests', async (t) => {
     if (!nextServerProc) {
       t.skip('there is no nextServerProc');
       t.end();
@@ -805,7 +1042,7 @@ tape.test('-- dev server tests --', suite => {
     t.end();
   });
 
-  suite.test('check all APM events', t => {
+  suite.test('check all APM events', (t) => {
     if (!nextServerProc) {
       t.skip('there is no nextServerProc');
       t.end();
@@ -814,7 +1051,7 @@ tape.test('-- dev server tests --', suite => {
 
     // To ensure we get all the trace data from the instrumented Next.js
     // server, we wait 2x the `apiRequestTime` (set above) before stopping it.
-    nextServerProc.on('close', code => {
+    nextServerProc.on('close', (code) => {
       t.equal(code, 0, 'Next.js server exit status was 0');
       checkExpectedApmEvents(t, apmServer.events);
       t.end();
@@ -827,7 +1064,7 @@ tape.test('-- dev server tests --', suite => {
   suite.end();
 });
 
-tape.test('teardown: mock APM server', t => {
+tape.test('teardown: mock APM server', (t) => {
   apmServer.close();
   t.end();
 });

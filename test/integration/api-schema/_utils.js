@@ -31,7 +31,7 @@ exports.errorValidator = thunky(function (cb) {
   loadSchema('error.json', cb);
 });
 
-function loadSchema (schemaFileName, cb) {
+function loadSchema(schemaFileName, cb) {
   const schemaPath = join(schemaDir, schemaFileName);
   fs.readFile(schemaPath, { encoding: 'utf8' }, function (readErr, content) {
     if (readErr) {

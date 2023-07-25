@@ -26,7 +26,10 @@
 
 const { registerInstrumentations } = require('@opentelemetry/instrumentation');
 const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
-const { SimpleSpanProcessor, ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-base');
+const {
+  SimpleSpanProcessor,
+  ConsoleSpanExporter,
+} = require('@opentelemetry/sdk-trace-base');
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
 
 module.exports = (() => {
@@ -34,8 +37,6 @@ module.exports = (() => {
   provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
   provider.register();
   registerInstrumentations({
-    instrumentations: [
-      new HttpInstrumentation()
-    ]
+    instrumentations: [new HttpInstrumentation()],
   });
 })();

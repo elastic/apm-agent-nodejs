@@ -12,12 +12,12 @@ const bench = require('./utils/bench');
 
 bench('transaction-and-span-no-stack-trace', {
   agentConf: {
-    spanStackTraceMinDuration: -1
+    spanStackTraceMinDuration: -1,
   },
-  setup () {
+  setup() {
     var agent = this.benchmark.agent;
   },
-  fn (deferred) {
+  fn(deferred) {
     if (agent) agent.startTransaction();
     setImmediate(() => {
       const span = agent && agent.startSpan();
@@ -31,5 +31,5 @@ bench('transaction-and-span-no-stack-trace', {
         });
       });
     });
-  }
+  },
 });

@@ -24,12 +24,15 @@ var semver = require('semver');
  *
  * @returns {string | boolean}
  */
-function isUndiciIncompat () {
+function isUndiciIncompat() {
   const nodeVer = process.version;
   const undiciVer = require('undici/package.json').version;
   const msg = `undici@${undiciVer} is incompatible with node@${nodeVer}`;
 
-  if (semver.satisfies(undiciVer, '>=5.22.0') && semver.satisfies(nodeVer, '<14.0.0')) {
+  if (
+    semver.satisfies(undiciVer, '>=5.22.0') &&
+    semver.satisfies(nodeVer, '<14.0.0')
+  ) {
     return msg;
   }
   if (semver.satisfies(nodeVer, '<12.18.0')) {

@@ -15,7 +15,7 @@ var agent = require('../../..').start({
   serviceName: 'test-ws',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 var test = require('tape');
@@ -42,10 +42,16 @@ test('ws.send', function (t) {
   ws.on('open', function () {
     agent.startTransaction('foo', 'websocket');
     ws.send('ping', function () {
-      t.ok(agent.currentSpan === null, 'websocket span should not be the currentSpan in user callback');
+      t.ok(
+        agent.currentSpan === null,
+        'websocket span should not be the currentSpan in user callback',
+      );
       agent.endTransaction();
     });
-    t.ok(agent.currentSpan === null, 'websocket span should not spill into user code');
+    t.ok(
+      agent.currentSpan === null,
+      'websocket span should not spill into user code',
+    );
   });
 
   ws.on('message', function (message) {
@@ -56,7 +62,7 @@ test('ws.send', function (t) {
   });
 });
 
-function done (t) {
+function done(t) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 1);
     t.strictEqual(data.spans.length, 1);
@@ -77,8 +83,10 @@ function done (t) {
   };
 }
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

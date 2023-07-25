@@ -13,7 +13,7 @@ const agent = require('../../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
 });
 
 var http = require('http');
@@ -23,7 +23,7 @@ var test = require('tape');
 var mockClient = require('../../../_mock_http_client');
 
 test('response writeHead is bound to transaction', function (t) {
-  resetAgent(data => {
+  resetAgent((data) => {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
     var trans = data.transactions[0];
@@ -48,8 +48,10 @@ test('response writeHead is bound to transaction', function (t) {
   });
 });
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(1, cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

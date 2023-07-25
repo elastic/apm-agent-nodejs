@@ -12,10 +12,10 @@
 const apm = require('./start.js');
 
 if (apm.isStarted()) {
-// Flush APM data on server process termination.
-// https://nextjs.org/docs/deployment#manual-graceful-shutdowns
-// Note: Support for NEXT_MANUAL_SIG_HANDLE was added in next@12.1.7-canary.7,
-// so this `apm.flush()` will only happen in that and later versions.
+  // Flush APM data on server process termination.
+  // https://nextjs.org/docs/deployment#manual-graceful-shutdowns
+  // Note: Support for NEXT_MANUAL_SIG_HANDLE was added in next@12.1.7-canary.7,
+  // so this `apm.flush()` will only happen in that and later versions.
   process.env.NEXT_MANUAL_SIG_HANDLE = 1;
   const flushApmAndExit = () => {
     apm.flush(() => {

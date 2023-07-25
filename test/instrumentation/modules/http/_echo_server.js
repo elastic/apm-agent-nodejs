@@ -14,9 +14,8 @@ var pem = require('https-pem');
 
 process.title = 'echo-server';
 
-var server = process.argv[2] === 'https'
-  ? https.createServer(pem)
-  : http.createServer();
+var server =
+  process.argv[2] === 'https' ? https.createServer(pem) : http.createServer();
 
 server.on('request', function (req, res) {
   var acceptEncoding = req.headers['accept-encoding'] || '';

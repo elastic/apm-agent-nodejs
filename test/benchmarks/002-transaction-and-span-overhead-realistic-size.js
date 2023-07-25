@@ -16,7 +16,7 @@
 const bench = require('./utils/bench');
 
 bench('transaction-and-span-overhead-realistic-size', {
-  setup () {
+  setup() {
     var agent = this.benchmark.agent;
     var callstack = this.benchmark.callstack;
 
@@ -26,7 +26,7 @@ bench('transaction-and-span-overhead-realistic-size', {
     var numbersSpanIndex = 5;
     var numbersStackLevelIndex = 0;
 
-    function addSpan (amount, cb) {
+    function addSpan(amount, cb) {
       setImmediate(() => {
         const span = agent && agent.startSpan();
         setImmediate(() => {
@@ -37,7 +37,7 @@ bench('transaction-and-span-overhead-realistic-size', {
       });
     }
   },
-  fn (deferred) {
+  fn(deferred) {
     if (agent) agent.startTransaction();
     const amount = numbers[numbersStackLevelIndex++ % numbers.length];
     callstack(amount, () => {
@@ -47,5 +47,5 @@ bench('transaction-and-span-overhead-realistic-size', {
         deferred.resolve();
       });
     });
-  }
+  },
 });

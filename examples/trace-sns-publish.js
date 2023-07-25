@@ -26,7 +26,7 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-sns',
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 const path = require('path');
@@ -34,7 +34,7 @@ const AWS = require('aws-sdk');
 
 const NAME = path.basename(process.argv[1]);
 
-function fail (err) {
+function fail(err) {
   console.error(`${NAME}: error: ${err.toString()}`);
   process.exitCode = 1;
 }
@@ -63,7 +63,9 @@ sns.listTopics(function (err, data) {
     fail(err);
     return;
   }
-  const matches = data.Topics.filter(t => t.TopicArn && t.TopicArn.endsWith(':' + topicName));
+  const matches = data.Topics.filter(
+    (t) => t.TopicArn && t.TopicArn.endsWith(':' + topicName),
+  );
   if (matches.length === 0) {
     fail(`could not find an SNS topic ARN in ${region} named "${topicName}"`);
     return;
@@ -75,8 +77,8 @@ sns.listTopics(function (err, data) {
     TopicArn: topicArn,
     Message: `this is my message (${Math.random()})`,
     MessageAttributes: {
-      foo: { DataType: 'String', StringValue: 'bar' }
-    }
+      foo: { DataType: 'String', StringValue: 'bar' },
+    },
   };
   console.log('Publishing with message: %j', params.Message);
   sns.publish(params, function (err, data) {

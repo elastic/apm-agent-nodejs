@@ -11,7 +11,7 @@ const {
   assertResponseHeadersWithFixture,
   assertFormsWithFixture,
   createAgentConfig,
-  resetAgent
+  resetAgent,
 } = require('./_shared');
 const agent = require('../..').start(createAgentConfig());
 
@@ -36,15 +36,21 @@ test('Running fixtures with hapi', function (suite) {
         fixture.input.requestHeaders,
         fixture.input.responseHeaders,
         fixture.input.formFields,
-        false // hapi does body parsing by default, no middleware
+        false, // hapi does body parsing by default, no middleware
       );
     });
   }
   suite.end();
 });
 
-async function runTest (
-  t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
+async function runTest(
+  t,
+  expected,
+  agentConfig,
+  requestHeaders,
+  responseHeaders,
+  formFields,
+  middleware = false,
 ) {
   t.timeoutAfter(1000); // ensure no hang
 
@@ -58,7 +64,7 @@ async function runTest (
   agent._config(agentConfig);
   const server = Hapi.server({
     port: 0,
-    host: 'localhost'
+    host: 'localhost',
   });
 
   // resets agent values for tests.  Callback fires
@@ -85,7 +91,7 @@ async function runTest (
       // (a) node >=v16 and (b) using @hapi/hapi@18.x, the response hangs.
       // We are ignoring this issue and just not testing this combination.
       return response;
-    }
+    },
   });
 
   await server.start();
@@ -94,7 +100,7 @@ async function runTest (
     url,
     {
       form: formFields,
-      headers: requestHeaders
+      headers: requestHeaders,
     },
     function (error, response, body) {
       if (error) {
@@ -102,6 +108,6 @@ async function runTest (
       }
       t.ok(body, 'received response');
       t.end();
-    }
+    },
   );
 }

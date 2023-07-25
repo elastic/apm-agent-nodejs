@@ -14,13 +14,15 @@ module.exports = (moduleName) => {
     metricsInterval: 0,
     centralConfig: false,
     cloudProvider: 'none',
-    captureBody: 'all'
+    captureBody: 'all',
   });
 
   var isHapiIncompat = require('../../../_is_hapi_incompat');
   if (isHapiIncompat(moduleName)) {
     // Skip out of this test.
-    console.log(`# SKIP this version of ${moduleName} is incompatible with node ${process.version}`);
+    console.log(
+      `# SKIP this version of ${moduleName} is incompatible with node ${process.version}`,
+    );
     process.exit();
   }
 
@@ -35,7 +37,7 @@ module.exports = (moduleName) => {
 
   var originalCaptureError = agent.captureError;
 
-  function noop () {}
+  function noop() {}
 
   test('extract URL from request', function (t) {
     resetAgent(2, function (data) {
@@ -89,8 +91,11 @@ module.exports = (moduleName) => {
 
     resetAgent(1, function (data) {
       assert(t, data, { name: 'POST /postSomeData', method: 'POST' });
-      t.equal(data.transactions[0].context.request.body, postData,
-        'body was captured to trans.context.request.body');
+      t.equal(
+        data.transactions[0].context.request.body,
+        postData,
+        'body was captured to trans.context.request.body',
+      );
       server.stop(noop);
     });
 
@@ -104,8 +109,8 @@ module.exports = (moduleName) => {
           path: '/postSomeData',
           headers: {
             'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(postData)
-          }
+            'Content-Length': Buffer.byteLength(postData),
+          },
         },
         function (res) {
           t.strictEqual(res.statusCode, 200);
@@ -115,7 +120,7 @@ module.exports = (moduleName) => {
           res.on('end', function () {
             agent.flush();
           });
-        }
+        },
       );
       cReq.write(postData);
       cReq.end();
@@ -212,7 +217,7 @@ module.exports = (moduleName) => {
     t.plan(6);
 
     var customError = {
-      error: 'I forgot to turn this into an actual Error'
+      error: 'I forgot to turn this into an actual Error',
     };
 
     resetAgent();
@@ -322,7 +327,7 @@ module.exports = (moduleName) => {
     t.plan(6);
 
     var customError = {
-      error: 'I forgot to turn this into an actual Error'
+      error: 'I forgot to turn this into an actual Error',
     };
 
     resetAgent();
@@ -373,19 +378,22 @@ module.exports = (moduleName) => {
         request.log(['error'], customError);
 
         return 'hello world';
-      })
+      }),
     });
 
     runServer(server, function (err) {
       t.error(err, 'start error');
 
-      http.get('http://localhost:' + server.info.port + '/error', function (res) {
-        t.strictEqual(res.statusCode, 200);
+      http.get(
+        'http://localhost:' + server.info.port + '/error',
+        function (res) {
+          t.strictEqual(res.statusCode, 200);
 
-        res.resume().on('end', function () {
-          agent.flush();
-        });
-      });
+          res.resume().on('end', function () {
+            agent.flush();
+          });
+        },
+      );
     });
   });
 
@@ -418,7 +426,7 @@ module.exports = (moduleName) => {
         request.log(['elastic-apm', 'error'], customError);
 
         return 'hello world';
-      })
+      }),
     });
 
     var emitter = server.events || server;
@@ -435,13 +443,16 @@ module.exports = (moduleName) => {
         t.deepEqual(event.tags, ['elastic-apm', 'error']);
       });
 
-      http.get('http://localhost:' + server.info.port + '/error', function (res) {
-        t.strictEqual(res.statusCode, 200);
+      http.get(
+        'http://localhost:' + server.info.port + '/error',
+        function (res) {
+          t.strictEqual(res.statusCode, 200);
 
-        res.resume().on('end', function () {
-          agent.flush();
-        });
-      });
+          res.resume().on('end', function () {
+            agent.flush();
+          });
+        },
+      );
     });
   });
 
@@ -474,19 +485,22 @@ module.exports = (moduleName) => {
         request.log(['error'], customError);
 
         return 'hello world';
-      })
+      }),
     });
 
     runServer(server, function (err) {
       t.error(err, 'start error');
 
-      http.get('http://localhost:' + server.info.port + '/error', function (res) {
-        t.strictEqual(res.statusCode, 200);
+      http.get(
+        'http://localhost:' + server.info.port + '/error',
+        function (res) {
+          t.strictEqual(res.statusCode, 200);
 
-        res.resume().on('end', function () {
-          agent.flush();
-        });
-      });
+          res.resume().on('end', function () {
+            agent.flush();
+          });
+        },
+      );
     });
   });
 
@@ -494,7 +508,7 @@ module.exports = (moduleName) => {
     t.plan(13);
 
     var customError = {
-      error: 'I forgot to turn this into an actual Error'
+      error: 'I forgot to turn this into an actual Error',
     };
 
     resetAgent(1, function (data) {
@@ -521,19 +535,22 @@ module.exports = (moduleName) => {
         request.log(['error'], customError);
 
         return 'hello world';
-      })
+      }),
     });
 
     runServer(server, function (err) {
       t.error(err, 'start error');
 
-      http.get('http://localhost:' + server.info.port + '/error', function (res) {
-        t.strictEqual(res.statusCode, 200);
+      http.get(
+        'http://localhost:' + server.info.port + '/error',
+        function (res) {
+          t.strictEqual(res.statusCode, 200);
 
-        res.resume().on('end', function () {
-          agent.flush();
-        });
-      });
+          res.resume().on('end', function () {
+            agent.flush();
+          });
+        },
+      );
     });
   });
 
@@ -559,7 +576,7 @@ module.exports = (moduleName) => {
           t.deepEqual(data, {
             statusCode: 500,
             error: 'Internal Server Error',
-            message: 'An internal server error occurred'
+            message: 'An internal server error occurred',
           });
         });
         res.on('end', function () {
@@ -569,7 +586,7 @@ module.exports = (moduleName) => {
     });
   });
 
-  function makeServer (opts) {
+  function makeServer(opts) {
     // Specify 'localhost' to avoid Hapi default of '0.0.0.0' which ties to
     // IPv4. We want a later HTTP client request using 'localhost' to work.
     var server;
@@ -584,38 +601,32 @@ module.exports = (moduleName) => {
     return server;
   }
 
-  function initServer (server, cb) {
+  function initServer(server, cb) {
     if (semver.satisfies(pkg.version, '<17')) {
       server.initialize(cb);
     } else {
-      server.initialize().then(
-        cb.bind(null, null),
-        cb
-      );
+      server.initialize().then(cb.bind(null, null), cb);
     }
   }
 
-  function runServer (server, cb) {
+  function runServer(server, cb) {
     if (semver.satisfies(pkg.version, '<17')) {
       server.start(function (err) {
         if (err) throw err;
         cb(null, server.info.port);
       });
     } else {
-      server.start().then(
-        () => cb(null, server.info.port),
-        cb
-      );
+      server.start().then(() => cb(null, server.info.port), cb);
     }
   }
 
-  function startServer (cb) {
+  function startServer(cb) {
     var server = buildServer();
     runServer(server, cb);
     return server;
   }
 
-  function handler (fn) {
+  function handler(fn) {
     if (semver.satisfies(pkg.version, '>=17')) return fn;
     return function (request, reply) {
       var p = new Promise(function (resolve, reject) {
@@ -625,7 +636,7 @@ module.exports = (moduleName) => {
     };
   }
 
-  function buildServer () {
+  function buildServer() {
     var server = makeServer();
 
     server.route({
@@ -633,21 +644,21 @@ module.exports = (moduleName) => {
       path: '/hello',
       handler: handler(function (request) {
         return 'hello world';
-      })
+      }),
     });
     server.route({
       method: 'POST',
       path: '/postSomeData',
       handler: handler(function (request) {
         return 'your data has been posted';
-      })
+      }),
     });
     server.route({
       method: 'GET',
       path: '/error',
       handler: handler(function (request) {
         throw new Error('foo');
-      })
+      }),
     });
     server.route({
       method: 'GET',
@@ -655,12 +666,12 @@ module.exports = (moduleName) => {
       handler: handler(function (request) {
         agent.captureError(new Error());
         return '';
-      })
+      }),
     });
     return server;
   }
 
-  function assert (t, data, results) {
+  function assert(t, data, results) {
     if (!results) results = {};
     results.status = results.status || 'HTTP 2xx';
     results.name = results.name || 'GET /hello';
@@ -676,9 +687,11 @@ module.exports = (moduleName) => {
     t.strictEqual(trans.context.request.method, results.method);
   }
 
-  function resetAgent (expected, cb) {
+  function resetAgent(expected, cb) {
     agent._instrumentation.testReset();
     agent._apmClient = mockClient(expected, cb);
-    agent.captureError = function (err) { throw err; };
+    agent.captureError = function (err) {
+      throw err;
+    };
   }
 };

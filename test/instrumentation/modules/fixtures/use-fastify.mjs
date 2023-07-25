@@ -39,7 +39,7 @@ server.post('/hello/:name', function (request, reply) {
   reply.send({ hello: request.params.name });
 });
 
-async function main () {
+async function main() {
   await server.listen({ port: 0 });
 
   // Do a POST to test `captureBody`, wait for response, then exit.
@@ -53,18 +53,20 @@ async function main () {
       path: '/hello/bob',
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(data)
-      }
+        'Content-Length': Buffer.byteLength(data),
+      },
     },
     function (res) {
       console.log('client response:', res.statusCode, res.headers);
       let body = '';
-      res.on('data', chunk => { body += chunk; });
+      res.on('data', (chunk) => {
+        body += chunk;
+      });
       res.on('end', () => {
         console.log('body:', body);
         server.close();
       });
-    }
+    },
   );
   req.write(data);
   req.end();

@@ -19,7 +19,12 @@ const { join } = require('path');
 const Ajv = require('ajv').default;
 
 const ajv = new Ajv({ allErrors: true, allowUnionTypes: true, strict: true });
-const schemaDir = join(__dirname, 'integration', 'api-schema', 'apm-server-schema');
+const schemaDir = join(
+  __dirname,
+  'integration',
+  'api-schema',
+  'apm-server-schema',
+);
 
 /**
  * Create a validator function for the given APM Server intake type (e.g.
@@ -27,7 +32,7 @@ const schemaDir = join(__dirname, 'integration', 'api-schema', 'apm-server-schem
  *
  * @returns {(data: object) => null | ajv.ErrorObject[]}
  */
-function createValidator (apmType, cb) {
+function createValidator(apmType, cb) {
   const schemaPath = join(schemaDir, apmType + '.json');
   const content = fs.readFileSync(schemaPath, { encoding: 'utf8' });
   const schema = JSON.parse(content);
@@ -48,5 +53,5 @@ module.exports = {
   validateTransaction: createValidator('transaction'),
   validateSpan: createValidator('span'),
   validateError: createValidator('error'),
-  validateMetricset: createValidator('metricset')
+  validateMetricset: createValidator('metricset'),
 };

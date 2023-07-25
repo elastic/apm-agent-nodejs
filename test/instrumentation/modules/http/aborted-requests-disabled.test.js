@@ -15,7 +15,7 @@ const agent = require('../../../..').start({
   cloudProvider: 'none',
   spanStackTraceMinDuration: 0, // Always have span stacktraces.
   // Testing this config:
-  errorOnAbortedRequests: false
+  errorOnAbortedRequests: false,
 });
 
 var http = require('http');
@@ -28,11 +28,15 @@ test('client-side abort - call end', function (t) {
   resetAgent();
   var clientReq;
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
+  t.strictEqual(
+    agent._apmClient._writes.length,
+    0,
+    'should not have any samples to begin with',
+  );
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
-      function end () {
+      function end() {
         clearInterval(interval);
         clearTimeout(cancel);
         server.close();
@@ -46,7 +50,11 @@ test('client-side abort - call end', function (t) {
 
       var interval = setInterval(function () {
         if (agent._apmClient._writes.length) {
-          t.strictEqual(agent._apmClient._writes.length, 1, 'should send transaction');
+          t.strictEqual(
+            agent._apmClient._writes.length,
+            1,
+            'should send transaction',
+          );
           end();
         }
       }, 100);
@@ -72,16 +80,24 @@ test('client-side abort - call end', function (t) {
   });
 });
 
-test('client-side abort - don\'t call end', function (t) {
+test("client-side abort - don't call end", function (t) {
   resetAgent();
   var clientReq;
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
+  t.strictEqual(
+    agent._apmClient._writes.length,
+    0,
+    'should not have any samples to begin with',
+  );
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
       setTimeout(function () {
-        t.strictEqual(agent._apmClient._writes.length, 0, 'should not send transaction');
+        t.strictEqual(
+          agent._apmClient._writes.length,
+          0,
+          'should not send transaction',
+        );
         server.close();
         t.end();
       }, 100);
@@ -109,7 +125,11 @@ test('server-side abort - call end', function (t) {
   var timedout = false;
   var closeEvent = false;
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
+  t.strictEqual(
+    agent._apmClient._writes.length,
+    0,
+    'should not have any samples to begin with',
+  );
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
@@ -122,7 +142,11 @@ test('server-side abort - call end', function (t) {
       res.end('Hello World');
 
       setTimeout(function () {
-        t.strictEqual(agent._apmClient._writes.length, 1, 'should not send transactions');
+        t.strictEqual(
+          agent._apmClient._writes.length,
+          1,
+          'should not send transactions',
+        );
         server.close();
         t.end();
       }, 50);
@@ -143,12 +167,16 @@ test('server-side abort - call end', function (t) {
   });
 });
 
-test('server-side abort - don\'t call end', function (t) {
+test("server-side abort - don't call end", function (t) {
   resetAgent();
   var timedout = false;
   var closeEvent = false;
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
+  t.strictEqual(
+    agent._apmClient._writes.length,
+    0,
+    'should not have any samples to begin with',
+  );
 
   var server = http.createServer(function (req, res) {
     res.on('close', function () {
@@ -158,7 +186,11 @@ test('server-side abort - don\'t call end', function (t) {
     setTimeout(function () {
       t.ok(timedout, 'should have closed socket');
       t.ok(closeEvent, 'res should emit close event');
-      t.strictEqual(agent._apmClient._writes.length, 0, 'should not send transactions');
+      t.strictEqual(
+        agent._apmClient._writes.length,
+        0,
+        'should not send transactions',
+      );
       server.close();
       t.end();
     }, 200);
@@ -178,7 +210,7 @@ test('server-side abort - don\'t call end', function (t) {
   });
 });
 
-function resetAgent () {
+function resetAgent() {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(1, function () {});
 }

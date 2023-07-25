@@ -15,7 +15,9 @@ const semver = require('semver');
 const { safeGetPackageVersion } = require('../../../_utils');
 const mysql2Ver = safeGetPackageVersion('mysql2');
 if (semver.gte(mysql2Ver, '3.0.0') && semver.lt(process.version, '14.6.0')) {
-  console.log(`# SKIP mysql2@${mysql2Ver} does not support node ${process.version}`);
+  console.log(
+    `# SKIP mysql2@${mysql2Ver} does not support node ${process.version}`,
+  );
   process.exit();
 }
 
@@ -24,7 +26,7 @@ var agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 var mysql = require('mysql2');
@@ -51,12 +53,12 @@ test('release connection prior to transaction', function (t) {
   });
 });
 
-function createPool (cb) {
+function createPool(cb) {
   setup(function () {
     cb(mysql.createPool(utils.credentials()));
   });
 }
 
-function setup (cb) {
+function setup(cb) {
   utils.reset(cb);
 }

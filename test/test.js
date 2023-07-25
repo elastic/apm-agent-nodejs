@@ -24,13 +24,13 @@ var semver = require('semver');
 
 // ---- support functions
 
-function slugifyPath (f) {
+function slugifyPath(f) {
   const illegalChars = /[^\w.-]/g;
   return f.replace(illegalChars, '-');
 }
 
 // Run a single test file.
-function runTestFile (test, cb) {
+function runTestFile(test, cb) {
   var args = [test.file];
   if (semver.gte(process.version, '12.0.0')) {
     args.unshift('--unhandled-rejections=strict');
@@ -48,11 +48,11 @@ function runTestFile (test, cb) {
     const outFile = fs.createWriteStream(outFileName);
     outFile.on('open', function () {
       var ps = spawn('node', args, {
-        stdio: ['inherit', outFile, outFile]
+        stdio: ['inherit', outFile, outFile],
       });
       ps.on('error', cb);
       ps.on('close', function (code) {
-        outFile.close(function onClose (closeErr) {
+        outFile.close(function onClose(closeErr) {
           if (closeErr) {
             cb(closeErr);
             return;
@@ -80,7 +80,7 @@ function runTestFile (test, cb) {
     }
     var ps = spawn('node', args, {
       stdio: 'inherit',
-      env: test.env
+      env: test.env,
     });
     ps.on('error', cb);
     ps.on('close', function (code) {
@@ -95,11 +95,11 @@ function runTestFile (test, cb) {
   }
 }
 
-function series (tasks, cb) {
+function series(tasks, cb) {
   var results = [];
   var pos = 0;
 
-  function done (err, result) {
+  function done(err, result) {
     if (err) return cb(err);
     results.push(result);
 
@@ -113,13 +113,13 @@ function series (tasks, cb) {
   setImmediate(tasks[pos], done);
 }
 
-function handlerBind (handler) {
+function handlerBind(handler) {
   return function (task) {
     return handler.bind(null, task);
   };
 }
 
-function mapSeries (tasks, handler, cb) {
+function mapSeries(tasks, handler, cb) {
   series(tasks.map(handlerBind(handler)), cb);
 }
 
@@ -129,23 +129,24 @@ var options = [
   {
     names: ['help', 'h'],
     type: 'bool',
-    help: 'Print this help and exit.'
+    help: 'Print this help and exit.',
   },
   {
     names: ['dry-run', 'n'],
     type: 'bool',
-    help: 'Dry-run. Just print what would be run.'
+    help: 'Dry-run. Just print what would be run.',
   },
   {
     names: ['output-dir', 'o'],
     type: 'string',
-    help: 'Directory to which to write .tap files. By default test ' +
+    help:
+      'Directory to which to write .tap files. By default test ' +
       'output is written to stdout/stderr',
-    helpArg: 'DIR'
-  }
+    helpArg: 'DIR',
+  },
 ];
 
-function main () {
+function main() {
   var parser = dashdash.createParser({ options });
   try {
     var opts = parser.parse(process.argv);
@@ -157,9 +158,7 @@ function main () {
   // Use `parser.help()` for formatted options help.
   if (opts.help) {
     var help = parser.help().trimRight();
-    console.log('usage: node test/test.js [OPTIONS]\n' +
-              'options:\n' +
-              help);
+    console.log('usage: node test/test.js [OPTIONS]\n' + 'options:\n' + help);
     process.exit(0);
   }
 
@@ -168,13 +167,13 @@ function main () {
       // Find all ".test.js" files, except those in "fixtures" dirs and in
       // "node_modules" dirs created for test packages.
       'test/**/*.test.js',
-      { ignore: ['**/node_modules/**', '**/fixtures/**'] }
+      { ignore: ['**/node_modules/**', '**/fixtures/**'] },
     )
-    .map(file => {
+    .map((file) => {
       return {
         file,
         dryRun: opts.dry_run,
-        outDir: opts.output_dir
+        outDir: opts.output_dir,
       };
     });
 

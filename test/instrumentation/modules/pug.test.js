@@ -19,7 +19,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanStackTraceMinDuration: 0 // Always have span stacktraces.
+  spanStackTraceMinDuration: 0, // Always have span stacktraces.
 });
 
 var pug = require('pug');
@@ -28,7 +28,7 @@ var test = require('tape');
 var mockClient = require('../../_mock_http_client');
 var findObjInArray = require('../../_utils').findObjInArray;
 
-test('pug compile and render', function userLandCode (t) {
+test('pug compile and render', function userLandCode(t) {
   resetAgent(function (data) {
     t.strictEqual(data.transactions.length, 1);
     t.strictEqual(data.spans.length, 2);
@@ -45,9 +45,12 @@ test('pug compile and render', function userLandCode (t) {
       t.strictEqual(span.name, 'pug');
       t.strictEqual(span.type, 'template');
       t.strictEqual(span.subtype, 'pug');
-      t.ok(span.stacktrace.some(function (frame) {
-        return frame.function === 'userLandCode';
-      }), 'include user-land code frame');
+      t.ok(
+        span.stacktrace.some(function (frame) {
+          return frame.function === 'userLandCode';
+        }),
+        'include user-land code frame',
+      );
     }
 
     t.end();
@@ -57,13 +60,19 @@ test('pug compile and render', function userLandCode (t) {
 
   var template = pug.compile('p Hello, #{name}!');
   var output = template({ name: 'world' });
-  t.strictEqual(output, '<p>Hello, world!</p>', 'compiled string should be Hello,world!');
+  t.strictEqual(
+    output,
+    '<p>Hello, world!</p>',
+    'compiled string should be Hello,world!',
+  );
   agent.endTransaction();
   agent.flush();
 });
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(3, cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }
