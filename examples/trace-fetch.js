@@ -9,8 +9,6 @@
 // This example shows use of Node v18's core `fetch()`. The Node.js APM agent
 // will automatically instrument it.
 
-/* global fetch */ // for eslint
-
 const apm = require('../').start({
   serviceName: 'example-trace-fetch'
 })
