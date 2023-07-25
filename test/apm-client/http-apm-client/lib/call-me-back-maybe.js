@@ -17,7 +17,7 @@
 //    - set `apmServerVersion` to not have an APM Server version fetch request
 // 2. There must be a listening APM server to which to send data.
 
-const Client = require('../../') // elastic-apm-http-client
+const { HttpApmClient } = require('../../../../lib/apm-client/http-apm-client')
 
 const serverUrl = process.argv[2]
 

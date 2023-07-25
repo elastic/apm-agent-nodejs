@@ -10,7 +10,7 @@
 // (sometimes long-lived) request open to APM server does *not* keep a node
 // process alive.
 
-const Client = require('../../')
+const { HttpApmClient } = require('../../../../lib/apm-client/http-apm-client')
 
 const client = new HttpApmClient({
   // logger: require('pino')({ level: 'trace' }, process.stderr), // uncomment for debugging

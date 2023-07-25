@@ -50,8 +50,8 @@ test('throw if missing required options', function (t) {
 })
 
 test('should work without new', function (t) {
-  const client = Client(validOpts())
-  t.ok(client instanceof Client)
+  const client = HttpApmClient(validOpts())
+  t.ok(client instanceof HttpApmClient)
   t.end()
 })
 

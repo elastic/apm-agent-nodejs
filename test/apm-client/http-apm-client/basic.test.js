@@ -8,7 +8,7 @@
 
 const test = require('tape')
 const utils = require('./lib/utils')
-const Client = require('..')
+const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client')
 const APMServer = utils.APMServer
 const processIntakeReq = utils.processIntakeReq
 const assertIntakeReq = utils.assertIntakeReq

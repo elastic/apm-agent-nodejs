@@ -58,32 +58,32 @@ test('getCentralConfigIntervalS', function (t) {
 })
 
 test('central config disabled', function (t) {
-  const origPollConfig = Client.prototype._pollConfig
-  Client.prototype._pollConfig = function () {
+  const origPollConfig = HttpApmClient.prototype._pollConfig
+  HttpApmClient.prototype._pollConfig = function () {
     t.fail('should not call _pollConfig')
   }
 
   t.on('end', function () {
-    Client.prototype._pollConfig = origPollConfig
+    HttpApmClient.prototype._pollConfig = origPollConfig
   })
 
-  Client(validOpts())
+  HttpApmClient(validOpts())
   t.end()
 })
 
 test('central config enabled', function (t) {
   t.plan(1)
 
-  const origPollConfig = Client.prototype._pollConfig
-  Client.prototype._pollConfig = function () {
+  const origPollConfig = HttpApmClient.prototype._pollConfig
+  HttpApmClient.prototype._pollConfig = function () {
     t.pass('should call _pollConfig')
   }
 
   t.on('end', function () {
-    Client.prototype._pollConfig = origPollConfig
+    HttpApmClient.prototype._pollConfig = origPollConfig
   })
 
-  Client(validOpts({ centralConfig: true }))
+  HttpApmClient(validOpts({ centralConfig: true }))
   t.end()
 })
 
