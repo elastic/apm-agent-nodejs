@@ -1498,7 +1498,7 @@ test('#captureError()', function (t) {
       t.strictEqual(data.exception.stacktrace.length, DEFAULTS.stackTraceLimit);
       t.strictEqual(
         data.exception.stacktrace[0].context_line.trim(),
-        'return new Error()',
+        'return new Error();',
       );
 
       apmServer.clear();
@@ -1517,7 +1517,7 @@ test('#captureError()', function (t) {
       t.strictEqual(data.exception.stacktrace.length, 5);
       t.strictEqual(
         data.exception.stacktrace[0].context_line.trim(),
-        'return new Error()',
+        'return new Error();',
       );
 
       apmServer.clear();
