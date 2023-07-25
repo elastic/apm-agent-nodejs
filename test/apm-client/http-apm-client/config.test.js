@@ -17,7 +17,6 @@ const test = require('tape')
 const URL = require('url').URL
 
 const utils = require('./lib/utils')
-const pkg = require('../package')
 const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client')
 const { detectHostname } = require('../lib/detect-hostname')
 
@@ -26,14 +25,6 @@ const processIntakeReq = utils.processIntakeReq
 const validOpts = utils.validOpts
 
 const detectedHostname = detectHostname()
-
-test('package', function (t) {
-  // these values are in the User-Agent header tests, so we need to make sure
-  // they are as we expect
-  t.equal(pkg.name, 'elastic-apm-http-client')
-  t.ok(semver.valid(pkg.version))
-  t.end()
-})
 
 test('throw if missing required options', function (t) {
   t.throws(() => new HttpApmClient(), 'throws if no options are provided')
