@@ -56,8 +56,8 @@ tape.test('error.exception.stacktrace', function (t) {
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'throw-an-error.js'),
-            pre_context: ['', 'function main () {'],
-            context_line: "  throw new Error('boom')",
+            pre_context: ['', 'function main() {'],
+            context_line: "  throw new Error('boom');",
             post_context: ['}', ''],
           },
           'stacktrace top frame is as expected',
@@ -104,7 +104,7 @@ tape.test(
           let count = 0;
           const stacktrace = server.events[3].error.exception.stacktrace;
           stacktrace.forEach(function (frame) {
-            if (frame.context_line === '    boomOnZero(n)') {
+            if (frame.context_line === '    boomOnZero(n);') {
               count++;
               t.deepEqual(
                 frame,
@@ -119,10 +119,10 @@ tape.test(
                     'circular-stack.js',
                   ),
                   pre_context: [
-                    "    throw new Error('boom on zero')",
+                    "    throw new Error('boom on zero');",
                     '  } else {',
                   ],
-                  context_line: '    boomOnZero(n)',
+                  context_line: '    boomOnZero(n);',
                   post_context: ['  }', '}'],
                 },
                 '"boom on zero" stacktrace frame is as expected',
@@ -166,10 +166,10 @@ tape.test('error.log.stacktrace', function (t) {
               'fixtures',
               'capture-error-string.js',
             ),
-            pre_context: ['', 'function main () {'],
-            context_line: "  agent.captureError('a string error message')",
+            pre_context: ['', 'function main() {'],
+            context_line: "  agent.captureError('a string error message');",
             post_context: [
-              "  agent.captureError({ message: 'message template: %d', params: [42] })",
+              "  agent.captureError({ message: 'message template: %d', params: [42] });",
               '}',
             ],
           },
@@ -188,11 +188,11 @@ tape.test('error.log.stacktrace', function (t) {
               'capture-error-string.js',
             ),
             pre_context: [
-              'function main () {',
-              "  agent.captureError('a string error message')",
+              'function main() {',
+              "  agent.captureError('a string error message');",
             ],
             context_line:
-              "  agent.captureError({ message: 'message template: %d', params: [42] })",
+              "  agent.captureError({ message: 'message template: %d', params: [42] });",
             post_context: ['}', ''],
           },
           'second error.log.stacktrace top frame is as expected',
@@ -240,11 +240,11 @@ tape.test('span.stacktrace', function (t) {
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'send-a-span.js'),
             pre_context: [
-              'function main () {',
-              "  const trans = agent.startTransaction('main')",
+              'function main() {',
+              "  const trans = agent.startTransaction('main');",
             ],
-            context_line: "  const span = agent.startSpan('a')",
-            post_context: ['  a(function () {', '    span.end()'],
+            context_line: "  const span = agent.startSpan('a');",
+            post_context: ['  a(function () {', '    span.end();'],
           },
           'first app frame in stacktrace is as expected',
         );
@@ -385,7 +385,7 @@ tape.test('gatherStackTrace()', function (suite) {
       lines: 1,
       expectedContext: {
         pre_context: [],
-        context_line: "    return new Error('sha-boom')",
+        context_line: "    return new Error('sha-boom');",
         post_context: [],
       },
     },
@@ -393,7 +393,7 @@ tape.test('gatherStackTrace()', function (suite) {
       lines: 2,
       expectedContext: {
         pre_context: ['    // before 1'],
-        context_line: "    return new Error('sha-boom')",
+        context_line: "    return new Error('sha-boom');",
         post_context: [],
       },
     },
@@ -401,7 +401,7 @@ tape.test('gatherStackTrace()', function (suite) {
       lines: 3,
       expectedContext: {
         pre_context: ['    // before 1'],
-        context_line: "    return new Error('sha-boom')",
+        context_line: "    return new Error('sha-boom');",
         post_context: ['    // after 1'],
       },
     },
@@ -409,7 +409,7 @@ tape.test('gatherStackTrace()', function (suite) {
       lines: 4,
       expectedContext: {
         pre_context: ['    // before 2', '    // before 1'],
-        context_line: "    return new Error('sha-boom')",
+        context_line: "    return new Error('sha-boom');",
         post_context: ['    // after 1'],
       },
     },
@@ -417,7 +417,7 @@ tape.test('gatherStackTrace()', function (suite) {
       lines: 5,
       expectedContext: {
         pre_context: ['    // before 2', '    // before 1'],
-        context_line: "    return new Error('sha-boom')",
+        context_line: "    return new Error('sha-boom');",
         post_context: ['    // after 1', '    // after 2'],
       },
     },
