@@ -14,7 +14,6 @@
 // this project).
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-mysql',
 });
 

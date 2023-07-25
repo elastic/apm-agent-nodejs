@@ -17,7 +17,6 @@
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-ws',
 });
 

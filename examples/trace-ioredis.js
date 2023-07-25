@@ -14,7 +14,6 @@
 // testing of this project). Then `npm run docker:stop` to stop them.
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-ioredis',
 });
 

@@ -11,7 +11,6 @@
 // to start a Cassandra docker container. Then `npm run docker:stop` to stop it.
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-cassandra-driver',
   logUncaughtExceptions: true,
 });

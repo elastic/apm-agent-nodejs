@@ -16,7 +16,6 @@
 // We expect the APM agent to automatically generate tracing data for (1) and (2).
 
 require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-http',
   useElasticTraceparentHeader: false,
   // 'usePathAsTransactionName' can be useful when not using a web framework

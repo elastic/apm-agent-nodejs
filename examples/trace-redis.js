@@ -13,7 +13,6 @@
 // to start an Redis docker container. Then `npm run docker:stop` to stop it.
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-redis4',
   spanCompressionEnabled: false,
 });

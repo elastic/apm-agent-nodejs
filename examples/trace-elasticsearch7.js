@@ -14,7 +14,6 @@
 //    npm run docker:stop
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-elasticsearch7',
   logUncaughtExceptions: true,
 });

@@ -11,7 +11,6 @@
 // to start a MongoDB docker container. Then `npm run docker:stop` to stop it.
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-mongodb',
   logUncaughtExceptions: true,
 });

@@ -9,7 +9,6 @@
 // A small example showing Elastic APM tracing the 'pug' package.
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-pug',
 });
 

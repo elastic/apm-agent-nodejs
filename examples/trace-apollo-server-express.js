@@ -26,7 +26,6 @@
 //     `- span "GraphQL: HelloQuery hello"
 
 require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-apollo-server-express',
   logUncaughtExceptions: true,
 });
