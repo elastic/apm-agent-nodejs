@@ -4,27 +4,27 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const { appendFile, readFileSync } = require('fs')
-const os = require('os')
-const { resolve } = require('path')
+const { appendFile, readFileSync } = require('fs');
+const os = require('os');
+const { resolve } = require('path');
 
-const logResult = require('./result-logger')
+const logResult = require('./result-logger');
 
-const input = process.argv.slice(2)
-const outputFile = input.length > 2 ? resolve(input.pop()) : null
+const input = process.argv.slice(2);
+const outputFile = input.length > 2 ? resolve(input.pop()) : null;
 const [bench, control] = input
   .map(file => readFileSync(file))
-  .map(buf => JSON.parse(buf))
+  .map(buf => JSON.parse(buf));
 
-calculateDelta(bench, control)
-logResult(bench, control)
+calculateDelta(bench, control);
+logResult(bench, control);
 
-if (outputFile) storeResult()
+if (outputFile) storeResult();
 
 function storeResult () {
-  bench.controlStats = control.stats
+  bench.controlStats = control.stats;
 
   const result = {
     '@timestamp': bench.times.timeStamp,
@@ -64,13 +64,13 @@ function storeResult () {
       versions: process.versions
     },
     bench
-  }
+  };
 
-  const data = `{"index":{"_index":"benchmark-nodejs"}}\n${JSON.stringify(result)}\n`
+  const data = `{"index":{"_index":"benchmark-nodejs"}}\n${JSON.stringify(result)}\n`;
 
   appendFile(outputFile, data, function (err) {
-    if (err) throw err
-  })
+    if (err) throw err;
+  });
 }
 
 function calculateDelta (bench, control) {
@@ -80,5 +80,5 @@ function calculateDelta (bench, control) {
   // deviation: The sample standard deviation
   // mean: The sample arithmetic mean (secs)
   // variance: The sample variance
-  bench.overhead = bench.stats.mean - control.stats.mean
+  bench.overhead = bench.stats.mean - control.stats.mean;
 }

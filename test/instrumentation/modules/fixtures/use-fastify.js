@@ -7,21 +7,21 @@
 // Usage:
 //    node --require=./start.js test/instrumentation/modules/fixtures/use-fastify.js
 
-const http = require('http')
+const http = require('http');
 
-const fastify = require('fastify')
+const fastify = require('fastify');
 
-const server = fastify()
+const server = fastify();
 server.post('/hello/:name', function (request, reply) {
-  reply.send({ hello: request.params.name })
-})
+  reply.send({ hello: request.params.name });
+});
 
 async function main () {
-  await server.listen({ port: 3000 })
+  await server.listen({ port: 3000 });
 
   // Do a POST to test `captureBody`, wait for response, then exit.
-  const port = server.server.address().port
-  const data = JSON.stringify({ foo: 'bar' })
+  const port = server.server.address().port;
+  const data = JSON.stringify({ foo: 'bar' });
   const req = http.request(
     {
       method: 'POST',
@@ -34,17 +34,17 @@ async function main () {
       }
     },
     function (res) {
-      console.log('client response:', res.statusCode, res.headers)
-      let body = ''
-      res.on('data', chunk => { body += chunk })
+      console.log('client response:', res.statusCode, res.headers);
+      let body = '';
+      res.on('data', chunk => { body += chunk; });
       res.on('end', () => {
-        console.log('body:', body)
-        server.close()
-      })
+        console.log('body:', body);
+        server.close();
+      });
     }
-  )
-  req.write(data)
-  req.end()
+  );
+  req.write(data);
+  req.end();
 }
 
-main()
+main();

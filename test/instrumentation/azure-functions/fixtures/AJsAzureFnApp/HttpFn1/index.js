@@ -10,5 +10,5 @@ module.exports = async function (context, _req) {
       MyHeaderName: 'MyHeaderValue'
     },
     body: 'HttpFn1 body'
-  }
-}
+  };
+};

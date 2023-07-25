@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 module.exports = {
   query: {
     response: {
@@ -22,4 +22,4 @@ module.exports = {
     response: { __type: 'com.amazonaws.dynamodb.v20120810#ResourceNotFoundException', message: 'Requested resource not found' },
     httpStatusCode: 400
   }
-}
+};

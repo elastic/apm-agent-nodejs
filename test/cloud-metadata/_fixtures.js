@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 /**
  * Test fixtures for meta data test server.
  *
@@ -330,4 +330,4 @@ module.exports = {
       }
     }
   ]
-}
+};

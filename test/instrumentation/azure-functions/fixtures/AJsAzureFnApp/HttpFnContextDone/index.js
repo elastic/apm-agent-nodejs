@@ -14,5 +14,5 @@ module.exports = function (context) {
         body: 'HttpFnContextDone body'
       }
     }
-  )
-}
+  );
+};

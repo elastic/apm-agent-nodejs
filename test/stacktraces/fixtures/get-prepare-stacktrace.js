@@ -11,10 +11,10 @@ require('../../../').start({
   metricsInterval: 0,
   centralConfig: false,
   logLevel: 'off'
-})
+});
 function main () {
-  const name = Error.prepareStackTrace ? Error.prepareStackTrace.name : undefined
-  console.log(name)
+  const name = Error.prepareStackTrace ? Error.prepareStackTrace.name : undefined;
+  console.log(name);
 }
 
-main()
+main();

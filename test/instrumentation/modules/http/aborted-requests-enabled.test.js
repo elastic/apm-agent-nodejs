@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 const agent = require('../../../..').start({
   serviceName: 'test-http-aborted-requests-enabled',
@@ -17,38 +17,38 @@ const agent = require('../../../..').start({
   // Testing these:
   abortedErrorThreshold: '250ms',
   errorOnAbortedRequests: true
-})
+});
 
-var http = require('http')
+var http = require('http');
 
-var test = require('tape')
+var test = require('tape');
 
-var assert = require('./_assert')
-var mockClient = require('../../../_mock_http_client')
+var assert = require('./_assert');
+var mockClient = require('../../../_mock_http_client');
 
-var addEndedTransaction = agent._instrumentation.addEndedTransaction
+var addEndedTransaction = agent._instrumentation.addEndedTransaction;
 
 test('client-side abort below error threshold - call end', { timeout: 10000 }, function (t) {
-  var clientReq
-  t.plan(9)
+  var clientReq;
+  t.plan(9);
 
   t.on('end', function () {
-    server.close()
-  })
+    server.close();
+  });
 
   resetAgent(function (data) {
-    assert(t, data)
-  })
+    assert(t, data);
+  });
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) { // eslint-disable-line n/handle-callback-err
-    t.fail('should not register the closed socket as an error')
-  }
+    t.fail('should not register the closed socket as an error');
+  };
   agent._instrumentation.addEndedTransaction = function () {
-    addEndedTransaction.apply(this, arguments)
-    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transaction')
-  }
+    addEndedTransaction.apply(this, arguments);
+    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transaction');
+  };
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
@@ -67,402 +67,402 @@ test('client-side abort below error threshold - call end', { timeout: 10000 }, f
       // - (race) If the server-side socket is closed before `res.write` is
       //   called, then res.writeHead() will not be called as of this change:
       //   https://github.com/nodejs/node/pull/31818/files#diff-48d21edbddb6e855d1ee5716c49bcdc0d913c11ee8a24a98ea7dbc60cd253556L661-R706
-      res.writeHead(200)
+      res.writeHead(200);
 
-      clientReq.abort()
-      res.write('sync write')
+      clientReq.abort();
+      res.write('sync write');
       process.nextTick(function () {
-        res.write('nextTick write')
+        res.write('nextTick write');
         setTimeout(function () {
-          res.end('setTimeout write')
-        }, 10)
-      })
-    }, (agent._conf.abortedErrorThreshold * 1000) / 2)
-  })
+          res.end('setTimeout write');
+        }, 10);
+      });
+    }, (agent._conf.abortedErrorThreshold * 1000) / 2);
+  });
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     clientReq = get('http://localhost:' + port, function (res) {
-      t.fail('should not call http.get callback')
-    })
+      t.fail('should not call http.get callback');
+    });
     clientReq.on('error', function (err) {
-      t.strictEqual(err.code, 'ECONNRESET', 'client request should emit ECONNRESET error')
-    })
-  })
-})
+      t.strictEqual(err.code, 'ECONNRESET', 'client request should emit ECONNRESET error');
+    });
+  });
+});
 
 test('client-side abort above error threshold - call end', function (t) {
-  var clientReq
-  t.plan(10)
+  var clientReq;
+  t.plan(10);
 
   resetAgent(function (data) {
-    assert(t, data)
-    server.close()
-  })
+    assert(t, data);
+    server.close();
+  });
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) {
-    t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > (agent._conf.abortedErrorThreshold * 1000))
-  }
+    t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)');
+    t.ok(opts.extra.abortTime > (agent._conf.abortedErrorThreshold * 1000));
+  };
   agent._instrumentation.addEndedTransaction = function () {
-    addEndedTransaction.apply(this, arguments)
-    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
-  }
+    addEndedTransaction.apply(this, arguments);
+    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions');
+  };
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
-      res.writeHead(200) // See race comment above.
+      res.writeHead(200); // See race comment above.
 
-      clientReq.abort()
+      clientReq.abort();
       setTimeout(function () {
-        res.write('Hello')
+        res.write('Hello');
         setTimeout(function () {
-          res.end(' World')
-        }, 10)
-      }, 10)
-    }, (agent._conf.abortedErrorThreshold * 1000) + 10)
-  })
+          res.end(' World');
+        }, 10);
+      }, 10);
+    }, (agent._conf.abortedErrorThreshold * 1000) + 10);
+  });
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     clientReq = get('http://localhost:' + port, function (res) {
-      t.fail('should not call http.get callback')
-    })
+      t.fail('should not call http.get callback');
+    });
     clientReq.on('error', function (err) {
-      if (err.code !== 'ECONNRESET') throw err
-    })
-  })
-})
+      if (err.code !== 'ECONNRESET') throw err;
+    });
+  });
+});
 
 test('client-side abort below error threshold - don\'t call end', function (t) {
-  var clientReq
+  var clientReq;
   resetAgent(function () {
-    t.fail('should not send any data')
-  })
+    t.fail('should not send any data');
+  });
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) { // eslint-disable-line n/handle-callback-err
-    t.fail('should not register the closed socket as an error')
-  }
+    t.fail('should not register the closed socket as an error');
+  };
   agent._instrumentation.addEndedTransaction = function () {
-    t.fail('should not end the transaction')
-  }
+    t.fail('should not end the transaction');
+  };
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
-      clientReq.abort()
+      clientReq.abort();
       setTimeout(function () {
-        res.write('Hello') // server emits clientError if written in same tick as abort
+        res.write('Hello'); // server emits clientError if written in same tick as abort
         setTimeout(function () {
-          server.close()
-          t.end()
-        }, 10)
-      }, 10)
-    }, (agent._conf.abortedErrorThreshold * 1000) / 2)
-  })
+          server.close();
+          t.end();
+        }, 10);
+      }, 10);
+    }, (agent._conf.abortedErrorThreshold * 1000) / 2);
+  });
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     clientReq = get('http://localhost:' + port, function (res) {
-      t.fail('should not call http.get callback')
-    })
+      t.fail('should not call http.get callback');
+    });
     clientReq.on('error', function (err) {
-      if (err.code !== 'ECONNRESET') throw err
-    })
-  })
-})
+      if (err.code !== 'ECONNRESET') throw err;
+    });
+  });
+});
 
 test('client-side abort above error threshold - don\'t call end', function (t) {
-  var clientReq
+  var clientReq;
   resetAgent(function () {
-    t.fail('should not send any data')
-  })
+    t.fail('should not send any data');
+  });
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) {
-    t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > (agent._conf.abortedErrorThreshold * 1000))
-    server.close()
-    t.end()
-  }
+    t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)');
+    t.ok(opts.extra.abortTime > (agent._conf.abortedErrorThreshold * 1000));
+    server.close();
+    t.end();
+  };
   agent._instrumentation.addEndedTransaction = function () {
-    t.fail('should not end the transaction')
-  }
+    t.fail('should not end the transaction');
+  };
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
-      clientReq.abort()
+      clientReq.abort();
       setTimeout(function () {
-        res.write('Hello') // server emits clientError if written in same tick as abort
-      }, 10)
-    }, (agent._conf.abortedErrorThreshold * 1000) + 10)
-  })
+        res.write('Hello'); // server emits clientError if written in same tick as abort
+      }, 10);
+    }, (agent._conf.abortedErrorThreshold * 1000) + 10);
+  });
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     clientReq = get('http://localhost:' + port, function (res) {
-      t.fail('should not call http.get callback')
-    })
+      t.fail('should not call http.get callback');
+    });
     clientReq.on('error', function (err) {
-      if (err.code !== 'ECONNRESET') throw err
-    })
-  })
-})
+      if (err.code !== 'ECONNRESET') throw err;
+    });
+  });
+});
 
 test('server-side abort below error threshold and socket closed - call end', function (t) {
-  var timedout = false
-  var ended = false
-  t.plan(11)
+  var timedout = false;
+  var ended = false;
+  t.plan(11);
 
-  resetAgent(assert.bind(null, t))
+  resetAgent(assert.bind(null, t));
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) { // eslint-disable-line n/handle-callback-err
-    t.fail('should not register the closed socket as an error')
-  }
+    t.fail('should not register the closed socket as an error');
+  };
   agent._instrumentation.addEndedTransaction = function () {
-    addEndedTransaction.apply(this, arguments)
-    ended = true
-    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
-  }
+    addEndedTransaction.apply(this, arguments);
+    ended = true;
+    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions');
+  };
 
   var server = http.createServer(function (req, res) {
-    res.writeHead(200) // See race comment above.
+    res.writeHead(200); // See race comment above.
     setTimeout(function () {
-      t.ok(timedout, 'should have closed socket')
-      t.notOk(ended, 'should not have ended transaction')
-      res.end('Hello World')
-      t.ok(ended, 'should have ended transaction')
-      server.close()
-    }, (agent._conf.abortedErrorThreshold * 1000) / 2 + 100)
-  })
+      t.ok(timedout, 'should have closed socket');
+      t.notOk(ended, 'should not have ended transaction');
+      res.end('Hello World');
+      t.ok(ended, 'should have ended transaction');
+      server.close();
+    }, (agent._conf.abortedErrorThreshold * 1000) / 2 + 100);
+  });
 
-  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2)
+  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2);
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     var clientReq = get('http://localhost:' + port, function (res) {
-      t.fail('should not call http.get callback')
-    })
+      t.fail('should not call http.get callback');
+    });
     clientReq.on('error', function (err) {
-      if (err.code !== 'ECONNRESET') throw err
-      timedout = true
-    })
-  })
-})
+      if (err.code !== 'ECONNRESET') throw err;
+      timedout = true;
+    });
+  });
+});
 
 test('server-side abort above error threshold and socket closed - call end', function (t) {
-  var timedout = false
-  var ended = false
-  t.plan(13)
+  var timedout = false;
+  var ended = false;
+  t.plan(13);
 
-  resetAgent(assert.bind(null, t))
+  resetAgent(assert.bind(null, t));
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) {
-    t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > (agent._conf.abortedErrorThreshold * 1000))
-  }
+    t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)');
+    t.ok(opts.extra.abortTime > (agent._conf.abortedErrorThreshold * 1000));
+  };
   agent._instrumentation.addEndedTransaction = function () {
-    addEndedTransaction.apply(this, arguments)
-    ended = true
-    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
-  }
+    addEndedTransaction.apply(this, arguments);
+    ended = true;
+    t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions');
+  };
 
   var server = http.createServer(function (req, res) {
-    res.writeHead(200) // See race comment above.
+    res.writeHead(200); // See race comment above.
     setTimeout(function () {
-      t.ok(timedout, 'should have closed socket')
-      t.notOk(ended, 'should not have ended transaction')
-      res.end('Hello World')
-      t.ok(ended, 'should have ended transaction')
-      server.close()
-    }, (agent._conf.abortedErrorThreshold * 1000) + 100)
-  })
+      t.ok(timedout, 'should have closed socket');
+      t.notOk(ended, 'should not have ended transaction');
+      res.end('Hello World');
+      t.ok(ended, 'should have ended transaction');
+      server.close();
+    }, (agent._conf.abortedErrorThreshold * 1000) + 100);
+  });
 
-  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 10)
+  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 10);
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     var clientReq = get('http://localhost:' + port, function (res) {
-      t.fail('should not call http.get callback')
-    })
+      t.fail('should not call http.get callback');
+    });
     clientReq.on('error', function (err) {
-      if (err.code !== 'ECONNRESET') throw err
-      timedout = true
-    })
-  })
-})
+      if (err.code !== 'ECONNRESET') throw err;
+      timedout = true;
+    });
+  });
+});
 
 test('server-side abort below error threshold and socket closed - don\'t call end', function (t) {
-  var timedout = false
-  var ended = false
-  t.plan(3)
+  var timedout = false;
+  var ended = false;
+  t.plan(3);
 
   resetAgent(function () {
-    t.fail('should not send any data')
-  })
+    t.fail('should not send any data');
+  });
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) { // eslint-disable-line n/handle-callback-err
-    t.fail('should not register the closed socket as an error')
-  }
+    t.fail('should not register the closed socket as an error');
+  };
   agent._instrumentation.addEndedTransaction = function () {
-    t.fail('should not end the transaction')
-  }
+    t.fail('should not end the transaction');
+  };
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
-      t.ok(timedout, 'should have closed socket')
-      t.notOk(ended, 'should not have ended transaction')
-      server.close()
-    }, (agent._conf.abortedErrorThreshold * 1000) / 2 + 100)
-  })
+      t.ok(timedout, 'should have closed socket');
+      t.notOk(ended, 'should not have ended transaction');
+      server.close();
+    }, (agent._conf.abortedErrorThreshold * 1000) / 2 + 100);
+  });
 
-  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2)
+  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2);
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     var clientReq = get('http://localhost:' + port, function (res) {
-      t.fail('should not call http.get callback')
-    })
+      t.fail('should not call http.get callback');
+    });
     clientReq.on('error', function (err) {
-      if (err.code !== 'ECONNRESET') throw err
-      timedout = true
-    })
-  })
-})
+      if (err.code !== 'ECONNRESET') throw err;
+      timedout = true;
+    });
+  });
+});
 
 test('server-side abort above error threshold and socket closed - don\'t call end', function (t) {
-  var timedout = false
-  var ended = false
-  t.plan(5)
+  var timedout = false;
+  var ended = false;
+  t.plan(5);
 
   resetAgent(function () {
-    t.fail('should not send any data')
-  })
+    t.fail('should not send any data');
+  });
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) {
-    t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)')
-    t.ok(opts.extra.abortTime > (agent._conf.abortedErrorThreshold * 1000))
-  }
+    t.strictEqual(err, 'Socket closed with active HTTP request (>0.25 sec)');
+    t.ok(opts.extra.abortTime > (agent._conf.abortedErrorThreshold * 1000));
+  };
   agent._instrumentation.addEndedTransaction = function () {
-    t.fail('should not end the transaction')
-  }
+    t.fail('should not end the transaction');
+  };
 
   var server = http.createServer(function (req, res) {
     setTimeout(function () {
-      t.ok(timedout, 'should have closed socket')
-      t.notOk(ended, 'should have ended transaction')
-      server.close()
-    }, (agent._conf.abortedErrorThreshold * 1000) + 150)
-  })
+      t.ok(timedout, 'should have closed socket');
+      t.notOk(ended, 'should have ended transaction');
+      server.close();
+    }, (agent._conf.abortedErrorThreshold * 1000) + 150);
+  });
 
-  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 50)
+  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 50);
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     var clientReq = get('http://localhost:' + port, function (res) {
-      t.fail('should not call http.get callback')
-    })
+      t.fail('should not call http.get callback');
+    });
     clientReq.on('error', function (err) {
-      if (err.code !== 'ECONNRESET') throw err
-      timedout = true
-    })
-  })
-})
+      if (err.code !== 'ECONNRESET') throw err;
+      timedout = true;
+    });
+  });
+});
 
 test('server-side abort below error threshold but socket not closed - call end', function (t) {
-  t.plan(8)
+  t.plan(8);
 
   resetAgent(function (data) {
-    assert(t, data)
-    server.close()
-  })
+    assert(t, data);
+    server.close();
+  });
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) { // eslint-disable-line n/handle-callback-err
-    t.fail('should not register the closed socket as an error')
-  }
-  agent._instrumentation.addEndedTransaction = addEndedTransaction
+    t.fail('should not register the closed socket as an error');
+  };
+  agent._instrumentation.addEndedTransaction = addEndedTransaction;
 
   var server = http.createServer(function (req, res) {
     // listening on for the timeout event on either the server or the response
     // will hinder the socket from closing automatically when a timeout occurs
-    res.on('timeout', function () {})
+    res.on('timeout', function () {});
 
     setTimeout(function () {
-      res.end('Hello World')
-    }, (agent._conf.abortedErrorThreshold * 1000) / 2 + 100)
-  })
+      res.end('Hello World');
+    }, (agent._conf.abortedErrorThreshold * 1000) / 2 + 100);
+  });
 
-  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2)
+  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) / 2);
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     get('http://localhost:' + port, function (res) {
       res.on('end', function () {
-        t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
-      })
-      res.resume()
-    })
-  })
-})
+        t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions');
+      });
+      res.resume();
+    });
+  });
+});
 
 test('server-side abort above error threshold but socket not closed - call end', function (t) {
-  t.plan(8)
+  t.plan(8);
 
   resetAgent(function (data) {
-    assert(t, data)
-    server.close()
-  })
+    assert(t, data);
+    server.close();
+  });
 
-  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with')
+  t.strictEqual(agent._apmClient._writes.length, 0, 'should not have any samples to begin with');
 
   agent.captureError = function (err, opts) { // eslint-disable-line n/handle-callback-err
-    t.fail('should not register the closed socket as an error')
-  }
-  agent._instrumentation.addEndedTransaction = addEndedTransaction
+    t.fail('should not register the closed socket as an error');
+  };
+  agent._instrumentation.addEndedTransaction = addEndedTransaction;
 
   var server = http.createServer(function (req, res) {
     // listening on for the timeout event on either the server or the response
     // will hinder the socket from closing automatically when a timeout occurs
-    res.on('timeout', function () {})
+    res.on('timeout', function () {});
 
     setTimeout(function () {
-      res.end('Hello World')
-    }, (agent._conf.abortedErrorThreshold * 1000) + 100)
-  })
+      res.end('Hello World');
+    }, (agent._conf.abortedErrorThreshold * 1000) + 100);
+  });
 
-  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 10)
+  server.setTimeout((agent._conf.abortedErrorThreshold * 1000) + 10);
 
   server.listen(function () {
-    var port = server.address().port
+    var port = server.address().port;
     get('http://localhost:' + port, function (res) {
       res.on('end', function () {
-        t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions')
-      })
-      res.resume()
-    })
-  })
-})
+        t.strictEqual(agent._apmClient._writes.length, 1, 'should send transactions');
+      });
+      res.resume();
+    });
+  });
+});
 
 function resetAgent (cb) {
-  agent._instrumentation.testReset()
-  agent._apmClient = mockClient(1, cb)
+  agent._instrumentation.testReset();
+  agent._apmClient = mockClient(1, cb);
 }
 
 function get () {
-  agent._instrumentation.testReset()
-  return http.get.apply(http, arguments)
+  agent._instrumentation.testReset();
+  return http.get.apply(http, arguments);
 }

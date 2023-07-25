@@ -4,12 +4,12 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
-const express = require('express')
-const fixtures = require('./_fixtures')
+'use strict';
+const express = require('express');
+const fixtures = require('./_fixtures');
 
 // how many seconds to wait for a "slow" server
-const TIMEOUT_SLOWSERVER_MS = 5000
+const TIMEOUT_SLOWSERVER_MS = 5000;
 
 /**
  * Add AWS metadata route
@@ -18,20 +18,20 @@ const TIMEOUT_SLOWSERVER_MS = 5000
  */
 function addAwsRoute (app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
-    res.send(fixture.response)
-  })
+    res.send(fixture.response);
+  });
 
-  return app
+  return app;
 }
 
 function addSlowAwsRoute (app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
     setTimeout(function () {
-      res.send(fixture.response)
-    }, TIMEOUT_SLOWSERVER_MS)
-  })
+      res.send(fixture.response);
+    }, TIMEOUT_SLOWSERVER_MS);
+  });
 
-  return app
+  return app;
 }
 
 /**
@@ -43,38 +43,38 @@ function addSlowAwsRoute (app, fixture) {
  */
 function addAwsIMDSv2Route (app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
-    const token = req.headers['x-aws-ec2-metadata-token']
+    const token = req.headers['x-aws-ec2-metadata-token'];
     if (!token) {
-      throw new Error('not authorized')
+      throw new Error('not authorized');
     }
-    res.send(fixture.response)
-  })
+    res.send(fixture.response);
+  });
 
   app.put('/latest/api/token', (req, res) => {
-    res.send(fixture.responseToken)
-  })
+    res.send(fixture.responseToken);
+  });
 
-  return app
+  return app;
 }
 
 function addSlowAwsIMDSv2Route (app, fixture) {
   app.get('/latest/dynamic/instance-identity/document', (req, res) => {
-    const token = req.headers['x-aws-ec2-metadata-token']
+    const token = req.headers['x-aws-ec2-metadata-token'];
     if (!token) {
-      throw new Error('not authorized')
+      throw new Error('not authorized');
     }
     setTimeout(function () {
-      res.send(fixture.response)
-    }, TIMEOUT_SLOWSERVER_MS)
-  })
+      res.send(fixture.response);
+    }, TIMEOUT_SLOWSERVER_MS);
+  });
 
   app.put('/latest/api/token', (req, res) => {
     setTimeout(function () {
-      res.send(fixture.responseToken)
-    }, TIMEOUT_SLOWSERVER_MS)
-  })
+      res.send(fixture.responseToken);
+    }, TIMEOUT_SLOWSERVER_MS);
+  });
 
-  return app
+  return app;
 }
 
 /**
@@ -88,34 +88,34 @@ function addSlowAwsIMDSv2Route (app, fixture) {
 function addGcpRoute (app, fixture) {
   app.get('/computeMetadata/v1', (req, res) => {
     if (!req.query.recursive) {
-      throw new Error('recursive GET parameter required')
+      throw new Error('recursive GET parameter required');
     }
 
     if (req.header('Metadata-Flavor') !== 'Google') {
-      throw new Error('Metadata-Flavor: Google header required')
+      throw new Error('Metadata-Flavor: Google header required');
     }
 
-    res.send(fixture.response)
-  })
+    res.send(fixture.response);
+  });
 
-  return app
+  return app;
 }
 
 function addSlowGcpRoute (app, fixture) {
   app.get('/computeMetadata/v1', (req, res) => {
     if (!req.query.recursive) {
-      throw new Error('recursive GET parameter required')
+      throw new Error('recursive GET parameter required');
     }
 
     if (req.header('Metadata-Flavor') !== 'Google') {
-      throw new Error('Metadata-Flavor: Google header required')
+      throw new Error('Metadata-Flavor: Google header required');
     }
     setTimeout(function () {
-      res.send(fixture.response)
-    }, TIMEOUT_SLOWSERVER_MS)
-  })
+      res.send(fixture.response);
+    }, TIMEOUT_SLOWSERVER_MS);
+  });
 
-  return app
+  return app;
 }
 
 /**
@@ -129,64 +129,64 @@ function addSlowGcpRoute (app, fixture) {
 function addAzureRoute (app, fixture) {
   app.get('/metadata/instance', (req, res) => {
     if (!req.query['api-version']) {
-      throw new Error('api-version GET parameter required')
+      throw new Error('api-version GET parameter required');
     }
 
     if (req.header('Metadata') !== 'true') {
-      throw new Error('Metadata header required')
+      throw new Error('Metadata header required');
     }
 
-    res.send(fixture.response)
-  })
+    res.send(fixture.response);
+  });
 
-  return app
+  return app;
 }
 
 function addSlowAzureRoute (app, fixture) {
   app.get('/metadata/instance', (req, res) => {
     if (!req.query['api-version']) {
-      throw new Error('api-version GET parameter required')
+      throw new Error('api-version GET parameter required');
     }
 
     if (req.header('Metadata') !== 'true') {
-      throw new Error('Metadata header required')
+      throw new Error('Metadata header required');
     }
     setTimeout(function () {
-      res.send(fixture.response)
-    }, TIMEOUT_SLOWSERVER_MS)
-  })
+      res.send(fixture.response);
+    }, TIMEOUT_SLOWSERVER_MS);
+  });
 
-  return app
+  return app;
 }
 
 function addSlowRoutesToExpressApp (app, provider, fixture) {
   switch (provider) {
     case 'aws':
-      return addSlowAwsRoute(app, fixture)
+      return addSlowAwsRoute(app, fixture);
     case 'aws-IMDSv2':
-      return addSlowAwsIMDSv2Route(app, fixture)
+      return addSlowAwsIMDSv2Route(app, fixture);
     case 'gcp':
-      return addSlowGcpRoute(app, fixture)
+      return addSlowGcpRoute(app, fixture);
     case 'azure':
-      return addSlowAzureRoute(app, fixture)
+      return addSlowAzureRoute(app, fixture);
 
     default:
-      throw Error(`I don't know how to start a slow ${provider} server`)
+      throw Error(`I don't know how to start a slow ${provider} server`);
   }
 }
 
 function addRoutesToExpressApp (app, provider, fixture) {
   switch (provider) {
     case 'aws':
-      return addAwsRoute(app, fixture)
+      return addAwsRoute(app, fixture);
     case 'aws-IMDSv2':
-      return addAwsIMDSv2Route(app, fixture)
+      return addAwsIMDSv2Route(app, fixture);
     case 'gcp':
-      return addGcpRoute(app, fixture)
+      return addGcpRoute(app, fixture);
     case 'azure':
-      return addAzureRoute(app, fixture)
+      return addAzureRoute(app, fixture);
     default:
-      throw Error(`I don't know how to start a ${provider} server`)
+      throw Error(`I don't know how to start a ${provider} server`);
   }
 }
 
@@ -203,12 +203,12 @@ function addRoutesToExpressApp (app, provider, fixture) {
  * @param {string} fixtureName name of to response fixtures
  */
 function createTestServer (provider, fixtureName) {
-  const fixture = loadFixtureData(provider, fixtureName)
+  const fixture = loadFixtureData(provider, fixtureName);
   if (!fixture) {
-    throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`)
+    throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`);
   }
-  const app = express()
-  return addRoutesToExpressApp(app, provider, fixture)
+  const app = express();
+  return addRoutesToExpressApp(app, provider, fixture);
 }
 
 /**
@@ -221,24 +221,24 @@ function createTestServer (provider, fixtureName) {
  * @param {string} fixtureName name of to response fixtures
  */
 function createSlowTestServer (provider, fixtureName) {
-  const fixture = loadFixtureData(provider, fixtureName)
+  const fixture = loadFixtureData(provider, fixtureName);
   if (!fixture) {
-    throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`)
+    throw new Error(`Unknown ${provider} fixtured named ${fixtureName}`);
   }
-  const app = express()
-  return addSlowRoutesToExpressApp(app, provider, fixture)
+  const app = express();
+  return addSlowRoutesToExpressApp(app, provider, fixture);
 }
 
 function loadFixtureData (provider, fixtureName) {
-  const providerFixtures = fixtures[provider] ? fixtures[provider] : []
+  const providerFixtures = fixtures[provider] ? fixtures[provider] : [];
   const fixture = providerFixtures.filter(function (item) {
-    return item.name === fixtureName
-  }).pop()
-  return fixture
+    return item.name === fixtureName;
+  }).pop();
+  return fixture;
 }
 
 module.exports = {
   createTestServer,
   createSlowTestServer,
   loadFixtureData
-}
+};

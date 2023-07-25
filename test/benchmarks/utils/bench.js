@@ -4,12 +4,12 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const withAgent = !!process.env.AGENT
+const withAgent = !!process.env.AGENT;
 
 module.exports = function (name, { agentConf, ...benchConf }) {
-  let agent
+  let agent;
 
   if (withAgent) {
     agent = require('../../..').start(Object.assign({
@@ -18,10 +18,10 @@ module.exports = function (name, { agentConf, ...benchConf }) {
       captureExceptions: false,
       metricsInterval: 0,
       logLevel: 'off'
-    }, agentConf))
+    }, agentConf));
   }
 
-  const Benchmark = require('benchmark')
+  const Benchmark = require('benchmark');
 
   new Benchmark(Object.assign({
     name: `${name} (${withAgent ? 'With Agent' : 'Without Agent'})`,
@@ -34,10 +34,10 @@ module.exports = function (name, { agentConf, ...benchConf }) {
       // either the `setup` function or the `fn` function (as the regular
       // Node.js globals like `require` and `__filename` are not available to
       // those functions).
-      this.fs = require('fs')
-      this.callstack = require('./callstack')
-      this.testFile = __filename
-      this.agent = agent
+      this.fs = require('fs');
+      this.callstack = require('./callstack');
+      this.testFile = __filename;
+      this.agent = agent;
     },
     onComplete (result) {
       process.stdout.write(JSON.stringify({
@@ -47,8 +47,8 @@ module.exports = function (name, { agentConf, ...benchConf }) {
         hz: result.target.hz,
         stats: result.target.stats,
         times: result.target.times
-      }))
-      process.exit()
+      }));
+      process.exit();
     }
-  }, benchConf)).run()
-}
+  }, benchConf)).run();
+};

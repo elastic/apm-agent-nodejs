@@ -7,28 +7,28 @@
 // Usage:
 //    node --experimental-loader=./loader.mjs --require=./start.js test/instrumentation/modules/fixtures/use-ioredis.mjs
 
-import apm from '../../../../index.js' // 'elastic-apm-node'
-import Redis from 'ioredis'
+import apm from '../../../../index.js'; // 'elastic-apm-node'
+import Redis from 'ioredis';
 
-const redis = new Redis(process.env.REDIS_HOST)
+const redis = new Redis(process.env.REDIS_HOST);
 
 async function main () {
-  const trans = apm.startTransaction('trans')
-  let val
+  const trans = apm.startTransaction('trans');
+  let val;
 
-  redis.set('foo', 'bar')
-  val = await redis.get('foo')
-  console.log('foo:', val)
+  redis.set('foo', 'bar');
+  val = await redis.get('foo');
+  console.log('foo:', val);
 
-  redis.hset('myhash', 'field1', 'val1')
+  redis.hset('myhash', 'field1', 'val1');
   try {
-    val = await redis.get('myhash') // Wrong command for type, should reject.
+    val = await redis.get('myhash'); // Wrong command for type, should reject.
   } catch (e) {
-    console.log('able to catch a throw')
+    console.log('able to catch a throw');
   }
 
-  trans.end()
-  await redis.quit()
+  trans.end();
+  await redis.quit();
 }
 
-main()
+main();

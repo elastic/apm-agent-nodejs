@@ -27,48 +27,48 @@
 const apm = require('../').start({
   serviceName: 'example-trace-sns',
   logUncaughtExceptions: true
-})
+});
 
-const path = require('path')
-const AWS = require('aws-sdk')
+const path = require('path');
+const AWS = require('aws-sdk');
 
-const NAME = path.basename(process.argv[1])
+const NAME = path.basename(process.argv[1]);
 
 function fail (err) {
-  console.error(`${NAME}: error: ${err.toString()}`)
-  process.exitCode = 1
+  console.error(`${NAME}: error: ${err.toString()}`);
+  process.exitCode = 1;
 }
 
-const region = process.argv[2]
-const topicName = process.argv[3]
+const region = process.argv[2];
+const topicName = process.argv[3];
 if (!region || !topicName) {
-  console.error(`usage: node ${NAME} AWS-REGION SNS-TOPIC-NAME`)
-  fail('missing arguments')
-  process.exit()
+  console.error(`usage: node ${NAME} AWS-REGION SNS-TOPIC-NAME`);
+  fail('missing arguments');
+  process.exit();
 }
-console.log('SNS Publish to region=%s topicName=%s', region, topicName)
+console.log('SNS Publish to region=%s topicName=%s', region, topicName);
 
-AWS.config.update({ region })
-const sns = new AWS.SNS({ apiVersion: '2010-03-31' })
+AWS.config.update({ region });
+const sns = new AWS.SNS({ apiVersion: '2010-03-31' });
 
 // For tracing spans to be created, there must be an active transaction.
 // Typically, a transaction is automatically started for incoming HTTP
 // requests to a Node.js server. However, because this script is not running
 // an HTTP server, we manually start a transaction. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-const trans = apm.startTransaction('publish')
+const trans = apm.startTransaction('publish');
 
 sns.listTopics(function (err, data) {
   if (err) {
-    fail(err)
-    return
+    fail(err);
+    return;
   }
-  const matches = data.Topics.filter(t => t.TopicArn && t.TopicArn.endsWith(':' + topicName))
+  const matches = data.Topics.filter(t => t.TopicArn && t.TopicArn.endsWith(':' + topicName));
   if (matches.length === 0) {
-    fail(`could not find an SNS topic ARN in ${region} named "${topicName}"`)
-    return
+    fail(`could not find an SNS topic ARN in ${region} named "${topicName}"`);
+    return;
   }
-  const topicArn = matches[0].TopicArn
+  const topicArn = matches[0].TopicArn;
   // console.log('topicArn:', topicArn)
 
   const params = {
@@ -77,15 +77,15 @@ sns.listTopics(function (err, data) {
     MessageAttributes: {
       foo: { DataType: 'String', StringValue: 'bar' }
     }
-  }
-  console.log('Publishing with message: %j', params.Message)
+  };
+  console.log('Publishing with message: %j', params.Message);
   sns.publish(params, function (err, data) {
     if (err) {
-      fail(err)
+      fail(err);
     } else {
-      process.stdout.write('publish response data: ')
-      console.dir(data, { depth: 5 })
+      process.stdout.write('publish response data: ');
+      console.dir(data, { depth: 5 });
     }
-    trans.end()
-  })
-})
+    trans.end();
+  });
+});

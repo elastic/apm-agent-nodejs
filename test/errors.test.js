@@ -4,19 +4,19 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Test lib/errors.js
 
-const path = require('path')
+const path = require('path');
 
-const tape = require('tape')
+const tape = require('tape');
 
-const logging = require('../lib/logging')
-const { createAPMError, generateErrorId, attributesFromErr, _moduleNameFromFrames } = require('../lib/errors')
-const { dottedLookup } = require('./_utils')
+const logging = require('../lib/logging');
+const { createAPMError, generateErrorId, attributesFromErr, _moduleNameFromFrames } = require('../lib/errors');
+const { dottedLookup } = require('./_utils');
 
-const log = logging.createLogger('off')
+const log = logging.createLogger('off');
 
 // Test processing of Error instances by `createAPMError`.
 tape.test('#createAPMError({ exception: ... })', function (suite) {
@@ -27,7 +27,7 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
     handled: true,
     sourceLinesAppFrames: 5,
     sourceLinesLibraryFrames: 5
-  }
+  };
 
   const cases = [
     {
@@ -72,9 +72,9 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
       name: 'gracefully handle .stack already being accessed',
       opts: {
         exception: (function () {
-          const err = new Error('foo')
-          suite.equal(typeof err.stack, 'string')
-          return err
+          const err = new Error('foo');
+          suite.equal(typeof err.stack, 'string');
+          return err;
         })()
       },
       expectedApmErrorFields: {
@@ -87,9 +87,9 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
       name: 'gracefully handle errors whose .stack is overwritten',
       opts: {
         exception: (function () {
-          const err = new Error('foo')
-          err.stack = 'stack I smite thee'
-          return err
+          const err = new Error('foo');
+          err.stack = 'stack I smite thee';
+          return err;
         })()
       },
       expectedApmErrorFields: {
@@ -112,13 +112,13 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
       opts: {
         exception: (function () {
           function someOtherFunc () {
-            return new Error('orig')
+            return new Error('orig');
           }
-          const orig = someOtherFunc()
-          const err = new Error('error with originalError')
-          err.stack = 'stack I smite thee again'
-          err.originalError = orig
-          return err
+          const orig = someOtherFunc();
+          const err = new Error('error with originalError');
+          err.stack = 'stack I smite thee again';
+          err.originalError = orig;
+          return err;
         })()
       },
       expectedApmErrorFields: {
@@ -133,9 +133,9 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
       opts: {
         shouldCaptureAttributes: true,
         exception: (function () {
-          const err = new Error('boom')
-          err.aProp = 'this is my property'
-          return err
+          const err = new Error('boom');
+          err.aProp = 'this is my property';
+          return err;
         })()
       },
       expectedApmErrorFields: {
@@ -147,9 +147,9 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
       opts: {
         shouldCaptureAttributes: false,
         exception: (function () {
-          const err = new Error('boom')
-          err.aProp = 'this is my property'
-          return err
+          const err = new Error('boom');
+          err.aProp = 'this is my property';
+          return err;
         })()
       },
       expectedApmErrorFields: {
@@ -170,7 +170,7 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
         'exception.stacktrace.0.post_context': undefined
       }
     }
-  ]
+  ];
 
   cases.forEach(c => {
     suite.test(c.name, function (t) {
@@ -179,22 +179,22 @@ tape.test('#createAPMError({ exception: ... })', function (suite) {
         function (_, apmError) {
           // Test each of the exceptations in c.expectedApmErrorFields.
           Object.keys(c.expectedApmErrorFields).forEach(field => {
-            const expected = c.expectedApmErrorFields[field]
-            const actual = dottedLookup(apmError, field)
+            const expected = c.expectedApmErrorFields[field];
+            const actual = dottedLookup(apmError, field);
             if (expected instanceof RegExp) {
-              t.ok(expected.test(actual), `apmError.${field} matches ${expected}: ${actual}`)
+              t.ok(expected.test(actual), `apmError.${field} matches ${expected}: ${actual}`);
             } else {
-              t.deepEqual(actual, expected, `apmError.${field} equals ${JSON.stringify(expected)}`)
+              t.deepEqual(actual, expected, `apmError.${field} equals ${JSON.stringify(expected)}`);
             }
-          })
-          t.end()
+          });
+          t.end();
         }
-      )
-    })
-  })
+      );
+    });
+  });
 
-  suite.end()
-})
+  suite.end();
+});
 
 // Test the various forms of the `logMessage` arg to `createAPMError`.
 tape.test('#createAPMError({ logMessage: ... })', function (suite) {
@@ -219,7 +219,7 @@ tape.test('#createAPMError({ logMessage: ... })', function (suite) {
       logMessage: null,
       expectedErrLog: { message: 'null' }
     }
-  ]
+  ];
 
   cases.forEach(c => {
     suite.test(`logMessage: ${JSON.stringify(c.logMessage)}`, function (t) {
@@ -236,15 +236,15 @@ tape.test('#createAPMError({ logMessage: ... })', function (suite) {
         },
         function (_, apmError) {
           t.deepEqual(apmError.log, c.expectedErrLog,
-            'apmError.log is as expected')
-          t.end()
+            'apmError.log is as expected');
+          t.end();
         }
-      )
-    })
-  })
+      );
+    });
+  });
 
-  suite.end()
-})
+  suite.end();
+});
 
 tape.test('#_moduleNameFromFrames()', function (suite) {
   var cases = [
@@ -335,24 +335,24 @@ tape.test('#_moduleNameFromFrames()', function (suite) {
       expected: null
     }
 
-  ]
+  ];
 
   cases.forEach(function (opts) {
     suite.test(opts.name || '[anonymous test case]', function (t) {
       // Normalize top frame path if running on Windows. The
       // _moduleNameFromFrames implementation adapts to path.sep.
       if (path.sep === '\\' && opts.frames.length > 0) {
-        opts.frames[0].filename = opts.frames[0].filename.replace(/\//g, '\\')
+        opts.frames[0].filename = opts.frames[0].filename.replace(/\//g, '\\');
       }
 
       t.strictEqual(_moduleNameFromFrames(opts.frames), opts.expected,
-        'got ' + opts.expected)
-      t.end()
-    })
-  })
+        'got ' + opts.expected);
+      t.end();
+    });
+  });
 
-  suite.end()
-})
+  suite.end();
+});
 
 tape.test('#attributesFromErr()', function (suite) {
   var cases = [
@@ -365,31 +365,31 @@ tape.test('#attributesFromErr()', function (suite) {
     {
       name: 'string attr',
       err: () => {
-        const err = new Error('boom')
-        err.aStr = 'hello'
-        return err
+        const err = new Error('boom');
+        err.aStr = 'hello';
+        return err;
       },
       expectedAttrs: { aStr: 'hello' }
     },
     {
       name: 'Invalid Date attr',
       err: () => {
-        const err = new Error('boom')
-        err.aDate = new Date('invalid')
-        return err
+        const err = new Error('boom');
+        err.aDate = new Date('invalid');
+        return err;
       },
       expectedAttrs: { aDate: 'Invalid Date' }
     }
-  ]
+  ];
 
   cases.forEach(function (opts) {
     suite.test(opts.name, function (t) {
-      const err = typeof (opts.err) === 'function' ? opts.err() : opts.err
-      const attrs = attributesFromErr(err)
-      t.deepEqual(attrs, opts.expectedAttrs, 'got expected attrs')
-      t.end()
-    })
-  })
+      const err = typeof (opts.err) === 'function' ? opts.err() : opts.err;
+      const attrs = attributesFromErr(err);
+      t.deepEqual(attrs, opts.expectedAttrs, 'got expected attrs');
+      t.end();
+    });
+  });
 
-  suite.end()
-})
+  suite.end();
+});

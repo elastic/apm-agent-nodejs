@@ -4,17 +4,17 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Log a text table of the benchmark results.
 
-const columnify = require('columnify')
-const numeral = require('numeral')
+const columnify = require('columnify');
+const numeral = require('numeral');
 
-module.exports = logResult
+module.exports = logResult;
 
 function logResult (bench, control) {
-  const SCALE = 1e6 // 1e6 is to scale from seconds to microseconds.
+  const SCALE = 1e6; // 1e6 is to scale from seconds to microseconds.
 
   const data = [
     { name: 'ops/sec', bench: format(bench.hz, 0), control: format(control.hz, 0) },
@@ -62,7 +62,7 @@ function logResult (bench, control) {
       cu: '%'
     },
     { name: 'overhead', bench: format(bench.overhead * SCALE), bu: 'μs' }
-  ]
+  ];
 
   const options = {
     columns: ['name', 'bench', 'bu', 'control', 'cu'],
@@ -73,16 +73,16 @@ function logResult (bench, control) {
       control: { align: 'right' },
       cu: { showHeaders: false }
     }
-  }
+  };
 
-  console.error(`${bench.name}:`)
-  console.error(columnify(data, options))
-  console.error()
+  console.error(`${bench.name}:`);
+  console.error(columnify(data, options));
+  console.error();
 }
 
 function format (n, decimals = 3) {
   if (decimals === 0) {
-    return numeral(n).format('0,0')
+    return numeral(n).format('0,0');
   }
-  return numeral(n).format(`0,0.${Array(decimals + 1).join(0)}`)
+  return numeral(n).format(`0,0.${Array(decimals + 1).join(0)}`);
 }

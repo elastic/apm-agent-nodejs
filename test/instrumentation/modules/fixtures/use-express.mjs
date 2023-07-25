@@ -9,50 +9,50 @@
 // Usage:
 //    node --experimental-loader=./loader.mjs --require=./start.js test/instrumentation/modules/fixtures/use-express.mjs
 
-import http from 'http'
-import bodyParser from 'body-parser'
-import express from 'express'
+import http from 'http';
+import bodyParser from 'body-parser';
+import express from 'express';
 
 async function mkRequest (opts, data) {
   return new Promise((resolve, reject) => {
     const req = http.request(
       opts,
       function (res) {
-        console.log('client response:', res.statusCode, res.headers)
-        let body = ''
-        res.on('data', chunk => { body += chunk })
+        console.log('client response:', res.statusCode, res.headers);
+        let body = '';
+        res.on('data', chunk => { body += chunk; });
         res.on('end', () => {
-          console.log('body:', body)
+          console.log('body:', body);
           resolve({
             statusCode: res.statusCode,
             headers: res.headers,
             body
-          })
-        })
+          });
+        });
       }
-    )
+    );
     if (data) {
-      req.write(data)
+      req.write(data);
     }
-    req.end()
-  })
+    req.end();
+  });
 }
 
-const app = express()
-app.use(express.static(new URL('./static', import.meta.url).pathname))
-app.use(bodyParser.json())
+const app = express();
+app.use(express.static(new URL('./static', import.meta.url).pathname));
+app.use(bodyParser.json());
 app.post('/hello/:name', function (request, reply) {
-  reply.send({ hello: request.params.name })
-})
+  reply.send({ hello: request.params.name });
+});
 
 const server = app.listen({ port: 0 }, async () => {
-  const port = server.address().port
+  const port = server.address().port;
 
   // Test `express.static()` usage.
-  await mkRequest(`http://127.0.0.1:${port}/style.css`)
+  await mkRequest(`http://127.0.0.1:${port}/style.css`);
 
   // Do a POST to test `captureBody`.
-  const data = JSON.stringify({ foo: 'bar' })
+  const data = JSON.stringify({ foo: 'bar' });
   await mkRequest(
     {
       method: 'POST',
@@ -63,7 +63,7 @@ const server = app.listen({ port: 0 }, async () => {
         'Content-Type': 'application/json'
       }
     },
-    data)
+    data);
 
-  server.close()
-})
+  server.close();
+});

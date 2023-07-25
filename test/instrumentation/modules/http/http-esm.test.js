@@ -4,12 +4,12 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const test = require('tape')
+const test = require('tape');
 
-const { runTestFixtures } = require('../../../_utils')
-const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
+const { runTestFixtures } = require('../../../_utils');
+const { NODE_VER_RANGE_IITM } = require('../../../testconsts');
 
 const testFixtures = [
   {
@@ -25,15 +25,15 @@ const testFixtures = [
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
-      t.equal(apmServer.events.length, 3, 'expected number of APM server events')
-      t.ok(apmServer.events[0].metadata, 'metadata')
+      t.equal(apmServer.events.length, 3, 'expected number of APM server events');
+      t.ok(apmServer.events[0].metadata, 'metadata');
 
-      const trans = apmServer.events[1].transaction
-      t.equal(trans.name, 'manual', 'transaction.name')
+      const trans = apmServer.events[1].transaction;
+      t.equal(trans.name, 'manual', 'transaction.name');
 
-      const span = apmServer.events[2].span
-      t.equal(span.name, 'GET www.google.com', 'span.name')
-      t.equal(span.parent_id, trans.id, 'span.parent_id')
+      const span = apmServer.events[2].span;
+      t.equal(span.name, 'GET www.google.com', 'span.name');
+      t.equal(span.parent_id, trans.id, 'span.parent_id');
     }
   },
   {
@@ -49,15 +49,15 @@ const testFixtures = [
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
-      t.equal(apmServer.events.length, 3, 'expected number of APM server events')
-      t.ok(apmServer.events[0].metadata, 'metadata')
+      t.equal(apmServer.events.length, 3, 'expected number of APM server events');
+      t.ok(apmServer.events[0].metadata, 'metadata');
 
-      const trans = apmServer.events[1].transaction
-      t.equal(trans.name, 'manual', 'transaction.name')
+      const trans = apmServer.events[1].transaction;
+      t.equal(trans.name, 'manual', 'transaction.name');
 
-      const span = apmServer.events[2].span
-      t.equal(span.name, 'GET www.google.com', 'span.name')
-      t.equal(span.parent_id, trans.id, 'span.parent_id')
+      const span = apmServer.events[2].span;
+      t.equal(span.name, 'GET www.google.com', 'span.name');
+      t.equal(span.parent_id, trans.id, 'span.parent_id');
     }
   },
   {
@@ -74,12 +74,12 @@ const testFixtures = [
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
-      t.equal(apmServer.events.length, 2, 'expected number of APM server events')
-      t.ok(apmServer.events[0].metadata, 'metadata')
-      const trans = apmServer.events[1].transaction
-      t.equal(trans.name, 'GET /', 'transaction.name')
-      t.equal(trans.type, 'request', 'transaction.type')
-      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(apmServer.events.length, 2, 'expected number of APM server events');
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const trans = apmServer.events[1].transaction;
+      t.equal(trans.name, 'GET /', 'transaction.name');
+      t.equal(trans.type, 'request', 'transaction.type');
+      t.equal(trans.outcome, 'success', 'transaction.outcome');
     }
   },
   {
@@ -96,12 +96,12 @@ const testFixtures = [
     },
     verbose: false,
     checkApmServer: (t, apmServer) => {
-      t.equal(apmServer.events.length, 2, 'expected number of APM server events')
-      t.ok(apmServer.events[0].metadata, 'metadata')
-      const trans = apmServer.events[1].transaction
-      t.equal(trans.name, 'GET /', 'transaction.name')
-      t.equal(trans.type, 'request', 'transaction.type')
-      t.equal(trans.outcome, 'success', 'transaction.outcome')
+      t.equal(apmServer.events.length, 2, 'expected number of APM server events');
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const trans = apmServer.events[1].transaction;
+      t.equal(trans.name, 'GET /', 'transaction.name');
+      t.equal(trans.type, 'request', 'transaction.type');
+      t.equal(trans.outcome, 'success', 'transaction.outcome');
     }
   },
   {
@@ -117,9 +117,9 @@ const testFixtures = [
     },
     verbose: true
   }
-]
+];
 
 test('http/https ESM fixtures', suite => {
-  runTestFixtures(suite, testFixtures)
-  suite.end()
-})
+  runTestFixtures(suite, testFixtures);
+  suite.end();
+});

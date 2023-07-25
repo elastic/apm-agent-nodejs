@@ -15,52 +15,52 @@
 const apm = require('../').start({ // elastic-apm-node
   serviceName: 'example-trace-redis4',
   spanCompressionEnabled: false
-})
+});
 
-const redis = require('redis')
+const redis = require('redis');
 
 async function useRedis () {
-  let res
+  let res;
 
   const client = redis.createClient({
     name: 'example-trace-redis4', // This results in early `CLIENT SETNAME` sent in RedisClient.#initiateSocket()
     database: 1 // This results in early `SELECT` sent in RedisClient.#initiateSocket()
-  })
+  });
 
-  await client.connect()
+  await client.connect();
 
   try {
-    res = await client.ping()
-    console.log('PING res: ', res)
+    res = await client.ping();
+    console.log('PING res: ', res);
   } catch (err) {
-    console.log('PING err: ', err)
+    console.log('PING err: ', err);
   }
 
   try {
-    res = await client.set('foo', 'bar')
-    console.log('SET res: ', res)
+    res = await client.set('foo', 'bar');
+    console.log('SET res: ', res);
   } catch (err) {
-    console.log('SET err: ', err)
+    console.log('SET err: ', err);
   }
 
   try {
-    res = await client.get('foo')
-    console.log('GET res: ', res)
+    res = await client.get('foo');
+    console.log('GET res: ', res);
   } catch (err) {
-    console.log('GET err: ', err)
+    console.log('GET err: ', err);
   }
 
   try {
     res = await client.multi()
       .set('spam', 'eggs')
       .get('spam')
-      .exec()
-    console.log('MULTI res: ', res)
+      .exec();
+    console.log('MULTI res: ', res);
   } catch (err) {
-    console.log('MULTI err: ', err)
+    console.log('MULTI err: ', err);
   }
 
-  await client.quit()
+  await client.quit();
 }
 
 async function main () {
@@ -69,15 +69,15 @@ async function main () {
   // requests to a Node.js server. However, because this script is not running
   // an HTTP server, we manually start a transaction. More details at:
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-  const trans = apm.startTransaction('trans')
+  const trans = apm.startTransaction('trans');
 
   Promise
     .all([
       useRedis()
     ])
     .then(() => {
-      trans.end()
-    })
+      trans.end();
+    });
 }
 
-main()
+main();

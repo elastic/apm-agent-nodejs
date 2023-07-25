@@ -5,5 +5,5 @@
  */
 
 module.exports = async function ThrowErrorHandler (context, req) {
-  throw new Error('thrown error in HttpFnError')
-}
+  throw new Error('thrown error in HttpFnError');
+};

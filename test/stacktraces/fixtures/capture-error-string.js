@@ -15,11 +15,11 @@ const agent = require('../../../').start({
   logLevel: 'off',
   // This tells the APM agent to include 'error.log.stacktrace':
   captureErrorLogStackTraces: 'messages'
-})
+});
 
 function main () {
-  agent.captureError('a string error message')
-  agent.captureError({ message: 'message template: %d', params: [42] })
+  agent.captureError('a string error message');
+  agent.captureError({ message: 'message template: %d', params: [42] });
 }
 
-main()
+main();

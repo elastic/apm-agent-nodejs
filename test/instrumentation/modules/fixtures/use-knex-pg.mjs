@@ -9,10 +9,10 @@
 //      NODE_OPTIONS='--experimental-loader=./loader.mjs --require=./start.js' \
 //      node test/instrumentation/modules/fixtures/use-knex-pg.mjs
 
-import apm from '../../../../index.js' // 'elastic-apm-node'
-import Knex from 'knex'
+import apm from '../../../../index.js'; // 'elastic-apm-node'
+import Knex from 'knex';
 
-const DBNAME = 'test_use_knex_pg'
+const DBNAME = 'test_use_knex_pg';
 
 function createKnex (dbName = undefined) {
   return Knex({
@@ -21,48 +21,48 @@ function createKnex (dbName = undefined) {
       user: process.env.PGUSER || 'postgres',
       database: dbName
     }
-  })
+  });
 }
 
 async function setupDb () {
-  const knex = createKnex()
-  const res = await knex.from('pg_database').where('datname', DBNAME)
+  const knex = createKnex();
+  const res = await knex.from('pg_database').where('datname', DBNAME);
   if (res.length < 1) {
-    await knex.raw('CREATE DATABASE ??;', [DBNAME])
+    await knex.raw('CREATE DATABASE ??;', [DBNAME]);
   }
-  await knex.destroy()
+  await knex.destroy();
 }
 
 async function teardownDb () {
-  const knex = createKnex()
-  await knex.raw('DROP DATABASE IF EXISTS ??', [DBNAME])
-  await knex.destroy()
+  const knex = createKnex();
+  await knex.raw('DROP DATABASE IF EXISTS ??', [DBNAME]);
+  await knex.destroy();
 }
 
 async function useTheDb (knex) {
   await knex.schema
     .createTable('users', table => {
-      table.increments('id')
-      table.string('user_name')
-    })
-  await knex('users').insert({ user_name: 'Tim' })
-  const hits = await knex('users').where('user_name', 'Tim')
-  console.log('Hits for user_name=Tim:', hits)
+      table.increments('id');
+      table.string('user_name');
+    });
+  await knex('users').insert({ user_name: 'Tim' });
+  const hits = await knex('users').where('user_name', 'Tim');
+  console.log('Hits for user_name=Tim:', hits);
 }
 
 async function main () {
-  await setupDb()
-  const knex = createKnex(DBNAME)
+  await setupDb();
+  const knex = createKnex(DBNAME);
 
-  const trans = apm.startTransaction('trans')
+  const trans = apm.startTransaction('trans');
   try {
-    await useTheDb(knex)
+    await useTheDb(knex);
   } finally {
-    trans.end()
+    trans.end();
 
-    await knex.destroy()
-    await teardownDb()
+    await knex.destroy();
+    await teardownDb();
   }
 }
 
-main()
+main();
