@@ -15,6 +15,14 @@ contributed back to the original project.
 - **original file:** https://github.com/othiym23/async-listener/blob/master/index.js
 - **license:** BSD-2-Clause, http://opensource.org/licenses/BSD-2-Clause
 
+## container-info
+
+- **path:** [lib/container-info.js](lib/container-info.js)
+- **author:** Stephen Belanger
+- **project url:** https://github.com/Qard/container-info
+- **original file:** https://github.com/Qard/container-info/blob/master/index.js
+- **license:** MIT License (MIT), http://opensource.org/licenses/MIT
+
 ```
 Copyright (c) 2013-2017, Forrest L Norvell
 All rights reserved.
