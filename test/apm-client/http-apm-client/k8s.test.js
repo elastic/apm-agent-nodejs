@@ -8,7 +8,7 @@
 
 const test = require('tape')
 const { APMServer, processIntakeReq } = require('./lib/utils')
-const getContainerInfo = require('../../../lib/apm-client/container-info')
+const getContainerInfo = require('../../../lib/apm-client/http-apm-client/container-info')
 
 test('no environment variables', function (t) {
   t.plan(1)

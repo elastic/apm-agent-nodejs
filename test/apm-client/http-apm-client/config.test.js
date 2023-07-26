@@ -17,8 +17,8 @@ const URL = require('url').URL
 
 const utils = require('./lib/utils')
 const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client')
-const { detectHostname } = require('../../../lib/apm-client/detect-hostname')
-const getContainerInfo = require('../../../lib/apm-client/container-info')
+const { detectHostname } = require('../../../lib/apm-client/http-apm-client/detect-hostname')
+const getContainerInfo = require('../../../lib/apm-client/http-apm-client/container-info')
 
 const APMServer = utils.APMServer
 const processIntakeReq = utils.processIntakeReq

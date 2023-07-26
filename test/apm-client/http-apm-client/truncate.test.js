@@ -14,7 +14,7 @@ const processIntakeReq = utils.processIntakeReq
 const assertIntakeReq = utils.assertIntakeReq
 const assertMetadata = utils.assertMetadata
 const assertEvent = utils.assertEvent
-const truncate = require('../../../lib/apm-client/truncate')
+const truncate = require('../../../lib/apm-client/http-apm-client/truncate')
 
 const options = [
   {}, // default options
