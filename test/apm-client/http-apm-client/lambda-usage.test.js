@@ -86,6 +86,7 @@ test('lambda usage', suite => {
   })
 
   test('clients stays corked before .lambdaStart()', t => {
+    t.plan(2)
     // Add more events than `bufferWindowSize` and wait for more than
     // `bufferWindowTime`, and the Client should *still* be corked.
     const aTrans = { name: 'aTrans', type: 'custom', result: 'success' /* ... */ }
@@ -96,7 +97,7 @@ test('lambda usage', suite => {
       t.equal(client._writableState.corked, 1,
         'corked after bufferWindowSize events and bufferWindowTime')
       t.equal(reqsToServer.length, 0, 'no intake request was made to APM Server')
-      t.end()
+      // t.end()
     }, client._conf.bufferWindowTime + 10)
   })
 
@@ -110,42 +111,45 @@ test('lambda usage', suite => {
       '063de0d2-1705-4eeb-9dfd-045d76b8cdec')
     t.equal(client.lambdaShouldRegisterTransactions(), true, '.lambdaShouldRegisterTransactions() is true after register')
 
-    setTimeout(() => {
-      client.sendTransaction({ name: 'GET /aStage/myFn', type: 'lambda', result: 'success' /* ... */ })
-      client.sendSpan({ name: 'mySpan', type: 'custom', result: 'success' /* ... */ })
+    return new Promise(function (resolve) {
+      setTimeout(() => {
+        client.sendTransaction({ name: 'GET /aStage/myFn', type: 'lambda', result: 'success' /* ... */ })
+        client.sendSpan({ name: 'mySpan', type: 'custom', result: 'success' /* ... */ })
 
-      // 3. Flush at end of invocation
-      client.flush({ lambdaEnd: true }, function () {
-        t.ok(reqsToServer.length > 1, 'at least 2 intake requests to APM Server')
-        t.equal(reqsToServer[reqsToServer.length - 1].url.searchParams.get('flushed'), 'true',
-          'the last intake request had "?flushed=true" query param')
+        // 3. Flush at end of invocation
+        client.flush({ lambdaEnd: true }, function () {
+          t.ok(reqsToServer.length > 1, 'at least 2 intake requests to APM Server')
+          t.equal(reqsToServer[reqsToServer.length - 1].url.searchParams.get('flushed'), 'true',
+            'the last intake request had "?flushed=true" query param')
 
-        let allEvents = []
-        reqsToServer.forEach(r => { allEvents = allEvents.concat(r.events) })
-        t.equal(allEvents[allEvents.length - 2].transaction.name, 'GET /aStage/myFn',
-          'second last event is the lambda transaction')
-        t.equal(allEvents[allEvents.length - 1].span.name, 'mySpan',
-          'last event is the lambda span')
+          let allEvents = []
+          reqsToServer.forEach(r => { allEvents = allEvents.concat(r.events) })
+          t.equal(allEvents[allEvents.length - 2].transaction.name, 'GET /aStage/myFn',
+            'second last event is the lambda transaction')
+          t.equal(allEvents[allEvents.length - 1].span.name, 'mySpan',
+            'last event is the lambda span')
 
-        reqsToServer = [] // reset
-        t.end()
-      })
-
-      // Explicitly send late events and flush *after* the
-      // `client.flush({lambdaEnd:true})` -- both in the same tick and next
-      // ticks -- to test that these get buffered until the next lambda
-      // invocation.
-      client.sendSpan({ name: 'lateSpanInSameTick', type: 'custom' /* ... */ })
-      client.flush(function () {
-        lateSpanInSameTickCallbackCalled = true
-      })
-      setImmediate(() => {
-        client.sendSpan({ name: 'lateSpanInNextTick', type: 'custom' /* ... */ })
-        client.flush(function () {
-          lateSpanInNextTickCallbackCalled = true
+          reqsToServer = [] // reset
+          t.end()
+          resolve()
         })
-      })
-    }, 10)
+
+        // Explicitly send late events and flush *after* the
+        // `client.flush({lambdaEnd:true})` -- both in the same tick and next
+        // ticks -- to test that these get buffered until the next lambda
+        // invocation.
+        client.sendSpan({ name: 'lateSpanInSameTick', type: 'custom' /* ... */ })
+        client.flush(function () {
+          lateSpanInSameTickCallbackCalled = true
+        })
+        setImmediate(() => {
+          client.sendSpan({ name: 'lateSpanInNextTick', type: 'custom' /* ... */ })
+          client.flush(function () {
+            lateSpanInNextTickCallbackCalled = true
+          })
+        })
+      }, 10)
+    })
   })
 
   // Give some time to make sure there isn't some unexpected short async
