@@ -184,7 +184,9 @@ test('http.request(..., bogusCb) errors on the bogusCb', { timeout: 5000 }, t =>
       }
       tx.end()
       server.close()
+      return
     }
+    t.fail('should not get here, no err was thrown above')
   })
 })
 
