@@ -49,6 +49,9 @@ Notes:
 [float]
 ===== Chores
 
+* Inline the `elastic-apm-http-client` package code into this repo.
+  ({issues}3506[#3506])
+
 
 [[release-notes-3.48.0]]
 ==== 3.48.0 - 2023/07/07

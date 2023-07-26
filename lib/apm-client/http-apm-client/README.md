@@ -1,7 +1,7 @@
 # http-apm-client
 
 A low-level HTTP client for communicating with the Elastic APM intake
-API version 2. The code inside this module is ported from the official
+API version 2. This code was moved here from the once-separate
 [Elastic APM HTTP client repo](https://github.com/elastic/apm-nodejs-http-client)
 
 
@@ -15,6 +15,7 @@ const client = new HttpApmClient({
   agentName: 'my-nodejs-agent',
   agentVersion: require('./package.json').version,
   userAgent: 'My Custom Elastic APM Agent'
+  // ... other options.
 })
 
 const span = {
@@ -482,9 +483,3 @@ this Client should be used as follows in a Lambda environment.
     The user's Lambda handler should not finish until `cb` is called. This
     ensures that the extension receives tracing data and the end signal before
     the Lambda Runtime freezes the VM.
-
-
-
-## License
-
-[MIT](LICENSE)
