@@ -136,7 +136,6 @@ test('polling', function (t) {
         res.end()
         client.destroy()
         server.close()
-        t.end()
         break
       default:
         t.fail('too many request')
@@ -165,6 +164,7 @@ test('polling', function (t) {
         // the client's keep-alive agent has an open socket, we expect a
         // "socket hang up" (ECONNRESET) error here.
         t.equal(err.message, 'socket hang up')
+        t.end()
       } else {
         t.error(err, 'got an err on req ' + reqs + ', err=' + err.message)
       }
