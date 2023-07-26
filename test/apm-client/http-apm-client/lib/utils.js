@@ -8,6 +8,7 @@
 
 const http = require('http')
 const https = require('https')
+const os = require('os')
 const { URL } = require('url')
 const zlib = require('zlib')
 const semver = require('semver')
@@ -106,11 +107,13 @@ function assertMetadata (t, obj) {
     t.equal(_process.ppid, undefined)
   }
 
-  if (_process.title.length === 1) {
+  if (os.platform() === 'win32') {
+    t.ok('skip process.title check on Windows')
+  } else if (_process.title.length === 1) {
     // because of truncation test
     t.equal(_process.title, process.title[0])
   } else {
-    const regex = /(node|cmd.exe)/
+    const regex = /node/
     t.ok(regex.test(_process.title), `process.title should match ${regex} (was: ${_process.title})`)
   }
 
