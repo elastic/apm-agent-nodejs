@@ -7,7 +7,6 @@
 'use strict'
 
 const fs = require('fs')
-const getContainerInfo = require('../lib/container-info')
 const http = require('http')
 const ndjson = require('ndjson')
 const os = require('os')
@@ -19,6 +18,7 @@ const URL = require('url').URL
 const utils = require('./lib/utils')
 const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client')
 const { detectHostname } = require('../../../lib/apm-client/detect-hostname')
+const getContainerInfo = require('../../../lib/apm-client/container-info')
 
 const APMServer = utils.APMServer
 const processIntakeReq = utils.processIntakeReq
@@ -375,8 +375,9 @@ test('metadata - default values', function (t) {
 
 test('metadata - container info', function (t) {
   // Clear Client and APMServer from require cache
-  delete require.cache[require.resolve('../')]
+  delete require.cache[require.resolve('../../../lib/apm-client/http-apm-client')]
   delete require.cache[require.resolve('./lib/utils')]
+
   const sync = getContainerInfo.sync
   getContainerInfo.sync = function sync () {
     return {
