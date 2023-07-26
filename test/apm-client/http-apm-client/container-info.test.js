@@ -15,7 +15,7 @@ const expected = require('./fixtures/cgroup_result')
 
 process.env.ECS_CONTAINER_METADATA_FILE = path.join(__dirname, 'fixtures', 'ecs-container-metadata.json')
 
-const containerInfo = require('../lib/container-info')
+const containerInfo = require('../../../lib/apm-client/container-info')
 const { parse, sync } = containerInfo
 
 tape.test('basics', t => {

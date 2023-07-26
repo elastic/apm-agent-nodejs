@@ -14,7 +14,7 @@ const {
   INTERVAL_DEFAULT_S,
   INTERVAL_MIN_S,
   INTERVAL_MAX_S
-} = require('../lib/central-config')
+} = require('../../../lib/apm-client/central-config')
 const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client')
 
 test('getCentralConfigIntervalS', function (t) {
