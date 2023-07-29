@@ -43,6 +43,10 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix wrapping of `http.request()` for node v18.17.0. Before this change, a
+  call with a non-Function callback -- `http.request(urlString, {}, 'this-is-not-a-cb-function')`
+  -- would accidentally *not* fail because of the agent's instrumentation.
+
 * Fix tedious instrumentation to recognize "connection.prepare()" usage in
   tedious@16.2.0 and later.
 
