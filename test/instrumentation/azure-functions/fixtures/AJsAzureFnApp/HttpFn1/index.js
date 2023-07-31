@@ -7,8 +7,8 @@
 module.exports = async function (context, _req) {
   context.res = {
     headers: {
-      MyHeaderName: 'MyHeaderValue'
+      MyHeaderName: 'MyHeaderValue',
     },
-    body: 'HttpFn1 body'
-  }
-}
+    body: 'HttpFn1 body',
+  };
+};

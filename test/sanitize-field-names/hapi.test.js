@@ -4,27 +4,27 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 const {
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
   assertFormsWithFixture,
   createAgentConfig,
-  resetAgent
-} = require('./_shared')
-const agent = require('../..').start(createAgentConfig())
+  resetAgent,
+} = require('./_shared');
+const agent = require('../..').start(createAgentConfig());
 
-var isHapiIncompat = require('../_is_hapi_incompat')
+var isHapiIncompat = require('../_is_hapi_incompat');
 if (isHapiIncompat('@hapi/hapi')) {
   // Skip out of this test.
-  process.exit()
+  process.exit();
 }
 
-const test = require('tape')
-const request = require('request')
-const Hapi = require('@hapi/hapi')
-const fixtures = require('./_fixtures')
+const test = require('tape');
+const request = require('request');
+const Hapi = require('@hapi/hapi');
+const fixtures = require('./_fixtures');
 
 test('Running fixtures with hapi', function (suite) {
   for (const [, fixture] of fixtures.entries()) {
@@ -36,72 +36,78 @@ test('Running fixtures with hapi', function (suite) {
         fixture.input.requestHeaders,
         fixture.input.responseHeaders,
         fixture.input.formFields,
-        false // hapi does body parsing by default, no middleware
-      )
-    })
+        false, // hapi does body parsing by default, no middleware
+      );
+    });
   }
-  suite.end()
-})
+  suite.end();
+});
 
-async function runTest (
-  t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
+async function runTest(
+  t,
+  expected,
+  agentConfig,
+  requestHeaders,
+  responseHeaders,
+  formFields,
+  middleware = false,
 ) {
-  t.timeoutAfter(1000) // ensure no hang
+  t.timeoutAfter(1000); // ensure no hang
 
   // register a listener to close the server when we're done
   const done = () => {
-    server.stop()
-  }
-  t.on('end', done)
+    server.stop();
+  };
+  t.on('end', done);
 
   // configure agent and instantiated new app
-  agent._config(agentConfig)
+  agent._config(agentConfig);
   const server = Hapi.server({
     port: 0,
-    host: 'localhost'
-  })
+    host: 'localhost',
+  });
 
   // resets agent values for tests.  Callback fires
   // after mockClient receives data
   resetAgent(agent, (data) => {
-    const transaction = data.transactions.pop()
-    assertRequestHeadersWithFixture(transaction, expected, t)
-    assertResponseHeadersWithFixture(transaction, expected, t)
-    assertFormsWithFixture(transaction, expected, t)
-  })
+    const transaction = data.transactions.pop();
+    assertRequestHeadersWithFixture(transaction, expected, t);
+    assertResponseHeadersWithFixture(transaction, expected, t);
+    assertFormsWithFixture(transaction, expected, t);
+  });
 
   // register request handler
   server.route({
     method: 'POST',
     path: '/test',
     handler: (request, h) => {
-      t.ok('received request', 'received request')
-      const response = h.response('Hello World!')
+      t.ok('received request', 'received request');
+      const response = h.response('Hello World!');
       for (const [header, value] of Object.entries(responseHeaders)) {
-        response.header(header, value)
+        response.header(header, value);
       }
 
       // Note: Returning a `h.response(...)` from a hapi handler when both
       // (a) node >=v16 and (b) using @hapi/hapi@18.x, the response hangs.
       // We are ignoring this issue and just not testing this combination.
-      return response
-    }
-  })
+      return response;
+    },
+  });
 
-  await server.start()
-  const url = server.info.uri + '/test'
+  await server.start();
+  const url = server.info.uri + '/test';
   request.post(
     url,
     {
       form: formFields,
-      headers: requestHeaders
+      headers: requestHeaders,
     },
     function (error, response, body) {
       if (error) {
-        t.fail(error)
+        t.fail(error);
       }
-      t.ok(body, 'received response')
-      t.end()
-    }
-  )
+      t.ok(body, 'received response');
+      t.end();
+    },
+  );
 }

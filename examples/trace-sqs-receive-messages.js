@@ -29,45 +29,49 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-sqs',
-  logUncaughtExceptions: true
-})
+  logUncaughtExceptions: true,
+});
 
-const path = require('path')
-const AWS = require('aws-sdk')
+const path = require('path');
+const AWS = require('aws-sdk');
 
-const NAME = path.basename(process.argv[1])
+const NAME = path.basename(process.argv[1]);
 
-function fail (err) {
-  console.error(`${NAME}: error: ${err.toString()}`)
-  process.exitCode = 1
+function fail(err) {
+  console.error(`${NAME}: error: ${err.toString()}`);
+  process.exitCode = 1;
 }
 
-const region = process.argv[2]
-const queueName = process.argv[3]
+const region = process.argv[2];
+const queueName = process.argv[3];
 if (!region || !queueName) {
-  console.error(`usage: node ${NAME} AWS-REGION SQS-QUEUE-NAME`)
-  fail('missing arguments')
-  process.exit()
+  console.error(`usage: node ${NAME} AWS-REGION SQS-QUEUE-NAME`);
+  fail('missing arguments');
+  process.exit();
 }
-console.log('SQS ReceiveMessage from region=%s queueName=%s', region, queueName)
+console.log(
+  'SQS ReceiveMessage from region=%s queueName=%s',
+  region,
+  queueName,
+);
 
-AWS.config.update({ region })
-const sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+AWS.config.update({ region });
+const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
 
 // For tracing spans to be created, there must be an active transaction.
 // Typically, a transaction is automatically started for incoming HTTP
 // requests to a Node.js server. However, because this script is not running
 // an HTTP server, we manually start a transaction. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-const trans = apm.startTransaction('receive-message')
+const trans = apm.startTransaction('receive-message');
 
 // 1. Get the URL for this queue.
 sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
   if (err) {
-    fail(err)
-    return
+    fail(err);
+    return;
   }
-  const queueUrl = data.QueueUrl
+  const queueUrl = data.QueueUrl;
   // console.log('queueUrl:', queueUrl)
 
   // 2. Doing a long poll (up to 5s) for up to two messages.
@@ -77,35 +81,42 @@ sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
     MaxNumberOfMessages: 2,
     MessageAttributeNames: ['All'],
     VisibilityTimeout: 20,
-    WaitTimeSeconds: 5 // long poll
-  }
+    WaitTimeSeconds: 5, // long poll
+  };
   sqs.receiveMessage(params, function (err, data) {
     if (err) {
-      fail(err)
-      trans.end()
-      return
+      fail(err);
+      trans.end();
+      return;
     }
 
-    process.stdout.write('receiveMessage response data: ')
-    console.dir(data, { depth: 5 })
+    process.stdout.write('receiveMessage response data: ');
+    console.dir(data, { depth: 5 });
 
     // 3. Delete any received messages.
     if (data.Messages && data.Messages.length > 0) {
-      const delEntries = data.Messages
-        .map(m => { return { Id: m.MessageId, ReceiptHandle: m.ReceiptHandle } })
-      sqs.deleteMessageBatch({
-        QueueUrl: queueUrl,
-        Entries: delEntries
-      }, function (err, data) {
-        if (err) {
-          console.log('deleteMessageBatch err:', err)
-        } else if (data && data.Failed && data.Failed.length > 0) {
-          console.log('deleteMessageBatch failed to delete some messages:', data)
-        }
-        trans.end()
-      })
+      const delEntries = data.Messages.map((m) => {
+        return { Id: m.MessageId, ReceiptHandle: m.ReceiptHandle };
+      });
+      sqs.deleteMessageBatch(
+        {
+          QueueUrl: queueUrl,
+          Entries: delEntries,
+        },
+        function (err, data) {
+          if (err) {
+            console.log('deleteMessageBatch err:', err);
+          } else if (data && data.Failed && data.Failed.length > 0) {
+            console.log(
+              'deleteMessageBatch failed to delete some messages:',
+              data,
+            );
+          }
+          trans.end();
+        },
+      );
     } else {
-      trans.end()
+      trans.end();
     }
-  })
-})
+  });
+});

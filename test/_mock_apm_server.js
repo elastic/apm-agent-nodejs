@@ -18,9 +18,9 @@
 //      // - Call `server.close()` when done.
 //    })
 
-const http = require('http')
-const { URL } = require('url')
-const zlib = require('zlib')
+const http = require('http');
+const { URL } = require('url');
+const zlib = require('zlib');
 
 class MockAPMServer {
   /**
@@ -31,89 +31,96 @@ class MockAPMServer {
    *      this will add some behaviour expected of APM Lambda extension, e.g.
    *      responding to the `POST /register/transaction` endpoint.
    */
-  constructor (opts) {
-    opts = opts || {}
-    this.clear()
-    this.serverUrl = null // set in .start()
-    this._apmServerVersion = opts.apmServerVersion || '8.0.0'
-    this._mockLambdaExtension = !!opts.mockLambdaExtension
-    this._http = http.createServer(this._onRequest.bind(this))
+  constructor(opts) {
+    opts = opts || {};
+    this.clear();
+    this.serverUrl = null; // set in .start()
+    this._apmServerVersion = opts.apmServerVersion || '8.0.0';
+    this._mockLambdaExtension = !!opts.mockLambdaExtension;
+    this._http = http.createServer(this._onRequest.bind(this));
   }
 
-  clear () {
-    this.events = []
-    this.requests = []
+  clear() {
+    this.events = [];
+    this.requests = [];
   }
 
-  _onRequest (req, res) {
-    var parsedUrl = new URL(req.url, this.serverUrl)
-    var instream = req
+  _onRequest(req, res) {
+    var parsedUrl = new URL(req.url, this.serverUrl);
+    var instream = req;
     if (req.headers['content-encoding'] === 'gzip') {
-      instream = req.pipe(zlib.createGunzip())
+      instream = req.pipe(zlib.createGunzip());
     } else {
-      instream.setEncoding('utf8')
+      instream.setEncoding('utf8');
     }
 
-    let body = ''
+    let body = '';
     instream.on('data', (chunk) => {
-      body += chunk
-    })
+      body += chunk;
+    });
 
     instream.on('end', () => {
-      let resBody = ''
+      let resBody = '';
       if (req.method === 'GET' && parsedUrl.pathname === '/') {
         // https://www.elastic.co/guide/en/apm/server/current/server-info.html#server-info-endpoint
-        res.writeHead(200)
+        res.writeHead(200);
         resBody = JSON.stringify({
           build_date: '2021-09-16T02:05:39Z',
           build_sha: 'a183f675ecd03fca4a897cbe85fda3511bc3ca43',
-          version: this._apmServerVersion
-        })
+          version: this._apmServerVersion,
+        });
       } else if (parsedUrl.pathname === '/config/v1/agents') {
         // Central config mocking.
-        res.writeHead(200)
-        resBody = '{}'
-      } else if (req.method === 'POST' && parsedUrl.pathname === '/intake/v2/events') {
+        res.writeHead(200);
+        resBody = '{}';
+      } else if (
+        req.method === 'POST' &&
+        parsedUrl.pathname === '/intake/v2/events'
+      ) {
         body
           .split(/\n/g) // parse each line
-          .filter(line => line.trim()) // ... if it is non-empty
-          .forEach(line => {
-            this.events.push(JSON.parse(line)) // ... append to this.events
-          })
-        resBody = '{}'
-        res.writeHead(202)
-      } else if (this._mockLambdaExtension && req.method === 'POST' && parsedUrl.pathname === '/register/transaction') {
+          .filter((line) => line.trim()) // ... if it is non-empty
+          .forEach((line) => {
+            this.events.push(JSON.parse(line)); // ... append to this.events
+          });
+        resBody = '{}';
+        res.writeHead(202);
+      } else if (
+        this._mockLambdaExtension &&
+        req.method === 'POST' &&
+        parsedUrl.pathname === '/register/transaction'
+      ) {
         // See `func handleTransactionRegistration` in apm-aws-lambda.git.
         // This mock doesn't handle the various checks there. It only handles
         // the status code, so the APM agent will continue to register
         // transactions.
-        res.writeHead(200)
+        res.writeHead(200);
       } else {
-        res.writeHead(404)
+        res.writeHead(404);
       }
       this.requests.push({
         method: req.method,
         url: req.url,
         headers: req.headers,
-        body
-      })
-      res.end(resBody)
-    })
+        body,
+      });
+      res.end(resBody);
+    });
   }
 
   // Start listening and callback with `cb(serverUrl)`.
-  start (cb) {
+  start(cb) {
     return this._http.listen(() => {
-      this.serverUrl = `http://localhost:${this._http.address().port}`
-      cb(this.serverUrl)
-    })
+      this.serverUrl = `http://localhost:${this._http.address().port}`;
+      cb(this.serverUrl);
+    });
   }
 
-  close () {
-    return this._http.close()
+  close() {
+    return this._http.close();
   }
 }
 
 module.exports = {
-  MockAPMServer
-}
+  MockAPMServer,
+};

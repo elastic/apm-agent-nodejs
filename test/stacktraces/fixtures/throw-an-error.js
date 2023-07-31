@@ -14,11 +14,11 @@ require('../../../').start({
   centralConfig: false,
   logLevel: 'off',
   // This tells the agent to catch unhandled exceptions:
-  captureExceptions: true
-})
+  captureExceptions: true,
+});
 
-function main () {
-  throw new Error('boom')
+function main() {
+  throw new Error('boom');
 }
 
-main()
+main();

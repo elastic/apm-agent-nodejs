@@ -4,45 +4,48 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const assert = require('assert')
-const cassandra = require('cassandra-driver')
+const assert = require('assert');
+const cassandra = require('cassandra-driver');
 
 const defaultOptions = {
   contactPoints: [process.env.CASSANDRA_HOST || 'localhost'],
-  localDataCenter: 'datacenter1'
-}
+  localDataCenter: 'datacenter1',
+};
 
-function maybeInitialize (options) {
-  options = options || {}
+function maybeInitialize(options) {
+  options = options || {};
   if (!options.keyspace) {
-    return Promise.resolve()
+    return Promise.resolve();
   }
-  assert(options.table, 'makeClient options must include "table" if "keyspace" is provided')
+  assert(
+    options.table,
+    'makeClient options must include "table" if "keyspace" is provided',
+  );
 
-  const keyspace = options.keyspace
+  const keyspace = options.keyspace;
   const query1 = `
     CREATE KEYSPACE IF NOT EXISTS ${keyspace} WITH replication = {
       'class': 'SimpleStrategy',
       'replication_factor': 1
     };
-  `
+  `;
   const query2 = `
     CREATE TABLE IF NOT EXISTS ${keyspace}.${options.table}(id uuid,text varchar,PRIMARY KEY(id));
-  `
+  `;
 
-  const client = new cassandra.Client(defaultOptions)
+  const client = new cassandra.Client(defaultOptions);
 
   return new Promise((resolve, reject) => {
     client.execute(query1, (err) => {
-      if (err) return reject(err)
+      if (err) return reject(err);
       client.execute(query2, (err) => {
-        if (err) return reject(err)
-        client.shutdown(() => resolve())
-      })
-    })
-  })
+        if (err) return reject(err);
+        client.shutdown(() => resolve());
+      });
+    });
+  });
 }
 
 /**
@@ -52,20 +55,22 @@ function maybeInitialize (options) {
  * keyspace and table for testing. The caller should provide neither option, or
  * both.
  */
-function makeClient (t, opts) {
-  const cassOpts = Object.assign({}, defaultOptions, { keyspace: opts && opts.keyspace })
+function makeClient(t, opts) {
+  const cassOpts = Object.assign({}, defaultOptions, {
+    keyspace: opts && opts.keyspace,
+  });
 
   return maybeInitialize(opts).then(() => {
-    const client = new cassandra.Client(cassOpts)
+    const client = new cassandra.Client(cassOpts);
 
     t.on('end', () => {
-      client.shutdown()
-    })
+      client.shutdown();
+    });
 
-    return client
-  })
+    return client;
+  });
 }
 
 module.exports = {
-  makeClient
-}
+  makeClient,
+};
