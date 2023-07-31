@@ -21,7 +21,6 @@ if (!global.fetch) {
   console.log(`# SKIP there is no global fetch() in node ${process.version}`);
   process.exit();
 }
-/* global fetch */ // for eslint
 
 process.env.ELASTIC_APM_TEST = true;
 const { CapturingTransport } = require('../../../_capturing_transport');

@@ -1,23 +1,81 @@
+// `npx eslint --print-config index.js` to print calculated config.
 {
   "root": true,
-  "env": {
-    "node": true
+  "parserOptions": {
+    "ecmaVersion": 2022, // Top-level await, etc.
+    "sourceType": "module",
+    "ecmaFeatures": {
+    }
   },
-  "extends": "semistandard",
+  "env": {
+    "node": true,
+    "es2022": true // Defines `Promise`, etc.
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ],
   "plugins": [
-    "license-header"
+    // Note: we've dropped the eslint-plugin-import usage from standardjs, fow now.
+    "license-header",
+    "prettier",
+    "promise",
+    "n"
   ],
   "rules": {
     "license-header/header": ["error", "./dev-utils/license-header.js"],
-    // Regarding "no-var": The opinion of this repository's maintainers is that
-    // while const/let are useful, the use of `var` is not bad and therefore
-    // does not need to be ruled out. Eliminating the use of `var` would be a
-    // large diff that (a) could theoretically cause bugs due to lexical scoping
-    // changes and (b) could theoretically impact perf (e.g. see
-    // https://github.com/microsoft/TypeScript/issues/52924). New code MAY
-    // prefer const/let over `var`. Code in "examples/" MUST use const/let --
-    // this is enforced by "examples/.eslintrc.json".
-    "no-var": "off"
+
+    // Retoring some config from standardjs that we want to maintain at least
+    // for now -- to assist with transition to prettier.
+    "no-unused-vars": [ // See taav for possible better 'no-unused-vars' rule.
+      "error",
+      {
+        "args": "none",
+        "caughtErrors": "none",
+        "ignoreRestSiblings": true,
+        "vars": "all"
+      }
+    ],
+    "no-empty": [
+      "error",
+      {
+        "allowEmptyCatch": true
+      }
+    ],
+    "no-constant-condition": [
+      "error",
+      {
+        "checkLoops": false
+      }
+    ],
+    "n/handle-callback-err": [
+      "error",
+      "^(err|error)$"
+    ],
+    "n/no-callback-literal": [
+      "error"
+    ],
+    "n/no-deprecated-api": [
+      "error"
+    ],
+    "n/no-exports-assign": [
+      "error"
+    ],
+    "n/no-new-require": [
+      "error"
+    ],
+    "n/no-path-concat": [
+      "error"
+    ],
+    "n/process-exit-as-throw": [
+      "error"
+    ],
+    "promise/param-names": [
+      "error"
+    ],
+
+    // Undo this config from eslint:recommended for now (standardjs didn't have it.)
+    "require-yield": [ "off" ]
   },
   "ignorePatterns": [
     "/*.example.js", // a pattern for uncommited local dev files to avoid linting
