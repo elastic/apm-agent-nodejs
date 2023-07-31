@@ -8,7 +8,6 @@
 // Adapted from https://graphql.org/graphql-js/#writing-code
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-graphql',
 });
 const { graphql, buildSchema } = require('graphql');

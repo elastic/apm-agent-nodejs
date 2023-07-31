@@ -15,7 +15,6 @@
 //    curl -i http://localhost:3000/  # call the '/' handler
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-hapi',
 });
 

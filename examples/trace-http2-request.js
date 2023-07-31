@@ -10,7 +10,6 @@
 // (i.e. `http2.request`).
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-http2-request',
 });
 

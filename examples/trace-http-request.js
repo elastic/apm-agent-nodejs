@@ -11,7 +11,6 @@
 // core.
 
 const apm = require('../').start({
-  // elastic-apm-node
   serviceName: 'example-trace-http-request',
   // Now that OpenTelemetry has been GA for a while, the Elastic-specific
   // 'elastic-apm-traceparent' header is rarely needed.
