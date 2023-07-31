@@ -22,34 +22,34 @@ require('../').start({ // elastic-apm-node
   // with a router. See the following for details:
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-stack.html#custom-stack-route-naming
   usePathAsTransactionName: true
-})
+});
 
-const http = require('http')
-const https = require('https')
+const http = require('http');
+const https = require('https');
 
 const server = http.createServer(function onRequest (req, res) {
-  console.log('incoming request: %s %s %s', req.method, req.url, req.headers)
+  console.log('incoming request: %s %s %s', req.method, req.url, req.headers);
 
-  req.resume()
+  req.resume();
 
   req.on('end', function () {
     // Make a client request.
     https.get('https://google.com/', function (cRes) {
-      console.log('google.com response: %s %s', cRes.statusCode, cRes.headers)
-      cRes.resume()
+      console.log('google.com response: %s %s', cRes.statusCode, cRes.headers);
+      cRes.resume();
       cRes.on('end', function () {
         // Then reply to the incoming request.
-        const resBody = 'pong'
+        const resBody = 'pong';
         res.writeHead(200, {
           server: 'example-trace-http',
           'content-type': 'text/plain',
           'content-length': Buffer.byteLength(resBody)
-        })
-        res.end(resBody)
-      })
-    })
-  })
-})
+        });
+        res.end(resBody);
+      });
+    });
+  });
+});
 
 server.listen(3000, function () {
   // Make a request to our HTTP server listening at http://localhost:3000.
@@ -57,16 +57,16 @@ server.listen(3000, function () {
   // Note that this there is no current "transaction" here, so this HTTP
   // request is not captured by APM. See "trace-http-request.js" for more.
   const clientReq = http.request('http://localhost:3000/', function (clientRes) {
-    console.log('client response: %s %s', clientRes.statusCode, clientRes.headers)
-    const chunks = []
+    console.log('client response: %s %s', clientRes.statusCode, clientRes.headers);
+    const chunks = [];
     clientRes.on('data', function (chunk) {
-      chunks.push(chunk)
-    })
+      chunks.push(chunk);
+    });
     clientRes.on('end', function () {
-      const body = chunks.join('')
-      console.log('client response body: %j', body)
-      server.close()
-    })
-  })
-  clientReq.end()
-})
+      const body = chunks.join('');
+      console.log('client response body: %j', body);
+      server.close();
+    });
+  });
+  clientReq.end();
+});

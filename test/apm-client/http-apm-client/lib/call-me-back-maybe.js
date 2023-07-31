@@ -17,9 +17,9 @@
 //    - set `apmServerVersion` to not have an APM Server version fetch request
 // 2. There must be a listening APM server to which to send data.
 
-const { HttpApmClient } = require('../../../../lib/apm-client/http-apm-client')
+const { HttpApmClient } = require('../../../../lib/apm-client/http-apm-client');
 
-const serverUrl = process.argv[2]
+const serverUrl = process.argv[2];
 
 const client = new HttpApmClient({
   // logger: require('pino')({ level: 'trace', ...require('@elastic/ecs-pino-format')() }, process.stderr), // uncomment for debugging
@@ -30,13 +30,13 @@ const client = new HttpApmClient({
   userAgent: 'my-nodejs-agent/1.2.3',
   centralConfig: false, // important for repro, see above
   apmServerVersion: '8.0.0' // important for repro, see above
-})
+});
 
-const e = { exception: { message: 'boom', type: 'Error' } }
+const e = { exception: { message: 'boom', type: 'Error' } };
 
 client.sendError(e, function sendCb () {
-  console.log('sendCb called')
+  console.log('sendCb called');
   client.flush(function flushCb () {
-    console.log('flushCb called')
-  })
-})
+    console.log('flushCb called');
+  });
+});

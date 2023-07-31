@@ -4,17 +4,17 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const isFastifyIncompat = require('../../../_is_fastify_incompat')()
+const isFastifyIncompat = require('../../../_is_fastify_incompat')();
 if (isFastifyIncompat) {
-  console.log(`# SKIP ${isFastifyIncompat}`)
-  process.exit()
+  console.log(`# SKIP ${isFastifyIncompat}`);
+  process.exit();
 }
 
-const test = require('tape')
+const test = require('tape');
 
-const { runTestFixtures } = require('../../../_utils')
+const { runTestFixtures } = require('../../../_utils');
 
 const testFixtures = [
   {
@@ -27,15 +27,15 @@ const testFixtures = [
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
-      t.equal(apmServer.events.length, 2, 'expected number of APM server events')
-      t.ok(apmServer.events[0].metadata, 'metadata')
+      t.equal(apmServer.events.length, 2, 'expected number of APM server events');
+      t.ok(apmServer.events[0].metadata, 'metadata');
 
-      const trans = apmServer.events[1].transaction
-      t.equal(trans.name, 'POST /hello/:name', 'transaction.name')
-      t.equal(trans.type, 'request', 'transaction.type')
-      t.equal(trans.outcome, 'success', 'transaction.outcome')
-      t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
-      t.equal(trans.context.request.body, JSON.stringify({ foo: 'bar' }), 'transaction.context.request.body')
+      const trans = apmServer.events[1].transaction;
+      t.equal(trans.name, 'POST /hello/:name', 'transaction.name');
+      t.equal(trans.type, 'request', 'transaction.type');
+      t.equal(trans.outcome, 'success', 'transaction.outcome');
+      t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method');
+      t.equal(trans.context.request.body, JSON.stringify({ foo: 'bar' }), 'transaction.context.request.body');
     }
   },
   {
@@ -56,15 +56,15 @@ const testFixtures = [
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
-      t.equal(apmServer.events.length, 2, 'expected number of APM server events')
-      t.ok(apmServer.events[0].metadata, 'metadata')
+      t.equal(apmServer.events.length, 2, 'expected number of APM server events');
+      t.ok(apmServer.events[0].metadata, 'metadata');
 
-      const trans = apmServer.events[1].transaction
-      t.equal(trans.name, 'POST /hello/:name', 'transaction.name')
-      t.equal(trans.type, 'request', 'transaction.type')
-      t.equal(trans.outcome, 'success', 'transaction.outcome')
-      t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method')
-      t.equal(trans.context.request.body, JSON.stringify({ foo: 'bar' }), 'transaction.context.request.body')
+      const trans = apmServer.events[1].transaction;
+      t.equal(trans.name, 'POST /hello/:name', 'transaction.name');
+      t.equal(trans.type, 'request', 'transaction.type');
+      t.equal(trans.outcome, 'success', 'transaction.outcome');
+      t.equal(trans.context.request.method, 'POST', 'transaction.context.request.method');
+      t.equal(trans.context.request.body, JSON.stringify({ foo: 'bar' }), 'transaction.context.request.body');
     }
   },
   {
@@ -78,9 +78,9 @@ const testFixtures = [
       fastify: '>=4.8.0' // when `fastify.errorCodes` was added
     }
   }
-]
+];
 
 test('fastify fixtures', suite => {
-  runTestFixtures(suite, testFixtures)
-  suite.end()
-})
+  runTestFixtures(suite, testFixtures);
+  suite.end();
+});

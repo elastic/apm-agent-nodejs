@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // An Agent transport -- i.e. the APM server client API provided by
 // elastic-apm-http-client -- that just captures all sent events.
@@ -30,16 +30,16 @@
 
 class CapturingTransport {
   constructor () {
-    this.clear()
+    this.clear();
   }
 
   clear () {
-    this.lambdaStartCalled = false
-    this.extraMetadata = null
-    this.spans = []
-    this.transactions = []
-    this.errors = []
-    this.metricsets = []
+    this.lambdaStartCalled = false;
+    this.extraMetadata = null;
+    this.spans = [];
+    this.transactions = [];
+    this.errors = [];
+    this.metricsets = [];
   }
 
   config (opts) {}
@@ -47,66 +47,66 @@ class CapturingTransport {
   addMetadataFilter (fn) {}
 
   setExtraMetadata (metadata) {
-    this.extraMetadata = metadata
+    this.extraMetadata = metadata;
   }
 
   lambdaStart () {
-    this.lambdaStartCalled = true
+    this.lambdaStartCalled = true;
   }
 
   sendSpan (span, cb) {
-    this.spans.push(span)
+    this.spans.push(span);
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
   sendTransaction (transaction, cb) {
-    this.transactions.push(transaction)
+    this.transactions.push(transaction);
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
   sendError (error, cb) {
-    this.errors.push(error)
+    this.errors.push(error);
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
   sendMetricSet (metricset, cb) {
-    this.metricsets.push(metricset)
+    this.metricsets.push(metricset);
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
   flush (opts, cb) {
     if (typeof opts === 'function') {
-      cb = opts
-      opts = {}
+      cb = opts;
+      opts = {};
     } else if (!opts) {
-      opts = {}
+      opts = {};
     }
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
   lambdaShouldRegisterTransactions () {
-    return true
+    return true;
   }
 
   lambdaRegisterTransaction (trans, awsRequestId) {
   }
 
   supportsKeepingUnsampledTransaction () {
-    return true
+    return true;
   }
 
   supportsActivationMethodField () {
-    return true
+    return true;
   }
 
   // Inherited from Writable, called in agent.js.
@@ -115,4 +115,4 @@ class CapturingTransport {
 
 module.exports = {
   CapturingTransport
-}
+};

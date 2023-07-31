@@ -4,18 +4,18 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const test = require('tape')
+const test = require('tape');
 
-const { APMServer, validOpts, assertConfigReq } = require('./lib/utils')
+const { APMServer, validOpts, assertConfigReq } = require('./lib/utils');
 const {
   getCentralConfigIntervalS,
   INTERVAL_DEFAULT_S,
   INTERVAL_MIN_S,
   INTERVAL_MAX_S
-} = require('../../../lib/apm-client/http-apm-client/central-config')
-const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client')
+} = require('../../../lib/apm-client/http-apm-client/central-config');
+const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client');
 
 test('getCentralConfigIntervalS', function (t) {
   const testCases = [
@@ -48,126 +48,126 @@ test('getCentralConfigIntervalS', function (t) {
     ['a string', INTERVAL_DEFAULT_S],
     [{}, INTERVAL_DEFAULT_S],
     [[], INTERVAL_DEFAULT_S]
-  ]
+  ];
 
   testCases.forEach(testCase => {
     t.equal(getCentralConfigIntervalS(testCase[0]), testCase[1],
-      `getCentralConfigIntervalS(${testCase[0]}) -> ${testCase[1]}`)
-  })
-  t.end()
-})
+      `getCentralConfigIntervalS(${testCase[0]}) -> ${testCase[1]}`);
+  });
+  t.end();
+});
 
 test('central config disabled', function (t) {
-  const origPollConfig = HttpApmClient.prototype._pollConfig
+  const origPollConfig = HttpApmClient.prototype._pollConfig;
   HttpApmClient.prototype._pollConfig = function () {
-    t.fail('should not call _pollConfig')
-  }
+    t.fail('should not call _pollConfig');
+  };
 
   t.on('end', function () {
-    HttpApmClient.prototype._pollConfig = origPollConfig
-  })
+    HttpApmClient.prototype._pollConfig = origPollConfig;
+  });
 
-  HttpApmClient(validOpts())
-  t.end()
-})
+  HttpApmClient(validOpts());
+  t.end();
+});
 
 test('central config enabled', function (t) {
-  t.plan(1)
+  t.plan(1);
 
-  const origPollConfig = HttpApmClient.prototype._pollConfig
+  const origPollConfig = HttpApmClient.prototype._pollConfig;
   HttpApmClient.prototype._pollConfig = function () {
-    t.pass('should call _pollConfig')
-  }
+    t.pass('should call _pollConfig');
+  };
 
   t.on('end', function () {
-    HttpApmClient.prototype._pollConfig = origPollConfig
-  })
+    HttpApmClient.prototype._pollConfig = origPollConfig;
+  });
 
-  HttpApmClient(validOpts({ centralConfig: true }))
-  t.end()
-})
+  HttpApmClient(validOpts({ centralConfig: true }));
+  t.end();
+});
 
 // Test central-config handling of Etag and If-None-Match headers using a mock
 // apm-server that uses the `Cache-Control: max-age=1 ...` header to speed up
 // the polling interval of the client. (This is foiled by `INTERVAL_MIN_S = 5`.)
 test('polling', function (t) {
-  const expectedConf = { foo: 'bar' }
-  const headers = { 'Cache-Control': 'max-age=1, must-revalidate' }
-  let reqs = 0
-  let client
+  const expectedConf = { foo: 'bar' };
+  const headers = { 'Cache-Control': 'max-age=1, must-revalidate' };
+  let reqs = 0;
+  let client;
 
   const server = APMServer(function (req, res) {
-    assertConfigReq(t, req)
+    assertConfigReq(t, req);
 
     switch (++reqs) {
       case 1:
-        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header')
-        res.writeHead(500, Object.assign({ 'Content-Type': 'application/json' }, headers))
-        res.end('{"invalid JSON"}')
-        break
+        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header');
+        res.writeHead(500, Object.assign({ 'Content-Type': 'application/json' }, headers));
+        res.end('{"invalid JSON"}');
+        break;
       case 2:
-        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header')
-        res.writeHead(503, Object.assign({ 'Content-Type': 'application/json' }, headers))
-        res.end(JSON.stringify('valid JSON'))
-        break
+        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header');
+        res.writeHead(503, Object.assign({ 'Content-Type': 'application/json' }, headers));
+        res.end(JSON.stringify('valid JSON'));
+        break;
       case 3:
-        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header')
-        res.writeHead(503, Object.assign({ 'Content-Type': 'application/json' }, headers))
-        res.end(JSON.stringify({ error: 'from error property' }))
-        break
+        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header');
+        res.writeHead(503, Object.assign({ 'Content-Type': 'application/json' }, headers));
+        res.end(JSON.stringify({ error: 'from error property' }));
+        break;
       case 4:
-        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header')
-        res.writeHead(403, headers)
-        res.end()
-        break
+        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header');
+        res.writeHead(403, headers);
+        res.end();
+        break;
       case 5:
-        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header')
-        res.writeHead(404, headers)
-        res.end()
-        break
+        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header');
+        res.writeHead(404, headers);
+        res.end();
+        break;
       case 6:
-        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header')
-        res.writeHead(200, Object.assign({ Etag: '"42"' }, headers))
-        res.end(JSON.stringify(expectedConf))
-        break
+        t.ok(!('if-none-match' in req.headers), 'should not have If-None-Match header');
+        res.writeHead(200, Object.assign({ Etag: '"42"' }, headers));
+        res.end(JSON.stringify(expectedConf));
+        break;
       case 7:
-        t.equal(req.headers['if-none-match'], '"42"')
-        res.writeHead(304, Object.assign({ Etag: '"42"' }, headers))
-        res.end()
-        client.destroy()
-        server.close()
-        break
+        t.equal(req.headers['if-none-match'], '"42"');
+        res.writeHead(304, Object.assign({ Etag: '"42"' }, headers));
+        res.end();
+        client.destroy();
+        server.close();
+        break;
       default:
-        t.fail('too many request')
+        t.fail('too many request');
     }
   }).client({ centralConfig: true, apmServerVersion: '8.0.0' }, function (_client) {
-    client = _client
+    client = _client;
     client.on('config', function (conf) {
-      t.equal(reqs, 6, 'should emit config after 6th request')
-      t.deepEqual(conf, expectedConf)
-    })
+      t.equal(reqs, 6, 'should emit config after 6th request');
+      t.deepEqual(conf, expectedConf);
+    });
     client.on('request-error', function (err) {
       if (reqs === 1) {
-        t.equal(err.code, 500)
-        t.equal(err.message, 'Unexpected APM Server response when polling config')
-        t.equal(err.response, '{"invalid JSON"}')
+        t.equal(err.code, 500);
+        t.equal(err.message, 'Unexpected APM Server response when polling config');
+        t.equal(err.response, '{"invalid JSON"}');
       } else if (reqs === 2) {
-        t.equal(err.code, 503)
-        t.equal(err.message, 'Unexpected APM Server response when polling config')
-        t.equal(err.response, 'valid JSON')
+        t.equal(err.code, 503);
+        t.equal(err.message, 'Unexpected APM Server response when polling config');
+        t.equal(err.response, 'valid JSON');
       } else if (reqs === 3) {
-        t.equal(err.code, 503)
-        t.equal(err.message, 'Unexpected APM Server response when polling config')
-        t.equal(err.response, 'from error property')
+        t.equal(err.code, 503);
+        t.equal(err.message, 'Unexpected APM Server response when polling config');
+        t.equal(err.response, 'from error property');
       } else if (reqs === 7) {
         // The mock APMServer above hard-destroys the connection on req 7. If
         // the client's keep-alive agent has an open socket, we expect a
         // "socket hang up" (ECONNRESET) error here.
-        t.equal(err.message, 'socket hang up')
-        t.end()
+        t.equal(err.message, 'socket hang up');
+        t.end();
       } else {
-        t.error(err, 'got an err on req ' + reqs + ', err=' + err.message)
+        t.error(err, 'got an err on req ' + reqs + ', err=' + err.message);
       }
-    })
-  })
-})
+    });
+  });
+});

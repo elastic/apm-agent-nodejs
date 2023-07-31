@@ -4,9 +4,9 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-var getPort = require('get-port')
+var getPort = require('get-port');
 
 getPort().then(function (port) {
   var agent = require('../../').start({
@@ -17,24 +17,24 @@ getPort().then(function (port) {
     centralConfig: false,
     apmServerVersion: '8.0.0',
     disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
-  })
+  });
 
-  var net = require('net')
-  var test = require('tape')
+  var net = require('net');
+  var test = require('tape');
 
   test('should not throw on socket close', function (t) {
     var server = net.createServer(function (socket) {
-      socket.destroy()
-    })
+      socket.destroy();
+    });
 
     server.listen(port, function () {
       agent.captureError(new Error('foo'), function (err) {
-        t.error(err)
-        t.end()
-        server.close()
-      })
-    })
-  })
+        t.error(err);
+        t.end();
+        server.close();
+      });
+    });
+  });
 }, function (err) {
-  throw err
-})
+  throw err;
+});

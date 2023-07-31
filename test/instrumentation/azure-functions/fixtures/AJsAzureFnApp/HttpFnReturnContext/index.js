@@ -14,5 +14,5 @@ module.exports = async function () {
       status: 202,
       body: 'HttpFnReturnContext body'
     }
-  }
-}
+  };
+};

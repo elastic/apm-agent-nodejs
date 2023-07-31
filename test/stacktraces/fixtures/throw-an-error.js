@@ -15,10 +15,10 @@ require('../../../').start({
   logLevel: 'off',
   // This tells the agent to catch unhandled exceptions:
   captureExceptions: true
-})
+});
 
 function main () {
-  throw new Error('boom')
+  throw new Error('boom');
 }
 
-main()
+main();

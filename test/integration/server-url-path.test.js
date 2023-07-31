@@ -4,9 +4,9 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-var getPort = require('get-port')
+var getPort = require('get-port');
 
 getPort().then(function (port) {
   var agent = require('../../').start({
@@ -17,24 +17,24 @@ getPort().then(function (port) {
     centralConfig: false,
     apmServerVersion: '8.0.0',
     disableInstrumentations: ['http'] // avoid the agent instrumenting the mock APM Server
-  })
+  });
 
-  var http = require('http')
-  var test = require('tape')
+  var http = require('http');
+  var test = require('tape');
 
   test('should allow path in serverUrl', function (t) {
     var server = http.createServer(function (req, res) {
-      t.strictEqual(req.url, '/sub/intake/v2/events')
-      res.end()
-      t.end()
-      server.close()
-      agent.destroy()
-    })
+      t.strictEqual(req.url, '/sub/intake/v2/events');
+      res.end();
+      t.end();
+      server.close();
+      agent.destroy();
+    });
 
     server.listen(port, function () {
-      agent.captureError(new Error('foo'))
-    })
-  })
+      agent.captureError(new Error('foo'));
+    });
+  });
 }, function (err) {
-  throw err
-})
+  throw err;
+});

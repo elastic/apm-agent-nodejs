@@ -19,45 +19,45 @@ const apm = require('../../../../').start({ // elastic-apm-node
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
   serviceName: 'ls-callbacks'
-})
+});
 
-let assert = require('assert')
+let assert = require('assert');
 if (Number(process.versions.node.split('.')[0]) > 8) {
-  assert = assert.strict
+  assert = assert.strict;
 }
-const fs = require('fs')
+const fs = require('fs');
 
-let t1
+let t1;
 
 function getCwd () {
-  const s2 = apm.startSpan('cwd')
+  const s2 = apm.startSpan('cwd');
   try {
-    return process.cwd()
+    return process.cwd();
   } finally {
-    assert(apm.currentTransaction === t1)
-    assert(apm.currentSpan === s2)
-    s2.end()
+    assert(apm.currentTransaction === t1);
+    assert(apm.currentSpan === s2);
+    s2.end();
   }
 }
 
 function main () {
-  t1 = apm.startTransaction('ls')
-  assert(apm.currentTransaction === t1)
+  t1 = apm.startTransaction('ls');
+  assert(apm.currentTransaction === t1);
 
-  const cwd = getCwd()
-  const s3 = apm.startSpan('readdir')
-  assert(apm.currentSpan === s3)
+  const cwd = getCwd();
+  const s3 = apm.startSpan('readdir');
+  assert(apm.currentSpan === s3);
   fs.readdir(cwd, function (_err, entries) {
-    assert(apm.currentSpan === s3)
-    s3.end()
-    assert(apm.currentSpan === null)
+    assert(apm.currentSpan === s3);
+    s3.end();
+    assert(apm.currentSpan === null);
 
-    console.log('entries:', entries)
+    console.log('entries:', entries);
 
-    assert(apm.currentTransaction === t1)
-    t1.end()
-    assert(apm.currentTransaction === null)
-  })
+    assert(apm.currentTransaction === t1);
+    t1.end();
+    assert(apm.currentTransaction === null);
+  });
 }
 
-main()
+main();

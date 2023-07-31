@@ -4,9 +4,9 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const { levels, pino } = require('pino')
+const { levels, pino } = require('pino');
 
 /**
  * @typedef {Object} LogEntry
@@ -29,7 +29,7 @@ class MockLogger {
      * @type {Array<LogEntry>}
      * @public
      */
-    this.calls = []
+    this.calls = [];
   }
 
   /**
@@ -38,26 +38,26 @@ class MockLogger {
    * @param {Array<any>} loggerArgs
    */
   _log (type, loggerArgs) {
-    const args = [].slice.call(loggerArgs)
-    const hasMergingObject = typeof args[0] === 'object'
-    const mergingObject = hasMergingObject ? args[0] : null
-    const message = hasMergingObject ? args[1] : args[0]
-    const interpolation = args.slice(hasMergingObject ? 2 : 1)
+    const args = [].slice.call(loggerArgs);
+    const hasMergingObject = typeof args[0] === 'object';
+    const mergingObject = hasMergingObject ? args[0] : null;
+    const message = hasMergingObject ? args[1] : args[0];
+    const interpolation = args.slice(hasMergingObject ? 2 : 1);
 
     this.calls.push({
       type,
       mergingObject,
       message,
       interpolation
-    })
+    });
   }
 
-  fatal () { this._log('fatal', arguments) }
-  error () { this._log('error', arguments) }
-  warn () { this._log('warn', arguments) }
-  info () { this._log('info', arguments) }
-  debug () { this._log('debug', arguments) }
-  trace () { this._log('trace', arguments) }
+  fatal () { this._log('fatal', arguments); }
+  error () { this._log('error', arguments); }
+  warn () { this._log('warn', arguments); }
+  info () { this._log('info', arguments); }
+  debug () { this._log('debug', arguments); }
+  trace () { this._log('trace', arguments); }
 }
 
 /**
@@ -67,7 +67,7 @@ class MockLogger {
  */
 function createMockLogger (calls) {
   if (!Array.isArray(calls)) {
-    throw new Error('Calls parameter must be an array to create a mock logger')
+    throw new Error('Calls parameter must be an array to create a mock logger');
   }
 
   return pino(
@@ -79,24 +79,24 @@ function createMockLogger (calls) {
       // - the logger name (`name` property) with the value `mock-logger`
       // - all props of mergingObject if it was passed. See https://getpino.io/#/docs/api?id=logging-method-parameters
       write: function (logMsg) {
-        const logObj = JSON.parse(logMsg)
-        const logMessage = logObj.msg
-        const levelValue = logObj.level
-        const levelName = Object.keys(levels.values).find(key => levels.values[key] === levelValue)
+        const logObj = JSON.parse(logMsg);
+        const logMessage = logObj.msg;
+        const levelValue = logObj.level;
+        const levelName = Object.keys(levels.values).find(key => levels.values[key] === levelValue);
 
-        delete logObj.msg
-        delete logObj.level
+        delete logObj.msg;
+        delete logObj.level;
         calls.push({
           type: levelName,
           mergingObject: logObj,
           message: logMessage
-        })
+        });
       }
     }
-  )
+  );
 }
 
 module.exports = {
   createMockLogger,
   MockLogger
-}
+};

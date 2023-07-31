@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 /**
  * Description of the test fixture's structure
  *
@@ -288,4 +288,4 @@ module.exports = [
       }
     }
   }
-]
+];

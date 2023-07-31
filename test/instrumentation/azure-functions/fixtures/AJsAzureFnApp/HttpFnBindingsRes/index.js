@@ -9,5 +9,5 @@ module.exports = async function (context) {
   context.bindings.res = {
     status: 202,
     body: 'HttpFnBindingsRes body'
-  }
-}
+  };
+};

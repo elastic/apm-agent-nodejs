@@ -4,47 +4,47 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const fs = require('fs')
-const http = require('http')
-const ndjson = require('ndjson')
-const os = require('os')
-const path = require('path')
-const semver = require('semver')
-const test = require('tape')
-const URL = require('url').URL
+const fs = require('fs');
+const http = require('http');
+const ndjson = require('ndjson');
+const os = require('os');
+const path = require('path');
+const semver = require('semver');
+const test = require('tape');
+const URL = require('url').URL;
 
-const utils = require('./lib/utils')
-const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client')
-const { detectHostname } = require('../../../lib/apm-client/http-apm-client/detect-hostname')
-const getContainerInfo = require('../../../lib/apm-client/http-apm-client/container-info')
+const utils = require('./lib/utils');
+const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client');
+const { detectHostname } = require('../../../lib/apm-client/http-apm-client/detect-hostname');
+const getContainerInfo = require('../../../lib/apm-client/http-apm-client/container-info');
 
-const APMServer = utils.APMServer
-const processIntakeReq = utils.processIntakeReq
-const validOpts = utils.validOpts
+const APMServer = utils.APMServer;
+const processIntakeReq = utils.processIntakeReq;
+const validOpts = utils.validOpts;
 
-const detectedHostname = detectHostname()
+const detectedHostname = detectHostname();
 
 test('throw if missing required options', function (t) {
-  t.throws(() => new HttpApmClient(), 'throws if no options are provided')
-  t.throws(() => new HttpApmClient({ agentName: 'foo' }), 'throws if only agentName is provided')
-  t.throws(() => new HttpApmClient({ agentVersion: 'foo' }), 'throws if only agentVersion is provided')
-  t.throws(() => new HttpApmClient({ serviceName: 'foo' }), 'throws if only serviceName is provided')
-  t.throws(() => new HttpApmClient({ userAgent: 'foo' }), 'throws if only userAgent is provided')
-  t.throws(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', serviceName: 'foo' }), 'throws if userAgent is missing')
-  t.throws(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', userAgent: 'foo' }), 'throws if serviceName is missing')
-  t.throws(() => new HttpApmClient({ agentName: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'throws if agentVersion is missing')
-  t.throws(() => new HttpApmClient({ agentVersion: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'throws if agentName is missing')
-  t.doesNotThrow(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'doesn\'t throw if required options are provided')
-  t.end()
-})
+  t.throws(() => new HttpApmClient(), 'throws if no options are provided');
+  t.throws(() => new HttpApmClient({ agentName: 'foo' }), 'throws if only agentName is provided');
+  t.throws(() => new HttpApmClient({ agentVersion: 'foo' }), 'throws if only agentVersion is provided');
+  t.throws(() => new HttpApmClient({ serviceName: 'foo' }), 'throws if only serviceName is provided');
+  t.throws(() => new HttpApmClient({ userAgent: 'foo' }), 'throws if only userAgent is provided');
+  t.throws(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', serviceName: 'foo' }), 'throws if userAgent is missing');
+  t.throws(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', userAgent: 'foo' }), 'throws if serviceName is missing');
+  t.throws(() => new HttpApmClient({ agentName: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'throws if agentVersion is missing');
+  t.throws(() => new HttpApmClient({ agentVersion: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'throws if agentName is missing');
+  t.doesNotThrow(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'doesn\'t throw if required options are provided');
+  t.end();
+});
 
 test('should work without new', function (t) {
-  const client = HttpApmClient(validOpts())
-  t.ok(client instanceof HttpApmClient)
-  t.end()
-})
+  const client = HttpApmClient(validOpts());
+  t.ok(client instanceof HttpApmClient);
+  t.end();
+});
 
 test('null value config options shouldn\'t throw', function (t) {
   t.doesNotThrow(function () {
@@ -56,62 +56,62 @@ test('null value config options shouldn\'t throw', function (t) {
       serverUrl: null,
       keepAlive: null,
       labels: null
-    }))
-  })
-  t.end()
-})
+    }));
+  });
+  t.end();
+});
 
 test('no secretToken or apiKey', function (t) {
-  t.plan(1)
-  let client
+  t.plan(1);
+  let client;
   const server = APMServer(function (req, res) {
-    t.notOk('authorization' in req.headers, 'no Authorization header')
-    res.end()
-    server.close()
-    client.destroy()
-    t.end()
-  })
+    t.notOk('authorization' in req.headers, 'no Authorization header');
+    res.end();
+    server.close();
+    client.destroy();
+    t.end();
+  });
   server.listen(function () {
     client = new HttpApmClient(validOpts({
       serverUrl: 'http://localhost:' + server.address().port,
       apmServerVersion: '8.0.0'
-    }))
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    }));
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('has apiKey', function (t) {
-  t.plan(1)
-  let client
+  t.plan(1);
+  let client;
   const server = APMServer(function (req, res) {
-    t.equal(req.headers.authorization, 'ApiKey FooBar123', 'should use apiKey in authorization header')
-    res.end()
-    server.close()
-    client.destroy()
-    t.end()
-  })
+    t.equal(req.headers.authorization, 'ApiKey FooBar123', 'should use apiKey in authorization header');
+    res.end();
+    server.close();
+    client.destroy();
+    t.end();
+  });
   server.listen(function () {
     client = new HttpApmClient(validOpts({
       serverUrl: 'http://localhost:' + server.address().port,
       apiKey: 'FooBar123',
       apmServerVersion: '8.0.0'
-    }))
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    }));
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('custom headers', function (t) {
-  t.plan(1)
+  t.plan(1);
 
-  let client
+  let client;
   const server = APMServer(function (req, res) {
-    t.equal(req.headers['x-foo'], 'bar')
-    res.end()
-    server.close()
-    client.destroy()
-    t.end()
+    t.equal(req.headers['x-foo'], 'bar');
+    res.end();
+    server.close();
+    client.destroy();
+    t.end();
   }).listen(function () {
     client = new HttpApmClient(validOpts({
       serverUrl: 'http://localhost:' + server.address().port,
@@ -119,98 +119,98 @@ test('custom headers', function (t) {
         'X-Foo': 'bar'
       },
       apmServerVersion: '8.0.0'
-    }))
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    }));
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('serverUrl is invalid', function (t) {
   t.throws(function () {
     new HttpApmClient(validOpts({ // eslint-disable-line no-new
       serverUrl: 'invalid',
       apmServerVersion: '8.0.0'
-    }))
-  })
-  t.end()
-})
+    }));
+  });
+  t.end();
+});
 
 test('serverUrl contains path', function (t) {
-  t.plan(1)
-  let client
+  t.plan(1);
+  let client;
   const server = APMServer(function (req, res) {
-    t.equal(req.url, '/subpath/intake/v2/events')
-    res.end()
-    server.close()
-    client.destroy()
-    t.end()
+    t.equal(req.url, '/subpath/intake/v2/events');
+    res.end();
+    server.close();
+    client.destroy();
+    t.end();
   }).listen(function () {
     client = new HttpApmClient(validOpts({
       serverUrl: 'http://localhost:' + server.address().port + '/subpath',
       apmServerVersion: '8.0.0'
-    }))
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    }));
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('reject unauthorized TLS by default', function (t) {
-  t.plan(3)
+  t.plan(3);
   const server = APMServer({ secure: true }, function (req, res) {
-    t.fail('should should not get request')
+    t.fail('should should not get request');
   }).client({ apmServerVersion: '8.0.0' }, function (client) {
     client.on('request-error', function (err) {
-      t.ok(err instanceof Error)
-      let expectedErrorMessage = 'self signed certificate'
+      t.ok(err instanceof Error);
+      let expectedErrorMessage = 'self signed certificate';
       if (semver.gte(process.version, 'v17.0.0')) {
-        expectedErrorMessage = 'self-signed certificate'
+        expectedErrorMessage = 'self-signed certificate';
       }
-      t.equal(err.message, expectedErrorMessage)
-      t.equal(err.code, 'DEPTH_ZERO_SELF_SIGNED_CERT')
-      server.close()
-      t.end()
-    })
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+      t.equal(err.message, expectedErrorMessage);
+      t.equal(err.code, 'DEPTH_ZERO_SELF_SIGNED_CERT');
+      server.close();
+      t.end();
+    });
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('allow unauthorized TLS if asked', function (t) {
-  t.plan(1)
-  let client
+  t.plan(1);
+  let client;
   const server = APMServer({ secure: true }, function (req, res) {
-    t.pass('should let request through')
-    res.end()
-    client.destroy()
-    server.close()
-    t.end()
+    t.pass('should let request through');
+    res.end();
+    client.destroy();
+    server.close();
+    t.end();
   }).client({ rejectUnauthorized: false, apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    client = client_;
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('allow self-signed TLS certificate by specifying the CA', function (t) {
-  t.plan(1)
-  let client
+  t.plan(1);
+  let client;
   const server = APMServer({ secure: true }, function (req, res) {
-    t.pass('should let request through')
-    res.end()
-    client.destroy()
-    server.close()
-    t.end()
-  })
+    t.pass('should let request through');
+    res.end();
+    client.destroy();
+    server.close();
+    t.end();
+  });
   server.client({ serverCaCert: server.cert, apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    client = client_;
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('metadata', function (t) {
-  t.plan(11)
-  let client
+  t.plan(11);
+  let client;
   const opts = {
     agentName: 'custom-agentName',
     agentVersion: 'custom-agentVersion',
@@ -229,9 +229,9 @@ test('metadata', function (t) {
       }
     },
     apmServerVersion: '8.7.1' // avoid the APM server version fetch request
-  }
+  };
   const server = APMServer(function (req, res) {
-    req = processIntakeReq(req)
+    req = processIntakeReq(req);
     req.once('data', function (obj) {
       const expects = {
         metadata: {
@@ -275,53 +275,53 @@ test('metadata', function (t) {
             doesNotNest: '[object Object]'
           }
         }
-      }
+      };
 
       if (semver.gte(process.version, '8.10.0')) {
-        expects.metadata.process.ppid = process.ppid
+        expects.metadata.process.ppid = process.ppid;
       }
 
-      t.deepEqual(obj, expects)
+      t.deepEqual(obj, expects);
 
-      t.ok(semver.valid(obj.metadata.service.runtime.version))
-      t.ok(obj.metadata.process.pid > 0, `pid should be > 0, was ${obj.metadata.process.pid}`)
+      t.ok(semver.valid(obj.metadata.service.runtime.version));
+      t.ok(obj.metadata.process.pid > 0, `pid should be > 0, was ${obj.metadata.process.pid}`);
       if (semver.gte(process.version, '8.10.0')) {
-        t.ok(obj.metadata.process.ppid > 0, `ppid should be > 0, was ${obj.metadata.process.ppid}`)
+        t.ok(obj.metadata.process.ppid > 0, `ppid should be > 0, was ${obj.metadata.process.ppid}`);
       } else {
-        t.equal(obj.metadata.process.ppid, undefined)
+        t.equal(obj.metadata.process.ppid, undefined);
       }
-      t.ok(Array.isArray(obj.metadata.process.argv))
-      t.ok(obj.metadata.process.argv.every(arg => typeof arg === 'string'))
-      t.ok(obj.metadata.process.argv.every(arg => arg.length > 0))
-      t.equal(typeof obj.metadata.system.architecture, 'string')
-      t.ok(obj.metadata.system.architecture.length > 0)
-      t.equal(typeof obj.metadata.system.platform, 'string')
-      t.ok(obj.metadata.system.platform.length > 0)
-    })
+      t.ok(Array.isArray(obj.metadata.process.argv));
+      t.ok(obj.metadata.process.argv.every(arg => typeof arg === 'string'));
+      t.ok(obj.metadata.process.argv.every(arg => arg.length > 0));
+      t.equal(typeof obj.metadata.system.architecture, 'string');
+      t.ok(obj.metadata.system.architecture.length > 0);
+      t.equal(typeof obj.metadata.system.platform, 'string');
+      t.ok(obj.metadata.system.platform.length > 0);
+    });
     req.on('end', function () {
-      res.end()
-      client.destroy()
-      server.close()
-      t.end()
-    })
+      res.end();
+      client.destroy();
+      server.close();
+      t.end();
+    });
   }).client(opts, function (client_) {
-    client = client_
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    client = client_;
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('metadata - default values', function (t) {
-  t.plan(1)
-  let client
+  t.plan(1);
+  let client;
   const opts = {
     agentName: 'custom-agentName',
     agentVersion: 'custom-agentVersion',
     serviceName: 'custom-serviceName',
     apmServerVersion: '8.0.0' // avoid the APM server version fetch request
-  }
+  };
   const server = APMServer(function (req, res) {
-    req = processIntakeReq(req)
+    req = processIntakeReq(req);
     req.once('data', function (obj) {
       const expects = {
         metadata: {
@@ -351,197 +351,197 @@ test('metadata - default values', function (t) {
             detected_hostname: detectedHostname
           }
         }
-      }
+      };
 
       if (semver.gte(process.version, '8.10.0')) {
-        expects.metadata.process.ppid = process.ppid
+        expects.metadata.process.ppid = process.ppid;
       }
 
-      t.deepEqual(obj, expects)
-    })
+      t.deepEqual(obj, expects);
+    });
 
     req.on('end', function () {
-      res.end()
-      client.destroy()
-      server.close()
-      t.end()
-    })
+      res.end();
+      client.destroy();
+      server.close();
+      t.end();
+    });
   }).client(opts, function (client_) {
-    client = client_
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    client = client_;
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('metadata - container info', function (t) {
   // Clear Client and APMServer from require cache
-  delete require.cache[require.resolve('../../../lib/apm-client/http-apm-client')]
-  delete require.cache[require.resolve('./lib/utils')]
+  delete require.cache[require.resolve('../../../lib/apm-client/http-apm-client')];
+  delete require.cache[require.resolve('./lib/utils')];
 
-  const sync = getContainerInfo.sync
+  const sync = getContainerInfo.sync;
   getContainerInfo.sync = function sync () {
     return {
       containerId: 'container-id',
       podId: 'pod-id'
-    }
-  }
+    };
+  };
   t.on('end', () => {
-    getContainerInfo.sync = sync
-  })
+    getContainerInfo.sync = sync;
+  });
 
-  const APMServer = require('./lib/utils').APMServer
+  const APMServer = require('./lib/utils').APMServer;
 
-  let client
+  let client;
   const server = APMServer(function (req, res) {
-    req = processIntakeReq(req)
+    req = processIntakeReq(req);
     req.once('data', function (obj) {
-      t.ok(obj.metadata)
-      t.ok(obj.metadata.system)
+      t.ok(obj.metadata);
+      t.ok(obj.metadata.system);
       t.deepEqual(obj.metadata.system.container, {
         id: 'container-id'
-      })
+      });
       t.deepEqual(obj.metadata.system.kubernetes, {
         pod: {
           name: detectedHostname.split('.')[0],
           uid: 'pod-id'
         }
-      })
-    })
+      });
+    });
     req.on('end', function () {
-      res.end()
-      client.destroy()
-      server.close()
-      t.end()
-    })
+      res.end();
+      client.destroy();
+      server.close();
+      t.end();
+    });
   }).client({ apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    client = client_;
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('agentName', function (t) {
-  t.plan(1)
-  let client
+  t.plan(1);
+  let client;
   const server = APMServer(function (req, res) {
-    req = processIntakeReq(req)
+    req = processIntakeReq(req);
     req.once('data', function (obj) {
-      t.equal(obj.metadata.service.name, 'custom')
-    })
+      t.equal(obj.metadata.service.name, 'custom');
+    });
     req.on('end', function () {
-      res.end()
-      client.destroy()
-      server.close()
-      t.end()
-    })
+      res.end();
+      client.destroy();
+      server.close();
+      t.end();
+    });
   }).client({ serviceName: 'custom', apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    client = client_;
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 test('payloadLogFile', function (t) {
-  t.plan(6)
+  t.plan(6);
 
-  const receivedObjects = []
-  const filename = path.join(os.tmpdir(), Date.now() + '.ndjson')
-  let requests = 0
+  const receivedObjects = [];
+  const filename = path.join(os.tmpdir(), Date.now() + '.ndjson');
+  let requests = 0;
 
-  let client
+  let client;
   const server = APMServer(function (req, res) {
-    const request = ++requests
+    const request = ++requests;
 
-    req = processIntakeReq(req)
+    req = processIntakeReq(req);
 
     req.on('data', function (obj) {
-      receivedObjects.push(obj)
-    })
+      receivedObjects.push(obj);
+    });
 
     req.on('end', function () {
-      res.end()
+      res.end();
 
       if (request === 2) {
-        client.destroy()
-        server.close()
-        t.equal(receivedObjects.length, 5, 'should have received 5 objects')
+        client.destroy();
+        server.close();
+        t.equal(receivedObjects.length, 5, 'should have received 5 objects');
 
-        const file = fs.createReadStream(filename).pipe(ndjson.parse())
+        const file = fs.createReadStream(filename).pipe(ndjson.parse());
 
         file.on('data', function (obj) {
-          const expected = receivedObjects.shift()
-          const n = 5 - receivedObjects.length
-          t.deepEqual(obj, expected, `expected line ${n} in the log file to match item no ${n} received by the server`)
-        })
+          const expected = receivedObjects.shift();
+          const n = 5 - receivedObjects.length;
+          t.deepEqual(obj, expected, `expected line ${n} in the log file to match item no ${n} received by the server`);
+        });
 
         file.on('end', function () {
-          t.end()
-        })
+          t.end();
+        });
       }
-    })
+    });
   }).client({ payloadLogFile: filename, apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_
-    client.sendTransaction({ req: 1 })
-    client.sendSpan({ req: 2 })
-    client.flush() // force the client to make a 2nd request so that we test reusing the file across requests
-    client.sendError({ req: 3 })
-    client.end()
-  })
-})
+    client = client_;
+    client.sendTransaction({ req: 1 });
+    client.sendSpan({ req: 2 });
+    client.flush(); // force the client to make a 2nd request so that we test reusing the file across requests
+    client.sendError({ req: 3 });
+    client.end();
+  });
+});
 
 test('update conf', function (t) {
-  t.plan(1)
-  let client
+  t.plan(1);
+  let client;
   const server = APMServer(function (req, res) {
-    req = processIntakeReq(req)
+    req = processIntakeReq(req);
     req.once('data', function (obj) {
-      t.equal(obj.metadata.service.name, 'bar')
-    })
+      t.equal(obj.metadata.service.name, 'bar');
+    });
     req.on('end', function () {
-      res.end()
-      client.destroy()
-      server.close()
-      t.end()
-    })
+      res.end();
+      client.destroy();
+      server.close();
+      t.end();
+    });
   }).client({ serviceName: 'foo', apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_
-    client.config({ serviceName: 'bar' })
-    client.sendSpan({ foo: 42 })
-    client.end()
-  })
-})
+    client = client_;
+    client.config({ serviceName: 'bar' });
+    client.sendSpan({ foo: 42 });
+    client.end();
+  });
+});
 
 // There was a case (https://github.com/elastic/apm-agent-nodejs/issues/1749)
 // where a non-200 response from apm-server would crash the agent.
 test('503 response from apm-server for central config should not crash', function (t) {
-  let client
+  let client;
 
   // If this test goes wrong, it can hang. Clean up after a 30s timeout.
   const abortTimeout = setTimeout(function () {
-    t.fail('test hung, aborting after a timeout')
-    cleanUpAndEnd()
-  }, 30000)
+    t.fail('test hung, aborting after a timeout');
+    cleanUpAndEnd();
+  }, 30000);
 
   function cleanUpAndEnd () {
     if (abortTimeout) {
-      clearTimeout(abortTimeout)
+      clearTimeout(abortTimeout);
     }
-    client.destroy()
+    client.destroy();
     mockApmServer.close(function () {
-      t.end()
-    })
+      t.end();
+    });
   }
 
   // 1. Start a mock apm-server that returns 503 for central config queries.
   const mockApmServer = http.createServer(function (req, res) {
-    const parsedUrl = new URL(req.url, 'http://localhost:0')
-    let resBody = '{}'
+    const parsedUrl = new URL(req.url, 'http://localhost:0');
+    let resBody = '{}';
     if (parsedUrl.pathname === '/config/v1/agents') {
-      resBody = '{"ok":false,"message":"The requested resource is currently unavailable."}\n'
-      res.writeHead(503)
+      resBody = '{"ok":false,"message":"The requested resource is currently unavailable."}\n';
+      res.writeHead(503);
     }
-    res.end(resBody)
-  })
+    res.end(resBody);
+  });
 
   mockApmServer.listen(function () {
     client = new HttpApmClient(validOpts({
@@ -551,26 +551,26 @@ test('503 response from apm-server for central config should not crash', functio
       // internal `setTimeout` intervals.
       centralConfig: false,
       apmServerVersion: '8.0.0'
-    }))
+    }));
 
     // 2. Ensure the client conditions for the crash.
     //    One of the crash conditions at the time was a second `client.config`
     //    to ensure the request options were using the keep-alive agent.
-    client.config()
+    client.config();
     t.ok(client._conf.requestConfig.agent,
-      'agent for central config requests is defined')
+      'agent for central config requests is defined');
 
     client.on('config', function (config) {
-      t.fail('do not expect to get a successful central config response')
-    })
+      t.fail('do not expect to get a successful central config response');
+    });
     client.on('request-error', function (err) {
-      t.ok(err, 'got request-error on _pollConfig')
+      t.ok(err, 'got request-error on _pollConfig');
       t.ok(err.message.indexOf('Unexpected APM Server response when polling config') !== -1,
-        'request-error from _pollConfig includes expected error message')
-      cleanUpAndEnd()
-    })
+        'request-error from _pollConfig includes expected error message');
+      cleanUpAndEnd();
+    });
 
     // 3. Make a poll for central config.
-    client._pollConfig()
-  })
-})
+    client._pollConfig();
+  });
+});

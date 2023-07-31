@@ -15,7 +15,7 @@ const nextConfig = {
         destination: '/a-page',
         permanent: false
       }
-    ]
+    ];
   },
   async rewrites () {
     return {
@@ -50,8 +50,8 @@ const nextConfig = {
           destination: 'https://old.example.com/:path*'
         }
       ]
-    }
+    };
   }
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 module.exports = {
   entries: [
@@ -123,4 +123,4 @@ module.exports = {
   ],
   containerId: '34dc0b5e626f2c5c4c5170e34b10e7654ce36f0fcd532739f4445baabea03376',
   podId: '74c13223-5a00-11e9-b385-42010a80018d'
-}
+};

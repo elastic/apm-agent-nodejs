@@ -4,14 +4,14 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
-const { createAgentConfig } = require('./_shared')
-const agent = require('../..').start(createAgentConfig())
+'use strict';
+const { createAgentConfig } = require('./_shared');
+const agent = require('../..').start(createAgentConfig());
 
-const isFastifyIncompat = require('../_is_fastify_incompat')()
+const isFastifyIncompat = require('../_is_fastify_incompat')();
 if (isFastifyIncompat) {
-  console.log(`# SKIP ${isFastifyIncompat}`)
-  process.exit()
+  console.log(`# SKIP ${isFastifyIncompat}`);
+  process.exit();
 }
 
 const {
@@ -19,45 +19,45 @@ const {
   assertFormsWithFixture,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture
-} = require('./_shared')
-const test = require('tape')
-const request = require('request')
-const fastify = require('fastify')
-const fastifyFormbody = require('@fastify/formbody')
-const fixtures = require('./_fixtures')
+} = require('./_shared');
+const test = require('tape');
+const request = require('request');
+const fastify = require('fastify');
+const fastifyFormbody = require('@fastify/formbody');
+const fixtures = require('./_fixtures');
 
 function runTest (
   t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
 ) {
-  agent._config(agentConfig)
-  const app = fastify()
+  agent._config(agentConfig);
+  const app = fastify();
   if (middleware) {
-    app.register(middleware)
+    app.register(middleware);
   }
 
   // resets agent values for tests.  Callback fires
   // after mockClient receives data
   resetAgent(agent, (data) => {
-    const transaction = data.transactions.pop()
-    assertRequestHeadersWithFixture(transaction, expected, t)
-    assertResponseHeadersWithFixture(transaction, expected, t)
-    assertFormsWithFixture(transaction, expected, t)
-  })
+    const transaction = data.transactions.pop();
+    assertRequestHeadersWithFixture(transaction, expected, t);
+    assertResponseHeadersWithFixture(transaction, expected, t);
+    assertFormsWithFixture(transaction, expected, t);
+  });
 
   // register request handler
   app.post('/test', (req, reply) => {
-    t.ok('received request', 'received request')
+    t.ok('received request', 'received request');
     for (const [header, value] of Object.entries(responseHeaders)) {
-      reply.header(header, value)
+      reply.header(header, value);
     }
-    reply.send('Hello World')
-  })
+    reply.send('Hello World');
+  });
 
   app.listen({ port: 0, host: '0.0.0.0' }, (err, address) => {
     if (err) {
-      throw err
+      throw err;
     }
-    const url = `${address}/test`
+    const url = `${address}/test`;
     request.post(
       url,
       {
@@ -66,23 +66,23 @@ function runTest (
       },
       function (error, response, body) {
         if (error) {
-          t.fail(error)
+          t.fail(error);
         }
-        t.ok(body, 'received response')
-        t.end()
-      })
-  })
+        t.ok(body, 'received response');
+        t.end();
+      });
+  });
 
   const done = () => {
-    app.close()
-  }
-  t.on('end', done)
+    app.close();
+  };
+  t.on('end', done);
 }
 
 function createMiddleware (type) {
   // fastify only has the one body parsing middleware
   // there's no text or raw/Buffer to worry about
-  return fastifyFormbody
+  return fastifyFormbody;
 }
 
 test('Running fixtures with fastify', function (suite) {
@@ -96,8 +96,8 @@ test('Running fixtures with fastify', function (suite) {
         fixture.input.responseHeaders,
         fixture.input.formFields,
         createMiddleware(fixture.bodyParsing)
-      )
-    })
+      );
+    });
   }
-  suite.end()
-})
+  suite.end();
+});

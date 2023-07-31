@@ -12,39 +12,39 @@
 // Usage:
 //    node --experimental-loader=./loader.mjs --require=./start.js test/instrumentation/modules/fixtures/use-fastify.mjs
 
-import http from 'http'
-import assert from 'assert'
+import http from 'http';
+import assert from 'assert';
 
-import fastify from 'fastify'
-import * as mod1 from 'fastify'
+import fastify from 'fastify';
+import * as mod1 from 'fastify';
 
 // This assert ensures that this import-style works as well:
 //    import { fastify } from 'fastify'
-assert(fastify === fastify.fastify, 'fastify.fastify is correct')
+assert(fastify === fastify.fastify, 'fastify.fastify is correct');
 
 // This assert ensures this import style works:
 //    import * as mod from 'fastify'
 //    const server = mod.fastify()
-assert(mod1.fastify === fastify)
-assert(mod1.default === fastify)
+assert(mod1.fastify === fastify);
+assert(mod1.default === fastify);
 
 // This assert ensures this import style works:
 //    import * as mod from 'fastify'
 //    const server = mod.fastify()
-const mod2 = await import('fastify')
-assert(mod2.fastify === fastify)
+const mod2 = await import('fastify');
+assert(mod2.fastify === fastify);
 
-const server = fastify()
+const server = fastify();
 server.post('/hello/:name', function (request, reply) {
-  reply.send({ hello: request.params.name })
-})
+  reply.send({ hello: request.params.name });
+});
 
 async function main () {
-  await server.listen({ port: 0 })
+  await server.listen({ port: 0 });
 
   // Do a POST to test `captureBody`, wait for response, then exit.
-  const port = server.server.address().port
-  const data = JSON.stringify({ foo: 'bar' })
+  const port = server.server.address().port;
+  const data = JSON.stringify({ foo: 'bar' });
   const req = http.request(
     {
       method: 'POST',
@@ -57,17 +57,17 @@ async function main () {
       }
     },
     function (res) {
-      console.log('client response:', res.statusCode, res.headers)
-      let body = ''
-      res.on('data', chunk => { body += chunk })
+      console.log('client response:', res.statusCode, res.headers);
+      let body = '';
+      res.on('data', chunk => { body += chunk; });
       res.on('end', () => {
-        console.log('body:', body)
-        server.close()
-      })
+        console.log('body:', body);
+        server.close();
+      });
     }
-  )
-  req.write(data)
-  req.end()
+  );
+  req.write(data);
+  req.end();
 }
 
-main()
+main();

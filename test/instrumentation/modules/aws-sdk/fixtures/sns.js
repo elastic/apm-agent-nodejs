@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 module.exports = {
   publish: {
     response: `<?xml version="1.0"?>
@@ -49,4 +49,4 @@ module.exports = {
   </ListTopicsResponse>`,
     httpStatusCode: 200
   }
-}
+};

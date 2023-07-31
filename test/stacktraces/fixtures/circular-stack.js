@@ -16,13 +16,13 @@ const apm = require('../../../').start({
   metricsInterval: 0,
   centralConfig: false,
   logLevel: 'off'
-})
+});
 
 function boomOnZero (n) {
   if (--n <= 0) {
-    throw new Error('boom on zero')
+    throw new Error('boom on zero');
   } else {
-    boomOnZero(n)
+    boomOnZero(n);
   }
 }
 
@@ -39,28 +39,28 @@ function main () {
   //      at writeAfterEnd (.../node_modules/elastic-apm-http-client/node_modules/readable-stream/lib/_stream_writable.js:261:12)
   //      at Client.Writable.write (.../node_modules/elastic-apm-http-client/node_modules/readable-stream/lib/_stream_writable.js:305:21)
   //      at Client.sendError (.../node_modules/elastic-apm-http-client/index.js:562:15)
-  const avoidBeforeExitInterval = setInterval(function () {}, 1000)
+  const avoidBeforeExitInterval = setInterval(function () {}, 1000);
 
   try {
-    boomOnZero(10)
+    boomOnZero(10);
   } catch (err1) {
-    console.log('calling captureError() for first a()')
+    console.log('calling captureError() for first a()');
     apm.captureError(err1, { message: 'a() blew up first time' }, () => {
       // The goal is to `captureError` a second time *after* there are
       // stacktrace frames in the internal `frameCache`. One way to ensure
       // there has been time for those to be generated and cached is to wait
       // for the `captureError()` to be complete, by waiting for its callback.
       try {
-        boomOnZero(10)
+        boomOnZero(10);
       } catch (err2) {
-        console.log('calling captureError() for second a()')
+        console.log('calling captureError() for second a()');
         apm.captureError(err2, { message: 'a() blew up second time' }, () => {
-          console.log('done')
-          clearInterval(avoidBeforeExitInterval)
-        })
+          console.log('done');
+          clearInterval(avoidBeforeExitInterval);
+        });
       }
-    })
+    });
   }
 }
 
-main()
+main();

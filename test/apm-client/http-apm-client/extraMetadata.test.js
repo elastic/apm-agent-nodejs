@@ -4,18 +4,18 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Test usage of `extraMetadata: ...`.
 
-const test = require('tape')
-const utils = require('./lib/utils')
+const test = require('tape');
+const utils = require('./lib/utils');
 
-const APMServer = utils.APMServer
-const processIntakeReq = utils.processIntakeReq
+const APMServer = utils.APMServer;
+const processIntakeReq = utils.processIntakeReq;
 
 test('extraMetadata', function (t) {
-  const apmEvents = []
+  const apmEvents = [];
   const extraMetadata = {
     foo: 'bar',
     service: {
@@ -23,31 +23,31 @@ test('extraMetadata', function (t) {
         name: 'spam'
       }
     }
-  }
+  };
 
   const server = APMServer(function (req, res) {
-    const objStream = processIntakeReq(req)
+    const objStream = processIntakeReq(req);
     objStream.on('data', function (obj) {
-      apmEvents.push(obj)
-    })
+      apmEvents.push(obj);
+    });
     objStream.on('end', function () {
-      res.statusCode = 202
-      res.end()
-    })
+      res.statusCode = 202;
+      res.end();
+    });
   }).client({ extraMetadata, apmServerVersion: '8.0.0' }, function (client) {
-    client.sendTransaction({ req: 1 })
+    client.sendTransaction({ req: 1 });
 
     client.flush(() => {
-      t.equal(apmEvents.length, 2, 'APM Server got 2 events')
-      t.ok(apmEvents[0].metadata, 'event 0 is metadata')
-      t.equal(apmEvents[0].metadata.foo, 'bar', 'extraMetadata added "foo" field')
+      t.equal(apmEvents.length, 2, 'APM Server got 2 events');
+      t.ok(apmEvents[0].metadata, 'event 0 is metadata');
+      t.equal(apmEvents[0].metadata.foo, 'bar', 'extraMetadata added "foo" field');
       t.equal(apmEvents[0].metadata.service.language.name, 'spam',
-        'extraMetadata overrode nested service.language.name field properly')
-      t.ok(apmEvents[1].transaction, 'event 1 is a transaction')
+        'extraMetadata overrode nested service.language.name field properly');
+      t.ok(apmEvents[1].transaction, 'event 1 is a transaction');
 
-      client.end()
-      server.close()
-      t.end()
-    })
-  })
-})
+      client.end();
+      server.close();
+      t.end();
+    });
+  });
+});

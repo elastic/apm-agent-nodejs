@@ -3,7 +3,7 @@
   "env": {
     "node": true
   },
-  "extends": "standard",
+  "extends": "semistandard",
   "plugins": [
     "license-header"
   ],
