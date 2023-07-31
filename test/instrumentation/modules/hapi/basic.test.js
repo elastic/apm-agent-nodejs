@@ -4,6 +4,6 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-require('./shared')('@hapi/hapi')
+require('./shared')('@hapi/hapi');

@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 /**
  * Description of the test fixture's structure
  *
@@ -59,7 +59,7 @@ module.exports = [
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
         'X-Ms-Client-Principal': 'fourteen',
-        keepmeRequest: 'request'
+        keepmeRequest: 'request',
       },
       responseHeaders: {
         password: 'one',
@@ -76,7 +76,7 @@ module.exports = [
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
         'X-Ms-Client-Principal': 'fourteen',
-        keepmeResponse: 'response'
+        keepmeResponse: 'response',
       },
       formFields: {
         password: 'one',
@@ -93,38 +93,68 @@ module.exports = [
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
         'X-Ms-Client-Principal': 'fourteen',
-        keepmeForm: 'formFields'
-      }
+        keepmeForm: 'formFields',
+      },
     },
     expected: {
       requestHeaders: {
         undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing',
-          'X-Ms-Client-Principal'
+          'password',
+          'passwd',
+          'pwd',
+          'secret',
+          'Somethingkey',
+          'FOOtokenBAR',
+          'ZIPsessionZAP',
+          'FOOsessionBAR',
+          'FULLOFcreditBEES',
+          'SINGcardSONG',
+          'authorization',
+          'set-cookie',
+          'X-Authy-Thing',
+          'X-Ms-Client-Principal',
         ],
-        defined: { keepmeRequest: 'request' }
+        defined: { keepmeRequest: 'request' },
       },
       responseHeaders: {
         undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing',
-          'X-Ms-Client-Principal'
+          'password',
+          'passwd',
+          'pwd',
+          'secret',
+          'Somethingkey',
+          'FOOtokenBAR',
+          'ZIPsessionZAP',
+          'FOOsessionBAR',
+          'FULLOFcreditBEES',
+          'SINGcardSONG',
+          'authorization',
+          'set-cookie',
+          'X-Authy-Thing',
+          'X-Ms-Client-Principal',
         ],
-        defined: { keepmeResponse: 'response' }
+        defined: { keepmeResponse: 'response' },
       },
       formFields: {
         undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing',
-          'X-Ms-Client-Principal'
+          'password',
+          'passwd',
+          'pwd',
+          'secret',
+          'Somethingkey',
+          'FOOtokenBAR',
+          'ZIPsessionZAP',
+          'FOOsessionBAR',
+          'FULLOFcreditBEES',
+          'SINGcardSONG',
+          'authorization',
+          'set-cookie',
+          'X-Authy-Thing',
+          'X-Ms-Client-Principal',
         ],
-        defined: { keepmeForm: 'formFields' }
-      }
-    }
+        defined: { keepmeForm: 'formFields' },
+      },
+    },
   },
   {
     name: 'tests default wildcard handling, with text bodyparsing',
@@ -146,7 +176,7 @@ module.exports = [
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
         'X-Ms-Client-Principal': 'fourteen',
-        keepmeRequest: 'request'
+        keepmeRequest: 'request',
       },
       responseHeaders: {
         password: 'one',
@@ -163,7 +193,7 @@ module.exports = [
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
         'X-Ms-Client-Principal': 'fourteen',
-        keepmeResponse: 'response'
+        keepmeResponse: 'response',
       },
       formFields: {
         password: 'one',
@@ -180,58 +210,88 @@ module.exports = [
         'set-cookie': 'twelve',
         'X-Authy-Thing': 'thirteen',
         'X-Ms-Client-Principal': 'fourteen',
-        keepmeForm: 'formFields'
-      }
+        keepmeForm: 'formFields',
+      },
     },
     expected: {
       requestHeaders: {
         undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing',
-          'X-Ms-Client-Principal'
+          'password',
+          'passwd',
+          'pwd',
+          'secret',
+          'Somethingkey',
+          'FOOtokenBAR',
+          'ZIPsessionZAP',
+          'FOOsessionBAR',
+          'FULLOFcreditBEES',
+          'SINGcardSONG',
+          'authorization',
+          'set-cookie',
+          'X-Authy-Thing',
+          'X-Ms-Client-Principal',
         ],
-        defined: { keepmeRequest: 'request' }
+        defined: { keepmeRequest: 'request' },
       },
       responseHeaders: {
         undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing',
-          'X-Ms-Client-Principal'
+          'password',
+          'passwd',
+          'pwd',
+          'secret',
+          'Somethingkey',
+          'FOOtokenBAR',
+          'ZIPsessionZAP',
+          'FOOsessionBAR',
+          'FULLOFcreditBEES',
+          'SINGcardSONG',
+          'authorization',
+          'set-cookie',
+          'X-Authy-Thing',
+          'X-Ms-Client-Principal',
         ],
-        defined: { keepmeResponse: 'response' }
+        defined: { keepmeResponse: 'response' },
       },
       formFields: {
         undefined: [
-          'password', 'passwd', 'pwd', 'secret', 'Somethingkey', 'FOOtokenBAR',
-          'ZIPsessionZAP', 'FOOsessionBAR', 'FULLOFcreditBEES', 'SINGcardSONG',
-          'authorization', 'set-cookie', 'X-Authy-Thing',
-          'X-Ms-Client-Principal'
+          'password',
+          'passwd',
+          'pwd',
+          'secret',
+          'Somethingkey',
+          'FOOtokenBAR',
+          'ZIPsessionZAP',
+          'FOOsessionBAR',
+          'FULLOFcreditBEES',
+          'SINGcardSONG',
+          'authorization',
+          'set-cookie',
+          'X-Authy-Thing',
+          'X-Ms-Client-Principal',
         ],
-        defined: { keepmeForm: 'formFields' }
-      }
-    }
+        defined: { keepmeForm: 'formFields' },
+      },
+    },
   },
   {
     name: 'tests configured wildcard handling, with urlencode bodyparsing',
     agentConfig: {
-      sanitizeFieldNames: ['thi*isa']
+      sanitizeFieldNames: ['thi*isa'],
     },
     bodyParsing: 'urlencoded',
     input: {
       requestHeaders: {
         password: 'one',
-        thisisa: 'test'
+        thisisa: 'test',
       },
       responseHeaders: {
         passwd: 'two',
-        thisisa: 'second test'
+        thisisa: 'second test',
       },
       formFields: {
         Somethingkey: 'five',
-        thisisa: 'second test'
-      }
+        thisisa: 'second test',
+      },
     },
     expected: {
       // if users configure a wildcard pattern we expect that
@@ -239,53 +299,53 @@ module.exports = [
       // 2. keys matching the wildcard will be omitted
       requestHeaders: {
         undefined: ['thisisa'],
-        defined: { password: 'one' }
+        defined: { password: 'one' },
       },
       responseHeaders: {
         undefined: ['thisisa'],
-        defined: { passwd: 'two' }
+        defined: { passwd: 'two' },
       },
       formFields: {
         undefined: ['thisisa'],
-        defined: { Somethingkey: 'five' }
-      }
-    }
+        defined: { Somethingkey: 'five' },
+      },
+    },
   },
   {
     name: 'tests configured wildcard handling, case insensativity turned off',
     agentConfig: {
-      sanitizeFieldNames: ['(?-i)Thi*isa']
+      sanitizeFieldNames: ['(?-i)Thi*isa'],
     },
     bodyParsing: 'urlencoded',
     input: {
       requestHeaders: {
         password: 'one',
-        thisisa: 'test'
+        thisisa: 'test',
       },
       responseHeaders: {
         passwd: 'two',
-        thisisa: 'second test'
+        thisisa: 'second test',
       },
       formFields: {
         Somethingkey: 'five',
-        thisisa: 'third test'
-      }
+        thisisa: 'third test',
+      },
     },
     expected: {
       // we expect the case insenitivity being on means values are not stripped
       // since it's specified with _Thi*isa_
       requestHeaders: {
         undefined: [],
-        defined: { password: 'one', thisisa: 'test' }
+        defined: { password: 'one', thisisa: 'test' },
       },
       responseHeaders: {
         undefined: [],
-        defined: { passwd: 'two', thisisa: 'second test' }
+        defined: { passwd: 'two', thisisa: 'second test' },
       },
       formFields: {
         undefined: [],
-        defined: { Somethingkey: 'five', thisisa: 'third test' }
-      }
-    }
-  }
-]
+        defined: { Somethingkey: 'five', thisisa: 'third test' },
+      },
+    },
+  },
+];

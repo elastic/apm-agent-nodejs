@@ -4,23 +4,23 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
-  console.log('# SKIP: GH Actions do not support docker services on Windows')
-  process.exit(0)
+  console.log('# SKIP: GH Actions do not support docker services on Windows');
+  process.exit(0);
 }
 
 require('../../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
-})
+  centralConfig: false,
+});
 
-const isFastifyIncompat = require('../../../_is_fastify_incompat')()
+const isFastifyIncompat = require('../../../_is_fastify_incompat')();
 if (isFastifyIncompat) {
-  console.log(`# SKIP ${isFastifyIncompat}`)
-  process.exit()
+  console.log(`# SKIP ${isFastifyIncompat}`);
+  process.exit();
 }
 
-require('./_async-await')
+require('./_async-await');

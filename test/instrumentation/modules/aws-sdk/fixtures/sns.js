@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 module.exports = {
   publish: {
     response: `<?xml version="1.0"?>
@@ -16,7 +16,7 @@ module.exports = {
         <RequestId>8e87dc3a-07f7-54f0-ae0d-855dd8d5f0dc</RequestId>
       </ResponseMetadata>
     </PublishResponse>`,
-    httpStatusCode: 200
+    httpStatusCode: 200,
   },
   publishNoTopic: {
     response: `<?xml version="1.0"?>
@@ -28,7 +28,7 @@ module.exports = {
     </Error>
     <RequestId>02672fe4-577a-5c2a-9a11-7683bd8777e1</RequestId>
   </ErrorResponse>`,
-    httpStatusCode: 404
+    httpStatusCode: 404,
   },
   listTopics: {
     response: `<?xml version="1.0"?>
@@ -47,6 +47,6 @@ module.exports = {
       <RequestId>1cb1f1f2-48fa-523b-a01a-a895b59d244b</RequestId>
     </ResponseMetadata>
   </ListTopicsResponse>`,
-    httpStatusCode: 200
-  }
-}
+    httpStatusCode: 200,
+  },
+};

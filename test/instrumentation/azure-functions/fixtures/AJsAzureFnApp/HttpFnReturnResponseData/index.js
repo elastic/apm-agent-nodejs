@@ -8,6 +8,6 @@ module.exports = async function () {
   // Using a '$return' binding, one can return the response data directly.
   return {
     status: 202,
-    body: 'HttpFnReturnResponseData body'
-  }
-}
+    body: 'HttpFnReturnResponseData body',
+  };
+};

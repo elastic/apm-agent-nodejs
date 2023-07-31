@@ -4,71 +4,79 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 if (require('os').platform() === 'win32') {
-  console.log('This test file does not support Windows - aborting...')
-  process.exit()
+  console.log('This test file does not support Windows - aborting...');
+  process.exit();
 }
 
-const http = require('http')
-const zlib = require('zlib')
+const http = require('http');
+const zlib = require('zlib');
 
-const afterAll = require('after-all-results')
-const ndjson = require('ndjson')
-const test = require('tape')
+const afterAll = require('after-all-results');
+const ndjson = require('ndjson');
+const test = require('tape');
 
-const utils = require('./_utils')
-const Agent = require('../../_agent')
+const utils = require('./_utils');
+const Agent = require('../../_agent');
 
 const next = afterAll(function (err, validators) {
-  if (err) throw err
+  if (err) throw err;
 
-  const [validateMetadata, validateError] = validators
+  const [validateMetadata, validateError] = validators;
 
   test('span schema - sourceLinesSpanAppFrames: 5, sourceLinesSpanLibraryFrames: 5', function (t) {
-    t.plan(7)
+    t.plan(7);
 
-    let agent
-    const validators = [validateMetadata, validateError]
+    let agent;
+    const validators = [validateMetadata, validateError];
 
     const server = http.createServer(function (req, res) {
-      t.strictEqual(req.method, 'POST', 'server should recieve a POST request')
-      t.strictEqual(req.url, '/intake/v2/events', 'server should recieve request to correct endpoint')
+      t.strictEqual(req.method, 'POST', 'server should recieve a POST request');
+      t.strictEqual(
+        req.url,
+        '/intake/v2/events',
+        'server should recieve request to correct endpoint',
+      );
 
       req
         .pipe(zlib.createGunzip())
         .pipe(ndjson.parse())
         .on('data', function (data) {
-          const type = Object.keys(data)[0]
-          const validate = validators.shift()
-          t.strictEqual(validate(data[type]), true, type + ' should be valid')
-          t.strictEqual(validate.errors, null, type + ' should not have any validation errors')
+          const type = Object.keys(data)[0];
+          const validate = validators.shift();
+          t.strictEqual(validate(data[type]), true, type + ' should be valid');
+          t.strictEqual(
+            validate.errors,
+            null,
+            type + ' should not have any validation errors',
+          );
         })
         .on('end', function () {
-          res.end()
-        })
-    })
+          res.end();
+        });
+    });
 
     server.listen(function () {
-      agent = newAgent(server)
-      agent.startTransaction('name1', 'type1')
-      const span = agent.startSpan('name1', 'type1')
-      span.end()
+      agent = newAgent(server);
+      agent.startTransaction('name1', 'type1');
+      const span = agent.startSpan('name1', 'type1');
+      span.end();
       agent.flush(function (err) {
-        t.error(err, 'flush should not result in an error')
-        server.close()
-        agent.destroy()
-        t.end()
-      })
-    })
-  })
-})
+        t.error(err, 'flush should not result in an error');
+        server.close();
+        agent.destroy();
+        t.end();
+      });
+    });
+  });
+});
 
-utils.metadataValidator(next())
-utils.spanValidator(next())
+utils.metadataValidator(next());
+utils.spanValidator(next());
 
-function newAgent (server) {
+function newAgent(server) {
   return new Agent().start({
     serviceName: 'test',
     serverUrl: 'http://localhost:' + server.address().port,
@@ -78,6 +86,6 @@ function newAgent (server) {
     sourceLinesSpanLibraryFrames: 5,
     apmServerVersion: '8.0.0',
     metricsInterval: 0,
-    centralConfig: false
-  })
+    centralConfig: false,
+  });
 }
