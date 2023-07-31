@@ -72,7 +72,7 @@ function assertMetadata(t, payload) {
 
   const system = Object.assign({}, payload.system);
   t.ok(
-    system.detected_hostname.startsWith(os.hostname()),
+    system.detected_hostname.startsWith(os.hostname().toLowerCase()),
     'metadata: system.detected_hostname',
   );
   delete system.detected_hostname;
