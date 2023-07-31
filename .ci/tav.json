@@ -1,6 +1,5 @@
 {
-  "// todo": "We want versions=['20','19','18','16','14','12','10','8'], but versions*modules needs to be <256 for the GH Actions jobs limit",
-  "versions": [ "20", "18", "16", "14", "12", "10", "8" ],
+  "versions": [ "20", "19", "18", "16", "14" ],
   "modules": [
     "@apollo/server",
     "@aws-sdk/client-s3",
