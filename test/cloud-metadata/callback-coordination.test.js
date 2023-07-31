@@ -10,7 +10,9 @@ const logging = require('../../lib/logging');
 
 const logger = logging.createLogger('off');
 
-const { CallbackCoordination } = require('../../lib/cloud-metadata/callback-coordination');
+const {
+  CallbackCoordination,
+} = require('../../lib/cloud-metadata/callback-coordination');
 tape.test('fetch coordination: all successful', function (t) {
   const fetcher = new CallbackCoordination(-1, logger);
   fetcher.schedule(function (fetcher) {
@@ -38,7 +40,7 @@ tape.test('fetch coordination: all successful', function (t) {
   });
 
   fetcher.on('result', function (result) {
-    t.equals('pass1', result, 'first callback\'s value is the result');
+    t.equals('pass1', result, "first callback's value is the result");
     t.end();
   });
 
@@ -80,35 +82,38 @@ tape.test('fetch coordination: all errors', function (t) {
   fetcher.start();
 });
 
-tape.test('fetch coordination: fails to invoke callback (timeout)', function (t) {
-  const fetcher = new CallbackCoordination(100, logger);
-  fetcher.schedule(function (fetcher) {
-    setTimeout(function () {
-      fetcher.recordResult(new Error('an error'));
-    }, 10);
-  });
+tape.test(
+  'fetch coordination: fails to invoke callback (timeout)',
+  function (t) {
+    const fetcher = new CallbackCoordination(100, logger);
+    fetcher.schedule(function (fetcher) {
+      setTimeout(function () {
+        fetcher.recordResult(new Error('an error'));
+      }, 10);
+    });
 
-  fetcher.schedule(function (fetcher) {
-    setTimeout(function () {
-      fetcher.recordResult(new Error('an error'));
-    }, 20);
-  });
+    fetcher.schedule(function (fetcher) {
+      setTimeout(function () {
+        fetcher.recordResult(new Error('an error'));
+      }, 20);
+    });
 
-  fetcher.schedule(function (fetcher) {
-    setTimeout(function () {
-      // Deliberately empty — simulates forgetting to call fetcher.recordResult
-    }, 30);
-  });
+    fetcher.schedule(function (fetcher) {
+      setTimeout(function () {
+        // Deliberately empty — simulates forgetting to call fetcher.recordResult
+      }, 30);
+    });
 
-  fetcher.on('result', function (result) {
-    t.error('do no expect to reach');
-  });
+    fetcher.on('result', function (result) {
+      t.error('do no expect to reach');
+    });
 
-  fetcher.on('error', function (error) {
-    t.ok(error);
-    t.equals(error.allErrors.length, 2, 'two of three errors captured');
-    t.equals(error.message, 'callback coordination reached timeout');
-    t.end();
-  });
-  fetcher.start();
-});
+    fetcher.on('error', function (error) {
+      t.ok(error);
+      t.equals(error.allErrors.length, 2, 'two of three errors captured');
+      t.equals(error.message, 'callback coordination reached timeout');
+      t.end();
+    });
+    fetcher.start();
+  },
+);

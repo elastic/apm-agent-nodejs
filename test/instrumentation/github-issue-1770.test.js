@@ -9,14 +9,14 @@ const agent = require('../..').start({
   serviceName: 'test-github-issue-1770',
   centralConfig: false,
   metricsInterval: 0,
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 const tape = require('tape');
 const http = require('http');
 const mockClient = require('../_mock_http_client');
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._apmClient = mockClient(3, cb);
 }
 
@@ -43,7 +43,7 @@ tape.test('span url contains single url', function (t) {
       host: '127.0.0.1',
       port,
       method: 'GET',
-      path: 'http://127.0.0.1/foo'
+      path: 'http://127.0.0.1/foo',
     };
     const client = http.request(opts);
     client.end();

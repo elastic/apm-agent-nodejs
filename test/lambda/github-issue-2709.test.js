@@ -29,7 +29,7 @@ tape.test('test _HANDLER=fixture/lambda.foo form', function (t) {
     centralConfig: false,
     cloudProvider: 'none',
     spanStackTraceMinDuration: 0, // Always have span stacktraces.
-    transport: function () {}
+    transport: function () {},
   });
 
   // load express after agent (for wrapper checking)
@@ -37,9 +37,17 @@ tape.test('test _HANDLER=fixture/lambda.foo form', function (t) {
 
   // check that the handler fixture is wrapped
   const handler = require(path.join(__dirname, '/fixtures/lambda')).foo;
-  t.equals(handler.name, 'wrappedLambdaHandler', 'handler function wrapped correctly');
+  t.equals(
+    handler.name,
+    'wrappedLambdaHandler',
+    'handler function wrapped correctly',
+  );
 
   // did normal patching/wrapping take place
-  t.equals(express.static.name, 'wrappedStatic', 'express module was instrumented correctly');
+  t.equals(
+    express.static.name,
+    'wrappedStatic',
+    'express module was instrumented correctly',
+  );
   t.end();
 });

@@ -13,8 +13,9 @@
 //    npm run docker:start mssql
 // to start a mssql container. Then `npm run docker:stop` to stop it.
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-tedious'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-tedious',
 });
 
 const tedious = require('tedious');
@@ -27,15 +28,15 @@ const connOpts = {
     type: 'default',
     options: {
       userName: 'SA',
-      password: passwd
-    }
+      password: passwd,
+    },
   },
   options: {
     // Tedious@9 changed to `trustServerCertificate: false` by default.
     trustServerCertificate: true,
     // Silence deprecation warning in tedious@8.
-    validateBulkLoadParameters: true
-  }
+    validateBulkLoadParameters: true,
+  },
 };
 
 // For tracing spans to be created, there must be an active transaction.
@@ -49,11 +50,18 @@ const t0 = apm.startTransaction('t0');
 const conn = new tedious.Connection(connOpts);
 conn.on('connect', onConnect);
 conn.connect();
-function onConnect () {
-  const req = new tedious.Request('select 1 + 1 as solution', (err, rowCount) => {
-    console.log('select 1+1: err=%s rowCount=%s', err && err.message, rowCount);
-    conn.close();
-  });
+function onConnect() {
+  const req = new tedious.Request(
+    'select 1 + 1 as solution',
+    (err, rowCount) => {
+      console.log(
+        'select 1+1: err=%s rowCount=%s',
+        err && err.message,
+        rowCount,
+      );
+      conn.close();
+    },
+  );
   req.on('row', (row) => {
     console.log('select 1+1: row[0].value=%j', row[0].value);
   });
@@ -64,9 +72,16 @@ function onConnect () {
 const conn2 = new tedious.Connection(connOpts);
 conn2.on('connect', onConnect2);
 conn2.connect();
-function onConnect2 () {
-  const req = new tedious.Request("select @mynum=42, @mystr='qaz'", function (err, rowCount) {
-    console.log('select @mynum ...: err=%s rowCount=%s', err && err.message, rowCount);
+function onConnect2() {
+  const req = new tedious.Request("select @mynum=42, @mystr='qaz'", function (
+    err,
+    rowCount,
+  ) {
+    console.log(
+      'select @mynum ...: err=%s rowCount=%s',
+      err && err.message,
+      rowCount,
+    );
     conn2.close();
   });
   req.addOutputParameter('mynum', tedious.TYPES.Int);

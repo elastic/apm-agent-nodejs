@@ -22,7 +22,7 @@ const agent = require('../../../..').start({
   secretToken: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 const http = require('http');
@@ -40,7 +40,11 @@ test('transaction name', function (t) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
     const trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name');
+    t.strictEqual(
+      trans.name,
+      'GET /hello/:name',
+      'transaction name is GET /hello/:name',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -53,7 +57,7 @@ test('transaction name', function (t) {
 
   server.get('/hello/:name', (req, res, next) => {
     res.send({
-      message: 'hello ' + req.params.name
+      message: 'hello ' + req.params.name,
     });
     next();
   });
@@ -61,16 +65,24 @@ test('transaction name', function (t) {
   // NOTE: Hostname must be supplied to force IPv4 mode,
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(0, '0.0.0.0', function () {
-    const req = http.get(`${server.url}/hello/world`, res => {
-      t.strictEqual(res.statusCode, 200, 'server should respond with status code 200');
+    const req = http.get(`${server.url}/hello/world`, (res) => {
+      t.strictEqual(
+        res.statusCode,
+        200,
+        'server should respond with status code 200',
+      );
       const chunks = [];
       res.on('data', chunks.push.bind(chunks));
       res.on('end', () => {
         const result = Buffer.concat(chunks).toString();
         const json = JSON.parse(result);
-        t.deepEqual(json, {
-          message: 'hello world'
-        }, 'got correct body');
+        t.deepEqual(
+          json,
+          {
+            message: 'hello world',
+          },
+          'got correct body',
+        );
         agent.flush();
         done();
       });
@@ -87,7 +99,11 @@ test('error reporting', function (t) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
     const trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name');
+    t.strictEqual(
+      trans.name,
+      'GET /hello/:name',
+      'transaction name is GET /hello/:name',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -98,7 +114,11 @@ test('error reporting', function (t) {
   agent.captureError = function (err, data) {
     t.strictEqual(err, error, 'has the expected error');
     t.ok(data, 'captured data with error');
-    t.strictEqual(data.request, request, 'captured data has the request object');
+    t.strictEqual(
+      data.request,
+      request,
+      'captured data has the request object',
+    );
     errored = true;
   };
   t.on('end', function () {
@@ -120,8 +140,12 @@ test('error reporting', function (t) {
   // NOTE: Hostname must be supplied to force IPv4 mode,
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(0, '0.0.0.0', function () {
-    const req = http.get(`${server.url}/hello/world`, res => {
-      t.strictEqual(res.statusCode, 500, 'server should respond with status code 500');
+    const req = http.get(`${server.url}/hello/world`, (res) => {
+      t.strictEqual(
+        res.statusCode,
+        500,
+        'server should respond with status code 500',
+      );
       res.resume();
       res.on('end', () => {
         agent.flush();
@@ -140,7 +164,11 @@ test('error reporting from chained handler', function (t) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
     const trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name');
+    t.strictEqual(
+      trans.name,
+      'GET /hello/:name',
+      'transaction name is GET /hello/:name',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -151,7 +179,11 @@ test('error reporting from chained handler', function (t) {
   agent.captureError = function (err, data) {
     t.strictEqual(err, error, 'has the expected error');
     t.ok(data, 'captured data with error');
-    t.strictEqual(data.request, request, 'captured data has the request object');
+    t.strictEqual(
+      data.request,
+      request,
+      'captured data has the request object',
+    );
     errored = true;
   };
   t.on('end', function () {
@@ -165,18 +197,26 @@ test('error reporting from chained handler', function (t) {
   });
   t.on('end', done);
 
-  server.get('/hello/:name', (req, res, next) => {
-    next();
-  }, (req, res, next) => {
-    request = req;
-    next(error);
-  });
+  server.get(
+    '/hello/:name',
+    (req, res, next) => {
+      next();
+    },
+    (req, res, next) => {
+      request = req;
+      next(error);
+    },
+  );
 
   // NOTE: Hostname must be supplied to force IPv4 mode,
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(0, '0.0.0.0', function () {
-    const req = http.get(`${server.url}/hello/world`, res => {
-      t.strictEqual(res.statusCode, 500, 'server should respond with status code 500');
+    const req = http.get(`${server.url}/hello/world`, (res) => {
+      t.strictEqual(
+        res.statusCode,
+        500,
+        'server should respond with status code 500',
+      );
       res.resume();
       res.on('end', () => {
         agent.flush();
@@ -195,7 +235,11 @@ test('error reporting from chained handler given as array', function (t) {
     t.strictEqual(data.transactions.length, 1, 'has a transaction');
 
     const trans = data.transactions[0];
-    t.strictEqual(trans.name, 'GET /hello/:name', 'transaction name is GET /hello/:name');
+    t.strictEqual(
+      trans.name,
+      'GET /hello/:name',
+      'transaction name is GET /hello/:name',
+    );
     t.strictEqual(trans.type, 'request', 'transaction type is request');
   });
 
@@ -206,7 +250,11 @@ test('error reporting from chained handler given as array', function (t) {
   agent.captureError = function (err, data) {
     t.strictEqual(err, error, 'has the expected error');
     t.ok(data, 'captured data with error');
-    t.strictEqual(data.request, request, 'captured data has the request object');
+    t.strictEqual(
+      data.request,
+      request,
+      'captured data has the request object',
+    );
     errored = true;
   };
   t.on('end', function () {
@@ -227,7 +275,7 @@ test('error reporting from chained handler given as array', function (t) {
     function (req, res, next) {
       request = req;
       next(error);
-    }
+    },
   ]);
 
   // It's important to have the route registered. Otherwise the request will
@@ -239,8 +287,12 @@ test('error reporting from chained handler given as array', function (t) {
   // NOTE: Hostname must be supplied to force IPv4 mode,
   // otherwise this will use IPv6, which fails on Travis CI.
   server.listen(0, '0.0.0.0', function () {
-    const req = http.get(`${server.url}/hello/world`, res => {
-      t.strictEqual(res.statusCode, 500, 'server should respond with status code 500');
+    const req = http.get(`${server.url}/hello/world`, (res) => {
+      t.strictEqual(
+        res.statusCode,
+        500,
+        'server should respond with status code 500',
+      );
       res.resume();
       res.on('end', () => {
         agent.flush();
@@ -251,8 +303,10 @@ test('error reporting from chained handler given as array', function (t) {
   });
 });
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(1, cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

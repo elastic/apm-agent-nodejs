@@ -13,10 +13,12 @@ const test = require('tape');
 const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client');
 const { validOpts } = require('./lib/utils');
 
-function assertDelayWithinTenPercentOf (t, value, target, context) {
-  const jitter = target * 0.10;
-  t.ok(target - jitter <= value && value <= target + jitter,
-    `delay ~ ${target}ms ${context}, got ${value}`);
+function assertDelayWithinTenPercentOf(t, value, target, context) {
+  const jitter = target * 0.1;
+  t.ok(
+    target - jitter <= value && value <= target + jitter,
+    `delay ~ ${target}ms ${context}, got ${value}`,
+  );
 }
 
 test('_getBackoffDelay', function (t) {
@@ -30,15 +32,59 @@ test('_getBackoffDelay', function (t) {
   // in case multiple agents entered the grace period simultaneously."
   t.equal(client._getBackoffDelay(false), 0, 'no backoff delay with no errors');
   t.equal(client._getBackoffDelay(true), 0, 'delay=0 after one error');
-  assertDelayWithinTenPercentOf(t, client._getBackoffDelay(true), 1000, 'after one error');
-  assertDelayWithinTenPercentOf(t, client._getBackoffDelay(true), 4000, 'after two errors');
-  assertDelayWithinTenPercentOf(t, client._getBackoffDelay(true), 9000, 'after three errors');
-  assertDelayWithinTenPercentOf(t, client._getBackoffDelay(true), 16000, 'after four errors');
-  assertDelayWithinTenPercentOf(t, client._getBackoffDelay(true), 25000, 'after five errors');
-  assertDelayWithinTenPercentOf(t, client._getBackoffDelay(true), 36000, 'after six errors');
-  assertDelayWithinTenPercentOf(t, client._getBackoffDelay(true), 36000, 'after seven or more errors');
-  assertDelayWithinTenPercentOf(t, client._getBackoffDelay(true), 36000, 'after seven or more errors');
-  t.equal(client._getBackoffDelay(false), 0, 'delay back to 0ms after a success');
+  assertDelayWithinTenPercentOf(
+    t,
+    client._getBackoffDelay(true),
+    1000,
+    'after one error',
+  );
+  assertDelayWithinTenPercentOf(
+    t,
+    client._getBackoffDelay(true),
+    4000,
+    'after two errors',
+  );
+  assertDelayWithinTenPercentOf(
+    t,
+    client._getBackoffDelay(true),
+    9000,
+    'after three errors',
+  );
+  assertDelayWithinTenPercentOf(
+    t,
+    client._getBackoffDelay(true),
+    16000,
+    'after four errors',
+  );
+  assertDelayWithinTenPercentOf(
+    t,
+    client._getBackoffDelay(true),
+    25000,
+    'after five errors',
+  );
+  assertDelayWithinTenPercentOf(
+    t,
+    client._getBackoffDelay(true),
+    36000,
+    'after six errors',
+  );
+  assertDelayWithinTenPercentOf(
+    t,
+    client._getBackoffDelay(true),
+    36000,
+    'after seven or more errors',
+  );
+  assertDelayWithinTenPercentOf(
+    t,
+    client._getBackoffDelay(true),
+    36000,
+    'after seven or more errors',
+  );
+  t.equal(
+    client._getBackoffDelay(false),
+    0,
+    'delay back to 0ms after a success',
+  );
 
   t.end();
 });

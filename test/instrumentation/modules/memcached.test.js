@@ -18,7 +18,7 @@ var agent = require('../../..').start({
   metricsInterval: '0s',
   centralConfig: false,
   cloudProvider: 'none',
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 var test = require('tape');
@@ -70,18 +70,28 @@ test('memcached', function (t) {
     t.strictEqual(spans[6].subtype, 'memcached');
     t.strictEqual(spans[6].action, 'get');
     t.strictEqual(spans[6].context.db.statement, 'get foo');
-    spans.forEach(span => {
-      t.deepEqual(span.context.service.target, { type: 'memcached' },
-        'span.context.service.target');
-      t.deepEqual(span.context.destination, {
-        service: { type: '', name: '', resource: 'memcached' },
-        address: host,
-        port: 11211
-      }, 'span.context.destination');
+    spans.forEach((span) => {
+      t.deepEqual(
+        span.context.service.target,
+        { type: 'memcached' },
+        'span.context.service.target',
+      );
+      t.deepEqual(
+        span.context.destination,
+        {
+          service: { type: '', name: '', resource: 'memcached' },
+          address: host,
+          port: 11211,
+        },
+        'span.context.destination',
+      );
     });
-    spans.forEach(span => {
-      t.equal(span.parent_id, data.transactions[0].id,
-        'span is a child of the transaction');
+    spans.forEach((span) => {
+      t.equal(
+        span.parent_id,
+        data.transactions[0].id,
+        'span is a child of the transaction',
+      );
     });
     t.end();
   });
@@ -90,7 +100,10 @@ test('memcached', function (t) {
   var cache = new Memcached(`${host}:11211`, { timeout: 500 });
   agent.startTransaction('myTrans');
   cache.set('foo', 'bar', 300, (err) => {
-    t.ok(agent.currentSpan === null, 'memcached span should not be currentSpan in callback');
+    t.ok(
+      agent.currentSpan === null,
+      'memcached span should not be currentSpan in callback',
+    );
     t.error(err);
     cache.get('foo', (err, data) => {
       t.error(err);
@@ -117,11 +130,16 @@ test('memcached', function (t) {
       });
     });
   });
-  t.ok(agent.currentSpan === null, 'memcached span should not be currentSpan in same tick after client method call');
+  t.ok(
+    agent.currentSpan === null,
+    'memcached span should not be currentSpan in same tick after client method call',
+  );
 });
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(8, cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

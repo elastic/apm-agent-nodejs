@@ -17,13 +17,15 @@ var agent = require('../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   apmServerVersion: '8.0.0',
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 var ioredisVer = require('ioredis/package.json').version;
 var semver = require('semver');
 if (semver.gte(ioredisVer, '5.0.0') && semver.lt(process.version, '12.22.0')) {
-  console.log(`# SKIP ioredis@${ioredisVer} does not support node ${process.version}`);
+  console.log(
+    `# SKIP ioredis@${ioredisVer} does not support node ${process.version}`,
+  );
   process.exit();
 }
 
@@ -32,7 +34,11 @@ var test = require('tape');
 
 var mockClient = require('../../_mock_http_client');
 const { NoopApmClient } = require('../../../lib/apm-client/noop-apm-client');
-const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../_utils');
+const {
+  findObjInArray,
+  runTestFixtures,
+  sortApmEvents,
+} = require('../../_utils');
 const { NODE_VER_RANGE_IITM } = require('../../testconsts');
 
 test('not nested', function (t) {
@@ -67,7 +73,7 @@ test('not nested', function (t) {
 
   redis.set('key', 100, 'EX', 10);
 
-  redis.keys('*', function testing123 (err, replies) {
+  redis.keys('*', function testing123(err, replies) {
     t.error(err);
     t.deepEqual(replies.sort(), ['foo', 'key', 'set']);
     t.strictEqual(calls, 3);
@@ -107,7 +113,7 @@ test('nested', function (t) {
 
     redis.set('key', 100, 'EX', 10);
 
-    redis.keys('*', function testing123 (err, replies) {
+    redis.keys('*', function testing123(err, replies) {
       t.error(err);
       t.deepEqual(replies.sort(), ['foo', 'key', 'set']);
       t.strictEqual(calls, 2);
@@ -123,7 +129,7 @@ test('error capture, no unhandledRejection on command error is introduced', func
   // Make sure there are no unhandled promise rejections
   // introduced by our promise handling. See #1518.
   let unhandledRejection = false;
-  function onUnhandledRejection (e) {
+  function onUnhandledRejection(e) {
     unhandledRejection = true;
   }
   process.once('unhandledRejection', onUnhandledRejection);
@@ -135,8 +141,16 @@ test('error capture, no unhandledRejection on command error is introduced', func
     const getSpan = findObjInArray(data.spans, 'name', 'GET');
     t.equal(data.errors.length, 1, 'captured 1 error');
     t.equal(data.errors[0].exception.type, 'ReplyError', 'exception.type');
-    t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id');
-    t.equal(data.errors[0].parent_id, getSpan.id, 'error.parent_id, the error is a child of the erroring span');
+    t.equal(
+      data.errors[0].transaction_id,
+      data.transactions[0].id,
+      'error.transaction_id',
+    );
+    t.equal(
+      data.errors[0].parent_id,
+      getSpan.id,
+      'error.parent_id, the error is a child of the erroring span',
+    );
 
     setTimeout(function () {
       t.notOk(unhandledRejection);
@@ -155,7 +169,7 @@ test('error capture, no unhandledRejection on command error is introduced', func
   }); // wrong type, should reject
 });
 
-function done (t) {
+function done(t) {
   return function (data, cb) {
     var groups = [
       'FLUSHALL',
@@ -165,7 +179,7 @@ function done (t) {
       'SADD',
       'SADD',
       'SET',
-      'KEYS'
+      'KEYS',
     ];
 
     t.strictEqual(data.transactions.length, 1);
@@ -183,20 +197,32 @@ function done (t) {
       t.strictEqual(span.type, 'db', 'span.type');
       t.strictEqual(span.subtype, 'redis', 'span.subtype');
       t.strictEqual(span.action, 'query', 'span.action');
-      t.deepEqual(span.context.service.target, { type: 'redis' }, 'span.context.service.target');
-      t.deepEqual(span.context.destination, {
-        address: process.env.REDIS_HOST || 'localhost',
-        port: 6379,
-        service: { name: '', type: '', resource: 'redis' }
-      }, 'span.context.destination');
-      t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction');
+      t.deepEqual(
+        span.context.service.target,
+        { type: 'redis' },
+        'span.context.service.target',
+      );
+      t.deepEqual(
+        span.context.destination,
+        {
+          address: process.env.REDIS_HOST || 'localhost',
+          port: 6379,
+          service: { name: '', type: '', resource: 'redis' },
+        },
+        'span.context.destination',
+      );
+      t.strictEqual(
+        span.parent_id,
+        trans.id,
+        'span is a child of the transaction',
+      );
     });
 
     t.end();
   };
 }
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(9, cb);
 }
@@ -207,21 +233,29 @@ const testFixtures = [
     script: 'fixtures/use-ioredis.mjs',
     cwd: __dirname,
     env: {
-      NODE_OPTIONS: '--experimental-loader=../../../loader.mjs --require=../../../start.js',
-      NODE_NO_WARNINGS: '1'
+      NODE_OPTIONS:
+        '--experimental-loader=../../../loader.mjs --require=../../../start.js',
+      NODE_NO_WARNINGS: '1',
     },
     versionRanges: {
-      node: NODE_VER_RANGE_IITM
+      node: NODE_VER_RANGE_IITM,
     },
     testOpts: {
       // Instrumentation *does* work with `contextManager: 'patch'`, but it
       // gets the parent incorrect for the 'INFO' span used by ioredis for
       // connection handling.
-      skip: process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch' ? 'contextManager=patch' : false
+      skip:
+        process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch'
+          ? 'contextManager=patch'
+          : false,
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
-      t.equal(apmServer.events.length, 7, 'expected number of APM server events');
+      t.equal(
+        apmServer.events.length,
+        7,
+        'expected number of APM server events',
+      );
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
 
@@ -230,34 +264,41 @@ const testFixtures = [
       t.equal(trans.type, 'custom', 'transaction.type');
       t.equal(trans.outcome, 'unknown', 'transaction.outcome');
 
-      const spans = events.slice(1, 5).map(e => e.span);
+      const spans = events.slice(1, 5).map((e) => e.span);
       const expectedSpanNames = ['SET', 'GET', 'HSET', 'GET'];
       spans.forEach((s, idx) => {
         t.equal(s.name, expectedSpanNames[idx], `span[${idx}].name`);
         t.equal(s.type, 'db', `span[${idx}].type`);
         t.equal(s.action, 'query', `span[${idx}].action`);
         t.equal(s.parent_id, trans.id, `span[${idx}].parent_id`);
-        t.deepEqual(s.context, {
-          service: { target: { type: 'redis' } },
-          destination: {
-            address: process.env.REDIS_HOST || 'localhost',
-            port: 6379,
-            service: { type: '', name: '', resource: 'redis' }
+        t.deepEqual(
+          s.context,
+          {
+            service: { target: { type: 'redis' } },
+            destination: {
+              address: process.env.REDIS_HOST || 'localhost',
+              port: 6379,
+              service: { type: '', name: '', resource: 'redis' },
+            },
+            db: { type: 'redis' },
           },
-          db: { type: 'redis' }
-        }, `span[${idx}].context`);
+          `span[${idx}].context`,
+        );
       });
 
       const error = events.slice(-1)[0].error;
       t.equal(error.exception.type, 'ReplyError', 'error.exception.type');
       t.equal(error.transaction_id, trans.id, 'error.transaction_id');
-      t.equal(error.parent_id, spans[spans.length - 1].id,
-        'error.parent_id, it is a child of the last span');
-    }
-  }
+      t.equal(
+        error.parent_id,
+        spans[spans.length - 1].id,
+        'error.parent_id, it is a child of the last span',
+      );
+    },
+  },
 ];
 
-test('ioredis fixtures', suite => {
+test('ioredis fixtures', (suite) => {
   // Undo the `agent._apmClient = ...` from earlier `resetAgent` usage.
   agent._apmClient = new NoopApmClient();
 

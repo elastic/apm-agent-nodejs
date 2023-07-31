@@ -20,9 +20,9 @@ test('extraMetadata', function (t) {
     foo: 'bar',
     service: {
       language: {
-        name: 'spam'
-      }
-    }
+        name: 'spam',
+      },
+    },
   };
 
   const server = APMServer(function (req, res) {
@@ -40,9 +40,16 @@ test('extraMetadata', function (t) {
     client.flush(() => {
       t.equal(apmEvents.length, 2, 'APM Server got 2 events');
       t.ok(apmEvents[0].metadata, 'event 0 is metadata');
-      t.equal(apmEvents[0].metadata.foo, 'bar', 'extraMetadata added "foo" field');
-      t.equal(apmEvents[0].metadata.service.language.name, 'spam',
-        'extraMetadata overrode nested service.language.name field properly');
+      t.equal(
+        apmEvents[0].metadata.foo,
+        'bar',
+        'extraMetadata added "foo" field',
+      );
+      t.equal(
+        apmEvents[0].metadata.service.language.name,
+        'spam',
+        'extraMetadata overrode nested service.language.name field properly',
+      );
       t.ok(apmEvents[1].transaction, 'event 1 is a transaction');
 
       client.end();

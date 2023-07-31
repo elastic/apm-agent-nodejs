@@ -22,11 +22,13 @@ const assertEvent = utils.assertEvent;
 // (to end an ongoing intake request) and Client.prototype._unref (to hold the
 // process to complete sending to APM server) handling in the client.
 test('client should not hold the process open', function (t) {
-  t.plan(1 + assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
+  t.plan(
+    1 + assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+  );
 
   const thingsToAssert = [
     assertMetadata,
-    assertEvent({ span: { hello: 'world' } })
+    assertEvent({ span: { hello: 'world' } }),
   ];
 
   const server = APMServer(function (req, res) {
@@ -34,7 +36,13 @@ test('client should not hold the process open', function (t) {
     if (req.method === 'GET' && req.url === '/') {
       req.resume();
       res.statusCode = 200;
-      res.end(JSON.stringify({ build_date: '...', build_sha: '...', version: '8.0.0' }));
+      res.end(
+        JSON.stringify({
+          build_date: '...',
+          build_sha: '...',
+          version: '8.0.0',
+        }),
+      );
       return;
     }
 
@@ -64,7 +72,10 @@ test('client should not hold the process open', function (t) {
       const end = Date.now();
       const start = Number(stdout);
       const duration = end - start;
-      t.ok(duration < 300, `should not take more than 300ms to complete (was: ${duration}ms)`);
+      t.ok(
+        duration < 300,
+        `should not take more than 300ms to complete (was: ${duration}ms)`,
+      );
       t.end();
     });
   });
@@ -77,11 +88,13 @@ test('client should not hold the process open', function (t) {
 // `intakeResTimeout` to *1s* if the client is ending. We test that ~1s timeout
 // here.
 test('client should not hold the process open even if APM server not responding', function (t) {
-  t.plan(2 + assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
+  t.plan(
+    2 + assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+  );
 
   const thingsToAssert = [
     assertMetadata,
-    assertEvent({ span: { hello: 'world' } })
+    assertEvent({ span: { hello: 'world' } }),
   ];
 
   const server = APMServer(function (req, res) {
@@ -117,8 +130,10 @@ test('client should not hold the process open even if APM server not responding'
       const end = Date.now();
       const start = Number(stdout);
       const duration = end - start;
-      t.ok(duration > 700 && duration < 1300,
-        `should take approximately 1000ms to timeout (was: ${duration}ms)`);
+      t.ok(
+        duration > 700 && duration < 1300,
+        `should take approximately 1000ms to timeout (was: ${duration}ms)`,
+      );
 
       server.close();
       t.end();

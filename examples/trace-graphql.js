@@ -7,8 +7,9 @@
 // A small example showing Elastic APM tracing of a script using `graphql`.
 // Adapted from https://graphql.org/graphql-js/#writing-code
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-graphql'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-graphql',
 });
 const { graphql, buildSchema } = require('graphql');
 
@@ -27,7 +28,7 @@ const root = {
   },
   bye: () => {
     return 'Farewell!';
-  }
+  },
 };
 
 // For tracing spans to be created, there must be an active transaction.

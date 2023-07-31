@@ -26,7 +26,7 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-sqs',
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 const path = require('path');
@@ -34,7 +34,7 @@ const AWS = require('aws-sdk');
 
 const NAME = path.basename(process.argv[1]);
 
-function fail (err) {
+function fail(err) {
   console.error(`${NAME}: error: ${err.toString()}`);
   process.exitCode = 1;
 }
@@ -71,11 +71,11 @@ sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
     QueueUrl: queueUrl,
     MessageBody: `this is my message (${rand}})`,
     MessageAttributes: {
-      foo: { DataType: 'String', StringValue: 'bar' }
+      foo: { DataType: 'String', StringValue: 'bar' },
     },
     // Only used for FIFO queues.
     MessageGroupId: 'example-trace-sqs',
-    MessageDeduplicationId: rand.toString()
+    MessageDeduplicationId: rand.toString(),
   };
   console.log('Sending message with body: %j', params.MessageBody);
   sqs.sendMessage(params, function (err, data) {

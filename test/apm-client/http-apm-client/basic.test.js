@@ -21,18 +21,17 @@ const upper = {
   span: 'Span',
   transaction: 'Transaction',
   error: 'Error',
-  metricset: 'MetricSet'
+  metricset: 'MetricSet',
 };
 
 dataTypes.forEach(function (dataType) {
   const sendFn = 'send' + upper[dataType];
 
   test(`client.${sendFn}() + client.flush()`, function (t) {
-    t.plan(assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
-    const datas = [
-      assertMetadata,
-      assertEvent({ [dataType]: { foo: 42 } })
-    ];
+    t.plan(
+      assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+    );
+    const datas = [assertMetadata, assertEvent({ [dataType]: { foo: 42 } })];
     const server = APMServer(function (req, res) {
       assertIntakeReq(t, req);
       req = processIntakeReq(req);
@@ -46,16 +45,20 @@ dataTypes.forEach(function (dataType) {
       });
     }).client({ apmServerVersion: '8.0.0' }, function (client) {
       client[sendFn]({ foo: 42 });
-      client.flush(() => { client.destroy(); });
+      client.flush(() => {
+        client.destroy();
+      });
     });
   });
 
   test(`client.${sendFn}(callback) + client.flush()`, function (t) {
-    t.plan(1 + assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
-    const datas = [
-      assertMetadata,
-      assertEvent({ [dataType]: { foo: 42 } })
-    ];
+    t.plan(
+      1 +
+        assertIntakeReq.asserts +
+        assertMetadata.asserts +
+        assertEvent.asserts,
+    );
+    const datas = [assertMetadata, assertEvent({ [dataType]: { foo: 42 } })];
     const server = APMServer(function (req, res) {
       assertIntakeReq(t, req);
       req = processIntakeReq(req);
@@ -80,12 +83,11 @@ dataTypes.forEach(function (dataType) {
   });
 
   test(`client.${sendFn}() + client.end()`, function (t) {
-    t.plan(assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
+    t.plan(
+      assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+    );
     let client;
-    const datas = [
-      assertMetadata,
-      assertEvent({ [dataType]: { foo: 42 } })
-    ];
+    const datas = [assertMetadata, assertEvent({ [dataType]: { foo: 42 } })];
     const server = APMServer(function (req, res) {
       assertIntakeReq(t, req);
       req = processIntakeReq(req);
@@ -106,12 +108,11 @@ dataTypes.forEach(function (dataType) {
   });
 
   test(`single client.${sendFn}`, function (t) {
-    t.plan(assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
+    t.plan(
+      assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+    );
     let client;
-    const datas = [
-      assertMetadata,
-      assertEvent({ [dataType]: { foo: 42 } })
-    ];
+    const datas = [assertMetadata, assertEvent({ [dataType]: { foo: 42 } })];
     const server = APMServer(function (req, res) {
       assertIntakeReq(t, req);
       req = processIntakeReq(req);
@@ -131,13 +132,17 @@ dataTypes.forEach(function (dataType) {
   });
 
   test(`multiple client.${sendFn} (same request)`, function (t) {
-    t.plan(assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts * 3);
+    t.plan(
+      assertIntakeReq.asserts +
+        assertMetadata.asserts +
+        assertEvent.asserts * 3,
+    );
     let client;
     const datas = [
       assertMetadata,
       assertEvent({ [dataType]: { req: 1 } }),
       assertEvent({ [dataType]: { req: 2 } }),
-      assertEvent({ [dataType]: { req: 3 } })
+      assertEvent({ [dataType]: { req: 3 } }),
     ];
     const server = APMServer(function (req, res) {
       assertIntakeReq(t, req);
@@ -160,7 +165,11 @@ dataTypes.forEach(function (dataType) {
   });
 
   test(`multiple client.${sendFn} (multiple requests)`, function (t) {
-    t.plan(assertIntakeReq.asserts * 2 + assertMetadata.asserts * 2 + assertEvent.asserts * 6);
+    t.plan(
+      assertIntakeReq.asserts * 2 +
+        assertMetadata.asserts * 2 +
+        assertEvent.asserts * 6,
+    );
 
     let clientReqNum = 0;
     let clientSendNum = 0;
@@ -175,7 +184,7 @@ dataTypes.forEach(function (dataType) {
       assertMetadata,
       assertEvent({ [dataType]: { req: 2, send: 4 } }),
       assertEvent({ [dataType]: { req: 2, send: 5 } }),
-      assertEvent({ [dataType]: { req: 2, send: 6 } })
+      assertEvent({ [dataType]: { req: 2, send: 6 } }),
     ];
 
     const server = APMServer(function (req, res) {
@@ -200,7 +209,7 @@ dataTypes.forEach(function (dataType) {
       send();
     });
 
-    function send () {
+    function send() {
       clientReqNum++;
       for (let n = 0; n < 3; n++) {
         client[sendFn]({ req: clientReqNum, send: ++clientSendNum });
@@ -213,7 +222,7 @@ test('client.flush(callback) - with active request', function (t) {
   t.plan(4 + assertIntakeReq.asserts + assertMetadata.asserts);
   const datas = [
     assertMetadata,
-    { span: { foo: 42, name: 'undefined', type: 'undefined' } }
+    { span: { foo: 42, name: 'undefined', type: 'undefined' } },
   ];
   const server = APMServer(function (req, res) {
     assertIntakeReq(t, req);
@@ -226,17 +235,32 @@ test('client.flush(callback) - with active request', function (t) {
     req.on('end', function () {
       res.end();
     });
-  }).client({ bufferWindowTime: -1, apmServerVersion: '8.0.0' }, function (client) {
-    t.equal(client._activeIntakeReq, false, 'no outgoing HTTP request to begin with');
-    client.sendSpan({ foo: 42 });
-    t.equal(client._activeIntakeReq, true, 'an outgoing HTTP request should be active');
-    client.flush(function () {
-      t.equal(client._activeIntakeReq, false, 'the outgoing HTTP request should be done');
-      client.end();
-      server.close();
-      t.end();
-    });
-  });
+  }).client(
+    { bufferWindowTime: -1, apmServerVersion: '8.0.0' },
+    function (client) {
+      t.equal(
+        client._activeIntakeReq,
+        false,
+        'no outgoing HTTP request to begin with',
+      );
+      client.sendSpan({ foo: 42 });
+      t.equal(
+        client._activeIntakeReq,
+        true,
+        'an outgoing HTTP request should be active',
+      );
+      client.flush(function () {
+        t.equal(
+          client._activeIntakeReq,
+          false,
+          'the outgoing HTTP request should be done',
+        );
+        client.end();
+        server.close();
+        t.end();
+      });
+    },
+  );
 });
 
 test('client.flush(callback) - with queued request', function (t) {
@@ -245,7 +269,7 @@ test('client.flush(callback) - with queued request', function (t) {
     assertMetadata,
     { span: { req: 1, name: 'undefined', type: 'undefined' } },
     assertMetadata,
-    { span: { req: 2, name: 'undefined', type: 'undefined' } }
+    { span: { req: 2, name: 'undefined', type: 'undefined' } },
   ];
   const server = APMServer(function (req, res) {
     assertIntakeReq(t, req);
@@ -258,18 +282,29 @@ test('client.flush(callback) - with queued request', function (t) {
     req.on('end', function () {
       res.end();
     });
-  }).client({ bufferWindowTime: -1, apmServerVersion: '8.0.0' }, function (client) {
-    client.sendSpan({ req: 1 });
-    client.flush();
-    client.sendSpan({ req: 2 });
-    t.equal(client._activeIntakeReq, true, 'an outgoing HTTP request should be active');
-    client.flush(function () {
-      t.equal(client._activeIntakeReq, false, 'the outgoing HTTP request should be done');
-      client.end();
-      server.close();
-      t.end();
-    });
-  });
+  }).client(
+    { bufferWindowTime: -1, apmServerVersion: '8.0.0' },
+    function (client) {
+      client.sendSpan({ req: 1 });
+      client.flush();
+      client.sendSpan({ req: 2 });
+      t.equal(
+        client._activeIntakeReq,
+        true,
+        'an outgoing HTTP request should be active',
+      );
+      client.flush(function () {
+        t.equal(
+          client._activeIntakeReq,
+          false,
+          'the outgoing HTTP request should be done',
+        );
+        client.end();
+        server.close();
+        t.end();
+      });
+    },
+  );
 });
 
 test('2nd flush before 1st flush have finished', function (t) {
@@ -280,7 +315,7 @@ test('2nd flush before 1st flush have finished', function (t) {
     assertMetadata,
     { span: { req: 1, name: 'undefined', type: 'undefined' } },
     assertMetadata,
-    { span: { req: 2, name: 'undefined', type: 'undefined' } }
+    { span: { req: 2, name: 'undefined', type: 'undefined' } },
   ];
   const server = APMServer(function (req, res) {
     requestStarts++;
@@ -295,27 +330,31 @@ test('2nd flush before 1st flush have finished', function (t) {
       requestEnds++;
       res.end();
     });
-  }).client({ bufferWindowTime: -1, apmServerVersion: '8.0.0' }, function (client) {
-    client.sendSpan({ req: 1 });
-    client.flush();
-    client.sendSpan({ req: 2 });
-    client.flush(() => { client.destroy(); });
-    setTimeout(function () {
-      t.equal(requestStarts, 2, 'should have received 2 requests');
-      t.equal(requestEnds, 2, 'should have received 2 requests completely');
-      t.end();
-      server.close();
-    }, 200);
-  });
+  }).client(
+    { bufferWindowTime: -1, apmServerVersion: '8.0.0' },
+    function (client) {
+      client.sendSpan({ req: 1 });
+      client.flush();
+      client.sendSpan({ req: 2 });
+      client.flush(() => {
+        client.destroy();
+      });
+      setTimeout(function () {
+        t.equal(requestStarts, 2, 'should have received 2 requests');
+        t.equal(requestEnds, 2, 'should have received 2 requests completely');
+        t.end();
+        server.close();
+      }, 200);
+    },
+  );
 });
 
 test('client.end(callback)', function (t) {
-  t.plan(1 + assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
+  t.plan(
+    1 + assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+  );
   let client;
-  const datas = [
-    assertMetadata,
-    assertEvent({ span: { foo: 42 } })
-  ];
+  const datas = [assertMetadata, assertEvent({ span: { foo: 42 } })];
   const server = APMServer(function (req, res) {
     assertIntakeReq(t, req);
     req = processIntakeReq(req);
@@ -366,7 +405,7 @@ test('client.sent', function (t) {
   });
 });
 
-test('should not open new request until it\'s needed after flush', function (t) {
+test("should not open new request until it's needed after flush", function (t) {
   let client;
   let requests = 0;
   let expectRequest = false;
@@ -391,14 +430,14 @@ test('should not open new request until it\'s needed after flush', function (t) 
     sendData();
   });
 
-  function sendData () {
+  function sendData() {
     expectRequest = true;
     client.sendError({ foo: 42 });
     client.flush();
   }
 });
 
-test('should not open new request until it\'s needed after timeout', function (t) {
+test("should not open new request until it's needed after timeout", function (t) {
   let client;
   let requests = 0;
   let expectRequest = false;
@@ -423,7 +462,7 @@ test('should not open new request until it\'s needed after timeout', function (t
     sendData();
   });
 
-  function sendData () {
+  function sendData() {
     expectRequest = true;
     client.sendError({ foo: 42 });
   }
@@ -434,15 +473,27 @@ test('cloud metadata: _encodedMetadata maintains cloud info after re-config', fu
     agentName: 'a',
     agentVersion: 'b',
     serviceName: 'c',
-    userAgent: 'd'
+    userAgent: 'd',
   };
   const client = new HttpApmClient(conf);
 
   // test initial values
   const metadataPreUpdate = JSON.parse(client._encodedMetadata).metadata;
-  t.equals(metadataPreUpdate.service.name, conf.serviceName, 'initial service name set');
-  t.equals(metadataPreUpdate.service.agent.name, conf.agentName, 'initial agent name set');
-  t.equals(metadataPreUpdate.service.agent.version, conf.agentVersion, 'initial agent version set');
+  t.equals(
+    metadataPreUpdate.service.name,
+    conf.serviceName,
+    'initial service name set',
+  );
+  t.equals(
+    metadataPreUpdate.service.agent.name,
+    conf.agentName,
+    'initial agent name set',
+  );
+  t.equals(
+    metadataPreUpdate.service.agent.version,
+    conf.agentVersion,
+    'initial agent version set',
+  );
   t.ok(!metadataPreUpdate.cloud, 'no cloud metadata set initially');
 
   // Simulate cloud metadata having been gathered.
@@ -451,27 +502,67 @@ test('cloud metadata: _encodedMetadata maintains cloud info after re-config', fu
 
   // Ensure cloud metadata is on `_encodedMetadata`.
   const metadataPostCloud = JSON.parse(client._encodedMetadata).metadata;
-  t.equals(metadataPostCloud.service.name, conf.serviceName, 'service name still set');
-  t.equals(metadataPostCloud.service.agent.name, conf.agentName, 'agent name still set');
-  t.equals(metadataPostCloud.service.agent.version, conf.agentVersion, 'agent version still set');
+  t.equals(
+    metadataPostCloud.service.name,
+    conf.serviceName,
+    'service name still set',
+  );
+  t.equals(
+    metadataPostCloud.service.agent.name,
+    conf.agentName,
+    'agent name still set',
+  );
+  t.equals(
+    metadataPostCloud.service.agent.version,
+    conf.agentVersion,
+    'agent version still set',
+  );
   t.ok(metadataPostCloud.cloud, 'cloud metadata set after fetch');
-  t.equals(metadataPostCloud.cloud.foo, 'bar', 'cloud metadata set after fetch');
+  t.equals(
+    metadataPostCloud.cloud.foo,
+    'bar',
+    'cloud metadata set after fetch',
+  );
 
   // Simulate an update of some metadata from re-config.
   client.config({
     frameworkName: 'superFastify',
-    frameworkVersion: '1.0.0'
+    frameworkVersion: '1.0.0',
   });
 
   // Ensure _encodedMetadata keeps cloud info and updates appropriately.
   const metadataPostUpdate = JSON.parse(client._encodedMetadata).metadata;
-  t.equals(metadataPostUpdate.service.name, conf.serviceName, 'service name still set');
-  t.equals(metadataPostUpdate.service.agent.name, conf.agentName, 'agent name still set');
-  t.equals(metadataPostUpdate.service.agent.version, conf.agentVersion, 'agent version still set');
-  t.equals(metadataPostUpdate.service.framework.name, 'superFastify', 'service.framework.name properly set');
-  t.equals(metadataPostUpdate.service.framework.version, '1.0.0', 'service.framework.version properly set');
+  t.equals(
+    metadataPostUpdate.service.name,
+    conf.serviceName,
+    'service name still set',
+  );
+  t.equals(
+    metadataPostUpdate.service.agent.name,
+    conf.agentName,
+    'agent name still set',
+  );
+  t.equals(
+    metadataPostUpdate.service.agent.version,
+    conf.agentVersion,
+    'agent version still set',
+  );
+  t.equals(
+    metadataPostUpdate.service.framework.name,
+    'superFastify',
+    'service.framework.name properly set',
+  );
+  t.equals(
+    metadataPostUpdate.service.framework.version,
+    '1.0.0',
+    'service.framework.version properly set',
+  );
   t.ok(metadataPostUpdate.cloud, 'cloud metadata still set after re-config');
-  t.equals(metadataPostUpdate.cloud.foo, 'bar', 'cloud metadata "passed through" after re-config');
+  t.equals(
+    metadataPostUpdate.cloud.foo,
+    'bar',
+    'cloud metadata "passed through" after re-config',
+  );
   t.end();
 });
 
@@ -481,7 +572,7 @@ test('cloud metadata: _fetchAndEncodeMetadata with fetcher configured ', functio
     agentName: 'a',
     agentVersion: 'b',
     serviceName: 'c',
-    userAgent: 'd'
+    userAgent: 'd',
   };
   conf.cloudMetadataFetcher = {};
   conf.cloudMetadataFetcher.getCloudMetadata = function (cb) {
@@ -492,7 +583,11 @@ test('cloud metadata: _fetchAndEncodeMetadata with fetcher configured ', functio
     const metadata = JSON.parse(client._encodedMetadata).metadata;
     t.equals(metadata.service.name, conf.serviceName, 'service name set');
     t.equals(metadata.service.agent.name, conf.agentName, 'agent name set');
-    t.equals(metadata.service.agent.version, conf.agentVersion, 'agent version set');
+    t.equals(
+      metadata.service.agent.version,
+      conf.agentVersion,
+      'agent version set',
+    );
     t.ok(metadata.cloud, 'cloud metadata set with a fetcher configured');
     t.equals(metadata.cloud.foo, 'bar', 'cloud metadata value represented');
     t.end();
@@ -505,7 +600,7 @@ test('cloud metadata: _fetchAndEncodeMetadata with fetcher configured but an err
     agentName: 'a',
     agentVersion: 'b',
     serviceName: 'c',
-    userAgent: 'd'
+    userAgent: 'd',
   };
   conf.cloudMetadataFetcher = {};
   conf.cloudMetadataFetcher.getCloudMetadata = function (cb) {
@@ -517,8 +612,15 @@ test('cloud metadata: _fetchAndEncodeMetadata with fetcher configured but an err
     const metadata = JSON.parse(client._encodedMetadata).metadata;
     t.equals(metadata.service.name, conf.serviceName, 'service name set');
     t.equals(metadata.service.agent.name, conf.agentName, 'agent name set');
-    t.equals(metadata.service.agent.version, conf.agentVersion, 'agent version set');
-    t.ok(!metadata.cloud, 'cloud metadata not set when there is a fetcher error');
+    t.equals(
+      metadata.service.agent.version,
+      conf.agentVersion,
+      'agent version set',
+    );
+    t.ok(
+      !metadata.cloud,
+      'cloud metadata not set when there is a fetcher error',
+    );
     t.end();
   });
 });

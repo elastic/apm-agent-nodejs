@@ -10,12 +10,12 @@
 // will automatically instrument it.
 
 const apm = require('../').start({
-  serviceName: 'example-trace-fetch'
+  serviceName: 'example-trace-fetch',
 });
 
 const url = process.argv[2] || 'https://httpstat.us/200';
 
-async function main () {
+async function main() {
   // For tracing spans to be created, there must be an active transaction.
   // Typically, a transaction is automatically started for incoming HTTP
   // requests to a Node.js server. However, because this script is not running

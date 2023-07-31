@@ -28,7 +28,7 @@ var agent;
 
 module.exports = setup;
 
-function setup () {
+function setup() {
   clean();
   uncaughtExceptionListeners = process._events.uncaughtException;
   process.removeAllListeners('uncaughtException');
@@ -36,7 +36,7 @@ function setup () {
   return agent;
 }
 
-function clean () {
+function clean() {
   global[symbols.agentInitialized] = null;
   process._events.uncaughtException = uncaughtExceptionListeners;
   if (agent) {

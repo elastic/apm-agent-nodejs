@@ -7,13 +7,14 @@
 // Make an `https.request(...)` and assert expected run context in all the
 // various callbacks and event handlers.
 
-const apm = require('../../../../../').start({ // elastic-apm-node
+const apm = require('../../../../../').start({
+  // elastic-apm-node
   captureExceptions: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'run-context-https-request'
+  serviceName: 'run-context-https-request',
 });
 
 let assert = require('assert');
@@ -22,14 +23,19 @@ if (Number(process.versions.node.split('.')[0]) > 8) {
 }
 const https = require('https');
 
-function makeARequest (opts, cb) {
+function makeARequest(opts, cb) {
   const clientReq = https.request(opts, function (clientRes) {
-    console.log('client response: %s %o', clientRes.statusCode, clientRes.headers);
+    console.log(
+      'client response: %s %o',
+      clientRes.statusCode,
+      clientRes.headers,
+    );
     assert(apm.currentSpan === null);
     apm.startSpan('span-in-https.request-callback').end();
 
     const chunks = [];
-    clientRes.once('data', function (chunk) { // Just get the first chunk
+    clientRes.once('data', function (chunk) {
+      // Just get the first chunk
       assert(apm.currentSpan === null);
       apm.startSpan('span-in-clientRes-on-data').end();
       chunks.push(chunk);
@@ -71,8 +77,9 @@ makeARequest(
     // 'https://www.google.com/'
     host: 'www.google.com',
     path: '/',
-    headers: { accept: '*/*' }
+    headers: { accept: '*/*' },
   },
   function () {
     t0.end();
-  });
+  },
+);

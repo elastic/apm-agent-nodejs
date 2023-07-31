@@ -5,6 +5,6 @@
  */
 
 const apm = require('../../..').start({
-  disableSend: true
+  disableSend: true,
 });
 console.log(JSON.stringify(apm._conf));

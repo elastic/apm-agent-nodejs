@@ -35,7 +35,7 @@ const EXCUSE_FROM_SUPPORTED_TECHNOLOGIES_DOC = {
   got: true, // got@12 is pure ESM so we state support up to got@11 only
   'mimic-response': true, // we instrument a single old version to indirectly support an old version of 'got'
   mongojs: true, // last release was in 2019, we aren't going to add effort to this module now
-  '': null
+  '': null,
 };
 const EXCUSE_FROM_TAV = {
   '@elastic/elasticsearch-canary': true,
@@ -44,7 +44,7 @@ const EXCUSE_FROM_TAV = {
   jade: true, // we deprecated 'jade' (in favour of 'pug')
   'mimic-response': true, // we instrument a single old version to indirectly support an old version of 'got'
   mongojs: true, // last release was in 2019, we aren't going to add effort to this module now
-  '': null
+  '': null,
 };
 
 // ---- caching
@@ -52,7 +52,7 @@ const EXCUSE_FROM_TAV = {
 const gCachePath = '/tmp/apm-agent-nodejs-bitrot.cache.json';
 let gCache = null;
 
-function ensureCacheLoaded (ns) {
+function ensureCacheLoaded(ns) {
   if (gCache === null) {
     try {
       gCache = JSON.parse(fs.readFileSync(gCachePath));
@@ -67,7 +67,7 @@ function ensureCacheLoaded (ns) {
   return gCache[ns];
 }
 
-function saveCache () {
+function saveCache() {
   if (gCache !== null) {
     fs.writeFileSync(gCachePath, JSON.stringify(gCache, null, 2));
   }
@@ -95,11 +95,13 @@ var colors = {
   green: [32, 39],
   magenta: [35, 39],
   red: [31, 39],
-  yellow: [33, 39]
+  yellow: [33, 39],
 };
 
-function stylizeWithColor (str, color) {
-  if (!str) { return ''; }
+function stylizeWithColor(str, color) {
+  if (!str) {
+    return '';
+  }
   var codes = colors[color];
   if (codes) {
     return '\x1B[' + codes[0] + 'm' + str + '\x1B[' + codes[1] + 'm';
@@ -108,7 +110,7 @@ function stylizeWithColor (str, color) {
   }
 }
 
-function stylizeWithoutColor (str, color) {
+function stylizeWithoutColor(str, color) {
   return str;
 }
 
@@ -116,7 +118,7 @@ let stylize = stylizeWithColor;
 
 // ---- support functions
 
-function rot (moduleName, s) {
+function rot(moduleName, s) {
   rotCount++;
   console.log(`${stylize(moduleName, 'bold')} bitrot: ${s}`);
 }
@@ -129,7 +131,7 @@ function rot (moduleName, s) {
 // https://docs.asciidoctor.org/asciidoc/latest/tables/build-a-basic-table/
 // I don't know why the difference. This parsing supports just the limited form
 // I see in supported-technologies.asciidoc.
-function loadSupportedDoc () {
+function loadSupportedDoc() {
   const docPath = 'docs/supported-technologies.asciidoc';
   var html = fs.readFileSync(docPath, 'utf8');
   var rows = [];
@@ -156,8 +158,8 @@ function loadSupportedDoc () {
           .slice(1) // remove leading '|'
           .replace(/\\\|/g, escapePlaceholder)
           .split(/\s*\|\s*/g)
-          .map(c => c.replace(new RegExp(escapePlaceholder, 'g'), '|'))
-          .filter(c => c.length > 0);
+          .map((c) => c.replace(new RegExp(escapePlaceholder, 'g'), '|'))
+          .filter((c) => c.length > 0);
         rows.push(cells);
       }
     }
@@ -185,7 +187,11 @@ function loadSupportedDoc () {
     } else if (row[0].includes('<<')) {
       match = /^\s*<<([\w-]+),(.*?)>>/.exec(row[0]);
       if (!match) {
-        throw new Error(`could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(row[0])}`);
+        throw new Error(
+          `could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(
+            row[0],
+          )}`,
+        );
       }
       var moduleNames;
       if (match[1] === 'nextjs') {
@@ -201,13 +207,17 @@ function loadSupportedDoc () {
       } else {
         moduleNames = [match[1]];
       }
-      moduleNames.forEach(n => {
+      moduleNames.forEach((n) => {
         results.push({ name: n, versions: row[1] });
       });
     } else {
       match = /^https:\/\/.*\[(.*)\]$/.exec(row[0].trim());
       if (!match) {
-        throw new Error(`could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(row[0])}`);
+        throw new Error(
+          `could not parse this table cell text from docs/supported-technologies.asciidoc: ${JSON.stringify(
+            row[0],
+          )}`,
+        );
       }
       results.push({ name: match[1], versions: row[1] });
     }
@@ -215,7 +225,7 @@ function loadSupportedDoc () {
   return results;
 }
 
-function getNpmInfo (name) {
+function getNpmInfo(name) {
   const CACHE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
   const cache = ensureCacheLoaded('npmInfo');
   const cacheEntry = cache[name];
@@ -230,7 +240,9 @@ function getNpmInfo (name) {
   // Limited security guard on exec'ing given `name`.
   const PKG_NAME_RE = /^(@[\w_.-]+\/)?([\w_.-]+)$/;
   if (!PKG_NAME_RE.test(name)) {
-    throw new Error(`${JSON.stringify(name)} does not look like a valid npm package name`);
+    throw new Error(
+      `${JSON.stringify(name)} does not look like a valid npm package name`,
+    );
   }
 
   const stdout = execSync(`npm info -j "${name}"`);
@@ -238,19 +250,26 @@ function getNpmInfo (name) {
 
   cache[name] = {
     timestamp: Date.now(),
-    value: npmInfo
+    value: npmInfo,
   };
   saveCache();
   return npmInfo;
 }
 
-function bitrot (moduleNames) {
+function bitrot(moduleNames) {
   log.debug({ moduleNames }, 'bitrot');
   var tavYmls = [
     yaml.load(fs.readFileSync('.tav.yml', 'utf8')),
     yaml.load(fs.readFileSync('./test/opentelemetry-bridge/.tav.yml', 'utf8')),
-    yaml.load(fs.readFileSync('./test/opentelemetry-metrics/fixtures/.tav.yml', 'utf8')),
-    yaml.load(fs.readFileSync('test/instrumentation/modules/next/a-nextjs-app/.tav.yml', 'utf8'))
+    yaml.load(
+      fs.readFileSync('./test/opentelemetry-metrics/fixtures/.tav.yml', 'utf8'),
+    ),
+    yaml.load(
+      fs.readFileSync(
+        'test/instrumentation/modules/next/a-nextjs-app/.tav.yml',
+        'utf8',
+      ),
+    ),
   ];
   var supported = loadSupportedDoc();
 
@@ -261,7 +280,7 @@ function bitrot (moduleNames) {
       rangesFromName[name] = { tavRanges: [], supRanges: [] };
     }
   };
-  tavYmls.forEach(tavYml => {
+  tavYmls.forEach((tavYml) => {
     for (const [label, tavInfo] of Object.entries(tavYml)) {
       var name = tavInfo.name || label;
       ensureKey(name);
@@ -276,12 +295,16 @@ function bitrot (moduleNames) {
   // Reduce to `moduleNames` if given.
   if (moduleNames && moduleNames.length > 0) {
     var allNames = Object.keys(rangesFromName);
-    moduleNames.forEach(name => {
+    moduleNames.forEach((name) => {
       if (!(name in rangesFromName)) {
-        throw new Error(`unknown module name: ${name} (known module names: ${allNames.join(', ')})`);
+        throw new Error(
+          `unknown module name: ${name} (known module names: ${allNames.join(
+            ', ',
+          )})`,
+        );
       }
     });
-    allNames.forEach(name => {
+    allNames.forEach((name) => {
       if (!moduleNames.includes(name)) {
         delete rangesFromName[name];
       }
@@ -291,9 +314,12 @@ function bitrot (moduleNames) {
 
   // Check each module name.
   var namesToCheck = Object.keys(rangesFromName).sort();
-  namesToCheck.forEach(name => {
+  namesToCheck.forEach((name) => {
     var npmInfo = getNpmInfo(name);
-    log.trace({ name, 'dist-tags': npmInfo['dist-tags'], time: npmInfo.time }, 'npmInfo');
+    log.trace(
+      { name, 'dist-tags': npmInfo['dist-tags'], time: npmInfo.time },
+      'npmInfo',
+    );
 
     // If the current latest version is in the supported and
     // tav ranges, then all is good.
@@ -321,17 +347,32 @@ function bitrot (moduleNames) {
       }
     }
     if (tavGood && supGood) {
-      log.debug(`latest ${name}@${latest} is in tav and supported ranges (a good thing)`);
+      log.debug(
+        `latest ${name}@${latest} is in tav and supported ranges (a good thing)`,
+      );
       return;
     }
     var issues = [];
     if (!tavGood) {
-      issues.push(`is not in .tav.yml ranges (${rangesFromName[name].tavRanges.join(', ')})`);
+      issues.push(
+        `is not in .tav.yml ranges (${rangesFromName[name].tavRanges.join(
+          ', ',
+        )})`,
+      );
     }
     if (!supGood) {
-      issues.push(`is not in supported-technologies.asciidoc ranges (${rangesFromName[name].supRanges.join(', ')})`);
+      issues.push(
+        `is not in supported-technologies.asciidoc ranges (${rangesFromName[
+          name
+        ].supRanges.join(', ')})`,
+      );
     }
-    rot(name, `latest ${name}@${latest} (released ${npmInfo.time[latest].split('T')[0]}): ${issues.join(', ')}`);
+    rot(
+      name,
+      `latest ${name}@${latest} (released ${
+        npmInfo.time[latest].split('T')[0]
+      }): ${issues.join(', ')}`,
+    );
   });
 }
 
@@ -341,16 +382,16 @@ const options = [
   {
     names: ['verbose', 'v'],
     type: 'bool',
-    help: 'Verbose log output. (Pipe to `ecslog` to format.)'
+    help: 'Verbose log output. (Pipe to `ecslog` to format.)',
   },
   {
     names: ['help', 'h'],
     type: 'bool',
-    help: 'Print this help and exit.'
-  }
+    help: 'Print this help and exit.',
+  },
 ];
 
-function main (argv) {
+function main(argv) {
   var parser = dashdash.createParser({ options });
   try {
     var opts = parser.parse(argv);
@@ -380,17 +421,20 @@ Exit status:
   }
 
   stylize = process.stdout.isTTY ? stylizeWithColor : stylizeWithoutColor;
-  log = pino({
-    name: 'bitrot',
-    base: {}, // Don't want pid and hostname fields.
-    level: opts.verbose ? 'trace' : 'warn',
-    serializers: {
-      err: pino.stdSerializers.err,
-      req: pino.stdSerializers.req,
-      res: pino.stdSerializers.res
+  log = pino(
+    {
+      name: 'bitrot',
+      base: {}, // Don't want pid and hostname fields.
+      level: opts.verbose ? 'trace' : 'warn',
+      serializers: {
+        err: pino.stdSerializers.err,
+        req: pino.stdSerializers.req,
+        res: pino.stdSerializers.res,
+      },
+      ...ecsFormat({ apmIntegration: false }),
     },
-    ...ecsFormat({ apmIntegration: false })
-  }, pino.destination(1));
+    pino.destination(1),
+  );
 
   const moduleNames = opts._args;
   try {

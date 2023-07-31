@@ -24,21 +24,33 @@ var semver = require('semver');
  *
  * @returns {string | boolean}
  */
-function isFastifyIncompat () {
+function isFastifyIncompat() {
   const nodeVer = process.version;
   const fastifyVer = require('fastify/package.json').version;
   const msg = `fastify@${fastifyVer} is incompatible with node@${nodeVer}`;
 
-  if (semver.satisfies(fastifyVer, '1.x') && !semver.satisfies(nodeVer, '>=6 <12')) {
+  if (
+    semver.satisfies(fastifyVer, '1.x') &&
+    !semver.satisfies(nodeVer, '>=6 <12')
+  ) {
     return msg;
   }
-  if (semver.satisfies(fastifyVer, '2.x') && !semver.satisfies(nodeVer, '>=6 <15')) {
+  if (
+    semver.satisfies(fastifyVer, '2.x') &&
+    !semver.satisfies(nodeVer, '>=6 <15')
+  ) {
     return msg;
   }
-  if (semver.satisfies(fastifyVer, '3.x') && !semver.satisfies(nodeVer, '>=10')) {
+  if (
+    semver.satisfies(fastifyVer, '3.x') &&
+    !semver.satisfies(nodeVer, '>=10')
+  ) {
     return msg;
   }
-  if (semver.satisfies(fastifyVer, '4.x') && !semver.satisfies(nodeVer, '>=14.6.0')) {
+  if (
+    semver.satisfies(fastifyVer, '4.x') &&
+    !semver.satisfies(nodeVer, '>=14.6.0')
+  ) {
     return msg;
   }
 

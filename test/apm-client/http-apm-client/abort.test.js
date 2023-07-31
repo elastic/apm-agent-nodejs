@@ -16,15 +16,17 @@ const assertMetadata = utils.assertMetadata;
 const assertEvent = utils.assertEvent;
 
 test('abort request if server responds early', function (t) {
-  t.plan(assertIntakeReq.asserts * 2 + assertMetadata.asserts + assertEvent.asserts + 2);
+  t.plan(
+    assertIntakeReq.asserts * 2 +
+      assertMetadata.asserts +
+      assertEvent.asserts +
+      2,
+  );
 
   let reqs = 0;
   let client;
 
-  const datas = [
-    assertMetadata,
-    assertEvent({ span: { foo: 2 } })
-  ];
+  const datas = [assertMetadata, assertEvent({ span: { foo: 2 } })];
 
   const timer = setTimeout(function () {
     throw new Error('the test got stuck');
@@ -64,8 +66,16 @@ test('abort request if server responds early', function (t) {
     client = _client;
     client.sendSpan({ foo: 1 });
     client.on('request-error', function (err) {
-      t.equal(err.code, 500, 'should generate request-error with 500 status code');
-      t.equal(err.response, 'bad', 'should generate request-error with expected body');
+      t.equal(
+        err.code,
+        500,
+        'should generate request-error with 500 status code',
+      );
+      t.equal(
+        err.response,
+        'bad',
+        'should generate request-error with expected body',
+      );
     });
   });
 });

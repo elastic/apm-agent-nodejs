@@ -20,7 +20,7 @@ if (isRestifyIncompat) {
 const agent = require('../../../..').start({
   captureExceptions: true,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 const tape = require('tape');

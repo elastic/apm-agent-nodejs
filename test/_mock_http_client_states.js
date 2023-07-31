@@ -8,7 +8,7 @@
 
 module.exports = function (expectations = [], done) {
   return {
-    _write (obj, cb) {
+    _write(obj, cb) {
       cb = cb || (() => {});
 
       const type = Object.keys(obj)[0];
@@ -27,19 +27,19 @@ module.exports = function (expectations = [], done) {
 
       process.nextTick(cb);
     },
-    sendSpan (span, cb) {
+    sendSpan(span, cb) {
       this._write({ span }, cb);
     },
-    sendTransaction (transaction, cb) {
+    sendTransaction(transaction, cb) {
       this._write({ transaction }, cb);
     },
-    sendError (error, cb) {
+    sendError(error, cb) {
       this._write({ error }, cb);
     },
-    sendMetricSet (metricset, cb) {
+    sendMetricSet(metricset, cb) {
       this._write({ metricset }, cb);
     },
-    flush (opts, cb) {
+    flush(opts, cb) {
       if (typeof opts === 'function') {
         cb = opts;
         opts = {};
@@ -48,11 +48,11 @@ module.exports = function (expectations = [], done) {
       }
       if (cb) process.nextTick(cb);
     },
-    supportsKeepingUnsampledTransaction () {
+    supportsKeepingUnsampledTransaction() {
       return true;
     },
-    supportsActivationMethodField () {
+    supportsActivationMethodField() {
       return true;
-    }
+    },
   };
 };

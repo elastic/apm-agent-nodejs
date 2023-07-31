@@ -23,7 +23,7 @@ const {
   CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS,
   CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
   CAPTURE_ERROR_LOG_STACK_TRACES_NEVER,
-  DEFAULTS
+  DEFAULTS,
 } = require('../lib/config/schema');
 const { findObjInArray } = require('./_utils');
 const { MockAPMServer } = require('./_mock_apm_server');
@@ -42,60 +42,95 @@ const agentOpts = {
   logLevel: 'warn',
   // Ensure the APM client's `GET /` requests do not get in the way of test
   // asserts. Also ensure it is new enough to include 'activation_method'.
-  apmServerVersion: '8.7.1'
+  apmServerVersion: '8.7.1',
 };
-const agentOptsNoopTransport = Object.assign(
-  {},
-  agentOpts,
-  {
-    transport: function createNoopTransport () {
-      // Avoid accidentally trying to send data to an APM server.
-      return new NoopApmClient();
-    }
-  }
-);
+const agentOptsNoopTransport = Object.assign({}, agentOpts, {
+  transport: function createNoopTransport() {
+    // Avoid accidentally trying to send data to an APM server.
+    return new NoopApmClient();
+  },
+});
 
 // ---- internal support functions
 
-function assertMetadata (t, payload) {
+function assertMetadata(t, payload) {
   t.strictEqual(payload.service.name, 'test-agent', 'metadata: service.name');
-  t.deepEqual(payload.service.runtime, { name: 'node', version: process.versions.node }, 'metadata: service.runtime');
-  t.deepEqual(payload.service.agent,
-    { name: 'nodejs', version: packageJson.version, activation_method: 'require' },
-    'metadata: service.agent');
+  t.deepEqual(
+    payload.service.runtime,
+    { name: 'node', version: process.versions.node },
+    'metadata: service.runtime',
+  );
+  t.deepEqual(
+    payload.service.agent,
+    {
+      name: 'nodejs',
+      version: packageJson.version,
+      activation_method: 'require',
+    },
+    'metadata: service.agent',
+  );
 
   const system = Object.assign({}, payload.system);
-  t.ok(system.detected_hostname.startsWith(os.hostname()), 'metadata: system.detected_hostname');
+  t.ok(
+    system.detected_hostname.startsWith(os.hostname()),
+    'metadata: system.detected_hostname',
+  );
   delete system.detected_hostname;
-  t.strictEqual(system.architecture, process.arch, 'metadata: system.architecture');
+  t.strictEqual(
+    system.architecture,
+    process.arch,
+    'metadata: system.architecture',
+  );
   delete system.architecture;
   t.strictEqual(system.platform, process.platform, 'metadata: system.platform');
   delete system.platform;
   if (system.container) {
-    t.deepEqual(Object.keys(system.container), ['id'], 'metadata: system.container');
-    t.strictEqual(typeof system.container.id, 'string', 'metadata: system.container.id is a string');
-    t.ok(/^[\da-f]{64}$/.test(system.container.id), 'metadata: system.container.id');
+    t.deepEqual(
+      Object.keys(system.container),
+      ['id'],
+      'metadata: system.container',
+    );
+    t.strictEqual(
+      typeof system.container.id,
+      'string',
+      'metadata: system.container.id is a string',
+    );
+    t.ok(
+      /^[\da-f]{64}$/.test(system.container.id),
+      'metadata: system.container.id',
+    );
     delete system.container;
   }
-  t.equal(Object.keys(system).length, 0, 'metadata: system, no unexpected keys: ' + JSON.stringify(system));
+  t.equal(
+    Object.keys(system).length,
+    0,
+    'metadata: system, no unexpected keys: ' + JSON.stringify(system),
+  );
 
   t.ok(payload.process, 'metadata: process');
   t.strictEqual(payload.process.pid, process.pid, 'metadata: process.pid');
   t.ok(payload.process.pid > 0, 'metadata: process.pid > 0');
   t.ok(payload.process.title, 'metadata: has a process.title');
-  t.strictEqual(payload.process.title, process.title, 'metadata: process.title matches');
+  t.strictEqual(
+    payload.process.title,
+    process.title,
+    'metadata: process.title matches',
+  );
   t.deepEqual(payload.process.argv, process.argv, 'metadata: has process.argv');
-  t.ok(payload.process.argv.length >= 2, 'metadata: process.argv has at least two args');
+  t.ok(
+    payload.process.argv.length >= 2,
+    'metadata: process.argv has at least two args',
+  );
 }
 
-function assertStackTrace (t, stacktrace) {
+function assertStackTrace(t, stacktrace) {
   t.ok(stacktrace !== undefined, 'should have a stack trace');
   t.ok(Array.isArray(stacktrace), 'stack trace should be an array');
   t.ok(stacktrace.length > 0, 'stack trace should have at least one frame');
   t.strictEqual(stacktrace[0].filename, path.join('test', 'agent.test.js'));
 }
 
-function deep (depth, n) {
+function deep(depth, n) {
   if (!n) n = 0;
   if (n < depth) return deep(depth, ++n);
   return new Error();
@@ -110,11 +145,9 @@ test('#getServiceName()', function (t) {
   t.ok(!agent.isStarted(), 'agent should not have been started yet');
   t.strictEqual(agent.getServiceName(), undefined);
 
-  agent.start(Object.assign(
-    {},
-    agentOptsNoopTransport,
-    { serviceName: 'myServiceName' }
-  ));
+  agent.start(
+    Object.assign({}, agentOptsNoopTransport, { serviceName: 'myServiceName' }),
+  );
   t.strictEqual(agent.getServiceName(), 'myServiceName');
   t.strictEqual(agent.getServiceName(), agent._conf.serviceName);
 
@@ -161,12 +194,15 @@ test('#setFramework()', function (t) {
 });
 
 test('#startTransaction()', function (t) {
-  t.test('agent not yet started: startTransaction() should not crash', function (t) {
-    const agent = new Agent(); // do not start the agent
-    agent.startTransaction('foo');
-    agent.destroy();
-    t.end();
-  });
+  t.test(
+    'agent not yet started: startTransaction() should not crash',
+    function (t) {
+      const agent = new Agent(); // do not start the agent
+      agent.startTransaction('foo');
+      agent.destroy();
+      t.end();
+    },
+  );
 
   t.test('name, type, subtype and action', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport);
@@ -185,8 +221,14 @@ test('#startTransaction()', function (t) {
     var trans = agent.startTransaction('foo', 'bar', { startTime });
     trans.end();
     var duration = trans.duration();
-    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`); // we've seen 998.752 in the wild
-    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`);
+    t.ok(
+      duration > 990,
+      `duration should be circa more than 1s (was: ${duration})`,
+    ); // we've seen 998.752 in the wild
+    t.ok(
+      duration < 1100,
+      `duration should be less than 1.1s (was: ${duration})`,
+    );
     agent.destroy();
     t.end();
   });
@@ -196,7 +238,10 @@ test('#startTransaction()', function (t) {
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
     var trans = agent.startTransaction('foo', 'bar', { childOf });
     t.strictEqual(trans._context.traceparent.version, '00');
-    t.strictEqual(trans._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736');
+    t.strictEqual(
+      trans._context.traceparent.traceId,
+      '4bf92f3577b34da6a3ce929d0e0e4736',
+    );
     t.notEqual(trans._context.traceparent.id, '00f067aa0ba902b7');
     t.strictEqual(trans._context.traceparent.parentId, '00f067aa0ba902b7');
     t.strictEqual(trans._context.traceparent.flags, '01');
@@ -349,9 +394,12 @@ test('#currentTraceIds', function (t) {
     var trans = agent.startTransaction();
     t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': trans.traceId,
-      'transaction.id': trans.id
+      'transaction.id': trans.id,
     });
-    t.strictEqual(agent.currentTraceIds.toString(), `trace.id=${trans.traceId} transaction.id=${trans.id}`);
+    t.strictEqual(
+      agent.currentTraceIds.toString(),
+      `trace.id=${trans.traceId} transaction.id=${trans.id}`,
+    );
     agent.endTransaction();
     agent.destroy();
     t.end();
@@ -363,9 +411,12 @@ test('#currentTraceIds', function (t) {
     var span = agent.startSpan();
     t.deepLooseEqual(agent.currentTraceIds, {
       'trace.id': span.traceId,
-      'span.id': span.id
+      'span.id': span.id,
     });
-    t.strictEqual(agent.currentTraceIds.toString(), `trace.id=${span.traceId} span.id=${span.id}`);
+    t.strictEqual(
+      agent.currentTraceIds.toString(),
+      `trace.id=${span.traceId} span.id=${span.id}`,
+    );
     span.end();
     agent.endTransaction();
     agent.destroy();
@@ -438,8 +489,14 @@ test('#startSpan()', function (t) {
     var span = agent.startSpan('span-with-startTime', null, { startTime });
     span.end();
     var duration = span.duration();
-    t.ok(duration > 990, `duration should be circa more than 1s (was: ${duration})`); // we've seen 998.752 in the wild
-    t.ok(duration < 1100, `duration should be less than 1.1s (was: ${duration})`);
+    t.ok(
+      duration > 990,
+      `duration should be circa more than 1s (was: ${duration})`,
+    ); // we've seen 998.752 in the wild
+    t.ok(
+      duration < 1100,
+      `duration should be less than 1.1s (was: ${duration})`,
+    );
     agent.destroy();
     t.end();
   });
@@ -450,7 +507,10 @@ test('#startSpan()', function (t) {
     var childOf = '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
     var span = agent.startSpan(null, null, { childOf });
     t.strictEqual(span._context.traceparent.version, '00');
-    t.strictEqual(span._context.traceparent.traceId, '4bf92f3577b34da6a3ce929d0e0e4736');
+    t.strictEqual(
+      span._context.traceparent.traceId,
+      '4bf92f3577b34da6a3ce929d0e0e4736',
+    );
     t.notEqual(span._context.traceparent.id, '00f067aa0ba902b7');
     t.strictEqual(span._context.traceparent.parentId, '00f067aa0ba902b7');
     t.strictEqual(span._context.traceparent.flags, '01');
@@ -510,11 +570,7 @@ test('#setGlobalLabel()', function (suite) {
     apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
       t.comment('mock APM serverUrl: ' + serverUrl);
-      suiteAgentOpts = Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      );
+      suiteAgentOpts = Object.assign({}, agentOpts, { serverUrl });
       t.end();
     });
   });
@@ -523,47 +579,67 @@ test('#setGlobalLabel()', function (suite) {
     apmServer.clear();
     const agent = new Agent().start(suiteAgentOpts);
     agent.setGlobalLabel('goo', 1);
-    t.deepEqual(agent._conf.globalLabels, Object.entries({ goo: 1 }), 'agent._conf.globalLabels');
+    t.deepEqual(
+      agent._conf.globalLabels,
+      Object.entries({ goo: 1 }),
+      'agent._conf.globalLabels',
+    );
     agent.startTransaction('manual');
     agent.endTransaction();
     await agent.flush();
-    t.deepEqual(apmServer.events[0].metadata.labels, { goo: 1 }, 'APM server metadata.labels');
+    t.deepEqual(
+      apmServer.events[0].metadata.labels,
+      { goo: 1 },
+      'APM server metadata.labels',
+    );
     agent.destroy();
     t.end();
   });
 
   suite.test('extends the predefined global labels', async function (t) {
     apmServer.clear();
-    const agentOptsWithGlobalLabels = Object.assign(
-      {},
-      suiteAgentOpts,
-      { globalLabels: { some: true } }
-    );
+    const agentOptsWithGlobalLabels = Object.assign({}, suiteAgentOpts, {
+      globalLabels: { some: true },
+    });
     const agent = new Agent().start(agentOptsWithGlobalLabels);
     agent.setGlobalLabel('goo', 1);
-    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }), 'agent._conf.globalLabels');
+    t.deepEqual(
+      agent._conf.globalLabels,
+      Object.entries({ some: true, goo: 1 }),
+      'agent._conf.globalLabels',
+    );
     agent.startTransaction('manual');
     agent.endTransaction();
     await agent.flush();
-    t.deepEqual(apmServer.events[0].metadata.labels, { some: true, goo: 1 }, 'APM server metadata.labels');
+    t.deepEqual(
+      apmServer.events[0].metadata.labels,
+      { some: true, goo: 1 },
+      'APM server metadata.labels',
+    );
     agent.destroy();
     t.end();
   });
 
   suite.test('overrides an existing global label', async function (t) {
     apmServer.clear();
-    const agentOptsWithGlobalLabels = Object.assign(
-      {},
-      suiteAgentOpts,
-      { globalLabels: { some: true, goo: 0 } }
-    );
+    const agentOptsWithGlobalLabels = Object.assign({}, suiteAgentOpts, {
+      globalLabels: { some: true, goo: 0 },
+    });
     const agent = new Agent().start(agentOptsWithGlobalLabels);
     agent.setGlobalLabel('goo', 1);
-    t.deepEqual(agent._conf.globalLabels, Object.entries({ some: true, goo: 1 }), 'agent._conf.globalLabels');
+    t.deepEqual(
+      agent._conf.globalLabels,
+      Object.entries({ some: true, goo: 1 }),
+      'agent._conf.globalLabels',
+    );
     agent.startTransaction('manual');
     agent.endTransaction();
     await agent.flush();
-    t.deepEqual(apmServer.events[0].metadata.labels, { some: true, goo: 1 }, 'APM server metadata.labels');
+    t.deepEqual(
+      apmServer.events[0].metadata.labels,
+      { some: true, goo: 1 },
+      'APM server metadata.labels',
+    );
     agent.destroy();
     t.end();
   });
@@ -620,7 +696,7 @@ test('#setLabel()', function (t) {
       negative: -10,
       'boolean-true': true,
       'boolean-false': false,
-      string: 'a custom label'
+      string: 'a custom label',
     });
     agent.destroy();
     t.end();
@@ -667,11 +743,7 @@ test('filters', function (t) {
     apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
       t.comment('mock APM serverUrl: ' + serverUrl);
-      filterAgentOpts = Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      );
+      filterAgentOpts = Object.assign({}, agentOpts, { serverUrl });
       t.end();
     });
   });
@@ -708,7 +780,7 @@ test('filters', function (t) {
         apmServer.clear();
         agent.destroy();
         t.end();
-      }
+      },
     );
   });
 
@@ -812,7 +884,7 @@ test('filters', function (t) {
         apmServer.clear();
         agent.destroy();
         t.end();
-      }
+      },
     );
   });
 
@@ -929,7 +1001,7 @@ test('filters', function (t) {
   });
 
   const falsyValues = [undefined, null, false, 0, '', NaN];
-  falsyValues.forEach(falsy => {
+  falsyValues.forEach((falsy) => {
     t.test(`#addFilter() - abort with '${String(falsy)}'`, function (t) {
       let calledFirstFilter = false;
       const agent = new Agent().start(filterAgentOpts);
@@ -942,7 +1014,11 @@ test('filters', function (t) {
       });
       agent.captureError(new Error('foo'), function () {
         t.ok(calledFirstFilter, 'called first filter');
-        t.equal(apmServer.requests.length, 0, 'APM server did not receive a request');
+        t.equal(
+          apmServer.requests.length,
+          0,
+          'APM server did not receive a request',
+        );
         apmServer.clear();
         agent.destroy();
         t.end();
@@ -961,33 +1037,44 @@ test('filters', function (t) {
       });
       agent.captureError(new Error('foo'), function () {
         t.ok(calledFirstFilter, 'called first filter');
-        t.equal(apmServer.requests.length, 0, 'APM server did not receive a request');
+        t.equal(
+          apmServer.requests.length,
+          0,
+          'APM server did not receive a request',
+        );
         apmServer.clear();
         agent.destroy();
         t.end();
       });
     });
 
-    t.test(`#addTransactionFilter() - abort with '${String(falsy)}'`, function (t) {
-      let calledFirstFilter = false;
-      const agent = new Agent().start(filterAgentOpts);
-      agent.addTransactionFilter(function (obj) {
-        calledFirstFilter = true;
-        return falsy;
-      });
-      agent.addTransactionFilter(function () {
-        t.fail('should not call 2nd filter');
-      });
-      agent.startTransaction('transaction-name');
-      agent.endTransaction();
-      agent.flush(function () {
-        t.ok(calledFirstFilter, 'called first filter');
-        t.equal(apmServer.requests.length, 0, 'APM server did not receive a request');
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      });
-    });
+    t.test(
+      `#addTransactionFilter() - abort with '${String(falsy)}'`,
+      function (t) {
+        let calledFirstFilter = false;
+        const agent = new Agent().start(filterAgentOpts);
+        agent.addTransactionFilter(function (obj) {
+          calledFirstFilter = true;
+          return falsy;
+        });
+        agent.addTransactionFilter(function () {
+          t.fail('should not call 2nd filter');
+        });
+        agent.startTransaction('transaction-name');
+        agent.endTransaction();
+        agent.flush(function () {
+          t.ok(calledFirstFilter, 'called first filter');
+          t.equal(
+            apmServer.requests.length,
+            0,
+            'APM server did not receive a request',
+          );
+          apmServer.clear();
+          agent.destroy();
+          t.end();
+        });
+      },
+    );
 
     t.test(`#addSpanFilter() - abort with '${String(falsy)}'`, function (t) {
       let calledFirstFilter = false;
@@ -1004,7 +1091,11 @@ test('filters', function (t) {
       span.end();
       agent.flush(function () {
         t.ok(calledFirstFilter, 'called first filter');
-        t.equal(apmServer.requests.length, 0, 'APM server did not receive a request');
+        t.equal(
+          apmServer.requests.length,
+          0,
+          'APM server did not receive a request',
+        );
         apmServer.clear();
         agent.destroy();
         t.end();
@@ -1026,7 +1117,7 @@ test('#flush()', function (t) {
     const agent = new Agent();
     agent.flush(function (err) {
       t.error(err, 'no error passed to agent.flush callback');
-      t.pass('should call flush callback even if agent.start() wasn\'t called');
+      t.pass("should call flush callback even if agent.start() wasn't called");
       agent.destroy();
       t.end();
     });
@@ -1048,7 +1139,7 @@ test('#flush()', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport);
     agent.flush(function (err) {
       t.error(err, 'no error passed to agent.flush callback');
-      t.pass('should call flush callback even if there\'s nothing to flush');
+      t.pass("should call flush callback even if there's nothing to flush");
       agent.destroy();
       t.end();
     });
@@ -1057,11 +1148,9 @@ test('#flush()', function (t) {
   t.test('flush with transaction in the queue', function (t) {
     const apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
-      const agent = new Agent().start(Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      ));
+      const agent = new Agent().start(
+        Object.assign({}, agentOpts, { serverUrl }),
+      );
       agent.startTransaction('foo');
       agent.endTransaction();
       agent.flush(function (err) {
@@ -1081,11 +1170,9 @@ test('#flush()', function (t) {
   t.test('flush with inflight spans', function (t) {
     const apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
-      const agent = new Agent().start(Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      ));
+      const agent = new Agent().start(
+        Object.assign({}, agentOpts, { serverUrl }),
+      );
       const t0 = agent.startTransaction('t0');
       for (var i = 0; i < 10; i++) {
         agent.startSpan('s').end();
@@ -1094,7 +1181,11 @@ test('#flush()', function (t) {
       agent.flush(function (err) {
         t.error(err, 'no error passed to agent.flush callback');
         t.equal(apmServer.events.length, 12, 'apmServer got 12 events');
-        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0');
+        t.equal(
+          apmServer.events[1].transaction.name,
+          't0',
+          'event[1] is transaction t0',
+        );
         for (var i = 2; i < 12; i++) {
           t.equal(apmServer.events[i].span.name, 's', `event[${i}] is span s`);
         }
@@ -1109,19 +1200,25 @@ test('#flush()', function (t) {
   t.test('flush with inflight error', function (t) {
     const apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
-      const agent = new Agent().start(Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      ));
+      const agent = new Agent().start(
+        Object.assign({}, agentOpts, { serverUrl }),
+      );
       const t0 = agent.startTransaction('t0');
       agent.captureError(new Error('boom'));
       t0.end();
       agent.flush(function (err) {
         t.error(err, 'no error passed to agent.flush callback');
         t.equal(apmServer.events.length, 3, 'apmServer got 3 events');
-        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0');
-        t.equal(apmServer.events[2].error.exception.message, 'boom', 'event[2] is error "boom"');
+        t.equal(
+          apmServer.events[1].transaction.name,
+          't0',
+          'event[1] is transaction t0',
+        );
+        t.equal(
+          apmServer.events[2].error.exception.message,
+          'boom',
+          'event[2] is error "boom"',
+        );
 
         apmServer.close();
         agent.destroy();
@@ -1148,11 +1245,9 @@ test('#flush()', function (t) {
   t.test('second flush while flushing inflight spans', function (t) {
     const apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
-      const agent = new Agent().start(Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      ));
+      const agent = new Agent().start(
+        Object.assign({}, agentOpts, { serverUrl }),
+      );
 
       let nDone = 2;
       const done = function () {
@@ -1174,11 +1269,15 @@ test('#flush()', function (t) {
         setTimeout(origS1Encode, 500, cb);
       };
       s1.end();
-      agent.flush(function firstFlushCallback (err) {
+      agent.flush(function firstFlushCallback(err) {
         t.error(err, 'no error passed to first agent.flush callback');
         t.equal(apmServer.events.length, 5, 'apmServer has 5 events');
         t.ok(apmServer.events[0].metadata, 'event[0] is metadata');
-        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0');
+        t.equal(
+          apmServer.events[1].transaction.name,
+          't0',
+          'event[1] is transaction t0',
+        );
         t.equal(apmServer.events[2].span.name, 's2', 'event[2] is span s2');
         t.ok(apmServer.events[3].metadata, 'event[3] is metadata');
         t.equal(apmServer.events[4].span.name, 's1', 'event[4] is span s1');
@@ -1188,11 +1287,15 @@ test('#flush()', function (t) {
       const s2 = agent.startSpan('s2');
       s2.end();
       t0.end();
-      agent.flush(function secondFlushCallback (err) {
+      agent.flush(function secondFlushCallback(err) {
         t.error(err, 'no error passed to second agent.flush callback');
         t.equal(apmServer.events.length, 3, 'apmServer has 3 events');
         t.ok(apmServer.events[0].metadata, 'event[0] is metadata');
-        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0');
+        t.equal(
+          apmServer.events[1].transaction.name,
+          't0',
+          'event[1] is transaction t0',
+        );
         t.equal(apmServer.events[2].span.name, 's2', 'event[2] is span s2');
         done();
       });
@@ -1206,11 +1309,9 @@ test('#flush()', function (t) {
   t.test('flush timeout from slow inflight span', function (t) {
     const apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
-      const agent = new Agent().start(Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      ));
+      const agent = new Agent().start(
+        Object.assign({}, agentOpts, { serverUrl }),
+      );
 
       const t0 = agent.startTransaction('t0');
       const s1 = agent.startSpan('s1');
@@ -1229,7 +1330,11 @@ test('#flush()', function (t) {
         t.error(err, 'no error passed to agent.flush callback');
         t.equal(apmServer.events.length, 3, 'apmServer got 3 events');
         t.ok(apmServer.events[0].metadata, 'event[0] is metadata');
-        t.equal(apmServer.events[1].transaction.name, 't0', 'event[1] is transaction t0');
+        t.equal(
+          apmServer.events[1].transaction.name,
+          't0',
+          'event[1] is transaction t0',
+        );
         t.equal(apmServer.events[2].span.name, 's2', 'event[2] is span s2');
 
         apmServer.close();
@@ -1239,19 +1344,25 @@ test('#flush()', function (t) {
     });
   });
 
-  t.test('flush can be used without a callback to return a Promise', function (t) {
-    t.plan(1);
+  t.test(
+    'flush can be used without a callback to return a Promise',
+    function (t) {
+      t.plan(1);
 
-    const agent = new Agent();
+      const agent = new Agent();
 
-    agent.flush().then(function () {
-      t.pass('should resolve the Promise for agent.flush');
-      agent.destroy();
-      t.end();
-    }).catch(function (err) {
-      t.error(err, 'no error passed to agent.flush callback');
-    });
-  });
+      agent
+        .flush()
+        .then(function () {
+          t.pass('should resolve the Promise for agent.flush');
+          agent.destroy();
+          t.end();
+        })
+        .catch(function (err) {
+          t.error(err, 'no error passed to agent.flush callback');
+        });
+    },
+  );
 
   t.end();
 });
@@ -1264,11 +1375,7 @@ test('#captureError()', function (t) {
     apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
       t.comment('mock APM serverUrl: ' + serverUrl);
-      ceAgentOpts = Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      );
+      ceAgentOpts = Object.assign({}, agentOpts, { serverUrl });
       t.end();
     });
   });
@@ -1331,21 +1438,25 @@ test('#captureError()', function (t) {
     });
   });
 
-  t.test('should use `param_message` as well as `message` if given an object as 1st argument', function (t) {
-    const agent = new Agent().start(ceAgentOpts);
-    agent.captureError({ message: 'Hello %s', params: ['World'] },
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.log.message, 'Hello World');
-        t.strictEqual(data.log.param_message, 'Hello %s');
+  t.test(
+    'should use `param_message` as well as `message` if given an object as 1st argument',
+    function (t) {
+      const agent = new Agent().start(ceAgentOpts);
+      agent.captureError(
+        { message: 'Hello %s', params: ['World'] },
+        function () {
+          t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+          const data = apmServer.events[1].error;
+          t.strictEqual(data.log.message, 'Hello World');
+          t.strictEqual(data.log.param_message, 'Hello %s');
 
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
+          apmServer.clear();
+          agent.destroy();
+          t.end();
+        },
+      );
+    },
+  );
 
   t.test('should not fail on a non string err.message', function (t) {
     const agent = new Agent().start(ceAgentOpts);
@@ -1362,10 +1473,11 @@ test('#captureError()', function (t) {
     });
   });
 
-  t.test('should allow custom log message together with exception', function (t) {
-    const agent = new Agent().start(ceAgentOpts);
-    agent.captureError(new Error('foo'), { message: 'bar' },
-      function () {
+  t.test(
+    'should allow custom log message together with exception',
+    function (t) {
+      const agent = new Agent().start(ceAgentOpts);
+      agent.captureError(new Error('foo'), { message: 'bar' }, function () {
         t.equal(apmServer.events.length, 2, 'APM server got 2 events');
         const data = apmServer.events[1].error;
         t.strictEqual(data.exception.message, 'foo');
@@ -1374,44 +1486,44 @@ test('#captureError()', function (t) {
         apmServer.clear();
         agent.destroy();
         t.end();
-      }
-    );
-  });
+      });
+    },
+  );
 
   t.test('should adhere to default stackTraceLimit', function (t) {
     const agent = new Agent().start(ceAgentOpts);
-    agent.captureError(deep(256),
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.exception.stacktrace.length, DEFAULTS.stackTraceLimit);
-        t.strictEqual(data.exception.stacktrace[0].context_line.trim(), 'return new Error()');
+    agent.captureError(deep(256), function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.exception.stacktrace.length, DEFAULTS.stackTraceLimit);
+      t.strictEqual(
+        data.exception.stacktrace[0].context_line.trim(),
+        'return new Error()',
+      );
 
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
   });
 
   t.test('should adhere to custom stackTraceLimit', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { stackTraceLimit: 5 }
-    ));
-    agent.captureError(deep(42),
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.exception.stacktrace.length, 5);
-        t.strictEqual(data.exception.stacktrace[0].context_line.trim(), 'return new Error()');
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, { stackTraceLimit: 5 }),
     );
+    agent.captureError(deep(42), function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.exception.stacktrace.length, 5);
+      t.strictEqual(
+        data.exception.stacktrace[0].context_line.trim(),
+        'return new Error()',
+      );
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
   });
 
   t.test('should merge context', function (t) {
@@ -1423,272 +1535,277 @@ test('#captureError()', function (t) {
       new Error('foo'),
       {
         user: { b: 1, merge: { shallow: true } },
-        custom: { b: 2, merge: { shallow: true } }
+        custom: { b: 2, merge: { shallow: true } },
       },
       function () {
         t.equal(apmServer.events.length, 2, 'APM server got 2 events');
         const data = apmServer.events[1].error;
-        t.deepEqual(data.context.user, { a: 1, b: 1, merge: { shallow: true } });
-        t.deepEqual(data.context.custom, { a: 3, b: 2, merge: { shallow: true } });
+        t.deepEqual(data.context.user, {
+          a: 1,
+          b: 1,
+          merge: { shallow: true },
+        });
+        t.deepEqual(data.context.custom, {
+          a: 3,
+          b: 2,
+          merge: { shallow: true },
+        });
 
         apmServer.clear();
         agent.destroy();
         t.end();
-      }
+      },
     );
   });
 
   t.test('capture location stack trace - off (error)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
-    ));
-    agent.captureError(new Error('foo'),
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.exception.message, 'foo');
-        t.notOk('log' in data, 'should not have a log');
-        assertStackTrace(t, data.exception.stacktrace);
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER,
+      }),
     );
-  });
+    agent.captureError(new Error('foo'), function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.exception.message, 'foo');
+      t.notOk('log' in data, 'should not have a log');
+      assertStackTrace(t, data.exception.stacktrace);
 
-  t.test('capture location stack trace - off (string)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
-    ));
-    agent.captureError('foo',
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.log.message, 'foo');
-        t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace');
-        t.notOk('exception' in data, 'should not have an exception');
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
-
-  t.test('capture location stack trace - off (param msg)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER }
-    ));
-    agent.captureError({ message: 'Hello %s', params: ['World'] },
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.log.message, 'Hello World');
-        t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace');
-        t.notOk('exception' in data, 'should not have an exception');
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
-
-  t.test('capture location stack trace - non-errors (error)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
-    ));
-    agent.captureError(new Error('foo'),
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.exception.message, 'foo');
-        t.notOk('log' in data, 'should not have a log');
-        assertStackTrace(t, data.exception.stacktrace);
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
-
-  t.test('capture location stack trace - non-errors (string)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
-    ));
-    agent.captureError('foo',
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.log.message, 'foo');
-        t.notOk('exception' in data, 'should not have an exception');
-        assertStackTrace(t, data.log.stacktrace);
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
-
-  t.test('capture location stack trace - non-errors (param msg)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES }
-    ));
-    agent.captureError({ message: 'Hello %s', params: ['World'] },
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.log.message, 'Hello World');
-        t.notOk('exception' in data, 'should not have an exception');
-        assertStackTrace(t, data.log.stacktrace);
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
-
-  t.test('capture location stack trace - all (error)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
-    ));
-    agent.captureError(new Error('foo'),
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.log.message, 'foo');
-        t.strictEqual(data.exception.message, 'foo');
-        assertStackTrace(t, data.log.stacktrace);
-        assertStackTrace(t, data.exception.stacktrace);
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
-
-  t.test('capture location stack trace - all (string)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
-    ));
-    agent.captureError('foo',
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.log.message, 'foo');
-        t.notOk('exception' in data, 'should not have an exception');
-        assertStackTrace(t, data.log.stacktrace);
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
-
-  t.test('capture location stack trace - all (param msg)', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS }
-    ));
-    agent.captureError({ message: 'Hello %s', params: ['World'] },
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.log.message, 'Hello World');
-        t.notOk('exception' in data, 'should not have an exception');
-        assertStackTrace(t, data.log.stacktrace);
-
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
-  });
-
-  t.test('capture error before agent is started - with callback', function (t) {
-    const agent = new Agent();
-    agent.captureError(new Error('foo'), function (err) {
-      t.strictEqual(err.message, 'cannot capture error before agent is started');
+      apmServer.clear();
       agent.destroy();
       t.end();
     });
   });
 
-  t.test('capture error before agent is started - without callback', function (t) {
-    const agent = new Agent();
-    agent.captureError(new Error('foo'));
-    agent.destroy();
-    t.end();
+  t.test('capture location stack trace - off (string)', function (t) {
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER,
+      }),
+    );
+    agent.captureError('foo', function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.log.message, 'foo');
+      t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace');
+      t.notOk('exception' in data, 'should not have an exception');
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
   });
+
+  t.test('capture location stack trace - off (param msg)', function (t) {
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_NEVER,
+      }),
+    );
+    agent.captureError({ message: 'Hello %s', params: ['World'] }, function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.log.message, 'Hello World');
+      t.notOk('stacktrace' in data.log, 'should not have a log.stacktrace');
+      t.notOk('exception' in data, 'should not have an exception');
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
+  });
+
+  t.test('capture location stack trace - non-errors (error)', function (t) {
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
+      }),
+    );
+    agent.captureError(new Error('foo'), function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.exception.message, 'foo');
+      t.notOk('log' in data, 'should not have a log');
+      assertStackTrace(t, data.exception.stacktrace);
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
+  });
+
+  t.test('capture location stack trace - non-errors (string)', function (t) {
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
+      }),
+    );
+    agent.captureError('foo', function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.log.message, 'foo');
+      t.notOk('exception' in data, 'should not have an exception');
+      assertStackTrace(t, data.log.stacktrace);
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
+  });
+
+  t.test('capture location stack trace - non-errors (param msg)', function (t) {
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
+      }),
+    );
+    agent.captureError({ message: 'Hello %s', params: ['World'] }, function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.log.message, 'Hello World');
+      t.notOk('exception' in data, 'should not have an exception');
+      assertStackTrace(t, data.log.stacktrace);
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
+  });
+
+  t.test('capture location stack trace - all (error)', function (t) {
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS,
+      }),
+    );
+    agent.captureError(new Error('foo'), function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.log.message, 'foo');
+      t.strictEqual(data.exception.message, 'foo');
+      assertStackTrace(t, data.log.stacktrace);
+      assertStackTrace(t, data.exception.stacktrace);
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
+  });
+
+  t.test('capture location stack trace - all (string)', function (t) {
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS,
+      }),
+    );
+    agent.captureError('foo', function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.log.message, 'foo');
+      t.notOk('exception' in data, 'should not have an exception');
+      assertStackTrace(t, data.log.stacktrace);
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
+  });
+
+  t.test('capture location stack trace - all (param msg)', function (t) {
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, {
+        captureErrorLogStackTraces: CAPTURE_ERROR_LOG_STACK_TRACES_ALWAYS,
+      }),
+    );
+    agent.captureError({ message: 'Hello %s', params: ['World'] }, function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.log.message, 'Hello World');
+      t.notOk('exception' in data, 'should not have an exception');
+      assertStackTrace(t, data.log.stacktrace);
+
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
+  });
+
+  t.test('capture error before agent is started - with callback', function (t) {
+    const agent = new Agent();
+    agent.captureError(new Error('foo'), function (err) {
+      t.strictEqual(
+        err.message,
+        'cannot capture error before agent is started',
+      );
+      agent.destroy();
+      t.end();
+    });
+  });
+
+  t.test(
+    'capture error before agent is started - without callback',
+    function (t) {
+      const agent = new Agent();
+      agent.captureError(new Error('foo'));
+      agent.destroy();
+      t.end();
+    },
+  );
 
   t.test('include valid context ids and sampled flag', function (t) {
     const agent = new Agent().start(ceAgentOpts);
     const trans = agent.startTransaction('foo');
     const span = agent.startSpan('bar');
-    agent.captureError(
-      new Error('with callback'),
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        assertMetadata(t, apmServer.events[0].metadata);
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.exception.message, 'with callback', 'error.exception.message');
-        t.strictEqual(data.id.length, 32, 'error.id is 32 characters');
-        t.strictEqual(data.parent_id, span.id, 'error.parent_id matches span id');
-        t.strictEqual(data.trace_id, trans.traceId, 'error.trace_id matches transaction trace id');
-        t.strictEqual(data.transaction_id, trans.id, 'error.transaction_id matches transaction id');
-        t.deepEqual(data.transaction, {
+    agent.captureError(new Error('with callback'), function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      assertMetadata(t, apmServer.events[0].metadata);
+      const data = apmServer.events[1].error;
+      t.strictEqual(
+        data.exception.message,
+        'with callback',
+        'error.exception.message',
+      );
+      t.strictEqual(data.id.length, 32, 'error.id is 32 characters');
+      t.strictEqual(data.parent_id, span.id, 'error.parent_id matches span id');
+      t.strictEqual(
+        data.trace_id,
+        trans.traceId,
+        'error.trace_id matches transaction trace id',
+      );
+      t.strictEqual(
+        data.transaction_id,
+        trans.id,
+        'error.transaction_id matches transaction id',
+      );
+      t.deepEqual(
+        data.transaction,
+        {
           name: trans.name,
           type: trans.type,
-          sampled: true
-        }, 'error.transaction.*');
+          sampled: true,
+        },
+        'error.transaction.*',
+      );
 
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
   });
 
   t.test('custom timestamp', function (t) {
     const agent = new Agent().start(ceAgentOpts);
     const timestamp = Date.now() - 1000;
-    agent.captureError(
-      new Error('with callback'),
-      { timestamp },
-      function () {
-        t.equal(apmServer.events.length, 2, 'APM server got 2 events');
-        assertMetadata(t, apmServer.events[0].metadata);
-        const data = apmServer.events[1].error;
-        t.strictEqual(data.timestamp, timestamp * 1000);
+    agent.captureError(new Error('with callback'), { timestamp }, function () {
+      t.equal(apmServer.events.length, 2, 'APM server got 2 events');
+      assertMetadata(t, apmServer.events[0].metadata);
+      const data = apmServer.events[1].error;
+      t.strictEqual(data.timestamp, timestamp * 1000);
 
-        apmServer.clear();
-        agent.destroy();
-        t.end();
-      }
-    );
+      apmServer.clear();
+      agent.destroy();
+      t.end();
+    });
   });
 
   t.test('options.request', function (t) {
@@ -1717,33 +1834,36 @@ test('#captureError()', function (t) {
         t.deepEqual(data.context.request, {
           http_version: '1.1',
           method: 'POST',
-          url: { raw: '/foo?bar=baz#hash', protocol: 'http:', pathname: '/foo', search: '?bar=baz' },
+          url: {
+            raw: '/foo?bar=baz#hash',
+            protocol: 'http:',
+            pathname: '/foo',
+            search: '?bar=baz',
+          },
           socket: { remote_address: '127.0.0.1' },
           headers: {
             'content-length': '4',
             string: 'foo',
             number: '42',
             array: ['foo', '42'],
-            password: '[REDACTED]'
+            password: '[REDACTED]',
           },
-          body: '[REDACTED]'
+          body: '[REDACTED]',
         });
 
         apmServer.clear();
         agent.destroy();
         t.end();
-      }
+      },
     );
   });
 
   // This tests that a urlencoded request body captured in an *error* event
   // is properly sanitized according to sanitizeFieldNames.
   t.test('options.request + captureBody=errors', function (t) {
-    const agent = new Agent().start(Object.assign(
-      {},
-      ceAgentOpts,
-      { captureBody: 'errors' }
-    ));
+    const agent = new Agent().start(
+      Object.assign({}, ceAgentOpts, { captureBody: 'errors' }),
+    );
 
     const req = new http.IncomingMessage();
     req.httpVersion = '1.1';
@@ -1770,15 +1890,15 @@ test('#captureError()', function (t) {
           socket: { remote_address: '127.0.0.1' },
           headers: {
             'content-length': String(bodyLen),
-            'content-type': 'application/x-www-form-urlencoded'
+            'content-type': 'application/x-www-form-urlencoded',
           },
-          body: 'foo=bar&password=' + encodeURIComponent('[REDACTED]')
+          body: 'foo=bar&password=' + encodeURIComponent('[REDACTED]'),
         });
 
         apmServer.clear();
         agent.destroy();
         t.end();
-      }
+      },
     );
   });
 
@@ -1793,7 +1913,7 @@ test('#captureError()', function (t) {
       string: 'foo',
       number: 42, // in case someone messes with the headers
       array: ['foo', 42],
-      password: 'this should be redacted' // testing sanitizeFieldNames
+      password: 'this should be redacted', // testing sanitizeFieldNames
     };
 
     agent.captureError(
@@ -1811,16 +1931,16 @@ test('#captureError()', function (t) {
             string: 'foo',
             number: '42',
             array: ['foo', '42'],
-            password: '[REDACTED]'
+            password: '[REDACTED]',
           },
           headers_sent: false,
-          finished: false
+          finished: false,
         });
 
         apmServer.clear();
         agent.destroy();
         t.end();
-      }
+      },
     );
   });
 
@@ -1839,14 +1959,34 @@ test('#captureError()', function (t) {
     t0.end();
 
     agent.flush(function () {
-      const errNoParent = findObjInArray(apmServer.events, 'error.exception.message', 'no parent specified').error;
+      const errNoParent = findObjInArray(
+        apmServer.events,
+        'error.exception.message',
+        'no parent specified',
+      ).error;
       t.strictEqual(errNoParent.parent_id, s2.id, 'errNoParent parent_id');
-      const errT0Parent = findObjInArray(apmServer.events, 'error.exception.message', 't0 parent').error;
+      const errT0Parent = findObjInArray(
+        apmServer.events,
+        'error.exception.message',
+        't0 parent',
+      ).error;
       t.strictEqual(errT0Parent.parent_id, t0.id, 'errT0Parent parent_id');
-      const errS1Parent = findObjInArray(apmServer.events, 'error.exception.message', 's1 parent').error;
+      const errS1Parent = findObjInArray(
+        apmServer.events,
+        'error.exception.message',
+        's1 parent',
+      ).error;
       t.strictEqual(errS1Parent.parent_id, s1.id, 'errS1Parent parent_id');
-      const errNullParent = findObjInArray(apmServer.events, 'error.exception.message', 'null parent').error;
-      t.strictEqual(errNullParent.parent_id, undefined, 'errNullParent parent_id');
+      const errNullParent = findObjInArray(
+        apmServer.events,
+        'error.exception.message',
+        'null parent',
+      ).error;
+      t.strictEqual(
+        errNullParent.parent_id,
+        undefined,
+        'errNullParent parent_id',
+      );
 
       apmServer.clear();
       agent.destroy();
@@ -1874,25 +2014,26 @@ test('#handleUncaughtExceptions()', function (t) {
     t.end();
   });
 
-  t.test('should not add more than one listener for the uncaughtException event', function (t) {
-    const agent = new Agent().start(agentOptsNoopTransport);
-    agent.handleUncaughtExceptions();
-    var before = process._events.uncaughtException.length;
-    agent.handleUncaughtExceptions();
-    t.strictEqual(process._events.uncaughtException.length, before);
+  t.test(
+    'should not add more than one listener for the uncaughtException event',
+    function (t) {
+      const agent = new Agent().start(agentOptsNoopTransport);
+      agent.handleUncaughtExceptions();
+      var before = process._events.uncaughtException.length;
+      agent.handleUncaughtExceptions();
+      t.strictEqual(process._events.uncaughtException.length, before);
 
-    agent.destroy();
-    t.end();
-  });
+      agent.destroy();
+      t.end();
+    },
+  );
 
   t.test('should send an uncaughtException to server', function (t) {
     const apmServer = new MockAPMServer();
     apmServer.start(function (serverUrl) {
-      const agent = new Agent().start(Object.assign(
-        {},
-        agentOpts,
-        { serverUrl }
-      ));
+      const agent = new Agent().start(
+        Object.assign({}, agentOpts, { serverUrl }),
+      );
 
       let handlerErr;
       agent.handleUncaughtExceptions(function (err) {
@@ -1908,7 +2049,10 @@ test('#handleUncaughtExceptions()', function (t) {
           const data = apmServer.events[1].error;
           t.strictEqual(data.exception.message, 'uncaught');
 
-          t.ok(handlerErr, 'the registered uncaughtException handler was called');
+          t.ok(
+            handlerErr,
+            'the registered uncaughtException handler was called',
+          );
           t.equal(handlerErr.message, 'uncaught');
 
           apmServer.close();
@@ -1966,7 +2110,7 @@ test('patches', function (t) {
     agent.start(agentOptsNoopTransport);
 
     var replacement = {
-      foo: 'bar'
+      foo: 'bar',
     };
 
     agent.addPatch('express', (exports, agent, { version, enabled }) => {
@@ -1994,7 +2138,7 @@ test('patches', function (t) {
     agent.removePatch('does-not-exist', '/foo.js');
     t.notOk(agent._instrumentation._patches.has('does-not-exist'));
 
-    const handler = exports => exports;
+    const handler = (exports) => exports;
     agent.addPatch('does-not-exist', handler);
     t.ok(agent._instrumentation._patches.has('does-not-exist'));
     agent.removePatch('does-not-exist', handler);
@@ -2010,24 +2154,40 @@ test('patches', function (t) {
     const moduleName = 'removePatch-test-module';
     t.notOk(agent._instrumentation._patches.has(moduleName));
 
-    const handler1 = function (exports) { return exports; };
-    const handler2 = function (exports) { return exports; };
+    const handler1 = function (exports) {
+      return exports;
+    };
+    const handler2 = function (exports) {
+      return exports;
+    };
     agent.addPatch(moduleName, handler1);
     agent.addPatch(moduleName, handler2);
     const modulePatches = agent._instrumentation._patches.get(moduleName);
-    t.ok(modulePatches.length === 2 &&
-      modulePatches[0] === handler1 &&
-      modulePatches[1] === handler2, 'module patches are as expected');
+    t.ok(
+      modulePatches.length === 2 &&
+        modulePatches[0] === handler1 &&
+        modulePatches[1] === handler2,
+      'module patches are as expected',
+    );
 
     agent.removePatch(moduleName);
-    t.equal(agent._instrumentation._patches.get(moduleName).length, 2,
-      'still have 2 patches after removePatch(name)');
+    t.equal(
+      agent._instrumentation._patches.get(moduleName).length,
+      2,
+      'still have 2 patches after removePatch(name)',
+    );
     agent.removePatch(moduleName, 'this is not one of the registered handlers');
-    t.equal(agent._instrumentation._patches.get(moduleName).length, 2,
-      'still have 2 patches after removePatch(name, oops)');
-    agent.removePatch(moduleName, function oops () {});
-    t.equal(agent._instrumentation._patches.get(moduleName).length, 2,
-      'still have 2 patches after removePatch(name, function oops () {})');
+    t.equal(
+      agent._instrumentation._patches.get(moduleName).length,
+      2,
+      'still have 2 patches after removePatch(name, oops)',
+    );
+    agent.removePatch(moduleName, function oops() {});
+    t.equal(
+      agent._instrumentation._patches.get(moduleName).length,
+      2,
+      'still have 2 patches after removePatch(name, function oops () {})',
+    );
 
     agent.removePatch(moduleName, handler2);
     agent.removePatch(moduleName, handler1);
@@ -2046,20 +2206,21 @@ test('#registerMetric(name, labels, callback)', function (t) {
     cbValue: 0,
     labels: null,
     name: null,
-    getOrCreateGauge (...args) {
+    getOrCreateGauge(...args) {
       this.calledCount++;
       this.name = args[0];
       this.callback = args[1];
       this.labels = args[2];
       this.cbValue = this.callback();
     },
-    stop () {
-    }
+    stop() {},
   };
 
   agent._metrics = mockMetrics;
 
-  const cb = () => { return 12345; };
+  const cb = () => {
+    return 12345;
+  };
   const labels = { abc: 123 };
 
   // with labels
@@ -2072,7 +2233,9 @@ test('#registerMetric(name, labels, callback)', function (t) {
   t.strictEqual(mockMetrics.cbValue, 12345);
 
   // without labels
-  const cb2 = () => { return 6789; };
+  const cb2 = () => {
+    return 6789;
+  };
   agent.registerMetric('custom-metrics2', cb2);
 
   t.strictEqual(mockMetrics.calledCount, 2);

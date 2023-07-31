@@ -16,8 +16,9 @@
 // client. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-ws'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-ws',
 });
 
 const WebSocket = require('ws');

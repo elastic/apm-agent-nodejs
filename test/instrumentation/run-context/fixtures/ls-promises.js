@@ -12,13 +12,14 @@
 //     `- span "cwd"
 //     `- span "readdir"
 
-var apm = require('../../../../').start({ // elastic-apm-node
+var apm = require('../../../../').start({
+  // elastic-apm-node
   captureExceptions: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'ls-promises'
+  serviceName: 'ls-promises',
 });
 
 let assert = require('assert');
@@ -29,7 +30,7 @@ const fsp = require('fs').promises;
 
 let t1;
 
-function getCwd () {
+function getCwd() {
   var s2 = apm.startSpan('cwd');
   try {
     return Promise.resolve(process.cwd());
@@ -40,22 +41,21 @@ function getCwd () {
   }
 }
 
-function main () {
+function main() {
   t1 = apm.startTransaction('ls');
   assert(apm.currentTransaction === t1);
   getCwd()
-    .then(cwd => {
+    .then((cwd) => {
       assert(apm.currentTransaction === t1);
       assert(apm.currentSpan === null);
       var s3 = apm.startSpan('readdir');
       assert(apm.currentSpan === s3);
-      return fsp.readdir(cwd)
-        .finally(() => {
-          assert(apm.currentSpan === s3);
-          s3.end();
-        });
+      return fsp.readdir(cwd).finally(() => {
+        assert(apm.currentSpan === s3);
+        s3.end();
+      });
     })
-    .then(entries => {
+    .then((entries) => {
       assert(apm.currentTransaction === t1);
       assert(apm.currentSpan === null);
       console.log('entries:', entries);

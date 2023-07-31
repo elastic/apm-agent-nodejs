@@ -19,20 +19,32 @@ test('default logLevel is "info"', function (t) {
 
 test('simple custom logger works', function (t) {
   class SimpleCustomLogger {
-    constructor () {
+    constructor() {
       this.records = [];
     }
 
-    _log (level, message) {
+    _log(level, message) {
       this.records.push({ level, message });
     }
 
-    fatal (message) { this._log('fatal', message); }
-    error (message) { this._log('error', message); }
-    warn (message) { this._log('warn', message); }
-    info (message) { this._log('info', message); }
-    debug (message) { this._log('debug', message); }
-    trace (message) { this._log('trace', message); }
+    fatal(message) {
+      this._log('fatal', message);
+    }
+    error(message) {
+      this._log('error', message);
+    }
+    warn(message) {
+      this._log('warn', message);
+    }
+    info(message) {
+      this._log('info', message);
+    }
+    debug(message) {
+      this._log('debug', message);
+    }
+    trace(message) {
+      this._log('trace', message);
+    }
   }
 
   const customLogger = new SimpleCustomLogger();
@@ -54,13 +66,13 @@ test('pino custom logger gets structured fields', function (t) {
   // can test the output.
   const captureStream = {
     chunks: [],
-    write (chunk) {
+    write(chunk) {
       this.chunks.push(chunk);
     },
-    getRecords () {
+    getRecords() {
       const lines = this.chunks.join('').trim().split(/\n/g);
       return lines.map(JSON.parse);
-    }
+    },
   };
   const customLogger = pino({}, captureStream);
   const log = logging.createLogger(null, customLogger);
@@ -72,10 +84,22 @@ test('pino custom logger gets structured fields', function (t) {
   t.equal(recs.length, 2);
   t.equal(recs[0].level, 30); // pino's levelVal for "info"
   t.equal(recs[0].msg, 'testing 1 2 3...');
-  t.equal(recs[0].metadatum, 42, 'custom pino logger got structured "metadatum" log field');
+  t.equal(
+    recs[0].metadatum,
+    42,
+    'custom pino logger got structured "metadatum" log field',
+  );
   t.equal(recs[1].level, 40); // pino's levelVal for "warn"
-  t.equal(recs[1].err.type, 'Error', 'custom pino logger got structured err.type');
-  t.equal(recs[1].err.message, 'boom', 'custom pino logger got structured err.message');
+  t.equal(
+    recs[1].err.type,
+    'Error',
+    'custom pino logger got structured err.type',
+  );
+  t.equal(
+    recs[1].err.message,
+    'boom',
+    'custom pino logger got structured err.message',
+  );
   t.ok(recs[1].err.stack, 'custom pino logger got structured err.stack');
 
   t.end();

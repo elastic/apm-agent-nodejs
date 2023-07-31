@@ -23,14 +23,14 @@ const assert = require('assert');
 const otel = require('@opentelemetry/api');
 const tracer = otel.trace.getTracer('test-start-span-with-context');
 
-function parentIdFromSpan (span) {
+function parentIdFromSpan(span) {
   return (
     span.parentSpanId || // OTel SDK
     (span._span && span._span.parentId) || // Elastic APM
     undefined
   );
 }
-function idFromSpan (span) {
+function idFromSpan(span) {
   return span.spanContext().spanId;
 }
 

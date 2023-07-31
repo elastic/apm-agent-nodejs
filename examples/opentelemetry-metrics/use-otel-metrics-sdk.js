@@ -27,7 +27,11 @@ const { createServer } = require('http');
 const { performance } = require('perf_hooks');
 
 const otel = require('@opentelemetry/api');
-const { MeterProvider, View, ExplicitBucketHistogramAggregation } = require('@opentelemetry/sdk-metrics');
+const {
+  MeterProvider,
+  View,
+  ExplicitBucketHistogramAggregation,
+} = require('@opentelemetry/sdk-metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
 
 const exporter = new PrometheusExporter({ host: '127.0.0.1', port: 3001 });
@@ -39,16 +43,19 @@ const meterProvider = new MeterProvider({
         // Use the same default buckets as in `prom-client` for comparison.
         // This is to demonstrate using a View. The default buckets used by the
         // APM agent would suffice as well.
-        [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10])
-    })
-  ]
+        [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+      ),
+    }),
+  ],
 });
 meterProvider.addMetricReader(exporter);
 otel.metrics.setGlobalMeterProvider(meterProvider);
 console.log('Prometheus metrics at http://127.0.0.1:3001/metrics');
 
 const meter = otel.metrics.getMeter('my-meter');
-const latency = meter.createHistogram('latency', { description: 'Response latency (s)' });
+const latency = meter.createHistogram('latency', {
+  description: 'Response latency (s)',
+});
 
 const server = createServer((req, res) => {
   const start = performance.now();

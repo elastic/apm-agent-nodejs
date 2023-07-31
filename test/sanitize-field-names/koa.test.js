@@ -10,7 +10,7 @@ const agent = require('../..').start(createAgentConfig());
 const {
   resetAgent,
   assertRequestHeadersWithFixture,
-  assertResponseHeadersWithFixture
+  assertResponseHeadersWithFixture,
 } = require('./_shared');
 const test = require('tape');
 const request = require('request');
@@ -28,19 +28,25 @@ test('Running fixtures with koa', function (suite) {
         fixture.input.requestHeaders,
         fixture.input.responseHeaders,
         fixture.input.formFields,
-        createMiddleware(fixture.bodyParsing)
+        createMiddleware(fixture.bodyParsing),
       );
     });
   }
   suite.end();
 });
 
-function createMiddleware (type) {
+function createMiddleware(type) {
   return koaBodyparser();
 }
 
-function runTest (
-  t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
+function runTest(
+  t,
+  expected,
+  agentConfig,
+  requestHeaders,
+  responseHeaders,
+  formFields,
+  middleware = false,
 ) {
   // register a listener to close the server when we're done
   const done = () => {
@@ -67,19 +73,21 @@ function runTest (
   });
 
   // register request handler
-  app.use(async ctx => {
+  app.use(async (ctx) => {
     t.ok('received request', 'received request');
     ctx.set(responseHeaders);
     ctx.body = 'Hello World';
   });
 
   const server = app.listen(0, '0.0.0.0', () => {
-    const url = `http://${server.address().address}:${server.address().port}/test`;
+    const url = `http://${server.address().address}:${
+      server.address().port
+    }/test`;
     request.post(
       url,
       {
         form: formFields,
-        headers: requestHeaders
+        headers: requestHeaders,
       },
       function (error, response, body) {
         if (error) {
@@ -87,6 +95,7 @@ function runTest (
         }
         t.ok(body, 'received response');
         t.end();
-      });
+      },
+    );
   });
 }

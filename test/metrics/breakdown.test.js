@@ -23,65 +23,64 @@ const basicMetrics = [
   'nodejs.requests.active',
   'nodejs.memory.heap.allocated.bytes',
   'nodejs.memory.heap.used.bytes',
-  'nodejs.eventloop.delay.avg.ms'
+  'nodejs.eventloop.delay.avg.ms',
 ];
 
 if (process.platform === 'linux') {
   basicMetrics.push('system.process.memory.size');
 }
 
-const spanMetrics = [
-  'span.self_time.count',
-  'span.self_time.sum.us'
-];
+const spanMetrics = ['span.self_time.count', 'span.self_time.sum.us'];
 
 const metricKeysFromName = {
   'transaction span': spanMetrics,
-  span: spanMetrics
+  span: spanMetrics,
 };
 
-function nullableEqual (a, b) {
+function nullableEqual(a, b) {
   return (!a && !b) || a === b;
 }
 
 const finders = {
-  'transaction span' (metricsets) {
-    return metricsets.find(metricset => metricset.span && metricset.span.type === 'app');
+  'transaction span'(metricsets) {
+    return metricsets.find(
+      (metricset) => metricset.span && metricset.span.type === 'app',
+    );
   },
-  span (metricsets, span) {
-    return metricsets.find(metricset => {
+  span(metricsets, span) {
+    return metricsets.find((metricset) => {
       if (!metricset.span) return false;
       const { type, subtype } = metricset.span;
       if (!nullableEqual(type, span.type)) return false;
       if (!nullableEqual(subtype, span.subtype)) return false;
       return true;
     });
-  }
+  },
 };
 
 const expectations = {
-  transaction (transaction) {
+  transaction(transaction) {
     return {
       transaction: {
         name: transaction.name,
-        type: transaction.type
-      }
+        type: transaction.type,
+      },
     };
   },
-  'transaction span' (transaction) {
+  'transaction span'(transaction) {
     return Object.assign(this.transaction(transaction), {
       span: {
-        type: 'app'
-      }
+        type: 'app',
+      },
     });
   },
-  span (transaction, span) {
+  span(transaction, span) {
     return Object.assign(this.transaction(transaction), {
       span: {
-        type: span.type
-      }
+        type: span.type,
+      },
     });
-  }
+  },
 };
 
 // Use 1s, the shortest enabled metrics interval allowed, so tests waiting for
@@ -95,10 +94,10 @@ const testAgentOpts = {
   centralConfig: false,
   captureExceptions: false,
   // Create a transport that captures all sent events for later asserts.
-  transport () {
+  transport() {
     return new CapturingTransport();
   },
-  metricsInterval: testMetricsInterval
+  metricsInterval: testMetricsInterval,
 };
 
 // Call `waitCb()` callback after breakdown metrics have been sent by the given
@@ -118,10 +117,14 @@ const testAgentOpts = {
 // metricsInterval (set to 1s in this test file). However, both the *start* of
 // that `setInterval` and the collection of metrics before calling
 // `transport.sendMetricSet()` are asynchronous.
-function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
+function waitForAgentToSendBreakdownMetrics(agent, waitCb) {
   const timeoutMs = 2 * testMetricsIntervalMs;
   const timeout = setTimeout(function () {
-    waitCb(new Error(`timeout: breakdown metrics were not sent within ${timeoutMs}ms`));
+    waitCb(
+      new Error(
+        `timeout: breakdown metrics were not sent within ${timeoutMs}ms`,
+      ),
+    );
   }, timeoutMs);
 
   // Wrap `transport.sendMetricSet` to watch for sent metrics.
@@ -135,7 +138,10 @@ function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
   // actually sent.
   const WAIT_FOR_FULL_BREAKDOWN_METRICSETS_GROUP_MS = 100;
   const origSendMetricSet = agent._apmClient.sendMetricSet;
-  agent._apmClient.sendMetricSet = function watchingSendMetricSet (metricset, cb) {
+  agent._apmClient.sendMetricSet = function watchingSendMetricSet(
+    metricset,
+    cb,
+  ) {
     if (metricset.transaction) {
       // This is the first breakdown metric. Wait a short while for all of them
       // in this "group" to be sent.
@@ -147,7 +153,7 @@ function waitForAgentToSendBreakdownMetrics (agent, waitCb) {
   };
 }
 
-test('includes breakdown when sampling', t => {
+test('includes breakdown when sampling', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar');
@@ -155,55 +161,67 @@ test('includes breakdown when sampling', t => {
   if (span) span.end();
   transaction.end();
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const data = agent._apmClient;
-    t.strictEqual(data.transactions.length, 1, 'has one transaction');
-    assertTransaction(t, transaction, data.transactions[0]);
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const data = agent._apmClient;
+      t.strictEqual(data.transactions.length, 1, 'has one transaction');
+      assertTransaction(t, transaction, data.transactions[0]);
 
-    t.strictEqual(data.spans.length, 1, 'has one span');
-    assertSpan(t, span, data.spans[0]);
+      t.strictEqual(data.spans.length, 1, 'has one span');
+      assertSpan(t, span, data.spans[0]);
 
-    const { metricsets } = data;
-    assertMetricSet(t, 'span', metricsets, {
-      transaction,
-      span
-    });
-    assertMetricSet(t, 'transaction span', metricsets, {
-      transaction,
-      span
-    });
+      const { metricsets } = data;
+      assertMetricSet(t, 'span', metricsets, {
+        transaction,
+        span,
+      });
+      assertMetricSet(t, 'transaction span', metricsets, {
+        transaction,
+        span,
+      });
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('only transaction', t => {
+test('only transaction', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
   transaction.end(null, 30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 30 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 30 },
+        },
+        'sample values match',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with single sub-span', t => {
+test('with single sub-span', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
@@ -211,32 +229,44 @@ test('with single sub-span', t => {
   if (span) span.end(20);
   transaction.end(null, 30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets, span),
-      span: finders.span(metricsets, span)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets, span),
+        span: finders.span(metricsets, span),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 20 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 20 },
+        },
+        'sample values match',
+      );
 
-    t.ok(found.span, 'found db.mysql span metricset');
-    t.deepEqual(found.span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 10 }
-    }, 'sample values match');
+      t.ok(found.span, 'found db.mysql span metricset');
+      t.deepEqual(
+        found.span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 10 },
+        },
+        'sample values match',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with single app sub-span', t => {
+test('with single app sub-span', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
@@ -244,26 +274,34 @@ test('with single app sub-span', t => {
   if (span) span.end(20);
   transaction.end(null, 30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets, span),
-      span: finders.span(metricsets, span)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets, span),
+        span: finders.span(metricsets, span),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 2 },
-      'span.self_time.sum.us': { value: 30 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 2 },
+          'span.self_time.sum.us': { value: 30 },
+        },
+        'sample values match',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with parallel sub-spans', t => {
+test('with parallel sub-spans', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
@@ -279,40 +317,54 @@ test('with parallel sub-spans', t => {
     // transaction for the special case of (a) contextManager="patch" such that
     // we are using "patch-async.js" and (b) use of `agent.destroy(); new
     // Agent()`.  The latter breaks patch-async's patching of setImmediate.
-    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
-      { startTime: 10, childOf: transaction });
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', {
+      startTime: 10,
+      childOf: transaction,
+    });
     setImmediate(function () {
       if (span1) span1.end(20);
       transaction.end(null, 30);
     });
   });
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets),
-      span: finders.span(metricsets, span0)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span0),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 20 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 20 },
+        },
+        'sample values match',
+      );
 
-    t.ok(found.span, 'found db.mysql span metricset');
-    t.deepEqual(found.span.samples, {
-      'span.self_time.count': { value: 2 },
-      'span.self_time.sum.us': { value: 20 }
-    }, 'sample values match');
+      t.ok(found.span, 'found db.mysql span metricset');
+      t.deepEqual(
+        found.span.samples,
+        {
+          'span.self_time.count': { value: 2 },
+          'span.self_time.sum.us': { value: 20 },
+        },
+        'sample values match',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with overlapping sub-spans', t => {
+test('with overlapping sub-spans', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
@@ -325,8 +377,10 @@ test('with overlapping sub-spans', t => {
   });
   setImmediate(function () {
     // See "childOf" comment above for why `childOf` is used here.
-    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql',
-      { startTime: 15, childOf: transaction });
+    var span1 = agent.startSpan('SELECT * FROM b', 'db.mysql', {
+      startTime: 15,
+      childOf: transaction,
+    });
     setImmediate(function () {
       if (span1) span1.end(25);
       setImmediate(function () {
@@ -335,32 +389,44 @@ test('with overlapping sub-spans', t => {
     });
   });
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets),
-      span: finders.span(metricsets, span0)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span0),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 15 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 15 },
+        },
+        'sample values match',
+      );
 
-    t.ok(found.span, 'found db.mysql span metricset');
-    t.deepEqual(found.span.samples, {
-      'span.self_time.count': { value: 2 },
-      'span.self_time.sum.us': { value: 20 }
-    }, 'sample values match');
+      t.ok(found.span, 'found db.mysql span metricset');
+      t.deepEqual(
+        found.span.samples,
+        {
+          'span.self_time.count': { value: 2 },
+          'span.self_time.sum.us': { value: 20 },
+        },
+        'sample values match',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with sequential sub-spans', t => {
+test('with sequential sub-spans', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
@@ -370,32 +436,44 @@ test('with sequential sub-spans', t => {
   if (span1) span1.end(25);
   transaction.end(null, 30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets),
-      span: finders.span(metricsets, span0)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span0),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 10 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 10 },
+        },
+        'sample values match',
+      );
 
-    t.ok(found.span, 'found db.mysql span metricset');
-    t.deepEqual(found.span.samples, {
-      'span.self_time.count': { value: 2 },
-      'span.self_time.sum.us': { value: 20 }
-    }, 'sample values match');
+      t.ok(found.span, 'found db.mysql span metricset');
+      t.deepEqual(
+        found.span.samples,
+        {
+          'span.self_time.count': { value: 2 },
+          'span.self_time.sum.us': { value: 20 },
+        },
+        'sample values match',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with sub-spans returning to app time', t => {
+test('with sub-spans returning to app time', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
@@ -405,98 +483,139 @@ test('with sub-spans returning to app time', t => {
   if (span1) span1.end(25);
   transaction.end(null, 30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets),
-      span: finders.span(metricsets, span0)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span0),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 20 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 20 },
+        },
+        'sample values match',
+      );
 
-    t.ok(found.span, 'found db.mysql span metricset');
-    t.deepEqual(found.span.samples, {
-      'span.self_time.count': { value: 2 },
-      'span.self_time.sum.us': { value: 10 }
-    }, 'sample values match');
+      t.ok(found.span, 'found db.mysql span metricset');
+      t.deepEqual(
+        found.span.samples,
+        {
+          'span.self_time.count': { value: 2 },
+          'span.self_time.sum.us': { value: 10 },
+        },
+        'sample values match',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with overlapping nested async sub-spans', t => {
+test('with overlapping nested async sub-spans', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
   var span0 = agent.startSpan('foo', 'app', { startTime: 10 });
-  var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 15, childOf: span0 });
+  var span1 = agent.startSpan('SELECT *', 'db.mysql', {
+    startTime: 15,
+    childOf: span0,
+  });
   if (span0) span0.end(20);
   if (span1) span1.end(25);
   transaction.end(null, 30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets),
-      span: finders.span(metricsets, span1)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+        span: finders.span(metricsets, span1),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 2 },
-      'span.self_time.sum.us': { value: 25 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 2 },
+          'span.self_time.sum.us': { value: 25 },
+        },
+        'sample values match',
+      );
 
-    t.ok(found.span, 'found db.mysql span metricset');
-    t.deepEqual(found.span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 10 }
-    }, 'sample values match');
+      t.ok(found.span, 'found db.mysql span metricset');
+      t.deepEqual(
+        found.span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 10 },
+        },
+        'sample values match',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with app sub-span extending beyond end', t => {
+test('with app sub-span extending beyond end', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
   var span0 = agent.startSpan('foo', 'app', { startTime: 10 });
   transaction.end(null, 20);
   // span1 is *not* created, because cannot create a span on an ended transaction.
-  var span1 = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: span0 });
+  var span1 = agent.startSpan('SELECT *', 'db.mysql', {
+    startTime: 20,
+    childOf: span0,
+  });
   if (span0) span0.end(30);
   if (span1) span1.end(30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 10 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 10 },
+        },
+        'sample values match',
+      );
 
-    t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans');
+      t.notOk(
+        finders.span(metricsets, { type: 'db.mysql' }),
+        'does not have un-ended spans',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with other sub-span extending beyond end', t => {
+test('with other sub-span extending beyond end', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
@@ -504,55 +623,80 @@ test('with other sub-span extending beyond end', t => {
   transaction.end(null, 20);
   if (span) span.end(30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 10 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 10 },
+        },
+        'sample values match',
+      );
 
-    t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans');
+      t.notOk(
+        finders.span(metricsets, { type: 'db.mysql' }),
+        'does not have un-ended spans',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-test('with other sub-span starting after end', t => {
+test('with other sub-span starting after end', (t) => {
   const agent = new Agent().start(testAgentOpts);
 
   var transaction = agent.startTransaction('foo', 'bar', { startTime: 0 });
   transaction.end(null, 10);
-  var span = agent.startSpan('SELECT *', 'db.mysql', { startTime: 20, childOf: transaction });
+  var span = agent.startSpan('SELECT *', 'db.mysql', {
+    startTime: 20,
+    childOf: transaction,
+  });
   if (span) span.end(30);
 
-  waitForAgentToSendBreakdownMetrics(agent, function (err) {
-    t.error(err, 'wait for breakdown metrics did not timeout');
-    const metricsets = agent._apmClient.metricsets;
-    const found = {
-      transaction_span: finders['transaction span'](metricsets)
-    };
+  waitForAgentToSendBreakdownMetrics(
+    agent,
+    function (err) {
+      t.error(err, 'wait for breakdown metrics did not timeout');
+      const metricsets = agent._apmClient.metricsets;
+      const found = {
+        transaction_span: finders['transaction span'](metricsets),
+      };
 
-    t.ok(found.transaction_span, 'found app span metricset');
-    t.deepEqual(found.transaction_span.samples, {
-      'span.self_time.count': { value: 1 },
-      'span.self_time.sum.us': { value: 10 }
-    }, 'sample values match');
+      t.ok(found.transaction_span, 'found app span metricset');
+      t.deepEqual(
+        found.transaction_span.samples,
+        {
+          'span.self_time.count': { value: 1 },
+          'span.self_time.sum.us': { value: 10 },
+        },
+        'sample values match',
+      );
 
-    t.notOk(finders.span(metricsets, { type: 'db.mysql' }), 'does not have un-ended spans');
+      t.notOk(
+        finders.span(metricsets, { type: 'db.mysql' }),
+        'does not have un-ended spans',
+      );
 
-    agent.destroy();
-    t.end();
-  }, testMetricsIntervalMs);
+      agent.destroy();
+      t.end();
+    },
+    testMetricsIntervalMs,
+  );
 });
 
-function assertTransaction (t, expected, received) {
+function assertTransaction(t, expected, received) {
   t.comment('transaction');
   t.strictEqual(received.name, expected.name, 'type matches');
   t.strictEqual(received.type, expected.type, 'type matches');
@@ -560,13 +704,13 @@ function assertTransaction (t, expected, received) {
   t.strictEqual(received.sampled, expected.sampled, 'sampled state matches');
 }
 
-function assertSpan (t, expected, received) {
+function assertSpan(t, expected, received) {
   t.comment('span');
   t.strictEqual(received.name, expected.name, 'name matches');
   t.strictEqual(received.type, expected.type, 'type matches');
 }
 
-function assertMetricSet (t, name, metricsets, { transaction, span } = {}) {
+function assertMetricSet(t, name, metricsets, { transaction, span } = {}) {
   const metricSet = finders[name](metricsets, span);
   const keys = metricKeysFromName[name];
   const expected = expectations[name](transaction, span);
@@ -577,11 +721,19 @@ function assertMetricSet (t, name, metricsets, { transaction, span } = {}) {
   assertMetricSetData(t, metricSet, expected);
 }
 
-function assertMetricSetKeys (t, metricSet, keys) {
-  t.deepEqual(Object.keys(metricSet.samples).sort(), keys.sort(), 'has expected sample keys');
+function assertMetricSetKeys(t, metricSet, keys) {
+  t.deepEqual(
+    Object.keys(metricSet.samples).sort(),
+    keys.sort(),
+    'has expected sample keys',
+  );
 }
 
-function assertMetricSetData (t, metricSet, expected) {
-  t.deepEqual(metricSet.transaction, expected.transaction, 'has expected transaction data');
+function assertMetricSetData(t, metricSet, expected) {
+  t.deepEqual(
+    metricSet.transaction,
+    expected.transaction,
+    'has expected transaction data',
+  );
   t.deepEqual(metricSet.span, expected.span, 'has expected span data');
 }

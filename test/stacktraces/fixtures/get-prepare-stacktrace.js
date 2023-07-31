@@ -10,10 +10,12 @@ require('../../../').start({
   logUncaughtExceptions: true,
   metricsInterval: 0,
   centralConfig: false,
-  logLevel: 'off'
+  logLevel: 'off',
 });
-function main () {
-  const name = Error.prepareStackTrace ? Error.prepareStackTrace.name : undefined;
+function main() {
+  const name = Error.prepareStackTrace
+    ? Error.prepareStackTrace.name
+    : undefined;
   console.log(name);
 }
 

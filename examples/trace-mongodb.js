@@ -10,9 +10,10 @@
 //    npm run docker:start mongodb
 // to start a MongoDB docker container. Then `npm run docker:stop` to stop it.
 
-const apm = require('../').start({ // elastic-apm-node
+const apm = require('../').start({
+  // elastic-apm-node
   serviceName: 'example-trace-mongodb',
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 const MongoClient = require('mongodb').MongoClient;
@@ -20,7 +21,7 @@ const MongoClient = require('mongodb').MongoClient;
 const DB_NAME = 'example-trace-mongodb';
 const url = 'mongodb://localhost:27017';
 
-async function main () {
+async function main() {
   // For tracing spans to be created, there must be an active transaction.
   // Typically, a transaction is automatically started for incoming HTTP
   // requests to a Node.js server. However, because this script is not running
@@ -38,7 +39,7 @@ async function main () {
     let res = await coll.insertMany([
       { item: 'spam', n: 0 },
       { item: 'ham', n: 1 },
-      { item: 'eggs', n: 2 }
+      { item: 'eggs', n: 2 },
     ]);
     console.log('insertMany:', res);
 

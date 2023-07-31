@@ -12,8 +12,9 @@
 //    npm run docker:start memcached
 // to start a Memcached container. Then `npm run docker:stop` to stop it.
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-memcached'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-memcached',
 });
 
 const Memcached = require('memcached');

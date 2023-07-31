@@ -32,10 +32,12 @@ test('Event: close - if chopper ends', function (t) {
       server.close();
     }, 10);
   }).listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port,
-      apmServerVersion: '8.0.0'
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port,
+        apmServerVersion: '8.0.0',
+      }),
+    );
 
     client.on('finish', function () {
       t.fail('should not emit finish event');
@@ -59,10 +61,12 @@ test('Event: close - if chopper is destroyed', function (t) {
       server.close();
     }, 10);
   }).listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port,
-      apmServerVersion: '8.0.0'
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port,
+        apmServerVersion: '8.0.0',
+      }),
+    );
 
     client.on('finish', function () {
       t.fail('should not emit finish event');
@@ -249,13 +253,15 @@ test('socket hang up', function (t) {
 });
 
 test('socket hang up - continue with new request', function (t) {
-  t.plan(4 + assertIntakeReq.asserts * 2 + assertMetadata.asserts + assertEvent.asserts);
+  t.plan(
+    4 +
+      assertIntakeReq.asserts * 2 +
+      assertMetadata.asserts +
+      assertEvent.asserts,
+  );
   let reqs = 0;
   let client;
-  const datas = [
-    assertMetadata,
-    assertEvent({ span: { req: 2 } })
-  ];
+  const datas = [assertMetadata, assertEvent({ span: { req: 2 } })];
   const server = APMServer(function (req, res) {
     assertIntakeReq(t, req);
 
@@ -280,7 +286,11 @@ test('socket hang up - continue with new request', function (t) {
   }).client({ apmServerVersion: '8.0.0' }, function (_client) {
     client = _client;
     client.on('request-error', function (err) {
-      t.equal(err.message, 'socket hang up', 'got "socket hang up" request-error');
+      t.equal(
+        err.message,
+        'socket hang up',
+        'got "socket hang up" request-error',
+      );
       t.equal(err.code, 'ECONNRESET', 'request-error code is "ECONNRESET"');
       client.sendSpan({ req: 2 });
     });
@@ -297,70 +307,94 @@ test('socket hang up - continue with new request', function (t) {
 test('intakeResTimeoutOnEnd', function (t) {
   const server = APMServer(function (req, res) {
     req.resume();
-  }).client({
-    intakeResTimeoutOnEnd: 500,
-    apmServerVersion: '8.0.0'
-  }, function (client) {
-    const start = Date.now();
-    client.on('request-error', function (err) {
-      t.ok(err, 'got a request-error from the client');
-      const end = Date.now();
-      const delta = end - start;
-      t.ok(delta > 400 && delta < 600, `timeout should be about 500ms, got ${delta}ms`);
-      t.equal(err.message, 'intake response timeout: APM server did not respond within 0.5s of gzip stream finish');
-      server.close();
-      t.end();
-    });
-    client.sendSpan({ foo: 42 });
-    client.end();
-  });
+  }).client(
+    {
+      intakeResTimeoutOnEnd: 500,
+      apmServerVersion: '8.0.0',
+    },
+    function (client) {
+      const start = Date.now();
+      client.on('request-error', function (err) {
+        t.ok(err, 'got a request-error from the client');
+        const end = Date.now();
+        const delta = end - start;
+        t.ok(
+          delta > 400 && delta < 600,
+          `timeout should be about 500ms, got ${delta}ms`,
+        );
+        t.equal(
+          err.message,
+          'intake response timeout: APM server did not respond within 0.5s of gzip stream finish',
+        );
+        server.close();
+        t.end();
+      });
+      client.sendSpan({ foo: 42 });
+      client.end();
+    },
+  );
 });
 
 test('intakeResTimeout', function (t) {
   const server = APMServer(function (req, res) {
     req.resume();
-  }).client({
-    intakeResTimeout: 400,
-    apmServerVersion: '8.0.0'
-  }, function (client) {
-    const start = Date.now();
-    client.on('request-error', function (err) {
-      t.ok(err, 'got a request-error from the client');
-      const end = Date.now();
-      const delta = end - start;
-      t.ok(delta > 300 && delta < 500, `timeout should be about 400ms, got ${delta}ms`);
-      t.equal(err.message, 'intake response timeout: APM server did not respond within 0.4s of gzip stream finish');
-      server.close();
-      t.end();
-    });
-    client.sendSpan({ foo: 42 });
-    // Do *not* `client.end()` else we are testing intakeResTimeoutOnEnd.
-    client.flush();
-  });
+  }).client(
+    {
+      intakeResTimeout: 400,
+      apmServerVersion: '8.0.0',
+    },
+    function (client) {
+      const start = Date.now();
+      client.on('request-error', function (err) {
+        t.ok(err, 'got a request-error from the client');
+        const end = Date.now();
+        const delta = end - start;
+        t.ok(
+          delta > 300 && delta < 500,
+          `timeout should be about 400ms, got ${delta}ms`,
+        );
+        t.equal(
+          err.message,
+          'intake response timeout: APM server did not respond within 0.4s of gzip stream finish',
+        );
+        server.close();
+        t.end();
+      });
+      client.sendSpan({ foo: 42 });
+      // Do *not* `client.end()` else we are testing intakeResTimeoutOnEnd.
+      client.flush();
+    },
+  );
 });
 
 test('socket timeout - server response too slow', function (t) {
   const server = APMServer(function (req, res) {
     req.resume();
-  }).client({
-    serverTimeout: 1000,
-    // Set the intake res timeout higher to be able to test serverTimeout.
-    intakeResTimeoutOnEnd: 5000,
-    apmServerVersion: '8.0.0'
-  }, function (client) {
-    const start = Date.now();
-    client.on('request-error', function (err) {
-      t.ok(err, 'got a request-error from the client');
-      const end = Date.now();
-      const delta = end - start;
-      t.ok(delta > 1000 && delta < 2000, `timeout should occur between 1-2 seconds: delta=${delta}ms`);
-      t.equal(err.message, 'APM Server response timeout (1000ms)');
-      server.close();
-      t.end();
-    });
-    client.sendSpan({ foo: 42 });
-    client.end();
-  });
+  }).client(
+    {
+      serverTimeout: 1000,
+      // Set the intake res timeout higher to be able to test serverTimeout.
+      intakeResTimeoutOnEnd: 5000,
+      apmServerVersion: '8.0.0',
+    },
+    function (client) {
+      const start = Date.now();
+      client.on('request-error', function (err) {
+        t.ok(err, 'got a request-error from the client');
+        const end = Date.now();
+        const delta = end - start;
+        t.ok(
+          delta > 1000 && delta < 2000,
+          `timeout should occur between 1-2 seconds: delta=${delta}ms`,
+        );
+        t.equal(err.message, 'APM Server response timeout (1000ms)');
+        server.close();
+        t.end();
+      });
+      client.sendSpan({ foo: 42 });
+      client.end();
+    },
+  );
 });
 
 test('socket timeout - client request too slow', function (t) {
@@ -369,18 +403,24 @@ test('socket timeout - client request too slow', function (t) {
     req.on('end', function () {
       res.end();
     });
-  }).client({ serverTimeout: 1000, apmServerVersion: '8.0.0' }, function (client) {
-    const start = Date.now();
-    client.on('request-error', function (err) {
-      const end = Date.now();
-      const delta = end - start;
-      t.ok(delta > 1000 && delta < 2000, 'timeout should occur between 1-2 seconds');
-      t.equal(err.message, 'APM Server response timeout (1000ms)');
-      server.close();
-      t.end();
-    });
-    client.sendSpan({ foo: 42 });
-  });
+  }).client(
+    { serverTimeout: 1000, apmServerVersion: '8.0.0' },
+    function (client) {
+      const start = Date.now();
+      client.on('request-error', function (err) {
+        const end = Date.now();
+        const delta = end - start;
+        t.ok(
+          delta > 1000 && delta < 2000,
+          'timeout should occur between 1-2 seconds',
+        );
+        t.equal(err.message, 'APM Server response timeout (1000ms)');
+        server.close();
+        t.end();
+      });
+      client.sendSpan({ foo: 42 });
+    },
+  );
 });
 
 test('client.destroy() - on fresh client', function (t) {
@@ -419,10 +459,12 @@ test('client.destroy() - on ended client', function (t) {
   });
 
   server.listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port,
-      apmServerVersion: '8.0.0'
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port,
+        apmServerVersion: '8.0.0',
+      }),
+    );
     client.on('finish', function () {
       t.pass('should emit finish only once');
     });
@@ -450,10 +492,12 @@ test('client.destroy() - on client with request in progress', function (t) {
   });
 
   server.listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port
-      // TODO: the _fetchApmServerVersion() here *is* hanging.
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port,
+        // TODO: the _fetchApmServerVersion() here *is* hanging.
+      }),
+    );
     client.on('finish', function () {
       t.fail('should not emit finish');
     });
@@ -475,17 +519,19 @@ test('getCloudMetadata after client.destroy() should not result in error', funct
 
   server.listen(function () {
     // 1. Create a client with a slow cloudMetadataFetcher.
-    const client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port,
-      cloudMetadataFetcher: {
-        getCloudMetadata: function (cb) {
-          setTimeout(function () {
-            t.comment('calling back with cloud metadata');
-            cb(null, { fake: 'cloud metadata' });
-          }, 1000);
-        }
-      }
-    }));
+    const client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port,
+        cloudMetadataFetcher: {
+          getCloudMetadata: function (cb) {
+            setTimeout(function () {
+              t.comment('calling back with cloud metadata');
+              cb(null, { fake: 'cloud metadata' });
+            }, 1000);
+          },
+        },
+      }),
+    );
     client.on('close', function () {
       t.pass('should emit close event');
     });
@@ -521,15 +567,20 @@ test('client.send*() after client.destroy() should not result in error', functio
 
   mockApmServer.listen(function () {
     const UNCORK_TIMER_MS = 100;
-    const client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + mockApmServer.address().port,
-      bufferWindowTime: UNCORK_TIMER_MS
-    }));
+    const client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + mockApmServer.address().port,
+        bufferWindowTime: UNCORK_TIMER_MS,
+      }),
+    );
 
     // 2. We should *not* receive:
     //      Error: Cannot call write after a stream was destroyed
     client.on('error', function (err) {
-      t.ifErr(err, 'should *not* receive a "Cannot call write after a stream was destroyed" error');
+      t.ifErr(
+        err,
+        'should *not* receive a "Cannot call write after a stream was destroyed" error',
+      );
     });
 
     // 1. Destroy the client, and then call one of its `.send*()` methods.
@@ -553,10 +604,12 @@ dataTypes.forEach(function (dataType) {
   const sendFn = 'send' + dataType.charAt(0).toUpperCase() + dataType.substr(1);
 
   test(`client.${sendFn}(): handle circular references`, function (t) {
-    t.plan(assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
+    t.plan(
+      assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+    );
     const datas = [
       assertMetadata,
-      assertEvent({ [dataType]: { foo: 42, bar: '[Circular]' } })
+      assertEvent({ [dataType]: { foo: 42, bar: '[Circular]' } }),
     ];
     const server = APMServer(function (req, res) {
       assertIntakeReq(t, req);
@@ -573,7 +626,9 @@ dataTypes.forEach(function (dataType) {
       const obj = { foo: 42 };
       obj.bar = obj;
       client[sendFn](obj);
-      client.flush(() => { client.destroy(); });
+      client.flush(() => {
+        client.destroy();
+      });
     });
   });
 });
@@ -603,23 +658,36 @@ test('client.flush callbacks must be called, even if no active handles', functio
     const url = 'http://localhost:' + server.address().port;
     const script = path.resolve(__dirname, 'lib', 'call-me-back-maybe.js');
     const start = Date.now();
-    exec(`"${process.execPath}" ${script} ${url}`, function (err, stdout, stderr) {
-      if (stderr.trim()) {
-        t.comment(`stderr from ${script}:\n${stderr}`);
-      }
-      if (err) {
-        throw err;
-      }
-      t.equal(stdout, 'sendCb called\nflushCb called\n',
-        'stdout shows both callbacks were called');
-      const duration = Date.now() - start;
-      t.ok(duration < 1000, `should complete quickly, ie. not timeout (was: ${duration}ms)`);
+    exec(
+      `"${process.execPath}" ${script} ${url}`,
+      function (err, stdout, stderr) {
+        if (stderr.trim()) {
+          t.comment(`stderr from ${script}:\n${stderr}`);
+        }
+        if (err) {
+          throw err;
+        }
+        t.equal(
+          stdout,
+          'sendCb called\nflushCb called\n',
+          'stdout shows both callbacks were called',
+        );
+        const duration = Date.now() - start;
+        t.ok(
+          duration < 1000,
+          `should complete quickly, ie. not timeout (was: ${duration}ms)`,
+        );
 
-      t.ok(theError, `APM server got an error object from ${script}`);
-      if (theError) {
-        t.equal(theError.exception.message, 'boom', 'error message is "boom"');
-      }
-      t.end();
-    });
+        t.ok(theError, `APM server got an error object from ${script}`);
+        if (theError) {
+          t.equal(
+            theError.exception.message,
+            'boom',
+            'error message is "boom"',
+          );
+        }
+        t.end();
+      },
+    );
   });
 });

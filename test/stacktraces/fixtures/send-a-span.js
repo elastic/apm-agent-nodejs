@@ -15,14 +15,14 @@ const agent = require('../../../').start({
   spanStackTraceMinDuration: 0, // Always have span stacktraces.
   // These tell the agent to add source lines of context.
   sourceLinesSpanAppFrames: 5,
-  sourceLinesSpanLibraryFrames: 5
+  sourceLinesSpanLibraryFrames: 5,
 });
 
-function a (cb) {
+function a(cb) {
   setImmediate(cb);
 }
 
-function main () {
+function main() {
   const trans = agent.startTransaction('main');
   const span = agent.startSpan('a');
   a(function () {

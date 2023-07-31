@@ -13,13 +13,14 @@
 //      - span "s3"
 //    - span "s2"
 
-const apm = require('../../../../').start({ // elastic-apm-node
+const apm = require('../../../../').start({
+  // elastic-apm-node
   captureExceptions: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'run-context-parentage-with-ended-span'
+  serviceName: 'run-context-parentage-with-ended-span',
 });
 
 let assert = require('assert');
@@ -30,7 +31,7 @@ if (Number(process.versions.node.split('.')[0]) > 8) {
 const t0 = apm.startTransaction('t0');
 const s1 = apm.startSpan('s1');
 
-setImmediate(function doSomething () {
+setImmediate(function doSomething() {
   // Case #1: Ending a span removes it from the **current** run context. Doing
   // so does *not* effect the run context for `doAnotherThing()` below, because
   // run contexts are immutable.
@@ -39,13 +40,16 @@ setImmediate(function doSomething () {
   // This means that new spans and run contexts created in this async task
   // will no longer use s1.
   const s2 = apm.startSpan('s2');
-  assert(s2.parentId !== s1, 's2 parent is NOT s1, because s1 ended in this async task');
+  assert(
+    s2.parentId !== s1,
+    's2 parent is NOT s1, because s1 ended in this async task',
+  );
   setImmediate(function () {
     s2.end();
   });
 });
 
-setImmediate(function doAnotherThing () {
+setImmediate(function doAnotherThing() {
   // Case #2: This async task was bound to s1 when it was added to the event
   // loop queue. It does not (and should not) matter that s1 happens to have
   // ended by the time this async task is executed.

@@ -14,7 +14,7 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-undici',
-  usePathAsTransactionName: true // for our simple HTTP server
+  usePathAsTransactionName: true, // for our simple HTTP server
 });
 
 const http = require('http');
@@ -29,7 +29,7 @@ const server = http.createServer((req, res) => {
     setTimeout(() => {
       res.writeHead(200, {
         'content-type': 'application/json',
-        'content-length': Buffer.byteLength(resBody)
+        'content-length': Buffer.byteLength(resBody),
       });
       res.end(resBody);
     }, 100); // Take ~100ms to respond.
@@ -47,7 +47,7 @@ server.listen(3000, async () => {
   // Make a handful of requests and use Undici's pipelining
   // (https://undici.nodejs.org/#/?id=pipelining) to show concurrent requests.
   const client = new undici.Client('http://localhost:3000', {
-    pipelining: 2
+    pipelining: 2,
   });
   let lastReq;
   for (let i = 0; i < 4; i++) {

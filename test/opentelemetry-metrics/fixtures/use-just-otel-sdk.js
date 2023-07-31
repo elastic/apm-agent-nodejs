@@ -14,7 +14,11 @@
 // server, because the agent will add its MetricReader to the created
 // MeterProvider.
 
-const { MeterProvider, View, ExplicitBucketHistogramAggregation } = require('@opentelemetry/sdk-metrics');
+const {
+  MeterProvider,
+  View,
+  ExplicitBucketHistogramAggregation,
+} = require('@opentelemetry/sdk-metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
 
 const exporter = new PrometheusExporter({ host: 'localhost' });
@@ -24,33 +28,47 @@ const meterProvider = new MeterProvider({
       instrumentName: 'test_histogram_viewbuckets',
       aggregation: new ExplicitBucketHistogramAggregation(
         // Use the same default buckets as in `prom-client`.
-        [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10])
-    })
-  ]
+        [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+      ),
+    }),
+  ],
 });
 meterProvider.addMetricReader(exporter);
 
 const meter = meterProvider.getMeter('test-meter');
 
-const counter = meter.createCounter('test_counter', { description: 'A test Counter' });
+const counter = meter.createCounter('test_counter', {
+  description: 'A test Counter',
+});
 
 let n = 0;
-const asyncCounter = meter.createObservableCounter('test_async_counter', { description: 'A test Asynchronous Counter' });
-asyncCounter.addCallback(observableResult => {
+const asyncCounter = meter.createObservableCounter('test_async_counter', {
+  description: 'A test Asynchronous Counter',
+});
+asyncCounter.addCallback((observableResult) => {
   observableResult.observe(n);
 });
 
-const asyncGauge = meter.createObservableGauge('test_async_gauge', { description: 'A test Asynchronous Gauge' });
-asyncGauge.addCallback(observableResult => {
+const asyncGauge = meter.createObservableGauge('test_async_gauge', {
+  description: 'A test Asynchronous Gauge',
+});
+asyncGauge.addCallback((observableResult) => {
   // A sine wave with a 5 minute period, to have a recognizable pattern.
-  observableResult.observe(Math.sin(Date.now() / 1000 / 60 / 5 * (2 * Math.PI)));
+  observableResult.observe(
+    Math.sin((Date.now() / 1000 / 60 / 5) * (2 * Math.PI)),
+  );
 });
 
-const upDownCounter = meter.createUpDownCounter('test_updowncounter', { description: 'A test UpDownCounter' });
+const upDownCounter = meter.createUpDownCounter('test_updowncounter', {
+  description: 'A test UpDownCounter',
+});
 
 let c = 0;
-const asyncUpDownCounter = meter.createObservableUpDownCounter('test_async_updowncounter', { description: 'A test Asynchronous UpDownCounter' });
-asyncUpDownCounter.addCallback(observableResult => {
+const asyncUpDownCounter = meter.createObservableUpDownCounter(
+  'test_async_updowncounter',
+  { description: 'A test Asynchronous UpDownCounter' },
+);
+asyncUpDownCounter.addCallback((observableResult) => {
   observableResult.observe(c);
 });
 

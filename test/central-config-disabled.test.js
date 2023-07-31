@@ -14,7 +14,10 @@ const test = require('tape');
 
 test('central config disabled', function (t) {
   const server = http.createServer((req, res) => {
-    t.notOk(req.url.startsWith('/config/v1/agents'), `should not poll APM Server for config (url: ${req.url})`);
+    t.notOk(
+      req.url.startsWith('/config/v1/agents'),
+      `should not poll APM Server for config (url: ${req.url})`,
+    );
     req.resume();
     res.end();
   });
@@ -26,7 +29,7 @@ test('central config disabled', function (t) {
       captureExceptions: false,
       metricsInterval: 0,
       apmServerVersion: '8.0.0',
-      centralConfig: false
+      centralConfig: false,
     });
 
     setTimeout(function () {

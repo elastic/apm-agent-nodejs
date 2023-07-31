@@ -29,14 +29,14 @@ const client = new HttpApmClient({
   agentVersion: '1.2.3',
   userAgent: 'my-nodejs-agent/1.2.3',
   centralConfig: false, // important for repro, see above
-  apmServerVersion: '8.0.0' // important for repro, see above
+  apmServerVersion: '8.0.0', // important for repro, see above
 });
 
 const e = { exception: { message: 'boom', type: 'Error' } };
 
-client.sendError(e, function sendCb () {
+client.sendError(e, function sendCb() {
   console.log('sendCb called');
-  client.flush(function flushCb () {
+  client.flush(function flushCb() {
     console.log('flushCb called');
   });
 });

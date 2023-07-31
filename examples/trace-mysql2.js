@@ -12,8 +12,9 @@
 //    npm run docker:start mysql
 // to start a MySQL container. Then `npm run docker:stop` to stop it.
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-mysql2'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-mysql2',
 });
 
 const mysql = require('mysql2');
@@ -57,15 +58,15 @@ conn.execute(
           (err, rows, fields) => {
             console.log('execute 3: err=%s results=%o', err, rows);
             t2.end();
-          }
+          },
         );
-      }
+      },
     );
-  }
+  },
 );
 
 // 3. Promise style
-async function promiseStyle () {
+async function promiseStyle() {
   const conn2 = await mysqlPromise.createConnection({ user: 'root' });
   const t3 = apm.startTransaction('t3-promise-style');
 
@@ -73,11 +74,13 @@ async function promiseStyle () {
   console.log('select 3+3: rows=%o', rows);
 
   // "upgrade" from non-promise connection
-  conn.promise().query('select 4 + 4 as solution')
+  conn
+    .promise()
+    .query('select 4 + 4 as solution')
     .then(([rows, _fields]) => {
       console.log('select 4+4: rows=%o', rows);
     })
-    .catch(err => {
+    .catch((err) => {
       console.log('select 4+4: err=%s', err);
     });
 

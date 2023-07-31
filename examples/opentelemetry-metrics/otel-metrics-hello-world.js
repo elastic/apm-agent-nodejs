@@ -8,7 +8,9 @@ const { createServer } = require('http');
 const otel = require('@opentelemetry/api');
 
 const meter = otel.metrics.getMeter('my-meter');
-const numReqs = meter.createCounter('num_requests', { description: 'number of HTTP requests' });
+const numReqs = meter.createCounter('num_requests', {
+  description: 'number of HTTP requests',
+});
 
 const server = createServer((req, res) => {
   numReqs.add(1);

@@ -8,7 +8,9 @@
 
 const semver = require('semver');
 if (semver.lt(process.version, '14.16.0')) {
-  console.log(`# SKIP @apollo/server does not officially support node ${process.version} (14.16.0 or later required)`);
+  console.log(
+    `# SKIP @apollo/server does not officially support node ${process.version} (14.16.0 or later required)`,
+  );
   process.exit();
 }
 
@@ -17,7 +19,7 @@ const agent = require('../../../..').start({
   captureExceptions: false,
   metricsInterval: '0s',
   centralConfig: false,
-  apmServerVersion: '8.7.0'
+  apmServerVersion: '8.7.0',
 });
 
 const test = require('tape');
@@ -28,7 +30,7 @@ const mockClient = require('../../../_mock_http_client');
 
 const APOLLO_PORT = 4000;
 
-function initialiseHelloWorldServer (t) {
+function initialiseHelloWorldServer(t) {
   const typeDefs = `#graphql
     type Query {
       hello: String
@@ -36,28 +38,33 @@ function initialiseHelloWorldServer (t) {
   `;
   const resolvers = {
     Query: {
-      hello () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      hello() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return 'Hello world!';
-      }
-    }
+      },
+    },
   };
 
   const server = new ApolloServer({ typeDefs, resolvers });
-  return startStandaloneServer(server, { listen: { port: APOLLO_PORT } }).then(() => server);
+  return startStandaloneServer(server, { listen: { port: APOLLO_PORT } }).then(
+    () => server,
+  );
 }
 
-function requestOpts (method, query = '') {
+function requestOpts(method, query = '') {
   return {
     method,
     port: APOLLO_PORT,
     path: `/${query ? '?' + query : ''}`,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   };
 }
 
-function parseResponse (res) {
-  return new Promise(resolve => {
+function parseResponse(res) {
+  return new Promise((resolve) => {
     const chunks = [];
     res.on('data', chunks.push.bind(chunks));
     res.on('end', function () {
@@ -71,10 +78,13 @@ test('POST /', function (t) {
   resetAgent(done(t, 'hello'));
   initialiseHelloWorldServer(t).then((server) => {
     const req = http.request(requestOpts('POST'), function (res) {
-      parseResponse(res).then(result => {
+      parseResponse(res).then((result) => {
         server.stop();
-        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
-          'client got the expected response body');
+        t.strictEqual(
+          result,
+          '{"data":{"hello":"Hello world!"}}\n',
+          'client got the expected response body',
+        );
         agent.flush();
       });
     });
@@ -87,10 +97,13 @@ test('GET /', function (t) {
   initialiseHelloWorldServer(t).then((server) => {
     const query = 'query=query+%7B%0D%0A++hello%0D%0A%7D%0D%0A';
     const req = http.request(requestOpts('GET', query), function (res) {
-      parseResponse(res).then(result => {
+      parseResponse(res).then((result) => {
         server.stop();
-        t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n',
-          'client got the expected response body');
+        t.strictEqual(
+          result,
+          '{"data":{"hello":"Hello world!"}}\n',
+          'client got the expected response body',
+        );
         agent.flush();
       });
     });
@@ -103,7 +116,7 @@ test('POST / - named query', function (t) {
   const query = '{"query":"query HelloQuery { hello }"}';
   initialiseHelloWorldServer(t).then((server) => {
     const req = http.request(requestOpts('POST'), function (res) {
-      parseResponse(res).then(result => {
+      parseResponse(res).then((result) => {
         server.stop();
         t.strictEqual(result, '{"data":{"hello":"Hello world!"}}\n');
         agent.flush();
@@ -124,22 +137,28 @@ test('POST / - sort multiple queries', function (t) {
 
   const resolvers = {
     Query: {
-      hello () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      hello() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return 'Hello world!';
       },
-      life () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      life() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return 42;
-      }
-    }
+      },
+    },
   };
   const query = '{"query":"{ life, hello }"}';
 
   const server = new ApolloServer({ typeDefs, resolvers });
   startStandaloneServer(server, { listen: { port: APOLLO_PORT } }).then(() => {
     const req = http.request(requestOpts('POST'), function (res) {
-      parseResponse(res).then(result => {
+      parseResponse(res).then((result) => {
         server.stop();
         t.strictEqual(result, '{"data":{"life":42,"hello":"Hello world!"}}\n');
         agent.flush();
@@ -156,13 +175,13 @@ test('POST / - sub-query', function (t) {
     {
       title: 'Mikael Hakim',
       author: 'Mika Waltari',
-      publisher: { name: 'WSOY' }
+      publisher: { name: 'WSOY' },
     },
     {
       title: 'The Life and Times of Scrooge McDuck',
       author: 'Don Rosa',
-      publisher: { name: 'Egmont' }
-    }
+      publisher: { name: 'Egmont' },
+    },
   ];
 
   const typeDefs = `#graphql
@@ -180,17 +199,20 @@ test('POST / - sub-query', function (t) {
   `;
   const resolvers = {
     Query: {
-      books () {
-        t.ok(agent._instrumentation.currTransaction(), 'have active transaction');
+      books() {
+        t.ok(
+          agent._instrumentation.currTransaction(),
+          'have active transaction',
+        );
         return books;
-      }
-    }
+      },
+    },
   };
 
   const server = new ApolloServer({ typeDefs, resolvers });
   startStandaloneServer(server, { listen: { port: APOLLO_PORT } }).then(() => {
     const req = http.request(requestOpts('POST'), function (res) {
-      parseResponse(res).then(result => {
+      parseResponse(res).then((result) => {
         server.stop();
         t.strictEqual(result, JSON.stringify({ data: { books } }) + '\n');
         agent.flush();
@@ -200,7 +222,7 @@ test('POST / - sub-query', function (t) {
   });
 });
 
-function done (t, query) {
+function done(t, query) {
   return function (data, cb) {
     t.strictEqual(data.transactions.length, 1);
     t.strictEqual(data.spans.length, 1);
@@ -222,7 +244,7 @@ function done (t, query) {
   };
 }
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   // Cannot use the 'expected' argument to mockClient, because the way the
   // tests above are structured, there is a race between the mockClient
@@ -230,5 +252,7 @@ function resetAgent (cb) {
   // response. Using the 200ms delay in mockClient slows things down such that
   // "done" should always come last.
   agent._apmClient = mockClient(cb);
-  agent.captureError = function (err) { throw err; };
+  agent.captureError = function (err) {
+    throw err;
+  };
 }

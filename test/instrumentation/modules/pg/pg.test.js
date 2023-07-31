@@ -17,7 +17,7 @@ var agent = require('../../../..').start({
   metricsInterval: 0,
   centralConfig: false,
   cloudProvider: 'none',
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 var semver = require('semver');
@@ -29,13 +29,17 @@ var pg = require('pg');
 var utils = require('./_utils');
 var mockClient = require('../../../_mock_http_client');
 const { NoopApmClient } = require('../../../../lib/apm-client/noop-apm-client');
-const { findObjInArray, runTestFixtures, sortApmEvents } = require('../../../_utils');
+const {
+  findObjInArray,
+  runTestFixtures,
+  sortApmEvents,
+} = require('../../../_utils');
 const { NODE_VER_RANGE_IITM } = require('../../../testconsts');
 
 var queryable, connectionDone;
 var factories = [
   [createClient, 'client'],
-  [createPoolAndConnect, 'pool']
+  [createPoolAndConnect, 'pool'],
 ];
 
 factories.forEach(function (f) {
@@ -54,7 +58,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query(sql, basicQueryCallback(t));
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
         });
       });
 
@@ -67,7 +74,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query(sql, [1], basicQueryCallback(t));
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
         });
       });
 
@@ -80,7 +90,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query({ text: sql }, basicQueryCallback(t));
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
         });
       });
 
@@ -93,7 +106,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query({ text: sql }, [1], basicQueryCallback(t));
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
         });
       });
 
@@ -106,7 +122,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           queryable.query({ text: sql, values: [1] }, basicQueryCallback(t));
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
         });
       });
 
@@ -119,7 +138,10 @@ factories.forEach(function (f) {
         factory(function () {
           var trans = agent.startTransaction('foo');
           queryable.query(sql);
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
           setTimeout(function () {
             trans.end();
           }, 250);
@@ -139,7 +161,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query(new pg.Query(sql));
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -155,7 +180,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query(sql);
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -169,7 +197,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query(sql, [1]);
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -183,7 +214,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query({ text: sql });
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -197,7 +231,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query({ text: sql }, [1]);
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -211,7 +248,10 @@ factories.forEach(function (f) {
         factory(function () {
           agent.startTransaction('foo');
           var stream = queryable.query({ text: sql, values: [1] });
-          t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+          t.ok(
+            agent.currentSpan === null,
+            'no currentSpan in sync code after pg .query',
+          );
           basicQueryStream(stream, t);
         });
       });
@@ -230,7 +270,10 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo');
             var p = queryable.query(sql);
-            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+            t.ok(
+              agent.currentSpan === null,
+              'no currentSpan in sync code after pg .query',
+            );
             basicQueryPromise(p, t);
           });
         });
@@ -244,7 +287,10 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo');
             var p = queryable.query(sql, [1]);
-            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+            t.ok(
+              agent.currentSpan === null,
+              'no currentSpan in sync code after pg .query',
+            );
             basicQueryPromise(p, t);
           });
         });
@@ -258,7 +304,10 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo');
             var p = queryable.query({ text: sql });
-            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+            t.ok(
+              agent.currentSpan === null,
+              'no currentSpan in sync code after pg .query',
+            );
             basicQueryPromise(p, t);
           });
         });
@@ -272,7 +321,10 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo');
             var p = queryable.query({ text: sql }, [1]);
-            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+            t.ok(
+              agent.currentSpan === null,
+              'no currentSpan in sync code after pg .query',
+            );
             basicQueryPromise(p, t);
           });
         });
@@ -286,7 +338,10 @@ factories.forEach(function (f) {
           factory(function () {
             agent.startTransaction('foo');
             var p = queryable.query({ text: sql, values: [1] });
-            t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+            t.ok(
+              agent.currentSpan === null,
+              'no currentSpan in sync code after pg .query',
+            );
             basicQueryPromise(p, t);
           });
         });
@@ -304,7 +359,11 @@ factories.forEach(function (f) {
           t.strictEqual(trans.name, 'foo');
           data.spans.forEach(function (span) {
             assertSpan(t, span, sql);
-            t.equal(span.parent_id, trans.id, 'each span is a child of the transaction');
+            t.equal(
+              span.parent_id,
+              trans.id,
+              'each span is a child of the transaction',
+            );
           });
 
           t.end();
@@ -332,7 +391,7 @@ factories.forEach(function (f) {
             if (++n === 3) done();
           });
 
-          function done () {
+          function done() {
             trans.end();
           }
         });
@@ -343,16 +402,22 @@ factories.forEach(function (f) {
       resetAgent(6, function (data) {
         t.strictEqual(data.transactions.length, 3);
         t.strictEqual(data.spans.length, 3);
-        var names = data.transactions.map(function (trans) {
-          return trans.name;
-        }).sort();
+        var names = data.transactions
+          .map(function (trans) {
+            return trans.name;
+          })
+          .sort();
         t.deepEqual(names, ['bar', 'baz', 'foo']);
 
         data.transactions.forEach(function (trans) {
           const span = findObjInArray(data.spans, 'transaction_id', trans.id);
           t.ok(span, 'transaction should have span');
           assertSpan(t, span, sql);
-          t.equal(span.parent_id, trans.id, 'the span is a child of the transaction');
+          t.equal(
+            span.parent_id,
+            trans.id,
+            'the span is a child of the transaction',
+          );
         });
 
         t.end();
@@ -403,7 +468,11 @@ test('simultaneous queries on different connections', function (t) {
     t.strictEqual(trans.name, 'foo');
     data.spans.forEach(function (span) {
       assertSpan(t, span, sql);
-      t.equal(span.parent_id, trans.id, 'each span is a child of the transaction');
+      t.equal(
+        span.parent_id,
+        trans.id,
+        'each span is a child of the transaction',
+      );
     });
 
     t.end();
@@ -443,7 +512,7 @@ test('simultaneous queries on different connections', function (t) {
       });
     });
 
-    function done () {
+    function done() {
       trans.end();
     }
   });
@@ -468,7 +537,10 @@ test('connection.release()', function (t) {
       connector(function (err, client, release) {
         t.error(err);
         client.query(sql, basicQueryCallback(t));
-        t.ok(agent.currentSpan === null, 'no currentSpan in sync code after pg .query');
+        t.ok(
+          agent.currentSpan === null,
+          'no currentSpan in sync code after pg .query',
+        );
 
         if (semver.gte(pgVersion, '7.5.0')) {
           release();
@@ -487,10 +559,12 @@ test('connection.release()', function (t) {
 // https://github.com/elastic/apm-agent-nodejs/blob/8a5e908b8e9ee83bb1b828a3bef980388ea6e08e/lib/instrumentation/modules/pg.js#L91
 //
 // ensures this tests runs when ending a span via promise.then
-if (typeof pg.Client.prototype.query.on !== 'function' &&
-      typeof pg.Client.prototype.query.then === 'function') {
+if (
+  typeof pg.Client.prototype.query.on !== 'function' &&
+  typeof pg.Client.prototype.query.then === 'function'
+) {
   test.test('handles promise rejections from pg', function (t) {
-    function unhandledRejection (e) {
+    function unhandledRejection(e) {
       t.fail('had unhandledRejection');
     }
     process.once('unhandledRejection', unhandledRejection);
@@ -499,7 +573,8 @@ if (typeof pg.Client.prototype.query.on !== 'function' &&
       teardown();
     });
 
-    var sql = 'select \'not-a-uuid\' = \'00000000-0000-0000-0000-000000000000\'::uuid';
+    var sql =
+      "select 'not-a-uuid' = '00000000-0000-0000-0000-000000000000'::uuid";
 
     createPool(function (connector) {
       agent.startTransaction('foo');
@@ -507,12 +582,16 @@ if (typeof pg.Client.prototype.query.on !== 'function' &&
       connector(function (err, client, release) {
         t.error(err);
 
-        client.query(sql)
+        client
+          .query(sql)
           .then(function () {
             t.fail('query should have rejected');
           })
           .catch(function () {
-            t.ok(agent.currentSpan === null, 'no currentSpan in promise catch after pg .query');
+            t.ok(
+              agent.currentSpan === null,
+              'no currentSpan in promise catch after pg .query',
+            );
           })
           .then(function () {
             setTimeout(function () {
@@ -525,8 +604,8 @@ if (typeof pg.Client.prototype.query.on !== 'function' &&
   });
 }
 
-function basicQueryCallback (t) {
-  return function queryCallback (err, result, fields) {
+function basicQueryCallback(t) {
+  return function queryCallback(err, result, fields) {
     t.ok(agent.currentSpan === null, 'no currentSpan in pg .query callback');
     t.error(err);
     t.strictEqual(result.rows[0].solution, 2);
@@ -534,25 +613,34 @@ function basicQueryCallback (t) {
   };
 }
 
-function basicQueryStream (stream, t) {
+function basicQueryStream(stream, t) {
   var results = 0;
   stream.on('error', function (err) {
-    t.ok(agent.currentSpan === null, 'pg span should not be active in user code');
+    t.ok(
+      agent.currentSpan === null,
+      'pg span should not be active in user code',
+    );
     t.error(err);
   });
   stream.on('row', function (row) {
-    t.ok(agent.currentSpan === null, 'pg span should not be active in user code');
+    t.ok(
+      agent.currentSpan === null,
+      'pg span should not be active in user code',
+    );
     results++;
     t.strictEqual(row.solution, 2);
   });
   stream.on('end', function () {
-    t.ok(agent.currentSpan === null, 'pg span should not be active in user code');
+    t.ok(
+      agent.currentSpan === null,
+      'pg span should not be active in user code',
+    );
     t.strictEqual(results, 1);
     agent.endTransaction();
   });
 }
 
-function basicQueryPromise (p, t) {
+function basicQueryPromise(p, t) {
   p.catch(function (err) {
     t.error(err);
   });
@@ -563,7 +651,7 @@ function basicQueryPromise (p, t) {
   });
 }
 
-function assertBasicQuery (t, sql, data) {
+function assertBasicQuery(t, sql, data) {
   t.strictEqual(data.transactions.length, 1);
   t.strictEqual(data.spans.length, 1);
 
@@ -574,32 +662,42 @@ function assertBasicQuery (t, sql, data) {
   assertSpan(t, span, sql);
 }
 
-function assertSpan (t, span, sql) {
+function assertSpan(t, span, sql) {
   t.strictEqual(span.name, 'SELECT');
   t.strictEqual(span.type, 'db');
   t.strictEqual(span.subtype, 'postgresql');
   t.strictEqual(span.action, 'query');
-  t.deepEqual(span.context.db, {
-    type: 'sql',
-    statement: sql,
-    instance: 'test_elastic_apm',
-    user: process.env.PGUSER || 'postgres'
-  }, 'span.context.db');
-  t.deepEqual(span.context.service.target,
+  t.deepEqual(
+    span.context.db,
+    {
+      type: 'sql',
+      statement: sql,
+      instance: 'test_elastic_apm',
+      user: process.env.PGUSER || 'postgres',
+    },
+    'span.context.db',
+  );
+  t.deepEqual(
+    span.context.service.target,
     { type: 'postgresql', name: 'test_elastic_apm' },
-    'span.context.service.target');
-  t.deepEqual(span.context.destination, {
-    address: process.env.PGHOST || 'localhost',
-    port: 5432,
-    service: { type: '', name: '', resource: 'postgresql/test_elastic_apm' }
-  }, 'span.context.destination');
+    'span.context.service.target',
+  );
+  t.deepEqual(
+    span.context.destination,
+    {
+      address: process.env.PGHOST || 'localhost',
+      port: 5432,
+      service: { type: '', name: '', resource: 'postgresql/test_elastic_apm' },
+    },
+    'span.context.destination',
+  );
 }
 
-function createClient (cb) {
+function createClient(cb) {
   setup(function () {
     queryable = new pg.Client({
       database: 'test_elastic_apm',
-      user: process.env.PGUSER || 'postgres'
+      user: process.env.PGUSER || 'postgres',
     });
     queryable.connect(function (err) {
       if (err) throw err;
@@ -608,25 +706,28 @@ function createClient (cb) {
   });
 }
 
-function createPool (cb) {
+function createPool(cb) {
   setup(function () {
     var connector;
 
     if (semver.satisfies(pgVersion, '<6.0.0')) {
       queryable = pg;
-      connector = function connector (cb) {
-        return pg.connect({
-          database: 'test_elastic_apm',
-          user: process.env.PGUSER || 'postgres'
-        }, cb);
+      connector = function connector(cb) {
+        return pg.connect(
+          {
+            database: 'test_elastic_apm',
+            user: process.env.PGUSER || 'postgres',
+          },
+          cb,
+        );
       };
     } else {
       var pool = new pg.Pool({
         database: 'test_elastic_apm',
-        user: process.env.PGUSER || 'postgres'
+        user: process.env.PGUSER || 'postgres',
       });
       queryable = pool;
-      connector = function connector (cb) {
+      connector = function connector(cb) {
         return pool.connect(cb);
       };
     }
@@ -635,7 +736,7 @@ function createPool (cb) {
   });
 }
 
-function createPoolAndConnect (cb) {
+function createPoolAndConnect(cb) {
   createPool(function (connector) {
     connector(function (err, client, done) {
       if (err) throw err;
@@ -646,14 +747,14 @@ function createPoolAndConnect (cb) {
   });
 }
 
-function setup (cb) {
+function setup(cb) {
   // just in case it didn't happen at the end of the previous test
   teardown(function () {
     utils.reset(cb);
   });
 }
 
-function teardown (cb) {
+function teardown(cb) {
   cb = once(cb || function () {});
 
   if (queryable) {
@@ -679,7 +780,7 @@ function teardown (cb) {
   }
 }
 
-function resetAgent (expected, cb) {
+function resetAgent(expected, cb) {
   if (typeof expected === 'function') return resetAgent(2, expected);
   // first time this function is called, the real client will be present - so
   // let's just destroy it before creating the mock
@@ -696,9 +797,10 @@ const testFixtures = [
     script: '../fixtures/use-pg.mjs',
     cwd: __dirname,
     env: {
-      NODE_OPTIONS: '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_OPTIONS:
+        '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
       NODE_NO_WARNINGS: '1',
-      ELASTIC_APM_SPAN_COMPRESSION_ENABLED: 'false'
+      ELASTIC_APM_SPAN_COMPRESSION_ENABLED: 'false',
     },
     versionRanges: {
       node: NODE_VER_RANGE_IITM,
@@ -706,11 +808,15 @@ const testFixtures = [
       // importing 'pg-native' unless used) would be tickled by the core Node.js
       // ESM translator, resulting in this error:
       //    Cannot find module 'pg-native'
-      pg: '>=8'
+      pg: '>=8',
     },
     verbose: true,
     checkApmServer: (t, apmServer) => {
-      t.equal(apmServer.events.length, 4, 'expected number of APM server events');
+      t.equal(
+        apmServer.events.length,
+        4,
+        'expected number of APM server events',
+      );
       t.ok(apmServer.events[0].metadata, 'metadata');
       const events = sortApmEvents(apmServer.events);
 
@@ -719,7 +825,7 @@ const testFixtures = [
       t.equal(trans.type, 'custom', 'transaction.type');
       t.equal(trans.outcome, 'unknown', 'transaction.outcome');
 
-      const spans = events.slice(1, 5).map(e => e.span);
+      const spans = events.slice(1, 5).map((e) => e.span);
       const expectedSpanNames = ['SELECT', 'SELECT'];
       spans.forEach((s, idx) => {
         t.equal(s.name, expectedSpanNames[idx], `span[${idx}].name`);
@@ -727,26 +833,30 @@ const testFixtures = [
         t.equal(s.subtype, 'postgresql', `span[${idx}].action`);
         t.equal(s.action, 'query', `span[${idx}].action`);
         t.equal(s.parent_id, trans.id, `span[${idx}].parent_id`);
-        t.deepEqual(s.context, {
-          service: { target: { type: 'postgresql', name: 'postgres' } },
-          destination: {
-            address: process.env.PGHOST || 'localhost',
-            port: 5432,
-            service: { type: '', name: '', resource: 'postgresql/postgres' }
+        t.deepEqual(
+          s.context,
+          {
+            service: { target: { type: 'postgresql', name: 'postgres' } },
+            destination: {
+              address: process.env.PGHOST || 'localhost',
+              port: 5432,
+              service: { type: '', name: '', resource: 'postgresql/postgres' },
+            },
+            db: {
+              type: 'sql',
+              statement: 'SELECT $1::text as message',
+              instance: 'postgres',
+              user: 'postgres',
+            },
           },
-          db: {
-            type: 'sql',
-            statement: 'SELECT $1::text as message',
-            instance: 'postgres',
-            user: 'postgres'
-          }
-        }, `span[${idx}].context`);
+          `span[${idx}].context`,
+        );
       });
-    }
-  }
+    },
+  },
 ];
 
-test('pg fixtures', suite => {
+test('pg fixtures', (suite) => {
   // Undo the `agent._apmClient = ...` from earlier `resetAgent` usage.
   agent._apmClient = new NoopApmClient();
 

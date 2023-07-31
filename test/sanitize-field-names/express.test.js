@@ -11,7 +11,7 @@ const {
   resetAgent,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
-  assertFormsWithFixture
+  assertFormsWithFixture,
 } = require('./_shared');
 
 const test = require('tape');
@@ -20,8 +20,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fixtures = require('./_fixtures');
 
-function runTest (
-  t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
+function runTest(
+  t,
+  expected,
+  agentConfig,
+  requestHeaders,
+  responseHeaders,
+  formFields,
+  middleware = false,
 ) {
   agent._config(agentConfig);
   const app = express();
@@ -46,18 +52,21 @@ function runTest (
   });
 
   const server = app.listen(0, '0.0.0.0', () => {
-    const url = `http://${server.address().address}:${server.address().port}/test`;
+    const url = `http://${server.address().address}:${
+      server.address().port
+    }/test`;
     request.post(
       url,
       {
         form: formFields,
-        headers: requestHeaders
+        headers: requestHeaders,
       },
       function (error, response, body) {
         t.error(error);
         t.ok(body, 'received response');
         t.end();
-      });
+      },
+    );
   });
 
   const done = () => {
@@ -66,7 +75,7 @@ function runTest (
   t.on('end', done);
 }
 
-function createMiddleware (type) {
+function createMiddleware(type) {
   if (type === 'urlencoded') {
     return bodyParser.urlencoded({ extended: false });
   } else if (type === 'text') {
@@ -88,7 +97,7 @@ test('Running fixtures with express', function (suite) {
         fixture.input.requestHeaders,
         fixture.input.responseHeaders,
         fixture.input.formFields,
-        createMiddleware(fixture.bodyParsing)
+        createMiddleware(fixture.bodyParsing),
       );
     });
   }

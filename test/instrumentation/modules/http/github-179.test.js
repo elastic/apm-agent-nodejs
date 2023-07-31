@@ -10,7 +10,7 @@ var agent = require('../../../..').start({
   serviceName: 'test',
   captureExceptions: false,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 var zlib = require('zlib');
@@ -26,7 +26,7 @@ test('https://github.com/opbeat/opbeat-node/issues/179', function (t) {
   echoServer(function (cp, port) {
     var opts = {
       port,
-      headers: { 'Accept-Encoding': 'gzip' }
+      headers: { 'Accept-Encoding': 'gzip' },
     };
 
     agent.startTransaction();

@@ -18,7 +18,7 @@ const https = require('https');
 const otel = require('@opentelemetry/api');
 const tracer = otel.trace.getTracer('trace-https-request');
 
-tracer.startActiveSpan('makeRequest', span => {
+tracer.startActiveSpan('makeRequest', (span) => {
   https.get('https://httpstat.us/200', (response) => {
     console.log('STATUS:', response.statusCode);
     const body = [];

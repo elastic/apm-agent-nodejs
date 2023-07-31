@@ -23,7 +23,7 @@ var agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 var redis = require('redis');
@@ -43,28 +43,32 @@ test('redis', function (t) {
     // internal INFO command the RedisClient setup does.
     var trans = findObjInArray(data.transactions, 'name', 'transBeforeClient');
     t.ok(trans, 'have "transBeforeClient" transaction');
-    var spans = data.spans.filter(s => s.transaction_id === trans.id)
-      .filter(s => s.name !== 'INFO');
-    t.equal(spans.length, 0, 'there are no non-INFO spans in the "transBeforeClient" transaction');
+    var spans = data.spans
+      .filter((s) => s.transaction_id === trans.id)
+      .filter((s) => s.name !== 'INFO');
+    t.equal(
+      spans.length,
+      0,
+      'there are no non-INFO spans in the "transBeforeClient" transaction',
+    );
 
     // Sort the remaining spans by timestamp, because asynchronous-span.end()
     // means they can be set to APM server out of order.
     spans = data.spans
-      .filter(s => s.transaction_id !== trans.id)
-      .sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1; });
+      .filter((s) => s.transaction_id !== trans.id)
+      .sort((a, b) => {
+        return a.timestamp < b.timestamp ? -1 : 1;
+      });
     trans = findObjInArray(data.transactions, 'name', 'transAfterClient');
     t.ok(trans, 'have "transAfterClient" transaction');
     t.strictEqual(trans.result, 'success', 'trans.result');
 
-    var expectedSpanNames = [
-      'FLUSHALL',
-      'SET',
-      'SET',
-      'HSET',
-      'HSET',
-      'HKEYS'
-    ];
-    t.equal(spans.length, expectedSpanNames.length, 'have the expected number of spans');
+    var expectedSpanNames = ['FLUSHALL', 'SET', 'SET', 'HSET', 'HSET', 'HKEYS'];
+    t.equal(
+      spans.length,
+      expectedSpanNames.length,
+      'have the expected number of spans',
+    );
     for (var i = 0; i < expectedSpanNames.length; i++) {
       const expectedName = expectedSpanNames[i];
       const span = spans[i];
@@ -73,18 +77,32 @@ test('redis', function (t) {
       t.strictEqual(span.type, 'db', 'span.type');
       t.strictEqual(span.subtype, 'redis', 'span.subtype');
       t.strictEqual(span.action, 'query', 'span.action');
-      t.deepEqual(span.context.service.target, { type: 'redis' }, 'span.context.service.target');
-      t.deepEqual(span.context.destination, {
-        address: process.env.REDIS_HOST || '127.0.0.1',
-        port: 6379,
-        service: { name: '', type: '', resource: 'redis' }
-      }, 'span.context.destination');
+      t.deepEqual(
+        span.context.service.target,
+        { type: 'redis' },
+        'span.context.service.target',
+      );
+      t.deepEqual(
+        span.context.destination,
+        {
+          address: process.env.REDIS_HOST || '127.0.0.1',
+          port: 6379,
+          service: { name: '', type: '', resource: 'redis' },
+        },
+        'span.context.destination',
+      );
       t.deepEqual(span.context.db, { type: 'redis' }, 'span.context.db');
-      t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction');
+      t.strictEqual(
+        span.parent_id,
+        trans.id,
+        'span is a child of the transaction',
+      );
 
       var offset = span.timestamp - trans.timestamp;
-      t.ok(offset + span.duration * 1000 < trans.duration * 1000,
-        'span ended before transaction ended');
+      t.ok(
+        offset + span.duration * 1000 < trans.duration * 1000,
+        'span ended before transaction ended',
+      );
     }
 
     t.end();
@@ -123,11 +141,14 @@ test('redis', function (t) {
       t.strictEqual(reply, 1, 'hset reply is 1');
       done++;
     });
-    client.hset(['hash key', 'hashtest 2', 'some other value'], function (err, reply) {
-      t.error(err, 'no hset error');
-      t.strictEqual(reply, 1, 'hset reply is 1');
-      done++;
-    });
+    client.hset(
+      ['hash key', 'hashtest 2', 'some other value'],
+      function (err, reply) {
+        t.error(err, 'no hset error');
+        t.strictEqual(reply, 1, 'hset reply is 1');
+        done++;
+      },
+    );
 
     client.hkeys('hash key', function (err, replies) {
       t.error(err, 'no hkeys error');
@@ -156,11 +177,27 @@ if (semver.satisfies(redisVersion, '>=3.0.0')) {
       t.equal(data.spans.length, 1, 'got 1 span');
       t.equal(data.errors.length, 1, 'got 1 error');
       t.equal(data.spans[0].name, 'SET', 'span.name');
-      t.equal(data.spans[0].parent_id, data.transactions[0].id, 'span.parent_id');
+      t.equal(
+        data.spans[0].parent_id,
+        data.transactions[0].id,
+        'span.parent_id',
+      );
       t.equal(data.spans[0].outcome, 'failure', 'span.outcome');
-      t.equal(data.errors[0].transaction_id, data.transactions[0].id, 'error.transaction_id');
-      t.equal(data.errors[0].parent_id, data.spans[0].id, 'error.parent_id, error is a child of the failing span');
-      t.equal(data.errors[0].exception.type, 'AbortError', 'error.exception.type');
+      t.equal(
+        data.errors[0].transaction_id,
+        data.transactions[0].id,
+        'error.transaction_id',
+      );
+      t.equal(
+        data.errors[0].parent_id,
+        data.spans[0].id,
+        'error.parent_id, error is a child of the failing span',
+      );
+      t.equal(
+        data.errors[0].exception.type,
+        'AbortError',
+        'error.exception.type',
+      );
       t.end();
     });
 
@@ -169,7 +206,7 @@ if (semver.satisfies(redisVersion, '>=3.0.0')) {
     var client = redis.createClient({
       host: process.env.REDIS_HOST,
       port: '6379',
-      enable_offline_queue: false
+      enable_offline_queue: false,
     });
     var t0 = agent.startTransaction('t0');
     client.set('k', 'v', function (err, reply) {
@@ -185,18 +222,20 @@ if (semver.satisfies(redisVersion, '>=3.0.0')) {
 
 test('client.cmd(...) call signatures', function (t) {
   let nCbCalled = 0;
-  function myCb () {
+  function myCb() {
     nCbCalled++;
   }
 
   resetAgent(function (data) {
     t.equal(nCbCalled, 2, 'myCb was called the expected number of times');
     t.equal(data.transactions.length, 1, 'got 1 transaction');
-    data.spans.sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1; });
+    data.spans.sort((a, b) => {
+      return a.timestamp < b.timestamp ? -1 : 1;
+    });
     t.deepEqual(
-      data.spans.map(s => s.name),
+      data.spans.map((s) => s.name),
       ['INFO', 'SET', 'GET', 'SET'],
-      'got the expected span names'
+      'got the expected span names',
     );
     t.end();
   });
@@ -223,7 +262,7 @@ if (semver.satisfies(redisVersion, '<=2.4.2')) {
   // Support for this was dropped in commit 60eee34de1.
   test('client.cmd([args..., myCb]) call signature', function (t) {
     let nCbCalled = 0;
-    function myCb () {
+    function myCb() {
       nCbCalled++;
     }
 
@@ -248,7 +287,7 @@ if (semver.satisfies(redisVersion, '<=2.4.2')) {
   });
 }
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(cb);
 }

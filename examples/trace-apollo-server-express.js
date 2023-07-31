@@ -25,9 +25,10 @@
 //     transaction "HelloQuery hello (/graphql)"
 //     `- span "GraphQL: HelloQuery hello"
 
-require('../').start({ // elastic-apm-node
+require('../').start({
+  // elastic-apm-node
   serviceName: 'example-trace-apollo-server-express',
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 const http = require('http');
@@ -35,18 +36,18 @@ const { ApolloServer, gql } = require('apollo-server-express');
 const express = require('express');
 
 const typeDefs = gql`
-type Query {
-  "A simple type for getting started!"
-  hello: String
-}
+  type Query {
+    "A simple type for getting started!"
+    hello: String
+  }
 `;
 const resolvers = {
   Query: {
-    hello: () => 'world'
-  }
+    hello: () => 'world',
+  },
 };
 
-async function startServer () {
+async function startServer() {
   const app = express();
   app.set('env', 'production');
   app.get('/ping', (req, res, next) => {
@@ -60,7 +61,9 @@ async function startServer () {
   server.applyMiddleware({ app });
 
   httpServer.listen(3000, () => {
-    console.log(`Apollo GraphQL server listening at http://localhost:3000${server.graphqlPath}`);
+    console.log(
+      `Apollo GraphQL server listening at http://localhost:3000${server.graphqlPath}`,
+    );
   });
 }
 

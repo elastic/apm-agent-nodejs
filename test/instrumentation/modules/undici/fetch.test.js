@@ -31,7 +31,9 @@ const apm = require('../../../..').start({
   centralConfig: false,
   apmServerVersion: '8.0.0',
   spanCompressionEnabled: false,
-  transport () { return new CapturingTransport(); }
+  transport() {
+    return new CapturingTransport();
+  },
 });
 
 const http = require('http');
@@ -45,7 +47,7 @@ let lastServerReq;
 
 // ---- support functions
 
-function assertUndiciSpan (t, span, url, reqFailed) {
+function assertUndiciSpan(t, span, url, reqFailed) {
   const u = new URL(url);
   t.equal(span.name, `GET ${u.host}`, 'span.name');
   t.equal(span.type, 'external', 'span.type');
@@ -55,22 +57,36 @@ function assertUndiciSpan (t, span, url, reqFailed) {
   t.equal(span.context.http.method, 'GET', 'span.context.http.method');
   t.equal(span.context.http.url, url, 'span.context.http.url');
   if (!reqFailed) {
-    t.equal(span.context.http.status_code, 200, 'span.context.http.status_code');
-    t.equal(span.context.http.response.encoded_body_size, 4, 'span.context.http.response.encoded_body_size');
+    t.equal(
+      span.context.http.status_code,
+      200,
+      'span.context.http.status_code',
+    );
+    t.equal(
+      span.context.http.response.encoded_body_size,
+      4,
+      'span.context.http.response.encoded_body_size',
+    );
   }
-  t.deepEqual(span.context.service.target,
+  t.deepEqual(
+    span.context.service.target,
     { type: 'http', name: u.host },
-    'span.context.service.target');
-  t.deepEqual(span.context.destination, {
-    address: u.hostname,
-    port: Number(u.port),
-    service: { type: '', name: '', resource: u.host }
-  }, 'span.context.destination');
+    'span.context.service.target',
+  );
+  t.deepEqual(
+    span.context.destination,
+    {
+      address: u.hostname,
+      port: Number(u.port),
+      service: { type: '', name: '', resource: u.host },
+    },
+    'span.context.destination',
+  );
 }
 
 // ---- tests
 
-test('setup', t => {
+test('setup', (t) => {
   server = http.createServer((req, res) => {
     lastServerReq = req;
     req.resume();
@@ -86,7 +102,7 @@ test('setup', t => {
   });
 });
 
-test('fetch', async t => {
+test('fetch', async (t) => {
   apm._apmClient.clear();
   const aTrans = apm.startTransaction('aTransName');
 
@@ -104,15 +120,21 @@ test('fetch', async t => {
   assertUndiciSpan(t, span, url);
 
   // Test trace-context propagation.
-  t.equal(lastServerReq.headers.traceparent,
+  t.equal(
+    lastServerReq.headers.traceparent,
     `00-${span.trace_id}-${span.id}-01`,
-    'serverReq.headers.traceparent');
-  t.equal(lastServerReq.headers.tracestate, 'es=s:1', 'serverReq.headers.tracestate');
+    'serverReq.headers.traceparent',
+  );
+  t.equal(
+    lastServerReq.headers.tracestate,
+    'es=s:1',
+    'serverReq.headers.tracestate',
+  );
 
   t.end();
 });
 
-test('teardown', t => {
+test('teardown', (t) => {
   server.close();
 
   // Note that this test file will now hang for ~4s until Node's bundled

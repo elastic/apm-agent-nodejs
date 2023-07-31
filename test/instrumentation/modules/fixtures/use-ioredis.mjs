@@ -12,7 +12,7 @@ import Redis from 'ioredis';
 
 const redis = new Redis(process.env.REDIS_HOST);
 
-async function main () {
+async function main() {
   const trans = apm.startTransaction('trans');
   let val;
 

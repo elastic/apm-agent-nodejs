@@ -16,7 +16,11 @@ test('tests cross agent transaction_ignore_urls globs', function (t) {
     for (const [pattern, cases] of Object.entries(fixture)) {
       for (const [string, expected] of Object.entries(cases)) {
         const result = matcher.match(string, pattern);
-        t.equals(result, expected, `Fixture ${name}, testing ${pattern} vs. ${string}`);
+        t.equals(
+          result,
+          expected,
+          `Fixture ${name}, testing ${pattern} vs. ${string}`,
+        );
       }
     }
   }

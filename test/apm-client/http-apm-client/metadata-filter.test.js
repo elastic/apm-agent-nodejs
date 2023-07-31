@@ -39,7 +39,11 @@ test('addMetadataFilter', function (t) {
     client.sendSpan({ foo: 42 });
     client.flush(function () {
       t.ok(theMetadata, 'APM server got metadata');
-      t.equal(theMetadata.process.argv, undefined, 'metadata.process.argv was removed');
+      t.equal(
+        theMetadata.process.argv,
+        undefined,
+        'metadata.process.argv was removed',
+      );
       t.equal(theMetadata.labels.foo, 'bar', 'metadata.labels.foo was added');
       client.end();
       server.close();

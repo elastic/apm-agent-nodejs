@@ -20,7 +20,7 @@ const server = createServer((req, res) => {
 });
 
 server.listen(0, () => {
-  get(`http://127.0.0.1:${server.address().port}/`, res => {
+  get(`http://127.0.0.1:${server.address().port}/`, (res) => {
     console.log('client response: %s %s', res.statusCode, res.headers);
     res.resume();
     res.on('end', () => {

@@ -14,13 +14,14 @@
 //     `- span "s5"
 //   transaction "t2"
 
-const apm = require('../../../../').start({ // elastic-apm-node
+const apm = require('../../../../').start({
+  // elastic-apm-node
   captureExceptions: false,
   metricsInterval: 0,
   cloudProvider: 'none',
   centralConfig: false,
   // ^^ Boilerplate config above this line is to focus on just tracing.
-  serviceName: 'run-context-simple'
+  serviceName: 'run-context-simple',
 });
 
 let assert = require('assert');

@@ -12,7 +12,7 @@ const pug = require('pug');
 
 const resTemplate = pug.compile('p The time is #{time}.');
 
-function handleRequest (req, res) {
+function handleRequest(req, res) {
   console.log('SERVER: apm.currentTransaction: %s', apm.currentTransaction);
   req.resume();
   res.statusCode = 200;
@@ -21,5 +21,5 @@ function handleRequest (req, res) {
 }
 
 module.exports = {
-  handleRequest
+  handleRequest,
 };

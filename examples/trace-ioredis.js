@@ -13,15 +13,16 @@
 // to start an Redis docker container (and other containers used for
 // testing of this project). Then `npm run docker:stop` to stop them.
 
-const apm = require('../').start({ // elastic-apm-node
-  serviceName: 'example-trace-ioredis'
+const apm = require('../').start({
+  // elastic-apm-node
+  serviceName: 'example-trace-ioredis',
 });
 
 const Redis = require('ioredis');
 const redis = new Redis();
 
 // Convenience printer for redis client callbacks.
-function printerCb (name) {
+function printerCb(name) {
   return function (err, results) {
     console.log('%s: %o', name, err ? `${err.name}: ${err.message}` : results);
   };

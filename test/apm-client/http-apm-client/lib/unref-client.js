@@ -19,7 +19,7 @@ const client = new HttpApmClient({
   agentName: 'my-agent-name',
   agentVersion: 'my-agent-version',
   serviceName: 'my-service-name',
-  userAgent: 'my-user-agent'
+  userAgent: 'my-user-agent',
 });
 
 process.stdout.write(String(Date.now()) + '\n');

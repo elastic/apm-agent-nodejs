@@ -14,7 +14,7 @@ require('../..').start({
   cloudProvider: 'none',
   metricsInterval: '0s',
   captureExceptions: false,
-  logLevel: 'off'
+  logLevel: 'off',
 });
 
 const otel = require('@opentelemetry/api');
@@ -24,7 +24,7 @@ const { OTelBridgeRunContext } = require('../../lib/opentelemetry-bridge');
 const tracer = otel.trace.getTracer();
 const FOO_KEY = otel.createContextKey('foo');
 
-function parentIdFromSpan (span) {
+function parentIdFromSpan(span) {
   return (
     span.parentSpanId || // OTel SDK
     (span._span && span._span.parentId) || // Elastic APM
@@ -32,7 +32,7 @@ function parentIdFromSpan (span) {
   );
 }
 
-tape.test('OTelBridgeRunContext', t => {
+tape.test('OTelBridgeRunContext', (t) => {
   const ctx = otel.context.active();
   t.ok(ctx instanceof OTelBridgeRunContext);
 
@@ -53,14 +53,14 @@ tape.test('OTelBridgeRunContext', t => {
 // the active span via the span key (a Symbol), so we should test the code
 // paths for that. `setValue(SPAN_KEY, ...)` and `getValue(SPAN_KEY)` are well
 // tested in other tests. That leaves `deleteValue(SPAN_KEY)`
-tape.test('OTelBridgeRunContext.deleteValue(SPAN_KEY)', t => {
-  tracer.startActiveSpan('s1', s1 => {
+tape.test('OTelBridgeRunContext.deleteValue(SPAN_KEY)', (t) => {
+  tracer.startActiveSpan('s1', (s1) => {
     let ctx = otel.context.active();
     ctx = ctx.setValue(FOO_KEY, 'bar');
     ctx = otel.trace.deleteSpan(ctx); // this calls `ctx.deleteValue(SPAN_KEY)`
     t.equal(ctx.getValue(FOO_KEY), 'bar', 'FOO_KEY survived the deleteSpan');
 
-    tracer.startActiveSpan('s2', {}, ctx, s2 => {
+    tracer.startActiveSpan('s2', {}, ctx, (s2) => {
       t.equal(parentIdFromSpan(s2), undefined, 's2 is not a child of s1');
       s2.end();
     });

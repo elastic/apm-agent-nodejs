@@ -12,19 +12,20 @@
 //    npm run docker:start redis
 // to start an Redis docker container. Then `npm run docker:stop` to stop it.
 
-const apm = require('../').start({ // elastic-apm-node
+const apm = require('../').start({
+  // elastic-apm-node
   serviceName: 'example-trace-redis4',
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 const redis = require('redis');
 
-async function useRedis () {
+async function useRedis() {
   let res;
 
   const client = redis.createClient({
     name: 'example-trace-redis4', // This results in early `CLIENT SETNAME` sent in RedisClient.#initiateSocket()
-    database: 1 // This results in early `SELECT` sent in RedisClient.#initiateSocket()
+    database: 1, // This results in early `SELECT` sent in RedisClient.#initiateSocket()
   });
 
   await client.connect();
@@ -51,10 +52,7 @@ async function useRedis () {
   }
 
   try {
-    res = await client.multi()
-      .set('spam', 'eggs')
-      .get('spam')
-      .exec();
+    res = await client.multi().set('spam', 'eggs').get('spam').exec();
     console.log('MULTI res: ', res);
   } catch (err) {
     console.log('MULTI err: ', err);
@@ -63,7 +61,7 @@ async function useRedis () {
   await client.quit();
 }
 
-async function main () {
+async function main() {
   // For tracing spans to be created, there must be an active transaction.
   // Typically, a transaction is automatically started for incoming HTTP
   // requests to a Node.js server. However, because this script is not running
@@ -71,13 +69,9 @@ async function main () {
   // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
   const trans = apm.startTransaction('trans');
 
-  Promise
-    .all([
-      useRedis()
-    ])
-    .then(() => {
-      trans.end();
-    });
+  Promise.all([useRedis()]).then(() => {
+    trans.end();
+  });
 }
 
 main();

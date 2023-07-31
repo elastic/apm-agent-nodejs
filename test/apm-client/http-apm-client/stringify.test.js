@@ -20,7 +20,7 @@ const properties = ['request', 'response'];
 
 const upper = {
   transaction: 'Transaction',
-  error: 'Error'
+  error: 'Error',
 };
 
 dataTypes.forEach(function (dataType) {
@@ -28,7 +28,9 @@ dataTypes.forEach(function (dataType) {
     const sendFn = 'send' + upper[dataType];
 
     test(`stringify ${dataType} ${prop} headers`, function (t) {
-      t.plan(assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts);
+      t.plan(
+        assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+      );
       const datas = [
         assertMetadata,
         assertEvent({
@@ -41,12 +43,12 @@ dataTypes.forEach(function (dataType) {
                   bool: 'true',
                   nan: 'NaN',
                   object: '[object Object]',
-                  array: ['foo', '42', 'true', 'NaN', '[object Object]']
-                }
-              }
-            }
-          }
-        })
+                  array: ['foo', '42', 'true', 'NaN', '[object Object]'],
+                },
+              },
+            },
+          },
+        }),
       ];
       const server = APMServer(function (req, res) {
         assertIntakeReq(t, req);
@@ -69,10 +71,10 @@ dataTypes.forEach(function (dataType) {
                 bool: true,
                 nan: NaN,
                 object: { foo: 'bar' },
-                array: ['foo', 42, true, NaN, { foo: 'bar' }]
-              }
-            }
-          }
+                array: ['foo', 42, true, NaN, { foo: 'bar' }],
+              },
+            },
+          },
         });
         client.flush(function () {
           client.destroy(); // Destroy keep-alive agent when done on client-side.

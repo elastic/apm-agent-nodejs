@@ -30,12 +30,14 @@ module.exports = function (test, Promise, ins) {
         var trans = ins.startTransaction();
         new Promise(function (resolve, reject) {
           reject(new Error('foo'));
-        }).then(function () {
-          t.fail('should not resolve');
-        })[fnName](function (reason) {
-          t.strictEqual(reason.message, 'foo');
-          t.strictEqual(ins.currTransaction().id, trans.id);
-        });
+        })
+          .then(function () {
+            t.fail('should not resolve');
+          })
+          [fnName](function (reason) {
+            t.strictEqual(reason.message, 'foo');
+            t.strictEqual(ins.currTransaction().id, trans.id);
+          });
       });
     });
 
@@ -45,14 +47,16 @@ module.exports = function (test, Promise, ins) {
         var trans = ins.startTransaction();
         new Promise(function (resolve, reject) {
           reject(new Error('foo'));
-        })[fnName](function (err) {
-          t.strictEqual(err.message, 'foo');
-          t.strictEqual(ins.currTransaction().id, trans.id);
-          return Promise.resolve('bar');
-        }).then(function (result) {
-          t.strictEqual(result, 'bar');
-          t.strictEqual(ins.currTransaction().id, trans.id);
-        });
+        })
+          [fnName](function (err) {
+            t.strictEqual(err.message, 'foo');
+            t.strictEqual(ins.currTransaction().id, trans.id);
+            return Promise.resolve('bar');
+          })
+          .then(function (result) {
+            t.strictEqual(result, 'bar');
+            t.strictEqual(ins.currTransaction().id, trans.id);
+          });
       });
     });
   });
@@ -63,12 +67,15 @@ module.exports = function (test, Promise, ins) {
       var trans = ins.startTransaction();
       new Promise(function (resolve, reject) {
         reject(new Error('foo'));
-      }).then(function () {
-        t.fail('should not resolve');
-      }, function (reason) {
-        t.strictEqual(reason.message, 'foo');
-        t.strictEqual(ins.currTransaction().id, trans.id);
-      });
+      }).then(
+        function () {
+          t.fail('should not resolve');
+        },
+        function (reason) {
+          t.strictEqual(reason.message, 'foo');
+          t.strictEqual(ins.currTransaction().id, trans.id);
+        },
+      );
     });
   });
 
@@ -148,12 +155,15 @@ module.exports = function (test, Promise, ins) {
         setTimeout(reject, 50, 'two');
       });
 
-      Promise.race([p1, p2]).then(function (data) {
-        t.strictEqual(data, 'one');
-        t.strictEqual(ins.currTransaction().id, trans.id);
-      }, function () {
-        t.fail('should not reject');
-      });
+      Promise.race([p1, p2]).then(
+        function (data) {
+          t.strictEqual(data, 'one');
+          t.strictEqual(ins.currTransaction().id, trans.id);
+        },
+        function () {
+          t.fail('should not reject');
+        },
+      );
     });
   });
 
@@ -168,12 +178,15 @@ module.exports = function (test, Promise, ins) {
         setTimeout(reject, 10, 'two');
       });
 
-      Promise.race([p1, p2]).then(function () {
-        t.fail('should not resolve');
-      }, function (reason) {
-        t.strictEqual(reason, 'two');
-        t.strictEqual(ins.currTransaction().id, trans.id);
-      });
+      Promise.race([p1, p2]).then(
+        function () {
+          t.fail('should not resolve');
+        },
+        function (reason) {
+          t.strictEqual(reason, 'two');
+          t.strictEqual(ins.currTransaction().id, trans.id);
+        },
+      );
     });
   });
 
@@ -183,25 +196,28 @@ module.exports = function (test, Promise, ins) {
       var trans = ins.startTransaction();
       new Promise(function (resolve) {
         resolve('foo');
-      }).then(function (data) {
-        t.strictEqual(data, 'foo');
-        t.strictEqual(ins.currTransaction().id, trans.id);
-        return new Promise(function (resolve) {
-          resolve('bar');
+      })
+        .then(function (data) {
+          t.strictEqual(data, 'foo');
+          t.strictEqual(ins.currTransaction().id, trans.id);
+          return new Promise(function (resolve) {
+            resolve('bar');
+          });
+        })
+        .then(function (data) {
+          t.strictEqual(data, 'bar');
+          t.strictEqual(ins.currTransaction().id, trans.id);
+          return Promise.resolve('baz');
+        })
+        .then(function (data) {
+          t.strictEqual(data, 'baz');
+          t.strictEqual(ins.currTransaction().id, trans.id);
         });
-      }).then(function (data) {
-        t.strictEqual(data, 'bar');
-        t.strictEqual(ins.currTransaction().id, trans.id);
-        return Promise.resolve('baz');
-      }).then(function (data) {
-        t.strictEqual(data, 'baz');
-        t.strictEqual(ins.currTransaction().id, trans.id);
-      });
     });
   });
 };
 
-function twice (fn) {
+function twice(fn) {
   setImmediate(fn);
   setImmediate(fn);
 }

@@ -45,7 +45,7 @@ const cases = [
       const s5 = findObjInArray(events, 'span.name', 's5').span;
       t.equal(s5.parent_id, t4.id, 's5 is a child of t4');
       t.equal(s5.sync, true, 's5.sync=true');
-    }
+    },
   },
   {
     // Expect:
@@ -65,7 +65,7 @@ const cases = [
       t.equal(s4.sync, true, 's4.sync=true');
       t.equal(s5.parent_id, s4.id, 's5 is a child of s4');
       t.equal(s5.sync, true, 's5.sync=true');
-    }
+    },
   },
   {
     script: 'ls-callbacks.js',
@@ -79,12 +79,12 @@ const cases = [
       t.equal(s2.sync, true, 's2.sync=true');
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1');
       t.equal(s3.sync, false, 's3.sync=false');
-    }
+    },
   },
   {
     script: 'ls-promises.js',
     testOpts: {
-      skip: !require('fs').promises
+      skip: !require('fs').promises,
     },
     check: (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object');
@@ -94,12 +94,12 @@ const cases = [
       const s3 = findObjInArray(events, 'span.name', 'readdir').span;
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1');
       t.equal(s3 && s3.parent_id, t1.id, 's3 is a child of t1');
-    }
+    },
   },
   {
     script: 'ls-await.js',
     testOpts: {
-      skip: !require('fs').promises
+      skip: !require('fs').promises,
     },
     check: (t, events) => {
       t.ok(events[0].metadata, 'APM server got event metadata object');
@@ -109,7 +109,7 @@ const cases = [
       const s3 = findObjInArray(events, 'span.name', 'readdir').span;
       t.equal(s2.parent_id, t1.id, 's2 is a child of t1');
       t.equal(s3.parent_id, t1.id, 's3 is a child of t1');
-    }
+    },
   },
   {
     script: 'parentage-with-ended-span.js',
@@ -127,11 +127,15 @@ const cases = [
       const s3 = findObjInArray(events, 'span.name', 's3').span;
       t.equal(s1.parent_id, t0.id, 's1 is a child of t0');
       t.equal(s1.sync, false, 's1.sync=false');
-      t.equal(s2.parent_id, t0.id, 's2 is a child of t0 (because s1 ended before s2 was started, in the same async task)');
+      t.equal(
+        s2.parent_id,
+        t0.id,
+        's2 is a child of t0 (because s1 ended before s2 was started, in the same async task)',
+      );
       t.equal(s2.sync, false, 's2.sync=false');
       t.equal(s3.parent_id, s1.id, 's3 is a child of s1');
       t.equal(s3.sync, false, 's3.sync=false');
-    }
+    },
   },
   {
     script: 'end-non-current-spans.js',
@@ -153,12 +157,12 @@ const cases = [
       t.equal(s2.parent_id, s1.id, 's2 is a child of s1');
       t.equal(s3.parent_id, s1.id, 's3 is a child of s1');
       t.equal(s4.parent_id, s3.id, 's4 is a child of s3');
-    }
-  }
+    },
+  },
 ];
 
-cases.forEach(c => {
-  tape.test(`run-context/fixtures/${c.script}`, c.testOpts || {}, t => {
+cases.forEach((c) => {
+  tape.test(`run-context/fixtures/${c.script}`, c.testOpts || {}, (t) => {
     const server = new MockAPMServer();
     const scriptPath = path.join('fixtures', c.script);
     server.start(function (serverUrl) {
@@ -169,10 +173,10 @@ cases.forEach(c => {
           cwd: __dirname,
           timeout: 10000, // guard on hang, 3s is sometimes too short for CI
           env: Object.assign({}, process.env, {
-            ELASTIC_APM_SERVER_URL: serverUrl
-          })
+            ELASTIC_APM_SERVER_URL: serverUrl,
+          }),
         },
-        function done (err, _stdout, _stderr) {
+        function done(err, _stdout, _stderr) {
           t.error(err, `${scriptPath} exited non-zero`);
           if (err) {
             t.comment('skip checks because script errored out');
@@ -181,7 +185,7 @@ cases.forEach(c => {
           }
           server.close();
           t.end();
-        }
+        },
       );
     });
   });

@@ -23,7 +23,7 @@ exports.assertMetadata = assertMetadata;
 exports.assertEvent = assertEvent;
 exports.validOpts = validOpts;
 
-function APMServer (opts, onreq) {
+function APMServer(opts, onreq) {
   if (typeof opts === 'function') return APMServer(null, opts);
   opts = opts || {};
 
@@ -46,11 +46,22 @@ function APMServer (opts, onreq) {
       clientOpts = {};
     }
     server.listen(function () {
-      onclient(new HttpApmClient(validOpts(Object.assign({
-        // logger: require('pino')({ level: 'trace' }), // uncomment for debugging
-        serverUrl: `http${secure ? 's' : ''}://localhost:${server.address().port}`,
-        secretToken: 'secret'
-      }, clientOpts))));
+      onclient(
+        new HttpApmClient(
+          validOpts(
+            Object.assign(
+              {
+                // logger: require('pino')({ level: 'trace' }), // uncomment for debugging
+                serverUrl: `http${secure ? 's' : ''}://localhost:${
+                  server.address().port
+                }`,
+                secretToken: 'secret',
+              },
+              clientOpts,
+            ),
+          ),
+        ),
+      );
     });
     return server;
   };
@@ -58,33 +69,69 @@ function APMServer (opts, onreq) {
   return server;
 }
 
-function processIntakeReq (req) {
+function processIntakeReq(req) {
   return req.pipe(zlib.createGunzip()).pipe(ndjson.parse());
 }
 
-function assertIntakeReq (t, req) {
+function assertIntakeReq(t, req) {
   t.equal(req.method, 'POST', 'should make a POST request');
-  t.equal(req.url, '/intake/v2/events', 'should send request to /intake/v2/events');
-  t.equal(req.headers.authorization, 'Bearer secret', 'should add secret token');
-  t.equal(req.headers['content-type'], 'application/x-ndjson', 'should send reqeust as ndjson');
+  t.equal(
+    req.url,
+    '/intake/v2/events',
+    'should send request to /intake/v2/events',
+  );
+  t.equal(
+    req.headers.authorization,
+    'Bearer secret',
+    'should add secret token',
+  );
+  t.equal(
+    req.headers['content-type'],
+    'application/x-ndjson',
+    'should send reqeust as ndjson',
+  );
   t.equal(req.headers['content-encoding'], 'gzip', 'should compress request');
-  t.equal(req.headers.accept, 'application/json', 'should expect json in response');
-  t.equal(req.headers['user-agent'], 'my-user-agent', 'should add proper User-Agent');
+  t.equal(
+    req.headers.accept,
+    'application/json',
+    'should expect json in response',
+  );
+  t.equal(
+    req.headers['user-agent'],
+    'my-user-agent',
+    'should add proper User-Agent',
+  );
 }
 assertIntakeReq.asserts = 7;
 
-function assertConfigReq (t, req) {
+function assertConfigReq(t, req) {
   const url = new URL(req.url, 'relative:///');
 
   t.equal(req.method, 'GET', 'should make a GET request');
-  t.equal(url.pathname, '/config/v1/agents', 'should send request to /config/v1/agents');
-  t.equal(url.search, '?service.name=my-service-name&service.environment=development', 'should encode query in query params');
-  t.equal(req.headers.authorization, 'Bearer secret', 'should add secret token');
-  t.equal(req.headers['user-agent'], 'my-user-agent', 'should add proper User-Agent');
+  t.equal(
+    url.pathname,
+    '/config/v1/agents',
+    'should send request to /config/v1/agents',
+  );
+  t.equal(
+    url.search,
+    '?service.name=my-service-name&service.environment=development',
+    'should encode query in query params',
+  );
+  t.equal(
+    req.headers.authorization,
+    'Bearer secret',
+    'should add secret token',
+  );
+  t.equal(
+    req.headers['user-agent'],
+    'my-user-agent',
+    'should add proper User-Agent',
+  );
 }
 assertConfigReq.asserts = 5;
 
-function assertMetadata (t, obj) {
+function assertMetadata(t, obj) {
   t.deepEqual(Object.keys(obj), ['metadata']);
   const metadata = obj.metadata;
   const metadataKeys = new Set(Object.keys(metadata));
@@ -114,15 +161,27 @@ function assertMetadata (t, obj) {
     t.equal(_process.title, process.title[0]);
   } else {
     const regex = /node/;
-    t.ok(regex.test(_process.title), `process.title should match ${regex} (was: ${_process.title})`);
+    t.ok(
+      regex.test(_process.title),
+      `process.title should match ${regex} (was: ${_process.title})`,
+    );
   }
 
   t.ok(Array.isArray(_process.argv), 'process.title should be an array');
-  t.ok(_process.argv.length >= 2, 'process.title should contain at least two elements');
+  t.ok(
+    _process.argv.length >= 2,
+    'process.title should contain at least two elements',
+  );
   var regex = /node(\.exe)?$/i;
-  t.ok(regex.test(_process.argv[0]), `process.argv[0] should match ${regex} (was: ${_process.argv[0]})`);
+  t.ok(
+    regex.test(_process.argv[0]),
+    `process.argv[0] should match ${regex} (was: ${_process.argv[0]})`,
+  );
   regex = /(test.*\.js|tape)$/;
-  t.ok(regex.test(_process.argv[1]), `process.argv[1] should match ${regex} (was: ${_process.argv[1]})"`);
+  t.ok(
+    regex.test(_process.argv[1]),
+    `process.argv[1] should match ${regex} (was: ${_process.argv[1]})"`,
+  );
   const system = metadata.system;
   if ('detected_hostname' in system) {
     t.ok(typeof system.detected_hostname, 'string');
@@ -138,7 +197,7 @@ function assertMetadata (t, obj) {
 }
 assertMetadata.asserts = 24;
 
-function assertEvent (expect) {
+function assertEvent(expect) {
   return function (t, obj) {
     const key = Object.keys(expect)[0];
     const val = expect[key];
@@ -164,13 +223,16 @@ function assertEvent (expect) {
 }
 assertEvent.asserts = 1;
 
-function validOpts (opts) {
-  return Object.assign({
-    agentName: 'my-agent-name',
-    agentVersion: 'my-agent-version',
-    serviceName: 'my-service-name',
-    userAgent: 'my-user-agent'
-  }, opts);
+function validOpts(opts) {
+  return Object.assign(
+    {
+      agentName: 'my-agent-name',
+      agentVersion: 'my-agent-version',
+      serviceName: 'my-service-name',
+      userAgent: 'my-user-agent',
+    },
+    opts,
+  );
 }
 
 // tlsCert and tlsKey were generated via the same method as Go's builtin

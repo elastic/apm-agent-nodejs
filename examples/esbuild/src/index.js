@@ -13,9 +13,9 @@ const { handleRequest } = require('./handler');
 const server = http.createServer(handleRequest);
 server.listen(3000, () => {
   // Make a single request and then stop.
-  http.get('http://localhost:3000', res => {
+  http.get('http://localhost:3000', (res) => {
     console.log('CLIENT: res.headers:', res.headers);
-    res.on('data', chunk => {
+    res.on('data', (chunk) => {
       console.log('CLIENT: res "data": %s', chunk);
     });
     res.on('end', () => {

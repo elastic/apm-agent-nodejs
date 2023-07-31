@@ -13,7 +13,7 @@ const propwrap = require('../lib/propwrap');
 tape.test('wrap basic use case', function (t) {
   t.plan(2);
   const obj = {
-    foo: 'bar'
+    foo: 'bar',
   };
   const newObj = propwrap.wrap(obj, 'foo', (orig) => {
     t.equal(orig, 'bar', 'orig');
@@ -28,9 +28,9 @@ tape.test('wrap nested subpath', function (t) {
   const obj = {
     deep: {
       nested: {
-        foo: 'bar'
-      }
-    }
+        foo: 'bar',
+      },
+    },
   };
   const newObj = propwrap.wrap(obj, 'deep.nested.foo', (orig) => {
     t.equal(orig, 'bar', 'orig');
@@ -45,7 +45,7 @@ tape.test('wrap property with only a getter', function (t) {
   const obj = {};
   Object.defineProperty(obj, 'foo', {
     value: 'bar',
-    writable: false
+    writable: false,
   });
   const newObj = propwrap.wrap(obj, 'foo', (orig) => {
     t.equal(orig, 'bar', 'orig');
@@ -58,7 +58,7 @@ tape.test('wrap property with only a getter', function (t) {
 tape.test('wrap property does not exist', function (t) {
   t.plan(2);
   const obj = {
-    foo: 'bar'
+    foo: 'bar',
   };
   try {
     propwrap.wrap(obj, 'baz', (orig) => {
@@ -78,9 +78,9 @@ tape.test('wrap, part of subpath not exist', function (t) {
     deep: {
       baz: null,
       nested: {
-        foo: 'bar'
-      }
-    }
+        foo: 'bar',
+      },
+    },
   };
   try {
     propwrap.wrap(obj, 'deep.baz.foo', (orig) => {
@@ -97,10 +97,10 @@ tape.test('wrap, part of subpath not exist', function (t) {
 tape.test('wrap, namespace is not an Object', function (t) {
   t.plan(3);
   const obj = {
-    deep: function () {}
+    deep: function () {},
   };
   obj.deep.ns = {
-    foo: 'bar'
+    foo: 'bar',
   };
 
   try {
@@ -110,8 +110,14 @@ tape.test('wrap, namespace is not an Object', function (t) {
     t.fail('should not get here');
   } catch (wrapErr) {
     t.ok(wrapErr, 'wrapErr');
-    t.ok(wrapErr.message.indexOf('deep') !== -1, 'error message mentions "deep"');
-    t.ok(wrapErr.message.indexOf('Object') !== -1, 'error message mentions "Object"');
+    t.ok(
+      wrapErr.message.indexOf('deep') !== -1,
+      'error message mentions "deep"',
+    );
+    t.ok(
+      wrapErr.message.indexOf('Object') !== -1,
+      'error message mentions "Object"',
+    );
   }
   t.end();
 });

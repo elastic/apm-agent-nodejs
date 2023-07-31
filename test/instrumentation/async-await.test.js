@@ -8,7 +8,7 @@
 
 var agent = require('../..').start({
   serviceName: 'test',
-  captureExceptions: false
+  captureExceptions: false,
 });
 
 var test = require('tape');

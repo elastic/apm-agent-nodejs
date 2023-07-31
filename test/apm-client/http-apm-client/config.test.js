@@ -17,7 +17,9 @@ const URL = require('url').URL;
 
 const utils = require('./lib/utils');
 const { HttpApmClient } = require('../../../lib/apm-client/http-apm-client');
-const { detectHostname } = require('../../../lib/apm-client/http-apm-client/detect-hostname');
+const {
+  detectHostname,
+} = require('../../../lib/apm-client/http-apm-client/detect-hostname');
 const getContainerInfo = require('../../../lib/apm-client/http-apm-client/container-info');
 
 const APMServer = utils.APMServer;
@@ -28,15 +30,68 @@ const detectedHostname = detectHostname();
 
 test('throw if missing required options', function (t) {
   t.throws(() => new HttpApmClient(), 'throws if no options are provided');
-  t.throws(() => new HttpApmClient({ agentName: 'foo' }), 'throws if only agentName is provided');
-  t.throws(() => new HttpApmClient({ agentVersion: 'foo' }), 'throws if only agentVersion is provided');
-  t.throws(() => new HttpApmClient({ serviceName: 'foo' }), 'throws if only serviceName is provided');
-  t.throws(() => new HttpApmClient({ userAgent: 'foo' }), 'throws if only userAgent is provided');
-  t.throws(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', serviceName: 'foo' }), 'throws if userAgent is missing');
-  t.throws(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', userAgent: 'foo' }), 'throws if serviceName is missing');
-  t.throws(() => new HttpApmClient({ agentName: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'throws if agentVersion is missing');
-  t.throws(() => new HttpApmClient({ agentVersion: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'throws if agentName is missing');
-  t.doesNotThrow(() => new HttpApmClient({ agentName: 'foo', agentVersion: 'foo', serviceName: 'foo', userAgent: 'foo' }), 'doesn\'t throw if required options are provided');
+  t.throws(
+    () => new HttpApmClient({ agentName: 'foo' }),
+    'throws if only agentName is provided',
+  );
+  t.throws(
+    () => new HttpApmClient({ agentVersion: 'foo' }),
+    'throws if only agentVersion is provided',
+  );
+  t.throws(
+    () => new HttpApmClient({ serviceName: 'foo' }),
+    'throws if only serviceName is provided',
+  );
+  t.throws(
+    () => new HttpApmClient({ userAgent: 'foo' }),
+    'throws if only userAgent is provided',
+  );
+  t.throws(
+    () =>
+      new HttpApmClient({
+        agentName: 'foo',
+        agentVersion: 'foo',
+        serviceName: 'foo',
+      }),
+    'throws if userAgent is missing',
+  );
+  t.throws(
+    () =>
+      new HttpApmClient({
+        agentName: 'foo',
+        agentVersion: 'foo',
+        userAgent: 'foo',
+      }),
+    'throws if serviceName is missing',
+  );
+  t.throws(
+    () =>
+      new HttpApmClient({
+        agentName: 'foo',
+        serviceName: 'foo',
+        userAgent: 'foo',
+      }),
+    'throws if agentVersion is missing',
+  );
+  t.throws(
+    () =>
+      new HttpApmClient({
+        agentVersion: 'foo',
+        serviceName: 'foo',
+        userAgent: 'foo',
+      }),
+    'throws if agentName is missing',
+  );
+  t.doesNotThrow(
+    () =>
+      new HttpApmClient({
+        agentName: 'foo',
+        agentVersion: 'foo',
+        serviceName: 'foo',
+        userAgent: 'foo',
+      }),
+    "doesn't throw if required options are provided",
+  );
   t.end();
 });
 
@@ -46,17 +101,20 @@ test('should work without new', function (t) {
   t.end();
 });
 
-test('null value config options shouldn\'t throw', function (t) {
+test("null value config options shouldn't throw", function (t) {
   t.doesNotThrow(function () {
-    new HttpApmClient(validOpts({ // eslint-disable-line no-new
-      size: null,
-      time: null,
-      serverTimeout: null,
-      type: null,
-      serverUrl: null,
-      keepAlive: null,
-      labels: null
-    }));
+    new HttpApmClient(
+      validOpts({
+        // eslint-disable-line no-new
+        size: null,
+        time: null,
+        serverTimeout: null,
+        type: null,
+        serverUrl: null,
+        keepAlive: null,
+        labels: null,
+      }),
+    );
   });
   t.end();
 });
@@ -72,10 +130,12 @@ test('no secretToken or apiKey', function (t) {
     t.end();
   });
   server.listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port,
-      apmServerVersion: '8.0.0'
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port,
+        apmServerVersion: '8.0.0',
+      }),
+    );
     client.sendSpan({ foo: 42 });
     client.end();
   });
@@ -85,18 +145,24 @@ test('has apiKey', function (t) {
   t.plan(1);
   let client;
   const server = APMServer(function (req, res) {
-    t.equal(req.headers.authorization, 'ApiKey FooBar123', 'should use apiKey in authorization header');
+    t.equal(
+      req.headers.authorization,
+      'ApiKey FooBar123',
+      'should use apiKey in authorization header',
+    );
     res.end();
     server.close();
     client.destroy();
     t.end();
   });
   server.listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port,
-      apiKey: 'FooBar123',
-      apmServerVersion: '8.0.0'
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port,
+        apiKey: 'FooBar123',
+        apmServerVersion: '8.0.0',
+      }),
+    );
     client.sendSpan({ foo: 42 });
     client.end();
   });
@@ -113,13 +179,15 @@ test('custom headers', function (t) {
     client.destroy();
     t.end();
   }).listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port,
-      headers: {
-        'X-Foo': 'bar'
-      },
-      apmServerVersion: '8.0.0'
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port,
+        headers: {
+          'X-Foo': 'bar',
+        },
+        apmServerVersion: '8.0.0',
+      }),
+    );
     client.sendSpan({ foo: 42 });
     client.end();
   });
@@ -127,10 +195,13 @@ test('custom headers', function (t) {
 
 test('serverUrl is invalid', function (t) {
   t.throws(function () {
-    new HttpApmClient(validOpts({ // eslint-disable-line no-new
-      serverUrl: 'invalid',
-      apmServerVersion: '8.0.0'
-    }));
+    new HttpApmClient(
+      validOpts({
+        // eslint-disable-line no-new
+        serverUrl: 'invalid',
+        apmServerVersion: '8.0.0',
+      }),
+    );
   });
   t.end();
 });
@@ -145,10 +216,12 @@ test('serverUrl contains path', function (t) {
     client.destroy();
     t.end();
   }).listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + server.address().port + '/subpath',
-      apmServerVersion: '8.0.0'
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + server.address().port + '/subpath',
+        apmServerVersion: '8.0.0',
+      }),
+    );
     client.sendSpan({ foo: 42 });
     client.end();
   });
@@ -184,11 +257,14 @@ test('allow unauthorized TLS if asked', function (t) {
     client.destroy();
     server.close();
     t.end();
-  }).client({ rejectUnauthorized: false, apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_;
-    client.sendSpan({ foo: 42 });
-    client.end();
-  });
+  }).client(
+    { rejectUnauthorized: false, apmServerVersion: '8.0.0' },
+    function (client_) {
+      client = client_;
+      client.sendSpan({ foo: 42 });
+      client.end();
+    },
+  );
 });
 
 test('allow self-signed TLS certificate by specifying the CA', function (t) {
@@ -201,11 +277,14 @@ test('allow self-signed TLS certificate by specifying the CA', function (t) {
     server.close();
     t.end();
   });
-  server.client({ serverCaCert: server.cert, apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_;
-    client.sendSpan({ foo: 42 });
-    client.end();
-  });
+  server.client(
+    { serverCaCert: server.cert, apmServerVersion: '8.0.0' },
+    function (client_) {
+      client = client_;
+      client.sendSpan({ foo: 42 });
+      client.end();
+    },
+  );
 });
 
 test('metadata', function (t) {
@@ -225,10 +304,10 @@ test('metadata', function (t) {
     globalLabels: {
       foo: 'bar',
       doesNotNest: {
-        nope: 'this should be [object Object]'
-      }
+        nope: 'this should be [object Object]',
+      },
     },
-    apmServerVersion: '8.7.1' // avoid the APM server version fetch request
+    apmServerVersion: '8.7.1', // avoid the APM server version fetch request
   };
   const server = APMServer(function (req, res) {
     req = processIntakeReq(req);
@@ -240,41 +319,41 @@ test('metadata', function (t) {
             environment: 'production',
             runtime: {
               name: 'node',
-              version: process.versions.node
+              version: process.versions.node,
             },
             language: {
-              name: 'javascript'
+              name: 'javascript',
             },
             agent: {
               name: 'custom-agentName',
               version: 'custom-agentVersion',
-              activation_method: 'custom-agentActivationMethod'
+              activation_method: 'custom-agentActivationMethod',
             },
             framework: {
               name: 'custom-frameworkName',
-              version: 'custom-frameworkVersion'
+              version: 'custom-frameworkVersion',
             },
             version: 'custom-serviceVersion',
             node: {
-              configured_name: 'custom-serviceNodeName'
-            }
+              configured_name: 'custom-serviceNodeName',
+            },
           },
           process: {
             pid: process.pid,
             title: process.title,
-            argv: process.argv
+            argv: process.argv,
           },
           system: {
             architecture: process.arch,
             platform: process.platform,
             detected_hostname: detectedHostname,
-            configured_hostname: 'custom-hostname'
+            configured_hostname: 'custom-hostname',
           },
           labels: {
             foo: 'bar',
-            doesNotNest: '[object Object]'
-          }
-        }
+            doesNotNest: '[object Object]',
+          },
+        },
       };
 
       if (semver.gte(process.version, '8.10.0')) {
@@ -284,15 +363,21 @@ test('metadata', function (t) {
       t.deepEqual(obj, expects);
 
       t.ok(semver.valid(obj.metadata.service.runtime.version));
-      t.ok(obj.metadata.process.pid > 0, `pid should be > 0, was ${obj.metadata.process.pid}`);
+      t.ok(
+        obj.metadata.process.pid > 0,
+        `pid should be > 0, was ${obj.metadata.process.pid}`,
+      );
       if (semver.gte(process.version, '8.10.0')) {
-        t.ok(obj.metadata.process.ppid > 0, `ppid should be > 0, was ${obj.metadata.process.ppid}`);
+        t.ok(
+          obj.metadata.process.ppid > 0,
+          `ppid should be > 0, was ${obj.metadata.process.ppid}`,
+        );
       } else {
         t.equal(obj.metadata.process.ppid, undefined);
       }
       t.ok(Array.isArray(obj.metadata.process.argv));
-      t.ok(obj.metadata.process.argv.every(arg => typeof arg === 'string'));
-      t.ok(obj.metadata.process.argv.every(arg => arg.length > 0));
+      t.ok(obj.metadata.process.argv.every((arg) => typeof arg === 'string'));
+      t.ok(obj.metadata.process.argv.every((arg) => arg.length > 0));
       t.equal(typeof obj.metadata.system.architecture, 'string');
       t.ok(obj.metadata.system.architecture.length > 0);
       t.equal(typeof obj.metadata.system.platform, 'string');
@@ -318,7 +403,7 @@ test('metadata - default values', function (t) {
     agentName: 'custom-agentName',
     agentVersion: 'custom-agentVersion',
     serviceName: 'custom-serviceName',
-    apmServerVersion: '8.0.0' // avoid the APM server version fetch request
+    apmServerVersion: '8.0.0', // avoid the APM server version fetch request
   };
   const server = APMServer(function (req, res) {
     req = processIntakeReq(req);
@@ -330,27 +415,27 @@ test('metadata - default values', function (t) {
             environment: 'development',
             runtime: {
               name: 'node',
-              version: process.versions.node
+              version: process.versions.node,
             },
             language: {
-              name: 'javascript'
+              name: 'javascript',
             },
             agent: {
               name: 'custom-agentName',
-              version: 'custom-agentVersion'
-            }
+              version: 'custom-agentVersion',
+            },
           },
           process: {
             pid: process.pid,
             title: process.title,
-            argv: process.argv
+            argv: process.argv,
           },
           system: {
             architecture: process.arch,
             platform: process.platform,
-            detected_hostname: detectedHostname
-          }
-        }
+            detected_hostname: detectedHostname,
+          },
+        },
       };
 
       if (semver.gte(process.version, '8.10.0')) {
@@ -375,14 +460,16 @@ test('metadata - default values', function (t) {
 
 test('metadata - container info', function (t) {
   // Clear Client and APMServer from require cache
-  delete require.cache[require.resolve('../../../lib/apm-client/http-apm-client')];
+  delete require.cache[
+    require.resolve('../../../lib/apm-client/http-apm-client')
+  ];
   delete require.cache[require.resolve('./lib/utils')];
 
   const sync = getContainerInfo.sync;
-  getContainerInfo.sync = function sync () {
+  getContainerInfo.sync = function sync() {
     return {
       containerId: 'container-id',
-      podId: 'pod-id'
+      podId: 'pod-id',
     };
   };
   t.on('end', () => {
@@ -398,13 +485,13 @@ test('metadata - container info', function (t) {
       t.ok(obj.metadata);
       t.ok(obj.metadata.system);
       t.deepEqual(obj.metadata.system.container, {
-        id: 'container-id'
+        id: 'container-id',
       });
       t.deepEqual(obj.metadata.system.kubernetes, {
         pod: {
           name: detectedHostname.split('.')[0],
-          uid: 'pod-id'
-        }
+          uid: 'pod-id',
+        },
       });
     });
     req.on('end', function () {
@@ -434,11 +521,14 @@ test('agentName', function (t) {
       server.close();
       t.end();
     });
-  }).client({ serviceName: 'custom', apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_;
-    client.sendSpan({ foo: 42 });
-    client.end();
-  });
+  }).client(
+    { serviceName: 'custom', apmServerVersion: '8.0.0' },
+    function (client_) {
+      client = client_;
+      client.sendSpan({ foo: 42 });
+      client.end();
+    },
+  );
 });
 
 test('payloadLogFile', function (t) {
@@ -471,7 +561,11 @@ test('payloadLogFile', function (t) {
         file.on('data', function (obj) {
           const expected = receivedObjects.shift();
           const n = 5 - receivedObjects.length;
-          t.deepEqual(obj, expected, `expected line ${n} in the log file to match item no ${n} received by the server`);
+          t.deepEqual(
+            obj,
+            expected,
+            `expected line ${n} in the log file to match item no ${n} received by the server`,
+          );
         });
 
         file.on('end', function () {
@@ -479,14 +573,17 @@ test('payloadLogFile', function (t) {
         });
       }
     });
-  }).client({ payloadLogFile: filename, apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_;
-    client.sendTransaction({ req: 1 });
-    client.sendSpan({ req: 2 });
-    client.flush(); // force the client to make a 2nd request so that we test reusing the file across requests
-    client.sendError({ req: 3 });
-    client.end();
-  });
+  }).client(
+    { payloadLogFile: filename, apmServerVersion: '8.0.0' },
+    function (client_) {
+      client = client_;
+      client.sendTransaction({ req: 1 });
+      client.sendSpan({ req: 2 });
+      client.flush(); // force the client to make a 2nd request so that we test reusing the file across requests
+      client.sendError({ req: 3 });
+      client.end();
+    },
+  );
 });
 
 test('update conf', function (t) {
@@ -503,12 +600,15 @@ test('update conf', function (t) {
       server.close();
       t.end();
     });
-  }).client({ serviceName: 'foo', apmServerVersion: '8.0.0' }, function (client_) {
-    client = client_;
-    client.config({ serviceName: 'bar' });
-    client.sendSpan({ foo: 42 });
-    client.end();
-  });
+  }).client(
+    { serviceName: 'foo', apmServerVersion: '8.0.0' },
+    function (client_) {
+      client = client_;
+      client.config({ serviceName: 'bar' });
+      client.sendSpan({ foo: 42 });
+      client.end();
+    },
+  );
 });
 
 // There was a case (https://github.com/elastic/apm-agent-nodejs/issues/1749)
@@ -522,7 +622,7 @@ test('503 response from apm-server for central config should not crash', functio
     cleanUpAndEnd();
   }, 30000);
 
-  function cleanUpAndEnd () {
+  function cleanUpAndEnd() {
     if (abortTimeout) {
       clearTimeout(abortTimeout);
     }
@@ -537,36 +637,45 @@ test('503 response from apm-server for central config should not crash', functio
     const parsedUrl = new URL(req.url, 'http://localhost:0');
     let resBody = '{}';
     if (parsedUrl.pathname === '/config/v1/agents') {
-      resBody = '{"ok":false,"message":"The requested resource is currently unavailable."}\n';
+      resBody =
+        '{"ok":false,"message":"The requested resource is currently unavailable."}\n';
       res.writeHead(503);
     }
     res.end(resBody);
   });
 
   mockApmServer.listen(function () {
-    client = new HttpApmClient(validOpts({
-      serverUrl: 'http://localhost:' + mockApmServer.address().port,
-      // Turn centralConfig *off*. We'll manually trigger a poll for central
-      // config via internal methods, so that we don't need to muck with
-      // internal `setTimeout` intervals.
-      centralConfig: false,
-      apmServerVersion: '8.0.0'
-    }));
+    client = new HttpApmClient(
+      validOpts({
+        serverUrl: 'http://localhost:' + mockApmServer.address().port,
+        // Turn centralConfig *off*. We'll manually trigger a poll for central
+        // config via internal methods, so that we don't need to muck with
+        // internal `setTimeout` intervals.
+        centralConfig: false,
+        apmServerVersion: '8.0.0',
+      }),
+    );
 
     // 2. Ensure the client conditions for the crash.
     //    One of the crash conditions at the time was a second `client.config`
     //    to ensure the request options were using the keep-alive agent.
     client.config();
-    t.ok(client._conf.requestConfig.agent,
-      'agent for central config requests is defined');
+    t.ok(
+      client._conf.requestConfig.agent,
+      'agent for central config requests is defined',
+    );
 
     client.on('config', function (config) {
       t.fail('do not expect to get a successful central config response');
     });
     client.on('request-error', function (err) {
       t.ok(err, 'got request-error on _pollConfig');
-      t.ok(err.message.indexOf('Unexpected APM Server response when polling config') !== -1,
-        'request-error from _pollConfig includes expected error message');
+      t.ok(
+        err.message.indexOf(
+          'Unexpected APM Server response when polling config',
+        ) !== -1,
+        'request-error from _pollConfig includes expected error message',
+      );
       cleanUpAndEnd();
     });
 

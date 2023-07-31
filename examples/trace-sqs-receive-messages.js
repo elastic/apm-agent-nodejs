@@ -29,7 +29,7 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-sqs',
-  logUncaughtExceptions: true
+  logUncaughtExceptions: true,
 });
 
 const path = require('path');
@@ -37,7 +37,7 @@ const AWS = require('aws-sdk');
 
 const NAME = path.basename(process.argv[1]);
 
-function fail (err) {
+function fail(err) {
   console.error(`${NAME}: error: ${err.toString()}`);
   process.exitCode = 1;
 }
@@ -49,7 +49,11 @@ if (!region || !queueName) {
   fail('missing arguments');
   process.exit();
 }
-console.log('SQS ReceiveMessage from region=%s queueName=%s', region, queueName);
+console.log(
+  'SQS ReceiveMessage from region=%s queueName=%s',
+  region,
+  queueName,
+);
 
 AWS.config.update({ region });
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
@@ -77,7 +81,7 @@ sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
     MaxNumberOfMessages: 2,
     MessageAttributeNames: ['All'],
     VisibilityTimeout: 20,
-    WaitTimeSeconds: 5 // long poll
+    WaitTimeSeconds: 5, // long poll
   };
   sqs.receiveMessage(params, function (err, data) {
     if (err) {
@@ -91,19 +95,26 @@ sqs.getQueueUrl({ QueueName: queueName }, function (err, data) {
 
     // 3. Delete any received messages.
     if (data.Messages && data.Messages.length > 0) {
-      const delEntries = data.Messages
-        .map(m => { return { Id: m.MessageId, ReceiptHandle: m.ReceiptHandle }; });
-      sqs.deleteMessageBatch({
-        QueueUrl: queueUrl,
-        Entries: delEntries
-      }, function (err, data) {
-        if (err) {
-          console.log('deleteMessageBatch err:', err);
-        } else if (data && data.Failed && data.Failed.length > 0) {
-          console.log('deleteMessageBatch failed to delete some messages:', data);
-        }
-        trans.end();
+      const delEntries = data.Messages.map((m) => {
+        return { Id: m.MessageId, ReceiptHandle: m.ReceiptHandle };
       });
+      sqs.deleteMessageBatch(
+        {
+          QueueUrl: queueUrl,
+          Entries: delEntries,
+        },
+        function (err, data) {
+          if (err) {
+            console.log('deleteMessageBatch err:', err);
+          } else if (data && data.Failed && data.Failed.length > 0) {
+            console.log(
+              'deleteMessageBatch failed to delete some messages:',
+              data,
+            );
+          }
+          trans.end();
+        },
+      );
     } else {
       trans.end();
     }

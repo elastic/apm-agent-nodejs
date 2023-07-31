@@ -8,7 +8,7 @@
 
 var agent = require('../..').start({
   serviceName: 'test-core-async-apis',
-  captureExceptions: false
+  captureExceptions: false,
 });
 
 var test = require('tape');
@@ -20,7 +20,10 @@ test('setTimeout', function (t) {
   twice(function () {
     var trans = agent.startTransaction();
     setTimeout(function () {
-      t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id);
+      t.strictEqual(
+        ins.currTransaction() && ins.currTransaction().id,
+        trans.id,
+      );
       trans.end();
     }, 50);
   });
@@ -32,7 +35,10 @@ test('setInterval', function (t) {
     var trans = agent.startTransaction();
     var timer = setInterval(function () {
       clearInterval(timer);
-      t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id);
+      t.strictEqual(
+        ins.currTransaction() && ins.currTransaction().id,
+        trans.id,
+      );
       trans.end();
     }, 50);
   });
@@ -43,7 +49,10 @@ test('setImmediate', function (t) {
   twice(function () {
     var trans = agent.startTransaction();
     setImmediate(function () {
-      t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id);
+      t.strictEqual(
+        ins.currTransaction() && ins.currTransaction().id,
+        trans.id,
+      );
       trans.end();
     });
   });
@@ -54,7 +63,10 @@ test('process.nextTick', function (t) {
   twice(function () {
     var trans = agent.startTransaction();
     process.nextTick(function () {
-      t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id);
+      t.strictEqual(
+        ins.currTransaction() && ins.currTransaction().id,
+        trans.id,
+      );
       trans.end();
     });
   });
@@ -69,7 +81,10 @@ test('pre-defined, pre-resolved shared promise', function (t) {
     var trans = agent.startTransaction();
     p.then(function (result) {
       t.strictEqual(result, 'success');
-      t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id);
+      t.strictEqual(
+        ins.currTransaction() && ins.currTransaction().id,
+        trans.id,
+      );
       trans.end();
     });
   });
@@ -83,7 +98,10 @@ test('pre-defined, pre-resolved non-shared promise', function (t) {
     var trans = agent.startTransaction();
     p.then(function (result) {
       t.strictEqual(result, 'success');
-      t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id);
+      t.strictEqual(
+        ins.currTransaction() && ins.currTransaction().id,
+        trans.id,
+      );
       trans.end();
     });
   });
@@ -100,7 +118,10 @@ test('pre-defined, post-resolved promise', function (t) {
     var trans = agent.startTransaction();
     p.then(function (result) {
       t.strictEqual(result, 'success');
-      t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id);
+      t.strictEqual(
+        ins.currTransaction() && ins.currTransaction().id,
+        trans.id,
+      );
       trans.end();
     });
   });
@@ -117,13 +138,16 @@ test('post-defined, post-resolved promise', function (t) {
     });
     p.then(function (result) {
       t.strictEqual(result, 'success');
-      t.strictEqual(ins.currTransaction() && ins.currTransaction().id, trans.id);
+      t.strictEqual(
+        ins.currTransaction() && ins.currTransaction().id,
+        trans.id,
+      );
       trans.end();
     });
   });
 });
 
-function twice (fn) {
+function twice(fn) {
   setImmediate(fn);
   setImmediate(fn);
 }

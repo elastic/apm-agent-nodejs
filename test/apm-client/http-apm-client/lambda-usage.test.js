@@ -20,14 +20,14 @@ const zlib = require('zlib');
 const test = require('tape');
 const { APMServer } = require('./lib/utils');
 
-test('lambda usage', suite => {
+test('lambda usage', (suite) => {
   let server;
   let client;
   let reqsToServer = [];
   let lateSpanInSameTickCallbackCalled = false;
   let lateSpanInNextTickCallbackCalled = false;
 
-  test('setup mock APM server', t => {
+  test('setup mock APM server', (t) => {
     server = APMServer(function (req, res) {
       if (req.method === 'POST' && req.url === '/register/transaction') {
         req.resume();
@@ -36,7 +36,9 @@ test('lambda usage', suite => {
           res.end();
         });
         return;
-      } else if (!(req.method === 'POST' && req.url.startsWith('/intake/v2/events'))) {
+      } else if (
+        !(req.method === 'POST' && req.url.startsWith('/intake/v2/events'))
+      ) {
         req.resume();
         req.on('end', () => {
           res.writeHead(404);
@@ -51,7 +53,7 @@ test('lambda usage', suite => {
         path: req.url,
         url: new URL(req.url, 'http://localhost'),
         headers: req.headers,
-        events: []
+        events: [],
       };
       let instream = req;
       if (req.headers['content-encoding'] === 'gzip') {
@@ -60,14 +62,14 @@ test('lambda usage', suite => {
         instream.setEncoding('utf8');
       }
       let body = '';
-      instream.on('data', chunk => {
+      instream.on('data', (chunk) => {
         body += chunk;
       });
       instream.on('end', () => {
         body
           .split(/\n/g) // parse each line
-          .filter(line => line.trim()) // ... if it is non-empty
-          .forEach(line => {
+          .filter((line) => line.trim()) // ... if it is non-empty
+          .forEach((line) => {
             reqInfo.events.push(JSON.parse(line)); // ... append to reqInfo.events
           });
         reqsToServer.push(reqInfo);
@@ -76,27 +78,41 @@ test('lambda usage', suite => {
       });
     });
 
-    server.client({
-      apmServerVersion: '8.0.0',
-      centralConfig: false
-    }, function (client_) {
-      client = client_;
-      t.end();
-    });
+    server.client(
+      {
+        apmServerVersion: '8.0.0',
+        centralConfig: false,
+      },
+      function (client_) {
+        client = client_;
+        t.end();
+      },
+    );
   });
 
-  test('clients stays corked before .lambdaStart()', t => {
+  test('clients stays corked before .lambdaStart()', (t) => {
     t.plan(2);
     // Add more events than `bufferWindowSize` and wait for more than
     // `bufferWindowTime`, and the Client should *still* be corked.
-    const aTrans = { name: 'aTrans', type: 'custom', result: 'success' /* ... */ };
+    const aTrans = {
+      name: 'aTrans',
+      type: 'custom',
+      result: 'success' /* ... */,
+    };
     for (let i = 0; i < client._conf.bufferWindowSize + 1; i++) {
       client.sendTransaction(aTrans);
     }
     setTimeout(() => {
-      t.equal(client._writableState.corked, 1,
-        'corked after bufferWindowSize events and bufferWindowTime');
-      t.equal(reqsToServer.length, 0, 'no intake request was made to APM Server');
+      t.equal(
+        client._writableState.corked,
+        1,
+        'corked after bufferWindowSize events and bufferWindowTime',
+      );
+      t.equal(
+        reqsToServer.length,
+        0,
+        'no intake request was made to APM Server',
+      );
       // t.end()
     }, client._conf.bufferWindowTime + 10);
   });
@@ -105,29 +121,66 @@ test('lambda usage', suite => {
     client.lambdaStart(); // 1. start of invocation
 
     // 2. Registering transaction
-    t.equal(client.lambdaShouldRegisterTransactions(), true, '.lambdaShouldRegisterTransactions() is true');
+    t.equal(
+      client.lambdaShouldRegisterTransactions(),
+      true,
+      '.lambdaShouldRegisterTransactions() is true',
+    );
     await client.lambdaRegisterTransaction(
-      { name: 'GET /aStage/myFn', type: 'lambda', outcome: 'unknown' /* ... */ },
-      '063de0d2-1705-4eeb-9dfd-045d76b8cdec');
-    t.equal(client.lambdaShouldRegisterTransactions(), true, '.lambdaShouldRegisterTransactions() is true after register');
+      {
+        name: 'GET /aStage/myFn',
+        type: 'lambda',
+        outcome: 'unknown' /* ... */,
+      },
+      '063de0d2-1705-4eeb-9dfd-045d76b8cdec',
+    );
+    t.equal(
+      client.lambdaShouldRegisterTransactions(),
+      true,
+      '.lambdaShouldRegisterTransactions() is true after register',
+    );
 
     return new Promise(function (resolve) {
       setTimeout(() => {
-        client.sendTransaction({ name: 'GET /aStage/myFn', type: 'lambda', result: 'success' /* ... */ });
-        client.sendSpan({ name: 'mySpan', type: 'custom', result: 'success' /* ... */ });
+        client.sendTransaction({
+          name: 'GET /aStage/myFn',
+          type: 'lambda',
+          result: 'success' /* ... */,
+        });
+        client.sendSpan({
+          name: 'mySpan',
+          type: 'custom',
+          result: 'success' /* ... */,
+        });
 
         // 3. Flush at end of invocation
         client.flush({ lambdaEnd: true }, function () {
-          t.ok(reqsToServer.length > 1, 'at least 2 intake requests to APM Server');
-          t.equal(reqsToServer[reqsToServer.length - 1].url.searchParams.get('flushed'), 'true',
-            'the last intake request had "?flushed=true" query param');
+          t.ok(
+            reqsToServer.length > 1,
+            'at least 2 intake requests to APM Server',
+          );
+          t.equal(
+            reqsToServer[reqsToServer.length - 1].url.searchParams.get(
+              'flushed',
+            ),
+            'true',
+            'the last intake request had "?flushed=true" query param',
+          );
 
           let allEvents = [];
-          reqsToServer.forEach(r => { allEvents = allEvents.concat(r.events); });
-          t.equal(allEvents[allEvents.length - 2].transaction.name, 'GET /aStage/myFn',
-            'second last event is the lambda transaction');
-          t.equal(allEvents[allEvents.length - 1].span.name, 'mySpan',
-            'last event is the lambda span');
+          reqsToServer.forEach((r) => {
+            allEvents = allEvents.concat(r.events);
+          });
+          t.equal(
+            allEvents[allEvents.length - 2].transaction.name,
+            'GET /aStage/myFn',
+            'second last event is the lambda transaction',
+          );
+          t.equal(
+            allEvents[allEvents.length - 1].span.name,
+            'mySpan',
+            'last event is the lambda span',
+          );
 
           reqsToServer = []; // reset
           t.end();
@@ -138,12 +191,18 @@ test('lambda usage', suite => {
         // `client.flush({lambdaEnd:true})` -- both in the same tick and next
         // ticks -- to test that these get buffered until the next lambda
         // invocation.
-        client.sendSpan({ name: 'lateSpanInSameTick', type: 'custom' /* ... */ });
+        client.sendSpan({
+          name: 'lateSpanInSameTick',
+          type: 'custom' /* ... */,
+        });
         client.flush(function () {
           lateSpanInSameTickCallbackCalled = true;
         });
         setImmediate(() => {
-          client.sendSpan({ name: 'lateSpanInNextTick', type: 'custom' /* ... */ });
+          client.sendSpan({
+            name: 'lateSpanInNextTick',
+            type: 'custom' /* ... */,
+          });
           client.flush(function () {
             lateSpanInNextTickCallbackCalled = true;
           });
@@ -154,40 +213,75 @@ test('lambda usage', suite => {
 
   // Give some time to make sure there isn't some unexpected short async
   // interaction.
-  test('pause between lambda invocations', t => {
+  test('pause between lambda invocations', (t) => {
     setTimeout(() => {
       t.end();
     }, 1000);
   });
 
-  test('second lambda invocation', t => {
-    t.equal(lateSpanInSameTickCallbackCalled, false, 'lateSpanInSameTick flush callback not yet called');
-    t.equal(lateSpanInNextTickCallbackCalled, false, 'lateSpanInNextTick flush callback not yet called');
-    t.equal(reqsToServer.length, 0, 'no intake request was made to APM Server since last lambdaEnd');
+  test('second lambda invocation', (t) => {
+    t.equal(
+      lateSpanInSameTickCallbackCalled,
+      false,
+      'lateSpanInSameTick flush callback not yet called',
+    );
+    t.equal(
+      lateSpanInNextTickCallbackCalled,
+      false,
+      'lateSpanInNextTick flush callback not yet called',
+    );
+    t.equal(
+      reqsToServer.length,
+      0,
+      'no intake request was made to APM Server since last lambdaEnd',
+    );
 
     client.lambdaStart();
     setTimeout(() => {
       client.flush({ lambdaEnd: true }, () => {
         t.equal(reqsToServer.length, 3, '3 intake requests to APM Server');
-        t.equal(lateSpanInSameTickCallbackCalled, true, 'lateSpanInSameTick flush callback has now been called');
-        t.equal(lateSpanInNextTickCallbackCalled, true, 'lateSpanInNextTick flush callback has now been called');
+        t.equal(
+          lateSpanInSameTickCallbackCalled,
+          true,
+          'lateSpanInSameTick flush callback has now been called',
+        );
+        t.equal(
+          lateSpanInNextTickCallbackCalled,
+          true,
+          'lateSpanInNextTick flush callback has now been called',
+        );
 
-        t.equal(reqsToServer[0].events.length, 2,
-          'the first intake request has 2 events');
-        t.equal(reqsToServer[0].events[1].span.name, 'lateSpanInSameTick',
-          'of which the second event is the lateSpanInSameTick');
-        t.equal(reqsToServer[1].events.length, 2,
-          'the second intake request has 2 events');
-        t.equal(reqsToServer[1].events[1].span.name, 'lateSpanInNextTick',
-          'of which the second event is the lateSpanInNextTick');
-        t.equal(reqsToServer[reqsToServer.length - 1].url.searchParams.get('flushed'), 'true',
-          'the last intake request had "?flushed=true" query param');
+        t.equal(
+          reqsToServer[0].events.length,
+          2,
+          'the first intake request has 2 events',
+        );
+        t.equal(
+          reqsToServer[0].events[1].span.name,
+          'lateSpanInSameTick',
+          'of which the second event is the lateSpanInSameTick',
+        );
+        t.equal(
+          reqsToServer[1].events.length,
+          2,
+          'the second intake request has 2 events',
+        );
+        t.equal(
+          reqsToServer[1].events[1].span.name,
+          'lateSpanInNextTick',
+          'of which the second event is the lateSpanInNextTick',
+        );
+        t.equal(
+          reqsToServer[reqsToServer.length - 1].url.searchParams.get('flushed'),
+          'true',
+          'the last intake request had "?flushed=true" query param',
+        );
         t.end();
       });
     }, 10);
   });
 
-  test('teardown', t => {
+  test('teardown', (t) => {
     server.close();
     client.destroy();
     t.end();

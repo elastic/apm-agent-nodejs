@@ -27,9 +27,12 @@ const http = require('http');
 const assert = require('assert').strict;
 
 class MockES {
-  constructor (opts) {
+  constructor(opts) {
     assert(typeof opts === 'object', 'opts Object argument');
-    assert(Array.isArray(opts.responses) && opts.responses.length > 0, 'opts.responses array');
+    assert(
+      Array.isArray(opts.responses) && opts.responses.length > 0,
+      'opts.responses array',
+    );
     this._responses = opts.responses;
     this._reqCount = 0;
     this.serverUrl = null; // set in .start()
@@ -37,14 +40,14 @@ class MockES {
     this._http = http.createServer(this._onRequest.bind(this));
   }
 
-  _onRequest (req, res) {
+  _onRequest(req, res) {
     const response = this._responses[this._reqCount % this._responses.length];
     this._reqCount++;
     req.on('end', () => {
       this.requests.push({
         method: req.method,
         url: req.url,
-        headers: req.headers
+        headers: req.headers,
       });
       res.writeHead(response.statusCode, response.headers || {});
       res.end(response.body);
@@ -53,18 +56,18 @@ class MockES {
   }
 
   // Start listening and callback with `cb(serverUrl)`.
-  start (cb) {
+  start(cb) {
     return this._http.listen(() => {
       this.serverUrl = `http://localhost:${this._http.address().port}`;
       cb(this.serverUrl);
     });
   }
 
-  close () {
+  close() {
     return this._http.close();
   }
 }
 
 module.exports = {
-  MockES
+  MockES,
 };

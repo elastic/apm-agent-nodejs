@@ -18,7 +18,7 @@ const {
   resetAgent,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
-  assertFormsWithFixture
+  assertFormsWithFixture,
 } = require('./_shared');
 const test = require('tape');
 const request = require('request');
@@ -35,14 +35,14 @@ test('Running fixtures with restify', function (suite) {
         fixture.input.requestHeaders,
         fixture.input.responseHeaders,
         fixture.input.formFields,
-        createMiddleware(fixture.bodyParsing)
+        createMiddleware(fixture.bodyParsing),
       );
     });
   }
   suite.end();
 });
 
-function createMiddleware (type) {
+function createMiddleware(type) {
   // restify's body parser does not (appear to?)
   // offer the ability to parse into anything
   // other than an object -- i.e. no "text"
@@ -50,8 +50,14 @@ function createMiddleware (type) {
   return restify.plugins.bodyParser();
 }
 
-function runTest (
-  t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
+function runTest(
+  t,
+  expected,
+  agentConfig,
+  requestHeaders,
+  responseHeaders,
+  formFields,
+  middleware = false,
 ) {
   // register a listener to close the server when we're done
   const done = () => {
@@ -91,7 +97,7 @@ function runTest (
       url,
       {
         form: formFields,
-        headers: requestHeaders
+        headers: requestHeaders,
       },
       function (error, response, body) {
         if (error) {
@@ -99,7 +105,7 @@ function runTest (
         }
         t.ok(body, 'received response');
         t.end();
-      }
+      },
     );
   });
 }

@@ -30,7 +30,7 @@ const agent = require('../../..').start({
   captureExceptions: false,
   metricsInterval: 0,
   centralConfig: false,
-  spanCompressionEnabled: false
+  spanCompressionEnabled: false,
 });
 
 const redis = require('redis');
@@ -47,8 +47,9 @@ test('redis', function (t) {
 
     // Sort the remaining spans by timestamp, because asynchronous-span.end()
     // means they can be set to APM server out of order.
-    const spans = data.spans
-      .sort((a, b) => { return a.timestamp < b.timestamp ? -1 : 1; });
+    const spans = data.spans.sort((a, b) => {
+      return a.timestamp < b.timestamp ? -1 : 1;
+    });
 
     const expectedSpanNames = [
       'FLUSHALL',
@@ -56,9 +57,13 @@ test('redis', function (t) {
       'SET',
       'HSET',
       'HSET',
-      'HKEYS'
+      'HKEYS',
     ];
-    t.equal(spans.length, expectedSpanNames.length, 'have the expected number of spans');
+    t.equal(
+      spans.length,
+      expectedSpanNames.length,
+      'have the expected number of spans',
+    );
     for (let i = 0; i < expectedSpanNames.length; i++) {
       const expectedName = expectedSpanNames[i];
       const span = spans[i];
@@ -67,18 +72,32 @@ test('redis', function (t) {
       t.strictEqual(span.type, 'db', 'span.type');
       t.strictEqual(span.subtype, 'redis', 'span.subtype');
       t.strictEqual(span.action, 'query', 'span.action');
-      t.deepEqual(span.context.service.target, { type: 'redis' }, 'span.context.service.target');
-      t.deepEqual(span.context.destination, {
-        address: process.env.REDIS_HOST || 'localhost',
-        port: 6379,
-        service: { name: '', type: '', resource: 'redis' }
-      }, 'span.context.destination');
+      t.deepEqual(
+        span.context.service.target,
+        { type: 'redis' },
+        'span.context.service.target',
+      );
+      t.deepEqual(
+        span.context.destination,
+        {
+          address: process.env.REDIS_HOST || 'localhost',
+          port: 6379,
+          service: { name: '', type: '', resource: 'redis' },
+        },
+        'span.context.destination',
+      );
       t.deepEqual(span.context.db, { type: 'redis' }, 'span.context.db');
-      t.strictEqual(span.parent_id, trans.id, 'span is a child of the transaction');
+      t.strictEqual(
+        span.parent_id,
+        trans.id,
+        'span is a child of the transaction',
+      );
 
       const offset = span.timestamp - trans.timestamp;
-      t.ok(offset + span.duration * 1000 < trans.duration * 1000,
-        'span ended before transaction ended');
+      t.ok(
+        offset + span.duration * 1000 < trans.duration * 1000,
+        'span ended before transaction ended',
+      );
     }
     t.end();
     client.disconnect();
@@ -87,12 +106,12 @@ test('redis', function (t) {
   const client = redis.createClient({
     socket: {
       host: process.env.REDIS_HOST,
-      port: '6379'
+      port: '6379',
     },
-    legacyMode: true
+    legacyMode: true,
   });
 
-  client.on('error', err => console.log('client error', err));
+  client.on('error', (err) => console.log('client error', err));
   client.connect();
   const trans = agent.startTransaction('aTrans');
 
@@ -115,11 +134,14 @@ test('redis', function (t) {
       t.strictEqual(reply, 1, 'hset reply is 1');
       done++;
     });
-    client.hset(['hash key', 'hashtest 2', 'some other value'], function (err, reply) {
-      t.error(err, 'no hset error');
-      t.strictEqual(reply, 1, 'hset reply is 1');
-      done++;
-    });
+    client.hset(
+      ['hash key', 'hashtest 2', 'some other value'],
+      function (err, reply) {
+        t.error(err, 'no hset error');
+        t.strictEqual(reply, 1, 'hset reply is 1');
+        done++;
+      },
+    );
 
     client.hkeys('hash key', function (err, replies) {
       t.error(err, 'no hkeys error');
@@ -136,7 +158,7 @@ test('redis', function (t) {
   });
 });
 
-function resetAgent (cb) {
+function resetAgent(cb) {
   agent._instrumentation.testReset();
   agent._apmClient = mockClient(cb);
 }

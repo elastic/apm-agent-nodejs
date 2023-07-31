@@ -7,12 +7,13 @@
 // A small APM-using script used to test that the APM agent's own HTTP
 // communication with APM server is not traced.
 
-var apm = require('../../').start({ // elastic-apm-node
+var apm = require('../../').start({
+  // elastic-apm-node
   serviceName: 'test-do-not-trace-self',
   metricsInterval: 0,
   apmServerVersion: '8.0.0',
   cloudProvider: 'none',
-  centralConfig: false
+  centralConfig: false,
 });
 
 // Explicitly require the possible APM server client transport modules so that

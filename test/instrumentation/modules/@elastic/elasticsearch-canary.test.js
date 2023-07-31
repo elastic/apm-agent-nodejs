@@ -11,5 +11,6 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0);
 }
 
-process.env.ELASTIC_APM_TEST_ESCLIENT_PACKAGE_NAME = '@elastic/elasticsearch-canary';
+process.env.ELASTIC_APM_TEST_ESCLIENT_PACKAGE_NAME =
+  '@elastic/elasticsearch-canary';
 require('./elasticsearch.test.js');

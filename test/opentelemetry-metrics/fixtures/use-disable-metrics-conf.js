@@ -15,11 +15,11 @@ const meter2 = otel.metrics.getMeter('test-meter', '2');
 const counters = [
   meter1.createCounter('foo-counter-1'),
   meter1.createCounter('bar-counter-1'),
-  meter2.createCounter('foo-counter-2')
+  meter2.createCounter('foo-counter-2'),
 ];
 
 setInterval(() => {
-  counters.forEach(c => {
+  counters.forEach((c) => {
     c.add(1);
   });
 }, 200);

@@ -19,6 +19,6 @@ for (let depth = 0; depth < 50; depth++) {
   /* eslint-endable no-eval */
 }
 
-module.exports = function deep (depth, cb) {
+module.exports = function deep(depth, cb) {
   stack[depth](depth, cb);
 };

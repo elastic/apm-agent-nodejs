@@ -14,7 +14,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
 const agent = require('../../../..').start({
   captureExceptions: true,
   metricsInterval: 0,
-  centralConfig: false
+  centralConfig: false,
 });
 
 const isFastifyIncompat = require('../../../_is_fastify_incompat')();
