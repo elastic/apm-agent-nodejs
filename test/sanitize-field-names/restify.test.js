@@ -4,26 +4,26 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const isRestifyIncompat = require('../_is_restify_incompat')()
+const isRestifyIncompat = require('../_is_restify_incompat')();
 if (isRestifyIncompat) {
-  console.log(`# SKIP ${isRestifyIncompat}`)
-  process.exit()
+  console.log(`# SKIP ${isRestifyIncompat}`);
+  process.exit();
 }
 
-const { createAgentConfig } = require('./_shared')
-const agent = require('../..').start(createAgentConfig())
+const { createAgentConfig } = require('./_shared');
+const agent = require('../..').start(createAgentConfig());
 const {
   resetAgent,
   assertRequestHeadersWithFixture,
   assertResponseHeadersWithFixture,
-  assertFormsWithFixture
-} = require('./_shared')
-const test = require('tape')
-const request = require('request')
-const restify = require('restify')
-const fixtures = require('./_fixtures')
+  assertFormsWithFixture,
+} = require('./_shared');
+const test = require('tape');
+const request = require('request');
+const restify = require('restify');
+const fixtures = require('./_fixtures');
 
 test('Running fixtures with restify', function (suite) {
   for (const [, fixture] of fixtures.entries()) {
@@ -35,71 +35,77 @@ test('Running fixtures with restify', function (suite) {
         fixture.input.requestHeaders,
         fixture.input.responseHeaders,
         fixture.input.formFields,
-        createMiddleware(fixture.bodyParsing)
-      )
-    })
+        createMiddleware(fixture.bodyParsing),
+      );
+    });
   }
-  suite.end()
-})
+  suite.end();
+});
 
-function createMiddleware (type) {
+function createMiddleware(type) {
   // restify's body parser does not (appear to?)
   // offer the ability to parse into anything
   // other than an object -- i.e. no "text"
   // or raw/Buffer options
-  return restify.plugins.bodyParser()
+  return restify.plugins.bodyParser();
 }
 
-function runTest (
-  t, expected, agentConfig, requestHeaders, responseHeaders, formFields, middleware = false
+function runTest(
+  t,
+  expected,
+  agentConfig,
+  requestHeaders,
+  responseHeaders,
+  formFields,
+  middleware = false,
 ) {
   // register a listener to close the server when we're done
   const done = () => {
-    server.close()
-  }
-  t.on('end', done)
+    server.close();
+  };
+  t.on('end', done);
 
   // configure agent and instantiated new app
-  agent._config(agentConfig)
-  const server = restify.createServer()
+  agent._config(agentConfig);
+  const server = restify.createServer();
   if (middleware) {
-    server.use(middleware)
+    server.use(middleware);
   }
 
   // resets agent values for tests.  Callback fires
   // after mockClient receives data
   resetAgent(agent, (data) => {
-    const transaction = data.transactions.pop()
-    assertRequestHeadersWithFixture(transaction, expected, t)
-    assertResponseHeadersWithFixture(transaction, expected, t)
-    assertFormsWithFixture(transaction, expected, t)
-  })
+    const transaction = data.transactions.pop();
+    assertRequestHeadersWithFixture(transaction, expected, t);
+    assertResponseHeadersWithFixture(transaction, expected, t);
+    assertFormsWithFixture(transaction, expected, t);
+  });
 
   // register request handler
   server.post('/test', function (req, res, next) {
-    t.ok('received request', 'received request')
+    t.ok('received request', 'received request');
     for (const [header, value] of Object.entries(responseHeaders)) {
-      res.header(header, value)
+      res.header(header, value);
     }
-    res.send('Hello World')
-    next()
-  })
+    res.send('Hello World');
+    next();
+  });
 
   server.listen(0, '0.0.0.0', () => {
-    const url = `${server.url}/test`
+    const url = `${server.url}/test`;
     request.post(
       url,
       {
         form: formFields,
-        headers: requestHeaders
+        headers: requestHeaders,
       },
       function (error, response, body) {
         if (error) {
-          t.fail(error)
+          t.fail(error);
         }
-        t.ok(body, 'received response')
-        t.end()
-      }
-    )
-  })
+        t.ok(body, 'received response');
+        t.end();
+      },
+    );
+  });
 }

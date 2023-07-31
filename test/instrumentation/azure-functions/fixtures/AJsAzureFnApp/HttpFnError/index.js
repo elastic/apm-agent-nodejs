@@ -4,6 +4,6 @@
  * compliance with the BSD 2-Clause License.
  */
 
-module.exports = async function ThrowErrorHandler (context, req) {
-  throw new Error('thrown error in HttpFnError')
-}
+module.exports = async function ThrowErrorHandler(context, req) {
+  throw new Error('thrown error in HttpFnError');
+};

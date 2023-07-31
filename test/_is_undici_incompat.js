@@ -4,9 +4,9 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-var semver = require('semver')
+var semver = require('semver');
 
 /**
  * Return whether the current 'undici' version is incompatible with the
@@ -24,19 +24,22 @@ var semver = require('semver')
  *
  * @returns {string | boolean}
  */
-function isUndiciIncompat () {
-  const nodeVer = process.version
-  const undiciVer = require('undici/package.json').version
-  const msg = `undici@${undiciVer} is incompatible with node@${nodeVer}`
+function isUndiciIncompat() {
+  const nodeVer = process.version;
+  const undiciVer = require('undici/package.json').version;
+  const msg = `undici@${undiciVer} is incompatible with node@${nodeVer}`;
 
-  if (semver.satisfies(undiciVer, '>=5.22.0') && semver.satisfies(nodeVer, '<14.0.0')) {
-    return msg
+  if (
+    semver.satisfies(undiciVer, '>=5.22.0') &&
+    semver.satisfies(nodeVer, '<14.0.0')
+  ) {
+    return msg;
   }
   if (semver.satisfies(nodeVer, '<12.18.0')) {
-    return msg
+    return msg;
   }
 
-  return false
+  return false;
 }
 
-module.exports = isUndiciIncompat
+module.exports = isUndiciIncompat;

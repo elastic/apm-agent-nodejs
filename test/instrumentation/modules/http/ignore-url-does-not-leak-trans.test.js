@@ -4,13 +4,13 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Test that the run context inside the HTTP server request handler is nulled
 // out when the requested path is ignored via "ignoreUrlStr" or the other
 // related configuration options.
 
-const { CapturingTransport } = require('../../../_capturing_transport')
+const { CapturingTransport } = require('../../../_capturing_transport');
 
 const apm = require('../../../..').start({
   serviceName: 'test-http-ignore-url-does-not-leak-trans',
@@ -22,14 +22,16 @@ const apm = require('../../../..').start({
   spanStackTraceMinDuration: 0, // Always have span stacktraces.
 
   ignoreUrlStr: ['/ignore-this-path'],
-  transport () {
-    return new CapturingTransport()
-  }
-})
+  transport() {
+    return new CapturingTransport();
+  },
+});
 
-const { CONTEXT_MANAGER_PATCH } = require('../../../../lib/config/schema')
-if (Number(process.versions.node.split('.')[0]) <= 8 &&
-    apm._conf.contextManager === CONTEXT_MANAGER_PATCH) {
+const { CONTEXT_MANAGER_PATCH } = require('../../../../lib/config/schema');
+if (
+  Number(process.versions.node.split('.')[0]) <= 8 &&
+  apm._conf.contextManager === CONTEXT_MANAGER_PATCH
+) {
   // With node v8 and contextManager="patch", i.e. relying on patch-async.js, we
   // do not support this test as written. Given node v8 support *and* arguably
   // patch-async.js support are near EOL, it isn't worth rewriting this test
@@ -43,46 +45,56 @@ if (Number(process.versions.node.split('.')[0]) <= 8 &&
   // instead of `process.nextTick`. patch-async.js is only able to patch the
   // latter. This means a missed patch of "emitListeningNT" used to emit
   // the server "listening" event, and context loss for `onListen()` below.
-  console.log('# SKIP node <=8 and contextManager="patch" loses run context for server.listen callback')
-  process.exit()
+  console.log(
+    '# SKIP node <=8 and contextManager="patch" loses run context for server.listen callback',
+  );
+  process.exit();
 }
 
-var http = require('http')
-var test = require('tape')
+var http = require('http');
+var test = require('tape');
 
 test('an ignored incoming http URL does not leak previous transaction', function (t) {
   // Start an outer transaction that should not "leak" into the server handler
   // for ignored URLs.
-  var prevTrans = apm.startTransaction('prevTrans')
+  var prevTrans = apm.startTransaction('prevTrans');
 
   var server = http.createServer(function (req, res) {
-    t.equal(apm.currentTransaction, null, 'current transaction in ignored URL handler is null')
-    const span = apm.startSpan('aSpan')
-    t.ok(span === null, 'no spans are created in ignored URL handler')
+    t.equal(
+      apm.currentTransaction,
+      null,
+      'current transaction in ignored URL handler is null',
+    );
+    const span = apm.startSpan('aSpan');
+    t.ok(span === null, 'no spans are created in ignored URL handler');
     if (span) {
-      span.end()
+      span.end();
     }
-    res.end()
-  })
+    res.end();
+  });
 
-  server.listen(function onListen () {
+  server.listen(function onListen() {
     var opts = {
       port: server.address().port,
-      path: '/ignore-this-path'
-    }
+      path: '/ignore-this-path',
+    };
     const req = http.request(opts, function (res) {
       res.on('end', function () {
-        server.close()
-        prevTrans.end()
+        server.close();
+        prevTrans.end();
         // Wait long enough for the span to encode and be sent to transport.
         setTimeout(function () {
-          t.equal(apm._apmClient.transactions.length, 1)
-          t.equal(apm._apmClient.spans.length, 1, 'only have the span for the http *request*')
-          t.end()
-        }, 200)
-      })
-      res.resume()
-    })
-    req.end()
-  })
-})
+          t.equal(apm._apmClient.transactions.length, 1);
+          t.equal(
+            apm._apmClient.spans.length,
+            1,
+            'only have the span for the http *request*',
+          );
+          t.end();
+        }, 200);
+      });
+      res.resume();
+    });
+    req.end();
+  });
+});

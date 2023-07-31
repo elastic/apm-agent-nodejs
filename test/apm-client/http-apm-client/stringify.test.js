@@ -4,31 +4,33 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const test = require('tape')
-const utils = require('./lib/utils')
+const test = require('tape');
+const utils = require('./lib/utils');
 
-const APMServer = utils.APMServer
-const processIntakeReq = utils.processIntakeReq
-const assertIntakeReq = utils.assertIntakeReq
-const assertMetadata = utils.assertMetadata
-const assertEvent = utils.assertEvent
+const APMServer = utils.APMServer;
+const processIntakeReq = utils.processIntakeReq;
+const assertIntakeReq = utils.assertIntakeReq;
+const assertMetadata = utils.assertMetadata;
+const assertEvent = utils.assertEvent;
 
-const dataTypes = ['transaction', 'error']
-const properties = ['request', 'response']
+const dataTypes = ['transaction', 'error'];
+const properties = ['request', 'response'];
 
 const upper = {
   transaction: 'Transaction',
-  error: 'Error'
-}
+  error: 'Error',
+};
 
 dataTypes.forEach(function (dataType) {
   properties.forEach(function (prop) {
-    const sendFn = 'send' + upper[dataType]
+    const sendFn = 'send' + upper[dataType];
 
     test(`stringify ${dataType} ${prop} headers`, function (t) {
-      t.plan(assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts)
+      t.plan(
+        assertIntakeReq.asserts + assertMetadata.asserts + assertEvent.asserts,
+      );
       const datas = [
         assertMetadata,
         assertEvent({
@@ -41,24 +43,24 @@ dataTypes.forEach(function (dataType) {
                   bool: 'true',
                   nan: 'NaN',
                   object: '[object Object]',
-                  array: ['foo', '42', 'true', 'NaN', '[object Object]']
-                }
-              }
-            }
-          }
-        })
-      ]
+                  array: ['foo', '42', 'true', 'NaN', '[object Object]'],
+                },
+              },
+            },
+          },
+        }),
+      ];
       const server = APMServer(function (req, res) {
-        assertIntakeReq(t, req)
-        req = processIntakeReq(req)
+        assertIntakeReq(t, req);
+        req = processIntakeReq(req);
         req.on('data', function (obj) {
-          datas.shift()(t, obj)
-        })
+          datas.shift()(t, obj);
+        });
         req.on('end', function () {
-          res.end()
-          server.close()
-          t.end()
-        })
+          res.end();
+          server.close();
+          t.end();
+        });
       }).client({ apmServerVersion: '8.0.0' }, function (client) {
         client[sendFn]({
           context: {
@@ -69,15 +71,15 @@ dataTypes.forEach(function (dataType) {
                 bool: true,
                 nan: NaN,
                 object: { foo: 'bar' },
-                array: ['foo', 42, true, NaN, { foo: 'bar' }]
-              }
-            }
-          }
-        })
+                array: ['foo', 42, true, NaN, { foo: 'bar' }],
+              },
+            },
+          },
+        });
         client.flush(function () {
-          client.destroy() // Destroy keep-alive agent when done on client-side.
-        })
-      })
-    })
-  })
-})
+          client.destroy(); // Destroy keep-alive agent when done on client-side.
+        });
+      });
+    });
+  });
+});

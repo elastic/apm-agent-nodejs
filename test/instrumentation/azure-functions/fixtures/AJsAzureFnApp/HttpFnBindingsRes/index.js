@@ -8,6 +8,6 @@ module.exports = async function (context) {
   // Using this wins over possible `context.res` usage.
   context.bindings.res = {
     status: 202,
-    body: 'HttpFnBindingsRes body'
-  }
-}
+    body: 'HttpFnBindingsRes body',
+  };
+};
