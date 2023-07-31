@@ -1,6 +1,7 @@
 {
   "name": "elastic-apm-node",
-  "version": "3.48.0",
+  "version": "4.0.0-dev",
+  "private": true,
   "description": "The official Elastic APM agent for Node.js",
   "main": "index.js",
   "types": "index.d.ts",
@@ -49,7 +50,7 @@
     "url": "git://github.com/elastic/apm-agent-nodejs.git"
   },
   "engines": {
-    "node": ">=8.6.0"
+    "node": ">=14"
   },
   "keywords": [
     "opbeat",
