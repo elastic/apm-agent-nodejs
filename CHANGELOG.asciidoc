@@ -43,6 +43,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+* Fix instrumentation of `@aws-sdk/client-s3` from v3.378.0 and up. The new version requires `@smithy/smithy-client`
+  v2.0.1 and the agent was instrumeting it within the semver range '>=1 <2'.
+  
 * Fix wrapping of `http.request()` for node v18.17.0. Before this change, a
   call with a non-Function callback -- `http.request(urlString, {}, 'this-is-not-a-cb-function')`
   -- would accidentally *not* fail because of the agent's instrumentation.
