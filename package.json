@@ -156,6 +156,7 @@
     "elasticsearch": "^16.7.3",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.9.0",
+    "eslint-plugin-import": "^2.28.0",
     "eslint-plugin-license-header": "^0.6.0",
     "eslint-plugin-n": "^16.0.1",
     "eslint-plugin-prettier": "^5.0.0",
