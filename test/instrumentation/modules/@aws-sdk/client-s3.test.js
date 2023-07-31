@@ -69,7 +69,6 @@ const testFixtures = [
         const errs = validateSpan(s)
         t.equal(errs, null, 'span is valid  (per apm-server intake schema)')
       })
-      console.log('spans', JSON.stringify(spans, null, 2))
       t.equal(spans.filter(s => s.trace_id === tx.trace_id).length,
         spans.length, 'all spans have the same trace_id')
       t.equal(spans.filter(s => s.transaction_id === tx.id).length,
