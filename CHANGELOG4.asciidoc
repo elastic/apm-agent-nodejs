@@ -10,6 +10,11 @@
   Users of earlier Node.js versions can use elastic-apm-node v3.x, which
   supports back to Node.js v8.6.
 
+* Remove long deprecated support for the `ELASTIC_APM_`-prefixed environment
+  variables for the <<kubernetes-node-name,Kubernetes config options>>. For
+  example, one must use `KUBERNETES_POD_NAME` and not
+  `ELASTIC_APM_KUBERNETES_POD_NAME`.
+
 [float]
 ===== Features
 
