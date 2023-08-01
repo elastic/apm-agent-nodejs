@@ -101,8 +101,8 @@ jobs:
       max-parallel: 15
       fail-fast: false
       matrix:
-        count: ${{ fromJSON(needs.command-validation.outputs.count) }}
         moduleAndNode: ${{ fromJSON(needs.command-validation.outputs.permutations) }}
+        count: ${{ fromJSON(needs.command-validation.outputs.count) }}
     steps:
 
       - uses: actions/checkout@v3
