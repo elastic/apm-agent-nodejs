@@ -72,11 +72,11 @@ jobs:
               }
               if (match[1]) {
                 if (match[1] !== 'all') {
-                  modules = match[1].split(',')
+                  modules = match[1].split(',').map((name) => modules.find((m) => m.name === name))
                 }
               }
               if (match[3]) {
-                versions = match[3].split(',')
+                versions = match[3].split(',').map(Number)
               }
             }
 
@@ -84,9 +84,9 @@ jobs:
             for (const mod of modules) {
               for (const nv of versions) {
                 if (mod.minVersion && nv >= mod.minVersion) {
-                  permutations.push(`${mod.name} ${nv}`);
+                  permutations.push(`${mod.name} ${nv}`)
                 } else if (typeof mod === 'string') {
-                  permutations.push(`${mod} ${nv}`);
+                  permutations.push(`${mod} ${nv}`)
                 }
               }
             }
