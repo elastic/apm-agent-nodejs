@@ -40,6 +40,7 @@
     "types",
     "start.js",
     "start-next.js",
+    "loader.mjs",
     "index.d.ts",
     "start.d.ts",
     "start-next.d.ts"
