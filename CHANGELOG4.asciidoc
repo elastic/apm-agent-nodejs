@@ -10,6 +10,10 @@
   Users of earlier Node.js versions can use elastic-apm-node v3.x, which
   supports back to Node.js v8.6.
 
+* Ignore a `timer` option passed to `startTransaction()` and `startSpan()` APIs.
+  This option was never documented. It would be surprising if any user is
+  impacted by this.
+
 [float]
 ===== Features
 
