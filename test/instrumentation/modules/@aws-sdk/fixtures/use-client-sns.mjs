@@ -11,7 +11,7 @@
 // See "./use-client-sns.js" for more details.
 //
 // Usage:
-//    node --experimental-loader=./loader.mjs --require=./start.js test/instrumentation/modules/@aws-sdk/fixtures/use-client-s3.mjs
+//    node --experimental-loader=./loader.mjs --require=./start.js test/instrumentation/modules/@aws-sdk/fixtures/use-client-sns.mjs
 
 import apm from '../../../../../index.js'; // 'elastic-apm-node'
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
