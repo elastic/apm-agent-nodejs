@@ -80,6 +80,18 @@ jobs:
               }
             }
 
+            const badModuleIndex = modules.findIndex((m) => !m)
+            const badVersionIndex = versions.findIndex((v) => isNaN(v))
+
+            if (badModuleIndex !== -1) {
+              core.setFailed(`Incorrect modules list, please review it'`)
+              return
+            }
+            if (badVersionIndex !== -1) {
+              core.setFailed(`Incorrect versions list, please review it'`)
+              return
+            }
+
             const permutations = []
             for (const mod of modules) {
               for (const nv of versions) {
