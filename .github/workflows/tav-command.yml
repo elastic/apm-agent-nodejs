@@ -19,8 +19,8 @@ jobs:
     permissions:
       pull-requests: write
     outputs:
-      versions: ${{ steps.transform.outputs.versions }}
-      modules: ${{ steps.transform.outputs.modules }}
+      permutations: ${{ steps.transform.outputs.permutations }}
+      count: ${{ steps.transform.outputs.count }}
     steps:
       - name: Is comment allowed?
         uses: actions/github-script@v6
@@ -79,8 +79,19 @@ jobs:
                 versions = match[3].split(',')
               }
             }
-            core.setOutput('modules', modules)
-            core.setOutput('versions', versions)
+
+            const permutations = []
+            for (const mod of modules) {
+              for (const nv of versions) {
+                if (mod.minVersion && nv >= mod.minVersion) {
+                  permutations.push(`${mod.name} ${nv}`);
+                } else if (typeof mod === 'string') {
+                  permutations.push(`${mod} ${nv}`);
+                }
+              }
+            }
+            core.setOutput('permutations', permutations)
+            core.setOutput('count', [permutations.length])
 
   test-tav:
     needs: command-validation
@@ -90,14 +101,14 @@ jobs:
       max-parallel: 15
       fail-fast: false
       matrix:
-        node: ${{ fromJSON(needs.command-validation.outputs.versions) }}
-        module: ${{ fromJSON(needs.command-validation.outputs.modules) }}
+        count: ${{ fromJSON(needs.command-validation.outputs.count) }}
+        moduleAndNode: ${{ fromJSON(needs.command-validation.outputs.permutations) }}
     steps:
 
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"
+      - run: .ci/scripts/test.sh -b "release" -t ${{ matrix.moduleAndNode }}
         env:
           ELASTIC_APM_CONTEXT_MANAGER: ''
