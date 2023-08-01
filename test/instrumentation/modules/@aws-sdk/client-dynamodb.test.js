@@ -10,7 +10,7 @@
 //
 // Note that this uses localstack for testing, which mimicks the DynamoDB API but
 // isn't identical. Some known limitations:
-// TODO: check limitations
+// https://docs.localstack.cloud/user-guide/aws/dynamodb/
 
 const semver = require('semver');
 if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
