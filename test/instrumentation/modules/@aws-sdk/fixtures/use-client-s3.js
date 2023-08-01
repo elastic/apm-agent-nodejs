@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Run a single scenario of using the S3 client (callback style) with APM
 // enabled. This is used to test that the expected APM events are generated.
@@ -47,11 +47,11 @@ const apm = require('../../../../..').start({
   metricsInterval: 0,
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
-  logLevel: 'info'
-})
+  logLevel: 'info',
+});
 
-const crypto = require('crypto')
-const assert = require('assert')
+const crypto = require('crypto');
+const assert = require('assert');
 const {
   S3Client,
   ListBucketsCommand,
@@ -61,56 +61,58 @@ const {
   GetObjectCommand,
   DeleteObjectCommand,
   waitUntilBucketExists,
-  waitUntilObjectExists
-} = require('@aws-sdk/client-s3')
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
+  waitUntilObjectExists,
+} = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
-const { slurpStream } = require('../../../../_utils')
+const { slurpStream } = require('../../../../_utils');
 
-const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-'
+const TEST_BUCKET_NAME_PREFIX = 'elasticapmtest-bucket-';
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/index.html
-async function useClientS3 (s3Client, bucketName) {
-  const region = await s3Client.config.region()
+async function useClientS3(s3Client, bucketName) {
+  const region = await s3Client.config.region();
   const log = apm.logger.child({
     'event.module': 'app',
     endpoint: s3Client.config.endpoint,
     bucketName,
-    region
-  })
-  const key = 'aDir/aFile.txt'
-  const content = 'hi there'
-  const md5hex = crypto.createHash('md5').update(content).digest('hex')
-  const md5base64 = crypto.createHash('md5').update(content).digest('base64')
-  const etag = `"${md5hex}"`
-  const waiterConfig = { client: s3Client, minwaitTime: 5, maxWaitTime: 10 }
+    region,
+  });
+  const key = 'aDir/aFile.txt';
+  const content = 'hi there';
+  const md5hex = crypto.createHash('md5').update(content).digest('hex');
+  const md5base64 = crypto.createHash('md5').update(content).digest('base64');
+  const etag = `"${md5hex}"`;
+  const waiterConfig = { client: s3Client, minwaitTime: 5, maxWaitTime: 10 };
 
-  let command
-  let data
+  let command;
+  let data;
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/listbucketscommand.html
   // Limitation: this doesn't handle paging.
-  command = new ListBucketsCommand({})
-  data = await s3Client.send(command)
-  assert(apm.currentSpan === null,
-    'S3 span (or its HTTP span) should not be currentSpan after awaiting the task')
-  log.info({ data }, 'listBuckets')
+  command = new ListBucketsCommand({});
+  data = await s3Client.send(command);
+  assert(
+    apm.currentSpan === null,
+    'S3 span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
+  log.info({ data }, 'listBuckets');
 
-  const bucketIsPreexisting = data.Buckets.some(b => b.Name === bucketName)
+  const bucketIsPreexisting = data.Buckets.some((b) => b.Name === bucketName);
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/createbucketcommand.html
   if (!bucketIsPreexisting) {
     command = new CreateBucketCommand({
       Bucket: bucketName,
       CreateBucketConfiguration: {
-        LocationConstraint: region
-      }
-    })
-    data = await s3Client.send(command)
-    log.info({ data }, 'createBucket')
+        LocationConstraint: region,
+      },
+    });
+    data = await s3Client.send(command);
+    log.info({ data }, 'createBucket');
   }
 
-  data = await waitUntilBucketExists(waiterConfig, { Bucket: bucketName })
-  log.info({ data }, 'waitUntilBucketExists')
+  data = await waitUntilBucketExists(waiterConfig, { Bucket: bucketName });
+  log.info({ data }, 'waitUntilBucketExists');
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/putobjectcommand.html
   command = new PutObjectCommand({
@@ -118,96 +120,108 @@ async function useClientS3 (s3Client, bucketName) {
     Key: key,
     ContentType: 'text/plain',
     Body: content,
-    ContentMD5: md5base64
-  })
-  data = await s3Client.send(command)
-  log.info({ data }, 'putObject')
+    ContentMD5: md5base64,
+  });
+  data = await s3Client.send(command);
+  log.info({ data }, 'putObject');
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/functions/waitforobjectexists.html
-  data = await waitUntilObjectExists(waiterConfig, { Bucket: bucketName, Key: key })
-  log.info({ data }, 'waitUntilObjectExists')
+  data = await waitUntilObjectExists(waiterConfig, {
+    Bucket: bucketName,
+    Key: key,
+  });
+  log.info({ data }, 'waitUntilObjectExists');
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/getobjectcommand.html
-  command = new GetObjectCommand({ Bucket: bucketName, Key: key })
-  data = await s3Client.send(command)
+  command = new GetObjectCommand({ Bucket: bucketName, Key: key });
+  data = await s3Client.send(command);
   // `data.Body` is a *stream*, so we cannot just log it
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/interfaces/getobjectcommandoutput.html#body
-  const body = await slurpStream(data.Body)
-  assert(body === content)
-  delete data.Body
-  log.info({ data, body }, 'getObject')
+  const body = await slurpStream(data.Body);
+  assert(body === content);
+  delete data.Body;
+  log.info({ data, body }, 'getObject');
 
   // Get a signed URL.
   // This is interesting to test, because `getSignedUrl` uses the command
   // `middlewareStack` -- including our added middleware -- **without** calling
   // `s3Client.send()`. The test here is to ensure this doesn't break.
-  const customSpan = apm.startSpan('get-signed-url')
+  const customSpan = apm.startSpan('get-signed-url');
   const signedUrl = await getSignedUrl(
     s3Client,
     new GetObjectCommand({ Bucket: bucketName, Key: key }),
-    { expiresIn: 3600 })
-  log.info({ signedUrl }, 'getSignedUrl')
-  customSpan.end()
+    { expiresIn: 3600 },
+  );
+  log.info({ signedUrl }, 'getSignedUrl');
+  customSpan.end();
 
   command = new GetObjectCommand({
     IfNoneMatch: etag,
     Bucket: bucketName,
-    Key: key
-  })
+    Key: key,
+  });
   try {
-    data = await s3Client.send(command)
-    throw new Error('expected NotModified error for conditional request')
+    data = await s3Client.send(command);
+    throw new Error('expected NotModified error for conditional request');
   } catch (err) {
-    log.info({ err }, 'getObject conditional get')
-    const statusCode = err && err.$metadata && err.$metadata.httpStatusCode
+    log.info({ err }, 'getObject conditional get');
+    const statusCode = err && err.$metadata && err.$metadata.httpStatusCode;
     if (statusCode !== 304) {
-      throw err
+      throw err;
     }
   }
 
   command = new GetObjectCommand({
     Bucket: bucketName,
-    Key: key + '-does-not-exist'
-  })
+    Key: key + '-does-not-exist',
+  });
   try {
-    data = await s3Client.send(command)
-    throw new Error(`did not get an error from getObject(${key}-does-not-exist)`)
+    data = await s3Client.send(command);
+    throw new Error(
+      `did not get an error from getObject(${key}-does-not-exist)`,
+    );
   } catch (err) {
-    log.info({ err }, 'getObject non-existant key, expect error')
+    log.info({ err }, 'getObject non-existant key, expect error');
   }
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#deleteObject-property
-  command = new DeleteObjectCommand({ Bucket: bucketName, Key: key })
-  data = await s3Client.send(command)
-  log.info({ data }, 'deleteObject')
+  command = new DeleteObjectCommand({ Bucket: bucketName, Key: key });
+  data = await s3Client.send(command);
+  log.info({ data }, 'deleteObject');
 
   if (!bucketIsPreexisting) {
     // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/deletebucketcorscommand.html
-    command = new DeleteBucketCommand({ Bucket: bucketName })
-    data = await s3Client.send(command)
-    log.info({ data }, 'deleteBucket')
+    command = new DeleteBucketCommand({ Bucket: bucketName });
+    data = await s3Client.send(command);
+    log.info({ data }, 'deleteBucket');
   }
 }
 
 // Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an S3
 // bucket name:
 // https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-function getTimestamp () {
-  return (new Date()).toISOString().split('.')[0].replace(/[^0-9]/g, '')
+function getTimestamp() {
+  return new Date()
+    .toISOString()
+    .split('.')[0]
+    .replace(/[^0-9]/g, '');
 }
 
 // ---- mainline
 
-function main () {
+function main() {
   // Config vars.
-  const region = process.env.TEST_REGION || 'us-east-2'
-  const endpoint = process.env.TEST_ENDPOINT || null
-  const bucketName = process.env.TEST_BUCKET_NAME || TEST_BUCKET_NAME_PREFIX + getTimestamp()
+  const region = process.env.TEST_REGION || 'us-east-2';
+  const endpoint = process.env.TEST_ENDPOINT || null;
+  const bucketName =
+    process.env.TEST_BUCKET_NAME || TEST_BUCKET_NAME_PREFIX + getTimestamp();
 
   // Guard against any bucket name being used because we will be creating and
   // deleting objects in it, and potentially *deleting* the bucket.
   if (!bucketName.startsWith(TEST_BUCKET_NAME_PREFIX)) {
-    throw new Error(`cannot use bucket name "${bucketName}", it must start with ${TEST_BUCKET_NAME_PREFIX}`)
+    throw new Error(
+      `cannot use bucket name "${bucketName}", it must start with ${TEST_BUCKET_NAME_PREFIX}`,
+    );
   }
 
   const s3Client = new S3Client({
@@ -233,26 +247,26 @@ function main () {
     //
     // The work around is to force the client to use "path-style" URLs, e.g.:
     //    http://localstack:4566/$bucketName/$key
-    forcePathStyle: true
-  })
+    forcePathStyle: true,
+  });
 
   // Ensure an APM transaction so spans can happen.
-  const tx = apm.startTransaction('manual')
+  const tx = apm.startTransaction('manual');
 
   useClientS3(s3Client, bucketName).then(
     function () {
-      tx.end()
-      s3Client.destroy()
-      process.exitCode = 0
+      tx.end();
+      s3Client.destroy();
+      process.exitCode = 0;
     },
     function (err) {
-      apm.logger.error(err, 'useClientS3 rejected')
-      tx.setOutcome('failure')
-      tx.end()
-      s3Client.destroy()
-      process.exitCode = 1
-    }
-  )
+      apm.logger.error(err, 'useClientS3 rejected');
+      tx.setOutcome('failure');
+      tx.end();
+      s3Client.destroy();
+      process.exitCode = 1;
+    },
+  );
 }
 
-main()
+main();

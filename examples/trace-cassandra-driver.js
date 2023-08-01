@@ -10,27 +10,27 @@
 //    npm run docker:start cassandra
 // to start a Cassandra docker container. Then `npm run docker:stop` to stop it.
 
-const apm = require('../').start({ // elastic-apm-node
+const apm = require('../').start({
   serviceName: 'example-trace-cassandra-driver',
-  logUncaughtExceptions: true
-})
+  logUncaughtExceptions: true,
+});
 
-const cassandra = require('cassandra-driver')
+const cassandra = require('cassandra-driver');
 
-const KEYSPACE = 'tracecassandradriver'
-const TABLE = 'testtable'
-let client
+const KEYSPACE = 'tracecassandradriver';
+const TABLE = 'testtable';
+let client;
 
-async function run () {
-  let res
+async function run() {
+  let res;
 
   client = new cassandra.Client({
     contactPoints: ['localhost'],
-    localDataCenter: 'datacenter1'
-  })
-  await client.connect()
-  res = await client.execute('SELECT key FROM system.local')
-  console.log('select result:', res)
+    localDataCenter: 'datacenter1',
+  });
+  await client.connect();
+  res = await client.execute('SELECT key FROM system.local');
+  console.log('select result:', res);
 
   // Create a keyspace and table in which to play.
   await client.execute(`
@@ -38,57 +38,60 @@ async function run () {
       'class': 'SimpleStrategy',
       'replication_factor': 1
     };
-  `)
+  `);
   await client.execute(`
     CREATE TABLE IF NOT EXISTS ${KEYSPACE}.${TABLE}(id uuid,text varchar,PRIMARY KEY(id));
-  `)
+  `);
 
   // Make a new client in our now-existing keyspace.
-  await client.shutdown()
+  await client.shutdown();
   client = new cassandra.Client({
     contactPoints: ['localhost'],
     localDataCenter: 'datacenter1',
-    keyspace: KEYSPACE
-  })
+    keyspace: KEYSPACE,
+  });
 
   // Play in this keyspace and table.
-  const sqlInsert = `INSERT INTO ${TABLE} (id, text) VALUES (uuid(), ?)`
+  const sqlInsert = `INSERT INTO ${TABLE} (id, text) VALUES (uuid(), ?)`;
   res = await client.batch([
     { query: sqlInsert, params: ['foo'] },
     { query: sqlInsert, params: ['bar'] },
-    { query: sqlInsert, params: ['foo'] }
-  ])
-  console.log('batch insert result:', res)
+    { query: sqlInsert, params: ['foo'] },
+  ]);
+  console.log('batch insert result:', res);
 
-  function useEachRow () {
-    console.log('-- client.eachRow')
+  function useEachRow() {
+    console.log('-- client.eachRow');
     // `eachRow` doesn't provide a Promise interface, so we promisify ourselves.
     return new Promise((resolve, reject) => {
       client.eachRow(
         `SELECT id, text FROM ${TABLE} WHERE text=? ALLOW FILTERING`,
         ['foo'],
         (n, row) => {
-          console.log('row %d: %j', n, row)
+          console.log('row %d: %j', n, row);
         },
         (err, res) => {
           if (err) {
-            reject(err)
+            reject(err);
           } else {
-            resolve(res)
+            resolve(res);
           }
-        }
-      )
-    })
+        },
+      );
+    });
   }
-  await useEachRow()
+  await useEachRow();
 
-  console.log('-- client.stream')
-  const q = client.stream(`SELECT id, text FROM ${TABLE} WHERE text=? ALLOW FILTERING`, ['foo'])
+  console.log('-- client.stream');
+  const q = client.stream(
+    `SELECT id, text FROM ${TABLE} WHERE text=? ALLOW FILTERING`,
+    ['foo'],
+  );
   for await (const row of q) {
-    console.log('row: %j', row)
+    console.log('row: %j', row);
   }
 
-  await client.execute(`DROP TABLE ${TABLE}`)
+  await client.execute(`DROP TABLE ${TABLE}`);
 }
 
 // For tracing spans to be created, there must be an active APM transaction.
@@ -96,15 +99,15 @@ async function run () {
 // requests to a Node.js server. However, because this script is not running
 // an HTTP server, we manually start a transaction. More details at:
 // https://www.elastic.co/guide/en/apm/agent/nodejs/current/custom-transactions.html
-const t1 = apm.startTransaction('t1')
+const t1 = apm.startTransaction('t1');
 
 run()
-  .catch(err => {
-    console.warn('run err:', err)
+  .catch((err) => {
+    console.warn('run err:', err);
   })
   .finally(() => {
     if (client) {
-      client.shutdown()
+      client.shutdown();
     }
-    t1.end()
-  })
+    t1.end();
+  });

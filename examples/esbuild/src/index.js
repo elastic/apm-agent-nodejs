@@ -4,23 +4,23 @@
  * compliance with the BSD 2-Clause License.
  */
 
-require('elastic-apm-node').start()
+require('elastic-apm-node').start();
 
-const http = require('http')
-const { handleRequest } = require('./handler')
+const http = require('http');
+const { handleRequest } = require('./handler');
 
 // Start a simple HTTP server.
-const server = http.createServer(handleRequest)
+const server = http.createServer(handleRequest);
 server.listen(3000, () => {
   // Make a single request and then stop.
-  http.get('http://localhost:3000', res => {
-    console.log('CLIENT: res.headers:', res.headers)
-    res.on('data', chunk => {
-      console.log('CLIENT: res "data": %s', chunk)
-    })
+  http.get('http://localhost:3000', (res) => {
+    console.log('CLIENT: res.headers:', res.headers);
+    res.on('data', (chunk) => {
+      console.log('CLIENT: res "data": %s', chunk);
+    });
     res.on('end', () => {
-      console.log('CLIENT: res "end"')
-      server.close()
-    })
-  })
-})
+      console.log('CLIENT: res "end"');
+      server.close();
+    });
+  });
+});

@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 module.exports.foo = function (event, context) {
-  return 'fake handler'
-}
+  return 'fake handler';
+};

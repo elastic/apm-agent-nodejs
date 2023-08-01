@@ -4,9 +4,9 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const stack = []
+const stack = [];
 
 for (let depth = 0; depth < 50; depth++) {
   /* eslint-disable no-eval */
@@ -15,10 +15,10 @@ for (let depth = 0; depth < 50; depth++) {
       if (--depth === 0) return cb()
       else stack[depth](depth, cb)
     }
-  `)
+  `);
   /* eslint-endable no-eval */
 }
 
-module.exports = function deep (depth, cb) {
-  stack[depth](depth, cb)
-}
+module.exports = function deep(depth, cb) {
+  stack[depth](depth, cb);
+};

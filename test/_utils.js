@@ -4,31 +4,31 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // A dumping ground for testing utility functions.
 
-const fs = require('fs')
-const { execFile } = require('child_process')
+const fs = require('fs');
+const { execFile } = require('child_process');
 
-const moduleDetailsFromPath = require('module-details-from-path')
-const semver = require('semver')
+const moduleDetailsFromPath = require('module-details-from-path');
+const semver = require('semver');
 
-const { MockAPMServer } = require('./_mock_apm_server')
+const { MockAPMServer } = require('./_mock_apm_server');
 
 // Lookup the property "str" (given in dot-notation) in the object "obj".
 // If the property isn't found, then `undefined` is returned.
-function dottedLookup (obj, str) {
-  var o = obj
-  var fields = str.split('.')
+function dottedLookup(obj, str) {
+  var o = obj;
+  var fields = str.split('.');
   for (var i = 0; i < fields.length; i++) {
-    var field = fields[i]
+    var field = fields[i];
     if (!Object.prototype.hasOwnProperty.call(o, field)) {
-      return undefined
+      return undefined;
     }
-    o = o[field]
+    o = o[field];
   }
-  return o
+  return o;
 }
 
 // Return the first element in the array that has a `key` with the given `val`;
@@ -37,41 +37,41 @@ function dottedLookup (obj, str) {
 //
 // The `key` maybe a nested field given in dot-notation, for example:
 // 'context.db.statement'.
-function findObjInArray (arr, key, val) {
-  let result = null
+function findObjInArray(arr, key, val) {
+  let result = null;
   arr.some(function (elm) {
-    const actualVal = dottedLookup(elm, key)
+    const actualVal = dottedLookup(elm, key);
     if (val === undefined) {
       if (actualVal !== undefined) {
-        result = elm
-        return true
+        result = elm;
+        return true;
       }
     } else {
       if (actualVal === val) {
-        result = elm
-        return true
+        result = elm;
+        return true;
       }
     }
-    return false
-  })
-  return result
+    return false;
+  });
+  return result;
 }
 
 // Same as `findObjInArray` but return all matches instead of just the first.
-function findObjsInArray (arr, key, val) {
+function findObjsInArray(arr, key, val) {
   return arr.filter(function (elm) {
-    const actualVal = dottedLookup(elm, key)
+    const actualVal = dottedLookup(elm, key);
     if (val === undefined) {
       if (actualVal !== undefined) {
-        return true
+        return true;
       }
     } else {
       if (actualVal === val) {
-        return true
+        return true;
       }
     }
-    return false
-  })
+    return false;
+  });
 }
 
 // "Safely" get the version of the given package, if possible. Otherwise return
@@ -80,30 +80,32 @@ function findObjsInArray (arr, key, val) {
 // Here "safely" means avoiding `require("$packageName/package.json")` because
 // that can fail if the package uses an old form of "exports"
 // (e.g. https://github.com/elastic/apm-agent-nodejs/issues/2350).
-function safeGetPackageVersion (packageName) {
-  let file
+function safeGetPackageVersion(packageName) {
+  let file;
   try {
-    file = require.resolve(packageName)
+    file = require.resolve(packageName);
   } catch (_err) {
-    return null
+    return null;
   }
 
   // Use the same logic as require-in-the-middle for finding the 'basedir' of
   // the package from `file`.
-  const details = moduleDetailsFromPath(file)
+  const details = moduleDetailsFromPath(file);
   if (!details) {
-    return null
+    return null;
   }
 
   try {
-    return JSON.parse(fs.readFileSync(details.basedir + '/package.json')).version
+    return JSON.parse(fs.readFileSync(details.basedir + '/package.json'))
+      .version;
   } catch (_err) {
-    return null
+    return null;
   }
 }
 
 // Match ANSI escapes (from https://stackoverflow.com/a/29497680/14444044).
-const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g /* eslint-disable-line no-control-regex */
+const ANSI_RE =
+  /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g; /* eslint-disable-line no-control-regex */
 
 /**
  * Format the given data for passing to `t.comment()`.
@@ -116,10 +118,14 @@ const ANSI_RE = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZ
  *   can be used to disable ANSI escapes in `next dev`'s usage of chalk,
  *   but not in its coloured exception output.
  */
-function formatForTComment (data) {
-  return data.toString('utf8')
-    .replace(ANSI_RE, '')
-    .trimRight().replace(/\r?\n/g, '\n|') + '\n'
+function formatForTComment(data) {
+  return (
+    data
+      .toString('utf8')
+      .replace(ANSI_RE, '')
+      .trimRight()
+      .replace(/\r?\n/g, '\n|') + '\n'
+  );
 }
 
 /**
@@ -130,63 +136,63 @@ function formatForTComment (data) {
  *    `MockAPMServer().events`
  * @returns {Array}
  */
-function sortApmEvents (events) {
+function sortApmEvents(events) {
   return events
-    .filter(e => !e.metadata)
+    .filter((e) => !e.metadata)
     .sort((a, b) => {
-      const aTimestamp = (a.transaction || a.span || a.error || {}).timestamp
-      const bTimestamp = (b.transaction || b.span || b.error || {}).timestamp
-      return aTimestamp < bTimestamp ? -1 : 1
-    })
+      const aTimestamp = (a.transaction || a.span || a.error || {}).timestamp;
+      const bTimestamp = (b.transaction || b.span || b.error || {}).timestamp;
+      return aTimestamp < bTimestamp ? -1 : 1;
+    });
 }
 
 /**
  * Slurp everything from the given ReadableStream and return the content,
  * converted to a string.
  */
-async function slurpStream (stream) {
+async function slurpStream(stream) {
   return new Promise((resolve, reject) => {
-    const chunks = []
+    const chunks = [];
     stream.on('error', (err) => {
-      reject(err)
-    })
+      reject(err);
+    });
     stream.on('readable', function () {
-      let chunk
+      let chunk;
       while ((chunk = this.read()) !== null) {
-        chunks.push(chunk)
+        chunks.push(chunk);
       }
-    })
+    });
     stream.on('end', () => {
-      resolve(Buffer.concat(chunks).toString('utf8'))
-    })
-  })
+      resolve(Buffer.concat(chunks).toString('utf8'));
+    });
+  });
 }
 
-function quoteArg (a) {
+function quoteArg(a) {
   if (a.includes("'")) {
-    return "'" + a.replace("'", "'\\''") + "'"
+    return "'" + a.replace("'", "'\\''") + "'";
   } else if (a.includes('"') || a.includes('$')) {
-    return "'" + a + "'"
+    return "'" + a + "'";
   } else if (a.includes(' ')) {
-    return '"' + a + '"'
+    return '"' + a + '"';
   } else {
-    return a
+    return a;
   }
 }
 
-function quoteArgv (argv) {
-  return argv.map(quoteArg).join(' ')
+function quoteArgv(argv) {
+  return argv.map(quoteArg).join(' ');
 }
 
-function quoteEnv (env) {
+function quoteEnv(env) {
   if (!env) {
-    return ''
+    return '';
   }
   return Object.keys(env)
-    .map(k => {
-      return `${k}=${quoteArg(env[k])}`
+    .map((k) => {
+      return `${k}=${quoteArg(env[k])}`;
     })
-    .join(' ')
+    .join(' ');
 }
 
 /**
@@ -265,42 +271,49 @@ function quoteEnv (env) {
  * @param {import('@types/tape').TestCase} suite
  * @param {Array<TestFixture>} testFixtures
  */
-function runTestFixtures (suite, testFixtures) {
+function runTestFixtures(suite, testFixtures) {
   const convenienceConfig = {
     // Silence some features of the agent that can make testing
     // noisier and less convenient.
     ELASTIC_APM_CENTRAL_CONFIG: 'false',
     ELASTIC_APM_CLOUD_PROVIDER: 'none',
     ELASTIC_APM_METRICS_INTERVAL: '0s',
-    ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true'
-  }
-  testFixtures.forEach(tf => {
-    const testName = tf.name ? `${tf.name} (${tf.script})` : tf.script
-    const testOpts = Object.assign({}, tf.testOpts)
-    suite.test(testName, testOpts, t => {
+    ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS: 'true',
+  };
+  testFixtures.forEach((tf) => {
+    const testName = tf.name ? `${tf.name} (${tf.script})` : tf.script;
+    const testOpts = Object.assign({}, tf.testOpts);
+    suite.test(testName, testOpts, (t) => {
       // Handle "tf.versionRanges"-based skips here, because `tape` doesn't
       // print any message for `testOpts.skip`.
       if (tf.versionRanges) {
         for (const name in tf.versionRanges) {
-          const ver = name === 'node'
-            ? process.version
-            : safeGetPackageVersion(name)
+          const ver =
+            name === 'node' ? process.version : safeGetPackageVersion(name);
           if (!semver.satisfies(ver, tf.versionRanges[name])) {
-            t.comment(`SKIP ${name} ${ver} is not supported by this fixture (requires: ${tf.versionRanges[name]})`)
-            t.end()
-            return
+            t.comment(
+              `SKIP ${name} ${ver} is not supported by this fixture (requires: ${tf.versionRanges[name]})`,
+            );
+            t.end();
+            return;
           }
         }
       }
 
-      const apmServer = new MockAPMServer()
+      const apmServer = new MockAPMServer();
       apmServer.start(function (serverUrl) {
-        const argv = (tf.nodeArgv || []).concat([tf.script]).concat(tf.scriptArgv || [])
-        const cwd = tf.cwd || process.cwd()
+        const argv = (tf.nodeArgv || [])
+          .concat([tf.script])
+          .concat(tf.scriptArgv || []);
+        const cwd = tf.cwd || process.cwd();
         if (tf.verbose) {
-          t.comment(`running: (cd "${cwd}" && ${quoteEnv(tf.env)} node ${quoteArgv(argv)})`)
+          t.comment(
+            `running: (cd "${cwd}" && ${quoteEnv(tf.env)} node ${quoteArgv(
+              argv,
+            )})`,
+          );
         }
-        const start = Date.now()
+        const start = Date.now();
         execFile(
           process.execPath,
           argv,
@@ -312,54 +325,54 @@ function runTestFixtures (suite, testFixtures) {
               process.env,
               tf.noConvenienceConfig ? {} : convenienceConfig,
               {
-                ELASTIC_APM_SERVER_URL: serverUrl
+                ELASTIC_APM_SERVER_URL: serverUrl,
               },
-              tf.env
+              tf.env,
             ),
-            maxBuffer: tf.maxBuffer
+            maxBuffer: tf.maxBuffer,
           },
-          async function done (err, stdout, stderr) {
+          async function done(err, stdout, stderr) {
             if (tf.verbose) {
-              t.comment(`elapsed: ${(Date.now() - start) / 1000}s`)
+              t.comment(`elapsed: ${(Date.now() - start) / 1000}s`);
               if (err) {
-                t.comment(`err:\n|${formatForTComment(err)}`)
+                t.comment(`err:\n|${formatForTComment(err)}`);
               }
               if (stdout) {
-                t.comment(`stdout:\n|${formatForTComment(stdout)}`)
+                t.comment(`stdout:\n|${formatForTComment(stdout)}`);
               } else {
-                t.comment('stdout: <empty>')
+                t.comment('stdout: <empty>');
               }
               if (stderr) {
-                t.comment(`stderr:\n|${formatForTComment(stderr)}`)
+                t.comment(`stderr:\n|${formatForTComment(stderr)}`);
               } else {
-                t.comment('stderr: <empty>')
+                t.comment('stderr: <empty>');
               }
             }
             if (tf.checkScriptResult) {
-              await tf.checkScriptResult(t, err, stdout, stderr)
+              await tf.checkScriptResult(t, err, stdout, stderr);
             } else {
-              t.error(err, `${tf.script} exited successfully: err=${err}`)
+              t.error(err, `${tf.script} exited successfully: err=${err}`);
               if (err) {
                 if (!tf.verbose) {
-                  t.comment(`stdout:\n|${formatForTComment(stdout)}`)
-                  t.comment(`stderr:\n|${formatForTComment(stderr)}`)
+                  t.comment(`stdout:\n|${formatForTComment(stdout)}`);
+                  t.comment(`stderr:\n|${formatForTComment(stderr)}`);
                 }
               }
             }
             if (tf.checkApmServer) {
               if (!tf.checkScriptResult && err) {
-                t.comment('skip checkApmServer because script errored out')
+                t.comment('skip checkApmServer because script errored out');
               } else {
-                await tf.checkApmServer(t, apmServer)
+                await tf.checkApmServer(t, apmServer);
               }
             }
-            apmServer.close()
-            t.end()
-          }
-        )
-      })
-    })
-  })
+            apmServer.close();
+            t.end();
+          },
+        );
+      });
+    });
+  });
 }
 
 module.exports = {
@@ -370,5 +383,5 @@ module.exports = {
   safeGetPackageVersion,
   slurpStream,
   sortApmEvents,
-  runTestFixtures
-}
+  runTestFixtures,
+};

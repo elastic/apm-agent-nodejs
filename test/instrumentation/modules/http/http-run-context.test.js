@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Test "run context" handling for HTTP instrumentation.
 //
@@ -17,11 +17,11 @@
 // illustrative when learning or debugging run context handling in the agent.
 // The scripts can be run independent of the test suite.
 
-const { execFile } = require('child_process')
-const path = require('path')
-const tape = require('tape')
+const { execFile } = require('child_process');
+const path = require('path');
+const tape = require('tape');
 
-const { MockAPMServer } = require('../../../_mock_apm_server')
+const { MockAPMServer } = require('../../../_mock_apm_server');
 
 const cases = [
   {
@@ -43,47 +43,65 @@ const cases = [
     // for exit-span handling, compressed spans, breakdown metrics, etc.
     script: 'make-http-request.js',
     check: (t, events) => {
-      t.equal(events.length, 10, 'exactly 10 events')
-      const metadata = events.shift()
-      t.ok(metadata, 'APM server got event metadata object')
+      t.equal(events.length, 10, 'exactly 10 events');
+      const metadata = events.shift();
+      t.ok(metadata, 'APM server got event metadata object');
       events.sort((a, b) => {
-        return (a.span || a.transaction).timestamp < (b.span || b.transaction).timestamp ? -1 : 1
-      })
-      const trans = events.shift().transaction
-      t.equal(trans.name, 't0', 'transaction.name')
-      events.forEach(e => {
-        t.equal(e.span.parent_id, trans.id, `span ${e.span.name} is a child of the transaction`)
-      })
-      const spanGet = events.shift().span
-      t.equal(spanGet.name, 'GET www.google.com')
-    }
+        return (a.span || a.transaction).timestamp <
+          (b.span || b.transaction).timestamp
+          ? -1
+          : 1;
+      });
+      const trans = events.shift().transaction;
+      t.equal(trans.name, 't0', 'transaction.name');
+      events.forEach((e) => {
+        t.equal(
+          e.span.parent_id,
+          trans.id,
+          `span ${e.span.name} is a child of the transaction`,
+        );
+      });
+      const spanGet = events.shift().span;
+      t.equal(spanGet.name, 'GET www.google.com');
+    },
   },
   {
     // Same as above, but s/http/https/, to verify "https" instrumentation
     // works as well.
     script: 'make-https-request.js',
     check: (t, events) => {
-      t.equal(events.length, 10, 'exactly 10 events')
-      const metadata = events.shift()
-      t.ok(metadata, 'APM server got event metadata object')
+      t.equal(events.length, 10, 'exactly 10 events');
+      const metadata = events.shift();
+      t.ok(metadata, 'APM server got event metadata object');
       events.sort((a, b) => {
-        return (a.span || a.transaction).timestamp < (b.span || b.transaction).timestamp ? -1 : 1
-      })
-      const trans = events.shift().transaction
-      t.equal(trans.name, 't0', 'transaction.name')
-      events.forEach(e => {
-        t.equal(e.span.parent_id, trans.id, `span ${e.span.name} is a child of the transaction`)
-      })
-      const spanGet = events.shift().span
-      t.equal(spanGet.name, 'GET www.google.com', 'first span.name is "GET www.google.com"')
-    }
-  }
-]
+        return (a.span || a.transaction).timestamp <
+          (b.span || b.transaction).timestamp
+          ? -1
+          : 1;
+      });
+      const trans = events.shift().transaction;
+      t.equal(trans.name, 't0', 'transaction.name');
+      events.forEach((e) => {
+        t.equal(
+          e.span.parent_id,
+          trans.id,
+          `span ${e.span.name} is a child of the transaction`,
+        );
+      });
+      const spanGet = events.shift().span;
+      t.equal(
+        spanGet.name,
+        'GET www.google.com',
+        'first span.name is "GET www.google.com"',
+      );
+    },
+  },
+];
 
-cases.forEach(c => {
-  tape.test(`http/fixtures/${c.script}`, c.testOpts || {}, t => {
-    const server = new MockAPMServer()
-    const scriptPath = path.join('fixtures', c.script)
+cases.forEach((c) => {
+  tape.test(`http/fixtures/${c.script}`, c.testOpts || {}, (t) => {
+    const server = new MockAPMServer();
+    const scriptPath = path.join('fixtures', c.script);
     server.start(function (serverUrl) {
       execFile(
         process.execPath,
@@ -92,22 +110,22 @@ cases.forEach(c => {
           cwd: __dirname,
           timeout: 10000, // guard on hang, 3s is sometimes too short for CI
           env: Object.assign({}, process.env, {
-            ELASTIC_APM_SERVER_URL: serverUrl
-          })
+            ELASTIC_APM_SERVER_URL: serverUrl,
+          }),
         },
-        function done (err, stdout, stderr) {
-          t.error(err, `${scriptPath} exited non-zero`)
+        function done(err, stdout, stderr) {
+          t.error(err, `${scriptPath} exited non-zero`);
           if (err) {
-            t.comment(`${scriptPath} stdout:\n${stdout}\n`)
-            t.comment(`${scriptPath} stderr:\n${stderr}\n`)
-            t.comment('skip checks because script errored out')
+            t.comment(`${scriptPath} stdout:\n${stdout}\n`);
+            t.comment(`${scriptPath} stderr:\n${stderr}\n`);
+            t.comment('skip checks because script errored out');
           } else {
-            c.check(t, server.events)
+            c.check(t, server.events);
           }
-          server.close()
-          t.end()
-        }
-      )
-    })
-  })
-})
+          server.close();
+          t.end();
+        },
+      );
+    });
+  });
+});

@@ -4,9 +4,9 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-var semver = require('semver')
+var semver = require('semver');
 
 /**
  * Return whether the current 'mongodb' version is incompatible with the
@@ -24,22 +24,22 @@ var semver = require('semver')
  *
  * @returns {string | boolean}
  */
-function isMongodbIncompat () {
-  const nodeVer = process.version
-  const mongodbVer = require('mongodb/package.json').version
-  const msg = `mongodb@${mongodbVer} is incompatible with node@${nodeVer}`
+function isMongodbIncompat() {
+  const nodeVer = process.version;
+  const mongodbVer = require('mongodb/package.json').version;
+  const msg = `mongodb@${mongodbVer} is incompatible with node@${nodeVer}`;
 
   if (semver.satisfies(mongodbVer, '4.x')) {
     if (!semver.satisfies(nodeVer, '>=12.9.0')) {
-      return msg
+      return msg;
     }
   } else if (semver.satisfies(mongodbVer, '>=5.0.0')) {
     if (!semver.satisfies(nodeVer, '>=14.20.1')) {
-      return msg
+      return msg;
     }
   }
 
-  return false
+  return false;
 }
 
-module.exports = isMongodbIncompat
+module.exports = isMongodbIncompat;

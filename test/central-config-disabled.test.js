@@ -4,20 +4,23 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-delete process.env.ELASTIC_APM_CENTRAL_CONFIG // In case this is set, don't let it break the test.
+delete process.env.ELASTIC_APM_CENTRAL_CONFIG; // In case this is set, don't let it break the test.
 
-const http = require('http')
+const http = require('http');
 
-const test = require('tape')
+const test = require('tape');
 
 test('central config disabled', function (t) {
   const server = http.createServer((req, res) => {
-    t.notOk(req.url.startsWith('/config/v1/agents'), `should not poll APM Server for config (url: ${req.url})`)
-    req.resume()
-    res.end()
-  })
+    t.notOk(
+      req.url.startsWith('/config/v1/agents'),
+      `should not poll APM Server for config (url: ${req.url})`,
+    );
+    req.resume();
+    res.end();
+  });
 
   server.listen(function () {
     const agent = require('..').start({
@@ -26,14 +29,14 @@ test('central config disabled', function (t) {
       captureExceptions: false,
       metricsInterval: 0,
       apmServerVersion: '8.0.0',
-      centralConfig: false
-    })
+      centralConfig: false,
+    });
 
     setTimeout(function () {
-      t.pass('should not poll APM Server for config')
-      agent.destroy()
-      server.close()
-      t.end()
-    }, 1000)
-  })
-})
+      t.pass('should not poll APM Server for config');
+      agent.destroy();
+      server.close();
+      t.end();
+    }, 1000);
+  });
+});
