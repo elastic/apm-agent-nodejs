@@ -4,4 +4,4 @@
  * compliance with the BSD 2-Clause License.
  */
 
-export * from 'import-in-the-middle/hook.mjs'
+export * from 'import-in-the-middle/hook.mjs';

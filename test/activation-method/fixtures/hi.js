@@ -4,4 +4,4 @@
  * compliance with the BSD 2-Clause License.
  */
 
-console.log('hi')
+console.log('hi');

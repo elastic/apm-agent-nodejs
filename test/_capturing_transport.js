@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // An Agent transport -- i.e. the APM server client API provided by
 // elastic-apm-http-client -- that just captures all sent events.
@@ -29,90 +29,89 @@
 // end.
 
 class CapturingTransport {
-  constructor () {
-    this.clear()
+  constructor() {
+    this.clear();
   }
 
-  clear () {
-    this.lambdaStartCalled = false
-    this.extraMetadata = null
-    this.spans = []
-    this.transactions = []
-    this.errors = []
-    this.metricsets = []
+  clear() {
+    this.lambdaStartCalled = false;
+    this.extraMetadata = null;
+    this.spans = [];
+    this.transactions = [];
+    this.errors = [];
+    this.metricsets = [];
   }
 
-  config (opts) {}
+  config(opts) {}
 
-  addMetadataFilter (fn) {}
+  addMetadataFilter(fn) {}
 
-  setExtraMetadata (metadata) {
-    this.extraMetadata = metadata
+  setExtraMetadata(metadata) {
+    this.extraMetadata = metadata;
   }
 
-  lambdaStart () {
-    this.lambdaStartCalled = true
+  lambdaStart() {
+    this.lambdaStartCalled = true;
   }
 
-  sendSpan (span, cb) {
-    this.spans.push(span)
+  sendSpan(span, cb) {
+    this.spans.push(span);
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
-  sendTransaction (transaction, cb) {
-    this.transactions.push(transaction)
+  sendTransaction(transaction, cb) {
+    this.transactions.push(transaction);
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
-  sendError (error, cb) {
-    this.errors.push(error)
+  sendError(error, cb) {
+    this.errors.push(error);
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
-  sendMetricSet (metricset, cb) {
-    this.metricsets.push(metricset)
+  sendMetricSet(metricset, cb) {
+    this.metricsets.push(metricset);
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
-  flush (opts, cb) {
+  flush(opts, cb) {
     if (typeof opts === 'function') {
-      cb = opts
-      opts = {}
+      cb = opts;
+      opts = {};
     } else if (!opts) {
-      opts = {}
+      opts = {};
     }
     if (cb) {
-      process.nextTick(cb)
+      process.nextTick(cb);
     }
   }
 
-  lambdaShouldRegisterTransactions () {
-    return true
+  lambdaShouldRegisterTransactions() {
+    return true;
   }
 
-  lambdaRegisterTransaction (trans, awsRequestId) {
+  lambdaRegisterTransaction(trans, awsRequestId) {}
+
+  supportsKeepingUnsampledTransaction() {
+    return true;
   }
 
-  supportsKeepingUnsampledTransaction () {
-    return true
-  }
-
-  supportsActivationMethodField () {
-    return true
+  supportsActivationMethodField() {
+    return true;
   }
 
   // Inherited from Writable, called in agent.js.
-  destroy () {}
+  destroy() {}
 }
 
 module.exports = {
-  CapturingTransport
-}
+  CapturingTransport,
+};

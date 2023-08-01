@@ -4,50 +4,50 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
-const fs = require('fs')
-const { join } = require('path')
+const fs = require('fs');
+const { join } = require('path');
 
-const Ajv = require('ajv').default
-const thunky = require('thunky')
+const Ajv = require('ajv').default;
+const thunky = require('thunky');
 
-const ajv = new Ajv({ allErrors: true, allowUnionTypes: true, strict: true })
-const schemaDir = join(__dirname, 'apm-server-schema')
+const ajv = new Ajv({ allErrors: true, allowUnionTypes: true, strict: true });
+const schemaDir = join(__dirname, 'apm-server-schema');
 
 exports.metadataValidator = thunky(function (cb) {
-  loadSchema('metadata.json', cb)
-})
+  loadSchema('metadata.json', cb);
+});
 
 exports.transactionValidator = thunky(function (cb) {
-  loadSchema('transaction.json', cb)
-})
+  loadSchema('transaction.json', cb);
+});
 
 exports.spanValidator = thunky(function (cb) {
-  loadSchema('span.json', cb)
-})
+  loadSchema('span.json', cb);
+});
 
 exports.errorValidator = thunky(function (cb) {
-  loadSchema('error.json', cb)
-})
+  loadSchema('error.json', cb);
+});
 
-function loadSchema (schemaFileName, cb) {
-  const schemaPath = join(schemaDir, schemaFileName)
+function loadSchema(schemaFileName, cb) {
+  const schemaPath = join(schemaDir, schemaFileName);
   fs.readFile(schemaPath, { encoding: 'utf8' }, function (readErr, content) {
     if (readErr) {
-      cb(readErr)
-      return
+      cb(readErr);
+      return;
     }
 
-    let schema
+    let schema;
     try {
-      schema = JSON.parse(content)
+      schema = JSON.parse(content);
     } catch (parseErr) {
-      cb(parseErr)
-      return
+      cb(parseErr);
+      return;
     }
 
-    const validator = ajv.compile(schema)
-    cb(null, validator)
-  })
+    const validator = ajv.compile(schema);
+    cb(null, validator);
+  });
 }

@@ -4,5 +4,5 @@
  * compliance with the BSD 2-Clause License.
  */
 
-import './load-http.js'
-import './load-http.mjs'
+import './load-http.js';
+import './load-http.mjs';

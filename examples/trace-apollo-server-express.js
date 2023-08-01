@@ -25,43 +25,45 @@
 //     transaction "HelloQuery hello (/graphql)"
 //     `- span "GraphQL: HelloQuery hello"
 
-require('../').start({ // elastic-apm-node
+require('../').start({
   serviceName: 'example-trace-apollo-server-express',
-  logUncaughtExceptions: true
-})
+  logUncaughtExceptions: true,
+});
 
-const http = require('http')
-const { ApolloServer, gql } = require('apollo-server-express')
-const express = require('express')
+const http = require('http');
+const { ApolloServer, gql } = require('apollo-server-express');
+const express = require('express');
 
 const typeDefs = gql`
-type Query {
-  "A simple type for getting started!"
-  hello: String
-}
-`
+  type Query {
+    "A simple type for getting started!"
+    hello: String
+  }
+`;
 const resolvers = {
   Query: {
-    hello: () => 'world'
-  }
-}
+    hello: () => 'world',
+  },
+};
 
-async function startServer () {
-  const app = express()
-  app.set('env', 'production')
+async function startServer() {
+  const app = express();
+  app.set('env', 'production');
   app.get('/ping', (req, res, next) => {
-    req.resume()
-    res.end('pong')
-  })
-  const httpServer = http.createServer(app)
+    req.resume();
+    res.end('pong');
+  });
+  const httpServer = http.createServer(app);
 
-  const server = new ApolloServer({ typeDefs, resolvers })
-  await server.start()
-  server.applyMiddleware({ app })
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
+  server.applyMiddleware({ app });
 
   httpServer.listen(3000, () => {
-    console.log(`Apollo GraphQL server listening at http://localhost:3000${server.graphqlPath}`)
-  })
+    console.log(
+      `Apollo GraphQL server listening at http://localhost:3000${server.graphqlPath}`,
+    );
+  });
 }
 
-startServer()
+startServer();
