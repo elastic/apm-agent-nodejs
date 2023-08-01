@@ -31,7 +31,7 @@
 //
 //    # Testing against localstack.
 //    docker run --rm -it -e SERVICES=s3 -p 4566:4566 localstack/localstack
-//    TEST_ENDPOINT=http://localhost:4566 node use-client-s3.js | ecslog
+//    TEST_ENDPOINT=http://localhost:4566 node use-client-dynamodb.js | ecslog
 //
 //    # Use TEST_TABLE_NAME to re-use an existing table (and not delete it).
 //    # For safety the table name must start with "elasticapmtest-table-".
@@ -41,7 +41,7 @@
 // https://gist.github.com/david-luna/2b785a3197891505902fa85ee8ff3e3d
 
 const apm = require('../../../../..').start({
-  serviceName: 'use-client-dyamodb',
+  serviceName: 'use-client-dynamodb',
   captureExceptions: false,
   centralConfig: false,
   metricsInterval: 0,
@@ -191,9 +191,9 @@ async function useClientDynamoDB(dynamoDBClient, tableName) {
   log.info({ data }, 'deleteTable');
 }
 
-// Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an S3
-// bucket name:
-// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.NamingRules
+// Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an DynamoDB
+// table name name:
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html
 function getTimestamp() {
   return new Date()
     .toISOString()

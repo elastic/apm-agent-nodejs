@@ -34,7 +34,7 @@ const test = require('tape');
 
 const { validateSpan } = require('../../../_validate_schema');
 const { runTestFixtures, sortApmEvents } = require('../../../_utils');
-// const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
+const { NODE_VER_RANGE_IITM } = require('../../../testconsts')
 const AWS_REGION = 'us-east-2';
 const LOCALSTACK_HOST = process.env.LOCALSTACK_HOST || 'localhost';
 const endpoint = 'http://' + LOCALSTACK_HOST + ':4566';
@@ -335,6 +335,37 @@ const testFixtures = [
       );
 
       t.equal(spans.length, 0, 'all spans accounted for');
+    },
+  },
+  {
+    name: '@aws-sdk/client-dynamodb ESM',
+    script: 'fixtures/use-client-dynamodb.mjs',
+    cwd: __dirname,
+    env: {
+      NODE_OPTIONS:
+        '--experimental-loader=../../../../loader.mjs --require=../../../../start.js',
+      NODE_NO_WARNINGS: '1',
+      AWS_ACCESS_KEY_ID: 'fake',
+      AWS_SECRET_ACCESS_KEY: 'fake',
+      TEST_ENDPOINT: endpoint,
+      TEST_REGION: 'us-east-2',
+    },
+    versionRanges: {
+      node: NODE_VER_RANGE_IITM,
+    },
+    verbose: true,
+    checkApmServer: (t, apmServer) => {
+      t.ok(apmServer.events[0].metadata, 'metadata');
+      const events = sortApmEvents(apmServer.events);
+
+      t.ok(events[0].transaction, 'got the transaction');
+      const tx = events.shift().transaction;
+
+      const span = events.shift().span;
+      t.equal(span.parent_id, tx.id, 'span.parent_id');
+      t.equal(span.name, 'DynamoDB ListTables', 'span.name');
+
+      t.equal(events.length, 0, 'all events accounted for');
     },
   },
 ];

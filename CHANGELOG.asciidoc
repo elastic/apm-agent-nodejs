@@ -41,7 +41,7 @@ Notes:
 ===== Features
 
 * Add support for `@aws-sdk/client-dynamodb`, one of the AWS SDK v3 clients.
-  ({pull}3486[#3486])
+  ({pull}XXX[#XXXX])
 
 [float]
 ===== Bug fixes
