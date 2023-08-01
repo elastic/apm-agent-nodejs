@@ -4,7 +4,7 @@
  * compliance with the BSD 2-Clause License.
  */
 
-'use strict'
+'use strict';
 
 // Run a single scenario of using the DynamoDB client (callback style) with APM
 // enabled. This is used to test that the expected APM events are generated.
@@ -47,11 +47,11 @@ const apm = require('../../../../..').start({
   metricsInterval: 0,
   cloudProvider: 'none',
   stackTraceLimit: 4, // get it smaller for reviewing output
-  logLevel: 'info'
-})
+  logLevel: 'info',
+});
 
 // const crypto = require('crypto')
-const assert = require('assert')
+const assert = require('assert');
 const {
   DynamoDBClient,
   ListTablesCommand,
@@ -59,31 +59,33 @@ const {
   PutItemCommand,
   QueryCommand,
   DeleteItemCommand,
-  DeleteTableCommand
-} = require('@aws-sdk/client-dynamodb')
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
+  DeleteTableCommand,
+} = require('@aws-sdk/client-dynamodb');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
-const TEST_TABLE_NAME_PREFIX = 'elasticapmtest-table-'
+const TEST_TABLE_NAME_PREFIX = 'elasticapmtest-table-';
 
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/
-async function useClientDynamoDB (dynamoDBClient, tableName) {
-  const region = await dynamoDBClient.config.region()
+async function useClientDynamoDB(dynamoDBClient, tableName) {
+  const region = await dynamoDBClient.config.region();
   const log = apm.logger.child({
     'event.module': 'app',
     endpoint: dynamoDBClient.config.endpoint,
-    region
-  })
+    region,
+  });
 
-  let command
-  let data
+  let command;
+  let data;
 
-  command = new ListTablesCommand()
-  data = await dynamoDBClient.send(command)
-  assert(apm.currentSpan === null,
-    'DynamoDB span (or its HTTP span) should not be currentSpan after awaiting the task')
-  log.info({ data }, 'query')
+  command = new ListTablesCommand();
+  data = await dynamoDBClient.send(command);
+  assert(
+    apm.currentSpan === null,
+    'DynamoDB span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
+  log.info({ data }, 'query');
 
-  const tableIsPreexisting = data.TableNames.some(t => t === tableName)
+  const tableIsPreexisting = data.TableNames.some((t) => t === tableName);
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/CreateTableCommand/
   if (!tableIsPreexisting) {
     command = new CreateTableCommand({
@@ -91,80 +93,85 @@ async function useClientDynamoDB (dynamoDBClient, tableName) {
       AttributeDefinitions: [
         {
           AttributeName: 'RECORD_ID',
-          AttributeType: 'S'
-        }
+          AttributeType: 'S',
+        },
       ],
       KeySchema: [
         {
           AttributeName: 'RECORD_ID',
-          KeyType: 'HASH'
-        }
+          KeyType: 'HASH',
+        },
       ],
       ProvisionedThroughput: {
         ReadCapacityUnits: 1,
-        WriteCapacityUnits: 1
-      }
-    })
-    data = await dynamoDBClient.send(command)
-    log.info({ data }, 'createTable')
+        WriteCapacityUnits: 1,
+      },
+    });
+    data = await dynamoDBClient.send(command);
+    log.info({ data }, 'createTable');
   }
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/PutItemCommand/
   command = new PutItemCommand({
     TableName: tableName,
     Item: {
-      RECORD_ID: { S: '001' }
-    }
-  })
-  data = await dynamoDBClient.send(command)
-  assert(apm.currentSpan === null,
-    'DynamoDB span (or its HTTP span) should not be currentSpan after awaiting the task')
-  log.info({ data }, 'putItem')
+      RECORD_ID: { S: '001' },
+    },
+  });
+  data = await dynamoDBClient.send(command);
+  assert(
+    apm.currentSpan === null,
+    'DynamoDB span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
+  log.info({ data }, 'putItem');
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/QueryCommand/
   command = new QueryCommand({
     TableName: tableName,
     KeyConditionExpression: 'RECORD_ID = :foo',
     ExpressionAttributeValues: {
-      ':foo': { S: '001' }
-    }
-  })
-  data = await dynamoDBClient.send(command)
-  assert(apm.currentSpan === null,
-    'DynamoDB span (or its HTTP span) should not be currentSpan after awaiting the task')
-  log.info({ data }, 'query')
+      ':foo': { S: '001' },
+    },
+  });
+  data = await dynamoDBClient.send(command);
+  assert(
+    apm.currentSpan === null,
+    'DynamoDB span (or its HTTP span) should not be currentSpan after awaiting the task',
+  );
+  log.info({ data }, 'query');
 
   // Get a signed URL.
   // This is interesting to test, because `getSignedUrl` uses the command
   // `middlewareStack` -- including our added middleware -- **without** calling
   // `dynamoDBClient.send()`. The test here is to ensure this doesn't break.
-  const customSpan = apm.startSpan('get-signed-url')
+  const customSpan = apm.startSpan('get-signed-url');
   const signedUrl = await getSignedUrl(
     dynamoDBClient,
     new QueryCommand({
       TableName: tableName,
       KeyConditionExpression: 'RECORD_ID = :foo',
-      ExpressionAttributeValues: { ':foo': { S: '001' } }
+      ExpressionAttributeValues: { ':foo': { S: '001' } },
     }),
-    { expiresIn: 3600 })
-  log.info({ signedUrl }, 'getSignedUrl')
-  customSpan.end()
+    { expiresIn: 3600 },
+  );
+  log.info({ signedUrl }, 'getSignedUrl');
+  customSpan.end();
 
   command = new QueryCommand({
     TableName: tableName + '-unexistent',
     KeyConditionExpression: 'RECORD_ID = :foo',
     ExpressionAttributeValues: {
-      ':foo': { S: '001' }
-    }
-  })
+      ':foo': { S: '001' },
+    },
+  });
   try {
-    data = await dynamoDBClient.send(command)
-    throw new Error('expected ResourceNotFoundException error for query')
+    data = await dynamoDBClient.send(command);
+    throw new Error('expected ResourceNotFoundException error for query');
   } catch (err) {
-    log.info({ err }, 'query with error')
-    const statusCode = err && err.$metadata && err.$metadata.httpStatusCode
+    log.info({ err }, 'query with error');
+    const statusCode = err && err.$metadata && err.$metadata.httpStatusCode;
     if (statusCode !== 400) {
-      throw err
+      throw err;
     }
   }
 
@@ -172,60 +179,66 @@ async function useClientDynamoDB (dynamoDBClient, tableName) {
   command = new DeleteItemCommand({
     TableName: tableName,
     Key: {
-      RECORD_ID: { S: '001' }
-    }
-  })
-  data = await dynamoDBClient.send(command)
-  log.info({ data }, 'deleteItem')
+      RECORD_ID: { S: '001' },
+    },
+  });
+  data = await dynamoDBClient.send(command);
+  log.info({ data }, 'deleteItem');
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/dynamodb/command/DeleteTableCommand/
-  command = new DeleteTableCommand({ TableName: tableName })
-  data = await dynamoDBClient.send(command)
-  log.info({ data }, 'deleteTable')
+  command = new DeleteTableCommand({ TableName: tableName });
+  data = await dynamoDBClient.send(command);
+  log.info({ data }, 'deleteTable');
 }
 
 // Return a timestamp of the form YYYYMMDDHHMMSS, which can be used in an S3
 // bucket name:
 // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.NamingRulesDataTypes.html#HowItWorks.NamingRules
-function getTimestamp () {
-  return (new Date()).toISOString().split('.')[0].replace(/[^0-9]/g, '')
+function getTimestamp() {
+  return new Date()
+    .toISOString()
+    .split('.')[0]
+    .replace(/[^0-9]/g, '');
 }
 
 // ---- mainline
 
-function main () {
-  const region = process.env.TEST_REGION || 'us-east-2'
-  const endpoint = process.env.TEST_ENDPOINT || null
-  const tableName = process.env.TEST_TABLE_NAME || TEST_TABLE_NAME_PREFIX + getTimestamp()
+function main() {
+  const region = process.env.TEST_REGION || 'us-east-2';
+  const endpoint = process.env.TEST_ENDPOINT || null;
+  const tableName =
+    process.env.TEST_TABLE_NAME || TEST_TABLE_NAME_PREFIX + getTimestamp();
 
   // Guard against any table name being used because we will be creating and
   // deleting records in it, and potentially *deleting* the table.
   if (!tableName.startsWith(TEST_TABLE_NAME_PREFIX)) {
-    throw new Error(`cannot use table name "${tableName}", it must start with ${TEST_TABLE_NAME_PREFIX}`)
+    throw new Error(
+      `cannot use table name "${tableName}", it must start with ${TEST_TABLE_NAME_PREFIX}`,
+    );
   }
 
   const dynamoDBClient = new DynamoDBClient({
     region,
-    endpoint
-  })
+    endpoint,
+  });
 
   // Ensure an APM transaction so spans can happen.
-  const tx = apm.startTransaction('manual')
+  const tx = apm.startTransaction('manual');
 
   useClientDynamoDB(dynamoDBClient, tableName).then(
     function () {
-      tx.end()
-      dynamoDBClient.destroy()
-      process.exitCode = 0
+      tx.end();
+      dynamoDBClient.destroy();
+      process.exitCode = 0;
     },
     function (err) {
-      apm.logger.error(err, 'useClientDynamoDB rejected')
-      tx.setOutcome('failure')
-      tx.end()
-      dynamoDBClient.destroy()
-      process.exitCode = 1
-    }
-  )
+      apm.logger.error(err, 'useClientDynamoDB rejected');
+      tx.setOutcome('failure');
+      tx.end();
+      dynamoDBClient.destroy();
+      process.exitCode = 1;
+    },
+  );
 }
 
-main()
+main();
