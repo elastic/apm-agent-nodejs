@@ -41,7 +41,7 @@ Notes:
 ===== Features
 
 * Add support for `@aws-sdk/client-sns`, one of the AWS SDK v3 clients.
-  ({pull}3500[#3500])
+  ({issues}2956[#2956])
 
 [float]
 ===== Bug fixes
