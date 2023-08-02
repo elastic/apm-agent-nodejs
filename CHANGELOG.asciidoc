@@ -196,7 +196,7 @@ in a Worker will *not* start the APM agent. Instead, one must use:
 [float]
 ===== Chores
 
-* The config option <<filter-http-headers, filterHttpHeaders>> is now *deprecated*. It will be
+* The config option `filterHttpHeaders` is now *deprecated*. It will be
   removed in a future major version. ({pull}3333[#3333])
 
 * Add cookie map in transactions' request context and redact cookie header ({pull}3322[#3322])

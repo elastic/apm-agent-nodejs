@@ -19,8 +19,7 @@
   example, one must use `KUBERNETES_POD_NAME` and not
   `ELASTIC_APM_KUBERNETES_POD_NAME`. ({issues}2661[#2661])
 
-* The config option <<filter-http-headers, filterHttpHeaders>> is now *removed*.
-  ({pull}3539[#3539])
+* The config option `filterHttpHeaders` is now *removed*. ({pull}3539[#3539])
 
 [float]
 ===== Features
