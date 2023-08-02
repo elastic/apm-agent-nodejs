@@ -15,16 +15,16 @@ if [ -z "$(grep \"\:$(id -u)\:\" /etc/passwd)" ]; then
   git config -l
 fi
 
-npm_install() {
+npm_ci() {
   local retries=2
   local count=0
 
-  until npm install --no-save; do
+  until npm ci; do
     exit=$?
     wait=$((2 ** $count))
     count=$(($count + 1))
     if [ $count -lt $retries ]; then
-      printf "Retry of 'npm install' %s/%s exited %s, retrying in %s seconds...\n" "$count" "$retries" "$exit" "$wait" >&2
+      printf "Retry of 'npm ci' %s/%s exited %s, retrying in %s seconds...\n" "$count" "$retries" "$exit" "$wait" >&2
       printf "Force-cleaning of npm cache.\n" >&2
       npm cache clean --force
       sleep $wait
@@ -40,7 +40,7 @@ export
 id
 node --version
 npm --version
-npm_install
+npm_ci
 
 # Attempt to provide junit-formatted test results, for Jenkins' "Test Results"
 # and other features like flaky-test reporting.

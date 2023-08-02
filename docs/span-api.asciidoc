@@ -94,6 +94,7 @@ a database query would generally have an action of `query`.
 
 Get the serialized traceparent string of the span.
 
+
 [[span-set-label]]
 ==== `span.setLabel(name, value[, stringify = true])`
 
@@ -105,12 +106,30 @@ Get the serialized traceparent string of the span.
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 * `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+If the `stringify` argument is not given, or set to `true` then the given value
+will be converted to a string.
 * `stringify` +{type-boolean}+
-Defaults to `true`. When true, if a non-string `value` is given, it is
+This defaults to `true` for backwards compatibility, but new usage will
+typically want `false`. When true, if a non-string `value` is given, it is
 converted to a string before being sent to the APM Server.
+
+[source,js]
+----
+span.setLabel('productId', 42, false);
+----
 
 Set a label on the span.
 You can set multiple labels on the same span.
+
+TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
+(as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+Before using custom labels, ensure you understand the different types of
+{apm-guide-ref}/data-model-metadata.html[metadata] that are available.
+
+WARNING: Avoid defining too many user-specified labels.
+Defining too many unique fields in an index is a condition that can lead to a
+{ref}/mapping.html#mapping-limit-settings[mapping explosion].
+
 
 [[span-add-labels]]
 ==== `span.addLabels({ [name]: value }[, stringify = true])`
@@ -124,12 +143,30 @@ You can set multiple labels on the same span.
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 ** `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+If the `stringify` argument is not given, or set to `true` then the given value
+will be converted to a string.
 * `stringify` +{type-boolean}+
-Defaults to `true`. When true, if a non-string `value` is given, it is
+This defaults to `true` for backwards compatibility, but new usage will
+typically want `false`. When true, if a non-string `value` is given, it is
 converted to a string before being sent to the APM Server.
+
+[source,js]
+----
+span.addLabels({productId: 42, productName: 'butter'}, false);
+----
 
 Add several labels on the span.
 You can add labels multiple times.
+
+TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
+(as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+Before using custom labels, ensure you understand the different types of
+{apm-guide-ref}/data-model-metadata.html[metadata] that are available.
+
+WARNING: Avoid defining too many user-specified labels.
+Defining too many unique fields in an index is a condition that can lead to a
+{ref}/mapping.html#mapping-limit-settings[mapping explosion].
+
 
 [[span-ids]]
 ==== `span.ids`
