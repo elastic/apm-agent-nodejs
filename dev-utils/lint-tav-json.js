@@ -35,7 +35,7 @@ function main(argv) {
   const tavYmlPaths = glob.sync('**/.tav.yml', {
     ignore: ['**/node_modules/**'],
   });
-  // console.log('tavYmlPaths:', tavYmlPaths)
+  // console.log('tavYmlPaths:', tavYmlPaths);
   tavYmlPaths.forEach((p) => {
     const tavCfg = yaml.load(fs.readFileSync(p, 'utf8'));
     Object.keys(tavCfg).forEach((k) => {
@@ -43,25 +43,35 @@ function main(argv) {
       moduleNamesFromYaml.add(v.name || k);
     });
   });
-  // console.log('moduleNamesFromYaml: ', moduleNamesFromYaml)
+  // console.log('moduleNamesFromYaml: ', moduleNamesFromYaml);
 
   // Find module names in ".ci/tav.json".
   const moduleNamesFromJson = new Set();
   const tavJson = JSON.parse(fs.readFileSync(path.join(TOP, TAV_JSON_PATH)));
   tavJson.modules.forEach((m) => {
-    m.split(',').forEach((moduleName) => {
+    m.name.split(',').forEach((moduleName) => {
       moduleNamesFromJson.add(moduleName);
     });
   });
-  // console.log('moduleNamesFromJson: ', moduleNamesFromJson)
+  const matrix = [];
+  for (const mod of tavJson.modules) {
+    mod.name.split(',').forEach((moduleName) => {
+      moduleNamesFromJson.add(moduleName);
+    });
+    for (const nv of tavJson.versions) {
+      if (mod.minVersion && nv >= mod.minVersion) {
+        matrix.push(`${mod.name} ${nv}`);
+      }
+    }
+  }
+  // console.log('moduleNamesFromJson: ', moduleNamesFromJson);
 
   // Matrix 256 limit.
-  const matrixSize = tavJson.versions.length * tavJson.modules.length;
-  if (matrixSize > 256) {
+  if (matrix.length > 256) {
     console.error(
       'lint-tav-json: #versions * #modules from "%s" is >256, which exceeds the GH Actions workflow matrix limit: %d',
       TAV_JSON_PATH,
-      matrixSize,
+      matrix.length,
     );
     numErrors += 1;
   }
