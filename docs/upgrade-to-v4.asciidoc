@@ -38,7 +38,7 @@ option <<sanitize-field-names, `sanitizeFieldNames`>>.
 [[v4-api-changes]]
 ==== API changes
 
-[[v4-api-toString]]
+[[v4-api-to-string]]
 ===== `span.toString()`, `transaction.toString()`
 
 The `span.toString()` and `transaction.toString()` methods have been removed as
