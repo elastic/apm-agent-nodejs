@@ -43,9 +43,6 @@ Notes:
 [float]
 ===== Bug fixes
 
-* The config option <<filter-http-headers, filterHttpHeaders>> is now *removed*.
-  ({pull}3539[#3539])
-
 * Fix ESM support: the "loader.mjs" file was accidentally not included in
   the published package in v3.48.0. ({pull}3534[#3534])
 
@@ -61,6 +58,9 @@ Notes:
 
 [float]
 ===== Chores
+
+* The config option <<filter-http-headers, filterHttpHeaders>> is now *removed*.
+  ({pull}3539[#3539])
 
 * Inline the `elastic-apm-http-client` package code into this repo.
   ({issues}3506[#3506])
