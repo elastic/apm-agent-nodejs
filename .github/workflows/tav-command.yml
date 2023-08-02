@@ -94,6 +94,7 @@ jobs:
                   core.setFailed(`Incorrect versions list ${match[3]}, please review it'`)
                   return
                 }
+                resolvedVersions.push(...inputVersions)
               } else {
                 resolvedVersions.push(...versions)
               }
