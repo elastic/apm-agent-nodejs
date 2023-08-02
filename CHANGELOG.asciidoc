@@ -43,6 +43,9 @@ Notes:
 [float]
 ===== Bug fixes
 
+* The config option <<filter-http-headers, filterHttpHeaders>> is now *removed*.
+  ({pull}XXXX[#XXXX])
+
 * Fix ESM support: the "loader.mjs" file was accidentally not included in
   the published package in v3.48.0. ({pull}3534[#3534])
 

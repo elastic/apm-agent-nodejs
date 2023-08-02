@@ -108,9 +108,6 @@ apm.addFilter(function redactSecretHeader(payload) {
 })
 ----
 
-A set of built-in filters are added by default.
-See <<filter-http-headers,`filterHttpHeaders`>> for details.
-
 Though you can also use filter functions to add new contextual information to the `user` and `custom` properties,
 it's recommended that you use <<apm-set-user-context,`apm.setUserContext()`>> and <<apm-set-custom-context,`apm.setCustomContext()`>> for that purpose.
 
