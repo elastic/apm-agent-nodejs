@@ -574,7 +574,7 @@ require('elastic-apm-node').start({
 * *Env:* `ELASTIC_APM_CAPTURE_EXCEPTIONS`
 
 Whether or not the agent should monitor for uncaught exceptions
-(https://nodejs.org/docs/latest/api/all.html#process_event-uncaughtexception[`uncaughtException`])
+(https://nodejs.org/api/process.html#event-uncaughtexception[`uncaughtException`])
 and send them to the APM Server automatically.
 
 After sending the error information to APM Server, then agent will
