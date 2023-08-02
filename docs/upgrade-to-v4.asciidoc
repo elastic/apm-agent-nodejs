@@ -26,6 +26,10 @@ correct environment variables for these config vars are **without** the
 <<kubernetes-pod-name,`KUBERNETES_POD_NAME`>> -- and has been documented that
 way since v2.11.0.
 
+Support for `filterHttpHeaders` config option has been removed. Redaction of
+HTTP headers and also request cookies is controlled by the existing config option
+<<sanitize-field-names, `sanitizeFieldNames`>>.
+
 [[v4-api-changes]]
 ==== API changes
 

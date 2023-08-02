@@ -136,9 +136,6 @@ var optionFixtures = [
   ['environment', 'ELASTIC_APM_ENVIRONMENT', 'development'],
   ['errorMessageMaxLength', 'ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH', undefined],
   ['errorOnAbortedRequests', 'ELASTIC_APM_ERROR_ON_ABORTED_REQUESTS', false],
-  // Config option deprecated. To be removed in next major release
-  // TODO: https://github.com/elastic/apm-agent-nodejs/issues/3332
-  ['filterHttpHeaders', 'ELASTIC_APM_FILTER_HTTP_HEADERS', true],
   ['frameworkName', 'ELASTIC_APM_FRAMEWORK_NAME'],
   ['frameworkVersion', 'ELASTIC_APM_FRAMEWORK_VERSION'],
   ['hostname', 'ELASTIC_APM_HOSTNAME'],
@@ -468,30 +465,6 @@ test('should log invalid booleans', function (t) {
   t.strictEqual(
     debug.message,
     'Elastic APM agent disabled (`active` is false)',
-  );
-
-  agent.destroy();
-  t.end();
-});
-
-test('it should log deprecated booleans', function (t) {
-  var agent = new Agent();
-  var logger = new MockLogger();
-
-  agent.start(
-    Object.assign({}, agentOptsNoopTransport, {
-      serviceName: 'foo',
-      secretToken: 'baz',
-      active: false,
-      filterHttpHeaders: false,
-      logger,
-    }),
-  );
-
-  var warning = findObjInArray(logger.calls, 'type', 'warn');
-  t.strictEqual(
-    warning.message,
-    'the `filterHttpHeaders` config option is deprecated',
   );
 
   agent.destroy();
