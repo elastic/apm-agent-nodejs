@@ -1177,9 +1177,8 @@ test('disableInstrumentations', function (t) {
     [],
   );
   var modules = new Set(flattenedModules);
-  modules.delete('hapi'); // Deprecated, we no longer test this instrumentation.
   modules.delete('jade'); // Deprecated, we no longer test this instrumentation.
-  if (isHapiIncompat('@hapi/hapi')) {
+  if (isHapiIncompat()) {
     modules.delete('@hapi/hapi');
   }
   modules.delete('express-graphql');
