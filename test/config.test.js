@@ -111,63 +111,84 @@ function assertEncodedError(t, error, result, trans, parent) {
 // ---- tests
 
 var optionFixtures = [
-  ['abortedErrorThreshold', 'ABORTED_ERROR_THRESHOLD', 25],
-  ['active', 'ACTIVE', true],
-  ['apiKey', 'API_KEY'],
-  ['apiRequestSize', 'API_REQUEST_SIZE', 768 * 1024],
-  ['apiRequestTime', 'API_REQUEST_TIME', 10],
-  ['captureBody', 'CAPTURE_BODY', 'off'],
+  ['abortedErrorThreshold', 'ELASTIC_APM_ABORTED_ERROR_THRESHOLD', 25],
+  ['active', 'ELASTIC_APM_ACTIVE', true],
+  ['apiKey', 'ELASTIC_APM_API_KEY'],
+  ['apiRequestSize', 'ELASTIC_APM_API_REQUEST_SIZE', 768 * 1024],
+  ['apiRequestTime', 'ELASTIC_APM_API_REQUEST_TIME', 10],
+  ['captureBody', 'ELASTIC_APM_CAPTURE_BODY', 'off'],
   [
     'captureErrorLogStackTraces',
-    'CAPTURE_ERROR_LOG_STACK_TRACES',
+    'ELASTIC_APM_CAPTURE_ERROR_LOG_STACK_TRACES',
     CAPTURE_ERROR_LOG_STACK_TRACES_MESSAGES,
   ],
-  ['captureExceptions', 'CAPTURE_EXCEPTIONS', true],
-  ['centralConfig', 'CENTRAL_CONFIG', true],
-  ['containerId', 'CONTAINER_ID'],
-  ['contextPropagationOnly', 'CONTEXT_PROPAGATION_ONLY', false],
+  ['captureExceptions', 'ELASTIC_APM_CAPTURE_EXCEPTIONS', true],
+  ['centralConfig', 'ELASTIC_APM_CENTRAL_CONFIG', true],
+  ['containerId', 'ELASTIC_APM_CONTAINER_ID'],
+  ['contextPropagationOnly', 'ELASTIC_APM_CONTEXT_PROPAGATION_ONLY', false],
   [
     'customMetricsHistogramBoundaries',
-    'CUSTOM_METRICS_HISTOGRAM_BOUNDARIES',
+    'ELASTIC_APM_CUSTOM_METRICS_HISTOGRAM_BOUNDARIES',
     DEFAULTS.customMetricsHistogramBoundaries.slice(),
   ],
-  ['disableSend', 'DISABLE_SEND', false],
-  ['disableInstrumentations', 'DISABLE_INSTRUMENTATIONS', []],
-  ['environment', 'ENVIRONMENT', 'development'],
-  ['errorMessageMaxLength', 'ERROR_MESSAGE_MAX_LENGTH', undefined],
-  ['errorOnAbortedRequests', 'ERROR_ON_ABORTED_REQUESTS', false],
-  ['frameworkName', 'FRAMEWORK_NAME'],
-  ['frameworkVersion', 'FRAMEWORK_VERSION'],
-  ['hostname', 'HOSTNAME'],
-  ['instrument', 'INSTRUMENT', true],
-  ['instrumentIncomingHTTPRequests', 'INSTRUMENT_INCOMING_HTTP_REQUESTS', true],
+  ['disableSend', 'ELASTIC_APM_DISABLE_SEND', false],
+  ['disableInstrumentations', 'ELASTIC_APM_DISABLE_INSTRUMENTATIONS', []],
+  ['environment', 'ELASTIC_APM_ENVIRONMENT', 'development'],
+  ['errorMessageMaxLength', 'ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH', undefined],
+  ['errorOnAbortedRequests', 'ELASTIC_APM_ERROR_ON_ABORTED_REQUESTS', false],
+  ['frameworkName', 'ELASTIC_APM_FRAMEWORK_NAME'],
+  ['frameworkVersion', 'ELASTIC_APM_FRAMEWORK_VERSION'],
+  ['hostname', 'ELASTIC_APM_HOSTNAME'],
+  ['instrument', 'ELASTIC_APM_INSTRUMENT', true],
+  [
+    'instrumentIncomingHTTPRequests',
+    'ELASTIC_APM_INSTRUMENT_INCOMING_HTTP_REQUESTS',
+    true,
+  ],
   ['kubernetesNamespace', 'KUBERNETES_NAMESPACE'],
   ['kubernetesNodeName', 'KUBERNETES_NODE_NAME'],
   ['kubernetesPodName', 'KUBERNETES_POD_NAME'],
   ['kubernetesPodUID', 'KUBERNETES_POD_UID'],
-  ['logLevel', 'LOG_LEVEL', 'info'],
-  ['logUncaughtExceptions', 'LOG_UNCAUGHT_EXCEPTIONS', false],
-  ['longFieldMaxLength', 'LONG_FIELD_MAX_LENGTH', 10000],
-  ['maxQueueSize', 'MAX_QUEUE_SIZE', 1024],
-  ['metricsInterval', 'METRICS_INTERVAL', 30],
-  ['metricsLimit', 'METRICS_LIMIT', 1000],
-  ['secretToken', 'SECRET_TOKEN'],
-  ['serverCaCertFile', 'SERVER_CA_CERT_FILE'],
-  ['serverTimeout', 'SERVER_TIMEOUT', 30],
-  ['serverUrl', 'SERVER_URL', 'http://127.0.0.1:8200'],
-  ['serviceName', 'SERVICE_NAME', apmName],
-  ['serviceNodeName', 'SERVICE_NODE_NAME'],
-  ['serviceVersion', 'SERVICE_VERSION', apmVersion],
-  ['sourceLinesErrorAppFrames', 'SOURCE_LINES_ERROR_APP_FRAMES', 5],
-  ['sourceLinesErrorLibraryFrames', 'SOURCE_LINES_ERROR_LIBRARY_FRAMES', 5],
-  ['sourceLinesSpanAppFrames', 'SOURCE_LINES_SPAN_APP_FRAMES', 0],
-  ['sourceLinesSpanLibraryFrames', 'SOURCE_LINES_SPAN_LIBRARY_FRAMES', 0],
-  ['stackTraceLimit', 'STACK_TRACE_LIMIT', 50],
-  ['traceContinuationStrategy', 'TRACE_CONTINUATION_STRATEGY', 'continue'],
-  ['transactionMaxSpans', 'TRANSACTION_MAX_SPANS', 500],
-  ['transactionSampleRate', 'TRANSACTION_SAMPLE_RATE', 1.0],
-  ['usePathAsTransactionName', 'USE_PATH_AS_TRANSACTION_NAME', false],
-  ['verifyServerCert', 'VERIFY_SERVER_CERT', true],
+  ['logLevel', 'ELASTIC_APM_LOG_LEVEL', 'info'],
+  ['logUncaughtExceptions', 'ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS', false],
+  ['longFieldMaxLength', 'ELASTIC_APM_LONG_FIELD_MAX_LENGTH', 10000],
+  ['maxQueueSize', 'ELASTIC_APM_MAX_QUEUE_SIZE', 1024],
+  ['metricsInterval', 'ELASTIC_APM_METRICS_INTERVAL', 30],
+  ['metricsLimit', 'ELASTIC_APM_METRICS_LIMIT', 1000],
+  ['secretToken', 'ELASTIC_APM_SECRET_TOKEN'],
+  ['serverCaCertFile', 'ELASTIC_APM_SERVER_CA_CERT_FILE'],
+  ['serverTimeout', 'ELASTIC_APM_SERVER_TIMEOUT', 30],
+  ['serverUrl', 'ELASTIC_APM_SERVER_URL', 'http://127.0.0.1:8200'],
+  ['serviceName', 'ELASTIC_APM_SERVICE_NAME', apmName],
+  ['serviceNodeName', 'ELASTIC_APM_SERVICE_NODE_NAME'],
+  ['serviceVersion', 'ELASTIC_APM_SERVICE_VERSION', apmVersion],
+  ['sourceLinesErrorAppFrames', 'ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES', 5],
+  [
+    'sourceLinesErrorLibraryFrames',
+    'ELASTIC_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES',
+    5,
+  ],
+  ['sourceLinesSpanAppFrames', 'ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES', 0],
+  [
+    'sourceLinesSpanLibraryFrames',
+    'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES',
+    0,
+  ],
+  ['stackTraceLimit', 'ELASTIC_APM_STACK_TRACE_LIMIT', 50],
+  [
+    'traceContinuationStrategy',
+    'ELASTIC_APM_TRACE_CONTINUATION_STRATEGY',
+    'continue',
+  ],
+  ['transactionMaxSpans', 'ELASTIC_APM_TRANSACTION_MAX_SPANS', 500],
+  ['transactionSampleRate', 'ELASTIC_APM_TRANSACTION_SAMPLE_RATE', 1.0],
+  [
+    'usePathAsTransactionName',
+    'ELASTIC_APM_USE_PATH_AS_TRANSACTION_NAME',
+    false,
+  ],
+  ['verifyServerCert', 'ELASTIC_APM_VERIFY_SERVER_CERT', true],
+  // XXX ELASTIC_APM_
 ];
 
 var falsyValues = [false, 'false'];
@@ -199,7 +220,7 @@ optionFixtures.forEach(function (fixture) {
       type = 'string';
     }
 
-    var envName = 'ELASTIC_APM_' + fixture[1];
+    var envName = fixture[1];
     var existingValue = process.env[envName];
 
     test(`should be configurable by environment variable ${envName}`, function (t) {
@@ -2057,28 +2078,28 @@ test('contextManager', (suite) => {
   suite.end();
 });
 
-test('env variable names', (suite) => {
-  // flatten
-  const names = [].concat(...Object.values(ENV_TABLE));
-
-  // list of names we keep around for backwards compatability
-  // but that don't conform to the ELASTIC_APM name
-  const legacy = [
-    'ELASTIC_SANITIZE_FIELD_NAMES',
-    'KUBERNETES_POD_UID',
-    'KUBERNETES_POD_NAME',
-    'KUBERNETES_NODE_NAME',
+test('env variable names start with "ELASTIC_APM_" prefix', (t) => {
+  const names = Object.values(ENV_TABLE).flat();
+  const exclusions = [
+    // The KUBERNETES_ envvars are intentionally not prefixed per
+    // https://github.com/elastic/apm/blob/main/specs/agents/metadata.md#containerkubernetes-metadata
     'KUBERNETES_NAMESPACE',
+    'KUBERNETES_NODE_NAME',
+    'KUBERNETES_POD_NAME',
+    'KUBERNETES_POD_UID',
+    // These are for backward compatibility -- they were accidentally added
+    // with the wrong prefix.
+    'ELASTIC_SANITIZE_FIELD_NAMES',
     'ELASTIC_IGNORE_MESSAGE_QUEUES',
   ];
   for (const name of names) {
-    if (legacy.indexOf(name) !== -1) {
+    if (exclusions.indexOf(name) !== -1) {
       continue;
     }
-    suite.true(
-      name.indexOf('ELASTIC_APM') === 0,
-      `${name} starts with ELASTIC_APM`,
+    t.ok(
+      name.indexOf('ELASTIC_APM_') === 0,
+      `${name} starts with ELASTIC_APM_`,
     );
   }
-  suite.end();
+  t.end();
 });
