@@ -18,20 +18,48 @@ Version 4.0.0 of the Node.js APM agent supports Node.js v14.5.0 and later.
 [[v4-config-options]]
 ==== Config options
 
+===== `ELASTIC_APM_KUBERNETES_*`
+
 Support for the following Kubernetes environment variables have been removed:
 `ELASTIC_APM_KUBERNETES_NAMESPACE`, `ELASTIC_APM_KUBERNETES_NODE_NAME`,
 `ELASTIC_APM_KUBERNETES_POD_NAME`, and `ELASTIC_APM_KUBERNETES_POD_UID`. The
-correct environment variables for these config vars are **without** the
+correct environment variables for these config vars are _without_ the
 `ELASTIC_APM_` prefix -- for example
 <<kubernetes-pod-name,`KUBERNETES_POD_NAME`>> -- and has been documented that
 way since v2.11.0.
 
+===== `filterHttpHeaders`
+
 Support for `filterHttpHeaders` config option has been removed. Redaction of
-HTTP headers and also request cookies is controlled by the existing config option
-<<sanitize-field-names, `sanitizeFieldNames`>>.
+HTTP headers and also request cookies is controlled by the existing config
+option <<sanitize-field-names, `sanitizeFieldNames`>>.
+
 
 [[v4-api-changes]]
 ==== API changes
 
-XXX
+[[v4-api-toString]]
+===== `span.toString()`, `transaction.toString()`
 
+The `span.toString()` and `transaction.toString()` methods have been removed as
+documented APIs. They were never in the "index.d.ts" types and were deprecated
+in v3.23.0.
+
+Since v2.17.0 they would return a string of the form `trace.id=<hex id the
+trace> span.id=<hex id of the span>`, with the intent that this could be used in
+text-only loggers for log correlation. Using `.toString()` for this was
+deprecated in v3.23.0, and has now been removed in v4. In v4 the output of
+`.toString()` is not defined.
+
+Instead, prefer the use of <<span-ids,`span.ids`>>,
+<<transaction-ids,`transaction.ids`>>, or
+<<apm-current-trace-ids,`apm.currentTraceIds`>>. The v3 format may be reproduced
+via:
+
+[source,js]
+----
+const {stringify} = require('querystring');
+console.log( stringify(span.ids, ' ', '=')) );
+----
+
+For log correlation with _structured_ logs, see <<log-correlation-ids>>.
