@@ -262,10 +262,6 @@ declare namespace apm {
     errorMessageMaxLength?: string;
     errorOnAbortedRequests?: boolean;
     exitSpanMinDuration?: string;
-    /**
-     * @deprecated Configuration 'filterHttpHeaders' is not used.
-     */
-    filterHttpHeaders?: boolean;
     frameworkName?: string;
     frameworkVersion?: string;
     globalLabels?: KeyValueConfig;
