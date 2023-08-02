@@ -28,7 +28,7 @@ way since v2.11.0.
 
 Support for `filterHttpHeaders` config option has been removed. Redaction of
 HTTP headers and also request cookies is controlled by the existing config option
-<<sanitize-field-names, `sanitizeFieldnames`>>.
+<<sanitize-field-names, `sanitizeFieldNames`>>.
 
 [[v4-api-changes]]
 ==== API changes
