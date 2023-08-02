@@ -59,6 +59,9 @@ Notes:
 [float]
 ===== Chores
 
+* Add min node verison in `tav.json` to generate lighter matrix for TAV commands.
+  ({pull}3531[#3531])
+
 * Inline the `elastic-apm-http-client` package code into this repo.
   ({issues}3506[#3506])
 
