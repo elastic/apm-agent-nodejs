@@ -20,7 +20,6 @@ jobs:
       pull-requests: write
     outputs:
       permutations: ${{ steps.transform.outputs.permutations }}
-      count: ${{ steps.transform.outputs.count }}
     steps:
       - name: Is comment allowed?
         uses: actions/github-script@v6
@@ -63,6 +62,9 @@ jobs:
               return
             }
             const comment = context.payload.review.body
+            const resolvedModules = []
+            const resolvedVersions = []
+            let inputNames, inputVersions
             if (comment !== '/test tav') {
               const regex = /\/test tav ([^\s]+)(\s*)([^\s]*)/
               const match = comment.match(regex)
@@ -72,38 +74,44 @@ jobs:
               }
               if (match[1]) {
                 if (match[1] !== 'all') {
-                  modules = match[1].split(',').map((name) => modules.find((m) => m.name === name))
+                  inputNames = match[1].split(',')
+                  for (const name of inputNames) {
+                    const mod = modules.find((m) => m.name === name)
+                    if (mod) {
+                      resolvedModules.push(mod)
+                    } else {
+                      core.setFailed(`Incorrect module name ${name}, please review it'`)
+                      return
+                    }
+                  }
+                } else {
+                  resolvedModules.push(...modules)
                 }
               }
               if (match[3]) {
-                versions = match[3].split(',').map(Number)
+                inputVersions = match[3].split(',').map(Number)
+                if (inputVersions.some((v) => isNaN(v))) {
+                  core.setFailed(`Incorrect versions list ${match[3]}, please review it'`)
+                  return
+                }
+              } else {
+                resolvedVersions.push(...versions)
               }
-            }
-
-            const badModuleIndex = modules.findIndex((m) => !m)
-            const badVersionIndex = versions.findIndex((v) => isNaN(v))
-
-            if (badModuleIndex !== -1) {
-              core.setFailed(`Incorrect modules list, please review it'`)
-              return
-            }
-            if (badVersionIndex !== -1) {
-              core.setFailed(`Incorrect versions list, please review it'`)
-              return
             }
 
             const permutations = []
-            for (const mod of modules) {
-              for (const nv of versions) {
+            for (const mod of resolvedModules) {
+              for (const nv of resolvedVersions) {
                 if (mod.minVersion && nv >= mod.minVersion) {
                   permutations.push(`${mod.name} ${nv}`)
-                } else if (typeof mod === 'string') {
-                  permutations.push(`${mod} ${nv}`)
                 }
               }
             }
+            if (permutations.length > 256) {
+              core.setFailed(`Matrix size (${permutations.length}) is bigger than the limit (256)`)
+              return
+            }
             core.setOutput('permutations', permutations)
-            core.setOutput('count', [permutations.length])
 
   test-tav:
     needs: command-validation
@@ -113,14 +121,13 @@ jobs:
       max-parallel: 15
       fail-fast: false
       matrix:
-        moduleAndNode: ${{ fromJSON(needs.command-validation.outputs.permutations) }}
-        count: ${{ fromJSON(needs.command-validation.outputs.count) }}
+        module_and_node: ${{ fromJSON(needs.command-validation.outputs.permutations) }}
     steps:
 
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - run: .ci/scripts/test.sh -b "release" -t ${{ matrix.moduleAndNode }}
+      - run: .ci/scripts/test.sh -b "release" -t ${{ matrix.module_and_node }}
         env:
           ELASTIC_APM_CONTEXT_MANAGER: ''
