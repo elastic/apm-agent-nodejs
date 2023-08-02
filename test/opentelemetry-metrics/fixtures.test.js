@@ -153,26 +153,26 @@ async function checkHasPrometheusMetrics(t) {
 
 // ---- tests
 
-// We need to `npm install` for a first test run.
+// We need to `npm ci` for a first test run.
 const haveNodeModules = fs.existsSync(path.join(fixturesDir, 'node_modules'));
 tape.test(
-  `setup: npm install (in ${fixturesDir})`,
+  `setup: npm ci (in ${fixturesDir})`,
   { skip: haveNodeModules },
   (t) => {
     const startTime = Date.now();
     exec(
-      'npm install',
+      'npm ci',
       {
         cwd: fixturesDir,
       },
       function (err, stdout, stderr) {
         t.error(
           err,
-          `"npm install" succeeded (took ${(Date.now() - startTime) / 1000}s)`,
+          `"npm ci" succeeded (took ${(Date.now() - startTime) / 1000}s)`,
         );
         if (err) {
           t.comment(
-            `$ npm install\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`,
+            `$ npm ci\n-- stdout --\n${stdout}\n-- stderr --\n${stderr}\n--`,
           );
         }
         t.end();

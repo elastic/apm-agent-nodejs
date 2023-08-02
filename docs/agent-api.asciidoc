@@ -243,9 +243,17 @@ TIP: Before using custom context, ensure you understand the different types of
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 * `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+If the `stringify` argument is not given, or set to `true` then the given value
+will be converted to a string.
 * `stringify` +{type-boolean}+
-Defaults to `true`. When true, if a non-string `value` is given, it is
+This defaults to `true` for backwards compatibility, but new usage will
+typically want `false`. When true, if a non-string `value` is given, it is
 converted to a string before being sent to the APM Server.
+
+[source,js]
+----
+apm.setLabel('productId', 42, false);
+----
 
 Set a label on the current transaction.
 You can set multiple labels on the same transaction.
@@ -273,9 +281,17 @@ Defining too many unique fields in an index is a condition that can lead to a
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 ** `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+If the `stringify` argument is not given, or set to `true` then the given value
+will be converted to a string.
 * `stringify` +{type-boolean}+
-Defaults to `true`. When true, if a non-string `value` is given, it is
+This defaults to `true` for backwards compatibility, but new usage will
+typically want `false`. When true, if a non-string `value` is given, it is
 converted to a string before being sent to the APM Server.
+
+[source,js]
+----
+apm.addLabels({productId: 42, productName: 'butter'}, false);
+----
 
 Add several labels on the current transaction.
 You can add labels multiple times.
@@ -739,7 +755,7 @@ Manually end the active outgoing HTTP request to the APM Server.
 The HTTP request is otherwise ended automatically at regular intervals,
 controlled by the <<api-request-time,`apiRequestTime`>> and <<api-request-size,`apiRequestSize`>> config options.
 
-If an optional `callback` is provided as the first argument to this method, it will call `callback(flushErr)` when complete. 
+If an optional `callback` is provided as the first argument to this method, it will call `callback(flushErr)` when complete.
 If no `callback` is provided, then a `Promise` will be returned, which will either resolve with `void` or reject with `flushErr`.
 
 The callback is called (or the `Promise` resolves if no `callback` argument is provided) *after* the active HTTP request has ended.

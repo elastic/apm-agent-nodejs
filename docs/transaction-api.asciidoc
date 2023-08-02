@@ -142,16 +142,32 @@ See <<span-api,Span API>> docs for details on how to use custom spans.
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 * `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+If the `stringify` argument is not given, or set to `true` then the given value
+will be converted to a string.
 * `stringify` +{type-boolean}+
-Defaults to `true`. When true, if a non-string `value` is given, it is
-converted to a string before being sent to the APM Server
+This defaults to `true` for backwards compatibility, but new usage will
+typically want `false`. When true, if a non-string `value` is given, it is
+converted to a string before being sent to the APM Server.
+
+[source,js]
+----
+transaction.setLabel('productId', 42, false);
+----
 
 Set a label on the transaction.
 You can set multiple labels on the same transaction.
 If an error happens during the transaction,
 it will also get tagged with the same labels.
 
-Tags are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
+(as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+Before using custom labels, ensure you understand the different types of
+{apm-guide-ref}/data-model-metadata.html[metadata] that are available.
+
+WARNING: Avoid defining too many user-specified labels.
+Defining too many unique fields in an index is a condition that can lead to a
+{ref}/mapping.html#mapping-limit-settings[mapping explosion].
+
 
 [[transaction-add-labels]]
 ==== `transaction.addLabels({ [name]: value }[, stringify = true])`
@@ -165,16 +181,32 @@ Tags are key/value pairs that are indexed by Elasticsearch and therefore searcha
 Any periods (`.`), asterisks (`*`), or double quotation marks (`"`) will be replaced by underscores (`_`),
 as those characters have special meaning in Elasticsearch
 ** `value` +{type-string}+ | +{type-number}+ | +{type-boolean}+
+If the `stringify` argument is not given, or set to `true` then the given value
+will be converted to a string.
 * `stringify` +{type-boolean}+
-Defaults to `true`. When true, if a non-string `value` is given, it is
+This defaults to `true` for backwards compatibility, but new usage will
+typically want `false`. When true, if a non-string `value` is given, it is
 converted to a string before being sent to the APM Server.
+
+[source,js]
+----
+transaction.addLabels({productId: 42, productName: 'butter'}, false);
+----
 
 Add several labels on the transaction.
 You can add labels multiple times.
 If an error happens during the transaction,
 it will also get tagged with the same labels.
 
-Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable (as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+TIP: Labels are key/value pairs that are indexed by Elasticsearch and therefore searchable
+(as opposed to data set via <<apm-set-custom-context,`apm.setCustomContext()`>>).
+Before using custom labels, ensure you understand the different types of
+{apm-guide-ref}/data-model-metadata.html[metadata] that are available.
+
+WARNING: Avoid defining too many user-specified labels.
+Defining too many unique fields in an index is a condition that can lead to a
+{ref}/mapping.html#mapping-limit-settings[mapping explosion].
+
 
 [[transaction-ensure-parent-id]]
 ==== `transaction.ensureParentId()`

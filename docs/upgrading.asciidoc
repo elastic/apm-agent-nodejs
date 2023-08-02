@@ -22,6 +22,7 @@ The following upgrade guides are available:
 * <<upgrade-to-v1,Upgrade to v1.x>> - Follow this guide to upgrade from version 0.x to version 1.x of the Elastic APM Node.js agent
 * <<upgrade-to-v2,Upgrade to v2.x>> - Follow this guide to upgrade from version 1.x to version 2.x of the Elastic APM Node.js agent
 * <<upgrade-to-v3,Upgrade to v3.x>> - Follow this guide to upgrade from version 2.x to version 3.x of the Elastic APM Node.js agent
+* <<upgrade-to-v4,Upgrade to v4.x>> - Follow this guide to upgrade from version 3.x to version 4.x of the Elastic APM Node.js agent
 
 [float]
 [[end-of-life-dates]]
@@ -37,3 +38,5 @@ include::./upgrade-to-v1.asciidoc[Upgrade to v1.x]
 include::./upgrade-to-v2.asciidoc[Upgrade to v2.x]
 
 include::./upgrade-to-v3.asciidoc[Upgrade to v3.x]
+
+include::./upgrade-to-v4.asciidoc[Upgrade to v4.x]

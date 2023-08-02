@@ -36,7 +36,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm install
+      - run: npm ci
       - run: npm run lint
 
   test-vers:
@@ -142,7 +142,7 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - run: docker ps  # show the services against which we'll be testing
-    - run: npm install
+    - run: npm ci
     - run: npm ls --all || true
     - name: npm test
       run: npm test
@@ -167,7 +167,7 @@ jobs:
         # which version more of our users are using.
         node-version: 16
         cache: 'npm'
-    - run: npm install
+    - run: npm ci
     - run: npm ls --all || true
     # Run a subset of tests that we can reasonably get running on Windows CI.
     - run: node test/test.js
