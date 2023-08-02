@@ -54,60 +54,75 @@ jobs:
 
             let modules, versions
             try {
-              const matrix = JSON.parse(fs.readFileSync('./.ci/tav.json'))
+              const matrix = JSON.parse(fs.readFileSync('./.ci/tav.json'));
               versions = matrix.versions
               modules = matrix.modules
             } catch (err) {
               core.setFailed(`Error loading './.ci/tav.json': ${err}`)
               return
             }
+
+            const getPermutations = (mods, vers) => {
+              const permutations = []
+              for (const mod of mods) {
+                for (const nv of vers) {
+                  if (mod.minVersion && nv >= mod.minVersion) {
+                    permutations.push(`${mod.name} ${nv}`)
+                  }
+                }
+              }
+              return permutations
+            }
+
             const comment = context.payload.review.body
+            if (comment === '/test tav') {
+              const permutations = getPermutations(modules, versions)
+              if (permutations.length > 256) {
+                core.setFailed(`Matrix size (${permutations.length}) is bigger than the limit (256)`)
+              } else {
+                core.setOutput('permutations', permutations)
+              }
+              return
+            }
+
+            const regex = /\/test tav ([^\s]+)(\s*)([^\s]*)/
+            const match = comment.match(regex)
+            if (!match) {
+              core.setFailed(`Incorrect comment, please use /test tav(\\s(module1,...,moduleN)?(\\s)?(node1,...,nodeN)?)?'`)
+              return
+            }
+
             const resolvedModules = []
             const resolvedVersions = []
             let inputNames, inputVersions
-            if (comment !== '/test tav') {
-              const regex = /\/test tav ([^\s]+)(\s*)([^\s]*)/
-              const match = comment.match(regex)
-              if (!match) {
-                core.setFailed(`Incorrect comment, please use /test tav(\\s(module1,...,moduleN)?(\\s)?(node1,...,nodeN)?)?'`)
+            if (match[1]) {
+              if (match[1] === 'all') {
+                resolvedModules.push(...modules)
+              } else {
+                inputNames = match[1].split(',')
+                for (const name of inputNames) {
+                  const mod = modules.find((m) => m.name === name)
+                  if (mod) {
+                    resolvedModules.push(mod)
+                  } else {
+                    core.setFailed(`Incorrect module name ${name}, please review it'`)
+                    return
+                  }
+                }
+              }
+            }
+            if (match[3]) {
+              inputVersions = match[3].split(',').map(Number)
+              if (inputVersions.some((v) => isNaN(v))) {
+                core.setFailed(`Incorrect versions list ${match[3]}, please review it'`)
                 return
               }
-              if (match[1]) {
-                if (match[1] !== 'all') {
-                  inputNames = match[1].split(',')
-                  for (const name of inputNames) {
-                    const mod = modules.find((m) => m.name === name)
-                    if (mod) {
-                      resolvedModules.push(mod)
-                    } else {
-                      core.setFailed(`Incorrect module name ${name}, please review it'`)
-                      return
-                    }
-                  }
-                } else {
-                  resolvedModules.push(...modules)
-                }
-              }
-              if (match[3]) {
-                inputVersions = match[3].split(',').map(Number)
-                if (inputVersions.some((v) => isNaN(v))) {
-                  core.setFailed(`Incorrect versions list ${match[3]}, please review it'`)
-                  return
-                }
-                resolvedVersions.push(...inputVersions)
-              } else {
-                resolvedVersions.push(...versions)
-              }
+              resolvedVersions.push(...inputVersions)
+            } else {
+              resolvedVersions.push(...versions)
             }
 
-            const permutations = []
-            for (const mod of resolvedModules) {
-              for (const nv of resolvedVersions) {
-                if (mod.minVersion && nv >= mod.minVersion) {
-                  permutations.push(`${mod.name} ${nv}`)
-                }
-              }
-            }
+            const permutations = getPermutations(resolvedModules, resolvedVersions)
             if (permutations.length > 256) {
               core.setFailed(`Matrix size (${permutations.length}) is bigger than the limit (256)`)
               return
