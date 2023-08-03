@@ -256,10 +256,6 @@ declare namespace apm {
     disableSend?: boolean;
     elasticsearchCaptureBodyUrls?: Array<string>;
     environment?: string;
-    /**
-     * @deprecated Use `longFieldMaxLength`
-     */
-    errorMessageMaxLength?: string;
     errorOnAbortedRequests?: boolean;
     exitSpanMinDuration?: string;
     frameworkName?: string;

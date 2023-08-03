@@ -21,6 +21,11 @@
 
 * The config option `filterHttpHeaders` is now *removed*. ({pull}3539[#3539])
 
+* The `errorMessageMaxLength` configuration option is now *removed*. From now
+  the size of the fields `error.exception.message` and `error.log.message` is
+  configured with `longFieldMaxLength` option.
+
+
 [float]
 ===== Features
 

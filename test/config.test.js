@@ -134,7 +134,6 @@ var optionFixtures = [
   ['disableSend', 'ELASTIC_APM_DISABLE_SEND', false],
   ['disableInstrumentations', 'ELASTIC_APM_DISABLE_INSTRUMENTATIONS', []],
   ['environment', 'ELASTIC_APM_ENVIRONMENT', 'development'],
-  ['errorMessageMaxLength', 'ELASTIC_APM_ERROR_MESSAGE_MAX_LENGTH', undefined],
   ['errorOnAbortedRequests', 'ELASTIC_APM_ERROR_ON_ABORTED_REQUESTS', false],
   ['frameworkName', 'ELASTIC_APM_FRAMEWORK_NAME'],
   ['frameworkVersion', 'ELASTIC_APM_FRAMEWORK_VERSION'],
@@ -209,10 +208,7 @@ optionFixtures.forEach(function (fixture) {
       type = 'customMetricsHistogramBoundaries';
     } else if (fixture[0] === 'traceContinuationStrategy') {
       type = 'traceContinuationStrategy';
-    } else if (
-      typeof fixture[2] === 'number' ||
-      fixture[0] === 'errorMessageMaxLength'
-    ) {
+    } else if (typeof fixture[2] === 'number') {
       type = 'number';
     } else if (Array.isArray(fixture[2])) {
       type = 'array';
@@ -485,7 +481,7 @@ MINUS_ONE_EQUAL_INFINITY.forEach(function (key) {
   });
 });
 
-var bytesValues = ['apiRequestSize', 'errorMessageMaxLength'];
+var bytesValues = ['apiRequestSize'];
 
 bytesValues.forEach(function (key) {
   test(key + ' should be converted to a number', function (t) {
