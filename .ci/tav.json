@@ -1,6 +1,9 @@
 {
   "versions": [ 20, 19, 18, 16, 14, 12, 10, 8 ],
-  "// modules": "list of instrumented modules with the min Node version supported",
+  "// modules": [
+    "List of instrumented modules with the min Node version supported.",
+    "minVersion for each module should be kept in sync with .tav.yml"
+  ],
   "modules": [
     { "name": "@apollo/server", "minVersion": 14 },
     { "name": "@aws-sdk/client-s3", "minVersion": 14 },
