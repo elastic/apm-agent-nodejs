@@ -114,7 +114,7 @@ jobs:
             if (match[3]) {
               inputVersions = match[3].split(',').map(Number)
               if (inputVersions.some((v) => isNaN(v))) {
-                core.setFailed(`Incorrect versions list ${match[3]}, please review it'`)
+                core.setFailed(`Incorrect versions list ${match[3]}, please review it`)
                 return
               }
               resolvedVersions.push(...inputVersions)
