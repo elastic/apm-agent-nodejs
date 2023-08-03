@@ -30,7 +30,8 @@
 [float]
 ===== Chores
 
-
+* Add a warning message when a duration config option is provided
+  without units. ({issues}2121[#2121])
 
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
