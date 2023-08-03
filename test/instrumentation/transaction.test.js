@@ -681,15 +681,6 @@ test('#ids', function (t) {
   t.end();
 });
 
-test('#toString()', function (t) {
-  var trans = new Transaction(agent);
-  t.strictEqual(
-    trans.toString(),
-    `trace.id=${trans.traceId} transaction.id=${trans.id}`,
-  );
-  t.end();
-});
-
 test('Transaction API on ended transaction', function (t) {
   // Enable breakdown metrics to test it below.
   agent._config({ breakdownMetrics: true, metricsInterval: '30s' });
@@ -718,11 +709,6 @@ test('Transaction API on ended transaction', function (t) {
     trans.ids,
     { 'trace.id': traceId, 'transaction.id': transId },
     'trans.ids',
-  );
-  t.equal(
-    trans.toString(), // deprecated
-    `trace.id=${traceId} transaction.id=${transId}`,
-    trans.toString(),
   );
 
   // We just want to ensure that these Transaction API methods don't throw.

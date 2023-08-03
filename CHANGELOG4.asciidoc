@@ -21,6 +21,9 @@
 
 * The config option `filterHttpHeaders` is now *removed*. ({pull}3539[#3539])
 
+* Remove the deprecated `span.toString()` and `transaction.toString()` APIs.
+  See <<v4-api-to-string,the upgrading doc>> for details. ({issues}2348[#2348])
+
 * Remove instrumentation support for the old 'hapi' package -- the current
   '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
 
