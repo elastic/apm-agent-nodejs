@@ -130,7 +130,7 @@ declare namespace apm {
     addMetadataFilter (fn: FilterFn): void;
     flush (): Promise<void>;
     flush (callback?: Function): void;
-    destroy (): void;
+    destroy (): Promise<void>;
 
     // Utils
     logger: Logger;
