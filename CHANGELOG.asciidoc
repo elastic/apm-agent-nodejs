@@ -32,13 +32,8 @@ Notes:
 === Node.js Agent version 3.x
 
 
-==== Unreleased
-
-[float]
-===== Breaking changes
-
-[float]
-===== Features
+[[release-notes-3.49.0]]
+==== 3.49.0 - 2023/08/03
 
 [float]
 ===== Bug fixes
@@ -46,18 +41,23 @@ Notes:
 * Fix ESM support: the "loader.mjs" file was accidentally not included in
   the published package in v3.48.0. ({pull}3534[#3534])
 
-* Fix instrumentation of `@aws-sdk/client-s3` from v3.378.0 and up. The new version requires `@smithy/smithy-client`
-  v2.0.1 and the agent was instrumeting it within the semver range '>=1 <2'.
+* Fix instrumentation of `@aws-sdk/client-s3` from v3.378.0 and up. The new
+  version requires `@smithy/smithy-client` v2.0.1 and the agent was
+  instrumenting it within the semver range '>=1 <2'. ({issues}3523[#3523])
 
 * Fix wrapping of `http.request()` for node v18.17.0. Before this change, a
   call with a non-Function callback -- `http.request(urlString, {}, 'this-is-not-a-cb-function')`
   -- would accidentally *not* fail because of the agent's instrumentation.
+  ({pull}3511[#3511])
 
 * Fix tedious instrumentation to recognize "connection.prepare()" usage in
-  tedious@16.2.0 and later.
+  tedious@16.2.0 and later. ({pull}3470[#3470])
 
 [float]
 ===== Chores
+
+* Add min node verison in `tav.json` to generate lighter matrix for TAV commands.
+  ({pull}3531[#3531])
 
 * Inline the `elastic-apm-http-client` package code into this repo.
   ({issues}3506[#3506])
