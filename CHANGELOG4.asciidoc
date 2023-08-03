@@ -21,6 +21,9 @@
 
 * The config option `filterHttpHeaders` is now *removed*. ({pull}3539[#3539])
 
+* Remove instrumentation support for the old 'hapi' package -- the current
+  '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
+
 [float]
 ===== Features
 
