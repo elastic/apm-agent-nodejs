@@ -105,7 +105,7 @@ jobs:
                   if (mod) {
                     resolvedModules.push(mod)
                   } else {
-                    core.setFailed(`Incorrect module name ${name}, please review it'`)
+                    core.setFailed(`Incorrect module name ${name}, please review it`)
                     return
                   }
                 }
