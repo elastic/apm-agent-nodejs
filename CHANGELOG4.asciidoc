@@ -24,6 +24,9 @@
 * Remove the deprecated `span.toString()` and `transaction.toString()` APIs.
   See <<v4-api-to-string,the upgrading doc>> for details. ({issues}2348[#2348])
 
+* Remove instrumentation support for the old 'hapi' package -- the current
+  '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
+
 [float]
 ===== Features
 
@@ -33,7 +36,8 @@
 [float]
 ===== Chores
 
-
+* Add a warning message when a duration config option is provided
+  without units. ({issues}2121[#2121])
 
 [[release-notes-3.x]]
 === Node.js Agent version 3.x

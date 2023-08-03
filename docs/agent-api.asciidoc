@@ -813,21 +813,6 @@ apm.addPatch('timers', (exports, agent, { version, enabled }) => {
 
 // or ...
 
-apm.addPatch(['hapi', '@hapi/hapi'], (exports, agent, { version, enabled }) => {
-  const setTimeout = exports.setTimeout
-  exports.setTimeout = (fn, ms) => {
-    const span = agent.startSpan('set-timeout')
-    return setTimeout(() => {
-      span.end()
-      fn()
-    }, ms)
-  }
-
-  return exports
-})
-
-// or ...
-
 apm.addPatch('timers', './timer-patch')
 ----
 

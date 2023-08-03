@@ -515,6 +515,8 @@ DURATION_OPTS.forEach(function (optSpec) {
       optSpec.defaultUnit,
       optSpec.allowedUnits,
       optSpec.allowNegative,
+      key,
+      new MockLogger(),
     );
   } else if (key === 'spanStackTraceMinDuration') {
     // Because of special handling in normalizeSpanStackTraceMinDuration()
@@ -590,6 +592,26 @@ DURATION_OPTS.forEach(function (optSpec) {
       'warning message includes the invalid key',
     );
 
+    agent.destroy();
+    t.end();
+  });
+
+  test(key + ' warn about units not beng set', function (t) {
+    var agent = new Agent();
+    var logger = new MockLogger();
+    var opts = { logger };
+    opts[key] = '1';
+    agent.start(Object.assign({}, agentOptsNoopTransport, opts));
+    const warning = logger.calls.find((log) => log.type === 'warn');
+    t.equal(warning.type, 'warn', 'got a log.warn');
+    t.ok(
+      warning.message.indexOf('units missing') !== -1,
+      'warning message tells about missing units',
+    );
+    t.ok(
+      warning.message.indexOf(key) !== -1,
+      'warning message contains the key',
+    );
     agent.destroy();
     t.end();
   });
@@ -1177,9 +1199,8 @@ test('disableInstrumentations', function (t) {
     [],
   );
   var modules = new Set(flattenedModules);
-  modules.delete('hapi'); // Deprecated, we no longer test this instrumentation.
   modules.delete('jade'); // Deprecated, we no longer test this instrumentation.
-  if (isHapiIncompat('@hapi/hapi')) {
+  if (isHapiIncompat()) {
     modules.delete('@hapi/hapi');
   }
   modules.delete('express-graphql');

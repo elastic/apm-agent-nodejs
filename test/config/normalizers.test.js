@@ -231,31 +231,36 @@ test('#normalizeDurationOptions()', function (t) {
   });
 
   const warnings = logger.calls;
-  t.ok(warnings.length === 4, 'we got warnings for bad duration options');
+  t.ok(warnings.length === 5, 'we got warnings for bad duration options');
   t.ok(
-    warnings[0].message.indexOf('ignoring this option') !== -1,
-    'ignores not allowed unit',
+    warnings[0].message.indexOf('units missing') !== -1,
+    'warns about missing unit',
   );
-  t.deepEqual(warnings[0].interpolation, ['20us', 'notAllowedUnit']);
+  t.deepEqual(warnings[0].interpolation, ['200', 'withoutUnit', 'ms']);
   t.ok(
     warnings[1].message.indexOf('ignoring this option') !== -1,
+    'ignores not allowed unit',
+  );
+  t.deepEqual(warnings[1].interpolation, ['20us', 'notAllowedUnit']);
+  t.ok(
+    warnings[2].message.indexOf('ignoring this option') !== -1,
     'ignores not allowed negative value',
   );
-  t.deepEqual(warnings[1].interpolation, ['-1s', 'notAllowedNegative']);
+  t.deepEqual(warnings[2].interpolation, ['-1s', 'notAllowedNegative']);
   t.ok(
-    warnings[2].message.indexOf('using default') !== -1,
+    warnings[3].message.indexOf('using default') !== -1,
     'uses default value',
   );
-  t.deepEqual(warnings[2].interpolation, [
+  t.deepEqual(warnings[3].interpolation, [
     'not-duration',
     'badWithDefault',
     '25s',
   ]);
   t.ok(
-    warnings[3].message.indexOf('ignoring this option') !== -1,
+    warnings[4].message.indexOf('ignoring this option') !== -1,
     'ignores bad value without default',
   );
-  t.deepEqual(warnings[3].interpolation, ['not-duration', 'badWithoutDefault']);
+  t.deepEqual(warnings[4].interpolation, ['not-duration', 'badWithoutDefault']);
   t.end();
 });
 
