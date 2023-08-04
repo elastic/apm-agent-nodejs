@@ -85,7 +85,7 @@ declare namespace apm {
       subtype: string | null,
       action: string | null,
       options?: TransactionOptions
-    ): Transaction | null;
+    ): Transaction;
     setTransactionName (name: string): void;
     endTransaction (result?: string | number, endTime?: number): void;
     currentTransaction: Transaction | null;

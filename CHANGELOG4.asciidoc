@@ -21,6 +21,15 @@
 
 * The config option `filterHttpHeaders` is now *removed*. ({pull}3539[#3539])
 
+* Remove the deprecated `span.toString()` and `transaction.toString()` APIs.
+  See <<v4-api-to-string,the upgrading doc>> for details. ({issues}2348[#2348])
+
+* Remove instrumentation support for the old 'hapi' package -- the current
+  '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
+
+* Change `agent.startTransaction()` api to return a noop transaction instead of
+  null. ({issues}2429[#2429])
+
 [float]
 ===== Features
 
@@ -30,7 +39,15 @@
 [float]
 ===== Chores
 
+* Add a warning message when a duration or size config option is provided
+  without units. ({issues}2121[#2121])
 
+* Change default value of `useElasticTraceparentHeader` config option to `false`.
+  This means that for outgoing HTTP requests, the APM agent will no longer add the
+  `elastic-apm-traceparent` header. This vendor-specific header was used in the past
+  while the https://w3c.github.io/trace-context/[W3C trace-context] spec was still
+  in development. Now that it is in wide use, the `elastic-apm-traceparent` header is
+  only useful for interaction with very old Elastic APM agents.
 
 [[release-notes-3.x]]
 === Node.js Agent version 3.x

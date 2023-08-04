@@ -330,8 +330,8 @@ pug:
 
 # @hapi/hapi
 # - Package name: Starting with v17.9.0 and v18.2.0 the name changed from
-#   'hapi' to '@hapi/hapi'. Instrumentation for the old 'hapi' is now deprecated
-#   and untested; it will be dropped in the next major version of the agent.
+#   'hapi' to '@hapi/hapi'. Starting in elastic-apm-node@4, only the newer
+#   '@hapi/hapi' is instrumented.
 # - Node version compat:
 #   - @hapi/hapi@19: supports node >=v12 (judging from commit 50d8d7d)
 #   - @hapi/hapi@20: appears (from travis template refs) to support node >=v12
@@ -345,29 +345,29 @@ pug:
   versions: '>=17.0.0 <19.0.0'
   node: '>=8.12.0 <16.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+    - node test/instrumentation/modules/hapi/hapi.test.js
+    - node test/instrumentation/modules/hapi/set-framework.test.js
 '@hapi/hapi-v19-v20.1.2':
   name: '@hapi/hapi'
   versions: '>=19.0.0 <20.1.2'
   node: '>=12.0.0 <16.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+    - node test/instrumentation/modules/hapi/hapi.test.js
+    - node test/instrumentation/modules/hapi/set-framework.test.js
 '@hapi/hapi-v20.1.2-v21':
   name: '@hapi/hapi'
   versions: '>=20.1.2 <21.0.0'
   node: '>=12.0.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+    - node test/instrumentation/modules/hapi/hapi.test.js
+    - node test/instrumentation/modules/hapi/set-framework.test.js
 '@hapi/hapi-v21-':
   name: '@hapi/hapi'
   versions: '>=21.0.0'
   node: '>=14.10.0'
   commands:
-    - node test/instrumentation/modules/hapi/basic.test.js
-    - node test/instrumentation/modules/hapi/set-framework-hapihapi.test.js
+    - node test/instrumentation/modules/hapi/hapi.test.js
+    - node test/instrumentation/modules/hapi/set-framework.test.js
 
 tedious-v1-v11:
   name: tedious

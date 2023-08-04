@@ -28,6 +28,7 @@ const {
 const { findObjInArray } = require('./_utils');
 const { MockAPMServer } = require('./_mock_apm_server');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
+const { NoopTransaction } = require('../lib/instrumentation/noop-transaction');
 var packageJson = require('../package.json');
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
@@ -195,10 +196,13 @@ test('#setFramework()', function (t) {
 
 test('#startTransaction()', function (t) {
   t.test(
-    'agent not yet started: startTransaction() should not crash',
+    'agent not yet started: startTransaction() should return a NoopTransaction',
     function (t) {
       const agent = new Agent(); // do not start the agent
-      agent.startTransaction('foo');
+      const trans = agent.startTransaction('foo');
+      t.ok(trans instanceof NoopTransaction, 'agent retuns a NoopTransaction');
+      // A limited sanity check that the Transaction API works on it.
+      t.ok(trans.traceparent, 'traceparent: ' + trans.traceparent);
       agent.destroy();
       t.end();
     },
@@ -207,6 +211,10 @@ test('#startTransaction()', function (t) {
   t.test('name, type, subtype and action', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport);
     var trans = agent.startTransaction('foo', 'type', 'subtype', 'action');
+    t.ok(
+      !(trans instanceof NoopTransaction),
+      'agent retuns a real transaction',
+    );
     t.strictEqual(trans.name, 'foo');
     t.strictEqual(trans.type, 'type');
     t.strictEqual(trans.subtype, 'subtype');
@@ -218,6 +226,7 @@ test('#startTransaction()', function (t) {
   t.test('options.startTime', function (t) {
     const agent = new Agent().start(agentOptsNoopTransport);
     var startTime = Date.now() - 1000;
+    t.ok(agent.isStarted(), 'agent started');
     var trans = agent.startTransaction('foo', 'bar', { startTime });
     trans.end();
     var duration = trans.duration();

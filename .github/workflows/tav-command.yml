@@ -19,8 +19,7 @@ jobs:
     permissions:
       pull-requests: write
     outputs:
-      versions: ${{ steps.transform.outputs.versions }}
-      modules: ${{ steps.transform.outputs.modules }}
+      permutations: ${{ steps.transform.outputs.permutations }}
     steps:
       - name: Is comment allowed?
         uses: actions/github-script@v6
@@ -55,32 +54,80 @@ jobs:
 
             let modules, versions
             try {
-              const matrix = JSON.parse(fs.readFileSync('./.ci/tav.json'))
+              const matrix = JSON.parse(fs.readFileSync('./.ci/tav.json'));
               versions = matrix.versions
               modules = matrix.modules
             } catch (err) {
               core.setFailed(`Error loading './.ci/tav.json': ${err}`)
               return
             }
-            const comment = context.payload.review.body
-            if (comment !== '/test tav') {
-              const regex = /\/test tav ([^\s]+)(\s*)([^\s]*)/
-              const match = comment.match(regex)
-              if (!match) {
-                core.setFailed(`Incorrect comment, please use /test tav(\\s(module1,...,moduleN)?(\\s)?(node1,...,nodeN)?)?'`)
-                return
-              }
-              if (match[1]) {
-                if (match[1] !== 'all') {
-                  modules = match[1].split(',')
+
+            const getPermutations = (mods, vers) => {
+              const permutations = []
+              for (const mod of mods) {
+                for (const nv of vers) {
+                  if (mod.minVersion && nv >= mod.minVersion) {
+                    permutations.push(`${mod.name} ${nv}`)
+                  }
                 }
               }
-              if (match[3]) {
-                versions = match[3].split(',')
+              return permutations
+            }
+
+            const comment = context.payload.review.body
+            if (comment === '/test tav') {
+              const permutations = getPermutations(modules, versions)
+              if (permutations.length > 256) {
+                core.setFailed(`Matrix size (${permutations.length}) is bigger than the limit (256)`)
+              } else {
+                core.setOutput('permutations', permutations)
+              }
+              return
+            }
+
+            const regex = /\/test tav ([^\s]+)(\s*)([^\s]*)/
+            const match = comment.match(regex)
+            if (!match) {
+              core.setFailed(`Incorrect comment, please use /test tav(\\s(module1,...,moduleN)?(\\s)?(node1,...,nodeN)?)?'`)
+              return
+            }
+
+            const resolvedModules = []
+            const resolvedVersions = []
+            let inputNames, inputVersions
+            if (match[1]) {
+              if (match[1] === 'all') {
+                resolvedModules.push(...modules)
+              } else {
+                inputNames = match[1].split(',')
+                for (const name of inputNames) {
+                  const mod = modules.find((m) => m.name === name)
+                  if (mod) {
+                    resolvedModules.push(mod)
+                  } else {
+                    core.setFailed(`Incorrect module name ${name}, please review it`)
+                    return
+                  }
+                }
               }
             }
-            core.setOutput('modules', modules)
-            core.setOutput('versions', versions)
+            if (match[3]) {
+              inputVersions = match[3].split(',').map(Number)
+              if (inputVersions.some((v) => isNaN(v))) {
+                core.setFailed(`Incorrect versions list ${match[3]}, please review it`)
+                return
+              }
+              resolvedVersions.push(...inputVersions)
+            } else {
+              resolvedVersions.push(...versions)
+            }
+
+            const permutations = getPermutations(resolvedModules, resolvedVersions)
+            if (permutations.length > 256) {
+              core.setFailed(`Matrix size (${permutations.length}) is bigger than the limit (256)`)
+              return
+            }
+            core.setOutput('permutations', permutations)
 
   test-tav:
     needs: command-validation
@@ -90,14 +137,13 @@ jobs:
       max-parallel: 15
       fail-fast: false
       matrix:
-        node: ${{ fromJSON(needs.command-validation.outputs.versions) }}
-        module: ${{ fromJSON(needs.command-validation.outputs.modules) }}
+        module_and_node: ${{ fromJSON(needs.command-validation.outputs.permutations) }}
     steps:
 
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - run: .ci/scripts/test.sh -b "release" -t "${{ matrix.module }}" "${{ matrix.node }}"
+      - run: .ci/scripts/test.sh -b "release" -t ${{ matrix.module_and_node }}
         env:
           ELASTIC_APM_CONTEXT_MANAGER: ''
