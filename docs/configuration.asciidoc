@@ -1422,6 +1422,8 @@ The captured request body (if any) is stored on the `span.db.statement` field. C
 [[use-elastic-traceparent-header]]
 ==== `useElasticTraceparentHeader`
 
+[small]#Change default in v4.0.0, in v3.x the default was `true`#
+
 * *Type:* Boolean
 * *Default:* `false`
 * *Env:* `ELASTIC_APM_USE_ELASTIC_TRACEPARENT_HEADER`
