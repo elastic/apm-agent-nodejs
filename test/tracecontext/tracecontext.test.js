@@ -45,13 +45,13 @@ tape.test('propagateTraceContextHeaders tests', function (suite) {
     span.end();
     transaction.end();
 
-    t.equals(span._context.traceparent.toString(), newHeaders.traceparent);
-    t.equals(traceStateString, newHeaders.tracestate);
     t.equals(
       span._context.traceparent.toString(),
-      newHeaders['elastic-apm-traceparent'],
+      newHeaders.traceparent,
+      'traceparent',
     );
-    t.true(span._hasPropagatedTraceContext);
+    t.equals(traceStateString, newHeaders.tracestate, 'tracestate');
+    t.true(span._hasPropagatedTraceContext, '_hasPropagatedTraceContext');
     t.end();
   });
 
