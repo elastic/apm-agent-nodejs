@@ -194,7 +194,7 @@ test('#setFramework()', function (t) {
   t.end();
 });
 
-test.only('#startTransaction()', function (t) {
+test('#startTransaction()', function (t) {
   t.test(
     'agent not yet started: startTransaction() should return a noop transaction',
     function (t) {
