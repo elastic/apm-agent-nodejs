@@ -30,6 +30,11 @@
 * Change `agent.startTransaction()` api to return a noop transaction instead of
   null. ({issues}2429[#2429])
 
+* Remove `transaction.subtype` and `transaction.action` properties from API.
+  This also impacts <<apm-start-transaction>> and `transaction.setType(...)`,
+  both of which now no longer accept `subtype` and `action` parameters.
+  These two properties were deprecated in v3.25.0.
+
 [float]
 ===== Features
 

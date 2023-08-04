@@ -51,13 +51,21 @@ start options.
 ==== API changes
 
 [[v4-api-start-transaction]]
-===== `agent.startTransaction()`
+===== `agent.startTransaction(...)`
 
 The `agent.startTransaction()` method has been changed to return a do-nothing
 no-op Transaction, if the agent is not yet started. The return type has changed to
 no longer include `| null`. The intent of these changes is to allow the user to use
 `.startTransaction()` without having to worry if the agent is yet started, nor to
 have to handle a possible `null` return value.
+
+[[v4-api-transaction-subtype-action]]
+===== `transaction.subtype` and `transaction.action`
+
+The `subtype` and `action` properties have been removed from `Transaction`.
+This also impacts <<apm-start-transaction>> and `transaction.setType(...)`,
+both of which now no longer accept `subtype` and `action` parameters.
+These two properties were deprecated in v3.25.0.
 
 [[v4-api-to-string]]
 ===== `span.toString()`, `transaction.toString()`
