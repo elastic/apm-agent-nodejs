@@ -27,6 +27,9 @@
 * Remove instrumentation support for the old 'hapi' package -- the current
   '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
 
+* Change `agent.startTransaction()` api to return a noop transaction instead of
+  null. ({issues}2429[#2429])
+
 [float]
 ===== Features
 

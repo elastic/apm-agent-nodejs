@@ -38,6 +38,15 @@ option <<sanitize-field-names, `sanitizeFieldNames`>>.
 [[v4-api-changes]]
 ==== API changes
 
+[[v4-api-start-transaction]]
+===== `agent.startTransaction()`
+
+The `agent.startTransaction()` method has been changed to return a do-nothing
+no-op Transaction, if the agent is not yet started. The return type has changed to
+no longer include `| null`. The intent of these changes is to allow the user to use
+`.startTransaction()` without having to worry if the agent is yet started, nor to
+have to handle a possible `null` return value.
+
 [[v4-api-to-string]]
 ===== `span.toString()`, `transaction.toString()`
 
@@ -63,6 +72,7 @@ console.log(stringify(span.ids, ' ', '='));
 ----
 
 For log correlation with _structured_ logs, see <<log-correlation-ids>>.
+
 
 [[v4-warnings]]
 ==== Log warnings
@@ -90,3 +100,4 @@ provided.
 Byte size config options like `apiRequestSize` expect to have the size
 units specified in the value (e.g. `"10kb"`, `"1gb"`). If the unit is not
 in the value, the agent will warn about it and fallback to bytes (`b`).
+
