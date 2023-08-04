@@ -32,6 +32,25 @@ Notes:
 === Node.js Agent version 3.x
 
 
+==== Unreleased
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+
+[float]
+===== Bug fixes
+
+[float]
+===== Chores
+
+* Add debug logging for 4xx responses from APM server when polling for
+  central config. This is based on https://github.com/elastic/apm-nodejs-http-client/pull/182
+  by @linjunpop.
+
+
 [[release-notes-3.49.0]]
 ==== 3.49.0 - 2023/08/03
 
