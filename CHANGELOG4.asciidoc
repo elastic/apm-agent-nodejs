@@ -3,6 +3,8 @@
 
 ==== Unreleased
 
+See the <<upgrade-to-v4>> guide.
+
 [float]
 ===== Breaking changes
 
