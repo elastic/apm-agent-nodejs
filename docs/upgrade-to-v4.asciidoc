@@ -51,9 +51,9 @@ start options.
 ==== API changes
 
 [[v4-api-start-transaction]]
-===== `agent.startTransaction()`
+===== `apm.startTransaction()`
 
-The `agent.startTransaction()` method has been changed to return a do-nothing
+The `apm.startTransaction()` method has been changed to return a do-nothing
 no-op Transaction, if the agent is not yet started. The return type has changed to
 no longer include `| null`. The intent of these changes is to allow the user to use
 `.startTransaction()` without having to worry if the agent is yet started, nor to
@@ -84,6 +84,13 @@ console.log(stringify(span.ids, ' ', '='));
 ----
 
 For log correlation with _structured_ logs, see <<log-correlation-ids>>.
+
+[[v4-api-destroy]]
+===== `apm.destroy()`
+
+The `apm.destroy()` method is now async. Almost no users should need to use
+this method. However, if used, to be sure to wait for APM agent shutdown to
+be complete, one can now `await apm.destroy()`.
 
 
 [[v4-warnings]]
