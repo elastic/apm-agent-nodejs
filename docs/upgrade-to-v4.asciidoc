@@ -85,7 +85,7 @@ unit, to avoid ambiguity the APM agent will now warn if the units are not
 provided.
 
 [[v4-warning-size-units]]
-=====
+===== "units missing in size value" 
 
 Byte size config options like `apiRequestSize` expect to have the size
 units specified in the value (e.g. `"10kb"`, `"1gb"`). If the unit is not
