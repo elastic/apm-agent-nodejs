@@ -167,7 +167,8 @@ test('#normalizeBytes()', function (t) {
     errorMessageMaxLength: 102400,
   });
 
-  const isMissingUnitsWarn = (s) => s.indexOf('units missing in value') !== -1;
+  const isMissingUnitsWarn = (s) =>
+    s.indexOf('units missing in size value') !== -1;
   const warnings = logger.calls;
   t.ok(warnings.length === 4, 'we got warnings');
   t.ok(isMissingUnitsWarn(warnings[0].message), 'warns about missing unit');
