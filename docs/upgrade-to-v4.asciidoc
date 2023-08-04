@@ -67,7 +67,7 @@ For log correlation with _structured_ logs, see <<log-correlation-ids>>.
 [[v4-warnings]]
 ==== Log warnings
 
-There are some 
+This section documents some new log output warnings from the APM agent, and how to avoid them.
 
 [[v4-warning-duration-units]]
 =====
