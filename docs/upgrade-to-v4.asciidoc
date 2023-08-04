@@ -59,7 +59,28 @@ via:
 [source,js]
 ----
 const {stringify} = require('querystring');
-console.log( stringify(span.ids, ' ', '=')) );
+console.log(stringify(span.ids, ' ', '='));
 ----
 
 For log correlation with _structured_ logs, see <<log-correlation-ids>>.
+
+[[v4-warnings]]
+==== Log warnings
+
+There are some 
+
+[[v4-warning-duration-units]]
+=====
+
+Configuration options that define a duration like `apiRequestTime` or 
+`exitSpanMinDuration` expect to have their units specified in the value
+(e.g. `10s`, `100ms`). If the unit is not in the value tha agent will
+warn about it and fallback to its default unit which is specified in
+the default value.
+
+[[v4-warning-size-units]]
+=====
+
+`apiRequestSize` and `errorMessageMaxLength` config options expect to
+have the size specified in the value (e.g. `10kb`, `1gb`). If the unit
+is not in the value tha agent will warn about it and fallback to `bytes`.
