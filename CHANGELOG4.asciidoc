@@ -40,6 +40,11 @@
   without units. ({issues}2121[#2121])
 
 * Change default value of `useElasticTraceparentHeader` config option to `false`.
+  This means that for outgoing HTTP requests, the APM agent will no longer add the
+  `elastic-apm-traceparent` header. This vendor-specific header was used in the past
+  while the https://w3c.github.io/trace-context/[W3C trace-context] spec was still
+  in development. Now that it is in wide use, the `elastic-apm-traceparent` header is
+  only useful for interaction with very old Elastic APM agents.
 
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
