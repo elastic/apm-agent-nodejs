@@ -28,7 +28,7 @@ const {
 const { findObjInArray } = require('./_utils');
 const { MockAPMServer } = require('./_mock_apm_server');
 const { NoopApmClient } = require('../lib/apm-client/noop-apm-client');
-const NoopTransaction = require('../lib/instrumentation/noop-transaction');
+const { NoopTransaction } = require('../lib/instrumentation/noop-transaction');
 var packageJson = require('../package.json');
 
 // Options to pass to `agent.start()` to turn off some default agent behavior
@@ -196,11 +196,13 @@ test('#setFramework()', function (t) {
 
 test('#startTransaction()', function (t) {
   t.test(
-    'agent not yet started: startTransaction() should return a noop transaction',
+    'agent not yet started: startTransaction() should return a NoopTransaction',
     function (t) {
       const agent = new Agent(); // do not start the agent
       const trans = agent.startTransaction('foo');
-      t.ok(trans instanceof NoopTransaction, 'agent retuns a noop transaction');
+      t.ok(trans instanceof NoopTransaction, 'agent retuns a NoopTransaction');
+      // A limited sanity check that the Transaction API works on it.
+      t.ok(trans.traceparent, 'traceparent: ' + trans.traceparent);
       agent.destroy();
       t.end();
     },
