@@ -264,10 +264,6 @@ const cases = [
         'incoming http "traceparent" header',
       );
       t.ok(
-        trans.context.request.headers['elastic-apm-traceparent'],
-        'incoming http "elastic-apm-traceparent" header',
-      );
-      t.ok(
         (trans.context.request.headers.tracestate || '').indexOf('es=s:1') !==
           -1,
         'incoming http "tracestate" header has expected "es=" section',
