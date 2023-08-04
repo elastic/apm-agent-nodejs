@@ -13,7 +13,7 @@ const { MockLogger } = require('../_mock_logger');
 const {
   TRACE_CONTINUATION_STRATEGY_CONTINUE,
   TRACE_CONTINUATION_STRATEGY_RESTART,
-  CONTEXT_MANAGER_PATCH,
+  CONTEXT_MANAGER_ASYNCHOOKS,
 } = require('../../lib/config/schema');
 const {
   normalizeUrls,
@@ -567,41 +567,20 @@ test('#normalizeTraceContinuationStrategy()', function (t) {
 
 test('#normalizeContextManager()', function (t) {
   const logger = new MockLogger();
-  const defaults = { contextManager: CONTEXT_MANAGER_PATCH };
+  const defaults = {};
   let opts;
   let lastWarning;
 
   opts = { contextManager: 'not-valid' };
   normalizeContextManager(opts, [], defaults, logger);
-  // TODO: property gets deleted, check behaviour (assing undefined instead?)
+  // TODO: property gets deleted, check behaviour (assign undefined instead?)
   t.deepEqual(opts, {});
   lastWarning = logger.calls.pop();
   t.ok(lastWarning.message.indexOf('Invalid "contextManager"') !== -1);
 
-  opts = { contextManager: CONTEXT_MANAGER_PATCH, asyncHooks: true };
+  opts = { contextManager: CONTEXT_MANAGER_ASYNCHOOKS };
   normalizeContextManager(opts, [], defaults, logger);
-  t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_PATCH });
-  lastWarning = logger.calls.pop();
-  t.ok(
-    lastWarning.message.indexOf('the `asyncHooks` value will be ignored') !==
-      -1,
-  );
-
-  opts = { asyncHooks: true };
-  normalizeContextManager(opts, [], defaults, logger);
-  t.deepEqual(opts, {});
-  lastWarning = logger.calls.pop();
-  t.ok(
-    lastWarning.message.indexOf(
-      '`asyncHooks: true` is the default behavior',
-    ) !== -1,
-  );
-
-  opts = { asyncHooks: false };
-  normalizeContextManager(opts, [], defaults, logger);
-  t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_PATCH });
-  lastWarning = logger.calls.pop();
-  t.ok(lastWarning.message.indexOf('use `contextManager: "patch"') !== -1);
+  t.deepEqual(opts, { contextManager: CONTEXT_MANAGER_ASYNCHOOKS });
 
   t.end();
 });

@@ -17,10 +17,7 @@ const apm = require('../').start({
 });
 
 const http = require('http');
-const semver = require('semver');
 const tape = require('tape');
-
-const { CONTEXT_MANAGER_PATCH } = require('../lib/config/schema');
 
 // Ensure that, by default, an HTTP request with a valid traceparent to an
 // instrumented HTTP server *uses* that traceparent.
@@ -82,16 +79,6 @@ tape.test('traceContinuationStrategy=continue', (t) => {
     res.end('pong');
   });
   server.listen(function () {
-    if (
-      semver.satisfies(process.version, '<=8') &&
-      apm._conf.contextManager === CONTEXT_MANAGER_PATCH
-    ) {
-      // There is some bug in node v8 and lower and with contextManager="patch"
-      // instrumentation where this listener callback takes the run context of
-      // the preceding test's transaction. Hack it back.
-      apm._instrumentation.supersedeWithEmptyRunContext();
-    }
-
     const getOpts = {
       protocol: 'http:',
       hostname: 'localhost',
@@ -134,16 +121,6 @@ tape.test('traceContinuationStrategy=restart', (t) => {
     res.end('pong');
   });
   server.listen(function () {
-    if (
-      semver.satisfies(process.version, '<=8') &&
-      apm._conf.contextManager === CONTEXT_MANAGER_PATCH
-    ) {
-      // There is some bug in node v8 and lower and with contextManager="patch"
-      // instrumentation where this listener callback takes the run context of
-      // the preceding test's transaction. Hack it back.
-      apm._instrumentation.supersedeWithEmptyRunContext();
-    }
-
     const getOpts = {
       protocol: 'http:',
       hostname: 'localhost',
@@ -197,16 +174,6 @@ tape.test('traceContinuationStrategy=restart_external (no tracestate)', (t) => {
     res.end('pong');
   });
   server.listen(function () {
-    if (
-      semver.satisfies(process.version, '<=8') &&
-      apm._conf.contextManager === CONTEXT_MANAGER_PATCH
-    ) {
-      // There is some bug in node v8 and lower and with contextManager="patch"
-      // instrumentation where this listener callback takes the run context of
-      // the preceding test's transaction. Hack it back.
-      apm._instrumentation.supersedeWithEmptyRunContext();
-    }
-
     const getOpts = {
       protocol: 'http:',
       hostname: 'localhost',
@@ -261,16 +228,6 @@ tape.test(
       res.end('pong');
     });
     server.listen(function () {
-      if (
-        semver.satisfies(process.version, '<=8') &&
-        apm._conf.contextManager === CONTEXT_MANAGER_PATCH
-      ) {
-        // There is some bug in node v8 and lower and with contextManager="patch"
-        // instrumentation where this listener callback takes the run context of
-        // the preceding test's transaction. Hack it back.
-        apm._instrumentation.supersedeWithEmptyRunContext();
-      }
-
       const getOpts = {
         protocol: 'http:',
         hostname: 'localhost',
@@ -322,16 +279,6 @@ tape.test(
       res.end('pong');
     });
     server.listen(function () {
-      if (
-        semver.satisfies(process.version, '<=8') &&
-        apm._conf.contextManager === CONTEXT_MANAGER_PATCH
-      ) {
-        // There is some bug in node v8 and lower and with contextManager="patch"
-        // instrumentation where this listener callback takes the run context of
-        // the preceding test's transaction. Hack it back.
-        apm._instrumentation.supersedeWithEmptyRunContext();
-      }
-
       const getOpts = {
         protocol: 'http:',
         hostname: 'localhost',

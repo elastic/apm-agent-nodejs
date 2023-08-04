@@ -35,17 +35,6 @@ if (
   );
   process.exit();
 }
-// Instrumentation does not work with Knex >=0.95.0 and `contextManager=patch`.
-// The "patch" context manager is deprecated.
-if (
-  semver.gte(knexVersion, '0.95.0') &&
-  agent._conf.contextManager === 'patch'
-) {
-  console.log(
-    `# SKIP knex@${knexVersion} and contextManager='patch' is not support`,
-  );
-  process.exit();
-}
 
 var Knex = require('knex');
 var test = require('tape');

@@ -20,12 +20,6 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   console.log('# SKIP: GH Actions do not support docker services on Windows');
   process.exit(0);
 }
-if (process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch') {
-  console.log(
-    '# SKIP @aws-sdk/* instrumentation does not work with contextManager="patch"',
-  );
-  process.exit();
-}
 if (semver.lt(process.version, '14.0.0')) {
   console.log(
     `# SKIP @aws-sdk min supported node is v14 (node ${process.version})`,

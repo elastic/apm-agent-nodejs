@@ -30,6 +30,13 @@
 * Change `apm.startTransaction()` api to return a noop transaction instead of
   null. ({issues}2429[#2429])
 
+* Drop support for the obsolete "patch" context manager, i.e. the
+  `contextManager: "patch"` config option. This was a limited async context
+  management that predated the preferred `AsyncLocalStorage` core Node.js
+  mechanism for context tracking. It was deprecated in v3.37.0.  As well, the
+  related and deprecated `asyncHooks` config option has been removed.
+  ({issues}3529[#3529])
+
 [float]
 ===== Features
 

@@ -240,15 +240,6 @@ const testFixtures = [
     versionRanges: {
       node: NODE_VER_RANGE_IITM,
     },
-    testOpts: {
-      // Instrumentation *does* work with `contextManager: 'patch'`, but it
-      // gets the parent incorrect for the 'INFO' span used by ioredis for
-      // connection handling.
-      skip:
-        process.env.ELASTIC_APM_CONTEXT_MANAGER === 'patch'
-          ? 'contextManager=patch'
-          : false,
-    },
     verbose: true,
     checkApmServer: (t, apmServer) => {
       t.equal(
