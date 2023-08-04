@@ -164,7 +164,24 @@ test('#normalizeBytes()', function (t) {
     anotherProperty: 25,
   });
 
-  t.ok(logger.calls.length === 0, 'we got no warnings for bad byte options');
+  const warnString = 'units missing in value';
+  const warnings = logger.calls;
+  t.ok(warnings.length === 3, 'we got warnings for missing units');
+  t.ok(
+    warnings[0].message.indexOf(warnString) !== -1,
+    'warns about missing unit',
+  );
+  t.deepEqual(warnings[0].interpolation, ['12345678', 'numberBytes']);
+  t.ok(
+    warnings[1].message.indexOf(warnString) !== -1,
+    'warns about missing unit',
+  );
+  t.deepEqual(warnings[1].interpolation, ['not-bytes', 'badWithDefault']);
+  t.ok(
+    warnings[2].message.indexOf(warnString) !== -1,
+    'warns about missing unit',
+  );
+  t.deepEqual(warnings[2].interpolation, ['not-bytes', 'badWithoutDefault']);
   t.end();
 });
 
