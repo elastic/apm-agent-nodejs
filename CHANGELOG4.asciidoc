@@ -39,7 +39,7 @@
 [float]
 ===== Chores
 
-* Add a warning message when a duration config option is provided
+* Add a warning message when a duration or size config option is provided
   without units. ({issues}2121[#2121])
 
 * Change default value of `useElasticTraceparentHeader` config option to `false`.

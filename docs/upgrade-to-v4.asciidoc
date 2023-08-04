@@ -50,6 +50,15 @@ start options.
 [[v4-api-changes]]
 ==== API changes
 
+[[v4-api-start-transaction]]
+===== `agent.startTransaction()`
+
+The `agent.startTransaction()` method has been changed to return a do-nothing
+no-op Transaction, if the agent is not yet started. The return type has changed to
+no longer include `| null`. The intent of these changes is to allow the user to use
+`.startTransaction()` without having to worry if the agent is yet started, nor to
+have to handle a possible `null` return value.
+
 [[v4-api-to-string]]
 ===== `span.toString()`, `transaction.toString()`
 
@@ -71,17 +80,36 @@ via:
 [source,js]
 ----
 const {stringify} = require('querystring');
-console.log( stringify(span.ids, ' ', '=')) );
+console.log(stringify(span.ids, ' ', '='));
 ----
 
 For log correlation with _structured_ logs, see <<log-correlation-ids>>.
 
-[[v4-api-start-transaction]]
-===== `agent.startTransaction()`
 
-The `agent.startTransaction()` method has been changed to return a do-nothing
-no-op Transaction, if the agent is not yet started. The return type has changed to
-no longer include `| null`. The intent of these changes is to allow the user to use
-`.startTransaction()` without having to worry if the agent is yet started, nor to
-have to handle a possible `null` return value.
+[[v4-warnings]]
+==== Log warnings
+
+This section documents some new log output warnings from the APM agent, and how to avoid them.
+
+[[v4-warning-duration-units]]
+===== "units missing in duration value"
+
+
+[source,json]
+----
+{"log.level":"warn","@timestamp":"2023-08-04T16:54:03.116Z","log":{"logger":"elastic-apm-node"},"ecs":{"version":"1.6.0"},"message":"units missing in duration value \"5\" for \"metricsInterval\" config option: using default units \"s\""}
+----
+
+Configuration options that define a duration, like `metricsInterval` or
+`exitSpanMinDuration`, expect to have their units specified in the value
+(e.g. `"10s"`, `"100ms"`). While current duration options have a default
+unit, to avoid ambiguity the APM agent will now warn if the units are not
+provided.
+
+[[v4-warning-size-units]]
+===== "units missing in size value"
+
+Byte size config options like `apiRequestSize` expect to have the size
+units specified in the value (e.g. `"10kb"`, `"1gb"`). If the unit is not
+in the value, the agent will warn about it and fallback to bytes (`b`).
 

@@ -138,6 +138,7 @@ test('#normalizeBytes()', function (t) {
     'numberBytes',
     'badWithDefault',
     'badWithoutDefault',
+    'errorMessageMaxLength',
   ];
   const defaults = { badWithDefault: '25kb' };
   const opts = {
@@ -149,6 +150,7 @@ test('#normalizeBytes()', function (t) {
     badWithDefault: 'not-bytes',
     badWithoutDefault: 'not-bytes',
     anotherProperty: 25,
+    errorMessageMaxLength: '100kb',
   };
 
   normalizeBytes(opts, fields, defaults, logger);
@@ -162,9 +164,23 @@ test('#normalizeBytes()', function (t) {
     badWithDefault: NaN,
     badWithoutDefault: NaN,
     anotherProperty: 25,
+    errorMessageMaxLength: 102400,
   });
 
-  t.ok(logger.calls.length === 0, 'we got no warnings for bad byte options');
+  const isMissingUnitsWarn = (s) =>
+    s.indexOf('units missing in size value') !== -1;
+  const warnings = logger.calls;
+  t.ok(warnings.length === 4, 'we got warnings');
+  t.ok(isMissingUnitsWarn(warnings[0].message), 'warns about missing unit');
+  t.deepEqual(warnings[0].interpolation, ['12345678', 'numberBytes']);
+  t.ok(isMissingUnitsWarn(warnings[1].message), 'warns about missing unit');
+  t.deepEqual(warnings[1].interpolation, ['not-bytes', 'badWithDefault']);
+  t.ok(isMissingUnitsWarn(warnings[2].message), 'warns about missing unit');
+  t.deepEqual(warnings[2].interpolation, ['not-bytes', 'badWithoutDefault']);
+  t.ok(
+    warnings[3].message.indexOf('"errorMessageMaxLength" is deprecated') !== -1,
+    'warns about errorMessageMaxLength deprecation',
+  );
   t.end();
 });
 
