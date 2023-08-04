@@ -560,15 +560,18 @@ The `links` argument is an array of objects with a single "context" field
 that is a `Transaction`, `Span`, or W3C trace-context 'traceparent' string.
 For example: `apm.startTransaction('aName', { links: [{ context: anotherSpan }] })`.
 
-Start a new transaction.
-
-Use this function to create a custom transaction.
-Note that the agent will do this for you automatically whenever your application receives an incoming HTTP request.
-You only need to use this function to create custom transactions.
-
-There's a special `type` called `request` which is used by the agent for the transactions automatically created when an incoming HTTP request is detected.
-
+Start a new custom/manual transaction.
 See the <<transaction-api,Transaction API>> docs for details on how to use custom transactions.
+
+Note that the APM agent will automatically start a transaction for incoming
+HTTP requests. You only need to use this function to create custom transactions,
+for example for a periodic background routine. There's a special `type` called
+`request` which is used by the agent for the transactions automatically created
+when an incoming HTTP request is detected.
+
+If the APM agent has not yet been started, then a do-nothing "no-op" transaction
+object will be returned.
+
 
 [[apm-end-transaction]]
 ==== `apm.endTransaction([result][, endTime])`
