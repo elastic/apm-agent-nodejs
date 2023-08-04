@@ -15,6 +15,7 @@ The following is a guide on upgrading your APM Node.js agent
 
 Version 4.0.0 of the Node.js APM agent supports Node.js v14.5.0 and later.
 
+
 [[v4-config-options]]
 ==== Config options
 
@@ -36,12 +37,15 @@ option <<sanitize-field-names, `sanitizeFieldNames`>>.
 
 ===== `useElasticTraceparentHeader`
 
-The default value of the <<use-elastic-traceparent-header>> config option has changed
-to `false`. This means that the vendor-specific `elastic-apm-traceparent` header will no
-longer by added to outgoing HTTP requests. The `traceparent` header (from the 
-https://w3c.github.io/trace-context/[W3C trace-context standard]) is added by the
-APM agent. If you want the agent to continue sending `elastic-apm-traceparent`
-HTTP header you can set it to `true` via env var or start options.
+The default value of the <<use-elastic-traceparent-header>> config option has
+changed to `false`. This means that the vendor-specific
+`elastic-apm-traceparent` header will no longer be added to outgoing HTTP
+requests. The `traceparent` header (from the
+https://w3c.github.io/trace-context/[W3C trace-context standard]) is added by
+the APM agent. If you want the agent to continue sending
+`elastic-apm-traceparent` HTTP header you can set it to `true` via env var or
+start options.
+
 
 [[v4-api-changes]]
 ==== API changes
