@@ -57,7 +57,7 @@ test(
 
 test(
   'http: consider useElasticTraceparentHeader config option',
-  echoTest('http', { useElasticTraceparentHeader: false }, (port, cb) => {
+  echoTest('http', { useElasticTraceparentHeader: true }, (port, cb) => {
     var options = { port };
     return http.request(options, cb);
   }),
@@ -364,13 +364,13 @@ function echoTest(type, opts, handler) {
 
       var traceparent = req.getHeader('traceparent');
       t.ok(traceparent, 'should have traceparent header');
-      if (opts && opts.useElasticTraceparentHeader === false) {
-        t.strictEqual(req.getHeader('elastic-apm-traceparent'), undefined);
-      } else {
+      if (opts && opts.useElasticTraceparentHeader) {
         t.ok(
           req.getHeader('elastic-apm-traceparent'),
           'should have elastic-apm-traceparent header',
         );
+      } else {
+        t.strictEqual(req.getHeader('elastic-apm-traceparent'), undefined);
       }
 
       var expected = TraceParent.fromString(trans._context.toString());

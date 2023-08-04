@@ -34,6 +34,12 @@ Support for `filterHttpHeaders` config option has been removed. Redaction of
 HTTP headers and also request cookies is controlled by the existing config
 option <<sanitize-field-names, `sanitizeFieldNames`>>.
 
+===== `useElasticTraceparentHeader`
+
+The default value of `useElasticTraceparentHeader` config option has changed
+to `false` since the standard `traceparent` header is added in outgoing
+HTTP requests. If you want the agent to continue sending `elastic-apm-traceparent`
+HTTP header you can set to `true` via env var or start options.
 
 [[v4-api-changes]]
 ==== API changes

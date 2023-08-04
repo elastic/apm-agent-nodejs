@@ -1423,7 +1423,7 @@ The captured request body (if any) is stored on the `span.db.statement` field. C
 ==== `useElasticTraceparentHeader`
 
 * *Type:* Boolean
-* *Default:* `true`
+* *Default:* `false`
 * *Env:* `ELASTIC_APM_USE_ELASTIC_TRACEPARENT_HEADER`
 
 To enable {apm-guide-ref}/apm-distributed-tracing.html[distributed tracing], the agent

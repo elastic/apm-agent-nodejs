@@ -27,6 +27,8 @@
 * Remove instrumentation support for the old 'hapi' package -- the current
   '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
 
+* Change default value of `useElasticTraceparentHeader` config option to `false`.
+
 [float]
 ===== Features
 
