@@ -70,7 +70,7 @@ For log correlation with _structured_ logs, see <<log-correlation-ids>>.
 This section documents some new log output warnings from the APM agent, and how to avoid them.
 
 [[v4-warning-duration-units]]
-=====
+===== "units missing in duration value"
 
 
 [source,json]
