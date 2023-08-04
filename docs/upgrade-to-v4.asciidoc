@@ -63,3 +63,10 @@ console.log( stringify(span.ids, ' ', '=')) );
 ----
 
 For log correlation with _structured_ logs, see <<log-correlation-ids>>.
+
+[[v4-api-start-transaction]]
+===== `agent.startTransaction()`
+
+The `agent.startTransaction()` method has been changed to return an invalid
+or noop transaction if the agent is not yet started.
+
