@@ -72,11 +72,17 @@ This section documents some new log output warnings from the APM agent, and how 
 [[v4-warning-duration-units]]
 =====
 
-Configuration options that define a duration like `apiRequestTime` or 
-`exitSpanMinDuration` expect to have their units specified in the value
-(e.g. `10s`, `100ms`). If the unit is not in the value tha agent will
-warn about it and fallback to its default unit which is specified in
-the default value.
+
+[source,json]
+----
+{"log.level":"warn","@timestamp":"2023-08-04T16:54:03.116Z","log":{"logger":"elastic-apm-node"},"ecs":{"version":"1.6.0"},"message":"units missing in duration value \"5\" for \"metricsInterval\" config option: using default units \"s\""}
+----
+
+Configuration options that define a duration, like `metricsInterval` or 
+`exitSpanMinDuration`, expect to have their units specified in the value
+(e.g. `"10s"`, `"100ms"`). While current duration options have a default
+unit, to avoid ambiguity the APM agent will now warn if the units are not
+provided.
 
 [[v4-warning-size-units]]
 =====
