@@ -81,6 +81,6 @@ the default value.
 [[v4-warning-size-units]]
 =====
 
-`apiRequestSize` and `errorMessageMaxLength` config options expect to
-have the size specified in the value (e.g. `10kb`, `1gb`). If the unit
-is not in the value tha agent will warn about it and fallback to `bytes`.
+Byte size config options like `apiRequestSize` expect to have the size
+units specified in the value (e.g. `10kb`, `1gb`). If the unit is not
+in the value tha agent will warn about it and fallback to `bytes`.
