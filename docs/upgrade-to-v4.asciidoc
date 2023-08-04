@@ -67,6 +67,9 @@ For log correlation with _structured_ logs, see <<log-correlation-ids>>.
 [[v4-api-start-transaction]]
 ===== `agent.startTransaction()`
 
-The `agent.startTransaction()` method has been changed to return an invalid
-or noop transaction if the agent is not yet started.
+The `agent.startTransaction()` method has been changed to return a do-nothing
+no-op Transaction, if the agent is not yet started. The return type has changed to
+no longer include `| null`. The intent of these changes is to allow the user to use
+`.startTransaction()` without having to worry if the agent is yet started, nor to
+have to handle a possible `null` return value.
 
