@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0);
 }
 
-var agent = require('../../../..').start({
+require('../../../..').start({
   serviceName: 'test-knex-no-span-stack-traces',
   secretToken: 'test',
   captureExceptions: false,
