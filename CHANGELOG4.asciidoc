@@ -27,8 +27,6 @@
 * Remove instrumentation support for the old 'hapi' package -- the current
   '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
 
-* Change default value of `useElasticTraceparentHeader` config option to `false`.
-
 [float]
 ===== Features
 
@@ -40,6 +38,8 @@
 
 * Add a warning message when a duration config option is provided
   without units. ({issues}2121[#2121])
+
+* Change default value of `useElasticTraceparentHeader` config option to `false`.
 
 [[release-notes-3.x]]
 === Node.js Agent version 3.x
