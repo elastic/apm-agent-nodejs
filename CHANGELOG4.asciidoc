@@ -27,11 +27,16 @@
 * Remove instrumentation support for the old 'hapi' package -- the current
   '@hapi/hapi' package is still instrumented. ({issues}2691[#2691])
 
-* Change `agent.startTransaction()` api to return a noop transaction instead of
+* Change `apm.startTransaction()` api to return a noop transaction instead of
   null. ({issues}2429[#2429])
 
 [float]
 ===== Features
+
+* The `apm.destroy()` method is now async. Almost no users should need to use
+  this method. However, if used, to be sure to wait for APM agent shutdown to
+  be complete, one can now `await apm.destroy()`. ({issues}3222[#3222])
+
 
 [float]
 ===== Bug fixes
