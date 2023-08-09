@@ -62,7 +62,7 @@ Once your changes are ready to submit for review:
     choose a title which sums up the changes that you have made,
     and in the body provide more details about what your changes do.
     Also mention the number of the issue where discussion has taken place,
-    e.g. "Closes #123".
+    e.g. "Closes: #123".
 
 5. Be patient
 
@@ -116,32 +116,30 @@ Of these guidelines, #1 and #3 are the most important. A succinct description
 and a body that answers "what" and "why" will best help future maintainers of
 the software.
 
+An example:
+
+```
+feat: initial ESM support
+
+This adds initial and ECMAScript Module (ESM) support, i.e. `import ...`,
+via the `--experimental-loader=elastic-apm-node/loader.mjs` node option.
+This instruments a subset of modules -- more will follow in subsequent changes.
+
+Other changes:
+- Fixes a fastify instrumentation issue where the exported `fastify.errorCodes`
+  was broken by instrumentation (both CJS and ESM).
+- Adds a `runTestFixtures` utility that should be useful for running out of
+  process instrumentation/agent tests.
+
+Closes: #1952
+Refs: #2343
+```
+
 
 ### Testing
 
-For information about how to run the test suite,
-see [TESTING.md](TESTING.md).
+For information about how to run the test suite, see [TESTING.md](TESTING.md).
 
-
-### Backporting
-
-If a PR is marked with a `backport:*` label,
-it should be backported to the branch specified by the label after it has been merged.
-
-To backport a commit,
-run the following command and follow the instructions in the terminal:
-
-```
-npm run backport
-```
-
-### Workflow
-
-All feature development and most bug fixes hit the main branch first.
-Pull requests should be reviewed by someone with commit access.
-Once approved, the author of the pull request,
-or reviewer if the author does not have commit access,
-should "Squash and merge".
 
 ### Adding support for new modules
 
