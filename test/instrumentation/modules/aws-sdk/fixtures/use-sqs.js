@@ -44,7 +44,6 @@ const apm = require('../../../../..').start({
   metricsInterval: '0s',
   cloudProvider: 'none',
   captureExceptions: false,
-  logUncaughtExceptions: true,
   stackTraceLimit: 4, // get it smaller for reviewing output
   logLevel: 'info',
 });

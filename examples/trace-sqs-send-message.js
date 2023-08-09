@@ -26,7 +26,6 @@
 
 const apm = require('../').start({
   serviceName: 'example-trace-sqs',
-  logUncaughtExceptions: true,
 });
 
 const path = require('path');

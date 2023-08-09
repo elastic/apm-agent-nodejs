@@ -569,39 +569,40 @@ require('elastic-apm-node').start({
 [[capture-exceptions]]
 ==== `captureExceptions`
 
+[small]#As of v4.0.0 a captured exception will always be printed to stderr.#
+
 * *Type:* Boolean
 * *Default:* `true`
 * *Env:* `ELASTIC_APM_CAPTURE_EXCEPTIONS`
 
-Whether or not the agent should monitor for uncaught exceptions
+Whether or not the APM agent should monitor for uncaught exceptions
 (https://nodejs.org/api/process.html#event-uncaughtexception[`uncaughtException`])
-and send them to the APM Server automatically.
+and send them to the APM Server automatically. This also includes unhandled
+rejections (https://nodejs.org/api/process.html#event-unhandledrejection[`unhandledRejection`]),
+when the node process is started with `--unhandled-rejections=throw`, which is
+the default Node.js behavior since v15 (https://nodejs.org/api/cli.html#--unhandled-rejectionsmode[reference]).
 
-After sending the error information to APM Server, then agent will
-`process.exit(1)`.  This is to mimic the default Node.js behavior of exiting
-when there is an uncaught exception and no `uncaughtException` handler. The
-agent's process exit can interfere with an `uncaughtException` handler from your
-application. You can use <<apm-handle-uncaught-exceptions, `apm.handleUncaughtExceptions(callback)`>>
-to have the APM agent capture error information, then call your handler.
+When `captureExceptions` is true and an `uncaughtException` event is emitted,
+the APM agent will: capture error details, send that error (and buffered
+APM data) to APM server, and `process.exit(1)` (https://nodejs.org/api/process.html#warning-using-uncaughtexception-correctly[as `uncaughtException` handlers should]).
+Some things to be aware of:
 
-Another side-effect is that the APM agent does not log the uncaught exception
-to stderr by default. Use <<log-uncaught-exceptions, `logUncaughtExceptions: true`>>
-to have the agent print the exception to stderr before exiting.
+- Because the APM agent's handler will `process.exit(1)`, to use your own
+  `uncaughtException` handler, you must pass your handler to
+  <<apm-handle-uncaught-exceptions>>. The APM agent will capture and send the
+  error, and then call your handler. It is then up to your handler to
+  `process.exit(1)`.
+- The APM agent's handler is async, so there is a short period while it is
+  sending error details while the Node.js event loop will still be executing.
+- When the exception and stack trace are printed to stderr, the exact format
+  differs from https://github.com/nodejs/node/blob/v20.5.0/src/node_errors.cc#L246-L266[the Node.js core formatter].
+- Using Node.js's https://nodejs.org/api/process.html#processsetuncaughtexceptioncapturecallbackfn[`process.setUncaughtExceptionCaptureCallback(fn)`]
+  results in `uncaughtException` not being called, so the APM agent's capturing
+  will not work.
 
-Unhandled rejections (https://nodejs.org/api/process.html#event-unhandledrejection[`unhandledRejection`])
-will also be captured if your node process starts with `--unhandled-rejections` mode set to
-`strict` or `throw`. If your application run on Node.js 15+ you don't need to explicitly set the mode
-since `throw` is the default (https://nodejs.org/api/cli.html#--unhandled-rejectionsmode[reference]).
+Set `captureExceptions: false` to disable this, and get the default Node.js
+behavior for uncaught exceptions.
 
-[[log-uncaught-exceptions]]
-==== `logUncaughtExceptions`
-
-* *Type:* Boolean
-* *Default:* `false`
-* *Env:* `ELASTIC_APM_LOG_UNCAUGHT_EXCEPTIONS`
-
-By default the stack trace of a uncaught exception is not written to STDERR when the agent is active.
-Set this config option to `true` to have the agent write stack traces of uncaught exceptions to STDERR.
 
 [[capture-error-log-stack-traces]]
 ==== `captureErrorLogStackTraces`

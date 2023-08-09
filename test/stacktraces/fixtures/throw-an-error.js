@@ -9,7 +9,6 @@
 
 require('../../../').start({
   serviceName: 'test-throw-an-error',
-  logUncaughtExceptions: true,
   metricsInterval: 0,
   centralConfig: false,
   logLevel: 'off',

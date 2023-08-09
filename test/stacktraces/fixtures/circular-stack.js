@@ -12,7 +12,6 @@
 const apm = require('../../../').start({
   serviceName: 'test-throw-an-error',
   captureExceptions: false,
-  logUncaughtExceptions: true,
   metricsInterval: 0,
   centralConfig: false,
   logLevel: 'off',

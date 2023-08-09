@@ -1,5 +1,5 @@
 [[release-notes-4.x]]
-=== Node.js Agent version 1.x
+=== Node.js Agent version 4.x
 
 ==== Unreleased
 
@@ -30,13 +30,16 @@
 * Change `apm.startTransaction()` api to return a noop transaction instead of
   null. ({issues}2429[#2429])
 
+* Remove the `logUncaughtExceptions` config option.
+  See <<v4-config-options,Upgrading to v4>> for details.
+  ({issues}2412[#2412])
+
 [float]
 ===== Features
 
 * The `apm.destroy()` method is now async. Almost no users should need to use
   this method. However, if used, to be sure to wait for APM agent shutdown to
   be complete, one can now `await apm.destroy()`. ({issues}3222[#3222])
-
 
 [float]
 ===== Bug fixes

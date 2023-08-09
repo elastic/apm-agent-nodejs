@@ -52,7 +52,7 @@ tape.test('error.exception.stacktrace', function (t) {
           stacktrace[0],
           {
             filename: path.join('fixtures', 'throw-an-error.js'),
-            lineno: 21,
+            lineno: 20,
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'throw-an-error.js'),
@@ -110,7 +110,7 @@ tape.test(
                 frame,
                 {
                   filename: path.join('fixtures', 'circular-stack.js'),
-                  lineno: 25,
+                  lineno: 24,
                   function: 'boomOnZero',
                   library_frame: false,
                   abs_path: path.join(
@@ -158,7 +158,7 @@ tape.test('error.log.stacktrace', function (t) {
           server.events[1].error.log.stacktrace[0],
           {
             filename: path.join('fixtures', 'capture-error-string.js'),
-            lineno: 21,
+            lineno: 20,
             function: 'main',
             library_frame: false,
             abs_path: path.join(
@@ -179,7 +179,7 @@ tape.test('error.log.stacktrace', function (t) {
           server.events[2].error.log.stacktrace[0],
           {
             filename: path.join('fixtures', 'capture-error-string.js'),
-            lineno: 22,
+            lineno: 21,
             function: 'main',
             library_frame: false,
             abs_path: path.join(
@@ -235,7 +235,7 @@ tape.test('span.stacktrace', function (t) {
           firstAppFrame,
           {
             filename: testScript,
-            lineno: 27,
+            lineno: 26,
             function: 'main',
             library_frame: false,
             abs_path: path.join(__dirname, 'fixtures', 'send-a-span.js'),
@@ -296,7 +296,7 @@ tape.test('error.exception.stacktrace with sourcemap', function (t) {
               'no-such-dir',
               'throw-an-error-with-sourcemap.ts',
             ),
-            lineno: 22,
+            lineno: 21,
             function: 'main',
             library_frame: false,
             abs_path: path.join(
