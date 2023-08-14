@@ -577,7 +577,7 @@ paths are considered for request body capture. ({pull}2873[#2873])
 +
 This also adds a new <<context-manager,`contextManager`>> configuration option
 to control which mechanism the agent uses for run-context tracking. It replaces
-the, now deprecated, <<async-hooks,`asyncHooks`>> configuration option. If
+the, now deprecated, `asyncHooks` configuration option. If
 you experience problems with the new AsyncLocalStorage-based tracking, you can
 restore the older behavior with `contextManager: "asynchooks"`.
 

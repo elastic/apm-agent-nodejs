@@ -46,6 +46,14 @@ the APM agent. If you want the agent to continue sending
 `elastic-apm-traceparent` HTTP header you can set it to `true` via env var or
 start options.
 
+===== `contextManager: "patch"`
+
+The "patch" value for the <<context-manager>> config option has been removed.
+This was a limited async context management that predated the preferred
+`AsyncLocalStorage` core Node.js mechanism for context tracking. As well, the
+related and deprecated `asyncHooks` config option has been removed. Both were
+deprecated in v3.37.0.
+
 ===== `logUncaughtExceptions`
 
 The `logUncaughtExceptions` config option has been removed. In v3 and earlier,

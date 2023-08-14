@@ -11,7 +11,7 @@ if (process.env.GITHUB_ACTIONS === 'true' && process.platform === 'win32') {
   process.exit(0);
 }
 
-var agent = require('../../../..').start({
+require('../../../..').start({
   serviceName: 'test-knex-no-span-stack-traces',
   secretToken: 'test',
   captureExceptions: false,
@@ -32,17 +32,6 @@ if (
 ) {
   console.log(
     `# SKIP knex@${knexVersion} does not support node ${process.version}`,
-  );
-  process.exit();
-}
-// Instrumentation does not work with Knex >=0.95.0 and `contextManager=patch`.
-// The "patch" context manager is deprecated.
-if (
-  semver.gte(knexVersion, '0.95.0') &&
-  agent._conf.contextManager === 'patch'
-) {
-  console.log(
-    `# SKIP knex@${knexVersion} and contextManager='patch' is not support`,
   );
   process.exit();
 }
